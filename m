@@ -1,113 +1,196 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5A36379C50
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 13:18:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465A13FE369;
+	Mon,  6 Jul 2026 14:39:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783343937; cv=none; b=jrCjReAYdfBceT1yQVCbQDROWOhGUd/C6fh99Pd7EKVfU78e8IKwlbe2dOO4TxygZ6b+FVBwElKSCYoSh7ldGtz8F5tku6YDWezgAzV3NeSDCkEOdBpwAsQ8kg6/O51KBYtdIM+jgpLOPhhoamZ75DR1KjHgXEhLN/1W5JZtvQ8=
+	t=1783348776; cv=none; b=noxbZI1nrFuG780WPjI43f+AOHxt2wabmGYDWis5JA6mWxvGtO8yX3OhJTV6bMR7k09CE9x7SFTIAt1lhWScjG/9WLKlstD6aQdYxD1sQqoU5cH1Z6I90H6XZs9tx4qiSztflSoys0sdxp31S7yLpLsIBnAKAb5vbOuybcZ80Ho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783343937; c=relaxed/simple;
-	bh=0LJFk3mBEmQbOmWsbowXvg8jrUSqeQFiVNH+5xB5ZCo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=oolub9Ofj3JcQRYRA8C7PBcAMKNva6fGcrKuaF6ghIwhrjEIBcn/WFejSSR1+DIBHxnUVy9Y175amqYLwHWmCCuWjirDPkq2Z1pEYBEqYG5N66Ll8fREvgr3Bo+s/gvWOIDNKcr1Okd6qG5wP3hb/8hd1JXSeFarxcKFdJcTZIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=WfGe+SJC; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1783348776; c=relaxed/simple;
+	bh=XtbXxotRn4eonCuXI7S2La3x2DD6roUS8w7lR6Aocns=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=lMdJJ2Iu67n4dpWr9NIE68p82Jgj5lM61GKlchI1pRPAfNOLddcgdu6ZN+qnXc2JSMwfEaPfcMxDaHaYNtd+k5CQ8ld4AaHZgA3gQoi/5A6SRzK3EGVObmBEw3zHyYppObiewBwo9QwOiAdyE2Vo00MMvXAuihGfLhZ38iO3PaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=j5hgDtth; arc=none smtp.client-ip=80.241.56.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="WfGe+SJC"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 56109C8EC7B
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 13:19:07 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 4220F601A2;
-	Mon,  6 Jul 2026 13:18:54 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E49F311BB817F;
-	Mon,  6 Jul 2026 15:18:52 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1783343933; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=e6Eiq4t3FOgqd9lK+C9hmUPBoroKTnkcB9MOWaVRYMA=;
-	b=WfGe+SJC+4j6u9O5tFeNK6ff7IdwGbTFE2mZFf1XSArhgRmNlpv0FRWmgyUWru+GGX8Glg
-	yNSMAbROOzQnsZBbscdvUXrfYX0O/gbGg+uDoA2r8O9RvHFr7NiFXhzP/ik7cRKTlsoapT
-	xzwYr7hGCA2lr2LIJRxz3Ko/vCr+M64XvyiSw3lHsJEZGdmD1VcJIQSkNUh2vOQ3XfzXQE
-	HzjheRwtNRdrZ429sJ6CuRcGdSswLLTkik/VuRqsw4Bhq9sJJKULTQf7nQYHq96PA625+R
-	Euq0uDtn+HOabvcN5othtAqLq6km5E/BXMiCgAMdipiGRdI9VzqrSsAzj3vHgQ==
-From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Mon, 06 Jul 2026 15:18:46 +0200
-Subject: [PATCH] i2ctransfer: Print modifier flags in PRINT_HEADER
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="j5hgDtth"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA512)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4gv6Sc3JlwzKrrB;
+	Mon, 06 Jul 2026 16:39:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1783348768;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PTWGfLdwlWAV/LMkx8q6n+16+BLtwX+Uw6eFuSY1pwE=;
+	b=j5hgDtthz8XCNdelXgr2Njc2HaTruqIkCO//JWKxiT4W2gEybWyIlcK2aQ1bxIe+BwUJVp
+	sosZFgtgjTYiKegpajhDS7wAQRa5vbGhsdYsOBErEWcCcj6imJ3WhTyng3CLWaw/u/6S/u
+	Ia++ekOByRWNtL6C0p1KPkAMQ78opS9K6p4731SNIh3G/Gtr0smcjJ5LSbWseUhYMLmi5g
+	bSnkIEWLW+D0H8udCi/rtV6GiUxmmd3h/zBT1zxIEz9pUZOsZhePq4tVuE6vy2STKylPsN
+	pNYuSZntPPijS4W0+CuI8ZBjLVluSsSHTtbS9e6dlXfCM6eF2pFoZi1CDk9EnQ==
+Message-ID: <fbc50f89e0c3bb148656a3b8d96974f591576dec.camel@mailbox.org>
+Subject: Re: [PATCH v3 02/20] driver core: platform: provide
+ platform_device_set_of_node()
+From: Manuel Ebner <manuelebner@mailbox.org>
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Lee Jones	
+ <lee@kernel.org>, Thierry Reding <thierry.reding@avionic-design.de>, 
+ Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller"	 <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski	 <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Srinivas Kandagatla	 <srini@kernel.org>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Vinod Koul	 <vkoul@kernel.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich	
+ <dakr@kernel.org>, Rob Herring <robh@kernel.org>, Saravana Kannan	
+ <saravanak@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)"	 <chleroy@kernel.org>, Andi Shyti
+ <andi.shyti@kernel.org>, Andy Shevchenko	
+ <andriy.shevchenko@linux.intel.com>, Joerg Roedel <joro@8bytes.org>, Will
+ Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Doug Berger
+ <opendmb@gmail.com>,  Florian Fainelli <florian.fainelli@broadcom.com>,
+ Broadcom internal kernel review list	
+ <bcm-kernel-feedback-list@broadcom.com>, Ulf Hansson <ulfh@kernel.org>, 
+ Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team	 <kernel@pengutronix.de>, Fabio Estevam
+ <festevam@gmail.com>, Matthew Brost	 <matthew.brost@intel.com>, Thomas
+ =?ISO-8859-1?Q?Hellstr=F6m?=	 <thomas.hellstrom@linux.intel.com>, Rodrigo
+ Vivi <rodrigo.vivi@intel.com>,  David Airlie <airlied@gmail.com>, Simona
+ Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>,  Paul
+ Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, Philipp Zabel
+ <p.zabel@pengutronix.de>,  Maximilian Luz <luzmaximilian@gmail.com>, Hans
+ de Goede <hansg@kernel.org>, Ilpo =?ISO-8859-1?Q?J=E4rvinen?=	
+ <ilpo.jarvinen@linux.intel.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: brgl@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+ iommu@lists.linux.dev, 	linux-pm@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
+	linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
+	mfd@lists.linux.dev
+Date: Mon, 06 Jul 2026 16:39:00 +0200
+In-Reply-To: <20260706-pdev-fwnode-ref-v3-2-1ff028e33779@oss.qualcomm.com>
+References: <20260706-pdev-fwnode-ref-v3-0-1ff028e33779@oss.qualcomm.com>
+	 <20260706-pdev-fwnode-ref-v3-2-1ff028e33779@oss.qualcomm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260706-print-header-flags-v1-1-6d63b357d77b@bootlin.com>
-X-B4-Tracking: v=1; b=H4sIADarS2oC/yXMQQ6CMBBG4auQWTtJQYLoVYyL0v6FMaaSGTQkh
- Ltbdfkt3tvIoAKjS7WR4i0mz1xQHyoKk88jWGIxNa7p3Ml1PKvkhSf4COX08KMx+rZOoT2ee0Q
- q4axIsv6m19vf9hruCMv3RPv+AeYkONt2AAAA
-X-Change-ID: 20260706-print-header-flags-e841fc4398ed
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.de>, 
- Wolfram Sang <wsa+renesas@sang-engineering.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-X-Mailer: b4 0.15.2
-X-Last-TLS-Session-Version: TLSv1.3
+X-MBO-RS-ID: ca569d00ad7df478929
+X-MBO-RS-META: 1q71yutefcf1nyjzwoom4gu47fi8rss3
 
-Print the optional message modifier flags when printing the message
-header. For example:
+Hi Bartosz,
 
-    i2ctransfer -v -y 3 pr1@0x33 itr1@0x33
-    msg 0: addr 0x33, read, len 1, emit STOP, buf 0x10
-    msg 1: addr 0x33, read, len 1, ignore NACK, toggle read/write bit, buf 0x10
+On Mon, 2026-07-06 at 14:44 +0200, Bartosz Golaszewski wrote:
+> Encapsulate the reference counting logic for OF nodes assigned to
+> platform devices created with platform_device_alloc() in a helper
+> function. Make the kerneldoc state that this is the proper interface for
+> assigning OF nodes to dynamically allocated platform devices. This will
+> allow us to switch to counting the references of the device's firmware
+> nodes, not only the OF nodes.
+>=20
+> Reviewed-by: Manuel Ebner <manuelebner@mailbox.org>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> ---
+> =C2=A0drivers/base/platform.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 | 18 ++++++++++++++++++
+> =C2=A0include/linux/platform_device.h |=C2=A0 4 ++++
+> =C2=A02 files changed, 22 insertions(+)
+>=20
+> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> index fb9120b0bcfe0e7dd9dfc0d29b91e0ad40a01440..3188d5aba5f90622f821c6950=
+49cacda030204fb
+> 100644
+> --- a/drivers/base/platform.c
+> +++ b/drivers/base/platform.c
+> @@ -693,6 +693,24 @@ int platform_device_add_data(struct platform_device =
+*pdev, const
+> void *data,
+> =C2=A0}
+> =C2=A0EXPORT_SYMBOL_GPL(platform_device_add_data);
+> =C2=A0
+> +/**
+> + * platform_device_set_of_node - assign an OF node to device
+> + * @pdev: platform device to add the node for
+> + * @np: new device node
+> + *
+> + * Assign an OF node to this platform device. Internally keep track of t=
+he
+> + * reference count. Devices created with platform_device_alloc() must us=
+e this
+> + * function instead of assigning the node manually.
 
-If no optional flag is set, the output is unchanged.
+I did some more pondering about this patch and concluded the right place
+for a warning would be the lines been read right before or after assigning
+a node manually.=20
+I think this would be in platform_device_alloc() (as I suggested in v2).
 
-Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
----
- tools/i2ctransfer.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+BUT my knowledge in C isn't sound. So if it's good as is keep it. If it isn=
+'t
+add or move the remark.
 
-diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
-index a49b734..0a310a7 100644
---- a/tools/i2ctransfer.c
-+++ b/tools/i2ctransfer.c
-@@ -123,6 +123,26 @@ static void print_msgs(struct i2c_msg *msgs, __u32 nmsgs, unsigned int flags)
- 				fprintf(output, "%u", len);
- 			else
- 				fprintf(output, "TBD");
-+#ifdef I2C_M_IGNORE_NAK
-+			if (msgs[i].flags & I2C_M_IGNORE_NAK)
-+				fprintf(output, ", ignore NACK");
-+#endif
-+#ifdef I2C_M_NO_RD_ACK
-+			if (msgs[i].flags & I2C_M_NO_RD_ACK)
-+				fprintf(output, ", no master ACK/NACK bit");
-+#endif
-+#ifdef I2C_M_STOP
-+			if (msgs[i].flags & I2C_M_STOP)
-+				fprintf(output, ", emit STOP");
-+#endif
-+#ifdef I2C_M_NOSTART
-+			if (msgs[i].flags & I2C_M_NOSTART)
-+				fprintf(output, ", skip repeated start");
-+#endif
-+#ifdef I2C_M_REV_DIR_ADDR
-+			if (msgs[i].flags & I2C_M_REV_DIR_ADDR)
-+				fprintf(output, ", toggle read/write bit");
-+#endif
- 		}
- 
- 		if (len && print_buf) {
+Either way Thanks and
+ Reviewed-by Manuel Ebner.
 
 ---
-base-commit: 5852f5375eea6ca9dabf31f4772cb8b8ecc905d8
-change-id: 20260706-print-header-flags-e841fc4398ed
+Note:
+I removed Mark Brown <broonie@opensource.wolfsonmicro.com> from recipients =
+because:
+=E2=80=9CRCPT TO <broonie@opensource.wolfsonmicro.com> failed:
+<broonie@opensource.wolfsonmicro.com>: Recipient address rejected: Domain n=
+ot found=E2=80=9D.
 
-Best regards,
---  
-Benoît Monin, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
 
+> + */
+> +void platform_device_set_of_node(struct platform_device *pdev,
+> +				 struct device_node *np)
+> +{
+> +	of_node_put(pdev->dev.of_node);
+> +	pdev->dev.of_node =3D of_node_get(np);
+> +	pdev->dev.fwnode =3D of_fwnode_handle(np);
+> +}
+> +EXPORT_SYMBOL_GPL(platform_device_set_of_node);
+> +
+> =C2=A0/**
+> =C2=A0 * platform_device_add - add a platform device to device hierarchy
+> =C2=A0 * @pdev: platform device we're adding
+> diff --git a/include/linux/platform_device.h b/include/linux/platform_dev=
+ice.h
+> index 8c566f09d04efe420d85ffa046f92c44c6d08526..e9f7baceeb4c8269dbc0143c4=
+d8fc9d73ba024ca
+> 100644
+> --- a/include/linux/platform_device.h
+> +++ b/include/linux/platform_device.h
+> @@ -19,6 +19,8 @@
+> =C2=A0struct irq_affinity;
+> =C2=A0struct mfd_cell;
+> =C2=A0struct property_entry;
+> +struct platform_device_id;
+> +struct device_node;
+> =C2=A0
+> =C2=A0struct platform_device {
+> =C2=A0	const char	*name;
+> @@ -262,6 +264,8 @@ extern int platform_device_add_resources(struct platf=
+orm_device
+> *pdev,
+> =C2=A0					 unsigned int num);
+> =C2=A0extern int platform_device_add_data(struct platform_device *pdev,
+> =C2=A0				=C2=A0=C2=A0=C2=A0 const void *data, size_t size);
+> +void platform_device_set_of_node(struct platform_device *pdev,
+> +				 struct device_node *np);
+> =C2=A0extern int platform_device_add(struct platform_device *pdev);
+> =C2=A0extern void platform_device_del(struct platform_device *pdev);
+> =C2=A0extern void platform_device_put(struct platform_device *pdev);
