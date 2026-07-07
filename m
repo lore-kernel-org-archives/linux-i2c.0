@@ -1,161 +1,163 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from SY2PR01CU004.outbound.protection.outlook.com (mail-australiaeastazolkn19011030.outbound.protection.outlook.com [52.103.72.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F549422549;
-	Mon,  6 Jul 2026 18:06:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783361181; cv=none; b=lWre/ScDu8bT9gcIMlHG8tm5k0HuwM6UmfwWIzQE0Ng7b4wkTP2b0JrZVmvAF7kKCHD7p+uWXQsIAXw0GhKFPT3gngU4XZ3W8pZ6lxkzYU5yam4xSGy+CID8JH6+7zCOQVL12kLtmTFpQgjXxA9CySY7LaiQppt2vMWHKn5BEio=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783361181; c=relaxed/simple;
-	bh=WSrxhZ3K3aHd+oacRAsc/khrD9rBmmLfoF539Nq0u78=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=govuGuGGEytB6D5rxJrZaN1xwVOXsq2EzjnD9vP922e/ybGk/aqV/nudPbCgA9/54xz4qS9n/ZbY9ruVJ8l4X8SG46so3IMjJKISMjE00YcIfaeBwGj+FV3Mo8n4JqZ4rRzHHHAibMO6jSPv+R4zfthXjbFrZwu8D59Lqcwho38=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=CNyUy7kr; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC8C017A303
+	for <linux-i2c@vger.kernel.org>; Tue,  7 Jul 2026 01:13:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.72.30
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783386818; cv=fail; b=l2hKjwCSEJUeD//B6BD2QLDCbpr6HauyQKCQQInhgZES+qZPFuSaVTy2Ad8Uz2l1S/+TGSgsx65wID6Ln1Twz33fAy3QKibOmkjGRRqR6bdhpX1l8R0QgSKDuXK4tqWAKn8F9WAOis4KekHQ5UqaBJnYqXvi1dwxVjTMnf89dKs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783386818; c=relaxed/simple;
+	bh=/HqDaf+GgkEpthuX8jecZ9dOOzTG0Gu1Nq37prM1bbQ=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=DcSwZw+nIhABZ3fq5oWbtwu/LUwAvqjL6sySIOz0IcFaw1TkxgJAfeoH/Ae0+ftGTLeZskVU8cCgtlGvC2zEKFOeGbVQopSo15rsZZs1S6/I+CwdK5TOPBSk+8j2nnxaG25w9iBTqTvCHj4ojk5wTvElD2bqLDyGaDW2jkkIkKE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au; spf=pass smtp.mailfrom=outlook.com.au; dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b=VIX2ZPsw; arc=fail smtp.client-ip=52.103.72.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="CNyUy7kr"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=7OW/CenuU9P13pzjhjZutuMsDUz3ebL4YDkxxEUpTq8=; b=CNyUy7krT2KWgEwmWVKxtIQ+mF
-	Vb+1q+gyB5yQGtWUUUTFfkVXSRepuw7fyFqIY66jb6ov+a2TSQuU6Oeko21f10IdvUo87ND796N2s
-	r4dJq4T0v6JLzeGf9VmqXcqhhRS0zxb+AYnr/OkLGsRdGJ59LoP8x6HtyxyIaDGX/UNF4eV4mx/6j
-	9DFL/3RA2rxLGItPLNRlN3OyyNrc4LrBZnn6Z3pAqvn4XXv6D9Sm5JmxAl/Nx6Vi/43ITWBd3Tatn
-	UF0bFlXL9IwSqecAJqVY3MLm3w3NDEriZxsXwEytou0y28YZK6qZ/ZV3pvVIppH/oIVxHPm218vXX
-	ibjZRXUw==;
-Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wgnhQ-0000000GLqy-1n2W;
-	Mon, 06 Jul 2026 18:05:44 +0000
-Date: Mon, 6 Jul 2026 19:05:44 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: Byungchul Park <byungchul@sk.com>
-Cc: linux-kernel@vger.kernel.org, max.byungchul.park@gmail.com,
-	kernel_team@skhynix.com, torvalds@linux-foundation.org,
-	damien.lemoal@opensource.wdc.com, linux-ide@vger.kernel.org,
-	adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org,
-	mingo@redhat.com, peterz@infradead.org, will@kernel.org,
-	tglx@linutronix.de, rostedt@goodmis.org, joel@joelfernandes.org,
-	sashal@kernel.org, daniel.vetter@ffwll.ch, duyuyang@gmail.com,
-	johannes.berg@intel.com, tj@kernel.org, tytso@mit.edu,
-	david@fromorbit.com, amir73il@gmail.com, gregkh@linuxfoundation.org,
-	kernel-team@lge.com, linux-mm@kvack.org, akpm@linux-foundation.org,
-	mhocko@kernel.org, minchan@kernel.org, hannes@cmpxchg.org,
-	vdavydov.dev@gmail.com, sj@kernel.org, jglisse@redhat.com,
-	dennis@kernel.org, cl@linux.com, penberg@kernel.org,
-	rientjes@google.com, vbabka@suse.cz, ngupta@vflare.org,
-	linux-block@vger.kernel.org, josef@toxicpanda.com,
-	linux-fsdevel@vger.kernel.org, jack@suse.cz, jlayton@kernel.org,
-	dan.j.williams@intel.com, hch@infradead.org, djwong@kernel.org,
-	dri-devel@lists.freedesktop.org, rodrigosiqueiramelo@gmail.com,
-	melissa.srw@gmail.com, hamohammed.sa@gmail.com,
-	harry.yoo@oracle.com, chris.p.wilson@intel.com,
-	gwan-gyeong.mun@intel.com, boqun.feng@gmail.com, longman@redhat.com,
-	yunseong.kim@ericsson.com, ysk@kzalloc.com, yeoreum.yun@arm.com,
-	netdev@vger.kernel.org, matthew.brost@intel.com,
-	her0gyugyu@gmail.com, corbet@lwn.net, catalin.marinas@arm.com,
-	bp@alien8.de, x86@kernel.org, hpa@zytor.com, luto@kernel.org,
-	sumit.semwal@linaro.org, gustavo@padovan.org,
-	christian.koenig@amd.com, andi.shyti@kernel.org, arnd@arndb.de,
-	lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com,
-	rppt@kernel.org, surenb@google.com, mcgrof@kernel.org,
-	petr.pavlu@suse.com, da.gomez@kernel.org, samitolvanen@google.com,
-	paulmck@kernel.org, frederic@kernel.org, neeraj.upadhyay@kernel.org,
-	joelagnelf@nvidia.com, josh@joshtriplett.org, urezki@gmail.com,
-	mathieu.desnoyers@efficios.com, jiangshanlai@gmail.com,
-	qiang.zhang@linux.dev, juri.lelli@redhat.com,
-	vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
-	bsegall@google.com, mgorman@suse.de, vschneid@redhat.com,
-	chuck.lever@oracle.com, neil@brown.name, okorniev@redhat.com,
-	Dai.Ngo@oracle.com, tom@talpey.com, trondmy@kernel.org,
-	anna@kernel.org, kees@kernel.org, bigeasy@linutronix.de,
-	clrkwllms@kernel.org, mark.rutland@arm.com, ada.coupriediaz@arm.com,
-	kristina.martsenko@arm.com, wangkefeng.wang@huawei.com,
-	broonie@kernel.org, kevin.brodsky@arm.com, dwmw@amazon.co.uk,
-	shakeel.butt@linux.dev, ast@kernel.org, ziy@nvidia.com,
-	yuzhao@google.com, baolin.wang@linux.alibaba.com,
-	usamaarif642@gmail.com, joel.granados@kernel.org,
-	richard.weiyang@gmail.com, geert+renesas@glider.be,
-	tim.c.chen@linux.intel.com, linux@treblig.org,
-	alexander.shishkin@linux.intel.com, lillian@star-ark.net,
-	chenhuacai@kernel.org, francesco@valla.it,
-	guoweikang.kernel@gmail.com, link@vivo.com, jpoimboe@kernel.org,
-	masahiroy@kernel.org, brauner@kernel.org,
-	thomas.weissschuh@linutronix.de, oleg@redhat.com, mjguzik@gmail.com,
-	andrii@kernel.org, wangfushuai@baidu.com, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org,
-	linaro-mm-sig@lists.linaro.org, linux-i2c@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-modules@vger.kernel.org,
-	rcu@vger.kernel.org, linux-nfs@vger.kernel.org,
-	linux-rt-devel@lists.linux.dev, 2407018371@qq.com, dakr@kernel.org,
-	miguel.ojeda.sandonis@gmail.com, neilb@ownmail.net,
-	bagasdotme@gmail.com, wsa+renesas@sang-engineering.com,
-	dave.hansen@intel.com, geert@linux-m68k.org, ojeda@kernel.org,
-	alex.gaynor@gmail.com, gary@garyguo.net, bjorn3_gh@protonmail.com,
-	lossin@kernel.org, a.hindborg@kernel.org, aliceryhl@google.com,
-	tmgross@umich.edu, rust-for-linux@vger.kernel.org
-Subject: Re: [PATCH v19 22/40] dept: track PG_locked with dept
-Message-ID: <akvueAxPl8aoLvMR@casper.infradead.org>
-References: <20260706061928.66713-1-byungchul@sk.com>
- <20260706061928.66713-23-byungchul@sk.com>
+	dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b="VIX2ZPsw"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=RzzGMcmg/rVb12XvSJBEBxozXfHwcX//rijh0q4iAFQaL8AVHFdwWas0IIOtGaogvjKujwXCCXayV7+uhz6fxnyeGZF6Ly34U9laA01WVB4XTRnAgY5ZNGP5aeHPZfaXqG7x7n7LMFnwfNdkAKdHIDEsWc0cXRDiUNRdDzyU1n8rMNdcrdrAKJthMX1eIhAc7d4SzXwLgNSteX3j8maDhHJNyrubFqAW+FWaWgEOLga8T6ri70F+pBlUfeWtnHtHGKv7SBZK+Kn1PXcYVgaJebEvg/wcjzy/ng5+qQFonXj/o4DwjRr+pW2NIsiOyoqXXtUN14NcgZt92LYZrrmJyg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=n+0VGd/Yd3HDm3ert2nxuRsqGxssiJ2oSMMbA1kcPsE=;
+ b=iUoFKmswUtTaPU8ZSjtGIhWYfA5l4Zm3TVf0b/Az2AiejtnWk+w/+uSrPNGPRk3l1q4KMTX7HctkjnIFkzpCsqrE9QzeXScJXheMsUgO3LOWJCtyN0P8ycGw6iMr3lI65pZAwDCD8SAtWnZ7cJoRPFg0ZDQYUVgH4IDLG6edUF+qiiWzT7060SnUZqDrzzHhZSSLmuYNmquMLki7kIruWJTI3KJzgtD4xupYNeHwzZz1yOxlTbOwBCVFeXeFLM7i/Qi0CGPUCjS0Zn30u1j7HxNELL5e20/KtHN/hm9rJO6hgvtnV/CB+xetQk3pVEIFzD4mcgwo137Uvw0IMn6M4A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=OUTLOOK.COM.AU;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n+0VGd/Yd3HDm3ert2nxuRsqGxssiJ2oSMMbA1kcPsE=;
+ b=VIX2ZPswUhg+wLe0FVQumLRSARJw8oa9shrZJRh6Ozh8gwgIjLW4L8maNiPNI/IuH75X9KSh90+OOAWK24fW5bXhbbxbHom0No1PwFDxkuUgtod2PkHdDifva1HXc2MCIksViDCucW2HWDu37EbBL6HTkt+j4/R9DF2K3lWHqX3lHRtf1TKz0jArH8HYTH3SGFxsiVGjPBWcReHW1yHZY1zdCGJaFyexL6TTrBzaFY7ovkaksWQ0FqU/zwAvZjMjeQXbHYUh/AKWCL+OZkt3//6qwsq6gc0TNUCO1l9RunbMU6CtWWvBxdj3i/uai5Pi1f7xVb3QRfbgopIxT6WBnA==
+Received: from SYBPR01MB4586.ausprd01.prod.outlook.com (2603:10c6:10:59::12)
+ by SY6PR01MB7669.ausprd01.prod.outlook.com (2603:10c6:10:174::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.13; Tue, 7 Jul
+ 2026 01:13:32 +0000
+Received: from SYBPR01MB4586.ausprd01.prod.outlook.com
+ ([fe80::57d:8fd6:3940:5957]) by SYBPR01MB4586.ausprd01.prod.outlook.com
+ ([fe80::57d:8fd6:3940:5957%4]) with mapi id 15.21.0181.012; Tue, 7 Jul 2026
+ 01:13:32 +0000
+Message-ID:
+ <SYBPR01MB45868C482D0DF25D1647AC2FC5F02@SYBPR01MB4586.ausprd01.prod.outlook.com>
+Date: Tue, 7 Jul 2026 11:13:30 +1000
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/2] i2c-tools: Make tools accept bus path
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Brigham Campbell <me@brighamcampbell.com>, Jean Delvare
+ <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
+ =?UTF-8?Q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
+References: <20260530-accept-device-path-v3-0-20c01b8f6726@brighamcampbell.com>
+ <SYBPR01MB45868F802BCAB22D56DDDDC0C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
+ <akvF9W7r2gXi77eT@shikoro>
+From: Stephen Horvath <s.horvath@outlook.com.au>
+Content-Language: en-AU, en-US, en-GB
+In-Reply-To: <akvF9W7r2gXi77eT@shikoro>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SYYP282CA0004.AUSP282.PROD.OUTLOOK.COM
+ (2603:10c6:10:b4::14) To SYBPR01MB4586.ausprd01.prod.outlook.com
+ (2603:10c6:10:59::12)
+X-Microsoft-Original-Message-ID:
+ <a9691e10-4748-43ef-b1f2-a6a396ecef63@outlook.com.au>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260706061928.66713-23-byungchul@sk.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SYBPR01MB4586:EE_|SY6PR01MB7669:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4ac0ac33-d70d-4fb0-87a2-08dedbc4f5c7
+X-Microsoft-Antispam:
+	BCL:0;ARA:14566002|8060799015|51005399006|19110799012|24021099003|23021999003|6090799003|15080799012|37011999003|25010399006|5072599009|40105399003|440099028|3412199025;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?SkZuUGNpRHdXRHc2MExFZFdGZ3RSVyt6V05xVlc5WW9aYVdsbm1GWGkxdmhx?=
+ =?utf-8?B?aHJubFFyR0sxaE04WnBEam5vb21yWnNQSVp1SUJTMFFtL012bTBPcUhXTjJu?=
+ =?utf-8?B?RzFlYWtmYVNwRTdLTlNScDJXRVB1R2ZBQi95YzFxeW1HejBrUyt3SWZBdGN2?=
+ =?utf-8?B?SUp2ZE4vcy9OM0VlT0dGbFBnN1JGbEE0a2hHbllvV3E4SHIrajA4VFhMKzRa?=
+ =?utf-8?B?V29QR3MvcnYxQm5qRkY5dThFS05iZlp0NVZMK2NTcUJKZHVaVi9WQXVLTUc4?=
+ =?utf-8?B?VC9UNjlUMkxhRStYRDBvVGRYZlUwWTl1ZExSaHlCTEJIUHFVZjhFSUhDYWl2?=
+ =?utf-8?B?eFNob0haWGhoVUFOVnk1VGZXZEw0N1VVcjd1Y0hkSFE0QmtMT05ZY2lhSjYx?=
+ =?utf-8?B?RUU4SVZXb1d2cU1wcGV3S3RWOVhSNjIxa2NKcFNLN3NUMFYrcVpjYmU3S1gr?=
+ =?utf-8?B?bzJrZklCUk5kM3JYamNCeTBnYytzL1hVQTVIYU5yTExBYzVKaDBMOHJ6MUxN?=
+ =?utf-8?B?dSt4QzIvUjhmODJnaTAxeTQvU20xYVVsOGZYMWJsRXMzbTFFUDg4SG9lVHY2?=
+ =?utf-8?B?SlY1SXFXSUNWR0J5RkdJL05BcHU1cC84RGoxOVJtcE9sRWl5WHBVNDEvVDZ3?=
+ =?utf-8?B?eCs2Q2lKYi9lSXN1QWZZMGxRYWNQeEx3WWZvekhFQ3VnMFVieFBJQ3U1MU9J?=
+ =?utf-8?B?clBOcXB6NnpjY1dReVZiTkZtNlVUV1RSaWcyZ1ZOc0Y5VTRtVEUyU294SHR4?=
+ =?utf-8?B?ZFhXS1Q4d3JqUytSaGxHVlNjMEVPTVUvQ2lwRGZIMGdHL01EUzgxMGJzY2V1?=
+ =?utf-8?B?WFZHbHk5MDZXcGh3T0x3cXNWcGJ6dmpZajc1Rms1UHlsYWNGU2xsSjNvMk0y?=
+ =?utf-8?B?c0l2ajU0QU8yOCtIeVBFN01VQllrM3FybGRGWDNTWnRON2FzWU5tWEhYaFJ1?=
+ =?utf-8?B?cEVJbHNJYVV5NDB0WlZoVjFidEhYN3FyVytSVUtDZVBvSmhVWG4rK0plZGUx?=
+ =?utf-8?B?V0doZjM2T2grL0lxbFZPL0lXcE5UNk1PVzZNU1NvSy8zcGZSMXl2c3ZvSWNM?=
+ =?utf-8?B?azF5R1d0eVFNdmlhNHFNSmpuTVhwd2tEakJNNWRjM3N6TytuakVVNUpFUHZM?=
+ =?utf-8?B?SmIrbEFoVkFialA5TEVKMFRHLzdiUWI3elhLSVF4cGF3OFNkeG4yUG92Z1ZU?=
+ =?utf-8?B?YUZkWW1tbTJkWWJsZVd5RVg3UWt5M2VOdDZ0TUxOQnlsRWZ0RmJQeGZwbHlP?=
+ =?utf-8?B?V0ovMGFoTFJNKyt0Sjd5ZDA5YWVvYW43YVBjVkhhVlRlZzNtV1hMazI2M3Nl?=
+ =?utf-8?Q?zFuSrz5VOV6P+ho5wH1+w0gWVgG+GTCM+j?=
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?V2F6TXRRaDNmQ0ZnWDBzYWtlVUJ1eis2UjRpdzdRQ0Z5eWd1SHJhTmVvcXBk?=
+ =?utf-8?B?N2ZwM3hpSU82eWp0UWlRZHZmaS9KaW1Bc2t6QkRWNk8veEpEeHdzUkh6RC9R?=
+ =?utf-8?B?Z0dtOWExNzJsSlJJcVJESzRpenlUcFM5dEV6RC9HTG9Kc3l1QVJoVS85Zm9M?=
+ =?utf-8?B?dW80Ky9DakFuVityK1Rja3VRanIwV2VyQmhNMDJYSUJvM3ZGRE81aDhKM2wy?=
+ =?utf-8?B?a1JGcW04cjJuYjV1ODVhZEZ4Sy9TSXUwYTNQRXdlR3A3UkFuNlZFOUZpMEdy?=
+ =?utf-8?B?SXlQc3lWV0RVU1p5dEdwZ3g4ZkhNTmZKOFhlN3pHQ2VzTCtyUFVOeGhNT3VV?=
+ =?utf-8?B?OHQ5Zjc1OWRhTUhYMkVRR1hBdzQ0UmJoNzEveUgveFJuVU5TcitSMmdVZXhI?=
+ =?utf-8?B?R2JsdlIrN3RmV2Q1Rm9YSFFPelY5d2pidWZ3ODduQUhIcmhxN2dlMmZOc2Fr?=
+ =?utf-8?B?N05Bd3pnUkhtU0lXazIrY2Z2VVJrTGFpcTErL1ZFdERuY1pBMFhkaCtXUVVx?=
+ =?utf-8?B?ZFRQaGU3aERhWFhDY2F0L2xLZ3B5MmllK2wyN00vOFA3WVRHSWYwZDZEMmlL?=
+ =?utf-8?B?b0tkdUZ0c0d4VnBtVTlaa3Vtc2hUbUJaWU05enkvdGE0MEJiSU5qODdJWVI5?=
+ =?utf-8?B?Tk1CdmhpVUF2am9HYUdyYk1hSE9wdHV1MW9yVlVDZms0TkhwRGdZdUw0SXYy?=
+ =?utf-8?B?c3Q1TmRWcURRSHM2MEVCeDRWYzV5SC9kSU1qSTBlWDBGYU9BZDdsYW55QzJV?=
+ =?utf-8?B?NkNDRTV4NGdKb3UxTXhkOUdjVTJEZlFiZ1RMem9iblVSVkpyNzZlbGh5ckFk?=
+ =?utf-8?B?Q2c1WGtUcmtkcXBKTkNSRW1UQ1NuNWVTZEU3SWlwK3RKdjRQS0o3R3lTOGtR?=
+ =?utf-8?B?VGlBc2tXTWJVTGlXd2xRRlhVYXNoTVVQdnRNeXUyK1V1czdvempqdDBTR08y?=
+ =?utf-8?B?NGlHOTd5T3JKUXZOdW1iNEx1VmF5TWE5TXBuc0ZYbkdFcGc4WDVyeitKMGJD?=
+ =?utf-8?B?MFcvdWtzTmFVekc3RDBHS0c1ZEREVGQ3VTloWFkyVjhCaVBwNktIVmVEMG05?=
+ =?utf-8?B?a1d2TEUwTUI4anpjc2M1YW5GUENyNWNHZ045WU9HTmlNR0hlMFd2SGVwVFlG?=
+ =?utf-8?B?akhodjdvaVFLTWZSUXl6dHpsdXZYd2d6T0cvSi9WK0o1emIzS1ByTWdzRklE?=
+ =?utf-8?B?RXR6ZEpTVUJTUHdIT2tEdEdldjZNTWZKUmVQRjcxRXBOR3pIcklsMzg5b21T?=
+ =?utf-8?B?dG4wWlFvZURteU5NOTFGSUI5b2FwZWZpYkhmejk5b2lRTDR5WFJIZmNBQTRX?=
+ =?utf-8?B?bU83d0xCWGp0ZHFNV3VNQmZUcW13bEdzMXNFdkZHVkpKQS9yMWd5QzE4bTdK?=
+ =?utf-8?B?L0s4MkowMWl4RGZ4ZGFsZFQxTEhTZ0JLaHhadDRmOXhGb0NFTHlrRi9rNWFh?=
+ =?utf-8?B?RE1EalVDaWlyT2xkZkVtVXF3bVlldFdZMG5XM3oweEtyNUJoOWtPUXJIVk8r?=
+ =?utf-8?B?UVFzdE5qZGt6MllTK3Q2aHVJMWVVZlNTYkptWjlhcUpPd1hhVDJLdXY0L2Z4?=
+ =?utf-8?B?UzZxRGRXZExPTTlSL25OeXBZVlU5bUFHdER3OExyS1FHdlBwN2JWdnBXcGlS?=
+ =?utf-8?B?Uk9LSEdpbUNDNTFiVDhoM0hjd2NLV1JKUEl0MVBiTFNvblA3TGkxY2NTTmlY?=
+ =?utf-8?B?N05EWktPMkEzWWxJd1R2U2p4RjREMHF1VXcwdnRISUJ1RWlNZ1RlZkZiZTdw?=
+ =?utf-8?B?MFRzYS9ZQ2I5cXB1eVRFZVZndEJiMkViMlNUZ2lTV3ZPODJCajJqWXZQcTl4?=
+ =?utf-8?B?QlRsYnJTUzViUHVlNU9oZlVxQVFEOFA3WWEzSjJFWkRhQzNOajdXMkdXODlX?=
+ =?utf-8?B?dTdWYW9QN3RxaW8vZ3d2dWNHK1FMOEhrWFNZbkJGakRocVhYRUtyUXJJdUlU?=
+ =?utf-8?B?c2lQUTZZWmVtbHBQMTBibXp3R2MxWkd0NXdwVFd0UktQTm1yNkoxWFYvTUhH?=
+ =?utf-8?B?cmYxTURrSUN3PT0=?=
+X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-feddd.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ac0ac33-d70d-4fb0-87a2-08dedbc4f5c7
+X-MS-Exchange-CrossTenant-AuthSource: SYBPR01MB4586.ausprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jul 2026 01:13:32.5024
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SY6PR01MB7669
 
-On Mon, Jul 06, 2026 at 03:19:10PM +0900, Byungchul Park wrote:
-> Makes dept able to track PG_locked waits and events, which will be
-> useful in practice.  See the following link that shows dept worked with
-> PG_locked and detected real issues in practice:
+Hi Wolfram,
+
+On 7/7/26 01:12, Wolfram Sang wrote:
+> Yes, it does, thank you very much! I will convert your mail into
 > 
->    https://lore.kernel.org/lkml/1674268856-31807-1-git-send-email-byungchul.park@lge.com/
+> Tested-by: Stephen Horvath <s.horvath@outlook.com.au>
+> 
+> if that is okay with you.
 
-> @@ -219,6 +220,7 @@ struct page {
->  	struct page *kmsan_shadow;
->  	struct page *kmsan_origin;
->  #endif
-> +	struct dept_ext_wgen pg_locked_wgen;
->  } _struct_page_alignment;
+Yep that's perfect!
 
-I may not understand this quite correctly, but I think that tracking
-PG_locked dependencies in the struct page has both false positive and
-false negative problems.
+Although, I have considered getting a new email for patches, since
+Outlook has some quirks that makes it a pain, but for now it's fine.
 
-Imagine we have a file mapping M1 containing folio F1 at index 0 and F2
-at index 1.  It is correct locking order to lock F1 before locking F2
-(for example when doing writeback).  Later, M1 has its folios reclaimed
-and returned to the free pool.  Then each is added to mapping M2, this
-time with folio F2 at index 8 and F1 at index 9.  Now the correct order
-to lock these folios in the order F2 followed by F1.
-
-I don't see a part of this patch where we clear pg_locked_wgen when the
-page is returned to the page allocator.  Maybe I missed that.
-
-I think we should be tracking PG_locked dependencies in the owner
-of the folio.  For files, that would be in the struct address_space.
-For anon memory, I think that's in the anon_vma, but if somebody told
-me it was in some other structure, I wouldn't argue with them.
-
-This requires slightly more complexity than lockdep currently has.
-We don't want to use a lockdep class for each folio, obviously.  So we
-need something to say "I already have folio F1 locked, is it OK to lock
-folio F2?".  Essentially figuring out how we can track all folios in a
-given mapping the same way, and making sure that we don't deadlock on
-folios in the same mapping.
-
-If F1 and F2 are in different mappings, it's not a deadlock if F1 is in a
-filesystem mapping and F2 is in its backing dev.  It's also not a deadlock
-if F1 and F2 are both filesystem folios and the inodes are both locked.
-See vfs_lock_two_folios() in fs/remap_range.c.
-
-I have much less knowledge about anonymous memory locking order.
-Maybe it doesn't happen.  Or about locking one anon and one file folio.
-For slab memory, we don't sleep on PG_locked (it's used as a spinlock bit).
-For other kinds of memory ... I don't know.  Page migration is fun.
+Thanks,
+Steve
