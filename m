@@ -1,115 +1,93 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD8053B1EC6
-	for <linux-i2c@vger.kernel.org>; Tue,  7 Jul 2026 19:44:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783453481; cv=pass; b=GR9RZO3NkyYJi4ZBNCwmL7tRRJo0bLfHH5AObGL/wBiBOJeTaRJJUYz9fceZFHCCzb7GWVF9ZbQ5Wzba/x03fvcBKuQK5vv0lM5LStEEcdSasOKvBu9G6vnC2NRZVSeLb4K+cqB478LLJqBGQreu0za/MU+3ZEeBpuqGQz6fsCQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783453481; c=relaxed/simple;
-	bh=HtfrFM7rpGnX8vGtZgY4JOSL1xoMsykPlMzTpKQpNPs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZYzfRWrYEu9AzCBWrKUwB/Y9lPlJKXxHAgNhquL9yCSTSpJZGMFMnG6gm7eNdz1NGAs0XlFNao28OXHOv+yVpYYvkzUCw/La83ZjgulwC+E+H5UTNPLfAC7KNqxPXr8r9EqKrdlROBAK/qrtEX2xzu2WGFU8vWMtoyv/PvR6HRA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=WE+3jIY4; arc=pass smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E304635F184
+	for <linux-i2c@vger.kernel.org>; Tue,  7 Jul 2026 20:25:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783455932; cv=none; b=ulcO9XykI6WlLVZDCl1xcmbYVi029AcyyJm5UqASfo892E14+zEy6RRwmDhMCyfhPl2dsU8dFYrwEPiS2AqLqJ75Zq/rQt+7BZmv6BPR2EGO0oKKzL3ht/EeQ1XSsjxpQJcCtJo7AL/SmbA71kSCQSyRQ6up1TtQUCP8Jtrz44w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783455932; c=relaxed/simple;
+	bh=mNDOh1ducxV6hVZlIe4i4jtO9qH/Gg/v4DAYUhy1TfU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=muY9Htfo6pEUO2PDXneA7JKilqJYvOIsUzM7hAUDackGEteSaCJqoRB+M5w1GYMjklJcnpsRfedw4BxgPvkVqxHsNXReIbOfAfjfIW+F3awfgh8tu6EyrfhzWMihHm/g22273PIU2SsZtVfGkJbtAZQgv4XZwU0ojE7dPs0VCC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bLtJkN/H; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="WE+3jIY4"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2cca24023edso36253505ad.1
-        for <linux-i2c@vger.kernel.org>; Tue, 07 Jul 2026 12:44:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783453479; cv=none;
-        d=google.com; s=arc-20260327;
-        b=bbKckVs98m/7pK6FZ9AKZ+r/wu2gLvk778RM5oO/Ddi92/cfSv054ECFxw6A54BhQO
-         u4/BLoybMbWOpts5Bu7zrJsP/EZpYDrBGCTLQ19XAoWlDrhmO34kGKFgd2gXJ0g/igLW
-         UI9ajeCzcpcft09Ujzd9UR1YzyQYi9RLXEjRFBl1LNRgspGkwf5eRpH3mzVCLRW5ZM3G
-         latWLPqZSfa6XRk6m6cMSNuJnlp31hxSj6+oEl/RCm9KF3QymOFE4PF4lwcQ49dXbjnx
-         OLiGD2xLVG2oFgSFj8SXfeRbcm/ajwUptlWJOISUgepYrjDO7OLDnAG8uOhDRkJb+NHl
-         UC4Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=HtfrFM7rpGnX8vGtZgY4JOSL1xoMsykPlMzTpKQpNPs=;
-        fh=Sq8NAbPKAKcG/qT8w1NpfcAP9u5/HRgbmdHreF3i1d4=;
-        b=HoBcP2UqWq7P0v/gjEw+qpnuYgbitju40fmekeMSw8pEJ9jYumhtwrvpRzR/7ML+3n
-         Y4Zaf3tVX8ab4v/JWn6ea1GPcKzqmlmMdcl8wuNCZwQYNHrIv68xd9jC2OmKEAlCc/8/
-         Z6vIzYat6GcsmJvaBKR9CF9BJJhvhFjGAYd/ro3+BKVoc3Y3+Nz3qk2kGE9AU9uV65t5
-         ogTEUXx0TeMjufflFRwSciR23pA8SbNZjnhK3ydEYsNtbvjdR0BKC9pjmYi3bZUDrDMm
-         G7RJ9JYUI1RRfGLv9F1Tl9RxFQX+VqVYjcFVGseIiQXaTarrFjUleP3PA2ONk68PU1gV
-         eDZw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20251104; t=1783453479; x=1784058279; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HtfrFM7rpGnX8vGtZgY4JOSL1xoMsykPlMzTpKQpNPs=;
-        b=WE+3jIY45ci/rBMurJZg2VwgMrWEbxYXopp5BltcxQEDx7iv/3KqBhQ2lt+uWEVL4d
-         f7kxbXq0icZoDmFobfF407EC0zL00Q4vBUuTM6Qup5q8EPZg48y9qWZ7aG59ZEgkrPM0
-         vT4vNuUbDOw5KPTKjpWp3uRtfsN7A60o21VtnxmrFv49zxTSHJcZdRa/4s2KJm+L0dtv
-         SyWe7mu2Dh10HbgRdTFxaGgNYqpxFyFLzzbw99OYwO3GuC0bt3yWXYqDxxfKsdOu8Fy3
-         75prGzK+xRqO/YOwHRSel34rT4ynFi5fEhp0H5WTv5BBap0hz+KR2TipZB548MDd3+MK
-         Cg7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783453479; x=1784058279;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=HtfrFM7rpGnX8vGtZgY4JOSL1xoMsykPlMzTpKQpNPs=;
-        b=EpKCU1+VLOEogABr753mvaYmCa6K/AiAslXkR2GfNHuYynxcaJhuZoiqiTiy3gl1PE
-         kt9ybC0L1JIA6lHOXItPlMQsah4ISY1/vgRBChWbZn4dVEUxjtMnK9PBLeMYeVy0wFVQ
-         /OSB6YBrztX+waJDbYn0FqtyYBHjxdN3pXRxmVg//hrKTLih1S0qR73vB/vm7QNiZIhR
-         L+GjZue90Cuy7nkBudBk2Mw1up10jXlTg9EHxCFLVuxJFwgqUc70u/9/dewBE+7XljPe
-         cNwHRultXqYc7vYoT7gblcZq1UczmhZitJpDlPSKR7uztHQRoos5o/tld1eQzn8nNShM
-         me1w==
-X-Forwarded-Encrypted: i=1; AHgh+Rpz9FxbleolgO6w3WAl/2e76UmDJ+iN2k2MmrxbTI5O0LaZjdxaQ977Ly9dgzBhs3Bv1JRZoVekxs8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzCNu4DniSwoj1qEF+qTA95pbxIeGEmPmI4uh+mvoFNMZ4IJqu0
-	6aBIu793iAo/H6TEuk26gMiFhm1MzvMXFGG5HQSx9JKDuLKpu96fHvKGDCm9aLtTZyJbkzK0T6V
-	SS4bc4dg6cNbjONHBf++46SRg7+dgMIE=
-X-Gm-Gg: AfdE7ckghVGrA46ECgHXlmu1w7VzrOkcTqII+FvN5ZmPFomMpHh8tpHV5YIZKdWWHDD
-	Kh6+KiGAa2i/fC4BOtK5j3v4up1VyuS7CDhRUIBL8niiMVagFXRzYmJ497/zdX06tkmlzzGLxGQ
-	Q8+kinIyf7Rtm0upPqVrqNPkrn3Xrb1i6DhSfJsXuEfivLyrceGhg0rWemGOVYg82nDEvz0fVZ1
-	nyS9Vp93MEWLFBuaC4smChcjkRELGEa21a/vF8BLfpK3GGyKnJVYiMo4dwvpMz5J0O004AhwZsb
-	QQ6n07ilbsaJqj+lzHSiw94oOQ==
-X-Received: by 2002:a17:902:f645:b0:2ca:9d5a:8b6c with SMTP id
- d9443c01a7336-2ccbe3fcc82mr64122445ad.5.1783453479150; Tue, 07 Jul 2026
- 12:44:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bLtJkN/H"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=mNDO
+	h1ducxV6hVZlIe4i4jtO9qH/Gg/v4DAYUhy1TfU=; b=bLtJkN/HClFl+Xl5iclX
+	YOfCL8/eEmYIaoILLE6BN6D5NdmPwHEKQy6yx3r6MImXCWfo1m+qDYcfxExNaT5u
+	evu4pBttlQ7CI7xoEqUCjbqKSuIQm3iapwq07jFU58Wyydkwhdsl6GfA05ujpOWr
+	acYUraw2qm/iDCB69MNjLHlU+wneaoZEVRjPr0qDRxam73zxJuMtqcv6ejZE/1hg
+	AC9Sxq4cvGY3v2AlTmy/hL+K3P466EEJ3K5SQP31HW7U41JnRHd1Lfcb65DKiLJ0
+	/PlkahTXvFBW4+Mh8WqL2LtExu4fuqTi6QGRvdE1ki5Ufmuavmlxn0G51zt/h8H6
+	TQ==
+Received: (qmail 412644 invoked from network); 7 Jul 2026 22:25:24 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jul 2026 22:25:24 +0200
+X-UD-Smtp-Session: l3s3148p1@+s7YMAtWHIxQT+F6
+Date: Tue, 7 Jul 2026 22:25:23 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Brigham Campbell <me@brighamcampbell.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c-tools: Enable cross compilation
+Message-ID: <ak1gs4ayKKvSbRLE@shikoro>
+References: <20260706-cross-compile-v1-1-e3ebdd485ce6@brighamcampbell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr> <20260702-add-mcu-fan-khadas-vim4-v8-8-244feee91a36@aliel.fr>
-In-Reply-To: <20260702-add-mcu-fan-khadas-vim4-v8-8-244feee91a36@aliel.fr>
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date: Tue, 7 Jul 2026 21:44:28 +0200
-X-Gm-Features: AVVi8CdKrhqOEXxfOyDGizCGSCM2_7htBspGi7RIbYxEuj_pMgbN59CYzvH2GP4
-Message-ID: <CAFBinCCkpgta_QfqDzye2cD46_Wad=2FO=oBcw9_zkxzQp3OAA@mail.gmail.com>
-Subject: Re: [PATCH v8 8/8] arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU
- fan node
-To: linux-kernel-dev@aliel.fr
-Cc: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, Kevin Hilman <khilman@baylibre.com>, 
-	Jerome Brunet <jbrunet@baylibre.com>, Beniamino Galvani <b.galvani@gmail.com>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="tHRtVtplnY9LbHBE"
+Content-Disposition: inline
+In-Reply-To: <20260706-cross-compile-v1-1-e3ebdd485ce6@brighamcampbell.com>
+
+
+--tHRtVtplnY9LbHBE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 2, 2026 at 11:57=E2=80=AFAM Ronald Claveau via B4 Relay
-<devnull+linux-kernel-dev.aliel.fr@kernel.org> wrote:
->
-> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
->
-> Enable and configure i2c MCU node to get fan working on Khadas VIM4.
->
-> Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+On Mon, Jul 06, 2026 at 02:02:39AM -0600, Brigham Campbell wrote:
+> Currently, the Makefile fails to change CC, AR, and STRIP variables from
+> their default values[^1] because it uses the conditional variable
+> assignment operator. The Makefile also doesn't allow for cross
+> compilation without modification.
+>=20
+> Modify the Makefile to use unconditional assignment and allow the user
+> to cross compile the software via the CROSS_COMPILE variable.
+>=20
+> [^1]: https://www.gnu.org/software/make/manual/html_node/Implicit-Variabl=
+es.html
+>=20
+> Signed-off-by: Brigham Campbell <me@brighamcampbell.com>
+
+Applied, thanks!
+
+
+--tHRtVtplnY9LbHBE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpNYK8ACgkQFA3kzBSg
+KbZ+9w//QywyBUYQN74xEuWOjOpYCFPvydSsJ1nFDjzOrhNhIiPEsXX+sdaOuG9F
+W+KAhOX4JNj0wIqOywCMcFmmJNQu73OHF3lIYs9Xdg1sxwBqoWeecO1dAMODHsQh
+pfIlJBQLFjxuP9fCXCxnIDW9KqFbHqOJI252kAIpjV+Pu+Kt9fowKhAhjLzAdpe8
+9+y3k2IaC2aFNM6TeFIcb0L5rjp6HFzZuG+ARY/mKUMVt+160M3L2+1EzzP8Duv/
+Cnoa7N741Xg91UH/xC7XZ7GYT+fgov9+sdHFzytMcxdnOwcQMiFW1VEmO8+dR0p0
+4Ssx2P7FczkUw82OIGxGkihWCX4YqI++Crh95h/iXq8NsbKBT/mD7zXxIku6Rz2c
+Jc2V3NNQcJE2h6Kuut1Dgi7hk5bpuofjBqqcRXQME90LI94X9FUm7j64XH41Ce+K
+r2cW+Wk83OsdkOl4Yumo8Ay4F/voWvgDhwQDWOeFcMxu/H97Dj3MeLDp/4kzjQA5
+1ylu16JaJfwqP5NWoWNSoMJtzCX113ka7o76adGTizswJz6TXJ9VesQMZQ1AQ892
+8zMM01lpt1VXgrO/beA4BBTY6ReJNXO/ee62LO/swA4IotTov4J07urvHFCmmnHx
++7TNZkz+7yCgQVQ3qz3Ua7fhRXrbDq1ebnQ+b3LZriqk1NmaPJU=
+=KwIq
+-----END PGP SIGNATURE-----
+
+--tHRtVtplnY9LbHBE--
