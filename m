@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F117332906;
-	Tue,  7 Jul 2026 08:46:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B62413D53C;
+	Tue,  7 Jul 2026 08:52:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783414017; cv=none; b=ZFZJ4EAc/mCRd6Yfw6EQwGGai7pQ2lXg47kHExgQ5b2OTtdjn1qkMXhqo0g4w2Csw/b6AGYspbFg2Hv6YFuX4EmgiTtPb9CBySkvqdl8jSbyFW2ZgojCog5ZDYN9HaHJzrpuHv6vI4qghQ9pUFhfjx8HgHOhYpHgTiMwB8Is1hA=
+	t=1783414343; cv=none; b=C4RuZ+tN/LUTikqPpkPmdC5YxSyYsp0LoBlgZdzrTs9/I4loEOrBm07R1NwfCz6LI/yx3NceWvCxLDH5JjGApAIrFPUuMAlH0llOx5b0SG9cjOyAWOwvLQR8MQtqv42BYA4+ebx9s8YcaXxm1dCJsYeJo6b6Z05ZElGmzJekO+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783414017; c=relaxed/simple;
-	bh=228aUnoMVVrnNGBKK/TOVHsEsR0ak9z+UVu2BN4AsGU=;
+	s=arc-20240116; t=1783414343; c=relaxed/simple;
+	bh=IQM0yFw29y1zX7AFnSRWY8LC5Qh84Zo1/20QJ5cglW8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bLtjc+d1ltTvSqiURdeda3IgklqbgXbBTNu72wD47zm9tRanDHdOoJkA5wKV/N7MK9S58mFcRiF+on6aCY5sd1Y52erAkOicj2spEV7+jyTWVPQxxrMl3kv5qY6riRCAa+pSTW9nPlFzpNbN2DVu/z9bJerddTnZ6nl+FXirwIs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q34GhtcG; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=LmSjz/xm28IZgP0jegFUqxip/5KIW1SQ7etSChtGdgY/Fw4qqpY4gsQCixUEYcRecq22HE8M7HXe2ZObTc6Tit2YSbcyVVpv3Ll/mNMVU80E21M1QbwQVifpnlMfQlY3tj/J38YukcOkoqpQUszNtw1faj5NwZIjKxO5y3ksdns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X5IexEEq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q34GhtcG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCD701F000E9;
-	Tue,  7 Jul 2026 08:46:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X5IexEEq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 292391F000E9;
+	Tue,  7 Jul 2026 08:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783414015;
-	bh=bUxqzJp0aVr/7EIdEb8wQgLJ1KH0IEqs74J0kNd0hvs=;
+	s=k20260515; t=1783414342;
+	bh=ymK0wioBTOkb/EPDtO3VLYIvTsMMZtxG8xmiU0g3aa0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Q34GhtcGoe4z/54p5UBfiNVjEf2/byb1VnFIebzUkmu3qxhYUDMKE46TQwHFNKxhN
-	 cKajMD/KZtsjTD3U7EwR321t0OXQUhj552k/FLs6AKxtl6V5mE8mrmTOnjz+SJRugV
-	 aHODYcmhoXooIPyZRiDgJbodnHUilWd7X2Q5tAVICxSPo5lBKezSxxvyi0hy2UdDQP
-	 ycOuCZk7/qKkdfdn/oHjjEk0dpYPdcB9vOuM+reXQC/sJ3hWqG+AxrnCUe8CYDvB8f
-	 g79HChgWaoMf5JVv6Fdfs+Tp+gAkrWWogJh5nYycNLtMWrKh9WnWHuCegboWGrB/Mc
-	 hGv2dnoqtmXMw==
-Message-ID: <20fa0bb5-1bdd-4ea2-9266-710dbde9d4c1@kernel.org>
-Date: Tue, 7 Jul 2026 10:46:49 +0200
+	b=X5IexEEqJTN2eQDGZggUEV45IvZfZbl1TFuBA0MYVngVjdQDK4fSQR8WFiKOC5TLe
+	 9dsebwPgTLn+gfFYwCoU6xfaAGATzogs/LpFigQfxGtMxTsoTkvsrDztUdwuP8mQ9k
+	 7oSiZba1B8a4xTHfEFQkQ6dUkDbzx0A6Y42oGjrUJUOhC3ImM88z20uSftu2DC2tGj
+	 Pvt1kn8eqSyNT9EcYUGc7hUpAFUqk8uAIBVUGO8WyFy99s9r+PwTcnSWFu4wkfC9Hc
+	 OZnn4JOyPS7UYjiiaA9qGJvuMvAGxvXcyddF9K9emr12Z/d+2XPKlbGxeX6L/3fo6H
+	 MrjUfq3vmaRZg==
+Message-ID: <2bb76588-fa90-4920-935a-960acb60e5af@kernel.org>
+Date: Tue, 7 Jul 2026 10:52:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,16 +35,26 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Revert "dt-bindings: i2c: Describe SA8255p"
-To: Shawn Guo <shengchao.guo@oss.qualcomm.com>
+Subject: Re: [PATCH v7 1/6] dt-bindings: i2c: Describe SA8255p
+To: Shawn Guo <shengchao.guo@oss.qualcomm.com>,
+ Praveen Talari <praveen.talari@oss.qualcomm.com>
 Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Praveen Talari <praveen.talari@oss.qualcomm.com>,
- linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260707080229.3795971-1-shengchao.guo@oss.qualcomm.com>
- <5926f59b-e0c6-46fe-a839-620a2648c335@kernel.org>
- <aky8NoA3r7WsjLXw@QCOM-aGQu4IUr3Y>
+ <conor+dt@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+ Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+ Mattijs Korpershoek <mkorpershoek@kernel.org>,
+ linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ bjorn.andersson@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com,
+ aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
+ prasad.sodagudi@oss.qualcomm.com,
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+ Nikunj Kela <quic_nkela@quicinc.com>
+References: <20260617-enable-i2c-on-sa8255p-v7-0-ad736dbeab57@oss.qualcomm.com>
+ <20260617-enable-i2c-on-sa8255p-v7-1-ad736dbeab57@oss.qualcomm.com>
+ <akh9bzlP12sRM4Fw@QCOM-aGQu4IUr3Y>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -90,45 +100,37 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <aky8NoA3r7WsjLXw@QCOM-aGQu4IUr3Y>
+In-Reply-To: <akh9bzlP12sRM4Fw@QCOM-aGQu4IUr3Y>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 07/07/2026 10:43, Shawn Guo wrote:
-> On Tue, Jul 07, 2026 at 10:08:09AM +0200, Krzysztof Kozlowski wrote:
->> On 07/07/2026 10:02, Shawn Guo wrote:
->>> This reverts commit fd359c0272bb4078f3a7ef34c1d53ee0deb59900.
->>>
->>> Compatible "qcom,sa8255p-geni-i2c" had already been defined by
->>> soc/qcom/qcom,sa8255p-geni-se-qup.yaml. Revert the change to avoid the
->>> same compatible being defined by two bindings.
->>
->> This makes no sense and to prove it: are you going to revert all such
->> bindings, like 100 of them?
+On 04/07/2026 05:26, Shawn Guo wrote:
+> On Wed, Jun 17, 2026 at 10:20:15AM +0530, Praveen Talari wrote:
+> [...]
+>> diff --git a/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml b/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+>> new file mode 100644
+>> index 000000000000..a61e40b5cbc1
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+>> @@ -0,0 +1,64 @@
+>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>> +%YAML 1.2
+>> +---
+>> +$id: http://devicetree.org/schemas/i2c/qcom,sa8255p-geni-i2c.yaml#
+>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+>> +
+>> +title: Qualcomm SA8255p QUP GENI I2C Controller
+>> +
+>> +maintainers:
+>> +  - Praveen Talari <praveen.talari@oss.qualcomm.com>
+>> +
+>> +properties:
+>> +  compatible:
+>> +    const: qcom,sa8255p-geni-i2c
 > 
-> Nord compatible "qcom,sa8797p-geni-i2c" was added to
-> soc/qcom/qcom,sa8255p-geni-se-qup.yaml, as that's where Lemans compatible
-> "qcom,sa8255p-geni-i2c" is defined. CHECK_DTBS has been working fine by
-> matching geni-se-qup yaml.
-> 
->   make CHECK_DTBS=y qcom/sa8797p-ride.dtb
-> 
-> Now with this geni-i2c yaml comes in play, CHECK_DTBS finds it instead
-> and starts complaining about Nord compatible missing there.
-> 
->   DTC [C] arch/arm64/boot/dts/qcom/sa8797p-ride.dtb
-> arch/arm64/boot/dts/qcom/sa8797p-ride.dtb: i2c@880000 (qcom,sa8797p-geni-i2c): compatible:0: 'qcom,sa8255p-geni-i2c' was expected
->         from schema $id: http://devicetree.org/schemas/i2c/qcom,sa8255p-geni-i2c.yaml
-> arch/arm64/boot/dts/qcom/sa8797p-ride.dtb: i2c@880000 (qcom,sa8797p-geni-i2c): compatible: ['qcom,sa8797p-geni-i2c', 'qcom,sa8255p-geni-i2c'] is too long
->         from schema $id: http://devicetree.org/schemas/i2c/qcom,sa8255p-geni-i2c.yaml
-> 
-> What's your suggestion to fix the problem, add Nord compatible to
-> geni-se-qup yaml as well?
+> The compatible had already been defined by soc/qcom/qcom,sa8255p-geni-se-qup.yaml.
 
-I don't understand what is the problem, but you also did not answer to
-my question. If you answered my question, you would answer above, but in
-case question was unclear so let me rephrase it: why do you revert only
-this duplicated compatible but not 100 others?
+No, it is not.
 
 Best regards,
 Krzysztof
