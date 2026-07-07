@@ -1,131 +1,71 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 693E4329E46;
-	Tue,  7 Jul 2026 16:05:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CDD340402;
+	Tue,  7 Jul 2026 16:13:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783440360; cv=none; b=eE+Uhb4WZZxjJ5EOG6CSmMeqixvNKtw7V55/nnbFmkvLONS6FvZLbW4akRsP0ZnMQwp9GKTTtwRWmPmurRXuEHM0TjVXKAaeZEUavtmIbOcKnMDzyKgxkhbVrbWLI7E/8N3TYna3qbm7fIoxbpoH70jjxWQbIxQEisKyIOJ1PaU=
+	t=1783440833; cv=none; b=F1AVxyUE2pFNzHHadRSc3CDjVzxuZvAP8ozU79RenrQuZx+CCXsty4KF35T51947O5wFGOOn3tWq4gIDZPnexVcQjRkyDPFoLWcLzWZ1GB7g0JeAKwl6U8ypehCZaScx+oPwTKIrEyaINt2i6xTeUCVJChLazn+XzNHu/DbZgso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783440360; c=relaxed/simple;
-	bh=WGu1H7KZ2YHXBPQTafzG2nNs51jULw2SwYV9eRAWAxk=;
+	s=arc-20240116; t=1783440833; c=relaxed/simple;
+	bh=1IW6FjFzcEmU1Ry+Or56LLsYAe9HoY+J/8hZ+32I1fI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ghv95dlUoUbfEY5YNnjG0dwcVHZJ36Y3IyIM1ecuLLxF0gjT2Td6q+EfL3kPfwjlhzjqi0Z14aYaJSS5hRsLY65VrAkplKKYgZ41b1vVI5w9A3mn9NLPB4q+Sygt2oismqPQBjZdq7dpkWqR7Utsejwy0AlC4oll6t/49oCzB8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MEIXCluI; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=pjRvzM0LToyXDhNUNIkg8DtbYOg7QjVpZOI/j1ZlfO7Iszv/WEGRIoKiChPNkYyb4f4wgpCet4GyeYRvneZYwyBZkelEX/4Dr4TaTmpSnyydPsSPtp0aaZ/UKvZFF0pCO30ykDUhR6vraXAi5yn2iFEvOThM/fTwGl2mdGVolGk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HOqCvRfb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MEIXCluI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783440359; x=1814976359;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=WGu1H7KZ2YHXBPQTafzG2nNs51jULw2SwYV9eRAWAxk=;
-  b=MEIXCluINVipPSbqGAF5bhnDWYsbrB96QXVkCG0NuRGNKI7Ymjr9A/E9
-   33czbQRNNPAIBkVjhOtx/7AhFVfUyAlOTGMOvokm54GUfTaYYX9iu2NHR
-   PqxyjxH+XOqfD6apck727CPh3rjJvFFTPFiEkqHXDHXAiZsXufT6k+TKc
-   NPgxWTFpCSiskdC6lmAKBpPw1MnbhcRehj9FjnjjcP/Y8Bcw9axK/F929
-   QYHiX7mjkdIV2AqpMR+avm6kcOrAExLFiG8OhvNe0AFlEozUuhkAezJBl
-   qi7lOi3zNOi4UjfjpeFLPDDxFYoyUpE8VDZZZVKrOMAThQdICv/c+NoSf
-   A==;
-X-CSE-ConnectionGUID: cGs7XXHkTum8i9btrvKFkg==
-X-CSE-MsgGUID: 3YRJNqBcTji5bLz3V7OxJA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11840"; a="83952075"
-X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
-   d="scan'208";a="83952075"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jul 2026 09:05:47 -0700
-X-CSE-ConnectionGUID: tBOk0B/0SG6kjtraoD2mfg==
-X-CSE-MsgGUID: bDNaWP1RQpiCsfz4/eJ9hQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
-   d="scan'208";a="254117548"
-Received: from slindbla-desk.ger.corp.intel.com (HELO localhost) ([10.245.245.36])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jul 2026 09:05:33 -0700
-Date: Tue, 7 Jul 2026 19:05:29 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Cc: Lee Jones <lee@kernel.org>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>,
-	Thierry Reding <thierry.reding@avionic-design.de>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Srinivas Kandagatla <srini@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Vinod Koul <vkoul@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Doug Berger <opendmb@gmail.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Peter Chen <peter.chen@kernel.org>,
-	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Maximilian Luz <luzmaximilian@gmail.com>,
-	Hans de Goede <hansg@kernel.org>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
-	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org, mfd@lists.linux.dev,
-	Manuel Ebner <manuelebner@mailbox.org>
-Subject: Re: [PATCH v3 05/20] driver core: update kerneldoc for
- platform_device_alloc()
-Message-ID: <ak0jyUbNonSRiP_g@ashevche-desk.local>
-References: <20260706-pdev-fwnode-ref-v3-0-1ff028e33779@oss.qualcomm.com>
- <20260706-pdev-fwnode-ref-v3-5-1ff028e33779@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HOqCvRfb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE79E1F000E9;
+	Tue,  7 Jul 2026 16:13:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783440831;
+	bh=1IW6FjFzcEmU1Ry+Or56LLsYAe9HoY+J/8hZ+32I1fI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=HOqCvRfbYfZF0O5VyM8CiBywQyPPX2E1wCMD7gM4yInm91TRtmy/aQIR05IyNxUwq
+	 LDZqB7yT54hfarf1FXqFHKHcYDsGlv0W6On4NoQ6xSmH/63rJcbOGtslB7jcSOE+i+
+	 uJAyLOrqlyVOMdCl8TV3oeXxI73pLN00DqhFpK2IRcj0FfGeN/yh/atUwDSscnvKu7
+	 JzOpo/94qGaJx0/qC2xhtS5tZbb26VW/ybWDWd1QTo2IByKaKStaAytZMGlpC1QKfL
+	 xTf2vWwJ6q6sNs344XyCNKFE4TtfJ4USUreAwY4rXs2o8UAdHKrxu9ks+Wd0d8Asom
+	 of+hKcHnd/3Ag==
+Date: Tue, 7 Jul 2026 17:13:47 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Chen-Yu Tsai <wens@kernel.org>,
+	Gregory CLEMENT <gregory.clement@bootlin.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: i2c: mv64xxx: Add Allwinner A733 compatible
+ string
+Message-ID: <20260707-protector-overblown-2fb9fa42e976@spud>
+References: <20260707-allwinner-a733-i2c-compatible-v1-1-566340542bdd@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="/26oEDxPHKNqYJe4"
+Content-Disposition: inline
+In-Reply-To: <20260707-allwinner-a733-i2c-compatible-v1-1-566340542bdd@baylibre.com>
+
+--/26oEDxPHKNqYJe4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260706-pdev-fwnode-ref-v3-5-1ff028e33779@oss.qualcomm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Jul 06, 2026 at 02:44:17PM +0200, Bartosz Golaszewski wrote:
-> Users of platform_device_alloc() + platform_device_add() must not modify
-> certain fields of the dynamically created platform device object. Update
-> the kernel doc to say which fields are affected and which functions to
-> use.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+pw-bot: not-applicable
 
-Consider using __private checker attribute for them as well. It will make
-sparse scream.
+--/26oEDxPHKNqYJe4
+Content-Type: application/pgp-signature; name=signature.asc
 
-> Suggested-by: Manuel Ebner <manuelebner@mailbox.org>
-> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+-----BEGIN PGP SIGNATURE-----
 
--- 
-With Best Regards,
-Andy Shevchenko
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCak0luwAKCRB4tDGHoIJi
+0lkvAQCFp+d4OmaIv50EpvX4KECyhuI0CTWoWEwiY/98IDXO4wEAy9EAPdJoDpH1
+t7JmQ1zqInnhtHSFmTyn2yfng8+ayAE=
+=YDaZ
+-----END PGP SIGNATURE-----
 
-
+--/26oEDxPHKNqYJe4--
