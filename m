@@ -1,107 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39C4C3D647C;
-	Tue,  7 Jul 2026 09:59:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AC663DDDD1
+	for <linux-i2c@vger.kernel.org>; Tue,  7 Jul 2026 11:51:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783418358; cv=none; b=K1B3pcnlNJe0jnkwhEVvpkLnfRYr8uHXvi6sZaTzSmFmg9Dbc+7GoBQRqxeYdu2BdU6i5lvvtIxqzhx1ztQBjwFyzNGHSLrqWyI8PoLpdBP28nDk8ZnvVK5jQ9Heg54KEv/CEQ3kpstwLN/qpAogp88xWLd+WZyEX8j7c3ucesg=
+	t=1783425101; cv=none; b=H3E7SM0c8LY+/XmcgOHRRuReH+mnB59wc6CWXp+CiEj8VLfdIlnU/kKANZT6nCnwZdm1zEdMloIFLdzHcHXwdu07hMLcrX+8zeqZrMPN6N05w038mSGDAGgoHOVX55SdoyZTlFNM5e04sURnmIlHZg4CEiboiYYXyimmwCmk7/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783418358; c=relaxed/simple;
-	bh=zDetEnOxbYIiYvIbcqDOH5R5vyeiJx83jxR8tU+AOmc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CP42paNdR3/Bqy+Kct6xwTnplGy+bUsese9MOjqU+mBTqFPxtLdrNOuSTW7g9e8YWbkhMTtMY3fFmL1Ea/CC03UGwq+R4T8rCCRUD5MNUfZsteUTTuHY9NMyJLuwczSbosqMkemGgI2Tokbk46ZUj1b7WX6JCouTR5B432Fcef4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jnNAiudU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783425101; c=relaxed/simple;
+	bh=vy8LLf/MwSWtX3diJMzNKFmyjMnAOWs/kzEh9bWKZfg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HKgnY5a3NE0du/xvq6VOWwlZZqD6jhedAAuMW1hEs0y3F+8C4ZMqaMGc9nCRyAJaQAkM3dsxCvixAvER2ONeTvQyHEZeMF9ZEQ1xWVd+Ha++GRf93SX9XMRnu4s5w6pLOu05eo0wJg8Xf+MF5B1T0ZRhS+Os16KoQltmVim3QLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=YaKdPBKn; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jnNAiudU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B7591F000E9;
-	Tue,  7 Jul 2026 09:59:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783418356;
-	bh=ncx57fv7M8CwB2Lk0+elNa75y8BvujIyvPsd35IFs2M=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=jnNAiudUeOEO0YJxSjS4cF3BN0oVl4JrD7JXdu/RZCKomcqffdGj4UdO8+RkBmMCz
-	 U1dbkpO3YoOHct7yY+vBvEnVxHYXCpI94xPY4WU5W1mRPUxee099vMgpEpexa6mPA0
-	 sYFb4/TOTiPPthmkfpDC9Bn3UogYCUVG0I1ZRXi11lBBVbbttrraWg9Urr4lRn+gdq
-	 0kzpv3HUmZBIhQDhfvvQ1M+lj0eaIIjTyE4oGPQnq3rmWfo6zgtTkyAlu22p8ghz8O
-	 v+l372yqDj+NqXRV1DUFXdG1lLlUO1JOcYVr4OXgGqYVucv/WHjriP2IIRLXW+9Kpe
-	 /Hnm+nQAF7/kw==
-Message-ID: <19641bbc-f147-4935-a975-80544afaac6c@kernel.org>
-Date: Tue, 7 Jul 2026 11:59:10 +0200
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="YaKdPBKn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=vy8L
+	Lf/MwSWtX3diJMzNKFmyjMnAOWs/kzEh9bWKZfg=; b=YaKdPBKnwYOIqPNA9lV2
+	zdjD9nwAlbz51h8SRQFMFqK4badnubDPq0aXQ2ARhxKttGeyavr/Uhq9cJpfaagO
+	ELJNzBJWiuYfGw0wOf8kc0cLEevpbjRmar1oWSnZGmAHhw4pUTrzfgapLePMRHqS
+	9QY+JavvSAFsuK4DmjPr94lHAdUohWdcMmVZIX7RtkZHoQd4k/y/oPsv06OP199E
+	RNmYcY8Rgr48nQiGzoOZYTTXCPgVnMGxNqVKa5ELnl8EaG8PusJQsZLbV/RFVJjH
+	CNxO0JjhTB9TQJWHDxcCKrusf1X2UO20PRxio3vmekstjfDC+TARy3eyaWgOXafv
+	5g==
+Received: (qmail 252802 invoked from network); 7 Jul 2026 13:51:28 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jul 2026 13:51:28 +0200
+X-UD-Smtp-Session: l3s3148p1@UiriAgRWPslQT+F6
+Date: Tue, 7 Jul 2026 13:51:28 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.com>,
+	Stephen Horvath <s.horvath@outlook.com.au>,
+	Brigham Campbell <me@brighamcampbell.com>,
+	=?utf-8?Q?Beno=C3=AEt?= Monin <benoit.monin@bootlin.com>
+Subject: Re: [PATCH i2c-tools] TODO: add file and describe items for the 4.5
+ release
+Message-ID: <akzoQNeHb24X-XlA@shikoro>
+References: <20260705181043.3757-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: i2c: qcom,sa8255p-geni-i2c: Add compatible
- for Nord SA8797P
-To: Shawn Guo <shengchao.guo@oss.qualcomm.com>,
- Andi Shyti <andi.shyti@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Praveen Talari <praveen.talari@oss.qualcomm.com>, linux-i2c@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260707095708.3801043-1-shengchao.guo@oss.qualcomm.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
- cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
- JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
- gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
- J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
- NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
- BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
- vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
- Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
- TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
- S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGPBBMBCgA5AhsDBgsJCAcDAgYVCAIJCgsE
- FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJp2mE8AAoJEBuTQ307QWKbeaIP
- /ihHTkTW4KsN/DQ945JJbyu5tI0J80Wue7QyyLPglyKfhgb5cLLNPpOC8cCIJsc7+W3i2P38
- s2c1cOH6CYGE7E9ur3Vfme8NW2S2I/Z8VC7bZnzyS23wT17LrsdS/qCpx4o8U+pt/xdXDKph
- EGRYrIEmMpUWvyYzyYKGIe25FtaayIIKpq8eZYyFcp2f/sG5IkOW5uZzHPMPdcm87jU7fyuQ
- rAU2vx9r+ulUfQ/q9Z2roC/ode3l7t2pN7BCBCsUDp6JCrUyZrtT1e7EbA0ZRP3aOBNk2P2E
- DQOgJGjGdO5Yx2Y9LFtltu6JbsBJHi1syGRX3AtQYOMc4Y1WGoeZJmMlvKj2ZqqXNkcWi2DS
- IQEWB0uW6CqFsBBIMGDa+6OzdaVO/uAVXWDWml02Men3CILdI1MbVjoh8ECqYUY7OQ+JJvNN
- vnliuq5WM3Ghd3jg/LZZrxXjdIginRHFQCjIJYLKpLZWm1/iDFedcfzqRNYmTtqscdCNHW41
- oT3Z7BmO9xwdjuwBS6nmS6JJwkbf5Ot2QR4pB/DRU7ZwjT1qHe+9r9gF32wXVQatHNGK/VVu
- sfwOnkdxCWkp/qb2gdQRmZh+SedStWshigH6sNfuHBloF/q+hjMRc8b2m326OZdrbSHwY1Sz
- vti8Hn7n8NjdHO9LKB7BIdjkA9DA5WsqOuVCzsFNBFVDXDQBEADNkrQYSREUL4D3Gws46JEo
- Z9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLueMNsWLJBv
- BaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6eiOMheesVS
- 5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wAGldWsRxb
- f3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA6z6lBZn0
- WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9YegxWKvX
- XHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt91pFzBSO
- IpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gUBLHFTg2h
- YnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/JoFzZ4B0
- p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu4vXVFBYI
- GmpyNPYzRm0QPwARAQABwsF2BBgBCgAgAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtBYpsFAmna
- YUkACgkQG5NDfTtBYptX+BAApg32CkxwNucNEi8WfWA8oKkW0y8YDuY6ORMo9FWNGiT/OTy0
- vyJrLocrpn86zwfjVp+eCrssPYh8eqJfnWqmYv6ACQtHPYzPZQ3mSo8H97Z01oUxITzCxpXm
- ZkLgPIqtDPcC2E3dPM/fVxcyowM8XsaMA9wcsaUYrta8toOq2b9tKcjleKMfMrm0gQ9u7wUc
- QbLkwj6TCLOwucb07GXzLTNF9PZmaDUpKAZjMjmrW+le+SFvQbhamx0rxLWPR0NWntXpbCn+
- +ACch03p/JyTBVktxFsFyCt7pTPE1kEaeuXBTe/a2D9iQvRxRW19LvuO2e59/u1wYUiH/orz
- wbIC2S4dBsPAPihL3ztOU1yE86GPyQtSE0kU+/7snnLt4QGi6PChf3t5gnNjAzjUUovO8rgI
- c+5yN5heq5loYHgK6OQ9OlHzsPHO9e9MOQcKlFycs1pyijFGzDwdNUm/SchK8iWT2QApTx4A
- K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
- n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
- qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <20260707095708.3801043-1-shengchao.guo@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="B7e+HLAKyDYnCiM7"
+Content-Disposition: inline
+In-Reply-To: <20260705181043.3757-1-wsa+renesas@sang-engineering.com>
 
-On 07/07/2026 11:57, Shawn Guo wrote:
-> Add compatible for Nord SA8797P QUP GENI I2C controller, which is
-> compatible with SA8255P controller.
-> 
-> Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>
-> ---
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+--B7e+HLAKyDYnCiM7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Krzysztof
+On Sun, Jul 05, 2026 at 08:10:42PM +0200, Wolfram Sang wrote:
+> We need help, especially with tests, for the next release. To make this
+> visible, document the planned items and explain where and how people can
+> participate.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Guys, thank you! I just had a little hope that this text file might draw
+some attention, but still wanted to try nonetheless. You exceeded my
+expectations by far and already tackled most of the action items. Really
+awesome! I will look at your contributions today. We probably don't need
+this TODO file after all. Yay, happy!
+
+
+--B7e+HLAKyDYnCiM7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpM6DwACgkQFA3kzBSg
+KbbmaQ/+L7mnWoni3kdWWTa7Xw1bDj/QgIATSTmUQwjiqKhNKWaqs0eZs06cDfjP
+2UJ2RlAj0T7S9UMogrje3fF5TK1mJQBi+PgVnsBe9e62R4Sa3qH9e8VXgmEnsq7U
+ECKdVGqJtlh0wpFNxR0hJdHv/3ZJBpawmGeJzvqYTVr0TK+5V0V4qVQQdBn++1lV
+WaCsYHDFifuCl7cAeZTt2up0OUsKWKf3lCsF7hLxnOgOkjY3Wq+lllWO68GuOK9f
+T1SuIJ2ueg264WDlkAAxH0EjNkmRlSuZNX3s9fb98q/8pTS490v/G6pW0FbiIXj/
+NItqjZWF4QZJ4W4fPcKSMicAgc57/xhhE3GJiRE+ELCi7iI0pDanFs37gzNCZTyU
+PUyWKHuMNwMwa5tPwJxEhSClktMs0QZbecy8rpUOFxoadC6YV8o8dfNPFn55nU0c
+gWpfKr4P3j3oUFjFsW7A5cz1bBGbZMECEcS8c6c6AmaD8FbPSaJBI27Z0wB5EsBH
+nNAj5zbbe1ODpaNNE5BKpSLrNykTBZ1zYxKj9DorB1KhMg/+9shdrupwfUfeXB8b
+BXNIORwQMtM9DzJzWrAYdEv4FswQWiNPf7MGW7tbdgiPoxeJ2N8VIOakJdPkmueb
+DGuVib7pZ4v/HowsQFUFzA7NF2eFBW331GB88Ycla7HziWS88ao=
+=CnWs
+-----END PGP SIGNATURE-----
+
+--B7e+HLAKyDYnCiM7--
