@@ -1,133 +1,93 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC8A41D4DA
-	for <linux-i2c@vger.kernel.org>; Tue,  7 Jul 2026 13:28:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343C13ACA7E
+	for <linux-i2c@vger.kernel.org>; Tue,  7 Jul 2026 13:48:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783430925; cv=none; b=NUTDfMYsB9ElwhR3oy/kBtiZkAtWochNeN/TVKILqM8EOu36hhGKBO8Z3/pj11qvKpOBeutfJNFwWyG74d8AKt8svTHcB87vqT2HS9JbeRAvOz3YYYv0mA8gxGhnX60QVl5d01wJa6qEfEnurN2YM/WVy7djzlaGQCkv7VmfqhA=
+	t=1783432112; cv=none; b=rPVjfzTL5GG3i6rhb8RSItn3bi5iYNd0+z5PXB7xe8DB2N8c26gy0qCIKNnWyoSpO3whqq1W6hXRL1n72FJ2t15i7320WYmD/fTzYkrTFFUMuIA3PnzAottS563xsIXuTUhLbxmhcXvCGAanp44pDSCzMZRPojylVHdf4nfatAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783430925; c=relaxed/simple;
-	bh=0FKoq7hLu09a+YTggc0+5XIYhkmzWH4CZtlIsc5csL8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=IVdyCJdIgWvw6x2Ojd+b5frAiE5pcaZlAOHMUvnjPuxjBXo6RBcDOTa6jGv9zEId5gtOtbQDZejQjiyJwGtWimsPN0b23uhi1/HG8EX5zEYeuAqa6bco3eMFO1KNB6hTyfhghpk3vf4Zc/f69gYEjCttzxCGAbwsyLaGqdVRbtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=iAw9uiXn; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1783432112; c=relaxed/simple;
+	bh=TimQTiCahggrEopi+zYTAHts/AHOO5TN5vvvjxNQWTw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QpcgiDTazmknVCHnVeCt1ebfHhmD+PoGWKYiyC7h1lREwekgizTkbbKrD73mmsiqmtv9BbTDZgiGqKTpPHdmdDOfptx4GiT5qCd2EV53AkWhkufJcYyxVLMey/4YcQ01r6bcW+LX/CvBKo9pX7lsw5vb15JGN+WVedXg6R0WuY0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JbDV3t7d; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="iAw9uiXn"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-4728c12ba97so2420199f8f.0
-        for <linux-i2c@vger.kernel.org>; Tue, 07 Jul 2026 06:28:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1783430921; x=1784035721; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=OAsqyO6GgeZampdy6KW0w+EGUHWEd+iflFYg/ri9H9A=;
-        b=iAw9uiXno3qjaauDbqNlDjnzNRoMoH6mRB7NT3VpwkhJjkh0oF2eAeF9WuyHtFa1On
-         rjUtLyX2Jeo8zvST3eI1O3/m54SROlpsm+63pwId8qSlQilfgtdIrpx06b0QmOKGlyi3
-         jR5Ybkyk1KAFRps7rqAzLpfYrx7kJlONBcEW/o9W2apYwj4UrgSsvev6z68Vwnagmd8N
-         YeCzOMnugRax6f/ImtYkZ8JglKb9ZGawQnCfumPLZfzidm03WqJ7Jy4tkgqSyUtpCRvt
-         nNowkc4UrL24dFohBjJUsygVpcZQIpS/X/x1WiNhY8hwhUz6tEJv9J93lBOOXt+wldTd
-         Hgxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783430921; x=1784035721;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OAsqyO6GgeZampdy6KW0w+EGUHWEd+iflFYg/ri9H9A=;
-        b=Gxz+S5e447TfM1BFj0vS1ARZEozWgAZ0LpZbSvqTdVVA1yPwE8981TNTbi5PadpzEr
-         rgh5p81S+YOTuJ6vNy+owt43YNtyfM4d58rKk7GeiJmjR2KaSDSb9GwajL/A0bR3cEQp
-         KPiORiZenFmTwRq6ARsPYrhvBjvax6ffuf0xhf0eKvr6gAd+KJOhWu0DvNGWA23cgFNI
-         RwfVn3XLrcl2RmT74NLcwTtQkLK+XVqh63vjfpE82Mup4PkZa9WD1A8mJ+uAxOFJ48WW
-         Uh7h0ekcNjiGkvITPVGa+QFBVWzDUBgQxc/P+RvV8hzcouyuejUXLBrYTmkGAIvvmGZ4
-         2wYA==
-X-Gm-Message-State: AOJu0Yw1g7z1DOcEfFtLYh0TjJ69EAvzqy/UWqzfSlJrGZlAKQ4eUCUz
-	PS5CDlP6iX25AsT1RqxYiQ/Wwc5/qbUpTbfZwUa6tPexyvfuEVtxjKcIrvwU4MFDA8M=
-X-Gm-Gg: AfdE7clXD6bM2FMngV05IWoGISbTcDv7xmBiijfkSMemUkGCnOQxoSGXzk6k9tw1M42
-	aDbVFrT4Ihyx/0WyWEHD+QSAQkKTe9Z4Oe0H+xqSPSAXSJgevgVM1M4CyejeJpVrj0W3acHsw4k
-	SyCuEWlFSzm+44X5Z7WmCjCjyu9VvQAGtm0Ih9N8eGonCr9NA4ytqcs94blOffblLrGURm9pko6
-	IeC40V93k/ZGTOgbJsrzwANc05NJULD5ylq77c6Waxiqj74C5DeuRLbAgwykYXeu623ZUxZIOlK
-	DmJlW817BcNgeaX5DLlpc0l3JO42B/2QhOuabhWL8sdYVEp1gN1QxHYjlx0bWBIVpuKdtP2ZvI+
-	oePGONTwDBhALdM9vNFSvyTSrJBSuzvowSyUCXVY7DIBcGbxcBaX8Mo/PmkMn0tHc0SUz1j83rf
-	W3R1G+B0YkYZw=
-X-Received: by 2002:adf:fd12:0:b0:465:81cb:bb20 with SMTP id ffacd0b85a97d-47de666b180mr4267840f8f.9.1783430920880;
-        Tue, 07 Jul 2026 06:28:40 -0700 (PDT)
-Received: from localhost ([2a01:e0a:3c5:5fb1:df5f:95d0:b28f:9180])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47a9de1d905sm34336003f8f.2.2026.07.07.06.28.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jul 2026 06:28:40 -0700 (PDT)
-From: Jerome Brunet <jbrunet@baylibre.com>
-Date: Tue, 07 Jul 2026 15:28:28 +0200
-Subject: [PATCH] dt-bindings: i2c: mv64xxx: Add Allwinner A733 compatible
- string
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JbDV3t7d"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=S/66
+	Tr4/wWw2e5wyOQkpseGKYcZeRgyxcklvG+85blU=; b=JbDV3t7dFJEMuBpPM9UT
+	ypdaJRL+Vt/m67oZTrVq9b86tS3KUME22Aj+axzg2/1VNfdTGBSxXou01cN7t5wI
+	YZUv51JQdc31g0cPcsZzdlst8DIkRrzBKLifLn5jdsUgxeoZB+I/GiFMUFy12Pwk
+	96Yzd8dRDf3liwSU73pEzhDZRALZ131YfXvM8N25TF2kqTeXK7FdOBxC3B8LlbE5
+	tZk5LyVIBcwu9wA6jGgZfzlesCrXq0rpzTU33dNOUkVZi+IGAwRZUvMxV/k5O5io
+	3fUjWaYHG1u20AaZtHRAFnbIHiR5o8g/l0oFVDzdW5+1++gBfnGBJ/tNiU+/ZQN7
+	Fg==
+Received: (qmail 295838 invoked from network); 7 Jul 2026 15:48:23 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jul 2026 15:48:23 +0200
+X-UD-Smtp-Session: l3s3148p1@umMDpQVW6NFQT+F6
+Date: Tue, 7 Jul 2026 15:48:23 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: =?utf-8?Q?Beno=C3=AEt?= Monin <benoit.monin@bootlin.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH] i2ctransfer: Print modifier flags in PRINT_HEADER
+Message-ID: <ak0Dp14YqxRjA8TV@shikoro>
+References: <20260706-print-header-flags-v1-1-6d63b357d77b@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260707-allwinner-a733-i2c-compatible-v1-1-566340542bdd@baylibre.com>
-X-B4-Tracking: v=1; b=H4sIAPv+TGoC/yXMSw6CMBAA0KuQWTtJaQ1Fr2JcDOMAY2ohLX4Sw
- t2punybt0KWpJLhXK2Q5KVZp1hQHyrgkeIgqLdisMY2xhuPFMJbY5SE5J1DtYw8PWZatAuCzen
- I1NrWsKuhHHOSXj+//3L9Oz+7u/DyTWHbdr/7yUGBAAAA
-X-Change-ID: 20260707-allwinner-a733-i2c-compatible-694ca8280c31
-To: Chen-Yu Tsai <wens@kernel.org>, 
- Gregory CLEMENT <gregory.clement@bootlin.com>, 
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1312; i=jbrunet@baylibre.com;
- h=from:subject:message-id; bh=0FKoq7hLu09a+YTggc0+5XIYhkmzWH4CZtlIsc5csL8=;
- b=owEBbQKS/ZANAwAKAeb8Dxw38tqFAcsmYgBqTP78ynmZm8LqBW8z2bfeTlGcrUz56U7zrD+ep
- NJhRorGfMKJAjMEAAEKAB0WIQT04VmuGPP1bV8btxvm/A8cN/LahQUCakz+/AAKCRDm/A8cN/La
- hZb4D/0byM/y8b/cPdKD0MLfM2h6d8McFQ40cZbuxDxxX7lZ79txQQYqeUTgbgZJM5FHb2Sc50s
- h8jpKrr0V2CE8qJTxrNwfWRoM8w7MuYQ/POFb3KzQ9ZW0QJ29mo/5lrCBMlXUKNLA6KOsWfRyOa
- mNzW5obn21doyQOdtJfJSx5qOcYn788A4ylvIZ1jxIYYff1BGJiPqu0tYon+Sx7IlWRQmzeNypH
- FxP38sA3tZJIvpERBMY8Si6UtXwaYCgYMzTrihfGf6+fFMknmc5lFUHRHUi+CHIA1OiRS9do+tg
- x2xi18qO5N2Yx0bEpfOYXk+QAtyGtGaZ9RPGbslFjKw9vRifQ+DmgGsoLcfgdtOiLM6yTkDkNm/
- nvOrUn3vpL5iASh1F/QedxtiNKarjN3brs+bhN4J7wzdqOGppz9mv3pZFJRy/IJvmsuFpLxBCF+
- CdDi57OvoDigysxIim6zGLBgXqcO5Zs4R6I10WXkr5y4HXHt5c97BHAtSlQAt2zaTNhuZ4d887i
- QtiAm7/dspDY0zdd6rIUQs23Y582IPKJNjw9wiw/4hE45ujN0ASKq2oxMjUTwevoldtLkbHxfSy
- l/bBijigq4H0yPV8C8RraJYJlPmHWBjuDSar82C+6+MvrtCJrpm1U0NNupYelgwpGFd3W1+UPgz
- qQDw3R9B2zrBuRw==
-X-Developer-Key: i=jbrunet@baylibre.com; a=openpgp;
- fpr=F29F26CF27BAE1A9719AE6BDC3C92AAF3E60AED9
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="h/jK0ROStuBGN7LL"
+Content-Disposition: inline
+In-Reply-To: <20260706-print-header-flags-v1-1-6d63b357d77b@bootlin.com>
 
-The I2C controller IP used in the Allwinner A733 SoC is
-compatible with the ones used in the other recent Allwinner SoCs.
 
-Add the A733 specific compatible string to the list of existing names
-falling back to the allwinner,sun8i-v536-i2c string.
+--h/jK0ROStuBGN7LL
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
----
-This was tested on the Raxda A7A while enabling the AXP318 PMIC on S-TWI0
----
- Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml | 1 +
- 1 file changed, 1 insertion(+)
+On Mon, Jul 06, 2026 at 03:18:46PM +0200, Beno=C3=AEt Monin wrote:
+> Print the optional message modifier flags when printing the message
+> header. For example:
+>=20
+>     i2ctransfer -v -y 3 pr1@0x33 itr1@0x33
+>     msg 0: addr 0x33, read, len 1, emit STOP, buf 0x10
+>     msg 1: addr 0x33, read, len 1, ignore NACK, toggle read/write bit, bu=
+f 0x10
+>=20
+> If no optional flag is set, the output is unchanged.
+>=20
+> Signed-off-by: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
 
-diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-index c4efcef59133..2a9e723a724f 100644
---- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-@@ -34,6 +34,7 @@ properties:
-               - allwinner,sun50i-h616-i2c
-               - allwinner,sun50i-r329-i2c
-               - allwinner,sun55i-a523-i2c
-+              - allwinner,sun60i-a733-i2c
-           - const: allwinner,sun8i-v536-i2c
-           - const: allwinner,sun6i-a31-i2c
-       - const: marvell,mv64xxx-i2c
+Applied, thanks!
 
----
-base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
-change-id: 20260707-allwinner-a733-i2c-compatible-694ca8280c31
 
-Best regards,
---  
-Jerome
+--h/jK0ROStuBGN7LL
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpNA6MACgkQFA3kzBSg
+KbYQTg//Xsa11Mf4nieXP/npZ7X4wS1CFkFWgwnVAvupWGUWMjlC4jotvvGWBG4q
+5O/RVhZxKBiwCGD2kNFWor7h7FFAjG7ij7dYvu9NjDcaTzb2nrKmYUkr/ViRw0v4
+BGrC59QAWRlzi6hW5ELjrPsksLncCk5VH8LCanrLFZMgphNsY6Mzn+VUh0ihFArR
+3+PHqODVg6QaBrn3CJf6HwF3Gws5msNTErl0Cb6Yf7H5m+dtBS9EL/INrDSZfPVj
+MoM6INyKYWeEFljHMcwr6kFrahLhM0/b9rx7uhuYhgqA+yff9TDuQyYiXLaEDNp+
+hDkJbTCVr0uwVeB87SjRJZfIn2XygfItsXfDUb6RLN81d+4mWuguJuoRA+rGnLKr
+8hbuJCjn2N1hiepAL8KpKitzYk80xg2w8fXz+0lS0Ha6ZJ0CcZtrEU0II/OyeFlx
+uhDVeg5p6rOg9Z8WUWiDII+ow4beSKgMQhpsvVIvUNVb1uYgnPb+57u0WDQpHZ8Z
+x6bYxPpt4rYkuTc4AIh7PAKsZQW9dCxTuWBLOmAdtCuX7f6yebg6JMxz7OAn557Z
+4GVC4xRZLjmd1iSEeFC8lzdr+W6UGai55pC5lDDHVTAJGp1YVaZOvHFqwQ7s6iiX
+JfjXGWb10xHkbX6+sK/c/pPKVZeZ1ozVXO3QRkO5hbkPhAHw5to=
+=PRJp
+-----END PGP SIGNATURE-----
+
+--h/jK0ROStuBGN7LL--
