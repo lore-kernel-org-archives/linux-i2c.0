@@ -1,67 +1,67 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAADA3F7A86
-	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 21:48:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C77A3F86FC
+	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 21:48:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783547316; cv=none; b=mXrrYkf4f2asTe+k7w2uGTQ8JbXmA5MOrv+mhZoTTfrntCKVFxGTOFgrioE6ALehER2Kwt9Fk3HxWiJThka6J9ujsS3UzkBS8fzwNsoC5dwWnvZSKaQpVETeTPowsFjr5XtGyuVsCZfhT+KLGACfsHjQNSTsVgIMuxXHiUT/yH0=
+	t=1783547320; cv=none; b=SIYVtqultjZVkLAI92tpVIOtJjWBsQ9Vih0FjHf4SYWRlASO1XPGN5gMGqwIqJXD5fHz1kI5yfdVwlUCl8sWfY6sWLt8tNgFePOWGT300qTi1rTqGtH7H8j21omtYXpT4j7OOrZxpgZ50MWtoxAgnda4kTrpNBRoRnjEZVkZfYM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783547316; c=relaxed/simple;
-	bh=ohIJHi0HjdD9bBbQzoaPkpUGIGBnuQRogpMEkyBJxNc=;
+	s=arc-20240116; t=1783547320; c=relaxed/simple;
+	bh=oBzYn/0he9cz2/wYEhSxbP/n2MENiOCwowkBueU0EHI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=vEfeAKma/+JU+hPGMoqZnSrOquu7yQtWzAsAzLTUsB8jFkyPPdRP1PHe1+QoPy2BO3Lq24i5p/WOhK4rm1vVATe7FHih0dbhP32wjWRgeKty63o7lmsxRj13pNCn6yjwHtL5K0wZtA8IUwNsjCRYSjeU1SfJ+hV2AAAzDXxn7iE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dHDw093r; arc=none smtp.client-ip=209.85.216.53
+	 MIME-Version:Content-Type; b=HT694FBEXkB1S0cOgKXQ3CWen10gMVhv6EAVPNGuZwdYBbewYlW8OPFGqzx2AxmTB0KDk1DiDDM7aBGoqTZpZTGbHTzAM+ydtK9K+RvPxtK9WMtKFJ+ycPa+XXUyE7XVJU/bwVGvpaWtkCPlRaythcS0qzeAVq8FwuqoWNt9WVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WO8wvIaS; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dHDw093r"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-381018b9375so1318389a91.0
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2026 14:48:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WO8wvIaS"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2caed617615so12076065ad.3
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2026 14:48:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783547314; x=1784152114; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783547318; x=1784152118; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=P1YrMqSLA8v+9cu+GwrvjQthrOMf2VILPEYKg9x3ud8=;
-        b=dHDw093r8lmvLWAErB9JH3mEAGHX5Lsac6/r+kS/sjKmtwboQXu/CFTYf6c0abr6Js
-         Vnrf1PLIEVM4ZgxzP2YU/0NAjTVINgMC5APzSnodSZs5rc28iB2k6FPMF0HqRb1kOOAE
-         JmdYB37U/5HSnxgRRVDxSp/VY10xrC2o7h8KbsRTiPZD7kevgvVvLaLdQuzAGjg9HCNK
-         mgigBEUQ6loCweUYrQoWDBj9MCrri9l9h/ZOhOIxzHOoT9pDNJcYcncE6s4qxCbQGNZ+
-         wMcTJMT6I4ryCGa2+yc0u52kreH5fsoMk/ALPXekE1Wu+snVBdbMQkBZUKQqPSyk9TGF
-         hkWA==
+        bh=CcHS4omCQhk6NJkHYXiTY8hUWJw218fa7Nr5nM8cK8s=;
+        b=WO8wvIaSoJFMggpqfwmBgZe2JdJrXMskMHz5guokONGFElTeHr+s8dTYLu9ZqhO6DN
+         0j+57Q2RplQvi7n17P8zDJGPt+6wQ1WVGDsO0c1D9J6/XD8Loc2gYPnmTpzpjyiF6WtK
+         aZ541SMZD6tT6y0OTJQA+Kyc36GOZ4uNUjSvBBbYj9DuaPImaCl4QKtx8Rozd/oWfnQV
+         kZunitDST4BiPlEbRSobSWAa462DtE36Qv3Qd1r/3qFETQveEktAwopFNI/FBrlyWYAd
+         W6i8yg1pmZqJcoQ3rh0d21ZFt5TG+TURL8BvrLdxWH/meoUrpl6FKPaXpf9O8at4Okyp
+         mhNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783547314; x=1784152114;
+        d=1e100.net; s=20251104; t=1783547318; x=1784152118;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=P1YrMqSLA8v+9cu+GwrvjQthrOMf2VILPEYKg9x3ud8=;
-        b=TA/Gendaym8glaRhhsXsUqPM1tMv5bOaT2yeVQChwcQU5EjoWPk9UpuNEkO/2hzLfg
-         WMtaws2o/Aj/pxj3K3i1Xf3/claqnXAicCY+0wzlkQjw7S6FZ6X7ZVWlTesKY6/DimSu
-         /psDFEi4tX+pX/vP+ksNugyKnn097X8wZtX9GmhqYVqtQX9l9TFDqCXdtHCm7xiCFNIv
-         nNHnPPFnv6HHuTlCt4KdLIHynbdEOYY4eY2l1DsmI3ANh2+tgXhkN2afOhmP3n+PYfsb
-         R2Yz4UdMwFrajq2C880YSqYXtOi5pRVJEr5l1yUN1B0RfsvGm5Ebco9FruGzWtJ/136v
-         PqLQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpisJXD5R5OBR5ZtLNNy0urRHQEb9zAzGnnYdUTfL3Vbyvviykz+Z1RIX5FrGtmqTdb2hUnyj2eRGk=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywx8fV94MDPCPx2yD9ZVl66UDU4QYhZ15+j3ajMdLJeFu5dA53G
-	K0bHc/uysZRZlaKzJpbUvmJqZZt2W3mDbTovxQG8YBE2r44TDinEzzG0
-X-Gm-Gg: AfdE7cmxzb4VXIKa04XYrA+U2NcozBymkYdnPAFWiuUUT3lEN7wL42xfXO4V7aPVnAT
-	SDcNBb2G8S95lGzP66XVorNw/pkTWZAeIrALsgJgbDzP2lFHtlTeOpcjckM9fWx1E/u+hSYEYEa
-	1HSf0Efn5n4NGw28BY9YuZvjYCothMNxJQFhyAmzidQO8Fh34YRR+HdSV12juiEk6fNCPQbLQVa
-	EQJZR4jP4fh2M/wRgqtRWkSi3hxjujjKZfFasZGvAnFHsFBNE+Vf3WdrH2ONoK06JhDWongwq/1
-	cTFik2WjjcyMbZU9IEylfTBXFl+Eape3gamf3IE74znLeUMnYVDoSA4rE57WXX0kcb/HCUUNOyP
-	GDU+QAWvrykOjl4ZpIXLKV1R7kB19cesjALTq69c4PHmycOuhNqjOMZNU4yAMNyYxlY9mCSYQug
-	Hkbs01Y1ztrAQ01jtgjUry3csVD6ZdgnPiLZJZ9ycmjgMRc8FTljdYEJ2KpxQsM7uO5Tt1iOqn7
-	wunAO6kt9XcE11z2geLQRinwxVB/MSqPaHPuld3QAf0w0XGcnDbgmiipanTQHZdH33Xo/FMdGaK
-	ougAslZAhjlTcc8aPyHTB16LDKmjmgfIvFCASy6NTV3P+95RASUvY51/9NbV3qghjA6c4ZcaKCT
-	pL8PziC8=
-X-Received: by 2002:a17:90b:52d0:b0:380:7688:fbe9 with SMTP id 98e67ed59e1d1-3894014c54emr4820508a91.8.1783547314134;
-        Wed, 08 Jul 2026 14:48:34 -0700 (PDT)
+        bh=CcHS4omCQhk6NJkHYXiTY8hUWJw218fa7Nr5nM8cK8s=;
+        b=fLkPiyHDZR72fRhpWJy6W3SfeyElxKjE7w3FHJZA2iHdSLi2jHwaNvVM6xseV8DdrF
+         yXvehkJKDT9G1CbTpLFUkprCHos1nCiDcf2NMe4ORiq0M1WCWmrlFlvu+yQNxCaoA1Ku
+         Rkgibj32mxh9iFBJGKXmYr/oK0AS4/LtOYN79BWbVqgCkcDaHllrK+XAgv2FEE5ytNJX
+         V7P3LUF1e7KbsGpX92iB2IosvYEOiNsI4AAe5CoWz39A+5aoxNIWD1eCIukEGTBDY4iD
+         QohQjEw4ehS4yWs3AOz1qFYMfe0Sk4dJcnq3/GnuMi23NWKlV+4lQrbIFwLp5WNq28iY
+         1UnQ==
+X-Forwarded-Encrypted: i=1; AHgh+RorKUv3PPRQesoXHvsR3R7mxkFsgIJ0kZvsKkKk1S8Y5+aZI6EiK4bjgWEv7oIgpGja6lV+1puDXSM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwwaXC26MwSAPQkr4h1AN//j+bFbRsYIChCtp9/2SY+mMdmZnSr
+	nlggDmplnbtDI89K963V9yVG9WYs0p09MaMl+zSVK0wc4w5qoOsyr9rv
+X-Gm-Gg: AfdE7ckTZizZSlqha64aTHI2/tNRADmrvWrgkxU9qiMF58umKBMnrYy61orwaAa3Jgm
+	q+MKVqbYWt92K1JxRM7DjXBfEVjSxgeQcPS6jxrUD8UIfmt5T5iMMW+B/0kAIa7XDasZQ5v8xpM
+	B1PuPyfM2S7SQohoioDhNahcdC+tMMneH0+OuMyeAkN5DlTpiBwy4jz+9iu+tYj2oMnu/Uqd+80
+	VgWOH6byDW9KHtWPdld0Qiwqo3JRabk50odh+nAqHJh2O0ydaPHIUwOISIWBmjXpKwnaMabbZSv
+	1TlVeEIIw8JAOJuebDPSFU+RfrMAMfsw/5EtSKeI+XwS5g1blZ3DSM32LwSzU1pvS0ojb8286CW
+	ymzUd0oBIFBdrkfZRsfknWlaaPODmYsUrsp102DF2e6txFfyaWQ91+uo7nU22ZLh8cNY0bsQ4Jm
+	zdzlkvK01QjhLR5kHaz7w6mxYbPH2Soxvnfh0gsZITBnYldtlSWl9O6G6R9ahmHdxwpsrc4Po39
+	egCm+kYd6hKAvL7y4/eAN40e8NivfqJVsEk/+M0dpjyr7UOL2xdGxExAzW4qZHgYBM1YG6+RJLw
+	AbAssWs6JDlKgs3PtuIWdQHQorbmoRbny5+zqAX2nV/jeW0ppEunD+faETamWFnByG1xpmLzXoO
+	vZXEI8ig=
+X-Received: by 2002:a17:902:ff8e:b0:2ca:329:3da1 with SMTP id d9443c01a7336-2ccea3ca5eemr46255005ad.16.1783547317719;
+        Wed, 08 Jul 2026 14:48:37 -0700 (PDT)
 Received: from ip-172-31-21-198.us-west-2.compute.internal (ec2-35-85-29-74.us-west-2.compute.amazonaws.com. [35.85.29.74])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9d3d946sm33733855ad.66.2026.07.08.14.48.33
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ccc9d3d946sm33733855ad.66.2026.07.08.14.48.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2026 14:48:33 -0700 (PDT)
+        Wed, 08 Jul 2026 14:48:37 -0700 (PDT)
 From: Bruce Robertson <brucer42@gmail.com>
 To: rust-for-linux@vger.kernel.org,
 	linux-pm@vger.kernel.org,
@@ -75,9 +75,9 @@ Cc: Sebastian Reichel <sre@kernel.org>,
 	Alice Ryhl <aliceryhl@google.com>,
 	Boqun Feng <boqun@kernel.org>,
 	Bruce Robertson <brucer42@gmail.com>
-Subject: [RFC PATCH 1/3] rust: i2c: add SMBus byte transfer helpers
-Date: Wed,  8 Jul 2026 21:47:36 +0000
-Message-ID: <20260708214738.25008-2-brucer42@gmail.com>
+Subject: [RFC PATCH 2/3] rust: power_supply: add power supply class abstraction
+Date: Wed,  8 Jul 2026 21:47:37 +0000
+Message-ID: <20260708214738.25008-3-brucer42@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260708214738.25008-1-brucer42@gmail.com>
 References: <20260708214738.25008-1-brucer42@gmail.com>
@@ -90,78 +90,204 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The Rust I2cClient abstraction provides device-model plumbing but no way
-to perform register I/O. Add safe wrappers over the SMBus byte
-primitives:
+There is no Rust abstraction for the power supply class in mainline or
+rust-next. Add a minimal one:
 
-  - smbus_read_byte_data() / smbus_write_byte_data() wrap the C
-    functions, converting the overloaded s32 return into a Result and
-    confining the unsafe FFI behind the type invariant of I2cClient;
-  - smbus_update_bits() composes them into a masked read-modify-write,
-    with the bit arithmetic factored into a pure, testable apply_bits().
+  - a Driver trait carrying the supply's name, type and property list,
+    plus a get_property() method;
+  - a generic extern "C" trampoline the power supply core calls back
+    into, recovering the driver's private data via the parent device and
+    dispatching to get_property();
+  - a Registration that owns the power_supply_desc and unregisters the
+    supply on drop, freeing the descriptor in the correct order.
 
-smbus_update_bits() is not atomic against concurrent callers; this is
-documented and sufficient for single-threaded probe-time use. A lock
-will be required before a second accessor is introduced.
+Property, type and status constants are re-exported so drivers need not
+reach into the generated bindings directly.
 
 Signed-off-by: Bruce Robertson <brucer42@gmail.com>
 ---
- rust/kernel/i2c.rs | 42 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ MAINTAINERS                     |   1 +
+ rust/bindings/bindings_helper.h |   1 +
+ rust/kernel/lib.rs              |   1 +
+ rust/kernel/power_supply.rs     | 133 ++++++++++++++++++++++++++++++++
+ 4 files changed, 136 insertions(+)
+ create mode 100644 rust/kernel/power_supply.rs
 
-diff --git a/rust/kernel/i2c.rs b/rust/kernel/i2c.rs
-index 624b971ca8b0..07ce4299ff56 100644
---- a/rust/kernel/i2c.rs
-+++ b/rust/kernel/i2c.rs
-@@ -486,6 +486,48 @@ impl<Ctx: device::DeviceContext> I2cClient<Ctx> {
-     fn as_raw(&self) -> *mut bindings::i2c_client {
-         self.0.get()
-     }
-+
-+    /// Read a byte from the device register at `command` (SMBus read-byte-data).
-+    pub fn smbus_read_byte_data(&self, command: u8) -> Result<u8> {
-+        // SAFETY: `self.as_raw()` returns a valid pointer to a `struct i2c_client`
-+        // by the type invariant of `I2cClient`.
-+        let ret = unsafe { bindings::i2c_smbus_read_byte_data(self.as_raw(), command) };
-+        if ret < 0 {
-+            Err(Error::from_errno(ret))
-+        } else {
-+            Ok(ret as u8)
-+        }
-+    }
-+
-+    /// Write `value` to the device register at `command` (SMBus write-byte-data).
-+    pub fn smbus_write_byte_data(&self, command: u8, value: u8) -> Result {
-+        // SAFETY: `self.as_raw()` returns a valid pointer to a `struct i2c_client`
-+        // by the type invariant of `I2cClient`.
-+        to_result(unsafe { bindings::i2c_smbus_write_byte_data(self.as_raw(), command, value) })
-+    }
-+
-+    /// Read-modify-write: set the bits selected by `mask` in the register at
-+    /// `command` to `value`. Bits outside `mask` are preserved. Skips the write
-+    /// if nothing changes.
-+    ///
-+    /// # Atomicity
-+    ///
-+    /// This read-modify-write is **not** atomic against concurrent callers. Two
-+    /// callers updating disjoint fields of the same register can lose an update
-+    /// (both read the old value; the second write clobbers the first). Rust's
-+    /// safety guarantees cover memory, not device-register atomicity. Until this
-+    /// is serialized by a lock (cf. `regmap`, which holds its own lock across the
-+    /// RMW), callers must ensure mutual exclusion — currently safe only because
-+    /// the single probe path is the sole accessor. FIXME: add a lock before the
-+    /// threaded IRQ handler (Phase 4) introduces a second accessor.
-+    pub fn smbus_update_bits(&self, command: u8, mask: u8, value: u8) -> Result {
-+        let old = self.smbus_read_byte_data(command)?;
-+        let new = (old & !mask) | (value & mask);
-+        if new != old {
-+            self.smbus_write_byte_data(command, new)?;
-+        }
-+        Ok(())
-+    }
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 15011f5752a9..8e41f7917825 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -21546,6 +21546,7 @@ F:	Documentation/devicetree/bindings/power/supply/
+ F:	drivers/power/supply/
+ F:	include/linux/power/
+ F:	include/linux/power_supply.h
++F:	rust/kernel/power_supply.rs
+ F:	tools/testing/selftests/power_supply/
  
- // SAFETY: `I2cClient` is a transparent wrapper of `struct i2c_client`.
+ POWERNV OPERATOR PANEL LCD DISPLAY DRIVER
+diff --git a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
+index 1124785e210b..0bdaf7316140 100644
+--- a/rust/bindings/bindings_helper.h
++++ b/rust/bindings/bindings_helper.h
+@@ -78,6 +78,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_opp.h>
+ #include <linux/poll.h>
++#include <linux/power_supply.h>
+ #include <linux/property.h>
+ #include <linux/pwm.h>
+ #include <linux/random.h>
+diff --git a/rust/kernel/lib.rs b/rust/kernel/lib.rs
+index 9512af7156df..5013bdd30361 100644
+--- a/rust/kernel/lib.rs
++++ b/rust/kernel/lib.rs
+@@ -106,6 +106,7 @@
+ pub mod pci;
+ pub mod pid_namespace;
+ pub mod platform;
++pub mod power_supply;
+ pub mod prelude;
+ pub mod print;
+ pub mod processor;
+diff --git a/rust/kernel/power_supply.rs b/rust/kernel/power_supply.rs
+new file mode 100644
+index 000000000000..f466a89e7b3a
+--- /dev/null
++++ b/rust/kernel/power_supply.rs
+@@ -0,0 +1,133 @@
++// SPDX-License-Identifier: GPL-2.0
++
++//! Power supply class abstraction.
++//!
++//! C header: [`include/linux/power_supply.h`](srctree/include/linux/power_supply.h)
++
++use crate::{
++    bindings,
++    device::{self, Device},
++    error::*,
++    prelude::*,
++};
++
++/// A power-supply property id.
++pub use bindings::power_supply_property as Property;
++/// The value returned for a property query.
++pub use bindings::power_supply_propval as PropertyValue;
++/// A power-supply type.
++pub use bindings::power_supply_type as Type;
++
++/// `POWER_SUPPLY_PROP_STATUS`.
++pub const PROP_STATUS: Property = bindings::power_supply_property_POWER_SUPPLY_PROP_STATUS;
++/// `POWER_SUPPLY_PROP_ONLINE`.
++pub const PROP_ONLINE: Property = bindings::power_supply_property_POWER_SUPPLY_PROP_ONLINE;
++/// `POWER_SUPPLY_TYPE_MAINS`.
++pub const TYPE_MAINS: Type = bindings::power_supply_type_POWER_SUPPLY_TYPE_MAINS;
++/// `POWER_SUPPLY_STATUS_CHARGING`.
++pub const STATUS_CHARGING: i32 = bindings::POWER_SUPPLY_STATUS_CHARGING as i32;
++/// `POWER_SUPPLY_STATUS_NOT_CHARGING`.
++pub const STATUS_NOT_CHARGING: i32 = bindings::POWER_SUPPLY_STATUS_NOT_CHARGING as i32;
++/// `POWER_SUPPLY_PROP_CHARGE_TYPE`.
++pub const PROP_CHARGE_TYPE: Property =
++    bindings::power_supply_property_POWER_SUPPLY_PROP_CHARGE_TYPE;
++/// `POWER_SUPPLY_CHARGE_TYPE_NONE`.
++pub const CHARGE_TYPE_NONE: i32 =
++    bindings::power_supply_charge_type_POWER_SUPPLY_CHARGE_TYPE_NONE as i32;
++/// `POWER_SUPPLY_CHARGE_TYPE_TRICKLE`.
++pub const CHARGE_TYPE_TRICKLE: i32 =
++    bindings::power_supply_charge_type_POWER_SUPPLY_CHARGE_TYPE_TRICKLE as i32;
++/// `POWER_SUPPLY_CHARGE_TYPE_FAST`.
++pub const CHARGE_TYPE_FAST: i32 =
++    bindings::power_supply_charge_type_POWER_SUPPLY_CHARGE_TYPE_FAST as i32;
++
++/// A driver backing a power supply.
++pub trait Driver {
++    /// sysfs name: appears at `/sys/class/power_supply/<NAME>`.
++    const NAME: &'static CStr;
++
++    /// The power-supply type (mains, USB, battery, …).
++    const TYPE: Type;
++
++    /// The properties this supply can answer.
++    const PROPERTIES: &'static [Property];
++
++    /// Answer a single property query.
++    fn get_property(self: Pin<&Self>, psp: Property, val: &mut PropertyValue) -> Result;
++}
++
++/// `get_property` trampoline: the C power supply core calls this and it
++/// dispatches to [`Driver::get_property`].
++///
++/// # Safety
++///
++/// May only be installed as the `get_property` field of a `power_supply_desc`
++/// registered with `drv_data` set to the parent `*mut device`. The core
++/// guarantees `psy` and `val` are valid for the duration of the call.
++unsafe extern "C" fn get_property_trampoline<T: Driver + 'static>(
++    psy: *mut bindings::power_supply,
++    psp: Property,
++    val: *mut PropertyValue,
++) -> kernel::ffi::c_int {
++    // SAFETY: core passes a valid `psy`; we stored the parent device ptr as its drv_data.
++    let dev_ptr = unsafe { bindings::power_supply_get_drvdata(psy) }.cast::<bindings::device>();
++    // SAFETY: that device is valid while the (devm) supply lives.
++    let dev: &Device<device::CoreInternal<'_>> = unsafe { Device::from_raw(dev_ptr) };
++    // SAFETY: callbacks only fire after probe returned, so set_drvdata stored a `T`.
++    let data = unsafe { dev.drvdata_borrow::<T>() };
++    // SAFETY: core passes a valid `val` for the call.
++    let val = unsafe { &mut *val };
++    from_result(|| {
++        data.get_property(psp, val)?;
++        Ok(0)
++    })
++}
++
++/// A registered power supply. Unregisters and frees its descriptor on drop.
++pub struct Registration {
++    psy: *mut bindings::power_supply,
++    // Kept alive so the descriptor the core holds stays valid until unregister.
++    _desc: KBox<bindings::power_supply_desc>,
++}
++
++// SAFETY: `Registration` owns the `power_supply` and its descriptor; the raw
++// pointer is only used to unregister on drop. Safe to send/share across threads.
++unsafe impl Send for Registration {}
++// SAFETY: as above — psy and descriptor are only accessed on drop, so sharing
++// a `&Registration` across threads is sound.
++unsafe impl Sync for Registration {}
++
++impl Drop for Registration {
++    fn drop(&mut self) {
++        // SAFETY: `psy` came from a successful `power_supply_register` and has not been
++        // unregistered. `power_supply_unregister` blocks until no callback is running;
++        // `_desc` (dropped immediately after) is then no longer referenced by the core.
++        unsafe { bindings::power_supply_unregister(self.psy) };
++    }
++}
++
++/// Register a power supply backed by driver `T` against `dev`.
++pub fn register<T: Driver + 'static>(dev: &Device) -> Result<Registration> {
++    let mut desc = KBox::new(bindings::power_supply_desc::default(), GFP_KERNEL)?;
++    desc.name = T::NAME.as_char_ptr();
++    desc.type_ = T::TYPE;
++    desc.properties = T::PROPERTIES.as_ptr();
++    desc.num_properties = T::PROPERTIES.len();
++    desc.get_property = Some(get_property_trampoline::<T>);
++
++    // Stable heap address; moving the KBox into `Registration` keeps this valid
++    // (moving a KBox moves the pointer, not the heap allocation).
++    let desc_ptr: *const bindings::power_supply_desc = &*desc;
++
++    let cfg = bindings::power_supply_config {
++        drv_data: dev.as_raw().cast::<kernel::ffi::c_void>(),
++        ..Default::default()
++    };
++
++    // SAFETY: `dev` valid; `desc_ptr` points into `desc`, kept alive in the returned
++    // `Registration` and freed only after `power_supply_unregister`; `cfg` valid for the call.
++    let psy = unsafe { bindings::power_supply_register(dev.as_raw(), desc_ptr, &cfg) };
++    let psy = from_err_ptr(psy)?;
++
++    Ok(Registration { psy, _desc: desc })
++}
 -- 
 2.43.0
 
