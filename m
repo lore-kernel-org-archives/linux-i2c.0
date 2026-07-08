@@ -1,66 +1,67 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 339CD43E4A1
-	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 12:16:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D32E43E9C3
+	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 12:16:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783513016; cv=none; b=Q5+5ua0z32brWuKTJBDnRID3ceVkWxdpKHM1JfiqnbG4xpcYcv0yiqd1bxvCogHmiqu7L5NjBAgbANzaKCCgpqDIUbZbVqjdmwQ1LkR4Piyl/i/X0Awgs70fxeJVcJEyk6zigy4ABfn+geAWGVCGWnnIwmGkPHaMMmHgkIf/Iws=
+	t=1783513017; cv=none; b=uPg3xbnJ/0uPSj8B1eMw0FLjHfzLLFlCl9xwCBIuYjTCnEvO5gLn1D2jHuO+dWaYCXO/3qw0K/xU1eoJCnYgGq5SsBc1JcdsYdHxy259TArQDWMi5fOgKikp9Gi6CT/5yRImyLZCt+WG7vToopmeqFjS8u6qvvy/NsflnpCNJEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783513016; c=relaxed/simple;
-	bh=i0MzyPSyCHemenGFkixpELNTDZX3XPRlllD75eljshA=;
+	s=arc-20240116; t=1783513017; c=relaxed/simple;
+	bh=tWBE+9nC9oYSk5UAsuWGi9/zHXxUjrXV0Pqxs0s1rgA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TI1KQ/C6eS6+i5CtdZO/qFXKgcWTNjvFc5DjRidypTwhxeB/dnkGhmh3kpoekZ7JgYMBLZoQWaLgHlIKxkMseB8voqGvacoyN+eW/a/MwGZfFOpYmoIvGSeiQtrSeWxFA1wL8jQ9A5dQ75pSIWT1+x1kb/5NuqEKIssMVaKsRoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g4SjJFbh; arc=none smtp.client-ip=209.85.167.44
+	 In-Reply-To:To:Cc; b=bxIyvcmwwnqBmoLYQTg65eVxcq77r8gHY3Y26pSOjQM6+dD7/nd4XCBoqZNkigKI6H3PqBp8U8KrhtCoBGQn0tfOSQNPST5F9vE3Q7BMBgeqdZJLsRF1qpgbap20pKHT++mCsesdkOoAMe8T1t8ItB2rkycCYc1m4EgqwnShQJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qKY6a08A; arc=none smtp.client-ip=209.85.167.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g4SjJFbh"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5aeb5e85378so630302e87.1
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2026 05:16:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qKY6a08A"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5aec6360133so476432e87.1
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2026 05:16:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783513011; x=1784117811; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1783513013; x=1784117813; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=M4ngO6LQ445yVIm+0Mq73SpzwdNfhUAJBkx6M7Jo6mI=;
-        b=g4SjJFbh1EXQO7wUf6L2lw2mScJEUvR+E21E3mqBPXgMBQZiEhGi40xCtZzNAwZZhu
-         RAs9s+hHrUCQ5ij+BdIo3rIwrFiBlidb2Ran3qaA3VV4b0qvdNaMZytUXhYPg3MZ+hEC
-         v0lMxuiGF7aMwuYhUsxQz3lXEXKHD9G5MnFp5WcHiljsz7++v1iJuQ21Td+0dGGVONc4
-         PvcVEnjt6xn+haxGZYg6PJcDic29ItLK9cKQp2UYg7ArBeKEfFtgzOAsS+BHWCORZJ5O
-         5s8W0lRyJ9aHg732a00gid6eGmPKTO7ID8WNWHguhdrGhY4mh3DAk7N/LhmMGwLBW/dp
-         dceA==
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=2vmZPZjXbsjdRbGB07wKnlv0n+AtIoVZmnXS0nIYHMM=;
+        b=qKY6a08ALMpblJrUKJpqMBHt+J5FCIefEdO0lTYrWJl5INa9N/M7jL8ovO82N830mx
+         IKyHWyHGuaj+2jKpMyJ0fTuwPucDFUE+KiCeSwdbqPvGP3bGmNO3X7+2i61WtOggfnUb
+         UY/82Fez0Tlpkbtkw+U4Z1XK6rAZXHtFw1YyJuipH4Ua0Aq71xenXERW6NUTso8ti3oi
+         yXY/NAC8md7pB1HQk0fj6maPJYRNfZghA1dE0St3fG+eC8URA/9RQMQq0JQS6P0uFaF+
+         H/fuMk/D7nL22VCmm4DC471wkKc2kvR6F1Fw26s22VPzRvfzzYPxMXDrG4nYV+mM9F/W
+         o2ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783513011; x=1784117811;
+        d=1e100.net; s=20251104; t=1783513013; x=1784117813;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=M4ngO6LQ445yVIm+0Mq73SpzwdNfhUAJBkx6M7Jo6mI=;
-        b=heWWTvOOdF8tJKQ8rV/GMEKeXU/4K9rpbnnTHsV55r78gugHf2uW+t18Hqmq3cQyt2
-         vI/meM8WMmUmASRjA6fbYantVdtxu5Qh7k+RkHz2eEu8/DQmnebys53SHY5V1Ls2aUJn
-         SlyxBaWArIyCI8/WJPAF6bgZzUIukHXINKCGNJvgf0ea5s5Z5E/APa0g8OZgBnoc428d
-         VAUadmQGwpapJdghqNHWpHM4h6w61CHRFfBlTUyOI1WdVkUF4UhM78oyY/t7fpvboj+O
-         gPywD3dfw5fxGdvPc+2iSxmRFhvGyluXki7d54/ggGX+RKZIFMzMLzFVOmB6aOmcNUEw
-         +fXw==
-X-Gm-Message-State: AOJu0YzbGEZx2pz9NtMHgiL/f0qyJXf5Pgc/bz7zwRHapOSrwlU6OGQK
-	am9MbVfCbYHd0twoBxsf6FZCStBJK5EGEneP6fGDJMO41egjnEmIjZi6
-X-Gm-Gg: AfdE7cmidTkhh0UONEbhypDirYCC9uRe1SHVcbWfHG/be7pK1Mv2tEx4JMSwp3Gn6Kq
-	wbQz+AlEJQ976EjwBOivBNJnIgprbA4nnSKRl3p5EB9QmIZ8AkXMst/oBk5YVoiYgrEpUpXRAYS
-	5MRbfQe2/3OXIEYEAu1g59rOyLlkN1Yt0rgcFmv29HTpwaxOE8CSQL+8i8FhcmluQqLKRfgh+A3
-	cDpI00gPke6gZtfdMyOgimU2Y7d0BQPTBLok1ZG/IAEHmVbL0vSvBpgJt3dovW+ikLUk0hkm8Xg
-	qeznbH9/U05ViZRIQx5/1W4mC3I5bZc5/wXsfeP1sp9gjNqrt9w1hvJpvNPydPcLQNFGk5GcAwV
-	47KTXc8FQDYm1ikUK61oPAr9nwutchCYbTQVhRK2ZDJcfMoCQ1Cq1fIYP/xFPsUQnDlFQSFY2qn
-	CXZOz9qTSoknNU3PqT1V9dSLYl0bE4sE7x2eh1IiutGyqdMf/nTcvOIL89JZmWFefZU/Fg
-X-Received: by 2002:a05:6512:358d:b0:5ae:b62d:3205 with SMTP id 2adb3069b0e04-5b01147ac43mr433734e87.14.1783513011316;
-        Wed, 08 Jul 2026 05:16:51 -0700 (PDT)
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=2vmZPZjXbsjdRbGB07wKnlv0n+AtIoVZmnXS0nIYHMM=;
+        b=goam/4kLEqi+fZfadx45gnz1abGiZoD6ebEjMmWpuwrKmvImSvDwsf+ZzTnK4L53hl
+         XFq0HzFbn7gkdNwLVzyrWf2l/QzF9lNPuslwBVoIokj4uKTExDpVgRr88aPczVVP3gEg
+         SryXTBC/ZkV+AoXXyiGlLVn/q1HxEsTKC6aRwGnymhtpulF3lox6Uk9jWmo4C1Fm04DG
+         +n0JkxzfYv1jp6r/wEOuw1XFn6oOQN/gcT8cRKVBnB0zVADWrmANod+uRkrl8I3W3wSG
+         LULh103eMCXk9i5Ipn0hA39TunYWlPXDrx8M069IK21kEBskH5oh7knOjpcZYzN5KAK6
+         zyOQ==
+X-Gm-Message-State: AOJu0YxawmBF0KuNMPgJxmAiutIN5DA0aOtVp9+hm/fuVpQQkEZsmPLF
+	eD3Zx7KO/ZXhzsC3U9BzRD7x7s9pKoleEMsY07SGyjj1SQ/BPstMnOD4
+X-Gm-Gg: AfdE7cnjwk5ZJuF1VxpOQeWW07gi4P+ioc7YwPvd2+Qa7YCIjbO4WuiY5xSDZxIDJ7p
+	UtpBINCaMPeP+JAncTg55WMEu7wBkn/2vB4KABJ+6HabXuPSrun9+4F1Ss233f7w0S4XAl3PlT6
+	InXwzyofGAP9suQQp1Ld/jD/734328tkEtJ4iWmh0rH7hpfSkxECGxDy9pyZdNljUDx/oEvLgsl
+	48EnVoLpAnfkz1JDs70LS8OUJeLMLwm3Q0ARNMN08Nf04hqEmg5NaGxK9YPPYyXlHAXIugo3kJb
+	347FTxo99xKwJHKIIa788CeP//npTPAnQTIbxlL0yPU/Eq6TODYeob1JkEj1ldRX55c5sdLZSse
+	AQNB7uhnyispNcViHU7qx7hd7WtxGk40oaCakRyndi87vyuuLX7bFmAkb0C4USG3YKtWVUbTVgO
+	muwbt2/MVLujPOpl1jeaseszLqRtgoWvl+54BLZcPdfCY1IEulac6qrm7fCA==
+X-Received: by 2002:a05:6512:1556:b0:5ae:c3ff:ad03 with SMTP id 2adb3069b0e04-5b0114a1798mr401304e87.64.1783513012467;
+        Wed, 08 Jul 2026 05:16:52 -0700 (PDT)
 Received: from [192.168.1.135] (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aed13bbbc6sm4471459e87.41.2026.07.08.05.16.50
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aed13bbbc6sm4471459e87.41.2026.07.08.05.16.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jul 2026 05:16:50 -0700 (PDT)
+        Wed, 08 Jul 2026 05:16:51 -0700 (PDT)
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Wed, 08 Jul 2026 14:16:17 +0200
-Subject: [PATCH v10 5/7] i2c: davinci: add support for setting bus
- frequency
+Date: Wed, 08 Jul 2026 14:16:18 +0200
+Subject: [PATCH v10 6/7] i2c: mux: ltc4306: set correct idle_state in
+ i2c_mux_core
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -69,7 +70,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260708-i2c-mux-v10-5-09dca03c8a15@gmail.com>
+Message-Id: <20260708-i2c-mux-v10-6-09dca03c8a15@gmail.com>
 References: <20260708-i2c-mux-v10-0-09dca03c8a15@gmail.com>
 In-Reply-To: <20260708-i2c-mux-v10-0-09dca03c8a15@gmail.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
@@ -80,135 +81,47 @@ To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
  Peter Rosin <peda@lysator.liu.se>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-arm-kernel@lists.infradead.org, 
- Marcus Folkesson <marcus.folkesson@gmail.com>, 
- Bartosz Golaszewski <brgl@kernel.org>
+ Marcus Folkesson <marcus.folkesson@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3829;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=763;
  i=marcus.folkesson@gmail.com; h=from:subject:message-id;
- bh=i0MzyPSyCHemenGFkixpELNTDZX3XPRlllD75eljshA=;
- b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBqTj+ots8cu+FKDeonoFwNBgioHD05/dGsQ3jPv
- g0dgiOw4veJAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCak4/qAAKCRCIgE5vWV1S
- Mhu+EADeGzF68my1I2YE3fmzMrHzVkJDP0KAchf3oIBo2pkG91mfjP7htpTWpt8DvkRkFPSeJfq
- afoVZ9JAKBNRujeVE8YO24LmeW60z67pXHY4TYmpgeTHwaGQCNRsICgsnGpaxrdCxYwi9jpnPwW
- mAd0BGOrwTXiC8tjEATc/oXkv2KC0/F7LuuetYIlsmAtAuD5EHslg3LCm+aqlyP1cmocHn1n5BF
- CUMniC0hguGN75+2cwGgEsMx1gW1Reh26HyLgTnyGV3C6wy6ghRlzvrc/mrITL2eHTvAUgm9YPb
- /3hZtgU1vPVYba3jiA2jDZqwM7y4bQ4rtS0rpFPlZSJrdQ5/IeEFN7ohqriVfS138XyYZuVd3rs
- /OGCky9BuD8tAXFxyoBUasl0x5cma06qWcac3O1fm+vVcNDL+5tV7bIsXPbfp2Fw90VHnj9FldY
- e47Fqnl9cpO6XhB9l0X6Mn9wnct6QXFycg8gf6g4YvN8jGo1PoxyeY92yMv/kEfPliN6775ZL0n
- bjA9/QwkF0A3XSdkpJiokaDUbtnutIHzML+uGutj6TKXOoTV1mDNaujF1BUTtK5mtzTd6C+Ka+E
- WJnSK8PUeQ6XD3oq2kReuaNVXwIpOL+logmHm1FySStrbDm76XhR4ou7cdh5AVAg+MsXA79rqFg
- lj98HqrZ6f2SPIQ==
+ bh=tWBE+9nC9oYSk5UAsuWGi9/zHXxUjrXV0Pqxs0s1rgA=;
+ b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBqTj+t/hfQEjggqeMYycAhhahuTzJfFGICtE6JR
+ HN7+5jvvr+JAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCak4/rQAKCRCIgE5vWV1S
+ MlZoD/9yv62s1VvnHa59NCKpr13J5p0XHsobTQ9Js0FkXajv8kKDavWpMXaPqA1/AmtkrMXqMqw
+ ZwMkdvj1jCPSXkEFHKZwBFbzulV2f72Blr+RO/mN2mgHxWz+z3j6tl0ADhg9hqj39d14S1SsPcQ
+ jVxGmpmx+YP9/c1Olpi3DN9g02IUvUSNUYrU+sbmySAKTXyDOlTwSsXUuiUdlF+EzdFsnv4FkK4
+ U2fY4/9HibrnawH40WqgEF0d9yYyqNvVtdnIR5K08U6qerNUrsJ079KaCpgf4JB+SljjkF/h6mu
+ 1i1KREngKDsvvVB954tvy29pXw8MVUdA+EVazQVbaUURn5KXsOC8tMQ8wZLp1SDgw/nKrBr41I4
+ Ng2dZVhl2qNMagQmM41lnRtpweOGPMQuSFxfkCDSyJCOAC76MHyxbGW5AuQDiYjOmyed/b75mYj
+ /taenYi+VAO/4QCRb9PLG6j5/BBgWJ21aKUgBtnMV9Ey6Bjy9OFQCc9x5SQdyNBtQ+lIRp2JsFL
+ RPPo41wwABDjZ5ghBkx+8pylqT5wr01QDsRj4A8HoXdDfm2Qqj13f2ncXrc6zOnR/+kvmKLUeRF
+ /IFl1ju2d9A9MIXz/sHCnhA/UYAFNT3BW1B/K6ic7V3XWg4eATshSWTYcoi8VYKoPsDHcmtougp
+ xYoEGDuOb1AaQcw==
 X-Developer-Key: i=marcus.folkesson@gmail.com; a=openpgp;
  fpr=AB91D46C7E0F6E6FB2AB640EC0FE25D598F6C127
 
-Populate adapter with clock_hz and .set_clk_freq() to enable support for
-dynamic bus frequency.
+Inform the core if we intend to disconnect channels during idle.
 
-Remove bus_freq_hz entirely and only use clock_hz instead.
-
-Acked-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- drivers/i2c/busses/i2c-davinci.c | 31 ++++++++++++++++++++++++-------
- 1 file changed, 24 insertions(+), 7 deletions(-)
+ drivers/i2c/muxes/i2c-mux-ltc4306.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 549fb22cdf4f..fd87dc661ecb 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -132,8 +132,6 @@ struct davinci_i2c_dev {
- #ifdef CONFIG_CPU_FREQ
- 	struct notifier_block	freq_transition;
- #endif
--	/* standard bus frequency */
--	unsigned int		bus_freq_hz;
- 	/* Chip has a ICPFUNC register */
- 	bool			has_pfunc;
- };
-@@ -171,6 +169,7 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 	u32 clkh;
- 	u32 clkl;
- 	u32 input_clock = clk_get_rate(dev->clk);
-+	u32 bus_freq_hz = dev->adapter.clock_hz;
+diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+index 18228f5b80e8..d1bd59d73799 100644
+--- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
++++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+@@ -232,6 +232,9 @@ static int ltc4306_probe(struct i2c_client *client)
+ 	data = i2c_mux_priv(muxc);
+ 	data->chip = chip;
  
- 	/* NOTE: I2C Clock divider programming info
- 	 * As per I2C specs the following formulas provide prescaler
-@@ -207,9 +206,9 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 	if (device_is_compatible(dev->dev, "ti,keystone-i2c"))
- 		d = 6;
- 
--	clk = (input_clock / (psc + 1)) / (dev->bus_freq_hz);
-+	clk = (input_clock / (psc + 1)) / (bus_freq_hz);
- 	/* Avoid driving the bus too fast because of rounding errors above */
--	if (input_clock / (psc + 1) / clk > dev->bus_freq_hz)
-+	if (input_clock / (psc + 1) / clk > bus_freq_hz)
- 		clk++;
- 	/*
- 	 * According to I2C-BUS Spec 2.1, in FAST-MODE LOW period should be at
-@@ -267,7 +266,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
- 		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKL_REG));
- 	dev_dbg(dev->dev, "CLKH = %d\n",
- 		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
--	dev_dbg(dev->dev, "bus_freq_hz = %dHz\n", dev->bus_freq_hz);
-+	dev_dbg(dev->dev, "bus_freq_hz = %dHz\n", dev->adapter.clock_hz);
- 
- 
- 	/* Take the I2C module out of reset: */
-@@ -279,6 +278,23 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
- 	return 0;
- }
- 
-+static int davinci_i2c_set_clk(struct i2c_adapter *adap, u32 clock_hz)
-+{
-+	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
++	if (idle_disc)
++		i2c_mux_set_idle_state(muxc, MUX_IDLE_DISCONNECT);
 +
-+	/* put I2C into reset */
-+	davinci_i2c_reset_ctrl(dev, 0);
-+
-+	/* compute clock dividers */
-+	adap->clock_hz = clock_hz;
-+	i2c_davinci_calc_clk_dividers(dev);
-+
-+	/* Take the I2C module out of reset: */
-+	davinci_i2c_reset_ctrl(dev, 1);
-+
-+	return clock_hz;
-+}
-+
- /*
-  * This routine does i2c bus recovery by using i2c_generic_scl_recovery
-  * which is provided by I2C Bus recovery infrastructure.
-@@ -755,12 +771,13 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
-+	adap = &dev->adapter;
+ 	i2c_set_clientdata(client, muxc);
  
- 	r = device_property_read_u32(&pdev->dev, "clock-frequency", &prop);
- 	if (r)
- 		prop = I2C_MAX_STANDARD_MODE_FREQ;
- 
--	dev->bus_freq_hz = prop;
-+	adap->clock_hz = prop;
- 
- 	dev->has_pfunc = device_property_present(&pdev->dev, "ti,has-pfunc");
- 
-@@ -800,7 +817,6 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 		goto err_unuse_clocks;
- 	}
- 
--	adap = &dev->adapter;
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
- 	adap->class = I2C_CLASS_DEPRECATED;
-@@ -809,6 +825,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	adap->dev.parent = &pdev->dev;
- 	adap->timeout = DAVINCI_I2C_TIMEOUT;
- 	adap->dev.of_node = dev_of_node(&pdev->dev);
-+	adap->set_clk_freq = davinci_i2c_set_clk;
- 
- 	if (dev->has_pfunc)
- 		adap->bus_recovery_info = &davinci_i2c_scl_recovery_info;
+ 	data->regmap = devm_regmap_init_i2c(client, &ltc4306_regmap_config);
 
 -- 
 2.54.0
