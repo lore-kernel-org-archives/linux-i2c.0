@@ -1,139 +1,115 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D02E3BFAD1;
-	Wed,  8 Jul 2026 11:12:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 251923CF96D
+	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 11:13:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783509136; cv=none; b=jPykNzg+2BHAzKfffm4/r4V0kBaDeYODapjHybpZlQc/EQGBctMxgxXGcxzmW1U5RWKXbNi9nZb/N+q272A+1rf161mh/5l6dBV3ty1I2W6icrSzxM38hML9437kp5xQaugwCRsg8PoPvD2SZhDTzulUBDFlOlk+quSYhm0diQI=
+	t=1783509236; cv=none; b=p12nn63mYljysB4poBfTo0SwTEYuwTWHgLAI1HcrMgje4HblCALFQFMffrWi/wiGA3rN3JXTfVN8VuETpD3dX7uOw1g+bNqbXO/AMs1R+ja5hO2OMV/D22NMPw0SI8r0h21AnhHv/ZS2NzyJyUEK+PuF7ufPoXCql7fFGzhM1kA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783509136; c=relaxed/simple;
-	bh=dXbZA1E6z2cbPpn5lXVwUbC3y8RJZe9PuV/6K4qA1zI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BiF3qR7rJBWbNmlFriBx6WniD58XQNt58kyh0Zl5TMaCh8AK6D9gKK7Jy9JLhDW1doGywyM1Q2jE3uZXVl3dxr7KLHFTiwqROst+wcS4IiNial7Vxvx7N5A16lXhOPP8xDX5PX/K0Igub6V6+d7tbDOcI6EHjY1pLqR7mThKQ/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NKaLLLgY; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1783509236; c=relaxed/simple;
+	bh=vyG3JFyipUQQZdW3L6wNp5Zvb2ZwjDwP/2Uy6e/4Lmg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h79r4NZasD+5mTOCyTCOzeK4t+gQ5WxivM/Ek7IG+ApgTFu8/4Fq5Mhc8HaZxC9qhLFcLW9Tti7Vynp/ui0UVSMkDMEKwkNw8Rtxw9FdCPbuIfs56BtESJZhpfMR/i79UZJb0eqKPVyJFTVkBZPADg3yd6WIHeag0a5ROhWPCEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HP3YIJR4; arc=none smtp.client-ip=209.85.210.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NKaLLLgY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1783509135; x=1815045135;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=dXbZA1E6z2cbPpn5lXVwUbC3y8RJZe9PuV/6K4qA1zI=;
-  b=NKaLLLgYSGwRbFEUPZ4WXfWAkQLZfXhRPviQaSCCWKxzP1Hwd/RZVyI5
-   qhXuK+dXM700naBdhd5VjHzf3fB68yRX1rwFVdBb5K4tRooC+h47nZN0b
-   HqlzRyvi3i/kegVxXwlN1Q9bFbd81z5OdScYJJbrEMHBh9n2zirrfivj3
-   BLmv97jfpG4CZUhQ06zO8jXEDpEWV04IHrUTpZ4Y4IibitKa+7JaNke2V
-   eeZ2GZkWMVMW7okGFl4bSqx3udTAk2pzQVKxjuOZ7hAoPkOtFqIPD9PMt
-   rUuZBYfnUwPvVhb5PmwwjRrhP3ahd79YDWKu/qN+x7cMdQsrVi6vnYScE
-   A==;
-X-CSE-ConnectionGUID: y2pZuRN5R/a+RXZU4b1NyA==
-X-CSE-MsgGUID: e/wLbpAFT1aFeVdEaqouAA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11840"; a="84025163"
-X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
-   d="scan'208";a="84025163"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 04:12:14 -0700
-X-CSE-ConnectionGUID: xnTXU7N2RFKFpJyFUzPznA==
-X-CSE-MsgGUID: WXa6o+4tR/u+kKLX2b+3mA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
-   d="scan'208";a="252523743"
-Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.100])
-  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 04:12:00 -0700
-Date: Wed, 8 Jul 2026 14:11:58 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: Lee Jones <lee@kernel.org>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>,
-	Thierry Reding <thierry.reding@avionic-design.de>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Srinivas Kandagatla <srini@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Vinod Koul <vkoul@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Doug Berger <opendmb@gmail.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Peter Chen <peter.chen@kernel.org>,
-	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Maximilian Luz <luzmaximilian@gmail.com>,
-	Hans de Goede <hansg@kernel.org>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
-	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org, mfd@lists.linux.dev,
-	Manuel Ebner <manuelebner@mailbox.org>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: Re: [PATCH v3 05/20] driver core: update kerneldoc for
- platform_device_alloc()
-Message-ID: <ak4wfuYxO2serrQt@ashevche-desk.local>
-References: <20260706-pdev-fwnode-ref-v3-0-1ff028e33779@oss.qualcomm.com>
- <20260706-pdev-fwnode-ref-v3-5-1ff028e33779@oss.qualcomm.com>
- <ak0jyUbNonSRiP_g@ashevche-desk.local>
- <CAMRc=Md7-XMBKpdPuZ4=epfTn6F-PXKJBZNPGuz5xbVy58BHsg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HP3YIJR4"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-8478fe07f0fso497823b3a.0
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2026 04:13:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783509233; x=1784114033; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=em41dlu4oQdZqWDduU5M4moJ/CYl/v0sl+4/AYrbgEs=;
+        b=HP3YIJR46+r0L5myXjhipUR3QOp0DoWUMApq2u2ndFC60oTJtE1xiHp0yvXl5jKJJI
+         p6e48SLCfvGI0DKfPebpllLMTrmqnpX2bSMiwrvh3EXNT8kASRVH3J4Fti2Bba9Zy6Et
+         gilHI4Rq/k9d4tZLTHSt2yevGLRF3HhYBDrqUy6kKT65mgX65GpE52DOG3ZeYfqoiu9/
+         IZKiA8IlRSb5ER5jmerekvX2MXaAy40S/m/Bg5TPU3sH6ihxG13H1dzCbWGqeqwMT0Yc
+         RlWUAPH2G0uZaOcngx2YDJcbwvIc3fnoNg1+3+1h6MpWQ9cj/RjAT0mDfBmMjatXWW4l
+         zs/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783509233; x=1784114033;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=em41dlu4oQdZqWDduU5M4moJ/CYl/v0sl+4/AYrbgEs=;
+        b=fdQcyTrQ+QNhiJaRgTybJRUnbLNZ3ZW2nFr8NBRN4OXmYE+yE9Dhn33m0blol1Usm8
+         wTmy93Z85mFpw6Su2B/kOEbmdnlaJUpptcLOg/RfeyuBZEaT+xccuS2PoJV+uY07gIKD
+         B5IRWycaDim1bjJo2lLrpzUbXX6pAU9YQnkoXBNiaz6OOofTWCryeB88P1qOWkxBwc52
+         3Bz4aBFOB3S/413eZ5aEonlqFvki8njb1YQ9yg3ioLbRuNf9hd1LurYz3JvlLLxigvA+
+         sGMo2OD5b7jc+btXKAsmvWnGvX/JtSq0cpwJ6vJxhalvqB7w4pPb0Eh79ZA8Y2nkyCKU
+         mIlw==
+X-Forwarded-Encrypted: i=1; AHgh+Rr+2IAXQCo2+WlsaaU7x8yDHWJRXQ+CmCycJtjGLjVybbEXQtB5lXY4GXE2/DWMtRPbE48Tr+zIAY4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyqqBAgvBKE48AnYRJ7eOMIVOXf4i+h+no3rkU4hz424yyga2To
+	tBTr9FaymYjgP8eWYHmv4l27xmW8nLPgtx9rDdw+tBZBP5x3ytkeHikL
+X-Gm-Gg: AfdE7cmwoXbqhfgQBBOOCg5NQX05PpXBAsx1j/cwnouSkOWAP+TviELcSHrk6eFHZkG
+	MBxKKtnb+F1blogr5tc48DjW+upl631J71xuDXSGfiWhmw7n9KnWRJbmgASWowQUa1q5KXVQ0O/
+	KVhSZ0je2uCLRrDxUSP8As661q4HB876MuS7ebx1BNNuaS6VzWx6BXdHqGfnRUb1LmUPiCaxoWu
+	tPaMi11c1OBJfUZnZ33SwS47flcFN0pNrf7yukAqBMNezveAqRI0TdRVcW4Ix/LgC62OY8phKxZ
+	wVoVP3CaGgZMSO75/szXo/9ZzZB1ks8yVaZr4h6/Od6MDnflHrYlxcEuXjpA4aFDwvgzumUBY9o
+	SVBFEZWI2Mhqvodri3vnc9LVlekYxV/+FNXrpGh7EeYcJU2qZ0whBl++cYbapH1SQAvn66IJiOf
+	v9vdNIhdXXj8ve
+X-Received: by 2002:a05:6a00:66ce:b0:848:4f04:87ed with SMTP id d2e1a72fcca58-8484f0498a3mr214402b3a.34.1783509233351;
+        Wed, 08 Jul 2026 04:13:53 -0700 (PDT)
+Received: from lgs.. ([118.193.33.13])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-847f6d4edb4sm6912317b3a.33.2026.07.08.04.13.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jul 2026 04:13:52 -0700 (PDT)
+From: Guangshuo Li <lgs201920130244@gmail.com>
+To: Eddie James <eajames@linux.ibm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa@kernel.org>,
+	Joel Stanley <joel@jms.id.au>,
+	linux-i2c@vger.kernel.org,
+	openbmc@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org
+Cc: Guangshuo Li <lgs201920130244@gmail.com>
+Subject: [PATCH] i2c: fsi: put OF node on disabled port skip
+Date: Wed,  8 Jul 2026 19:13:44 +0800
+Message-ID: <20260708111344.749796-1-lgs201920130244@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMRc=Md7-XMBKpdPuZ4=epfTn6F-PXKJBZNPGuz5xbVy58BHsg@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 08, 2026 at 12:42:58AM -0700, Bartosz Golaszewski wrote:
-> On Tue, 7 Jul 2026 18:05:29 +0200, Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com> said:
-> > On Mon, Jul 06, 2026 at 02:44:17PM +0200, Bartosz Golaszewski wrote:
-> >> Users of platform_device_alloc() + platform_device_add() must not modify
-> >> certain fields of the dynamically created platform device object. Update
-> >> the kernel doc to say which fields are affected and which functions to
-> >> use.
-> >
-> > Consider using __private checker attribute for them as well. It will make
-> > sparse scream.
-> 
-> Sure but let's leave it for another series.
+fsi_i2c_find_port_of_node() returns a device node with a reference held
+by the caller.
 
-Sure, just a side note comment that you know that we have some facilities for
-that type of problems.
+The port skip path added for unavailable nodes also handles the case
+where no node was found. That case does not hold a reference. However, if
+a port node exists but is disabled, fsi_i2c_find_port_of_node() has
+returned a referenced node and the skip path leaks that reference.
 
+Drop the node reference before continuing. of_node_put() is safe for a
+NULL node, so the no-node case remains unchanged.
+
+Fixes: 58031a26bf2b ("i2c: fsi: Prevent adding adapters for ports without dts nodes")
+Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
+---
+ drivers/i2c/busses/i2c-fsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index b2dc5ae1d0e4..9ba6b1c59082 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -704,8 +704,10 @@ static int fsi_i2c_probe(struct fsi_device *fsi_dev)
+ 
+ 	for (port_no = 0; port_no < ports; port_no++) {
+ 		np = fsi_i2c_find_port_of_node(dev->of_node, port_no);
+-		if (!of_device_is_available(np))
++		if (!of_device_is_available(np)) {
++			of_node_put(np);
+ 			continue;
++		}
+ 
+ 		port = kzalloc_obj(*port);
+ 		if (!port) {
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.43.0
 
