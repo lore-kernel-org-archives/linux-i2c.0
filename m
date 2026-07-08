@@ -1,116 +1,153 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107183B6BEE
-	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 10:36:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783506992; cv=pass; b=JSbjxIuT/0a0ihYiXLx5s2lHpMCu1/kdrRQ9M1yVp+H+tStiuRUkJpTt5yHVdv1ZrJUB506KQ52SQJRQl0+0Dz1Mdqe8uB3UC6NNA2iiOTL5qxV0qbIvzPHx9lTC88HKrcJMrLT2L27FwYBaRJYAllIa2N6wqsLdyF8hjjIHUGE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783506992; c=relaxed/simple;
-	bh=QzqSzBmO2/LNWpe9fGm4KLVQueTZtd5Ku7sSD56PRhc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kD6T7c06hTgDHOPy9ZHvGbsqwKhMJ0ZYP9OnoS1/hH0tMN2ONvPv58jxv+1DROOb9v3xzhM/RAKeZfKAD9KVtM7QBC2+7/flezo0l/G8tV5KHgKxiQP5cmJA3qY7OTWz7wo/mxsD7bABkddkEDEbPaL5YnBqMV7sOGivam8xrh0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D0TRToUq; arc=pass smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25AF130C163
+	for <linux-i2c@vger.kernel.org>; Wed,  8 Jul 2026 11:10:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783509056; cv=none; b=jWax+MhlwLPA1YnNPVZEGsxSmvvQyogoLBGxM1kZU1DZHzcnJAlIHP9JskCbQfYcpkBH5eu+Z3g8ebqW2ee8nCrHPNiZ7ov7eznbzYH9N5oprY/sEiMY83wFLxyXZq9JV2ts13WSNGKNrsdfm5UMea2caZD7YtBo5gvdkoRG7FU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783509056; c=relaxed/simple;
+	bh=B6vPooewm8t5jBY377SKnoJbzpldo2PFcXpvGbdXeRE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=K6cbx+Z7+1hxn98zXyxn3fF05ObqnfOn5wpvic1RGDq1zSiNZVImJLOkPH8WEpjHZRuTI0nkQVT9tGzFpxFIYnsyxjB4AaRYGiiKFZVTKgPfXI+6oVm3LC7SDac4CfdVFIFXGzaEf44CVyDL1ZlfPjNQbDcxWZrpwy9+ls4plUc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EqQl9ohd; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D0TRToUq"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-ca6a6181273so13778a12.1
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Jul 2026 03:36:27 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783506985; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AMy/XGZmvM5FRzIaOf7VKH7CFC2sP79Q3Z7JDjD9juCRXG0En4330uDagEDmUWIvjI
-         fiJ7UIGG5A2ZNM1uwXh4I3MoEkoziBkubkbTXxbhz9Sn8R/Oc6j9J5pVSdyB1ST6DecB
-         VxsTcilV5OluewqCtswbin2phloPhQd37A64KTNV0yp2Udl4yShgX1J7+ftUTwetiKgt
-         +nUMcy1mYIQMPRd2rCKmjAGRh5CdU3hoPhEg0FqFhX1nqOp1SQEkqYUVIizehoQfE8ie
-         7YHjTitQalir3LND9Q00vfgF9Dm7cybJrUHFbe1EWfkvtq1hi2aaqEX7EUGlhrmamaWq
-         LmBg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=QzqSzBmO2/LNWpe9fGm4KLVQueTZtd5Ku7sSD56PRhc=;
-        fh=+uNvPvhS3mKtJH7Ph8rSGJsSSMiokx+AHP5dMCaWCcI=;
-        b=VJgFT1WzDuMRO+zgx3WURaSSjcDpgBy1Tqa0ZiHVkZNuOlFZqG0yK23nN77ENRqf0D
-         kbuJGnpvzc3OfEsGeHvAQBK28+iijZWjdyPnELZygZa9WXnp3V8bWVxLqNFcJUtPwIsG
-         +Ftstn8VckLcKgvoDyYztxTeUxpAGGgPTFQJqBNcrq2Ca2OTqRSRDRQJpQ9B1RlGKJWt
-         9QucBzh03GWpX3rpFM5qFZJSybzf7qxhcymgWXLBDi5LeAlCFD72Y4j7mFsN3KypAnSF
-         QBDFq53BHVtzlncqRuKzWvrLP5ZZJCDGmWcLc/BiaYPhMvPA5dzgfYa+2P4QD4iwriJ8
-         G+fg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783506985; x=1784111785; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=QzqSzBmO2/LNWpe9fGm4KLVQueTZtd5Ku7sSD56PRhc=;
-        b=D0TRToUqYN3Rdph001VmDw3gvRgj4X6J3yFtQ2Oldbtl3B7Y/MtUitwTij3J3KAEzu
-         Pu5nb4rvkARj9WfzxX38LoWFQd/1rhiXARKq9+hIQw8kraeuSljD2QLKJ7sfzFDrOQbv
-         bH1ZVkZRIqj1Ql7A7wGyUFVVXCDZ4dLAr8RLW2T1UCirRY/G3zY5KqM3d9xhYJXmoeon
-         Nd44xV55fO7l/kdu7Edq3EGoaq/lcH6VOe4IRyF0y7ujHpWErTwTB+oejnQZiAmiMjn7
-         Cg8G/luw0IaJg1EFDC2EYuFTo/NNd2CT7nbVkiCncvBPB/j+VhJUz5V7OBouMjLaaJ1O
-         TuYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783506985; x=1784111785;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QzqSzBmO2/LNWpe9fGm4KLVQueTZtd5Ku7sSD56PRhc=;
-        b=W4iQ4D4wPL5fIoMYdyOBfsASfJXPrnH6xtxhkogZJZBUqTkL8m01CRkghDXWDzvZqY
-         PVJ2cECtzDOx4n2lmE4/kJfu54gOvigkgpyx/0RwsW5pzhi5Fg7NSpYBlSzEmThStAaO
-         ygBE7+XiIHIw7Cq3TLPZPVXlSf+9JFkFajLAW1us30Rro2bBDp+sjx3cyZRDlAv38Zhf
-         s+chzFIWdUvM7IZKlDmvevbLxcdVXdc/f/6pROcUzThbSLIQxJKVHieR+3uVUP1C8+G2
-         IVD0SuOaIWIrkQXnzd9ySRTTIzheSQa0p+6EAtOmDtoSCIaVdD05ubM3pagW4B11UqCM
-         nTLg==
-X-Forwarded-Encrypted: i=1; AHgh+RptMQXnP06JZ4n3wMqRW2QPZt+jPqTlDxXSGkuiZE3Jun4hsgOdGaSHDKS4ZSMuCY6yyUnVbqRk8hE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwA2zecpRHeZ0+AvUnTeG6sRB1N1qlNyVFch9J5dzg03eY2xuTt
-	PBqv/RUW1+QhZuOB14mV0OsrB6A8fSJZGcke4b5OuQEUFljuuUu0qWva+pHRhLtJ1Qt2ENHYI2V
-	xg1w9Zdud1NSjlAnX6+bKERqmlEOuuY0=
-X-Gm-Gg: AfdE7cl/wSPtHLlG5SBQLHR5FKlPOMG16JyEjfD+ZKt0e+rHMTxVAYgNm0h0XalQ7pL
-	mc+TWiXtEVI0LH/hJnTW2OsoUbk32CnFx07Zw3dlJ1fKOXuhOtIaa7cU36plwZ/1vLGEdJBJLo6
-	tIjAPixosM/lMIsyBGBESBJf9XBEKOR/v8DqpwnTG0/9gHtKSVel3cVddfS1zYbbYkZnpRY05yb
-	DM6DiHRxVoafu2h0+TKgC24vBFyRP/mZ51C7/KAB9+kGP5yx7E7Jl70lNFF1NMLYLx0A1j/Lhas
-	qVhHZYo8uVY7i//aFq8NzXCBopsLMFsc1YjdenrJMv6QZb3zl+GWEXud52S+il+DkFurjOLZCIW
-	e/KxbkA10M6KG
-X-Received: by 2002:a17:90b:3fcb:b0:37f:fc3a:382d with SMTP id
- 98e67ed59e1d1-38941fb2d0amr1770186a91.6.1783506985239; Wed, 08 Jul 2026
- 03:36:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EqQl9ohd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783509056; x=1815045056;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=B6vPooewm8t5jBY377SKnoJbzpldo2PFcXpvGbdXeRE=;
+  b=EqQl9ohdg8+DT/aoXkZQOp5DoqvnDiRAB6/fe/mGhiqD+IMCLvpeWWGB
+   BlL81zBdjv8WY6gKKcJeEqENXpWKMmI+9U3tlUa76F/cLSn76ejCnaH2N
+   FHgmu6vY/GgsdldNil4S8q7Wy1bBhK3QXRAE5kMpOzHwJZ82r4l5AfGMc
+   UroLX7TXOqeyzpXuRqHnDQ4o9yh0vPUrZ9A2ABWritdifGQSZkz6pItFO
+   AYPW9yGQ5AunOebRSP/40mkmKoL21p9WMvkUFlDnEVa7Hgcp3lZlQ1D9C
+   TZb9hnrFQVLNVu12iyhTTUNyzWmxg/eB5P0Z3765diFWslZ6Qv9C0zP2l
+   Q==;
+X-CSE-ConnectionGUID: rclHWzloTb6YDQmJDqZhjw==
+X-CSE-MsgGUID: A3rygB2/QReqb43xm19Ksg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11840"; a="101591439"
+X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
+   d="scan'208";a="101591439"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 04:10:55 -0700
+X-CSE-ConnectionGUID: QASahE8xSF2LxFg6nj8iKg==
+X-CSE-MsgGUID: um2egYfWQR2jIq4xUDAF8A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
+   d="scan'208";a="257844826"
+Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.100])
+  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 04:10:53 -0700
+Date: Wed, 8 Jul 2026 14:10:50 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Brigham Campbell <me@brighamcampbell.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Stephen Horvath <s.horvath@outlook.com.au>,
+	linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+	=?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>
+Subject: Re: [PATCH i2c-tools] TODO: add file and describe items for the 4.5
+ release
+Message-ID: <ak4wOvE_0anM4NIs@ashevche-desk.local>
+References: <20260705181043.3757-1-wsa+renesas@sang-engineering.com>
+ <DJR7QS1LOHU0.2PNA54ULDF2PF@brighamcampbell.com>
+ <SYBPR01MB4586AD69D431CAD2D26ADD68C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
+ <DJRA1PB8LKKJ.2RTZWEP2LVRFF@brighamcampbell.com>
+ <akzuG3VpcoUWRhUr@shikoro>
+ <DJSVN4OMOMB7.EBB9SV2PLWTR@brighamcampbell.com>
+ <ak4Mn4NOfIqCQTO3@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707151542.91997-1-muchamadcoirulanwar@gmail.com>
-In-Reply-To: <20260707151542.91997-1-muchamadcoirulanwar@gmail.com>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Wed, 8 Jul 2026 12:36:12 +0200
-X-Gm-Features: AVVi8CejjCB0cQnGD60nSceTy3aexNzKn6liFV-neeZ4M32IR5vUutS1Lqo1P0k
-Message-ID: <CANiq72kQ0=MqAhrSSk3m5RNVrO+4Cv18xv1noTE1Y8TsPeRhDA@mail.gmail.com>
-Subject: Re: [RFC PATCH v4 0/3] iio: position: add Rust driver for ams AS5600
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Cc: jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	andi.shyti@kernel.org, wsa+renesas@sang-engineering.com, ojeda@kernel.org, 
-	dakr@kernel.org, igor.korotin@linux.dev, branstj@gmail.com, 
-	rust-for-linux <rust-for-linux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ak4Mn4NOfIqCQTO3@shikoro>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Tue, Jul 7, 2026 at 5:17=E2=80=AFPM Muchamad Coirul Anwar
-<muchamadcoirulanwar@gmail.com> wrote:
->
-> This is v4 of the Rust driver for the ams AS5600 12-bit magnetic rotary
-> position sensor. v3 hardened the IIO abstraction layer and introduced
-> kernel synchronisation primitives. This revision simplifies the driver
-> substantially based on review feedback, removes components that were
-> over-engineered for a single-bus 12-bit sensor, and validates the result
-> with comprehensive hardware testing.
++Cc: Heikki, who is involved in i2c more than me these days.
 
-Please Cc rust-for-linux as well for patch series that contain Rust -- than=
-ks!
+On Wed, Jul 08, 2026 at 10:38:55AM +0200, Wolfram Sang wrote:
+> 
+> @Andy: you know more about laptops and I2C than I do. The initial issue
+> was reported here:
+> 
+> https://lore.kernel.org/all/DJRA1PB8LKKJ.2RTZWEP2LVRFF@brighamcampbell.com/
 
-Cheers,
-Miguel
+I read the thread in full. Without laptop schematics (and usually this is
+the biggest obstacle to understand things clearly) it's just a guesswork.
+
+With information given in the thread I think the actual connection of the
+thermal sensors (and I don't believe they are absent or not connected) does
+not go to the SoC. It's most likely (taking into account that this is laptop)
+connected to EC or other separate MCU on the board.
+
+There is still a quite little chance that they are connected to the SoC pins
+but pin muxing done in a way that they are hidden from the host SMBus controller.
+
+Have to state again, without schematics it's a guesswork. One may also reverse
+engineer BIOS, but it's quite out of scope of this.
+
+As per I²C HID. You can run
+
+	grep -H 15 /sys/bus/acpi/devices/*/status
+
+and I believe one of them can be touchpad. Also
+
+	cat /proc/interrups
+
+may lead to that device as it's usually the most appearing consumer of GPIO
+interrupts and I²C host controller. Hope this helps.
+
+> It would be great to get that bus working because Brigham likely could
+> then test the new DDR5 patches for decode-dimms.
+> 
+> > It looks like it's bound to i2c_hid_acpi. No ddr5 temperature sensors in
+> > sight...
+> 
+> Well, it was worth a try. Thanks.
+> 
+> > > How many? If it is in the 120 range, then every access from i2cdetect
+> > > fails with it.
+> > 
+> > When I run i2cdetect on the i801 controller, on one invocation I count
+> > 111 repetitions of the "SMBus is busy, can't use it!" error once, then
+> > on another invocation I count 112 repetitions.
+> 
+> Okay, as expected, this is more or less one BUSY condition per address
+> scanned.
+> 
+> > When the kernel's i2c bus arbitration retry logic kicks in, it appears
+> > to be able to eventually complete the operation successfully before the
+> > i2c core driver code gives up because otherwise I would expect i2cdetect
+> > to exit prematurely and report an error.
+> 
+> It would mark that address as "XX" if there was an error. As it prints
+> "--", it indeed indicates that the retry could have succeeded.
+> 
+> > Wolfram, if you or any other kernel developers think this may be
+> > indicative of some underlying issue, I'm happy to investigate further
+> > and report back. I'm using a Dell XPS 14 DA14260 laptop.
+> 
+> Thank you, but sadly I am not the right person to ask. My expertise is
+> the embedded sector. I don't know much about laptops, ACPI, and how the
+> management processors play in the game. My assumption would be that the
+> BUSY state has something to do with the latter. But maybe Andy knows?
+
+ACPI should have nothing to do with DDR5 sensors. Otherwise it is something
+new to me.
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
