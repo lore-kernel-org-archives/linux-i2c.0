@@ -1,192 +1,109 @@
-Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011007.outbound.protection.outlook.com [40.107.208.7])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AF233BFE4C;
-	Wed,  8 Jul 2026 15:36:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.7
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783525013; cv=fail; b=QauJq62dcmybPDpck/MyHZP+J8y3QGUViIaPywgwIFGGZDT3pMDfSSRIERuB5Z8wAqKpJQrdlrSvB30i/9yjTRhJ7bQbjuqOJXvAVxnOb54VxyCz9isHyotl/ILYnhcz+ItjS2rUOLgb4x7LQNFIb4m32F2oyWSSrpK6t1DDeaY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783525013; c=relaxed/simple;
-	bh=O/nzBSAEtqU8uroigKjhXK2przD2WbIHQxxpbsug1WA=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Db9D7OWiXLX5Id1UfYmN3Ypxy1CKd5zJBUltvAfeHDMwXwAHKas+oxIkOsnB6F0hn+8ncDD9JstBInNaYeEeWECJRPYYeLo+Yr2jZvzg3Pb5Y4FXIcgRCi3U8YvXn5bEly53r4AI9rkP3Df6LaH/d9NyscBa0OQvSSfyRl9hu2A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=B34FiYeK; arc=fail smtp.client-ip=40.107.208.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667D03DB31A;
+	Wed,  8 Jul 2026 19:30:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783539041; cv=none; b=FCpjA/yvXIklbeBOzJpt0NuAe2ZVgyI2uC4FnmK1MRnmkFQkfYPqx7H8MQvOAHt2Kmr2+s55Y87rjE0L1M1WKhOzbRcXQ7eH1CN69SK6fdPrJSqtiTduJX3HzUr2q+Nq3Hej3Fb2EcEQh54BcPquivbURg6QsZnpEbJlyFn7H+o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783539041; c=relaxed/simple;
+	bh=qAq+ZSPXLg44QlTgS1ix9LoGfl+1op/1FU+72xyaugQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fY+NcWhTDBe+gt4HCQg95OqjEwpxqdvwq5hH6Ky0NfjdXmnS9WmyHbqvJLVyDUAqXqroN6wySX034n0fCVZao6aMwiRw/w95r+QguUzUjIhTeYCmAkl68Bp1VQcjQlFfAJ8LtAU9udCfKU6AyjFLRSIFLXH5pgtth4PJV3vmydo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ivXrQbI3; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="B34FiYeK"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QN15X5fGlX7aEAHJTYvjKs7pECfV1NcYnD4p3vVACm+D+kWbDYyFRDlnLoiwS32UI+phyOH0++2Ya4sVyTUl4Q2LDp06xaD3/eK+s3lQR4dcd+7ABjmWfn3yIyfNe8b/gu8LA9GwnFolACpXjZ3OwD/GjG0ylPm9TfGLO3FFqSXM4BODhjH7FSxAfuCr7QGu+vpuYBDW9AB3SGMWzkfwC8WKjVD4mcXgLgEWclZCz6+m3t7iaDuB0dz3S2Jun8WtKQSVz6QYr6+O7pwrsClBB0BUx0P1KkQK80IeQkATvqGqwZf/BTqJ+r2Nnp01VUiA/m/G4+0jW5vHhlMU4KP1eQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0XunRX9skHBzbR+6Ud8VLqxs0e59d3dorFImQSixyVE=;
- b=mBGKRO/p4JDKII5YHHeh9hB49N9RtXOlD7YCiDyo9LLVVx72QgRIWIhtttf29eVUX+vuR2acoRm8E1JAdW0T1LsqZAc+Jq6Hx7JY2rAFCjEkrNjATlmz+1vrUDSeuSZibj07/PZw82YKTzdAGvnu/VOGnWo9RvxdYxYYAymB8ywwnplgzCK76NEePniSaZqhNMu6GQz5oZxC/QagogaRxuoZ49xXZeU+YFBuOgirorKi+BOpOov862PlIrw/taVmDkHD7r7vU10ACukCCCYpE93xN9KdssB9mdHn78aWgLn8ZJtFmZPTjxMcsQAHvy3TodDQ2YonDUF0AELMxzXfRQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0XunRX9skHBzbR+6Ud8VLqxs0e59d3dorFImQSixyVE=;
- b=B34FiYeKDhoXYOtqgOyEZKEeLmmoNStovQctH6N0RkRhJBSxCaUwrr1HY9SWRVQcKxiyh+y/YTbklev03v8BqF6iE+6Y0h+F9y3xxg6KmznWjg+WeOqrIV5rjFF27Yemyq1VYbUSKBLosOGQAK9yl7G61yZr/z27adK++WXQw8o=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DS7PR12MB9501.namprd12.prod.outlook.com (2603:10b6:8:250::17)
- by CH8PR12MB999205.namprd12.prod.outlook.com (2603:10b6:610:35a::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.19; Wed, 8 Jul
- 2026 15:36:49 +0000
-Received: from DS7PR12MB9501.namprd12.prod.outlook.com
- ([fe80::4564:457c:524b:6b96]) by DS7PR12MB9501.namprd12.prod.outlook.com
- ([fe80::4564:457c:524b:6b96%5]) with mapi id 15.21.0181.009; Wed, 8 Jul 2026
- 15:36:47 +0000
-Message-ID: <4321266e-027d-44ae-8b29-7d11373d9c1b@amd.com>
-Date: Wed, 8 Jul 2026 11:36:45 -0400
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: designware: amdisp: balance genpd on probe failure
-To: Guangshuo Li <lgs201920130244@gmail.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Nirujogi Pratap <pratap.nirujogi@amd.com>, Bin Du <bin.du@amd.com>,
- Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260708090552.739789-1-lgs201920130244@gmail.com>
-Content-Language: en-GB
-From: "Nirujogi, Pratap" <pnirujog@amd.com>
-In-Reply-To: <20260708090552.739789-1-lgs201920130244@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: YQBPR01CA0162.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c01:7e::25) To DS7PR12MB9501.namprd12.prod.outlook.com
- (2603:10b6:8:250::17)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ivXrQbI3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783539039; x=1815075039;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=qAq+ZSPXLg44QlTgS1ix9LoGfl+1op/1FU+72xyaugQ=;
+  b=ivXrQbI3k7vDPyVSEpMjjDqvcO+9hInDYR/wj1PFT1SSprxkGMrn26Ub
+   AwXwPDxub93apyC2QiCIt7ip5QziDk8fYR3NAeeM0MKvbpR1XQBIEdcLc
+   nM86HIFXw7kcbJIpbADBP7xfSksTBwDWJVW45tyCixBUWEcKD1LPilEN9
+   OtekIKyFk7XlTfy9yVsDSTrq830J0jgh52ZOx5K5QAVgtuYVJ4pWiVPat
+   0QPRkDZki521Gi/MfIZoaAw1N58oicci5O37rEyOkBxsMS3Ym+HFN/I0D
+   EYc2Qqr0lW04lGbXsCkV8jTjgl3SquVVVtd5wvJhJ5tfWMEJ7D9ml2Ksu
+   g==;
+X-CSE-ConnectionGUID: 6unRKvqTSYewbLF8G92jGg==
+X-CSE-MsgGUID: eeN+1I0ORy6kd8Ad2xOF2g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="86759740"
+X-IronPort-AV: E=Sophos;i="6.25,153,1779174000"; 
+   d="scan'208";a="86759740"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 12:30:37 -0700
+X-CSE-ConnectionGUID: B1vqodKVQpqhh0ViXt/yQA==
+X-CSE-MsgGUID: ga5rGlrpT2e1FEmaSw3fbA==
+X-ExtLoop1: 1
+Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.100])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jul 2026 12:30:35 -0700
+Date: Wed, 8 Jul 2026 22:30:32 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Peter Rosin <peda@lysator.liu.se>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v10 4/7] i2c: davinci: calculate bus freq from Hz instead
+ of kHz
+Message-ID: <ak6lWKWDM8XwqLgw@ashevche-desk.local>
+References: <20260708-i2c-mux-v10-0-09dca03c8a15@gmail.com>
+ <20260708-i2c-mux-v10-4-09dca03c8a15@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS7PR12MB9501:EE_|CH8PR12MB999205:EE_
-X-MS-Office365-Filtering-Correlation-Id: d691ed31-be03-47a9-b666-08dedd06b8c4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|23010399003|366016|376014|11063799006|56012099006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	Tvsuqzl5GsUvKxRd1nVLwgCadVo7zVGZqN1nCbdKP9fsfep0Fzbhf9e4eqPulgM4IxTZfaNHNF9CfexbpCcPA1cZzS+pqUQ/fWItdeKZS6XRxjE8MZUHKhqT/Cehim3ZiMzIRu867QkWLNTGH4RjFqEsMfkvWLYtqEOQPCZT6YoScswtBNOVNsq0sEVRRd9MAyjQz3hg3X79RujhzB/Wp3/VFmid+XhXYVnwsLVHi7gjtkshf7jku8rS4/ypz0H/yyaCXCO7OwnQ5EjMunlonsJ4aVUVrkAbPqlQligsx2MtSp2yG1TOjLf7YzqS1R/l1YyZ6f6JH6M1nKcIikDnv+h86HcWJ13P2ihnL9GOBifc1uYh0+Kv2QUpI1c22OOJuhf8di8M3S5oewzcmKUmvAh9/dENmxH2tvPenJtF5dNmMjc1xs5eq6SIx46MdiZPYSvJTSrDTqIcV14MTDVo60BpoAsoq23G0aJgooGNcckBQaUk7KhRBvU8RNoS/3bQdsu806N06W+ifdY+brv4+KRDl9RMbS8e4MNm2GkrseT5HHI1c/AOipN509/fnfkb3agJEHw2oTyO80dYj8HOrm4R6HJZ1l0nPgNq88vaEvRww7++iDg9vUOmkm+9CkMSF9/m4vnd6BZZcgEM2VXKwidQ5Pjgy9POpwUqCvplb44=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB9501.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(23010399003)(366016)(376014)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?aGlVelZaRDJpdmFYTFhpZ0VLWm5vZEE5RmpLTENucFprV25SNUl6WXZtQk5I?=
- =?utf-8?B?U3pJWG5lRW9UdHZmb0lpbDJuaFBjUnNQbmhpVU13RHBLZE5CQ0lJWTlGR05k?=
- =?utf-8?B?dVlZK0gvU0FBdUQ1TENMbERqbU1DYlJocEYrUnlPTkhRMnRwaWJ0T1MyQVZY?=
- =?utf-8?B?Y1RFSnlHKzBOUktFcWVaTVVOazFEdm1MOVRRdDVkV095bEFDaklPdFJhTjlL?=
- =?utf-8?B?ZE94OGltM1ZCY3RvNkU3THU2SmJYU3VlZDJMSjVYYTdDcUVwRjcyVThWTFpI?=
- =?utf-8?B?SUt4clpFdmk0YjlGUFo2ZFhTUTVOcHRzZjBTVndaU09ocWhaRkR3SGJpbVY5?=
- =?utf-8?B?MkFRcUJnRjloT1Zscjl6aCtJWis4NWVXR0padzMyNW0xTlk0a3AzOE45T2Vk?=
- =?utf-8?B?NFJ6QTZ6ZStmOWUrVWw0V0wrT09jYU9ja1RaejRhRUZyZmRKRUZicEhuVE1l?=
- =?utf-8?B?bGphd2Q5V2VsVTkxSUVuZThNZHNsMEExc2VkYUEzV2c0aDY3dklybG10aUVh?=
- =?utf-8?B?bmpkZEVhZCtIUFJSd21TSE5nNUR3cWUrYmtadnFqVVgyMjlPMmR2YmhEMnJS?=
- =?utf-8?B?STJibkVDK3llZlVLd3o5U1RnQVZDdVkvNlpuazhkcGczK3RnMlJIdk9oVUJu?=
- =?utf-8?B?TzVnODljUjNsN2pjVExnbnN2QVcyRlo5Y1Vsd25HZmUzbm11bFdic01OVDFZ?=
- =?utf-8?B?WGRIb2oxL2poSHhVN3FidXRWb253TGtyWmN6WElTc1VYckZSSWZnbU1RdE5j?=
- =?utf-8?B?QWJTUG1xZ0tFVE9TSWt2UGluOHY5TVRkcGw1T0tHaFFCaVhUaFRXWlVST29I?=
- =?utf-8?B?UmEyUDc0K3RIOVM5K3FtN05YcmpsWlMxMHp6WXRlWFZWNFk0aGVTREpHbmk2?=
- =?utf-8?B?TWpnWWJMMVNjN01YNWl6a24yR3ZBdDREL3V6SUlKeVE2OElsNFJQTzhBSU9X?=
- =?utf-8?B?SGt5YmtjWGJzNXNWT0FJeWNnODZtT3dPelZXcXF4OUlab3hUN2hHd3RSS2tI?=
- =?utf-8?B?TUpGc0ZqbmRXOThteTZOc0dqN0tKQWFmQUFnL3NJUTRrRk95RXJYK1JCdmdz?=
- =?utf-8?B?cVAxK2YydHg5aWk2YVdHdkVvYW9WWkxsUkVQS0NSVFNYNUYySER1OGRLRWhU?=
- =?utf-8?B?OW5wOU5oL0czVXZjRlJOaWEwbDlRWDdpRjRNcDB6N3VNaWhwV2VwbktTT00r?=
- =?utf-8?B?dStBZWNHYVBZUU9KTmNSNml3QzNqMnJDWENGTW5aOGx0N1dxaFBKOEUrWElC?=
- =?utf-8?B?c0J1eFo5ejVHS3lMRHkrNFFmNXA5eGNyc3lVSVQxRU9NN0dHUFVyMmI1TjU4?=
- =?utf-8?B?OUlxekVVNks0cUpRZ1dzTW94T21rc3VORUpFdm5XSTJ3V0M3bmdTL2w2SzN2?=
- =?utf-8?B?TGkrYlNZSWs3cm1vVE9GMzNyemtJemFpcjJCZWlhc1Z2MkhtWDNSbGNBcHNx?=
- =?utf-8?B?UnlZL1E0ZEYrQlRBSkZaeUFhNmErVllyZ1dvTzdvWGtoT1RHazRuMHNaUEVj?=
- =?utf-8?B?dkxkaW01b3hyUEk4NHdCa0tEUllMZkpueno2L2wwSFV2Z2lza29YOThxUnFy?=
- =?utf-8?B?NXkwcUM0Rm12bjYwZDVBWlpXOGV0blZiNFlSdDc1TXUzcEhXODVUaURMQm1J?=
- =?utf-8?B?QUV6OXAySGJSa21waVRUSXNPa3pxeUVFTFZobHRuWWtTU0EyMi9rTmYvczY1?=
- =?utf-8?B?TGNOK1dZZWhsejBQT0tia2RvMUxQai9ZczRQT25jaEpsTkFHZ2R3aU5IY0F5?=
- =?utf-8?B?WDRLaXpBMWJQaFFpRUxUZlVCSlhKZ1JnMkFrajh2a3pPeFhDbC9IUXd2bFJO?=
- =?utf-8?B?NURxYWNuQ1FhbXVmcGdsMmZ2a2JTWG9DZXcvRlFJcGwvTEwrZWMydnBxMm5l?=
- =?utf-8?B?cFVlekRZakM1a1N2Qjg4R2VsSkxHM3lSSncxN2FDUGMvVVI4SFVNZVAwbktL?=
- =?utf-8?B?OHVFeXBoaUJjK2oxVFBQczhac05NWmxhSmxjTXdoQ2d3bFU0am9rcU9wYmVW?=
- =?utf-8?B?clVCR2VLaFFkdS9ZSEZrNmdXQTJBQlI3WGkxZXBHWGhVRnd0eUxjSlFnOVRl?=
- =?utf-8?B?aFA1cDRIUlNDR095NVpHbTgwaVNCRjBucFgzbVpxZkhMUHBSbFFDekg3S0dM?=
- =?utf-8?B?YWNybmVUQlUxSnl6cjV3TldydFFub0JBL0ZzQThSdjMwOGxQTWVWcDltRElr?=
- =?utf-8?B?RG9iR3UwWVQzTm5CWW4yU2xmZ0FqR2lGZGthRVNxTkFTTkJtUktYZHRFRFhN?=
- =?utf-8?B?MDI1U3RReWRhNUVlWE8yVlVCQ2x6SEhjS3AwaDdoempRbjVUNmFPd2p3REVM?=
- =?utf-8?B?VURGSVNORDhaNjJxU2JLUlR6bkNqM29WR3dGKzZwWXo2K2RXN3ZlQT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d691ed31-be03-47a9-b666-08dedd06b8c4
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB9501.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2026 15:36:47.4471
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: t4PEBGj14vsu4VcK4dOJ0kD2cRRJ6l1PV2Xr/9veKsJRN0zQfYbjZtpBBLAa9LUgz6Z7OWNCYznNepvzCgcyFg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH8PR12MB999205
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260708-i2c-mux-v10-4-09dca03c8a15@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
+
+On Wed, Jul 08, 2026 at 02:16:16PM +0200, Marcus Folkesson wrote:
+> The bus frequency is unnecessarily converted between Hz and kHz in
+> several places.
+> This is probably an old legacy from the old times (pre-devicetrees)
+> when the davinci_i2c_platform_data took the bus_freq in kHz.
+> 
+> Stick to Hz.
+
+...
+
+> -#define DAVINCI_I2C_DEFAULT_BUS_FREQ	100000
+> -
+
+You need to rebase this on top of the i2c-next.
+
+...
+
+> +	/* standard bus frequency */
+> +	unsigned int		bus_freq_hz;
+
+While at it, I would dare to suggest _Hz as we started doing in IIO (id est
+we start following more closely the SI units in the suffixes of constant
+definitions and variables to be case sensitive).
+
+...
+
+>  	r = device_property_read_u32(&pdev->dev, "clock-frequency", &prop);
+>  	if (r)
+> -		prop = DAVINCI_I2C_DEFAULT_BUS_FREQ;
+> +		prop = I2C_MAX_STANDARD_MODE_FREQ;
+>  
+
+See above about rebase.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-
-On 7/8/2026 5:05 AM, Guangshuo Li wrote:
-> [You don't often get email from lgs201920130244@gmail.com. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
-> 
-> Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
-> 
-> 
-> The change referenced by the Fixes tag avoids a runtime PM resume during
-> probe by powering the ISP domain directly with dev_pm_genpd_resume()
-> before calling i2c_dw_probe(). Runtime PM is enabled only after
-> i2c_dw_probe() has succeeded.
-> 
-> However, the i2c_dw_probe() failure path still uses the old runtime PM
-> cleanup path. At that point pm_runtime_enable() has not been called yet,
-> so pm_runtime_disable() is not paired with any enable. The failure path
-> also skips the dev_pm_genpd_suspend() needed to balance the direct
-> dev_pm_genpd_resume() call.
-> 
-> Suspend the genpd on the i2c_dw_probe() failure path instead of disabling
-> runtime PM. This keeps the direct genpd resume/suspend pairing symmetric
-> on both success and failure paths.
-> 
-> Fixes: e2f1ada8e089 ("i2c: designware: amdisp: Fix resume-probe race condition issue")
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
-> ---
->   drivers/i2c/busses/i2c-designware-amdisp.c | 6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-amdisp.c b/drivers/i2c/busses/i2c-designware-amdisp.c
-> index 9f0ec0fae6f2..724cb05e21c8 100644
-> --- a/drivers/i2c/busses/i2c-designware-amdisp.c
-> +++ b/drivers/i2c/busses/i2c-designware-amdisp.c
-> @@ -81,7 +81,7 @@ static int amd_isp_dw_i2c_plat_probe(struct platform_device *pdev)
->          ret = i2c_dw_probe(isp_i2c_dev);
->          if (ret) {
->                  dev_err_probe(&pdev->dev, ret, "i2c_dw_probe failed\n");
-> -               goto error_release_rpm;
-> +               goto error_suspend_genpd;
->          }
->          dev_pm_genpd_suspend(&pdev->dev);
->          pm_runtime_set_suspended(&pdev->dev);
-> @@ -89,8 +89,8 @@ static int amd_isp_dw_i2c_plat_probe(struct platform_device *pdev)
-> 
->          return 0;
-> 
-> -error_release_rpm:
-> -       amd_isp_dw_i2c_plat_pm_cleanup(isp_i2c_dev);
-> +error_suspend_genpd:
-> +       dev_pm_genpd_suspend(&pdev->dev);
->          return ret;
->   }
-> 
-Good catch! I overlooked that earlier. Thanks.
-
-Acked-by: Pratap Nirujogi <pratap.nirujogi@amd.com>
-
-> --
-> 2.43.0
-> 
