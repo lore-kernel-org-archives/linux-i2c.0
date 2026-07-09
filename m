@@ -1,85 +1,113 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C93AD38E8AB;
-	Thu,  9 Jul 2026 09:54:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ED5738E8C6;
+	Thu,  9 Jul 2026 10:05:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783590890; cv=none; b=cBJicbsH+SadnWELGtihfsZjgUtAR14SqwH0aas2qIaS/trfY8i3eGDPigRyjLmHuEvhEng9Zj+8TtwvU0t8EbuDLckw+Fk9zvkJ9I8SBWthnF/oSSRJNAyhva40gT1obwyoFZJET4f2i5n2PGDb2nr+RB5bwNx0XxJKT2WFOnI=
+	t=1783591527; cv=none; b=IdwLFB03NW8FV5N7KHK2fsHvRkSsv1lUGPi2DoO1BzxhatSdNgK/nzNWysDK6/ei88WQsOKk66jrq78Ok+k3hAe0RjUafzJNny2nI9uEv5JpihzqgBeokFe5LETB74ydRmt2pUXnKSFVvftPSgxXhZsValV8DPCKWAx1XP89KxA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783590890; c=relaxed/simple;
-	bh=DsM/VOtxUEEMvGQRQ5EKrlk10ZKhKeuMUg82hGLFFv4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=NIFYNAPK31cDUzwL783wrykN4CF/Nj7c8zO+9KIZ/PWchzmLOg3adSJoeehMSFhOMP78AeY6REgRljRjoXm/H7N/945ZlhFiip6P6PllOVU2MwkBfcQcLbj8D5oFHBIvR+5BfIXt1cAkRncygclHdwpjNkQG4nPtUNuuLPqqVPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 307b4fe27b7c11f1aa26b74ffac11d73-20260709
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:06dcd722-c7f1-4258-812e-564d68123145,IP:0,U
-	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:25
-X-CID-META: VersionHash:e7bac3a,CLOUDID:cfee955500d6a5b5be8fc46701b4f8ad,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:102|850|865|898,TC:nil,Content:0|15|50,E
-	DM:5,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:
-	0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 307b4fe27b7c11f1aa26b74ffac11d73-20260709
-X-User: xiaopei01@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <xiaopei01@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1940864867; Thu, 09 Jul 2026 17:54:34 +0800
-From: Pei Xiao <xiaopei01@kylinos.cn>
-To: troy.mitchell@linux.spacemit.com,
-	andi.shyti@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	spacemit@lists.linux.dev,
-	linux-riscv@lists.infradead.org
-Cc: Pei Xiao <xiaopei01@kylinos.cn>
-Subject: [PATCH] i2c: spacemit: fix spurious IRQ handling returning IRQ_HANDLED
-Date: Thu,  9 Jul 2026 17:54:31 +0800
-Message-Id: <aaba8ba228a99f580050004c5b7e262d855de44c.1783590752.git.xiaopei01@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1783591527; c=relaxed/simple;
+	bh=kynRmd6VkJDJaKnAtp481E/LYoCY9IfgfoGNoe6Bgsc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OxJX+qf0pKO5hXX7OgyzL9Wbb9tis0SAmENtoUNFDgg3PcCOtFXIOS2vQrQHtVCahG0TJSSGzSyg+3p3emmlF75ldqlsF9txBWl3F/9bHAEskxPq+o5XWLBOFPKHiCN8fYZ35Y+f21orqXHt8MMEVFQ/6UUnCae/lGre2BFzUBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bR+M0CV4; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bR+M0CV4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783591526; x=1815127526;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=kynRmd6VkJDJaKnAtp481E/LYoCY9IfgfoGNoe6Bgsc=;
+  b=bR+M0CV4l1kr3OnHYLiy6aVCPkN9U4sugdomOgGwqI8Opl3n2LcSLrYz
+   pEfjwvHynJE9TWgCkVLdK/vV6in3/MedLvxV1qa9lwAzyE+W/nmf5X7yU
+   d4b/QWtMQXpBiZV7Z1CTRXrBKQp4nv/moozCASMdZrjiD7lcbsIQIdynG
+   vEDShyOeY0+1EMsySB1t7Ygqlh5V7lDYb9QRE9X5KqImjHvAQE+rxYn8C
+   IdkdJnSBtfm2t5QZ0I2YEvQdJswTQMnWRPgPdgGPBPYUZH87tkZ+DlUdL
+   9Z7hgupLIuSRLtPfQxkXd6wn9RmeylDAx7yEntLRDiBAh6Q+vFaQMwMpw
+   w==;
+X-CSE-ConnectionGUID: 3ztgoLCiQ/GM/h0+cItNbw==
+X-CSE-MsgGUID: 2zYNaqsYTNeD5tbo4425Lw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11841"; a="84286571"
+X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
+   d="scan'208";a="84286571"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jul 2026 03:05:25 -0700
+X-CSE-ConnectionGUID: hTUNBWWGR3eFq+am3Mq5pg==
+X-CSE-MsgGUID: 7Ic9mailTa6mlsefKI3aRQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,154,1779174000"; 
+   d="scan'208";a="255200185"
+Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.235])
+  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jul 2026 03:05:22 -0700
+Date: Thu, 9 Jul 2026 13:05:19 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Peter Rosin <peda@lysator.liu.se>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v10 0/7] I2C Mux per channel bus speed
+Message-ID: <ak9yXzjO_DwJXXgD@ashevche-desk.local>
+References: <20260708-i2c-mux-v10-0-09dca03c8a15@gmail.com>
+ <ak6m6srzX8dd6_nT@ashevche-desk.local>
+ <ak9c6nGBsgMTP099@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ak9c6nGBsgMTP099@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-When the interrupt status register reads zero (no interrupt pending
-from this device), the handler should return IRQ_NONE. Returning
-IRQ_HANDLED incorrectly claims the interrupt was serviced, which can
-prevent other devices sharing the same IRQ line from receiving their
-interrupts.
+On Thu, Jul 09, 2026 at 10:33:46AM +0200, Marcus Folkesson wrote:
+> On Wed, Jul 08, 2026 at 10:37:14PM +0300, Andy Shevchenko wrote:
+> > On Wed, Jul 08, 2026 at 02:16:12PM +0200, Marcus Folkesson wrote:
 
-Fix this by returning IRQ_NONE instead of IRQ_HANDLED when the
-status register is zero.
+...
 
-Fixes: 5ea558473fa3 ("i2c: spacemit: add support for SpacemiT K1 SoC")
-Signed-off-by: Pei Xiao <xiaopei01@kylinos.cn>
----
- drivers/i2c/busses/i2c-k1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > > - Move {__,}i2c_adapter_set_clk_freq() to i2c-mux.c
+> > 
+> > Can you point to the discussion where it was suggested, please?
+> > It was like ages ago (too many patches to review) and I probably
+> > missed and/or forgot the rationale for that. Also if we move
+> > to i2c-mux, why do we leave it in the adapter namespace?
+> 
+> Hrm, it seems like the mailing list wasn't CC:ed for that comment.
 
-diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-index c2d090f6ba80..487f23fde725 100644
---- a/drivers/i2c/busses/i2c-k1.c
-+++ b/drivers/i2c/busses/i2c-k1.c
-@@ -728,7 +728,7 @@ static irqreturn_t spacemit_i2c_irq_handler(int irq, void *devid)
- 
- 	status = readl(i2c->base + SPACEMIT_ISR);
- 	if (!status)
--		return IRQ_HANDLED;
-+		return IRQ_NONE;
- 
- 	i2c->status = status;
- 
+Please, be sure next time everything like this important will be available
+to all.
+
+> It was suggested by Peter and the rationale to remove it was:
+> 
+> "
+> I'not sure it's a good idea to expose {__,}i2c_adapter_set_clk_freq().
+> 
+> Do we really want to make it so simple for random (non-mux) I2C drivers
+> to muck about with the bus speed? Any bus speed changes not coordinated
+> with mux-locked bus speed changes are going to be problematic. This is
+> shown by the discussion about D2 for the multi-level mux-locked example
+> (patch 5/5) -> it is problematic even when the bus speed is changed by
+> the mux code itself.
+> 
+> I think these helpers should be moved from i2c.h to i2c-mux.c.
+> "
+
+Okay, let's assume I'm fine with this reasoning, I would still go with
+the proper namespace. Otherwise it's inconsistent.
+
 -- 
-2.25.1
+With Best Regards,
+Andy Shevchenko
+
 
