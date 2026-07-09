@@ -1,133 +1,132 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CDD13F0AA4
-	for <linux-i2c@vger.kernel.org>; Thu,  9 Jul 2026 08:34:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438E93E317B
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Jul 2026 09:04:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783586093; cv=none; b=uGI6hDRXolrGTSGXOMML4MVKJzISnZxnYk0vZ2dcKJXRU6r6rRBg7b5PWQ6B6mx/eZHLfvSAa9K56QpOZqS+E1JhLrg/k1Y6RqCSAE5dCdinlp4VbQ/r9Gpfg46oz8cSMplJeU7I1rPpHn/+ORbscDzgp3GqaW2ilHBQkk3rVGA=
+	t=1783587844; cv=none; b=IYuSqId/n3H31LpKctHSOinbhuHciS9klsXR+6B5fCe+VwI4gqU2O8QvbFJyGErJvS1uZmfqsx0cNIH50O1Te6Vzy1h4FGucAcxbqAiADW3V/r4hUs/5KHLdi/kn+gQAWOTbKCGWGgfmvtTqUEv5nTEgbQLtHPXolJyc44HLSLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783586093; c=relaxed/simple;
-	bh=v5m77H2AqJJ4tTbaOUw+5/3V+CtMKGQKg5H4OPgb+WI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n+URzXiBMd9jXoE6wZlwm+7BW9iGoxAl2gQTMdU3KbIz3wqqhAURsXrYpWuKRL0HLnxd3mEDPTRdm+JYJaWP5D4oEHD6mKWhosU8KfYYK5+uuuD1llDCcPnY5wDsYU1LCOE8k8/+X8ucvl5AOwNlfrsqfEik2dOY9E+f6932ELI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kaT15KMz; arc=none smtp.client-ip=209.85.167.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783587844; c=relaxed/simple;
+	bh=8p1SlX4Y/tAMtxoktfOY4hYUbJ5KdrvxJ/hf35CLJIY=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=GO2Eeo5QBe5g5AqRXMnEiqTFj5xH1QRoauoe4E5MmEqnIZ7PQB3F2fc9V5GuS4zlSd5mYHuvDLD7M4TTTX/M4vlIK4r0N8fMc9wP2AChx7bVcaylT6ctalrx+37xVwfF1CYTQjfYLcipBSTOtQIL7n4Yl/d2qz8Ih8L1SCd0+mY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Fsv8Gy4b; arc=none smtp.client-ip=209.85.128.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kaT15KMz"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5b015b2d792so713966e87.3
-        for <linux-i2c@vger.kernel.org>; Thu, 09 Jul 2026 01:34:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Fsv8Gy4b"
+Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-493ce08a6b4so6611945e9.1
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Jul 2026 02:04:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783586090; x=1784190890; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=THSFgL0Y2FKUJgLIXJuUKx+xnsBMsYVZ+QMA86TDiMA=;
-        b=kaT15KMzYBo6KDRBn63AAZhPmvK0VO9ZDI5Q/1J0yuAPUEt2iJhSOQenyM7YAFNmtp
-         29+f1F4J0T62q1W/VUMBDDGxXUIkun2t2BJFb2eSTMFx0ARNAaqSpyNy7Ls3PHOb86e0
-         Sg8Mv2tLV4Z4xCpDLHDdla3JoCG+O8IE053grvBh242HaOPftjlEwlcEe2lyhfOoI7Nl
-         zr5kLNOWqdiamRFlmT0s1IYCxeH/y0k0ooheHaf5P5OMYr8OtYZy5dBYvDO49WTnkO4w
-         LC+QRY6tJnHCSbfyWBEEo7EOMYT9dGj2Aa26Pue+JKnvKVXUkSHnV6UzmMPM8bxDHaFj
-         mftw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783586090; x=1784190890;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=google.com; s=20251104; t=1783587841; x=1784192641; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=THSFgL0Y2FKUJgLIXJuUKx+xnsBMsYVZ+QMA86TDiMA=;
-        b=pmxKeHq0nuFMlCsH9UU9CoqKJ2GeR8Il3iuCc3VKoCUvMauXKq7IjglwN0v95+5Lcu
-         suE82BobMriIeJGC0zDVgHvxP0AXyBl62lqV0+ZYogjhhBLaGmCXThG4waXqTKjgqmzT
-         12vsI5iIa4U9oXg/YMPHnewjG0GlR3a75X7BwRYNlVHEKQvcvXnX6RWG04Pj3XsGCY9P
-         6VNqHszCbGnvG/FEiG9X6ORCVNKTzflUxriWepo0jmStwq03HCE/JS6p5ZU+SOVE9prb
-         03N+0LNkoQOcqleBpyG7GYSB5gHPF9YYxfwWu0QPYdJQKL8IO4GQhHLkEFY5b71ouX+N
-         GO9w==
-X-Forwarded-Encrypted: i=1; AHgh+RoeUXfMaWHzLtzFTtxAmRh01+PjHR3pAEiynPxDa2uigGC55EzwShv3v8P1fHsl9m3+EINlf1y6pj0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxzffKlJTNkiNGReUWqTw9I05B6UBFyfSUeePHEW8J5LgWrWyCV
-	d7cOqmFQ4osbcHq+BsQ74yP5giN+pavcj8EJCFs/Oh216GDpmBBpA9Ih
-X-Gm-Gg: AfdE7cl0IVFbI00BmcEVUIDBot5HdrlC3Ovw4BfOi8JebY1riJLwnjVbzr8OfS/wLkb
-	e5TIlK2qYRZaKqj0JbKjriXiDUJodNDuIFXIjQwKN8TjyrrzQgoyUiMG0QHzF4VXGLMYmH8gkEs
-	sIidXon2rVHc9TzqdlZf39yd7pCFM9g7G5dratQ4A1p297vLeuKIkLywT8ne5Kok8FTfJwsKoi6
-	MC2csWzkBjTSxgiYVOuwBYXlQkIA+Z14ikGRmgagI6GWEKf2alcr88EqXh2sA8+xxHDlTtNQBwM
-	3W5rlplYwtJVz4vy8gMlrNAlWHkDSs8XxmOtftEW3HJiyVqNn+HdpnotipN2ps1aAkunMLValn6
-	2TTXnLN4XklYh0VDAuA4HESVzWv/voyzeyLjCchQ5W3r12vAatq8D9uW8a0CO2bYSYCVJnrTX4M
-	VuRjb3xV5slnsQ5yYBgoJMEEpNe5XebaebQ7Gly4YwCR+PufljXw==
-X-Received: by 2002:a05:6512:159c:b0:5ae:d399:ceb8 with SMTP id 2adb3069b0e04-5b011472e03mr1731318e87.56.1783586090129;
-        Thu, 09 Jul 2026 01:34:50 -0700 (PDT)
-Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aed13c3a15sm5082954e87.68.2026.07.09.01.34.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 01:34:48 -0700 (PDT)
-Date: Thu, 9 Jul 2026 10:34:46 +0200
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Peter Rosin <peda@lysator.liu.se>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v10 4/7] i2c: davinci: calculate bus freq from Hz instead
- of kHz
-Message-ID: <ak9dJm5GVfCOqAsU@gmail.com>
-References: <20260708-i2c-mux-v10-0-09dca03c8a15@gmail.com>
- <20260708-i2c-mux-v10-4-09dca03c8a15@gmail.com>
- <ak6lWKWDM8XwqLgw@ashevche-desk.local>
+        bh=UHb/QYDUeRjEZWmoAxhxicuHQ83r8Iogoxy5g/5DRs8=;
+        b=Fsv8Gy4b/uP/7OacJuAO8xISx0jXUEg9vqT2NfRIUK4eQfkMomnF/WR4TG6U2Eh/nI
+         Rkq2lDbFHEY0j6EBq3C1aeu7dSyvNOgJuYho8Wh1pPRIBbAQ/T+rKwdjDm8SW+wXdA+L
+         WbDIdVpEftjedvDY9DDuUsAXNfTClQsHJZDnh5HKAVYHTc1UE4ZcYIJ+UG5/vxaEqBSA
+         E8p8u297W1/KoEYUoJHdVmSMF6aNOvFvUNDsmAYttuirgcE57pnXN7fkMXiCls4wTvHF
+         nHO0HCQGbaYST5NcRFHNbtlfhOpuWMCrZmtdvKoRges7M/2SwzIu/ZHsXCzUPxZZBh89
+         h+Rg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783587841; x=1784192641;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UHb/QYDUeRjEZWmoAxhxicuHQ83r8Iogoxy5g/5DRs8=;
+        b=VCjlPKGf9qDFwyk90ZdHF0oQ994tIvGuJHvVqc+VCg3CorzqgykHspx+UehZaSC1Vz
+         gQWdo9clRBYVk6QjZCnu1ifqDQHgPvGGnFJH37MhF8PdDBHnwV2YHdaAr5+DeIMC6gmY
+         nV1rJsu40pPIRalwcpwd6NfvrItjwo+PGCRwnSkfBo1Sgj5QGqMXmJJ+7QSVwnnKiNeZ
+         Nbaf2df3WECAAUF4nail2DXyNg7b1qBpNLJZS12qu+fWe4N/lZdfsV6Wvw2V38BV2p0I
+         HPbfI8vxqGY03v52WfKyTu7KgFTyzDQF4eJsVZEY2VsyjUgN+5G3LkS72lXuR7LT0Ano
+         atvg==
+X-Forwarded-Encrypted: i=1; AHgh+RoMv/ozUlZT8DGyduOajB/BeK5S5U8ATsJ58qn14JGXnx+mAebZj8Q0zKd6NMaf1/lWo8oGa2uyrtg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyv1oeuTw7nyoM5J/oI90SKwItPYDj5yd03tLXOI0TL9mcgCRBZ
+	GHgaArE3EDmslNJZsdZPv3Qd9uuJGnNevun+NBpV3EiHI275OlSUV2NTRt9+18Yr18IJJtIfmJt
+	X7MvwYiFXiHFY3FgauA==
+X-Received: from wmer22.prod.google.com ([2002:a05:600c:4356:b0:493:bea4:1b1f])
+ (user=aliceryhl job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:600c:3e8e:b0:493:d26b:1575 with SMTP id 5b1f17b1804b1-493e69b0dbdmr59666475e9.27.1783587841386;
+ Thu, 09 Jul 2026 02:04:01 -0700 (PDT)
+Date: Thu, 9 Jul 2026 09:04:00 +0000
+In-Reply-To: <20260708214738.25008-3-brucer42@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ak6lWKWDM8XwqLgw@ashevche-desk.local>
+Mime-Version: 1.0
+References: <20260708214738.25008-1-brucer42@gmail.com> <20260708214738.25008-3-brucer42@gmail.com>
+Message-ID: <ak9kAP1SZF8AchQT@google.com>
+Subject: Re: [RFC PATCH 2/3] rust: power_supply: add power supply class abstraction
+From: Alice Ryhl <aliceryhl@google.com>
+To: Bruce Robertson <brucer42@gmail.com>
+Cc: rust-for-linux@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Sebastian Reichel <sre@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Igor Korotin <igor.korotin@linux.dev>, 
+	Gary Guo <gary@garyguo.net>, Tamir Duberstein <tamird@kernel.org>, Boqun Feng <boqun@kernel.org>
+Content-Type: text/plain; charset="utf-8"
 
-On Wed, Jul 08, 2026 at 10:30:32PM +0300, Andy Shevchenko wrote:
-> On Wed, Jul 08, 2026 at 02:16:16PM +0200, Marcus Folkesson wrote:
-> > The bus frequency is unnecessarily converted between Hz and kHz in
-> > several places.
-> > This is probably an old legacy from the old times (pre-devicetrees)
-> > when the davinci_i2c_platform_data took the bus_freq in kHz.
-> > 
-> > Stick to Hz.
+On Wed, Jul 08, 2026 at 09:47:37PM +0000, Bruce Robertson wrote:
+> There is no Rust abstraction for the power supply class in mainline or
+> rust-next. Add a minimal one:
 > 
-> ...
+>   - a Driver trait carrying the supply's name, type and property list,
+>     plus a get_property() method;
+>   - a generic extern "C" trampoline the power supply core calls back
+>     into, recovering the driver's private data via the parent device and
+>     dispatching to get_property();
+>   - a Registration that owns the power_supply_desc and unregisters the
+>     supply on drop, freeing the descriptor in the correct order.
 > 
-> > -#define DAVINCI_I2C_DEFAULT_BUS_FREQ	100000
-> > -
+> Property, type and status constants are re-exported so drivers need not
+> reach into the generated bindings directly.
 > 
-> You need to rebase this on top of the i2c-next.
+> Signed-off-by: Bruce Robertson <brucer42@gmail.com>
 
-Thanks, will do.
-> 
-> ...
-> 
-> > +	/* standard bus frequency */
-> > +	unsigned int		bus_freq_hz;
-> 
-> While at it, I would dare to suggest _Hz as we started doing in IIO (id est
-> we start following more closely the SI units in the suffixes of constant
-> definitions and variables to be case sensitive).
+> +impl Drop for Registration {
+> +    fn drop(&mut self) {
+> +        // SAFETY: `psy` came from a successful `power_supply_register` and has not been
+> +        // unregistered. `power_supply_unregister` blocks until no callback is running;
+> +        // `_desc` (dropped immediately after) is then no longer referenced by the core.
+> +        unsafe { bindings::power_supply_unregister(self.psy) };
+> +    }
+> +}
+> +
+> +/// Register a power supply backed by driver `T` against `dev`.
+> +pub fn register<T: Driver + 'static>(dev: &Device) -> Result<Registration> {
 
-Sounds good, I will change to Hz.
+Should this be &Device<Bound>?
 
-> 
-> ...
-> 
-> >  	r = device_property_read_u32(&pdev->dev, "clock-frequency", &prop);
-> >  	if (r)
-> > -		prop = DAVINCI_I2C_DEFAULT_BUS_FREQ;
-> > +		prop = I2C_MAX_STANDARD_MODE_FREQ;
-> >  
-> 
-> See above about rebase.
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
-> 
-Best regards,
-Marcus Folkesson
+> +    let mut desc = KBox::new(bindings::power_supply_desc::default(), GFP_KERNEL)?;
+> +    desc.name = T::NAME.as_char_ptr();
+> +    desc.type_ = T::TYPE;
+> +    desc.properties = T::PROPERTIES.as_ptr();
+> +    desc.num_properties = T::PROPERTIES.len();
+> +    desc.get_property = Some(get_property_trampoline::<T>);
+> +
+> +    // Stable heap address; moving the KBox into `Registration` keeps this valid
+> +    // (moving a KBox moves the pointer, not the heap allocation).
+> +    let desc_ptr: *const bindings::power_supply_desc = &*desc;
+> +
+> +    let cfg = bindings::power_supply_config {
+> +        drv_data: dev.as_raw().cast::<kernel::ffi::c_void>(),
+> +        ..Default::default()
+> +    };
+> +
+> +    // SAFETY: `dev` valid; `desc_ptr` points into `desc`, kept alive in the returned
+> +    // `Registration` and freed only after `power_supply_unregister`; `cfg` valid for the call.
+> +    let psy = unsafe { bindings::power_supply_register(dev.as_raw(), desc_ptr, &cfg) };
+> +    let psy = from_err_ptr(psy)?;
+> +
+> +    Ok(Registration { psy, _desc: desc })
+> +}
+
+This looks like it should be a ::new() method on Registration instead?
+
+I would compare with existing Registration abstractions and mirror how
+they do it.
+
+Alice
