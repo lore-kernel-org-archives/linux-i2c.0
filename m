@@ -1,132 +1,58 @@
-Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-106103.protonmail.ch (mail-106103.protonmail.ch [79.135.106.103])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438E93E317B
-	for <linux-i2c@vger.kernel.org>; Thu,  9 Jul 2026 09:04:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721803FF889
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Jul 2026 09:17:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.103
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783587844; cv=none; b=IYuSqId/n3H31LpKctHSOinbhuHciS9klsXR+6B5fCe+VwI4gqU2O8QvbFJyGErJvS1uZmfqsx0cNIH50O1Te6Vzy1h4FGucAcxbqAiADW3V/r4hUs/5KHLdi/kn+gQAWOTbKCGWGgfmvtTqUEv5nTEgbQLtHPXolJyc44HLSLc=
+	t=1783588679; cv=none; b=FPpeciErbQbBetaL/dEwuNLgKAHxNzeLWeZy45R7UjkaPaODKfiNFoKqp/GLGOXmbBjfl+6PLyh9cvdRPPKS/kdH8muCSeVEASrf39V7kegdiHW9YWq/gP1EEFeqAbzayiiKAS3fTGKu+VpBS0q2jU6b039tF4Km7F1iluQV9L8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783587844; c=relaxed/simple;
-	bh=8p1SlX4Y/tAMtxoktfOY4hYUbJ5KdrvxJ/hf35CLJIY=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=GO2Eeo5QBe5g5AqRXMnEiqTFj5xH1QRoauoe4E5MmEqnIZ7PQB3F2fc9V5GuS4zlSd5mYHuvDLD7M4TTTX/M4vlIK4r0N8fMc9wP2AChx7bVcaylT6ctalrx+37xVwfF1CYTQjfYLcipBSTOtQIL7n4Yl/d2qz8Ih8L1SCd0+mY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Fsv8Gy4b; arc=none smtp.client-ip=209.85.128.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aliceryhl.bounces.google.com
+	s=arc-20240116; t=1783588679; c=relaxed/simple;
+	bh=AsqWHUD3fknq6kvMOwmLLRy83GwDAJJfDfHuuECn8nM=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nnG8agS8Sz0pqIzv372K0LP46s2UV9K3uGtFx2Q5zevQ9VG6Z1uhsrsPn0TckFF9N9UntRbK0RwVXix4SAZnGEGnMa91ZR4A9mgxvwyOqZOrC3CPPGemLPs4tQO48qI/MhZRwuNmqgZxOxT2/mOmYK5ARMHMjqQ4KYk/ybxbDMU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com; spf=pass smtp.mailfrom=protonmail.com; dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b=NOdoSogq; arc=none smtp.client-ip=79.135.106.103
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Fsv8Gy4b"
-Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-493ce08a6b4so6611945e9.1
-        for <linux-i2c@vger.kernel.org>; Thu, 09 Jul 2026 02:04:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1783587841; x=1784192641; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=UHb/QYDUeRjEZWmoAxhxicuHQ83r8Iogoxy5g/5DRs8=;
-        b=Fsv8Gy4b/uP/7OacJuAO8xISx0jXUEg9vqT2NfRIUK4eQfkMomnF/WR4TG6U2Eh/nI
-         Rkq2lDbFHEY0j6EBq3C1aeu7dSyvNOgJuYho8Wh1pPRIBbAQ/T+rKwdjDm8SW+wXdA+L
-         WbDIdVpEftjedvDY9DDuUsAXNfTClQsHJZDnh5HKAVYHTc1UE4ZcYIJ+UG5/vxaEqBSA
-         E8p8u297W1/KoEYUoJHdVmSMF6aNOvFvUNDsmAYttuirgcE57pnXN7fkMXiCls4wTvHF
-         nHO0HCQGbaYST5NcRFHNbtlfhOpuWMCrZmtdvKoRges7M/2SwzIu/ZHsXCzUPxZZBh89
-         h+Rg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783587841; x=1784192641;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UHb/QYDUeRjEZWmoAxhxicuHQ83r8Iogoxy5g/5DRs8=;
-        b=VCjlPKGf9qDFwyk90ZdHF0oQ994tIvGuJHvVqc+VCg3CorzqgykHspx+UehZaSC1Vz
-         gQWdo9clRBYVk6QjZCnu1ifqDQHgPvGGnFJH37MhF8PdDBHnwV2YHdaAr5+DeIMC6gmY
-         nV1rJsu40pPIRalwcpwd6NfvrItjwo+PGCRwnSkfBo1Sgj5QGqMXmJJ+7QSVwnnKiNeZ
-         Nbaf2df3WECAAUF4nail2DXyNg7b1qBpNLJZS12qu+fWe4N/lZdfsV6Wvw2V38BV2p0I
-         HPbfI8vxqGY03v52WfKyTu7KgFTyzDQF4eJsVZEY2VsyjUgN+5G3LkS72lXuR7LT0Ano
-         atvg==
-X-Forwarded-Encrypted: i=1; AHgh+RoMv/ozUlZT8DGyduOajB/BeK5S5U8ATsJ58qn14JGXnx+mAebZj8Q0zKd6NMaf1/lWo8oGa2uyrtg=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyv1oeuTw7nyoM5J/oI90SKwItPYDj5yd03tLXOI0TL9mcgCRBZ
-	GHgaArE3EDmslNJZsdZPv3Qd9uuJGnNevun+NBpV3EiHI275OlSUV2NTRt9+18Yr18IJJtIfmJt
-	X7MvwYiFXiHFY3FgauA==
-X-Received: from wmer22.prod.google.com ([2002:a05:600c:4356:b0:493:bea4:1b1f])
- (user=aliceryhl job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:3e8e:b0:493:d26b:1575 with SMTP id 5b1f17b1804b1-493e69b0dbdmr59666475e9.27.1783587841386;
- Thu, 09 Jul 2026 02:04:01 -0700 (PDT)
-Date: Thu, 9 Jul 2026 09:04:00 +0000
-In-Reply-To: <20260708214738.25008-3-brucer42@gmail.com>
+	dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="NOdoSogq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+	s=protonmail3; t=1783588669; x=1783847869;
+	bh=AsqWHUD3fknq6kvMOwmLLRy83GwDAJJfDfHuuECn8nM=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=NOdoSogqN9Ttm5QfIS+N4RKsilr9voDeQP0u6TF7B6VrOVbUItIv3Teyj/xgNfWwS
+	 5vL1lVjWDKQc9maV0a0BNWi86CbbRoH6dUujnykoI4hl3Q1UiiSciKITJwMWKGrwWL
+	 HcBCdbAV9AqVapiduJ+dx1KZVrpZcadK2vo5NAuf9Dfp4t7mrjALM880PnPMFkVqxs
+	 yD4dSpQNlFXwXJee2Ed4I3ym0CfcqUzcYMYKcoZyh1VYqxHf/NS+9iGfH3nBwqetIQ
+	 Ak6hTkFb5E7bS/rRCAKYIiG0nlCmmy6zjPUvbFtrsmJIohVVamvFEKp0LjXbCuly0/
+	 P3CwOWp9c+LYg==
+Date: Thu, 09 Jul 2026 09:17:43 +0000
+To: Qii Wang <qii.wang@mediatek.com>, Andi Shyti <andi.shyti@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Roman Vivchar <rva333@protonmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, rva333@protonmail.com
+Subject: Re: [PATCH] i2c: mediatek: fix WRRD for SoCs without auto_restart option
+Message-ID: <G11ljKsJ1-XZySyKn1d9mfw2Wwr4ip3RpX5HfqIPp0602tRxHV-1SG2L0VCEJHfEQ3WDlJ41vjMgd6Dy2ktSTa-QIWuE7RGkkGpVIYwtd0M=@protonmail.com>
+In-Reply-To: <20260624-6572-6595-i2c-v1-1-9155cebaae20@protonmail.com>
+References: <20260624-6572-6595-i2c-v1-1-9155cebaae20@protonmail.com>
+Feedback-ID: 173184497:user:proton
+X-Pm-Message-ID: 12ce95e755351267cc6fbf3031b57ccc2bbe842d
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260708214738.25008-1-brucer42@gmail.com> <20260708214738.25008-3-brucer42@gmail.com>
-Message-ID: <ak9kAP1SZF8AchQT@google.com>
-Subject: Re: [RFC PATCH 2/3] rust: power_supply: add power supply class abstraction
-From: Alice Ryhl <aliceryhl@google.com>
-To: Bruce Robertson <brucer42@gmail.com>
-Cc: rust-for-linux@vger.kernel.org, linux-pm@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Sebastian Reichel <sre@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Igor Korotin <igor.korotin@linux.dev>, 
-	Gary Guo <gary@garyguo.net>, Tamir Duberstein <tamird@kernel.org>, Boqun Feng <boqun@kernel.org>
-Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 08, 2026 at 09:47:37PM +0000, Bruce Robertson wrote:
-> There is no Rust abstraction for the power supply class in mainline or
-> rust-next. Add a minimal one:
-> 
->   - a Driver trait carrying the supply's name, type and property list,
->     plus a get_property() method;
->   - a generic extern "C" trampoline the power supply core calls back
->     into, recovering the driver's private data via the parent device and
->     dispatching to get_property();
->   - a Registration that owns the power_supply_desc and unregisters the
->     supply on drop, freeing the descriptor in the correct order.
-> 
-> Property, type and status constants are re-exported so drivers need not
-> reach into the generated bindings directly.
-> 
-> Signed-off-by: Bruce Robertson <brucer42@gmail.com>
+Hi everyone,
 
-> +impl Drop for Registration {
-> +    fn drop(&mut self) {
-> +        // SAFETY: `psy` came from a successful `power_supply_register` and has not been
-> +        // unregistered. `power_supply_unregister` blocks until no callback is running;
-> +        // `_desc` (dropped immediately after) is then no longer referenced by the core.
-> +        unsafe { bindings::power_supply_unregister(self.psy) };
-> +    }
-> +}
-> +
-> +/// Register a power supply backed by driver `T` against `dev`.
-> +pub fn register<T: Driver + 'static>(dev: &Device) -> Result<Registration> {
+Just sending a gentle ping on this patch. It fixes broken I2C
+functionality for mt65xx platforms.
 
-Should this be &Device<Bound>?
+Please let me know if you have any feedback.
 
-> +    let mut desc = KBox::new(bindings::power_supply_desc::default(), GFP_KERNEL)?;
-> +    desc.name = T::NAME.as_char_ptr();
-> +    desc.type_ = T::TYPE;
-> +    desc.properties = T::PROPERTIES.as_ptr();
-> +    desc.num_properties = T::PROPERTIES.len();
-> +    desc.get_property = Some(get_property_trampoline::<T>);
-> +
-> +    // Stable heap address; moving the KBox into `Registration` keeps this valid
-> +    // (moving a KBox moves the pointer, not the heap allocation).
-> +    let desc_ptr: *const bindings::power_supply_desc = &*desc;
-> +
-> +    let cfg = bindings::power_supply_config {
-> +        drv_data: dev.as_raw().cast::<kernel::ffi::c_void>(),
-> +        ..Default::default()
-> +    };
-> +
-> +    // SAFETY: `dev` valid; `desc_ptr` points into `desc`, kept alive in the returned
-> +    // `Registration` and freed only after `power_supply_unregister`; `cfg` valid for the call.
-> +    let psy = unsafe { bindings::power_supply_register(dev.as_raw(), desc_ptr, &cfg) };
-> +    let psy = from_err_ptr(psy)?;
-> +
-> +    Ok(Registration { psy, _desc: desc })
-> +}
-
-This looks like it should be a ::new() method on Registration instead?
-
-I would compare with existing Registration abstractions and mirror how
-they do it.
-
-Alice
+Best regards,
+Roman
