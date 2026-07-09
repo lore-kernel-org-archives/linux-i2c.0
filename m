@@ -1,128 +1,247 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EC554229B9;
-	Thu,  9 Jul 2026 12:35:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E316319B5B1
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Jul 2026 12:41:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783600557; cv=none; b=fqjQ2iScl//s1iGuxxV/oqbuR/wt9UZhZ/UyPC0ipmLf4FNnmNnU1h5PcBWkCszhMzf4KTunFUg96GEzL77kzapc9o8zZFZVtYeqfagR+bSDaB1AqoZ9zyRpBi1fp7knffv6KyfqdWINQyf7KYN+5vHwRW62gj68kC3Lgp8lpDs=
+	t=1783600863; cv=none; b=a8zwxQOMLoZAyokbRFFSRL1U6JQyU5kxDKmkjbESxh8b2iDC9w9RJ4mEGDdeoj1r5KGdPwb1QJxtxsNcZBN8k9yKwqlTRES8fmoUeYdG1gi8rq0eWuk0tWo+M4Uo3DFyHGzHTeRe8YTiNrm4dJUuUP9e0mrgwN1jrMJ3169cJHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783600557; c=relaxed/simple;
-	bh=Wppfbnj881WSgNJYSf89PmL0u3y+RW4UCa78fZI6H30=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WJW7xWoOkL0kHrKluY9xB9jD6L5tj9DU9WleqWBlWfFwPpzc1rAxxzem3AlazTaevNr+7Qv+kGXxRxnhf8dhg7pRdg1HSUK5AlxRIPq5z8VvdFBcWbIcktcx+NGNYpsE3EdNtFFEHMQPL56mjj7sYAOpAAvQF6DGWc0nTuL9lgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=Ma11lkQL; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1783600863; c=relaxed/simple;
+	bh=gWwf4TgpUDy2tQTznkYb+yqRgpv0THbQa0/KUsxklgw=;
+	h=Mime-Version:Date:Message-Id:Cc:To:From:Subject:References:
+	 In-Reply-To:Content-Type; b=BuRm83/v/rmn6XGiL+d3dqdWDSazejulnyKrb3VAgy/jUhtQyMrYUyq2t8KATEAgyNpxhbXTv5mR79ZQ7cbHlhcXZXQ7Fbl5jSF0aag3Yvf4cKggcpS6/lJmOdrpfn1a5aRQoPrF6TOC3tVPTw6Cs9YTw36uJimjo8SFgysedGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sevenlab.de; spf=pass smtp.mailfrom=sevenlab.de; dkim=pass (2048-bit key) header.d=sevenlab-de.20251104.gappssmtp.com header.i=@sevenlab-de.20251104.gappssmtp.com header.b=RaTR59FG; arc=none smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sevenlab.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sevenlab.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Ma11lkQL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1783600553;
-	bh=Wppfbnj881WSgNJYSf89PmL0u3y+RW4UCa78fZI6H30=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Ma11lkQLksFyB/jDWmVFChDw5KJqE7xRFNLDg3q1xg0mDwIG/uugMecMUb4puQOB6
-	 SisVmPveMDSxB7kl1cZQygHkzwSCi7q0wALvQDH+T+oZ0KSApYzRp4ELe1EEvRr9Xj
-	 biJ7oYeNkCyeFVTPkJRU02TGIIcYPJ/4zC9XXgZ/s9nMQ9oHpZnbyMl05xmplTMLyr
-	 PWAfMTCiNU60g+jmAf4f/mB7Y4weKzH8jI2I5QCaWVk6281nKFVX6u6H9TtDaVcTc8
-	 XaBtI9nI2xkpZlrlG3sORkTvZnHkK1i9BL6C/hplorzxK91MQNO97A0Ha/rqu6J78z
-	 f296JdGm6V2gw==
-Received: from [100.64.1.21] (unknown [100.64.1.21])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 71A6817E079B;
-	Thu, 09 Jul 2026 14:35:53 +0200 (CEST)
-Message-ID: <1b27eabe-1709-4345-b2ba-50b528761683@collabora.com>
-Date: Thu, 9 Jul 2026 14:35:52 +0200
+	dkim=pass (2048-bit key) header.d=sevenlab-de.20251104.gappssmtp.com header.i=@sevenlab-de.20251104.gappssmtp.com header.b="RaTR59FG"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c029505b389so142989066b.1
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Jul 2026 05:41:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sevenlab-de.20251104.gappssmtp.com; s=20251104; t=1783600859; x=1784205659; darn=vger.kernel.org;
+        h=content-type:content-transfer-encoding:in-reply-to:references
+         :subject:from:to:cc:message-id:date:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=g5CDHOM32b6UfZL208z/DsveisOvcy75D4HomDZSI3k=;
+        b=RaTR59FG24WCaJ9spwcs56hhIx7UH6Fg13ca6CLg5aCrWU0hMgbj31FPuC+MBBm8/u
+         cWtSolKzQsxW1koo6iz50+jHA2P/LJjhfq72qeD+R2tVjh4pudHCJFyZ/+lndfyxjm3f
+         TaiKATRCxCz2r9lwWU+CZenO9SutYN2D/vWBwazyAR27UDMxXwIeahCpAN5FHZDDDagi
+         Vno6G0+aygGsDRT2gC10v1Cr5Fh9I1hYX2wnWdMtP4ciBHhHfdO0xYwWtl2cQ4Ef9C7S
+         IyiR9LWPHl4K0Gd9Frun/siI+4tBrsdy9D3KMQmAWExjyCpEWrZoj52vSMabW52+vsFT
+         8V5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783600859; x=1784205659;
+        h=content-type:content-transfer-encoding:in-reply-to:references
+         :subject:from:to:cc:message-id:date:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=g5CDHOM32b6UfZL208z/DsveisOvcy75D4HomDZSI3k=;
+        b=HmWdzLqQRVjIgE0wg/bplW930F93zed/Pk/LlE9jaHuEpVATYxo76PP4yMnYOvWWxx
+         4/NzZhDHiSonttiM3Ln7IwNuPazbBokhFJZZtUQp7joo0BTeWLLuqDMgJJWylGsfNhPT
+         eLFWQ7sMtU6sk+W/++8zM2FVVAdk5Fi294FkLzSM6HhPqNE7QJsukn+BMmOUz+eR7W53
+         LBz9hx5xT163Qs4rgB5kc+l6ZNo+DUZT0hD54J8Sv4DT43dkfZ37JFb2ttCsCL+zvVnB
+         9ciKeX7JFHb/a66OEWx1GgFpK30psj4NeIGJubxqyfUdFQ8rUYUvO51B4YGg9PUnk0V1
+         ODYg==
+X-Forwarded-Encrypted: i=1; AHgh+RrolY1EkoaKYUBqjes2mHMiLxQhVtf5KScu49pexPK1xJ+DYawUuCJi5MmWICoTNRU3DuBAJ7s7XY0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLxFv9Csl+5CWl3ohyKCAyHe3Q+tKVWnm/F1oxH9bdaW3KzjfO
+	UxO9Pbp9iGJkwtMnlgPY8vIRPJ7TmCrTrEztrau1/+Vp1d5Kqkl9+KeBNk4q97ultk4XRPTcPPJ
+	beII3gf/uAKxdI31vHzKlFdZ3bWK8bGwIlSWjDOXfMUEG2zW8lQIInk3Sl3UH8HGF1gIW7A==
+X-Gm-Gg: AfdE7clcvSIE492+MpSmk5JuNS9lUwMiKwAozfX6GYkOggz7H647GCtTz8sTiS+4zqM
+	9C1Hxwpkdq+3GtoUNpk88gKuZ0n/q8aOBqzaWXOYRueVIS5Exxu39t0iutjTy9Wt/Asmui5pTP0
+	KLrjqiBEdFOLNaAK2Qhbz5GlFyRnOWz1Hl/VNXqhptYiFMLH4zdfHpCwrl5VaPckeGL4LS6KvhN
+	rDUNuJsx9I/r8PGnC+nwswGO2m9STAFFVdjd2W/mW0lpoVWDmg3wsEKHuZg899FQRl+xw8SQgUU
+	5SXhdoGfp/bsy3QQDU9+0Lhh/M6fpyfc52sL8bw4knbAOtFUZ9Lae18A55SN+vPjeXP9sh+ONzk
+	WEIERDSOVWAOVTLmM5WUzdIbriCVPiIcC9N2qpUhF1himt5A3xLICfBgeLAVsbdcR34b8RguXDM
+	cT5TCsGJhh/E+ejJqmwj86Fowb
+X-Received: by 2002:a17:907:bd09:b0:bd8:bc4e:fb8c with SMTP id a640c23a62f3a-c15e7415c31mr110386266b.4.1783600858709;
+        Thu, 09 Jul 2026 05:40:58 -0700 (PDT)
+Received: from localhost ([2a02:8109:eb8a:6200:5542:7c19:f627:21b0])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c15e84a1ad9sm92675566b.24.2026.07.09.05.40.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Jul 2026 05:40:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: mediatek: fix WRRD for SoCs without auto_restart
- option
-To: Roman Vivchar <rva333@protonmail.com>
-Cc: Qii Wang <qii.wang@mediatek.com>, Andi Shyti <andi.shyti@kernel.org>,
- Matthias Brugger <matthias.bgg@gmail.com>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org
-References: <20260624-6572-6595-i2c-v1-1-9155cebaae20@protonmail.com>
- <0eb85793-5995-4177-9b04-338246d6979e@collabora.com>
- <GOZtJ6Ys4Syt4VaGQyJvmYEIe6dx97flmTygat-nc_gMwsKVrDaDOQjP2ZbX1Qqwx5PYjWo6rJwo-8H32NQQAQi4Z7x6y9wpBNyYea9liZA=@protonmail.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <GOZtJ6Ys4Syt4VaGQyJvmYEIe6dx97flmTygat-nc_gMwsKVrDaDOQjP2ZbX1Qqwx5PYjWo6rJwo-8H32NQQAQi4Z7x6y9wpBNyYea9liZA=@protonmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Date: Thu, 09 Jul 2026 14:40:58 +0200
+Message-Id: <DJU1QIKM2DNQ.UOLEBWH0U0QQ@sevenlab.de>
+Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
+To: "Brigham Campbell" <me@brighamcampbell.com>, "Jean Delvare"
+ <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>
+From: =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
+Subject: Re: [PATCH v4 1/2] i2c-tools: Allow passing device file paths
+X-Mailer: aerc 0.20.1-26-gcbffbc9ac803
+References: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com> <20260705-accept-device-path-v4-1-c62caa708a9e@brighamcampbell.com>
+In-Reply-To: <20260705-accept-device-path-v4-1-c62caa708a9e@brighamcampbell.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 
-On 7/9/26 14:12, Roman Vivchar wrote:
-> Hi AngeloGioacchino,
-> 
-> On Thursday, July 9th, 2026 at 2:46 PM, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com> wrote:
-> 
->> On 6/23/26 23:40, Roman Vivchar via B4 Relay wrote:
->>> From: Roman Vivchar <rva333@protonmail.com>
->>>
->>> MediaTek mt65xx family SoCs have no auto restart, however, they still
->>> support the WRRD mode in the hardware. Because auto_restart is set to 0,
->>> the WRRD mode will be never enabled, leading to read errors.
->>>
->>> Fix this by removing auto_restart check from the WRRD enable path.
->>>
->>
->> Are you sure that MT6577 and MT6589 do support WRRD?
-> 
-> Yes, I have checked their downstream kernels[1][2] and they both mention
-> WRRD.
-> 
-> We also tested mt6589 (privately) and the i2c was working. To be fair,
-> it had some other fixes, but at worst this patch is no-op.
-> 
-> mt6577 is a tough one... I don't think there's any recent kernel with
-> it. I plan to make it work with upstream, but that's a TODO. Either way,
-> vendor code has WRRD support.
-> 
->> If you're not 100% sure, or you want to be careful (which I would, in this case),
->> please add a `unsigned char wrrd_supported:1` to struct mtk_i2c_compatible, set
->> it to `1` on *all* of the SoCs that support auto_restart (as that's effectively
->> a different feature - it just happens that all the ones supporting this also do
->> support that, up until today), and add a new one for your MT6572, declaring no
->> auto_restart but wrrd_supported.
->>
->> That would make me sure that you're not breaking anything, and would guarantee
->> you a R-b.
->>
-> 
-> As far as I know, there's no SoC without both auto restart and WRRD.
-> Adding wrrd_supported that always equals to true sounds redundant to
-> me.
+Hi Brigham,
 
-I have just verified on datasheets.
-You're right, both MT6577 and MT6589 do support WRRD, hence your change is good.
+I just finished reviewing your patch. Aaand I saw Wolfram beat me to it
+by 20 minutes. I hope you forgive me for sending it as is even though it
+may now contain duplicates to his findings.
 
-With this commit, you're fixing a fix... Leilk from MediaTek was indeed wrong, as
-in the commit description he says "the old IC does not support I2C_MASTER_WRRD",
-and that's *very* wrong.
+On Mon Jul 6, 2026 at 6:27 AM CEST, Brigham Campbell wrote:
+[...]
+> @@ -410,7 +406,7 @@ int parse_i2c_address(const char *address_arg, int al=
+l_addrs)
+>  	return address;
+>  }
+> =20
+> -int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet)
+> +int open_i2c_dev_num(int i2cbus, char *filename, size_t size, int quiet)
+>  {
+>  	int file, len;
+> =20
 
-I can see though what he did, as he inadvertently also fixed the WRRD algo because
-the fix was to increment msgs by 2 instead of 1 when op==WRRD.
+The lookup function uses suffix `_by_name`, so for consistency maybe use
+`_by_nr` instead? That is what it's called in `struct i2c_adap`.
+
+> @@ -446,6 +442,38 @@ int open_i2c_dev(int i2cbus, char *filename, size_t =
+size, int quiet)
+>  	return file;
+>  }
+> =20
+> +int open_i2c_dev_path(const char *i2cbus_arg, int quiet)
+> +{
+> +	int file =3D open(i2cbus_arg, O_RDWR);
+> +
+> +	if (file < 0 && !quiet) {
+> +		fprintf(stderr, "Error: Could not open file "
+> +			"`%s': %s\n", i2cbus_arg, strerror(errno));
+> +		if (errno =3D=3D EACCES)
+> +			fprintf(stderr, "Run as root?\n");
+> +	}
+> +
+> +	return file;
+> +}
+> +
+> +int open_i2c_dev(char *i2cbus_arg, char **filename, size_t size, int qui=
+et)
+> +{
+> +	int file, i2cbus;
+> +
+> +	i2cbus =3D lookup_i2c_bus(i2cbus_arg);
+> +
+> +	if (i2cbus < 0) {
+> +		*filename =3D i2cbus_arg;
+> +		file =3D open_i2c_dev_path(i2cbus_arg, quiet);
+> +		if (file < 0)
+> +			fprintf(stderr, "Failed to open `%s' as a bus name "
+> +					"and as a path.\n", i2cbus_arg);
+> +		return file;
+> +	}
+> +
+> +	return open_i2c_dev_num(i2cbus, *filename, size, quiet);
+> +}
+> +
+
+This is a minimally invasive change that makes this work, but it also
+spaghettifies the code base a little. `lookup_i2c_bus()` tries to parse
+the input to a bus number or, if that doesn't work, tries to resolve it
+as a bus name. And if that fails we try to open as path. The issue is
+that `lookup_i2c_bus()` is not very descriptive. Without reading the
+code it's not understandable what's happening. Instead I would propose
+to inline `lookup_i2c_bus()` and then have the logic inside
+`open_i2c_dev()` be imparative like:
+
+1. try to convert input to i2cbus bus number, if it worked
+   `return open_i2c_dev_by_nr()` with the bus number, otherwise,
+2. try `lookup_i2c_bus_by_name()`, if it worked we now have the bus
+   number, so we `return open_i2c_dev_by_nr()` with it, otherwise,
+3. try to open as path.
+
+I think we can also inline `open_i2c_dev_path()` and remove it's
+`fprintf()` in the failure case. We're just speculating here that it's a
+path, so printing at the end that the given input could not be found as
+bus number, bus name, or path is sufficient.
+
+>  int set_slave_addr(int file, int address, int force)
+>  {
+>  	/* With force, let the user read from/write to the registers
+> diff --git a/tools/i2cbusses.h b/tools/i2cbusses.h
+> index 6f901b6..5de3056 100644
+> --- a/tools/i2cbusses.h
+> +++ b/tools/i2cbusses.h
+> @@ -31,7 +31,9 @@ void free_adapters(struct i2c_adap *adapters);
+> =20
+>  int lookup_i2c_bus(const char *i2cbus_arg);
+>  int parse_i2c_address(const char *address_arg, int all_addrs);
+> -int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet);
+> +int open_i2c_dev(char *i2cbus_arg, char **filename, size_t size, int qui=
+et);
+> +int open_i2c_dev_num(int i2cbus, char *filename, size_t size, int quiet)=
+;
+> +int open_i2c_dev_path(const char *i2cbus_arg, int quiet);
+>  int set_slave_addr(int file, int address, int force);
+> =20
+>  #define MISSING_FUNC_FMT	"Error: Adapter does not have %s capability\n"
+
+I don't think there's a need to expose _num() and _path(). In fact, you
+can even remove lookup_i2c_bus() as that is not used anymore by any
+tool.
+
+> diff --git a/tools/i2cdetect.c b/tools/i2cdetect.c
+> index 3c22f17..b62f395 100644
+> --- a/tools/i2cdetect.c
+> +++ b/tools/i2cdetect.c
+> @@ -213,8 +213,9 @@ static void print_i2c_busses(void)
+>  int main(int argc, char *argv[])
+>  {
+>  	char *end;
+> -	int i2cbus, file, res;
+> -	char filename[20];
+> +	int file, res;
+> +	char filename_buf[20];
+> +	char *filename =3D filename_buf;
+>  	unsigned long funcs;
+>  	int mode =3D MODE_AUTO;
+>  	int first =3D 0x08, last =3D 0x77;
+> @@ -277,11 +278,6 @@ int main(int argc, char *argv[])
+>  		help();
+>  		exit(1);
+>  	}
+> -	i2cbus =3D lookup_i2c_bus(argv[optind]);
+> -	if (i2cbus < 0) {
+> -		help();
+> -		exit(1);
+> -	}
+> =20
+>  	/* read address range if present */
+>  	if (argc =3D=3D optind + 3 && mode !=3D MODE_FUNC) {
+> @@ -321,7 +317,7 @@ int main(int argc, char *argv[])
+>  		exit(1);
+>  	}
+> =20
+> -	file =3D open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
+> +	file =3D open_i2c_dev(argv[optind], &filename, sizeof(filename_buf), 0)=
+;
+>  	if (file < 0) {
+>  		exit(1);
+>  	}
+
+Removing this will change the error path, so a call that would
+previously fail in lookup_i2c_bus() may now fail somewhere else,
+changing error code and message. Same for all other tools.
+
+@Jean Is that acceptable or against the targeted stability requirements
+of i2c-tools?
+
+Best,
+Gero
+
+[...] the rest is tool changes similar to i2cdetect
+
+--=20
 
 
-Please, resend your commit as a v2, and add:
+sevenlab engineering GmbH <https://sevenlab.de>
+serious engineering.
 
-Fixes: b49218365280 ("i2c: mediatek: fix potential incorrect use of I2C_MASTER_WRRD")
-
-and also
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-
-Cheers!
-
-> 
-> [1]: https://github.com/GoldRenard/lenovo_A390_mt6577_uboot_kernel/blob/38ea59263984e26c0dd8e5891b22a35f61e60ed5/mediatek/platform/mt6577/kernel/drivers/i2c/i2c.c#L963-L975
-> [2]: https://github.com/bq/aquaris-5/blob/bc1d0d0e35c969670e2d869001be944ad0c9c5e5/mediatek/platform/mt6589/kernel/drivers/i2c/i2c.c#L728
-> 
-> Best regards,
-> Roman
+Gesch=C3=A4ftsf=C3=BChrer: Christian J. Pereira
+Amtsgericht K=C3=B6ln,=C2=A0HRB 121730
+Anschrift: Hansaring 20, 50670 K=C3=B6ln
