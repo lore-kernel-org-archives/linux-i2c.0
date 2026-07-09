@@ -1,154 +1,133 @@
-Received: from flow-a1-smtp.messagingengine.com (flow-a1-smtp.messagingengine.com [103.168.172.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBBEE1BC2A;
-	Thu,  9 Jul 2026 12:57:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FE91283CB5;
+	Thu,  9 Jul 2026 13:31:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783601848; cv=none; b=r2qktTWl38kcMx5xOAmrAubDghF2qbH8oFQxZqDir8KSsIl1Dc4fiAPPD7Nc9+a5wdFNdZ9U/akWh0uefLEmzWOzQmo/cyekN0eofhcCoAmaNI4K1jbQB8/rfllRlddA16wO2Dbzpr7LQSw4TDOiUWm1nZ42VKofPV6k5nSfyqg=
+	t=1783603891; cv=none; b=QUGwY5iPwrzdA7eiHN2Zt/pCMhiKbteQmTrGeWeen7m0CJ/yrUxj/qOe8gkb+g7znHckh5zZ2SN1ePQilIpfkxBdnJU8Y0LjfVklF5cCOjoDH/g0db2Mr9gJXJyHdrKnHpXnJqW9viOf0yUqhDwTz8M5X0WL8RZgb2CD0rhu5P8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783601848; c=relaxed/simple;
-	bh=BWjjVlBgB0OZCHwWPWKWyCuvf2niD2g3FNGw6Y2h5Fg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qRIlJkJMvOgTRb1DbXHcw0lFDFxagsXi4LYElk2/Jb2nRNBGr+GbdpG2/LAQsRdn4E5BTVTnBfWp1D3bfvwBEUc3o5SHw/GHoe5TnLAryN+5ghuN8ssdoP/mEnzsDJcBN3EpX+av5aKfSr1UyuLXv7Hzhrxl4slBd2qRVEMNmAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=MAloY8DL; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=BOpapHeU; arc=none smtp.client-ip=103.168.172.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
+	s=arc-20240116; t=1783603891; c=relaxed/simple;
+	bh=28FI2HV+RQto7uL7vOBZUQ3tD2S865OcagwBjanwseE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=nIc8uX3z6o8pDkkXSp3dHqWVCvOoSRwQ/rDu2etWKUL3MEyc15witbRqZRF25bAZKrNvHBVjBxDP0YBAaNEEUT6VHaxRxgdedZvXlv373UkGVzSdXml8nvDcMpfQ7A3rW3Fyt6L17X3W9FWBZiBXZ8sh5gCbgyd/jlhiy6bmams=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vcf2M8yn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="MAloY8DL";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="BOpapHeU"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailflow.phl.internal (Postfix) with ESMTP id 227071380125;
-	Thu,  9 Jul 2026 08:57:26 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Thu, 09 Jul 2026 08:57:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm3; t=1783601846; x=1783609046; bh=9vhPsjm8y4
-	AkFo9XBzDdQLzSSMj8DyvQj89Hj7A1Pc8=; b=MAloY8DLGI2kz9gtU8Cbcceoq5
-	xslgijqbYm3Bjy83+Nt4KjHGuTuPnPr2qxCZ8GDlXIEuaw+woqrfK6UUqGZh1A+T
-	BiIVm9xHpetpymZv7fIoLMqGH3ADNxyegpb35XJAPWOF2zYbM4dX18YeRCWB1n9y
-	lWpux5Vz+b0CDHMJ9DrBZDgG74aqTqZmDIm0fbgXgdoo8pl2Ud0LHIzWUnAzMn59
-	ScvrzfqCRHsIc9BYxN6U6IDF/XDQv0VslcAz3mWys2USLA2VO1KPjfDKZrFdWceG
-	D5z1nX9zUQj/yc8GgIvXsvjyHA9dpVeygH5Lm4nhKSOECzN1ivF/FBfFjGhQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1783601846; x=1783609046; bh=9vhPsjm8y4AkFo9XBzDdQLzSSMj8DyvQj89
-	Hj7A1Pc8=; b=BOpapHeUioU1QD0HMwYKofiTtUTfX0HnywsT60OFSMb5R9K5yU5
-	zo+CuiqGuZ7BNFPkOVKvc1GYguoxN+uMZvkLIIUlb1LEp39UYUEC10GFlbkGM6JM
-	5h5a3Xz4Wp55jjbf10jGKdWmGvPGPGwsE44cadjFaE9ghzA2NKyve/FIacZR4oeA
-	xTrvg179+1gYtHH2LtC9EoDpkA4kzIatB6bkTS/1LUXvpZDrK6H7NpVGSO2i1OFZ
-	d+jlyDZrbcmIkGiSzzkwHghYbgMCxlF22OmIuu1mwIiDKtm4/+1QDL9YECLOGAtF
-	WpYf2stYybCYgWtU0wnvF1br3gk65eCXDxA==
-X-ME-Sender: <xms:tZpPalyUxlEtKfJmWVuSbZ19aG-se8S4JznXv-r1F-iXgmpE7aSWuQ>
-    <xme:tZpPaicq4N3L7doyS07eV-TxfoCTqg49Hl4hmfwq4K2V77l29vDUrLea_aG4M0Swh
-    9oan9H4Yc_C_GX_wKhKNVUfn2BKIgik6T2uUL5_gUbyzwia6h2E1tU>
-X-ME-Received: <xmr:tZpPaj11_INdcuGRsXGeE3F2bGT_ienNJDlrsLo9v4N1K5nA1u_czlRPm9UIJ1UYFDVB1tvBJyQJ7lhXGgfB-F22mpA4i1jMTcE>
-X-ME-Proxy-Cause: dmFkZTE/p7RSt2I/QsWrMFYlaFvbRsgvhyTlO9VqpiSxDsbzxxrJLY0xbb0cTdfhO1lPCK
-    P4FWs4VOcnWTMkPjVIv5Ss/Q9Nr2oVw0eZlyzvJ0DYOdAVWIft+dr2F3bnvDD/1u1SuylT
-    MkzsRt5fU4OF31OVwoiqKwjveYdn18ABrjb7aK233MoArvtelMz/AsJQKaXOQdHyoLmFqa
-    BbkVFXO6yCaWrIV4dxPiS6SrWlTSOOk4TszqxqGbTFLGzul4h+Ko/vSl6u1o4IYNgMPBqH
-    XrOgKgtgbMrqKLDsb/9LS3PRr8m8w4HEHYUYzP9Gd4qO1nWHxvjcp1a5IMBT9tN4yNuZuJ
-    Vgt0t4l/peNcMKXSzCVkZMXc2sJina6RQ4CQ9CyxiOg6DIuMuTau11llUiCTPR+pa1eGSW
-    zap7sLHM6lzdi85fWJZAIGlS2CBIGg15XqHaw2qrBIh+1us4yvFVXwvfVVaOZpck9wM5w/
-    pbpfFEl2S2IHHIIEEAVlfbOpSrdSc02pU0QIeropFyITeLA8zYjV0DkxAO8yb085XupfQ6
-    iFYqlvOUROkW5dIJLDQzx74YzUI+dUlTrbhVgXmB4PN5OoHQcCpVYhq1zSa6bz4ytStg+d
-    8awNAmLFMv9WiBezjFJRIfw99f+ABSAauuFeIqAwFStVPdL7EaOvwaB2KXvw
-X-ME-Proxy: <xmx:tZpPajvA1xPOoE-IQaiwOeZisrKb_Bi7TfPJi_LF5Qo-r69J0feHyw>
-    <xmx:tZpPan_AtxCOyMDBrlfwWx0oagmcYsNtG6X-I2G9YnOH2djnjQQrbA>
-    <xmx:tZpPavS2VJK0xY9-goalKOX4MaMoGgASGCDjdwqHQqkrNa4tADHY7A>
-    <xmx:tZpPalC6W3m41fs1Vm0ZrEcYIwRzISZ1LmffoAWgLcwHi7IU-uER8Q>
-    <xmx:tppPahHuOHhn8ZWqEIOtkdrrA7AGKVxibdrtzF2p9ZFEwZDDwg23ZfXW>
-Feedback-ID: i47b949f6:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 9 Jul 2026 08:57:24 -0400 (EDT)
-Date: Thu, 9 Jul 2026 14:57:23 +0200
-From: Janne Grunau <j@jannau.net>
-To: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Linus Walleij <linusw@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
-	Sasha Finkelstein <k@chaosmail.tech>
-Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org
-Subject: Re: [PATCH 00/11] Initial Apple M3 Pro, Max and Ultra device trees
-Message-ID: <20260709125723.GA1985988@robin.jannau.net>
-References: <20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vcf2M8yn"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DC8FDC2BCB7;
+	Thu,  9 Jul 2026 13:31:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1783603890;
+	bh=28FI2HV+RQto7uL7vOBZUQ3tD2S865OcagwBjanwseE=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=Vcf2M8ynpe3cb+4GqG9PhCk8FBZz8xsKHdrgyyV3RTw/BFvxJgd0KF9O8MLB3QcJA
+	 IqDMBoCXOST783QPl3xEV1ZIZLfGKnSb8csbKj2I0AXVfhvfRRlYs/XRrHBTu+mvxj
+	 UNlX7xeowNdrJwYZuXCWK74Lzavk2dxBRvcIQIMlJjtjkFT2A2GQP52FESMPdUaxha
+	 fzuD7ZPhGzrJ7yrDiM9NumS46gfI2WDkfcLIgy/eup7LOESIULgo7cj8xEIdyN90+6
+	 EETEduw+J+/8NKR+mvwFnMk4xZh553+kSulxDFuEltfHxXkT3fdCKRjcI893IyOcxl
+	 vN6Ffv4IutBhg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8CF9C43458;
+	Thu,  9 Jul 2026 13:31:30 +0000 (UTC)
+From: Roman Vivchar via B4 Relay <devnull+rva333.protonmail.com@kernel.org>
+Date: Thu, 09 Jul 2026 16:31:29 +0300
+Subject: [PATCH v2] i2c: mediatek: fix WRRD for SoCs without auto_restart
+ option
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260709-6572-6595-i2c-v2-1-b2fb8510d1d3@protonmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/12N0QqCQBBFf0XmuQ13cjfsyf8IH9Zpyol0ZdekE
+ P+91eglBi4cuPfMDJGDcIRTNkPgSaL4PgHuMqDW9TdWckkMmKPNLR6UNUdMURolSMoylVSwdek
+ gbYbAV3ltvnP95fhs7kzjKlkbrcTRh/f2cNJr7+cu/tyTVlqV2hjixjnGvBqCH33fOXnsyXdQL
+ 8vyAXrC7/bBAAAA
+X-Change-ID: 20260623-6572-6595-i2c-6ec9c4e6a6a6
+To: Qii Wang <qii.wang@mediatek.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+ stable@vger.kernel.org, Roman Vivchar <rva333@protonmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783603888; l=2133;
+ i=rva333@protonmail.com; s=20260510; h=from:subject:message-id;
+ bh=5I4uNLRRu2akfikPizlAwyA4WFLdXzLI6g0+07ulnqg=;
+ b=knMH5OtWF4DJGyJyp/5TwXppDN/rEXeTi+WquMx+mWXenqL3U45hmu6DwLPj1jf6sZkwwXkMG
+ 41rs/GAxG3jDmbD3MVx/NKtXxKLTrR01TvdgYiQGk3Zrgt8YKihoscR
+X-Developer-Key: i=rva333@protonmail.com; a=ed25519;
+ pk=zww/nWjBGoQ4POXCG0BV6fx2iuXK6jx77rsKPA5YK5Y=
+X-Endpoint-Received: by B4 Relay for rva333@protonmail.com/20260510 with
+ auth_id=777
+X-Original-From: Roman Vivchar <rva333@protonmail.com>
+Reply-To: rva333@protonmail.com
 
-On Thu, Jul 09, 2026 at 09:30:46AM +0200, Janne Grunau wrote:
-> This series adds device trees for Apple silicon devices with M3 Pro, Max
-> and Ultra SoCs. The M3 generation has fewer devices than their M1 and M2
-> predecessors. The only non-laptop device is the M3 Ultra Mac Studio. The
-> Laptops are the known 14 and 16-inch Macbook Pros now with M3 Pro and
-> M3 Max SoCs. The M3 Max variant with fewer CPU and GPU cores has
-> additionally only a 384-bit wide memory bus instead of 512-bit of the
-> full M3 Max. It has a separate identifier (T6034) and so there are six
-> laptop device trees.
-> Another difference to M1 and M2 Pro/Max/Ultra is that the M3 Pro is
-> distinct SoC design and not a smaller M3 Max. For this reason both M3
-> Max variants and the M3 Ultra will use "apple,t6030" as compatible
-> prefix. In the M1 and M2 generations Pro, Max and Ultra SoCs shared
-> "apple,t6000" / "apple,t6020" as common prefix. There is currently no
-> known difference but M3 Pro and M3 Max are not as closely related as
-> previously.
-> 
-> This series adds the same level of hardware as the base M3 (T8122) has
-> in v7.2-rc1. This includes CPU cores, interrupt controller, power
-> states, watchdog, serial, pin controller, i2c and the boot framebuffer.
-> This is intended as base so that support for additional hardware can be
-> added to all M3 based devices at the same time.
-> 
-> Merge strategy:
-> Since the dt-binding add new compatible strings without driver changes
-> it would be preferred if the whole [1] series would be merged through
-> apple-soc/arm-soc. This will help ensuring a warning free
-> `make dtbs_check` for followup series with additional M3* hardware
-> support I hope to send for this cycle.
-> 
-> This series will conflict with the M4 series [3] sent A couple of days
-> ago. I would prefer if this could be merged first (in order of SoC
-> release).
-> 
-> [1]: I see that the M4 watchdog change was already picked up by Guenter
->      in [2] 
-> 
-> Link: https://lore.kernel.org/asahi/a03c19ee-cf74-4f26-826d-f2bfb816fb3f@roeck-us.net/ [2]
-> Link: https://lore.kernel.org/asahi/20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev/ [3]
+From: Roman Vivchar <rva333@protonmail.com>
 
-I fixed the legitimate issues poited out by sashiko locally and will
-send a v2 in the next days. From the v2 changelog:
+MediaTek mt65xx family SoCs have no auto restart, however, they still
+support the WRRD mode in the hardware. Because auto_restart is set to 0,
+the WRRD mode will be never enabled, leading to read errors.
 
-- fix serial0 unit address in t6030.dtsi, drop erroneously added 0
-- Fix device node reference in pinctrl_{nub,aop} gpio-ranges in t6030.dtsi
-- fix i2c6 unit address in t6031-die0.dtsi
-- fix cpu_p25 reg value in t6032.dtsi
-- drop unnecessary aic interrupt-controller from t6032.dtsi
-- drop "label" from keyboard pwm led node
-- fix copy-n-pasted pinctrl in compatible strings in the apple,s5l-fpwm
-  dt-binding commit message
-- fix yamllint errors in apple.yaml and fix warnings in newly added
-  lines
+Fix this by removing auto_restart check from the WRRD enable path.
 
-Janne
+Fixes: b49218365280 ("i2c: mediatek: fix potential incorrect use of I2C_MASTER_WRRD")
+Cc: stable@vger.kernel.org
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Roman Vivchar <rva333@protonmail.com>
+---
+This is a preparation for the mt6572/6595 upstreaming.
+
+mt65xx family SoCs don't have auto restart, but vendor kernels keep using
+WRRD mode. Lack of the WRRD mode makes i2c reads impossible from both
+userspace and kernel drivers.
+
+Without patch (mt6595, da9210 buck at 0x68):
+~ # i2cget -y 1 0x68 0x00
+Error: Read failed
+~ # i2cget -y 1 0x68 0x01
+Error: Read failed
+
+With patch:
+~ # i2cget -y 1 0x68 0x00
+0x80
+~ # i2cget -y 1 0x68 0x01
+0x00
+
+Same behavior observed on mt6572 devices.
+
+This change doesn't affect SoCs with auto restart option.
+---
+Changes in v2:
+- Add Fixes and Reviewed-by tags
+- Add Cc stable
+- Link to v1: https://patch.msgid.link/20260624-6572-6595-i2c-v1-1-9155cebaae20@protonmail.com
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 126040ca05f1..307925fb78e3 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -1258,7 +1258,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+ 	i2c->auto_restart = i2c->dev_comp->auto_restart;
+ 
+ 	/* checking if we can skip restart and optimize using WRRD mode */
+-	if (i2c->auto_restart && num == 2) {
++	if (num == 2) {
+ 		if (!(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
+ 		    msgs[0].addr == msgs[1].addr) {
+ 			i2c->auto_restart = 0;
+
+---
+base-commit: 8cd9520d35a6c38db6567e97dd93b1f11f185dc6
+change-id: 20260623-6572-6595-i2c-6ec9c4e6a6a6
+
+Best regards,
+--  
+Roman Vivchar <rva333@protonmail.com>
+
+
