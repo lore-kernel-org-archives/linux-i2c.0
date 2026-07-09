@@ -1,105 +1,132 @@
-Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC2153F660B;
-	Thu,  9 Jul 2026 10:17:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.92.39.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F5133FCB22;
+	Thu,  9 Jul 2026 11:46:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783592247; cv=none; b=tJqlvVhFFHbgeIkgyemxwbARX4N8GHc6r5x3oen/1YeZSheZh+mkLXT1jVaCPLkPpJQpV/O15e2uZ0mKJjwbr0ngsIFejI3wxHSy2zJPaCNFtlt+NTQTmnNJ1Ee0ZrhPgrIA23atVcmzqS1SBP6+dwNrAZD9KKrWbLVwbiK2CpI=
+	t=1783597599; cv=none; b=Ety3TR2JwANwtBDk0sA0MWBhuhnEz5JDzL/wWZHa7mwD+jw1ZqBj8lGPik6HVfJDgxTEr6FpdvJ5z6VaEgwNmOD/2LfO+9F0cRMXIomnsCYbwd9PAmCuIZn3UEuRQPCtJfEjS3NQrCfvr4ixZBqpHQjcLsmyNLRFGYoWT+2WHp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783592247; c=relaxed/simple;
-	bh=wpSbjHnqNS5n5H9tjZJANRhyYNytw5/cTb0Bx8CVvLg=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
-	 References:In-Reply-To; b=KQtwE/YADKUG7pV8aJfNzAzBpw35J241fFrjeCXxTWXKwxDxwOSV+qTsIt6vDeo4RHeKnsV/l6nP2eCvhsMnISYs+D4d1kjo2Awiu8+4bFhHzmSBkTKiRpST/jyFIeT771ONK5Jc1E1RIW/akfSfOnWc/w7hdQRtlzaWaL3Dnq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=M0ikLyYb; arc=none smtp.client-ip=54.92.39.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
+	s=arc-20240116; t=1783597599; c=relaxed/simple;
+	bh=osmPEMuhZlTqXYrEtvH7s5D+9/+EfoSMDdcRQu+4FAU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Zn4pgy2j6Y44holBTglZOjOmux79CMjNyp17siwK4FRg4mLySeYF5XCBo6c4jqCkjSnRHphnydGm+sJFBTUPgAq137zfmpqKznz+v8gqK21j6mgC4fwE0TPmY0nK6uxUqatn6D3PMzIbVtciGpzdFjdIG+bMAI+U7kXtvG08JNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=jsB+EJ6c; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="M0ikLyYb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1783592181;
-	bh=8ks8tS9iyPaEvRnuaY3eiQzZv5LiwGa2iyJl74LOtow=;
-	h=Mime-Version:Date:Message-Id:Subject:From:To;
-	b=M0ikLyYbVX2b4oXKSDibo+mBTPCzRVwi3zQ4OYmQmcpi0vMIMDe3uLQOu5vKJdXK+
-	 2V2528mWvHa6q53TDCEhr92W9t5agfVVgRwG3lLEy1yTGf+RF5htUixqHC8ZgugxNK
-	 ERPu4X9rM32F3/eTDD1vnFZSLzFgxwxWYXglrswE=
-X-QQ-mid: esmtpsz19t1783592180t823f00b7
-X-QQ-Originating-IP: 0lJFCcJVDe7RW2lM7DqlNDhhQOjOY7zdXnSHxwVW+EI=
-Received: from = ( [120.237.158.181])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 09 Jul 2026 18:16:18 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 12591070103831271671
-EX-QQ-RecipientCnt: 7
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="jsB+EJ6c"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1783597596;
+	bh=osmPEMuhZlTqXYrEtvH7s5D+9/+EfoSMDdcRQu+4FAU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=jsB+EJ6c7dx6XCbidR9MCD+dTzI5o18P7QfSzlwncVmkzrIJWTGHJEpykvHgdVIud
+	 XfpalvD8f70jO20On+0Wv5fMSrWBap+IA9/BEj4P0f2SbZ6aO6+xUIC/pAdqD2gfht
+	 TcY9LoWrB43jl3XcNCcfrC/TV/x2YNXNX3aTgh8x2TB6SFBk3gqnPc6OW1lxx84Ak4
+	 wRZ9NPqwt7uJD/Qeb1Vhy4mRsb99MxOtV3k8nPx32zKhADiKCikK8am868qIEJZt5g
+	 5HFhIhABzTculKi8ZitphJSoewiDfJzEcS7aMLTFcvz5sFXsA6tXdLbGss+kbh3NLV
+	 Sqt8AaQRIYiBg==
+Received: from [100.64.1.21] (unknown [100.64.1.21])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 140F117E0C88;
+	Thu, 09 Jul 2026 13:46:36 +0200 (CEST)
+Message-ID: <0eb85793-5995-4177-9b04-338246d6979e@collabora.com>
+Date: Thu, 9 Jul 2026 13:46:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 09 Jul 2026 03:16:17 -0700
-Message-Id: <DJTYNQWDPBQH.1ZD5K49DG089K@linux.spacemit.com>
-Subject: Re: [PATCH] i2c: spacemit: fix spurious IRQ handling returning
- IRQ_HANDLED
-From: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>
-To: "Pei Xiao" <xiaopei01@kylinos.cn>, <troy.mitchell@linux.spacemit.com>,
- <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <spacemit@lists.linux.dev>,
- <linux-riscv@lists.infradead.org>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <aaba8ba228a99f580050004c5b7e262d855de44c.1783590752.git.xiaopei01@kylinos.cn>
-In-Reply-To: <aaba8ba228a99f580050004c5b7e262d855de44c.1783590752.git.xiaopei01@kylinos.cn>
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpsz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: MRoXHVs8e1kF0Nqz67nsbk6tetZapFEPTSaQ9WpoMwE5tEwWYqX4Zlfi
-	87mzRK43Ru2hVR1o65W1CPreu2rhx55dWFz3GV87dHyP+PX1d363U+DfZbkAOqNFkrj0XpE
-	IEunIKmhoQDV17q/vT9xiRnt63mTirqvA149xchUEEc4CwFlKXTgADFSmWXRjGnbaofoHgw
-	cJUwuLq1bplF7w0TOkenSfXooNAqZ6Ctqh5rSjqfPzLBUMlKZsV2S2MWJraQUyN+XAEo6hx
-	cqlNYoMJkyZKkiEhMlgYlIeYUo6hRQUrCMGev43ewJ965GGzx2lhUtGz3tsVmeBuHF0q0la
-	rBMAwYj0yYda26nhr8fs7Fqj+Vee6UeLeZgjFk3XKvDyeAyeaxGMN+Gy7g5m2PI1S0a/S0z
-	/z+Bny42AvbvXLoTfZVlaUoymv8F8WzJd9uzk+q0WkjLsAnrs3uVS0BA3YGyrPwrhQ9Jn+b
-	5i255fcakYdqRIULbfoAtocg2/RiYi2C4b377A6u0DdTnOSnjUcdTJFNhpKXAq7wf8orWLN
-	ElaIBOa6rgdUW2kaY8pTbOS1Nq2sze33+aSnoKvcxj/ToCev9r4PqYxRy0YMlOmh3qg+q/W
-	Z5ikFNknrsAtkQ56u/8IouKEJ07EHUN0dYVR6R4ZVL7xB3NqbVy4kv/Xz0LM9lRc08KxK8/
-	tC+crPDTD8KhuUmoqUK+fbgoHxVMEgPjyRc6ageBp/IbnCkW+GOZFHhRkZd9b9Z0RDfdl/h
-	ApVIDzRt2Smuv4XA0dZBR4rtLVT29BvYR4Q4QEDBc6K3/MT9nn/WY7ritb/Gi1Nl2MhAYpH
-	27TM1WyTOuqx+hzKO+wj5kL/JUK+wDninyuY7nBt/58cy7jlMa5l1mNzvzJ+34B7sMeQ8Eb
-	0XoHJ/046b25/kIDijdF787GpOF3I0jel0aRihl88PyKuSI7ipq+bB+vBRDrXsF6exc5fJN
-	PKap4gchwvHKSwCr6xu17Ela0JdMMcSTZ92LCuTGVuuTldX9sDtK3/RiaN+EOxrmLWN1UyH
-	1SDZnXy8zzKv/Apmu2tlPQ0uF2ol7/nr/GxIl6IIt0fiZ46qeffS0te/qEPhyHrK2jbDrTY
-	A==
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-X-QQ-RECHKSPAM: 0
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] i2c: mediatek: fix WRRD for SoCs without auto_restart
+ option
+To: rva333@protonmail.com, Qii Wang <qii.wang@mediatek.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+References: <20260624-6572-6595-i2c-v1-1-9155cebaae20@protonmail.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20260624-6572-6595-i2c-v1-1-9155cebaae20@protonmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu Jul 9, 2026 at 2:54 AM PDT, Pei Xiao wrote:
-> When the interrupt status register reads zero (no interrupt pending
-> from this device), the handler should return IRQ_NONE. Returning
-> IRQ_HANDLED incorrectly claims the interrupt was serviced, which can
-> prevent other devices sharing the same IRQ line from receiving their
-> interrupts.
->
-> Fix this by returning IRQ_NONE instead of IRQ_HANDLED when the
-> status register is zero.
-The change goes in the right direction, but the rationale in the
-commit message doesn't hold, and I think the check itself can be
-improved.
+On 6/23/26 23:40, Roman Vivchar via B4 Relay wrote:
+> From: Roman Vivchar <rva333@protonmail.com>
+> 
+> MediaTek mt65xx family SoCs have no auto restart, however, they still
+> support the WRRD mode in the hardware. Because auto_restart is set to 0,
+> the WRRD mode will be never enabled, leading to read errors.
+> 
+> Fix this by removing auto_restart check from the WRRD enable path.
+> 
 
-This driver requests its IRQ without IRQF_SHARED (see
-spacemit_i2c_probe(), which passes only IRQF_NO_SUSPEND), so there
-are no "other devices sharing the same IRQ line" to begin with.
-Even on a genuinely shared line, the kernel invokes every handler
-registered on the line regardless of what previous handlers return,
-so IRQ_HANDLED cannot prevent other handlers from running.
+Are you sure that MT6577 and MT6589 do support WRRD?
 
-What the return value actually feeds into is the spurious interrupt
-accounting in note_interrupt(): falsely claiming IRQ_HANDLED defeats
-the "irq XX: nobody cared" detection, so a stuck interrupt source
-would never be caught. That applies to dedicated lines as well, and
-is the real justification for this change.
+If you're not 100% sure, or you want to be careful (which I would, in this case),
+please add a `unsigned char wrrd_supported:1` to struct mtk_i2c_compatible, set
+it to `1` on *all* of the SoCs that support auto_restart (as that's effectively
+a different feature - it just happens that all the ones supporting this also do
+support that, up until today), and add a new one for your MT6572, declaring no
+auto_restart but wrrd_supported.
 
-Could you rework the check and the commit message and send a v2?
+That would make me sure that you're not breaking anything, and would guarantee
+you a R-b.
 
-                                  - Troy
+Cheers,
+Angelo
+
+> Signed-off-by: Roman Vivchar <rva333@protonmail.com>
+> ---
+> This is a preparation for the mt6572/6595 upstreaming.
+> 
+> mt65xx family SoCs don't have auto restart, but vendor kernels keep using
+> WRRD mode. Lack of the WRRD mode makes i2c reads impossible from both
+> userspace and kernel drivers.
+> 
+> Without patch (mt6595, da9210 buck at 0x68):
+> ~ # i2cget -y 1 0x68 0x00
+> Error: Read failed
+> ~ # i2cget -y 1 0x68 0x01
+> Error: Read failed
+> 
+> With patch:
+> ~ # i2cget -y 1 0x68 0x00
+> 0x80
+> ~ # i2cget -y 1 0x68 0x01
+> 0x00
+> 
+> Same behavior observed on mt6572 devices.
+> 
+> This change doesn't affect SoCs with auto restart option.
+> ---
+>   drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+> index 126040ca05f1..307925fb78e3 100644
+> --- a/drivers/i2c/busses/i2c-mt65xx.c
+> +++ b/drivers/i2c/busses/i2c-mt65xx.c
+> @@ -1258,7 +1258,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+>   	i2c->auto_restart = i2c->dev_comp->auto_restart;
+>   
+>   	/* checking if we can skip restart and optimize using WRRD mode */
+> -	if (i2c->auto_restart && num == 2) {
+> +	if (num == 2) {
+>   		if (!(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
+>   		    msgs[0].addr == msgs[1].addr) {
+>   			i2c->auto_restart = 0;
+> 
+> ---
+> base-commit: 8cd9520d35a6c38db6567e97dd93b1f11f185dc6
+> change-id: 20260623-6572-6595-i2c-6ec9c4e6a6a6
+> 
+> Best regards,
+> --
+> Roman Vivchar <rva333@protonmail.com>
+> 
+> 
