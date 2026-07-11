@@ -1,79 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out-171.mta1.migadu.com (out-171.mta1.migadu.com [95.215.58.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8717A363C57
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Jul 2026 19:48:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD8123446AD
+	for <linux-i2c@vger.kernel.org>; Sat, 11 Jul 2026 10:05:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783712907; cv=none; b=tpZ2rpmuqc60QGupzjT5LcIxkjwbOKeKT96+7HJccAy44C30BPqFv7VqXqwcvNM0T4ukU/jr90mHe3txnK1TjDo0AWvXDmxAbJqnUzniUTgnsDZM3BjfS0mPm4I3UW7xc1EHG8aUSF00vxFkatr3g5ePgyquZ/oj6V8Tm5a80q4=
+	t=1783764320; cv=none; b=uErZY9Ky2BvYny5tJf6M8pDpTokAe7xZcBIdGrf4j2exnCUo8d6rsBDteu5k1MYdymU8EpCT3GzC0jogu6+d3lLyrtM707m5yK4HsRF1y9hTVc83UNNTTH4ll0CjN0lWXB5rRSxX1flqIFxvll87gyHp3xRIjBHH+ZKYeT6rxds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783712907; c=relaxed/simple;
-	bh=r1Zf4djkyVsGdqHiqgT2yCHA+1xehfGqV1emcYl1I6A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=s9L+pgzia2FDjLV2wm7E9JNyDO61vESYVE+E0OBDHJo3a10B2RKUH/azwez73Np02UiADxNJ1soYfnnNYywFAOtV4Q9B0SenRhthOQmwXq2Uezr0GBAbxA2gmxylNZTvWnzHt/9p4iLr0yDafCtpoXtlxtAvbil73oGVDwhha2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KHubEODI; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783764320; c=relaxed/simple;
+	bh=XeqtZDBObbe74VEoiaORdWOe6v5UrT29UxzIDvBmrtk=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Message-ID:Date:
+	 Content-Type:MIME-Version; b=mHSYZEOKz8lWX+iTdq+xTG2rRLR/t+z+5Ao3Tma80eLzxnikzj6h1HtX/UqJdekdDKC5lFPiRbXC9By61XXFT0SLC8WriTJhEycYtyHz4aWKRMGTlGEdvqL/scYVhWygPS47mwMiHmJlZo6mTJoNbxqYdbhUFCD1v4MOa5OP8PY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=WayvsVos; arc=none smtp.client-ip=95.215.58.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KHubEODI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 560EE1F00ADB
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Jul 2026 19:48:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783712905;
-	bh=r1Zf4djkyVsGdqHiqgT2yCHA+1xehfGqV1emcYl1I6A=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=KHubEODI5OK2JjTzLoacd+Xr01Bdn2djdhyaYl/074SiQhy7GiltXk3uOVmqYK+Jx
-	 gaIBB4JvCVLuVWPwYbajMX4wyLMe20zpe2yvO2E3Zf+M/jCxYCtOb96KZAZxJygLu6
-	 LdIjuylf2OpzLru6fOiYnIeUqX4b1688vkKDiuc/Clwpgiu9XPvMV7U6eLhfHANeUj
-	 svnCfvd5/BhdvmEos+dlaiaungyCXAz4FGHwtAWGlWWynv1es0W6tunrIph+PFAp1c
-	 dy4llZLsfp/AE70Xrsxq5ev2pLwZe9Z+2hWF2+joPs1FeVyde3GT8lRFUGCmZxJcjx
-	 plVtsxTqbfDZA==
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5aeb5829fd5so1189602e87.1
-        for <linux-i2c@vger.kernel.org>; Fri, 10 Jul 2026 12:48:25 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RqC4FiZYrvA9HKvfrqGO7eMMRaWK4PFBpDMSpszY4JzhIGXb7Jq5Zbhp8PYNvSB2UxKTogEKjEDBPQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw8L/tAtCkv49w9jyOktWJPZ6iSEK269zFM0JMxJryfdYMT0LUN
-	c0VdRrIDW45hpq+XzqRAThdiFUwaq7/TcR7VaXfVWtl+NntFB2SW2PgDGd9/90PpGxiEXkZwVTL
-	irKGfrY8vs3Lxb+q8Ig3cpVaJyPFFKuY=
-X-Received: by 2002:a05:6512:2c0e:b0:5ae:aeaa:140b with SMTP id
- 2adb3069b0e04-5b0236a5c9fmr98033e87.43.1783712904103; Fri, 10 Jul 2026
- 12:48:24 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="WayvsVos"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1783764316;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iOE/Q2XSh0FcWlIlJBT2IIO2PedQr0Ik4Q0k8uUwmUs=;
+	b=WayvsVosuY+Wv6qUD6Sc38b+E2zKMg4bLcm1+pWbFSx6HQSU0L/i50kNe6NknkWU7A+cBV
+	puUVjfw6ad9X7tCAZBLsovKjoyuYhiWvJxEVIsYZxf/WKeGxhZfWV7e8naZUBePkR3FOLM
+	Q89Ex9A25fERNAUU1fwUyxxRkDJnwrQ=
+From: Igor Korotin <igor.korotin@linux.dev>
+To: jic23@kernel.org, lars@metafoo.de
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-i2c@vger.kernel.org, andi.shyti@kernel.org,
+ wsa+renesas@sang-engineering.com, ojeda@kernel.org, dakr@kernel.org,
+ branstj@gmail.com, Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+Subject: Re: [RFC PATCH v4 1/3] i2c: rust: implement SMBus read abstraction
+ via kernel::io::Io for I2cClient
+In-Reply-To: <20260707151542.91997-2-muchamadcoirulanwar@gmail.com>
+References: <20260707151542.91997-1-muchamadcoirulanwar@gmail.com>
+ <20260707151542.91997-2-muchamadcoirulanwar@gmail.com>
+Message-ID: <178376430529.16552.7043868463863908196@linux.dev>
+Date: Sat, 11 Jul 2026 11:05:05 +0100
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net>
- <20260709-apple-t603x-initial-devices-v1-7-55b305833123@jannau.net>
-In-Reply-To: <20260709-apple-t603x-initial-devices-v1-7-55b305833123@jannau.net>
-From: Linus Walleij <linusw@kernel.org>
-Date: Fri, 10 Jul 2026 21:48:12 +0200
-X-Gmail-Original-Message-ID: <CAD++jLnKYrW3LzEWj47Mmi7DYL=cGZNLRzbF3w91GTs7FBCsjA@mail.gmail.com>
-X-Gm-Features: AUfX_mwDu5nHkfrpKW31EzIHDBbQz-W_XVTsCEkvJgwgFKC10BW3wqwVZ3eoWUg
-Message-ID: <CAD++jLnKYrW3LzEWj47Mmi7DYL=cGZNLRzbF3w91GTs7FBCsjA@mail.gmail.com>
-Subject: Re: [PATCH 07/11] dt-bindings: pinctrl: apple,pinctrl: Add t6030 and
- t6031 compatibles
-To: Janne Grunau <j@jannau.net>
-Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Mark Kettenis <kettenis@openbsd.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
-	Sasha Finkelstein <k@chaosmail.tech>, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-pwm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Migadu-Flow: FLOW_OUT
 
-On Thu, Jul 9, 2026 at 9:31=E2=80=AFAM Janne Grunau <j@jannau.net> wrote:
+Thanks for reworking this to use `Io` as agreed -- the direction is right.
+But I think the fix is incomplete, and it points at something I'd like
+Danilo's take on.
 
-> The pin controller on Apple silicon M3 Pro, Max and Ultra SoCs is
-> compatible with the t8103 (M1) one. Add "apple,t6030-pinctrl" for M3 Pro
-> and "apple,t6031-pinctrl" for M3 Max and Ultra as per-SoC compatibles.
->
-> Signed-off-by: Janne Grunau <j@jannau.net>
+try_read8()/try_read16() are overridden here with real errno handling,
+bypassing IoCapable::io_read entirely -- necessary, since io_read's
+signature (-> T, not Result<T>) can't carry a negative errno from
+i2c_smbus_read_byte_data.
 
-This patch 7 applied to the pinctrl tree.
+But that override only covers two of Io's entry points. The generic
+try_read<T, L>, try_write<T, L>, try_update<T, L, F>, and try_write_reg
+all still route straight through IoCapable::io_read/io_write and aren't
+overridden here. Concretely:
 
-Yours,
-Linus Walleij
+- client.try_read::<u8, _>(offset) (as opposed to try_read8()) silently
+  casts a negative errno to a garbage u8 on failure -- the exact bug
+  try_read8() exists to avoid, reachable through a different, still-public
+  method on the same type.
+- try_write8()/try_write16() aren't overridden at all, so any write
+  through them (or the generic try_write) discards the real SMBus return
+  value and reports Ok(()) even when the transaction failed on the bus
+  (NACK, arbitration loss, timeout).
+- try_update() combines both problems in a single read-modify-write.
+
+This driver only calls try_read8()/try_read16(), so AS5600 itself isn't
+affected in practice. But the abstraction being introduced here would be
+unsound the moment any write-capable consumer reaches for it -- and I
+don't think patching try_write8/try_update one at a time is the right
+fix, since it just leaves the same trap for whichever method nobody's
+gotten around to overriding yet.
+
+Danilo -- since using Io for I2C was originally your suggestion, I'd like
+your read on this before we go further: IoCapable::io_read/io_write are
+infallible by signature, which holds for MMIO/PCI-config (bounds-checked
+implies success) but doesn't hold for a bus transaction -- I2C can
+genuinely fail per-transfer regardless of address validity. Given that,
+is Io/IoCapable the right abstraction for I2cClient to implement at all,
+or does I2C need its own fallible-native interface rather than overriding
+pieces of this one?
+
+Cheers
+Igor
