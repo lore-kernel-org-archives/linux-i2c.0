@@ -1,71 +1,72 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1DAB3644A4;
-	Tue, 14 Jul 2026 15:37:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9965D35DA5D
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 15:45:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784043437; cv=none; b=pcj1J2Xwg1QC0sgdIb8fU5nnptQkLIOZOdVHqAIPSwgA/3ygQ7qky2aqMB6iSWI8KF0CP5QZQkPlIdBOiELji9zuHJ9KKVPYEvkBjC5tSP4nKIDOfPIml/fj/A2z5XxSPVO3RwfgH91raN2cabIMwQpARKoLjlKoPuFA6GOnVRg=
+	t=1784043942; cv=none; b=EV3K0WTRmq0ZBCDKthbJsTPDFruKOaI4jcuBoBJZcFv4U1yFwk18eodLnfJZAvnZPwdHsOYsFkyVk01JIsMoBObZE2JsmqWVNLDn0foSI/aw7/HKZ1bQ2cBlxawCIunfSe+nqfJo7MhjM4/DMqKJEP4rVMtEBe5gmXh9tgcMWuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784043437; c=relaxed/simple;
-	bh=p/WVKNRgG6HCMh8QdcHkpFgg2wBA4OGdLOMQQGR5bXg=;
+	s=arc-20240116; t=1784043942; c=relaxed/simple;
+	bh=Zlbztg6yiHPnkiE4IG2I/j2f7aZ060OxX5TItitbtV0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WtOwIBgV25erhXQ3LZCcKU0gv1qf00BJiVI1MQho0xxvJwIr6RzPFAQSc3aMBI8jQKK7cNOXVuHX4vRW2j2Oyfxxt0/FIp5Er5rakvrn/r2WVMkzuKl3Wac/rGOY8LmCJAmTs/XK6uvSnUKob32f2nw6s/Gd1cIIfGWSm75/ZPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mSudT+fh; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=sR853VSJuX0y8u+HDnNkcSxWCz4ODpyk6JSAEYwzgJPTrs1k55qGgHBWUuyeGzR7PL03HhN5rUp5/BEqvQitqLMRJS9a0cauVV4kj+Vxcpp0XRYt3nWLK4U09vUK2am5pscVgOHyh2G4evYkMAoTFD9XFBdjxzPLvJYa3mb1A+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=GRPBhngk; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mSudT+fh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F2191F000E9;
-	Tue, 14 Jul 2026 15:37:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784043436;
-	bh=p/WVKNRgG6HCMh8QdcHkpFgg2wBA4OGdLOMQQGR5bXg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mSudT+fhGsjkm1g7cHqsqzU9OFwdWKZdQdeL6LMnf8iYmh+1TH0pMbblp2eT5BvVR
-	 EQc7YaED2+psd6tI4QUVFHYcWtjr0Bq7/Ia/Fl94B6DY4k6b85Qk8e+hDJPw4F1wir
-	 ZhFCa1sR6Swq0A+/zlsBdmOhCtrpx9L8JpVDdOdAEX08Wp2evSJmnd7YxvjX62Of+0
-	 uWmLmcAeURVSEe1HCSbCKazOC91BCEMdVreaIerBOtWzB2/vERh2FNWTsQu0jNN1Kr
-	 gxabJOOOFZxHjoleatK3GksI3w/tEZZEgWJy61vBEOCW4jEqz8Oy8/h4myZPxkVzOz
-	 8tv0PjlkgtzmQ==
-Date: Tue, 14 Jul 2026 17:37:12 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Pei Xiao <xiaopei01@kylinos.cn>
-Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	spacemit@lists.linux.dev
-Subject: Re: [PATCH v2] i2c: spacemit: fix spurious IRQ handling returning
- IRQ_HANDLED
-Message-ID: <alZXX4xX-f2EPNIJ@zenone.zhora.eu>
-References: <ef8b623f45d4e430721e46572c2598d882044aed.1783667603.git.xiaopei01@kylinos.cn>
- <ef8b623f45d4e430721e46572c2598d882044aed.1783667875.git.xiaopei01@kylinos.cn>
- <DJUQ3TZHM7OO.34ULEC76Z2BDY@linux.spacemit.com>
- <e453a825-4d73-4d35-a699-a495b0ca1058@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GRPBhngk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=Zlbz
+	tg6yiHPnkiE4IG2I/j2f7aZ060OxX5TItitbtV0=; b=GRPBhngk5B7vXiKudUsU
+	dSmlpTkEFwT9K5LvAcpwF+FcoE3Oa03IIyu9rGjZZVOY4LpetxduTNW64buNDxPV
+	jtASd5YPg6BF0WfuxBUGn5WisjrF2e5rESA67Xm8kqp3Kfdc8Jy0qtjSdBW7Mbdm
+	CBm+UD1fq9Vb+mothDffuyFmbHkfa0+sX1tv9PcWcBFnzyfDjS3QsxXXFUfuyJO3
+	1bijkbclwNqLEo9hHBTj8++NiFmg2R4nUA3JEAGycF8lEeNs7Yj6dCKWnLKQ28vM
+	h4lZAFpa1kJApspP3PgTg6zj9U0TXv+i8LhXwPWQdYRNH9FKputuIYtiqPcP/25/
+	Wg==
+Received: (qmail 330099 invoked from network); 14 Jul 2026 17:45:35 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Jul 2026 17:45:35 +0200
+X-UD-Smtp-Session: l3s3148p1@e5ADGZRWdoAujnsO
+Date: Tue, 14 Jul 2026 17:45:31 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Vincent Jardin <vjardin@free.fr>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Wolfram Sang <wsa@kernel.org>,
+	Kaushal Butala <kaushalkernelmailinglist@gmail.com>,
+	Shawn Guo <shawn.guo@freescale.com>,
+	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, Carlos Song <carlos.song@nxp.com>,
+	Stefan Eichenberger <eichest@gmail.com>
+Subject: Re: [PATCH v3 0/2] i2c: imx: fix SMBus block-read of 0 locking the
+ bus
+Message-ID: <alZZmzQrnBptGEMQ@shikoro>
+References: <20260713-for-upstream-i2c-lx2160-fix-v1-v3-0-073ac9e103a5@free.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e453a825-4d73-4d35-a699-a495b0ca1058@kylinos.cn>
+In-Reply-To: <20260713-for-upstream-i2c-lx2160-fix-v1-v3-0-073ac9e103a5@free.fr>
 
-Hi Pei,
+On Mon, Jul 13, 2026 at 08:11:58PM +0200, Vincent Jardin wrote:
+> i2c-imx rejects an SMBus Block Read byte count of 0 (valid per SMBus 3.1
+> 6.5.7) as -EPROTO and returns without emitting a NACK + STOP, leaving the
+> target holding SDA so the bus stays stuck until a power cycle.
 
-> > One process note, though: please don't repost new versions this
-> > quickly. v2 followed the review comments almost immediately, which
-> > means other reviewers who were still looking at v1 never got a
-> > chance to chime in before the thread moved on, and the discussion
-> > gets fragmented across versions.
+Bigger picture: Linux does not support SMBus3 which also allows byte
+counts of up to 255. I started sketching support for all that but could
+never implement it.
 
-> Because I noticed a simple mistake right after sending v1
-> —I forgot to include the version number and changelog for v2—
-> so I thought that by fixing it without waiting for reviewers to point it
-> out, 
-> I could save reviewers' time and get the patch merged more quickly.
->  I may have been wrong about that. Sorry.
+That being said, despite no SMBus3 support, it should not hang the bus
+like here.
 
-You could have just replied to your own patch. It happens to
-everyone to make such mistakes.
-
-Andi
