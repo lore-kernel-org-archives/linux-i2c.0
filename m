@@ -1,106 +1,153 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DECD1417BC3;
-	Tue, 14 Jul 2026 18:59:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159FC433047;
+	Tue, 14 Jul 2026 19:48:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784055575; cv=none; b=pzg4+qQTKVhYvGKSTb5J7QHjhptA83rhq3oRAM7d58v2UeLqhpsUXW8FwG2PSWq5GUMPHQzgpu6SKck9qbFKyWRO5Mbci+wgMW8bD4cMYKONhUT7NLJuRHJaHVnbSawBD30KmPr1OurqlJS4ygCHIlrBcXDRrZ5EHK4Xci8UFMA=
+	t=1784058489; cv=none; b=kynygfMhhQd3WfJfzl5e8SoAbv5R55v1aby+WYd0eo4WutPOIta68rzKzDe6K70CkI8UNOdy1IGLtZAPD6lt9wCHFfcguE7soNOkg5WJqkXaULdXTJMBOcnJHycxcm9oB29wkkWxapdkCWjeteoPmC0Lr/tpPU76Nuo6Ir9LUL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784055575; c=relaxed/simple;
-	bh=TNlTj//NIMpflYGIzQSPMAJhiNVdgNLM6YBeijAZQz4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lKvTFlD5xyKgQasI+xJmRPkpfV05dScanJ41c33leTBI4YwtFrTSvGl/iYwufRmC4jiqk3g+XfoB1/boWxEYbK5pV/1wqK55AB98cG3dMJEfR3nTjB0DK/O40Ti+Xuqy3mPbLZdHvpbGgEc86IErgwqtC8/rjtUabTAMjPM7xsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NgXs5/CK; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1784058489; c=relaxed/simple;
+	bh=B/L/X9V9PjtyIkDoHFL2DD8jdxZBz4bQhuxjlzo8bYw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rmHfFip1KZ0MS6/52yRV6KASDPEaPLdQNYotWUEHwncfOHAB2oZB9BwstYWbmE0jnye6mjklkNjWo7YWXfjBnhRmmeYDLZqAizX4KRNHG9f6uelnrJa/icigTLBZ0kWMIZoVYU5C5nOF3jmiwLH/9UktkRXpzsvelmGCnAJ0eMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hJjbRkjo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NgXs5/CK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784055574; x=1815591574;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=TNlTj//NIMpflYGIzQSPMAJhiNVdgNLM6YBeijAZQz4=;
-  b=NgXs5/CKkHuEhIKpZoTazj/p9lT6JT7yAurKZH6lVDBWaI/hWUywy+75
-   VZXhQLhCeDNWE5d5a15Xv3Whs8Ewak/Z6PfsqMo80DPH5wX0yR9uhNL5L
-   VkjFqMFWGUZT2gya6UUYwFPvR3Uqzb5lsD87o9ytJDkVorDBo+DesRtqf
-   RXbyRj7wLS1ZIYytUKrfWS58LTRJDbaXoTQ7bqYSpLE/QYmyojmtaMBdI
-   TvzH/8kgxNa1QLOKfDjBlGdr8dQMdtzQFh57qEAo94ymjpsAJkhg6bpKn
-   ALD1F1lr24vpKJohZFPYn21XnALIor4ZyfR4pFn5pbSUD6iNDfMzq2WLq
-   w==;
-X-CSE-ConnectionGUID: Lx9dPJ+yQye397OVWjJuLA==
-X-CSE-MsgGUID: yfshb9YASyiaB36BNZpqsw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11847"; a="88364961"
-X-IronPort-AV: E=Sophos;i="6.25,164,1779174000"; 
-   d="scan'208";a="88364961"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 11:59:33 -0700
-X-CSE-ConnectionGUID: nYgkZIYlRISwlO15WMs79w==
-X-CSE-MsgGUID: oaEfJaAOQgiaJrBYaa9/qQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,164,1779174000"; 
-   d="scan'208";a="256597178"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa009.jf.intel.com with ESMTP; 14 Jul 2026 11:59:29 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id 14F1C9E; Tue, 14 Jul 2026 20:59:24 +0200 (CEST)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	"Mario Limonciello (AMD)" <superm1@kernel.org>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-pci@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	ibm-acpi-devel@lists.sourceforge.net
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
-	Len Brown <lenb@kernel.org>,
-	Mika Westerberg <westeri@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	"Derek J. Clark" <derekjohn.clark@gmail.com>,
-	Hans de Goede <hansg@kernel.org>
-Subject: [PATCH v2 5/6] PCI/VGA: Convert to use acpi_dev_is_video_device() helper
-Date: Tue, 14 Jul 2026 20:53:44 +0200
-Message-ID: <20260714185915.865396-6-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
-References: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hJjbRkjo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8CA91F000E9;
+	Tue, 14 Jul 2026 19:48:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784058486;
+	bh=oUqzUmCd5C8LaJR7q3XMrWlHVSAMJDyXvnpn53blVaI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=hJjbRkjodStNV3aFkSroSh3RyI1uRsygLQn7A7gDs39Y2nFzt9uMuVciIxK1tCwid
+	 66Zsi7OXdiuAxDKyEIZCZr3Y9I8GCiLF/6JSPmQZtGTO8IhFtkj+duE81iHc26IQn2
+	 sGcHzOYVs7sqGGWXhxqTLkkpdp94MM5U3iMnjO88g90e1AK0JU0DxA1vT9yJ/oIBbD
+	 K6F0yyuRNESCDE6QhmYjyn5BKZVDrwP3/e/WhQLW4pw6uiJDgBOq28fGTs/p01Oh+b
+	 Hyzzf9nPwI6aCkawKUD5Q+mQgyttB7YY8h5gKwGVoQ4zWjrPBvu3GeScAb0VXeMkTr
+	 MNslCVmGm6Uqg==
+Message-ID: <6c3a01f7-957d-4dc4-a892-3af2826928af@kernel.org>
+Date: Tue, 14 Jul 2026 21:47:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 10/10] arm64: dts: apple: Add minimal t8132 (M4) device
+ trees
+To: Yureka Lilian <yureka@cyberchaos.dev>
+Cc: Hector Martin <marcan@marcan.st>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>,
+ =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
+ Neal Gompa <neal@gompa.dev>, Janne Grunau <j@jannau.net>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>, Guenter Roeck
+ <linux@roeck-us.net>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Linus Walleij <linusw@kernel.org>, Sasha Finkelstein <k@chaosmail.tech>,
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+ Thomas Gleixner <tglx@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ linux-pwm@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
+ Mark Kettenis <kettenis@openbsd.org>
+References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
+ <20260705-apple-m4-initial-devicetrees-v1-10-e5655ee56523@cyberchaos.dev>
+Content-Language: en-US
+From: Sven Peter <sven@kernel.org>
+In-Reply-To: <20260705-apple-m4-initial-devicetrees-v1-10-e5655ee56523@cyberchaos.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Replace open coded variant of acpi_dev_is_video_device() helper.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/pci/vgaarb.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/pci/vgaarb.c b/drivers/pci/vgaarb.c
-index c360eee11dd9..3de05aee7859 100644
---- a/drivers/pci/vgaarb.c
-+++ b/drivers/pci/vgaarb.c
-@@ -575,9 +575,7 @@ static bool vga_is_firmware_default(struct pci_dev *pdev)
- static bool vga_arb_integrated_gpu(struct device *dev)
- {
- #if defined(CONFIG_ACPI)
--	struct acpi_device *adev = ACPI_COMPANION(dev);
--
--	return adev && !strcmp(acpi_device_hid(adev), ACPI_VIDEO_HID);
-+	return acpi_dev_is_video_device(ACPI_COMPANION(dev));
- #else
- 	return false;
- #endif
--- 
-2.50.1
+On 7/5/26 15:17, Yureka Lilian wrote:
+> Added device trees for the following devices:
+> - apple,j604 - MacBook Pro (14-inch, M4, 2024)
+> - apple,j623 - iMac (24-inch, 2x USB-C, M4, 2024)
+> - apple,j624 - iMac (24-inch, 4x USB-C, M4, 2024)
+> - apple,j713 - MacBook Air (13-inch, M4, 2025)
+> - apple,j715 - MacBook Air (15-inch, M4, 2025)
+> - apple,j773g - Mac mini (M4, 2024)
+>
+> The device trees have a minimal set of devices limited to CPU cores,
+> interrupt controller, power states, watchdog, serial, pin controller,
+> i2c and framebuffer.
+> The device trees for the notebooks add a PWM controller for the keyboard
+> LED illumination.
+>
+> Using the macOS 26.6b3 iBoot/firmware, the Mac mini reliably boots on a
+> single core using the stock kernel.
+> Booting with smp requires avoiding the wfi and wfit instructions
+> in the idle loop and `delay()` respectively, since those instructions
+> cause a loss of architectural state on the secondary cores, and even
+> then boot is unreliable.
+>
+> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+> ---
+>   arch/arm64/boot/dts/apple/Makefile        |    6 +
+>   arch/arm64/boot/dts/apple/t8132-j604.dts  |   35 +
+>   arch/arm64/boot/dts/apple/t8132-j623.dts  |   18 +
+>   arch/arm64/boot/dts/apple/t8132-j624.dts  |   18 +
+>   arch/arm64/boot/dts/apple/t8132-j713.dts  |   35 +
+>   arch/arm64/boot/dts/apple/t8132-j715.dts  |   35 +
+>   arch/arm64/boot/dts/apple/t8132-j773g.dts |   25 +
+>   arch/arm64/boot/dts/apple/t8132-jxxx.dtsi |   48 ++
+>   arch/arm64/boot/dts/apple/t8132-pmgr.dtsi | 1125 +++++++++++++++++++++++++++++
+>   arch/arm64/boot/dts/apple/t8132.dtsi      |  440 +++++++++++
+>   10 files changed, 1785 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/apple/Makefile b/arch/arm64/boot/dts/apple/Makefile
+> index 6fc3349a5842..181bd0e28965 100644
+> --- a/arch/arm64/boot/dts/apple/Makefile
+> +++ b/arch/arm64/boot/dts/apple/Makefile
+> @@ -1,4 +1,10 @@
+>   # SPDX-License-Identifier: GPL-2.0
+> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j604.dtb
+> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j623.dtb
+> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j624.dtb
+> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j713.dtb
+> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j715.dtb
+> +dtb-$(CONFIG_ARCH_APPLE) += t8132-j773g.dtb
+Please put these at the correct position in the Makefile and not at the 
+very top.
+
+>   dtb-$(CONFIG_ARCH_APPLE) += s5l8960x-j71.dtb
+>   dtb-$(CONFIG_ARCH_APPLE) += s5l8960x-j73.dtb
+>   dtb-$(CONFIG_ARCH_APPLE) += s5l8960x-j85m.dtb
+> diff --git a/arch/arm64/boot/dts/apple/t8132-j604.dts b/arch/arm64/boot/dts/apple/t8132-j604.dts
+> new file mode 100644
+> index 000000000000..c4be915cb33a
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/apple/t8132-j604.dts
+> @@ -0,0 +1,35 @@
+> +// SPDX-License-Identifier: GPL-2.0+ OR MIT
+> +/*
+> + * Apple MacBook Pro (14-inch, M4, 2024)
+> + *
+> + * target-type: J604
+> + *
+
+[...]
+
+> +
+> +		pmgr: power-management@380700000 {
+> +			compatible = "apple,t8132-pmgr", "apple,t8103-pmgr", "syscon", "simple-mfd";
+> +			#address-cells = <1>;
+> +			#size-cells = <1>;
+> +			reg = <0x3 0x80700000 0 0x14000>;
+> +			/* child nodes are added in t8132-pmgr.dtsi */
+> +		};
+> +
+> +		aic: interrupt-controller@381180000 {
+> +			compatible = "apple,t8132-aic3", "apple,t8122-aic3";
+> +			#interrupt-cells = <3>;
+> +			interrupt-controller;
+> +			reg = <0x00000003 0x81000000 0x00000000 0x1cc000>,
+
+You have 381180000 in the node name but 381000000 here, I guess the node 
+name is a copy paste error. W=1 flags this fwiw.
+
+
+Sven
 
