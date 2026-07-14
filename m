@@ -1,212 +1,119 @@
-Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BAE538B7DB;
-	Tue, 14 Jul 2026 11:29:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7077444A71E;
+	Tue, 14 Jul 2026 12:36:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784028558; cv=none; b=n6tfTxsoxlD3jxuK2AHz0ze2xHRKLZ3JzIUtKG/9ECBI6ppEfboQ5jJ4KW4aHLAPuSI2sXEbEI7RGO6jiZkyUmlHTiFzu0viaCzbfhGmjIgKMuyN17JYgciWE00S0nQwt/bDlA2MlnVECoS0fY0ewQAOQMaFbX0qLGXCbMzuh5Q=
+	t=1784032617; cv=none; b=TF1xwg3hV8kekkZtvqZArh4PuflG8Jgef6MM8mMxMgZU22uSRBPNVQCcuykAvQPj98UAJOpbwULBeO55vBmDJv6mLwBj2khCoZVeMPPFQ5ol4XNBVELxNjFoP6wiA2zFu56LWWZ6aErSoUVhMZwQvK542ZvmwgeuCoDtqZBUTmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784028558; c=relaxed/simple;
-	bh=KIbChOqpx58g6s8B0KHjVr0c4T00SmiBQI8b9zTDkp0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QO6zqzTf4mE5wjjfWOhDTwS0OVoOe7Z3vriCgBlMQkH8eegZjOHSDJczrvTj5mloGsCT+gh87924Rqy61NLClPL+/TIjRGM0pqedA3Q3AlI+0kmuPgnq270zHF0mULnqJER8yBT+f7nOw+0bq/wRm3aT7WnL7QNThJlZWrBcWJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=CbnG+nXo; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=CbnG+nXo; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=gnoUaLAd; arc=none smtp.client-ip=130.236.254.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+	s=arc-20240116; t=1784032617; c=relaxed/simple;
+	bh=Fd5fmNyY2d1uD11LLJjRX4lxE0AYCcbFlBG5ZBbkn/I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GCdvnbv03OYvj6m9X/lbs3bECQOueGTCoM8LpZcihQvFPcZVhcBbtx+nGML9NrBeGKic7l9DKx0/tNnHO7UnfrNxNnNqP8WdFh33I67mLkEPu5FrxXS8mB1sA2NdgvehSYOgn8PP35uVv938M6esQyPtH8kxwECHwLVcT8htdX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lg5iMJG2; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="CbnG+nXo";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="CbnG+nXo";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="gnoUaLAd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784028550;
-	bh=KIbChOqpx58g6s8B0KHjVr0c4T00SmiBQI8b9zTDkp0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=CbnG+nXot1KVhI9mG09KAxVeQj/w+BnwSmVpP0QYgKugaxSGX0tED1KyrZaboDSDQ
-	 CqKYqbv1kR3onI8bzCy+qk0wlFUYUEqIjOrgdwxLu7qnelohiOkHjyXuowE+TwAyqb
-	 uBmE5l+Q6LRtVuGUHo6NuCNSqs4o0U7LQ7/Nvd4xaTOI3zSMAFFTb4UKTOeaLVwgKW
-	 /row9FhCU/6drRqGXKm6UWck6WfHk4uRkMHcDIr1mDjlYLIoMCwwqOYGqSHlA/l6GT
-	 liAgWhVwTyFK+lXTy5W4OJfWemdl0/7eOh6gZtKhazJUzfkWTcWrllSrCOih6l+07b
-	 tWW74dbLYn2cA==
-Received: from mail.lysator.liu.se (localhost [127.0.0.1])
-	by mail.lysator.liu.se (Postfix) with ESMTP id 639A786C7;
-	Tue, 14 Jul 2026 13:29:10 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784028550;
-	bh=KIbChOqpx58g6s8B0KHjVr0c4T00SmiBQI8b9zTDkp0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=CbnG+nXot1KVhI9mG09KAxVeQj/w+BnwSmVpP0QYgKugaxSGX0tED1KyrZaboDSDQ
-	 CqKYqbv1kR3onI8bzCy+qk0wlFUYUEqIjOrgdwxLu7qnelohiOkHjyXuowE+TwAyqb
-	 uBmE5l+Q6LRtVuGUHo6NuCNSqs4o0U7LQ7/Nvd4xaTOI3zSMAFFTb4UKTOeaLVwgKW
-	 /row9FhCU/6drRqGXKm6UWck6WfHk4uRkMHcDIr1mDjlYLIoMCwwqOYGqSHlA/l6GT
-	 liAgWhVwTyFK+lXTy5W4OJfWemdl0/7eOh6gZtKhazJUzfkWTcWrllSrCOih6l+07b
-	 tWW74dbLYn2cA==
-Received: by mail.lysator.liu.se (Postfix, from userid 1004)
-	id 3A6DD879E; Tue, 14 Jul 2026 13:29:10 +0200 (CEST)
-X-Spam-Level: 
-X-Spam-Score: -1.1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784028545;
-	bh=KIbChOqpx58g6s8B0KHjVr0c4T00SmiBQI8b9zTDkp0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=gnoUaLAdgBEvaDjfLSajvn/XVJzTNVE28DDBz1hWHX/aP9aAAlNC7EtIuT4lDDap5
-	 p9NLpVe3YH/tACOkFNyl0ukcXjMPQ4qkV7kMdZKNfcITmiXQv3ppcQHAkQ7Pvcwf6e
-	 2+2jTsNnbmS+kp0LAcjmREK+ZgksHO+CC0nCEevsK+AzPvU3tHsYb0gwz+qH4XaKPO
-	 p1bMujtBwEm4Bwt+J9v6maO+y7/8zA/zIbeL3DaK2oiYHGjqEZ4X9EfSJzTUH8yUUG
-	 Lo86ZuhYkkrS1Xqb80k+YQgDdk/UC5wdkUS/hRqWgzfIdd3x297MFfF7Ipg8cdWuNQ
-	 Mfq3Ki57ZyVoA==
-Received: from [192.168.2.172] (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by mail.lysator.liu.se (Postfix) with ESMTPSA id A475686BE;
-	Tue, 14 Jul 2026 13:29:03 +0200 (CEST)
-Message-ID: <e2d4fdf8-4dae-43dc-95ae-b9aa1884fdf5@lysator.liu.se>
-Date: Tue, 14 Jul 2026 13:29:01 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lg5iMJG2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784032613; x=1815568613;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Fd5fmNyY2d1uD11LLJjRX4lxE0AYCcbFlBG5ZBbkn/I=;
+  b=lg5iMJG2vPOGqBgqJWJwpYYy+WgNKK2ytxt7/c6QZT+pRNlvnyEW3yox
+   d3p/dFzJaE2CCCDlnxw/VNF77qNWYew9ZuvtFhXX5knLhxraScB8FVQBB
+   BcU8Q1U22+wrJerjKTqdYzAMbMV87MO6yxnGxxICUeAHV2xs8hpgbuxc8
+   EnjWPo83d92b3eXGcVbmRLbBsoNwdsQVzE33qe+hz28Bq0sHy4EChF2vx
+   Tw0I5KnK6SWzo2OrZfRY69W8jGHFuM5q7u0ZOeVNFTCG+ZZNFMBMrQ9Hx
+   8/jRU2Lv4LxSzYENjlTvSVlmJdyNfeGVOkd4NmPTvqCFlVavlbEzIrGET
+   Q==;
+X-CSE-ConnectionGUID: 26OEFeEfRS6zbkubzqwHfg==
+X-CSE-MsgGUID: RgKc22cvRnOQXDOWsKmeXw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11846"; a="88473913"
+X-IronPort-AV: E=Sophos;i="6.25,163,1779174000"; 
+   d="scan'208";a="88473913"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 05:36:51 -0700
+X-CSE-ConnectionGUID: ruQUspqVQ4CTdcpl0+sJ+w==
+X-CSE-MsgGUID: ENlMAvR0T/6ropGLZt8U5w==
+X-ExtLoop1: 1
+Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.189])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 05:36:48 -0700
+Date: Tue, 14 Jul 2026 15:36:46 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
+	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
+	linusw@kernel.org, nathan@kernel.org,
+	chaitanya.kumar.borah@intel.com
+Subject: Re: [PATCH v10] i2c: designware: defer probe if child GpioInt
+ controllers are not bound
+Message-ID: <alYtXlHSbjNnQosZ@ashevche-desk.local>
+References: <20260701101218.42529-1-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 2/7] i2c: mux: add idle_state property to i2c_mux_core
-To: Marcus Folkesson <marcus.folkesson@gmail.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Michael Hennerich <michael.hennerich@analog.com>,
- Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@intel.com>,
- Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-References: <20260713-i2c-mux-v11-0-72bb8af8ee8c@gmail.com>
- <20260713-i2c-mux-v11-2-72bb8af8ee8c@gmail.com>
-Content-Language: en-US, sv-SE
-From: Peter Rosin <peda@lysator.liu.se>
-In-Reply-To: <20260713-i2c-mux-v11-2-72bb8af8ee8c@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260701101218.42529-1-hardikprakash.official@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Marcus,
+On Wed, Jul 01, 2026 at 03:42:18PM +0530, Hardik Prakash wrote:
 
-Sorry for the very late feedback.
+Sorry, it took a bit of a time. I was wondering about something
+(see below) and then got distracted and then forgot about this.
 
-On 2026-07-13 09:19, Marcus Folkesson wrote:
-> Muxes treat their channels differently when idle.
-> Let the mux core have this information to make it available for
-> internal use.
-> Reuse the same state values used by CONFIG_MULTIPLEXER.
+> I2C controllers may have child devices with GpioInt resources that
+> depend on GPIO controllers to be fully initialized. If the I2C
+> controller probes and enumerates children before the referenced GPIO
+> controller has completed probe, GPIO interrupts may not be properly
+> configured, leading to device failures.
 > 
-> Possible idle states are:
-> - MUX_IDLE_AS_IS: Leave channels as is when idle
-> - MUX_IDLE_DISCONNECT: Disconnect channel (set HiZ when idle)
-> - <n>: Enable channel n when idle
+> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
+> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
+> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
+> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
+> fail with lost arbitration errors.
 > 
-> Default value is set to MUX_IDLE_AS_IS.
+> Add a generic dependency check in i2c-designware that walks ACPI child
+> devices, identifies any GpioInt resources, resolves the referenced GPIO
+> controllers, and defers probe if those controllers are not yet bound.
+
+> Uses acpi_gpio_get_irq_resource() to avoid duplicating GPIO resource
+> parsing logic from gpiolib-acpi. Skips resources with no resource
+> source string (string_length == 0 or string_ptr == NULL) to avoid
+> crashes on hardware where GPIO resources have no named controller.
+
+This paragraph can be deducted from the code, you can move it to the comments
+block. No need to explain in the commit message how code works in details.
+
+> The probe ordering race was confirmed via dynamic debug tracing:
 > 
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> ---
->   drivers/i2c/i2c-mux.c   |  1 +
->   include/linux/i2c-mux.h | 26 ++++++++++++++++++++++++++
->   2 files changed, 27 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index 681a201c239b..edf16683dc83 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -247,6 +247,7 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
->   	muxc->select = select;
->   	muxc->deselect = deselect;
->   	muxc->max_adapters = max_adapters;
-> +	muxc->idle_state = MUX_IDLE_AS_IS;
+>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
+>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
+>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
+>   2.348157  lost arbitration
 
-This is insufficient. AS_IS is simply not an adequate default.
+...
 
-For i2c-mux-gpmux, there is currently no way to dig out what
-the idle state is, as it is not exposed by the mux subsystem. For
-i2c-mux-gpio, the idle state depends on both the idle-state /and/
-the i2c-mux-idle-disconnect props. For i2c-mux-pca954x the idle
-state can be adjusted at runtime. Etc.
 
-In short, idle state handling is a bit diverse, and I think this
-adds to that mess.
+> +struct gpio_controller_ref {
+> +	struct list_head node;
+> +	const char *path;
+> +};
 
-I think it will be a bit of work to come up with a scheme for the
-I2C mux core to accurately keep track of what the idle state is.
-One way to deal with that is to introduce a new "unknown" value
-that can be the default for all drivers that has not yet figured
-out how to feed the correct idle state to the core.
+So, the list of the controllers in the system is already tracked in the GPIOLIB.
+I'm wondering if we may reuse that one instead of creating our own. We gave in
+particular gpio_device_find() API. There are also wrappers _find_by_*().
 
-And that hints at why I think reusing the mux.h bindings #include
-is bad. The mux subsystem simply has no need for an unknown state,
-and adding that to mux.h is therefore out of place.
+-- 
+With Best Regards,
+Andy Shevchenko
 
->   
->   	return muxc;
->   }
-> diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
-> index 1784ac7afb11..624fadbaa703 100644
-> --- a/include/linux/i2c-mux.h
-> +++ b/include/linux/i2c-mux.h
-> @@ -13,6 +13,7 @@
->   
->   #ifdef __KERNEL__
->   
-> +#include <dt-bindings/mux/mux.h>
-
-I think it is bad to bring in this include here. That include
-belongs to the mux subsystem. Yes, it is included by others as
-well, but please don't expand on that.
-
->   #include <linux/bitops.h>
->   
->   struct i2c_mux_core {
-> @@ -22,6 +23,17 @@ struct i2c_mux_core {
->   	unsigned int arbitrator:1;
->   	unsigned int gate:1;
->   
-> +	/*
-> +	 * The mux controller state to use when inactive.
-
-A "mux controller" is a concept in the mux subsystem, and there
-is no equivalent for I2C muxes.
-
-Cheers,
-Peter
-
-> +	 * Possible idle states are:
-> +	 *  - MUX_IDLE_AS_IS: Leave channels as is when idle
-> +	 *  - MUX_IDLE_DISCONNECT: Disconnect channel (set HiZ when idle)
-> +	 *  - <n>: Enable channel n when idle
-> +	 *
-> +	 * Default value is set to MUX_IDLE_AS_IS.
-> +	 */
-> +	int idle_state;
-> +
->   	void *priv;
->   
->   	int (*select)(struct i2c_mux_core *, u32 chan_id);
-> @@ -38,6 +50,20 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
->   				   int (*select)(struct i2c_mux_core *, u32),
->   				   int (*deselect)(struct i2c_mux_core *, u32));
->   
-> +/*
-> + * Mux drivers may only change idle_state, and may only do so
-> + * between allocation and registration of the mux controller.
-> + */
-> +static inline void i2c_mux_set_idle_state(struct i2c_mux_core *muxc, int state)
-> +{
-> +	muxc->idle_state = state;
-> +}
-> +
-> +static inline int i2c_mux_idle_state(struct i2c_mux_core *muxc)
-> +{
-> +	return muxc->idle_state;
-> +}
-> +
->   /* flags for i2c_mux_alloc */
->   #define I2C_MUX_LOCKED     BIT(0)
->   #define I2C_MUX_ARBITRATOR BIT(1)
-> 
 
