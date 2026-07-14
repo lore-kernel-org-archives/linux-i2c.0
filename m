@@ -1,104 +1,126 @@
-Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1492343FD11;
-	Tue, 14 Jul 2026 09:41:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F93441617
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 09:42:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784022113; cv=none; b=GIlryM5ZP+Z7Y46VauTBVcxDyCjJvyc7/0ExABjf8c4zw3nA7kVi87xoXh4Zm89FuZKeWg3AYubSYWsoKsA48U+n5AumR3ZkNKZHjz0JK5NiLyOAamjXD/vhwGzAEyHOpTXPe8fUqRTftEnHbuAIguYrpTBV551ZRhzvEaQwiKY=
+	t=1784022170; cv=none; b=ayARgpCs3k6yShPScPGwFK+ylrfyT+011swbdGapdFLoujAWz3LSN5XkXtZpVX0ePBlTHigZ+g9rJOliTI9RczV6NJ0+gOKndgRQiKx5RVCwUZHPNunSu/Qf6jJnbdWXBVLRRuOi++58t7X5i27lYIL1TC38XrepNkbJhAYwlTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784022113; c=relaxed/simple;
-	bh=lKr2kzuSeiAjC16p+wndtFIdffFzMSq8xCj4zQAyyyM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LuOG/b29VKeDK55EWdfBdrLfaNFch0KH9+qX2lcIfXUVjvg2MJJaE69owTr/PAMsafdKBTQTLhvoorW7iUBPyaiN+j5MuSgQpOAorrjbTMeqeG65dSz3QYPNdtel2cOiHZ8ateptsG1DpLYOEB6TA+sV0tfNm2ytf4Nyq7SJDr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=YDK+dE81; arc=none smtp.client-ip=210.202.87.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
+	s=arc-20240116; t=1784022170; c=relaxed/simple;
+	bh=yILbrkcQncKEV+c5sQ7ENKbV0x1P+vXurSxqq5vSJc4=;
+	h=Mime-Version:Date:Message-Id:Subject:Cc:To:From:References:
+	 In-Reply-To:Content-Type; b=LfWpGJXm9r3RRSYZEAHXP+O8lhkMvcJIOnlCD+YzdzzsXA9bSDM48L8vzXC2KlCqGMlnHKO8pM8lsdEaeDogm7dDBQuYEvRhzJg1swyhsJfLIMbYoyJ96QdAOEFw/iR83ZicllC/AWqqPk9G1j6lXde9rVle/UqIPbPM0AwWqIU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sevenlab.de; spf=pass smtp.mailfrom=sevenlab.de; dkim=pass (2048-bit key) header.d=sevenlab-de.20251104.gappssmtp.com header.i=@sevenlab-de.20251104.gappssmtp.com header.b=UtS9v4HR; arc=none smtp.client-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sevenlab.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sevenlab.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="YDK+dE81"
-X-UUID: 3bc0d8e67f6811f181a149c3f3c08161-20260714
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=psN0kqo8uQkSysWusSvrifCMa9oTwBGcSyqXdNVrwLs=;
-	b=YDK+dE811h30HRDMsfWwU4oGBjQHlLeuCx9F6t1nbSMWisuIB0yfJqVIeXLNFoBn77hwzY5CX5MjV2mRTgIdda+P6IL/s9XmuUnRhbvfgGgWoTE7t+hsjkv1gYjPxWAZY6Op3GLZpUCvQkdvz3O3n6PwS7bqn7PVINRwP/dJD/4=;
-X-UUID: 3bc0d8e67f6811f181a149c3f3c08161-20260714
-Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
-	(envelope-from <sp_isw1_at@novatek.com.tw>)
-	(Generic MTA)
-	with ESMTP id 707847343; Tue, 14 Jul 2026 17:41:48 +0800
-Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id 1EF1B1A1E1C;
-	Tue, 14 Jul 2026 17:41:48 +0800 (CST)
-Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id 883BDC600CC; Tue, 14 Jul 2026 17:41:45 +0800 (CST)
-From: Nina_Kuo@novatek.com.tw
-To: andi.shyti@kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: ben_huang@novatek.com.tw,
-	toby_chui@novatek.com.tw,
-	shihpei_hsu@novatek.com.tw
-Subject: Re: [PATCH v2 0/3] i2c: Add Novatek NT726xx SoC I2C controller
-Date: Tue, 14 Jul 2026 17:41:45 +0800
-Message-Id: <20260714094145.84387-1-Nina_Kuo@novatek.com.tw>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20260714092504.82538-1-Nina_Kuo@novatek.com.tw>
-References: <20260714092504.82538-1-Nina_Kuo@novatek.com.tw>
+	dkim=pass (2048-bit key) header.d=sevenlab-de.20251104.gappssmtp.com header.i=@sevenlab-de.20251104.gappssmtp.com header.b="UtS9v4HR"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-476d8e647e9so4061900f8f.0
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 02:42:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sevenlab-de.20251104.gappssmtp.com; s=20251104; t=1784022158; x=1784626958; darn=vger.kernel.org;
+        h=content-type:content-transfer-encoding:in-reply-to:references:from
+         :to:cc:subject:message-id:date:mime-version:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yILbrkcQncKEV+c5sQ7ENKbV0x1P+vXurSxqq5vSJc4=;
+        b=UtS9v4HR8Kvzs+ImJ1oN8Gl7NiDq3oFCPKMETrC9Zy/TfmXiD3xxbuNpv2tKEU4HoG
+         kLA2TXw8y5WL3U8BLdVO1O26RpMXasYRnEIU44LJNBncqLbpTDN6c4bk6xrA01ZEgun3
+         rBbea2xj3kG0IwARk1ZtZoRVJ6iZ8tNa4ibkcS/KUrS0vmqjedTbXg3oTokL6x+z8bgG
+         EUyErm3D65acRLWNbeWXnRWbnE34if4vcDObGDvmAU/2gHX4TqAaAQKxx13SKF7XQvJt
+         Rygyr01NHrbbDBXdQ+Qn1z7KOFUC5kN/89YjuX/Fs6otIEDNTKUSWfZkYJSh6He9eiNI
+         03dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784022158; x=1784626958;
+        h=content-type:content-transfer-encoding:in-reply-to:references:from
+         :to:cc:subject:message-id:date:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yILbrkcQncKEV+c5sQ7ENKbV0x1P+vXurSxqq5vSJc4=;
+        b=KkQuoDPS0rZatkUe3ENoI9e7TKI4ESYuHpEm9w/NQax/aJ5TxeCBrAWGxmdZknAz9P
+         +IGTO8XS42Lfq0AGRuWohVGa4fz/RlKbVPg4+BVqJ+4fax2q7iMdsU3Fu7xfJvloxPyL
+         Z1puYA6fM6KK/ngaKcqGohwffm8Fp7OWfE4bsoWy5MIX8iDz+9M5Ozdfak5hECX4PR7c
+         H7YR4NNVgTCwrMHWM7hZUaA+iiP3JhLDAqBd4sJIP3W1hVA659yrZ6zL1PZQFl7IQXcQ
+         6t/P0cc6zz9NWpRBdNol4ln77ohFIPZZIT60kZeaz/qqUwFPJ0yNwRywrmeQji7DGUU+
+         6fpQ==
+X-Forwarded-Encrypted: i=1; AHgh+RowBEWl/oZFGuWkEnn9ZSTiHBGYHN0Kv3iIcxt8qFxtKNBE1aWtqeYqhZP8UA0NbSGBi2BZ58TLlpw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwufPqaBuaqHq0d5iz1IrquerWmNZGTb/fUuoq60nznefXqLl0C
+	H3IzjdHe8UEvVELZuv3MnhzD/XekgvKAMRhQGuCQdnuCGDttM/vPIMqqiMjNKzZ2FYPd/9nFq7J
+	Wk04hG9gWb/BIFW72CcQ+FMRaWVGYPavm2CFREs+JLANttki2gjuuZ2ws/dEZv+OY1a9sGg==
+X-Gm-Gg: AfdE7clUQenE+3YH0KI4XRNVlLTzBEh8058K1iLnKbLZJZewVIYQcMV5VNS7JZ42jvP
+	ydszRgrDrHZ6l2yK/6D0Y/YYFilI09fE4zi05o3dTowwyegf2uRQ8dGIaozHAtIZvvkbyww08eP
+	nsnsIUimvDkWiiaUCc5m30L9bET2+n/dtFXlb7Zd0MmhL70vCwRUvEhs+N8rWkbayqG5dPMwjWC
+	dRq66BZfcKZ1ilxXVI3RTm1QU/Gqv05L12ujMhxUKxbq7dbzlnqqrTw37zGrlX2qrhJ/EieH0fL
+	8J4vtahhh7DsnRyBJfKen2zuyM1oYUlNZdcDBt7ccFAh7WFCXB5w77IXid3bNLfUZFsEutZcR+T
+	/ME0gTPQn2pbxh+A4qyJyIM1piCtmH4XPCWo8SB1wJDgFc7iXX9tNzm2+mTSzepRI+mp0zl9+ky
+	GtBhdWnitB6dphVxnyMxVDeujy
+X-Received: by 2002:a05:6000:4709:b0:474:6301:3e3d with SMTP id ffacd0b85a97d-47f48848568mr2118363f8f.11.1784022157869;
+        Tue, 14 Jul 2026 02:42:37 -0700 (PDT)
+Received: from localhost ([2a02:8109:eb8a:6200:4076:3d5f:87e8:a363])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f4634e029sm7307967f8f.3.2026.07.14.02.42.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jul 2026 02:42:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: multipart/mixed;
-	boundary="__=_Part_Boundary_001_1727655448.1529552306"
+Mime-Version: 1.0
+Date: Tue, 14 Jul 2026 11:42:37 +0200
+Message-Id: <DJY72ONUKYLD.3D0U14SM219BI@sevenlab.de>
+Subject: Re: [PATCH v4 1/2] i2c-tools: Allow passing device file paths
+Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
+To: "Brigham Campbell" <me@brighamcampbell.com>, "Jean Delvare"
+ <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>
+From: =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
+X-Mailer: aerc 0.20.1-26-gcbffbc9ac803
+References: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com> <20260705-accept-device-path-v4-1-c62caa708a9e@brighamcampbell.com> <DJXCC2TLMKGV.GQPIOKMUNXD4@sevenlab.de> <DJXK0VTX8680.10EZPJHF4UJN6@brighamcampbell.com>
+In-Reply-To: <DJXK0VTX8680.10EZPJHF4UJN6@brighamcampbell.com>
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 
---__=_Part_Boundary_001_1727655448.1529552306
-Content-Type: text/html;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Hi Brigham,
 
-PCEtLXR5cGU6aHRtbC0tPjwhLS17LS0+PHNwYW4gbGFuZz1FTi1VUw0Kc3R5bGU9J2ZvbnQtc2l6
-ZToxMC4wcHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLHNhbnMtc2VyaWYnPkNPTkZJREVOVElBTElU
-WSBOT1RJQ0U6IFRoaXMgbWVzc2FnZSwgaW5jbHVkaW5nIGF0dGFjaG1lbnRzLCBjb250YWlucyBp
-bmZvcm1hdGlvbiB3aGljaCBtYXkgYmUgY29uZmlkZW50aWFsIGFuZCBwcml2aWxlZ2VkLCBhbmQg
-aXMgaW50ZW5kZWQgb25seSBmb3IgdXNlIGJ5IHRoZSBhZGRyZXNzZWVzIGRlc2lnbmF0ZWQgYWJv
-dmUuIFVubGVzcyB5b3UgYXJlIHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueSB1c2UsIGNvcHlp
-bmcsIGRpc2Nsb3N1cmUsIG9yIGRpc3RyaWJ1dGlvbiBpcyBwcm9oaWJpdGVkLiBJZiB5b3UgaGF2
-ZSByZWNlaXZlZCB0aGUgbWVzc2FnZSBpbiBlcnJvciwgcGxlYXNlIGltbWVkaWF0ZWx5IGRlbGV0
-ZSB0aGUgbWVzc2FnZSBhbmQgZGVzdHJveSBhbGwgY29waWVzIHRoZXJlb2YgYW5kIG5vdGlmeSB0
-aGUgc2VuZGVyIGJ5IHJlcGx5IGVtYWlsLjwvc3Bhbj48c3Bhbg0KbGFuZz1FTi1VUyBzdHlsZT0n
-Zm9udC1zaXplOjEwLjBwdCc+IDwvc3Bhbj48c3BhbiBzdHlsZT0nZm9udC1zaXplOjEwLjBwdCc+
-JiMyNjQxMjsmIzM3MTA5OyYjMjAyMTQ7JiMyMTQ1MDsmIzIwMjE5OyYjMjAzMDk7PHNwYW4NCmNs
-YXNzPUdyYW1FPiYjMzg0Njg7JiMyMDIxNDsmIzIyMzQzOyYjMjM2NjA7JiMyNzIzMTsmIzIzNDk0
-Ozwvc3Bhbj4mIzY1MjkyOyYjMjA2Nzc7JiMyMDM3OTsmIzIwODU0OyYjMTk5Nzg7JiMyNTM1MTsm
-IzIzNDUwOyYjMjIzMjA7JiMyMjMzNjsmIzIwMDQzOyYjMjU5MTA7JiMyMDIxNDsmIzIwMTU0OyYj
-MjAzNTE7JiMyOTk5MjsmIzEyMjkwOyYjMzg1MDA7JiMzODc1MDsmIzI0NzQ0OyYjMjYxNTk7JiMy
-NTM1MTsmIzIzNDUwOyYjMjAwNDM7JiMyNTkxMDsmIzIwMjE0OyYjMjAxNTQ7JiM2NTI5MjsmIzIx
-NTQyOyYjMjEwNjM7JiMzNTUzMTsmIzIxMjQ3OyYjMjAzNTE7JiMyOTk5MjsmIzEyMjg5OyYjMzUw
-Nzk7JiMzNTA2OTsmIzEyMjg5OyYjMjU1ODE7JiMzODcwNjsmIzI1MTEwOzxzcGFuDQpjbGFzcz1H
-cmFtRT4mIzI1OTU1OyYjMjQwNjc7JiMyNjQxMjsmIzM3MTA5OyYjMjAyMTQ7PC9zcGFuPiYjMjAw
-NDM7JiMyMDIxOTsmIzIwMzA5OyYjMzcwOTY7JiMyMDIyMTsmIzEyMjkwOyYjMzM1MDk7JiMyNDc0
-NDsmIzM3Njc5OyYjMzU0OTI7JiMyMjMyMDsmIzI1OTEwOyYjMjEwNDA7JiMyNzQ5MjsmIzM3MTA5
-OyYjMjAyMTQ7JiM2NTI5MjsmIzM1NTMxOyYjMzE0MzU7JiMyMTM2MzsmIzIyMjM4OyYjMzUyMDY7
-JiMzODY1MTsmIzIzMzc2OyYjMzcxMDk7JiMyMDIxNDsmIzM2ODkwOyYjMzA2OTM7JiMyMzQ5Mjsm
-IzIwMjE0OyYjMjAxNTQ7JiM2NTI5MjsmIzIwMDA2OyYjMzU1MzE7JiMyMzQzNjsmIzIwODQwOyYj
-MjEwMzQ7JiMzODUwMDsmIzE5OTg4OyYjMzc1NTk7JiMyNzU4NDsmIzI2NDEyOyYjMzcxMDk7JiMy
-MDIxNDsmIzIxNDUwOyYjMjA4NTQ7JiMzNTA3OTsmIzI2NDEyOyYjMTIyOTA7PHNwYW4NCmxhbmc9
-RU4tVVM+PG86cD48L286cD48L3NwYW4+PC9zcGFuPg0KPCEtLX0tLT4=
+On Mon Jul 13, 2026 at 5:38 PM CEST, Brigham Campbell wrote:
+> I was not interested in avoiding the cost of copying 20 bytes. I expect
+> the biggest performance overhead would be the actual i2c transaction
+> itself, followed by enumeration of sysfs in gather_i2c_busses. I'm not
+> at all worried about a single strcpy.
+>
+> I was actually interested in accounting for the fact that because this
+> patch allows users to pass in symlinks, users may very well pass in
+> paths which are longer than 20 characters. In this case, the filename
+> buffer isn't big enough. Rather than allocate a new buffer and copy the
+> string over, I simply copied the pointer to the path in argv.
 
---__=_Part_Boundary_001_1727655448.1529552306
-Content-Type: 
-Content-Transfer-Encoding: base64
+Very good point, I missed that intent.
 
-RnJvbTogQmVuIEh1YW5nIDxCZW5fSHVhbmdAbm92YXRlay5jb20udHc+DQoNClNvcnJ5IGFib3V0
-IHNob3dpbmcgdGhlIGNvbmZpZGVudGlhbCBtZXNzYWdlcy4NCkkgc3RpbGwgZmluZCBpbnRlcm5h
-bCBzdXBwb3J0IHRvIHJlbW92ZSB0aGVzZSBtZXNzYWdlcy4NCg0KU2luY2VyZWx5LA0KQmVuIEh1
-YW5n
+> Maybe it would be easier to understand an approach which simply
+> increases the size of the filename buffer to PATH_MAX from limits.h and
+> just copies the path directly into the buffer via strcpy? I had
+> considered this approach. In this case, I might consider moving the
+> (much bigger) buffer from the stack to the heap so as not to overrun the
+> stack frame...
 
---__=_Part_Boundary_001_1727655448.1529552306--
+hm, simpler to understand indeed, but 4k is a significant allocation for
+smaller targets. I'm a bit torn. In the end both are valid options, but
+I think your implementation is fine as is. Maybe just add a comment why
+we assign the pointer instead of copying into the buffer, so the intent
+is made clear.
 
+Best,
+Gero
+
+> Thanks for your thorough reviewal of the code! I appreciate the feedback
+> I've received from you and Gero. I'll try to respond to some more of the
+> feedback tonight.
+
+--=20
+
+
+sevenlab engineering GmbH <https://sevenlab.de>
+serious engineering.
+
+Gesch=C3=A4ftsf=C3=BChrer: Christian J. Pereira
+Amtsgericht K=C3=B6ln,=C2=A0HRB 121730
+Anschrift: Hansaring 20, 50670 K=C3=B6ln
