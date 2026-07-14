@@ -1,35 +1,35 @@
 Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A1F73FAE19;
-	Tue, 14 Jul 2026 09:25:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80D2942E8E8;
+	Tue, 14 Jul 2026 09:25:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784021134; cv=none; b=VhyLarx7QibiAs+YyqVDSVVg94+XlLSZAcu/fCkx831QbM1Uw64wqFgl7+YBDvwITAZexn5ozA66QZ3TSdajbuhc14t/pE1LHEjKCMRq1Vmynww4hQzzzcsXdxMc+YgkcY3PZFsWID8k/lS+o3n25TqpfUrGpujYaaP8MHRtPKo=
+	t=1784021152; cv=none; b=j27EDtAatzIfQcgsvv670sTlcqZyXcIsjMVfZU+Za63al33xn6WQJjENe8vNeO8zkx5MUtbY44LN2bvofRU2MUc93SyzulpUX1yLsGAWU1WYrlnjcXgf1+9CGoE5GRNOcTutJdPRUM7ttUND6DVl2iYN52IXTJyHcVxJHBUDrLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784021134; c=relaxed/simple;
-	bh=ZzlR4NdqZCujCnqCeNCDE8iklttiPWSXXrJ1IJc5/Fo=;
+	s=arc-20240116; t=1784021152; c=relaxed/simple;
+	bh=JESY8d7tVfLdbiZwdRziueVXRyGYulEsDkccdCkXhCI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PyB/kjUuq5YzXQcsWZHs3moaI2l1yPRLQGsmmCXpo4ICuYK4eRiuZP6p6g8uCZYA7NbYv2ry3U5c5gPlHQMfMKXS4AZwt/Sugx9TlvFcrgGZHOHIv+G7S2ARhC6uobajzi2U0w+vi7uF+p+RnOmTD02kkzuUK9Yn+dQ6H2syUns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=bSKsZB0V; arc=none smtp.client-ip=210.202.87.108
+	 MIME-Version:Content-Type; b=T0iBaQ6XYvYvWWzoaK2YiWuepQJCTNC2jd5dX2N74TcbUbaNFMr6OtHCYw6O1HNIKaKLbgpTAufMI93jgmriPh8BmlxdLXEOD+Nqy2MK7mGfoSeXJ9gKPp+e5d624hxZpxAKw/PZp9Vwc6nsqXQJtMlEYZ4zOxP0HwSh4Po+iIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=uZXTlNco; arc=none smtp.client-ip=210.202.87.108
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="bSKsZB0V"
-X-UUID: f32393d27f6511f181a149c3f3c08161-20260714
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="uZXTlNco"
+X-UUID: fe26a6fc7f6511f181a149c3f3c08161-20260714
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=nGZQxZq3i0r44o9Cr4AQDN11wNrR4bWIQ4+TvnUUBpg=;
-	b=bSKsZB0Vt20rQaOSDlvrJIalmpqXR2lyWDGrBLy19Gtcl/zr5+9UObT7om6qdpztwSD6QoiQ6arwshD9nHjN9dIbOh7tDB7lE6sqAE/adPA8rZO1CI5uTSpLBA/MG85+Z6AQFNNrTo1f9IqznuqZ94EYLAmrPZmfUkgyVbJPRVU=;
-X-UUID: f32393d27f6511f181a149c3f3c08161-20260714
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=nV/YkRgDdKRwlzzTztEs8AeCeEjaYi7Lp5sdOFtAdzo=;
+	b=uZXTlNcowJFXYu8TKmbBxtMR9OdmGnK1O+Lz0MbTYTy9FBq4VTQHsEe3zKgG9vesqq1y7RsuxWU5PI2ITkneSXLO2p1F7Y6lgwGyYBOjY9/Ft6P7/Lo/2FLiIoJuy1bEjTHLtuwL1mSzB2TQCl3j07DTTtZDnr6vg5FbwUWlARw=;
+X-UUID: fe26a6fc7f6511f181a149c3f3c08161-20260714
 Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
 	(envelope-from <sp_isw1_at@novatek.com.tw>)
 	(Generic MTA)
-	with ESMTP id 1107628219; Tue, 14 Jul 2026 17:25:27 +0800
+	with ESMTP id 1236598370; Tue, 14 Jul 2026 17:25:45 +0800
 Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id 4214E1A1E1C;
-	Tue, 14 Jul 2026 17:25:27 +0800 (CST)
+	by spmgt1 (Postfix) with ESMTP id B5FC81A1E1C;
+	Tue, 14 Jul 2026 17:25:45 +0800 (CST)
 Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id BE200C600CC; Tue, 14 Jul 2026 17:25:25 +0800 (CST)
+	id 3D841C600CC; Tue, 14 Jul 2026 17:25:44 +0800 (CST)
 From: Nina_Kuo@novatek.com.tw
 To: andi.shyti@kernel.org,
 	robh@kernel.org,
@@ -41,12 +41,12 @@ To: andi.shyti@kernel.org,
 Cc: ben_huang@novatek.com.tw,
 	toby_chui@novatek.com.tw,
 	shihpei_hsu@novatek.com.tw
-Subject: [PATCH v2 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC I2C controller driver
-Date: Tue, 14 Jul 2026 17:25:25 +0800
-Message-Id: <20260714092525.82613-1-Nina_Kuo@novatek.com.tw>
+Subject: [PATCH v2 2/3] dt-bindings: i2c: Add Novatek NT726xx SoC I2C controller
+Date: Tue, 14 Jul 2026 17:25:44 +0800
+Message-Id: <20260714092544.82672-1-Nina_Kuo@novatek.com.tw>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20260714092504.82538-1-Nina_Kuo@novatek.com.tw>
-References: <20260714092504.82538-1-Nina_Kuo@novatek.com.tw>
+In-Reply-To: <20260714092525.82613-1-Nina_Kuo@novatek.com.tw>
+References: <20260714092525.82613-1-Nina_Kuo@novatek.com.tw>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -55,9 +55,9 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: multipart/mixed;
-	boundary="__=_Part_Boundary_003_985712725.1147062870"
+	boundary="__=_Part_Boundary_004_528031415.933570765"
 
---__=_Part_Boundary_003_985712725.1147062870
+--__=_Part_Boundary_004_528031415.933570765
 Content-Type: text/html;
 	charset="utf-8"
 Content-Transfer-Encoding: base64
@@ -91,27 +91,58 @@ MjEwMzQ7JiMzODUwMDsmIzE5OTg4OyYjMzc1NTk7JiMyNzU4NDsmIzI2NDEyOyYjMzcxMDk7JiMy
 MDIxNDsmIzIxNDUwOyYjMjA4NTQ7JiMzNTA3OTsmIzI2NDEyOyYjMTIyOTA7PHNwYW4NCmxhbmc9
 RU4tVVM+PG86cD48L286cD48L3NwYW4+PC9zcGFuPg0KPCEtLX0tLT4=
 
---__=_Part_Boundary_003_985712725.1147062870
+--__=_Part_Boundary_004_528031415.933570765
 Content-Type: 
 Content-Transfer-Encoding: base64
 
-RnJvbTogQmVuIEh1YW5nIDxCZW5fSHVhbmdAbm92YXRlay5jb20udHc+DQoNCkFkZCBlbnRyeSBm
-b3IgbWFpbnRlbmFuY2Ugb2YgTm92YXRlayBOVDcyNnh4IFNvQyBJMkMgY29udHJvbGxlciBkcml2
-ZXIuDQoNClNpZ25lZC1vZmYtYnk6IEJlbiBIdWFuZyA8QmVuX0h1YW5nQG5vdmF0ZWsuY29tLnR3
-Pg0KU2lnbmVkLW9mZi1ieTogTmluYSBLdW8gPE5pbmFfS3VvQG5vdmF0ZWsuY29tLnR3Pg0KLS0t
-DQogTUFJTlRBSU5FUlMgfCA3ICsrKysrKysNCiAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25z
-KCspDQoNCmRpZmYgLS1naXQgYS9NQUlOVEFJTkVSUyBiL01BSU5UQUlORVJTDQppbmRleCA2YjQ1
-NjA2ODFiNTEuLmU0ZThlYjAxYWQ3YSAxMDA2NDQNCi0tLSBhL01BSU5UQUlORVJTDQorKysgYi9N
-QUlOVEFJTkVSUw0KQEAgLTE5MjA4LDYgKzE5MjA4LDEzIEBAIFQ6CWdpdCBnaXQ6Ly9naXQua2Vy
-bmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbm9saWJjL2xpbnV4LW5vbGliYy5naXQN
-CiBGOgl0b29scy9pbmNsdWRlL25vbGliYy8NCiBGOgl0b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy9u
-b2xpYmMvDQogDQorTk9WQVRFSyBOVDcyNlhYIEkyQyBDT05UUk9MTEVSIERSSVZFUg0KK006CUJl
-biBIdWFuZyA8YmVuX2h1YW5nQG5vdmF0ZWsuY29tLnR3Pg0KK0w6CWxpbnV4LWkyY0B2Z2VyLmtl
-cm5lbC5vcmcNCitTOglNYWludGFpbmVkDQorRjoJRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2Jp
-bmRpbmdzL2kyYy9ub3ZhdGVrLG50NzI2eHgtaTJjLnlhbWwNCitGOglkcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLW50NzI2eHguYw0KKw0KIE5PVkFURUsgTlZULVRTIEkyQyBUT1VDSFNDUkVFTiBEUklW
-RVINCiBNOglIYW5zIGRlIEdvZWRlIDxoYW5zZ0BrZXJuZWwub3JnPg0KIEw6CWxpbnV4LWlucHV0
-QHZnZXIua2VybmVsLm9yZw0KLS0gDQoyLjQwLjENCg==
+RnJvbTogQmVuIEh1YW5nIDxCZW5fSHVhbmdAbm92YXRlay5jb20udHc+DQoNCkFkZCBkZXZpY2Ug
+dHJlZSBkb2N1bWVudGF0aW9uIGZvciBOb3ZhdGVrIE5UNzI2eHggU29DIEkyQyBjb250cm9sbGVy
+Lg0KDQpTaWduZWQtb2ZmLWJ5OiBCZW4gSHVhbmcgPEJlbl9IdWFuZ0Bub3ZhdGVrLmNvbS50dz4N
+ClNpZ25lZC1vZmYtYnk6IE5pbmEgS3VvIDxOaW5hX0t1b0Bub3ZhdGVrLmNvbS50dz4NCi0tLQ0K
+IC4uLi9iaW5kaW5ncy9pMmMvbm92YXRlayxudDcyNnh4LWkyYy55YW1sICAgICB8IDc0ICsrKysr
+KysrKysrKysrKysrKysNCiAxIGZpbGUgY2hhbmdlZCwgNzQgaW5zZXJ0aW9ucygrKQ0KIGNyZWF0
+ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL25vdmF0
+ZWssbnQ3MjZ4eC1pMmMueWFtbA0KDQpkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL2kyYy9ub3ZhdGVrLG50NzI2eHgtaTJjLnlhbWwgYi9Eb2N1bWVudGF0aW9u
+L2RldmljZXRyZWUvYmluZGluZ3MvaTJjL25vdmF0ZWssbnQ3MjZ4eC1pMmMueWFtbA0KbmV3IGZp
+bGUgbW9kZSAxMDA2NDQNCmluZGV4IDAwMDAwMDAwMDAwMC4uODY2NTg5YzVhZTUxDQotLS0gL2Rl
+di9udWxsDQorKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL25vdmF0
+ZWssbnQ3MjZ4eC1pMmMueWFtbA0KQEAgLTAsMCArMSw3NCBAQA0KKyMgU1BEWC1MaWNlbnNlLUlk
+ZW50aWZpZXI6IChHUEwtMi4wLW9ubHkgT1IgQlNELTItQ2xhdXNlKQ0KKyVZQU1MIDEuMg0KKy0t
+LQ0KKyRpZDogaHR0cDovL2RldmljZXRyZWUub3JnL3NjaGVtYXMvaTJjL25vdmF0ZWssbnQ3MjZ4
+eC1pMmMueWFtbCMNCiskc2NoZW1hOiBodHRwOi8vZGV2aWNldHJlZS5vcmcvbWV0YS1zY2hlbWFz
+L2NvcmUueWFtbCMNCisNCittYWludGFpbmVyczoNCisgIC0gQmVuIEh1YW5nIDxiZW5faHVhbmdA
+bm92YXRlay5jb20udHc+DQorICAtIEphc29uIEpKIFd1IDxqYXNvbl9qal93dUBub3ZhdGVrLmNv
+bS50dz4NCisNCit0aXRsZTogTm92YXRlayBOVDcyNnh4IFNlcmllcyBTb0MgSTJDIG1hc3RlciBj
+b250cm9sbGVyDQorDQorYWxsT2Y6DQorICAtICRyZWY6IC9zY2hlbWFzL2kyYy9pMmMtY29udHJv
+bGxlci55YW1sIw0KKw0KK3Byb3BlcnRpZXM6DQorICBjb21wYXRpYmxlOg0KKyAgICBjb25zdDog
+bm92YXRlayxudDcyNjAwLWkyYw0KKw0KKyAgcmVnOg0KKyAgICBtYXhJdGVtczogMQ0KKw0KKyAg
+aW50ZXJydXB0czoNCisgICAgbWF4SXRlbXM6IDENCisNCisgIGNsb2NrLWZyZXF1ZW5jeToNCisg
+ICAgZGVmYXVsdDogMTAwMDAwDQorICAgIGVudW06IFsgMTAwMDAwLCA0MDAwMDAgXQ0KKw0KKyAg
+bm92YXRlayxod21vZHM6DQorICAgICRyZWY6IC9zY2hlbWFzL3R5cGVzLnlhbWwjL2RlZmluaXRp
+b25zL3N0cmluZw0KKyAgICBkZXNjcmlwdGlvbjogTmFtZSBvZiBlYWNoIGkyYyBwaW4sIG11c3Qg
+YmUgbmFtZWQgd2l0aCAiaTJjWCIuIChYIGlzDQorICAgICAgICAgICAgICAgICBhbiBpbnRlZ2Vy
+IHN0YXJ0aW5nIGZyb20gMCwgbXVzdCBiZSB1bmlxdWUpDQorDQorICBub3ZhdGVrLHN0YmMtY29u
+dHJvbGxhYmxlOg0KKyAgICB0eXBlOiBib29sZWFuDQorICAgIGRlc2NyaXB0aW9uOiBTZXQgaWYg
+dGhpcyBpMmMgbWFzdGVyLCBuYW1lZCBhcyBgc3RiYy1pMmNgLCBpcw0KKyAgICAgIGNvbnRyb2xs
+YWJsZSBieSBzdGJjIChTdGFuZGJ5IGNvbnRyb2xsZXIsIGFjdHVhbGx5IGlzIGFuIDgwNTENCisg
+ICAgICBtaWNyby1wcm9jZXNzb3IpIG9uIE5vdmF0ZWsgTlQ3MjZ4eCBTb0NzLg0KKyAgICAgIEZv
+ciB0aGVzZSBgc3RiYy1pMmNgcywgdGhlIGRyaXZlbiBjbG9jayBpcyBvbmx5IDEyIE1IeiBhbmQg
+dGhlDQorICAgICAgYXV0aGVudGljYXRpb24gdG8gc3RiYyBtdXN0IGJlIGV4ZWN1dGVkIGJlZm9y
+ZSBjb250cm9sbGluZyB0aGUNCisgICAgICByZWdpc3RlcnMuDQorDQorICAgIGRlZmF1bHQ6IDAN
+CisNCityZXF1aXJlZDoNCisgIC0gY29tcGF0aWJsZQ0KKyAgLSByZWcNCisgIC0gaW50ZXJydXB0
+cw0KKyAgLSBub3ZhdGVrLGh3bW9kcw0KKw0KK3VuZXZhbHVhdGVkUHJvcGVydGllczogZmFsc2UN
+CisNCitleGFtcGxlczoNCisgIC0gfA0KKyAgICBpMmMwOiBpMmNAMTAwMDAwMDAgew0KKyAgICAg
+IGNvbXBhdGlibGUgPSAibm92YXRlayxudDcyNjAwLWkyYyI7DQorICAgICAgcmVnID0gPDB4MCAw
+eDEwMDAwMDAwIDB4MCAweDEwMD47DQorICAgICAgaW50ZXJydXB0cyA9IDwwIDY3IDQ+Ow0KKyAg
+ICAgIGNsb2NrLWZyZXF1ZW5jeSA9IDw0MDAwMDA+Ow0KKyAgICAgIG5vdmF0ZWssaHdtb2RzID0g
+ImkyYzAiOw0KKyAgICAgICNhZGRyZXNzLWNlbGxzID0gPDI+Ow0KKyAgICAgICNzaXplLWNlbGxz
+ID0gPDI+Ow0KKyAgICB9Ow0KKw0KKyAgICBzdGJjLWkyYzE6IGkyY0AyMDAwMDAwMCB7DQorICAg
+ICAgY29tcGF0aWJsZSA9ICJub3ZhdGVrLG50NzI2MDAtaTJjIjsNCisgICAgICByZWcgPSA8MHgw
+IDB4MjAwMDAwMDAgMHgwIDB4MTAwPjsNCisgICAgICBpbnRlcnJ1cHRzID0gPDAgNzcgND47DQor
+ICAgICAgbm92YXRlayxod21vZHMgPSAiaTJjMSI7DQorICAgICAgbm92YXRlayxzdGJjLWNvbnRy
+b2xsYWJsZTsNCisgICAgICAjYWRkcmVzcy1jZWxscyA9IDwyPjsNCisgICAgICAjc2l6ZS1jZWxs
+cyA9IDwyPjsNCisgICAgfTsNCi0tIA0KMi40MC4xDQo=
 
---__=_Part_Boundary_003_985712725.1147062870--
+--__=_Part_Boundary_004_528031415.933570765--
 
