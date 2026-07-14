@@ -1,73 +1,176 @@
-Received: from ns1.suksangroup.com (ns1.suksangroup.com [103.13.31.55])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 342E32EEE7B
-	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 05:04:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.13.31.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB554309EEB;
+	Tue, 14 Jul 2026 05:15:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784005449; cv=none; b=lf68dvolwhwi0OBVoB2w/x41O4IF5uxfrPw02Z7nVHqxdZrHWi3oMB2mx3lA5XcdOl2L5deXhTQWP5zBWcUA7/NqXKaWpmkCDa0C3FbI2sPq+mLNgD8GfZwGPigxJZzFMYBOXBQ52Fo98fEBHqI1TsAJtrXfRL5K7Sy2QIFh3eM=
+	t=1784006123; cv=none; b=LsSlxHWQKO83iYwizuFAuQspAufznFIY17fUaynqquWMHfQSvgxdRvo/iB/I3LNgy6LXxXaVnHf0yGedwLHeb7QjsNCqnLXp84u/wzIx/tN8pzHx3VwqwOMbTjytLGaKaWsESvZXB5k7XON+fGfaINyj8UgLpXJ7W2BMHX/f6FM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784005449; c=relaxed/simple;
-	bh=x59rmfF4vpVjk44F9ruZYhc9IQI0zu3U7VgP2+azhgg=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UAfArkwM6D15BzyhU0dQ4HTKJkpLfzl02eubWnnkwUAXU5LOVR2nVp4x4j+fGtT6HC8BrgTFhR2fVVeKshr8DVfm/eil+sEmyg7cGRNn8IVfFtd/dyqNb247zkIczR8wIecPKTmIfwg19mhvUqe8iab662aajQ0tFbJOh5XrHgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=inbox.org; spf=fail smtp.mailfrom=inbox.org; dkim=pass (2048-bit key) header.d=suksangroup.co.th header.i=@suksangroup.co.th header.b=x8uygTLp; arc=none smtp.client-ip=103.13.31.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=inbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=inbox.org
+	s=arc-20240116; t=1784006123; c=relaxed/simple;
+	bh=gWuEyuSnkMv6cVh8Vdl6vshRuEZGCvqG3ptDiJFqBfo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dLJk+L+IL/0rYoX15PNUcpHPNtxlZxXABtYCLNwCTHatRKizZ74ds3tim64oOTotHw79mAVFo5h4bqVOh/b4sKlGKEAFoO8JIfXJph/wEMOowac4LaEsHUA0eKhSXU7inrySjd34ptVF7EVJqx9o8ZPRi1YD8YMhiZDVnrsT+zQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ASo2TEfG; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suksangroup.co.th header.i=@suksangroup.co.th header.b="x8uygTLp"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=suksangroup.co.th; s=default; h=Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Message-ID:Date:Subject:To:From:Reply-To:Sender:Cc:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=x59rmfF4vpVjk44F9ruZYhc9IQI0zu3U7VgP2+azhgg=; b=x8uygTLp/wAfBX1rM3VD1Q+2TU
-	ehKd4isFwVY2vZeUvOfsx4Iyh1k4zlBPFErtFGUdrUA2TW4lKSWpumZGuHacptp3TRimhvkC4o9Ui
-	xMGg+Nt0OKzISAouMELZN9F+OU2Sw513vxY/gYBD10oGpyudB8qILfnrCW57f3CvqAjtxKyLWt6l5
-	rKGGORSvVUeLwM5KoMBYBP9v3dVWRGMQRMEdnqHjsJAAAwdCPyl99zKqauoagRmZF3vQRCmW3GMnb
-	58Nl56vqAZI/g6zKBNg6NVtiflRgkXXL1+t8z4NQKiaqquq32i5ziJhaYpbVEDxZZ+AGB0AeFzmAM
-	hCho4DvQ==;
-Received: from [207.189.26.187] (port=57336)
-	by ns1.suksangroup.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.99.4)
-	(envelope-from <info@inbox.org>)
-	id 1wjVJG-0000000FjxW-36Q9
-	for linux-i2c@vger.kernel.org;
-	Tue, 14 Jul 2026 12:03:57 +0700
-Reply-To: hanns.schofield@lexcapitalgrowth.com
-From: Harry Schofield ESQ <info@inbox.org>
-To: linux-i2c@vger.kernel.org
-Subject: Dear linux-i2c@vger.kernel.org, 
-Date: 14 Jul 2026 00:03:54 -0500
-Message-ID: <20260714000354.F471E5C3D2F0F57F@inbox.org>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ASo2TEfG"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66E38P0N3483155;
+	Tue, 14 Jul 2026 05:15:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=qcppdkim1; bh=q1YGfeaSKt0ZPds5mpaIzMy1AwKlI8p2khy
+	jh6f8N9k=; b=ASo2TEfGvdKn7eu8FjEEohB6XFdRV9M3EjopgNcc+O0swOn7BMa
+	nVj2SMms+1BUBL0g6rS8h5E0s7Z4TQBiN20jS1H2gqFOB5DNHh/6Af4etgvaXzI8
+	cvVHQjX3UH/aZmURMX0YKtowb6tabUx2kG1UmNd5Tgt1sq/WtjNSY/i9I1WVFzbr
+	LwWpmpC5S85Q6S1HHz3YHXffPTqPzVATr5zQ1LJ0m+E0R1fD7PW1lAC6ydOQVT+h
+	9KL1M0p7FHHirh0yok/iGABbmxCCRWE3fhuOTcauaycTb01i+QOIRckz+W5jaGsT
+	5ITvfcuhC0s3kaSJk1WfgigEqj6xK6V6MCA==
+Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fd37xab1b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 05:15:19 +0000 (GMT)
+Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 66E5FGqd008616;
+	Tue, 14 Jul 2026 05:15:16 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 4fbewjf9k6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 05:15:16 +0000 (GMT)
+Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66E5FFFM008606;
+	Tue, 14 Jul 2026 05:15:15 GMT
+Received: from hu-devc-hyd-u24-a.qualcomm.com (hu-msavaliy-hyd.qualcomm.com [10.147.246.140])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 66E5FF6N008594
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jul 2026 05:15:15 +0000 (GMT)
+Received: by hu-devc-hyd-u24-a.qualcomm.com (Postfix, from userid 429934)
+	id 7342521BE5; Tue, 14 Jul 2026 10:45:14 +0530 (+0530)
+From: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+To: konrad.dybcio@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
+        andi.shyti@kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+Subject: [PATCH v3] i2c: qcom-geni: Use devm_pm_runtime_enable() for PM management
+Date: Tue, 14 Jul 2026 10:45:12 +0530
+Message-ID: <20260714051512.3732551-1-mukesh.savaliya@oss.qualcomm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns1.suksangroup.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - inbox.org
-X-Get-Message-Sender-Via: ns1.suksangroup.com: authenticated_id: smtp@suksangroup.co.th
-X-Authenticated-Sender: ns1.suksangroup.com: smtp@suksangroup.co.th
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 8bit
+X-QCInternal: smtphost
+X-QCInternal: smtphost
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE0MDA1MSBTYWx0ZWRfXwe5pk1ffqDII
+ B84TtV4i3j1yq+zyL5qu8cId7dRl8jQobgHRTr9KDV8qVCNoNrQGyKzES5cH8pazM38BfHV3zSx
+ CRrBjdikWov/NzkPBlgRu6483rcLZBtgHTTIsnkOt8AdZxnrAHyERi4vK9RlemO708WsOT2QCpl
+ Pjd8l5ArH/Tauq9f7pWcHdkI4bDRhrQzrzXnWcsxqYze+Vx3yKFMaMVzZVWDRaxWCCKkAMhC0of
+ ovXJR/wUyYC31D6hmMPD+gJaaSEerwvFmiIp/heaCyam/cmH+G1mAIiWTD1SFeZyTPBMZUHgXmW
+ bP98qk3i+dDpSWHBRrs0ZAL3yter2eKYomWUSvwbazPI6/HRuEIY5YVvY/B+yBLd2jlaR1q+r4z
+ MCGKt5B/DSZAL/R3LGdjpPuzJFhXzb8oIn+qu4epAKNCitqAJqYyAQKr3qSe5rgcJB4fd6IBuG/
+ 7/b0aQa3F7z5W7R1Hcg==
+X-Authority-Analysis: v=2.4 cv=BNWDalQG c=1 sm=1 tr=0 ts=6a55c5e7 cx=c_pps
+ a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=yOCtJkima9RkubShWh1s:22 a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8
+ a=q1d9ZNj4lJCxs8ft27AA:9
+X-Proofpoint-ORIG-GUID: mhMHleBgkBdh83ycLCkUfLqNEl9dQ9Xf
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE0MDA1MSBTYWx0ZWRfXzaD9OoBzlNzw
+ zW2BsZUod50sO20pVuaqJYMsHYckJIG+GB7rfTY5w1DkTkqzB6XuSDxG9/Roh4tdbBP31giAY6t
+ COwHyJHjUAxhncm2eD1P0DMvaIWKC40=
+X-Proofpoint-GUID: mhMHleBgkBdh83ycLCkUfLqNEl9dQ9Xf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-14_01,2026-07-10_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 suspectscore=0 phishscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 bulkscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607140051
 
+The current implementation manually calls pm_runtime_enable() in probe()
+and pm_runtime_disable() in remove() and error paths. This pattern is
+error-prone and requires careful cleanup in all failure paths. Using the
+devres-managed variant eliminates this complexity.
 
-Re:Good day linux-i2c,
+Migrate from manual pm_runtime_enable()/pm_runtime_disable() calls to
+the devres-managed devm_pm_runtime_enable() API. This simplifies the
+driver by automatically handling runtime PM cleanup when the device is
+removed or probe fails. This helps  with Simplified error handling and
+Automatic cleanup.
 
-Please let me know if this is best email to send you the project=20
-info.
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+---
+v2->v3:
+- Added Reviewed-by tag from Konrad Dybcio.
+Link to v2: https://lore.kernel.org/all/20260713064130.1681130-1-mukesh.savaliya@oss.qualcomm.com/
 
-Kind regards,
+v1->v2:
+- Fix runtime PM init ordering by calling devm_pm_runtime_enable() after PM state setup.
+- Remove unnecessary commit message details.
+- Address review feedback from Konrad Dybcio.
+Link to v1: https://lore.kernel.org/all/20260710121356.4054600-1-mukesh.savaliya@oss.qualcomm.com/
 
-Harry Schofield, ceMBA
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 96dbf04138be..d5c977e34994 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -1126,27 +1126,25 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 	gi2c->adap.dev.of_node = dev->of_node;
+ 	strscpy(gi2c->adap.name, "Geni-I2C", sizeof(gi2c->adap.name));
+ 
+-	pm_runtime_set_suspended(gi2c->se.dev);
+-	pm_runtime_set_autosuspend_delay(gi2c->se.dev, I2C_AUTO_SUSPEND_DELAY);
+-	pm_runtime_use_autosuspend(gi2c->se.dev);
+-	pm_runtime_enable(gi2c->se.dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_set_autosuspend_delay(dev, I2C_AUTO_SUSPEND_DELAY);
++	pm_runtime_use_autosuspend(dev);
++
++	ret = devm_pm_runtime_enable(dev);
++	if (ret)
++		return ret;
+ 
+ 	ret = geni_i2c_init(gi2c);
+-	if (ret < 0) {
+-		pm_runtime_disable(gi2c->se.dev);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	ret = i2c_add_adapter(&gi2c->adap);
+-	if (ret) {
+-		dev_err_probe(dev, ret, "Error adding i2c adapter\n");
+-		pm_runtime_disable(gi2c->se.dev);
+-		return ret;
+-	}
++	if (ret)
++		return dev_err_probe(dev, ret, "Error adding i2c adapter\n");
+ 
+ 	dev_dbg(dev, "Geni-I2C adaptor successfully added\n");
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static void geni_i2c_remove(struct platform_device *pdev)
+@@ -1155,7 +1153,6 @@ static void geni_i2c_remove(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&gi2c->adap);
+ 	release_gpi_dma(gi2c);
+-	pm_runtime_disable(gi2c->se.dev);
+ }
+ 
+ static void geni_i2c_shutdown(struct platform_device *pdev)
+-- 
+2.43.0
 
