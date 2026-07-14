@@ -1,65 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 833653B47D7;
-	Tue, 14 Jul 2026 17:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 789C5331A61;
+	Tue, 14 Jul 2026 18:59:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784049590; cv=none; b=hIeBUUZqWbvITX+/qMITwqXIidQsekoqjegfwmBAH9CvrwVHimsL27gSnQWZCMlup02eHG/u2uy+pQui92OEAv0zwWLpx4CLCRIyhYtcuDAgBbsXULxOCVJ6AfSBMY193Jpp3zQ2NrJ09ETPRTAfOPDf97mxpDz5YC+3jjsw0zo=
+	t=1784055570; cv=none; b=NPPyvAwlxjn7K90QfdkdhiPyBoAllD2wvSwTt/O/ICZHmDyyxoJBba2AtQlUgCXACb6MSqB7BRFj1Kh+02mZ/dBmYncVbtvDy8ksLPURGciHxUDt5ySm6U1GBNMLtVpRdcNxPLBYBURyXMu/wrLcM0YWpGM7Aa+WqMZYykg274I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784049590; c=relaxed/simple;
-	bh=sxIwEuYWc3RlleyJdrQ4o26TwkASynwIhP60O70hHmk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GsFyHYGyzLP/rpRHn8FvDPdSn44JFgt3i6xXALRw20FzleSFckuR6X3tySJa+mN68Pt/S6zJyzBaTMlHc1n9uP/FE3QgKFe5YM7HxaLuY2wnvJsw+d2zxCRN6WsOMUpM7nxZ24UvF7sp5huLUhe5iejYcblH7JTbk4hxUyMAoPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eJqOaedK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784055570; c=relaxed/simple;
+	bh=heqNQmDwAdDrignoOrONMxusCaeZUzy0EnkWdJCXcWw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nAccznbXn5dbeDynrT1Apwnp+rMbBcab7n/JEnsZgcisi8sbk5lm1WZ3rk0ndyPuhz4Y/oco1DZek0zREdjyU0Oo4y0G6UZS4ChESLE3Zfa//ny9IJdRwFd6/iDYpcojfe8kqPVI1oUIkw855Q2zhF3pxp9RSwiyqm95ri0PJjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AQxoaP18; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eJqOaedK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6251F00A3D;
-	Tue, 14 Jul 2026 17:19:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784049589;
-	bh=Q6USvoTXBFFHxgzXspxaaDau+LCZNuY+4ZI83XUqiII=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=eJqOaedKsInact5HfkdGY2PEb02kf+JP3O5HveQqAhy9DlWS7ChifvUYw17XUKkEh
-	 KOJfEZnnWl8Lp83M5h40L04L2Db9HFWYGj4+/RlwCpUHC8WuUz3XnSRD9+kqjdIK7G
-	 /i6ynCyb9GtUtFD9nJBg7+BZzG4BApYJwEaCLsjz8m/kfw6OwMtsLlVe/jMrr+kpar
-	 T8VuxZgnx7PDkmxc1tTQoOIX/Qi4GqmH8IbtbiQ5cLypALztY3QBDPvZXtrr0CworM
-	 vSPSGezUM6v/ZayTh2hh47qzYVdfx8tyRL/6Gm3JwncR1AHcdOHC/iZjvywXW38Kz2
-	 CBOAV4ORMQoJA==
-Date: Tue, 14 Jul 2026 19:19:44 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Pei Xiao <xiaopei01@kylinos.cn>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, troy.mitchell@linux.spacemit.com
-Subject: Re: [PATCH v2] i2c: spacemit: fix spurious IRQ handling returning
- IRQ_HANDLED
-Message-ID: <alZvn3D1JXiAz_IK@zenone.zhora.eu>
-References: <ef8b623f45d4e430721e46572c2598d882044aed.1783667603.git.xiaopei01@kylinos.cn>
- <ef8b623f45d4e430721e46572c2598d882044aed.1783667875.git.xiaopei01@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AQxoaP18"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784055570; x=1815591570;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=heqNQmDwAdDrignoOrONMxusCaeZUzy0EnkWdJCXcWw=;
+  b=AQxoaP18CvuwXxRpchbd4cQtZOXAnVkLzNZ/wAsLZFKCTO3ZdpBNPmnF
+   Qr7nTf+ZmA40vCBN4CPaibMBDBuKT9K+bX2dX4Pk9s7mXIzPVSSpO35vh
+   5X38lJkQNH7Q8oNzUHa2Jkxw1N5vbOJ5B+8Zzgm3bceeWK2pRHFHrAEra
+   fiTBLVRYUnEPC6FrM9ODUvn+4MTLa+IBqFPyjConbal7IOkiMBfQaQ1Q3
+   osLQPo3IgOIRe8mevSag/AUYMZtZvISyl5dwgVDQd0vqMiTzt/vJ5tFhl
+   h6fye3N9A8+xdlrn6KZ4C/JCu2wpPoDJqY0bmUwHWGbVzNleBJVabLczr
+   g==;
+X-CSE-ConnectionGUID: 3i7YMu/KR3qAE5CzD/yjXg==
+X-CSE-MsgGUID: N8F1UESCQxisHuFjfng8KQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11847"; a="84730488"
+X-IronPort-AV: E=Sophos;i="6.25,164,1779174000"; 
+   d="scan'208";a="84730488"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 11:59:29 -0700
+X-CSE-ConnectionGUID: A0Wh6wkZTLum2LxTz+yVoA==
+X-CSE-MsgGUID: gtWW4VybTTu5c9hPHdd4Gg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,164,1779174000"; 
+   d="scan'208";a="255442695"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa008.jf.intel.com with ESMTP; 14 Jul 2026 11:59:25 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id 0B9249B; Tue, 14 Jul 2026 20:59:24 +0200 (CEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	"Mario Limonciello (AMD)" <superm1@kernel.org>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	ibm-acpi-devel@lists.sourceforge.net
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
+	Len Brown <lenb@kernel.org>,
+	Mika Westerberg <westeri@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Hans de Goede <hansg@kernel.org>
+Subject: [PATCH v2 3/6] ACPI: video: Convert to use acpi_dev_is_video_device() helper
+Date: Tue, 14 Jul 2026 20:53:42 +0200
+Message-ID: <20260714185915.865396-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
+References: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ef8b623f45d4e430721e46572c2598d882044aed.1783667875.git.xiaopei01@kylinos.cn>
+Content-Transfer-Encoding: 8bit
 
-Hi Pei,
+Replace open coded variant of acpi_dev_is_video_device() helper.
 
-On Fri, Jul 10, 2026 at 03:21:13PM +0800, Pei Xiao wrote:
-> When the interrupt status register reads zero, the handler should
-> return IRQ_NONE instead of IRQ_HANDLED. What the return value
-> actually feeds into is the spurious interrupt accounting in
-> note_interrupt(): falsely claiming IRQ_HANDLED defeats the "irq XX:
-> nobody cared" detection, so a stuck interrupt source would never be
-> caught.
-> 
-> Fixes: 5ea558473fa3 ("i2c: spacemit: add support for SpacemiT K1 SoC")
-> Signed-off-by: Pei Xiao <xiaopei01@kylinos.cn>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/acpi/video_detect.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-merged to i2c/i2c-fixes.
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 458efa4fe9d4..cf267b518d2b 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -67,12 +67,7 @@ find_video(acpi_handle handle, u32 lvl, void *context, void **rv)
+ 	long *cap = context;
+ 	struct pci_dev *dev;
+ 
+-	static const struct acpi_device_id video_ids[] = {
+-		{ACPI_VIDEO_HID, 0},
+-		{"", 0},
+-	};
+-
+-	if (acpi_dev && !acpi_match_device_ids(acpi_dev, video_ids)) {
++	if (acpi_dev_is_video_device(acpi_dev)) {
+ 		dev = acpi_get_pci_dev(handle);
+ 		if (!dev)
+ 			return AE_OK;
+-- 
+2.50.1
 
-Thanks,
-Andi
