@@ -1,115 +1,67 @@
-Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 696C4427FB4;
-	Tue, 14 Jul 2026 20:17:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CADC3A641B;
+	Tue, 14 Jul 2026 22:09:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784060242; cv=none; b=H7stuTHttyPkR4c54Ub/6odEH8qEbx9EIJ86OJUYHhFwTKM6fgXYXWZcfOpzIB7V8QK3/C5E50xgYA6oLTvrFY3UwiHLovuu1bRmQJSK+y68ih1eVvcUUY5cf9YPhKDlaXIl8RM1zw/zMDz7l6Y2bNXXVoomdao05L/VrFoQcEk=
+	t=1784066978; cv=none; b=ihnHmIrpqjmxT0dCh0euMVP23tFqvjaj1hyIj8mPHUFWy/Tp8H7ov6cdygC2X3wkLw4OqAGARSCAujMExsyvrezjvFkRNaKI9pv00QNzylM6B2sNusL45v7ANDUkCwg60NVFfoydZbR+0X9QPim2gyU//gkVs9i3zgknY7h0X4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784060242; c=relaxed/simple;
-	bh=mCkwUnsR1fBOIOb27f0NoQumZOK3szpsu/04nApDvdk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LQ781M3rW+Qt5fQu6h9dFC4XdJrlIQmjtoRxE6DK/O3vv4sg60JhyihD4f1ZN6ac49oluj0tiOdIxzn/uv6QwGbdvh4G+fC4IoIFQClkuK3vH1v3gSphXqIbojVTOg3A191UmZYClGYrO+J5fVZD8+bcTeZaVaIrwvYsj+YWHVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=tjN/8m7L; arc=none smtp.client-ip=195.39.247.168
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
+	s=arc-20240116; t=1784066978; c=relaxed/simple;
+	bh=dmt/fGiX6on1rUYOUz/R4Sla5mRk7czJAkpAHmUN6i4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BLMuovqt/D8v8VliYSpqQkAB2zEO9wmy4UhE2ep/TyPeCR0FuEZghm74jJ7BzdllbMFVwHqveb5GndSKmd7AYG9QikpxLtANBrsO1kPb94Yvlm2WMSNzNUbSDxy8BJxI0rZNLqf0Co5D6vhSpiFba+QXdoHxXS9h9P0YerZ++2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FTBr/yfG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="tjN/8m7L"
-Message-ID: <aa4836dd-2550-40cb-b0ee-c5df1ad54ece@cyberchaos.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
-	s=mail; t=1784060236;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AA21xBD9Q5Qe5hVx+FxIwd0X/SmbnFEGy+/VQWU77zE=;
-	b=tjN/8m7LbLXhnzZ2y4b1CDHAMtDhQ108OPUAmno49iH2axmfZYlweKYwcgWu7M0Sv/H8rF
-	Fh4aGmxaUT5TJIjqUR8piJQmCuLnwhWAC3EDXHdGpecHs+j/ZHwu8xYHKrk/kQGBHxT7t6
-	YB7rzvEsnVADMFnxr+P2upd8RgsgnQo=
-Date: Tue, 14 Jul 2026 22:17:10 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FTBr/yfG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20201F000E9;
+	Tue, 14 Jul 2026 22:09:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784066976;
+	bh=wxvsj6q5kv46vdKE+rJesB3/rgThH7otn1mWolRYdcc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=FTBr/yfGvOtUsR788S9vygjJNjiAUVxeXnC25KDhcmlKsX9lnydoKTIg2KsirLheV
+	 18FG2TCNMOZ96EGcM8/dDbMs0Oie5X7lvqPmqWRuSkV2M0MSJ7FH1DZmnsGzBnyvLQ
+	 tQOcpdKZhLNyFXfDpJosBQ9bZPwfoN/qcy4orzs+UGMVOvNIqqvfe2m71p/mMJL+rV
+	 L08+xhIyossHxPlX1QkcWcPjk+aLoCVMkKWK8Bd0pdqmYb9G68aeCCj3J3BZtMHVmR
+	 NNtYCoHu/X5aBIP/n2p1FoFqHVkLXzTPlds13tvcTA8z5VqPFU6273AE5RIVLtr/Ct
+	 cHeI0676htQaw==
+Date: Wed, 15 Jul 2026 00:09:33 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Xuanqiang Luo <xuanqiang.luo@linux.dev>
+Cc: linux-i2c@vger.kernel.org, kblaiech@nvidia.com, asmaa@nvidia.com, 
+	vadimp@mellanox.com, wsa@kernel.org, linux-kernel@vger.kernel.org, 
+	Xuanqiang Luo <luoxuanqiang@kylinos.cn>, stable@vger.kernel.org
+Subject: Re: [PATCH] i2c: mlxbf: Fix use-after-free in
+ mlxbf_i2c_init_resource()
+Message-ID: <alZyjKuqR-Hs90Dd@zenone.zhora.eu>
+References: <20260714150808.85045-1-xuanqiang.luo@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 09/10] dt-bindings: arm: apple: Add M4 based devices
-To: Sven Peter <sven@kernel.org>, Yureka Lilian <yureka@cyberchaos.dev>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi
- <lpieralisi@kernel.org>, Janne Grunau <j@jannau.net>,
- Neal Gompa <neal@gompa.dev>, Thomas Gleixner <tglx@kernel.org>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Hector Martin <marcan@marcan.st>,
- Linus Walleij <linusw@kernel.org>, Mark Kettenis <kettenis@openbsd.org>,
- Andi Shyti <andi.shyti@kernel.org>, =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?=
- <ukleinek@kernel.org>, Sasha Finkelstein <k@chaosmail.tech>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org
-References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
- <20260705-apple-m4-initial-devicetrees-v1-9-e5655ee56523@cyberchaos.dev>
- <cd9da9aa-6e91-4534-a86c-a4421aafbd38@kernel.org>
-Content-Language: en-US
-From: Yureka Lilian <yureka@cyberchaos.dev>
-In-Reply-To: <cd9da9aa-6e91-4534-a86c-a4421aafbd38@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260714150808.85045-1-xuanqiang.luo@linux.dev>
 
-On 7/14/26 21:50, Sven Peter wrote:
->
->
-> On 7/5/26 15:17, Yureka Lilian wrote:
->> The Apple devices with the t8132 SoC (M4) are very similar to their M3
->> predecessors.
->>
->> In addition to the MacBook Pro and the various MacBook Air and iMac
->> variants, a Mac mini is offered again with the M4.
->>
->> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
->> ---
->>   Documentation/devicetree/bindings/arm/apple.yaml | 12 ++++++++++++
->>   1 file changed, 12 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/arm/apple.yaml 
->> b/Documentation/devicetree/bindings/arm/apple.yaml
->> index e49403c73f9d..3262292252d2 100644
->> --- a/Documentation/devicetree/bindings/arm/apple.yaml
->> +++ b/Documentation/devicetree/bindings/arm/apple.yaml
->> @@ -315,6 +315,18 @@ properties:
->>             - const: apple,t8122
->>             - const: apple,arm-platform
->
-> Please also add M4 to the top of the binding in the description.
-Ack
->>   +      - description: Apple M4 SoC based platforms
->> +        items:
->> +          - enum:
->> +              - apple,j604  # MacBook Pro (14-inch, M4, 2024)
->> +              - apple,j623  # iMac (24-inch, 2x USB-C, M4, 2024)
->> +              - apple,j624  # iMac (24-inch, 4x USB-C, M4, 2024)
->> +              - apple,j713  # MacBook Air (13-inch, M3, 2025)
->> +              - apple,j715  # MacBook Air (15-inch, M3, 2025)
-> Copy/paste errors: these two should be M4 as well and I think the ones 
-> at the top should be 2025 instead of 2024, shouldn't they?
-I have the M3->M4 typo fixes queued locally. Only the MacBook Air was 
-released in 2025, the others in 2024 (according to Wikipedia at least).
->
->
-> Best,
->
-> Sven
+Hi Xuanqiang,
 
+On Tue, Jul 14, 2026 at 11:08:08PM +0800, Xuanqiang Luo wrote:
+> From: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
+> 
+> If devm_platform_get_and_ioremap_resource() returns an error,
+> mlxbf_i2c_init_resource() frees tmp_res before reading tmp_res->io to
+> get the error code. This results in a use-after-free.
+> 
+> Save the error code before freeing tmp_res.
+> 
+> Fixes: b5b5b32081cd ("i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
 
-My intention is to rebase and send out v2 with the fixes I've 
-accumulated locally once the M3 Pro/Max device trees have been merged 
-into apple-soc.
-
-
+merged to i2c/i2c-fixes.
 
 Thanks,
-
-— Yureka
-
+Andi
