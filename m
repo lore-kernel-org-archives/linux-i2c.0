@@ -1,80 +1,80 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F594B8DE3
-	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 16:10:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC0DB27707
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 16:21:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784045420; cv=pass; b=kwf2YcMld9WuLJuySD9i3pl7LHFPA1wzQDSdQFmGQlw85933Ym2vLVO2qOecA64twYYIITPLeAphssdjH+Y0+Q5qGdw+RTAgtHkYA7HEkLGA/+ntNVmwZYOjeLZ/07MaDLSuWAocsRdrGG63bw4yz7pgzZoji+iyJo7kxvnc/EE=
+	t=1784046063; cv=pass; b=G1O04i9iJYMe9x0ggcmx8LK8zo1D1M3zKNMRR0Bw9RXLCxrSALdnNBeJQGJdnrkXSXtBFvIAQlF/58LLeWESeoJj12CJLmJ/Vp1NlzRLz+fkQpIDENwuGsh66OQ/rKk+K4hy7CEKnkbY8RGp3zrCJpnxU5Z0Y4IgwUq/Kvwx6Ac=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784045420; c=relaxed/simple;
-	bh=1S0w7dm+YUg+3fSmOHXRext4Zgxg1DDIp+QHb1N2Y68=;
+	s=arc-20240116; t=1784046063; c=relaxed/simple;
+	bh=w/hWVgWMBEAi4baxYBKguUNUSjowVNXqcyrAzFXEtd8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E6fAnMq8pgp27TLImMv8HO2OF4s8GCHH/NptObC0tiGwABitofXkzQNh3NUuym08X3E01T1EW6nap+xhmbDzWM432FSahikfYnUV//Cs7lzCR+aYUtdZQdwYinfOoWXRAdQExLAGGr7LZydDiM3fn4CJrhHbUlQCZjlF6SpJBOs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ck0d+Nf3; arc=pass smtp.client-ip=209.85.167.45
+	 To:Cc:Content-Type; b=mGyOg/FtNF6JHOzzHo5uCkIO8WGF853YsoMCfFtnaTsulMVfDbuk3CV7BEiXoFiwI4aSzIiV3ivKo0gjlZzFjCWagpbDk8xRq07RNHZHddc23iAzPAKb6lJO+Pjf32NoNpxnCwut2OERTwv6f5/px5dpPlu6SrnKUxXIL05namU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o88uYxWm; arc=pass smtp.client-ip=209.85.208.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ck0d+Nf3"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5b0115b9e17so1117378e87.0
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 09:10:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784045417; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o88uYxWm"
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-39c7fd21b63so32073691fa.0
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 09:21:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784046060; cv=none;
         d=google.com; s=arc-20260327;
-        b=OBu9+p6s9C+XLa+wpXcuFyfzy7AwUO3xTMha//w+4QZU0Bj00MxGiX6r5leY5HPDif
-         vkwHh4waeSKWVdaCE68b+3y4/J/oaDsC6gaMEKeWf1ASqcz3vqYR1F97JAlS4UkAjNuU
-         3bNypKZWaL7fBE8NZQESd7qi49HUBYy+O4zdUQ70wot+A/0naA3GlYdlqlNNV+ezJ164
-         gB1P7c3gkQpJj9u/DZBB6LJnNJIvWFiaQoC1oKbF3S8ok+OPrHSVXXKcrmqTzqja3kUQ
-         KbSKOFuyItPWBex9XKcn3sjFRRdP/9NwCBM5gIIqbvrhe5+qedKtR7j1d/DWMcBcBpEu
-         EvYQ==
+        b=NMX/EIhVr1S6MY27aJY2yJsbWgFoACWEnZysQD3tcMHas0XVINJofv+FK+Vx6ZOcC4
+         ZjpOtDFSH2b/WmRwOopMakskzymBnc8QkavTNUkOKgoaYphnDLTQ2FW7tmaKdo3rej4z
+         kP25RsJXXznsdswsx0mMd6eluBfQW5166kqxwHppT1DNWeHSvVNBfzuO3A3cuffgmpTz
+         QTEHNVgFCaM0Z7dE2uLX7DsjqCHIKnnJfDY19jCnxYwJE8JUpEmEkAMgs+tz8hJK6k8G
+         ix1Aln8Y8kgqrQR1VUvvEzmiZy+ym9fTc2i2uRqu8xxQRJwjylTgIQgUpi0JwVzoFMEa
+         20FQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:dkim-signature;
-        bh=1S0w7dm+YUg+3fSmOHXRext4Zgxg1DDIp+QHb1N2Y68=;
-        fh=YoKGH7xN3U5jzA5TBTMdXklxUU2T4vc0pq04kNm7wz8=;
-        b=KcqopNGMvtJ4WhRsNIu+buV8gvsZQJ6pH+9mEgD4p9aCsbFpqjn62+OK8qzcq5g+bg
-         ROyav4ucwynC3OKCQi4E1bnzKpMEmfD1enun8ZZxzKJzR7Kr6Z/33ChqsIVXBBdjvdz3
-         Ve/nb8EXY4OJ2a1se0UJTFUu5ln6j7Iv+Woa5VSCYVK5t5oxr6PtNhBcDtPE0elb8NQR
-         8QnQKlM6D7+L4Rcr9KwKSlkk9J5ZXiRIeI78bEaFBDHRmnlfS9H70c6fedYd85jBah8f
-         NCmqTmHvMeNP+dAWEOjuw+FJeDOzamlYC29L31+aeea56wDSGrHgBjGGOESt6ETnFoYU
-         F3xA==;
+        bh=w/hWVgWMBEAi4baxYBKguUNUSjowVNXqcyrAzFXEtd8=;
+        fh=4Tm5bIuSu4GHnpc1J/9KvMpQVkm3JSF7j2fg8Sjhp+U=;
+        b=aLPR9Vkh7EmnEcCs2X+BBpVkC1K1IfwXG1KCQI3zzqoGapYQ1MdsoSzlXY7m6yjH1H
+         O9gaB+UMnRNiSAPrvF+O71nXQHX7/aoBRcQ4jUqG0ZYTUZiX7GcU8/wqMoDMPxCSCKd3
+         6SIiZgWKPkjj0Gf+vCqFKpHsbGsTjOeksdaPG81dVq62XzsgAPE05/TdGW8dgojn0t+K
+         +njH0UqHNZpl6sbvBQ6cS8HQTUu0kl7Z2WCErQHV0pNEsenV9qm/XegtxA+WTRCIZqX5
+         aszgoCAyXh0faVwMQrpLv8SPwVuKKg70+qFt+n1LFJaSSAGXvV6vSqUdPDVvHdyLuhaf
+         1z3Q==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784045417; x=1784650217; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784046060; x=1784650860; darn=vger.kernel.org;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=1S0w7dm+YUg+3fSmOHXRext4Zgxg1DDIp+QHb1N2Y68=;
-        b=ck0d+Nf3NUDdCNwVj+cmbx8ZMWebrGRg0wU9Ev0rW/LdyouvXxinzXoqdLPt/YOFzY
-         ToDs5EKOyW7RJ9m4eKKQVow3pNXnQXglXYkhkSceYMPn1tw0PqsAWzevfmA9YLTj4Q0w
-         MlwegQJDH5hosvrZoeyErqwMATX6uo6hvIaUWMn83nDJi/9hgABcSRWqBMbTivJoZHci
-         lVJqKPzs6+G9Zw34I1d6i8QAaBtcqQZEdELu5x2KDBVLKIpmTVLg8syLjx5TbPUlyO3y
-         oTJCOWGdwHubUcNwryawW+y+W7lPAWIqmG6S2cJGVIoFTaLbBgtzGPuYIuq4cWNr2Lww
-         CGhw==
+        bh=w/hWVgWMBEAi4baxYBKguUNUSjowVNXqcyrAzFXEtd8=;
+        b=o88uYxWmrfOlrLoUAui5B1keRvLo2aRYCLAqClorVJDOjWJ0+60sz9JdyhgwoGiaBv
+         4AVJC9ZR7CjU9S4SaqLYhX0+ramX/orn5b3PPwvxe38m2GOQOnNlTCxDnAoNZMX7wJRc
+         DcsX6POpWAH3n6NxS2xS2T+3fjv4j4OOfbnqxS/JgDxoOQfQbix3ritMvzghfrTR2M3k
+         jR94NGB1prk8cZ4fYECOq6zaxMGAprVlqXeYw/AeoGhEW8tn8nY3N+PKCwD7MpnPIFfP
+         h0CBoH0hE0YuXAUtZxnoFHNXoL9uUYbFrSds/QLHIptnvhHxf025hO/MV+JymmXVLYYM
+         X7dQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784045417; x=1784650217;
+        d=1e100.net; s=20251104; t=1784046060; x=1784650860;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=1S0w7dm+YUg+3fSmOHXRext4Zgxg1DDIp+QHb1N2Y68=;
-        b=K2vR8l0kYHmE/8/U5gaFp/Tf/IHA2xvygZcF+EAvdh273802XFwEksQ0pvu5EkNF7N
-         jSexLedB/+UAX9IYeFUpWiIeeiDOPBzxLybnIieCKKOg9b9iV7WsxtpeRvsWk8S+aSdg
-         9A2oIKZ9DAX7YxZdTyXjARZXAdaP3e1l25snokRtvQor9svYRmZUptJVkZCL17EeWgzw
-         haRyCloNvj7fya3oOVjpyI3qzMzbHc1elgcGDDEqysMee1OsonT6eJp271S1nZMCNFlK
-         6Pvt2GTh/pLXYNp27wWL4Z2NLs6ijdISZZCvreIEUy64r/IPQJ4xtwreHlaeT5hhRB3e
-         sBzQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqYEptEKWWcon0w3PpbGcwaspy0qkc3zW0PMUFI2QeCTUFy5Wcw8+0IeCYKB1S8ow7zqn5AV3fdFpU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxtL/SScKjDt8bICRRjJuUGWfDny3+irISoa2lYNoDdOoyiMFJu
-	J++wWHIjVTuehPV3DSK1QxYmndWlvQTN++V0d7R1izaBbmwK9CE5K7PZW8eUjCBFM1fY/0seS4P
-	mhBB/ti9MH25Y4njNPLaCxrispTh4WbU=
-X-Gm-Gg: AfdE7clkP4SyYsDboKDJex0uMPfGiI0xXuG+yMJZhgCyed09OAzLVAIvzcMoQ/4wCfR
-	xT84JoIfgKIRmvcrUQUSI50St2uvUmnkT6RJwg5WFyZA8L/LtgUiWYJzd2xvApEhmRwE0Y20lgp
-	J/HW6e/vD8WyCbxzLHx7AcAMTkEuBLbo2blNaDujD99+2C3wiDImI/HiBAFBfLXuuH+5hAJZNh7
-	NHB97fziXTSQ0IJuKYnGSIlY8jnjvwlTXRrt24JnM61wAFtJjkrtpci4EZAhJMn28xilgsArjmP
-	i7eWMyhhQ3nSGXQ96KappHaCn5wGGc4=
-X-Received: by 2002:a05:6512:250f:b0:5ae:ba27:ee5b with SMTP id
- 2adb3069b0e04-5b023698580mr2990182e87.40.1784045416281; Tue, 14 Jul 2026
- 09:10:16 -0700 (PDT)
+        bh=w/hWVgWMBEAi4baxYBKguUNUSjowVNXqcyrAzFXEtd8=;
+        b=HJhLrBG6zozzv0aaPsN6Vj293AQNBqgv8mnlOmS4OE1qU7NNR73mVYF7zstvXlj/aW
+         bGOc3n+hi2qadopnT3L/6DYYeJmmKJaTQXfnlasu4Z60LYyFNzGVCkQnO+dRUPi9z/WL
+         6zRoweQSwXGo3lXoC15P/IXvN3gmUQa7pWv9dsKcg1TnDYAc3bPqcoiaQ1VxoV4s5/MY
+         Ny8pplL1uBNxoCWCELEP9mLJmoZqXeVlyT6HWuOjOiGbbA/UKblKS9qRDzxfVdNITUjF
+         w6OTD0iZbAjt9Rn3EBELhYnGgn+8mwckqRKbi6M+kc/TDYt0G6JgNkPlWn+KOFluHYVE
+         wfbg==
+X-Forwarded-Encrypted: i=1; AHgh+RqfqXykRDLnMWTG0/oIZ+gCHpQaXt4LFYF7chtEIBWP0dOd5XcKPRckNES2bgzrqHMWXZ/2qi82uqs=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzlykMyEvo2ROOQIoeo2uFpVK9arTOpmGhqTgQvIqDAVwE1rsLQ
+	l6ILrEuXefEHfZRQ4kQups9Qg+JtTzaUE+eHamGPtgZKUdiAp3meTzjos4auA67oB8dNAdZNfs8
+	Aycu2MV23rr5fm61AWQHY36iXr1Iba5UxsOv7
+X-Gm-Gg: AfdE7ckjkW2S2wJlz0aMzNi/N2m0LaCx42Dh1NOxBLLYxykBw37Jd24QtrTeLft1kkB
+	3Tnw4m4mMi6QzVN+eqMnU+bQgDv2nrpWI9rviGBUrr3AH/UnU8hHyoci8dPSZ8aDUnAoqfnigou
+	QoOEDzyUMqdbGUsBp0O0JPWtQhRfzLuz+CG4yHBvbFp0WWD02z1H02GaxmBE7yngHCmSkEvS8pj
+	KYoTro61RPdKal3RIxcz0WtPHNkcz9NKpRSWUhX2BILHeMjF0Voo9bTCWXHGBpJ0QFrv0CRnB2u
+	NpT9iAzQ+6m1wBIU7rFe9stWF6vr/3HX2ba+dbwWLQ==
+X-Received: by 2002:a05:651c:150f:b0:39c:92b8:dd9d with SMTP id
+ 38308e7fff4ca-39daa839b20mr9821661fa.26.1784046059486; Tue, 14 Jul 2026
+ 09:20:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -82,14 +82,13 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260707151542.91997-1-muchamadcoirulanwar@gmail.com>
- <20260707151542.91997-2-muchamadcoirulanwar@gmail.com> <DJVQAMP6ZPH2.1X68IDVBOMXGQ@kernel.org>
-In-Reply-To: <DJVQAMP6ZPH2.1X68IDVBOMXGQ@kernel.org>
+ <20260707151542.91997-3-muchamadcoirulanwar@gmail.com> <DJVQDP9J54K1.AANCLIJC23YF@kernel.org>
+In-Reply-To: <DJVQDP9J54K1.AANCLIJC23YF@kernel.org>
 From: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Date: Tue, 14 Jul 2026 23:10:04 +0700
-X-Gm-Features: AUfX_mymuGx4LGuheBapAT0SbQMDCl6HhaNslE_Je5xKU5wY_Z1_u4BqSMiQNB8
-Message-ID: <CAO26r3TkGm0Puq0yJc7HyxMAujioLAs==RjGTiGUANzkHGb+Vw@mail.gmail.com>
-Subject: Re: [RFC PATCH v4 1/3] i2c: rust: implement SMBus read abstraction
- via kernel::io::Io for I2cClient
+Date: Tue, 14 Jul 2026 23:20:48 +0700
+X-Gm-Features: AUfX_mxf_FzQxVLfuQI_7jeEOA2orrtEW894cnhKCVOqUxe_TyKMO-fvHYnHX4s
+Message-ID: <CAO26r3QDbT07dTsMfMB8Y6H+qBzh-PQxgcTTVKqJ7C9yv-emsQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v4 2/3] rust: add minimal IIO subsystem abstractions
 To: Danilo Krummrich <dakr@kernel.org>
 Cc: jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
@@ -97,16 +96,17 @@ Cc: jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org,
 	igor.korotin@linux.dev, branstj@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 
-On Sat, 11 Jul 2026 at 19:08, Danilo Krummrich <dakr@kernel.org> wrote:
+On Sat, 11 Jul 2026 at 19:12, Danilo Krummrich <dakr@kernel.org> wrote:
+>
 > On Tue Jul 7, 2026 at 5:15 PM CEST, Muchamad Coirul Anwar wrote:
-> > +impl<Ctx: device::DeviceContext> IoCapable<u8> for I2cClient<Ctx> {
+> > Add safe Rust wrappers for the Linux IIO (Industrial I/O) subsystem:
 >
-> Independent from [1], this must not be implemented for any DeviceContext. I/O
-> operations require at least the Bound the device context.
->
-> [1 https://lore.kernel.org/all/DJVQ852J7SOH.26YBIJTQ9B66G@kernel.org/]
+> Does IIO's iio_device_unregister() synchronize against in-flight IOCTLs?
 
-Understood. I will restrict to I2cClient<Bound> in v5.
+From what I traced, yes. iio_device_unregister goes through
+cdev_device_del, device_del, sysfs_remove_dir, and ends up in
+kernfs_drain which waits for active sysfs readers to finish.
+Please correct me if I'm missing something here.
 
 Thanks
 Coirul
