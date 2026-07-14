@@ -1,119 +1,170 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7077444A71E;
-	Tue, 14 Jul 2026 12:36:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 277B41F09AD;
+	Tue, 14 Jul 2026 13:16:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784032617; cv=none; b=TF1xwg3hV8kekkZtvqZArh4PuflG8Jgef6MM8mMxMgZU22uSRBPNVQCcuykAvQPj98UAJOpbwULBeO55vBmDJv6mLwBj2khCoZVeMPPFQ5ol4XNBVELxNjFoP6wiA2zFu56LWWZ6aErSoUVhMZwQvK542ZvmwgeuCoDtqZBUTmU=
+	t=1784034995; cv=none; b=T3kHsIypk1IwUQqrvhtMOKkXoyf0tDv5XoCGjcPMkVq2uZMVdI4a2byprD4OdpLqqXfZGaxkj6Yrzkhr5rhlGpzHVcedIBU8qMVjuBWrPm1/M5Gvn2kSbpNRr8LXxv68WQiWJnjAMMJpD9f+6+M6WlLIaDNkHGtWUbMYEKXfMrw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784032617; c=relaxed/simple;
-	bh=Fd5fmNyY2d1uD11LLJjRX4lxE0AYCcbFlBG5ZBbkn/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GCdvnbv03OYvj6m9X/lbs3bECQOueGTCoM8LpZcihQvFPcZVhcBbtx+nGML9NrBeGKic7l9DKx0/tNnHO7UnfrNxNnNqP8WdFh33I67mLkEPu5FrxXS8mB1sA2NdgvehSYOgn8PP35uVv938M6esQyPtH8kxwECHwLVcT8htdX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lg5iMJG2; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1784034995; c=relaxed/simple;
+	bh=PO2aqXVHRnJwpcf6ZUi1sPXCitHKZGPiqVHwOpqzWDs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=trN/fb3thJZ2MxEd2KsHR6mm8LT35cqdFeTKtQB+d91O9AFd6M9Ox6yqtMSawVkIG3YwEXloCR9HbsdHPubJdPrvCpY8I1uqUORJijvFDcrITX+RPx5l7LTjEdMPxp+snXNKAuGQ33vCPIBMm2lPMDDEG1oSxBBOqNSxygBh178=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=TPafXyfk; arc=none smtp.client-ip=220.197.31.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lg5iMJG2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784032613; x=1815568613;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Fd5fmNyY2d1uD11LLJjRX4lxE0AYCcbFlBG5ZBbkn/I=;
-  b=lg5iMJG2vPOGqBgqJWJwpYYy+WgNKK2ytxt7/c6QZT+pRNlvnyEW3yox
-   d3p/dFzJaE2CCCDlnxw/VNF77qNWYew9ZuvtFhXX5knLhxraScB8FVQBB
-   BcU8Q1U22+wrJerjKTqdYzAMbMV87MO6yxnGxxICUeAHV2xs8hpgbuxc8
-   EnjWPo83d92b3eXGcVbmRLbBsoNwdsQVzE33qe+hz28Bq0sHy4EChF2vx
-   Tw0I5KnK6SWzo2OrZfRY69W8jGHFuM5q7u0ZOeVNFTCG+ZZNFMBMrQ9Hx
-   8/jRU2Lv4LxSzYENjlTvSVlmJdyNfeGVOkd4NmPTvqCFlVavlbEzIrGET
-   Q==;
-X-CSE-ConnectionGUID: 26OEFeEfRS6zbkubzqwHfg==
-X-CSE-MsgGUID: RgKc22cvRnOQXDOWsKmeXw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11846"; a="88473913"
-X-IronPort-AV: E=Sophos;i="6.25,163,1779174000"; 
-   d="scan'208";a="88473913"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 05:36:51 -0700
-X-CSE-ConnectionGUID: ruQUspqVQ4CTdcpl0+sJ+w==
-X-CSE-MsgGUID: ENlMAvR0T/6ropGLZt8U5w==
-X-ExtLoop1: 1
-Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.189])
-  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2026 05:36:48 -0700
-Date: Tue, 14 Jul 2026 15:36:46 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
-	linusw@kernel.org, nathan@kernel.org,
-	chaitanya.kumar.borah@intel.com
-Subject: Re: [PATCH v10] i2c: designware: defer probe if child GpioInt
- controllers are not bound
-Message-ID: <alYtXlHSbjNnQosZ@ashevche-desk.local>
-References: <20260701101218.42529-1-hardikprakash.official@gmail.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="TPafXyfk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=oF
+	rm7cAm5xgvpg1dCCfceT3xmdX/Suz6ym/HjL2f368=; b=TPafXyfkjhKUnUJMnq
+	y/EmQlGgfQdOkanupQKyoleEEEcYHTcc37JRWmu1kUzl+UAsiZ+mz10RnhgtuLfA
+	R/lYiyDX5Ghg4IQBZHfG7J0pcFu5cthcUCqbKtp6VhX1LRkNipTq3tL63+2Raovk
+	ypwnMKfmIYb8octhgw9PeF59Y=
+Received: from pc.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wDHhdSdNlZqMIoQJg--.20750S4;
+	Tue, 14 Jul 2026 21:16:17 +0800 (CST)
+From: Jiale Yao <yaojiale02@163.com>
+To: Rishi Gupta <gupt21@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Jiale Yao <yaojiale02@163.com>
+Subject: [PATCH 3/4] HID: mcp2221: fix out-of-bounds read in mcp2221_raw_event
+Date: Tue, 14 Jul 2026 21:16:10 +0800
+Message-Id: <20260714131611.269929-3-yaojiale02@163.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260714131611.269929-1-yaojiale02@163.com>
+References: <20260714131611.269929-1-yaojiale02@163.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260701101218.42529-1-hardikprakash.official@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDHhdSdNlZqMIoQJg--.20750S4
+X-Coremail-Antispam: 1Uf129KBjvJXoWxAr13Zw45tF4rKr1xGFWfZrb_yoW5ZFW5pr
+	Z8tFs0krWUJF13KF9xCr1DAr15Xrn2yFsrXFW2qa4UX3W8KFZ8JryvgFyFqr1fKFyDZr1S
+	gFs5GrW8Ga4qyaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRF4E_UUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC8ALlIGpWNqL2qwAA3C
 
-On Wed, Jul 01, 2026 at 03:42:18PM +0530, Hardik Prakash wrote:
+The handler dispatches on data[0] without checking size >= 1.
+Add a top-level guard and per-case minimum-size checks:
+data[2] for the I2C_WR_DATA group, data[20] and
+data[50+sizeof(adc_values)] for I2C_PARAM_OR_STATUS,
+sizeof(struct mcp_get/set_gpio) for GPIO paths,
+and 4+data[3] for the I2C_GET_DATA partial-read memcpy.
 
-Sorry, it took a bit of a time. I was wondering about something
-(see below) and then got distracted and then forgot about this.
+Assisted-by: Claude:deepseek-v4-pro
+Signed-off-by: Jiale Yao <yaojiale02@163.com>
+---
+ drivers/hid/hid-mcp2221.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
-> I2C controllers may have child devices with GpioInt resources that
-> depend on GPIO controllers to be fully initialized. If the I2C
-> controller probes and enumerates children before the referenced GPIO
-> controller has completed probe, GPIO interrupts may not be properly
-> configured, leading to device failures.
-> 
-> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> fail with lost arbitration errors.
-> 
-> Add a generic dependency check in i2c-designware that walks ACPI child
-> devices, identifies any GpioInt resources, resolves the referenced GPIO
-> controllers, and defers probe if those controllers are not yet bound.
-
-> Uses acpi_gpio_get_irq_resource() to avoid duplicating GPIO resource
-> parsing logic from gpiolib-acpi. Skips resources with no resource
-> source string (string_length == 0 or string_ptr == NULL) to avoid
-> crashes on hardware where GPIO resources have no named controller.
-
-This paragraph can be deducted from the code, you can move it to the comments
-block. No need to explain in the commit message how code works in details.
-
-> The probe ordering race was confirmed via dynamic debug tracing:
-> 
->   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->   2.348157  lost arbitration
-
-...
-
-
-> +struct gpio_controller_ref {
-> +	struct list_head node;
-> +	const char *path;
-> +};
-
-So, the list of the controllers in the system is already tracked in the GPIOLIB.
-I'm wondering if we may reuse that one instead of creating our own. We gave in
-particular gpio_device_find() API. There are also wrappers _find_by_*().
-
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index e4ddd8e9293b..0423b5affe8f 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -861,12 +861,17 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 	u8 *buf;
+ 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
+ 
++	if (size < 1)
++		return 1;
++
+ 	switch (data[0]) {
+ 
+ 	case MCP2221_I2C_WR_DATA:
+ 	case MCP2221_I2C_WR_NO_STOP:
+ 	case MCP2221_I2C_RD_DATA:
+ 	case MCP2221_I2C_RD_RPT_START:
++		if (size < 3)
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			mcp->status = 0;
+@@ -878,6 +883,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_I2C_PARAM_OR_STATUS:
++		if (size < 21)
++			return 1;
++#if IS_REACHABLE(CONFIG_IIO)
++		if (size < 50 + sizeof(mcp->adc_values))
++			return 1;
++#endif
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			if ((mcp->txbuf[3] == MCP2221_I2C_SET_SPEED) &&
+@@ -901,6 +912,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_I2C_GET_DATA:
++		if (size < 4)
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			if (data[2] == MCP2221_I2C_ADDR_NACK) {
+@@ -918,7 +931,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 			}
+ 			if (data[2] == MCP2221_I2C_READ_COMPL ||
+ 			    data[2] == MCP2221_I2C_READ_PARTIAL) {
+-				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 || data[3] > 60) {
++				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 ||
++				    data[3] > 60 || size < 4 + data[3]) {
+ 					mcp->status = -EINVAL;
+ 					break;
+ 				}
+@@ -941,6 +955,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_GPIO_GET:
++		if (size < sizeof(struct mcp_get_gpio))
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			if ((data[mcp->gp_idx] == MCP2221_ALT_F_NOT_GPIOV) ||
+@@ -958,6 +974,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_GPIO_SET:
++		if (size < sizeof(struct mcp_set_gpio))
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			if ((data[mcp->gp_idx] == MCP2221_ALT_F_NOT_GPIOV) ||
+@@ -974,6 +992,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_SET_SRAM_SETTINGS:
++		if (size < 2)
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			mcp->status = 0;
+@@ -985,6 +1005,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_GET_SRAM_SETTINGS:
++		if (size < 26)
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			memcpy(&mcp->mode, &data[22], 4);
+@@ -1000,6 +1022,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		break;
+ 
+ 	case MCP2221_READ_FLASH_DATA:
++		if (size < 8)
++			return 1;
+ 		switch (data[1]) {
+ 		case MCP2221_SUCCESS:
+ 			mcp->status = 0;
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.34.1
 
