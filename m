@@ -1,114 +1,136 @@
-Received: from smtpfb1-g21.free.fr (smtpfb1-g21.free.fr [212.27.42.9])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0460A34A3BF;
-	Mon, 13 Jul 2026 18:18:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.9
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780C319A288
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 00:32:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783966724; cv=none; b=G+EsNslmPbTfUSP19auUJAThSdcHE9dQYzmNkM+SFq0nWnNLH8fm1fFDB+oLr3/0QQSXThfYrZbbNoFPe69Naeq/P++gJof8pb95fcVm42Z7e3a2vuhMb6YTFzvoAIaEzO7a120jBsLdHMlLeNECHWtZwHXV/HpejAGWvKBU1OY=
+	t=1783989181; cv=none; b=dcATD6Q6wIbWYpzeH/1HDbm/sZ4/FZ/x3X8VhFyzI+9cOJHOZaNoiP/Gz6gP9Yx/9AdwVBKTJgTkkn//HIczULGB+N4Aa+hGTr396Uk6aOo1HQOPBLQwlv209atWqmq18qwY1vH0sKT/eVm8pN5H2hKRA41NS4kKzd7L9pDvhs8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783966724; c=relaxed/simple;
-	bh=MW0fHm4TEwvAk5mUjhZ7QSZSJF8LLYeJTbTRWroVGJI=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=dcM58BzIxCTKgYx7iUFPT90ZHDCfh5F6ytnBwUr9QlcHUeV3c1uaq7SWGNvJvTfHtG1zXXIcgJnYC6Bs1lDf+tRlrOORLr+oBTwBbmciNfDMWhGCL3OhhpbBaRUKdAYfZxpodwUd23RUWWEg5dg1JA/S+/Ab1i2rNtDGkGoGiPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=HP9/4s5G; arc=none smtp.client-ip=212.27.42.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
+	s=arc-20240116; t=1783989181; c=relaxed/simple;
+	bh=D7sgG5t4VAWsPS+3OEZSVq/ziRSt9Wxqgo9E+hRoh4M=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=s4RhFwt4EdYGIGyz1FHKkGyBg9CSTHL17oHbGxQRxGe0fvBviV+UphXJGlC640qPrHYAN7dQr9ZgBKwfJDRQdQ5sSXGs0edZ3rKQJEk47qXElbjnsw5OKWg3QRjBRadGXJBHkmCipsS5EeuZMdKynkqx27QtlcyZG5a3Y3j6x0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=k9/SDaNI; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="HP9/4s5G"
-Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [212.27.42.1])
-	by smtpfb1-g21.free.fr (Postfix) with ESMTP id 3D2728346D6;
-	Mon, 13 Jul 2026 20:12:33 +0200 (CEST)
-Received: from [127.0.1.1] (unknown [91.160.0.144])
-	(Authenticated sender: vjardin@free.fr)
-	by smtp1-g21.free.fr (Postfix) with ESMTPSA id 009BAB0055A;
-	Mon, 13 Jul 2026 20:12:04 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
-	s=smtp-20201208; t=1783966345;
-	bh=MW0fHm4TEwvAk5mUjhZ7QSZSJF8LLYeJTbTRWroVGJI=;
-	h=From:Subject:Date:To:Cc:From;
-	b=HP9/4s5GL7nJJXLSYkAF+NqAQsUFE9JtmkJnD8cU4E0lmuJT2TZTQiygCb+inNRRZ
-	 Z2WTVMEI2JpxTwiI2gTOo3k8Z+mkGkLH9ZNwIZOzbqXm8xdh/RVktt9ZH5GTBNKH3k
-	 NBehoNisOosZP2h0hHq4oLvPWFbpMTM+gq2pO3mtYi4Thz8Juvgh3dn3D6wzpV79z/
-	 Uc4YzUjDsztG80b5lgGRL2g6M51MwmwcVjgSmK/gaEnPEt/gUqDnQwUqxDnyt+OUrd
-	 EVn7K/rpxEpFr7YRTWomdJnsP9EE2ItGY4Kp+vkX4GCF5pUTGq1f4C8K9BIGwyrvbh
-	 pUvnksAgC3i3w==
-From: Vincent Jardin <vjardin@free.fr>
-Subject: [PATCH v3 0/2] i2c: imx: fix SMBus block-read of 0 locking the bus
-Date: Mon, 13 Jul 2026 20:11:58 +0200
-Message-Id: <20260713-for-upstream-i2c-lx2160-fix-v1-v3-0-073ac9e103a5@free.fr>
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="k9/SDaNI"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c9ef3e1337fso2471801a12.2
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Jul 2026 17:32:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1783989178; x=1784593978; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=D7sgG5t4VAWsPS+3OEZSVq/ziRSt9Wxqgo9E+hRoh4M=;
+        b=k9/SDaNItnmMkaIrSp2Xx3xUZCtXViiU8YfK5zoQfmrdeLUnVAFidR7RTP4hOJSU9O
+         IHAgMbfbL/S6BWejLpZ6TLbRscH5j9nreJjvCKF/bR7HocCuQm6mgKEwvzOaII+BHwOT
+         ifc5smtfNFSaE34VU8skw7XUyrh59W9kjE5iN0VqazcekcsvuhYpgKmnxV6WD63tmvAD
+         2m6SNMmhB9dDRepN4/z4gQFQjVtlsuPsery8M1iWFPNsZ5uEdx6dlCKgn4eXzGFfiNXV
+         GIwpYirFo1kas4fogH0VqEuru4a84wdNAtiC2OszXk06zM+XVuvQeNhYw/jxbMx8cA+W
+         7foA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783989178; x=1784593978;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=D7sgG5t4VAWsPS+3OEZSVq/ziRSt9Wxqgo9E+hRoh4M=;
+        b=FXpHUN3CjaW5lr+i0TAyLUqf0wYDADUV3pwrgbhyZfGfgqg10IipxpTgIl94fDfd/1
+         Gs902PKT0Wp9/yX2aNrh/6qVfVKOKwYMrarhWY7jf5ehRZXGY1+16RHIgb1paRypJymV
+         iB78mqR228lTj4xq7h6+w4MtJd3SVFTVx31sHvK9cj3BCRQUDyWQoaHavEMExzeeFfEK
+         Kig5NDJQs46LwjXdVahSP5iEAXLnUnd+QWhH1LfxC+WY8xbasyAww4naf4EH/rs4mpDz
+         hinimNSUyrii9SYqYqQnKQ70myVm7IrBtIh0jHtekTTI6CREIXIbWnpfVytJZT689btt
+         39oQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrrG8Og3I26XjsI2XobUAd2ZpGW8vhaLIBzv9oEtqp/VspHUUZfeHl57OIqbulBnK22VO0x8qQE68k=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyAoDVaNkYhBaXRgu4D4JCJarK0H+FoAnPKkDYN/7qy+Ybdyr/H
+	fYg+Cr0pI0cnNdpp8DAe1VFLKvWdgqXgrqzuMJBElzxCS7E/2DYRXgxxJiRIfbzppK4=
+X-Gm-Gg: AfdE7ckq1IYtONP3ixfRHF/nVVfebH9VG/HVyZd1Z2qAbiIHyLSq8z7N9ZS5xsrOHtT
+	C5bvvAwMe44jfRSmxHLufikojX6wkVvxgJWKHpK4eCNZYXKb5fuXubYrza6PaLzc3Q/9uC8XR2/
+	/WlqdLYK6TmzW6K1fVkN9PMgr1Hno45QvZb/hHOOuVboe045Hqry5ezw+Hk1g7hI6MAirqUeZ3U
+	0p5AZDRnztFuW0cFu3daz/iO2YMXSe86XQn+ecBa1DanZxujByx35uCtzocC2DCmDKnpShvPGcW
+	68csutKG61y+SzmJVsPNSmOlc3mIhV9/xCrNAQAGvm5tW1Gf1lKzL36xl0hZos0YkDM0aSXaMHm
+	TGwtVapYGO4Nz4Hgnjokmj8LBBryGh4jppN9YwBVAjmHGKhKvbjX2x45pzb4D/gduN47mWoqOLI
+	QyMbdw1kWTwAnFiytCx+lRRAQ=
+X-Received: by 2002:a05:6a20:4307:b0:3c3:2e2b:29f3 with SMTP id adf61e73a8af0-3c34d5b6f8bmr1421177637.27.1783989177645;
+        Mon, 13 Jul 2026 17:32:57 -0700 (PDT)
+Received: from localhost ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31174ac14f2sm78865075eec.27.2026.07.13.17.32.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Jul 2026 17:32:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAG4qVWoC/5XNwQ6CMAzG8VchO1tTugzFk+9hPIzRyRIV0uGCI
- by7g4tXPf7b5PfNKrIEjupUzEo4hRj6Zw69K5Tr7PPGENrcipAqNGTA9wKvIY7C9gGBHNwnKis
- EHyZIJaBrLFrEWrNRGRmE82cbuFxzdyGOvby3vVSu15/pVQev0TZGt219cGcvzHsvaoUT/YdRx
- qiy2rmja9GYL7YsyweAWWSWFwEAAA==
-To: Oleksij Rempel <o.rempel@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
- Wolfram Sang <wsa@kernel.org>, 
- Kaushal Butala <kaushalkernelmailinglist@gmail.com>, 
- Shawn Guo <shawn.guo@freescale.com>, 
- Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Vincent Jardin <vjardin@free.fr>, stable@vger.kernel.org, 
- Carlos Song <carlos.song@nxp.com>, Stefan Eichenberger <eichest@gmail.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1783966324; l=1860;
- i=vjardin@free.fr; s=20260525; h=from:subject:message-id;
- bh=MW0fHm4TEwvAk5mUjhZ7QSZSJF8LLYeJTbTRWroVGJI=;
- b=HB4/D489cBV9RGeIlXnJ5L0Cx4Oci/dGh9tVchNtz7Ut6n2ixBh23Cwbk1Xta51rz/iUbqwun
- XJ6O0CjdUAgD9GB9UUz9/kcWL1vmAwrDWZ2G2qkSXTeEdIDKXhaN4Oo
-X-Developer-Key: i=vjardin@free.fr; a=ed25519;
- pk=hppgLeFpGpKOi7LNwGEZ4jOYofJCoGd4Jf1ltAabiLw=
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 13 Jul 2026 17:32:56 -0700
+Message-Id: <DJXVDTIP374I.31QKCXGTTY7UV@nexthop.ai>
+Cc: <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/3] i2c: xiic: fix SMBus block read and PEC support
+From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
+To: "Andi Shyti" <andi.shyti@kernel.org>, "Michal Simek"
+ <michal.simek@amd.com>, "Shubhrajyoti Datta"
+ <shubhrajyoti.datta@gmail.com>, <abdurrahman@nexthop.ai>
+X-Mailer: aerc 0.21.0
+References: <20260427-i2c-xiic-v1-0-e6207f9aa5ad@nexthop.ai>
+ <CAKfKVtGztJkU_HXZTrb2h3hrTJp0SbRo-sDHM4Sj_1SG8ymOyw@mail.gmail.com>
+ <0dec4aec-5a62-41af-9509-3bd9e2854739@amd.com>
+In-Reply-To: <0dec4aec-5a62-41af-9509-3bd9e2854739@amd.com>
 
-i2c-imx rejects an SMBus Block Read byte count of 0 (valid per SMBus 3.1
-6.5.7) as -EPROTO and returns without emitting a NACK + STOP, leaving the
-target holding SDA so the bus stays stuck until a power cycle.
+On Tue Jun 9, 2026 at 7:39 AM PDT, Michal Simek wrote:
+>
+>
+> On 6/9/26 16:26, Shubhrajyoti Datta wrote:
+>> On Tue, Apr 28, 2026 at 5:48=E2=80=AFAM Abdurrahman Hussain via B4 Relay
+>> <devnull+abdurrahman.nexthop.ai@kernel.org> wrote:
+>>>
+>>> This series fixes three independent bugs in the Xilinx AXI IIC driver
+>>> that together make SMBus block reads with PEC return -EBADMSG or -EIO
+>>> on otherwise clean transfers. They only surface when the client has
+>>> I2C_CLIENT_PEC set; non-PEC block reads happen to mask each issue in
+>>> turn.
+>>>
+>>> The problems were uncovered driving an adm1266 PMBus device behind a
+>>> Xilinx AXI IIC FPGA block and reading its 64-byte blackbox record.
+>>>
+>>> Patch 1 stops xiic_smbus_block_read_setup() from truncating rx_msg->len=
+.
+>>> The i2c core appends a byte to msg->len when PEC is enabled, so
+>>> overwriting the length to "block size + 1" silently drops the PEC byte
+>>> and i2c_smbus_check_pec() then reads the last payload byte as the PEC.
+>>>
+>>> Patch 2 raises the RX_FULL threshold so the interrupt only fires once
+>>> every remaining byte (payload plus optional PEC) is already buffered in
+>>> the FIFO. The previous threshold of rxmsg_len - 2 caused the
+>>> bytes_rem =3D=3D 1 path in xiic_read_rx() to NACK a byte still on the w=
+ire.
+>>>
+>>> Patch 3 stops the BNB handler from forcing tx_msg->len =3D 1 to signal
+>>> completion. tx_msg and rx_msg alias the same i2c_msg during a receive,
+>>> so this also clobbered rx_msg->len; and because tx_pos is already at 2
+>>> in the PEC case, the unsigned subtraction in xiic_tx_space() underflowe=
+d
+>>> and the STATE_DONE check fell through to STATE_ERROR. Advancing tx_pos
+>>> up to msg->len drives tx_space to zero without touching the length.
+>>>
+>>> All three patches are pure bug fixes; non-PEC behaviour is unchanged.
+>>> Tested on real hardware -- a Xilinx AXI IIC controller talking to an
+>>> adm1266, where 64-byte PEC-checked block reads now complete cleanly.
+>>>
+>>> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+>>=20
+>> LGTM
+>> Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
+>
+> Acked-by: Michal Simek <michal.simek@amd.com>
+>
 
-It was triggered by an MPQ8785 PMBus regulator on a LX2160A i2c
-bus: when the kernel binds it using the pmbus/hwmon framework, the bus
-locks up and it does never recovers. It was confirmed with a scope, with
-and without the fix.
-
-The same bug is occuring with two independently introduced spots, so the
-fix is two patches with their respective Fixes: tags and backport ranges
-
-  1/2  atomic/polling path       Fixes: 8e8782c71595   v3.16+
-  2/2  IRQ-driven state machine  Fixes: 5f5c2d4579ca   v6.13+
-
-Signed-off-by: Vincent Jardin <vjardin@free.fr>
----
-Changes in v3:
-- no functional change; collected the review tags received on v2:
-  Acked-by Oleksij Rempel, Acked-by Carlos Song, Reviewed-by Stefan
-  Eichenberger (both patches)
-- cover letter: add the real-world trigger (MPQ8785 PMBus regulator
-  on the LX2160A) and how the fix was validated, asked by Carlos Song
-- resend as a new thread, per Andi Shyti's request
-- Link to v2: https://lore.kernel.org/r/20260525-for-upstream-i2c-lx2160-fix-v1-v2-0-26a3cc8cd055@free.fr
-
-Changes in v2:
-- Handle when count > I2C_SMBUS_BLOCK_MAX the same way as count == 0
-  Reported by the Sashiko AI review on v1.
-
----
-Vincent Jardin (2):
-      i2c: imx: fix locked bus on SMBus block-read of 0 (atomic)
-      i2c: imx: fix locked bus on SMBus block-read of 0 (IRQ)
-
- drivers/i2c/busses/i2c-imx.c | 36 +++++++++++++++++++++++++++++++++---
- 1 file changed, 33 insertions(+), 3 deletions(-)
----
-base-commit: a13c140cc289c0b7b3770bce5b3ad42ab35074aa
-change-id: 20260525-for-upstream-i2c-lx2160-fix-v1-0cba0a0093e5
+Andi, are there any objections to merging this series?
 
 Best regards,
--- 
-Vincent Jardin <vjardin@free.fr>
-
+Abdurrahman
