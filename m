@@ -1,83 +1,64 @@
-Received: from out-173.mta0.migadu.com (out-173.mta0.migadu.com [91.218.175.173])
+Received: from smtp4-g21.free.fr (smtp4-g21.free.fr [212.27.42.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B44C48A2DB
-	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 15:08:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75A7737F01B
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 15:18:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784041718; cv=none; b=G/YIIofXefuw+DwZ97d9IcNAWWEmzCmamLqp1XNFARp2iegVrfAouuP00PLTtY4yWWokgRuCt1ckb+CuwJq8p9Ri1v5558rpZNYSddHW+DPurHZxxavreueqS2r5tWn6SAcW7Di1tfFoQXhRZOtR819f9AaKBmDteCDqumGtYUM=
+	t=1784042311; cv=none; b=XlbbKM8/2GNd3852smOODt3BjkGeHbV14MbhMahyXl3bqk/M/YIHW5rpkIuUQvPa31KsH75nRsM64NZjJiDu5YvmLBNTlQSl+HGat08kffEaqHdhTHAs049+5RX4Xl6/HWuBR1pwhH3BwhhtZ3K35hr882ZkVfgt1gMHIDDBSvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784041718; c=relaxed/simple;
-	bh=HO2eSWdkSOcxh0xpZKMRY/Brla/UzFVT7CAQPMnVJqg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MDOnW6E9C9Nm13tm/Po8AlwT5F34zQN0J/6iEVLc66iEp2B1I/jQrtSlvQNfCF/kXt64wZaXoeb2Rm+2CddZXLoG5axWgVaqF05pSozosIkAjcjr7AlxlcLKc8tCkR+ZqlDUztNgZMIt+aRpuk/wn1iBjDZ9fQbSmj6/yupen+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=wmkF0f5D; arc=none smtp.client-ip=91.218.175.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1784042311; c=relaxed/simple;
+	bh=KZFmsRCRSQvYbRdnmIZb9m4Icw8GVMKVZP6cF94EoIk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=InNdm0kEkFm1SUTDycrQ4y+o8HfdNlmBfXwt7oAm+fOA0pElcOdp/29OMNvw+ce5n6waQ9X5Yaqh0ARSAIOJOjaaCLVrDp7YlBdw/x3abzxzp/e7aroD1k9kTqJ6vJzI72MCVDCvv94HDUnyBpT5UiiQBn5xdwCK5kXZR7iP+hQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=oFdl4Wej; arc=none smtp.client-ip=212.27.42.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wmkF0f5D"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1784041703;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=iwBSSYmCQ/6M6ihxE0JkAS/dkFMi1+DJS55iwfDdquI=;
-	b=wmkF0f5DXTXTdxe40U0JvOgsc8vOJaNtnPFPwT0b0XMfZJ+kzylbIr9HXtZ6jPvifdo7IV
-	k3EP7HillFPUHw0idMZo/kzXoOCT6UqcX4MKDFJYHXhc9iAhbuGRpAN7bOZH3Zz0ItAbn+
-	jxMMmDWZrvxKr6OprtCXwt7G/zInyr8=
-From: Xuanqiang Luo <xuanqiang.luo@linux.dev>
-To: linux-i2c@vger.kernel.org,
-	andi.shyti@kernel.org
-Cc: kblaiech@nvidia.com,
-	asmaa@nvidia.com,
-	vadimp@mellanox.com,
-	wsa@kernel.org,
-	linux-kernel@vger.kernel.org,
-	Xuanqiang Luo <luoxuanqiang@kylinos.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] i2c: mlxbf: Fix use-after-free in mlxbf_i2c_init_resource()
-Date: Tue, 14 Jul 2026 23:08:08 +0800
-Message-ID: <20260714150808.85045-1-xuanqiang.luo@linux.dev>
+	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="oFdl4Wej"
+Received: from l30177.home (unknown [IPv6:2a01:e0a:ac2:22b0:b030:e083:1959:2870])
+	(Authenticated sender: vjardin@free.fr)
+	by smtp4-g21.free.fr (Postfix) with ESMTPSA id 0A0B219F593;
+	Tue, 14 Jul 2026 17:18:15 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+	s=smtp-20201208; t=1784042307;
+	bh=KZFmsRCRSQvYbRdnmIZb9m4Icw8GVMKVZP6cF94EoIk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=oFdl4WejEPb9jOADJ9PERqIIxabMWactumv/UUU1OgKKwu16HP1AQ5igY8Pq6nGE4
+	 hEryhlbObd5JXfhFLnFyHAv/onZ20DG5c7tnVu4Hejgpsd0yCu9tJsxgQMQqbXKo8g
+	 fU+o3yDED2vRNoJNuJYXAoyXJSGOCqC0PPiY5O0RDiisjn75HGuLRLlNFoV44DY4/e
+	 +czl0mrMnFrEDbdia/Lq3nXTsFlOv0RgXWLTeVLA+kexjZU9LPBop68IVZce6Zf4i+
+	 kivuVbWUfyhC4zq2SO/qo/wT3ihRGheLBJTsYtYVl856YZFfIeWBJ0cR3HAywtZ1qr
+	 KCs9U4F7QVL2w==
+Date: Tue, 14 Jul 2026 17:18:13 +0200
+From: Vincent Jardin <vjardin@free.fr>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Wolfram Sang <wsa@kernel.org>,
+	Kaushal Butala <kaushalkernelmailinglist@gmail.com>,
+	Shawn Guo <shawn.guo@freescale.com>,
+	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	Carlos Song <carlos.song@nxp.com>,
+	Stefan Eichenberger <eichest@gmail.com>
+Subject: Re: [PATCH v3 0/2] i2c: imx: fix SMBus block-read of 0 locking the
+ bus
+Message-ID: <alZTNS7yq9cs7MSb@l30177.home>
+References: <20260713-for-upstream-i2c-lx2160-fix-v1-v3-0-073ac9e103a5@free.fr>
+ <alZO9GNx51oPBQuP@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alZO9GNx51oPBQuP@zenone.zhora.eu>
 
-From: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
+Hi Andi,
 
-If devm_platform_get_and_ioremap_resource() returns an error,
-mlxbf_i2c_init_resource() frees tmp_res before reading tmp_res->io to
-get the error code. This results in a use-after-free.
+> merged to i2c/i2c-fixes.
 
-Save the error code before freeing tmp_res.
-
-Fixes: b5b5b32081cd ("i2c: mlxbf: I2C SMBus driver for Mellanox BlueField SoC")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xuanqiang Luo <luoxuanqiang@kylinos.cn>
----
- drivers/i2c/busses/i2c-mlxbf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index 6c1cfe9ec8ac..e33512b25353 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -1051,8 +1051,10 @@ static int mlxbf_i2c_init_resource(struct platform_device *pdev,
- 
- 	tmp_res->io = devm_platform_get_and_ioremap_resource(pdev, type, &tmp_res->params);
- 	if (IS_ERR(tmp_res->io)) {
-+		int ret = PTR_ERR(tmp_res->io);
-+
- 		devm_kfree(dev, tmp_res);
--		return PTR_ERR(tmp_res->io);
-+		return ret;
- 	}
- 
- 	tmp_res->type = type;
--- 
-2.51.0
-
+big thanks
