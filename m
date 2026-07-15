@@ -1,164 +1,187 @@
-Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011013.outbound.protection.outlook.com [52.101.70.13])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37ADC34D4C9;
-	Wed, 15 Jul 2026 02:52:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.13
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784083956; cv=fail; b=ATE0jrOi6qfWe7TYQlvmcjDpVUasyx79KPa9uTBwRHq1L2BmNBzygTqQmF1KOG0H9W2ljBU+Q3TWMPWB4cykmXgbkzScCFsUAXxGHenp6LyVL20iso2xTsu4Aoll7n6pxwjndI5PoThZU+WIutTX1B0qpGOQifMhgg/LtVnG6bI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784083956; c=relaxed/simple;
-	bh=V4Co/bodCSsmooDMrNtly2v0Db6UPMQ8WjxJVStB/Rg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=ZpxohySYtVibe0VKXLGV1iu8VdMQYy7nw1oSfstOIyaKUsl12IHwoBqM+CyCfrkBXHIz2mz9q1QK8yzkLDp0TgjiiFufLO5H0kt2GWnstkb8n09Gd1juA0kFnuhRqObIWNHVOywoynnQPF4gri00CYpi8pQ2YX9YWYvK7GSZQcc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=ZQ69EiKR; arc=fail smtp.client-ip=52.101.70.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DE1625B094
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 04:06:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784088403; cv=none; b=CXnVeadFFDo3WCxY2Y6nK9fjPQE+e8/ZjFEXIWO5q+r0hABQ6e/ADY/IEsOAo2ikMtnKyAcDWDxoplF7NWKAHm5WqINDXgF7XA0JlqFumn/YnNLpxfKAtRWP2SE1PfPCRQv8Yhfsc4lpucFpiXgnWf0vpI8p/l+DatTsrDeY1OE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784088403; c=relaxed/simple;
+	bh=0EFshVqSrc8f7OStgTf8hZCJkjVP5CzhGdQcqZKvRV4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uUJbK/NoZoYMUv7sUUIGcvOsi1IVyVzOWWp8g9WABRNBu8CUWAV853oBgQGkt4US6HVHtlFUqyZIsN1qB09XeLfG3oP5yL2DMJgTpA0SHRkDCVLbPhTma5DAfdiZx8I+f5Q8tIEdzg7Ju9wvoRHahJHHAA+DZDluqmnZpBDmVQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=MBX2aI/E; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=UjROiSJA; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="ZQ69EiKR"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uKfoQwOmunoENA0fErQ8sVpXJ4AFGSP8uc8rb2s/gNfjyChulgKjbqyidF2B607RnGx9JQDS7P/s1UvRNc5jvbOJOgEEgkieVWUx6whFMZH5VXctsQqYz7PT1a7iE4UzS45PKxVdnCesVWFs3GnamfWLpDRCTMAFk8DUoznnWFLtgc8RLLlnCZ71idH9MvPBNJYTqV7qxlQvcXE5QhSPf/Vc5rUcWbT5C7F49FBnMXqjsmMDh+5HxaTS579TyZpWflDkrqRbZIJM6pjxahePEa35pPCVDpHgEy0o+CvpgBz6UPvnmyqffsghlQ9TaAdIYTUErlV5mXiAfcds6BDnUA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iBaHrm0DZrYULwDF8Q3yBCiR3gUUI1Ti16lOV9jg2qY=;
- b=eWb7Nyac0DMN3cQ9ol+yQLF+vkoOr7r5jiHo8grW+bNxv/jl/oHrvwtJLIbt0Nj8cOZ4lBPBuLYE5ziJZMQ4Dw9gQpPWz8tgFa1zOhx0LZrU67MmjuDIYDVl4fjuKF0BnoFIUufxzLog6EwcPlJpsyQFXIgjdk24iecPSKM6hUFCfZKGfRnCmHvlFFN2dB5mP1TNqWTvV49Pa/2RCV4+yvGCYALFE5j8/ZNTu9hWE1JuvG5LsogD/3NCE14iP95PdjlwJLQQ3wKf2ZEJPswLhnuT44xgFB50J5Io2XAGXx28LpT2XPJSvVC5KjOYQud62gpG02F3tRiBu6q9QkRTOA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iBaHrm0DZrYULwDF8Q3yBCiR3gUUI1Ti16lOV9jg2qY=;
- b=ZQ69EiKRdaoVuxh+twpIiUAHkE7A1eehy7BKpDsfhQDJ6dhZpLB+qBtNB9D0AudSqY/FLhq/yFV6wg1Oqyj2dX7UnaaM5jZCWvIVqth2kG17ug9dr98BEK7gJmrpXaDYvLZLWHALJmkgq/1lQmLREg5Zn6klPPxzICrIx8LcEmZWvgKUNHOW+Dx3nzb0oN/0VLJIqxBzEITRSRJK2YeSmMYfMZG1rbATIl8JuIRPGxJXzwgWys+cs+6pGvvyNIou2weLUnDkeSkv6mMWfMkX3xcyRbpDORsH5lnQc/8h2nvzfeCbHdkjOYRN7OX4p59390Ux6US6yvSDaU+Ud6ppnw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from DU0PR04MB9466.eurprd04.prod.outlook.com (2603:10a6:10:35a::6)
- by PA1PR04MB11310.eurprd04.prod.outlook.com (2603:10a6:102:4f5::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.10; Wed, 15 Jul
- 2026 02:52:32 +0000
-Received: from DU0PR04MB9466.eurprd04.prod.outlook.com
- ([fe80::326b:ef06:42b5:c83c]) by DU0PR04MB9466.eurprd04.prod.outlook.com
- ([fe80::326b:ef06:42b5:c83c%4]) with mapi id 15.21.0223.008; Wed, 15 Jul 2026
- 02:52:31 +0000
-Date: Wed, 15 Jul 2026 10:54:40 +0800
-From: Carlos Song <carlos.song@oss.nxp.com>
-To: Markus Elfring <Markus.Elfring@web.de>
-Cc: Carlos Song <carlos.song@nxp.com>, imx@lists.linux.de, 
-	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, 
-	Andi Shyti <andi.shyti@kernel.org>, Dong Aisheng <aisheng.dong@nxp.com>, 
-	Fabio Estevam <festevam@gmail.com>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v5 1/2] i2c: imx-lpi2c: properly unwind resources on
- probe failure
-Message-ID: <5fp45u3yuwz73nk6eeofx5fp5drvaqxp435mithslttb73zylb@t2s3se5a4qux>
-References: <20260630105223.3687516-2-carlos.song@oss.nxp.com>
- <f6284d81-75fa-4418-b4f6-531163bd02cb@web.de>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <f6284d81-75fa-4418-b4f6-531163bd02cb@web.de>
-X-ClientProxiedBy: FR2P281CA0183.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:9f::19) To DU0PR04MB9466.eurprd04.prod.outlook.com
- (2603:10a6:10:35a::6)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="MBX2aI/E";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="UjROiSJA"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66F3lE8r2588567
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 04:06:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	aq8pKEu+zdq3GBZfc94BkwVIZ1D/MyJMoeF2wETynLU=; b=MBX2aI/E267mc+Ri
+	Ae2koslafqgvNgkufljnooxJZ/mYOzcNmTBJ1O/GCjLaXODOL5WMxsAmoeNgAgIE
+	T7+FdX/FegTXjic/uied/NqaF7LWQDNJfU6Z6YMNMCltGUy1bNIjc9L6kPkMFrFZ
+	0PTkWf1iKlUWhR/crNap7gH52HnFbIWZGWp+fcWYv42fyODmgAh32aswrBpNIXkz
+	K2UbaBp2xUTQxdDOqPMJCL225uzX9oFNVb+WcMj/cf21/x0P58UnoF+IjHZrgMk/
+	iF3LCwyM27PRzeKEwuDkKgt46NW5UhMR4Thwe607JpSy0awSC/QxOrSjpiQOmvsp
+	AcvVnw==
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fds9hsu27-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 04:06:40 +0000 (GMT)
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-c894c1c4aa9so7448158a12.0
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Jul 2026 21:06:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1784088399; x=1784693199; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=aq8pKEu+zdq3GBZfc94BkwVIZ1D/MyJMoeF2wETynLU=;
+        b=UjROiSJAdTRU1jHdyKEKlBHAUM/aRPkVkhsT6lIrHFtYObK0ujpxOyzGsYm+t6Lqy0
+         qcMOL5yGUaMfPfVMA4VZlJ8zXJHDGT6/9NaN7V0R0hk/+HYj97UtGwARK6mBywpgsJHQ
+         CL8/vKcHD+vP7lOFJDGGXtrTeCk4t4l+K63v61PPDWIFFXflQqbkQe32BSvsIsmgLQpg
+         7Oi8oPQpADPtV4fUDOTqa2mCtUBp5L4fAzcGIWzpgvqslljtqqis4cNtQkvT6i+2TNUH
+         0kpJwavRD+h+jn7643po7F4z9y8AJLOu+Q78sVUcXOMBsdLq1sihuMKHdMCTEhy8N6B5
+         AFGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784088399; x=1784693199;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=aq8pKEu+zdq3GBZfc94BkwVIZ1D/MyJMoeF2wETynLU=;
+        b=KE+AjNjg6FdOGklQJLYkUSr1EHdyF8ORWHNzXdYFFblfzLZIVc4xVAJXOJXdhKX/HN
+         EonUl17fQLguGF4NT1lVRWZrFERuvNnbXrgOCnTeVM2iD7EL1f9Hqb7M11fdrEtJ+Z4z
+         10rE7XkcuSmrhMF8weV590uflqz9Dbbj70cZxLOD8sheGK5e+sfM4AgTMpYKtSnpy4sG
+         YXOu+N+EjBvVrP5+4qo6A6u+wTj7kKmndFPgbebBsllQMqPidVDH1D1Sq6UH63xNMM7I
+         rtL1dfHr0cfqgJvRPZPUtlkgspFb7rNmfIs8oq+Sy6MT9ksy7IyHZfGtPDtstTIx+KqI
+         1vyw==
+X-Gm-Message-State: AOJu0YxwKXJ+xcCIIoPYenIdfNKpQdP2/Ryr9nSP82BNWL5cmcuARtIF
+	vourgz75vJpCqjBOyZhrwC2FQynXX+cGA6QzjxETts/Gl5bCuEC2H0Ah2UWsQae4DZ+4HNMrG6+
+	B0ENJWMmgkdnj1IrflRBHF2xE/iwNDNCeX3VVfVkVI8O7JyTQgNa0sGivHiFaAfE=
+X-Gm-Gg: AfdE7cmWDpQ+bAEt+cCIMP31vjSBShvul3FZAw4U8OFBv+sUvgfrQOYvYExAiw0EcAL
+	as006CUEbQy3nbrUNiyR3hlJmERZrZh3rRE4/rOqmAL5gGYiBZf4VGdSwDOzUWjSjbQgF9n2HkD
+	to6ONRy9EQCnCnYjCTAFjb9AaWOtoko7xgBuQq1blMtQr1qq0uRtaz/+8Ot9wjVfYOhvd2oVuvt
+	EPy9QrDSc03+8129oVGwINXQJwxU0rDVRDJxSg/op7SVUgkuB52VJnkHGaJQoM/dyRZq8NUFxWy
+	m/Ysqz+I+Ry7hYfpwdG6QQvk7sEQOjdrTik8zpSQxSgNcwe/IX6h8GqDYIhwI5LNbibzdwVXpFy
+	kL49KJohY2/pEQUfLdInC9lTpm8ZHYi2yNeL5N1x250Cu3Q==
+X-Received: by 2002:a05:6a21:8cc9:b0:3c0:9c18:d5a6 with SMTP id adf61e73a8af0-3c35729077fmr6943837637.67.1784088399582;
+        Tue, 14 Jul 2026 21:06:39 -0700 (PDT)
+X-Received: by 2002:a05:6a21:8cc9:b0:3c0:9c18:d5a6 with SMTP id adf61e73a8af0-3c35729077fmr6943801637.67.1784088399121;
+        Tue, 14 Jul 2026 21:06:39 -0700 (PDT)
+Received: from [10.217.219.142] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b9a67c217sm27006165c88.8.2026.07.14.21.06.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jul 2026 21:06:38 -0700 (PDT)
+Message-ID: <e53ea721-bcd1-4d8f-9b7a-ea6ec3003f71@oss.qualcomm.com>
+Date: Wed, 15 Jul 2026 09:36:33 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DU0PR04MB9466:EE_|PA1PR04MB11310:EE_
-X-MS-Office365-Filtering-Correlation-Id: 023ecf28-a4d0-45e9-315f-08dee21c1d39
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|19092799006|376014|366016|1800799024|23010399003|18002099003|22082099003|56012099006|11063799006|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	glAd+hAskQ+UyB7besWo+IqKwf73jHlJ2XcQPdyOIr8CAu4zas8Tc/gcz5rHk9FnpY6X4n5mJ0f7nz9RKy32mApi/dQKQzYtdmZvS8SJZ9H1oLG1zGEYMWNL+qidwBVaYEo1ODisK8jM0ZJQDP4S4W8uMXbJnF54no1ApF818Cp18aenmNQwDwyZQihOlLQGWbMeTjSoCcrQ5AUsYSN0pz48TnytkeI9785QMmiYFnYPaYDNnq5OPdWYT9tz8KG11lQ+BBD3NzSev7qFhpMdY8PuC9bJZ11lDk3xCpcI4iMdFizWWG0plZOuzwLFsO7lJJKgdDqNs6iCVVz4QpGvaFFn/5Z0/eX/2w0Rl511P2IQrla52Q7HqyWBA07HjIoFre6Hf0AgkP3cbfgvQzAG25GLpNSLOFllCwKoFRS8TGRVUJ6Yx15QuyxYOFTsj4q/FjZ5bnEfuosFLlWv1/dLiqZNQdczqXDd0+GuTeCPwN3t/stiQ7GWkOy+kVEERLyiwXJo1100yk/PBGV7nkmDicdre8zEbVymWXh24238ZUlOw+0R/DAB5z6/44SGm7JOeYGjzyTBXB3jpk1uJasicr7vttIO0XKYsgoaAP+kwJzjda6F8H4jVPYRsfQ9dRInrOce5fXxwhLPz/pcYC5s2jVSlSKrr6hWPjwXzP3KceI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DU0PR04MB9466.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(19092799006)(376014)(366016)(1800799024)(23010399003)(18002099003)(22082099003)(56012099006)(11063799006)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?YjVXcjhJK1hzSUZlV05OM2o0S0c4WTVNeFhDa1d1emp3clEvcXkwUjUrQzJk?=
- =?utf-8?B?eklZUDVtMDBEdFhvZjd6b3lBa2tSSi8wcGZxUHNHKzNjODJOL00vUHNmYktT?=
- =?utf-8?B?ckdrN0lCMWtUQ1I5dXoxV0M3blBRMVdVSTNLODl4bSsvZjRwTFJDTVdOWnB4?=
- =?utf-8?B?c1FaTVREU0J4SHNPNFhOcnN0NXhTTDVKeUlyY0h2MVZENmZIcU9ZL0REaXdn?=
- =?utf-8?B?UzB3dFhmTVZSb3dqRC9FeklXVFdWQjN3ZTByTXFWMUZicWlCeHBFTjJWaHBx?=
- =?utf-8?B?V09LTFNCeCtYNkYyS2xKenNrWEN2VktBU1A1UDRDeVZjVW9KY05EdzIraHg2?=
- =?utf-8?B?VHFGcC9LYXJ1WVJPQUJpMFRHcU1DVGlDQW03bEUyNXc3QlJOM2RCSk5FWGpy?=
- =?utf-8?B?SE81eW82U1cwdkY0dkYzK29qaEF5MWZFOEk4MEw1T3NJZ0NWVE5xM2ZLYS9J?=
- =?utf-8?B?VG1qeFVOdmRvc0hrS0R6d1hmdEFDSkU1L0ovQWwxQ1VXUnpxNUQ4Y0NhdmVW?=
- =?utf-8?B?S2E1MnM1elBIK1JaeDllaVU1U1ZYN0lFZGprbnNGVU9XZVIwK0YyQ0ZsQk1u?=
- =?utf-8?B?ZkdGM1F6azRMWjBwOTBWWGFpV2lwRFJDY21oZE1EVGlqNm1xNDMvdUt5dlhs?=
- =?utf-8?B?YkJoYVYzVUNIRlFWSTBTbzdUbDhtOUFEcWZSOSt3TnFwaVhyT3FGSzRhWDFq?=
- =?utf-8?B?OU5yQ2xzbW1oUFdxbCtZVGZMN0ZBOUg5cWhKc1ZSbnY1RnpLK2lrRnBBUXFK?=
- =?utf-8?B?NlowK2hMVFJhQ3NxcysxcFhNZzFtSVUwUXpFTWN6YTV0T0lUeTF5UFFOMzgr?=
- =?utf-8?B?VjMzMnBlOXN4QUZhcHBLRlk3Qzk0SGdnVkVXSzVQRG9UV1N0ZzNMYmNNRHVn?=
- =?utf-8?B?NDlRbGpoeSswR0MraTg2ZjlyclhSU0NYa0tpNkVJc1lsMlQ1aDNmQkEvT0J1?=
- =?utf-8?B?MHl4ZXdRZ2hGdXBmZ21mM1N3ei8zemRzd3VIVzk1b20zZ1BpZDU1UzA1UzBG?=
- =?utf-8?B?SG4rTnQ4MkZxY0FRT1JqRzZteEdvMFhES0JVSmFPV1EzWE5WaVZwaDhMQS9j?=
- =?utf-8?B?NVcyczR3bU9PQys1QU81YzBvOG1OcThNc0NXTSs3bXYrQVpCZG1uc003M002?=
- =?utf-8?B?YTFieDBtSXI4T0dzSG5OajFtblgySVZUQXNZSnpGd3NncEk0bjR3VUVObmpY?=
- =?utf-8?B?VCtlanBzSUJmWUt6WE1KeEhxemVHRkU4MzFsOU1VOGlCSmhSK1JRVXkwaW40?=
- =?utf-8?B?ZncrVFFja2doaUhrS1hyVGM5dW9vK2lUL2ljbExTMVRPM3JzZDlRUWlYaTd6?=
- =?utf-8?B?TGxRb2E0Tm5DV2JDTFEwSzdSSWRqVDc2SDFkSjlGcFN2aEtienE5WEEzZFpB?=
- =?utf-8?B?UnBEOXQrTnpnSXphVzR3ZDFHTllNVkpxRkR5b2dkeW5NSVd1WE9UL2VDQWpa?=
- =?utf-8?B?N2ZMVXc5Tjg5ZUk4WGdBd2dYSEh6Rldjc25aekczWi95ZlljV2xIemw2bS9s?=
- =?utf-8?B?VWl6dkIxazFVWnArTnFROXRRNFRhV3VJWFVQc3p5MmlNeU0xNWs5dk9Sa0d0?=
- =?utf-8?B?RGFjR0t0djJDWHRNc1orR3BEcCs3WEJNR3dEYmR0V00vR0NpWkE1RW50ZzQx?=
- =?utf-8?B?Tk1sVG8rb1lOaVdYcG9wUk0xR3pCTzFsdE84N1J6MGJyeDJaUnZQSTJzTmQy?=
- =?utf-8?B?Vi9tMWdzOUoxcFFhYVRDM1ZTUnZpOThOQkFvdEg2MWNLYkhhQ1hYaUtCR1dl?=
- =?utf-8?B?bEVJZmplVHUyYzI0Z3p2SWd3TFFhalIyLzA2VVpMcnUySFFzWjVYOHFFQndZ?=
- =?utf-8?B?TXBsU08zS1lmWHFpWHhtK3phQXlFQWczVU9OZ3lJNVlReWhTMjRUcnlZeVZZ?=
- =?utf-8?B?a1c0Yi9iVkJtbE1QTGdFcHNzUG5ObmF2dDRuLzhheTF0VHljTnIwaFBBckxP?=
- =?utf-8?B?TXlFeHN4WVQvbW1iRDUvQ0JQa2k2VktvRkRWNkNlbnp3ekxkeDQxNUR2Qnh5?=
- =?utf-8?B?MG5tMUQ1VHYrTHRvS1hrdER5VjBMY2ZVci9Gam83M3k2VEV6VFpwL2dhamxj?=
- =?utf-8?B?MHNXclV0b2hiTGt4cVZzRlltRHM5Wmk5Zm5Ca25JTG5LdHQrQzU3aHBjU1gr?=
- =?utf-8?B?bW5mK241OXdYRklrUCtvNVlTamUranpFWTZ2Nmk1QWF4N1k3d3ZiQWIyZldy?=
- =?utf-8?B?SzhYbmpXUTdGUXhacGpidHhJeFFxMVBWd3lHL2JwbVI1TzYwalBHaXpEYldN?=
- =?utf-8?B?NkxqbVJBZGVxYUlBUTlLT3ZWL2IwV094MHBudXJyUnRvbEJGcEo4SnBmWVhp?=
- =?utf-8?B?OVp5aXR6TnVaMVhYdnE5eElnREJwY1JHNHlseFZQdXg1bmdyY1lPbWYrMVRS?=
- =?utf-8?Q?C2Ffr5bBes4sUnWu3yeIG2vwWi6CiGM9bNe3e?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 023ecf28-a4d0-45e9-315f-08dee21c1d39
-X-MS-Exchange-CrossTenant-AuthSource: DU0PR04MB9466.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jul 2026 02:52:31.6900
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +Dt8ZpSjlrehoTy6D9PmGm8tuuW8FoFi4kuajBMNVOP7C/XenDa1YwoMtBp0fO/YTjn3gt/FxdQszu4ohU8s34ar70QDGYA5ctHh0iscaU2vKzB6viaKSagPJHHE1ahB
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA1PR04MB11310
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V4] i2c: qcom-geni: Add dynamic transfer timeout based on
+ transfer length and frequency
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
+        viken.dadhaniya@oss.qualcomm.com, andi.shyti@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        naresh.maramaina@oss.qualcomm.com
+References: <20260710161056.1799019-1-aniket.randive@oss.qualcomm.com>
+Content-Language: en-US
+From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+In-Reply-To: <20260710161056.1799019-1-aniket.randive@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=Ib+3n2qa c=1 sm=1 tr=0 ts=6a570750 cx=c_pps
+ a=Oh5Dbbf/trHjhBongsHeRQ==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
+ a=EUspDBNiAAAA:8 a=ENRykshp9vPgoFS4LJQA:9 a=QEXdDO2ut3YA:10
+ a=_Vgx9l1VpLgwpw_dHYaR:22
+X-Proofpoint-ORIG-GUID: 9N1SuWvs45uTtYxPvP-yFoI37ekHoQAz
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDAzNCBTYWx0ZWRfX1Y1pJirh0YgF
+ gB2tbpdT3TrM4hiJCifwE1XYVbRQmxHp6FoHhUSqppjbQuQ65cnwnp/pe0TG0GvPSYB0lZSU+VS
+ fkDxBBnnWNvK1baKZcVP5HvTdJ6ki0o=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDAzNCBTYWx0ZWRfX4Bk43OBEIo/e
+ IWCgwqAS/yD47JGrr9IK6VLWCb09zNrWKmoRjczjU9MCoDN7Rp5NJKcdmDWk42KUWcK8ClxC8Rk
+ jcgGX350cseBPewi8dtq/iP+f18uyGvnCkGY1A4IYGD+XJtjXL76YFQ0+77kyuyvxxNM9s9obY8
+ vhvFaJZZufP8OwtDBPYsUucF9X0J+WNTJCLMbP98jkXnfpP7te0VSKAK1GHwE3SoC3IT071ZsTz
+ je3FDKSx+MOCbWSyu9IwK6jU3itsPwNzGm5sx5AtQUi+VIk4PWbkLy5cwrkBqwwHNuXEC5GPjrb
+ UlNIibCkW8fvXBni9hHzaEajqFS326I7HkIqv70AokoLFUInNgmqyr0CqSZ1MvUPsektRxgemDd
+ Q1VtPpZproq1aDYzFXoUia9lbpuX+ZN2VGh0A0nqACsWKGgdF2qMWrcaPbcdUeWWapiK0aZw2yk
+ ODLGBeweKtR2mEdjYuw==
+X-Proofpoint-GUID: 9N1SuWvs45uTtYxPvP-yFoI37ekHoQAz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-15_02,2026-07-14_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 suspectscore=0 phishscore=0 malwarescore=0 adultscore=0
+ impostorscore=0 clxscore=1015 spamscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607150034
 
-On Tue, Jul 14, 2026 at 04:10:20PM +0200, Markus Elfring wrote:
-> …
-> > Introduce a new error label 'clk_disable' …
+Hi Aniket, Thanks for addressing previous comments.
+
+On 7/10/2026 9:40 PM, Aniket Randive wrote:
+> The driver uses a static XFER_TIMEOUT of HZ (1 second) for all transfers
+> regardless of message length or bus frequency, causing unnecessary
+> delays on error paths.
 > 
-> Can another bit of duplicate source code be avoided in any if branches?
->
-> Regards,
-> Markus
->
+> Compute the timeout dynamically from message length and bus frequency
+> with a 10x safety margin over the theoretical wire time. Add a 300ms
+> floor to budget for I2C clock stretching, where a slave may hold SCL
+> low indefinitely during internal processing. This detects real hangs
+not only internal processing but it may go bad holding SCL low indefinitely.
+> 3x faster than the old 1s static timeout.
+Meaning, in such case/scenario, don't need to wait till fixes timeout.
+I guess, 3x faster is relative to the 1 sec, but for larger data and 
+slower frequency it may not be 3x. Hence, correct it accordingly.
+> 
+> For GPI multi-descriptor transfers, use the maximum message length across
+> all queued messages as the per-completion timeout.
+> 
+> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
+> ---
+> 
+> Changes in v4:
+>   - As per konrad suggestion used mult_frac() for bit_usec to avoid intermediate
+Do not keep space before starting, directly start with "- As per....."
+>    overflow on 32-bit targets.
+>   - Updated the commit message and added a driver comment explaining the
+>     rationale for the 0.3-second minimum timeout floor value.
+> 
+>   drivers/i2c/busses/i2c-qcom-geni.c | 46 +++++++++++++++++++++++-------
+>   1 file changed, 36 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 96dbf04138be..c5c3adc8ec77 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -74,9 +74,13 @@ enum geni_i2c_err_code {
+>   #define PACKING_BYTES_PW	4
+>   
+>   #define ABORT_TIMEOUT		HZ
+> -#define XFER_TIMEOUT		HZ
+>   #define RST_TIMEOUT		HZ
+>   
+> +/* 9 bits per byte (8 data + 1 ACK), 10x safety margin */
+> +#define I2C_TIMEOUT_SAFETY_COEFFICIENT	10
+Add a line space to make it look clean
+> +/* 300ms floor: budget for clock stretching; slave may hold SCL low indefinitely */
+Already explained in commit log, can remove second part.
 
-Thank you! I plan to change the code like this:
-'''
-        ret = devm_clk_rate_exclusive_get(&pdev->dev, lpi2c_imx->clks[0].clk);
-        if (ret) {
-                ret = dev_err_probe(&pdev->dev, ret,
-                                    "can't lock I2C peripheral clock rate\n");
-                goto clk_disable;
-        }
-
-        lpi2c_imx->rate_per = clk_get_rate(lpi2c_imx->clks[0].clk);
-        if (!lpi2c_imx->rate_per) {
-                ret = dev_err_probe(&pdev->dev, -EINVAL,
-                                    "can't get I2C peripheral clock rate\n");
-                goto clk_disable;
-        }
-'''
-Does it look better?
-
-Carlos Song
+> +#define I2C_TIMEOUT_MIN_USEC		300000
+> +
+[...]
