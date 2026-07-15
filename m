@@ -1,689 +1,167 @@
-Received: from luna.linkmauve.fr (82-65-109-163.subs.proxad.net [82.65.109.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B96F41A56F;
-	Wed, 15 Jul 2026 18:03:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.65.109.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ECA7400990
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 18:07:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784138592; cv=none; b=hNnMqxYu4YtsF8Z9oP5EzWwAYZTEJYiXCjo0TMl2mr5JDYkefMSH8mNINCqy2Dpg1mCC04IsECSyCFj/dmycqhYtULDk+NhWVpuEkbR6YTw8x4tMOXU4B6xp6r9fMAPBgN4xxk2iw9hbLgpEtUGThEIOAOEV0uWqocvF9oJVbr0=
+	t=1784138883; cv=none; b=MSLO7rffebFzpEby1zpWbxurKqFMpp8fBo68L5Qp1W9VHeTy54sKHuEnN6BWt1YJYs6ydNL25vwSp+Zhac5bI3UFqWVfVidU79rj1fVEtIBBGM4P7BXIzXhlHJzI9xAEiAjg/K2mx8aVK9oUItMwOlqym943vCZG7Sf2pLmBxuo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784138592; c=relaxed/simple;
-	bh=8W/s9BjNijh1QTjI+jxMUwKEecT0oM+Qp3RDmen/Ljo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cdrOVXEMOEwVQPPtAM1DcBGCZNvaujHcVJ7xnPiI64/+ZAnAT3TzSFdKkChgpQXN1PIJ4Qnz41khL96Fj1VZivDGHK5pL2j35B6xsevG6P13voS2MPtzQFVB6d47QzVApD4BvKETwlnpQ/vx5ZqS1A7jpw3doddEuvWSaC5CmAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linkmauve.fr; spf=pass smtp.mailfrom=linkmauve.fr; arc=none smtp.client-ip=82.65.109.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linkmauve.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linkmauve.fr
-Received: by luna.linkmauve.fr (Postfix, from userid 1000)
-	id C170CF40D20; Wed, 15 Jul 2026 19:52:40 +0200 (CEST)
-From: Link Mauve <linkmauve@linkmauve.fr>
-To: Srinivas Kandagatla <srini@kernel.org>
-Cc: Link Mauve <linkmauve@linkmauve.fr>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Tianshu Qiu <tian.shu.qiu@intel.com>,
-	Bingbu Cao <bingbu.cao@intel.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Roger Quadros <rogerq@kernel.org>,
-	Tony Lindgren <tony@atomide.com>,
-	Lee Jones <lee@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	"Vaibhaav Ram T.L" <vaibhaavram.tl@microchip.com>,
-	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	=?UTF-8?q?Andr=C3=A9=20Draszik?= <andre.draszik@linaro.org>,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Praveen Teja Kundanala <praveen.teja.kundanala@amd.com>,
-	Kalyani Akula <kalyani.akula@amd.com>,
-	Michal Simek <michal.simek@amd.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Joshua Kinard <linux@kumba.dev>,
-	Antoniu Miclaus <antoniu.miclaus@analog.com>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Boqun Feng <boqun@kernel.org>,
-	Gary Guo <gary@garyguo.net>,
-	=?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?= <bjorn3_gh@protonmail.com>,
-	Benno Lossin <lossin@kernel.org>,
-	Andreas Hindborg <a.hindborg@kernel.org>,
-	Alice Ryhl <aliceryhl@google.com>,
-	Trevor Gross <tmgross@umich.edu>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Daniel Almeida <daniel.almeida@collabora.com>,
-	Tamir Duberstein <tamird@kernel.org>,
-	Alexandre Courbot <acourbot@nvidia.com>,
-	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	Ronald Claveau <linux-kernel-dev@aliel.fr>,
-	Salah Triki <salah.triki@gmail.com>,
-	Yury Norov <ynorov@nvidia.com>,
-	David Carlier <devnexen@gmail.com>,
-	Achim Gratz <Achim.Gratz@Stromeko.DE>,
-	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
-	Patrick Wicki <patrick.wicki@siemens.com>,
-	Markus Heidelberg <m.heidelberg@cab.de>,
-	Markus Perkins <markus@notsyncing.net>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
-	Chen Ni <nichen@iscas.ac.cn>,
-	Kees Cook <kees@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-amlogic@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	linux-omap@vger.kernel.org,
-	mfd@lists.linux.dev,
-	linux-i2c@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-msm@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-rtc@vger.kernel.org,
-	linux-sunxi@lists.linux.dev,
-	rust-for-linux@vger.kernel.org
-Subject: [PATCH 3/8] rtc: make all reg_write callbacks take const void *
-Date: Wed, 15 Jul 2026 19:52:19 +0200
-Message-ID: <20260715175229.24672-4-linkmauve@linkmauve.fr>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260715175229.24672-1-linkmauve@linkmauve.fr>
-References: <20260715175229.24672-1-linkmauve@linkmauve.fr>
+	s=arc-20240116; t=1784138883; c=relaxed/simple;
+	bh=yk81vj59l2TmlXH4K+qJfCYvv46f+EWu/61vbJd9hyU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UBQmBFhOPUad0muuBDYKSFjHR+EsUFDK0wkCOwYJQ/gT38EXxKxmC6lYIaMZ6Qe28E8JpNTq5W7xK+WCAdQS5GBuVKCY0N7TwsxDJxq62FaEQhT1rR4ZDlPBEY2PEHmL9hLfg7Chk4ciactZ3W2S1+ccULoGB/hw7B/oe9lnyhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=QG0j9kE3; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Tw8t6DjS; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="QG0j9kE3";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Tw8t6DjS"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66FHB9nl252977
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 18:07:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	owjCSr9b7MMLyEnv0fXfg5oQfeA8x1a4DWRxMp1KHH8=; b=QG0j9kE3UmnyuZrj
+	W4iQ2dWKlxRnnw7FTXVk2auEnp72Uh/2ZGA7lk+BSspZMU9zm3WrT/ImHx2b8B7Y
+	3DIqBChIsZ4wLPCDPt7vlBstlYgPQ92bHFz2DE6WMvu+CjSHC+4Wefiet5iXdimU
+	IecgsAb5JcNUPZ6qtZHd42Dziqs8+bbRSTje/tFYlUTrUcVyT9XSVxl9gD/7U6P4
+	+foflPMir01mHnNwF0Z7SvNCvMl+MbFWHXUUCmws+IvDp/MNr/uLotWBpsbfR5RE
+	PWxt5v10JHpNiwo4ZoJrDM/+3GZoh2VNu8Xpue+/w+jcwHGgfW0ptv8/5WGufR8p
+	Cfp7Ow==
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fe652anx4-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 18:07:56 +0000 (GMT)
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-cab3e9cd922so2059768a12.0
+        for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 11:07:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1784138876; x=1784743676; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=owjCSr9b7MMLyEnv0fXfg5oQfeA8x1a4DWRxMp1KHH8=;
+        b=Tw8t6DjSMoybh9Wpox6SBhtbG/9qtHkZkszaQDUR1Q/oTKB+5ot8sXEJjheCJCGCFS
+         vuWQ4REBvD+ml9vqInvJJoo1CDnfEeyqoWg48mJoD4vzanKDVfDZzWuTwySrbOgoV5e+
+         4w1qw5BQTdrOB9h04xyj5pDhkbi1hBzSJf9HEkSohsWdD9esGm5b75yGEh3K36HAMvLX
+         uNa6F2HSV563QJhOVBwmP1246wDrUktRBfLr2qpUCtBwWFR28PEcSrkExbP2h4/+Nho/
+         lveN5Chrioy6axsEqifvHA6j6QAI/2BiI23lLpVzdoqgw2cxLcJ0xvBiJQgyPI8fROy5
+         yDww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784138876; x=1784743676;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=owjCSr9b7MMLyEnv0fXfg5oQfeA8x1a4DWRxMp1KHH8=;
+        b=Za3Cgs3HRmzn5k8Mz5ZoyP66ZoDIkDGRfzyISCMmRGtBVztcjWSCx+srReGuM6w+ah
+         0VZHojjQysPCrjrnkJe/OHXWpIV1JG3bn6e8JWedCdi6XCCmQ/rcFA2mRrxrqA/SJeXI
+         ojxb0W13BOchH1k8qAZftEA3Si+UjPbncdT6bNlQxks4DIjxsv7WRkajXsqEpNcdccYF
+         X3UNUHKBJGsl+W2Sy1N5FZzfudtr1NdXUYJ1A2UtK3ibI6Z7dpjcmr0Nvbs2jCY/bEzq
+         AtvkI1eQSruEsciEBFzC02FlWF9/oCraQYVbvVwHZ2qXM1eB0MuINwq7O6n3zbqz3z9T
+         SoTA==
+X-Forwarded-Encrypted: i=1; AHgh+RrO8qdrin5ega6FIRJZo9LRuLOtBDFCwEdghhngFdnXfTivZyVwEqp9CX2t98Kdb3h8R7FxhuFs/xw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyD92s4A+Um9JuhraX9c32mt3PIEQwxMosvg6jpX5nnCBStCpVU
+	3E5cOZ/xpzt0gbjFlg6BOYIRYkmwwHiDHFesv+BibSYZqaxuwjfsru0k01Q5AupMY+GhYxMqHqI
+	HcRjKNbPzP/dbcMBpH1zdn9VXjnH8KS+XBYwUMq2Y+kihoi8kjag31OeWqJMEHsY=
+X-Gm-Gg: AfdE7cm7gXfWjvwp9a07guFukkHyga97lNu1ICrPBikRQa33oId3kMYp+njPk2mLkk1
+	SMQrzdcame/me65+Hc2S1ZqXzc06F0S4PMsBSoZHSRtZuHCIMoOoqQkG8gcWJBTknUePOVnyEsJ
+	y/WpbKbEXtaEzLI/gotRdJFwc7/E1hwEi9dXrQffKafDZiMu/9v7ZEhZp4XOpAfZVcXvORUINSp
+	oRKrN9VFEpBoARr7AwEQHTR6RqH55Qe9R01SFQ2ySydlXhu/4xn9PTs6jK+BpVJarKbQYjy6Diw
+	a6tAfBNNl/CWCovrSn+mphHaXI33YYaXzQ4Z7bg0x8/HdViT7lsWAiAsdobdPTPg8rDiyGe68ZW
+	s6k5kWM1ool1D8N99VFyxj84XZexAh6CHLftqKUPr5btY
+X-Received: by 2002:a05:6a21:1798:b0:3c0:9c1a:8952 with SMTP id adf61e73a8af0-3c110b35019mr19226587637.74.1784138875482;
+        Wed, 15 Jul 2026 11:07:55 -0700 (PDT)
+X-Received: by 2002:a05:6a21:1798:b0:3c0:9c1a:8952 with SMTP id adf61e73a8af0-3c110b35019mr19226551637.74.1784138874931;
+        Wed, 15 Jul 2026 11:07:54 -0700 (PDT)
+Received: from [192.168.1.9] ([106.222.231.43])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd432f1cesm5187074c88.11.2026.07.15.11.07.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Jul 2026 11:07:54 -0700 (PDT)
+Message-ID: <312315da-699f-48c6-8331-6dce3abb899c@oss.qualcomm.com>
+Date: Wed, 15 Jul 2026 23:37:48 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V5] i2c: qcom-geni: Add dynamic transfer timeout based on
+ transfer length and frequency
+To: Dmitry Guzman <Dmitry.Guzman@mobileye.com>,
+        Aniket Randive <aniket.randive@oss.qualcomm.com>
+Cc: viken.dadhaniya@oss.qualcomm.com, andi.shyti@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        naresh.maramaina@oss.qualcomm.com
+References: <20260715101805.3615166-1-aniket.randive@oss.qualcomm.com>
+ <20260715144558.abf5078829bfd2a0973019a9@mobileye.com>
+Content-Language: en-US
+From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+In-Reply-To: <20260715144558.abf5078829bfd2a0973019a9@mobileye.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDE4MCBTYWx0ZWRfXwT2UJt1R5sss
+ nNfpxUUHmR2UaI+4/Ar6hoRbldPbyi+ik4Ke795v2IHAjM4ldr3dutBWFM6TtUqvIx/02b/ccPo
+ opq2zflkrvBog8ROGSG0YxnJixylNndVz4sglQNdT/l0bilYHMbtZQRn2hQTzCpsAFQ9nvPIUI4
+ xszmXMq4V4O2waQ1M5fQ6TbghGTGapwTHaisW7lvYpuGo+2UwgAI/VNRCTwdX7SRJBwc75ylvTn
+ BQZTzk8gtez8gbPQmzTRrNUARrLt1ao293t1OsFihlOrUaq1yrm7uckz50I9FarfOJkzP9hs1cx
+ Va0P6ct/2y4hC/VaoPlzmQJbi2Z3oQQz2S9vF8zHHLm8uTllmq7kbOQearibhBCiD7TfXdaBExn
+ d8lcYWJq2SRPuH4WmumjkAEHuP/g57b5qzXeP4uObomIwGkUxNtyzcby2XkES7FYniYzboA9mBe
+ V11adpkVGha60u3efww==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDE4MCBTYWx0ZWRfX8UUylT3veTnt
+ u0dXrT48y2phlvOsCTh+GkT0d3OX0wqACPYfx0wMC9rL9Ws1VZD19TLajkq8iZ06hg1iuChz/8l
+ znqbzRNWjUnLKQlksOZ62CaxJVhTUf8=
+X-Authority-Analysis: v=2.4 cv=bKcm5v+Z c=1 sm=1 tr=0 ts=6a57cc7c cx=c_pps
+ a=Qgeoaf8Lrialg5Z894R3/Q==:117 a=OlrBKP18NtReKxGUJ9moaA==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
+ a=EUspDBNiAAAA:8 a=SU41Sc21RSR5G0VrqPMA:9 a=QEXdDO2ut3YA:10
+ a=x9snwWr2DeNwDh03kgHS:22
+X-Proofpoint-ORIG-GUID: r533x7w0LbBpCVW48BIuLjbEK7UjeOUL
+X-Proofpoint-GUID: r533x7w0LbBpCVW48BIuLjbEK7UjeOUL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-15_04,2026-07-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 spamscore=0 bulkscore=0 clxscore=1015 adultscore=0
+ malwarescore=0 impostorscore=0 suspectscore=0 priorityscore=1501 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607150180
 
-The previous commit switched from a pointer to mutable data to a pointer
-to immutable data, so let’s fix all users of the nvmem_config API.
 
-Signed-off-by: Link Mauve <linkmauve@linkmauve.fr>
----
- drivers/rtc/rtc-abx80x.c   | 4 ++--
- drivers/rtc/rtc-cmos.c     | 2 +-
- drivers/rtc/rtc-ds1305.c   | 4 ++--
- drivers/rtc/rtc-ds1307.c   | 2 +-
- drivers/rtc/rtc-ds1343.c   | 2 +-
- drivers/rtc/rtc-ds1511.c   | 2 +-
- drivers/rtc/rtc-ds1553.c   | 4 ++--
- drivers/rtc/rtc-ds1685.c   | 4 ++--
- drivers/rtc/rtc-ds1742.c   | 4 ++--
- drivers/rtc/rtc-ds3232.c   | 2 +-
- drivers/rtc/rtc-isl12026.c | 4 ++--
- drivers/rtc/rtc-isl1208.c  | 2 +-
- drivers/rtc/rtc-m48t59.c   | 4 ++--
- drivers/rtc/rtc-m48t86.c   | 2 +-
- drivers/rtc/rtc-max31335.c | 2 +-
- drivers/rtc/rtc-meson.c    | 2 +-
- drivers/rtc/rtc-omap.c     | 4 ++--
- drivers/rtc/rtc-pcf2127.c  | 2 +-
- drivers/rtc/rtc-pcf85063.c | 2 +-
- drivers/rtc/rtc-pcf85363.c | 4 ++--
- drivers/rtc/rtc-rp5c01.c   | 4 ++--
- drivers/rtc/rtc-rv3028.c   | 6 +++---
- drivers/rtc/rtc-rv3029c2.c | 2 +-
- drivers/rtc/rtc-rv3032.c   | 4 ++--
- drivers/rtc/rtc-rv8803.c   | 4 ++--
- drivers/rtc/rtc-rx8581.c   | 4 ++--
- drivers/rtc/rtc-s35390a.c  | 4 ++--
- drivers/rtc/rtc-stk17ta8.c | 4 ++--
- drivers/rtc/rtc-sun6i.c    | 4 ++--
- drivers/rtc/rtc-ti-k3.c    | 2 +-
- drivers/rtc/rtc-twl.c      | 2 +-
- 31 files changed, 49 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 5486d9d0b1e5..c401c70cbace 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -733,10 +733,10 @@ static int abx80x_nvmem_read(void *priv, unsigned int offset, void *val,
- 	return abx80x_nvmem_xfer(priv, offset, val, bytes, false);
- }
- 
--static int abx80x_nvmem_write(void *priv, unsigned int offset, void *val,
-+static int abx80x_nvmem_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
--	return abx80x_nvmem_xfer(priv, offset, val, bytes, true);
-+	return abx80x_nvmem_xfer(priv, offset, (void *)val, bytes, true);
- }
- 
- static int abx80x_setup_nvmem(struct abx80x_priv *priv)
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index fa04ece151b8..09da71a0009e 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -659,7 +659,7 @@ static int cmos_nvram_read(void *priv, unsigned int off, void *val,
- 	return 0;
- }
- 
--static int cmos_nvram_write(void *priv, unsigned int off, void *val,
-+static int cmos_nvram_write(void *priv, unsigned int off, const void *val,
- 			    size_t count)
- {
- 	struct cmos_rtc	*cmos = priv;
-diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
-index d4de401548b4..eab61ec97ece 100644
---- a/drivers/rtc/rtc-ds1305.c
-+++ b/drivers/rtc/rtc-ds1305.c
-@@ -487,7 +487,7 @@ static irqreturn_t ds1305_irq(int irq, void *p)
-  */
- 
- static void msg_init(struct spi_message *m, struct spi_transfer *x,
--		u8 *addr, size_t count, char *tx, char *rx)
-+		u8 *addr, size_t count, const char *tx, char *rx)
- {
- 	spi_message_init(m);
- 	memset(x, 0, 2 * sizeof(*x));
-@@ -519,7 +519,7 @@ static int ds1305_nvram_read(void *priv, unsigned int off, void *buf,
- 	return spi_sync(spi, &m);
- }
- 
--static int ds1305_nvram_write(void *priv, unsigned int off, void *buf,
-+static int ds1305_nvram_write(void *priv, unsigned int off, const void *buf,
- 			      size_t count)
- {
- 	struct ds1305		*ds1305 = priv;
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index fd3858b6569e..7cb6c96d2ec7 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -1285,7 +1285,7 @@ static int ds1307_nvram_read(void *priv, unsigned int offset, void *val,
- 				val, bytes);
- }
- 
--static int ds1307_nvram_write(void *priv, unsigned int offset, void *val,
-+static int ds1307_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
- 	struct ds1307 *ds1307 = priv;
-diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
-index aa9500791b7e..b4daa5136078 100644
---- a/drivers/rtc/rtc-ds1343.c
-+++ b/drivers/rtc/rtc-ds1343.c
-@@ -123,7 +123,7 @@ static ssize_t ds1343_store_glitchfilter(struct device *dev,
- static DEVICE_ATTR(glitch_filter, S_IRUGO | S_IWUSR, ds1343_show_glitchfilter,
- 			ds1343_store_glitchfilter);
- 
--static int ds1343_nvram_write(void *priv, unsigned int off, void *val,
-+static int ds1343_nvram_write(void *priv, unsigned int off, const void *val,
- 			      size_t bytes)
- {
- 	struct ds1343_priv *ds1343 = priv;
-diff --git a/drivers/rtc/rtc-ds1511.c b/drivers/rtc/rtc-ds1511.c
-index 8b087d9556be..23ee75f8035b 100644
---- a/drivers/rtc/rtc-ds1511.c
-+++ b/drivers/rtc/rtc-ds1511.c
-@@ -257,7 +257,7 @@ static int ds1511_nvram_read(void *priv, unsigned int pos, void *buf,
- 	return 0;
- }
- 
--static int ds1511_nvram_write(void *priv, unsigned int pos, void *buf,
-+static int ds1511_nvram_write(void *priv, unsigned int pos, const void *buf,
- 			      size_t size)
- {
- 	int i;
-diff --git a/drivers/rtc/rtc-ds1553.c b/drivers/rtc/rtc-ds1553.c
-index dbff5b621ef5..d561bd5997bc 100644
---- a/drivers/rtc/rtc-ds1553.c
-+++ b/drivers/rtc/rtc-ds1553.c
-@@ -234,13 +234,13 @@ static int ds1553_nvram_read(void *priv, unsigned int pos, void *val,
- 	return 0;
- }
- 
--static int ds1553_nvram_write(void *priv, unsigned int pos, void *val,
-+static int ds1553_nvram_write(void *priv, unsigned int pos, const void *val,
- 			      size_t bytes)
- {
- 	struct platform_device *pdev = priv;
- 	struct rtc_plat_data *pdata = platform_get_drvdata(pdev);
- 	void __iomem *ioaddr = pdata->ioaddr;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 
- 	for (; bytes; bytes--)
- 		writeb(*buf++, ioaddr + pos++);
-diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
-index 5fc8e36b1abf..996d13cd3ce3 100644
---- a/drivers/rtc/rtc-ds1685.c
-+++ b/drivers/rtc/rtc-ds1685.c
-@@ -904,13 +904,13 @@ static int ds1685_nvram_read(void *priv, unsigned int pos, void *val,
- 	return 0;
- }
- 
--static int ds1685_nvram_write(void *priv, unsigned int pos, void *val,
-+static int ds1685_nvram_write(void *priv, unsigned int pos, const void *val,
- 			      size_t size)
- {
- 	struct ds1685_priv *rtc = priv;
- 	struct mutex *rtc_mutex = &rtc->dev->ops_lock;
- 	ssize_t count;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 	int err;
- 
- 	err = mutex_lock_interruptible(rtc_mutex);
-diff --git a/drivers/rtc/rtc-ds1742.c b/drivers/rtc/rtc-ds1742.c
-index 6ae8b9a294fe..257d91400290 100644
---- a/drivers/rtc/rtc-ds1742.c
-+++ b/drivers/rtc/rtc-ds1742.c
-@@ -126,12 +126,12 @@ static int ds1742_nvram_read(void *priv, unsigned int pos, void *val,
- 	return 0;
- }
- 
--static int ds1742_nvram_write(void *priv, unsigned int pos, void *val,
-+static int ds1742_nvram_write(void *priv, unsigned int pos, const void *val,
- 			      size_t bytes)
- {
- 	struct rtc_plat_data *pdata = priv;
- 	void __iomem *ioaddr = pdata->ioaddr_nvram;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 
- 	for (; bytes; bytes--)
- 		writeb(*buf++, ioaddr + pos++);
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index d1ef9e0dad34..2a978c9f21b1 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -449,7 +449,7 @@ static int ds3232_nvmem_read(void *priv, unsigned int offset, void *val,
- 				val, bytes);
- }
- 
--static int ds3232_nvmem_write(void *priv, unsigned int offset, void *val,
-+static int ds3232_nvmem_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
- 	struct regmap *ds3232_regmap = (struct regmap *)priv;
-diff --git a/drivers/rtc/rtc-isl12026.c b/drivers/rtc/rtc-isl12026.c
-index b86a325d8a23..0b8b1b50c7b6 100644
---- a/drivers/rtc/rtc-isl12026.c
-+++ b/drivers/rtc/rtc-isl12026.c
-@@ -319,11 +319,11 @@ static int isl12026_nvm_read(void *p, unsigned int offset,
- }
- 
- static int isl12026_nvm_write(void *p, unsigned int offset,
--			      void *val, size_t bytes)
-+			      const void *val, size_t bytes)
- {
- 	struct isl12026 *priv = p;
- 	int ret;
--	u8 *v = val;
-+	const u8 *v = val;
- 	size_t chunk_size, num_written;
- 	u8 payload[ISL12026_PAGESIZE + 2]; /* page + 2 address bytes */
- 	struct i2c_msg msgs[] = {
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 9bdd5d121571..07ce522e69c5 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -799,7 +799,7 @@ static int isl1208_nvmem_read(void *priv, unsigned int off, void *buf,
- 				    count);
- }
- 
--static int isl1208_nvmem_write(void *priv, unsigned int off, void *buf,
-+static int isl1208_nvmem_write(void *priv, unsigned int off, const void *buf,
- 			       size_t count)
- {
- 	struct isl1208_state *isl1208 = priv;
-diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
-index 4e608bc8bbd3..ad407faecf1f 100644
---- a/drivers/rtc/rtc-m48t59.c
-+++ b/drivers/rtc/rtc-m48t59.c
-@@ -316,7 +316,7 @@ static int m48t59_nvram_read(void *priv, unsigned int offset, void *val,
- 	return 0;
- }
- 
--static int m48t59_nvram_write(void *priv, unsigned int offset, void *val,
-+static int m48t59_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t size)
- {
- 	struct platform_device *pdev = priv;
-@@ -325,7 +325,7 @@ static int m48t59_nvram_write(void *priv, unsigned int offset, void *val,
- 	struct m48t59_private *m48t59 = platform_get_drvdata(pdev);
- 	ssize_t cnt = 0;
- 	unsigned long flags;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 
- 	spin_lock_irqsave(&m48t59->lock, flags);
- 
-diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
-index db3bdb171ff0..da3835d85fbc 100644
---- a/drivers/rtc/rtc-m48t86.c
-+++ b/drivers/rtc/rtc-m48t86.c
-@@ -171,7 +171,7 @@ static int m48t86_nvram_read(void *priv, unsigned int off, void *buf,
- 	return 0;
- }
- 
--static int m48t86_nvram_write(void *priv, unsigned int off, void *buf,
-+static int m48t86_nvram_write(void *priv, unsigned int off, const void *buf,
- 			      size_t count)
- {
- 	struct device *dev = priv;
-diff --git a/drivers/rtc/rtc-max31335.c b/drivers/rtc/rtc-max31335.c
-index 595816973851..3b3d4b0d3af3 100644
---- a/drivers/rtc/rtc-max31335.c
-+++ b/drivers/rtc/rtc-max31335.c
-@@ -576,7 +576,7 @@ static int max31335_nvmem_reg_read(void *priv, unsigned int offset,
- }
- 
- static int max31335_nvmem_reg_write(void *priv, unsigned int offset,
--				    void *val, size_t bytes)
-+				    const void *val, size_t bytes)
- {
- 	struct max31335_data *max31335 = priv;
- 	unsigned int reg = max31335->chip->ram_reg + offset;
-diff --git a/drivers/rtc/rtc-meson.c b/drivers/rtc/rtc-meson.c
-index 21eceb9e2e13..d9dbab95e5da 100644
---- a/drivers/rtc/rtc-meson.c
-+++ b/drivers/rtc/rtc-meson.c
-@@ -266,7 +266,7 @@ static int meson_rtc_regmem_read(void *context, unsigned int offset,
- }
- 
- static int meson_rtc_regmem_write(void *context, unsigned int offset,
--				  void *buf, size_t bytes)
-+				  const void *buf, size_t bytes)
- {
- 	struct meson_rtc *rtc = context;
- 	unsigned int write_offset, write_size;
-diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
-index 0f90065e352c..63a555697ddf 100644
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -699,11 +699,11 @@ static int omap_rtc_scratch_read(void *priv, unsigned int offset, void *_val,
- 	return 0;
- }
- 
--static int omap_rtc_scratch_write(void *priv, unsigned int offset, void *_val,
-+static int omap_rtc_scratch_write(void *priv, unsigned int offset, const void *_val,
- 				  size_t bytes)
- {
- 	struct omap_rtc	*rtc = priv;
--	u32 *val = _val;
-+	const u32 *val = _val;
- 	int i;
- 
- 	rtc->type->unlock(rtc);
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 1995e9f2756d..77b1a4a6a8b5 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -460,7 +460,7 @@ static int pcf2127_nvmem_read(void *priv, unsigned int offset,
- }
- 
- static int pcf2127_nvmem_write(void *priv, unsigned int offset,
--			       void *val, size_t bytes)
-+			       const void *val, size_t bytes)
- {
- 	struct pcf2127 *pcf2127 = priv;
- 	int ret;
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 01e209d88f5f..7cb59a105b5d 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -340,7 +340,7 @@ static int pcf85063_nvmem_read(void *priv, unsigned int offset,
- }
- 
- static int pcf85063_nvmem_write(void *priv, unsigned int offset,
--				void *val, size_t bytes)
-+				const void *val, size_t bytes)
- {
- 	return regmap_write(priv, PCF85063_REG_RAM, *(u8 *)val);
- }
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 540042b9eec8..d652a9353fd6 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -328,7 +328,7 @@ static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
- 				val, bytes);
- }
- 
--static int pcf85363_nvram_write(void *priv, unsigned int offset, void *val,
-+static int pcf85363_nvram_write(void *priv, unsigned int offset, const void *val,
- 				size_t bytes)
- {
- 	struct pcf85363 *pcf85363 = priv;
-@@ -350,7 +350,7 @@ static int pcf85x63_nvram_read(void *priv, unsigned int offset, void *val,
- 	return ret;
- }
- 
--static int pcf85x63_nvram_write(void *priv, unsigned int offset, void *val,
-+static int pcf85x63_nvram_write(void *priv, unsigned int offset, const void *val,
- 				size_t bytes)
- {
- 	struct pcf85363 *pcf85363 = priv;
-diff --git a/drivers/rtc/rtc-rp5c01.c b/drivers/rtc/rtc-rp5c01.c
-index 44afa6d996e7..b38799525043 100644
---- a/drivers/rtc/rtc-rp5c01.c
-+++ b/drivers/rtc/rtc-rp5c01.c
-@@ -188,11 +188,11 @@ static int rp5c01_nvram_read(void *_priv, unsigned int pos, void *val,
- 	return 0;
- }
- 
--static int rp5c01_nvram_write(void *_priv, unsigned int pos, void *val,
-+static int rp5c01_nvram_write(void *_priv, unsigned int pos, const void *val,
- 			      size_t bytes)
- {
- 	struct rp5c01_priv *priv = _priv;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 
- 	spin_lock_irq(&priv->lock);
- 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index d96f6bb68850..e95600493f7f 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -602,7 +602,7 @@ static int rv3028_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	}
- }
- 
--static int rv3028_nvram_write(void *priv, unsigned int offset, void *val,
-+static int rv3028_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
- 	return regmap_bulk_write(priv, RV3028_RAM1 + offset, val, bytes);
-@@ -614,13 +614,13 @@ static int rv3028_nvram_read(void *priv, unsigned int offset, void *val,
- 	return regmap_bulk_read(priv, RV3028_RAM1 + offset, val, bytes);
- }
- 
--static int rv3028_eeprom_write(void *priv, unsigned int offset, void *val,
-+static int rv3028_eeprom_write(void *priv, unsigned int offset, const void *val,
- 			       size_t bytes)
- {
- 	struct rv3028_data *rv3028 = priv;
- 	u32 status, eerd;
- 	int i, ret;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 
- 	ret = rv3028_enter_eerd(rv3028, &eerd);
- 	if (ret)
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 98953af2a24a..a6a01e0c5d9d 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -472,7 +472,7 @@ static int rv3029_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	}
- }
- 
--static int rv3029_nvram_write(void *priv, unsigned int offset, void *val,
-+static int rv3029_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
- 	return regmap_bulk_write(priv, RV3029_RAM_PAGE + offset, val, bytes);
-diff --git a/drivers/rtc/rtc-rv3032.c b/drivers/rtc/rtc-rv3032.c
-index 6bafdec637ae..b6b401be09bb 100644
---- a/drivers/rtc/rtc-rv3032.c
-+++ b/drivers/rtc/rtc-rv3032.c
-@@ -483,7 +483,7 @@ static int rv3032_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	}
- }
- 
--static int rv3032_nvram_write(void *priv, unsigned int offset, void *val, size_t bytes)
-+static int rv3032_nvram_write(void *priv, unsigned int offset, const void *val, size_t bytes)
- {
- 	return regmap_bulk_write(priv, RV3032_RAM1 + offset, val, bytes);
- }
-@@ -493,7 +493,7 @@ static int rv3032_nvram_read(void *priv, unsigned int offset, void *val, size_t
- 	return regmap_bulk_read(priv, RV3032_RAM1 + offset, val, bytes);
- }
- 
--static int rv3032_eeprom_write(void *priv, unsigned int offset, void *val, size_t bytes)
-+static int rv3032_eeprom_write(void *priv, unsigned int offset, const void *val, size_t bytes)
- {
- 	struct rv3032_data *rv3032 = priv;
- 	u32 status, eerd;
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index b9b5fee16ee4..f2adccf611dd 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -536,10 +536,10 @@ static int rv8803_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	}
- }
- 
--static int rv8803_nvram_write(void *priv, unsigned int offset, void *val,
-+static int rv8803_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
--	return rv8803_write_reg(priv, RV8803_RAM, *(u8 *)val);
-+	return rv8803_write_reg(priv, RV8803_RAM, *(const u8 *)val);
- }
- 
- static int rv8803_nvram_read(void *priv, unsigned int offset,
-diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
-index cf4dab94c337..6da6219ed8fe 100644
---- a/drivers/rtc/rtc-rx8581.c
-+++ b/drivers/rtc/rtc-rx8581.c
-@@ -188,7 +188,7 @@ static int rx8571_nvram_read(void *priv, unsigned int offset, void *val,
- 	return regmap_bulk_read(regmap, RX8571_USER_RAM + offset, val, bytes);
- }
- 
--static int rx8571_nvram_write(void *priv, unsigned int offset, void *val,
-+static int rx8571_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
- 	struct regmap *regmap = priv;
-@@ -209,7 +209,7 @@ static int rx85x1_nvram_read(void *priv, unsigned int offset, void *val,
- 	return ret;
- }
- 
--static int rx85x1_nvram_write(void *priv, unsigned int offset, void *val,
-+static int rx85x1_nvram_write(void *priv, unsigned int offset, const void *val,
- 			      size_t bytes)
- {
- 	struct regmap *regmap = priv;
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index b72eef4fb099..73ff0491f675 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -67,7 +67,7 @@ struct s35390a {
- 	int twentyfourhour;
- };
- 
--static int s35390a_set_reg(struct s35390a *s35390a, int reg, u8  *buf, int len)
-+static int s35390a_set_reg(struct s35390a *s35390a, int reg, const u8 *buf, int len)
- {
- 	struct i2c_client *client = s35390a->client[reg];
- 	struct i2c_msg msg[] = {
-@@ -426,7 +426,7 @@ static int s35390a_nvmem_read(void *priv, unsigned int offset, void *val,
- 	return s35390a_get_reg(s35390a, S35390A_CMD_FREE_REG, val, bytes);
- }
- 
--static int s35390a_nvmem_write(void *priv, unsigned int offset, void *val,
-+static int s35390a_nvmem_write(void *priv, unsigned int offset, const void *val,
- 			       size_t bytes)
- {
- 	struct s35390a *s35390a = priv;
-diff --git a/drivers/rtc/rtc-stk17ta8.c b/drivers/rtc/rtc-stk17ta8.c
-index 7cb6be1b7815..c667be6829d6 100644
---- a/drivers/rtc/rtc-stk17ta8.c
-+++ b/drivers/rtc/rtc-stk17ta8.c
-@@ -242,12 +242,12 @@ static int stk17ta8_nvram_read(void *priv, unsigned int pos, void *val,
- 	return 0;
- }
- 
--static int stk17ta8_nvram_write(void *priv, unsigned int pos, void *val,
-+static int stk17ta8_nvram_write(void *priv, unsigned int pos, const void *val,
- 				size_t bytes)
- {
- 	struct rtc_plat_data *pdata = priv;
- 	void __iomem *ioaddr = pdata->ioaddr;
--	u8 *buf = val;
-+	const u8 *buf = val;
- 
- 	for (; bytes; bytes--)
- 		writeb(*buf++, ioaddr + pos++);
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 7fc60880e409..67af5198f815 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -688,10 +688,10 @@ static int sun6i_rtc_nvmem_read(void *priv, unsigned int offset, void *_val, siz
- 	return 0;
- }
- 
--static int sun6i_rtc_nvmem_write(void *priv, unsigned int offset, void *_val, size_t bytes)
-+static int sun6i_rtc_nvmem_write(void *priv, unsigned int offset, const void *_val, size_t bytes)
- {
- 	struct sun6i_rtc_dev *chip = priv;
--	u32 *val = _val;
-+	const u32 *val = _val;
- 	int i;
- 
- 	for (i = 0; i < bytes / 4; ++i)
-diff --git a/drivers/rtc/rtc-ti-k3.c b/drivers/rtc/rtc-ti-k3.c
-index 8df00319cb6b..03b7a7fe631e 100644
---- a/drivers/rtc/rtc-ti-k3.c
-+++ b/drivers/rtc/rtc-ti-k3.c
-@@ -491,7 +491,7 @@ static int ti_k3_rtc_scratch_read(void *priv_data, unsigned int offset,
- }
- 
- static int ti_k3_rtc_scratch_write(void *priv_data, unsigned int offset,
--				   void *val, size_t bytes)
-+				   const void *val, size_t bytes)
- {
- 	struct ti_k3_rtc *priv = (struct ti_k3_rtc *)priv_data;
- 	int ret;
-diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-index e6106e67e1f4..6b5dc1f09884 100644
---- a/drivers/rtc/rtc-twl.c
-+++ b/drivers/rtc/rtc-twl.c
-@@ -493,7 +493,7 @@ static int twl_nvram_read(void *priv, unsigned int offset, void *val,
- 	return twl_i2c_read((long)priv, val, offset, bytes);
- }
- 
--static int twl_nvram_write(void *priv, unsigned int offset, void *val,
-+static int twl_nvram_write(void *priv, unsigned int offset, const void *val,
- 			   size_t bytes)
- {
- 	return twl_i2c_write((long)priv, val, offset, bytes);
--- 
-2.55.0
+On 7/15/2026 5:15 PM, Dmitry Guzman wrote:
+> On Wed, 15 Jul 2026 15:48:05 +0530
+> Aniket Randive <aniket.randive@oss.qualcomm.com> wrote:
+> 
+>> This replaces the fixed 1-second timeout with a transfer-specific
+>> timeout while preserving sufficient margin for software overheads and
+>> bus-level delays.
+>>
+> 
+> The dynamic timeout may be useful for any I2C bus controller, not only
+> for qcom-geni. Structure i2c_adapter already has field "timeout". Isn't
+This is good, thanks for pointing. For geni driver, please review 
+gi2c->adap.timeout (client->adapter->timeout) can be used and you may 
+explore retries also in case you want to retry.
+> it worth to move the timeout calculation to i2c-core, so that the core
+> updates the timeout field in i2c_adapter structure, and the controller
+> driver just uses this value, instead of duplicating the calculation in
+> every driver that will use this feature?
+> 
+> Also, such parameters as I2C_TIMEOUT_SAFETY_COEFFICIENT and
+> I2C_TIMEOUT_MIN_USEC may be configurable by user (for example, in
+> device tree) for more flexibility.
+> 
+I think it's good to keep it within driver, not to expose as 
+configurable. This would keep changing per user/system load, but ideal 
+timing is theoretical + some offset, hence can be better managed by driver.
+
+> Best regards,
 
