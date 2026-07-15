@@ -1,188 +1,427 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C330B4534A4
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85C7944CF56
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784118263; cv=none; b=OLV+26t5GsXNQ7FPbWsg7Xarbnc+yUhG6SA+B0RpPQXZOyEmGIqvNqdvAuBuG6VdQqOKkjdKEnEHoGQQcmB3XH2Ub/RmfmMFU2HIRTRPxmH9RAD9j61LzcIgWD12ZIuozVl0rD+hZi8DsKvqI6JcBBbiB0Pi8tvXjNuG8p1MzrM=
+	t=1784118275; cv=none; b=REIELolD2Q0YO8stY2o+GiX8aqlhwciezVJ3h+vYXAFd9vaQ29IJkvcOO6xBPBgqXJ7KpO07HrrGNUri7dwe4DmIsfUO1GiDFUQk4laSIV2ZZY3mVZHrOO/FdI9/uNtMMWpnqWaG+EaWv/H1ya2dhYtNBpcet59V/eSBcc0vt8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784118263; c=relaxed/simple;
-	bh=OiLW0cnorrZrBTCCbegC1HCSXh64/IHwTXjkwHMRpLo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=C9XSoXGs8laZJdXzGfzGr0ChxX9md3PdyxQ433hYoFjoxQPwAm0jpD1i2vOEvOHSwVodfb0LqCwSMY1iYUBD8cIWzUsKmJTrbAKxsG0YQhY3aGGUPqDUnIbQKQI8Iux2v4ubV+qVRGpHk8IIvQUwCDm52jQPd10hCY1YQGNZKnc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=p0WOR4hY; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=HtUN93Rt; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1784118275; c=relaxed/simple;
+	bh=WjkkhX8AE55jsgJgX1FzkMHLBoKDh6l6Q8k1teC3sDk=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=eUdZwzh2GRWxoGwLx7WCha+Gk7OLM8oYqfJ3+wlrc/V3JPKbY5lcUag1LD0TwvSJm1uRVhZqlYmNgOct9dCPw35zDtyK07r2W+ETj6fOkDIWEaZn8RjcBwD4O8XWoi1g35GM1bp93sBDZeTYWbPxl/uFZTQd7llojyPUTt9URFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LAgfM15h; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="p0WOR4hY";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="HtUN93Rt"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66FBcdNe3479982
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	n+6U+9HLnuGImDd2MqcA4i8jqmVqmZWZIAdVkvw4LYo=; b=p0WOR4hYHW07HL2k
-	OV+sr65xB0Q3FJ8TzTpGqbWYF3U5KjEKy4RPuE/muoVvDosiK4LDWr3oAYe0UdnO
-	xB9OSs/hmQneWnIVxJE62bH/lDvjuufoJoXlPJD2XeBgkT4dEkLcrzLrFOmNxX0D
-	xzijU/5Ihrw7JXDkUfPD3395jWEguz47346Vf0MGrzoLJOVWQ5hJrlwyWPnw5kWk
-	S6qZ0++ZJo6TagxmkbckIubPqNs68ZLfTxze4D57WZddVNKb676339esjExKCYZM
-	Mhrb8dBX0P66kEmeYRri1S2p1xA7slESSpOqAMDSoVe5BtaSGk7S1womcJGI+zyh
-	zEO/Dg==
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com [209.85.219.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fe56h9a1a-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:20 +0000 (GMT)
-Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-903694fd3bfso12793536d6.1
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 05:24:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1784118260; x=1784723060; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=n+6U+9HLnuGImDd2MqcA4i8jqmVqmZWZIAdVkvw4LYo=;
-        b=HtUN93RtdEMX6Im1M70TvXS2eNSeINDQJ8NzrMnCsIKpFzW7X9heCPBnh+uBMSxErW
-         2+cCTUUO9A0q8sBZdIIXXEsA4Ro7f8b2ENiQ5I2SgY4z+rzMJDcWUE6vR5g6uDST40nC
-         qJ1lTdTqqxhidDOGzFMqRN/paTkihY/6yOlxURomh17mLHqSc7gvcRIH86OAgW3Scxc3
-         GdgWGRvhJze9vWPuBGVCh9lp62YpOcnIGNlm1gy5b0pvXuKwkFfftZ8CpKYPixkunJsl
-         12z3/wwIz5Tpcn7jflTkhdHKiwwZr3uQxk/2JD6hiWhy/YA8JAeUYPs2gnZ7HES2MPgB
-         L7XA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784118260; x=1784723060;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=n+6U+9HLnuGImDd2MqcA4i8jqmVqmZWZIAdVkvw4LYo=;
-        b=kxnpPMGqkb8FVYTPKVIH2XTkWqgn4rhQerJBgb8Y0muxRWgCCQiWtw1Hw3oAueulia
-         g+w5BF7plcRogL2ki90WaxhgIRL5R6/PVfJ2ZUc4Jj0LSjgmIDOQDVrWN2FgqnsNoW2u
-         apP7D+xVQnPlTp0+0U4+uT/dXBVmd8UQpkvxxiAxcBStDqz8kjtWBf+2lU5tSHhLkPd1
-         o7YukQ3SmR0IbSxQhSvZtjxt+INXWzgK/Y+mlDYkswADxOALltpojz9eZqDuwWUO44Hv
-         lJfYKGkXSrfxvxMHlRne033py4O62//JE0JPOs1TDqJNHtG/E0oxIx+8o/t1O6Stzgov
-         Mkbw==
-X-Forwarded-Encrypted: i=1; AHgh+RqcJb5w9kjD08MjgnvWiYeWnSmVBHpQlnLUFR/Ul8gKEQ0k/V3Sc7X7dmoSzIn9SagaolJQaUjuQPc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw6qI32rQ4C4IU7QBnVxGD5qADG23UZHncIfb94dbukgWKaMqwM
-	GxViiD5jgUf5EtOG9IASYs6FQRDFdHlBkM9ZNg8q/XUBl/hE60ralAJ/E+ztQy42/mXwKml/dzD
-	+Wk8LBHen/TTNzl6AWzrzUk5EQM8C/uCGugyJ2Sb0LkFVEOSwd41dfh7bSupTE00=
-X-Gm-Gg: AfdE7cm3jy4y3Mt3XIzrG0eodGiIGMrs6KGKE5PfYTuncJ5NEk/jQqPJJ7qKfbVW5UH
-	Luu4OKD52eg2V4MkznFtEATy1ud1G0TBUa3lOKudRWNezoOMUilHP1bMgSpmnDuRNktspR8B61G
-	XmJhKKxuPeMjtY3K9h1GausrPfOn1G4zXxYF55w0aWCJCQBYet8Wu+M6XwdZX9j3AJ5ohAEtD1A
-	MmtU5CIMdTctPXxU1x0X88oTROG4x/5VWv/a28xrmolz+AsARiZaykXKGz6Erg3k/sR96S53iH+
-	H3jwm2zP+uD2NJW+ktL5WdE5gC4m1LQC/UtxKt4pCBRPmMWpAnNEMv+zUv2I5U4jhCDJsYdDEid
-	8c52lo4eCyjSDOnIn33nUInfcB0cpCFHs7gk=
-X-Received: by 2002:a05:6214:459f:b0:8e7:d237:4aa9 with SMTP id 6a1803df08f44-90403d516e3mr172365886d6.7.1784118259762;
-        Wed, 15 Jul 2026 05:24:19 -0700 (PDT)
-X-Received: by 2002:a05:6214:459f:b0:8e7:d237:4aa9 with SMTP id 6a1803df08f44-90403d516e3mr172365626d6.7.1784118259369;
-        Wed, 15 Jul 2026 05:24:19 -0700 (PDT)
-Received: from [192.168.120.193] ([178.235.128.140])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69cd287882asm2931930a12.3.2026.07.15.05.24.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jul 2026 05:24:17 -0700 (PDT)
-Message-ID: <ee424097-6f29-4605-bd0c-242190a7b376@oss.qualcomm.com>
-Date: Wed, 15 Jul 2026 14:24:12 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LAgfM15h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EDAF1F01561
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784118271;
+	bh=PclXy2Uq7OPMyI+t/qU2+B3wDB55fTcxu4iOX0BaM3I=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=LAgfM15hhVaC15vSj8XQxsRNvGquqsgUOdks7kt343R7a1N5g9nUkhGh/uXHD9xfk
+	 nHuL0dFcxgvuhWFebeKG/ml37YscroM+LGpmg6vTy/NYhLFGJkXcxF49V5NileYc42
+	 yFcBl+s67bzQ7PDTJyhysHWIH3tWgPuHTNtr9YG4smlEOxhmeOTfhh5daJaeq0q4VC
+	 dVM8Wgqjwvx9UaMSkun0m/2IJKP0e4vLDNXe4PMhRzEKFuvISWLu21N/04zi2Ia3kf
+	 EMfQpJbcuN8aNGEmfLMx1xjXLy5cpYICzJI1CA7lIsIjNYsegE++dezSLCFahJvia/
+	 vzzxugae/c9Fg==
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5b14d1f9315so3733387e87.2
+        for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 05:24:31 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Rpwf4RTrba2O6w7F4pwHLJ1czX9WCEhq0skZs9GG26/C19HoOuyXdfNxA6HU/FOJgFDEfDidL6Ml3w=@vger.kernel.org
+X-Gm-Message-State: AOJu0YypUXTFBEVG6FNvPjPqXOoD54TKcP8ucjKAyQB7OuqETPgdKXGb
+	Mg6yOhQZB6ryMVuv/oODA6ZZHd+pMb5GslzjrA/wFGWhDDwyfjifTp4FODLDibv5OVaeCzLOA2x
+	Zcv6/1hJ/5dVZNTvvJLPJGZxDpI0k5ngra46FCo+TfQ==
+X-Received: by 2002:a05:6512:3a87:b0:5b0:12e1:4879 with SMTP id
+ 2adb3069b0e04-5b1582c715emr2068822e87.60.1784118270190; Wed, 15 Jul 2026
+ 05:24:30 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 15 Jul 2026 05:24:27 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 15 Jul 2026 05:24:27 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260714-upstream-v2-v2-2-76e5e41026db@advantech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 4/4] i2c: qcom-geni: Support multi-owner controllers in
- GPI mode
-To: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        viken.dadhaniya@oss.qualcomm.com, andi.shyti@kernel.org,
-        robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
-        vkoul@kernel.org, Frank.Li@kernel.org, andersson@kernel.org,
-        konradybcio@kernel.org, dmitry.baryshkov@oss.qualcomm.com,
-        linmq006@gmail.com, quic_jseerapu@quicinc.com, zhengxingda@iscas.ac.cn,
-        kees@kernel.org, agross@kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org
-Cc: krzysztof.kozlowski@oss.qualcomm.com, bartosz.golaszewski@oss.qualcomm.com,
-        bjorn.andersson@oss.qualcomm.com
-References: <20260708051023.2872304-1-mukesh.savaliya@oss.qualcomm.com>
- <20260708051023.2872304-5-mukesh.savaliya@oss.qualcomm.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <20260708051023.2872304-5-mukesh.savaliya@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDEyMyBTYWx0ZWRfXzq8oFOec+Mae
- PXRfETZ11bvNd4WLnJS/bCyu+o4GvEBY1d8fnF9ZLI/BZKS48xVKVXpjiHPIIYX60Yx9LZliPJN
- YCIYBm70GjM5VXRcdKNKZKU9MhelzXY=
-X-Proofpoint-ORIG-GUID: wrDRXrT-ZwhW83N_GwP3Su3BP7C9iucs
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDEyMyBTYWx0ZWRfXzjhjwvlla7l6
- BvYO3FMrZyD1MQyLAfCCeunAzLAscljHPJJjyjDzZygf8E4J+trH7XRSKjGnleJzt1RJviU1idq
- 6g5p0p6gTpimutWebnPhvAr3qcu2GrGVA1h5lzJ4bO+qecQGBDvAZmPsGGkcInTadQVNzWD1PsU
- 7vgIBbkyby07k+OtUNoV42dSBamX4ExmwznqeMOK7cIeZBommJ7GbyjhW1qQqIvMpqv0lI65azy
- OLDtvse2lbnUgqsPDetATTGM0vUa0KrzR86TbAHZ1OKUAAoK8XWpDaf/BABDIv2/m4lAhJIpZcc
- kI10chjiZe8MTV+bGB8qViNZ8gtI/74OJZNfyBAcDcmnZaeusL0aPDHakqOO6xyk2sqmrFtibLJ
- +cRjrnm/XIY6g5i6mf8SWlVSqhgE8LXYv+/aRzvOtTprDaZjZ0Go9zw1rcjqlmsgOVXd+Dknn7v
- S1uZh21R/rMbjYmLPug==
-X-Authority-Analysis: v=2.4 cv=LpKiDHdc c=1 sm=1 tr=0 ts=6a577bf5 cx=c_pps
- a=wEM5vcRIz55oU/E2lInRtA==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=EUspDBNiAAAA:8 a=Y68E4KffrGY8xuMxYjUA:9 a=QEXdDO2ut3YA:10
- a=OIgjcC2v60KrkQgK7BGD:22
-X-Proofpoint-GUID: wrDRXrT-ZwhW83N_GwP3Su3BP7C9iucs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-15_02,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 spamscore=0 adultscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607150123
+References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com> <20260714-upstream-v2-v2-2-76e5e41026db@advantech.com>
+Date: Wed, 15 Jul 2026 05:24:27 -0700
+X-Gmail-Original-Message-ID: <CAMRc=Mcnbv++YhPvocyiv9m_vuy2hWeuJ2sk9BNH=j7U3-dBFQ@mail.gmail.com>
+X-Gm-Features: AUfX_mzXdlShUuByf9jSWwdYpIzB9dN3xsnMMdNBfJC8EmPDXbPafGgehOl5DxQ
+Message-ID: <CAMRc=Mcnbv++YhPvocyiv9m_vuy2hWeuJ2sk9BNH=j7U3-dBFQ@mail.gmail.com>
+Subject: Re: [PATCH v2 2/8] Add Advantech EIO GPIO driver
+To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+Cc: linux-kernel@vger.kernel.org, mfd@lists.linux.dev, 
+	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+	linux-pm@vger.kernel.org, Wenkai Chung <wenkai.chung@advantech.com.tw>, 
+	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>, 
+	Hongzhi Wang <hongzhi.wang@advantech.com>, 
+	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>, 
+	Thomas Kastner <thomas.kastner@advantech.com>, Lee Jones <lee@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Andi Shyti <andi.shyti@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
+	Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+	Lukasz Luba <lukasz.luba@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 7/8/26 7:10 AM, Mukesh Kumar Savaliya wrote:
-> Some platforms use a QUP-based I2C controller in a configuration where the
-> controller is shared with another system processor. In this setup the
-> operating system must not assume exclusive ownership of the controller or
-> its associated pins.
-> 
-> Add support for enabling multi-owner operation when DeviceTree specifies
-> qcom,qup-multi-owner. When enabled, mark the underlying serial engine as
-> shared so the common GENI resource handling avoids selecting the "sleep"
-> pinctrl state, which could disrupt transfers initiated by the other
-> processor.
-> 
-> For GPI mode transfers, request lock/unlock TRE sequencing from the GPI
-> driver by setting a single lock_action selector per message, emitting lock
-> before the first message and unlock after the last message (handling the
-> single-message case as well). This serializes access to the shared
-> controller without requiring message-position flags to be passed into the
-> DMA engine layer.
-> 
-> Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+On Tue, 14 Jul 2026 17:54:16 +0200, Ramiro Oliveira
+<ramiro.oliveira@advantech.com> said:
+> This driver controls the GPIO component of the Advantech EIO chip.
+>
+
+The subject should be: "gpio: add a driver for the Advantech EIO GPIO
+controller"
+or similar.
+
+> Signed-off-by: Ramiro Oliveira <ramiro.oliveira@advantech.com>
 > ---
+>  MAINTAINERS             |   7 ++
+>  drivers/gpio/Kconfig    |   6 ++
+>  drivers/gpio/Makefile   |   1 +
+>  drivers/gpio/gpio-eio.c | 252 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 266 insertions(+)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 53b5f7412966..a7da47393815 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -609,6 +609,13 @@ S:	Maintained
+>  F:	Documentation/scsi/advansys.rst
+>  F:	drivers/scsi/advansys.c
+>
+> +ADVANTECH EIO DRIVER
+> +M:	Ramiro Oliveira <ramiro.oliveira@advantech.com>
+> +S:	Maintained
+> +F:	drivers/gpio/gpio-eio.c
+> +F:	drivers/mfd/eio_core.c
+> +F:	include/linux/mfd/eio.h
 
-[...]
-
-
-> +		if (gi2c->se.multi_owner)
-> +			return dev_err_probe(gi2c->se.dev, -EINVAL,
-> +					     "I2C sharing not supported in non GSI mode\n");
-
-ultra nit: "non-GSI"
+Shouldn't this be part of the MFD entry?
 
 > +
->  		tx_depth = geni_se_get_tx_fifo_depth(&gi2c->se);
->  
->  		/* I2C Master Hub Serial Elements doesn't have the HW_PARAM_0 register */
-> @@ -1098,6 +1115,11 @@ static int geni_i2c_probe(struct platform_device *pdev)
->  		gi2c->clk_freq_out = I2C_MAX_STANDARD_MODE_FREQ;
->  	}
->  
-> +	if (of_property_read_bool(pdev->dev.of_node, "qcom,qup-multi-owner")) {
+>  ADVANTECH SWBTN DRIVER
+>  M:	Andrea Ho <Andrea.Ho@advantech.com.tw>
+>  L:	platform-driver-x86@vger.kernel.org
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index f03c05288376..696065d77235 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -295,6 +295,12 @@ config GPIO_DWAPB
+>  	  Say Y or M here to build support for the Synopsys DesignWare APB
+>  	  GPIO block.
+>
+> +config GPIO_EIO
+> +	tristate "Advantech EIO GPIO"
+> +	depends on MFD_EIO
+> +	help
+> +	  Say Y or M to build support for Advantech EIO GPIO block.
+> +
+>  config GPIO_EIC_SPRD
+>  	tristate "Spreadtrum EIC support"
+>  	depends on ARCH_SPRD || COMPILE_TEST
+> diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+> index fa14581e3995..628596705c21 100644
+> --- a/drivers/gpio/Makefile
+> +++ b/drivers/gpio/Makefile
+> @@ -64,6 +64,7 @@ obj-$(CONFIG_GPIO_DLN2)			+= gpio-dln2.o
+>  obj-$(CONFIG_GPIO_DS4520)		+= gpio-ds4520.o
+>  obj-$(CONFIG_GPIO_DWAPB)		+= gpio-dwapb.o
+>  obj-$(CONFIG_GPIO_EIC_SPRD)		+= gpio-eic-sprd.o
+> +obj-$(CONFIG_GPIO_EIO)			+= gpio-eio.o
+>  obj-$(CONFIG_GPIO_ELKHARTLAKE)		+= gpio-elkhartlake.o
+>  obj-$(CONFIG_GPIO_EM)			+= gpio-em.o
+>  obj-$(CONFIG_GPIO_EN7523)		+= gpio-en7523.o
+> diff --git a/drivers/gpio/gpio-eio.c b/drivers/gpio/gpio-eio.c
+> new file mode 100644
+> index 000000000000..34e1aefd0716
+> --- /dev/null
+> +++ b/drivers/gpio/gpio-eio.c
+> @@ -0,0 +1,252 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * GPIO driver for Advantech EIO Embedded controller.
+> + *
+> + * Copyright (C) 2025 Advantech Corporation. All rights reserved.
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/gpio/driver.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/eio.h>
+> +#include <linux/module.h>
+> +
+> +#define EIO_GPIO_MAX_PINS	48
+> +#define EIO_GPIO_WRITE		0x18
+> +#define EIO_GPIO_READ		0x19
+> +
+> +struct eio_gpio_dev {
+> +	u64 avail;
+> +	int max;
+> +	struct gpio_chip chip;
+> +	struct device *dev;
+> +};
+> +
+> +static struct {
+> +	int size;
+> +	bool write;
+> +} ctrl_para[] = {
 
-Let's use device_property_present() instead.
+Please use a common prefix for all symbols. "eio_gpio" like above is fine.
 
-with that:
+> +	{ 0x01, false }, { 0x00, false }, { 0x00, false }, { 0x02, false },
+> +	{ 0x01, false }, { 0x00, false }, { 0x00, false }, { 0x00, false },
+> +	{ 0x00, false }, { 0x00, false }, { 0x00, false }, { 0x00, false },
+> +	{ 0x00, false }, { 0x00, false }, { 0x00, false }, { 0x00, false },
+> +	{ 0x01, true  }, { 0x01, true  }, { 0x02, true  }, { 0x02, true  },
+> +	{ 0x02, false }, { 0x10, false }
+> +};
+> +
+> +enum gpio_ctrl {
+> +	EIO_GPIO_STATUS = 0x0,
+> +	EIO_GPIO_GROUP_AVAIL = 0x3,
+> +	EIO_GPIO_ERROR = 0x04,
+> +	EIO_GPIO_PIN_DIR = 0x10,
+> +	EIO_GPIO_PIN_LEVEL = 0x11,
+> +	EIO_GPIO_GROUP_DIR = 0x12,
+> +	EIO_GPIO_GROUP_LEVEL = 0x13,
+> +	EIO_GPIO_MAPPING = 0x14,
+> +	EIO_GPIO_NAME = 0x15
+> +};
+> +
+> +static struct {
+> +	int group;
+> +	int port;
+> +} group_map[] = {
+> +	{ 0, 0 }, { 0, 1 },
+> +	{ 1, 0 }, { 1, 1 },
+> +	{ 2, 0 }, { 2, 1 },
+> +	{ 3, 0 }, { 3, 1 },
+> +	{ 3, 2 }, { 3, 3 },
+> +	{ 3, 4 }, { 3, 5 },
+> +	{ 3, 6 }, { 3, 7 }
+> +};
+> +
+> +static int pmc_write(struct device *mfd_dev, u8 ctrl, u8 dev_id, void *data)
+> +{
+> +	struct pmc_op op = {
+> +		 .cmd       = EIO_GPIO_WRITE,
+> +		 .control   = ctrl,
+> +		 .device_id = dev_id,
+> +		 .payload   = (u8 *)data,
+> +	};
+> +
+> +	if (ctrl >= ARRAY_SIZE(ctrl_para))
+> +		return -ENOMEM;
+> +
+> +	if (!ctrl_para[ctrl].write)
+> +		return -EINVAL;
+> +
+> +	op.size = ctrl_para[ctrl].size;
+> +
+> +	return eio_core_pmc_operation(mfd_dev, &op);
+> +}
+> +
+> +static int pmc_read(struct device *mfd_dev, u8 ctrl, u8 dev_id, void *data)
+> +{
+> +	struct pmc_op op = {
+> +		 .cmd       = EIO_GPIO_READ,
+> +		 .control   = ctrl,
+> +		 .device_id = dev_id,
+> +		 .payload   = (u8 *)data,
+> +	};
+> +
+> +	if (ctrl > ARRAY_SIZE(ctrl_para))
+> +		return -ENOMEM;
+> +
+> +	op.size = ctrl_para[ctrl].size;
+> +
+> +	return eio_core_pmc_operation(mfd_dev, &op);
+> +}
+> +
+> +static int get_dir(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +	u8 dir;
+> +	int ret;
+> +
+> +	ret = pmc_read(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return dir ? 0 : 1;
+> +}
+> +
+> +static int dir_input(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +	u8 dir = 0;
+> +
+> +	return pmc_write(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
+> +}
+> +
+> +static int dir_output(struct gpio_chip *chip, unsigned int offset, int value)
+> +{
+> +	u8 dir = 1;
+> +	u8 val = value;
+> +
+> +	pmc_write(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
+> +
+> +	return pmc_write(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &val);
+> +}
+> +
+> +static int gpio_get(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +	u8 level;
+> +	int ret;
+> +
+> +	ret = pmc_read(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &level);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return level;
+> +}
+> +
+> +static int gpio_set(struct gpio_chip *chip, unsigned int offset, int value)
+> +{
+> +	u8 val = value;
+> +
+> +	return pmc_write(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &val);
+> +}
+> +
+> +static int check_support(struct device *dev)
+> +{
+> +	u8  data;
+> +	int ret;
+> +
+> +	ret = pmc_read(dev, EIO_GPIO_STATUS, 0, &data);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if ((data & 0x01) == 0)
+> +		return -EOPNOTSUPP;
+> +
+> +	return 0;
+> +}
+> +
+> +static int check_pin(struct device *dev, int pin)
+> +{
+> +	int ret;
+> +	int group, bit;
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Why not put all ints on the same line? Same elsewhere.
 
-Konrad
+> +	u16 data;
+> +
+> +	/* Get pin mapping */
+> +	ret = pmc_read(dev, EIO_GPIO_MAPPING, pin, &data);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if ((data & 0xFF) > ARRAY_SIZE(group_map))
+> +		return -EINVAL;
+> +
+> +	group = group_map[data & 0xFF].group;
+> +	bit   = data >> 8;
+> +
+> +	/* Check mapped pin */
+> +	ret = pmc_read(dev, EIO_GPIO_GROUP_AVAIL, group, &data);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return data & BIT(bit) ? 0 : -EOPNOTSUPP;
+> +}
+> +
+> +static int gpio_init(struct device *mfd, struct eio_gpio_dev *eio_gpio)
+> +{
+> +	int ret, i;
+> +
+> +	ret = check_support(mfd);
+> +	if (ret)
+
+This warrants an -ENODEV. We don't want to retry probe here, do we?
+
+> +		return dev_err_probe(eio_gpio->dev, ret, "GPIO not supported\n");
+> +
+> +	eio_gpio->avail = 0;
+> +
+> +	for (i = 0 ; i < EIO_GPIO_MAX_PINS ; i++) {
+> +		ret = check_pin(mfd, i);
+> +		if (ret)
+> +			continue;
+> +
+> +		eio_gpio->avail |= BIT(i);
+> +		eio_gpio->max = i + 1;
+> +	}
+> +
+> +	return eio_gpio->max ? 0 : -EOPNOTSUPP;
+> +}
+> +
+> +static int gpio_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct eio_gpio_dev *eio_gpio;
+> +	struct eio_dev *eio_dev = dev_get_drvdata(dev->parent);
+> +
+> +	if (!eio_dev)
+> +		return dev_err_probe(dev, -ENODEV, "Error contact eio_core\n");
+
+-ENODEV is used for silently bailing out of probe and telling the driver core
+to not defer. Basically it means: this device cannot be enabled on this system
+or is not present at all. This means: don't use dev_err_probe() and don't emit
+any logs. Just return -ENODEV.
+
+Though it makes me think - can this even happen at all? MFD cells won't get
+created if parent's probe() failed.
+
+> +
+> +	eio_gpio = devm_kzalloc(dev, sizeof(*eio_gpio), GFP_KERNEL);
+> +	if (!eio_gpio)
+> +		return -ENOMEM;
+> +
+> +	eio_gpio->dev = dev;
+> +
+> +	if (gpio_init(dev->parent, eio_gpio))
+
+Can you use the ret = gpio_init() pattern for consistency with the rest of the
+code?
+
+> +		return -EIO;
+> +
+> +	eio_gpio->chip.parent = dev->parent;
+> +	eio_gpio->chip.ngpio = eio_gpio->max;
+> +	eio_gpio->chip.label = KBUILD_MODNAME;
+> +	eio_gpio->chip.owner = THIS_MODULE;
+> +	eio_gpio->chip.direction_input = dir_input;
+> +	eio_gpio->chip.get = gpio_get;
+> +	eio_gpio->chip.direction_output = dir_output;
+> +	eio_gpio->chip.set = gpio_set;
+> +	eio_gpio->chip.get_direction = get_dir;
+> +	eio_gpio->chip.base = -1;
+> +	eio_gpio->chip.can_sleep = true;
+> +
+> +	return devm_gpiochip_add_data(dev, &eio_gpio->chip, eio_gpio);
+> +}
+> +
+> +static struct platform_driver gpio_driver = {
+> +	.probe  = gpio_probe,
+> +	.driver = { .name = KBUILD_MODNAME, },
+> +};
+> +
+> +module_platform_driver(gpio_driver);
+> +
+> +MODULE_AUTHOR("Wenkai Chung <wenkai.chung@advantech.com.tw>");
+> +MODULE_AUTHOR("Ramiro Oliveira <ramiro.oliveira@advantech.com>");
+> +MODULE_DESCRIPTION("GPIO driver for Advantech EIO embedded controller");
+> +MODULE_LICENSE("GPL");
+>
+> --
+> 2.43.0
+>
+>
+
+Bart
