@@ -1,815 +1,275 @@
-Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 454C03BD629;
-	Wed, 15 Jul 2026 07:35:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784100943; cv=none; b=j8kOovC98LaEgEl1dJsFf20/0OPRFutq8wU1nvov3IKdmRR4r2DWRFmm3iGAxbSfCPwr6P9T6rfsiS6xXtoX/t9DwtIwG2nzZsOJQUtE2TCbt1Fx07VKItzrRR6gjstchpAUUPzuPcl+6kV591JpCiBOKGy11N4W8zZ+tKL+9SU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784100943; c=relaxed/simple;
-	bh=XrpBrSzqAHhFkOMUBb4Vj2L+nXv9hn91/D0OJ96ZpUQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=tYI4JJ99AuKWFOiyvv+QynMbwwaKC5zBzvYcsW5pLZAEXj7pz3dbLHJCYC4QKTJl9z5a/EHBlHqxZ63LhNuCV6ciydZOGbt8hSgSNaGpOIHO8RLfJmoNv/Wv7CppBplSj4tZXOJrq+jbiDj820nKQNIVAJA/YNWlvFhCw1nZ3rM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=HzZoYDBx; arc=none smtp.client-ip=210.202.87.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92DFE3C4B9B
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 07:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784101989; cv=pass; b=drQ5/R/CV4J3sb49FNjsRXO5WjMfzZFl7CRFR9aEXgmZxlYlHlziHvDFNgG2uREztSjBECwBSfcwTTRYqirN0yzN/8t+CW8YzIo2TJVghi2p7XHU5q0IA9/xExo2ctRfx7yRap/QWW09NUHLwTByhg7NWXlE7TsjQplaNrf+NQI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784101989; c=relaxed/simple;
+	bh=9YX4dE+yfNDLsdJvZJbsFDglIGvjVkjjw2Mk4BuFTmE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Q1PxMuognMnxEAToPC7yflymF6amU7JtEnaBmRbiJGqeII7SueLPn6Gk3V9sZ/j+vLk25yyd0hETXNyl3JqIZWopHaOlJrcifkIj1Nv4YYyqcl0UxzpVr2LJmJSRiFqpHX9uqhMaokYORyKzp5a9RuAQcPXQ44ySwLKeGHgloCA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Sz+G2/VC; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=On5jnowc; arc=pass smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="HzZoYDBx"
-X-UUID: c4cd1a3e801f11f181a149c3f3c08161-20260715
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=vOt87bP1hOgaxUDS1yo1O42zmiUC4MNSRQiNlqNrKKw=;
-	b=HzZoYDBxdiYJThS1pl7gMxcVjPfJy06q6kyyf+7L6N6ft/DXCxbJlBstygRu/PWhhmIgNmjShfUvlJ4Y0UqHdQIIFJc2aqMJHI/SrP+G6DLrebQCEEU9i5d1/tUkbwA3PFuGwvDnRzSGfqQtAkb8SJi92h89WeIkGIV+Imrm+08=;
-X-UUID: c4cd1a3e801f11f181a149c3f3c08161-20260715
-Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
-	(envelope-from <sp_isw1_at@novatek.com.tw>)
-	(Generic MTA)
-	with ESMTP id 1002625376; Wed, 15 Jul 2026 15:35:35 +0800
-Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id E76981A1E1C;
-	Wed, 15 Jul 2026 15:35:35 +0800 (CST)
-Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id E9C95C600CC; Wed, 15 Jul 2026 15:35:34 +0800 (CST)
-From: Nina_Kuo@novatek.com.tw
-To: andi.shyti@kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: ben_huang@novatek.com.tw,
-	toby_chui@novatek.com.tw,
-	shihpei_hsu@novatek.com.tw
-Subject: [PATCH v3 3/3] i2c: Add i2c-nt726xx.c I2C driver for Novatek NT726xx SoCs
-Date: Wed, 15 Jul 2026 15:35:34 +0800
-Message-Id: <20260715073534.147663-1-Nina_Kuo@novatek.com.tw>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20260715073521.147610-1-Nina_Kuo@novatek.com.tw>
-References: <20260715073521.147610-1-Nina_Kuo@novatek.com.tw>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Sz+G2/VC";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="On5jnowc"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66F3lJUw2624419
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 07:53:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	pLek28axscsCPFWO/Z/JAne78HjenYIUsRjAVNxPzWo=; b=Sz+G2/VCYAbYlEVg
+	GWsJHKNm/x1ElQWVGvbElyl795HC6WCN4WOhRCllGM8MOAU9YVPnUWr8nfjcAj6i
+	AfSomJ/oRUOA3Mpk3ehnz7XD8cWUfB+0uWBqAwm3idNoqVq1AmKS1wwbYXZGoOFr
+	r3KTmwK91J9i6vmnou7C9BY4g2JzkWu0XEGw7BC13GwG8SLrMptnde32Ho1XXUGg
+	XA+F/DEH3kkYbV9gzNSVNTxYbS8tG+fOBnscHcvIuEqpcfffLy2HYYhbUoiu8Vuq
+	Vd7b2v6BncOCq6mdqgj3DU4gg6I21hUDnOF95n2wcQAb4eMkyvFISLWK1xBypWod
+	pKDHNA==
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fdnnqupmm-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 07:53:01 +0000 (GMT)
+Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-92e55f0613cso622673785a.3
+        for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 00:53:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784101981; cv=none;
+        d=google.com; s=arc-20260327;
+        b=DUru2iTbhI2dpzvxB243Zg1IrGFK4yeyMnP7iz08XwmgRi6MteEUqDEJ7YDzMKICHc
+         X8pguLrftNWuZ34FIByGDjdblJdHU65xVE/j0tcZlvAWq4Z9YPY2JplMk9kN63zPjJpd
+         Jz7qDnU7k2OdRpkIeKdXvZySjXae9pA8BhCdIyDlrqaPzZdPRhrNOoT6Uv9ZsDkBwD5a
+         Qv6D25F+wspUACX4CZm/njVUkEtTjXfRN7ZiMxtLvcn5nuQNLXYcNNYXijoU/a3Ek668
+         ugQUxKYOnngENsBTuunJiPpiSVStqKsxN6dJ1CkP4ctbjWCk1FcOh0WVxPlFrNjBufIn
+         1IGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=pLek28axscsCPFWO/Z/JAne78HjenYIUsRjAVNxPzWo=;
+        fh=ZMGXdIeRPZhcQBsc7rhIIy1goDcniEN3ZHBUaqL18+g=;
+        b=TajJSG4gRNFZrYd1LNEZTBH6+mGGFNI17NNROC+IvfqcepqF5iAa4X2MXJuTVHq5zT
+         XS9O9laV4B5PUt3YMbw4wRkmSVJg0EL4l0gBSpFrNIFz8X7TBzJZxd2+R6nT2toB51Ao
+         3TxO4umLSRWXhVMMEZvaAmvXCclQ3yB+6GhC2HqQFuUxxG2a6iVDODe2JJZtK9o2nDf0
+         ktM875orts481TBKovepY7EQrRetlSDFM34Ou189IMmI0xN8vbRLteXpAcrBoGM83V56
+         WBenmaV65lfvzElHfpyDDmzcDCkQTG68G4XuUFm9cQlgNzaxNbGkzRJh+YKQGVTMJiSR
+         JUSA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1784101981; x=1784706781; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=pLek28axscsCPFWO/Z/JAne78HjenYIUsRjAVNxPzWo=;
+        b=On5jnowcUAQW73FA5VrP3yxVX+/XHWlfM1SEUeBmnd1R8K4gYWN8ghzWSgDI7NIMMS
+         Xgwj9HZkglErjevBoVEUaEivjtqUG8/QfmyTZM2Vonjk8OqDcwPfchFIT7jsLLbIuRCS
+         dgIrA91vNAeBmEUygv/pCePQU6ucCwO7aD0SM7bpNAG+M2uC8LtUVtNtSDnavAARGRB4
+         lqKT2sf3HK1d+JOwVJQs3nQONXcMgkp59O8KV7tP5593C4pjzB8An5cguWD/P4my6Zhk
+         9Gr+JCw/dx89izTe89MK0Q9KYNBEF4G1WER0b1eNJDHekfz2eYhGnSfB85V6p1Ae2Wkh
+         oCZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784101981; x=1784706781;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=pLek28axscsCPFWO/Z/JAne78HjenYIUsRjAVNxPzWo=;
+        b=WZWWM+o+2PL341HvWAyTkIwyabdHKS3zXzm8kpmD6SEq3cHbPzKPFS1P7AOu6z4jPA
+         9wnFrXjGSOy5uw1RqQUX2jeuw/Odj6hBQ+A0iOmJVki/vloVGrf8r4bpcxScltvn9XpZ
+         iv/sAO8+I3B6ATt40gkmdPTpZaFCesVgc3CMENKFvB8YDUwxzxAzfYbNQ/rIDihArE9C
+         o8o69u/DyugZfOeHsaLVTepWGCX81IrrWwDjpbQOqZ4gxafUjsRyl4GJH8vYFmKA6H8J
+         5oDZ6pBq6fQQfFT/ciOhKMicJdwUU5xYmItlUlqeVtkF5ccEFkl2v7S49BJKgwiCmjIU
+         DPTQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rp22jt8s4plOU6FDhqYoiuCdTHL0md/FFA9Mi42RKnng/Px5a4AdUyP1TgwuX0obQZ9Oh3Ieqgtd5M=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1xO/kbkUkOcKb29wfst8Fpiqx7o4Kc5TcJhRVesE63YXDGbmC
+	qBXt0lYyrqGhwjYIDeKgaEaQW7GIu9u1vvLex93gAWf4Qke5mUG2llEcc2SLHa0qqlyaBW5kYqf
+	q7qjJZv1i4qT6rqyINiILqocCFFYVqKzoLR/vi7OHAwEqsvHL2nljAVvMzBnDsRRJ2jcqWCLlI9
+	OhEqp6/v4GDdPkz6Oig5pPEA1ug2PWsW0kqrB3Ow==
+X-Gm-Gg: AfdE7ckTMkc8GvlRzVjA2X0h2+770ZtjC7DQIKJwS9Mk0u1fbwSWroNovqCV6YbO0WK
+	70UmISxlczX7J2VKOb033gzjrp+FGdL4ed9PgWcxa58En2GT09rx2lBUwu6MjxkZUeigolp6XUS
+	RwWSHfn59RDbL33cEktZ/z/+/JI1ewph3UEPM9D6wlHnwVVa31dIQJsD5Ct4YuqWBixKCjrK8bU
+	H1MLE0gRyBQBlY9+a2LUM6FbBnpVwEY8996WskSsjm5+nqA4AQk1V5ypCwJFd7eY9gw3hlaZ3vf
+	Xk4xBgwSMKw=
+X-Received: by 2002:a05:620a:600f:b0:92e:8210:fff9 with SMTP id af79cd13be357-93086bea55cmr545859285a.56.1784101980994;
+        Wed, 15 Jul 2026 00:53:00 -0700 (PDT)
+X-Received: by 2002:a05:620a:600f:b0:92e:8210:fff9 with SMTP id
+ af79cd13be357-93086bea55cmr545858585a.56.1784101980599; Wed, 15 Jul 2026
+ 00:53:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260713-shikra-camss-review-v5-0-db53be15dc4f@oss.qualcomm.com> <20260713-shikra-camss-review-v5-3-db53be15dc4f@oss.qualcomm.com>
+In-Reply-To: <20260713-shikra-camss-review-v5-3-db53be15dc4f@oss.qualcomm.com>
+From: Loic Poulain <loic.poulain@oss.qualcomm.com>
+Date: Wed, 15 Jul 2026 09:52:48 +0200
+X-Gm-Features: AUfX_mylGXRGoAJ8WLPXjHG-LrYjgeK28hgV3O_EXafPt2RbMf7pLiI-38KOrs0
+Message-ID: <CAFEp6-3MrGLyTQ5+qaZ2nF=EWLgOhepTB41CwEEQZwJ6zQh8Rw@mail.gmail.com>
+Subject: Re: [PATCH v5 3/6] arm64: dts: qcom: shikra: Add CCI definitions
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: "Bryan O'Donoghue" <bod@kernel.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org,
+        linux-media@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+        Suresh Vankadara <quic_svankada@quicinc.com>,
+        Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE1MDA3NSBTYWx0ZWRfXy8xUzxm4M1Jc
+ lsA0GpIi2JcgXXAw6aNxK8JncB8HEb8pfB6iFnI6O7amsup+OrNnqstVnS2i2mYGQeRuINm4BHL
+ lSIm/76vUNmIA7BoXROdbzKh/2WH7khtngERGZVW5M9htLzTbaLnSqMmHS9UZWKwNlbQQiRg/mS
+ Vtk2qgYNLD7Wd3PEB+b0JGwBkEyLhURSGNoCoUy3QbAz7CA7eSRJHj6x/v6MC5pJ/44rPdJl76M
+ KueYQYtTcChOGLUZJ+Hw6VACFqtcJd5v9l/nxnJBEv5jVvIfE3bTF+7N9tsNojk0De51rogCpy1
+ 9W168OXJbnT9DKO/c7YaPPpJ29iISmkArzjtiVRlIfDc9aL1sZAZ76p4WDBgaZDUUU+BTxgoJvP
+ wWu5DR265xF/Q+OCqygHnnV56gqL9+ojZpwlIPxYKx5TDubOKMQCKuB7HtUsK6xVhJRxqMt4U/G
+ CxPdeioLWbBwN5fjb2A==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE1MDA3NSBTYWx0ZWRfX2AX2KBACNq16
+ 0ckIja330kbiclnUp3JFDCK0ucV+0ZcZURli/s8D6t28atvKBT1Ej/hN48FarrvP8cRxaaJXJdL
+ Nj4RZpsgTP2GiEeAc2z35ahW1RNsVdc=
+X-Authority-Analysis: v=2.4 cv=U+Oiy+ru c=1 sm=1 tr=0 ts=6a573c5e cx=c_pps
+ a=50t2pK5VMbmlHzFWWp8p/g==:117 a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10
+ a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=_glEPmIy2e8OvE2BGh3C:22 a=EUspDBNiAAAA:8 a=KKAkSRfTAAAA:8
+ a=U2PIo7JDszhCzVx53KgA:9 a=QEXdDO2ut3YA:10 a=IoWCM6iH3mJn3m4BftBB:22
+ a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-GUID: tLae2plNyvA42h-b7WPrn874LBda8E9o
+X-Proofpoint-ORIG-GUID: tLae2plNyvA42h-b7WPrn874LBda8E9o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-15_02,2026-07-14_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0
+ clxscore=1015 priorityscore=1501 impostorscore=0 adultscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607150075
 
-From: Ben Huang <Ben_Huang@novatek.com.tw>
+On Mon, Jul 13, 2026 at 11:29=E2=80=AFAM Nihal Kumar Gupta
+<nihal.gupta@oss.qualcomm.com> wrote:
+>
+> Qualcomm Shikra SoC has one Camera Control Interface (CCI)
+> containing two I2C hosts.
+>
+> Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
 
-This patch introduce the support of I2C bus controller driver of
-Novatek NT726xx SoCs.
+Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
 
-This driver performs the fundamental read/write functions as
-an I2C controller and supports Standard-mode and Fast-mode.
-Default operation is Stardard-mode.
-
-Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
-Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
----
- drivers/i2c/busses/Kconfig       |  10 +
- drivers/i2c/busses/Makefile      |   1 +
- drivers/i2c/busses/i2c-nt726xx.c | 698 +++++++++++++++++++++++++++++++
- 3 files changed, 709 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-nt726xx.c
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d35456994280..52ee2c82e9d5 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -962,6 +962,16 @@ config I2C_NPCM
- 	  controllers.
- 	  Driver can also support slave mode (select I2C_SLAVE).
- 
-+config I2C_NT726XX
-+	tristate "Novatek NT726xx Driver"
-+	default n
-+	help
-+	  Say Y here if you want to enable I2C bus controller on
-+	  Novatek NT726xx SoCs.
-+	  This driver performs fundamental read/write functions
-+	  as an I2C bus controller and supports Standard-mode and
-+	  Fast-mode. Default operation is Standard-mode.
-+
- config I2C_OCORES
- 	tristate "OpenCores I2C Controller"
- 	help
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 3755c54b3d82..e82646919916 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -90,6 +90,7 @@ obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
- obj-$(CONFIG_I2C_MXS)		+= i2c-mxs.o
- obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
- obj-$(CONFIG_I2C_NPCM)		+= i2c-npcm7xx.o
-+obj-$(CONFIG_I2C_NT726XX)	+= i2c-nt726xx.o
- obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
- obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
- obj-$(CONFIG_I2C_OWL)		+= i2c-owl.o
-diff --git a/drivers/i2c/busses/i2c-nt726xx.c b/drivers/i2c/busses/i2c-nt726xx.c
-new file mode 100644
-index 000000000000..ac3fd7ccc68c
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-nt726xx.c
-@@ -0,0 +1,698 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (c) 2025 Novatek Microelectronics Corp.
-+ * Author: Ben Huang <ben_huang@novatek.com.tw>
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/irqdomain.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include <linux/version.h>
-+
-+#define I2C_INFO_LOG(fmt, ...)		\
-+	pr_info("[I/SOC_I2C] " fmt, ##__VA_ARGS__)
-+
-+#define I2C_ERR_LOG(fmt, ...)		\
-+	pr_err("[E/SOC_I2C] " fmt, ##__VA_ARGS__)
-+
-+#define I2C_NAME                              "NT726xx I2C adapter"
-+#define I2C_REG_CTRL                          0xC0
-+#define I2C_REG_CLK                           0xC4
-+#define I2C_REG_ACK                           0xC8
-+#define I2C_REG_SIZE                          0xCC
-+#define I2C_REG_FIFO1                         0xD0
-+#define I2C_REG_SUBADDR                       0xE0
-+#define I2C_REG_PINGPONG                      0xE4
-+#define I2C_REG_INTR                          0xE8
-+#define I2C_REG_FIFO2                         0xEC
-+#define I2C_REG_DUTY                          0xFC
-+#define I2C_CLR_FIFO1                         0x80
-+#define I2C_CLR_FIFO2                         0x800000
-+#define I2C_BUF_LITTLE_ENDIAN                 0x00002000
-+#define I2C_BUSY                              0x00000002
-+#define I2C_ENABLE                            0x00000004
-+#define I2C_REPEAT_ENABLE                     0x00000080
-+#define I2C_READ_OPERATION                    0x00000100
-+#define I2C_NACK                              0x01000000
-+#define I2C_CLOCK_DUTY_ENABLE                 0x00200000
-+#define I2C_CLOCK_STRETCH_ENABLE              0x08000000
-+#define I2C_MASTER_CLK_STRETCH_ENABLE         0x10000000
-+#define I2C_TRIGGER                           0x00000001
-+#define I2C_IRQ_FLAG                          0x0000FF00
-+#define I2C_IRQ_ARBI_LOSS                     0x00008000
-+#define I2C_IRQ_SUS                           0x00004000
-+#define I2C_IRQ_ALERT                         0x00002000
-+#define I2C_IRQ_CLK_STR_TIMEOUT               0x00001000
-+#define I2C_IRQ_NACK                          0x00000800
-+#define I2C_IRQ_RX_FULL                       0x00000400
-+#define I2C_IRQ_TX_EMPTY                      0x00000200
-+#define I2C_IRQ_FINISH                        0x00000100
-+#define I2C_IRQ_TX_SETTING                    0x001F001B
-+#define I2C_IRQ_RX_SETTING                    0x001F001D
-+#define I2C_IRQ_ENABLE_SETTING                0x001F001F
-+#define I2C_IRQ_DISABLE_SETTING               0x00000000
-+#define I2C_SUBADDR_ENABLE                    0x00000040
-+#define I2C_16BITSUBADDR_ENABLE               0x00010000
-+#define I2C_24BITSUBADDR_ENABLE               0x00020000
-+#define I2C_32BITSUBADDR_ENABLE               0x00040000
-+#define I2C_ACK_CTRL_COUNTER                  0x1E0
-+#define I2C_TX_EMPTY_FIFO1                    0x40
-+#define I2C_TX_EMPTY_FIFO2                    0x400000
-+#define I2C_RX_FULL_FIFO1                     0x20
-+#define I2C_RX_FULL_FIFO2                     0x200000
-+#define FIFO_1                                0
-+#define FIFO_2                                1
-+#define FIFO_ALL                              2
-+#define FIFO_CHUNK_SIZE                       16
-+#define FIFO_WORD_BYTES                       4
-+#define STBC_MASTER                           0xFC040000
-+#define STBC_PSWD                             0xFC040204
-+#define STBC_PSWD_DATA1                       0x72682
-+#define STBC_PSWD_DATA2                       0x78627
-+#define STBC_KEYPASS                          0xFC040208
-+#define STBC_I2C_SWITCH                       0xFC040220
-+
-+enum {
-+	SUBADDR_DISABLE,
-+	SUBADDR_8BITS,
-+	SUBADDR_16BITS,
-+	SUBADDR_24BITS,
-+	SUBADDR_32BITS,
-+	SUBADDR_40BITS,
-+	SUBADDR_48BITS,
-+	SUBADDR_56BITS,
-+	SUBADDR_64BITS
-+};
-+
-+struct nvt_i2c_compatible_data {
-+	unsigned int sys_clock; // Unit: Hz
-+	unsigned int stbc_clock; // Unit: Hz
-+};
-+
-+struct nvt_i2c_bus {
-+	void __iomem *base;
-+	struct i2c_adapter adapter;
-+	struct device *dev;
-+	struct completion msg_complete;
-+	struct i2c_msg *msg;
-+	unsigned int bus_clk_rate;
-+	bool stbc_i2c;
-+	const struct nvt_i2c_compatible_data *comp_data;
-+	int irq;
-+	/* used for xfer */
-+	struct i2c_msg *current_msg;
-+	int remaining;
-+	int write_ptr;
-+	int read_ptr;
-+	int fifo_idx;
-+	int error_code;
-+};
-+
-+static void nvt_i2c_use_case_feature(struct nvt_i2c_bus *i2c)
-+{
-+	void __iomem *reg_tmp;
-+
-+	if (i2c->stbc_i2c) {
-+		reg_tmp = ioremap(STBC_PSWD, 4);
-+		if (reg_tmp) {
-+			writel(readl(reg_tmp) | STBC_PSWD_DATA1, reg_tmp);
-+			writel(readl(reg_tmp) | STBC_PSWD_DATA2, reg_tmp);
-+			iounmap(reg_tmp);
-+		} else {
-+			I2C_ERR_LOG("stbc pswd ioremap failed\n");
-+		}
-+
-+		reg_tmp = ioremap(STBC_KEYPASS, 4);
-+		if (reg_tmp) {
-+			writel(readl(reg_tmp) | 0x1, reg_tmp);
-+			iounmap(reg_tmp);
-+		} else {
-+			I2C_ERR_LOG("stbc keypass ioremap failed\n");
-+		}
-+	}
-+}
-+
-+static void nvt_i2c_reset(struct nvt_i2c_bus *i2c)
-+{
-+	writel(readl(i2c->base + I2C_REG_CTRL) & ~I2C_ENABLE,
-+	       i2c->base + I2C_REG_CTRL);
-+	writel(readl(i2c->base + I2C_REG_CTRL) | I2C_ENABLE,
-+	       i2c->base + I2C_REG_CTRL);
-+}
-+
-+static void nvt_i2c_set_clk(struct nvt_i2c_bus *i2c)
-+{
-+	unsigned int duty = 0;
-+	unsigned int clk_div = 0;
-+	unsigned int source_speed = i2c->stbc_i2c ?
-+		i2c->comp_data->stbc_clock : i2c->comp_data->sys_clock;
-+
-+	clk_div = source_speed / i2c->bus_clk_rate;
-+	writel(clk_div << 1, i2c->base + I2C_REG_CLK);
-+
-+	duty = (clk_div * 9 + 10) / 20;
-+	writel(duty << 16, i2c->base + I2C_REG_DUTY);
-+
-+	writel(I2C_ACK_CTRL_COUNTER, i2c->base + I2C_REG_ACK);
-+}
-+
-+static void nvt_i2c_set_subaddr(struct nvt_i2c_bus *i2c, struct i2c_msg *msg)
-+{
-+	unsigned int reg_ctrl;
-+	unsigned int subaddr = 0;
-+	int i = 0;
-+
-+	reg_ctrl = readl(i2c->base + I2C_REG_CTRL);
-+	reg_ctrl &= ~(I2C_16BITSUBADDR_ENABLE |
-+		      I2C_24BITSUBADDR_ENABLE |
-+		      I2C_32BITSUBADDR_ENABLE);
-+
-+	if (msg && msg->len > 0 && msg->len <= 4 && msg->buf) {
-+		reg_ctrl |= I2C_SUBADDR_ENABLE;
-+
-+		switch (msg->len) {
-+		case SUBADDR_8BITS:
-+			break;
-+		case SUBADDR_16BITS:
-+			reg_ctrl |= I2C_16BITSUBADDR_ENABLE;
-+			break;
-+		case SUBADDR_24BITS:
-+			reg_ctrl |= I2C_24BITSUBADDR_ENABLE;
-+			break;
-+		case SUBADDR_32BITS:
-+			reg_ctrl |= I2C_32BITSUBADDR_ENABLE;
-+			break;
-+		default:
-+			return;
-+		}
-+
-+		for (i = 0; i < msg->len; i++)
-+			subaddr |= msg->buf[i] << (8 * (msg->len - 1 - i));
-+		writel(subaddr, i2c->base + I2C_REG_SUBADDR);
-+	} else {
-+		reg_ctrl &= ~I2C_SUBADDR_ENABLE;
-+	}
-+
-+	writel(reg_ctrl, i2c->base + I2C_REG_CTRL);
-+}
-+
-+static void nvt_i2c_init(struct nvt_i2c_bus *i2c)
-+{
-+	nvt_i2c_use_case_feature(i2c);
-+	nvt_i2c_set_clk(i2c);
-+	writel(I2C_BUF_LITTLE_ENDIAN, i2c->base + I2C_REG_PINGPONG);
-+	writel(I2C_IRQ_ENABLE_SETTING, i2c->base + I2C_REG_INTR);
-+}
-+
-+static int nvt_i2c_suspend(struct device *dev)
-+{
-+	struct nvt_i2c_bus *i2c = dev_get_drvdata(dev);
-+
-+	if (i2c) {
-+		i2c_mark_adapter_suspended(&i2c->adapter);
-+		i2c->current_msg = NULL;
-+		writel(I2C_IRQ_DISABLE_SETTING, i2c->base + I2C_REG_INTR);
-+	}
-+
-+	return 0;
-+}
-+
-+static int nvt_i2c_resume(struct device *dev)
-+{
-+	struct nvt_i2c_bus *i2c = dev_get_drvdata(dev);
-+
-+	if (i2c) {
-+		nvt_i2c_init(i2c);
-+		i2c_mark_adapter_resumed(&i2c->adapter);
-+	}
-+
-+	return 0;
-+}
-+
-+static void nvt_i2c_clear_fifo(struct nvt_i2c_bus *i2c, unsigned int which)
-+{
-+	unsigned int regval = readl(i2c->base + I2C_REG_PINGPONG);
-+
-+	switch (which) {
-+	case FIFO_1:
-+		regval |= I2C_CLR_FIFO1;
-+		break;
-+	case FIFO_2:
-+		regval |= I2C_CLR_FIFO2;
-+		break;
-+	case FIFO_ALL:
-+		regval |= I2C_CLR_FIFO1 | I2C_CLR_FIFO2;
-+		break;
-+	default:
-+		break;
-+	}
-+	writel(regval, i2c->base + I2C_REG_PINGPONG);
-+}
-+
-+static void nvt_i2c_write_fifo(struct nvt_i2c_bus *i2c,
-+			       unsigned int fifo_reg,
-+			       const unsigned char *buf,
-+			       unsigned int buf_offset,
-+			       unsigned int length)
-+{
-+	unsigned int reg_idx = 0, copy_bytes = 0, j = 0, value = 0;
-+
-+	while (length > 0) {
-+		value = 0;
-+		copy_bytes = length >= FIFO_WORD_BYTES ? FIFO_WORD_BYTES : length;
-+		for (j = 0; j < copy_bytes; j++)
-+			value |= ((unsigned int)buf[buf_offset + j]) << (j * 8);
-+
-+		writel(value, i2c->base + fifo_reg + reg_idx * 4);
-+		buf_offset += copy_bytes;
-+		length -= copy_bytes;
-+		reg_idx++;
-+	}
-+}
-+
-+static void nvt_i2c_read_fifo(struct nvt_i2c_bus *i2c,
-+			      unsigned int fifo_reg,
-+			      unsigned char *buf,
-+			      unsigned int buf_offset,
-+			      unsigned int length)
-+{
-+	unsigned int reg_idx = 0, copy_bytes = 0, j = 0, value = 0;
-+
-+	while (length > 0) {
-+		value = readl(i2c->base + fifo_reg + reg_idx * 4);
-+		copy_bytes = length >= FIFO_WORD_BYTES ? FIFO_WORD_BYTES : length;
-+		for (j = 0; j < copy_bytes; j++)
-+			buf[buf_offset + j] = (unsigned char)(value >> (j * 8));
-+
-+		buf_offset += copy_bytes;
-+		length -= copy_bytes;
-+		reg_idx++;
-+	}
-+}
-+
-+static void nvt_i2c_handle(struct nvt_i2c_bus *i2c, struct i2c_msg *msg, int is_read)
-+{
-+	unsigned int bytes, fiforeg;
-+
-+	if (!i2c || !msg || !msg->buf || msg->len == 0 || msg->len > 4096) {
-+		I2C_ERR_LOG("I2C invalid msg: i2c=%p, msg=%p, buf=%p, len=%d\n",
-+			    i2c, msg, msg ? msg->buf : NULL, msg ? msg->len : 0);
-+		if (i2c) {
-+			I2C_ERR_LOG("[%s.%d]: i2c_handle\n", dev_name(i2c->dev), i2c->adapter.nr);
-+			i2c->error_code = -EINVAL;
-+		}
-+
-+		return;
-+	}
-+
-+	bytes = i2c->remaining > FIFO_CHUNK_SIZE ? FIFO_CHUNK_SIZE : i2c->remaining;
-+	fiforeg = i2c->fifo_idx == 0 ? I2C_REG_FIFO1 : I2C_REG_FIFO2;
-+
-+	if (is_read) {
-+		nvt_i2c_read_fifo(i2c, fiforeg, msg->buf, i2c->read_ptr, bytes);
-+		i2c->read_ptr += bytes;
-+	} else {
-+		nvt_i2c_write_fifo(i2c, fiforeg, msg->buf, i2c->write_ptr, bytes);
-+		i2c->write_ptr += bytes;
-+	}
-+	nvt_i2c_clear_fifo(i2c, i2c->fifo_idx);
-+	i2c->remaining -= bytes;
-+	i2c->fifo_idx ^= 1;
-+}
-+
-+static irqreturn_t nvt_i2c_isr(int irq, void *dev_id)
-+{
-+	struct nvt_i2c_bus *i2c = dev_id;
-+	struct i2c_msg *msg = i2c->current_msg;
-+	unsigned int status = readl(i2c->base + I2C_REG_INTR);
-+	unsigned int clr = 0;
-+	int do_complete = 0;
-+
-+	if (!(status & I2C_IRQ_FLAG) || !i2c->current_msg)
-+		return IRQ_NONE;
-+
-+	if (status & I2C_IRQ_NACK) {
-+		i2c->error_code = -ENXIO;
-+		clr |= I2C_IRQ_NACK << 8;
-+	} else if (status & I2C_IRQ_RX_FULL) {
-+		if (i2c->remaining > 0)
-+			nvt_i2c_handle(i2c, msg, 1);
-+		clr |= I2C_IRQ_RX_FULL << 8;
-+	} else if (status & I2C_IRQ_TX_EMPTY) {
-+		if (i2c->remaining > 0)
-+			nvt_i2c_handle(i2c, msg, 0);
-+		clr |= I2C_IRQ_TX_EMPTY << 8;
-+	} else if (status & I2C_IRQ_FINISH) {
-+		if (i2c->remaining > 0 && (msg->flags & I2C_M_RD))
-+			nvt_i2c_handle(i2c, msg, 1);
-+		clr |= I2C_IRQ_FINISH << 8;
-+		do_complete = 1;
-+	}
-+	if (i2c->error_code)
-+		do_complete = 1;
-+
-+	writel(status | clr, i2c->base + I2C_REG_INTR);
-+	if (do_complete)
-+		complete(&i2c->msg_complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void nvt_i2c_ctrl_init(struct nvt_i2c_bus *i2c)
-+{
-+	int i = 0;
-+
-+	writel(0, i2c->base + I2C_REG_CTRL);
-+	for (i = 0; i < 4; i++) {
-+		writel(0, i2c->base + I2C_REG_FIFO1 + i * 4);
-+		writel(0, i2c->base + I2C_REG_FIFO2 + i * 4);
-+	}
-+	nvt_i2c_clear_fifo(i2c, FIFO_ALL);
-+	reinit_completion(&i2c->msg_complete);
-+}
-+
-+static int nvt_i2c_check_msg(const struct i2c_msg *msg)
-+{
-+	if (!msg || !msg->buf || msg->len == 0 || msg->len > 4096)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static void nvt_i2c_prepare_xfer(struct nvt_i2c_bus *i2c, struct i2c_msg *msg)
-+{
-+	i2c->remaining   = msg->len;
-+	i2c->current_msg = msg;
-+	i2c->write_ptr   = 0;
-+	i2c->read_ptr    = 0;
-+	i2c->error_code  = 0;
-+	i2c->fifo_idx    = 0;
-+}
-+
-+static int nvt_i2c_write(struct nvt_i2c_bus *i2c, struct i2c_msg *msg)
-+{
-+	const unsigned char *buf = msg->buf;
-+	int ret, offset = 0, write_bytes, fifo_num;
-+	unsigned int ctrl_mask;
-+
-+	ret = nvt_i2c_check_msg(msg);
-+	if (ret)
-+		return ret;
-+
-+	nvt_i2c_prepare_xfer(i2c, msg);
-+
-+	writel((msg->len * 8) << 8, i2c->base + I2C_REG_SIZE);
-+
-+	/*  Write FIFO data first */
-+	for (fifo_num = 0; fifo_num < FIFO_ALL && offset < msg->len; fifo_num++) {
-+		write_bytes = msg->len - offset > FIFO_CHUNK_SIZE ?
-+				FIFO_CHUNK_SIZE : msg->len - offset;
-+		nvt_i2c_write_fifo(i2c, fifo_num == 0 ? I2C_REG_FIFO1 : I2C_REG_FIFO2,
-+				   buf, offset, write_bytes);
-+		offset += write_bytes;
-+	}
-+	i2c->write_ptr = offset;
-+	i2c->remaining = msg->len - offset;
-+	i2c->fifo_idx = 0;
-+
-+	ctrl_mask = readl(i2c->base + I2C_REG_CTRL);
-+	ctrl_mask |= (((msg->addr << 1) << 8) | I2C_ENABLE |
-+			I2C_CLOCK_DUTY_ENABLE | I2C_CLOCK_STRETCH_ENABLE |
-+			I2C_MASTER_CLK_STRETCH_ENABLE | I2C_TRIGGER);
-+	writel(ctrl_mask, i2c->base + I2C_REG_CTRL);
-+
-+	ret = wait_for_completion_timeout(&i2c->msg_complete, i2c->adapter.timeout);
-+	if (ret == 0) {
-+		i2c->error_code = -ETIMEDOUT;
-+		nvt_i2c_reset(i2c);
-+	}
-+	if (i2c->error_code)
-+		I2C_ERR_LOG("[%s.%d]: write failed (err:%d);"
-+			    " SA[0x%X]\n",
-+			    dev_name(i2c->dev), i2c->adapter.nr, i2c->error_code,
-+			    msg->addr);
-+
-+	i2c->current_msg = NULL;
-+
-+	return i2c->error_code;
-+}
-+
-+static int nvt_i2c_read(struct nvt_i2c_bus *i2c, struct i2c_msg *msg)
-+{
-+	unsigned int ctrl_mask;
-+	int ret;
-+
-+	ret = nvt_i2c_check_msg(msg);
-+	if (ret)
-+		return ret;
-+
-+	nvt_i2c_prepare_xfer(i2c, msg);
-+
-+	writel((msg->len * 8) << 8, i2c->base + I2C_REG_SIZE);
-+
-+	ctrl_mask = readl(i2c->base + I2C_REG_CTRL);
-+	ctrl_mask |= (((msg->addr << 1) << 8) | I2C_ENABLE |
-+			I2C_REPEAT_ENABLE | I2C_READ_OPERATION |
-+			I2C_CLOCK_DUTY_ENABLE | I2C_CLOCK_STRETCH_ENABLE |
-+			I2C_MASTER_CLK_STRETCH_ENABLE | I2C_TRIGGER);
-+	writel(ctrl_mask, i2c->base + I2C_REG_CTRL);
-+
-+	ret = wait_for_completion_timeout(&i2c->msg_complete, i2c->adapter.timeout);
-+	if (ret == 0) {
-+		i2c->error_code = -ETIMEDOUT;
-+		nvt_i2c_reset(i2c);
-+	}
-+	if (i2c->error_code)
-+		I2C_ERR_LOG("[%s.%d]: read failed (err:%d);"
-+			    " SA[0x%X]\n",
-+			    dev_name(i2c->dev), i2c->adapter.nr, i2c->error_code,
-+			    msg->addr);
-+
-+	i2c->current_msg = NULL;
-+
-+	return i2c->error_code;
-+}
-+
-+static int nvt_i2c_xfer(struct i2c_adapter *adap,
-+			struct i2c_msg msgs[],
-+			int num)
-+{
-+	struct nvt_i2c_bus *i2c = i2c_get_adapdata(adap);
-+	int ret = 0, i = 0;
-+	struct i2c_msg *msg = NULL;
-+
-+	nvt_i2c_ctrl_init(i2c);
-+
-+	if (num == 2) {
-+		nvt_i2c_set_subaddr(i2c, &msgs[0]);
-+		msg = &msgs[1];
-+
-+		if (msg->flags & I2C_M_RD)
-+			ret = nvt_i2c_read(i2c, msg);
-+		else
-+			ret = nvt_i2c_write(i2c, msg);
-+	} else {
-+		nvt_i2c_set_subaddr(i2c, NULL);
-+
-+		for (i = 0; i < num; i++) {
-+			msg = &msgs[i];
-+			if (msg->flags & I2C_M_RD)
-+				ret = nvt_i2c_read(i2c, msg);
-+			else
-+				ret = nvt_i2c_write(i2c, msg);
-+			if (ret < 0)
-+				break;
-+		}
-+	}
-+
-+	if (ret < 0)
-+		return ret;
-+	return num;
-+}
-+
-+static u32 nvt_i2c_func(struct i2c_adapter *adap)
-+{
-+	return (I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL) & ~I2C_FUNC_SMBUS_QUICK;
-+}
-+
-+static int nvt_i2c_get_hwmods(const char *hwmods_name)
-+{
-+	long val;
-+
-+	if (!hwmods_name || strncmp(hwmods_name, "i2c", 3) != 0)
-+		return -EINVAL;
-+
-+	if (kstrtol(hwmods_name + 3, 10, &val) == 0 && val >= 0)
-+		return (int)val;
-+
-+	return -ENODEV;
-+}
-+
-+static struct i2c_algorithm nvt_i2c_algo = {
-+	.master_xfer = nvt_i2c_xfer,
-+	.functionality = nvt_i2c_func,
-+};
-+
-+static int nvt_i2c_parse_dts(struct nvt_i2c_bus *i2c)
-+{
-+	int ret;
-+	struct device *dev = i2c->dev;
-+	struct device_node *np = dev->of_node;
-+	const char *hwmods_val = NULL;
-+
-+	/* read DTS(novatek,hwmods) and set bus number */
-+	ret = of_property_read_string(np, "novatek,hwmods", &hwmods_val);
-+	if (ret == 0) {
-+		i2c->adapter.nr = nvt_i2c_get_hwmods(hwmods_val);
-+		if (i2c->adapter.nr >= 0) {
-+			I2C_INFO_LOG("Get novatek,hwmods:i2c%d\n", i2c->adapter.nr);
-+		} else {
-+			I2C_ERR_LOG("Invalid novatek,hwmods value = %d\n", i2c->adapter.nr);
-+			return -EINVAL;
-+		}
-+	} else {
-+		I2C_ERR_LOG("Can't get novatek,hwmods\n");
-+		return ret;
-+	}
-+
-+	i2c->comp_data = of_device_get_match_data(dev);
-+
-+	/* read DTS(novatek,stbc-controllable) */
-+	i2c->stbc_i2c = of_property_read_bool(np, "novatek,stbc-controllable");
-+
-+	/* read DTS(clock-frequency) */
-+	ret = of_property_read_u32(np, "clock-frequency", &i2c->bus_clk_rate);
-+	if (ret || !i2c->bus_clk_rate) {
-+		I2C_INFO_LOG("Not set dtb clock-frequency, set default 100kHz\n");
-+		i2c->bus_clk_rate = 100000;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct nvt_i2c_compatible_data nt726xx_data = {
-+	.sys_clock = 96000000,
-+	.stbc_clock = 12000000,
-+};
-+
-+static const struct of_device_id nvt_i2c_of_match[] = {
-+	{ .compatible = "novatek,nt72600-i2c", .data = &nt726xx_data },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, nvt_i2c_of_match);
-+
-+static int nvt_i2c_probe(struct platform_device *pdev)
-+{
-+	struct nvt_i2c_bus *i2c;
-+	struct resource *res;
-+	int ret, irq;
-+
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	i2c->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(i2c->base)) {
-+		I2C_ERR_LOG("failed to map controller\n");
-+		return PTR_ERR(i2c->base);
-+	}
-+
-+	init_completion(&i2c->msg_complete);
-+	i2c->dev = &pdev->dev;
-+
-+	ret = nvt_i2c_parse_dts(i2c);
-+	if (ret)
-+		return ret;
-+
-+	nvt_i2c_init(i2c);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		I2C_ERR_LOG("No IRQ resource\n");
-+		return irq;
-+	}
-+
-+	ret = devm_request_irq(&pdev->dev, irq, nvt_i2c_isr,
-+			       IRQF_SHARED | IRQF_TRIGGER_HIGH, I2C_NAME, i2c);
-+	if (ret) {
-+		I2C_ERR_LOG("devm_request_irq fail\n");
-+		return ret;
-+	}
-+
-+	/* Setup I2C adapter */
-+	i2c->adapter.owner = THIS_MODULE;
-+	i2c->adapter.class = I2C_CLASS_HWMON;
-+	i2c->adapter.algo = &nvt_i2c_algo;
-+	i2c->adapter.dev.of_node = of_node_get(pdev->dev.of_node);
-+	i2c->adapter.dev.parent = &pdev->dev;
-+	i2c->adapter.timeout = 3 * HZ;
-+	strscpy(i2c->adapter.name, I2C_NAME, sizeof(i2c->adapter.name));
-+	i2c_set_adapdata(&i2c->adapter, i2c);
-+
-+	ret = i2c_add_numbered_adapter(&i2c->adapter);
-+	if (ret) {
-+		I2C_ERR_LOG("[%s] failed to add adapter\n", dev_name(&pdev->dev));
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, i2c);
-+
-+	return 0;
-+}
-+
-+static void nvt_i2c_remove(struct platform_device *pdev)
-+{
-+	struct nvt_i2c_bus *i2c = platform_get_drvdata(pdev);
-+
-+	writel(I2C_IRQ_DISABLE_SETTING, i2c->base + I2C_REG_INTR);
-+	writel(readl(i2c->base + I2C_REG_CTRL) & ~I2C_ENABLE,
-+	       i2c->base + I2C_REG_CTRL);
-+	of_node_put(i2c->adapter.dev.of_node);
-+	i2c_del_adapter(&i2c->adapter);
-+}
-+
-+static const struct dev_pm_ops nvt_i2c_pm_ops = {
-+	.resume_early = nvt_i2c_resume,
-+	.suspend_late = nvt_i2c_suspend,
-+};
-+
-+static struct platform_driver nvt_i2c_driver = {
-+	.probe = nvt_i2c_probe,
-+	.remove = nvt_i2c_remove,
-+	.driver = {
-+		.name = "nvt_nt726xx_i2c",
-+		.owner = THIS_MODULE,
-+		.pm = &nvt_i2c_pm_ops,
-+		.of_match_table = of_match_ptr(nvt_i2c_of_match),
-+	},
-+};
-+
-+static int __init nvt_i2c_platform_init(void)
-+{
-+	return platform_driver_register(&nvt_i2c_driver);
-+}
-+postcore_initcall(nvt_i2c_platform_init);
-+
-+static void __exit nvt_i2c_platform_exit(void)
-+{
-+	platform_driver_unregister(&nvt_i2c_driver);
-+}
-+module_exit(nvt_i2c_platform_exit);
-+
-+MODULE_DESCRIPTION("Novatek NT726xx SoC I2C Bus Driver");
-+MODULE_AUTHOR("Ben Huang <ben_huang@novatek.com.tw>");
-+MODULE_LICENSE("GPL");
--- 
-2.40.1
-
+> ---
+>  arch/arm64/boot/dts/qcom/shikra.dtsi | 70 ++++++++++++++++++++++++++++++=
+++++++
+>  1 file changed, 70 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/qcom/shikra.dtsi b/arch/arm64/boot/dts/q=
+com/shikra.dtsi
+> index 6335caca329808ee04d9067f1f95e8075e2fc3ed..18da1380e52acdd8813625eac=
+eac796e342efd16 100644
+> --- a/arch/arm64/boot/dts/qcom/shikra.dtsi
+> +++ b/arch/arm64/boot/dts/qcom/shikra.dtsi
+> @@ -355,6 +355,38 @@ qup_uart0_default: qup-uart0-default-state {
+>                                 bias-disable;
+>                         };
+>
+> +                       cci_i2c0_default: cci-i2c0-default-state {
+> +                               /* SDA, SCL */
+> +                               pins =3D "gpio36", "gpio37";
+> +                               function =3D "cci_i2c0";
+> +                               drive-strength =3D <2>;
+> +                               bias-pull-up;
+> +                       };
+> +
+> +                       cci_i2c0_sleep: cci-i2c0-sleep-state {
+> +                               /* SDA, SCL */
+> +                               pins =3D "gpio36", "gpio37";
+> +                               function =3D "cci_i2c0";
+> +                               drive-strength =3D <2>;
+> +                               bias-pull-down;
+> +                       };
+> +
+> +                       cci_i2c1_default: cci-i2c1-default-state {
+> +                               /* SDA, SCL */
+> +                               pins =3D "gpio41", "gpio42";
+> +                               function =3D "cci_i2c1";
+> +                               drive-strength =3D <2>;
+> +                               bias-pull-up;
+> +                       };
+> +
+> +                       cci_i2c1_sleep: cci-i2c1-sleep-state {
+> +                               /* SDA, SCL */
+> +                               pins =3D "gpio41", "gpio42";
+> +                               function =3D "cci_i2c1";
+> +                               drive-strength =3D <2>;
+> +                               bias-pull-down;
+> +                       };
+> +
+>                         sdc1_state_on: sdc1-on-state {
+>                                 clk-pins {
+>                                         pins =3D "sdc1_clk";
+> @@ -702,6 +734,44 @@ port@1 {
+>                                         reg =3D <1>;
+>                                 };
+>                         };
+> +
+> +               };
+> +
+> +               cci: cci@5c1b000 {
+> +                       compatible =3D "qcom,shikra-cci", "qcom,msm8996-c=
+ci";
+> +                       reg =3D <0x0 0x05c1b000 0x0 0x1000>;
+> +
+> +                       interrupts =3D <GIC_SPI 206 IRQ_TYPE_EDGE_RISING =
+0>;
+> +
+> +                       clocks =3D <&gcc GCC_CAMSS_TOP_AHB_CLK>,
+> +                                <&gcc GCC_CAMSS_CCI_0_CLK>;
+> +                       clock-names =3D "ahb",
+> +                                     "cci";
+> +
+> +                       power-domains =3D <&gcc GCC_CAMSS_TOP_GDSC>;
+> +
+> +                       pinctrl-0 =3D <&cci_i2c0_default &cci_i2c1_defaul=
+t>;
+> +                       pinctrl-1 =3D <&cci_i2c0_sleep &cci_i2c1_sleep>;
+> +                       pinctrl-names =3D "default", "sleep";
+> +
+> +                       #address-cells =3D <1>;
+> +                       #size-cells =3D <0>;
+> +
+> +                       status =3D "disabled";
+> +
+> +                       cci_i2c0: i2c-bus@0 {
+> +                               reg =3D <0>;
+> +                               clock-frequency =3D <400000>;
+> +                               #address-cells =3D <1>;
+> +                               #size-cells =3D <0>;
+> +                       };
+> +
+> +                       cci_i2c1: i2c-bus@1 {
+> +                               reg =3D <1>;
+> +                               clock-frequency =3D <400000>;
+> +                               #address-cells =3D <1>;
+> +                               #size-cells =3D <0>;
+> +                       };
+>                 };
+>
+>                 qupv3_0: geniqup@4ac0000 {
+>
+> --
+> 2.34.1
+>
