@@ -1,125 +1,160 @@
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+Received: from luna.linkmauve.fr (82-65-109-163.subs.proxad.net [82.65.109.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0933B47F7
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 16:35:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05AE492180;
+	Wed, 15 Jul 2026 17:52:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.65.109.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784133351; cv=none; b=kGLYCHw2/b9J+DVBf8PhkyeLmTgjw6k1jquJqSFs05rmNtQI8KAaJZrWoEAnW36Kmj1SzlxM6Uw48IQfICIxi5kDJzdUdHv0s4YipAI4qWrYNr2LXYWIc6rRUrulbcclAniNvR3fIQ1cZ1OtMuLoW3TNViSvmR5XXLC9lL/ljng=
+	t=1784137980; cv=none; b=NUY/ezLr3HSaIRlrSNEKrHWHPczVSvMgJrD0d2k9vNCb4TIfz+ja1VxdutrtwKGvAmkpg2ptlJMXYu+qpOmTVrhRwcLevWfRKTtXJLJ5PTf+9R7ZXwegIrgpqmWx4FzL0lK3iJ27lhoPtqHsF+0zm/XZuKO/Y4UPnJS7wvfJPrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784133351; c=relaxed/simple;
-	bh=7IrB0okd03Aqpih7Ns5d5dds/+Un1am8C/UF9ELzHjk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rfneM8JbfZr1x9834uvOWVZIjiJNo42xmpFwnnoRhbP9534sSPxfqaQjWOz8iTqMe0yzlJFI0o6t61fmIofvb/EbVV7Iu+Kbi77rrK3JTjkYLuqVn3Li7J6m1yP6x3qUAaqgbVWMbbOPSrXMGlgCzV1/OPL+/z+e0bJ/oVPDV5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JCY8RiUX; arc=none smtp.client-ip=209.85.210.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JCY8RiUX"
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8487b7b3fc7so2739083b3a.0
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 09:35:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784133346; x=1784738146; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=xKMpslmS1nZLwbcYPHb8iOZLrmPISU+0dOPEfAdriDw=;
-        b=JCY8RiUXpBXqEOBcCz4WafKkyHB8ySjhgeWB8GNXpoxdYAFfl2tk8WWSznNL5s2BNA
-         1JdEj5JeRiy7hx6ccsoHwDQRLe4VNpdsjJ0Oqibb/lGu5lxhSCYTvfMZHkzDPGRsgeS7
-         Dpfkd8XKHPAGyGd32nvlZ2hOu7P7oJt62VrioZfemi5jqEDQc1OgMwslRo4Es8b8YJ/M
-         KyRDmEetrbnIp4UAoQmeR2+zRuPwe8j1gAYhD1PB7XyXJ/SiPIOBJpqo22WcHxe1Wh70
-         7Ua9XjwM5KVybYBV3j6irPrF+ud6FUG/PNLXbq5PKdagSe8/hZzAkB8B6ak8w/9RCltM
-         Rt6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784133346; x=1784738146;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xKMpslmS1nZLwbcYPHb8iOZLrmPISU+0dOPEfAdriDw=;
-        b=pF4jQJRqOhnG2v4XEp9bKWOeBxywRdh0EP6fwPXkKOXRw2pP5P/KH3A216a78CQ8/L
-         KT8QZ8+C0fxiH282K7pyoJiP2ysAwmLwpKEoma/XciTCb5feiWrrI7msZTDqfgVi0UxT
-         zDvvMmctr+SpGZmpBeVze5tb1Q6gmkR8UG7pRkBtp69GJkcy6JRioKG9SsF2xZBjQVDa
-         U9yF5d8wnrjLUlx43W268sE/QLyT38wO7cJvuWk+VQi1H9zo5N/LhuFpdiwJBuVPJb76
-         vRnuh84vLZ9txpEP+jehxP2MmP3F6sDnlKT/hHm+uMUNYMKxzhCww6X177f4F4NJLyQF
-         bbZA==
-X-Forwarded-Encrypted: i=1; AHgh+RrjgEitEIYtEmXDWemoAnO2pF2/x3DKz8D+ngELd7Wfn1qyF8oyRZnpagL5yACa0cPL3uVscalP5dE=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw9JWisZZAYNws8hQ1R0/vFJ0gGiyVCmpFyMv1zOfM/g02Qhyok
-	oxde1gLn31hoZY+tujZrJInkQZJrVFn3upEVQBURuDofbtrMqIlPtRsg
-X-Gm-Gg: AfdE7ckSkYu9hegZsYjVslWKzVSK0m2VnxThuksrbBqX6RG9eRUYcu57nxoch8W7kKW
-	5C3otpSEerlGqMGuDAcujcrZYmUZLf/ULSjfza84MFPHajAVHawklzDNyikPgfzuWdad8nDNk5c
-	F7j6r5bRRKgxjAX3TueHpoiCjx/aYtlhm0w0ii9y9wvywnaKnPLOlRAHtZbLie8aCYuo/QTdHDt
-	gS6s7E4ma1bjJOMRfRO5mT+4d0bwiKIjBci2VNJbWzAV28GkcvYeyqfkX8Uq6XjdOA9kWObJObS
-	EL+k642MobuBHhO/clTvGu4kQcU9BYesywvNi9qIWlUev7pxSuWI+ODUX0TUq+YEKbtl0+IGG2Q
-	A49XJJTiEdNrE64Dt9dunFnbRg43NmXXAG9u86NdR8wAFbxdsF6s5+IvdVh0jRql307TmVzd4kO
-	StxuUwswBMSJ4Qvckp7bHojEU0UQ==
-X-Received: by 2002:a05:6a00:2d8b:b0:847:770f:da4c with SMTP id d2e1a72fcca58-84a672425fdmr2861024b3a.16.1784133346501;
-        Wed, 15 Jul 2026 09:35:46 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84a4f238b21sm3470359b3a.7.2026.07.15.09.35.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 09:35:45 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Wed, 15 Jul 2026 09:35:44 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Janne Grunau <j@jannau.net>
-Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
-	Sasha Finkelstein <k@chaosmail.tech>, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org,
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: Re: [PATCH v2 06/10] dt-bindings: watchdog: apple,wdt: Add t6030 and
- t6031 compatibles
-Message-ID: <990ec316-5050-4e7b-93f4-b5a2a85ef447@roeck-us.net>
-References: <20260715-apple-t603x-initial-devices-v2-0-df65b2485710@jannau.net>
- <20260715-apple-t603x-initial-devices-v2-6-df65b2485710@jannau.net>
+	s=arc-20240116; t=1784137980; c=relaxed/simple;
+	bh=e2X4aAIB35tnuNFFrR/sMDVNB8hl9ij7Uv+uzc+FvF0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=av9vGnhkGI02PA8xsG38ojIRNrcF4KLJgWG3Mg58GvaJGfxMxs/TIVntlOgQ9/y9y0XspK4GT+q+b3FdZGflBQZiITlMe94JGns7TXKwGFfvfjsg2mrC4uP3mJ3ndPYys2S0AThkiMpUkJHXQtuHF5FJDYVNcTWtf4OomjQFewQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linkmauve.fr; spf=pass smtp.mailfrom=linkmauve.fr; arc=none smtp.client-ip=82.65.109.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linkmauve.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linkmauve.fr
+Received: by luna.linkmauve.fr (Postfix, from userid 1000)
+	id D52EEF40D22; Wed, 15 Jul 2026 19:52:45 +0200 (CEST)
+From: Link Mauve <linkmauve@linkmauve.fr>
+To: Srinivas Kandagatla <srini@kernel.org>
+Cc: Link Mauve <linkmauve@linkmauve.fr>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Tianshu Qiu <tian.shu.qiu@intel.com>,
+	Bingbu Cao <bingbu.cao@intel.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Roger Quadros <rogerq@kernel.org>,
+	Tony Lindgren <tony@atomide.com>,
+	Lee Jones <lee@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	"Vaibhaav Ram T.L" <vaibhaavram.tl@microchip.com>,
+	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	=?UTF-8?q?Andr=C3=A9=20Draszik?= <andre.draszik@linaro.org>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Praveen Teja Kundanala <praveen.teja.kundanala@amd.com>,
+	Kalyani Akula <kalyani.akula@amd.com>,
+	Michal Simek <michal.simek@amd.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Joshua Kinard <linux@kumba.dev>,
+	Antoniu Miclaus <antoniu.miclaus@analog.com>,
+	Chen-Yu Tsai <wens@kernel.org>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Boqun Feng <boqun@kernel.org>,
+	Gary Guo <gary@garyguo.net>,
+	=?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?= <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>,
+	Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Tamir Duberstein <tamird@kernel.org>,
+	Alexandre Courbot <acourbot@nvidia.com>,
+	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Johan Hovold <johan@kernel.org>,
+	Ronald Claveau <linux-kernel-dev@aliel.fr>,
+	Salah Triki <salah.triki@gmail.com>,
+	Yury Norov <ynorov@nvidia.com>,
+	David Carlier <devnexen@gmail.com>,
+	Achim Gratz <Achim.Gratz@Stromeko.DE>,
+	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+	Patrick Wicki <patrick.wicki@siemens.com>,
+	Markus Heidelberg <m.heidelberg@cab.de>,
+	Markus Perkins <markus@notsyncing.net>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
+	Chen Ni <nichen@iscas.ac.cn>,
+	Kees Cook <kees@kernel.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linux-omap@vger.kernel.org,
+	mfd@lists.linux.dev,
+	linux-i2c@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-msm@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-rtc@vger.kernel.org,
+	linux-sunxi@lists.linux.dev,
+	rust-for-linux@vger.kernel.org
+Subject: [PATCH 5/8] iio: pressure: bmp280: make reg_write callback take const void *
+Date: Wed, 15 Jul 2026 19:52:21 +0200
+Message-ID: <20260715175229.24672-6-linkmauve@linkmauve.fr>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260715175229.24672-1-linkmauve@linkmauve.fr>
+References: <20260715175229.24672-1-linkmauve@linkmauve.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260715-apple-t603x-initial-devices-v2-6-df65b2485710@jannau.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi,
+The previous commit switched from a pointer to mutable data to a pointer
+to immutable data, so let’s fix all users of the nvmem_config API.
 
-On Wed, Jul 15, 2026 at 11:11:53AM +0200, Janne Grunau wrote:
-> The watchdog on Apple silicon M3 Pro, Max and Ultra SoCs is compatible
-> with the t8103 (M1) one. Add "apple,t6030-wdt" for M3 Pro and
-> "apple,t6031-wdt" for M3 Max and Ultra as per-SoC compatibles.
-> 
-> Acked-by: Conor Dooley <conor.dooley@microchip.com>
-> Signed-off-by: Janne Grunau <j@jannau.net>
+Signed-off-by: Link Mauve <linkmauve@linkmauve.fr>
+---
+ drivers/iio/pressure/bmp280-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-This patch didn't trigger any conflicts against watchdog-next,
-so I applied it directly.
+diff --git a/drivers/iio/pressure/bmp280-core.c b/drivers/iio/pressure/bmp280-core.c
+index 990340a9b10c..0a39c5f39378 100644
+--- a/drivers/iio/pressure/bmp280-core.c
++++ b/drivers/iio/pressure/bmp280-core.c
+@@ -2261,11 +2261,11 @@ static int bmp580_nvmem_read(void *priv, unsigned int offset, void *val,
+ 	return ret;
+ }
+ 
+-static int bmp580_nvmem_write_impl(void *priv, unsigned int offset, void *val,
++static int bmp580_nvmem_write_impl(void *priv, unsigned int offset, const void *val,
+ 				   size_t bytes)
+ {
+ 	struct bmp280_data *data = priv;
+-	u16 *buf = val;
++	const u16 *buf = val;
+ 	int ret, addr;
+ 
+ 	guard(mutex)(&data->lock);
+@@ -2322,7 +2322,7 @@ static int bmp580_nvmem_write_impl(void *priv, unsigned int offset, void *val,
+ 	return ret;
+ }
+ 
+-static int bmp580_nvmem_write(void *priv, unsigned int offset, void *val,
++static int bmp580_nvmem_write(void *priv, unsigned int offset, const void *val,
+ 			      size_t bytes)
+ {
+ 	struct bmp280_data *data = priv;
+-- 
+2.55.0
 
-Guenter
-
-> ---
->  Documentation/devicetree/bindings/watchdog/apple,wdt.yaml | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
-> index 845b5e8b5abc..bef8255022fa 100644
-> --- a/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
-> +++ b/Documentation/devicetree/bindings/watchdog/apple,wdt.yaml
-> @@ -18,6 +18,8 @@ properties:
->        - items:
->            - enum:
->                - apple,t6020-wdt
-> +              - apple,t6030-wdt
-> +              - apple,t6031-wdt
->                - apple,t8122-wdt
->            - const: apple,t8103-wdt
->        - items:
