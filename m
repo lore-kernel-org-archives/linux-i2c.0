@@ -1,427 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85C7944CF56
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85121258EF9;
+	Wed, 15 Jul 2026 14:15:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784118275; cv=none; b=REIELolD2Q0YO8stY2o+GiX8aqlhwciezVJ3h+vYXAFd9vaQ29IJkvcOO6xBPBgqXJ7KpO07HrrGNUri7dwe4DmIsfUO1GiDFUQk4laSIV2ZZY3mVZHrOO/FdI9/uNtMMWpnqWaG+EaWv/H1ya2dhYtNBpcet59V/eSBcc0vt8E=
+	t=1784124947; cv=none; b=thRvd0od/dHhYH1Q0q5yzD+2YWvrmwOo+6QqeTEwsU+Qk0mf9+nuAsaDiTvkQkhwH7HJWmq7+92P9iWIcALyv/ppYHV9AAJUREN1UUd/THen0Vxe7i+tqLOqQBIa65q/ajlggyBd32K6Z096K82qSVBdiwH+/BG+rPYdi8qXEIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784118275; c=relaxed/simple;
-	bh=WjkkhX8AE55jsgJgX1FzkMHLBoKDh6l6Q8k1teC3sDk=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eUdZwzh2GRWxoGwLx7WCha+Gk7OLM8oYqfJ3+wlrc/V3JPKbY5lcUag1LD0TwvSJm1uRVhZqlYmNgOct9dCPw35zDtyK07r2W+ETj6fOkDIWEaZn8RjcBwD4O8XWoi1g35GM1bp93sBDZeTYWbPxl/uFZTQd7llojyPUTt9URFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LAgfM15h; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LAgfM15h"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EDAF1F01561
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 12:24:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784118271;
-	bh=PclXy2Uq7OPMyI+t/qU2+B3wDB55fTcxu4iOX0BaM3I=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=LAgfM15hhVaC15vSj8XQxsRNvGquqsgUOdks7kt343R7a1N5g9nUkhGh/uXHD9xfk
-	 nHuL0dFcxgvuhWFebeKG/ml37YscroM+LGpmg6vTy/NYhLFGJkXcxF49V5NileYc42
-	 yFcBl+s67bzQ7PDTJyhysHWIH3tWgPuHTNtr9YG4smlEOxhmeOTfhh5daJaeq0q4VC
-	 dVM8Wgqjwvx9UaMSkun0m/2IJKP0e4vLDNXe4PMhRzEKFuvISWLu21N/04zi2Ia3kf
-	 EMfQpJbcuN8aNGEmfLMx1xjXLy5cpYICzJI1CA7lIsIjNYsegE++dezSLCFahJvia/
-	 vzzxugae/c9Fg==
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5b14d1f9315so3733387e87.2
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Jul 2026 05:24:31 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rpwf4RTrba2O6w7F4pwHLJ1czX9WCEhq0skZs9GG26/C19HoOuyXdfNxA6HU/FOJgFDEfDidL6Ml3w=@vger.kernel.org
-X-Gm-Message-State: AOJu0YypUXTFBEVG6FNvPjPqXOoD54TKcP8ucjKAyQB7OuqETPgdKXGb
-	Mg6yOhQZB6ryMVuv/oODA6ZZHd+pMb5GslzjrA/wFGWhDDwyfjifTp4FODLDibv5OVaeCzLOA2x
-	Zcv6/1hJ/5dVZNTvvJLPJGZxDpI0k5ngra46FCo+TfQ==
-X-Received: by 2002:a05:6512:3a87:b0:5b0:12e1:4879 with SMTP id
- 2adb3069b0e04-5b1582c715emr2068822e87.60.1784118270190; Wed, 15 Jul 2026
- 05:24:30 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Wed, 15 Jul 2026 05:24:27 -0700
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Wed, 15 Jul 2026 05:24:27 -0700
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <20260714-upstream-v2-v2-2-76e5e41026db@advantech.com>
+	s=arc-20240116; t=1784124947; c=relaxed/simple;
+	bh=PENOZ6FphCYgMbjpsrelueN4Zv2luKiJc8peJ0gADA0=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=S+42N5IC0otw3hrBChplP+6NT2EVrcMS9LSEHsYLxMLXlvRvbpzxNFfIk4WUkHdtUSyQThIx7eVNq0wNHNd9U6x1P9F9lnqeYgBjL5DmITNaH53K/64sFirvIkE/g8PpqDyRqdUzOYECERnFKlv6+WZ5BiXgLyyucZYqbow5Qno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from 0005-mcp2221-v2.eml (unknown [111.196.245.140])
+	by APP-03 (Coremail) with SMTP id rQCowABXYkAOlldqSUICAA--.2564S2;
+	Wed, 15 Jul 2026 22:15:42 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Rishi Gupta <gupt21@gmail.com>
+Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, linux-i2c@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] HID: mcp2221: validate raw report length
+Date: Wed, 15 Jul 2026 21:57:50 +0800
+Message-ID: <20260715135916.24417-5-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com> <20260714-upstream-v2-v2-2-76e5e41026db@advantech.com>
-Date: Wed, 15 Jul 2026 05:24:27 -0700
-X-Gmail-Original-Message-ID: <CAMRc=Mcnbv++YhPvocyiv9m_vuy2hWeuJ2sk9BNH=j7U3-dBFQ@mail.gmail.com>
-X-Gm-Features: AUfX_mzXdlShUuByf9jSWwdYpIzB9dN3xsnMMdNBfJC8EmPDXbPafGgehOl5DxQ
-Message-ID: <CAMRc=Mcnbv++YhPvocyiv9m_vuy2hWeuJ2sk9BNH=j7U3-dBFQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/8] Add Advantech EIO GPIO driver
-To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
-Cc: linux-kernel@vger.kernel.org, mfd@lists.linux.dev, 
-	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, 
-	linux-pm@vger.kernel.org, Wenkai Chung <wenkai.chung@advantech.com.tw>, 
-	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>, 
-	Hongzhi Wang <hongzhi.wang@advantech.com>, 
-	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>, 
-	Thomas Kastner <thomas.kastner@advantech.com>, Lee Jones <lee@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Andi Shyti <andi.shyti@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
-	Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
-	Lukasz Luba <lukasz.luba@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+X-CM-TRANSID:rQCowABXYkAOlldqSUICAA--.2564S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxZF4kZrWUArW5WF15Cw4fGrg_yoW5CrWxpF
+	ZFg3909ryUtw1FgryDCa1DC3WYqF1IyasrGFWxGa4UW3Z8JF1YyFyFgFyvqr48WFykAr1x
+	Xan5Krs8uFyqk3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkv14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+	0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+	jxv20xvE14v26r126r1DMcIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
+	1lF7xvr2IY64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v26r126r1D
+	MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr
+	0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0E
+	wIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JV
+	WxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAI
+	cVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUmjgxUUUUU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-On Tue, 14 Jul 2026 17:54:16 +0200, Ramiro Oliveira
-<ramiro.oliveira@advantech.com> said:
-> This driver controls the GPIO component of the Advantech EIO chip.
->
+The MCP2221A data sheet specifies 64-byte HID command and response
+reports. mcp2221_raw_event() reads fixed response fields up to byte 55
+and can copy a 60-byte I2C payload from byte 4 through byte 63 without
+first checking the received size.
 
-The subject should be: "gpio: add a driver for the Advantech EIO GPIO
-controller"
-or similar.
+HID invokes raw_event() before generic report validation. A short report
+can therefore be interpreted beyond its received length. Reject reports
+shorter than the fixed protocol size before reading any response fields.
 
-> Signed-off-by: Ramiro Oliveira <ramiro.oliveira@advantech.com>
-> ---
->  MAINTAINERS             |   7 ++
->  drivers/gpio/Kconfig    |   6 ++
->  drivers/gpio/Makefile   |   1 +
->  drivers/gpio/gpio-eio.c | 252 ++++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 266 insertions(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 53b5f7412966..a7da47393815 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -609,6 +609,13 @@ S:	Maintained
->  F:	Documentation/scsi/advansys.rst
->  F:	drivers/scsi/advansys.c
->
-> +ADVANTECH EIO DRIVER
-> +M:	Ramiro Oliveira <ramiro.oliveira@advantech.com>
-> +S:	Maintained
-> +F:	drivers/gpio/gpio-eio.c
-> +F:	drivers/mfd/eio_core.c
-> +F:	include/linux/mfd/eio.h
+Complete the pending command with -EINVAL for a truncated report so that
+a malformed response does not turn into an unrelated timeout.
 
-Shouldn't this be part of the MFD entry?
+Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+Changes since v1: https://lore.kernel.org/all/20260715083754.31210-1-pengpeng@iscas.ac.cn/
+- validate the fixed 64-byte protocol size instead of the
+  descriptor-derived report length
+- use a named report-size constant and remove matching magic lengths
+---
+ drivers/hid/hid-mcp2221.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-> +
->  ADVANTECH SWBTN DRIVER
->  M:	Andrea Ho <Andrea.Ho@advantech.com.tw>
->  L:	platform-driver-x86@vger.kernel.org
-> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-> index f03c05288376..696065d77235 100644
-> --- a/drivers/gpio/Kconfig
-> +++ b/drivers/gpio/Kconfig
-> @@ -295,6 +295,12 @@ config GPIO_DWAPB
->  	  Say Y or M here to build support for the Synopsys DesignWare APB
->  	  GPIO block.
->
-> +config GPIO_EIO
-> +	tristate "Advantech EIO GPIO"
-> +	depends on MFD_EIO
-> +	help
-> +	  Say Y or M to build support for Advantech EIO GPIO block.
-> +
->  config GPIO_EIC_SPRD
->  	tristate "Spreadtrum EIC support"
->  	depends on ARCH_SPRD || COMPILE_TEST
-> diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-> index fa14581e3995..628596705c21 100644
-> --- a/drivers/gpio/Makefile
-> +++ b/drivers/gpio/Makefile
-> @@ -64,6 +64,7 @@ obj-$(CONFIG_GPIO_DLN2)			+= gpio-dln2.o
->  obj-$(CONFIG_GPIO_DS4520)		+= gpio-ds4520.o
->  obj-$(CONFIG_GPIO_DWAPB)		+= gpio-dwapb.o
->  obj-$(CONFIG_GPIO_EIC_SPRD)		+= gpio-eic-sprd.o
-> +obj-$(CONFIG_GPIO_EIO)			+= gpio-eio.o
->  obj-$(CONFIG_GPIO_ELKHARTLAKE)		+= gpio-elkhartlake.o
->  obj-$(CONFIG_GPIO_EM)			+= gpio-em.o
->  obj-$(CONFIG_GPIO_EN7523)		+= gpio-en7523.o
-> diff --git a/drivers/gpio/gpio-eio.c b/drivers/gpio/gpio-eio.c
-> new file mode 100644
-> index 000000000000..34e1aefd0716
-> --- /dev/null
-> +++ b/drivers/gpio/gpio-eio.c
-> @@ -0,0 +1,252 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * GPIO driver for Advantech EIO Embedded controller.
-> + *
-> + * Copyright (C) 2025 Advantech Corporation. All rights reserved.
-> + */
-> +
-> +#include <linux/errno.h>
-> +#include <linux/gpio/driver.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/eio.h>
-> +#include <linux/module.h>
-> +
-> +#define EIO_GPIO_MAX_PINS	48
-> +#define EIO_GPIO_WRITE		0x18
-> +#define EIO_GPIO_READ		0x19
-> +
-> +struct eio_gpio_dev {
-> +	u64 avail;
-> +	int max;
-> +	struct gpio_chip chip;
-> +	struct device *dev;
-> +};
-> +
-> +static struct {
-> +	int size;
-> +	bool write;
-> +} ctrl_para[] = {
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index e4ddd8e..c910f66 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -90,7 +90,8 @@ enum {
+ 	MCP2221_DIR_IN = 0x01,
+ };
+ 
+-#define MCP_NGPIO	4
++#define MCP2221_REPORT_SIZE	64
++#define MCP_NGPIO		4
+ 
+ /* MCP GPIO set command layout */
+ struct mcp_set_gpio {
+@@ -126,7 +127,7 @@ struct mcp2221 {
+ 	struct completion wait_in_report;
+ 	struct delayed_work init_work;
+ 	u8 *rxbuf;
+-	u8 txbuf[64];
++	u8 txbuf[MCP2221_REPORT_SIZE];
+ 	int rxbuf_idx;
+ 	int rxbuf_size;
+ 	int status;
+@@ -639,11 +640,11 @@ static int mcp_gpio_read_sram(struct mcp2221 *mcp)
+ {
+ 	int ret;
+ 
+-	memset(mcp->txbuf, 0, 64);
++	memset(mcp->txbuf, 0, sizeof(mcp->txbuf));
+ 	mcp->txbuf[0] = MCP2221_GET_SRAM_SETTINGS;
+ 
+ 	mutex_lock(&mcp->lock);
+-	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
++	ret = mcp_send_data_req_status(mcp, mcp->txbuf, sizeof(mcp->txbuf));
+ 	mutex_unlock(&mcp->lock);
+ 
+ 	return ret;
+@@ -682,7 +683,7 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
+ 	 * Set all bytes to 0, so Bit 7 is not set. The chip
+ 	 * only changes content of a register when bit 7 is set.
+ 	 */
+-	memset(mcp->txbuf, 0, 64);
++	memset(mcp->txbuf, 0, sizeof(mcp->txbuf));
+ 	mcp->txbuf[0] = MCP2221_SET_SRAM_SETTINGS;
+ 
+ 	/*
+@@ -703,7 +704,7 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
+ 	}
+ 
+ 	mutex_lock(&mcp->lock);
+-	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
++	ret = mcp_send_data_req_status(mcp, mcp->txbuf, sizeof(mcp->txbuf));
+ 	mutex_unlock(&mcp->lock);
+ 
+ 	return ret;
+@@ -861,6 +862,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 	u8 *buf;
+ 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
+ 
++	if (size < MCP2221_REPORT_SIZE) {
++		mcp->status = -EINVAL;
++		complete(&mcp->wait_in_report);
++		return 1;
++	}
++
+ 	switch (data[0]) {
+ 
+ 	case MCP2221_I2C_WR_DATA:
+-- 
+2.50.1 (Apple Git-155)
 
-Please use a common prefix for all symbols. "eio_gpio" like above is fine.
 
-> +	{ 0x01, false }, { 0x00, false }, { 0x00, false }, { 0x02, false },
-> +	{ 0x01, false }, { 0x00, false }, { 0x00, false }, { 0x00, false },
-> +	{ 0x00, false }, { 0x00, false }, { 0x00, false }, { 0x00, false },
-> +	{ 0x00, false }, { 0x00, false }, { 0x00, false }, { 0x00, false },
-> +	{ 0x01, true  }, { 0x01, true  }, { 0x02, true  }, { 0x02, true  },
-> +	{ 0x02, false }, { 0x10, false }
-> +};
-> +
-> +enum gpio_ctrl {
-> +	EIO_GPIO_STATUS = 0x0,
-> +	EIO_GPIO_GROUP_AVAIL = 0x3,
-> +	EIO_GPIO_ERROR = 0x04,
-> +	EIO_GPIO_PIN_DIR = 0x10,
-> +	EIO_GPIO_PIN_LEVEL = 0x11,
-> +	EIO_GPIO_GROUP_DIR = 0x12,
-> +	EIO_GPIO_GROUP_LEVEL = 0x13,
-> +	EIO_GPIO_MAPPING = 0x14,
-> +	EIO_GPIO_NAME = 0x15
-> +};
-> +
-> +static struct {
-> +	int group;
-> +	int port;
-> +} group_map[] = {
-> +	{ 0, 0 }, { 0, 1 },
-> +	{ 1, 0 }, { 1, 1 },
-> +	{ 2, 0 }, { 2, 1 },
-> +	{ 3, 0 }, { 3, 1 },
-> +	{ 3, 2 }, { 3, 3 },
-> +	{ 3, 4 }, { 3, 5 },
-> +	{ 3, 6 }, { 3, 7 }
-> +};
-> +
-> +static int pmc_write(struct device *mfd_dev, u8 ctrl, u8 dev_id, void *data)
-> +{
-> +	struct pmc_op op = {
-> +		 .cmd       = EIO_GPIO_WRITE,
-> +		 .control   = ctrl,
-> +		 .device_id = dev_id,
-> +		 .payload   = (u8 *)data,
-> +	};
-> +
-> +	if (ctrl >= ARRAY_SIZE(ctrl_para))
-> +		return -ENOMEM;
-> +
-> +	if (!ctrl_para[ctrl].write)
-> +		return -EINVAL;
-> +
-> +	op.size = ctrl_para[ctrl].size;
-> +
-> +	return eio_core_pmc_operation(mfd_dev, &op);
-> +}
-> +
-> +static int pmc_read(struct device *mfd_dev, u8 ctrl, u8 dev_id, void *data)
-> +{
-> +	struct pmc_op op = {
-> +		 .cmd       = EIO_GPIO_READ,
-> +		 .control   = ctrl,
-> +		 .device_id = dev_id,
-> +		 .payload   = (u8 *)data,
-> +	};
-> +
-> +	if (ctrl > ARRAY_SIZE(ctrl_para))
-> +		return -ENOMEM;
-> +
-> +	op.size = ctrl_para[ctrl].size;
-> +
-> +	return eio_core_pmc_operation(mfd_dev, &op);
-> +}
-> +
-> +static int get_dir(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +	u8 dir;
-> +	int ret;
-> +
-> +	ret = pmc_read(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return dir ? 0 : 1;
-> +}
-> +
-> +static int dir_input(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +	u8 dir = 0;
-> +
-> +	return pmc_write(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
-> +}
-> +
-> +static int dir_output(struct gpio_chip *chip, unsigned int offset, int value)
-> +{
-> +	u8 dir = 1;
-> +	u8 val = value;
-> +
-> +	pmc_write(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
-> +
-> +	return pmc_write(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &val);
-> +}
-> +
-> +static int gpio_get(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +	u8 level;
-> +	int ret;
-> +
-> +	ret = pmc_read(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &level);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return level;
-> +}
-> +
-> +static int gpio_set(struct gpio_chip *chip, unsigned int offset, int value)
-> +{
-> +	u8 val = value;
-> +
-> +	return pmc_write(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &val);
-> +}
-> +
-> +static int check_support(struct device *dev)
-> +{
-> +	u8  data;
-> +	int ret;
-> +
-> +	ret = pmc_read(dev, EIO_GPIO_STATUS, 0, &data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if ((data & 0x01) == 0)
-> +		return -EOPNOTSUPP;
-> +
-> +	return 0;
-> +}
-> +
-> +static int check_pin(struct device *dev, int pin)
-> +{
-> +	int ret;
-> +	int group, bit;
-
-Why not put all ints on the same line? Same elsewhere.
-
-> +	u16 data;
-> +
-> +	/* Get pin mapping */
-> +	ret = pmc_read(dev, EIO_GPIO_MAPPING, pin, &data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if ((data & 0xFF) > ARRAY_SIZE(group_map))
-> +		return -EINVAL;
-> +
-> +	group = group_map[data & 0xFF].group;
-> +	bit   = data >> 8;
-> +
-> +	/* Check mapped pin */
-> +	ret = pmc_read(dev, EIO_GPIO_GROUP_AVAIL, group, &data);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return data & BIT(bit) ? 0 : -EOPNOTSUPP;
-> +}
-> +
-> +static int gpio_init(struct device *mfd, struct eio_gpio_dev *eio_gpio)
-> +{
-> +	int ret, i;
-> +
-> +	ret = check_support(mfd);
-> +	if (ret)
-
-This warrants an -ENODEV. We don't want to retry probe here, do we?
-
-> +		return dev_err_probe(eio_gpio->dev, ret, "GPIO not supported\n");
-> +
-> +	eio_gpio->avail = 0;
-> +
-> +	for (i = 0 ; i < EIO_GPIO_MAX_PINS ; i++) {
-> +		ret = check_pin(mfd, i);
-> +		if (ret)
-> +			continue;
-> +
-> +		eio_gpio->avail |= BIT(i);
-> +		eio_gpio->max = i + 1;
-> +	}
-> +
-> +	return eio_gpio->max ? 0 : -EOPNOTSUPP;
-> +}
-> +
-> +static int gpio_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct eio_gpio_dev *eio_gpio;
-> +	struct eio_dev *eio_dev = dev_get_drvdata(dev->parent);
-> +
-> +	if (!eio_dev)
-> +		return dev_err_probe(dev, -ENODEV, "Error contact eio_core\n");
-
--ENODEV is used for silently bailing out of probe and telling the driver core
-to not defer. Basically it means: this device cannot be enabled on this system
-or is not present at all. This means: don't use dev_err_probe() and don't emit
-any logs. Just return -ENODEV.
-
-Though it makes me think - can this even happen at all? MFD cells won't get
-created if parent's probe() failed.
-
-> +
-> +	eio_gpio = devm_kzalloc(dev, sizeof(*eio_gpio), GFP_KERNEL);
-> +	if (!eio_gpio)
-> +		return -ENOMEM;
-> +
-> +	eio_gpio->dev = dev;
-> +
-> +	if (gpio_init(dev->parent, eio_gpio))
-
-Can you use the ret = gpio_init() pattern for consistency with the rest of the
-code?
-
-> +		return -EIO;
-> +
-> +	eio_gpio->chip.parent = dev->parent;
-> +	eio_gpio->chip.ngpio = eio_gpio->max;
-> +	eio_gpio->chip.label = KBUILD_MODNAME;
-> +	eio_gpio->chip.owner = THIS_MODULE;
-> +	eio_gpio->chip.direction_input = dir_input;
-> +	eio_gpio->chip.get = gpio_get;
-> +	eio_gpio->chip.direction_output = dir_output;
-> +	eio_gpio->chip.set = gpio_set;
-> +	eio_gpio->chip.get_direction = get_dir;
-> +	eio_gpio->chip.base = -1;
-> +	eio_gpio->chip.can_sleep = true;
-> +
-> +	return devm_gpiochip_add_data(dev, &eio_gpio->chip, eio_gpio);
-> +}
-> +
-> +static struct platform_driver gpio_driver = {
-> +	.probe  = gpio_probe,
-> +	.driver = { .name = KBUILD_MODNAME, },
-> +};
-> +
-> +module_platform_driver(gpio_driver);
-> +
-> +MODULE_AUTHOR("Wenkai Chung <wenkai.chung@advantech.com.tw>");
-> +MODULE_AUTHOR("Ramiro Oliveira <ramiro.oliveira@advantech.com>");
-> +MODULE_DESCRIPTION("GPIO driver for Advantech EIO embedded controller");
-> +MODULE_LICENSE("GPL");
->
-> --
-> 2.43.0
->
->
-
-Bart
