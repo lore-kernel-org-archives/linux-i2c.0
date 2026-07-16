@@ -1,292 +1,188 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 847EF41A549
-	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 11:33:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE0941A77D
+	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 11:36:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784201618; cv=none; b=C8uXrpGJPe/6XywuMEy6ETtCnF4q5EwtqzXCRGgs8eaSss9gnMiem5mNKW3/LYU/ilNfWzDLky6r5x03OB3nYUNwpiD5njICJwPFmBOH591Uop2aqBZ7nHzAbehH8dHXgimUm62Vlw/w2KANr44Whc8LXCSbbtqVkXqNBkwIXgg=
+	t=1784201772; cv=none; b=kX81tf0IA1MVHzf+jTeumaJw/xEUHR7gIvYaAgRg9//MI9bbDdqxE0MdYJGw6mfrQQmxb0Zjat6uspBmkul9PqVZHjYZ2oiM29oC4pdghvoY8EA4fWNTp/eE0VQPHT+BvgnT2fjYZx6bPeqkddf9aTn1gS/7qJM7RswbiUbNYqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784201618; c=relaxed/simple;
-	bh=6uswkF5WbsXVk4hr2MyfNOWqfKaucjzJwj6p3hm0Nek=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=liNXcWIId9ftbH+ZlF91DMNCwYdWObQOnknSSHlp9/He4HerR4wiP1EL/c32yNLojZYQXheElUcyd1f3mPOcNQlMdEOQzqwDr3nPsTJ24sLJmfbMDxNq+B2oGXpHaRZlwDIt3MEMYPsxBjW5VLTWUp0+rIsnC45i9K+/79yf/sk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QobsKk5z; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	s=arc-20240116; t=1784201772; c=relaxed/simple;
+	bh=zetSJ0c59ByWOy2eXS5poYreELcox54ZDL3f0xEL8w0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ODg2G7l/bNYLu28loUswDTPHv1fxkDAY7gBqv8GTVZdZ5Praj64SL1S6N1ZJtcvdtJc/LfleVYPnRyMswcpx+C/AkSc7q1JsJyz0Dq9p1DMGqYzR+xaHfSYs6YTjqR6y+WWHzVD+yhRffLkKLDeZGWJyHX+W1TfBhOsp0sw2iCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QiQ5rI0e; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QobsKk5z"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38deea72eebso4372320a91.1
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 04:33:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QiQ5rI0e"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3847e8b0f3aso5218969a91.3
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 04:36:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784201616; x=1784806416; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Kc3QrXvErcy5sI0D6g29JLJWpplSNyHTpwcodl4uP1w=;
-        b=QobsKk5zOtBGMplmSg+3vWlhvT8eWs3fp29PUe3hPvP9G0557PZdO3BZxc6U4LtyDv
-         VfHsweAFOL4+ZTzqEJDzVfNOFmfmwoOxWAv/QZIODy5Q1cjO+bJbaSlj2A6fmwHJTj/C
-         fK4u1w+DMTIbDHjx045hgjVbwyJ4y0JlDYkwslXYTgKdESBD0TXkQN/o7R+gB24j0SuU
-         Yud0ted2soPz6fxPVX/Uy+OTWDeUWBlJlCZt9cjpUpfR6QDt6lcsJ+d+BBvhNBNNlt+w
-         mxLdQrqvBLRCdwumCgfaLCfB2Epd1Y/e0Tb3i5SPA+ZR13FMEnAPv5Xy2IXpwDOuEnKo
-         4viw==
+        d=gmail.com; s=20251104; t=1784201769; x=1784806569; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=NS5iPB2mRTWBqt3tZiXGx3hLWOV6ZMr66GfCmNpO9k8=;
+        b=QiQ5rI0eRFGxigFyJXsU8AJRJFGM+m1kwajLqIBu8QKY9W1T8CcjBgZbbFG7Zvubnz
+         LjKwMXvSvyqBJXzFDuVpjG3EuYPLv6ckm8zYKMM3v+qbaL/jXBK9A/CyQjeApKIHNq2M
+         xInFmKF5QSFAQGUyQ56Sdjvbl6Z2svlckcTjuavCn9cYBd6eIQFpmPCXyd8EJg505BKw
+         r3HIsYIGk8f71xYJwhummZAqSwbVBcIOBOXrHohssS0nESIU6uhI/fBYcuZf5no5N0G1
+         Qs2qlf+IeN0bCMszcOMkIAEP73YQlGE1AkeSfXZ6aIIxdrBDFH0V112YvPWi3QLV0Yl5
+         Lfqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784201616; x=1784806416;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Kc3QrXvErcy5sI0D6g29JLJWpplSNyHTpwcodl4uP1w=;
-        b=JvKhRaDljKZBlGCyvexfaiMzBLGrKRQpnTy2Uqg5S/MJzb7x09xpncq2kx6L3qDUgQ
-         4cX1e9FzMzXcB4Oo9XarfsaI2/Z3Fn5SL7ufRT70IxPacmJy0TMH8Z5XUFGwOWfDk/t1
-         Yc+PykMVZ52wrn2OnF2cJw/c9hV1BVlQ7aQc8Q2EQVXAzRoNFeFyvU4j7dVqNuWvTB8y
-         ugjhvlOp/CO6Y48MojoxA2mp853XFKe+ScczoQuYSdf50bMclJwcffTa9zfMNJrgosKc
-         Ek5cYo//w5EbdWs25v8x2vGJVup/GSBCfqKFQoFhYuNNLYC2lRJVaLTcUiq8/PCL2Apc
-         N0Rg==
-X-Gm-Message-State: AOJu0Yz9csnhv6vCUWbvHC7zzkpyQYbb149z/PEf8e2dsCV03KnStNMW
-	RHYo3sbnxfC60p59wYQHJ9Tr9MR9wKuXZb8rYizNSc8/taqAHgnXIuoobyB2dKv/
-X-Gm-Gg: AfdE7clJmL55dyRta7O1NBV1/wTWmOGhL4TREZ8GBNx45HAts+blfxJv3o2Yibv7aUd
-	vkJDsvuQ4uGsDg/Y2pzH+cpP8nKltAruTJBwuvCNaciB470KsFYHHbEvHxdFqmzKha+RVAwiu7Y
-	aywspaJp7s2vIMr94TSHkSJjjVmOYlgSMJUVghOvlF+HYRqhkjOyoOBUq9/SvMx9GIwwXYkvunK
-	LYB/IEsZw8UYpETzNXeWuC9i9bkkjgXCKkkBeC5qhx0MYOFXAM66Own6mwDsaYwK1Ck7oHr460A
-	EWsbEYKGJXYIbb+SNqD09YzCB1EoeIjzINAslayWQiohKJvvwDde9xE1VIJInqMKZRRNzocmkU3
-	0HChtzTNGpblm6WugM2u54fqJBGvLPfTyvSE25dJujSlxs0kP/zds3+Dy3u1u4tt04+RS5et3ew
-	jhmsrt1u9x59/eF7ZwU0GUnIJfahZOD8s89yp0iBX9FxGy5Zaz4p8Y9SEkvyaJXsnKtfvspH9SR
-	Ar01BJmQvWG+HkZh27qph5qfUFazDM066WXvKDRy+IVZx1sUBBjrthuYgWZe7J/aQ==
-X-Received: by 2002:a17:90b:2b43:b0:38d:ecfe:41ac with SMTP id 98e67ed59e1d1-38e29eb265fmr5809962a91.0.1784201615758;
-        Thu, 16 Jul 2026 04:33:35 -0700 (PDT)
-Received: from hardik-yoga.oryx-cobra.ts.net ([2401:4900:1c65:6c8f:5cab:df22:e20:58c4])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3140e545bb7sm9370362eec.3.2026.07.16.04.33.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 04:33:35 -0700 (PDT)
-From: Hardik Prakash <hardikprakash.official@gmail.com>
-To: linux-i2c@vger.kernel.org
-Cc: linux-gpio@vger.kernel.org,
-	wsa@kernel.org,
-	andriy.shevchenko@intel.com,
-	mario.limonciello@amd.com,
-	brgl@bgdev.pl,
-	basavaraj.natikar@amd.com,
-	linusw@kernel.org,
-	nathan@kernel.org,
-	chaitanya.kumar.borah@intel.com,
-	Hardik Prakash <hardikprakash.official@gmail.com>
-Subject: [PATCH v12] i2c: designware: defer probe if child GpioInt controllers are not bound
-Date: Thu, 16 Jul 2026 17:00:55 +0530
-Message-ID: <20260716113055.41319-1-hardikprakash.official@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        d=1e100.net; s=20251104; t=1784201769; x=1784806569;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=NS5iPB2mRTWBqt3tZiXGx3hLWOV6ZMr66GfCmNpO9k8=;
+        b=Wyxqer+YYDr/QcQuVT+2Rwavjeq17DHZDqpHjAZM5mOWoz75rjo5stjhxG9kHl3Ark
+         +s8XJZ37mANTVO8HTUr7aP+f6L123r3jUM5Alby4HGNCSCEZbh6cky9jjtq3DnrFextl
+         Cg6Nax/HTMNLvGR2uyKA7J1geoJxvlu9DWcRAI0cUOu6UNDOw4+HSI0vgQhCEuy11PL7
+         I01PjYBkUNgf95RNPJMHr6rqk18CpeGjmoTasHHHTAppomW1A2LGyDYXd+agOkASxplx
+         yy1+cUco4LufxWhFe00H6z9SBF01kBUuI86ma1pYKcIMwTTVgcms2Yj9EBGplbGBQ+V3
+         6dJQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqV0ib4CKLV/FXwA2b+tMCCwepSoou+4DSyYZAOOK8WAb3OaXFF9+nRcSVRYCaqZWN9WgPsrHw0Dmw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyxy4SJ3+eYQlg7zW2TLz+HxNs6JrSFxqfGIcbajPJJN3Z7YzQW
+	5Mqiz5pdelKpC1BePhUi+cM/jjgjebx5VLI8lt7NJf1kY4b4WdmtlePD
+X-Gm-Gg: AfdE7ckRFaXijxAEs/hR8ACmS7caSNoOvDFilMNCWqXQ8BeIjTyQk7at+UAw3azxXAQ
+	SxrkSST5ueqEl29jMwt3O7gF0qb6Fd7/2Q3jl5JlkQT+Ej8ND+tQX+oAtV93oetX5dkE0qtYsOv
+	nTxCgFm6y6zqUNFhCZQmQ+8j+cJYsumnsuGU0J/6hs5UhJzroTX5khhH32chibFkNL3yTFMDahw
+	j74qc7nGd5XDdMbaUnY6A+FHj8Hz+jIiz7y9nRmJRpFjpIkcl2QY8nyIYPc/1u4m0uJDwKUmBJ5
+	F9c+RE5RRrHHgpKnF8ujCnlNe6I9taLvPXlzNwnp7U+yJXP+xw5su3dp01Hdh/MvfAuQE3VVxD8
+	YpMseBMAmacGVPIPd+MSFjurh1oV3rlqq8uxUz85fnoTgW/L3H8JETM/TTCi7MLht199rnzW/rw
+	pMydE+CVNKBA5XMPW75A1lFUNFSeB+i1f5PUuFGIJg/K5W/MPMyo0=
+X-Received: by 2002:a05:6a20:158e:b0:3c0:b766:74f4 with SMTP id adf61e73a8af0-3c36c1f13cfmr6949530637.31.1784201769130;
+        Thu, 16 Jul 2026 04:36:09 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd426b36asm9053465c88.2.2026.07.16.04.36.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Jul 2026 04:36:08 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <16f3837d-b416-4d5d-8876-4e08d5a9ef26@roeck-us.net>
+Date: Thu, 16 Jul 2026 04:36:06 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/8] Add Advantech EIO Hardware Monitor driver
+To: Ramiro Manuel Silva Oliveira <Ramiro.Oliveira@advantech.de>,
+ Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>,
+ Helge Deller <deller@gmx.de>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "mfd@lists.linux.dev" <mfd@lists.linux.dev>,
+ "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+ "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
+ "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>,
+ "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+ "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+ "Wenkai.Chung" <Wenkai.Chung@advantech.com.tw>,
+ Francisco Aragon-Trivino <Francisco.Aragon@advantech.de>,
+ Hongzhi Wang <hongzhi.wang@advantech.de>,
+ Mikhail Tsukerman <Mikhail.Tsukerman@advantech.de>,
+ "Thomas.Kastner" <Thomas.Kastner@advantech.eu>
+References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
+ <20260714-upstream-v2-v2-3-76e5e41026db@advantech.com>
+ <b7171173-aa64-4393-b9cf-77d92f2ec932@roeck-us.net>
+ <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I2C controllers may have child devices with GpioInt resources that
-depend on GPIO controllers being fully initialized. If the I2C
-controller probes and enumerates children before the referenced GPIO
-controller has completed probe, GPIO interrupts may not be properly
-configured, leading to device failures.
+On 7/16/26 01:10, Ramiro Manuel Silva Oliveira wrote:
+>> On 7/14/26 08:54, Ramiro Oliveira wrote:
+>>> This driver controls the Hardware Monitor block of the Advantech EIO chip.
+>>>
+>>> There is a separate driver for the thermal device driver since it's a
+>>> use case we support currently, but if it's really necessary we can
+>>> move it to the same driver.
+>>>
+>>> Signed-off-by: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+>>
+>> Normally there would be a hwmon driver instantiating the thermal zone(s)
+>> using HWMON_C_REGISTER_TZ. If the driver actively controls thermal zones
+>> since it also handles fans, that would be instantiated from the hwmon driver.
+>>
+>> Since you have both thermal temperature and thermal fan drivers, I am very
+>> concerned that there is functionality overlap andor even conflicts. You should
+>> drop this driver and configure the thermal temperature driver to instantiate a
+>> hwmon device from it if so desired.
+> 
+> But this hwmon driver doesn't control any setting, it just displays values. Fan
+> and Thermal Zone control is handled in the thermal fan and thermal
+> temperature drivers.
+> 
+> Also this hwmon shows values not related to temperature, like voltage,
+> current and intrusion.
+> 
+> Would it be ok if I kept the HW Monitor since it only displays values, and if
+> not can I keep it to show the other non-temperature values?
+> 
 
-On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-fail with lost arbitration errors:
+All other similar drivers implement a hwmon driver and instantiate the thermal
+subsystem from it. You decided to implement thermal drivers. You should only
+have thermal or hwmon drivers, not both.
 
-  0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
-  0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
-  0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
-  2.348157  lost arbitration
+Having both would essentially implement two drivers with overlapping functionality.
+Since you decided that you want separate thermal drivers, and two of them, you
+should drop the hwmon driver.
 
-Add a dependency check that walks ACPI child devices and defers probe
-until any referenced GPIO controller is bound.
-
-Fixes: 3812a9e84265 ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11")
-Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
-Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-Assisted-by: Claude:claude-sonnet-5
-Assisted-by: DeepSeek:deepseek-v4-pro
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=221494
----
-v11 -> v12:
-- Move gdev declaration to point of use with gpio_device_find_by_fwnode()
-  call (Andy Shevchenko)
-- Extract acpi_get_handle() return into acpi_status variable rather than
-  inline in ACPI_FAILURE() (Andy Shevchenko)
-- Use guard(device)(...) instead of scoped_guard(device, ...) {} for a
-  single following statement (Andy Shevchenko)
-- Use LIST_HEAD(res_list) instead of separate declaration + INIT_LIST_HEAD()
-  (Andy Shevchenko)
-- Check acpi_dev_get_resources() error before freeing the resource list,
-  restoring the check-then-free ordering that had regressed in v11
-  (Andy Shevchenko)
-- Split ACPI_COMPANION(dev) assignment onto its own line rather than at
-  declaration (Andy Shevchenko)
-
-v10 -> v11:
-- Replaced custom gpio_controller_ref list and dedup logic with
-  gpio_device_find_by_fwnode() (Suggested-by: Andy Shevchenko)
-- Moved resource-skip explanation from commit message into a code comment
-- Fixed device_is_bound() to check gpio_device_to_device(gdev)->parent
-  rather than the gpio_device's own internal class device, which is
-  registered on the synthetic "gpio" bus and never has a driver bound to it
-
-v9 -> v10:
-- Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
-  type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
-- Simplify string_source guard to a single string_length check, confirmed
-  sufficient via ACPICA parser in drivers/acpi/acpica/rsutils.c
-  (Andy Shevchenko)
-- acpi_dev_get_resources() on single line, free only on success path
-  (Andy Shevchenko)
-- Reversed xmas tree ordering for variable declarations (Andy Shevchenko)
-- Removed useless int ret = 0 assignment (Andy Shevchenko)
-- acpi_dev_for_each_child() on single line (Andy Shevchenko)
-- Use guard(device)(gpio_dev) pattern to avoid uninitialized variable
-  warning and deduplicate the !gpio_dev check (Andy Shevchenko)
-
-v8 -> v9:
-- Sent as a 2-patch series: revert of the broken v8 patch, plus a
-  corrected resubmission
-- Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
-  type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
-- Remove gpio_dep_ctx wrapper struct, pass list_head * directly (Andy Shevchenko)
-- Add const to gpio_controller_ref.path (Andy Shevchenko)
-- Add NULL check for resource_source.string_ptr to fix a crash on hardware
-  where GPIO resources have no named controller (Reported-by: Nathan
-  Chancellor, Reported-by: Chaitanya Kumar Borah)
-- Use acpi_dev_get_resources() return value properly (Andy Shevchenko)
-- Fix all error paths to call free_gpio_controller_list() (Andy Shevchenko)
-- Change guard to #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
-- Remove erroneous put_device() calls -- acpi_get_first_physical_node()
-  returns a borrowed pointer with no refcount increment
-- Use LIST_HEAD() macro, split adev declaration and assignment (Andy Shevchenko)
-- scoped_guard single statement without braces (Andy Shevchenko)
-- Remove misused Reported-by/Closes tags (Andy Shevchenko)
-
-v7 -> v8:
-- Add revert of the earlier pinctrl-amd DMI quirk (patch 1 of the original
-  v1-v7 series), confirmed unnecessary once probe ordering is fixed
-  (Mario Limonciello)
-- Collect Acked-by (Bartosz Golaszewski) and Reviewed-by (Mario Limonciello)
-
-v6 -> v7:
-- Fix unused 'ret' variable in check_child_gpioint() (kernel test robot)
-- Replace BugLink: with Link: (Bartosz Golaszewski)
-- Add Reported-by and Closes tags for kernel test robot warning
-
-v5 -> v6:
-- Replace DMI-specific deferral with a generic GpioInt dependency check
-  walking ACPI child devices (Suggested-by: Mario Limonciello)
-
-v4 -> v5:
-- Add blank line before #include <linux/acpi.h> (Bartosz Golaszewski)
-- Use scoped_guard(device, gpio_dev) (Bartosz Golaszewski)
-
-v3 -> v4:
-- Rebase onto Linus Walleij's tree (the original patch 1 already there)
-- Use --base so series is correctly 1/1 (Andy Shevchenko)
-
-v2 -> v3:
-- Fix variable declaration style (Andy Shevchenko)
-- Add BugLink tag (Andy Shevchenko)
-- CC AMD engineers (Andy Shevchenko)
-
-v1 -> v2:
-- Replace custom HID/UID lookup with acpi_dev_get_first_match_dev()
-- Use device_is_bound() under device_lock() with explanatory comments
-- Add Assisted-by tags per coding-assistants.rst
-
-Note: this patch was originally part of a 2-patch series (v1-v7) whose
-first patch was a DMI-specific pinctrl-amd IRQ quirk; that patch was
-merged separately into Linus Walleij's tree at v1 and later reverted at
-v8 once this patch made the manual IRQ restoration unnecessary.
-
- drivers/i2c/busses/i2c-designware-platdrv.c | 31 ++++++++++-----------
- 1 file changed, 15 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 597aa9706364..a35a9cfb4432 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -141,11 +141,11 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
-  */
- static int check_gpioint_resource(struct acpi_resource *ares, void *data)
- {
--	struct gpio_device *gdev __free(gpio_device_put) = NULL;
- 	struct acpi_resource_gpio *agpio;
- 	struct acpi_device *gpio_adev;
- 	struct device *gpio_dev;
- 	acpi_handle handle;
-+	acpi_status status;
- 
- 	if (!acpi_gpio_get_irq_resource(ares, &agpio))
- 		return 1; /* not a GpioInt resource, skip */
-@@ -153,47 +153,46 @@ static int check_gpioint_resource(struct acpi_resource *ares, void *data)
- 	if (!agpio->resource_source.string_length)
- 		return 1; /* no named controller, skip */
- 
--	if (ACPI_FAILURE(acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle)))
-+	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
-+	if (ACPI_FAILURE(status))
- 		return 1;
- 
- 	gpio_adev = acpi_fetch_acpi_dev(handle);
- 	if (!gpio_adev)
- 		return 1;
- 
--	gdev = gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
-+	struct gpio_device *gdev __free(gpio_device_put) =
-+		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
- 	if (!gdev)
- 		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
- 
- 	gpio_dev = gpio_device_to_device(gdev)->parent;
--	scoped_guard(device, gpio_dev) {
--		if (!device_is_bound(gpio_dev))
--			return -EPROBE_DEFER; /* controller not bound yet: abort walk */
--	}
-+	guard(device)(gpio_dev);
-+	if (!device_is_bound(gpio_dev))
-+		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
- 
- 	return 1; /* bound, skip adding to resource list, continue walk */
- }
- 
- static int check_child_gpioint(struct acpi_device *adev, void *data)
- {
--	struct list_head res_list;
-+	LIST_HEAD(res_list);
- 	int ret;
- 
--	INIT_LIST_HEAD(&res_list);
- 	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
-+	if (ret < 0)
-+		return ret;
-+
- 	acpi_dev_free_resource_list(&res_list);
- 
--	/*
--	 * ret is a nonnegative resource count on success, which must not
--	 * be mistaken for a nonzero "stop iteration" signal by
--	 * acpi_dev_for_each_child(); only forward genuine errors.
--	 */
--	return ret < 0 ? ret : 0;
-+	return 0;
- }
- 
- static int i2c_dw_check_gpio_dependencies(struct device *dev)
- {
--	struct acpi_device *adev = ACPI_COMPANION(dev);
-+	struct acpi_device *adev;
- 
-+	adev = ACPI_COMPANION(dev);
- 	if (!adev)
- 		return 0;
- 
-
-base-commit: 58717b2a1365d06c8c64b72aa948541b53fe31eb
-prerequisite-patch-id: 2bedab9881d6b5b467c71fd4881d859e58269b9e
--- 
-2.54.0
+Guenter
 
