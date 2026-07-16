@@ -1,188 +1,103 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBE0941A77D
-	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 11:36:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C22353B7B76;
+	Thu, 16 Jul 2026 11:41:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784201772; cv=none; b=kX81tf0IA1MVHzf+jTeumaJw/xEUHR7gIvYaAgRg9//MI9bbDdqxE0MdYJGw6mfrQQmxb0Zjat6uspBmkul9PqVZHjYZ2oiM29oC4pdghvoY8EA4fWNTp/eE0VQPHT+BvgnT2fjYZx6bPeqkddf9aTn1gS/7qJM7RswbiUbNYqk=
+	t=1784202081; cv=none; b=ROmThAWPsP2n8xRmv6RCLCxoFYOMMRbEEXW2FHRLzj3loxrBsgDAInkpzsgm3ykWxYkZUl8/gigr7VdJk5bWkujFIuEREVjqMIe+NVoll6KlcsAGXK7r43TehYuedA/c73hqJoRWhhNEPL0VvKmm8AsBrJoJFilrRL4ezXQZuIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784201772; c=relaxed/simple;
-	bh=zetSJ0c59ByWOy2eXS5poYreELcox54ZDL3f0xEL8w0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ODg2G7l/bNYLu28loUswDTPHv1fxkDAY7gBqv8GTVZdZ5Praj64SL1S6N1ZJtcvdtJc/LfleVYPnRyMswcpx+C/AkSc7q1JsJyz0Dq9p1DMGqYzR+xaHfSYs6YTjqR6y+WWHzVD+yhRffLkKLDeZGWJyHX+W1TfBhOsp0sw2iCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QiQ5rI0e; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784202081; c=relaxed/simple;
+	bh=0UmkqwZURdtWHsOhOBMXQJKIFyNusAcmGEShjzYlDUQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=U8biKycKaMvv5ReFrm3ePXyqImTFoU9ZfwafBtxAgyVLqw+0jrBZOi6v3na24IK5mJs3hp3Fl6gnsOSfRfDja04160UQxuRxyhwd2nJ3GkGrykAJnwHDpJvK6MAhxoL5GiyiS/fPtrTl8dG3bVmgFfchmFDdt4TH0Ng5U6Ru9QA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SLQCsOvn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QiQ5rI0e"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3847e8b0f3aso5218969a91.3
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 04:36:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784201769; x=1784806569; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NS5iPB2mRTWBqt3tZiXGx3hLWOV6ZMr66GfCmNpO9k8=;
-        b=QiQ5rI0eRFGxigFyJXsU8AJRJFGM+m1kwajLqIBu8QKY9W1T8CcjBgZbbFG7Zvubnz
-         LjKwMXvSvyqBJXzFDuVpjG3EuYPLv6ckm8zYKMM3v+qbaL/jXBK9A/CyQjeApKIHNq2M
-         xInFmKF5QSFAQGUyQ56Sdjvbl6Z2svlckcTjuavCn9cYBd6eIQFpmPCXyd8EJg505BKw
-         r3HIsYIGk8f71xYJwhummZAqSwbVBcIOBOXrHohssS0nESIU6uhI/fBYcuZf5no5N0G1
-         Qs2qlf+IeN0bCMszcOMkIAEP73YQlGE1AkeSfXZ6aIIxdrBDFH0V112YvPWi3QLV0Yl5
-         Lfqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784201769; x=1784806569;
-        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=NS5iPB2mRTWBqt3tZiXGx3hLWOV6ZMr66GfCmNpO9k8=;
-        b=Wyxqer+YYDr/QcQuVT+2Rwavjeq17DHZDqpHjAZM5mOWoz75rjo5stjhxG9kHl3Ark
-         +s8XJZ37mANTVO8HTUr7aP+f6L123r3jUM5Alby4HGNCSCEZbh6cky9jjtq3DnrFextl
-         Cg6Nax/HTMNLvGR2uyKA7J1geoJxvlu9DWcRAI0cUOu6UNDOw4+HSI0vgQhCEuy11PL7
-         I01PjYBkUNgf95RNPJMHr6rqk18CpeGjmoTasHHHTAppomW1A2LGyDYXd+agOkASxplx
-         yy1+cUco4LufxWhFe00H6z9SBF01kBUuI86ma1pYKcIMwTTVgcms2Yj9EBGplbGBQ+V3
-         6dJQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqV0ib4CKLV/FXwA2b+tMCCwepSoou+4DSyYZAOOK8WAb3OaXFF9+nRcSVRYCaqZWN9WgPsrHw0Dmw=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyxy4SJ3+eYQlg7zW2TLz+HxNs6JrSFxqfGIcbajPJJN3Z7YzQW
-	5Mqiz5pdelKpC1BePhUi+cM/jjgjebx5VLI8lt7NJf1kY4b4WdmtlePD
-X-Gm-Gg: AfdE7ckRFaXijxAEs/hR8ACmS7caSNoOvDFilMNCWqXQ8BeIjTyQk7at+UAw3azxXAQ
-	SxrkSST5ueqEl29jMwt3O7gF0qb6Fd7/2Q3jl5JlkQT+Ej8ND+tQX+oAtV93oetX5dkE0qtYsOv
-	nTxCgFm6y6zqUNFhCZQmQ+8j+cJYsumnsuGU0J/6hs5UhJzroTX5khhH32chibFkNL3yTFMDahw
-	j74qc7nGd5XDdMbaUnY6A+FHj8Hz+jIiz7y9nRmJRpFjpIkcl2QY8nyIYPc/1u4m0uJDwKUmBJ5
-	F9c+RE5RRrHHgpKnF8ujCnlNe6I9taLvPXlzNwnp7U+yJXP+xw5su3dp01Hdh/MvfAuQE3VVxD8
-	YpMseBMAmacGVPIPd+MSFjurh1oV3rlqq8uxUz85fnoTgW/L3H8JETM/TTCi7MLht199rnzW/rw
-	pMydE+CVNKBA5XMPW75A1lFUNFSeB+i1f5PUuFGIJg/K5W/MPMyo0=
-X-Received: by 2002:a05:6a20:158e:b0:3c0:b766:74f4 with SMTP id adf61e73a8af0-3c36c1f13cfmr6949530637.31.1784201769130;
-        Thu, 16 Jul 2026 04:36:09 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd426b36asm9053465c88.2.2026.07.16.04.36.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Jul 2026 04:36:08 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <16f3837d-b416-4d5d-8876-4e08d5a9ef26@roeck-us.net>
-Date: Thu, 16 Jul 2026 04:36:06 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SLQCsOvn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082831F000E9;
+	Thu, 16 Jul 2026 11:41:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784202080;
+	bh=grDZaGyfnFIbl0HnHUmAoC7mK+T4iKzmAUaf8qnyAes=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=SLQCsOvntAMnb0LHNIOyGpgp4PodvokR8+JjWhIjwgv9tnm/PZNswwn/dajUDlUyh
+	 e7bRtGoK9Yrc08H9CtcxBE4uMaRv5AVSrElNZ5o/phNWImRMzF6B4V3KBXILJqcKpL
+	 Zo9LCNODyfT8ifoqrUa9amfFcSfxa48SafSMcScYTZVcir1A/G80F1mFGZGHIdeolT
+	 Ii2AkXpWUTS2KPoXFG/J4wTvE9SCEkwQW0A+Aj7SwXsDqGgMFSAcL9BsfMxEjI9u+G
+	 p/zwjdWb3elZnjA7aLWAceBn1p3y1AQWNO9bnllmjVrYtuSGKwlipuDvnzMg1BLAqU
+	 3dOAlQ+D0kQpw==
+Date: Thu, 16 Jul 2026 13:41:17 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Paul Cercueil <paul@crapouillou.net>, linux-mips@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH] i2c: jz4780: Cache clock rate at probe to prevent CCF
+ prepare_lock deadlock
+Message-ID: <aljCGkhZEQHzZVSW@zenone.zhora.eu>
+References: <c69ca6511780aa4759a428cb7fb70de43ee5211b.1783666715.git.hns@goldelico.com>
+ <alf7rSWaLBO8WBkR@zenone.zhora.eu>
+ <36148F30-156F-4E74-8765-D718F6FE7E76@goldelico.com>
+ <aliLbNJ51Ns0dIHX@zenone.zhora.eu>
+ <9421BB47-EFC8-4D82-989F-82A84FE46749@goldelico.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/8] Add Advantech EIO Hardware Monitor driver
-To: Ramiro Manuel Silva Oliveira <Ramiro.Oliveira@advantech.de>,
- Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>,
- Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>,
- Helge Deller <deller@gmx.de>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "mfd@lists.linux.dev" <mfd@lists.linux.dev>,
- "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
- "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
- "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>,
- "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
- "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
- "Wenkai.Chung" <Wenkai.Chung@advantech.com.tw>,
- Francisco Aragon-Trivino <Francisco.Aragon@advantech.de>,
- Hongzhi Wang <hongzhi.wang@advantech.de>,
- Mikhail Tsukerman <Mikhail.Tsukerman@advantech.de>,
- "Thomas.Kastner" <Thomas.Kastner@advantech.eu>
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
- <20260714-upstream-v2-v2-3-76e5e41026db@advantech.com>
- <b7171173-aa64-4393-b9cf-77d92f2ec932@roeck-us.net>
- <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <PSAPR02MB4502BBD659D7C4FCDDCABB6294C72@PSAPR02MB4502.apcprd02.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9421BB47-EFC8-4D82-989F-82A84FE46749@goldelico.com>
 
-On 7/16/26 01:10, Ramiro Manuel Silva Oliveira wrote:
->> On 7/14/26 08:54, Ramiro Oliveira wrote:
->>> This driver controls the Hardware Monitor block of the Advantech EIO chip.
->>>
->>> There is a separate driver for the thermal device driver since it's a
->>> use case we support currently, but if it's really necessary we can
->>> move it to the same driver.
->>>
->>> Signed-off-by: Ramiro Oliveira <ramiro.oliveira@advantech.com>
->>
->> Normally there would be a hwmon driver instantiating the thermal zone(s)
->> using HWMON_C_REGISTER_TZ. If the driver actively controls thermal zones
->> since it also handles fans, that would be instantiated from the hwmon driver.
->>
->> Since you have both thermal temperature and thermal fan drivers, I am very
->> concerned that there is functionality overlap andor even conflicts. You should
->> drop this driver and configure the thermal temperature driver to instantiate a
->> hwmon device from it if so desired.
+On Thu, Jul 16, 2026 at 10:33:56AM +0200, H. Nikolaus Schaller wrote:
+> > Am 16.07.2026 um 09:43 schrieb Andi Shyti <andi.shyti@kernel.org>:
+> > On Thu, Jul 16, 2026 at 07:44:20AM +0200, H. Nikolaus Schaller wrote:
+> >>> Am 16.07.2026 um 00:07 schrieb Andi Shyti <andi.shyti@kernel.org>:
+> >>> On Fri, Jul 10, 2026 at 08:58:35AM +0200, H. Nikolaus Schaller wrote:
+> >>>> Fix a severe AB/BA deadlock between the Common Clock Framework (CCF)
+> >>>> and the I2C adapter lock, which triggers when an I2C-controlled clock
+> >>>> generator (like the Si5351) is registered or modified under the CCF.
+> >>>> 
+> >>>> During a clock frequency change, the CCF acquires its global 'prepare_lock'
+> >>>> mutex and calls i2c_transfer() to update the chip registers, stalling
+> >>>> for the adapter's I2C bus lock.
+> >>> 
+> >>> I don't think caching the clock rate once at probe is safe.
+> >> 
+> >> Ok, valid point to discuss.
+> >> 
+> >> 
+> >>> If the controller clock rate changes afterwards,
+> >>> jz4780_i2c_set_speed() will keep using the stale cached value and
+> >>> calculate incorrect bus timings.
+> >> 
+> >> But: is clock rate ever changed during operation? Usually it is defined
+> >> by the device tree constant.
+> > 
+> > That's what you are saying in your commit message.
 > 
-> But this hwmon driver doesn't control any setting, it just displays values. Fan
-> and Thermal Zone control is handled in the thermal fan and thermal
-> temperature drivers.
+> The Si5351 clock generator driver is connected through this i2c bus. And that
+> is referred to by "when an I2C-controlled clock generator (like the Si5351) is 
+> registered or modified under the CCF".
 > 
-> Also this hwmon shows values not related to temperature, like voltage,
-> current and intrusion.
-> 
-> Would it be ok if I kept the HW Monitor since it only displays values, and if
-> not can I keep it to show the other non-temperature values?
-> 
+> Only then, this bug faces surface. Because that driver changes it's clock through
+> sending i2c commands which also ask for the lock.
 
-All other similar drivers implement a hwmon driver and instantiate the thermal
-subsystem from it. You decided to implement thermal drivers. You should only
-have thermal or hwmon drivers, not both.
+If you make a claim in the commit message, I expect the code to
+support it.
 
-Having both would essentially implement two drivers with overlapping functionality.
-Since you decided that you want separate thermal drivers, and two of them, you
-should drop the hwmon driver.
+You say that the clock rate can change, but then you store it
+only once at probe time. That immediately suggests that later
+rate changes will be ignored by the transfer path.
 
-Guenter
+> But again: how would you solve this?
 
+It's not my role to give you a solution. I'm just commenting on
+what I see.
+
+Besides that, is that an issue you have encountered yourself? Is
+it a frequent issue?
+
+Thanks,
+Andi
