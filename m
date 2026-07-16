@@ -1,118 +1,267 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F3C2EEE82;
-	Thu, 16 Jul 2026 18:55:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D610C34E75D
+	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 23:20:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784228132; cv=none; b=pDbYfKGPdReJkvIVBk/K+s/aD42rM36PDUye7DVV8MOJKdd4HdTmVxw2dRd2zWGcZTH1CtZ0QMN5lnDWnHj2VNjv470Za2KwtiRsZ093MhOgwBQw5XoJyveTNs0zSoO8cyhiXUZ9CI/waC4pb7KZyv0VZLiXh4IXikqLKUzD4d8=
+	t=1784244060; cv=none; b=QJSbjriLabdYu4DRVGlnUTLP0Vo92lmIZU9m2abHH5PX2MPhJMEhcRFUqVdSsTDF8vw8Lkpb8DAxxPNOLalZ+JR3DyVWUSwWRcov0t4E0qT4xKxhWOUvoJQ+ykumpRwh223X5nIKSbQjH7jiWHVCTVhWsboKiOTu3K+Ub+E3CJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784228132; c=relaxed/simple;
-	bh=S3XoxovJHW+4hU4Q6K5pChqd6sCN1PXzVgrO2etPW2k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CPI1n316p0UaZzDo6cDpcd2WyjoZvraCHkVbaPDlgT1z7BVJYwvfO2OUzVcSXiTC62L8AoWDq0pbKLdO68p3yeqge3stXsXAPK/wnJJ7CgHaJSNSyZe57lhQdHhKo8w7QC9693+Lmv7uRfVQalD1+or7NX5tYDHTSfBxA7PHnhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dCwGY39u; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1784244060; c=relaxed/simple;
+	bh=ftw9Kxua3A5FXfCupMJdIbXNcwnLfkeF28nadC29jw4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SEr2K+nc8NPMaWLK9XixckU6B/cQeZ2m4EsqFWDQYfAD83IQZpLO36ePKbSDitMtP+NW02aAwbQxcVp0LTF/jwjH+CaCt5RbYvaQq4Yfn8OrnyEvfNUmOZD6wiWLztQoIWXTgSWZjUuz4DJtlbCTF/u123OdWtYJGWL0+tBV4qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=W4HXOGNW; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bIOVUIaS; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dCwGY39u"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784228131; x=1815764131;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=S3XoxovJHW+4hU4Q6K5pChqd6sCN1PXzVgrO2etPW2k=;
-  b=dCwGY39uwhYsji4/6NZO1fiMnZIYs9VBs4rDSJUVljf3pxh39oAPR7NM
-   fHND2SlxS7YbGQvthS312NdVpbADBKJJ8c92gnf6abpFywdsUvHo1RKMI
-   wuMrxA3EJXsEiRSe4UgDUsQiUPvzxA4b/bnURrkzPw9JtxZ8IF8wUOe1k
-   Is2ceoiRF5vkio4AFoyQGyRIwI0oeQHvFCdTaiIraVau57rOmV3wO5fyh
-   +6vJiCTykYlxe6ujwLXo6qwT+g6/39tuntqSPzexaccZfP86gqRfttU+j
-   Zyw+PV5/k3zQWTfCnOXarq1qxKaOJgOrv9vurVAQhFigaVKiX5rLjUrKx
-   A==;
-X-CSE-ConnectionGUID: 5TjLAV2TQ56oo6HCEndR7w==
-X-CSE-MsgGUID: As8V1lpPRfWLWKoj2ubDFQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11848"; a="83885595"
-X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
-   d="scan'208";a="83885595"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 11:55:30 -0700
-X-CSE-ConnectionGUID: XGwzo1BtS9O/1By4tvuvQA==
-X-CSE-MsgGUID: 8ido/z2nSk6y7sH9TXzZIw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,167,1779174000"; 
-   d="scan'208";a="258567750"
-Received: from conormcd-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.26])
-  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jul 2026 11:55:27 -0700
-Date: Thu, 16 Jul 2026 21:55:25 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
-	linusw@kernel.org, nathan@kernel.org,
-	chaitanya.kumar.borah@intel.com
-Subject: Re: [PATCH v12] i2c: designware: defer probe if child GpioInt
- controllers are not bound
-Message-ID: <alkpHdM0wBw6_DiX@ashevche-desk.local>
-References: <20260716113055.41319-1-hardikprakash.official@gmail.com>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="W4HXOGNW";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bIOVUIaS"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66GNIQ0t3894861
+	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 23:20:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	3hkNEDV7VaPjmHO2+DLTkRD6nf1Orhub6TsamTsGDoQ=; b=W4HXOGNW7sITPJKo
+	YvYV2xVhaDS3D0QwgNDa1nLZr4dT1f2rQ1W822wzQf24JFfEchPMGpcjiK+gP47N
+	uTxvM9trVbbiuQtck1ZKeH92OITqjgQDyYGC7Hx+Sh4KBNJSAiYSvSLly4cS5k9V
+	PymNb8yphPTO6id21E7LLKKmcdPvP9RgW9JUk4ww9Unm81XYo6UlYl5aeXV8Kt9s
+	sXpudQEraIFbooMznZOGXtvkg5LfZMU4vgi5O6k5Vd75hXD55uHbfXmbf/ctUsYk
+	rh2AtQ7pNgu+hqlKf+axtgOXf728J2CGdmZZsgZ2qjRmn03zqs49jLQTmzt6KSYO
+	W6lb8A==
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ff1m9hupy-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 23:20:57 +0000 (GMT)
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-c9fe4c5eb39so5080812a12.1
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 16:20:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1784244057; x=1784848857; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:organization
+         :references:in-reply-to:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=3hkNEDV7VaPjmHO2+DLTkRD6nf1Orhub6TsamTsGDoQ=;
+        b=bIOVUIaShEfoOygNSQbjW+VYpFcw5nPOqSATg2HdrqUidkfZW0bQsfWTYVbCAhW9LS
+         Fr/iVcwyLnAg0qdvKYbpyt+0XAPnNSiQwOQrDBV9gbsBMbuIUgDYpbzLF1JDkN48QxXL
+         LxM1qOpM58IXYZeR5jGwKXPM0GULNk//JYYSz4v4lX5gtJtIeXP98bw9amD5WxFogl8T
+         PbSq2/Q7oQLvF8QhOZqhe54o/BFddmqTsRNbUv3x/4WkL1/mw9MGH5PwE0CKMKXmUSiB
+         bOFVUDVbo3N168pBHI8R39Ojj/PY++QoTDOJXxS0/4fREmCSI0jSfaCenAQLGX8i+kxL
+         PsTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784244057; x=1784848857;
+        h=content-transfer-encoding:content-type:mime-version:organization
+         :references:in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3hkNEDV7VaPjmHO2+DLTkRD6nf1Orhub6TsamTsGDoQ=;
+        b=kwbekjD2hSA3l7Tm5qB8nuRma+sT+hdYRbGhVXnNBIHg0C+adgVKaTg31kLyS85piQ
+         sNw2Hu/90qwNLg4xHJ4O0Pse1U37G+GP4KEilRcR0mKvG1uE1XEYLS91ySt18GcBpmmM
+         urCLWxxT1Xy83izUU2+cO1YGSzDvW5OhylB9GRK7SbQAx3OIp02lfp1SXUMMGb++GA4M
+         9t5RHs7kFCU7b9J6j2UNzkkKVqMjXl8B8dAaP4ErE0U4mEoxcj9H9kClJTAbhBHguiTE
+         StVL+tWeovfiUs6IXMK+kgyVy/KPHUcxbJ5WmUnRJtGboTKTng2VMdTzeiInNSiqozzN
+         tPtw==
+X-Forwarded-Encrypted: i=1; AHgh+Rrx2KQ/jlWzp7KbeUy4TcL2UwWYpshSWzCZVsO3XWA8XOaFZWe30O7goOtUv545/F3V2jDf1XccabU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxO4KwWhhKO+BF1NBhFqzRFHiGmjpsfSQeXrFT0SmuNPUev24YH
+	HKItem3WC6m8P1Yb8QOCkAElPWHbyPtdmSe6I26uX3SZ44QuRERe181qjGTdubTE/iDzNNnP75x
+	tmJTnbcMkWRtKdcScsXZ3jAQBtphAb9zsfklY1qEmVoNj/0EKIH9SjQeeBkqZoEU=
+X-Gm-Gg: AfdE7cky18liktoM+Pn3uq5JTxwzuj/bxMN7bCqYIGSAHMlWcC3ufByH2qcuSx0rxnb
+	s+2k+Sf9rXiS+aKB3t2qztbkfnwPgk2Vd6WQke6Yw80tIayWsbKJy+zM93A7TTwta+wtsoUNzPQ
+	uMApIi6iy90hNGdpb8mUbAiIqMot/DaBjENDEyMMg3POWRdr13WcIWKpE1tieyoZYfY7Kfql2JP
+	xO2B5kAardCQqeZBvuYuzumdxUkZ+3XRUA/dHNdquhvPF8u7LDno9HU9DajsrXxaiQ4UHCMvrGB
+	sZvYutMJgddJuWvGI6V+WkWJFo3hp01fQxnvfBJDaSzkKEyTevQ3IEWnhHKr292LWCRZkbl226L
+	jU/G80h2VeWLhoEMjy0Ka9Cr8xw==
+X-Received: by 2002:a05:6a21:48f:b0:3b3:1c7b:ff7 with SMTP id adf61e73a8af0-3c3ad9691cdmr22486637.46.1784244057219;
+        Thu, 16 Jul 2026 16:20:57 -0700 (PDT)
+X-Received: by 2002:a05:6a21:48f:b0:3b3:1c7b:ff7 with SMTP id adf61e73a8af0-3c3ad9691cdmr22458637.46.1784244056740;
+        Thu, 16 Jul 2026 16:20:56 -0700 (PDT)
+Received: from localhost ([50.35.46.84])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd428b2d3sm12873962c88.5.2026.07.16.16.20.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jul 2026 16:20:56 -0700 (PDT)
+Date: Thu, 16 Jul 2026 16:20:53 -0700
+From: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: linux-iio@vger.kernel.org, David Lechner <dlechner@baylibre.com>,
+        Nuno
+ =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+        Andy Shevchenko
+ <andy@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [RESEND PATCH 00/22] IIO: Clean out superfluous I2C checks for
+ single transfers
+Message-ID: <20260716162053.00006f99@oss.qualcomm.com>
+In-Reply-To: <5e9b7479-ed16-48aa-bd4f-26abc09e690e@metafoo.de>
+References: <20260716005737.254577-1-jonathan.cameron@oss.qualcomm.com>
+	<5e9b7479-ed16-48aa-bd4f-26abc09e690e@metafoo.de>
+Organization: Qualcomm
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.51; x86_64-w64-mingw32)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260716113055.41319-1-hardikprakash.official@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=IMIyzAvG c=1 sm=1 tr=0 ts=6a59675a cx=c_pps
+ a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=qC1CW/w66vtJz1P9yTJxNA==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
+ a=P-IC7800AAAA:8 a=EMjElgS10NdP6WehDt0A:9 a=CjuIK1q_8ugA:10
+ a=3WC7DwWrALyhR5TkjVHa:22 a=d3PnA9EDa4IxuAV0gXij:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE2MDIzNiBTYWx0ZWRfX2PRCNF2MfTCg
+ xFRuyWAgxnm4qaSSK/QJpLBqgFlfQeURgxqUgsLQli8qcPJ1y/ZdkOuDQLJXUZ/9SdRc2uNVmaf
+ ejLFNeB0WqFCUR0OWT8B6WxU85lVeqjjoRopN0K0iv67RtsPUhur0CblY+W2I8Yz20yZ/ZUF6PO
+ Ys1OLWDQE6M0CjbC+sPSlG3czlRWYgC9Dfhnfr8O0W762gQgTl812cHdxQ1IfL4XwTu8S5LeMkm
+ cCbJ0ICm3iq7o9Fp2ZesIjKsxfD1+9mOTQc2IetNhDtLLNEB95maCmidQpLaQC75mHcrf+keuVV
+ 4Z9Zvv3mzNG2cP2jQLyOUY5QswW5OwjkDn31c6gqON5dK0k/EL6KHx2pU3E1ohZ/nZy/tkDVxRS
+ /GdAfNCE1eo+ipbiXpbb6vSbUa/ikbIdsGFcM/u3nG4wtLW2oczC1Ojjq7yVaNiGtWp1DbL/3Bu
+ QUJPOQlS7InYijsZq7w==
+X-Proofpoint-GUID: Z0fSIDZphfLy20RA26mR4TPJ6V8XCURh
+X-Proofpoint-ORIG-GUID: Z0fSIDZphfLy20RA26mR4TPJ6V8XCURh
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE2MDIzNiBTYWx0ZWRfX4vfvQuOEiRei
+ d2KeTTu0fXHu72A62hRzxjr+ryKTX2y4KQrt09eFTzaG+3ZYYN9yG0lkZ+EwefrTfxrGcueH6f3
+ xyS2ryNTlhwgKfxIyPoH6UDeuxbmUAQ=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-16_08,2026-07-15_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501
+ impostorscore=0 bulkscore=0 adultscore=0 phishscore=0 malwarescore=0
+ clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607160236
 
-On Thu, Jul 16, 2026 at 05:00:55PM +0530, Hardik Prakash wrote:
-> I2C controllers may have child devices with GpioInt resources that
-> depend on GPIO controllers being fully initialized. If the I2C
-> controller probes and enumerates children before the referenced GPIO
-> controller has completed probe, GPIO interrupts may not be properly
-> configured, leading to device failures.
+On Thu, 16 Jul 2026 07:55:32 -0700
+Lars-Peter Clausen <lars@metafoo.de> wrote:
+
+> On 7/15/26 5:57 PM, Jonathan Cameron wrote:
+> > Resend to include linux-iio. Sorry to all who get it twice.
+> >
+> > This came up in a recent review and I realised I have been giving incorrect
+> > review feedback for years. Both i2_master_send() and i2c_master_recv() plus
+> > the dma safe variants only ever return either an error or the full buffer
+> > size.  Short accesses do not occur.  
+> There is actually one interesting corner case. If 
+> i2c_transfer_buffer_flags() returns 0 i2c_master_{send,recv}() will also 
+> return 0, in which case the updated drivers will now read uninitialized 
+> memory. Maybe i2c_master_{send,recv}() needs to be updated to translate 
+> that to -EIO.
+
+That's indeed curious (and I'd missed it entirely!).
+
+So ends up being either the master_xfer_atomic() or master_xfer() callbacks
+returning 0.  master_xfer_atomic() is novel, it's a union with xfer_atomic()
+and no one ever sets it via that union element but given the types are the same
+all calls will actually be to xfer_atomic().
+
+Could remove that complexity whilst here but there a bunch of related callbacks
+(e.g. master_xfer() in union with xfer() where drivers are still using the old
+naming and I'm not sure I want to chase that through various subsystem trees
+right now (though for fun - and maybe profit) I had claude work out a series.
+Was fun watching it write a semantic patch and spend a while debugging it.
+Glad it has as much trouble with coccinelle scripts as the rest of us.
+There are still a few hundred instances and I haven't touched all the callbacks,
+just this pair.
+
+Anyhow, back to the question of whether they do return 0.  Yup they do :(
+
+https://elixir.bootlin.com/linux/v7.1.3/source/drivers/i2c/busses/i2c-cadence.c#L1153
+
+So any defense against that case would require hardening further up the stack.
+
++CC Andi and the i2c list.  Would anyone mind a patch to do something like:
+
+ static inline int i2c_master_recv(const struct i2c_client *client,
+                                  char *buf, int count)
+ {
+-       return i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
++       int ret;
++
++       ret = i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
++       if (ret == 0)
++               return -EIO;
++
++       return ret;
+ };
+
+Just to avoid the need for special case checks on ever call from every driver
+so that they return ret if negative or else have to check for non 0 return
+value and return -EIO or similar.   Maybe somewhere out there is someone using
+that 0 to mean something magic, but I doubt it.
+
+Jonathan
+
+`
+> >
+> > This series (also my first upstream series prepared by poking claude)
+> > removes the redundant checks from all IIO drivers.
+> >
+> > Thanks,
+> >
+> > Jonathan
+> >
+> > Jonathan Cameron (22):
+> >    iio: adc: ltc2471: Remove redundant i2c_master_recv() length check
+> >    iio: adc: ti-ads7138: Remove redundant i2c_master_send() length checks
+> >    iio: adc: versal-sysmon: Remove redundant i2c_master_{send,recv}()
+> >      length checks
+> >    iio: chemical: scd30: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: chemical: scd4x: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: chemical: sgp30: Remove redundant i2c_master_recv() length check
+> >    iio: chemical: sgp40: Remove redundant i2c_master_recv() length check
+> >    iio: chemical: sps30: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: dac: ad5446: Remove redundant i2c_master_send() length check
+> >    iio: dac: ad5696: Remove redundant i2c_master_send() length check
+> >    iio: dac: m62332: Remove redundant i2c_master_send() length check
+> >    iio: dac: max517: Remove redundant i2c_master_send() length check
+> >    iio: dac: max5821: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: dac: mcp4725: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: dac: mcp4728: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: light: lv0104cs: Remove redundant i2c_master_{send,recv}() length
+> >      checks
+> >    iio: potentiometer: ad5110: Remove redundant i2c_master_{send,recv}()
+> >      length checks
+> >    iio: pressure: abp2030pa: Remove redundant i2c_master_{send,recv}()
+> >      length checks
+> >    iio: pressure: adp810: Remove redundant i2c_master_{send,recv}()
+> >      length checks
+> >    iio: pressure: icp10100: Remove redundant i2c_master_send() length
+> >      check
+> >    iio: pressure: mprls0025pa: Remove redundant i2c_master_{send,recv}()
+> >      length checks
+> >    iio: pressure: sdp500: Remove redundant i2c_master_recv() length check
+> >
+> >   drivers/iio/adc/ltc2471.c              |  2 --
+> >   drivers/iio/adc/ti-ads7138.c           |  4 ----
+> >   drivers/iio/adc/versal-sysmon-i2c.c    |  6 ------
+> >   drivers/iio/chemical/scd30_i2c.c       |  4 ----
+> >   drivers/iio/chemical/scd4x.c           |  8 --------
+> >   drivers/iio/chemical/sgp30.c           |  2 --
+> >   drivers/iio/chemical/sgp40.c           |  4 ----
+> >   drivers/iio/chemical/sps30_i2c.c       |  4 ----
+> >   drivers/iio/dac/ad5446-i2c.c           |  2 --
+> >   drivers/iio/dac/ad5696-i2c.c           |  2 +-
+> >   drivers/iio/dac/m62332.c               |  2 --
+> >   drivers/iio/dac/max517.c               |  6 ++----
+> >   drivers/iio/dac/max5821.c              | 14 ++------------
+> >   drivers/iio/dac/mcp4725.c              | 22 ++++++----------------
+> >   drivers/iio/dac/mcp4728.c              | 13 +------------
+> >   drivers/iio/light/lv0104cs.c           |  4 ----
+> >   drivers/iio/potentiometer/ad5110.c     | 18 +++---------------
+> >   drivers/iio/pressure/abp2030pa_i2c.c   |  4 ----
+> >   drivers/iio/pressure/adp810.c          |  4 ----
+> >   drivers/iio/pressure/icp10100.c        |  2 --
+> >   drivers/iio/pressure/mprls0025pa_i2c.c |  4 ----
+> >   drivers/iio/pressure/sdp500.c          |  4 ----
+> >   22 files changed, 15 insertions(+), 120 deletions(-)
+> >  
 > 
-> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> fail with lost arbitration errors:
-> 
->   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->   2.348157  lost arbitration
-> 
-> Add a dependency check that walks ACPI child devices and defers probe
-> until any referenced GPIO controller is bound.
-
-It's utterly wrong patch. Actually this whole saga shows how AI wastes
-more time than gains a productivity.
-
-...
-
->  	gpio_dev = gpio_device_to_device(gdev)->parent;
-> -	scoped_guard(device, gpio_dev) {
-> -		if (!device_is_bound(gpio_dev))
-> -			return -EPROBE_DEFER; /* controller not bound yet: abort walk */
-> -	}
-
-> +	guard(device)(gpio_dev);
-
-When use guard()(), make sure it has a blank lines before and after, so it's
-visible as a separate entity.
-
-> +	if (!device_is_bound(gpio_dev))
-> +		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
->  
-
-...
-
-So, make sure v13 is a real patch.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
 
