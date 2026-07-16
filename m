@@ -1,70 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1275D2F0661;
-	Thu, 16 Jul 2026 15:08:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88A4C42BEA4;
+	Thu, 16 Jul 2026 15:11:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784214505; cv=none; b=WUN4h+YuA0LKCt9IYQlYiHAXZ4h1GomvAS27EndxF/g4sXF+I09XmproCc5ULUjvjNjfY3C9veHPzVPE80bhRcM1hlRLvToDzQwW6DzSbH/xjLIKR5VpUzCxuH5M1dbmkDRwz9IZvFEq32Lzl+Qe0dIqZw32ElS3KBnbNDBZELE=
+	t=1784214695; cv=none; b=QgpZSiNOX/s8h1r+Pelc4BbAwHzFzmpttyCoSn5v/wcV3YoPrSF0ikJqAVyD6DeL8NUC3gn5RZoFm+/B50MN4J9cNz1VVWOJawiddjukPN7Ls0D9s1WfYZGsrfEvCGC//mivVfafGbw+YwoETJbGy2u1AnQF5h9lxnfl2K8RDYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784214505; c=relaxed/simple;
-	bh=UnmCeSpWTrFB9pMjeVcp3Vi1onWsJIOCLmfLttlyAI4=;
+	s=arc-20240116; t=1784214695; c=relaxed/simple;
+	bh=xb11w50PrrwCxaytA29Tp0Tnvc6ifD7BYBK04Wi7YLE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Hg6pokX1ZN6jKx19Vq1TWVAcEqF/8VpP0CcANqa//XEUrdtjlB5vY7ujOBQ1nVulhkYN/Y/5SfYYfxWQ7W7NeC34F+Vn5ltx6RFBnD7C1w7Yr02ZkVJDXLq3R65fpTF6LzmJIuQJXVlU7A783YZQAqslBNEr4XE7Y0bJtLNF0JI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nKPJanKM; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=HSUKp1QwbBE356Nx2tTb0un70CI6CDgalWNF1mIgmdPVKBODbp9aVZ5hikzKTF7ScXnGHDLkWgIQyjBsIotmsSu4aFkwqGo0+Q/cCYrQERCYfK11Lc5R7mMH8sZxEGlVTQKmF4Pa5M65CQEaTWDYfL6NuJCReoulOXAo5GcCaxE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E00k9pQr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nKPJanKM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD5E91F000E9;
-	Thu, 16 Jul 2026 15:08:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E00k9pQr"
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id E17C11F000E9;
+	Thu, 16 Jul 2026 15:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784214503;
-	bh=UnmCeSpWTrFB9pMjeVcp3Vi1onWsJIOCLmfLttlyAI4=;
+	s=k20260515; t=1784214694;
+	bh=bVtSUM22Plu56d+Hb0W2FSEGvxdgjVgxuQGtCapC4fQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=nKPJanKMqWlfr4Cg01Ru1RCmWoIdOp8s5ec6GY0eoZgKmCazCWol3bnuJ3d1KwbVV
-	 vjerMy0an6udXS8z0ua8sajBj88MDWXVnLpl1+qED2Iijun9/XAnJ+4G8H1ixmHrZB
-	 GlKTsdCDrKL85asz+wIncnZYusoa8NGwUJsvtvLfWuqTKdUXdfPhuHIeP9X7+MqXQa
-	 joqCu1WTLzrJGozlJT/yoaZWBu7Mfq8Vl0sY81buI4RNGlQxzERG9cB0aRPK6liUgO
-	 LiX0D4AaRfJLnuijjHbEFD+tvBNJMaDg1ybj20uYDr9s5SqBUXR2XqAW6G3Th0TIcg
-	 qUp3qxgPE9q3w==
-Date: Thu, 16 Jul 2026 17:08:20 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-	linux-mips@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>, linux-i2c@vger.kernel.org, 
-	Discussions about the Letux Kernel <letux-kernel@openphoenux.org>
-Subject: Re: [Letux-kernel] [PATCH] i2c: jz4780: Cache clock rate at probe to
- prevent CCF prepare_lock deadlock
-Message-ID: <aljysQFgUHuVDAgK@zenone.zhora.eu>
-References: <c69ca6511780aa4759a428cb7fb70de43ee5211b.1783666715.git.hns@goldelico.com>
- <alf7rSWaLBO8WBkR@zenone.zhora.eu>
- <36148F30-156F-4E74-8765-D718F6FE7E76@goldelico.com>
- <aliLbNJ51Ns0dIHX@zenone.zhora.eu>
- <9421BB47-EFC8-4D82-989F-82A84FE46749@goldelico.com>
- <aljCGkhZEQHzZVSW@zenone.zhora.eu>
- <500EE2C0-B916-47DF-874F-EBB2CF1C779D@goldelico.com>
+	b=E00k9pQrY2EPdIVi3Vzlc6FdgbeQZxlehIu7+5cwAhes6/cUXhJiyniUFbLcrxLL7
+	 0xxBQdroUg4YZ72l1b/38/rLLWUDb9eMbdOvCWavtv87rybDdW/6NLSI7zdVzzGI/E
+	 nI4ufCMmHKr3VJitjfLgy43uRWonL40dtOa4N1EEBlInmDeSTpWMInAwfBb9D/WXID
+	 B4TUZkRAAyuiVGfQbQt3JN+kRrZ1JU6K3qjV+wbIguEj3mtqfXoIeeMEy9PYKJgCzV
+	 JCU2PflegFYnCZUQCG1AxoP/tphmd8tEtfpi8Wt+QSI3p52FeWf8G+R31bc04BbG5c
+	 p1jITJ1+DjYIg==
+Date: Thu, 16 Jul 2026 17:11:31 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
+To: Yureka Lilian <yureka@cyberchaos.dev>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Lorenzo Pieralisi <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
+	Neal Gompa <neal@gompa.dev>, Thomas Gleixner <tglx@kernel.org>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Hector Martin <marcan@marcan.st>, Linus Walleij <linusw@kernel.org>, 
+	Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Sasha Finkelstein <k@chaosmail.tech>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-pwm@vger.kernel.org
+Subject: Re: [PATCH 08/10] dt-bindings: pwm: apple,s5l-fpwm: Add t8132
+ compatible
+Message-ID: <alj0EbuIzZUa48di@monoceros>
+References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
+ <20260705-apple-m4-initial-devicetrees-v1-8-e5655ee56523@cyberchaos.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="hqzcajh75jsx3u4o"
 Content-Disposition: inline
-In-Reply-To: <500EE2C0-B916-47DF-874F-EBB2CF1C779D@goldelico.com>
+In-Reply-To: <20260705-apple-m4-initial-devicetrees-v1-8-e5655ee56523@cyberchaos.dev>
 
-Nikolaus,
 
-> Therefore I consider this as a fundamental design flaw which is solved
-> by this patch.
+--hqzcajh75jsx3u4o
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 08/10] dt-bindings: pwm: apple,s5l-fpwm: Add t8132
+ compatible
+MIME-Version: 1.0
 
-I'm not arguing the patch here. I haven't even mentioned a single
-line from the code. I made a simple question and you keep
-hammering on the same argument: in the commit message you say
-that when the clock changes it generates a deadlock through
-i2c_xfer. I simply asked if the clock changes how is the new
-clock value taken by the i2c?
+Hello,
 
-If the commit message is leaving room for questions then you need
-to make your commit message clearer.
+On Sun, Jul 05, 2026 at 03:17:27PM +0200, Yureka Lilian wrote:
+> The PWM controller on the Apple silicon t8132 (M4) SoC is compatible
+> with the existing driver. Add "apple,t8132-fpwm" as SoC specific
+> compatible under "apple,s5l-fpwm" used by the driver.
+>=20
+> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+> ---
+>  Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml b/=
+Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+> index 25ef04b60ca1..c85a2b85a66a 100644
+> --- a/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+> +++ b/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+> @@ -19,6 +19,7 @@ properties:
+>            - apple,t8103-fpwm
+>            - apple,t8112-fpwm
+>            - apple,t8122-fpwm
+> +          - apple,t8132-fpwm
+>            - apple,t6000-fpwm
+>            - apple,t6020-fpwm
+>        - const: apple,s5l-fpwm
 
-Andi
+There is no merge plan specified in the cover letter, but I assume this
+should go via arm-soc? In that case:
+
+Acked-by: Uwe Kleine-K=F6nig <ukleinek@kernel.org>
+
+Best regards
+Uwe
+
+--hqzcajh75jsx3u4o
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpY9KEACgkQj4D7WH0S
+/k4f2Qf/ejt+g4KhqmWnrNTPNMUcRtIQo1/q4Nj9sbE1bUT4MmNf6hqmRzkKK4Gj
+YSZ3gk42eykehjK/cA+UvtNNu7sZa3aNPodcEwo5vN6Y2a5gDfRJDRb4yxwGKeEv
+iEMFjStlA5uRrmk8gpLff0v8Q8pfkP4dqCgkeSdJWIdPR7bmDkYVQxMrKWpNxzZA
+hndISXV63bd/4yidL0BHKqV/koZkVknTh6R7GhOSa9rp6NoJlT1MTgcLf8LxgvtF
+1qi3MOXA9ZULItOGW+4MVhIt7xNLLecgGxHnNm6KAplOg1Cf1QLd3hQResk/x0N1
+4Ow858dzNiSoNIZ6UorB/403BKV8Ow==
+=z50O
+-----END PGP SIGNATURE-----
+
+--hqzcajh75jsx3u4o--
