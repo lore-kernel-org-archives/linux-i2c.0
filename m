@@ -1,100 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F0938AC90;
-	Thu, 16 Jul 2026 07:26:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0B162EFD9B;
+	Thu, 16 Jul 2026 07:43:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784186781; cv=none; b=LjeoHkdBypDiYFyB45bB/mcS/qDHXLoRj+svtf+QHCqBcotxEWsjjrVACHItvnhqPTAB6hDUS6qyAcJHD17SuAPX24aY/HR/TTGTij7can2c61hut/ux2Ulpz06Q0/paGVH9xnCcMTDrPn60atawBAe2D2zwq0QyXsxSLNFgOhU=
+	t=1784187828; cv=none; b=d5CQUeHzWFmVFCLORBXOvLctSON72KhqNKk8UfhVpYc5TH9Xx8Rff1pLXRDqeywRqsZmijDVspv8YG4YTZEFvYf0RaeGmOFFE/Sgas5cjNefOVCtxFrAmkodWLeuSVBIVXH01uIWRZPqb+bQBBfs242WiyuAplrle8eQcCpofLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784186781; c=relaxed/simple;
-	bh=rSMky4NBMz4mCwwkSBWrp24PhKUMutXTZKuowSHmBVg=;
+	s=arc-20240116; t=1784187828; c=relaxed/simple;
+	bh=CYIU/WfEdsgYpmklPpL+V57MQb2lAQ6u3qXpxCoErvc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jzrNYngu/g3Nt2Ec7ODd2TIIwjeY/NQCWubc0xF1zXVKGpOY96RE9+fresdk7De+s2esS3S4k/47JOugpy/lNCaow3QebajfXluMHHYCAzYBGS/VKNlcAAFB1a43dWbyY8TCRr8Ns2Vk4k3+wAfpHXW32tZqYjN8tL1JtLewrIk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z4K9jQ8d; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=sXA0LwJnW28REoD+YVxGq49age0GQyZk91YkqJ5ui1F9GPr6/40kGUqM9Fcsri9R9usdVeLRMgX43R7MHzI3gCLNIdk8J9q7wBBWTmt6Gp5ksZZcpM2QVGhZp+VQm4Mzi5wFSq/3Re4iRAGCDvfNzL8+7FINRvM9TMtStUf/0Ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WSZXU+ra; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z4K9jQ8d"
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id EC2B51F000E9;
-	Thu, 16 Jul 2026 07:26:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WSZXU+ra"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 043111F00A3A;
+	Thu, 16 Jul 2026 07:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784186775;
-	bh=rSMky4NBMz4mCwwkSBWrp24PhKUMutXTZKuowSHmBVg=;
+	s=k20260515; t=1784187827;
+	bh=70PNDBvM1M/PoK2rZwGoe/F2/3LKI80XvueFv8+d5pg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Z4K9jQ8dZgB/nOZ3nEahhDL5jTD0H1CZ2VxGlWej1lstUdkYAtrl309g5ixYgiGm8
-	 +CrFbz2hwP+ZrZ3RnZThMzte/JhYmoGkTbB//d3A9fpHeytmb9XpMrEd8RGfK0mkEf
-	 XIW7/uNn2waLekYgKSPiE5bMsPIOI39zkBZJn5KLvUutShFiOTBdNhT1udXcpJyXBP
-	 /KqXHWhwvCqrf1LKrEA+EA/yOwS7VPAlwgFsAq519GVXVpbqXquWAyXMLAfWWj/lKM
-	 nmlCtBwa1aNafoC2TLEVCLPVUQg38RwYPN7H1f+z7SH7HR59v6HrDTgIE5ZLy1WDM7
-	 R3efJpG4DCznw==
-Date: Thu, 16 Jul 2026 09:26:12 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
-To: Janne Grunau <j@jannau.net>
-Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Andi Shyti <andi.shyti@kernel.org>, Sasha Finkelstein <k@chaosmail.tech>, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org, 
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: Re: [PATCH v2 08/10] dt-bindings: pwm: apple,s5l-fpwm: Add t6030 and
- t6031 compatibles
-Message-ID: <aliHVGRlJPHJCr0H@monoceros>
-References: <20260715-apple-t603x-initial-devices-v2-0-df65b2485710@jannau.net>
- <20260715-apple-t603x-initial-devices-v2-8-df65b2485710@jannau.net>
+	b=WSZXU+ra7+BavCMLVGS6bVy7xf5bO23HFO0zmGLEoPNIL1a5TEcJzlNeg0nG2I7Ej
+	 57BpzUSunooMtK0ih7S8Sn4nr9O3TfZQUJaK1N6T0KC58G7O0MCtPPmzI7LCvboPXz
+	 niyT9OZzWPchDLzuI1ji8/gaRf5zfY/Sn63M2qbYOAXuSQ0l1G+C634pEpxtFZ3/Si
+	 YWh9LRnT24Wr9cR17bz75205eZ3Y+WdD+T2a7PyCUZ4tIqYNOYckTWizevrpoJLzN3
+	 oSCr03tFooAcbHMuX8nVoaYTWXB5J7XXpL+yJlSdoBlCiTElv0SdDsHZbpj22lMbIj
+	 sWlFxON/ckceg==
+Date: Thu, 16 Jul 2026 09:43:44 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Paul Cercueil <paul@crapouillou.net>, linux-mips@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH] i2c: jz4780: Cache clock rate at probe to prevent CCF
+ prepare_lock deadlock
+Message-ID: <aliLbNJ51Ns0dIHX@zenone.zhora.eu>
+References: <c69ca6511780aa4759a428cb7fb70de43ee5211b.1783666715.git.hns@goldelico.com>
+ <alf7rSWaLBO8WBkR@zenone.zhora.eu>
+ <36148F30-156F-4E74-8765-D718F6FE7E76@goldelico.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="lnle4boaomlspvdf"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260715-apple-t603x-initial-devices-v2-8-df65b2485710@jannau.net>
+In-Reply-To: <36148F30-156F-4E74-8765-D718F6FE7E76@goldelico.com>
 
+On Thu, Jul 16, 2026 at 07:44:20AM +0200, H. Nikolaus Schaller wrote:
+> Hi Andi,
+> 
+> > Am 16.07.2026 um 00:07 schrieb Andi Shyti <andi.shyti@kernel.org>:
+> > 
+> > Hi Nikolaus,
+> > 
+> > On Fri, Jul 10, 2026 at 08:58:35AM +0200, H. Nikolaus Schaller wrote:
+> >> Fix a severe AB/BA deadlock between the Common Clock Framework (CCF)
+> >> and the I2C adapter lock, which triggers when an I2C-controlled clock
+> >> generator (like the Si5351) is registered or modified under the CCF.
+> >> 
+> >> During a clock frequency change, the CCF acquires its global 'prepare_lock'
+> >> mutex and calls i2c_transfer() to update the chip registers, stalling
+> >> for the adapter's I2C bus lock.
+> > 
+> > I don't think caching the clock rate once at probe is safe.
+> 
+> Ok, valid point to discuss.
+> 
+> 
+> > If the controller clock rate changes afterwards,
+> > jz4780_i2c_set_speed() will keep using the stale cached value and
+> > calculate incorrect bus timings.
+> 
+> But: is clock rate ever changed during operation? Usually it is defined
+> by the device tree constant.
 
---lnle4boaomlspvdf
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v2 08/10] dt-bindings: pwm: apple,s5l-fpwm: Add t6030 and
- t6031 compatibles
-MIME-Version: 1.0
+That's what you are saying in your commit message.
 
-Hello,
-
-On Wed, Jul 15, 2026 at 11:11:55AM +0200, Janne Grunau wrote:
-> The PWM controller on Apple silicon M3 Pro, Max and Ultra SoCs is
-> compatible with the t8103 (M1) one. Add "apple,t6030-fpwm" for M3 Pro
-> and "apple,t6031-fpwm" for M3 Max and Ultra as per-SoC compatibles.
->=20
-> Acked-by: Conor Dooley <conor.dooley@microchip.com>
-> Signed-off-by: Janne Grunau <j@jannau.net>
-
-The cover letter states that merging through arm-soc is preferred,
-that's fine for me. So take my
-
-Acked-by: Uwe Kleine-K=F6nig <ukleinek@kernel.org>
-
-for this pwm patch.
-
-Best regards
-Uwe
-
---lnle4boaomlspvdf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpYh5IACgkQj4D7WH0S
-/k4tSwf+Kn4gjN7dijDNgaApRD1Ut9S5RvHfCZ1SrrfJb1+Oset4/sHjEFTtfzAE
-+Ll6NBv7n3FBw268v/PeOo9+alPGYh5yXTLvJc4+Pz4w7xuBX+ijXwqQMWKPGMBn
-ntKKIVPNadlNG5oxqVHP9Kt083VUiEo+Ckeo6vx8TI+Ryd/o0/AEAlAeuTa3D7Wi
-seZhURBdkPzrS6MtqHSnJo9b79kqlB0BWt9Gtz13ZyLi3YqqhUsCsDpUwMdSO7SJ
-MjOdZRzvgiDiszs2X7bTYqzlspZl6/WHv31lLW8flKyq1YeZRWm04eVVYSGMMiIS
-GdPo3nkUTu+eZgfWTHzEl7df017HnQ==
-=7vJI
------END PGP SIGNATURE-----
-
---lnle4boaomlspvdf--
+Andi
