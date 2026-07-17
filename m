@@ -1,267 +1,153 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11021124.outbound.protection.outlook.com [52.101.52.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D610C34E75D
-	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 23:20:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784244060; cv=none; b=QJSbjriLabdYu4DRVGlnUTLP0Vo92lmIZU9m2abHH5PX2MPhJMEhcRFUqVdSsTDF8vw8Lkpb8DAxxPNOLalZ+JR3DyVWUSwWRcov0t4E0qT4xKxhWOUvoJQ+ykumpRwh223X5nIKSbQjH7jiWHVCTVhWsboKiOTu3K+Ub+E3CJw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784244060; c=relaxed/simple;
-	bh=ftw9Kxua3A5FXfCupMJdIbXNcwnLfkeF28nadC29jw4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SEr2K+nc8NPMaWLK9XixckU6B/cQeZ2m4EsqFWDQYfAD83IQZpLO36ePKbSDitMtP+NW02aAwbQxcVp0LTF/jwjH+CaCt5RbYvaQq4Yfn8OrnyEvfNUmOZD6wiWLztQoIWXTgSWZjUuz4DJtlbCTF/u123OdWtYJGWL0+tBV4qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=W4HXOGNW; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bIOVUIaS; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 991CA277C9E;
+	Fri, 17 Jul 2026 03:51:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784260292; cv=fail; b=rNVIfZp4lHOf7SkZ6VFUqwO67/KggKWnkyapcQZtP2ARuPPmimnVsso2E5RqAHgkKqwe0LZZfKWnYXWxYUbnZ2LBY/5XbcAabWKw3fHdEj2aZ3GSq8vlN/5sGT75xeu4N3+fXkNJVGYwoPn2idGJ9ZA9M97xW7cu2av0pALJFRc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784260292; c=relaxed/simple;
+	bh=lRd5fEURFEd7L6FVtJkfNOmGCkYyQJoZtmef8h3/52s=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=WyydvFrxPx9BVXUJSTsOT1cqRq6ZvH2w9eq3uBSSJhMarUy60m1EpXClF3Z+JqBXXlo5DuZSxM+aXwMsYHMF4KD97Vt+tUm8WwR7PasFn/2X6hdy0XIZyCwrX9xlOv9RWyHvc8pgsG7TGJikICaSnEb8SSxSMg6iXATKWLpkHJ8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=axiado.com; spf=pass smtp.mailfrom=axiado.com; dkim=pass (2048-bit key) header.d=axiado.com header.i=@axiado.com header.b=ucv9OBm2; arc=fail smtp.client-ip=52.101.52.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=axiado.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=axiado.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="W4HXOGNW";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bIOVUIaS"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66GNIQ0t3894861
-	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 23:20:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	3hkNEDV7VaPjmHO2+DLTkRD6nf1Orhub6TsamTsGDoQ=; b=W4HXOGNW7sITPJKo
-	YvYV2xVhaDS3D0QwgNDa1nLZr4dT1f2rQ1W822wzQf24JFfEchPMGpcjiK+gP47N
-	uTxvM9trVbbiuQtck1ZKeH92OITqjgQDyYGC7Hx+Sh4KBNJSAiYSvSLly4cS5k9V
-	PymNb8yphPTO6id21E7LLKKmcdPvP9RgW9JUk4ww9Unm81XYo6UlYl5aeXV8Kt9s
-	sXpudQEraIFbooMznZOGXtvkg5LfZMU4vgi5O6k5Vd75hXD55uHbfXmbf/ctUsYk
-	rh2AtQ7pNgu+hqlKf+axtgOXf728J2CGdmZZsgZ2qjRmn03zqs49jLQTmzt6KSYO
-	W6lb8A==
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ff1m9hupy-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 23:20:57 +0000 (GMT)
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-c9fe4c5eb39so5080812a12.1
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Jul 2026 16:20:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1784244057; x=1784848857; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:organization
-         :references:in-reply-to:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=3hkNEDV7VaPjmHO2+DLTkRD6nf1Orhub6TsamTsGDoQ=;
-        b=bIOVUIaShEfoOygNSQbjW+VYpFcw5nPOqSATg2HdrqUidkfZW0bQsfWTYVbCAhW9LS
-         Fr/iVcwyLnAg0qdvKYbpyt+0XAPnNSiQwOQrDBV9gbsBMbuIUgDYpbzLF1JDkN48QxXL
-         LxM1qOpM58IXYZeR5jGwKXPM0GULNk//JYYSz4v4lX5gtJtIeXP98bw9amD5WxFogl8T
-         PbSq2/Q7oQLvF8QhOZqhe54o/BFddmqTsRNbUv3x/4WkL1/mw9MGH5PwE0CKMKXmUSiB
-         bOFVUDVbo3N168pBHI8R39Ojj/PY++QoTDOJXxS0/4fREmCSI0jSfaCenAQLGX8i+kxL
-         PsTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784244057; x=1784848857;
-        h=content-transfer-encoding:content-type:mime-version:organization
-         :references:in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3hkNEDV7VaPjmHO2+DLTkRD6nf1Orhub6TsamTsGDoQ=;
-        b=kwbekjD2hSA3l7Tm5qB8nuRma+sT+hdYRbGhVXnNBIHg0C+adgVKaTg31kLyS85piQ
-         sNw2Hu/90qwNLg4xHJ4O0Pse1U37G+GP4KEilRcR0mKvG1uE1XEYLS91ySt18GcBpmmM
-         urCLWxxT1Xy83izUU2+cO1YGSzDvW5OhylB9GRK7SbQAx3OIp02lfp1SXUMMGb++GA4M
-         9t5RHs7kFCU7b9J6j2UNzkkKVqMjXl8B8dAaP4ErE0U4mEoxcj9H9kClJTAbhBHguiTE
-         StVL+tWeovfiUs6IXMK+kgyVy/KPHUcxbJ5WmUnRJtGboTKTng2VMdTzeiInNSiqozzN
-         tPtw==
-X-Forwarded-Encrypted: i=1; AHgh+Rrx2KQ/jlWzp7KbeUy4TcL2UwWYpshSWzCZVsO3XWA8XOaFZWe30O7goOtUv545/F3V2jDf1XccabU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxO4KwWhhKO+BF1NBhFqzRFHiGmjpsfSQeXrFT0SmuNPUev24YH
-	HKItem3WC6m8P1Yb8QOCkAElPWHbyPtdmSe6I26uX3SZ44QuRERe181qjGTdubTE/iDzNNnP75x
-	tmJTnbcMkWRtKdcScsXZ3jAQBtphAb9zsfklY1qEmVoNj/0EKIH9SjQeeBkqZoEU=
-X-Gm-Gg: AfdE7cky18liktoM+Pn3uq5JTxwzuj/bxMN7bCqYIGSAHMlWcC3ufByH2qcuSx0rxnb
-	s+2k+Sf9rXiS+aKB3t2qztbkfnwPgk2Vd6WQke6Yw80tIayWsbKJy+zM93A7TTwta+wtsoUNzPQ
-	uMApIi6iy90hNGdpb8mUbAiIqMot/DaBjENDEyMMg3POWRdr13WcIWKpE1tieyoZYfY7Kfql2JP
-	xO2B5kAardCQqeZBvuYuzumdxUkZ+3XRUA/dHNdquhvPF8u7LDno9HU9DajsrXxaiQ4UHCMvrGB
-	sZvYutMJgddJuWvGI6V+WkWJFo3hp01fQxnvfBJDaSzkKEyTevQ3IEWnhHKr292LWCRZkbl226L
-	jU/G80h2VeWLhoEMjy0Ka9Cr8xw==
-X-Received: by 2002:a05:6a21:48f:b0:3b3:1c7b:ff7 with SMTP id adf61e73a8af0-3c3ad9691cdmr22486637.46.1784244057219;
-        Thu, 16 Jul 2026 16:20:57 -0700 (PDT)
-X-Received: by 2002:a05:6a21:48f:b0:3b3:1c7b:ff7 with SMTP id adf61e73a8af0-3c3ad9691cdmr22458637.46.1784244056740;
-        Thu, 16 Jul 2026 16:20:56 -0700 (PDT)
-Received: from localhost ([50.35.46.84])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13cd428b2d3sm12873962c88.5.2026.07.16.16.20.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 16:20:56 -0700 (PDT)
-Date: Thu, 16 Jul 2026 16:20:53 -0700
-From: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: linux-iio@vger.kernel.org, David Lechner <dlechner@baylibre.com>,
-        Nuno
- =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-        Andy Shevchenko
- <andy@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: Re: [RESEND PATCH 00/22] IIO: Clean out superfluous I2C checks for
- single transfers
-Message-ID: <20260716162053.00006f99@oss.qualcomm.com>
-In-Reply-To: <5e9b7479-ed16-48aa-bd4f-26abc09e690e@metafoo.de>
-References: <20260716005737.254577-1-jonathan.cameron@oss.qualcomm.com>
-	<5e9b7479-ed16-48aa-bd4f-26abc09e690e@metafoo.de>
-Organization: Qualcomm
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.51; x86_64-w64-mingw32)
+	dkim=pass (2048-bit key) header.d=axiado.com header.i=@axiado.com header.b="ucv9OBm2"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=JE3+uwE9fxcidfQOSlxAj5dyFLIV0LlsllOK0gT73c8ilRkgopeY3YihIh7VqFERuKZzM2SmmZW/A4SwSBQ95I12S/c33TSobYPdKPnqwpFZJVS7GmXcX9l6cljD+866b4MWPu8rHkQ2eO50uu96+D3zB8WySxG9PnlG71tj5bOxOv6IPnx+AIhshiwLaUjrAo3teUOUuCqXPaxBwEwqt9V5hxb0k5v90C045LHjWJciWP3QR4He/LnyRWQ/MJkECTNb9JQCoHa2OAge0QvYJe22lap/f1PJ6GsFdZaH6CFgxVn5en+r0o2Xu/hTg30ydms72kp6LWvJ0y+HWa7oYA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2ywj/R598DHvTK5R2nBVRB/G7elq9O/Ae5ypwi9az0Q=;
+ b=LZ9++RgBH58QWBj2TrICFZ2EMA0JW2yRwh5IaVmaHZ9LiU8DLjt9CT2V6/bTpIaBgJ5u3FfcfTz8JI8S9LE32/UHkwMBnOiNRzJjoQXEBYqsq06yL6XU5N2DEB9adnnNNDx06UC2ic9zMcns704d7vpsBAnw/k5fN6QWfFdoDU7ExesyWqR+PbV80pitiS2dbX7s6e9q7R7J2eefm55R+Mj/QO6JasdoEm2t642aY9JOUTw7OKabJHdvfPFep03WEW8kBKhMq7jACq6qHNPkvIn8os6XGqTgjCoVGp1W2ATZyqozzTSwWQ2kn3NIGjUhq4BR8i607wejo+gnrCELvg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
+ 64.62.143.114) smtp.rcpttodomain=amd.com smtp.mailfrom=axiado.com; dmarc=none
+ action=none header.from=axiado.com; dkim=none (message not signed); arc=none
+ (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axiado.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2ywj/R598DHvTK5R2nBVRB/G7elq9O/Ae5ypwi9az0Q=;
+ b=ucv9OBm2b8DLu+X2K4+LVze6NfGiUviC3XQSj/2B7goHEkQ78yVGbxOhFuWZT9YKM9AFbVUi4mwW1kvLT/U2S4/DSB2TdoQVqoEmh++tPEkwM5ORtJGbkovmrNAfCwMYGLkNvMQkY9JpOT+6DPdigjpTYwqMiNLbDm4fODKacVFVnvjx16boLa1eX+C+oxFuWxBW5dF9PWCX9QZwn3MBDS2vwwLBoNM4y/RulBxcFam7Uga1UNki55NsxDSLsnx9M5vKIQvCJne6/Adl7arJ8WZOQlY0rvj7H7M5tskIZ0POLvE6LQg/6Y/gc5e6S4NYwjExRcjvbaAXGziEEqN5OA==
+Received: from IA4P220CA0003.NAMP220.PROD.OUTLOOK.COM (2603:10b6:208:558::12)
+ by IA5PR18MB988632.namprd18.prod.outlook.com (2603:10b6:208:607::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.12; Fri, 17 Jul
+ 2026 03:51:27 +0000
+Received: from BL02EPF0002992B.namprd02.prod.outlook.com
+ (2603:10b6:208:558:cafe::22) by IA4P220CA0003.outlook.office365.com
+ (2603:10b6:208:558::12) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.223.12 via Frontend Transport; Fri,
+ 17 Jul 2026 03:51:27 +0000
+X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 64.62.143.114)
+ smtp.mailfrom=axiado.com; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=axiado.com;
+Received-SPF: Fail (protection.outlook.com: domain of axiado.com does not
+ designate 64.62.143.114 as permitted sender) receiver=protection.outlook.com;
+ client-ip=64.62.143.114; helo=smtp.corp.axiado.com;
+Received: from smtp.corp.axiado.com (64.62.143.114) by
+ BL02EPF0002992B.mail.protection.outlook.com (10.167.249.56) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.21.245.5
+ via Frontend Transport; Fri, 17 Jul 2026 03:51:26 +0000
+Received: from [127.0.0.1] (unknown [10.4.1.181])
+	by smtp.corp.axiado.com (Postfix) with ESMTPS id 365AE4186B53;
+	Thu, 16 Jul 2026 20:51:26 -0700 (PDT)
+From: Swark Yang <syang@axiado.com>
+Date: Thu, 16 Jul 2026 20:51:08 -0700
+Subject: [PATCH v3 1/8] dt-bindings: arm: axiado: add AX3005 EVK
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=IMIyzAvG c=1 sm=1 tr=0 ts=6a59675a cx=c_pps
- a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=qC1CW/w66vtJz1P9yTJxNA==:17
- a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
- a=P-IC7800AAAA:8 a=EMjElgS10NdP6WehDt0A:9 a=CjuIK1q_8ugA:10
- a=3WC7DwWrALyhR5TkjVHa:22 a=d3PnA9EDa4IxuAV0gXij:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE2MDIzNiBTYWx0ZWRfX2PRCNF2MfTCg
- xFRuyWAgxnm4qaSSK/QJpLBqgFlfQeURgxqUgsLQli8qcPJ1y/ZdkOuDQLJXUZ/9SdRc2uNVmaf
- ejLFNeB0WqFCUR0OWT8B6WxU85lVeqjjoRopN0K0iv67RtsPUhur0CblY+W2I8Yz20yZ/ZUF6PO
- Ys1OLWDQE6M0CjbC+sPSlG3czlRWYgC9Dfhnfr8O0W762gQgTl812cHdxQ1IfL4XwTu8S5LeMkm
- cCbJ0ICm3iq7o9Fp2ZesIjKsxfD1+9mOTQc2IetNhDtLLNEB95maCmidQpLaQC75mHcrf+keuVV
- 4Z9Zvv3mzNG2cP2jQLyOUY5QswW5OwjkDn31c6gqON5dK0k/EL6KHx2pU3E1ohZ/nZy/tkDVxRS
- /GdAfNCE1eo+ipbiXpbb6vSbUa/ikbIdsGFcM/u3nG4wtLW2oczC1Ojjq7yVaNiGtWp1DbL/3Bu
- QUJPOQlS7InYijsZq7w==
-X-Proofpoint-GUID: Z0fSIDZphfLy20RA26mR4TPJ6V8XCURh
-X-Proofpoint-ORIG-GUID: Z0fSIDZphfLy20RA26mR4TPJ6V8XCURh
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE2MDIzNiBTYWx0ZWRfX4vfvQuOEiRei
- d2KeTTu0fXHu72A62hRzxjr+ryKTX2y4KQrt09eFTzaG+3ZYYN9yG0lkZ+EwefrTfxrGcueH6f3
- xyS2ryNTlhwgKfxIyPoH6UDeuxbmUAQ=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-16_08,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501
- impostorscore=0 bulkscore=0 adultscore=0 phishscore=0 malwarescore=0
- clxscore=1011 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607160236
+Message-Id: <20260716-upstream-axiado-ax3005-upstream-v3-1-c429095143ec@axiado.com>
+References: <20260716-upstream-axiado-ax3005-upstream-v3-0-c429095143ec@axiado.com>
+In-Reply-To: <20260716-upstream-axiado-ax3005-upstream-v3-0-c429095143ec@axiado.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Harshit Shah <hshah@axiado.com>, 
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+ Jan Kotas <jank@cadence.com>, Michal Simek <michal.simek@amd.com>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ =?utf-8?q?Przemys=C5=82aw_Gaj?= <pgaj@cadence.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Frank Li <Frank.Li@nxp.com>, Boris Brezillon <bbrezillon@kernel.org>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>, 
+ Mathias Nyman <mathias.nyman@intel.com>
+Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org, 
+ linux-serial@vger.kernel.org, linux-spi@vger.kernel.org, 
+ linux-usb@vger.kernel.org, Swark Yang <syang@axiado.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1098; i=syang@axiado.com;
+ h=from:subject:message-id; bh=lRd5fEURFEd7L6FVtJkfNOmGCkYyQJoZtmef8h3/52s=;
+ b=owGbwMvMwCHWlWK8+EozbyzjabUkhqzIZXum16rf+c65p3sP28Z3h5rZ3oV7c0XN2z6/d94S7
+ QOs27RmdZSyMIhxMMiKKbJ81fmWfzJX+17n3pWlMHNYmUCGMHBxCsBE1hUwMqzPt1OP9PSZZ8Zy
+ xH5v97aj/HMTHweedjU3irk//8u53rmMDIfmdvH0J+XulD3oePtJ7sqMrvatVoIea86v19N/u/2
+ 5BisA
+X-Developer-Key: i=syang@axiado.com; a=openpgp;
+ fpr=F52CF66FC96D2BDE89BDA9758A6433A3D4830D5D
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF0002992B:EE_|IA5PR18MB988632:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6512681c-b003-434b-f58a-08dee3b6ada9
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|23010399003|7416014|376014|1800799024|36860700016|3023799007|56012099006|10067099003|921020|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	JodlnM7YRwBR+OcwmEWuCyroxszfRaCe0qfj0IYMhgJRlBE8sHYebDwENpIWUH0upNfIE6nMZjJhSwUbc5fpXFkpBXo0wPsNqprynbXpBtKwdbGzbUqQTU/XM6vWst3blbeEukb6dR+bK51+ETVHXZrSNmxHZyiEOpvh8IhC8K2nwKevRgM8Ib2odxDrpUpm8LIpzw3/vjpC4+ooHfc4CLdHpfEV7Tg4+BRA0DPXPlNhYjAqjq61oLFV9AvQLEKyybejSaqi8xufCSuy+G1zO77V47NwS9k62yMhIsuWanl9QzE8cxkg9YFQ+Z6NMT5gjPC8jqYcWy1N20TOYpxb/MzwIqh4IkvqlTu2pI6nv4N62MWGZUq/vl1g91CZdLgMxX0nzXJOxkjoSljS3DvtqHzv3BJGKgSyVNzj325syQIRTvWVA/9GqWLIPlUSGMkOQlEgoMFCHPWBFjfTosLXS+gOmlpHj4d1qfHnzZwXb1bUB5aRJy/vHXqwG17mhyCnx262JsM+SnDOWtSJvgguPjt9Vy4SpiiuzOdUZxxedfQDt777+3khMDHGVR76xOrWr4irJGvWOaeV1QQONIjt7+ROBm5ws3ezTOGZ5W9iPlCxeeY0giLIEwyxI06NMJ7/NO81+iPAWXd+VHgl+FOTtriqlFw1XULpd1qUpw4SNxZHId9RnGiEvzHfnGvL+A0KRavjSfhjy2MVTYGWZJqpA6pO5peR/pFO+PCfPGyI7xwB6q+w/10CDajDURVEgCnl
+X-Forefront-Antispam-Report:
+	CIP:64.62.143.114;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:smtp.corp.axiado.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(23010399003)(7416014)(376014)(1800799024)(36860700016)(3023799007)(56012099006)(10067099003)(921020)(22082099003)(18002099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	oEVgZjNBsbdm1gT8K1nhaV/Bn71iNDeBNHhjaZal1h13WzEqbnQ7QXGpYE+jSIvBPIEU+q683zcSsYTjyXMGpwaR1+qZfUasTau17Uq3Itc7s00P2i/xmd2QQearzda4k0wwgpPguIcNsmJnKD99eO9GVFjHJfCxpDViQtkfbKqt1FEJYVGYADdRAM+o3/Z9ge4woBlx33m1Codn560COEVit2MWQEiuVD2+TlbcBrydi6pHk+Qb87nwdP+71L1rsrwIAtTU2xFembq76AqLNAoYvfXLM7Q1++hErNkY7eVkgld9pHk+Qu/0eYvk06cd+mnv22vD69EGwva9VxnT7RlIlildfRj2fqhc2sA9sge8BdXHO8cw5IUXGals8WVQFe4FUBdFli2rQlH7WRGWZjEBlBqUxblQJbIQ6a/kL+tHmiDydA8NrLqcLewNaXKm
+X-OriginatorOrg: axiado.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jul 2026 03:51:26.8656
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6512681c-b003-434b-f58a-08dee3b6ada9
+X-MS-Exchange-CrossTenant-Id: ff2db17c-4338-408e-9036-2dee8e3e17d7
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=ff2db17c-4338-408e-9036-2dee8e3e17d7;Ip=[64.62.143.114];Helo=[smtp.corp.axiado.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL02EPF0002992B.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA5PR18MB988632
 
-On Thu, 16 Jul 2026 07:55:32 -0700
-Lars-Peter Clausen <lars@metafoo.de> wrote:
+Add device tree binding schema for the Axiado AX3005 SoC and its
+associated evaluation board. This binding will be used for the
+board-level DTS files that support the AX3005 platforms.
 
-> On 7/15/26 5:57 PM, Jonathan Cameron wrote:
-> > Resend to include linux-iio. Sorry to all who get it twice.
-> >
-> > This came up in a recent review and I realised I have been giving incorrect
-> > review feedback for years. Both i2_master_send() and i2c_master_recv() plus
-> > the dma safe variants only ever return either an error or the full buffer
-> > size.  Short accesses do not occur.  
-> There is actually one interesting corner case. If 
-> i2c_transfer_buffer_flags() returns 0 i2c_master_{send,recv}() will also 
-> return 0, in which case the updated drivers will now read uninitialized 
-> memory. Maybe i2c_master_{send,recv}() needs to be updated to translate 
-> that to -EIO.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Swark Yang <syang@axiado.com>
+---
+ Documentation/devicetree/bindings/arm/axiado.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-That's indeed curious (and I'd missed it entirely!).
-
-So ends up being either the master_xfer_atomic() or master_xfer() callbacks
-returning 0.  master_xfer_atomic() is novel, it's a union with xfer_atomic()
-and no one ever sets it via that union element but given the types are the same
-all calls will actually be to xfer_atomic().
-
-Could remove that complexity whilst here but there a bunch of related callbacks
-(e.g. master_xfer() in union with xfer() where drivers are still using the old
-naming and I'm not sure I want to chase that through various subsystem trees
-right now (though for fun - and maybe profit) I had claude work out a series.
-Was fun watching it write a semantic patch and spend a while debugging it.
-Glad it has as much trouble with coccinelle scripts as the rest of us.
-There are still a few hundred instances and I haven't touched all the callbacks,
-just this pair.
-
-Anyhow, back to the question of whether they do return 0.  Yup they do :(
-
-https://elixir.bootlin.com/linux/v7.1.3/source/drivers/i2c/busses/i2c-cadence.c#L1153
-
-So any defense against that case would require hardening further up the stack.
-
-+CC Andi and the i2c list.  Would anyone mind a patch to do something like:
-
- static inline int i2c_master_recv(const struct i2c_client *client,
-                                  char *buf, int count)
- {
--       return i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
-+       int ret;
+diff --git a/Documentation/devicetree/bindings/arm/axiado.yaml b/Documentation/devicetree/bindings/arm/axiado.yaml
+index bfabe7b32e65..008d2b1d4e62 100644
+--- a/Documentation/devicetree/bindings/arm/axiado.yaml
++++ b/Documentation/devicetree/bindings/arm/axiado.yaml
+@@ -20,4 +20,10 @@ properties:
+               - axiado,ax3000-evk       # Axiado AX3000 Evaluation Board
+           - const: axiado,ax3000       # Axiado AX3000 SoC
+ 
++      - description: AX3005 based boards
++        items:
++          - enum:
++              - axiado,ax3005-evk       # Axiado AX3005 Evaluation Board
++          - const: axiado,ax3005       # Axiado AX3005 SoC
 +
-+       ret = i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
-+       if (ret == 0)
-+               return -EIO;
-+
-+       return ret;
- };
+ additionalProperties: true
 
-Just to avoid the need for special case checks on ever call from every driver
-so that they return ret if negative or else have to check for non 0 return
-value and return -EIO or similar.   Maybe somewhere out there is someone using
-that 0 to mean something magic, but I doubt it.
-
-Jonathan
-
-`
-> >
-> > This series (also my first upstream series prepared by poking claude)
-> > removes the redundant checks from all IIO drivers.
-> >
-> > Thanks,
-> >
-> > Jonathan
-> >
-> > Jonathan Cameron (22):
-> >    iio: adc: ltc2471: Remove redundant i2c_master_recv() length check
-> >    iio: adc: ti-ads7138: Remove redundant i2c_master_send() length checks
-> >    iio: adc: versal-sysmon: Remove redundant i2c_master_{send,recv}()
-> >      length checks
-> >    iio: chemical: scd30: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: chemical: scd4x: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: chemical: sgp30: Remove redundant i2c_master_recv() length check
-> >    iio: chemical: sgp40: Remove redundant i2c_master_recv() length check
-> >    iio: chemical: sps30: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: dac: ad5446: Remove redundant i2c_master_send() length check
-> >    iio: dac: ad5696: Remove redundant i2c_master_send() length check
-> >    iio: dac: m62332: Remove redundant i2c_master_send() length check
-> >    iio: dac: max517: Remove redundant i2c_master_send() length check
-> >    iio: dac: max5821: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: dac: mcp4725: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: dac: mcp4728: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: light: lv0104cs: Remove redundant i2c_master_{send,recv}() length
-> >      checks
-> >    iio: potentiometer: ad5110: Remove redundant i2c_master_{send,recv}()
-> >      length checks
-> >    iio: pressure: abp2030pa: Remove redundant i2c_master_{send,recv}()
-> >      length checks
-> >    iio: pressure: adp810: Remove redundant i2c_master_{send,recv}()
-> >      length checks
-> >    iio: pressure: icp10100: Remove redundant i2c_master_send() length
-> >      check
-> >    iio: pressure: mprls0025pa: Remove redundant i2c_master_{send,recv}()
-> >      length checks
-> >    iio: pressure: sdp500: Remove redundant i2c_master_recv() length check
-> >
-> >   drivers/iio/adc/ltc2471.c              |  2 --
-> >   drivers/iio/adc/ti-ads7138.c           |  4 ----
-> >   drivers/iio/adc/versal-sysmon-i2c.c    |  6 ------
-> >   drivers/iio/chemical/scd30_i2c.c       |  4 ----
-> >   drivers/iio/chemical/scd4x.c           |  8 --------
-> >   drivers/iio/chemical/sgp30.c           |  2 --
-> >   drivers/iio/chemical/sgp40.c           |  4 ----
-> >   drivers/iio/chemical/sps30_i2c.c       |  4 ----
-> >   drivers/iio/dac/ad5446-i2c.c           |  2 --
-> >   drivers/iio/dac/ad5696-i2c.c           |  2 +-
-> >   drivers/iio/dac/m62332.c               |  2 --
-> >   drivers/iio/dac/max517.c               |  6 ++----
-> >   drivers/iio/dac/max5821.c              | 14 ++------------
-> >   drivers/iio/dac/mcp4725.c              | 22 ++++++----------------
-> >   drivers/iio/dac/mcp4728.c              | 13 +------------
-> >   drivers/iio/light/lv0104cs.c           |  4 ----
-> >   drivers/iio/potentiometer/ad5110.c     | 18 +++---------------
-> >   drivers/iio/pressure/abp2030pa_i2c.c   |  4 ----
-> >   drivers/iio/pressure/adp810.c          |  4 ----
-> >   drivers/iio/pressure/icp10100.c        |  2 --
-> >   drivers/iio/pressure/mprls0025pa_i2c.c |  4 ----
-> >   drivers/iio/pressure/sdp500.c          |  4 ----
-> >   22 files changed, 15 insertions(+), 120 deletions(-)
-> >  
-> 
+-- 
+2.34.1
 
