@@ -1,59 +1,73 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C1943E5588;
-	Fri, 17 Jul 2026 08:10:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAC273DC4A0
+	for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 08:13:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784275822; cv=none; b=bJu9newGXsff4gt4Fw1T69h5glm4J1ARkwsWAELQKVGtqO0Bb4hjN5+oy4NZ7RD/18Qx8eDj/NiGEyPovib/LghdjlRYONo7N5GdScRx67vppGyxNl6TAY5ZK8lWKjVlbnwuZnzPLU3KT0lD0MddMQEu057bvQoTey3wMtErWi8=
+	t=1784276025; cv=none; b=O2ZIBouBWM0k4H9C86Db9nJx1gYeg4Dzg8oGfGtK4OnJj4005Y8a8yOg/Vc4BXaPabt6mxXDCRYSr8UlQO3NPhRLcJ/kg4XRowxSstd7K2yKsp8Nv7st+XYxEWRRugfZxXB9W0e7Uhe79J4ePkhkjxN7rlQz2xUOjDr5vcflRyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784275822; c=relaxed/simple;
-	bh=ysULjp5Oa3WR6QmXW6R6eigN81Bfk4tp2aEjStsfe6k=;
+	s=arc-20240116; t=1784276025; c=relaxed/simple;
+	bh=3uha1lyXdmQ7x72VDIiJdqg14BMev+suh2fIyXoFPqw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NvEVmo8OqaSqPaLZpt1FE/IrcBp0cbvS5rNUGnK5BE80fX7TdlxvcJC9AxsoueIs0UGn9j+bJGfd6dzak3obZ4zmIDEURQBzomD4R8I7wmOOB4UZlKZnPRWKyv4xvlDVwd15nWKY1FWbchqOYOj6p5YMmRo7AOVGkGG4WwX1AX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kDZdChyu; arc=none smtp.client-ip=192.198.163.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=sFXON6O3N1AZYe/im7w8H/RMy9PcS+6sAIeb8peYzIJe+jLWbYmzGnIKChUuDMuW/MDm+szSvcun3fwvyztFQKnhmYex1G+DqWLSFHuEKZn9N+jcr6LdzE56fE1KV06rJL9pXM3KeBNX2h/ca5cHqCnbbmTXqZoZxZGlPkbqnPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UX9ezI7l; arc=none smtp.client-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kDZdChyu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784275821; x=1815811821;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ysULjp5Oa3WR6QmXW6R6eigN81Bfk4tp2aEjStsfe6k=;
-  b=kDZdChyuCMhPk5V441Q01IVg992OOYaQaltuu7++tvXdgy5thQNRkqzU
-   YaCZf4SgUkozrEnJTSgF8fahq48KrsREyLbEW8KjqS/vBmWb+SsH1EVI9
-   ZVnf0CdBBWUa/5uT6V+4oPmnQv3EmykzBht88VvyWW8tDvXCJ/eXKyH6G
-   ZjpxTqB8R/jnqUgy/8zhCxjghd7/D2qWVK21H/XbM6HS9Lmvx4qwoxXLG
-   LHgk5BMZwwWRJep6xPBTFsU2hT8sPYhtTN0fxGcAm2QzxmfNNuDMF59RY
-   snq+s7jpiSCHNnQHlS1NdApKeJ8+o9kN+kVwI2NFmZFsiSN8GVtfM7Ppd
-   w==;
-X-CSE-ConnectionGUID: 2FKfhbaTQDeP+qIjjVmHMw==
-X-CSE-MsgGUID: Bu8t+EFgQD2ea7iaM+Zz9Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11848"; a="85061322"
-X-IronPort-AV: E=Sophos;i="6.25,169,1779174000"; 
-   d="scan'208";a="85061322"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jul 2026 01:10:19 -0700
-X-CSE-ConnectionGUID: ydegRNYhR2KUPMM83pWnWA==
-X-CSE-MsgGUID: inD9YyoGQUWfAlZtvfPSfg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,169,1779174000"; 
-   d="scan'208";a="281173130"
-Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.143])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jul 2026 01:10:17 -0700
-Date: Fri, 17 Jul 2026 11:10:15 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UX9ezI7l"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-4728c12ba97so3616465f8f.0
+        for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 01:13:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784276022; x=1784880822; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=L63z0ebNG5Tx2TMavcYbFNcfaVoRzFeosIrJj+Kz+x0=;
+        b=UX9ezI7lTk0sSOZyzJn1oM7Qyc2ZPYgKxj/kUgSpRFZQ5VqChaZUiRtBrIwHct9Ub1
+         wa648UhgIqwgHDKkHawyIvFBJdGryY5ke7Qi9PmpbUnpRF+haaddt5CVIR+S+PLm8xjk
+         Vpb4RGKwq+8paqJxBoTjmJkQ4ho3hgy6ocVOtnHguyLFz78pIuSRVZaW3q0s5vElCwpV
+         V+8w2Dx1LvzFCRvWIR3xDf3IGR3EKVjS8e18Yn1kAW2vsOG/COU5MVyz9FUDpnH0TFYr
+         meALMaFZJ9YHgj156He5FtGUbKZ/UFu1j/D8FrxkLjgl0mZGSWPT6De5Q9VVzwcKDBaM
+         I1Bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784276022; x=1784880822;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=L63z0ebNG5Tx2TMavcYbFNcfaVoRzFeosIrJj+Kz+x0=;
+        b=VS1OZVI7ZPTWPB1SloptbPZtlaRsVNP0u5UYGevliFJjmTswez0q4mpY8vjdZGG2dR
+         5A/7cItBnomZbCQWznkQbU0VLtoga688zxf+yKg/zLWw9/1Z0Sz3embhoF+/0VtCElUw
+         UkSM5kyc5dmIratdQzJvGMdpy+yjZhzB1oAxzk64GoV9Hba5J5ZJ7H97tanans7BQjHi
+         ALaN+Lu6qmb8p9o3S6TUDpBWjmsl9JPSfht5W8+ekQjRhujKDZqWlDiWweb4148+tMAM
+         6mjL+JCeWrfWDCuztNgz5Z9CkBFWC+D+Nrpa/KzkeS+aHinFJMuC6OPRR5n3LbZ70kow
+         M/JQ==
+X-Forwarded-Encrypted: i=1; AHgh+RocetMfrIgEXdSK4vf5KwMVZLRs/4xUglYzRsOuCDSXZnhNRXuDhbsj2SFszoRoBg6baKeKxRl7M4g=@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywk4gcisBSXrD+95XKiRq7ZN5JZPeYHhaoY3MmziqGtZilfGqqC
+	VXplYwTHZbaNn7OZNIZbchm6AH1XuzmKlp2mNd7hNiEcIkU5FuNPnzGx
+X-Gm-Gg: AfdE7clKXLMqVtPlAKT3+BD/L5qzWoXYQWqZxs3VJo30W8Iin7tjX7YDcR4QyTk8kiq
+	vgsW52FJo6PYcOftQt2R52U2teJiSRpD4kVyquO0YdkjIZeWi/D+DEBzfFRY7Lh5YZBH4sLt3ea
+	3LY/q/G2OUn2sxkjUmdoAZFdeqGBzVQ/GkcZKaWhUX8yDEprAqT6FrbsTpzaryb4w8O1qkpvwvn
+	Y1UIrTUXkVt8/fuTjvGlAC23u+YqhJYOSRgQjoBnbtZ1SuZXs1C5CraOuLK4eycoBuuDs7/iKrk
+	SpXQLAcqzdsGmHhgDNtaxT5hSPHgvU+O/JhSAZL/s4kUhlFFhBi5yH7wCjZO54aQ4FPwq8nb/Wt
+	V0wJV5cPr5yCh5YmYUerK1W3Q5fg9fqYTz2dcvBB+bP7ydN87QglAAxTo+fyXw7QsO+EUBGD7oE
+	bCzBRWrKpRnf3n5Plg
+X-Received: by 2002:a05:600c:1d15:b0:495:43df:39c0 with SMTP id 5b1f17b1804b1-4954a513abfmr16350335e9.27.1784276021643;
+        Fri, 17 Jul 2026 01:13:41 -0700 (PDT)
+Received: from NSA-L02.ad.analog.com ([137.71.226.102])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49549c96f19sm34988695e9.9.2026.07.17.01.13.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2026 01:13:41 -0700 (PDT)
+Date: Fri, 17 Jul 2026 10:13:32 +0200
+From: Nuno =?utf-8?B?U8Oh?= <noname.nuno@gmail.com>
 To: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org, 
+	David Lechner <dlechner@baylibre.com>, Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, 
+	Andy Shevchenko <andy@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org
 Subject: Re: [RESEND PATCH 00/22] IIO: Clean out superfluous I2C checks for
  single transfers
-Message-ID: <alnjZ1FuitIPJUYe@ashevche-desk.local>
+Message-ID: <avufy4eyjrhdteaf57yzrygetgidy42z47uyhbdc6amsl6h42x@kcjz7oh2fnou>
 References: <20260716005737.254577-1-jonathan.cameron@oss.qualcomm.com>
  <5e9b7479-ed16-48aa-bd4f-26abc09e690e@metafoo.de>
  <20260716162053.00006f99@oss.qualcomm.com>
@@ -63,11 +77,10 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <20260716162053.00006f99@oss.qualcomm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
 On Thu, Jul 16, 2026 at 04:20:53PM -0700, Jonathan Cameron wrote:
 > On Thu, 16 Jul 2026 07:55:32 -0700
@@ -109,10 +122,7 @@ On Thu, Jul 16, 2026 at 04:20:53PM -0700, Jonathan Cameron wrote:
 > So any defense against that case would require hardening further up the stack.
 > 
 > +CC Andi and the i2c list.  Would anyone mind a patch to do something like:
-
-I am fine with the approach but return value conversion needs a good
-comprehensive comment on top.
-
+> 
 >  static inline int i2c_master_recv(const struct i2c_client *client,
 >                                   char *buf, int count)
 >  {
@@ -126,16 +136,9 @@ comprehensive comment on top.
 > +       return ret;
 >  };
 > 
-> Just to avoid the need for special case checks on ever call from every driver
-> so that they return ret if negative or else have to check for non 0 return
-> value and return -EIO or similar.   Maybe somewhere out there is someone using
-> that 0 to mean something magic, but I doubt it.
 
-> > > This series (also my first upstream series prepared by poking claude)
-> > > removes the redundant checks from all IIO drivers.
+I do think something like the above makes sense. It goes in accordance
+with the expectations given by the docs.
 
--- 
-With Best Regards,
-Andy Shevchenko
-
+- Nuno Sá
 
