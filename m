@@ -1,163 +1,107 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 800513E4C95
-	for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 08:58:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D85399CEE;
+	Fri, 17 Jul 2026 09:17:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784278741; cv=none; b=LoJ4ME75c1yFtU/hSJ+f0YturWk+rKjuyleJ+B+/VsbZ/2IKBmkD0qaiHqx/h8/mLTCqWAJmBZD3IHlLNtPJo7huBZWtaVfalSxI5B/pZVws2jzKzcWrg7zQvntG9tqFwclgaT5SbD3BPJIrLWR5r77wQip7tnrl1gfgxUobgkc=
+	t=1784279826; cv=none; b=j5cyxhgyKAieXS9z4UZurooYGgDuwmsqWytT9fKEDHxpetsdRXk/EMybmhw3R/PwI6duGtU6z5LlSkmJ4MwzG2AZOyLXB3XmnBG/19nTUIsnd18bF7hO0d77kvQexcE+zPbYXGHcuQuLpWT2c9sKRQQIvMjmo4epRaslxkBVh2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784278741; c=relaxed/simple;
-	bh=iKr+ORJN/0HmCwv5NrZPcwiCSwGwPmGXsiFEI46TzZc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JvQYm1XGPhsfTY8gxjm5gGbzEuO/FNYQ8E/Kueb5oWSMDomOUJCwaWVUvyBnG6+Ude6S+UoqdH+mozqrmwjZSY/kkjJh7buKfwLqYBUW/kjhryLHZ7PnVLKOnffjNQL/JC3PNopuvFIw45dRITxsEZD3tzIp29oOg7dfcQmprLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=l400jifc; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=VoVaXEjJ; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1784279826; c=relaxed/simple;
+	bh=8NOZBHoiBki1nYBte5Bsg6biVgb+C3gvMFTiUF58j0g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R+1AOprSO2n+f7Sio25023cgo10KMWoSMds/OTfOXHKejAoYz6qouWgB9w2sTF1GFjEjEbQel1vqnopGHiEp388oY3OtGszE6wJtoT9tO4NpsaAjjII1Zzk3jSUjwDGP6P0ZUWLTEtYbM1qctViwfbk0E9V9ALDJLOCuoHn2V9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=p0YeJ7J5; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="l400jifc";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="VoVaXEjJ"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66H6cWVE851755
-	for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 08:58:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	V6MbJnmX7m7Q+rNiwCmFsJ4wLFKfE9U7mLaz8j8CV9U=; b=l400jifcL5aKd65B
-	5LUw2Bc0DKEUaD+NP5xqtPA0B+pUH7FOZJXvTs+5QjLB6A5Gg8elI6ZNoyfPveE3
-	c6jq6vIIbzxH9mI9jgJ3j0N+TLBSoEiiPaWzLOHUlLViZNgsZmc/WjtUN0Bh+1wD
-	FBsECLyhP50+rHKfuAww3lq6pCtK3FMsoNMX/+5UPmIhIgCf+34zN7ItdPiQRVn1
-	YuBZTVahOP5+znFPqWN37skx8eW25UhncLxEY5No6gd7D2EJk6mlPGaNSy+HmlSv
-	7ZU/elCzCRgFqR2DaXZBaHSiUoaiCj/LdbpP9HjwCRdDBT6RXnsOPSUQ69WmcMTU
-	YlF3BA==
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com [209.85.160.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fff9p8ha7-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 08:58:58 +0000 (GMT)
-Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-51c0e702df8so91937701cf.2
-        for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 01:58:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1784278738; x=1784883538; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=V6MbJnmX7m7Q+rNiwCmFsJ4wLFKfE9U7mLaz8j8CV9U=;
-        b=VoVaXEjJgzgcakQ7j9flfYo8ay7oKb+LCzu1nywgGyphgjXW/pfrlxRc8PTsPUFF8l
-         UY2ZKJD3GKkkqE0A/CdT8G4+p4ZuBg6WG389unhxpnTSdKp/tKVoiLFffOCHC9AL5gLU
-         zTrNAnRrleoAk5YMXXADPlEEnieKslz46mcKHoxZ6hRL22bHT3/8AcFa8eX8IEzgSI6K
-         RB1E60kF+FAFMOqAfiwaTj9kORJ3WgVaZQ7MiQga28hj5S9Sz7edICbE5cKGgv8e9JmI
-         X5b/1TZR78xtFoxJFGX5kUXwvrqtS1ZzfCK0H6NA4XznzA7k3cJxpuSHgw6ZA/sAggia
-         ssZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784278738; x=1784883538;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=V6MbJnmX7m7Q+rNiwCmFsJ4wLFKfE9U7mLaz8j8CV9U=;
-        b=Ilw9JmG4lUSIXDnw8c9zvtIrnoINHgsIg3eRZprCv7eB0k08Tgasx2G+IF4t6Bx/5C
-         nFWFvQlCUGX+FwHd+Ej15Q9ARnOtN72BSWwatRPv2HcnpC4fpY/sKIultJRgWyOSTlY0
-         V6rinJEmZNoXOLo/h2u6JepWJ8ACRPvaHoxkJimdiYnKAiHWrtugnsDpu2XxuMhF1k2+
-         bn5lciqpMyX2Fr6l+zNyN3TyNPSNbz9Mxo0wgNJVpBb8u4t6PYroN6CdhpBFPp2i3cYm
-         gdtOC+q5wlpq1P4GjMmLiLcJrRZDKbE/P+pSUdTkeSQnhnZrjY0CrDgfLnH6Y6DpzWmm
-         1CnQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqhB1lZq6vuOjWUJGS+pHlBZOScUhAMRj6489WWY7xVeWjCQlVUNr4hWRRL99sREkelTyfTtS8zEPU=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxsf/sW6C6NWwTkrF3QFFlaO9X2hRiLwF1+e9jbodycPsH65/hX
-	zf+23gdzTQj5isnWIyM34U364KzNnhHqfQ4TSHHPpYy5J00T5ZMKezoRSv/lHHac/9tM+3Bs0An
-	L8LJ5rT0ZHqNyOfLJYmvgP1mGkIxtsjsfHd50jVCCbyhmBQ/PcSKGRWnYQ+/MxnY=
-X-Gm-Gg: AfdE7ckkIZnsWEbbovAnWZ0PRqJIv2jlCUoY9GgOvk4N4YqhFQU4dMnthJrnmeMpLVn
-	i5rZ38LLijAYrsH/UwtpdFLFbVQX1QGBuJDsAisClVG78VrXi6Ca2WnASU9eLvTb1wa0MksJCUn
-	m7v9JY+lVTro1aX3uf4bTHrEZda2T2He0vNjHSWjvrZvv56BZJOQf1EeGkd6GQQr/C/tiDKNH9i
-	uc0hDKSfOUdOcPqb3QT5WvVeizTWqCLstIUQOC0bzFDVCguRzl5HlCqUY2wcQuIxJi+a7ma5uO9
-	11pGdT8YluLkVE4Og9O/JTHczL505PEiaPcQOlhdE5vLYxQbvVd1B7IdrD6TfCsGAYrdCrT+j2T
-	9f6V8lfwCbfDVF1MSX5bz/GAVWxik
-X-Received: by 2002:a05:622a:1346:b0:51c:1eb5:333d with SMTP id d75a77b69052e-5213eb757d0mr12604751cf.66.1784278737604;
-        Fri, 17 Jul 2026 01:58:57 -0700 (PDT)
-X-Received: by 2002:a05:622a:1346:b0:51c:1eb5:333d with SMTP id d75a77b69052e-5213eb757d0mr12604541cf.66.1784278737262;
-        Fri, 17 Jul 2026 01:58:57 -0700 (PDT)
-Received: from brgl-qcom.home ([2a01:cb1d:dc:7e00:dc44:5b1b:5396:79d6])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63e65644sm1911449f8f.16.2026.07.17.01.58.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 01:58:55 -0700 (PDT)
-From: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Harshit Shah <hshah@axiado.com>,
-        Linus Walleij <linusw@kernel.org>,
-        Bartosz Golaszewski <brgl@kernel.org>, Jan Kotas <jank@cadence.com>,
-        Michal Simek <michal.simek@amd.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        =?UTF-8?q?Przemys=C5=82aw=20Gaj?= <pgaj@cadence.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Frank Li <Frank.Li@nxp.com>, Boris Brezillon <bbrezillon@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>, Swark Yang <syang@axiado.com>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-usb@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>
-Subject: Re: (subset) [PATCH v3 0/8] arm64: Add Axiado AX3005 SoC and EVK support
-Date: Fri, 17 Jul 2026 10:58:47 +0200
-Message-ID: <178427872043.9452.9219608850005529427.b4-ty@oss.qualcomm.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260716-upstream-axiado-ax3005-upstream-v3-0-c429095143ec@axiado.com>
-References: <20260716-upstream-axiado-ax3005-upstream-v3-0-c429095143ec@axiado.com>
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="p0YeJ7J5"
+Message-ID: <5439c27a-84c9-455d-9c2d-be84a37469fe@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1784279814;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tHnjMIAGRm2ejsywkpInpP3dH/N1dPQydtPOOeL+IoE=;
+	b=p0YeJ7J5SHfYAAl34NLbf0yPli175elPbpLSRPmFGKTsrMkQgqwBQvdM1sVdP1rjJIYQQS
+	iEld3eWbyM4t71a0BQ7o2xqdyxD2oMSj1nqb7Q+AjfIcdtqxtIaEQr/0yoA3mWbYj88keW
+	Z4cbd3/7xkEdcCsUnyiUu1Zsug2+9c0=
+Date: Fri, 17 Jul 2026 11:16:48 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: [PATCH 08/10] dt-bindings: pwm: apple,s5l-fpwm: Add t8132
+ compatible
+To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
+ Yureka Lilian <yureka@cyberchaos.dev>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi
+ <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>,
+ Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>,
+ Thomas Gleixner <tglx@kernel.org>, Wim Van Sebroeck
+ <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
+ Hector Martin <marcan@marcan.st>, Linus Walleij <linusw@kernel.org>,
+ Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Sasha Finkelstein <k@chaosmail.tech>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-pwm@vger.kernel.org
+References: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
+ <20260705-apple-m4-initial-devicetrees-v1-8-e5655ee56523@cyberchaos.dev>
+ <alj0EbuIzZUa48di@monoceros>
+Content-Language: en-US
+From: Yureka Lilian <yureka@cyberchaos.dev>
+In-Reply-To: <alj0EbuIzZUa48di@monoceros>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: RYFEN3nx1GsCA0JZ6t8lAeciYJGVSEdJ
-X-Proofpoint-ORIG-GUID: RYFEN3nx1GsCA0JZ6t8lAeciYJGVSEdJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzE3MDA4OSBTYWx0ZWRfXz0S+Nh2Dt/Mk
- bhItWUh5ed6R4oQOenYRbi/p8LtxR+r/BfDHTWAv/DUooso0kwFjv+QQMY4B+YSShXMTg5SLBUm
- qyjPUBlyQCgsXhzkIRlunktO+iYf7/7PpEkbvWmX8KNt1FN8HMIkCaXm5nUf8Knhm6DtdTLvIoj
- VPqHpkrNc1VXmIASENuGdjii+L6Pg0T748BGkdH9TG/7p9nPUXYN3timKQ7WjP/4gSDIFh9xd5A
- QqyH08qbTAPzkXtgicYWFTfUDse7k3TC0T3UjB9sDmrFgSunXpZTZZgMfEzqDkO6inW8MGUmkME
- scWJZ5FGrCkS6Lb/JmnX8MWPMIrQ9M9gU3dt3vADIB82DjR11rt2T619xXV9PHnlxlO4GqOMlLI
- 639SYdgGcQQk7FcqhCy5TRDDUzzuPYpMenp8PH8ACzukgYH8cVrWZimifqIuZXKa6JhgSGuQM9D
- Kw/HFjDmk1MFcbTpdCw==
-X-Authority-Analysis: v=2.4 cv=TaqmcxQh c=1 sm=1 tr=0 ts=6a59eed2 cx=c_pps
- a=WeENfcodrlLV9YRTxbY/uA==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22 a=VwQbUJbxAAAA:8
- a=EUspDBNiAAAA:8 a=zGYnv34WkyyXCUjmJXsA:9 a=QEXdDO2ut3YA:10
- a=kacYvNCVWA4VmyqE58fU:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzE3MDA4OSBTYWx0ZWRfX02r9Vr3ITOfe
- ybLmvMi9s4OlwFMBYUqhLqMcB06/YHmC12tlmMFkeOHGJurFaUqj4QLnrQqA0tCq3NC5cdYr4Lr
- 4l8PXtoE5MnRmC9HA8MMAUSGVUqxmeo=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-17_02,2026-07-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 suspectscore=0 lowpriorityscore=0 phishscore=0
- adultscore=0 spamscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607170089
+
+On 7/16/26 17:11, Uwe Kleine-König wrote:
+> Hello,
+>
+> On Sun, Jul 05, 2026 at 03:17:27PM +0200, Yureka Lilian wrote:
+>> The PWM controller on the Apple silicon t8132 (M4) SoC is compatible
+>> with the existing driver. Add "apple,t8132-fpwm" as SoC specific
+>> compatible under "apple,s5l-fpwm" used by the driver.
+>>
+>> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+>> ---
+>>   Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml b/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+>> index 25ef04b60ca1..c85a2b85a66a 100644
+>> --- a/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+>> +++ b/Documentation/devicetree/bindings/pwm/apple,s5l-fpwm.yaml
+>> @@ -19,6 +19,7 @@ properties:
+>>             - apple,t8103-fpwm
+>>             - apple,t8112-fpwm
+>>             - apple,t8122-fpwm
+>> +          - apple,t8132-fpwm
+>>             - apple,t6000-fpwm
+>>             - apple,t6020-fpwm
+>>         - const: apple,s5l-fpwm
+> There is no merge plan specified in the cover letter, but I assume this
+> should go via arm-soc?
+
+Yes, this will go through the appropriate -soc trees since there is no 
+driver change.
+Sorry for not mentioning it in the original cover letter, I wasn't aware 
+of the procedures at the time.
+
+>   In that case:
+>
+> Acked-by: Uwe Kleine-König <ukleinek@kernel.org>
+>
+> Best regards
+> Uwe
 
 
-On Thu, 16 Jul 2026 20:51:07 -0700, Swark Yang wrote:
-> This series adds initial device tree support for the Axiado AX3005 SoC
-> and its evaluation board (EVK).
-> 
-> The AX3005 uses Cadence-derived UART/I2C/I3C/GPIO and Synopsys
-> DesignWare SPI IP blocks. These are already described by
-> existing bindings, so the device tree reuses the "axiado,ax3000-*",
-> "cdns,*" and "snps,*" compatible strings; only a new SoC/board
-> level compatible is added.
-> 
-> [...]
+Thanks,
 
-Applied, thanks!
+— Yureka
 
-[2/8] dt-bindings: gpio: cdns: add Axiado AX3005 GPIO variant
-      https://git.kernel.org/brgl/c/e8a40b3566887c1c83d4cb87058d4e98ec8b4a14
-
-Best regards,
--- 
-Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
