@@ -1,143 +1,165 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 973E043F0A1;
-	Sat, 18 Jul 2026 08:50:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52D01374A0B
+	for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 09:03:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784364656; cv=none; b=mLA5QMGnv3Pza/3ZOdPRBEjcalBx5sDd/tMSIAFrnCI4SM4ZRl2nstDiSst4LE0sU1yIL3NHFGji5RTNKrQ3uda17+aChOwLsp3fkA6TUtSLQyj1HngDZ69HIkiiQV7ciM/PRRnn1lo6GUG/wqQJjevdFpNxJPjJKHxh70L2NNY=
+	t=1784365420; cv=none; b=uS3QPc0fhGg0O4KtC6z/2d55ygPulxgyxN1RL+qH2SqyiwiuH+S5GyJb3FwqlsypzsdkdgCw+jMZdGFAXtVzm3z9t6dwIBkPUwdV9Qh0vpdyzBZkYgsJ3iIQOvxhOlxch/Ci7b9ucxU9JdFXfBhG/09BpY6WloZRAK7YIaOPDGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784364656; c=relaxed/simple;
-	bh=BXolcRUkqumIcSctx8J2g/sfQbe4i7Q6U9nWOG4thfw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cVgGA+LECChoUJY8rOwDFWvle54iEuf0UqWlNUKnd52PoO6UVM7Qpij3PthYQHu7mmz3Pp3/ijyf7G5GkbIKiZbbHGQUr0I0Zja8KCABI7qt4tBEHOdPP5t0cs2FXk3wTynG6wyw0v+hqwiRpGweVwVmbkRQIY7XraOsPNweuas=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EI+y0DX5; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1784365420; c=relaxed/simple;
+	bh=wxLNkNVEM+EW0Q1B7ghLRQXzeadsZ5crecqVlqI6M34=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MSn25ildwwyRlz8C2FkUd6TDofJPw3n7SvtREyYMazw1VRP/G49MvAXI4aIWvq7LfVB95LGJ/BDRU5QgDRwKsaS64MJrVfFivhQH8Ob7Mj1GMmqE7n/PIpE3yWKHFk7M0+OKHudR0DQAKDj7rWOghc06zadUk6tLh3FdFJy79oE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cdFhlmlh; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EI+y0DX5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784364654; x=1815900654;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=BXolcRUkqumIcSctx8J2g/sfQbe4i7Q6U9nWOG4thfw=;
-  b=EI+y0DX5ZvxT6Ula84ND1OFFU8fgVBTEYvrbwKInTj77mMKtvKH4a2I2
-   7ynCYKckdsG2iZ1/1iVJk6hnzGZMhf9VH90EuJscqEyFAaF/8EDPkyJ6L
-   gY3Yh5DlTbu4HGy6hVL9zqHsfIFH1NMQUlmnTXxGFctDGnr4hjcDNFNEK
-   WjRIhWrSzDOCDJpVXv56BkFMO9pEz4gPscNa8uCflzHontZBTxHVs/db4
-   dOgv4W19sgZtff8CuhQO1C1s9DYdp1SaEvJOCxOQ8IUUqUmZpefae/Uyp
-   aG/XZN9Jjpdh4cxYXluYRuoZ3k7X2tQW3FYeabxwWG5wmTJA3g+AvzBRt
-   w==;
-X-CSE-ConnectionGUID: CDwALh4DS4m/wjELJXq+fg==
-X-CSE-MsgGUID: JptmxOGeQyOmjvi/N0DlpA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11849"; a="85222109"
-X-IronPort-AV: E=Sophos;i="6.25,170,1779174000"; 
-   d="scan'208";a="85222109"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2026 01:50:54 -0700
-X-CSE-ConnectionGUID: QzITa/0sSdKuJgoufUDDFQ==
-X-CSE-MsgGUID: cT1Eh9iJSBGXRgZ5vYCVwQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,170,1779174000"; 
-   d="scan'208";a="253020229"
-Received: from abityuts-desk1.ger.corp.intel.com (HELO localhost) ([10.245.244.22])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jul 2026 01:50:52 -0700
-Date: Sat, 18 Jul 2026 11:50:49 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
-	linusw@kernel.org, nathan@kernel.org,
-	chaitanya.kumar.borah@intel.com
-Subject: Re: [PATCH v13] i2c: designware: defer probe if child GpioInt
- controllers are not bound
-Message-ID: <als-afMzPlxLs0HY@ashevche-desk.local>
-References: <20260718054330.8975-2-hardikprakash.official@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cdFhlmlh"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-38dc69c74b8so6559936a91.0
+        for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 02:03:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784365419; x=1784970219; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=DcZ1SQGu/N0fFPEiHGk0VNuvuqYiBFKMIZfbviUQEsU=;
+        b=cdFhlmlh5CUGrLn//aYiR5bNGADDUce8ZSBBMiwgSxYT4FGfzTd3N0zR72JPf8yI9F
+         /5QOkVlqRtnzHPVnag/+JMrWecLP52ixZ8K7y4DJgLWmNxHmQ0EIVAPf3gwB+AqV/+fb
+         nLoWU2sqOfZnXhTfM0pkcH1kfrbM2OJOc6JacVaKDfg5i9y12YiZ/uTWKEZgisnIOgCb
+         /UFafo/sqjF31x+/YhIKFiqCeS2q+kXSkxfHU9k1XSJ02iyfSTUPupTvKIyozWHyZdxM
+         hiXZdkfQqUup/mnWp8SNf4eE29bk60rKU+g+Ip7Paz5+JrBrzQXgvP/ZBriRz+v8+OLT
+         EWiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784365419; x=1784970219;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=DcZ1SQGu/N0fFPEiHGk0VNuvuqYiBFKMIZfbviUQEsU=;
+        b=Ma5fTzviCGt+AhIiEASM9J2K528tgy4M8xIOuPITB+Dt0rBP9ok/ASVnzFOevQMfE0
+         cwTauQ1FQAbCyUWb3nWRXo4TWZHLH1Hc4mpvXxK7yJ8SHTiUVTdjWBy9oWNM+09mwZTK
+         kdzYurCbbjPz7lvz5qZvkDhvky6zZrlRgv3eyMYVvu13XJmrnXUCNW/Ohsu+NG0NDLku
+         s/apjanPjnmvZQ4rN4OJXF8/atos1n8GJRR8T8bchZKyWah5BXQGMCsRfW9C1FEinjsA
+         An9q2CvWNC7qfLwxY4pesSwYZSNRRKKXWGFQl4TrpXPjD5he2Sf79swVBr52Rb9cNjYA
+         er6w==
+X-Gm-Message-State: AOJu0YxDSOZpJBHvbNqJvJJZs98wSVirJupHDdVBhCziYQbyPAhKNURN
+	tcjse0BBE9kES327am9D5h+BnLhzppuniINj0nRprgllt2Tpco9ZeoR8
+X-Gm-Gg: AfdE7cmXboCHFnmG2XMTzgsV2irK/FmUtILUI6F2WU61dJe2emMJR1He3FKaKprB96/
+	eGLvKOCFh6qGhyqFhvztinpoCKHaoXdwxWgugJL+RfjEupf8BdNOMpCGAptZHowUrMgh3gtq5RP
+	QwSpEyHXuX5R2j2gxADfcIk0CijfQbnlWa1Xv/s7mRclsE956wmSe8wazikRVQlRMTSCeHPL+pm
+	e6wlOjkDcAeRG8WJfdWdAyumewOP/p133C6EttUIipTPSMBxTP46/0zB+uP/vW37bfTIWEyCHtU
+	Rkz0We6Q61halSGGbsw9x16VxiBMDASaGjZ7B9luorGiWnWZvDiPEkwDwfk7EircTm4A25wRO3x
+	bBnTUFK+jNMFay/tiWqQXhJVE4Oa5W2UOYOf+PT3mgZokneVFDga86L3NAKvwtczski1ZtzIbrZ
+	J+NA/rGMGX8q0sc+w2VgvkaIqf9IeqiVBWewmo5dpPtgD0H+g=
+X-Received: by 2002:a17:90b:388e:b0:38e:475f:810c with SMTP id 98e67ed59e1d1-38e4b5e8a53mr6610509a91.41.1784365418538;
+        Sat, 18 Jul 2026 02:03:38 -0700 (PDT)
+Received: from fx.tailc0aff1.ts.net ([206.206.192.132])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a20b037sm16580102eec.27.2026.07.18.02.03.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 02:03:37 -0700 (PDT)
+From: Weiming Shi <bestswngs@gmail.com>
+To: Jean Delvare <jdelvare@suse.com>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Xiang Mei <xmei5@asu.edu>,
+	Weiming Shi <bestswngs@gmail.com>
+Subject: [PATCH v2] i2c: i801: keep the byte-by-byte ISR buffer private to the driver
+Date: Sat, 18 Jul 2026 02:03:30 -0700
+Message-ID: <20260718090329.1622366-2-bestswngs@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260718054330.8975-2-hardikprakash.official@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Sat, Jul 18, 2026 at 11:13:31AM +0530, Hardik Prakash wrote:
-> I2C controllers may have child devices with GpioInt resources that
-> depend on GPIO controllers being fully initialized. If the I2C
-> controller probes and enumerates children before the referenced GPIO
-> controller has completed probe, GPIO interrupts may not be properly
-> configured, leading to device failures.
-> 
-> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> fail with lost arbitration errors:
-> 
->   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->   2.348157  lost arbitration
-> 
-> Add a dependency check that walks ACPI child devices and defers probe
-> until any referenced GPIO controller is bound.
+For interrupt-driven byte-by-byte block transfers,
+i801_block_transaction_byte_by_byte() points priv->data at the caller's
+union i2c_smbus_data and lets the BYTE_DONE interrupt handler
+i801_isr_byte_done() fill or drain it one byte at a time.  In the i2c-dev
+ioctl path that buffer lives on the caller's kernel (vmap) stack.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+On a wait_for_completion_timeout() the transfer thread returns -ETIMEDOUT
+without fencing the interrupt, and a BYTE_DONE that is still in flight or
+fires later then writes a byte through priv->data
+(priv->data[priv->count++] = inb(...)) after the caller has returned and
+its vmap stack has been freed:
 
-One nit-pick below. No need to resend, hopefully Andi can tweak that
-whilst applying.
+  BUG: KASAN: stack-out-of-bounds in i801_isr
+  Write of size 1 at addr ffffc90002a2fda9 by task exploit/5144
+   <IRQ>
+   i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:546 [inlined]
+   i801_isr drivers/i2c/busses/i2c-i801.c:613
+   __handle_irq_event_percpu kernel/irq/handle.c:158
+   handle_irq_event kernel/irq/handle.c:195
+   handle_fasteoi_irq kernel/irq/chip.c:661
+   __common_interrupt arch/x86/kernel/irq.c:263
+   common_interrupt arch/x86/kernel/irq.c:240
+   </IRQ>
+  The buggy address belongs to a freed vmap kernel stack (task exploit),
+  created by kernel_clone -> copy_process.
 
-...
+The completion-based paths (i801_transaction(),
+i801_block_transaction_by_block()) never expose the caller's buffer to the
+handler: they copy to/from the hardware block buffer in process context
+and use the interrupt only to signal completion.  Give the byte-by-byte
+path the same property.  The handler now fills a driver-private buffer
+(priv->data_buf); the transfer copies the caller's data in before starting
+and copies the result back out on success, so a late or spurious BYTE_DONE
+can only ever touch driver-owned memory.  i801_block_transaction() already
+bounds data->block[0] to I2C_SMBUS_BLOCK_MAX, so the buffer cannot overflow.
 
-> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
-> +{
-> +	struct acpi_resource_gpio *agpio;
-> +	struct acpi_device *gpio_adev;
-> +	struct device *gpio_dev;
-> +	acpi_handle handle;
-> +	acpi_status status;
-> +
-> +	if (!acpi_gpio_get_irq_resource(ares, &agpio))
-> +		return 1; /* not a GpioInt resource, skip */
-> +
-> +	if (!agpio->resource_source.string_length)
-> +		return 1; /* no named controller, skip */
-> +
-> +	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
-> +	if (ACPI_FAILURE(status))
-> +		return 1;
-> +
-> +	gpio_adev = acpi_fetch_acpi_dev(handle);
-> +	if (!gpio_adev)
-> +		return 1;
-> +
-> +	struct gpio_device *gdev __free(gpio_device_put) =
-> +		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
-> +	if (!gdev)
-> +		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
-> +
-> +	gpio_dev = gpio_device_to_device(gdev)->parent;
-> +
-> +	guard(device)(gpio_dev);
+Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
+Reported-by: Xiang Mei <xmei5@asu.edu>
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: Weiming Shi <bestswngs@gmail.com>
+---
+Changes in v2:
+- Fix the author: From/Signed-off-by. No code change.
 
-+ blank line here as well. I asked to add blank lines before and after.
+ drivers/i2c/busses/i2c-i801.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-  "...make sure it has a blank lines before and after, so it's visible
-   as a separate entity."
-
-> +	if (!device_is_bound(gpio_dev))
-> +		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
-> +
-> +	return 1; /* bound, skip adding to resource list, continue walk */
-> +}
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index c8cb5ed55..37741fdca 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -279,6 +279,9 @@ struct i801_priv {
+ 	int count;
+ 	int len;
+ 	u8 *data;
++	/* Driver-private buffer the isr fills/drains, so a late interrupt
++	 * never dereferences a pointer into the caller's block buffer. */
++	u8 data_buf[I2C_SMBUS_BLOCK_MAX + 2];
+ 
+ #if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
+ 	const struct i801_mux_config *mux_drvdata;
+@@ -671,12 +674,23 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+ 		priv->cmd = smbcmd | SMBHSTCNT_INTREN;
+ 		priv->len = len;
+ 		priv->count = 0;
+-		priv->data = &data->block[1];
++		/*
++		 * The interrupt handler fills or drains this buffer
++		 * asynchronously and may still run after a timeout, so keep it
++		 * in driver-private storage instead of pointing into the
++		 * caller's block buffer, which is freed once we return.
++		 */
++		memcpy(priv->data_buf, data->block, len + 1);
++		priv->data = &priv->data_buf[1];
+ 
+ 		reinit_completion(&priv->done);
+ 		outb_p(priv->cmd | SMBHSTCNT_START, SMBHSTCNT(priv));
+ 		result = wait_for_completion_timeout(&priv->done, adap->timeout);
+-		return result ? priv->status : -ETIMEDOUT;
++		if (!result)
++			return -ETIMEDOUT;
++		if (priv->is_read)
++			memcpy(data->block, priv->data_buf, priv->len + 1);
++		return priv->status;
+ 	}
+ 
+ 	for (i = 1; i <= len; i++) {
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.43.0
 
