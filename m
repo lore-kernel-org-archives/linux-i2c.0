@@ -1,134 +1,111 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D8423D1A97
-	for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 13:00:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A362725783A
+	for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 02:56:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784293259; cv=none; b=k2yEYmeuO7Zqn+7NOWx1hbRSJYMiDCqvwlI5K3zytnSGujDchqO4PxtdCwa6rFMxUicMqv4SuxHkWTD1/zcw2VPonUhQ6akddGIIm25FXegKQMOEE9XuBfBCA9dxAJER0w5eTwipVc2qA966KoUR8xWbAauuid0TJk8Oo3vzT2s=
+	t=1784343373; cv=none; b=DBvxCCc49hsEpxlKgd3M1cm+lirqhgQq5Tb/+bwLZ6Urec2+wCHjPXukkM0ZI3HKg+L3yFqxIqiKCJhq8VpvpS59GFxlkNA9yafBmS08FSTKVWXgIwHnVSbM18FaV457IcZGoa8JNPJmByuYhXqIludbmP+7X3vjavztl9EsKy4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784293259; c=relaxed/simple;
-	bh=ZDYzkkV01TlNMexcknblztkA3fz62Et5Z3p/N1TA+Ts=;
-	h=Mime-Version:Date:Message-Id:Subject:Cc:To:From:References:
-	 In-Reply-To:Content-Type; b=dq5IRmfyAlsGQkho8/A1v5dAnNaol9MUzvq/+EtgwrzfQkjX+amLZQI/M5byooEUY/oQIB2dnXkMKwYEuA5SKf/AHeeU0l0oZ0ojg3GHB3fdInYFBbzVRLg82wnS7RCUT2+au7lkgebuBTSi/OJTNA5yC/lDqyx4aN4hxR/wBhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sevenlab.de; spf=pass smtp.mailfrom=sevenlab.de; dkim=pass (2048-bit key) header.d=sevenlab-de.20251104.gappssmtp.com header.i=@sevenlab-de.20251104.gappssmtp.com header.b=xl0KATs4; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sevenlab.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sevenlab.de
+	s=arc-20240116; t=1784343373; c=relaxed/simple;
+	bh=7DQdCU2WxK0zeazmg16+9zA+RDtrPnDFr+uw9OeSzrM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hhdVMS4ZQKHvAew8xrMldLKPIPI4LXxr5TRxTRk1HyAg7uFpmVgx98gKiM4IcfzvhyHCNz5S+G76p/OhZhgugDolJZ6qJZ4iZzanyaY/hmM7EyKpwM8UG6LqZhbhsJa8CjC5YpO6rb/LEzdA75RiwAv7KzUhfm1Av6ahW1Wa+6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gRUORo/I; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sevenlab-de.20251104.gappssmtp.com header.i=@sevenlab-de.20251104.gappssmtp.com header.b="xl0KATs4"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6984169c126so14661011a12.1
-        for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 06:00:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gRUORo/I"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38dfe910e9dso5540541a91.3
+        for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 19:56:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sevenlab-de.20251104.gappssmtp.com; s=20251104; t=1784293255; x=1784898055; darn=vger.kernel.org;
-        h=content-type:content-transfer-encoding:in-reply-to:references:from
-         :to:cc:subject:message-id:date:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1784343372; x=1784948172; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=mREuMlZq5bhR8hA4pRBMcoPSgOGkAtOyAXgmK2FIjzA=;
-        b=xl0KATs4mzZF5aMCfaTduII6ljsEbrXN7sVQERLogVugtDqfVGBJ4p7GqyGhmJVVAL
-         9OcTY1tDXG9Rn2u4RUf8bsX/UmsTvkii6WlnuyG6/YtH5q525SIt5VRQgzDp7f9AOa8z
-         o0MYz4C4L8dd76RSpzWfIaX7veScy0YPZ+8BbT6XRa2AtxBoqD8MbeXRP0ORh5A+TIPr
-         RHtpCZtBpjxQYxka/bUwzmRkZFHJ7H84g0rbWc8dP8H1uV/T8FiHa6XK/d+S/bTuznPG
-         vc6des9Y8M7A8HjUskKZcXdmLffaqzlUvpEwxZWxji1iSBz29vsgJv/CIepmB45bYTt/
-         Dg5A==
+        bh=7DQdCU2WxK0zeazmg16+9zA+RDtrPnDFr+uw9OeSzrM=;
+        b=gRUORo/IbBigBFUGQdoqEVlRczbN56jVL8cQEpXlo9iOEyL43u8Loex91l2l9tyybI
+         Jf0Bl+/8p3y+zhtlC3kV9bl7YZXb4D9cwxHL9oZEwBSCsSGzWyQ64Lu0uBH+R/d7n2fc
+         lEmT6NYMBgBl/YyX2mGO/myV1rDvgm/xf1hWrV7dlA4Zw0+96upfcs4f8ibciY+W0wj5
+         7GlQHCaGyo7Ym5xGdHud7n0gro720WvUcWWbeqoFxwhRfFytxSPMS1VJ3kZgIXfuigxh
+         pqLIRukNls9E64VpkMESbjJyktLk7H6230/2no7hjYFeaHG38aWBAIWB0SXIF71/G9bA
+         gx/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784293255; x=1784898055;
-        h=content-type:content-transfer-encoding:in-reply-to:references:from
-         :to:cc:subject:message-id:date:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=mREuMlZq5bhR8hA4pRBMcoPSgOGkAtOyAXgmK2FIjzA=;
-        b=omlFI2JjNSYaIBv0JiyJRbXzYr6btdBxc4FHk30BtWvrPveSJNZ6S9jZ41db1Fwm77
-         LXaL15CW3GwkUpP9zKfiUY7VUwg7K9+YT9prvAWHmK33tC3yY1in4O3Dg71lmaE83cs+
-         ZLwUz7kpMu9oYWwjvS2noMZYITRswp6aM491iM8iAFtSpuCYWqKGDeCuT+TTaSb3CnGE
-         PcQDmRjVotDpMUZzPtaI+fUnemojzwQYYVL3EKEnx3PkEmpyHK4WUAY57u+AlQNc3qKY
-         b8IbLjvatH2BdsYYhOFex4HoJJFt8YDdSFbBuWFGLnHfinkMYzlSha734605iebB91vq
-         whvA==
-X-Forwarded-Encrypted: i=1; AHgh+RrjemvTksvF23B5TnFs81NNhUO5uVNydLZuVr97EVB7hpCWVqTGWDhA20/+BntOIF7qUeSgyT9DRhc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxvqW4R/8/WC6fPy+VOiLkKAo5XS+vlTwenEta57FwhLi4htSvN
-	d0vI6w6V1t5CRsdL+a1SdMCfRTV6w1Atqtdts4fU9ctkbrr5Rwu1HVAfml8BRuotkYginp95+8R
-	kjASRgKteoVBXQd89W+ERAddQOn/cSkpfzmfw2sLbUayluTSiC97Vnhju
-X-Gm-Gg: AfdE7cnZc8IfrnqUh52nesrOzinzZbs0oc/J4vq5lGCT0IK6cJg440e8FRWduRWEAiZ
-	S9xeocQfKLo/fX8xWvT2HFSD+XxwwU3TYOlYqU96YGNFm6diGS7gp/QUSZeDqEe7IHpXBsjIdSb
-	Db+sALkZFdpMmT1f7xGhjeQH9ICkb1xlwjSYWeUclzwrg11sC/qVEADcgyyQZqTRI8+fxrNAJB7
-	o58xfA7TiYF9eGEOBoECLRiTnh+0dBpZ/xcF63ahXG7IkQ3RW8ip2JZOmQ0RkbbC2JsVlIGzkcz
-	lP/5CV1WPSYQ6BYEOSxXuvFFId+55L8Z1zgbhS3VFzvn3y2MOHt4CNnK5I6IuF9/hFzIgm8cfZu
-	9PViPxn5Z+HTpgR1i2Tm/KvdoDze7lbaaPL9jTsE5WL2nO/HrcoM/nmUlw3h0z+PtuEn9oWj5NF
-	Fohuyxs8W6HWqZF7c=
-X-Received: by 2002:a17:907:7ba5:b0:c16:4df6:1768 with SMTP id a640c23a62f3a-c16b47d714emr109862666b.42.1784293255096;
-        Fri, 17 Jul 2026 06:00:55 -0700 (PDT)
-Received: from localhost ([2a02:8109:eb8a:6200:80bb:45b1:eab0:f478])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c170591172esm73379566b.15.2026.07.17.06.00.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Jul 2026 06:00:54 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784343372; x=1784948172;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7DQdCU2WxK0zeazmg16+9zA+RDtrPnDFr+uw9OeSzrM=;
+        b=IvWWGVUo6RI2MHF6PwtFHEvDi7C/GblANSEZUW6/AtRX8H0aCSkwIwCq0q7HuhQCmA
+         MDzXAGh9YhfAlKmtGwuJ84I9LQXHpLVdE3RHmyaGMG1V8TJZaW9ef34i3eL82wNj5nuZ
+         hU9hipTRYWKsR+QosC5TNIv0JBEvYHTaLgvOktJxRRclo6DgSiCHc7CPOf3k155cQ6ti
+         GkqEMU3TxZbfd/6SOVzK2EP/+5GnNmvH49kHJupv5peBVKG2Ls91MLSLGOYwvRV4ubUn
+         z6wRG1C23SjkzXb5BB68w9lvBAcgCSDquEGUSI3gQ3DF8C9yck4TMuTScQsW84zWRRT0
+         fa4g==
+X-Forwarded-Encrypted: i=1; AHgh+RrdEjr4gNxFZnaxOWaxppnK+PB9/drTY6AmZzhkKE3rbMM0XN3RY0oKJjpkdHXchs7UZbNJc2CECg4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwdNWQ6ZXAYHYJMRAxJ5DNvm2ojplF6Rnci1FOVCCrQ0Mm911/p
+	EmcBKaF+52Pmn1yI7/2VQrv4wH/WuUngf/QIQgUwSTd/MN+DNVaMDElg
+X-Gm-Gg: AfdE7clx8wVUcWHejtt2EidjqEHgPefNnpdNYlrGzYhoOWr53SiNSRsmlZGILEIC39V
+	ji//xB7ZuIPlFmmPz49Ac4EfJ3xqUcSqBJ/LkEB49VmNagyoZJ4ua8LhTlHl/FlwEYlSZt2JI/w
+	MXAG9s+RtqNKKSlz7vI9WpzuCq+vOhg2lATdsCe2Vor9T24IcoUsyla65jRWmDXLGDGZBpVurYR
+	pXb+YlYOwcYpt0OkNLuyuqSLSqQd/zG2PMik/tTeESH3sK0jRRY3YvVan90EzsQ5eZbzoCVWWPY
+	hPluW6TYMoutgWemA/PymzWCPu6JkUt103/FZgjL+fE+/UAFQELD6tpnVLxIqIhErXfuOF6DeyL
+	BNS1DT18e57GT6plBI7PlxyCeazemhrvhPP45L1cK8Vs458bUe1afgsDUHPf9Kc2ukT56wX+XZd
+	EMfwsc3gxpqNr7A7niLdoyepbQ3gKA2vzq07VPzynQLycxyMg4U2aIRX+9idotAyhNvEdZna1rs
+	RdItBwy1I5kDqz441S5mG0XMv/v4c8/DSf+4+Ngq6c2791N0h8TFyOiOE32foXsFuGTg3Vr7NQH
+	5qOUCukTplTilc034hYYdHLJicpUaqLqVatDjF/vCd/zeqAgkoHCjW095PyGgqt/+5g=
+X-Received: by 2002:a17:90b:35ce:b0:37c:6910:5758 with SMTP id 98e67ed59e1d1-38e4b4200edmr5059155a91.1.1784343371893;
+        Fri, 17 Jul 2026 19:56:11 -0700 (PDT)
+Received: from ip-172-31-21-198.us-west-2.compute.internal (ec2-54-213-160-35.us-west-2.compute.amazonaws.com. [54.213.160.35])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e656e5686sm32029a91.14.2026.07.17.19.56.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2026 19:56:11 -0700 (PDT)
+From: Bruce Robertson <brucer42@gmail.com>
+To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>,
+	Igor Korotin <igor.korotin@linux.dev>,
+	Danilo Krummrich <dakr@kernel.org>
+Cc: jic23@kernel.org,
+	lars@metafoo.de,
+	linux-iio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	andi.shyti@kernel.org,
+	wsa+renesas@sang-engineering.com,
+	ojeda@kernel.org,
+	branstj@gmail.com
+Subject: Re: [RFC PATCH v4 1/3] i2c: rust: implement SMBus read abstraction via kernel::io::Io for I2cClient
+Date: Sat, 18 Jul 2026 02:48:38 +0000
+Message-ID: <20260718024838.1623-1-brucer42@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <CAO26r3Ttyfqhs3_jWDFym7FpswqFW4-UA8p1pQBcuWzDGGzstg@mail.gmail.com>
+References: <CAO26r3Ttyfqhs3_jWDFym7FpswqFW4-UA8p1pQBcuWzDGGzstg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Date: Fri, 17 Jul 2026 15:00:53 +0200
-Message-Id: <DK0V64S4JWAS.3PNF8V2ZQEDPY@sevenlab.de>
-Subject: Re: [PATCH v4 1/2] i2c-tools: Allow passing device file paths
-Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-To: "Brigham Campbell" <me@brighamcampbell.com>, "Jean Delvare"
- <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>
-From: =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
-X-Mailer: aerc 0.20.1-26-gcbffbc9ac803
-References: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com> <20260705-accept-device-path-v4-1-c62caa708a9e@brighamcampbell.com> <DJU1QIKM2DNQ.UOLEBWH0U0QQ@sevenlab.de> <DK02UVSWWGTN.2M4XXGFINRT1V@brighamcampbell.com>
-In-Reply-To: <DK02UVSWWGTN.2M4XXGFINRT1V@brighamcampbell.com>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi Brigham,
+On Tue, Jul 14, 2026 at 23:08:00 +0700, Muchamad Coirul Anwar wrote:
+> Agreed. I will rework on top of Danilo's FallibleIoCapable approach
+> in v5.
 
-On Thu Jul 16, 2026 at 4:49 PM CEST, Brigham Campbell wrote:
-> I agree that `open_i2c_dev_path()` should be inlined, but I don't think
-> it would be a good idea to remove its `fprintf()` altogether. How about
-> something like the following, which would make the error messages more
-> orthogonal?
->
-> 	if (errno !=3D ENOENT) {
-> 		fprintf(stderr, "Error: Could not open file "
-> 			"`%s': %s\n", i2cbus_arg, strerror(errno));
-> 		if (errno =3D=3D EACCES)
-> 			fprintf(stderr, "Run as root?\n");
-> 		return file;
-> 	}
->
-> 	fprintf(stderr, "Error: `%s' is not a bus number, name, or device file "
-> 		"path!\n", i2cbus_arg);
->
-> If the i2cbus_arg parameter didn't appear to be a file (ENOENT), it will
-> print an error indicating that all three methods failed. If it did
-> appear to be a file but couldn't open the file for whatever reason, it
-> will print the error along with a suggestion to run as root if it's a
-> permissions issue. This behavior reflects the behavior of
-> `open_i2c_dev_by_nr()`.
+For the write side of that rework: I recently posted an RFC with a
+Rust port of the SMB347 charger driver [1], which Igor pointed at this
+series (thanks). I'm dropping my standalone SMBus helpers in favor of
+your Io-based approach.
 
-I'm unsure about this: Yes, this reflects the behavior of
-`open_i2c_dev_by_nr()`, but we only call that after we have validated
-that the input is indeed an adapter number. With the path we don't do
-that, we just try to open the input as a path. We know it's not a valid
-integer, and not a valid adapter name, but it may still not be a path,
-maybe it's a mistyped adapter name.
+The SMB347 driver may be a useful early consumer for v5: unlike the
+AS5600 it writes -- a config-unlock write plus read-modify-write
+updates of charge-control register fields -- so it would exercise the
+io_try_write/try_update paths that Igor noted are otherwise easy to
+leave silently infallible. NACK and arbitration loss on a charger
+config write are exactly the failures you don't want reported as
+Ok(()).
 
-To that I'm not sure we can conclude that `errno !=3D ENOENT` means it is
-indeed a path.
+Happy to rebase it onto v5 when it's out and report back.
 
-Looking at libgpiod (`gpiod_chip_open_lookup()`), they solved that by
-assuming that all paths must start with `/dev/`. Unsure if we want to go
-that route as well. It would definitely simplify things and I think for
-the sake of progress that whould be fine. Thoughts?
+Bruce
 
-Best,
-Gero
-
---=20
-
-
-sevenlab engineering GmbH <https://sevenlab.de>
-serious engineering.
-
-Gesch=C3=A4ftsf=C3=BChrer: Christian J. Pereira
-Amtsgericht K=C3=B6ln,=C2=A0HRB 121730
-Anschrift: Hansaring 20, 50670 K=C3=B6ln
+[1] https://lore.kernel.org/all/20260708214738.25008-1-brucer42@gmail.com/
