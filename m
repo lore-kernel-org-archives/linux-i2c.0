@@ -1,165 +1,100 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52D01374A0B
-	for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 09:03:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02D518FDDE;
+	Sat, 18 Jul 2026 10:46:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784365420; cv=none; b=uS3QPc0fhGg0O4KtC6z/2d55ygPulxgyxN1RL+qH2SqyiwiuH+S5GyJb3FwqlsypzsdkdgCw+jMZdGFAXtVzm3z9t6dwIBkPUwdV9Qh0vpdyzBZkYgsJ3iIQOvxhOlxch/Ci7b9ucxU9JdFXfBhG/09BpY6WloZRAK7YIaOPDGM=
+	t=1784371606; cv=none; b=FbCcHRZDUiiFjvZHhnnOg3YzOc79zcU58ypC5aEnrEVkbsypKuYXUb6gMkdOXW3oPY2kZhmNmF2Fhs5R0JrV2vs2S+dS+487okA/K9fKCcJkULgjhGRA8w2uMLCgssofy51PxY30W2QW1DowqzG4Ed2970wGN0JI9B2RWZ1ysHg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784365420; c=relaxed/simple;
-	bh=wxLNkNVEM+EW0Q1B7ghLRQXzeadsZ5crecqVlqI6M34=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MSn25ildwwyRlz8C2FkUd6TDofJPw3n7SvtREyYMazw1VRP/G49MvAXI4aIWvq7LfVB95LGJ/BDRU5QgDRwKsaS64MJrVfFivhQH8Ob7Mj1GMmqE7n/PIpE3yWKHFk7M0+OKHudR0DQAKDj7rWOghc06zadUk6tLh3FdFJy79oE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cdFhlmlh; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784371606; c=relaxed/simple;
+	bh=j24HJqkCtsvjNtSlB1kg21ECS25KZzL1U1nDsIO/H3E=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=A6qejx7LjGl63n1MlBP4tcVodf0LPNvKDxQYEXzRpLdH6mEWx7rBHgh0bs6j2ROPZHueQqO8NX8+bo3YX5WzjAstVhtHX8IOjwmtG9P6NCShVpeROoeJMmln3eOBP8cPiJtx/0l1hAtgqeNcRzpIpTJuhKiWxMYY2+tW6RYzacY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hGWf2GVj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cdFhlmlh"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-38dc69c74b8so6559936a91.0
-        for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 02:03:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784365419; x=1784970219; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DcZ1SQGu/N0fFPEiHGk0VNuvuqYiBFKMIZfbviUQEsU=;
-        b=cdFhlmlh5CUGrLn//aYiR5bNGADDUce8ZSBBMiwgSxYT4FGfzTd3N0zR72JPf8yI9F
-         /5QOkVlqRtnzHPVnag/+JMrWecLP52ixZ8K7y4DJgLWmNxHmQ0EIVAPf3gwB+AqV/+fb
-         nLoWU2sqOfZnXhTfM0pkcH1kfrbM2OJOc6JacVaKDfg5i9y12YiZ/uTWKEZgisnIOgCb
-         /UFafo/sqjF31x+/YhIKFiqCeS2q+kXSkxfHU9k1XSJ02iyfSTUPupTvKIyozWHyZdxM
-         hiXZdkfQqUup/mnWp8SNf4eE29bk60rKU+g+Ip7Paz5+JrBrzQXgvP/ZBriRz+v8+OLT
-         EWiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784365419; x=1784970219;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=DcZ1SQGu/N0fFPEiHGk0VNuvuqYiBFKMIZfbviUQEsU=;
-        b=Ma5fTzviCGt+AhIiEASM9J2K528tgy4M8xIOuPITB+Dt0rBP9ok/ASVnzFOevQMfE0
-         cwTauQ1FQAbCyUWb3nWRXo4TWZHLH1Hc4mpvXxK7yJ8SHTiUVTdjWBy9oWNM+09mwZTK
-         kdzYurCbbjPz7lvz5qZvkDhvky6zZrlRgv3eyMYVvu13XJmrnXUCNW/Ohsu+NG0NDLku
-         s/apjanPjnmvZQ4rN4OJXF8/atos1n8GJRR8T8bchZKyWah5BXQGMCsRfW9C1FEinjsA
-         An9q2CvWNC7qfLwxY4pesSwYZSNRRKKXWGFQl4TrpXPjD5he2Sf79swVBr52Rb9cNjYA
-         er6w==
-X-Gm-Message-State: AOJu0YxDSOZpJBHvbNqJvJJZs98wSVirJupHDdVBhCziYQbyPAhKNURN
-	tcjse0BBE9kES327am9D5h+BnLhzppuniINj0nRprgllt2Tpco9ZeoR8
-X-Gm-Gg: AfdE7cmXboCHFnmG2XMTzgsV2irK/FmUtILUI6F2WU61dJe2emMJR1He3FKaKprB96/
-	eGLvKOCFh6qGhyqFhvztinpoCKHaoXdwxWgugJL+RfjEupf8BdNOMpCGAptZHowUrMgh3gtq5RP
-	QwSpEyHXuX5R2j2gxADfcIk0CijfQbnlWa1Xv/s7mRclsE956wmSe8wazikRVQlRMTSCeHPL+pm
-	e6wlOjkDcAeRG8WJfdWdAyumewOP/p133C6EttUIipTPSMBxTP46/0zB+uP/vW37bfTIWEyCHtU
-	Rkz0We6Q61halSGGbsw9x16VxiBMDASaGjZ7B9luorGiWnWZvDiPEkwDwfk7EircTm4A25wRO3x
-	bBnTUFK+jNMFay/tiWqQXhJVE4Oa5W2UOYOf+PT3mgZokneVFDga86L3NAKvwtczski1ZtzIbrZ
-	J+NA/rGMGX8q0sc+w2VgvkaIqf9IeqiVBWewmo5dpPtgD0H+g=
-X-Received: by 2002:a17:90b:388e:b0:38e:475f:810c with SMTP id 98e67ed59e1d1-38e4b5e8a53mr6610509a91.41.1784365418538;
-        Sat, 18 Jul 2026 02:03:38 -0700 (PDT)
-Received: from fx.tailc0aff1.ts.net ([206.206.192.132])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a20b037sm16580102eec.27.2026.07.18.02.03.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2026 02:03:37 -0700 (PDT)
-From: Weiming Shi <bestswngs@gmail.com>
-To: Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Xiang Mei <xmei5@asu.edu>,
-	Weiming Shi <bestswngs@gmail.com>
-Subject: [PATCH v2] i2c: i801: keep the byte-by-byte ISR buffer private to the driver
-Date: Sat, 18 Jul 2026 02:03:30 -0700
-Message-ID: <20260718090329.1622366-2-bestswngs@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hGWf2GVj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98AC51F000E9;
+	Sat, 18 Jul 2026 10:46:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784371605;
+	bh=COkKMy3c6nCwIHb1Yv+jhwurTd7elm3gzusG9atW52k=;
+	h=Date:From:To:Cc:Subject;
+	b=hGWf2GVjHpUcp+/FxJZlM1+iCWJi5WQKUwFOXWL7ncpr8dhvwktj4SEU/3HNY3AV2
+	 TVL1VkJij/LLG0M1OtLYx3sBUD4F8+F8gT1/bBUhxMg0OMYWp2kLAfZxIDMW5Vz7GE
+	 /di4lxW+Bimpyk3+dx985t82dRjGEDFN/cTLyZpMjpf64L60N/oWdwxaWlKjZBFgB8
+	 94xLYxmzE6GJUYb2QZE80il+X1zaDrEh9OpnRvOXknay4fNI5GsiootrjNgsongEAk
+	 /ZTF6ZOlpWHbUo07XspvKiYeuQIMVhaOP/kbHvB4AfKAVmXqC1QOdPiEHc1NJHBt9U
+	 XhJCpetVT2wEg==
+Date: Sat, 18 Jul 2026 12:46:42 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Subject: [GIT PULL] i2c fixes for v7.2-rc4
+Message-ID: <altYEuFVUe8KSr5e@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-For interrupt-driven byte-by-byte block transfers,
-i801_block_transaction_byte_by_byte() points priv->data at the caller's
-union i2c_smbus_data and lets the BYTE_DONE interrupt handler
-i801_isr_byte_done() fill or drain it one byte at a time.  In the i2c-dev
-ioctl path that buffer lives on the caller's kernel (vmap) stack.
+Hi Linus,
 
-On a wait_for_completion_timeout() the transfer thread returns -ETIMEDOUT
-without fencing the interrupt, and a BYTE_DONE that is still in flight or
-fires later then writes a byte through priv->data
-(priv->data[priv->count++] = inb(...)) after the caller has returned and
-its vmap stack has been freed:
+here is the fixes pull request for v7.2-rc4.
 
-  BUG: KASAN: stack-out-of-bounds in i801_isr
-  Write of size 1 at addr ffffc90002a2fda9 by task exploit/5144
-   <IRQ>
-   i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:546 [inlined]
-   i801_isr drivers/i2c/busses/i2c-i801.c:613
-   __handle_irq_event_percpu kernel/irq/handle.c:158
-   handle_irq_event kernel/irq/handle.c:195
-   handle_fasteoi_irq kernel/irq/chip.c:661
-   __common_interrupt arch/x86/kernel/irq.c:263
-   common_interrupt arch/x86/kernel/irq.c:240
-   </IRQ>
-  The buggy address belongs to a freed vmap kernel stack (task exploit),
-  created by kernel_clone -> copy_process.
+It contains a handful of small fixes for host controller drivers.
 
-The completion-based paths (i801_transaction(),
-i801_block_transaction_by_block()) never expose the caller's buffer to the
-handler: they copy to/from the hardware block buffer in process context
-and use the interrupt only to signal completion.  Give the byte-by-byte
-path the same property.  The handler now fills a driver-private buffer
-(priv->data_buf); the transfer copies the caller's data in before starting
-and copies the result back out on success, so a late or spurious BYTE_DONE
-can only ever touch driver-owned memory.  i801_block_transaction() already
-bounds data->block[0] to I2C_SMBUS_BLOCK_MAX, so the buffer cannot overflow.
+One patch also adds Wolfram Sang to CREDITS after more than a
+decade of work on I2C.
 
-Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
-Reported-by: Xiang Mei <xmei5@asu.edu>
-Assisted-by: Claude:claude-opus-4-8
-Signed-off-by: Weiming Shi <bestswngs@gmail.com>
----
-Changes in v2:
-- Fix the author: From/Signed-off-by. No code change.
+Thanks,
+Andi
 
- drivers/i2c/busses/i2c-i801.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+The following changes since commit a13c140cc289c0b7b3770bce5b3ad42ab35074aa:
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index c8cb5ed55..37741fdca 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -279,6 +279,9 @@ struct i801_priv {
- 	int count;
- 	int len;
- 	u8 *data;
-+	/* Driver-private buffer the isr fills/drains, so a late interrupt
-+	 * never dereferences a pointer into the caller's block buffer. */
-+	u8 data_buf[I2C_SMBUS_BLOCK_MAX + 2];
- 
- #if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
- 	const struct i801_mux_config *mux_drvdata;
-@@ -671,12 +674,23 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
- 		priv->cmd = smbcmd | SMBHSTCNT_INTREN;
- 		priv->len = len;
- 		priv->count = 0;
--		priv->data = &data->block[1];
-+		/*
-+		 * The interrupt handler fills or drains this buffer
-+		 * asynchronously and may still run after a timeout, so keep it
-+		 * in driver-private storage instead of pointing into the
-+		 * caller's block buffer, which is freed once we return.
-+		 */
-+		memcpy(priv->data_buf, data->block, len + 1);
-+		priv->data = &priv->data_buf[1];
- 
- 		reinit_completion(&priv->done);
- 		outb_p(priv->cmd | SMBHSTCNT_START, SMBHSTCNT(priv));
- 		result = wait_for_completion_timeout(&priv->done, adap->timeout);
--		return result ? priv->status : -ETIMEDOUT;
-+		if (!result)
-+			return -ETIMEDOUT;
-+		if (priv->is_read)
-+			memcpy(data->block, priv->data_buf, priv->len + 1);
-+		return priv->status;
- 	}
- 
- 	for (i = 1; i <= len; i++) {
--- 
-2.43.0
+  Linux 7.2-rc3 (2026-07-12 14:16:39 -0700)
 
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.2-rc4
+
+for you to fetch changes up to deb35336b5bfed5db9231b5348bc1514db930797:
+
+  i2c: mediatek: fix WRRD for SoCs without auto_restart option (2026-07-15 00:21:51 +0200)
+
+----------------------------------------------------------------
+i2c-fixes for v7.2-rc4
+
+imx: fix empty SMBus block reads in atomic and IRQ paths
+spacemit: return IRQ_NONE for empty interrupt status
+mlxbf: fix a use-after-free issue
+mediatek: restore WRRD support without automatic restart
+CREDITS: add Wolfram Sang
+
+----------------------------------------------------------------
+Andi Shyti (1):
+      CREDITS: Add Wolfram Sang
+
+Pei Xiao (1):
+      i2c: spacemit: fix spurious IRQ handling returning IRQ_HANDLED
+
+Roman Vivchar (1):
+      i2c: mediatek: fix WRRD for SoCs without auto_restart option
+
+Vincent Jardin (2):
+      i2c: imx: fix locked bus on SMBus block-read of 0 (atomic)
+      i2c: imx: fix locked bus on SMBus block-read of 0 (IRQ)
+
+Xuanqiang Luo (1):
+      i2c: mlxbf: Fix use-after-free in mlxbf_i2c_init_resource()
+
+ CREDITS                         |  7 +++++++
+ drivers/i2c/busses/i2c-imx.c    | 36 +++++++++++++++++++++++++++++++++---
+ drivers/i2c/busses/i2c-k1.c     |  2 +-
+ drivers/i2c/busses/i2c-mlxbf.c  |  4 +++-
+ drivers/i2c/busses/i2c-mt65xx.c |  2 +-
+ 5 files changed, 45 insertions(+), 6 deletions(-)
