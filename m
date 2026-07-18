@@ -1,100 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B02D518FDDE;
-	Sat, 18 Jul 2026 10:46:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 596D626E6F2;
+	Sat, 18 Jul 2026 20:32:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784371606; cv=none; b=FbCcHRZDUiiFjvZHhnnOg3YzOc79zcU58ypC5aEnrEVkbsypKuYXUb6gMkdOXW3oPY2kZhmNmF2Fhs5R0JrV2vs2S+dS+487okA/K9fKCcJkULgjhGRA8w2uMLCgssofy51PxY30W2QW1DowqzG4Ed2970wGN0JI9B2RWZ1ysHg=
+	t=1784406764; cv=none; b=lKWG55H0RxlI2uhMYrfvIxUU3pf7JFdcYncm8W5bDJtbsgEZdkvGV19sld2Yv6STlzCqOt9Hc9ooHGjSH+JL0GA8+v0IOO+JUPCW1P/mTT9kEpnzfR9NojLuRgtOSaZxvJ7Gp16keHjXGY36CorpMlKVYlq7I67Q8jpNm8AjwwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784371606; c=relaxed/simple;
-	bh=j24HJqkCtsvjNtSlB1kg21ECS25KZzL1U1nDsIO/H3E=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=A6qejx7LjGl63n1MlBP4tcVodf0LPNvKDxQYEXzRpLdH6mEWx7rBHgh0bs6j2ROPZHueQqO8NX8+bo3YX5WzjAstVhtHX8IOjwmtG9P6NCShVpeROoeJMmln3eOBP8cPiJtx/0l1hAtgqeNcRzpIpTJuhKiWxMYY2+tW6RYzacY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hGWf2GVj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784406764; c=relaxed/simple;
+	bh=+MkY3ZlRMCVbfPClD7A2JHO60nqHEAEjLkA6m56xMTo=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=Xg6SbkeE0BSOl5dKUulFTinr4LQRc3gNxMlglVuS2vkgjyrx80MDA9vkU65AIiW5aZ7+s1YB4MIkZ/s9f9iJKPdY+rqhlYOH23xTCrSfbAt/LGkpd4HsMKss4wOHVI4XKljeztjDX2DLMft+WIYEkiIX3BUrBXL0nTd/4TNXK+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GYZMuPcF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hGWf2GVj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98AC51F000E9;
-	Sat, 18 Jul 2026 10:46:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GYZMuPcF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C9D1F00A3A;
+	Sat, 18 Jul 2026 20:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784371605;
-	bh=COkKMy3c6nCwIHb1Yv+jhwurTd7elm3gzusG9atW52k=;
-	h=Date:From:To:Cc:Subject;
-	b=hGWf2GVjHpUcp+/FxJZlM1+iCWJi5WQKUwFOXWL7ncpr8dhvwktj4SEU/3HNY3AV2
-	 TVL1VkJij/LLG0M1OtLYx3sBUD4F8+F8gT1/bBUhxMg0OMYWp2kLAfZxIDMW5Vz7GE
-	 /di4lxW+Bimpyk3+dx985t82dRjGEDFN/cTLyZpMjpf64L60N/oWdwxaWlKjZBFgB8
-	 94xLYxmzE6GJUYb2QZE80il+X1zaDrEh9OpnRvOXknay4fNI5GsiootrjNgsongEAk
-	 /ZTF6ZOlpWHbUo07XspvKiYeuQIMVhaOP/kbHvB4AfKAVmXqC1QOdPiEHc1NJHBt9U
-	 XhJCpetVT2wEg==
-Date: Sat, 18 Jul 2026 12:46:42 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c fixes for v7.2-rc4
-Message-ID: <altYEuFVUe8KSr5e@zenone.zhora.eu>
+	s=k20260515; t=1784406763;
+	bh=Gs7p19xxnCBXeiCiZ+tDp3wAt/hKnR7rYBI7z2YxVPI=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=GYZMuPcFq6xUjvGI1cqLPMYNnz0que250SnZAbhfo+F8JOHdNzbyZF+Gpx4Un5q7Z
+	 JU2ESdztHSt9sppHCJLWI1nknsTKnpY8A15CcBsC8Wa4aJSsgOvZzhuPh2s8p0g/tj
+	 9lrlyvkxepdQ4xaK4sc915wXE3y0OvT12/fXdnDdF+TuF+0DesGj6noXvP7Zg+Copo
+	 QB6qrCeMCLaeCajAjJks1LtGyqU7w89IKm/rzM6t/kaJLR6zq/7ti5yZ1DkRhGHj80
+	 LGd4AvBW6SNt0hetpuhNtNZvRZdCDLKtcjdJnFkY8AAW4WX37WtPeXszFhFH3BXE9d
+	 wwd9R6VF6e/vA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0C443811979;
+	Sat, 18 Jul 2026 20:32:15 +0000 (UTC)
+Subject: Re: [GIT PULL] i2c fixes for v7.2-rc4
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <altYEuFVUe8KSr5e@zenone.zhora.eu>
+References: <altYEuFVUe8KSr5e@zenone.zhora.eu>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <altYEuFVUe8KSr5e@zenone.zhora.eu>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.2-rc4
+X-PR-Tracked-Commit-Id: deb35336b5bfed5db9231b5348bc1514db930797
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: ba6bd0df9adb2a7a02db9d1973fc1dc3489b0758
+Message-Id: <178440673458.2573970.15931483473511421128.pr-tracker-bot@kernel.org>
+Date: Sat, 18 Jul 2026 20:32:14 +0000
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi Linus,
+The pull request you sent on Sat, 18 Jul 2026 12:46:42 +0200:
 
-here is the fixes pull request for v7.2-rc4.
+> git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.2-rc4
 
-It contains a handful of small fixes for host controller drivers.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/ba6bd0df9adb2a7a02db9d1973fc1dc3489b0758
 
-One patch also adds Wolfram Sang to CREDITS after more than a
-decade of work on I2C.
+Thank you!
 
-Thanks,
-Andi
-
-The following changes since commit a13c140cc289c0b7b3770bce5b3ad42ab35074aa:
-
-  Linux 7.2-rc3 (2026-07-12 14:16:39 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.2-rc4
-
-for you to fetch changes up to deb35336b5bfed5db9231b5348bc1514db930797:
-
-  i2c: mediatek: fix WRRD for SoCs without auto_restart option (2026-07-15 00:21:51 +0200)
-
-----------------------------------------------------------------
-i2c-fixes for v7.2-rc4
-
-imx: fix empty SMBus block reads in atomic and IRQ paths
-spacemit: return IRQ_NONE for empty interrupt status
-mlxbf: fix a use-after-free issue
-mediatek: restore WRRD support without automatic restart
-CREDITS: add Wolfram Sang
-
-----------------------------------------------------------------
-Andi Shyti (1):
-      CREDITS: Add Wolfram Sang
-
-Pei Xiao (1):
-      i2c: spacemit: fix spurious IRQ handling returning IRQ_HANDLED
-
-Roman Vivchar (1):
-      i2c: mediatek: fix WRRD for SoCs without auto_restart option
-
-Vincent Jardin (2):
-      i2c: imx: fix locked bus on SMBus block-read of 0 (atomic)
-      i2c: imx: fix locked bus on SMBus block-read of 0 (IRQ)
-
-Xuanqiang Luo (1):
-      i2c: mlxbf: Fix use-after-free in mlxbf_i2c_init_resource()
-
- CREDITS                         |  7 +++++++
- drivers/i2c/busses/i2c-imx.c    | 36 +++++++++++++++++++++++++++++++++---
- drivers/i2c/busses/i2c-k1.c     |  2 +-
- drivers/i2c/busses/i2c-mlxbf.c  |  4 +++-
- drivers/i2c/busses/i2c-mt65xx.c |  2 +-
- 5 files changed, 45 insertions(+), 6 deletions(-)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
