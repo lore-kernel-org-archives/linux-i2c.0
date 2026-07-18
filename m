@@ -1,84 +1,84 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A362725783A
-	for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 02:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC2A926738B
+	for <linux-i2c@vger.kernel.org>; Sat, 18 Jul 2026 03:01:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784343373; cv=none; b=DBvxCCc49hsEpxlKgd3M1cm+lirqhgQq5Tb/+bwLZ6Urec2+wCHjPXukkM0ZI3HKg+L3yFqxIqiKCJhq8VpvpS59GFxlkNA9yafBmS08FSTKVWXgIwHnVSbM18FaV457IcZGoa8JNPJmByuYhXqIludbmP+7X3vjavztl9EsKy4=
+	t=1784343713; cv=none; b=fAKsPULw4TLX37ejAp81qi+12tDvLCGIovhL4Wu/wSYaNAOYSvufhloK7Oc+TQMudilygzkbKHVcd3JBpc4HJoelIQcXFV+LZ3DEdyzX+iibjsPNfspYMVv8kZr/Iro4oRXsK2P9Q1UIM2j1D0iWd7r2AOa/yI5wa2/XAEukY2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784343373; c=relaxed/simple;
-	bh=7DQdCU2WxK0zeazmg16+9zA+RDtrPnDFr+uw9OeSzrM=;
+	s=arc-20240116; t=1784343713; c=relaxed/simple;
+	bh=72VpdzycToFx5jYXpTxGZ7WwbQARvNnQ0l5lLRfOF/s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hhdVMS4ZQKHvAew8xrMldLKPIPI4LXxr5TRxTRk1HyAg7uFpmVgx98gKiM4IcfzvhyHCNz5S+G76p/OhZhgugDolJZ6qJZ4iZzanyaY/hmM7EyKpwM8UG6LqZhbhsJa8CjC5YpO6rb/LEzdA75RiwAv7KzUhfm1Av6ahW1Wa+6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gRUORo/I; arc=none smtp.client-ip=209.85.216.53
+	 MIME-Version; b=WolzUj6NK98BGPG8hNl5XDrhApaq1ozgRQQh+uiIjWTWpwbq+6UkaToryIs8DO3hlniXf2HAYfO2ADvXoQ06NJutVrBEJzN8ZtJh0IKV3TBZfbYa6P3qgpRXkqvpIzuaLgagNt7tXp5SKIXlJXD641BaMEtwm7qBxuH8QL7CAAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L5mWB3i4; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gRUORo/I"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38dfe910e9dso5540541a91.3
-        for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 19:56:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L5mWB3i4"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cc73e322dbso101758475ad.1
+        for <linux-i2c@vger.kernel.org>; Fri, 17 Jul 2026 20:01:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784343372; x=1784948172; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784343712; x=1784948512; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=7DQdCU2WxK0zeazmg16+9zA+RDtrPnDFr+uw9OeSzrM=;
-        b=gRUORo/IbBigBFUGQdoqEVlRczbN56jVL8cQEpXlo9iOEyL43u8Loex91l2l9tyybI
-         Jf0Bl+/8p3y+zhtlC3kV9bl7YZXb4D9cwxHL9oZEwBSCsSGzWyQ64Lu0uBH+R/d7n2fc
-         lEmT6NYMBgBl/YyX2mGO/myV1rDvgm/xf1hWrV7dlA4Zw0+96upfcs4f8ibciY+W0wj5
-         7GlQHCaGyo7Ym5xGdHud7n0gro720WvUcWWbeqoFxwhRfFytxSPMS1VJ3kZgIXfuigxh
-         pqLIRukNls9E64VpkMESbjJyktLk7H6230/2no7hjYFeaHG38aWBAIWB0SXIF71/G9bA
-         gx/w==
+        bh=72VpdzycToFx5jYXpTxGZ7WwbQARvNnQ0l5lLRfOF/s=;
+        b=L5mWB3i4qi4xkobO7fZowrtwOMgXzsK3LE0E5vnqPFBD0H8dGWAYfZQC9+L4Jk6J3a
+         Ra3ZTMBO12W9loiu7OIkSoVGwY6p41OJHOYkWSx2NEvIgW+2azJABGPfjS+vreHebJaN
+         owL9eYmBbJwiHlicyWVx15tgoA6EYQ9NNNoVLlmgSz60aU+m8FlBq9SYvrIIN5niluDV
+         uJgEaqohd2NY8Od9QWYxyIfnriFFt89HTtWmdIbSXLAqHqOC5aB5nnUX7XdBlypr9yJh
+         9oEbCy5gW/KsVohLSUJLXcbda/brHRMz4qOOHt30elP/nHESzqvpzgZH5ja0Hq3xY+OX
+         /Dpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784343372; x=1784948172;
+        d=1e100.net; s=20251104; t=1784343712; x=1784948512;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7DQdCU2WxK0zeazmg16+9zA+RDtrPnDFr+uw9OeSzrM=;
-        b=IvWWGVUo6RI2MHF6PwtFHEvDi7C/GblANSEZUW6/AtRX8H0aCSkwIwCq0q7HuhQCmA
-         MDzXAGh9YhfAlKmtGwuJ84I9LQXHpLVdE3RHmyaGMG1V8TJZaW9ef34i3eL82wNj5nuZ
-         hU9hipTRYWKsR+QosC5TNIv0JBEvYHTaLgvOktJxRRclo6DgSiCHc7CPOf3k155cQ6ti
-         GkqEMU3TxZbfd/6SOVzK2EP/+5GnNmvH49kHJupv5peBVKG2Ls91MLSLGOYwvRV4ubUn
-         z6wRG1C23SjkzXb5BB68w9lvBAcgCSDquEGUSI3gQ3DF8C9yck4TMuTScQsW84zWRRT0
-         fa4g==
-X-Forwarded-Encrypted: i=1; AHgh+RrdEjr4gNxFZnaxOWaxppnK+PB9/drTY6AmZzhkKE3rbMM0XN3RY0oKJjpkdHXchs7UZbNJc2CECg4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwdNWQ6ZXAYHYJMRAxJ5DNvm2ojplF6Rnci1FOVCCrQ0Mm911/p
-	EmcBKaF+52Pmn1yI7/2VQrv4wH/WuUngf/QIQgUwSTd/MN+DNVaMDElg
-X-Gm-Gg: AfdE7clx8wVUcWHejtt2EidjqEHgPefNnpdNYlrGzYhoOWr53SiNSRsmlZGILEIC39V
-	ji//xB7ZuIPlFmmPz49Ac4EfJ3xqUcSqBJ/LkEB49VmNagyoZJ4ua8LhTlHl/FlwEYlSZt2JI/w
-	MXAG9s+RtqNKKSlz7vI9WpzuCq+vOhg2lATdsCe2Vor9T24IcoUsyla65jRWmDXLGDGZBpVurYR
-	pXb+YlYOwcYpt0OkNLuyuqSLSqQd/zG2PMik/tTeESH3sK0jRRY3YvVan90EzsQ5eZbzoCVWWPY
-	hPluW6TYMoutgWemA/PymzWCPu6JkUt103/FZgjL+fE+/UAFQELD6tpnVLxIqIhErXfuOF6DeyL
-	BNS1DT18e57GT6plBI7PlxyCeazemhrvhPP45L1cK8Vs458bUe1afgsDUHPf9Kc2ukT56wX+XZd
-	EMfwsc3gxpqNr7A7niLdoyepbQ3gKA2vzq07VPzynQLycxyMg4U2aIRX+9idotAyhNvEdZna1rs
-	RdItBwy1I5kDqz441S5mG0XMv/v4c8/DSf+4+Ngq6c2791N0h8TFyOiOE32foXsFuGTg3Vr7NQH
-	5qOUCukTplTilc034hYYdHLJicpUaqLqVatDjF/vCd/zeqAgkoHCjW095PyGgqt/+5g=
-X-Received: by 2002:a17:90b:35ce:b0:37c:6910:5758 with SMTP id 98e67ed59e1d1-38e4b4200edmr5059155a91.1.1784343371893;
-        Fri, 17 Jul 2026 19:56:11 -0700 (PDT)
+        bh=72VpdzycToFx5jYXpTxGZ7WwbQARvNnQ0l5lLRfOF/s=;
+        b=ZYarrieDFDw4oB2SbSx3twGkVeEri+S5d3i+oEdJ/PshIYSxw2H6X6PvPCgY2q7DUS
+         hMch6Uvm31w9A7blYhhRg/FOVHmRf0wKrty3LG3g9N/ODYRgJtWLkHlTi47EU+iUoa6a
+         DwBeQibtXYO9wEHFTYyd1PmNlvi3qWyJ/ZvWQuI7SpEaG+GTowtDRm0/zM5tOYCNzoqj
+         L9xfXyMJu0clt1gwguRFHOkSqZKLuFUANlEaT75MMvD2FyBEqYhXxIQJMAHYfIXu928E
+         pZ+lxRR4ZWIEH1kZCnjjY3SIx5qKBbeCBq1VDpv9utuaUrNU+obLrqIxLz4yDln3atMG
+         MWmg==
+X-Forwarded-Encrypted: i=1; AHgh+Rpbz1DGU07uI3qo9K9oVKAUsytNOcqaN75Lx3ZY68IcymHGDHvh7Ot58o5jnOeUw5+Jy3UBKKqi2N4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzVUcd9fA8oZC3QOvI16iz8KlM/zCMCNRMyVAms3GI/p+1dRuJg
+	nCX1p1JkDfcCemCoM7OCy3Ld3To367tdzfvMMnxHvUWF0+dxADOsoqU7
+X-Gm-Gg: AfdE7cllKwfx0XEnzz5Qq5Dt2mbSwWucKPGl4ePCPAgv3OK/zdSnkdCh3NJ8bSA/c2F
+	ytBOxgYw0mSkKL8It7nH19fY8cynd0xzV8ihgmoYEyhgKOTHK1EV/gO0z3WJL6HibM1GB4dxhg4
+	9s+mtdVfeL7F0RM7NnwxlLTWJygCr/e+5kzxr5nRIS47quFgGdTFJCfan0dUWUQRkumdghhish0
+	xZAL/f61tOLReEMNTdBIzPeUao0of9OcfaRvkvhi4PpGeIKoJq7SOzU9nT4O96GgbbxqnwNLY3q
+	vTpBEWbNi0bYcfiJJBM3jDoyR83uMiuaquS7ZnQyp0qp68UHnnTv9qQ1Rh1McywMT554J++WEsa
+	DoWVQDsP1I1PVHpEE/id5rBjm32aXLy6dk2IUOx3wAzYW8iGyOtHHxem9otg/yxe9yDtSlMwVNr
+	odvkbP8TUClEkqLZxyJa507iyd9BY7/PLzIXSoGOZvHz/BKQMgtoTYVD76t5lsCOgV5iaun1Zkf
+	/mCCZnnzdN8Hsr8OYrquALjNtUba5NWYtZNsJnUUdOUej4CR2jS4Q6xNzWFI/cz2oHStlg3n4mP
+	rfahWVNxI4e7iHRPCNfD6EOvVd0V6AT1Sika6+z73Cxl4DiWmYsLMlGnLyDLek5I51VSoNxeuj6
+	s9g==
+X-Received: by 2002:a17:902:c950:b0:2c9:d8c6:1dc3 with SMTP id d9443c01a7336-2cf3463299dmr56325425ad.0.1784343712078;
+        Fri, 17 Jul 2026 20:01:52 -0700 (PDT)
 Received: from ip-172-31-21-198.us-west-2.compute.internal (ec2-54-213-160-35.us-west-2.compute.amazonaws.com. [54.213.160.35])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e656e5686sm32029a91.14.2026.07.17.19.56.10
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf3474100fsm20456615ad.66.2026.07.17.20.01.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 19:56:11 -0700 (PDT)
+        Fri, 17 Jul 2026 20:01:51 -0700 (PDT)
 From: Bruce Robertson <brucer42@gmail.com>
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>,
-	Igor Korotin <igor.korotin@linux.dev>,
-	Danilo Krummrich <dakr@kernel.org>
-Cc: jic23@kernel.org,
-	lars@metafoo.de,
-	linux-iio@vger.kernel.org,
+To: Alice Ryhl <aliceryhl@google.com>
+Cc: rust-for-linux@vger.kernel.org,
+	linux-pm@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	andi.shyti@kernel.org,
-	wsa+renesas@sang-engineering.com,
+	sre@kernel.org,
 	ojeda@kernel.org,
-	branstj@gmail.com
-Subject: Re: [RFC PATCH v4 1/3] i2c: rust: implement SMBus read abstraction via kernel::io::Io for I2cClient
-Date: Sat, 18 Jul 2026 02:48:38 +0000
-Message-ID: <20260718024838.1623-1-brucer42@gmail.com>
+	igor.korotin@linux.dev,
+	gary@garyguo.net,
+	tamird@kernel.org,
+	boqun@kernel.org
+Subject: Re: [RFC PATCH 2/3] rust: power_supply: add power supply class abstraction
+Date: Sat, 18 Jul 2026 03:00:58 +0000
+Message-ID: <20260718030058.1677-1-brucer42@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CAO26r3Ttyfqhs3_jWDFym7FpswqFW4-UA8p1pQBcuWzDGGzstg@mail.gmail.com>
-References: <CAO26r3Ttyfqhs3_jWDFym7FpswqFW4-UA8p1pQBcuWzDGGzstg@mail.gmail.com>
+In-Reply-To: <ak9kAP1SZF8AchQT@google.com>
+References: <ak9kAP1SZF8AchQT@google.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -87,25 +87,37 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 14, 2026 at 23:08:00 +0700, Muchamad Coirul Anwar wrote:
-> Agreed. I will rework on top of Danilo's FallibleIoCapable approach
-> in v5.
+On Thu, Jul 09, 2026 at 09:04:00 +0000, Alice Ryhl wrote:
+> > +/// Register a power supply backed by driver `T` against `dev`.
+> > +pub fn register<T: Driver + 'static>(dev: &Device) -> Result<Registration> {
+>
+> Should this be &Device<Bound>?
 
-For the write side of that rework: I recently posted an RFC with a
-Rust port of the SMB347 charger driver [1], which Igor pointed at this
-series (thanks). I'm dropping my standalone SMBus helpers in favor of
-your Io-based approach.
+Yes, it should. That also lines up with Danilo's comment on the i2c
+side of this series that I/O-capable operations need at least the
+Bound device context. Will fix in v2.
 
-The SMB347 driver may be a useful early consumer for v5: unlike the
-AS5600 it writes -- a config-unlock write plus read-modify-write
-updates of charge-control register fields -- so it would exercise the
-io_try_write/try_update paths that Igor noted are otherwise easy to
-leave silently infallible. NACK and arbitration loss on a charger
-config write are exactly the failures you don't want reported as
-Ok(()).
+Taking &Device<Bound> also helps with a lifetime problem the cover
+letter flagged: the trampoline currently recovers the driver's private
+data via device drvdata, which the i2c core only sets after probe()
+returns, while power_supply_register() exposes sysfs before that. For
+v2 I plan to pass the driver data through power_supply_config::drv_data
+at registration time instead, so the callback never depends on drvdata
+ordering, and to add a Sync bound on Driver since get_property() can be
+called concurrently.
 
-Happy to rebase it onto v5 when it's out and report back.
+> This looks like it should be a ::new() method on Registration instead?
+>
+> I would compare with existing Registration abstractions and mirror how
+> they do it.
+
+Agreed. I'll rework it as Registration::new(dev: &Device<Bound>, ...)
+in v2, following the existing Registration patterns in the tree, and
+look at tying the descriptor lifetime to devres while I'm there rather
+than relying on Drop ordering alone.
+
+Thanks for the review.
+
+Apologies for slow response. Was wilderness camping.
 
 Bruce
-
-[1] https://lore.kernel.org/all/20260708214738.25008-1-brucer42@gmail.com/
