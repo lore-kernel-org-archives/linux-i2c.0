@@ -1,148 +1,249 @@
-Received: from aposti.net (aposti.net [185.119.170.32])
+Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F893A2576;
-	Sun, 19 Jul 2026 15:07:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.119.170.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3755D264A86
+	for <linux-i2c@vger.kernel.org>; Sun, 19 Jul 2026 15:17:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784473637; cv=none; b=muYJbc+I5dOWRwaZDZMWUYAG0k+NoVXP2VAhPhwMzwc56oJW4E3MsflFVuvp7uqtye0YdVQu+j7tgE8lmHowhHhS9AJyknEdc8mhprUo1hyTyeIx2pI8N7HQXVvhysKwWB/x7K7tTZCIKd7CYVFdQ8rugzCtWTMilxASp8uIQU8=
+	t=1784474242; cv=none; b=aSBEnjYs/A3cOAVPd/FJtxLX+glcox1VU+DcNIUaY711dJfoUJ9pEdezDE1mvjbhXXc5ekBORnlQua76+CgaPC+LBbgDOl6JmYqcvOoE0waUURp7BcjrH+lT26s80OXBdowBgFyNg9QKOO3HW0uH6nCWez32FeX6oXIe6TM2DsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784473637; c=relaxed/simple;
-	bh=QnNwdkTqOLiMGGNT01qFp2bvC6tjqhvmizSL0TXXDlE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=SjOW8lpAqswFiuRo266faDqD2t9kreyMKO0TJo/GV3n/9l83gaiW2hf2CevouAk06Vp6gbgyzS9Hc1gOSBc4+ipNTKRoEYgT+LNHJunSo+loZS9w/DyyB9nlqC8mxTdshKH0ayizWjoxjzhq1CPcCnESdWSj+BdiApj3AfLmOLs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=crapouillou.net; spf=pass smtp.mailfrom=crapouillou.net; dkim=pass (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b=roIHmX4y; arc=none smtp.client-ip=185.119.170.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=crapouillou.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crapouillou.net
+	s=arc-20240116; t=1784474242; c=relaxed/simple;
+	bh=bcWDFKcgyhIs5bog7jMtKo6/CTYa/LKbmtC2jB5pRu8=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=AN4KL/NEBiP9dO5jOHEBDRNkJgIImBl9wa5xWLJT7ERJXEtKEpCAMse2BRAiXckC/iVSlRJ3zcTdszq/fAqreMjaKvKA39A4ZHcQU3ea2kLfj6ybNvK9ZlZwHiAzk/YRwK1iNTdyvUnh/7cJH6pu4gIOj25AI0vX9dq60DoTwIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qm4wCYnj; arc=none smtp.client-ip=209.85.167.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="roIHmX4y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=crapouillou.net;
-	s=mail; t=1784473633;
-	bh=QnNwdkTqOLiMGGNT01qFp2bvC6tjqhvmizSL0TXXDlE=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=roIHmX4yqyUUSV3TeF5wxejFbLbWqRbM7S4Zy5LJxECTksGlmSPqGaXjGC+wEpe/N
-	 r9PkYLmdrDU7obM2+2FB9NeJDhdTCOpvE3iVtUfOPNu10qBrkjsShmQixzZP3IeqmX
-	 PNHQQkb/Qs42zE0wUrM27iUrMOnOWLgpOZXpOIQs=
-Message-ID: <a08203c004280827fda87fc4c83660aedb446440.camel@crapouillou.net>
-Subject: Re: [PATCH] i2c: jz4780: Cache clock rate at probe to prevent CCF
- prepare_lock deadlock
-From: Paul Cercueil <paul@crapouillou.net>
-To: "H. Nikolaus Schaller" <hns@goldelico.com>, Andi Shyti
-	 <andi.shyti@kernel.org>
-Cc: linux-mips@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, 
-	stable@vger.kernel.org
-Date: Sun, 19 Jul 2026 17:07:09 +0200
-In-Reply-To: <c69ca6511780aa4759a428cb7fb70de43ee5211b.1783666715.git.hns@goldelico.com>
-References: 
-	<c69ca6511780aa4759a428cb7fb70de43ee5211b.1783666715.git.hns@goldelico.com>
-Autocrypt: addr=paul@crapouillou.net; prefer-encrypt=mutual;
- keydata=mQENBF0KhcEBCADkfmrzdTOp/gFOMQX0QwKE2WgeCJiHPWkpEuPH81/HB2dpjPZNW03ZM
- LQfECbbaEkdbN4YnPfXgcc1uBe5mwOAPV1MBlaZcEt4M67iYQwSNrP7maPS3IaQJ18ES8JJ5Uf5Uz
- FZaUawgH+oipYGW+v31cX6L3k+dGsPRM0Pyo0sQt52fsopNPZ9iag0iY7dGNuKenaEqkYNjwEgTtN
- z8dt6s3hMpHIKZFL3OhAGi88wF/21isv0zkF4J0wlf9gYUTEEY3Eulx80PTVqGIcHZzfavlWIdzhe
- +rxHTDGVwseR2Y1WjgFGQ2F+vXetAB8NEeygXee+i9nY5qt9c07m8mzjABEBAAG0JFBhdWwgQ2VyY
- 3VlaWwgPHBhdWxAY3JhcG91aWxsb3UubmV0PokBTgQTAQoAOBYhBNdHYd8OeCBwpMuVxnPua9InSr
- 1BBQJdCoXBAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEHPua9InSr1BgvIH/0kLyrI3V0f
- 33a6D3BJwc1grbygPVYGuC5l5eMnAI+rDmLR19E2yvibRpgUc87NmPEQPpbbtAZt8On/2WZoE5OIP
- dlId/AHNpdgAtGXo0ZX4LGeVPjxjdkbrKVHxbcdcnY+zzaFglpbVSvp76pxqgVg8PgxkAAeeJV+ET
- 4t0823Gz2HzCL/6JZhvKAEtHVulOWoBh368SYdolp1TSfORWmHzvQiCCCA+j0cMkYVGzIQzEQhX7U
- rf9N/nhU5/SGLFEi9DcBfXoGzhyQyLXflhJtKm3XGB1K/pPulbKaPcKAl6rIDWPuFpHkSbmZ9r4KF
- lBwgAhlGy6nqP7O3u7q23hRU=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qm4wCYnj"
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5b01cb18515so8909440e87.2
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Jul 2026 08:17:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784474238; x=1785079038; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=I/LnTSHiKky2n5cLQsA/ffverxrdv8v0OCOhlGCMi5k=;
+        b=Qm4wCYnjC3Kw3XXEqK5L8aNyay4W1uuR3BF1LZHvbXFTEZzGTGz/P5f+cbAWoyHEEe
+         +ut5swPEeSQt8RFwfKXd7w0Vwl0RjW3kuxL5ao2nT1wxQacQ08zTfzXqZ3yo4pYyczxB
+         6jZkyq4pwSsYkrU9D6iWId4x4JhgYKXVvB/9afAnOxlT2HEfphKs2uAmjaI67ihu/csx
+         zqKG82Hflctowgo7bwVuaq8C/MpGk/HBfl4oP/ebdNgNCSWeWFsCa0b8QjEvFwSMJGT6
+         nJg4PgT6PovCnp57uJoxEec4nosWup9GLsQoJkmEhcYFWs5CMf+iPlUt+UW6AqA9tC6t
+         JKTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784474238; x=1785079038;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=I/LnTSHiKky2n5cLQsA/ffverxrdv8v0OCOhlGCMi5k=;
+        b=URZLXUSUE97K6a/0pT0f7aZWBCLCi0zhR/aF3eOfVhzNC6LtaYfJnkhj3t4NFMIwdr
+         sG6crR87sF36152V7uVgNS/CPl2jX8aQEYduVUaAvOrKTv1OcI4EhZ53bjn3M6uA44aW
+         UJDBj6JRD2B4tWt2PT7r4+9uqYSub1UBZ1GzkQ3l3T7MDCLsBUiI9/mPqVhnJrvQZ2JT
+         37oTTirywOqLLWv4/gX+O6zr21kJrjH/yDnilPYroz1ckXe+kmdUjiZxH2pPeIM2r3Kz
+         PrtSeh5D/riBbqyUYCjXXFozCMN8OwMjDmyxQPxYHikospgfw1uXVK10QQ3v3kNrIODz
+         9CJQ==
+X-Gm-Message-State: AOJu0Yxr8jVEJWzjZz80ifYOyzKhoAj4+xTy7RHxdIqJCe/B2a43B+B8
+	7SB4lhiwcZZApYXYM67qyAPuKHFckRZkYhImyRuG1aLdoFdKAFnWuMvD
+X-Gm-Gg: AfdE7cm7JvmPzWmltWCz9KQUvB7NKZFcDddzkuSIuFCDaJrKynYn0m8k2+qzi4Pu8Bn
+	E6Bo8krGQg/+Ka/i+nsuSspRgM8iWQ0aPR2eTUBWQhoDT/i00dXnKTdox/KRYB7OmPRQO8f5TDd
+	cquk7RXwLTYc0C9IYhdG4grNgimuXjjo5QgJx6zqY6QmR4m3CeRc8K/t+CHxMyddjTTR+QW3ltB
+	Q7vct9qGCKEDzTaJg1pWwCkCjSSVdt41/H9ho0Wzo/ZulYLDD586Ypj9BTmMXVHHwl45Lgio8CE
+	cUakCzL8iKzFnuGxXydabqHEDqmFIpm0V9VLchX8QOwmFLEj0WeEMUdR6pUwn/rZBotqKJCzkf3
+	hjFu0+a3mbdBslA357zWiP3FYQ5heyFxPKQixtQm4eCzyl9bNqHL49KLYQae4wnYkLSfWeDhrBw
+	gDYdLX5KyNPUlcNvbCVv5c3jpQ/viPMfFwI+us3MgOyQKz4vc=
+X-Received: by 2002:ac2:4846:0:b0:5b2:8ad7:93b7 with SMTP id 2adb3069b0e04-5b28fabf50cmr1657172e87.53.1784474237928;
+        Sun, 19 Jul 2026 08:17:17 -0700 (PDT)
+Received: from [192.168.1.135] (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b291e26e5fsm1835096e87.80.2026.07.19.08.17.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jul 2026 08:17:17 -0700 (PDT)
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: [PATCH v12 0/7] I2C Mux per channel bus speed
+Date: Sun, 19 Jul 2026 16:59:43 +0200
+Message-Id: <20260719-i2c-mux-v12-0-a5010d623a57@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2XSTU7DMBAF4KtUWRM0M/5nxT0QC3s8aS3RFiUQF
+ VW9O24FjdUsPfL3/DTyuZtkLDJ1L5tzN8pcpnI81APS06bjXTxspS+5DjoCMhBQ9YW433+f+gR
+ gVRaKonNXb3+OMpTTLertvZ53Zfo6jj+35Bmv078MonvGjD305DnoaBGCgtftPpaPZz7uu2vGT
+ HeHAI2j6pIN3ljNORj76FTjCBanqgvgIxseahH16PS/s4DkF6eryyI6sJCzvOppFkfNjmZT3ZC
+ I0xCCC2n1nm2dXZy99kxCXnjITlbONY6a91x1ws4kQu3Qx0fnF6dQL87feqJTPuo8wMqFxlHjQ
+ nWGAiWw4EmveiIs0EGzUIQqIWSOoNhHNCuJjWxXitc/4yglHwcv4rmVl8vlFx27YNvTAgAA
+X-Change-ID: 20250913-i2c-mux-b0063de2ae4d
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Michael Hennerich <michael.hennerich@analog.com>, 
+ Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>, 
+ Andy Shevchenko <andriy.shevchenko@intel.com>, 
+ Bartosz Golaszewski <brgl@kernel.org>, Peter Rosin <peda@lysator.liu.se>, 
+ Peter Rosin <peda@lysator.liu.se>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, 
+ Marcus Folkesson <marcus.folkesson@gmail.com>, 
+ Bartosz Golaszewski <brgl@kernel.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6027;
+ i=marcus.folkesson@gmail.com; h=from:subject:message-id;
+ bh=bcWDFKcgyhIs5bog7jMtKo6/CTYa/LKbmtC2jB5pRu8=;
+ b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBqXOpwiRwuBmWCPUKepGUL76+q6Ng3w2ml+qoCd
+ jxG142Efw+JAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCalzqcAAKCRCIgE5vWV1S
+ MqVeD/99aADfF4PSI4PHuRo1pm5Bs7RjOmUroMsbXTA3Jprxg9xCJO9pA8aOjCqtWxomd5SvjwJ
+ /3Gl3cJl3cxIiz3VIg4Vmu5BoR1IbEOCiGg68nzIqvbu8nKiln8WbDCpuBFK3BRXE7bsQpFvqEp
+ tO0gkepp+n58aXP33KZ3hNMnlXb/yRdh0iCk1sWO8d4sWYihGf0d2l5JUxL3GtG0HZR1kWWbVLN
+ 4c1H2Mag5vDQhGYI2OY/aRdYFV+E3CJU08qIXFVjxr0tEebr16H74U7jo6ltkQlCGvZwsX9M+sk
+ 5H1uT3Cg/WZYuPEtWAmNvwV9hm1FC5Kp7iyAGuR6M63hjqI012zL6lkpVmFQqD1sEZyKfJYrzGa
+ xN0Xs5PxkjpMB9b6JZZ59iQVl8GUXrx2W6GJ8xlJLEQy0apBz6scg5k8Ajnyz7MEhf2d5OEKJAH
+ vC5BkWYtUE+EbbCASr1lqBmkrihQXVHYSr61gbMlPTEn0wbjJYxHfSqWtsie4ml1OfR0yc1M3la
+ r1J0UJa2HoGAaOmpt4/JCmAzWCKELqqmQg6DXTm4Pj6mvciDOcsKOMhN1kpiAtNZXucPbBw7/SH
+ tWW+S1QmsANk5f1V1OUqbljbQkSNLLqM9mry/QMRjKhMztKMR8t+xjfAfVinvjoKZa8Emjjw+F0
+ CR7Yz9uUWmZIlGQ==
+X-Developer-Key: i=marcus.folkesson@gmail.com; a=openpgp;
+ fpr=AB91D46C7E0F6E6FB2AB640EC0FE25D598F6C127
 
-Hi Nikolaus,
+This was a RFC on how to implement a feature to have different bus
+speeds on different channels with an I2C multiplexer/switch.
+As no major complaints on the design came up during the review, I
+decided to submit the series without the RFC tag.
 
-Le vendredi 10 juillet 2026 =C3=A0 08:58 +0200, H. Nikolaus Schaller a
-=C3=A9crit=C2=A0:
-> Fix a severe AB/BA deadlock between the Common Clock Framework (CCF)
-> and the I2C adapter lock, which triggers when an I2C-controlled clock
-> generator (like the Si5351) is registered or modified under the CCF.
->=20
-> During a clock frequency change, the CCF acquires its global
-> 'prepare_lock'
-> mutex and calls i2c_transfer() to update the chip registers, stalling
-> for the adapter's I2C bus lock.
->=20
-> Concurrently, a parallel transfer on the same bus (e.g., a GPIO
-> expander
-> handling LEDs) can hold the I2C adapter lock. Inside the transfer
-> path,
-> jz4780_i2c_set_speed() calls clk_get_rate() to dynamically calculate
-> timings. This call attempts to acquire the blocked CCF
-> 'prepare_lock',
-> creating a circular dependency that freezes the system or at least
-> the involved processes and workers.
->=20
-> Eliminate the synchronous clk_get_rate() call from the active
-> transfer
-> path by caching the peripheral clock rate once - inside the private
-> jz4780_i2c structure during jz4780_i2c_probe(). Update
-> jz4780_i2c_set_speed() to use this cached value, decoupling active
-> I2C
-> transactions from the CCF internal locks.
->=20
-> Assisted-by web based Google AI.
->=20
-> Fixes: ba92222ed63a12 ("i2c: jz4780: Add i2c bus controller driver
-> for Ingenic JZ4780")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-> ---
-> =C2=A0drivers/i2c/busses/i2c-jz4780.c | 5 ++++-
-> =C2=A01 file changed, 4 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-jz4780.c
-> b/drivers/i2c/busses/i2c-jz4780.c
-> index 664a5471d9335..d729cec9cdf2c 100644
-> --- a/drivers/i2c/busses/i2c-jz4780.c
-> +++ b/drivers/i2c/busses/i2c-jz4780.c
-> @@ -141,6 +141,7 @@ struct jz4780_i2c {
-> =C2=A0	void __iomem		*iomem;
-> =C2=A0	int			 irq;
-> =C2=A0	struct clk		*clk;
-> +	unsigned		long clk_rate;
+The benefit with this feature is that you may group devices after
+the fastest bus speed they can handle.
+A real-world example is that you could have e.g. a display running @400kHz
+and a smart battery running @100kHz using the same I2C controller.
 
-That's a weird spacing. Should probably be "unsigned long" on the left
-side.
+There are many corner cases where this may cause a problem for some
+hardware topologies. I've tried to describe those I could think of
+in the documentation, see Patch #5.
 
-> =C2=A0	struct i2c_adapter	 adap;
-> =C2=A0	const struct ingenic_i2c_config *cdata;
-> =C2=A0
-> @@ -246,7 +247,7 @@ static int jz4780_i2c_set_target(struct
-> jz4780_i2c *i2c, unsigned char address)
-> =C2=A0
-> =C2=A0static int jz4780_i2c_set_speed(struct jz4780_i2c *i2c)
-> =C2=A0{
-> -	int dev_clk_khz =3D clk_get_rate(i2c->clk) / 1000;
-> +	int dev_clk_khz =3D i2c->clk_rate / 1000;
+E.g. one risk is that if the mux driver does not disconnect channels
+when Idle, this may cause a higher frequency to "leak" through to
+devices that are supposed to run at lower bus speed.
+This is not only a "problem" for changing bus speed but could also be
+an issue for potential address conflicts.
 
-You cache `i2c->clk_rate` but only use it divided by 1000, so maybe
-cache `clk_rate_khz` instead?
+This patchset has been used and tested heavily the last months
+on a custom board based on a da850 (DaVinci) platform.
 
-Cheers,
--Paul
+The implementation is split up into several patches:
 
-> =C2=A0	int cnt_high =3D 0;	/* HIGH period count of the SCL
-> clock */
-> =C2=A0	int cnt_low =3D 0;	/* LOW period count of the SCL clock
-> */
-> =C2=A0	int cnt_period =3D 0;	/* period count of the SCL clock */
-> @@ -796,6 +797,8 @@ static int jz4780_i2c_probe(struct
-> platform_device *pdev)
-> =C2=A0	if (IS_ERR(i2c->clk))
-> =C2=A0		return PTR_ERR(i2c->clk);
-> =C2=A0
-> +	i2c->clk_rate =3D clk_get_rate(i2c->clk);
-> +
-> =C2=A0	ret =3D of_property_read_u32(pdev->dev.of_node, "clock-
-> frequency",
-> =C2=A0				=C2=A0=C2=A0 &clk_freq);
-> =C2=A0	if (ret) {
+Patch #1 Introduce a callback for the i2c controller to set bus speed
+Patch #2 Introduce functionality to adjust bus speed depending on mux
+         channel.
+Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
+Parch #4 Implement set_clk_freq for the i2c-davinci driver
+Parch #5 Update documentation with this feature
+
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+Changes in v12:
+- Defined new idle states in i2c-mux.h
+- Replaced _hz with _Hz where appropriate
+- Reword comment and commit message about idle states
+- Link to v11: https://patch.msgid.link/20260713-i2c-mux-v11-0-72bb8af8ee8c@gmail.com
+
+Changes in v11:
+- Rebased on i2c-next
+- Use _Hz instead of _hz for local variables in i2c-davinci.c.
+- Link to v10: https://patch.msgid.link/20260708-i2c-mux-v10-0-09dca03c8a15@gmail.com
+
+Changes in v10:
+
+- Fix gramatics in documentation
+- Move {__,}i2c_adapter_set_clk_freq() to i2c-mux.c
+- Make set_clk_freq() return actual frequency
+- Reimplement idle_state (from earlier version)
+- Implement example on idle_state for ltc4306
+- Link to v9: https://lore.kernel.org/r/20260324-i2c-mux-v9-0-5292b0608243@gmail.com
+
+Changes in v9:
+- Fix stray blank line
+- Link to v8: https://lore.kernel.org/r/20260314-i2c-mux-v8-0-fb1738a4df0a@gmail.com
+
+Changes in v8:
+- Fix gramatics and change %d to %u were appropriate
+- Link to v7: https://lore.kernel.org/r/20260223-i2c-mux-v7-0-ec75b214718a@gmail.com
+
+Changes in v7:
+- Remove code for finding first mux-locked ancestor
+- Introduce a unlocked (i2c_adapter_set_clk_freq) and unlocked
+  (__i2c_adapter_set_clk_freq) variant
+- Let the locking be handled in __i2c_adapter_set_clk_freq
+- Use I2C_MAX_STANDARD_MODE_FREQ instead of magic numbers where
+  appropriate 
+- Link to v6: https://lore.kernel.org/r/20260216-i2c-mux-v6-0-9be28ecfd7e3@gmail.com
+
+Changes in v6:
+- Change logic to find which ancestor to lock with I2C_LOCK_ROOT_ADAPTER
+  It now find the first mux-locked ancestor and then lock its parent.
+
+- Remove bus_freq_hz in i2c-davinci and only use clock_hz instead
+- Mention in commit message that clock_hz can be used to store frequency in an uniform way
+
+- Swap order for change freq/deselect to keep symmetry
+- Only allow bus frequency to be lowered in select()
+  This to not allow an intermediate frequency to be set when it is not
+  supposed to
+
+- check if(ret) instead of ret(<0) where appropriate
+- Fix typos in documentation
+- Change i2c_adapter.clock_hz from int to u32
+- Simplify i2c_adapter_set_clk_freq() by removing 'ret'
+- Link to v5: https://lore.kernel.org/r/20260213-i2c-mux-v5-0-fb2cbf9979b3@gmail.com
+
+Changes in v5:
+- Take the lock of the top-most mutex locked mux to make sure that the
+  root is locked
+- Link to v4: https://lore.kernel.org/r/20260128-i2c-mux-v4-0-dee49ce276c0@gmail.com
+
+Changes in v4:
+- Rebase on master
+- Swap order for printing warning about "channel %u is slower than
+  parent on a non parent-locked mux\n"
+- Fix typo in comment, adaper->adapter
+- Link to v3: https://lore.kernel.org/r/20251020-i2c-mux-v3-0-908ac5cf9223@gmail.com
+
+Changes in v3:
+- Return -EINVAL if channel is faster than parent (kernel test robot)
+- Link to v2: https://lore.kernel.org/r/20251002-i2c-mux-v2-0-b698564cd956@gmail.com
+
+Changes in v2:
+- Changed bus_freq field to bus_freq_hz in davinci_i2c_dev (Bartosz Golaszewski)
+- Removed idle_state from mux core (Peter Rosin)
+- Link to v1: https://lore.kernel.org/r/20250922-i2c-mux-v1-0-28c94a610930@gmail.com
+
+To: Andi Shyti <andi.shyti@kernel.org>
+To: Peter Rosin <peda@lysator.liu.se>
+To: Bartosz Golaszewski <brgl@kernel.org>
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+
+---
+Marcus Folkesson (7):
+      i2c: core: add callback to change bus frequency
+      i2c: mux: add idle_state property to i2c_mux_core
+      i2c: mux: add support for per channel bus frequency
+      i2c: davinci: calculate bus freq from Hz instead of kHz
+      i2c: davinci: add support for setting bus frequency
+      i2c: mux: ltc4306: set correct idle_state in i2c_mux_core
+      docs: i2c: i2c-topology: add section about bus speed
+
+ Documentation/i2c/i2c-topology.rst  | 178 ++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-davinci.c    |  35 +++++--
+ drivers/i2c/i2c-mux.c               | 162 +++++++++++++++++++++++++++++---
+ drivers/i2c/muxes/i2c-mux-ltc4306.c |   3 +
+ include/linux/i2c-mux.h             |  30 ++++++
+ include/linux/i2c.h                 |   5 +
+ 6 files changed, 392 insertions(+), 21 deletions(-)
+---
+base-commit: 5489063ced8c6afdd1f4134a1a05a666b0834b31
+change-id: 20250913-i2c-mux-b0063de2ae4d
+
+Best regards,
+--  
+Marcus Folkesson <marcus.folkesson@gmail.com>
+
