@@ -1,153 +1,167 @@
-Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [81.169.146.219])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 885222E92BA;
-	Sun, 19 Jul 2026 20:20:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=81.169.146.219
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784492424; cv=pass; b=ZwwKniIZZFVTehSciSE2Ac+0f3i1+wIilbpP2AMfF2HM4DvroLyfi1zAWUaTgHlzAVgHaVCme5R7Ugetu8a2bnzgnyXiXhkjQmnpIHyqxY6cD59fjEBOIYGymjKXAaaNFKWlMztmtVCl7ttdf7utQzdNnT+tv/a3VsVnCVYtC6Q=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784492424; c=relaxed/simple;
-	bh=kKlQiAmYKfNPgF+zFR0/vyJuTZHscc+/RcHIOIdYaWs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=joq7A/JBzguLiXYLCPK3AKOzfhfRrZWkYF9omtaNDzpgKYhPRg4i7ZmorYNXfVBgV0HlNzJN5pnQ/wI9CoOf2M5uWidItFfM2I8S6N7cl9r5IyZml1ugPeS4+xqzglt86CNZ0KCs364HTteOQ2OW/SZdf3q1XzwJrvF4Ck+SeXM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=goldelico.com; spf=pass smtp.mailfrom=goldelico.com; dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=bNxiirRN; dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=+fljUks5; arc=pass smtp.client-ip=81.169.146.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=goldelico.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goldelico.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95A1913A3ED
+	for <linux-i2c@vger.kernel.org>; Sun, 19 Jul 2026 22:20:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784499623; cv=none; b=c2oA1oHC0b04m3hd3KjFInFMj4UERd3c1uJVxsLkRmUFysDOG/LeZ/1LWigBsW4PFeAMu3AxG+rp7HscmbBRyFM0LSxjWsiy9BrEzlJO20a6A9QWfQ3DgWqxj0R5GUFwtr3keXMtprQe16sSvh9KkTAAhvCRok/pJ4Vf1OaxxEQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784499623; c=relaxed/simple;
+	bh=HBxrval126OsSIfUV/m/TtYykz7BR0Po+Gosn2ztWhs=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=KpfstJPHPr4Lq2/GM/T01jSnq1W4PCJjYG5zcqFCvDbqzJtkVjqlYFy1thhFswvP+XtuHlvkaIN7p3tMLV3Ok756ZOde0w/9vB4buhBXyjFkErVw2Jgg7t/nXNepkaTeRu5TteVcXvnbjk8YP7yVShUBnf0dMc044qMoif/OS2o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=j+KTbnOv; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="bNxiirRN";
-	dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="+fljUks5"
-ARC-Seal: i=1; a=rsa-sha256; t=1784492403; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=kjVIf541L8Bu1M8hfqi0BuYngxoSzPNz4X4lFdSyhuzQCoYzfvIdtR2bvBMhhAuciv
-    CaqELYbIS4hZ2/t2c9Y8JaQ32oRcXGC15Rq6wNqqUgLRcv7p8hDh6K4o2QY+mo1q8F61
-    hdsD+xkbVlfeX3ZkaxMzKygyThXe7auHSruPHS+s9rb5eo54oNdrFJZnovwgeKFHnPaW
-    SGXUB4y3CCf39wyIkl7oTAGv9PbXx0/mtmZqxcTtZmUO39Dlnj0Zq6MdHrXW2qlR9r6e
-    +gfGk8lJV0zDPg4DhCeE10CNDkdEp8vGtpeALl7PuvFYfwTOhJRQGfveGSZ2ZMtJvqRa
-    HZ9g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1784492403;
-    s=strato-dkim-0002; d=strato.com;
-    h=Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=DGeEX502BY/Q1+XKpGRmjA3rFXgEQE6RwfBgPXI9uLM=;
-    b=JYV2hlV426VF83I54/Y/3Kx7GXywZjEgqejrh96ny5QIudeteZPEml0LtgZxQ2V0hF
-    mlCPKaobxN08gOAnT8LoCHQlufMgrLA7IUdRbZRH9XmFFJvdypRkjS7qswghhceRI6k9
-    exI/9nIcnYL8EZ5gZ2vKT8t/0AjAW8KrqgEftnLP9at55vOj2NdsoX/M/ifuttOP6PCe
-    JqRwSoVBvzr2w7g1M9C3syECPgzvMN+xj8nXNthV7fEMDYH6K+AIaO3biGEN0gOMRafX
-    6a78ksaXSumd0+okDSN/2BtrORw8nOIS0Itek/jEoUp79STvMBEOXzA5+PVDGe7BN/Vi
-    Nikw==
-ARC-Authentication-Results: i=1; strato.com;
-    arc=none;
-    dkim=none
-X-RZG-CLASS-ID: mo00
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1784492403;
-    s=strato-dkim-0002; d=goldelico.com;
-    h=Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=DGeEX502BY/Q1+XKpGRmjA3rFXgEQE6RwfBgPXI9uLM=;
-    b=bNxiirRN2vLgGyLLAzIwgkHWpSeZLG2o58cQIGwDsyWazmrOTjHkOxZoNjOuCJ730a
-    ORzeOQUTvLR/f8z+BE8v2t53p55tQCnzSaWYISMjUKShx/a9ne7j7kVFgs+yK8LWo14T
-    gq4KrzXhygnkkBHyddhLb6VmCn/UKDWWaUSpMe7LuU18MWcTxxA+XXGBcX9Ce2DToiTc
-    LUepbMloWU6pFJo0g2dMQ7UzhDB4VqxL1RYdIrZCysmwLNQ4q9IyW1DkaMkGWBVckp17
-    NYv44UkTALVgMnjsEw/fjlYSzreNHRnsqkOov8i5r+kikE8UxngQo5hRpRIXhZW1CB1a
-    m6oA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1784492403;
-    s=strato-dkim-0003; d=goldelico.com;
-    h=Message-ID:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=DGeEX502BY/Q1+XKpGRmjA3rFXgEQE6RwfBgPXI9uLM=;
-    b=+fljUks5i0IOdvKB0+/E9vp/XxcWDIDP1LyhAD92tNt3HadFoY8y4LRYbCzVvhqJIg
-    qEWFqIGxf3SBeXzg+bBg==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9qVpwcQVkPW4I1HrQ0JoInciN3JyLCGNPVWcns8O5VzNQLiZpJpg="
-Received: from iMac.fritz.box
-    by smtp.strato.de (RZmta 55.5.6 AUTH)
-    with ESMTPSA id Q58eac26JKK25nC
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-	(Client did not present a certificate);
-    Sun, 19 Jul 2026 22:20:02 +0200 (CEST)
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-To: Paul Cercueil <paul@crapouillou.net>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-mips@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	letux-kernel@openphoenux.org,
-	"H. Nikolaus Schaller" <hns@goldelico.com>,
-	stable@vger.kernel.org
-Subject: [PATCH v2] i2c: jz4780: Cache host clock rate at probe to prevent CCF prepare_lock deadlock
-Date: Sun, 19 Jul 2026 22:19:43 +0200
-Message-ID: <2db6fd233aceb7238474e4833f4d25ca681c3ffb.1784492382.git.hns@goldelico.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="j+KTbnOv"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-ca913a601fbso6430886a12.3
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Jul 2026 15:20:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=brighamcampbell.com; s=google; t=1784499622; x=1785104422; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=68SLrkV226FLOU2H1Ncgh6uShsGhFui38dyfzWAcvR8=;
+        b=j+KTbnOvsB7bRvoiq4piOU6IYDGMVfxsLagMb0xt52jALlOhAdLAseJYe9LOBJyY6J
+         ScucvsMLr68gLXqDtYxaoGrPK5hZkktEuF8krlCkCu52jLPxhpT01MdT0H9fqqn+FVFZ
+         9nH3rDg/JFAeLAuBfGUR67qp65fSmWQ1e4OzJ3i4WLMqrnb/0ZoSo8H/N8Cq2BlUqi5G
+         lxpmBMIoOc3glF4JXlxYfPX8QNe+tqevj5dW9L82O+4JjpeO2mELHfn1qXp07/dqInDg
+         hVQC2EUGItW0TXaz/yWtj9uhoMnuYzYBC8pcl5jqgFHoqg4aFWBmCUvItCnpbG0BooZv
+         6zjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784499622; x=1785104422;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=68SLrkV226FLOU2H1Ncgh6uShsGhFui38dyfzWAcvR8=;
+        b=l7kBGjdKYI2mgzjctwaBGAiFJ9k3/GzgGxDGxNL69EBuu7Hc482+Y+axvYsIHZHNH0
+         PDbQpgzn9G0vU43hMRiVpWZp+YdjqZ/cv6706qXfigcfeLCPN2msnFIrZ56q14NjrxRp
+         dhwYR5Q9m5ESHbGDpOtt6oZ+BhmROUnInI5PoySP/Hjx0nc6sJOi7NdonnUD3LgkKa18
+         P/xagVqJojPxed4QP8DzubT1ig19uVcxNIv8UJmUgIq7I//w+uB0S4ztHgV5eIDAIYDR
+         KYlFmdGxXA1EqGLHcUx8FvPypARL67zR3vXIOZMW9M/RSTrfOCmXrK8jNsiwSpNkfkt9
+         tlcA==
+X-Forwarded-Encrypted: i=1; AHgh+RrcjGOhA3P0OWO3Q29BWe+ZmdC/lA//3hhQOAY/yd8MGK+6BYqGob5LAMGf2GpsgO9FrxZZWChGZAw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyY6XbtuprPZKt2bID5hfHjUpqckJ+bKBC+w7cZh7J5sWF6rdy5
+	HfPqDun4wkU9+UPDrR4pdzihPNdIsdIHMrQ4JkDybNZPnmFbnc+I05PM3AMN29LFK2IkM+Sgrz5
+	cVz5Mixw=
+X-Gm-Gg: AfdE7cnOubvoly+2EFEFQFsKrGKNucH817eDgU/je9kT+TWVRnTf5KqI++HMCluKyIX
+	9WqBfYv0qi/2AmBQcnDuHUSHvVKjpN05gcPTOYZ7X0/xM+dSxKqpjxHsEWXssJy5f9CZ5w1yb9Q
+	D6IqTd5/rKHkyZT7BksiTft/7uMW1dxa+J175X3o2r+u7IHP/7agj4Y6FJ6f2rOzH/sg4dcr/TB
+	YB+4DMJWz6I8ycbY3gUP6l63KrT8BGr2jbLR55xP7pmk8t1f7LXFw1v/KXLKfOegiduaK8D/Yog
+	dQr1GNy28+2byMTqalLPlCH2MGGX2bE9bMqbR/XoxtjgpwjAXO95sCzUjpFD2aWzkyd1o83ldVc
+	vvZx/wEvKE5v8ZpR9cu2AXN5416gQBmaf4kqgqCk7Vdyok7lGxGd+iuWS4/oD2hK/Hg8p2fXo86
+	n1go/d9dTTDW3nlw753RPmINYfw+p5lsX9DgJPdkaaaNftQS2r
+X-Received: by 2002:a05:6a20:430a:b0:3c3:90e6:48be with SMTP id adf61e73a8af0-3c3ad77b3a1mr12466848637.30.1784499621799;
+        Sun, 19 Jul 2026 15:20:21 -0700 (PDT)
+Received: from brighamcampbell.com ([50.220.100.118])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13ce2a18a47sm25343260c88.8.2026.07.19.15.20.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jul 2026 15:20:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="us-ascii"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 19 Jul 2026 16:22:53 -0600
+Message-Id: <DK2WDITRVN2Z.2QAZXR6BWBFB1@brighamcampbell.com>
+Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH v4 1/2] i2c-tools: Allow passing device file paths
+From: "Brigham Campbell" <me@brighamcampbell.com>
+To: =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>,
+ "Brigham Campbell" <me@brighamcampbell.com>, "Jean Delvare"
+ <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com> <20260705-accept-device-path-v4-1-c62caa708a9e@brighamcampbell.com> <DJU1QIKM2DNQ.UOLEBWH0U0QQ@sevenlab.de> <DK02UVSWWGTN.2M4XXGFINRT1V@brighamcampbell.com> <DK0V64S4JWAS.3PNF8V2ZQEDPY@sevenlab.de>
+In-Reply-To: <DK0V64S4JWAS.3PNF8V2ZQEDPY@sevenlab.de>
 
-Fix a severe AB/BA deadlock between the Common Clock Framework (CCF)
-and the I2C adapter lock, which triggers when an I2C-controlled clock
-generator client (like the Si5351) is registered or modified under the CCF.
+Hi Gero,
 
-During an i2c client clock (generator) frequency change, the CCF acquires its global
-'prepare_lock' mutex and the driver calls i2c_transfer() to update the client's
-chip registers, stalling for the adapter's I2C bus lock.
+On Fri Jul 17, 2026 at 7:00 AM MDT, Gero Schw=C3=A4ricke wrote:
+> On Thu Jul 16, 2026 at 4:49 PM CEST, Brigham Campbell wrote:
+>> 	if (errno !=3D ENOENT) {
+>> 		fprintf(stderr, "Error: Could not open file "
+>> 			"`%s': %s\n", i2cbus_arg, strerror(errno));
+>> 		if (errno =3D=3D EACCES)
+>> 			fprintf(stderr, "Run as root?\n");
+>> 		return file;
+>> 	}
+>>
+>> 	fprintf(stderr, "Error: `%s' is not a bus number, name, or device file =
+"
+>> 		"path!\n", i2cbus_arg);
+>
+> I'm unsure about this: Yes, this reflects the behavior of
+> `open_i2c_dev_by_nr()`, but we only call that after we have validated
+> that the input is indeed an adapter number.
 
-Concurrently, an independent, parallel transfer on the same bus (e.g., a GPIO
-expander handling LEDs) can hold the I2C adapter lock. Inside this parallel
-transfer path, jz4780_i2c_set_speed() calls clk_get_rate() on the host
-controller's input clock to calculate bus timings. This call attempts to acquire
-the blocked CCF 'prepare_lock', creating a circular dependency that freezes
-the system.
+The input is not necessarily an adapter number. We call
+open_i2c_dev_by_nr after parsing the argument as an unsigned long, but
+that's no guarantee that the input is an adapter number.  For example,
+if a system has /dev/i2c-0 and /dev/i2c-1, `i2cdetect -F 100` will
+dutifully try to open /dev/i2c-100 and eventually fail without trying to
+interpret the number as a bus name. That's ok because it's just a
+heuristic and we don't expect the collision of file paths, bus names,
+and unsigned integers.
 
-The jz4780 host controller clock itself is static and never changes at runtime.
+>                                             With the path we don't do
+> that, we just try to open the input as a path. We know it's not a valid
+> integer, and not a valid adapter name, but it may still not be a path,
+> maybe it's a mistyped adapter name.
+>
+> To that I'm not sure we can conclude that `errno !=3D ENOENT` means it is
+> indeed a path.
 
-However, calling clk_get_rate() inside the active transfer path introduces
-an unnecessary dependency on the CCF internal locks.
+This is a good point. `errno !=3D ENOENT` doesn't necessarily mean that
+the parameter is a file and that i2c-tools should be able to open it.
 
-Eliminate this synchronous clk_get_rate() call from the active transfer
-path by caching the static host peripheral clock rate once - inside the private
-jz4780_i2c structure during jz4780_i2c_probe(). Update jz4780_i2c_set_speed()
-to use this cached value, safely decoupling active I2C transactions from the
-CCF internal locks without any risk of stale timings.
+> Looking at libgpiod (`gpiod_chip_open_lookup()`), they solved that by
+> assuming that all paths must start with `/dev/`. Unsure if we want to go
+> that route as well. It would definitely simplify things and I think for
+> the sake of progress that whould be fine. Thoughts?
 
-Assisted-by web based Google AI (pinpointing the bug and writing the message).
+The approach you suggest assumes that when the user passes in a device
+file path, the path is _not_ a relative path, devtmpfs is mounted at
+`/dev/`, and if the path is a symlink, it's also in `/dev/`. Maybe these
+assumptions are ok (after all, libgpiod makes them) but they seem
+unnecessary.
 
-Fixes: ba92222ed63a12 ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
-Cc: stable@vger.kernel.org
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
----
- drivers/i2c/busses/i2c-jz4780.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+What if we only indicate that the argument couldn't be opened as a file
+specifically when open() returns EACCES? Otherwise, we'll print a
+generic message, indicating that the argument couldn't be parsed as a
+bus number, name, or device file path. Even when i2c-tools should have
+been able to open the argument as a path, but couldn't because of some
+unrelated error, the binary will print a less-specific error message
+which is still applicable and correct:
 
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index 664a5471d93357..695be3b2146085 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -141,6 +141,7 @@ struct jz4780_i2c {
- 	void __iomem		*iomem;
- 	int			 irq;
- 	struct clk		*clk;
-+	unsigned long		 clk_rate_khz;
- 	struct i2c_adapter	 adap;
- 	const struct ingenic_i2c_config *cdata;
- 
-@@ -246,7 +247,7 @@ static int jz4780_i2c_set_target(struct jz4780_i2c *i2c, unsigned char address)
- 
- static int jz4780_i2c_set_speed(struct jz4780_i2c *i2c)
- {
--	int dev_clk_khz = clk_get_rate(i2c->clk) / 1000;
-+	int dev_clk_khz = i2c->clk_rate_khz;
- 	int cnt_high = 0;	/* HIGH period count of the SCL clock */
- 	int cnt_low = 0;	/* LOW period count of the SCL clock */
- 	int cnt_period = 0;	/* period count of the SCL clock */
-@@ -796,6 +797,8 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(i2c->clk))
- 		return PTR_ERR(i2c->clk);
- 
-+	i2c->clk_rate_khz = clk_get_rate(i2c->clk) / 1000;
-+
- 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
- 				   &clk_freq);
- 	if (ret) {
--- 
-2.55.0
+	file =3D open(i2cbus_arg, O_RDWR);
+
+	if (file >=3D 0 || quiet) return file;
+
+	if (errno =3D=3D EACCES) {
+		fprintf(stderr, "Error: Could not open file `%s': %s\n"
+			"Run as root?\n", i2cbus_arg, strerror(errno));
+		return file;
+	}
+
+	fprintf(stderr, "Error: Couldn't interpret `%s' as a bus number, "
+		"name, or device file path!\n", i2cbus_arg);
+
+	return file;
+
+Sorry to double down on the bikeshedding (again, I do really appreciate
+the feedback)... I'm interested to hear what Wolfram has to say. I may
+send out v5 (which includes the above code) along with an invitation to
+either make editorial changes to the patch in case the maintainer has
+something different in mind or request that I send out a v6. I have v5
+queued up which includes the above snippet.
+
+--=20
+Brigham Campbell
+https://brighamcampbell.com
 
