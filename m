@@ -1,208 +1,159 @@
-Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from aposti.net (aposti.net [185.119.170.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7298031195C;
-	Sun, 19 Jul 2026 12:39:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8115B153BE9;
+	Sun, 19 Jul 2026 12:53:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.119.170.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784464796; cv=none; b=b7e0wZjj/sf2hcMcGdCKsac7OhqwspVTKjG5vgDMaNlPAGMfzFCsO1QI6KVN7FNvTmyt3q0ot6DGE5YeKANzqRWJofKzu439SJyQcdvbN76CA0Uh66u32RlrK2BYjiXpniIp3Wvz1uYF0mIumaLZtTo0pdznVoU0sKxIx5Q5SEA=
+	t=1784465634; cv=none; b=j/oj8B9h/qT34uIA71DoIvCJH626uyc8aWaMuSF76RduCnirfxVsggPWutjFyn0XKgKC7ktKimEpWkcFbm0DAkxC+5o/EKcwtRjTWf/TJa6wf4gSo4QD8s1rvXago5P/d3JOfIsZstyB5MOp6MGmqSKuKOhZPhKoQb3cau6CnTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784464796; c=relaxed/simple;
-	bh=wDCMcLB4SqxcRXKam+IVHADVUrv5oiJOZc+uyxtIoDs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nbe8JL4fD3tK97Jj0a3LaXDshQOxzqoq7St8Y5XRA0OGrwbAZLXZkz2tAF723K6qWx8fMU6tGWCb7iuujJdlwRei93saqTQOGbhvKGpxpbqii7C5zIDOwmNY8AVHpp89Y5EAfQfphcd0DQZPV/AeMmz/B2fYHiHlVaCkVrQm9eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=FMdNRXaT; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=FMdNRXaT; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=rQKuhDlI; arc=none smtp.client-ip=130.236.254.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+	s=arc-20240116; t=1784465634; c=relaxed/simple;
+	bh=8U389L9n9leu3mtmI0AqAenATf38Tlkc+LIYUnR8gHg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=H10Ac8ariu5we0TZt1WFAeN6q5jXqzWEUBUi0EFX80l41fLfi6RWorzS3aZm35cWnZh0iMJkub+sgitu7SQuB7cWeAavtzFActslIsJTtfqakeY5EDCjUnYAnkTSAF0gkxcvZX6DcofhoQSb4DrDWgf4ELwATmFBIzvzr+N1H/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=crapouillou.net; spf=pass smtp.mailfrom=crapouillou.net; dkim=pass (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b=dpIE2mGf; arc=none smtp.client-ip=185.119.170.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=crapouillou.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crapouillou.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="FMdNRXaT";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="FMdNRXaT";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="rQKuhDlI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784464781;
-	bh=wDCMcLB4SqxcRXKam+IVHADVUrv5oiJOZc+uyxtIoDs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=FMdNRXaT1bAbjB98OVmFTn+D10E27y5PmHj2fBDyQ+LTLOJ+ImK7uA+rfIqxRDY2Z
-	 yIxjdknk2iqBCsmgeVfaLGejdk0I6irCkTxhSaYLZSGJmpBlNQePTVItNgNg4inpdy
-	 u/IVUqPPzwyYgjj5S9feLaVn8a9S8RBsna+GppksCRqVA3vbucZ4Cv/q63lhqmP9zV
-	 xbnqQx/zwQbXWRbVQ9Q3mduiswZiN5Ve+uPACwxyO+49K7MGnI0LfiyHDz7guKzdy/
-	 NMAbQ7cE1i613HtxxO3TuCNgemD1kh73KfO2/r8JAf0w3/BpKsXA4RTtsEjUyMQk4S
-	 Ih7o8fEsgzAfg==
-Received: from mail.lysator.liu.se (localhost [127.0.0.1])
-	by mail.lysator.liu.se (Postfix) with ESMTP id 74D83BC8C;
-	Sun, 19 Jul 2026 14:39:41 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784464781;
-	bh=wDCMcLB4SqxcRXKam+IVHADVUrv5oiJOZc+uyxtIoDs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=FMdNRXaT1bAbjB98OVmFTn+D10E27y5PmHj2fBDyQ+LTLOJ+ImK7uA+rfIqxRDY2Z
-	 yIxjdknk2iqBCsmgeVfaLGejdk0I6irCkTxhSaYLZSGJmpBlNQePTVItNgNg4inpdy
-	 u/IVUqPPzwyYgjj5S9feLaVn8a9S8RBsna+GppksCRqVA3vbucZ4Cv/q63lhqmP9zV
-	 xbnqQx/zwQbXWRbVQ9Q3mduiswZiN5Ve+uPACwxyO+49K7MGnI0LfiyHDz7guKzdy/
-	 NMAbQ7cE1i613HtxxO3TuCNgemD1kh73KfO2/r8JAf0w3/BpKsXA4RTtsEjUyMQk4S
-	 Ih7o8fEsgzAfg==
-Received: by mail.lysator.liu.se (Postfix, from userid 1004)
-	id 46FDCBBEE; Sun, 19 Jul 2026 14:39:41 +0200 (CEST)
-X-Spam-Level: 
-X-Spam-Score: -1.1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784464776;
-	bh=wDCMcLB4SqxcRXKam+IVHADVUrv5oiJOZc+uyxtIoDs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=rQKuhDlIwuGM7EeDt9LonT33PGeAhZ/pNxR8sRZm6VIlWOzieTuXkbVTgT80DsUaR
-	 vuCin1URC8iPqNHU+ntTjBmHCgI86X++kIBpp97lT/DbR2Cqlh/VZ972abPb9jRdcN
-	 exvMBBi6UrOacaFZ7eLtECvafS6QSwIL+sBrjdPSajIJ1uKTI/XEgymSu4SkSL7gnM
-	 2VkKQwcWGr9Td7+yMNvF8QnGo5bam0vdcd3anXnhBO+iHUes5iiM/3xwHbSXqNYfal
-	 9FqwAD3EIvXgihrU51SPWNYQI8ICCHILhZ/9EL0IvP9167ZCWgVG3F9jGtyMDISvf9
-	 kE0A5Lo0pwC4Q==
-Received: from [192.168.2.172] (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by mail.lysator.liu.se (Postfix) with ESMTPSA id 02DC2BC11;
-	Sun, 19 Jul 2026 14:39:34 +0200 (CEST)
-Message-ID: <c0b47180-d3df-4b58-9311-d02734213716@lysator.liu.se>
-Date: Sun, 19 Jul 2026 14:39:34 +0200
+	dkim=pass (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="dpIE2mGf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=crapouillou.net;
+	s=mail; t=1784465624;
+	bh=8U389L9n9leu3mtmI0AqAenATf38Tlkc+LIYUnR8gHg=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=dpIE2mGfQV9bihoNl/00WHenYCV9d6GZviFv9QUh24KUdpt9o7NP88Lpu6rr//lRl
+	 +mEIzjuixRQGA28wNlREe32ae7gXyfuVBSq9mak9r/x5G8fMJ5WZjm7cPGgFL8ZabW
+	 8fu5A+jb92fIJjxpigpK6x0W2Tz9y5KG4CSn5jlM=
+Message-ID: <d869fc2e2fe6eec530a65a2e93b642fad1fd9903.camel@crapouillou.net>
+Subject: Re: [PATCH] i2c: jz4780: Cache clock rate at probe to prevent CCF
+ prepare_lock deadlock
+From: Paul Cercueil <paul@crapouillou.net>
+To: Andi Shyti <andi.shyti@kernel.org>, "H. Nikolaus Schaller"
+	 <hns@goldelico.com>
+Cc: linux-mips@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, 
+	stable@vger.kernel.org
+Date: Sun, 19 Jul 2026 14:53:39 +0200
+In-Reply-To: <aljCGkhZEQHzZVSW@zenone.zhora.eu>
+References: 
+	<c69ca6511780aa4759a428cb7fb70de43ee5211b.1783666715.git.hns@goldelico.com>
+	 <alf7rSWaLBO8WBkR@zenone.zhora.eu>
+	 <36148F30-156F-4E74-8765-D718F6FE7E76@goldelico.com>
+	 <aliLbNJ51Ns0dIHX@zenone.zhora.eu>
+	 <9421BB47-EFC8-4D82-989F-82A84FE46749@goldelico.com>
+	 <aljCGkhZEQHzZVSW@zenone.zhora.eu>
+Autocrypt: addr=paul@crapouillou.net; prefer-encrypt=mutual;
+ keydata=mQENBF0KhcEBCADkfmrzdTOp/gFOMQX0QwKE2WgeCJiHPWkpEuPH81/HB2dpjPZNW03ZM
+ LQfECbbaEkdbN4YnPfXgcc1uBe5mwOAPV1MBlaZcEt4M67iYQwSNrP7maPS3IaQJ18ES8JJ5Uf5Uz
+ FZaUawgH+oipYGW+v31cX6L3k+dGsPRM0Pyo0sQt52fsopNPZ9iag0iY7dGNuKenaEqkYNjwEgTtN
+ z8dt6s3hMpHIKZFL3OhAGi88wF/21isv0zkF4J0wlf9gYUTEEY3Eulx80PTVqGIcHZzfavlWIdzhe
+ +rxHTDGVwseR2Y1WjgFGQ2F+vXetAB8NEeygXee+i9nY5qt9c07m8mzjABEBAAG0JFBhdWwgQ2VyY
+ 3VlaWwgPHBhdWxAY3JhcG91aWxsb3UubmV0PokBTgQTAQoAOBYhBNdHYd8OeCBwpMuVxnPua9InSr
+ 1BBQJdCoXBAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEHPua9InSr1BgvIH/0kLyrI3V0f
+ 33a6D3BJwc1grbygPVYGuC5l5eMnAI+rDmLR19E2yvibRpgUc87NmPEQPpbbtAZt8On/2WZoE5OIP
+ dlId/AHNpdgAtGXo0ZX4LGeVPjxjdkbrKVHxbcdcnY+zzaFglpbVSvp76pxqgVg8PgxkAAeeJV+ET
+ 4t0823Gz2HzCL/6JZhvKAEtHVulOWoBh368SYdolp1TSfORWmHzvQiCCCA+j0cMkYVGzIQzEQhX7U
+ rf9N/nhU5/SGLFEi9DcBfXoGzhyQyLXflhJtKm3XGB1K/pPulbKaPcKAl6rIDWPuFpHkSbmZ9r4KF
+ lBwgAhlGy6nqP7O3u7q23hRU=
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 2/7] i2c: mux: add idle_state property to i2c_mux_core
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Michael Hennerich <michael.hennerich@analog.com>,
- Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@intel.com>,
- Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20260713-i2c-mux-v11-0-72bb8af8ee8c@gmail.com>
- <20260713-i2c-mux-v11-2-72bb8af8ee8c@gmail.com>
- <e2d4fdf8-4dae-43dc-95ae-b9aa1884fdf5@lysator.liu.se>
- <alfZYOKCjf6CKN6i@gmail.com>
-Content-Language: en-US, sv-SE
-From: Peter Rosin <peda@lysator.liu.se>
-In-Reply-To: <alfZYOKCjf6CKN6i@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: ClamAV using ClamSMTP
 
-On 2026-07-15 21:02, Marcus Folkesson wrote:
-> Hi Peter,
-> 
-> On Tue, Jul 14, 2026 at 01:29:01PM +0200, Peter Rosin wrote:
->> Hi Marcus,
->>
->> Sorry for the very late feedback.
->>
->> On 2026-07-13 09:19, Marcus Folkesson wrote:
->>> Muxes treat their channels differently when idle.
->>> Let the mux core have this information to make it available for
->>> internal use.
->>> Reuse the same state values used by CONFIG_MULTIPLEXER.
->>>
->>> Possible idle states are:
->>> - MUX_IDLE_AS_IS: Leave channels as is when idle
->>> - MUX_IDLE_DISCONNECT: Disconnect channel (set HiZ when idle)
->>> - <n>: Enable channel n when idle
->>>
->>> Default value is set to MUX_IDLE_AS_IS.
->>>
->>> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
->>> ---
->>>    drivers/i2c/i2c-mux.c   |  1 +
->>>    include/linux/i2c-mux.h | 26 ++++++++++++++++++++++++++
->>>    2 files changed, 27 insertions(+)
->>>
->>> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
->>> index 681a201c239b..edf16683dc83 100644
->>> --- a/drivers/i2c/i2c-mux.c
->>> +++ b/drivers/i2c/i2c-mux.c
->>> @@ -247,6 +247,7 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
->>>    	muxc->select = select;
->>>    	muxc->deselect = deselect;
->>>    	muxc->max_adapters = max_adapters;
->>> +	muxc->idle_state = MUX_IDLE_AS_IS;
->>
->> This is insufficient. AS_IS is simply not an adequate default.
->>
->> For i2c-mux-gpmux, there is currently no way to dig out what
->> the idle state is, as it is not exposed by the mux subsystem. For
->> i2c-mux-gpio, the idle state depends on both the idle-state /and/
->> the i2c-mux-idle-disconnect props. For i2c-mux-pca954x the idle
->> state can be adjusted at runtime. Etc.
->>
->> In short, idle state handling is a bit diverse, and I think this
->> adds to that mess.
->>
->> I think it will be a bit of work to come up with a scheme for the
->> I2C mux core to accurately keep track of what the idle state is.
->> One way to deal with that is to introduce a new "unknown" value
->> that can be the default for all drivers that has not yet figured
->> out how to feed the correct idle state to the core.
->>
->> And that hints at why I think reusing the mux.h bindings #include
->> is bad. The mux subsystem simply has no need for an unknown state,
->> and adding that to mux.h is therefore out of place.
-> 
-> I see.
-> 
-> I think I will introduce a few defines in i2c-mux.c then;
-> 
-> 
-> #define I2C_MUX_IDLE_UNKNOWN	(-1)
-> #define I2C_MUX_IDLE_AS_IS      (-2)
-> #define I2C_MUX_IDLE_DISCONNECT (-3)
+Hi Andi, Nikolaus,
 
-Hi!
+Le jeudi 16 juillet 2026 =C3=A0 13:41 +0200, Andi Shyti a =C3=A9crit=C2=A0:
+> On Thu, Jul 16, 2026 at 10:33:56AM +0200, H. Nikolaus Schaller wrote:
+> > > Am 16.07.2026 um 09:43 schrieb Andi Shyti
+> > > <andi.shyti@kernel.org>:
+> > > On Thu, Jul 16, 2026 at 07:44:20AM +0200, H. Nikolaus Schaller
+> > > wrote:
+> > > > > Am 16.07.2026 um 00:07 schrieb Andi Shyti
+> > > > > <andi.shyti@kernel.org>:
+> > > > > On Fri, Jul 10, 2026 at 08:58:35AM +0200, H. Nikolaus
+> > > > > Schaller wrote:
+> > > > > > Fix a severe AB/BA deadlock between the Common Clock
+> > > > > > Framework (CCF)
+> > > > > > and the I2C adapter lock, which triggers when an I2C-
+> > > > > > controlled clock
+> > > > > > generator (like the Si5351) is registered or modified under
+> > > > > > the CCF.
+> > > > > >=20
+> > > > > > During a clock frequency change, the CCF acquires its
+> > > > > > global 'prepare_lock'
+> > > > > > mutex and calls i2c_transfer() to update the chip
+> > > > > > registers, stalling
+> > > > > > for the adapter's I2C bus lock.
+> > > > >=20
+> > > > > I don't think caching the clock rate once at probe is safe.
+> > > >=20
+> > > > Ok, valid point to discuss.
+> > > >=20
+> > > >=20
+> > > > > If the controller clock rate changes afterwards,
+> > > > > jz4780_i2c_set_speed() will keep using the stale cached value
+> > > > > and
+> > > > > calculate incorrect bus timings.
+> > > >=20
+> > > > But: is clock rate ever changed during operation? Usually it is
+> > > > defined
+> > > > by the device tree constant.
+> > >=20
+> > > That's what you are saying in your commit message.
+> >=20
+> > The Si5351 clock generator driver is connected through this i2c
+> > bus. And that
+> > is referred to by "when an I2C-controlled clock generator (like the
+> > Si5351) is=20
+> > registered or modified under the CCF".
+> >=20
+> > Only then, this bug faces surface. Because that driver changes it's
+> > clock through
+> > sending i2c commands which also ask for the lock.
+>=20
+> If you make a claim in the commit message, I expect the code to
+> support it.
+>=20
+> You say that the clock rate can change, but then you store it
+> only once at probe time. That immediately suggests that later
+> rate changes will be ignored by the transfer path.
 
-Please keep AS_IS as -1 and DISCONNECT as -2. Using different
-values will make it difficult to get rid of the use of the
-defines belonging to the mux subsystem in case the actual
-value has crept into some .dtb or something like that.
+I think there's a misunderstanding.
 
-Also, I think the right thing to do is to put these defines
-in the i2c-mux.h header so that the drivers can find them.
-I assume .c was a typo?
+The JZ4780 I2C host's parent clock rate does not change here, so
+caching its rate should be fine.
 
-> [...]
-> 
-> struct i2c_mux_core {
-> 
->      [...]
-> 
-> 	/*
-> 	 * The mux state to use when not active.
+The clock rate that can change in this setup is the one of the Si5351
+clock *generator* that is a I2C device.
 
-This is not 100% accurate. The value stored here is never
-actually used to set the idle state. The idle_state here is
-only what the driver has declared that the idle_state is.
-Perhaps word it like this instead?
+>=20
+> > But again: how would you solve this?
 
-	* The mux state used by the driver when idle.
+I believe you have this problem because your Si5351's clocks are
+parented to the I2C host's clock, am I right?
 
-Agreed, subtle difference, but...
+So when you try to change a Si5351 clock rate, it will get the clock's
+lock and the clock parent's lock, aka. the I2C host clock's lock. Then
+trying to send a I2C command will indirectly trigger clk_get_rate() on
+the I2C host's clock to be called, causing a lockup.
 
-In the future, drivers (most of them) could be changed to
-use this variable to store the actual idle state. But, as
-mentioned, that's not easy for i2c-mux-gpmux since the idle
-state is under the control of the the mux subsystem in that
-case.
+I think the solution would be, and CLK people can correct me here, to
+just drop the relation to the I2C host lock. Your Si5351 clocks are not
+derived in any way from the clock used by the I2C hardware in the JZ
+SoC (unless they are?), so I think they should just not have any
+parent.
+
+> It's not my role to give you a solution. I'm just commenting on
+> what I see.
+>=20
+> Besides that, is that an issue you have encountered yourself? Is
+> it a frequent issue?
+>=20
+> Thanks,
+> Andi
 
 Cheers,
-Peter
-
-> 	 * Possible idle states are:
-> 	 *  - I2C_MUX_IDLE_UNKNOWN: Unknown idle state
-> 	 *  - I2C_MUX_IDLE_AS_IS: Leave channels as is when idle
-> 	 *  - I2C_MUX_IDLE_DISCONNECT: Disconnect channel (set HiZ when idle)
-> 	 *  - <n>: Enable channel n (starting from 0) when idle"
-> 	 *
-> 	 * Default value is set to I2C_MUX_IDLE_UNKNOWN.
-> 	 */
-> 	int idle_state;
-> 
->      [...]
-> };
+-Paul
