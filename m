@@ -1,91 +1,108 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3F3C3DA7E0
-	for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 09:41:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A6BC3D79FB;
+	Mon, 20 Jul 2026 09:51:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784540516; cv=none; b=Va+EvYR56lDrafAqUF3J33jkp5bXbbbVSc8s8BOSUsW0D8Ytqhw4lTNcS+no/3rTBn/yhO966M/X6aSCHvQXmDq07c5b5NL7yMZ32St7WnyMQXndjtTRkQ3IKlweCY5An5OFYCkEJGWsR/J709ElbVMPbfLs+MHEYgkq/89Rg/M=
+	t=1784541084; cv=none; b=QZBFaQtnIFSUnambOwW4qklWXRSoa2RJfBtXphEiDK8BM7F025acu3VmexPWdQX0QQ+SYhrmlDZkF7rMc2aU2NUcBwQSLmkjbb3FamyqMCLLnO2PBzmIQnFC3D3aBlkYEjHH9mY+THslppvo7lj1319FqyXtoaDAftVHZh32neQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784540516; c=relaxed/simple;
-	bh=lR1RewoAZbIahGA8KBdG5nh8j880NEupATIBBXBivDs=;
+	s=arc-20240116; t=1784541084; c=relaxed/simple;
+	bh=/GSrZLzHLAwJoAuaU+EelKF/9lrhUVZsoCwr10rnRsU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p5cf/w10ZX+TQOs/CG9CwyXJdh18BJyu4sZohpuNn1utbXaZy0w6JzUNUEknjvxbNvLUO57JfwJWAemlFZUQy5LXV3FD8fO0TeFAP7uJRRcR2ge6g9Eftaba7sFR5J/xIi9rpOwX+ZvyRF8IePL28U+769pjZ4UBosNsCZT0O4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=dKgt1tBV; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=PIWMWM8M1vCU5DHo4U5mYQ00NMnn2MrIm7B6rmTLneQ3Gz2/cPcSOYuvzKVcuZ6X137D8NB+761JSKueokWygq1YYR66Gr9fGkB4EkkryYRmYbp97h5o632NJ6vctq7SN1+TOvuUF/ixD78aMwEFnSXiRXJl+lPJr/wFWpXOxlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nSWx/6O2; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="dKgt1tBV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=PVbz
-	oDnpVKgVDd4gX36wEhQdxOoPAfSCiS1SYLlMuPY=; b=dKgt1tBVRUujW/Or9cUu
-	Njja0ewW303cV+XaqwFoCQhB4c92qFLo6R2X6sOWdGkc8aBgR5JQFhIWaEWcAIhT
-	ELaWXGkWF4TQf045bOVNttofBiEbrSDZ3+Yqm8D9+bax3qCI5R5C+MS0DeCcijN9
-	Fss16LtdQO5O0f9FhrRmDaKyVHMHZp98odmgKivqaj71XmC1opc0ba/4i74Ct9Gi
-	DuyHeZ0ZR3DyqPF5BXuurNzEbn5sfPu0hp8WuGPLN9FFs7vr0LkZCnFCvUaW6fvD
-	CQK/udY2wPkxN7LbOq1oXh8N0ro3KVlKbavEV+FZHj5TiDVYGPc1jiUWwDFBFFzV
-	pQ==
-Received: (qmail 2419193 invoked from network); 20 Jul 2026 11:41:39 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Jul 2026 11:41:39 +0200
-X-UD-Smtp-Session: l3s3148p1@XpiKtgdXCtIujntM
-Date: Mon, 20 Jul 2026 11:41:39 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nSWx/6O2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1784541084; x=1816077084;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=/GSrZLzHLAwJoAuaU+EelKF/9lrhUVZsoCwr10rnRsU=;
+  b=nSWx/6O2zZJ7sjfg6d69j2kkKp1ubRqwk1x2lfxr9L5P0XKB9N1uZQgk
+   25slxR+oeLdlKsHVtl9OeSY5AgM+TxnKkZeBm1TDopUYYhqPJ/Lv0NHQR
+   zLVvM8FhFjSl1n14Sjt7AM2SVam93RK9p+AChGclz+vBl/a+44LeLuIdf
+   z9V5TaPI9yliRveWYkSmosAt2LX3og58zhCLAGihUMPvZxMHimd9Ie+5p
+   nxMgytTKM3Qig0Y4NB/rZheEbCctopSIIZpZ6UXg/jYibgZHmMijq3nSZ
+   yJMdoY0DEuufEkENtFXXAWWpcEQHZSzgTFl/1juIea29jCloZ14dBcuo0
+   A==;
+X-CSE-ConnectionGUID: mXUUhgRwTBKE1l8oR9zFVw==
+X-CSE-MsgGUID: 2OGbnS93TQieuSxz2jd/ZA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11851"; a="95476740"
+X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
+   d="scan'208";a="95476740"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 02:51:23 -0700
+X-CSE-ConnectionGUID: wz5N29qhQXG9ojqwuruTYg==
+X-CSE-MsgGUID: CEv0O1bZSwGTBKE9MPXPOw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
+   d="scan'208";a="261216343"
+Received: from conormcd-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.175])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 02:51:18 -0700
+Date: Mon, 20 Jul 2026 12:51:16 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+	"Mario Limonciello (AMD)" <superm1@kernel.org>,
+	linux-acpi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+	linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	ibm-acpi-devel@lists.sourceforge.net,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Len Brown <lenb@kernel.org>, Mika Westerberg <westeri@kernel.org>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	"Joerg Roedel (AMD)" <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Doug Berger <opendmb@gmail.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Srinivas Kandagatla <srini@kernel.org>, brgl@kernel.org,
-	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-	iommu@lists.linux.dev, netdev@vger.kernel.org,
-	linux-pm@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, mfd@lists.linux.dev,
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org
-Subject: Re: [PATCH 2/8] i2c: pxa-pci: use platform_device_set_fwnode()
-Message-ID: <al3tU6t0LQdWYoNX@ninjato>
-References: <20260720-pdev-set-fwnode-instead-of-of-node-v1-0-2dee93f42c54@oss.qualcomm.com>
- <20260720-pdev-set-fwnode-instead-of-of-node-v1-2-2dee93f42c54@oss.qualcomm.com>
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Hans de Goede <hansg@kernel.org>
+Subject: Re: [PATCH v2 5/6] PCI/VGA: Convert to use
+ acpi_dev_is_video_device() helper
+Message-ID: <al3vlIdpQBBLeTI9@ashevche-desk.local>
+References: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
+ <20260714185915.865396-6-andriy.shevchenko@linux.intel.com>
+ <c7c0e201-0b34-ac87-232a-548b0307969a@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260720-pdev-set-fwnode-instead-of-of-node-v1-2-2dee93f42c54@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c7c0e201-0b34-ac87-232a-548b0307969a@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Jul 20, 2026 at 11:24:49AM +0200, Bartosz Golaszewski wrote:
-> Prefer the higher-level platform_device_set_fwnode() over the
-> OF-specific platform_device_set_of_node() for dynamically allocated
-> platform devices.
+On Mon, Jul 20, 2026 at 12:04:04PM +0300, Ilpo Järvinen wrote:
+> On Tue, 14 Jul 2026, Andy Shevchenko wrote:
+
+...
+
+> >  #if defined(CONFIG_ACPI)
+> > -	struct acpi_device *adev = ACPI_COMPANION(dev);
+> > -
+> > -	return adev && !strcmp(acpi_device_hid(adev), ACPI_VIDEO_HID);
+> > +	return acpi_dev_is_video_device(ACPI_COMPANION(dev));
+> >  #else
+> >  	return false;
+> >  #endif
 > 
-> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> How about adding a stub for acpi_dev_is_video_device() if !CONFIG_ACPI
+> so this code can do without ifdeffery?
 
-Fine with me.
+So far it's the only the case where it may gain something, but overall
+it's not required, all other current users already implied that. So,
+I do not see the value in this churn. When we have more such users,
+we may reconsider.
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Note that we still need Andi's ack.
 
