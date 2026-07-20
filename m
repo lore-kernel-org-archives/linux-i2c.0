@@ -1,121 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89D7C3BAD95
-	for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 16:01:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C70043934D
+	for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 16:17:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784563303; cv=none; b=I+zbgp0D/dN6iusgD6UfmCNahxv7C+JQo2VbX/X/GmE0/STZAOYDIWp2wdRcAN52uDXBMNvXnseh6oTnVuyUGFiTbcGKjvHHoap+zr67blJBVIA4XoZVebzGkPnQ5l7xcZQ4XUDY2as1HkRuQi2431FlhlPeXlgkrzPl0JEgWtg=
+	t=1784564251; cv=none; b=RCUKXyRe9Q/vPkOaT6ZS4S4BbAce2TBuXfpAtjI5+Jjad0ilyQJUyAbL6pZkuyoalNc8k1b6BDBCy8Tt6d+leyndmE+McFh1gHQvyu2j2CO0cFM4fkrsSmGBVNdIBmRMjPD6Zw6OTs95tuB5lJGULp91mspbwysIYHZesQP0l84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784563303; c=relaxed/simple;
-	bh=ikfWm5DL/5sYnkDYH488sa/zQcW6oHrRAu4seAl+qa4=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GoyDsFMn6RGcdtNiXBQYG7ur+iA3AmXbPJNLK0FCjtp+OGLCRJvVDg5ApVuJxyAg7rR0+d8Yd5fn+rb3mCM29CfQW3ieFyElHE1Qu6jPYrxLj1ZmH3ux7G27KBJG/hYZ9BJoIGbNUuIoLWXsxXBmZy3YJnKxQoRlQEzvZ/EDjhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CmI9exjG; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784564251; c=relaxed/simple;
+	bh=pwEE6fibC3x6lQyfDb+v+RGRyll+J5mMBnA1XQCUdSQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bcd0LdndNVkMkketeI1wrce8HgaBaDY/1rEX7OYQgiBoSE+tukkYcaHbNh4qKtxsaIRCiyRt82d5pipFqP36XUKYmfzHXsHbZQdJzkExtlWJpfNE1qTOSpzv4iJBlj4dbXK0STV1/x+Dh92w6MGiy5dQVs/whG11CcBpu2Hreg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WrkwtfkE; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CmI9exjG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B3D1F00ACA
-	for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 16:01:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784563301;
-	bh=cy2ZkxCpNVSDLVTKtd8tQZtQMok6N80r7SDOQ9XS6Ps=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=CmI9exjGe/Q9lpN/jDKjGYcZAhE82h4JhNs/XWbdbT2QKOv9Vt/lJRkWSNzc2sTDK
-	 bT7H2HlxBn7PRd35GrUlcJXAkBZ/htEGpxajzqT8x+LQ9JKk55GrVmyrUIS+VwrASy
-	 ex7zrBxyL4kKER0PbZqRA66QIdxuVaYzzXmIP4+VcaHIcdtYLEOA+9DLMG2S+JTXPB
-	 7Dja9EFj7xhGycntJmC877y3Ph7X6yhMSvvn0ClkvGzRg4VXz75VMJGEj8vEBkESvB
-	 HWh8zfEm7bAVxCLzbZXYqaMpxHTM9TEEaYT8KSHa+fLKy+x1CPl/UGD5zTR0ZeiVqX
-	 P9CvaeVK0zUyg==
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5b01146b205so7627565e87.2
-        for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 09:01:41 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RobNPQ9JgoB30CN7l2L6DGT80rYVXjEMOmhkZz3lwnGaxrt/tNKeTXSUJSXDrwvmG0AH8lwSFB1R98=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwTir99oD9WAorkSGI1e1zkMbHUxVvo22DnKKAe0oA9dMtk7q7C
-	pcA05rG2DO0R0vzXWvg8OXW20tT5rYbHxPmJB4rws8tyNMhN9Kx80fAGoE0ImOG5qxfEAJzxMKj
-	oQVO46Jk0Z+9sQwl6m+N5t+vOlt1c13erVn3OqfCgYg==
-X-Received: by 2002:a05:6512:23a5:b0:5b0:1ab1:2640 with SMTP id
- 2adb3069b0e04-5b28f9a56f2mr2858457e87.41.1784563299555; Mon, 20 Jul 2026
- 09:01:39 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 20 Jul 2026 18:01:37 +0200
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 20 Jul 2026 18:01:37 +0200
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <86b2aba7-b049-47e6-bc94-6cb499b30ce4@lunn.ch>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WrkwtfkE"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c9fe3c9bd5fso2536818a12.0
+        for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 09:17:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784564247; x=1785169047; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=bgWQqTl41PqRe7SjquS4u/1d/gci4UsHSjvtso+pedQ=;
+        b=WrkwtfkEcugP8+LlhTWYVodze2uxUaw4UknXzSbamJHUTLYfT6ffFFgwrMrpibpTX/
+         THYIk9X8Qso8qyU+Tv16nEIZtNucu5LvqHtF+/xtc/SBk6rITRnEZ/T+v7sreU53pGz/
+         SvKo7r83d3dO0WhZ7mcYvbZrNVqMFevvhAgrTtLBGyjdbSYV61suJp0HzdRRpT7tL4Za
+         5IWgod+vPzv7Qs+Ww9ZmFdVJ/4PeHY/K7N4H0W2qnFlmn8xadnghJPvHZjVqKN/n2hA+
+         yELhgObUJt4jNayVHkmPivafI2wt4+kBU4abo/jp7QDhIoSDLt+5Zj/mltKVlCWLRfau
+         ltCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784564247; x=1785169047;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bgWQqTl41PqRe7SjquS4u/1d/gci4UsHSjvtso+pedQ=;
+        b=U7PiKZOZIKfHwmhF7LjJtsK0aGn6pj58g2juoL+GnMhUYCIn7wn1m+OnbZA26NkqPJ
+         XQr8MBjvl9I26FWqNrGn/EyiCKP4PqvR/p4LeY43tz4MC3H5W7QT747pfT1zE4GvxWJr
+         /fBDADsNe0anU6RZpRJ1BWxagFcR1L184caTdlb/UpdrK2XKYak1LoXUEfbShaddtu6u
+         L9FQhiM8tzLXTAhbPMwRDmlkBLpxeROXP3hdkOwQ/KpBaMd4+fvLxmGSGmpkf2QF0xoN
+         Hh8zDUPjVJy8y5cVp8Mjrl88Edc/YzckFNgHB1p48DF/jP/wtcLp65OPGn3Hrpl+oTf2
+         9cRQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrXk3skjJ7yH0wiE6zvtGmzsS0SteZpVSIjO0Pi0HJyr1myb+TWZIonGbc89+Z+4QLWxzTl0R3RIeo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzBlCvEUpbYcjpBcfBdOm4LmVql9VjlGZIpI8VDgC2wAZHrzBw5
+	+o5tE9Tro0SETLyfrBnv7gpxXgj8ISzr2b335mA2Jb4eTIL8j/SHdWsb
+X-Gm-Gg: AfdE7cl2k7Rkw3d9feIFeQi/zjtdYGRo9FP7CY6hUHp07CbfrDBbMIwvv9JMPKR0CFr
+	wqut+pkae3L9Df8Wm4clE7tKJLfwnZfXLHW6NPz9jK7/LyLHrOt3DQ17oo2uqv/eaC62sVsZwpf
+	xYE7IodWU9+xlb6XDzGVscPpPwnvd5LHPwkvOKh51xl2KiW/vi2ERZkltsup3AOghoC0qzOwVpR
+	3Yp4pa1HAylFArECKq0kKEIzf0z3+z0kEszJoNa9aIJKAdsdXjGuf8LKyGHuIeTc7kOCmJ3rrok
+	nBYRBm0t+EHNkHr5jPLtEaKhjzkObMEWn1gU3xsRxE/qGrT9P2ezUEgmu4oPAfJ3JZTPOWwuIhs
+	siA7ytIcpPPOmtoXcbNGl/lzdF/Z/qb/Qy6jpeqdJJ5Q/3pmFrRJtM4mIoMAXgYVOg4sYIuF4Ep
+	MBXqXUYAqNYl1b2JrzbCNsoZNLiw==
+X-Received: by 2002:a05:6a20:939f:b0:3bf:ecf8:abe with SMTP id adf61e73a8af0-3c38d512647mr21472934637.0.1784564246909;
+        Mon, 20 Jul 2026 09:17:26 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3142a1ddeb6sm43145565eec.20.2026.07.20.09.17.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Jul 2026 09:17:26 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Mon, 20 Jul 2026 09:17:25 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Janne Grunau <j@jannau.net>
+Cc: Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Mark Kettenis <kettenis@openbsd.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
+	Sasha Finkelstein <k@chaosmail.tech>, asahi@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-pwm@vger.kernel.org
+Subject: Re: [PATCH 06/11] dt-bindings: watchdog: apple,wdt: Add t6030 and
+ t6031 compatibles
+Message-ID: <f0d4a047-5dd3-484b-9fb0-89c12bd93ad0@roeck-us.net>
+References: <20260709-apple-t603x-initial-devices-v1-0-55b305833123@jannau.net>
+ <20260709-apple-t603x-initial-devices-v1-6-55b305833123@jannau.net>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260720-pdev-set-fwnode-instead-of-of-node-v1-0-2dee93f42c54@oss.qualcomm.com>
- <20260720-pdev-set-fwnode-instead-of-of-node-v1-7-2dee93f42c54@oss.qualcomm.com>
- <86b2aba7-b049-47e6-bc94-6cb499b30ce4@lunn.ch>
-Date: Mon, 20 Jul 2026 18:01:37 +0200
-X-Gmail-Original-Message-ID: <CAMRc=Mduv_KiB42d4AZddTrFSHmKogd2wh6vBDXomW6ssdfq9A@mail.gmail.com>
-X-Gm-Features: AUfX_mzoRVqC1tUK_OfVS-B_bFewvPArrOEoPGLWKm-p7iGJrfuSSI_-EnPQPN4
-Message-ID: <CAMRc=Mduv_KiB42d4AZddTrFSHmKogd2wh6vBDXomW6ssdfq9A@mail.gmail.com>
-Subject: Re: [PATCH 7/8] net: mv643xx: use platform_device_set_fwnode()
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	"Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Doug Berger <opendmb@gmail.com>, 
-	Florian Fainelli <florian.fainelli@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Ulf Hansson <ulfh@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Srinivas Kandagatla <srini@kernel.org>, brgl@kernel.org, 
-	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	iommu@lists.linux.dev, netdev@vger.kernel.org, linux-pm@vger.kernel.org, 
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	mfd@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-sound@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260709-apple-t603x-initial-devices-v1-6-55b305833123@jannau.net>
 
-On Mon, 20 Jul 2026 16:43:40 +0200, Andrew Lunn <andrew@lunn.ch> said:
-> On Mon, Jul 20, 2026 at 11:24:54AM +0200, Bartosz Golaszewski wrote:
->> Prefer the higher-level platform_device_set_fwnode() over the
->> OF-specific platform_device_set_of_node() for dynamically allocated
->> platform devices.
->>
->> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
->> ---
->>  drivers/net/ethernet/marvell/mv643xx_eth.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
->> index 9caa1e47c174c9d7a161b7f2e2ee12a829b813d4..2f2d6cce8d852b9ec3ab42678a04a7915d1f00cc 100644
->> --- a/drivers/net/ethernet/marvell/mv643xx_eth.c
->> +++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
->> @@ -2780,7 +2780,7 @@ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
->>  		goto put_err;
->>  	}
->>  	ppdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
->> -	platform_device_set_of_node(ppdev, pnp);
->> +	platform_device_set_fwnode(ppdev, of_fwnode_handle(pnp));
->
-> This is definitely an OF only driver. There are no other calls to
-> fwnode functions in this driver, so this is the wrong thing to do.
->
-> Sorry, NACK.
->
+On Thu, Jul 09, 2026 at 09:30:52AM +0200, Janne Grunau wrote:
+> The watchdog on Apple silicon M3 Pro, Max and Ultra SoCs is compatible
+> with the t8103 (M1) one. Add "apple,t6030-wdt" for M3 Pro and
+> "apple,t6031-wdt" for M3 Max and Ultra as per-SoC compatibles.
+> 
+> Signed-off-by: Janne Grunau <j@jannau.net>
+> Acked-by: Conor Dooley <conor.dooley@microchip.com>
 
-I'm not going to die on this hill but drivers are OF-only until they're not.
-For example, Qualcomm is now working on a hybrid ACPI-OF approach for
-laptops[1] and we may end up needing to start converting drivers to fwnode
-after all.
-
-There's no real benefit to sticking to OF-specific APIs unless you need to
-iterate over all properties of a node or use some other functionality not
-available in fwnode. The overhead is minimal and it's never a hot path.
+Applied.
 
 Thanks,
-Bartosz
-
-[1] https://lore.kernel.org/all/20260623145225.143218-1-johannes.goede@oss.qualcomm.com/
+Guenter
