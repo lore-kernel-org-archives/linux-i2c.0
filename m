@@ -1,131 +1,71 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 576873BD64A;
-	Mon, 20 Jul 2026 09:39:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3F3C3DA7E0
+	for <linux-i2c@vger.kernel.org>; Mon, 20 Jul 2026 09:41:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784540366; cv=none; b=G6sTuK8NvLczUcEVrC1fZa0yJAGTBY2no4lUPbhJqvVv35AASvNsHlBatYGDBfgQlxEJsFBSo7Rqb/eALsfnn6wmowtZ+sA+m6WCrmL9JkG5mW+VMFI+mXtEshqeueZGuhSfikKHayRYSHiHFOJgJ8C6OIBCJTHZvjyS9gtIKzk=
+	t=1784540516; cv=none; b=Va+EvYR56lDrafAqUF3J33jkp5bXbbbVSc8s8BOSUsW0D8Ytqhw4lTNcS+no/3rTBn/yhO966M/X6aSCHvQXmDq07c5b5NL7yMZ32St7WnyMQXndjtTRkQ3IKlweCY5An5OFYCkEJGWsR/J709ElbVMPbfLs+MHEYgkq/89Rg/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784540366; c=relaxed/simple;
-	bh=8yvWTYbYBGZHHcLjIbER34ILyGhNaja8leys0MdkVFQ=;
+	s=arc-20240116; t=1784540516; c=relaxed/simple;
+	bh=lR1RewoAZbIahGA8KBdG5nh8j880NEupATIBBXBivDs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GRqN56aBbFpcJ1Ly8v1GS3Vst3HkeR2PoRKaSJnosADW+jMKdreJOK4QWzEcn0iH6311RirkfvOcfG+fz4bG7WzZA8UCt+fFgIAYhtZpmV1FmsMj7NlSXTkIEQUPau19cxoWWUHqLxiXrcipAI4KPlLiKeb1kMiPdItLDDx8NoI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KTS/WRn4; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=p5cf/w10ZX+TQOs/CG9CwyXJdh18BJyu4sZohpuNn1utbXaZy0w6JzUNUEknjvxbNvLUO57JfwJWAemlFZUQy5LXV3FD8fO0TeFAP7uJRRcR2ge6g9Eftaba7sFR5J/xIi9rpOwX+ZvyRF8IePL28U+769pjZ4UBosNsCZT0O4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=dKgt1tBV; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KTS/WRn4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1784540364; x=1816076364;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=8yvWTYbYBGZHHcLjIbER34ILyGhNaja8leys0MdkVFQ=;
-  b=KTS/WRn4hC64SXomcj8OZDgv1c/75sr512hJ3ZZFOcn/Hz2j9Y9jUoL5
-   F2e+OqhVszGdUTiQ8gFa21IWsAwRL5NL4agOEdBKXNXj2/5XleLx2segL
-   Dk4x4iOBE2N/2Ois/Ww1kLHTyw2za1XN+80oavKfNGr+HKHwjVMBVuWAo
-   ieR3UZ5XBhpm7Zj7akq7FaZFCS9NSIbDOMwrO25uQDKI0WMShkt0G+f9M
-   25PvW79ouLpjIBPXpFkB88q1yZQVg2V/olRE0dNbotb9btcIBQM1VJEkm
-   ms64R1mv8sTuuOBGo4/IM41QgQy1HQET/Z3FsZmraa/F+L6x5Weqg2HY+
-   A==;
-X-CSE-ConnectionGUID: tjOSX/HpTCmrIrOHrf6Qaw==
-X-CSE-MsgGUID: 1SJcmtt2S4Oxv7DLT2gBxQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11851"; a="107904617"
-X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
-   d="scan'208";a="107904617"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 02:39:23 -0700
-X-CSE-ConnectionGUID: nA9+Vz6sSKmkO0mDbOt0pw==
-X-CSE-MsgGUID: jJmd9OFtSVWnkAUWymXgRA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,174,1779174000"; 
-   d="scan'208";a="257477511"
-Received: from kniemiec-mobl1.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.244.94])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jul 2026 02:39:14 -0700
-Received: from kekkonen.localdomain (localhost [IPv6:::1])
-	by kekkonen.fi.intel.com (Postfix) with SMTP id 96736121C07;
-	Mon, 20 Jul 2026 12:39:16 +0300 (EEST)
-Date: Mon, 20 Jul 2026 12:39:16 +0300
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-To: Link Mauve <linkmauve@linkmauve.fr>
-Cc: Srinivas Kandagatla <srini@kernel.org>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Tianshu Qiu <tian.shu.qiu@intel.com>,
-	Bingbu Cao <bingbu.cao@intel.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
-	Lee Jones <lee@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	"Vaibhaav Ram T.L" <vaibhaavram.tl@microchip.com>,
-	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>,
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	=?iso-8859-1?Q?Andr=E9?= Draszik <andre.draszik@linaro.org>,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Praveen Teja Kundanala <praveen.teja.kundanala@amd.com>,
-	Kalyani Akula <kalyani.akula@amd.com>,
-	Michal Simek <michal.simek@amd.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Joshua Kinard <linux@kumba.dev>,
-	Antoniu Miclaus <antoniu.miclaus@analog.com>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun@kernel.org>,
-	Gary Guo <gary@garyguo.net>,
-	=?iso-8859-1?Q?Bj=F6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
-	Benno Lossin <lossin@kernel.org>,
-	Andreas Hindborg <a.hindborg@kernel.org>,
-	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="dKgt1tBV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=PVbz
+	oDnpVKgVDd4gX36wEhQdxOoPAfSCiS1SYLlMuPY=; b=dKgt1tBVRUujW/Or9cUu
+	Njja0ewW303cV+XaqwFoCQhB4c92qFLo6R2X6sOWdGkc8aBgR5JQFhIWaEWcAIhT
+	ELaWXGkWF4TQf045bOVNttofBiEbrSDZ3+Yqm8D9+bax3qCI5R5C+MS0DeCcijN9
+	Fss16LtdQO5O0f9FhrRmDaKyVHMHZp98odmgKivqaj71XmC1opc0ba/4i74Ct9Gi
+	DuyHeZ0ZR3DyqPF5BXuurNzEbn5sfPu0hp8WuGPLN9FFs7vr0LkZCnFCvUaW6fvD
+	CQK/udY2wPkxN7LbOq1oXh8N0ro3KVlKbavEV+FZHj5TiDVYGPc1jiUWwDFBFFzV
+	pQ==
+Received: (qmail 2419193 invoked from network); 20 Jul 2026 11:41:39 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Jul 2026 11:41:39 +0200
+X-UD-Smtp-Session: l3s3148p1@XpiKtgdXCtIujntM
+Date: Mon, 20 Jul 2026 11:41:39 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
 	Danilo Krummrich <dakr@kernel.org>,
-	Daniel Almeida <daniel.almeida@collabora.com>,
-	Tamir Duberstein <tamird@kernel.org>,
-	Alexandre Courbot <acourbot@nvidia.com>,
-	Onur =?iso-8859-1?Q?=D6zkan?= <work@onurozkan.dev>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Johan Hovold <johan@kernel.org>,
-	Ronald Claveau <linux-kernel-dev@aliel.fr>,
-	Salah Triki <salah.triki@gmail.com>, Yury Norov <ynorov@nvidia.com>,
-	David Carlier <devnexen@gmail.com>,
-	Achim Gratz <Achim.Gratz@stromeko.de>,
-	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
-	Patrick Wicki <patrick.wicki@siemens.com>,
-	Markus Heidelberg <m.heidelberg@cab.de>,
-	Markus Perkins <markus@notsyncing.net>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
-	Chen Ni <nichen@iscas.ac.cn>, Kees Cook <kees@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-omap@vger.kernel.org, mfd@lists.linux.dev,
-	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-msm@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com, linux-rtc@vger.kernel.org,
-	linux-sunxi@lists.linux.dev, rust-for-linux@vger.kernel.org
-Subject: Re: [PATCH 8/8] media: ov2740: remove NULL reg_write callback
-Message-ID: <al3sxMUgeK49dwNs@kekkonen.localdomain>
-References: <20260715175229.24672-1-linkmauve@linkmauve.fr>
- <20260715175229.24672-9-linkmauve@linkmauve.fr>
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Doug Berger <opendmb@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Srinivas Kandagatla <srini@kernel.org>, brgl@kernel.org,
+	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+	iommu@lists.linux.dev, netdev@vger.kernel.org,
+	linux-pm@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, mfd@lists.linux.dev,
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org
+Subject: Re: [PATCH 2/8] i2c: pxa-pci: use platform_device_set_fwnode()
+Message-ID: <al3tU6t0LQdWYoNX@ninjato>
+References: <20260720-pdev-set-fwnode-instead-of-of-node-v1-0-2dee93f42c54@oss.qualcomm.com>
+ <20260720-pdev-set-fwnode-instead-of-of-node-v1-2-2dee93f42c54@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -134,42 +74,18 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260715175229.24672-9-linkmauve@linkmauve.fr>
+In-Reply-To: <20260720-pdev-set-fwnode-instead-of-of-node-v1-2-2dee93f42c54@oss.qualcomm.com>
 
-Hi,
-
-On Wed, Jul 15, 2026 at 07:52:24PM +0200, Link Mauve wrote:
-> This field is already initialized to NULL, so there is no reason to
-> write it again.
+On Mon, Jul 20, 2026 at 11:24:49AM +0200, Bartosz Golaszewski wrote:
+> Prefer the higher-level platform_device_set_fwnode() over the
+> OF-specific platform_device_set_of_node() for dynamically allocated
+> platform devices.
 > 
-> This prevents it from appearing while grepping for reg_write in the
-> future.
-> 
-> Signed-off-by: Link Mauve <linkmauve@linkmauve.fr>
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 
-I believe we need a real name here.
+Fine with me.
 
-> ---
->  drivers/media/i2c/ov2740.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/media/i2c/ov2740.c b/drivers/media/i2c/ov2740.c
-> index fb590dfadda1..799eca4023da 100644
-> --- a/drivers/media/i2c/ov2740.c
-> +++ b/drivers/media/i2c/ov2740.c
-> @@ -1271,7 +1271,6 @@ static int ov2740_register_nvmem(struct i2c_client *client,
->  	nvmem_config.compat = true;
->  	nvmem_config.base_dev = dev;
->  	nvmem_config.reg_read = ov2740_nvmem_read;
-> -	nvmem_config.reg_write = NULL;
->  	nvmem_config.priv = nvm;
->  	nvmem_config.stride = 1;
->  	nvmem_config.word_size = 1;
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-I think it'd be nicer to do the initialisation in variable declaration --
-all the information is available already there.
+Note that we still need Andi's ack.
 
--- 
-Regards,
-
-Sakari Ailus
