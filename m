@@ -1,61 +1,72 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574A130C15A;
-	Mon, 20 Jul 2026 17:01:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 680FF3BBFA3;
+	Mon, 20 Jul 2026 18:29:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784566861; cv=none; b=Z/ky/4XwWGOStemJvn7ZsHu+5VgMvvyQ1fSl3DR7khzrCoj15pJYXy49gGjmWEQdA/cqP0ixx3AyBF4qyWvo7Pzqg0QTp+K9UzAKkKOvwZVbyH/S51d5S4t4f/opajg9RmAao1JaZlK1UdkV4cKJRaXpU7rDPaIuf0XbqInviBs=
+	t=1784572154; cv=none; b=ICFez2zcg/5XExLuRs0Uz7320ULKSlFxHaLXAL7smDHTCta/twI84c18zmooLkb947/5MCOeOGEJrHs+kCFXVReG/T03ZNYa69tCWHVaA1LvL/AYoyJTPTKM4Yk+yS86Mtt5lsGsuX1/ugzRdb7RkgKtMGtBvR1S1oR2AisGrrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784566861; c=relaxed/simple;
-	bh=ZnocIwDopiqqJVtg7Vh0BtT5txebzTbq20nDoe2yfWQ=;
+	s=arc-20240116; t=1784572154; c=relaxed/simple;
+	bh=tfVWCL5gWoa3QiT5HZTS6PeE9CWbDfu6g4fGN5mDciM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S9qkkmpZDY6vP34kQ7Q1+gA+VuSiREXRBgTF7JYoXeKw7UYluOUGji6R1pif5JzjUeoWo2zMIxsipsy/SHeyxhBDRo83ppv/7msH63wp0bOT66aSASSmrOgFv7fC5ik7khtvq8ZHRVfdpUwxmVkO7AYnufWhIpiThWXIgyWMEaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=NO3JayVd; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=IXY+/Sw+K3XP6ICabAiAnICEoU68sMmsppgZYGp+SCpJBjaxpdVMIQAEUDGRiZ2hgyrb+UxfdD36ZoBnjkBM+8XT7b0xdY3WFDuyW3pOHITxnxaD6fXf7xCz51nLyHrW7EsoF24oFCp+QA6fqL5RANDPAi0wJzM0R26W7uIgiVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=aXfSe1ax; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="NO3JayVd"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id ADC061A10FF;
-	Mon, 20 Jul 2026 17:00:58 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 7C80260360;
-	Mon, 20 Jul 2026 17:00:58 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 2CC2111BD0382;
-	Mon, 20 Jul 2026 19:00:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1784566857; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=mZZOF6F/+6qbNKDZNrs6o2rZDEXs+kob5JewkcsaTMI=;
-	b=NO3JayVdQ3CLT/6I5bhNFXPmsyyk3gjtLO74861rznSjjAiL0jbKD4m/9c7UTOuXhyAZIE
-	hK/5x73D6QSBO6KzbYGfA8N2DK7QfB3w0lUQaN293kooZPGiZwXbqtSsOuOm0b/2gdyxe5
-	uoIfaTD8Y7wFX5SCHtuKQrQjcTq+1VykLD3I+wGic9mG0oGlfuOiV4pgz2WvJJABCwuE7i
-	fiRRx9Mq54xB5lnICoVgjRkZ+SYxwhArSIUOW8i5Hx2K2DiXxVsaKuEx+80N3eA+Yb8DZz
-	9FlCpISUFqqIZ+0NJrAH3crNikvFUwc3QiLr1vU1wpoqTvn1YUpNxlpOMtKdaw==
-Date: Mon, 20 Jul 2026 19:00:52 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Harshit Shah <hshah@axiado.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, Jan Kotas <jank@cadence.com>,
-	Michal Simek <michal.simek@amd.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	=?utf-8?Q?Przemys=C5=82aw?= Gaj <pgaj@cadence.com>,
-	Frank Li <Frank.Li@nxp.com>,
-	Boris Brezillon <bbrezillon@kernel.org>,
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="aXfSe1ax"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=yLMgkHL29YuNPW+/3QaUsRDGEETcaDq11JerkMxi71U=; b=aXfSe1axWn1ivOd2Cu9BO1RFeq
+	hWgF1UgIJeW3prZhNqGQBXWrgbuTuwyexLgmgUNYx2N/ldKGruFnJsUHlN1z27mAm6jFGqs2hs9gA
+	ahOJFCbMr0Yi7Jx28dCpVd/erX67Wj6OVBy/j8nQ7Y54VjyLQTQQ9WeRLH9Gg27QXLhQ=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1wlsjH-00DJ6A-QN; Mon, 20 Jul 2026 20:28:39 +0200
+Date: Mon, 20 Jul 2026 20:28:39 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-	Mathias Nyman <mathias.nyman@intel.com>,
-	Swark Yang <syang@axiado.com>
-Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org,
-	linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-	linux-usb@vger.kernel.org
-Subject: Re: (subset) [PATCH v3 4/8] dt-bindings: i3c: cdns: add Axiado
- AX3005 I3C variant
-Message-ID: <178456684519.97914.11616437803490580349.b4-ty@b4>
-References: <20260716-upstream-axiado-ax3005-upstream-v3-4-c429095143ec@axiado.com>
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Doug Berger <opendmb@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Srinivas Kandagatla <srini@kernel.org>, driver-core@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org, iommu@lists.linux.dev,
+	netdev@vger.kernel.org, linux-pm@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	mfd@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+	linux-sound@vger.kernel.org
+Subject: Re: [PATCH 7/8] net: mv643xx: use platform_device_set_fwnode()
+Message-ID: <3e14e41f-ecd5-432b-9f52-690a05b38a8a@lunn.ch>
+References: <20260720-pdev-set-fwnode-instead-of-of-node-v1-0-2dee93f42c54@oss.qualcomm.com>
+ <20260720-pdev-set-fwnode-instead-of-of-node-v1-7-2dee93f42c54@oss.qualcomm.com>
+ <86b2aba7-b049-47e6-bc94-6cb499b30ce4@lunn.ch>
+ <CAMRc=Mduv_KiB42d4AZddTrFSHmKogd2wh6vBDXomW6ssdfq9A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -64,16 +75,62 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260716-upstream-axiado-ax3005-upstream-v3-4-c429095143ec@axiado.com>
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <CAMRc=Mduv_KiB42d4AZddTrFSHmKogd2wh6vBDXomW6ssdfq9A@mail.gmail.com>
 
-On Thu, 16 Jul 2026 20:51:11 -0700, Swark Yang wrote:
-> Add binding for Axiado AX3005 I3C master. So far, no changes
-> are known, so it can fall back to the cdns,i3c-master compatible.
+On Mon, Jul 20, 2026 at 06:01:37PM +0200, Bartosz Golaszewski wrote:
+> On Mon, 20 Jul 2026 16:43:40 +0200, Andrew Lunn <andrew@lunn.ch> said:
+> > On Mon, Jul 20, 2026 at 11:24:54AM +0200, Bartosz Golaszewski wrote:
+> >> Prefer the higher-level platform_device_set_fwnode() over the
+> >> OF-specific platform_device_set_of_node() for dynamically allocated
+> >> platform devices.
+> >>
+> >> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> >> ---
+> >>  drivers/net/ethernet/marvell/mv643xx_eth.c | 2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
+> >> index 9caa1e47c174c9d7a161b7f2e2ee12a829b813d4..2f2d6cce8d852b9ec3ab42678a04a7915d1f00cc 100644
+> >> --- a/drivers/net/ethernet/marvell/mv643xx_eth.c
+> >> +++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
+> >> @@ -2780,7 +2780,7 @@ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
+> >>  		goto put_err;
+> >>  	}
+> >>  	ppdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
+> >> -	platform_device_set_of_node(ppdev, pnp);
+> >> +	platform_device_set_fwnode(ppdev, of_fwnode_handle(pnp));
+> >
+> > This is definitely an OF only driver. There are no other calls to
+> > fwnode functions in this driver, so this is the wrong thing to do.
+> >
+> > Sorry, NACK.
+> >
+> 
+> I'm not going to die on this hill but drivers are OF-only until they're not.
+> For example, Qualcomm is now working on a hybrid ACPI-OF approach for
+> laptops[1] and we may end up needing to start converting drivers to fwnode
+> after all.
+> 
+> There's no real benefit to sticking to OF-specific APIs unless you need to
+> iterate over all properties of a node or use some other functionality not
+> available in fwnode. The overhead is minimal and it's never a hot path.
 
-Applied, thanks!
+There is a lot of benefit to sticking to OF specific APIs, because
+within the kernel OF is well maintained, has active maintainers, there
+are tools to validate bindings, etc. ACPI is a Wild West, each driver
+is a snow flake, there is no review, no binding documentation, no
+validation tools etc.
 
-[4/8] dt-bindings: i3c: cdns: add Axiado AX3005 I3C variant
-      https://git.kernel.org/i3c/c/0dbcbd4c0b7a
+I hope you allow plenty of time to convert any networking drivers,
+where Linux is driving the hardware, to ACPI. Your first stop will be
+the UEFI forum making a proposal for MDIO busses, because that
+currently is not part of ACPI. You will then need to spend time
+understanding the DT bindings, and figuring out which properties are
+deprecated so need to stay OF only, and which can be converted to dual
+OF/ACPI. I've seen too many naive attempts which blindly convert
+everything, copying all the past errors in the DT binding into the
+brand new ACPI binding. That will get NACKed.
 
-Best regards,
+OF != ACPI
+
+	Andrew
