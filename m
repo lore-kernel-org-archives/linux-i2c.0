@@ -1,164 +1,198 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11023136.outbound.protection.outlook.com [40.93.196.136])
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011059.outbound.protection.outlook.com [40.93.194.59])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9671C449B2B;
-	Tue, 21 Jul 2026 03:35:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DC2E7E792
+	for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 05:17:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.59
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784604955; cv=fail; b=lgVQdnUic/AtWOOyqNnitjcTFmo5eWWh5WLCxRQ8Tv2pUlD/H4uVTo7CU2hBEioN2qAV5Z17/3qXmhLpCvsK6WTALrdyEpz0KnfAR6tzL1nWHhKt+gn3Ln+70SeB0ZHUUKVodAPzTD3FF7zJL0FY/VgtF6iwG+61MRX8VLWLkTQ=
+	t=1784611076; cv=fail; b=kl5WuSY+6KfD9AZwphiHPC/uhDg3fvBOUO/zMS1EB8hEvWluo0RJLoFLesHF6qI05RNeP9BBBJ/4hnAICm666ea3nd51RhXb8A76zaYZ7YA9ZVCENpIA2uxOlA0+Kqu/EZp89wUXA3XIkHT6E0xBwM8Lu2RT6Z6NtYQiIVKqDKQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784604955; c=relaxed/simple;
-	bh=pp78jv0ZwDrFX1lInn9wBsuvc5jZEAHvXUkwwJ8s0Pw=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ksot54L5ftnei1lY3EgYy0VuJg4+RjttPCuXOglzJ5JwLZcW36naIffhJwY1dJVZIhSqpTx4DcT51BTo/xp+z3vN87ypcEmuVO3WGuEm+qLRyrTKT5wfAHeY+5b+dw8JSV9GJLfjihvWcuBMQoxX/KbZhzZHvBJqR3YMkdQpmNM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=axiado.com; spf=pass smtp.mailfrom=axiado.com; dkim=pass (2048-bit key) header.d=axiado.com header.i=@axiado.com header.b=GEzQ5cP6; arc=fail smtp.client-ip=40.93.196.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=axiado.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=axiado.com
+	s=arc-20240116; t=1784611076; c=relaxed/simple;
+	bh=PzhpAQCrKSipPGzQyWhIgAgFdw3O47QUeL3OYtSiPCA=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=OFfc6QmLJZDePHnlbttdkQm0KtRSIl0jkxVChKDFORr0H4KUqccvsv6EG6jh2zMmPVBPB3yNAgCN/zo2U0JwEwWhJd1p+h6jlm0DKUiKSGnKKcnzbxVwf5CwZg8/xagYk4ZGyXsO0MH5rhwyDTIOyT9SsA8AcqxI6B9Sw46w0Rk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=iTxGwBvD; arc=fail smtp.client-ip=40.93.194.59
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=axiado.com header.i=@axiado.com header.b="GEzQ5cP6"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="iTxGwBvD"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pWHqiMec531km7usT3gzKusep6ekZMKGl1f432eVnNNqvfTH84q1jEeTwlbK7Frzudw8tQ1YAX0IyuCkdAGwUUot/IwbhW/8ARRbdeoDvOK6bcDinJKxrRSNh17qceoz2Bs8CzPzMdmoscmCc564wblhWFp28HfniLnoWguaQu6hvHvQjtrN9DPPlY0a/KdYysqe1QaSnENfv340BAND8bvB2iQICC3KcP4Il4zWJ2SCs/SItqx093BC0Er5VcNUgVd/psjaT5fPv5zHJuHLOR5wKS2FRyutYBzjCypdH2LrgMyVp3jR+5YYWMHi/GsEI6x0T/dJCsNnW2RxYOtqHQ==
+ b=mPatXHjQq3ZsB5k5QS+QVmwJVhczgc75Qs9YjVgLZp3wFJPHZKvlpZAGI93xkbvXdpAf41Q/lMOOMbvJZGQRqIPfKIqSLDzS8gHwzdTyq744uB6TDnq2zoRfGZ/5elC4jscyreFdGgPfj7xH3we+Y6zYu2ut9TS7qWGuoLcy3fhUPXJSKZ+VERbJm2uWQJx/bd8P1uUkpZ6FQmBuYmmPFIQGJCcOHBxgYR+4FSHhobxbTe4dH9S//RLaLIDENOf233SzYQXe8g+JeM6IfrBaBaRmY2CKYrDFPOuDfTb+SymaIC2pTY814w++OD0JtHVQHUOud6I00u8RCVIS6ykJgA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ifNlW6cOwUmxo6O010GVrpiidZBf4z7Ya+ujcNUSgfk=;
- b=jxn6yt5VK7n4H72abzyF9+6fzQa89BNr/uhrBvSuvz8MC7B8Ormbe1K8+jqhp+0Lbvn5DIlUc2zRfR0GoWnl48/qZ4jWrI3CmKKaGtmyZRpNMjw251RvVPX7EtwrMj3TlDZUkOO+25PfwZ+ZFphG5/Jt9YuH/26/FN/UYk+tGv99r/CaeYbPlZmDS3m0R+RGQr4lANcGkQyNPjtjfnpd+JgaFYFK1rKv6AhkZD+bKwHKdsFhbBFRMaRB/g4b4Z2zS244C7z0yv5TUbyMQ6UjI39fmxyPMR3qkcZS+KelXY5jrDOyp374eZ7voTwDHqGhCvYY9zE0iB+YKP4B/6x3mA==
+ bh=e+YdhGghZV5sVXSWDCHdmHi3Wm3OsvdT4QwAOuVZzJg=;
+ b=hMqiNVfdC64zMqlBJ4GnRK+oiQI09XPP1pzIIDxRpbyXkAILlliAtOZe976leFqN6YqixVqX25sZmCQpSp2FsPaOBEdhlY7B9j1uvNjB1kk1QDVU4sTw/S0pjW2waJKMU25zqGN554pm5IjR4AdyvdoMMWUj+ECD+tXUCWgC7DtrO2U0vL2Kul1Fqzbun3RJb6Goq46tC1HwFewH/QzL4dmN7NBwk1D5EcuSBHh4u0vJ5/8jKXP65z4jSfhDHIe/nLv8UQVEK9uaTaNJRfsIQ4ZlDPV/1ad1fHh1Cp6i3yXt3UKZqbofjXAvr444NPvbrdrj7UBwbc8XFgPDF7qxvw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=axiado.com; dmarc=pass action=none header.from=axiado.com;
- dkim=pass header.d=axiado.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axiado.com;
- s=selector1;
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ifNlW6cOwUmxo6O010GVrpiidZBf4z7Ya+ujcNUSgfk=;
- b=GEzQ5cP6aLetP7Fkeis5TZFSggUZL6m6hwKaDvW1zrdfSHYO4mLIvzwjgRRMgaVIeFS170+VcJIS8/UNzn1bPg430uB0Vxit6ygDIY6laJza/lRPJRJF1Uz6aT27wGmgnRDQqPfeSC/zSUD4ERXKxIuqAxO1q7yalll0emnSy26LJ8t5o/TyigOQVWFasCUhLqOn3m7OdJ2OnBlqbuBB/nnJEagGtq8nwYQPWRw0uMFedk1UBDnaAIroVRTEm+aE/mKHT9/CsKzOgHZxTB5puBqfe8AgJv6fCE5bloKyunMOvBRrXIdBm7XauQGyQcBFgi5CItI6mCNO+E2StX31ng==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=axiado.com;
-Received: from BL1PPF1B62FD55C.namprd18.prod.outlook.com
- (2603:10b6:20f:fc04::d8c) by CH3PR18MB5643.namprd18.prod.outlook.com
- (2603:10b6:610:19f::9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Tue, 21 Jul
- 2026 03:35:50 +0000
-Received: from BL1PPF1B62FD55C.namprd18.prod.outlook.com
- ([fe80::8726:2e55:848b:39e]) by BL1PPF1B62FD55C.namprd18.prod.outlook.com
- ([fe80::8726:2e55:848b:39e%5]) with mapi id 15.21.0245.009; Tue, 21 Jul 2026
- 03:35:50 +0000
-Message-ID: <0337442c-0278-48e7-9a69-9f11d7325f1f@axiado.com>
-Date: Tue, 21 Jul 2026 11:35:42 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/8] dt-bindings: gpio: cdns: add Axiado AX3005 GPIO
- variant
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Harshit Shah <hshah@axiado.com>,
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
- Jan Kotas <jank@cadence.com>, Michal Simek <michal.simek@amd.com>,
- Andi Shyti <andi.shyti@kernel.org>, =?UTF-8?Q?Przemys=C5=82aw_Gaj?=
- <pgaj@cadence.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Frank Li <Frank.Li@nxp.com>, Boris Brezillon <bbrezillon@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
- Mathias Nyman <mathias.nyman@intel.com>, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-i3c@lists.infradead.org, linux-serial@vger.kernel.org,
- linux-spi@vger.kernel.org, linux-usb@vger.kernel.org
-References: <20260716-upstream-axiado-ax3005-upstream-v3-0-c429095143ec@axiado.com>
- <20260716-upstream-axiado-ax3005-upstream-v3-2-c429095143ec@axiado.com>
- <20260717-prudent-indefinable-labradoodle-fcaa9e@quoll>
+ bh=e+YdhGghZV5sVXSWDCHdmHi3Wm3OsvdT4QwAOuVZzJg=;
+ b=iTxGwBvDJv1QBQRNegf4yoKDn8r1VzsG5ojQc+5jsis77Au7d9nu6yKALFG2cvcVN4rdLD3Wv9+mNOTvBDXYubjjnY1Wm4DjSeLQxDaIbIDr35NAhZ6C6/VMS6cGLxuE9gHrLO9in3sO73x6HqjnEHVYnEhkEuuMzgvH6f2n7fE=
+Received: from DM4PR12MB7765.namprd12.prod.outlook.com (2603:10b6:8:113::5) by
+ LV3PR12MB9402.namprd12.prod.outlook.com (2603:10b6:408:213::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.22; Tue, 21 Jul
+ 2026 05:17:48 +0000
+Received: from DM4PR12MB7765.namprd12.prod.outlook.com
+ ([fe80::9109:fa1f:23b:a10e]) by DM4PR12MB7765.namprd12.prod.outlook.com
+ ([fe80::9109:fa1f:23b:a10e%4]) with mapi id 15.21.0223.017; Tue, 21 Jul 2026
+ 05:17:47 +0000
+From: "Tandra, Vasantha Likitha" <VasanthaLikitha.Tandra@amd.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+CC: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "git
+ (AMD-Xilinx)" <git@amd.com>, "jdelvare@suse.de" <jdelvare@suse.de>, "Datta,
+ Shubhrajyoti" <shubhrajyoti.datta@amd.com>
+Subject: RE: [PATCH] i2c-tools: i2ctransfer: Set I2C adapter timeout using
+ I2C_TIMEOUT ioctl
+Thread-Topic: [PATCH] i2c-tools: i2ctransfer: Set I2C adapter timeout using
+ I2C_TIMEOUT ioctl
+Thread-Index: AQHdGGWzFoL8QftHNkqSgU9s8nk2GLZ2+F+AgAB2jmA=
+Date: Tue, 21 Jul 2026 05:17:47 +0000
+Message-ID:
+ <DM4PR12MB77657106776BE150FDCCF7C093C22@DM4PR12MB7765.namprd12.prod.outlook.com>
+References: <20260720163401.2001860-1-vasanthalikitha.tandra@amd.com>
+ <al6c2VXwLFcNRLu7@shikoro>
+In-Reply-To: <al6c2VXwLFcNRLu7@shikoro>
+Accept-Language: en-US
 Content-Language: en-US
-From: Swark Yang <syang@axiado.com>
-In-Reply-To: <20260717-prudent-indefinable-labradoodle-fcaa9e@quoll>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: TP0P295CA0036.TWNP295.PROD.OUTLOOK.COM
- (2603:1096:910:4::15) To BL1PPF1B62FD55C.namprd18.prod.outlook.com
- (2603:10b6:20f:fc04::d8c)
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+ MSIP_Label_198e8dea-a4f3-4850-b16a-fd6d2b1302b4_Enabled=True;MSIP_Label_198e8dea-a4f3-4850-b16a-fd6d2b1302b4_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;MSIP_Label_198e8dea-a4f3-4850-b16a-fd6d2b1302b4_SetDate=2026-07-21T05:14:52.0000000Z;MSIP_Label_198e8dea-a4f3-4850-b16a-fd6d2b1302b4_Name=AMD
+ General
+ v26;MSIP_Label_198e8dea-a4f3-4850-b16a-fd6d2b1302b4_ContentBits=3;MSIP_Label_198e8dea-a4f3-4850-b16a-fd6d2b1302b4_Method=Standard
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM4PR12MB7765:EE_|LV3PR12MB9402:EE_
+x-ms-office365-filtering-correlation-id: 4fd4123c-e6d8-4de1-409c-08dee6e7672e
+x-ld-processed: 3dd8961f-e488-4e60-8e11-a82d994e183d,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|376014|1800799024|366016|23010399003|18002099003|22082099003|11063799006|4143699003|3023799007|6133799003|38070700021|10067099003|56012099006;
+x-microsoft-antispam-message-info:
+ P3xA6Zhjfw1sC2bUkvvPT+cmceO1Mt0EXiJ1lv2CYqGWd8uyolo15wri1CJuPLv0cxQQgjQ5kmiF3haJZqnhNMNmx+oJ65q+M4mOejV4dXzaMKsO35cH7RkEUwHZDep203fzcBRplMR/hJzGkyiDw6iXc674ayxmJ86BqC+WqoEQbhBnKMenK4zU+FceHiL0+NzpFwIsz6AdnaabBrMJ7A+bl079Bw+6/AzaHOp4gmGCA1rBtVhpFYRh6IdLbbxjgHoo0ArhuP3fllv6x/CFgV3ProxFLa336VmwpXq+lf/POsAnGpaqPGM+rKx41BR95x2DkcH8VN+TyLmufLujyewjiFRHQxF779qED8HPUsy66ogZW9A5dA57IXZfRbdoOzX20M+j4FgCMqyiDLFV5WrYNwz8G9QAjpuia4YNmuSBGjlyRW0HETjT0BjfWXuj47ZN04tHPL/bnbHV5Qg6GHISxMWRqbWtb/Woncl18VPeU6x4De4gYJUR49h7vrPGfZKtJK8RHItviDwrPs8+GghrVouQs9iRU19rtXTF3vIgWASQ2d/Jbp+ul36MZG1R4giVeUa7r29NNBztvsrRv1II6S35EBOSQ8oxZFXW4Qz44T8P3R40CwPIChzSDYT0cPVrq7mthnfVE7bKOQAuKbEn6EPz9YQxnDhhLJd40ncSNh87DCZyh00EyPCmYD+j7dtxlrhO5+mkmDaM8XUvtv0RvIpiQq+MOjLAlxssYYw=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB7765.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(23010399003)(18002099003)(22082099003)(11063799006)(4143699003)(3023799007)(6133799003)(38070700021)(10067099003)(56012099006);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?JEdm9PY4y29UvVTLuozn63Ik786idBREHEONbmUllsT4Wfk4rS4B8p9eYrHh?=
+ =?us-ascii?Q?Gu21yy3NgP1AfLRWR6jUVauAXpNuxKcz7s8welMQ6wErOGAve7pNfbl5V20X?=
+ =?us-ascii?Q?UvvvjqALPvsL6TvknaDB0Tjp+1RsbQ7QvvtDszKXw1tirry5ogGweUjNT+Tt?=
+ =?us-ascii?Q?s1C+DstVrhaXzrxJYJ1qsfiHNSDmXI2WG5ZDj7L1bwP8BMRBmf6IyL3PjrGs?=
+ =?us-ascii?Q?YzUzAHV/WEZx1HDT8fRu6WylwITABNEPrCeHKmuumF/76mmMOQ7Y22LhbXKL?=
+ =?us-ascii?Q?kuLpxjzMWtVTvlxMxl19CCSgHg7Jb9yf537RPN5wd3sfpdZSRTROjMALVupq?=
+ =?us-ascii?Q?szrH4HPXPh8hWJsRcBC8OIlH8KO8cXfnMxPrjMUQqoAC5zm2/myTxjqAlSG7?=
+ =?us-ascii?Q?kdXvn/+pqrsBBHPfMQnlXlHU5HPay2Z8E1YJmuSUMtilagIl1NQiSefa+mK7?=
+ =?us-ascii?Q?IePb3pIrJwdoRiKod6cZzW1VKRdzWkklRratKZ5e9aD9sv6wh0i0m77Crfly?=
+ =?us-ascii?Q?YoupgaUObe1DPhFEtldP/d1E0rUe+XdYW178xNb8bxmQ22r95sF2xFfJEzB5?=
+ =?us-ascii?Q?4HE48rD+KSnMR2QjKedfK3+50fqn9stU8mAr9/LwD7Q6ocQEKoe4fRQWoJjI?=
+ =?us-ascii?Q?9FITdg1Hsnt9V1e0O0XtlRUdtFToT1U/WceixOmlnGe4Xu1QjiOHtmn7BJvq?=
+ =?us-ascii?Q?pAsJrTSPmlUAKjHAEE+FdkYuow5amaar39Ig7YPlORGjOPP5NOXe720ElVi4?=
+ =?us-ascii?Q?uq175bXnh+t6QBskijPzFCIzq6t452BKi56UkrZu2aXRJ4tHi8x5VdK2V/4t?=
+ =?us-ascii?Q?Jw/0+2ZxFy39kEXyGuwb/ISz85HkWWP/1PZlXQE1X++HmPvgqjDSCfBmopZD?=
+ =?us-ascii?Q?UW6AShf+SmLoMHlRTo0T1L6tfGG29qVUf0UJJ18wo/9ePq2dOClCu/glfCZ6?=
+ =?us-ascii?Q?4SVm6p4lYnx6NOr0VfbefCfICpRiu+G3llMi4QKJDT1L8RAuBh6skzMEpZru?=
+ =?us-ascii?Q?0pvTS9F4DUCXgvFc6hYseHKGknoEWRbzff1GR4T6ZzQZKcxJ8326IOou3FsZ?=
+ =?us-ascii?Q?Wf+jDEbFeRecvJGdecf/75Ksjhag0ATysp/yGfKcFxFZP9/qXRDtsIzpmH3a?=
+ =?us-ascii?Q?/ww0d3w6xROr2fQcoTleg5ysp3+ygkg9r+s0WSafHZbp/bPi8LWT3hES1k2i?=
+ =?us-ascii?Q?LeiEEpNrNCek2Mk2pJ1MDSB0jD4KyU/PSeOoWxIYlCj2A9vK7J23J3Br7gKa?=
+ =?us-ascii?Q?w2yAy2ETeKzRwzctbomH3wuqydN0BD+KgvVY2pXzt9BII+Mo1jAK+xjUd/57?=
+ =?us-ascii?Q?5wBvMygr/Q1aEBKB7s2ay2jBccwezUAxnt7OS5vYa8Az3nx/ijn5ltzhyZrm?=
+ =?us-ascii?Q?QeDQl8A/mKTk2GXyPSQe245wnNkakD4eO3cNivgqiXF68nRdMil2CvJEOVRU?=
+ =?us-ascii?Q?Z8Xv9YzeFz4A9ifSKmV1UU6BzqO1X1DS+P0FdwBz3FDU5WNL29r8p8vBGezD?=
+ =?us-ascii?Q?mTxQASkh24wR/WpprxhES0AiL93v7d3S1lJbOwc6zfBOkRCRad4eYgw7SY9i?=
+ =?us-ascii?Q?oDdtFmbl5wpzn3vtjcq/Xw2QvUX3OKx9/wYGTAisTYYH41b10Wq/TV3+AkOA?=
+ =?us-ascii?Q?Pra7emcdLxstizVofLsXpZcuXnn9k8sCHUR6eRhKPjRjTPMUgr1lJ0+CP5T8?=
+ =?us-ascii?Q?RnPsDamff7DgC3J4Gl2OKBLECz7/1lbpkl2fLGsJUZ8OuxDE?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL1PPF1B62FD55C:EE_|CH3PR18MB5643:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2f47ae6c-2f39-4fb3-3acd-08dee6d92911
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|376014|7416014|1800799024|366016|56012099006|4143699003|10067099003|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	yIR1+Q+gBLKdbF47zlG4b1pPT9HqP5FGcf1WzV4v3HYPgE1VBO7jR53zRMK0USJxK4aUgFgvRyr6pbrFyt8UGqbfmkfpI7Qli6lrGyXAAUEXVobjwgT7WvHu8MSkpLcO7nrJBcGH3HUBfjuJ7PWwGhv13QG8vzwv0cwSbCUbCLGFuKZea08hf8i9sJTPBC7zK2lZlx7iGceGOZyu3J0PrdSTwl8piKece4XpO2MciyC83aHgwoyZDrAd2YafX3ywSRPHyTuBCGdCCSSBbYBFDOW/ghDh1zSrMt7kSWkzJTVjD0NG1nE4fjy8sQpXFue5gI1Ntsu9082wbEytVZ8dGYC9Sa7EtCcWwbQWKw+JC9Zwn3dm4A4XNjxpVN+nX20NOqjNXwoMqbdDkLRlgxEDhvpfiT/f2P65bZVpz2Uy7GkkQv98g29GOlWwv65gjb8W1qpT2/mEtoDzVg9YtNJ66/q6H3RywepW7pWUeb77vjzu7oNKAsZ5qF/k6+/Cf5BwrhsTlbCjQe0vAwm+HSvANiLedJGGz/vocCJqz78F+k+0f+wXe3iciZpnytaQat/1weqlJVm0vBtVNY5IIMeRdOECDb0zeLApIMC2q373IokPOPfKkXqke5udhymmsJQTeYuLIpp+Dghs4WxOZqb0VHG6VWdEUDlZr3NWYbidQaA=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PPF1B62FD55C.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(376014)(7416014)(1800799024)(366016)(56012099006)(4143699003)(10067099003)(18002099003)(22082099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dldPWDV5RDNRbG96QkdOMnZCZVJUZjJ5V0VMMytuL2lIaFJ2K0E2MFI2WWY2?=
- =?utf-8?B?Z1BYSERJMUpYNU55MTk0MGV1K2hkcFhGZEhIV0NISGNkUU5wK1IwejJraUJw?=
- =?utf-8?B?dDNyTkl1VStnU3praXhjYkpmQTVyQUlxcnhhb0JiQy9PcmVDYklaNnBSajZ1?=
- =?utf-8?B?QUN6bDRwZTh4dlVJVUFjQ1FwZE1KOCtMR2loY2YxMmJjUDc5TjcwTUhObnI5?=
- =?utf-8?B?UlZUK2plM0cwQTlOL2pnUXZMcmQwNVJuVDYzVndvMjl0STRHc3dJUWxUdmV1?=
- =?utf-8?B?YVdLZXBHUjR5SkJ4dzRrWWZBRkY2eDdvWHN4aWliTXZ4S01xa2ozK2RJZHoz?=
- =?utf-8?B?bC9laTJGZmhJTytTbXFEUnZWSHdNRzhkQ0loNW5CaUJRNVNyRk9ySDcxN2k3?=
- =?utf-8?B?L0MxdjB5VXM0ZXFNeDF0ajJYdWVNOEVlVTJmQjJ3ZWtUTlpUbFhneks0VEs3?=
- =?utf-8?B?L1ltVUh0WkFJdzBxTytEd3JkU3B4UUlUa2dkVGttZmVjOW1JeHpOdjRGWkps?=
- =?utf-8?B?SkFtclhjSGVFMU5MVU5BL3hIU2xIdFYzd1g3VEphWTd3R2dJdldndWFMQnZ1?=
- =?utf-8?B?cGEzeDAxWDQ1YjBhWVFsR3UxUkRaOURtc0JINFNFTnFkTGNMc0htZkw4cVlV?=
- =?utf-8?B?cVNFUmdFZk55WmY4eEVNWDYvSUZsMUpKb3J5S2VEajMzdFc3LzB0djZaaFdp?=
- =?utf-8?B?c3dQdjYzdHFPMXlRMnhuNEhVSnhwcWNQcElBbmp4Yit2dlhaaGNkTmRCN0p4?=
- =?utf-8?B?ZVlhczBCZkVHS0c5QmRCYm1Cdi9ORlBPZmlSeUFvWWJXMy9HS3pLMUp0R2lK?=
- =?utf-8?B?cUZOV3RjQUR5amgwWU9Xam01Wk5KL0RGWkRUYklaZUI4R3FGK0xsQjMzNWdX?=
- =?utf-8?B?RGxuWUVZc2ozUGVHS04yTEgxZlVtRTFNbXZuellFd0ZOTHAvak1BcHZkcE1k?=
- =?utf-8?B?VHhaMzJDTGRyUFhrSHpDTU1HM05DMmYwWGxHR1FEejIwOVNCTllWZ3NDZmpi?=
- =?utf-8?B?alR0SFRLV1JuSEVCL0wzVGY2R3dNVlMraXgxd01vL0Z5bWZQcEE3cW9WbVl3?=
- =?utf-8?B?blRyWmJtR2ZJQUtRUW9CVVE5OWQ4TG9aT09ya0QycGZ5VU9acVZueEFlbEx2?=
- =?utf-8?B?ZHQwMkxjTnRJd05MbkhzeFZPMlBNQS93Zk9lNU15K0RyK1lkQ3UzSHdWcFA1?=
- =?utf-8?B?M2szaE9oOGhhZ2tGdjgzd1N2bVhQdjMwNlp3ZGcrRjR3V1NGL1NNeU1hOGRp?=
- =?utf-8?B?RkdQRDFncUYzNWwyUmUyNzRrNElibjNNSUViSGRkWXYxaFFYdi96bU4wcFNz?=
- =?utf-8?B?RUR1bEh2RkdFcWk1Q1pXbENtS3ZnNFJOSDJad0dJU003RDZwaTk1VVFqOWlz?=
- =?utf-8?B?Ym1SNWFCQm9UbS9uTjV0T0Jpc1JXTmxqVGFpRStObE5jclRVcGIzT1NKMW5m?=
- =?utf-8?B?UUgvOE5EazQrSmZjRjNldjZnRDRIcmM1eXhRNUIvK0ZScEN4L05GVVluYjF0?=
- =?utf-8?B?OERyc1phSTZIUjkxeERpK25jcVVOa0huYkZQTnowaGd3NW9aSENGRTExQkU5?=
- =?utf-8?B?RHF6VWtLdHUzMmg3NGtZdXRSNUxwQ25jeEpQTFZ5TFNwQ0RxMG1kL2F4UXZI?=
- =?utf-8?B?bmlNQndxQVlxNDFuYzUxYjJBZ1E0MnVKdjg1TTdIR1lUc2NtdlJLdTd3U3RP?=
- =?utf-8?B?ck1hRjNneXkwNlR6TTJUNjd5RVd1MzhJR1g4MWlBMUs2R3krRGxvMXpnc0Rx?=
- =?utf-8?B?c1I4NkJRZ2hzRStvWWlEb0VyN01FU3R0R2h6dDFRZDFnZmZubGJuWWt2Y0tF?=
- =?utf-8?B?bmVHQnJxS2JtWmlyV1B0Q00wQnVqQWR4YTFvK1ZxckFNN2c0UkowR256czQ4?=
- =?utf-8?B?MjBybVl4bUpLZDVIWXo2MTdnZHl6UEtaT3dXZGlTeHIvNjVnR0lxcWF1clZy?=
- =?utf-8?B?VEx0NzNNalYxQjYrZ1MxTENjYmJQNmlSeEQ1TloxcWJSM2lycnBSaGFJdkN0?=
- =?utf-8?B?OUV1cnJlZUpROGhNWndaYnMwT2NNRjU1L1JTSEVPSVFMMXpUb1VIczUyaXdO?=
- =?utf-8?B?MG5zTDdzVmt5eDFOdXNEMGsxTHFCcEMyMTdIRTFmYTFIWHNtem9KVVZMc1hs?=
- =?utf-8?B?ZzU1NnFrYldUUmp0d3cyL0dxNGFVL3FwY2tRazQ1amd2UmtpQ2FTaEVnRUVR?=
- =?utf-8?B?dTdSdnFEMVRjbVc0WENyRENCVUw3L3U0bXZkdUNncVlRdkYyRjVRMFNwRGhw?=
- =?utf-8?B?NUIrWG9JRkM5RGRvRnd6b0Uwb0JYdGpsaG1HcmJRQUd5Uk1ZVXdyejRLeU1r?=
- =?utf-8?Q?PTeUMkjUDaLOaHPZ9R?=
-X-OriginatorOrg: axiado.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2f47ae6c-2f39-4fb3-3acd-08dee6d92911
-X-MS-Exchange-CrossTenant-AuthSource: BL1PPF1B62FD55C.namprd18.prod.outlook.com
+X-OriginatorOrg: amd.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2026 03:35:50.7780
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB7765.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4fd4123c-e6d8-4de1-409c-08dee6e7672e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jul 2026 05:17:47.5604
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: ff2db17c-4338-408e-9036-2dee8e3e17d7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: H7/GH7SVLcLPD2pRdbBT7HqsqguhTsEFRcDEOIX7k+314QYaNw8smkjLVuoT2rALHXDLGbYe0kt3fCn4RuI1GA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR18MB5643
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 2IwyVsC9rATbCJhmvy24Du96S2WMPQyPAgGhlzvl22/ss68j6XPl7jRjO/Ys0vEA
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR12MB9402
 
-On 7/17/2026 4:33 PM, Krzysztof Kozlowski wrote:
-> 
-> This should stay enum which would also make your diff easier to read.
-> 
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> 
-> Best regards,
-> Krzysztof
-> 
+AMD General
 
-Hi Krzysztof,
+Hi Wolfram,
 
-Agreed on the enum, and thanks for the tags.
+  Thanks for the review. Your suggestion makes sense to me - I'll move it o=
+ut of i2ctransfer and add -T (timeout) and -R (retries) to i2cdetect instea=
+d. I agree a separate i2cconfig tool is
+  not needed.
 
-Since Bartosz already applied this to the GPIO tree, should I send an
-incremental patch to fix the formatting, or is it fine as-is?
+  While checking the list of ioctls, I observed the I2C_TIMEOUT ioctl to se=
+t the timeout, but I did not observe any "get" ioctl to read the timeout va=
+lue back from user space (same for
+  retries). So setting a value with -T/-R works, but reading the current va=
+lue (when no value is given) does not seem possible right now.
 
-Thanks,
-Swark
+  Could you let me know how you would like me to handle this - should I kee=
+p -T/-R as set-only for now?
+
+  Thanks,
+  Vasantha Likitha
+
+-----Original Message-----
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Sent: Tuesday, July 21, 2026 3:41 AM
+To: Tandra, Vasantha Likitha <VasanthaLikitha.Tandra@amd.com>
+Cc: linux-i2c@vger.kernel.org; jdelvare@suse.de; git (AMD-Xilinx) <git@amd.=
+com>
+Subject: Re: [PATCH] i2c-tools: i2ctransfer: Set I2C adapter timeout using =
+I2C_TIMEOUT ioctl
+
+Hi,
+
+thank you for this patch!
+
+On Mon, Jul 20, 2026 at 10:04:01PM +0530, Vasantha Likitha T wrote:
+> Add a -t TIMEOUT option that calls ioctl(I2C_TIMEOUT) before the
+> I2C_RDWR transfer. This allows the adapter timeout to be set from user
+> space at runtime, controlling how long the I2C core waits for a
+> transfer to complete before returning an error. Drivers that rely on
+> the adapter timeout will use the value set by this ioctl.
+>
+> The timeout value is specified in units of 10 ms, as this is the unit
+> the Linux kernel expects for the I2C_TIMEOUT ioctl: i2c-dev converts
+> it with adapter->timeout =3D msecs_to_jiffies(arg * 10). Omitting -t
+> leaves the driver default unchanged.
+
+I agree that reading/setting TIMEOUT is missing in i2c-tools (same with
+RETRIES) and it would be nice to have.
+
+I don't think 'i2ctransfer' is the right place for it, though. One might al=
+so want a different timeout with 'i2cget' or so.
+
+My suggestion is to add it to 'i2cdetect'. It already has '-F' to list the =
+features of an adapter. We could add '-T' to read the timeout value and '-R=
+' to read the retries value. If '-T' or '-R' parameters also contain a valu=
+e, then this value will be written to the adapter.
+
+Was this undestandable? Do you agree?
+
+Another option would be to write a dedicated tool ('i2cconfig'?) for handli=
+ng extra parameters, but it feels a bit bloated IMHO.
+
+Opinions?
+
+All the best,
+
+   Wolfram
+
