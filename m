@@ -1,187 +1,104 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 564F82E7657;
-	Tue, 21 Jul 2026 12:28:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B3536E495
+	for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 13:40:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784636908; cv=none; b=p+zcBMlot0MRyWgHTnJf9vrdcENStqRJor4lRgKvgwE8+yuHiHn8gq0kguLb7eDqLH0nYJF2oEVJbOwwlHdria/2b8kmE7y5IVZGbhVwxohFWC8tXTFiKPiTM/mkg4+GoyuBZXnZiw6KQ319bFy1Mn65rHqC6jXf8xzrYcHVBi4=
+	t=1784641261; cv=none; b=mDFqCnZowJ5j2TNVeZnj9nyZZCJWZBDOcpfYcgyGu3rAl3pvQ4XydpqLsDv+ia4Mp2CB1bH7ukOz863Wwd4oW9xFVKzT9qWGgtVA+68YAQr3gvrrnaCN1Y8+0EA5jbDKhUah8Fh8WosM5RqtNIMqEJSGCZzSu6SVGWoGlWzoS4U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784636908; c=relaxed/simple;
-	bh=Wd+NI9g3AwUxj0OBN9t9+FYpGLUq06mSwyBr/C6/8n8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=AUO3fzT7zI17aUub8pnsq0vJbHlx5b4v0wTVFWUIDUjIzHooBCuBnbBZ0Hh/9caKXwDrpsVU1k66cWcum80deCGFZdjuIveT0ZBGgMP6XpIOgkvvdfZG1nHeLH1WgGFnyHXMOmypWhQeuy3C8h3fgghUYkTwG4ovfJcKs3iuPDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8Dx8+npZV9qj6EFAA--.12747S3;
-	Tue, 21 Jul 2026 20:28:25 +0800 (CST)
-Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJBxWsThZV9qTfwTAA--.6622S4;
-	Tue, 21 Jul 2026 20:28:24 +0800 (CST)
-From: Hongliang Wang <wanghongliang@loongson.cn>
-To: Hongliang Wang <wanghongliang@loongson.cn>,
-	Binbin Zhou <zhoubinbin@loongson.cn>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	Huacai Chen <chenhuacai@loongson.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH v8 2/2] i2c: ls2x: Add clocks property parsing and adjust bus speed
-Date: Tue, 21 Jul 2026 20:26:04 +0800
-Message-Id: <20260721122604.12717-3-wanghongliang@loongson.cn>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20260721122604.12717-1-wanghongliang@loongson.cn>
-References: <20260721122604.12717-1-wanghongliang@loongson.cn>
+	s=arc-20240116; t=1784641261; c=relaxed/simple;
+	bh=zf3PHOx3YsrJy1jv2Tup932rEPnORGH7/ni7JXr9XG8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=csukXcfOx+LlQrO1DMLyo9/kclkWesMeHHbIkhCJIdj29X8g6KFICcrdhC92HSCOuCiBdFhGM/D68CNXL0c9i6vsYRIqB7mwaMr4f6Z5DZn6hIN/cI28ZvksC7b1Pk7fs71afE24Wsv17RX1DPYL7+LPfjLqW5ODr0Rpzvyk60c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Iv1thr9x; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Iv1thr9x"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E94891F00A3F
+	for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 13:40:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784641258;
+	bh=hnmnrAT1/Nq6CC/GJxl5nP8wiQgScaA7Q98NawARTAA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=Iv1thr9xOkQieKW1Kwvy0w5x+Gml8LCyE7ODfogWCRg26hCwAAFrvZ9FvrzIuO2Hf
+	 5IWQhXJYVeAWcPGIbhIev/h5S0SW1Mlo7dHGZwE66GpPxzluE8LVLHsqATe81gGlYq
+	 StBzJQvuSE07rc0FF/bzWEPzu5yEnnLC64p5f5Bj2K/XhMi153iflmqBw5l2dWW2Hr
+	 zGXzkfz7ExdsakBMqQCrevzmj/+NtdKntevA3CdbdSgyO5Sx2BuLs+N27rfeoSlHdN
+	 GwmTbFzYMeUroaRASgX3itbGFbF6dpULUEfnhMA5G7H2k5Y44Kec0lGcYM4c7n5gV6
+	 cixgQvVq3/eHw==
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39c86945164so99298501fa.1
+        for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 06:40:58 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RrOHehykga18oniC/0xfuRgd4OC/wEI2nflSYZwiDM7wGrsur4qLlclNpaVeG5xEkTec4JbM7LuPNk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzRxuY8c5r2mtcg5y2DcSj3m/58qEv0oWYnwfHWUtalcmTjtGCh
+	zmJ3x+17HSp8B8q8AD6XxzAWadB6jIY6H1+q699Arj8fbMennjIxETnNB0WTAF+Fb/g1IV28mtp
+	NpsTaFnqQsqFXrGYUNLbOQeaITj4q1No=
+X-Received: by 2002:a05:6512:6206:b0:5ae:b713:f26d with SMTP id
+ 2adb3069b0e04-5b28fab5346mr3703306e87.58.1784641257422; Tue, 21 Jul 2026
+ 06:40:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJBxWsThZV9qTfwTAA--.6622S4
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxCr15KF15uw15Xw1DCr4DGFX_yoWrXw1Dpa
-	n8CF95Gr4qgF42grsxt3W8ZFyayws5Jay8GFy7Kw1xW3Z3Arn8X3WftFnIvF4v9F97WayD
-	XayDWrsxCFWjvrXCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBSb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E
-	14v26r4UJVWxJr1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6x
-	kI12xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v2
-	6r1q6rW5McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2
-	Ij64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Y
-	z7v_Jr0_Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-	8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
-	2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-	xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF
-	7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUxhiSDUUUU
+References: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20260714185915.865396-1-andriy.shevchenko@linux.intel.com>
+From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
+Date: Tue, 21 Jul 2026 15:40:44 +0200
+X-Gmail-Original-Message-ID: <CAJZ5v0iu=Z72wUgVyfKtf=_9sOyocoy2J9ETesrRbRtLTUzLEQ@mail.gmail.com>
+X-Gm-Features: AUfX_mxChNWPUAmVOZumpgosPDRQ_tGzwID0nlEK7CjpM8a-qhWFOiOi3ewYglI
+Message-ID: <CAJZ5v0iu=Z72wUgVyfKtf=_9sOyocoy2J9ETesrRbRtLTUzLEQ@mail.gmail.com>
+Subject: Re: [PATCH v2 0/6] ACPI: Introduce and use acpi_dev_is_video_device() helper
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, 
+	"Mario Limonciello (AMD)" <superm1@kernel.org>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org, 
+	platform-driver-x86@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Mika Westerberg <westeri@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Henrique de Moraes Holschuh <hmh@hmh.eng.br>, 
+	Mark Pearson <mpearson-lenovo@squebb.ca>, "Derek J. Clark" <derekjohn.clark@gmail.com>, 
+	Hans de Goede <hansg@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The i2c-ls2x driver supports dts and acpi parameter passing.
+On Tue, Jul 14, 2026 at 8:59=E2=80=AFPM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> There are a few users that open code functionality of matching
+> a given device against ACPI video device IDs. The current approach
+> duplicates ID table along with the matching code. Consolidate it
+> under the acpi_dev_is_video_device() helper's hood.
+>
+> Supposed to go via ACPI tree, please ack.
+>
+> Changelog v2:
+> - rebased on top of the latest code base
+> - renamed helper and changed its prototype (Rafael, Mika)
+> - added tag (Wolfram)
+> - added patch to change scan.c as well
+>
+> v1: 20220630212819.42958-1-andriy.shevchenko@linux.intel.com
+>
+> Andy Shevchenko (6):
+>   ACPI: utils: Introduce acpi_dev_is_video_device() helper
+>   ACPI: scan: Convert to use acpi_dev_is_video_device() helper
+>   ACPI: video: Convert to use acpi_dev_is_video_device() helper
+>   i2c: acpi: Convert to use acpi_dev_is_video_device() helper
+>   PCI/VGA: Convert to use acpi_dev_is_video_device() helper
+>   platform/x86: thinkpad_acpi: Convert to use acpi_dev_is_video_device()
+>     helper
+>
+>  drivers/acpi/scan.c                         |  4 +++-
+>  drivers/acpi/utils.c                        | 17 +++++++++++++++++
+>  drivers/acpi/video_detect.c                 |  7 +------
+>  drivers/i2c/i2c-core-acpi.c                 | 15 +++++----------
+>  drivers/pci/vgaarb.c                        |  4 +---
+>  drivers/platform/x86/lenovo/thinkpad_acpi.c |  2 +-
+>  include/linux/acpi.h                        |  1 +
+>  7 files changed, 29 insertions(+), 21 deletions(-)
+>
+> --
 
-In dts, uses clock framework, by parsing clocks property to
-get i2c bus reference clock, and define the div of reference
-clock by device data.
-
-In acpi, by passing clocks property to describe i2c bus reference
-clock and clock-div property to describe the div of reference clock.
-
-Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
-and div, calculate the prcescale of i2c divider register. The
-calculation formula is
-
-prcescale = (clock_a*10)/(div*clock_s)-1
-
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
----
- drivers/i2c/busses/i2c-ls2x.c | 40 ++++++++++++++++++++++++++++++++---
- 1 file changed, 37 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
-index b475dd27b7af..25f8301ae14f 100644
---- a/drivers/i2c/busses/i2c-ls2x.c
-+++ b/drivers/i2c/busses/i2c-ls2x.c
-@@ -12,6 +12,7 @@
- 
- #include <linux/bitfield.h>
- #include <linux/bits.h>
-+#include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/device.h>
- #include <linux/iopoll.h>
-@@ -63,11 +64,19 @@
- /* The default bus frequency, which is an empirical value */
- #define LS2X_I2C_FREQ_STD	(33 * HZ_PER_KHZ)
- 
-+/* The div of i2c reference clock on LS2K0500/2K1000/2K2000 */
-+#define LS2X_I2C_2K_CLOCK_DIV	40
-+
-+/* The div of i2c reference clock on LS7A1000/7A2000 */
-+#define LS2X_I2C_7A_CLOCK_DIV	50
-+
- struct ls2x_i2c_priv {
- 	struct i2c_adapter	adapter;
- 	void __iomem		*base;
- 	struct i2c_timings	i2c_t;
- 	struct completion	cmd_complete;
-+	unsigned int		div;
-+	unsigned int		pclk;
- };
- 
- /*
-@@ -107,12 +116,13 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
- 	else
- 		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
- 
-+	val = (priv->pclk * 10) / (priv->div * t->bus_freq_hz) - 1;
-+
- 	/*
- 	 * According to the chip manual, we can only access the registers as bytes,
- 	 * otherwise the high bits will be truncated.
- 	 * So set the I2C frequency with a sequential writeb() instead of writew().
- 	 */
--	val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
- 	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
- 	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
- }
-@@ -287,6 +297,7 @@ static const struct i2c_algorithm ls2x_i2c_algo = {
- static int ls2x_i2c_probe(struct platform_device *pdev)
- {
- 	int ret, irq;
-+	struct clk *clk;
- 	struct i2c_adapter *adap;
- 	struct ls2x_i2c_priv *priv;
- 	struct device *dev = &pdev->dev;
-@@ -304,6 +315,29 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
- 
-+	if (dev_of_node(dev)) {
-+		clk = devm_clk_get_optional_enabled(dev, NULL);
-+		if (IS_ERR(clk))
-+			return PTR_ERR(clk);
-+		if (clk)
-+			priv->pclk = clk_get_rate(clk);
-+		else
-+			priv->pclk = LS2X_I2C_PCLK_FREQ;
-+
-+		priv->div = (unsigned long)device_get_match_data(dev);
-+		if (!priv->div)
-+			priv->div = LS2X_I2C_2K_CLOCK_DIV;
-+	} else {
-+		/* clocks and clock-div are only ACPI properties. */
-+		ret = device_property_read_u32(dev, "clocks", &priv->pclk);
-+		if (ret)
-+			priv->pclk = LS2X_I2C_PCLK_FREQ;
-+
-+		ret = device_property_read_u32(dev, "clock-div", &priv->div);
-+		if (ret || !priv->div)
-+			priv->div = LS2X_I2C_7A_CLOCK_DIV;
-+	}
-+
- 	/* Add the i2c adapter */
- 	adap = &priv->adapter;
- 	adap->retries = 5;
-@@ -349,8 +383,8 @@ static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
- 				 ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
- 
- static const struct of_device_id ls2x_i2c_id_table[] = {
--	{ .compatible = "loongson,ls2k-i2c" },
--	{ .compatible = "loongson,ls7a-i2c" },
-+	{ .compatible = "loongson,ls2k-i2c", .data = (void *)LS2X_I2C_2K_CLOCK_DIV, },
-+	{ .compatible = "loongson,ls7a-i2c", .data = (void *)LS2X_I2C_7A_CLOCK_DIV, },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
--- 
-2.47.2
-
+Applied as 7.3 material with an adjustment in the first patch, thanks!
