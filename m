@@ -1,148 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03334435ED0
-	for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 07:57:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF1B1E47C5;
+	Tue, 21 Jul 2026 08:01:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784620682; cv=none; b=fXraxEvkvD6aq/VCaMR7t9qfwA5j/MThLPskDKjZJRnNfI+UDZRV9irPzM67IgoqvYIaNaJXYWV/Wrz+jDmJFNRzQ73j76KCg9BPbSEeYxNWoMG2P1I12E9XK67wxYTiEcPSAaEQb4DWbNL1NVha5m8EZivhw1PMCkaE0iq3Q6c=
+	t=1784620885; cv=none; b=UnewJyJ3OzYupQQR0wPxULFwE2yNPBOcgn3rm11AUyHnLmE/oOTmruYZN4L1cGW6KF4zeguDDB5J2a3QLE7VGnnkvSLF110aevXtGSwg0JzApIRwGPV/DG6qfK8/7pMRCbIdZRBPZNu+jPxkZaL467nfeF9cCahXyipd7gSuZ8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784620682; c=relaxed/simple;
-	bh=Qu6V/jFa3L0ra7v1UlZyzgbe/1V/e5d4AsjK/MKCp8c=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IYCOMmquSTdwc0EGdEDYFi5PO/nTKFBCJaNw90wGs1eMvPtE5RZjB6paxJbm9GSUoXQpmE4Czm+ujIFFxt1M4IKG950LolGdZnXAmFr9n4QH49d3/gv/wMTN8UPnCjTojGxePVt4c1ymNjn/opB5HnS9GkMilCrdn4v5J4RaVAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YVmvwJVT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784620885; c=relaxed/simple;
+	bh=5SM9NsOwtuQW0KSV6fPdrF5SSQb+vnwKSLSkMeWaGa8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=WRs22HCLoDaKx0Khmf6S656VG0R7PNlVVNmVOAk++50n82v11iC5Mlj4y8kLAeRU62XAGk+3GV1JGvkHKEzUwivOdPz1YZ8P6F6ZCTcFrIFhUiKtwrW9H/JjiW85EKFK1SXr5iFoks1pCgZX80nQS4fvPI1NsU2XuoPCB+JUcxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=mSr2frTm; arc=none smtp.client-ip=210.202.87.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YVmvwJVT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE8C51F01559
-	for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 07:57:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784620679;
-	bh=y8ZQiTN586DKOzGjE0xQTVjSc0oG6CWcbCqpe2Jy2M4=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=YVmvwJVT9Qyay4HbMhb49B9CjDlZz7ft+lQj9lbS0gACumnC1Iv2/dsdm1MV9mu4c
-	 zAFU0hI7Xau7B4/YM37CP9pXGedF5Cl9Ux1RfADSqooiQWl5++I9UPNLx9bYcxW1m8
-	 dWwOXXbyLjJgKyY5IIabDL3n7y2Qbv9FbuP/aoVu6GwF4dZ4uDwHKNeaHY0jS2eqLz
-	 RXoTf9r6Ejv9blA7uC5ei4TYzAeV966wu8kwI6AZd0WBupxsdSKzxFL2wT4iB1WSxL
-	 qBk3K/JlKeou8FmssItan6rHnzpwi6jaVlRe/TmBqMy6lmtyvBR91Q78CeI2qT2hly
-	 ZQt1jND0CNHjw==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5b2a4359d16so860350e87.3
-        for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 00:57:59 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RozB4IJydhayq/3QRKVPHRITSSM1EwePfx7JLRCQFeaU+vOSoGlz4omRb/HCpCPNvGJzsWY/h85dKo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyjEr+QESYf1bNHOClgWxFfPHy5tEAsaq0soj1UqbN/S+vKMz5G
-	8GgVufN38CUMHDj2X9LIJKCcoZY16qwuSFw/wGpZKwGR6ivanz2GTE0VCBfXlTJ8YLQ1jaSz9PM
-	HZtwy+XgEvdjRdjVahqCkcjmwp1URVn54QzXrT8F3cw==
-X-Received: by 2002:ac2:554c:0:b0:5ae:bcf8:e7d0 with SMTP id
- 2adb3069b0e04-5b28f9bd551mr2209166e87.55.1784620678478; Tue, 21 Jul 2026
- 00:57:58 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Tue, 21 Jul 2026 00:57:57 -0700
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Tue, 21 Jul 2026 00:57:56 -0700
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <3e14e41f-ecd5-432b-9f52-690a05b38a8a@lunn.ch>
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="mSr2frTm"
+X-UUID: 57e1d77484da11f181a149c3f3c08161-20260721
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
+	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=5SM9NsOwtuQW0KSV6fPdrF5SSQb+vnwKSLSkMeWaGa8=;
+	b=mSr2frTmpn9+fTat5gFbpOw0KSRwVCbQU43PvLC+7gP1mFoS71ge/WbMt12602O7dy6XkZZFvyjuVODjK4YHg0BKkUM3rN/d9iV+JZ3T0mOrTQA51ONbSvEduK9qJJ09b7UPhHPfjNPLjm5gW+It2AKNFHbGDlb7UWTEdh52miE=;
+X-UUID: 57e1d77484da11f181a149c3f3c08161-20260721
+Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
+	(envelope-from <sp_isw1_at@novatek.com.tw>)
+	(Generic MTA)
+	with ESMTP id 371194608; Tue, 21 Jul 2026 16:01:13 +0800
+Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
+	by spmgt1 (Postfix) with ESMTP id B9F761A1E1C;
+	Tue, 21 Jul 2026 16:01:13 +0800 (CST)
+Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
+	id 9D626C600CC; Tue, 21 Jul 2026 16:01:12 +0800 (CST)
+From: Nina_Kuo@novatek.com.tw
+To: krzk@kernel.org
+Cc: andi.shyti@kernel.org,
+	ben_huang@novatek.com.tw,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	krzk+dt@kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	shihpei_hsu@novatek.com.tw,
+	toby_chui@novatek.com.tw,
+	Ben Huang <Ben_Huang@novatek.com.tw>
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC I2C controller driver
+Date: Tue, 21 Jul 2026 16:00:43 +0800
+Message-Id: <20260721080042.472564-1-Nina_Kuo@novatek.com.tw>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <65492810-a5ae-4686-b7e9-2cd43afd47df@kernel.org>
+References: <65492810-a5ae-4686-b7e9-2cd43afd47df@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260720-pdev-set-fwnode-instead-of-of-node-v1-0-2dee93f42c54@oss.qualcomm.com>
- <20260720-pdev-set-fwnode-instead-of-of-node-v1-7-2dee93f42c54@oss.qualcomm.com>
- <86b2aba7-b049-47e6-bc94-6cb499b30ce4@lunn.ch> <CAMRc=Mduv_KiB42d4AZddTrFSHmKogd2wh6vBDXomW6ssdfq9A@mail.gmail.com>
- <3e14e41f-ecd5-432b-9f52-690a05b38a8a@lunn.ch>
-Date: Tue, 21 Jul 2026 00:57:56 -0700
-X-Gmail-Original-Message-ID: <CAMRc=Md_zUwYW5KL+p=BRixSaf3Rrc5jnBA3x8Ze+fK+fAOctQ@mail.gmail.com>
-X-Gm-Features: AUfX_mxrzWF5f1w8uOBbvKVmYCYI9DGFBZVEBrX2uI1sc7agH6iCfKo0CQST8Mw
-Message-ID: <CAMRc=Md_zUwYW5KL+p=BRixSaf3Rrc5jnBA3x8Ze+fK+fAOctQ@mail.gmail.com>
-Subject: Re: [PATCH 7/8] net: mv643xx: use platform_device_set_fwnode()
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	"Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Doug Berger <opendmb@gmail.com>, 
-	Florian Fainelli <florian.fainelli@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Ulf Hansson <ulfh@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>, 
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Srinivas Kandagatla <srini@kernel.org>, 
-	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	iommu@lists.linux.dev, netdev@vger.kernel.org, linux-pm@vger.kernel.org, 
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	mfd@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-sound@vger.kernel.org, Bartosz Golaszewski <brgl@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Mon, 20 Jul 2026 20:28:39 +0200, Andrew Lunn <andrew@lunn.ch> said:
-> On Mon, Jul 20, 2026 at 06:01:37PM +0200, Bartosz Golaszewski wrote:
->> On Mon, 20 Jul 2026 16:43:40 +0200, Andrew Lunn <andrew@lunn.ch> said:
->> > On Mon, Jul 20, 2026 at 11:24:54AM +0200, Bartosz Golaszewski wrote:
->> >> Prefer the higher-level platform_device_set_fwnode() over the
->> >> OF-specific platform_device_set_of_node() for dynamically allocated
->> >> platform devices.
->> >>
->> >> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
->> >> ---
->> >>  drivers/net/ethernet/marvell/mv643xx_eth.c | 2 +-
->> >>  1 file changed, 1 insertion(+), 1 deletion(-)
->> >>
->> >> diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
->> >> index 9caa1e47c174c9d7a161b7f2e2ee12a829b813d4..2f2d6cce8d852b9ec3ab42678a04a7915d1f00cc 100644
->> >> --- a/drivers/net/ethernet/marvell/mv643xx_eth.c
->> >> +++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
->> >> @@ -2780,7 +2780,7 @@ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
->> >>  		goto put_err;
->> >>  	}
->> >>  	ppdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
->> >> -	platform_device_set_of_node(ppdev, pnp);
->> >> +	platform_device_set_fwnode(ppdev, of_fwnode_handle(pnp));
->> >
->> > This is definitely an OF only driver. There are no other calls to
->> > fwnode functions in this driver, so this is the wrong thing to do.
->> >
->> > Sorry, NACK.
->> >
->>
->> I'm not going to die on this hill but drivers are OF-only until they're not.
->> For example, Qualcomm is now working on a hybrid ACPI-OF approach for
->> laptops[1] and we may end up needing to start converting drivers to fwnode
->> after all.
->>
->> There's no real benefit to sticking to OF-specific APIs unless you need to
->> iterate over all properties of a node or use some other functionality not
->> available in fwnode. The overhead is minimal and it's never a hot path.
->
-> There is a lot of benefit to sticking to OF specific APIs, because
-> within the kernel OF is well maintained, has active maintainers, there
-> are tools to validate bindings, etc. ACPI is a Wild West, each driver
-> is a snow flake, there is no review, no binding documentation, no
-> validation tools etc.
->
-> I hope you allow plenty of time to convert any networking drivers,
-> where Linux is driving the hardware, to ACPI. Your first stop will be
-> the UEFI forum making a proposal for MDIO busses, because that
-> currently is not part of ACPI. You will then need to spend time
-> understanding the DT bindings, and figuring out which properties are
-> deprecated so need to stay OF only, and which can be converted to dual
-> OF/ACPI. I've seen too many naive attempts which blindly convert
-> everything, copying all the past errors in the DT binding into the
-> brand new ACPI binding. That will get NACKed.
->
-> OF != ACPI
->
+From: Ben Huang <Ben_Huang@novatek.com.tw>
 
-I've never said that and ACPI is actually irrelevant to this discussion. Fwnode
-is the abstraction layer and OF happens to implement it. Unless you need
-fine-grained control (only exposed by the lower-level abstraction) or
-performance - neither of which is the case here - you should use the top-level
-API. As I said: there's no good reason to stick to OF-specific interfaces for
-drivers that don't really require it - and even then, we should strive to fill
-the gaps in the fwnode API instead.
+Hi,
 
-Bart
+Thanks for your reviewing.
+
+Sorry about the same mistake. This is the first time for
+submitting kernel patches.
+To fix this problem, shall I put all modifications into 1 patch
+file? Please correct me if I'm wrong.
+
+In the patch series, MAINTAINERS is in the first patch (1/3),
+related .yaml (2/3) and .c (3/3) files are in the subsequent
+patches.
+If only MAINTAINTERS patch is applied, neither .yaml nor .c can
+be found under kernel source codes. I think this is the question
+you mentioned. Please correct me if I'm wrong.
+
+Sincerely,
+Ben Huang
