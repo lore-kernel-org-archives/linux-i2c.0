@@ -1,108 +1,172 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090664248A0
-	for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 06:53:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3575431A4A;
+	Tue, 21 Jul 2026 07:10:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784616821; cv=none; b=BJNVO+ekWv2Ks/6yXyTPW+yjbUyT5p6hOojs9V3oloGaJcu5dnC2DHpwOgFn8PWW90uN0nSVcqCPhbuxbhXFwesUJLxxQTAU4pDDru+ijxMpswOjUCkftMe/KNkd1rbxcZ5osWKxVX74Rzat/6Kc5rkE7rA0IrdQHoKJMRnI4/g=
+	t=1784617824; cv=none; b=X8wal9FjqxKqGuqS4ZlW2Gyder0NOKQlDZD8Lo05t43KmW3mMfoSbFkUYJ+cht92oAmEMfySrBT1VelN1qcBFRZ7+cr2p0jAd+v/nxr2FMoaNQFLoqVBKeZ+AHtgcNlcuyItvsuQH1vDuCieQZS/SBmNPMjfIzuVaE7eKVqJ5As=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784616821; c=relaxed/simple;
-	bh=ixdGlAM3wCiU5lS8naFSfuzWJaqJXb660cRLf1Drrso=;
+	s=arc-20240116; t=1784617824; c=relaxed/simple;
+	bh=ycEHmlBmFlbGg/OD7w/JY18OEOVeBzV8qNCEV33lyrk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q04A2J7vpHcDN2F8u34qC+tx4uwiwnAbjB7TNGaQB6GLlqM9QHnqER5HcQAM4b++Q5lxKsJry/mmfYPkwCeAICyRjZqL3OyGO+8C92UaJNzZEzyFpAoZFb35P34JiagC0enSYWakz+BKHJjnkORmlggPc8CBIM4t/HebaFkynRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bk+Ov2xL; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=HkZsgYlNaYGXlqzv6W9oaM0cl1CPpRxRiiqkWhVBlGV+ldMlNE6fQhe1gUIxypzb5j4wCRgHDDOd5GE5MNU0g8HmyeiZfJUmM1qnW4szmZKBCuS8WTmaV9IM7YKpcKcBn89UWnorgSpHraIDAv2KaKhhLbmunewb5IbSrZoRkVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XZZxP4Uk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bk+Ov2xL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=CFAV
-	HN4DnxrSapvSWrDxThLWS1I2WpJWFBcxdY1ys9Y=; b=bk+Ov2xL/0AAcwNpGMIh
-	9f14n4Eqb/F8TnAfU29xpnhXo2rsI2tLI0ZBtIJ1mTghsiH09co43wDy9qYJb9fY
-	Z1a7uyEIRxLyMPbDUlp17PPfatB0Vr4JjUivp88mQ2EPgT5iZ2k4BbFU+fFW6IWU
-	2qzaBcs+2k106xQAkS6OXAaNiHxk0QN73c+6DbUQUC00HcpAdvxqlMQyOdZCWpxY
-	sFfNY7Yv8GZVpT8yiTGDI1EpI4kNcdF7lxYdVqbq37om02o3EKDgZpi+bc2IKRj7
-	vB+fM2ypfjMtevnhORIYLpU4ZzmFgo/o1Cz+CLuZaLz780tjA8hnHwyc/z/e2zdK
-	GQ==
-Received: (qmail 2744309 invoked from network); 21 Jul 2026 08:53:31 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Jul 2026 08:53:31 +0200
-X-UD-Smtp-Session: l3s3148p1@LIEbexlXDt4ujnuL
-Date: Tue, 21 Jul 2026 08:53:31 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: "Tandra, Vasantha Likitha" <VasanthaLikitha.Tandra@amd.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"git (AMD-Xilinx)" <git@amd.com>,
-	"jdelvare@suse.de" <jdelvare@suse.de>,
-	"Datta, Shubhrajyoti" <shubhrajyoti.datta@amd.com>
-Subject: Re: [PATCH] i2c-tools: i2ctransfer: Set I2C adapter timeout using
- I2C_TIMEOUT ioctl
-Message-ID: <al8Xa6P7YYRwOn3D@shikoro>
-References: <20260720163401.2001860-1-vasanthalikitha.tandra@amd.com>
- <al6c2VXwLFcNRLu7@shikoro>
- <DM4PR12MB77657106776BE150FDCCF7C093C22@DM4PR12MB7765.namprd12.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XZZxP4Uk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B0C1F000E9;
+	Tue, 21 Jul 2026 07:10:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784617822;
+	bh=yIGkGQ7+1uRZgNjM7NPhwIGZ9Ea2jPnWaCNwrejgXGo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=XZZxP4Uk2KpocxVT5WQeb7P6/6RwAU//TxsAAvPCKDW8p9sLMlzCsus1uHBe67BRK
+	 XbwBoSILF5O8xZqJLLlqnDSRG8AHoRheGxG2c15xPhrB2YJc977dtg7ivTpgD2iyur
+	 I4GlBW3Sw/fd/eNq2RPpxmhzzm0ekxsl1K2SWkpe3dqcqHS1vOZWbB77lzNL8ex9CZ
+	 EJbtvqc/YIU/CYble/WdX/HxtIPhlrZ0VdabXey60jui3BYD8aPTlo1Oen0+pz0gaL
+	 3BkNyXpFubzuzsjNvmSx592ow5Wdf+uYX0/G/W4p3rajnXwvQ68zXZwrp/qDmpkwic
+	 /rFP5zDDbeSdg==
+Date: Tue, 21 Jul 2026 09:10:18 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Nina_Kuo@novatek.com.tw
+Cc: andi.shyti@kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
+	conor+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, ben_huang@novatek.com.tw, toby_chui@novatek.com.tw, 
+	shihpei_hsu@novatek.com.tw
+Subject: Re: [PATCH v3 2/3] dt-bindings: i2c: Add Novatek NT726xx SoC I2C
+ controller
+Message-ID: <20260721-notorious-flexible-uakari-ba8e0c@quoll>
+References: <20260715073503.147552-1-Nina_Kuo@novatek.com.tw>
+ <20260715073521.147610-1-Nina_Kuo@novatek.com.tw>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="L8fXuN5FNXBBuQ30"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <DM4PR12MB77657106776BE150FDCCF7C093C22@DM4PR12MB7765.namprd12.prod.outlook.com>
+In-Reply-To: <20260715073521.147610-1-Nina_Kuo@novatek.com.tw>
+
+On Wed, Jul 15, 2026 at 03:35:21PM +0800, Nina_Kuo@novatek.com.tw wrote:
+> From: Ben Huang <Ben_Huang@novatek.com.tw>
+> 
+> Add device tree documentation for Novatek NT726xx SoC I2C controller.
+> 
+> Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
+> Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
+> ---
+>  .../bindings/i2c/novatek,nt726xx-i2c.yaml     | 74 +++++++++++++++++++
+>  1 file changed, 74 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+> new file mode 100644
+> index 000000000000..866589c5ae51
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+
+Filename must match compatible.
+
+> @@ -0,0 +1,74 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/novatek,nt726xx-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +maintainers:
+> +  - Ben Huang <ben_huang@novatek.com.tw>
+> +  - Jason JJ Wu <jason_jj_wu@novatek.com.tw>
+
+Why are you changing the order of entries in the schema file? Do not
+come with own style. Please read and follow writing-bindings and
+example-schema.
+
+> +
+> +title: Novatek NT726xx Series SoC I2C master controller
+
+So 726xx or 72600? Confusing.
+
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: novatek,nt72600-i2c
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clock-frequency:
+> +    default: 100000
+> +    enum: [ 100000, 400000 ]
+> +
+> +  novatek,hwmods:
+> +    $ref: /schemas/types.yaml#/definitions/string
+> +    description: Name of each i2c pin, must be named with "i2cX". (X is
+> +                 an integer starting from 0, must be unique)
+
+I do not understand the purpose of this property. How in one string can
+you name each pin? And why would even need to name each pin - why would
+that be a board setup? Pins have FIXED names.
+
+Drop property.
+
+> +
+> +  novatek,stbc-controllable:
+> +    type: boolean
+> +    description: Set if this i2c master, named as `stbc-i2c`, is
+> +      controllable by stbc (Standby controller, actually is an 8051
+> +      micro-processor) on Novatek NT726xx SoCs.
+> +      For these `stbc-i2c`s, the driven clock is only 12 MHz and the
+> +      authentication to stbc must be executed before controlling the
+> +      registers.
+
+Compatible implies that, drop.
+
+> +
+> +    default: 0
+
+Don't vibe code stuff.
 
 
---L8fXuN5FNXBBuQ30
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi,
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - novatek,hwmods
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    i2c0: i2c@10000000 {
 
->   Thanks for the review. Your suggestion makes sense to me - I'll move
->   it out of i2ctransfer and add -T (timeout) and -R (retries) to
->   i2cdetect instead. I agree a separate i2cconfig tool is not needed.
+Drop label
 
-Great, thanks.
+> +      compatible = "novatek,nt72600-i2c";
+> +      reg = <0x0 0x10000000 0x0 0x100>;
+> +      interrupts = <0 67 4>;
 
->   While checking the list of ioctls, I observed the I2C_TIMEOUT ioctl
->   to set the timeout, but I did not observe any "get" ioctl to read
->   the timeout value back from user space (same for retries). So
->   setting a value with -T/-R works, but reading the current value
->   (when no value is given) does not seem possible right now.
+Use proper defines.
 
-You are right. That shows how seldom those IOCTLs are used. I forgot
-that one cannot read them, sorry about that.
+> +      clock-frequency = <400000>;
+> +      novatek,hwmods = "i2c0";
+> +      #address-cells = <2>;
+> +      #size-cells = <2>;
+> +    };
+> +
+> +    stbc-i2c1: i2c@20000000 {
 
->   Could you let me know how you would like me to handle this - should
->   I keep -T/-R as set-only for now?
+Drop example, almost the same, so pretty pointless.
 
-Yes. This is the way to go.
+Best regards,
+Krzysztof
 
-Happy hacking,
-
-   Wolfram
-
-
---L8fXuN5FNXBBuQ30
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpfF2oACgkQFA3kzBSg
-KbZhbA//Yr0TbpkW5aZGVwRetVZyYrKwX0VPP7EkUEgznL/B+tHh0WCfmX18H27Q
-6ihGxRjpn8hqjDtFLlGuqFtlzrLKryRS7mk/2wMLTf/0Fo3V5h5B3qK7cYVRxG5w
-4GEG7pxQApimAjAhzGM7VEoOYWaAn9CJCH/MxspuMSkrYaisQ2NkPJQMCba3odo1
-2KWuQtalSSp+QjVqsKhEVXqQX/p90CDdBVR70dTsj51ck/E8PcGkrUKj9xS8/nSL
-EbR6ctG8xNFMy3jSDDTDRCDAOXR7vQICZpdqNMl8iOqsaE1++v1kM3w+vLPAqlZp
-tcb2oRlCWJLtt3IIiXOw9AC2PopDakJ5cj07EKFskNaL4kQZXRsaFqylP57vdU+s
-GnChx2RpRP+5f9AU6FNtGrceVZw/yel9wpoX2bVywUK7tawPLDEnbtKlfLFDZNJw
-RNphIxdHbiupSgTm9mbyD/N90yj1SQyqCxrOP3KbaNqVy3e/CqRSY9dRj2xD1AlN
-IdphqKGMKwEaU2BNfjOFOmLpc+SmZ+onbf25rzkN66EkD4vgG4wedV3hrEATKJwX
-ik3TvEr90DDW6uNONoZBUaCR5ryBOihCFIhhKVwI2jevE5bDN2/OH/7sQ8snAn0x
-Foyf6JaYCMoIqexgXddqbhqQ1wSpbi0R/R7cxKAKIpT8uXdJjQE=
-=/L/c
------END PGP SIGNATURE-----
-
---L8fXuN5FNXBBuQ30--
