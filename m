@@ -1,79 +1,124 @@
-Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF1B1E47C5;
-	Tue, 21 Jul 2026 08:01:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3670E40800F;
+	Tue, 21 Jul 2026 08:08:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784620885; cv=none; b=UnewJyJ3OzYupQQR0wPxULFwE2yNPBOcgn3rm11AUyHnLmE/oOTmruYZN4L1cGW6KF4zeguDDB5J2a3QLE7VGnnkvSLF110aevXtGSwg0JzApIRwGPV/DG6qfK8/7pMRCbIdZRBPZNu+jPxkZaL467nfeF9cCahXyipd7gSuZ8w=
+	t=1784621321; cv=none; b=ZQqyrRjMbMHuuJQe2mCMdz8NdiYvcP0+PYXzipjN6/0PSv1F0d5opvY8NnQg+Utu5pOEM2Y1NaszP3J9nvynb3CvHiYQsfSXDLTjEzgoE0hZ5F8vy9OUrRw0FdeZ7Jyzx2UptCm/dYlUltzl5+rWHhBQk5n1Or2Bd1ywaYuOM5A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784620885; c=relaxed/simple;
-	bh=5SM9NsOwtuQW0KSV6fPdrF5SSQb+vnwKSLSkMeWaGa8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=WRs22HCLoDaKx0Khmf6S656VG0R7PNlVVNmVOAk++50n82v11iC5Mlj4y8kLAeRU62XAGk+3GV1JGvkHKEzUwivOdPz1YZ8P6F6ZCTcFrIFhUiKtwrW9H/JjiW85EKFK1SXr5iFoks1pCgZX80nQS4fvPI1NsU2XuoPCB+JUcxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=mSr2frTm; arc=none smtp.client-ip=210.202.87.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
+	s=arc-20240116; t=1784621321; c=relaxed/simple;
+	bh=MZZa0tR8Myo1faIzkYjIcaeq4PcXoBrH90pcw3QWkPk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DXL8+/XzEfWBUHJCY1knUEpSlF1qOX2cJbTPX6Mb0VCIk5ikehFHApTwihjqt3uWFThrsgNPiriRsL8SxwADqcnDYWtXebs7UqGGAFNvU9Uub2c1UZhCCkVa9u1sYg+3xcKmmuk3yRgzTryE2WADu1kSF5o/1k1f+8kechr/aAY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D1jo9ECE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="mSr2frTm"
-X-UUID: 57e1d77484da11f181a149c3f3c08161-20260721
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=5SM9NsOwtuQW0KSV6fPdrF5SSQb+vnwKSLSkMeWaGa8=;
-	b=mSr2frTmpn9+fTat5gFbpOw0KSRwVCbQU43PvLC+7gP1mFoS71ge/WbMt12602O7dy6XkZZFvyjuVODjK4YHg0BKkUM3rN/d9iV+JZ3T0mOrTQA51ONbSvEduK9qJJ09b7UPhHPfjNPLjm5gW+It2AKNFHbGDlb7UWTEdh52miE=;
-X-UUID: 57e1d77484da11f181a149c3f3c08161-20260721
-Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
-	(envelope-from <sp_isw1_at@novatek.com.tw>)
-	(Generic MTA)
-	with ESMTP id 371194608; Tue, 21 Jul 2026 16:01:13 +0800
-Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id B9F761A1E1C;
-	Tue, 21 Jul 2026 16:01:13 +0800 (CST)
-Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id 9D626C600CC; Tue, 21 Jul 2026 16:01:12 +0800 (CST)
-From: Nina_Kuo@novatek.com.tw
-To: krzk@kernel.org
-Cc: andi.shyti@kernel.org,
-	ben_huang@novatek.com.tw,
-	conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	krzk+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh@kernel.org,
-	shihpei_hsu@novatek.com.tw,
-	toby_chui@novatek.com.tw,
-	Ben Huang <Ben_Huang@novatek.com.tw>
-Subject: Re: [PATCH v3 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC I2C controller driver
-Date: Tue, 21 Jul 2026 16:00:43 +0800
-Message-Id: <20260721080042.472564-1-Nina_Kuo@novatek.com.tw>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <65492810-a5ae-4686-b7e9-2cd43afd47df@kernel.org>
-References: <65492810-a5ae-4686-b7e9-2cd43afd47df@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D1jo9ECE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A2721F000E9;
+	Tue, 21 Jul 2026 08:08:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784621319;
+	bh=Jp3OesBiC/KM7Z9f2/RY1iJQJypMasosTs98MdvvuL0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=D1jo9ECEMYDjV39NV+iTnK2y9JINzxxXXw9AzDuwfzJ8T30/EDQfZL080rvQ+HJAv
+	 8utjK1wUfeZcS3Naj2+KbnED2ORnJ9F5UMWYEzZMPa77aI7pqSuKAxWHfL6DBzrNx4
+	 SuIR/XuQarGddrzw6Aqcs22tRh2m2GUfe+T84H4pxslSIQ3p4RsyQx1GpX8G3wad1V
+	 LzFiwS1qv2iiO15Ku5viYLpBL6TMrC5a67nJPMdvPi/SgRvvY7r0juOvhI9WjFUeCT
+	 YvzOwjpyum/rl721CnMRfKm8oFAYlyCs8ZIaEgZ7O4dY7lnIXCDmB56iOkYqpnzSTN
+	 7DvqlG8Q0WaRQ==
+Message-ID: <25ae1ecc-b7f1-4132-81f9-7bb91f1a5d3d@kernel.org>
+Date: Tue, 21 Jul 2026 10:08:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC I2C
+ controller driver
+To: Nina_Kuo@novatek.com.tw
+Cc: andi.shyti@kernel.org, ben_huang@novatek.com.tw, conor+dt@kernel.org,
+ devicetree@vger.kernel.org, krzk+dt@kernel.org, linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org, robh@kernel.org, shihpei_hsu@novatek.com.tw,
+ toby_chui@novatek.com.tw
+References: <65492810-a5ae-4686-b7e9-2cd43afd47df@kernel.org>
+ <20260721080042.472564-1-Nina_Kuo@novatek.com.tw>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20260721080042.472564-1-Nina_Kuo@novatek.com.tw>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Ben Huang <Ben_Huang@novatek.com.tw>
+On 21/07/2026 10:00, Nina_Kuo@novatek.com.tw wrote:
+> From: Ben Huang <Ben_Huang@novatek.com.tw>
+> 
+> Hi,
+> 
+> Thanks for your reviewing.
+> 
+> Sorry about the same mistake. This is the first time for
+> submitting kernel patches.
+> To fix this problem, shall I put all modifications into 1 patch
+> file? Please correct me if I'm wrong.
+> 
+> In the patch series, MAINTAINERS is in the first patch (1/3),
+> related .yaml (2/3) and .c (3/3) files are in the subsequent
+> patches.
+> If only MAINTAINTERS patch is applied, neither .yaml nor .c can
+> be found under kernel source codes. I think this is the question
+> you mentioned. Please correct me if I'm wrong.
 
-Hi,
+Please do not top post or remove context you are replying to. I have
+like 200+ emails per day, so what is this about?
 
-Thanks for your reviewing.
+Please learn how Git works, how its history is organized, how commits
+link to each other. This is nothing specific to submitting patches or
+kernel development - this is basics of Git with combination of
+bisectability of software development cycles.
 
-Sorry about the same mistake. This is the first time for
-submitting kernel patches.
-To fix this problem, shall I put all modifications into 1 patch
-file? Please correct me if I'm wrong.
-
-In the patch series, MAINTAINERS is in the first patch (1/3),
-related .yaml (2/3) and .c (3/3) files are in the subsequent
-patches.
-If only MAINTAINTERS patch is applied, neither .yaml nor .c can
-be found under kernel source codes. I think this is the question
-you mentioned. Please correct me if I'm wrong.
-
-Sincerely,
-Ben Huang
+Best regards,
+Krzysztof
