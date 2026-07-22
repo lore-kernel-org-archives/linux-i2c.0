@@ -1,95 +1,97 @@
-Received: from mail-m49210.qiye.163.com (mail-m49210.qiye.163.com [45.254.49.210])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C16AD18A6CF;
-	Wed, 22 Jul 2026 07:36:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.210
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B33D147607D
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Jul 2026 07:56:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784705771; cv=none; b=RLXPoXLGlRlhG9xXn2HcH91ReCy5WXF9Nk/GUgW4ZjgiuCwW21IMD3UldFjsBEEQFtH+GYUM/NkuQF85wNa9CJD1OIitsUteixlGjv92NSG1zHMGkWZ8zjOdY1QwpZS2J4+59O1MRZnIEXWGrwMs4kpWPL8VFuWRoCjlg6O9oZ4=
+	t=1784706998; cv=none; b=Xgr1lqAOushg5NoAW7qUhFgoIk31LzgoA6TdX4bb0rg9937XjHLjakARqdiqr+gySeSGLrmi0Q7PZVurqCGqNvHRVwPzzkFjRDNEgBJF/Zvqml0y/hCIsXcF2I9/YRdA03xWnjIS6ntqBAo+LprNsAhx1v7chb6u1qwLZxwHbWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784705771; c=relaxed/simple;
-	bh=TLK1Rv1AmlTbINIklcoklmnRTZ4ZvCjAGAtyQka5Ay4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RgRPqYANGyDVcmM1N2Yh7TL+0LME3Ddmk2K5+RZtj85FjE5SJSuXBLwKmsIHSLmpw3Os2bb7SlEzVoygD9eRrs3qrGehYew3EsViV8J4dsnm2CTYcJcJZKK2YX+T4G4hxlNkZNqRNn7txoc3ca5vFH2wv2t6tqu7sr+s9iHUyC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com; spf=pass smtp.mailfrom=hj-micro.com; dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b=NH3naXSF; arc=none smtp.client-ip=45.254.49.210
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hj-micro.com
+	s=arc-20240116; t=1784706998; c=relaxed/simple;
+	bh=3cu0k1QMZBhmvliQPLJ6WS1V8wK+bQ5rbEx+U6SwPwc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RwqKtUwDVdqq7hZgJiRDE7WSTWl2eoRCuUNIudlWYMrjgSeja0HaWDH2BU6S+OpW1DRtpBkRP9S6jP31vcXLaOn1pe/tjf+foK7m01QdgmAkcL88r3fD08U7k50l+MsjTmftI2fZyfbSy6lNPD/gUv6+ECegovTa/lP0dHezTb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mGLiPXqC; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b="NH3naXSF"
-Received: from 1clarkelill.hj-micro.com (unknown [122.224.241.34])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 472001f3d;
-	Wed, 22 Jul 2026 15:30:44 +0800 (GMT+08:00)
-From: "clarke.li" <clarke.li@hj-micro.com>
-To: andi.shyti@kernel.org,
-	andriy.shevchenko@linux.intel.com,
-	rafael@kernel.org,
-	jarkko.nikula@linux.intel.com,
-	jsd@semihalf.com,
-	lenb@kernel.org
-Cc: andy.xu@hj-micro.com,
-	linux-acpi@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	peter.du@hj-micro.com,
-	clarke.li@hj-micro.com
-Subject: [PATCH v3] ACPI: APD: Add clock frequency for HJMC01 I2C controller
-Date: Wed, 22 Jul 2026 15:30:31 +0800
-Message-ID: <20260722073031.1078080-1-clarke.li@hj-micro.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <yha25jhjmd5qh4prwnyhqr2sfxvw7v2hzwhhv66twtx7ft4siz@fk3d4t2d73dj>
-References: <yha25jhjmd5qh4prwnyhqr2sfxvw7v2hzwhhv66twtx7ft4siz@fk3d4t2d73dj>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mGLiPXqC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=3cu0
+	k1QMZBhmvliQPLJ6WS1V8wK+bQ5rbEx+U6SwPwc=; b=mGLiPXqCwFOMLp2vguUV
+	ZJjdGHQpHa8GXQfIk7V2kVIjerpJz3FVsyDmsNwTmdFNTMwdIETlrUdxTRi0jj10
+	7J2vjB7tKiLLmrgYKG64oGvqX11730JtcJRKb/XTjDdMtImGcDp2sxZkP0TVfb+Y
+	RnCotlhdkSyQuRXcXg8S52/4Gf0xlPqualm8y46q7Lrec3t9J+8epfuKS4KXQ9pO
+	i2IDvKQwyR40+FVWF/bg954lU3c34e+bNgv31sv/8cLLXBG7k+K9vJv2UX0gEitv
+	ha8ZFQ/dljnr3g8hyheQzp5zesvYzIfqU+jsuQ58n/w54qxSla7gu389gAxTzvo/
+	Sw==
+Received: (qmail 3128026 invoked from network); 22 Jul 2026 09:56:24 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Jul 2026 09:56:24 +0200
+X-UD-Smtp-Session: l3s3148p1@R7/VeS5XfUhtKXDg
+Date: Wed, 22 Jul 2026 09:56:24 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+Cc: Vasantha Likitha T <vasanthalikitha.tandra@amd.com>,
+	Dmitry Guzman <Dmitry.Guzman@mobileye.com>,
+	Aniket Randive <quic_arandive@quicinc.com>,
+	linux-i2c@vger.kernel.org, jdelvare@suse.de, git@amd.com
+Subject: Re: [PATCH] i2c-tools: i2ctransfer: Set I2C adapter timeout using
+ I2C_TIMEOUT ioctl
+Message-ID: <amB3qFSwbeDZ5l7Q@shikoro>
+References: <20260720163401.2001860-1-vasanthalikitha.tandra@amd.com>
+ <al6c2VXwLFcNRLu7@shikoro>
+ <67436ff9-e440-404a-a52f-e5b238256152@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0a9f88bbe95209d6kunm3d6ca45574ff2
-X-HM-MType: 1
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlDHhhPVk4eGhkeQkMZH0IeH1YVFA
-	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSUlVSUlPVUlPSlVIT1lXWRYaDxIVHRRZQVlPS0hVSk
-	tJT09PSFVKS0tVSkJLS1kG
-DKIM-Signature: a=rsa-sha256;
-	b=NH3naXSFaXBIzGRfddkOrgdPTg9lSUDJeZ1o0yzq+3S2ypChpKmAujiECJylIN8xbj1GBgJ9+hqygF7Mph4aK70DHiPKMJ+JqrhW5kid25ZwzLdEjMiuy4Zxv+Yg3jJTLL01h0WJ0YGvJen4SKxqF4Bd3u/jMZy7ztdQqkVjVCI=; s=default; c=relaxed/relaxed; d=hj-micro.com; v=1;
-	bh=ge/pmYth0IkVKjCzXp0bEbXzIs6tKqipYycsTpVSGP4=;
-	h=date:mime-version:subject:message-id:from;
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="UIt1LAmLYS4JvK3S"
+Content-Disposition: inline
+In-Reply-To: <67436ff9-e440-404a-a52f-e5b238256152@oss.qualcomm.com>
 
-From: Xiangyang Yu <hunter.yu@hj-micro.com>
 
-I2C clock frequency for HJMC01 is 200MHz, define a new ACPI
-HID for it.
+--UIt1LAmLYS4JvK3S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Xiangyang Yu <hunter.yu@hj-micro.com>
-Signed-off-by: Hongnan Li <clarke.li@hj-micro.com>
----
- drivers/acpi/acpi_apd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-index 008bd0552cb7..a193d8a6538e 100644
---- a/drivers/acpi/acpi_apd.c
-+++ b/drivers/acpi/acpi_apd.c
-@@ -192,6 +192,11 @@ static const struct apd_device_desc leca_i2c_desc = {
- 	.fixed_clk_rate = 250000000,
- };
+> Why userspace need to decide and set the timeout values for adapter ?
+> Adapter knows the transfer frequency and transfer data length, it can be
+> calculated by core layer itself and can set.
 
-+static const struct apd_device_desc hjmc_i2c_desc = {
-+	.setup = acpi_apd_setup,
-+	.fixed_clk_rate = 200000000,
-+};
-+
- #endif /* CONFIG_ARM64 */
+Freq and data length are not enough for timeout calculation. It is also
+board specific (e.g. capacitance) and environment specific (surrounding
+noise). It can be argued to modify it from userspace. Unclear how much
+that is used in practice, though.
 
- #endif
-@@ -264,6 +269,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
- 	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
- 	{ "LECA0002", APD_ADDR(leca_spi_desc) },
- 	{ "LECA0003", APD_ADDR(leca_i2c_desc) },
-+	{ "HJMC3001", APD_ADDR(hjmc_i2c_desc) },
- 	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
- #endif
- 	{ }
---
-2.55.0
+> Retrials can be fixed and hard coded for everyone.
 
+I don't think we can remove the interface because of the "don't break
+userspace" rule.
+
+
+--UIt1LAmLYS4JvK3S
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpgd6MACgkQFA3kzBSg
+KbbmDQ//YV29lovlQ/xGMqoZdsn6gxFRjGuE1JYGno8HetY++zBP9Ixut4QGu4E2
+eT8guoIjxCW2myd0yjXOwnzlEC2AVyAbbtPvmgFu6gvFk3uppYCpAs55kIHUqSUv
+c0aBSolLaZqoKxhBDCZnZ59HtrcABd6q4ZydARL9Nx3iUSb61pF2QUhkQUSmcJ/f
+D4KoAQX5xNVDgHhPf8BKj9GtJj4T7KGJhDy4vRzPOClYBCpoIO5HVxjZ7Iu30oc8
+c4tZAoYnVlWS/snQGb1W7Pt9tCl3c4WDP32jX4v5ctEHEPPY/pHo0EMLkPwRBG2M
+Mb3q4/B6NohtPrbPzc42qosrQjQjCotU+NL67A/UtIJkusGb71XNJldROKaoX2dn
+fH/MakrI5aXbvsm6RYGa3+qHViET4w0RkCuEs4FS67YTK/cv2CNbS02X1YWnX8kU
+eeODoxbnisuClYjQfqegagddkTXDb/fWcAQ4KbZXsf4dll2pgCxO+FW4HmSCKyVl
+dYV251h1aUpbrdlhSrBmPJT/B/xzq0XD/07bsWkUGiPr3FAWENTGW1vwZkhXEGBr
+o+sKtg68LRhJPP4W3ow0eW8j7FOIqwxfW751RLiVQkFcjLBQfaIBeD+irFn8dTL4
+H0/Aj3csTRnza2sQVQ3/Obfj0CiLlJN+FrzO9As0eRi8qLnRlAo=
+=8P7C
+-----END PGP SIGNATURE-----
+
+--UIt1LAmLYS4JvK3S--
