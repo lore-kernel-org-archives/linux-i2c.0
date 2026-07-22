@@ -1,167 +1,181 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98C73E168C
-	for <linux-i2c@vger.kernel.org>; Wed, 22 Jul 2026 03:33:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784691237; cv=pass; b=XJL6ZPfKOVy1RzcVbvntsFBSsY4hIyN28zxlDT7I/ZeLt+PftMb+6R/cOI6aJXbtETMKFuezSM9CIy05Rs5MRB5zaVq6q3/0o1A0mZr/wh6wjP6hYShpR9KihPPnXhCvnG4LZT1/fhTXykOTA4c5uwKOd6ZPUb04Np5HSEL1jeU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784691237; c=relaxed/simple;
-	bh=TmfjsaY5vDGWro2W6B9BTuFvkBc8bjylIqjuthGf42o=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P1vc5/IyfkLTHM+iBVHnh5EoXhpgHjRkBxS6Vva/omEpHB9u+Cz95ikAveiygcM/QUZLey2Agrmc0CCmcJQ5+jSMJC2F/M+DimHyioaqC1P2wWopneTtEnq30T77+WUzFEoqtNw8KCb4dvqPvSfS8depVK9bMli0RyjFz9gDXPg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ZJPFEFHh; arc=pass smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8E92E7373
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Jul 2026 05:25:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784697922; cv=none; b=lkom/iJQO2ISQqHyFSoBm+Ur8na6mInXSqTEtO4elNqdYdKOaPhDhvgzUfrry8JCjvHSP/f1fGKODvhqXlw5lDE2HEg2oThzkPjYQBEUztsGEJg+bgesmq8smdYitDxZp99UJkd3W1oiU3uNeLC3l+5Nod+WegicBmC07g4B0jw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784697922; c=relaxed/simple;
+	bh=5ayDULpMk8hHG7OhaFCanS8CQrSX6NM2+R8ihs6w1e0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HKAo6O9Z7vLnLiZqPkdJGBStNgNTeEG9qbw0QkcZA2LPr13ScrY5CNIc7qDMjDhWnOZxtHxSEOhBweG5XyAP01NHol5wn4TEneZnqd7K+8HX84hDTqe2h0Hw501vIdtR5kujj3vY4beCaCC2k8OhuQB0UbfdHYURRiYiI0CRMOg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=IGTSlxlx; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=MBOuwfFf; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ZJPFEFHh"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-81e9d8f3289so97358247b3.1
-        for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 20:33:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784691233; cv=none;
-        d=google.com; s=arc-20260327;
-        b=pNMQIqKPhwCTPcW5G8exRE63AJEe8gA5z6I9u3ra1spnO5U8qHsLjbWIhJBKlYihEd
-         OOOW21+yPuuzK3NUfBJIDowGSxrta83g3WPQKP2tnr6gIGQ11A0AYNjdoeTq/XeAEWhm
-         cENNOAYn9CNLsFDZe4WvfmSMP7Bo9RzKCk3uI1DdvCA7c/o4ZfyBT8RSm9pk+qbSgjY3
-         FVutnzRFZlF81gl4mbwW3SmxFuZU+KuPGVKOo8oF0/k0zwFBcsXV76XQp1Luf8lTaZQz
-         ZOjNamaq6re4vA07Xph+nrSZNSMdD7XYNXj4yLawqrRnwl7LbT7OYdqIcgEYgbJxfWYp
-         aVxw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=9KcR04mJabpHychs/QIME5IF7elu7nLc7+YdcFBgs0g=;
-        fh=x97o+YZe8JZtL6M8nXDmqEZtIXmxZDGm3OtIMNvgUbk=;
-        b=iS5eqhObkk/gPHqf07kuCSP22oY5XpSsjh0dm2LJBmjvGwaodOYXRshHE0GWDeqdFt
-         pCLX6tui9Aw2s9q705J9z3UJPDMLppwp4uW29gBu49dmmmCW0xl835e18z6im+mQr1OZ
-         2ioQM68nua/cgLH35QohX8wPF3iWNKHoGoGf+yEBphrnOZ2Dsj3qbAtAsRk9ymwTJYV4
-         xHwZflmg3khtf03lWArRcT5FswoL257yItY+8Xphtt65IHFbEvsThpPgqng13k/bCNEK
-         TCGnMUmA0srcldYv2ns/Uet+Y8AOhpAjHsJ3BQf/tWLwANZdtkDt0Y7o4HnrAYbeYPqK
-         R/kA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="IGTSlxlx";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="MBOuwfFf"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M53fIY4027269
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Jul 2026 05:25:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	0CPv89+vhijrrUJHLgTqDg2ulQOVqGpYMe53CZkhxZ8=; b=IGTSlxlxJG5YYkS/
+	cceHnDqFUJmzi3Rgbf8UMEgfPJ+d0P54tjrN+2+U36pTQai7RgSckc7i3y2uhwUH
+	RTJ77J4QyjBKAhOe+geo3EPoNgYTwCXvRma/vCUWiUitrYaA35HuRWRezXng2vF0
+	LTmbJ+kU2QY4OeB4w+TzMvSddiIrS4cbxL8CQSb8UGWISukZchcxMyW29CrWQXyo
+	PWh2iSnEpind9LIW1wCLEddATtK86HxAE6jyJmdVxbycA2FdPoVs0UJPBPThrXxi
+	z+Th83MVArIgCvWTJhh+xe/Id59j1zoWI80jMAZTJR5llailY1LICx94ntyb3Obr
+	90MHqQ==
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fj9bsbmfs-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Jul 2026 05:25:20 +0000 (GMT)
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-8485d853b08so15827912b3a.1
+        for <linux-i2c@vger.kernel.org>; Tue, 21 Jul 2026 22:25:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1784691233; x=1785296033; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=9KcR04mJabpHychs/QIME5IF7elu7nLc7+YdcFBgs0g=;
-        b=ZJPFEFHhqJfG1rtQCPEJX2PSJp5vKO683uHdsZtYK7BuHvZe1ToftaK5onAL+4DnLh
-         9JCFZEQUUeqvBfesE0ZE2bTPrlW5NJQH/YtJIPbY6Ei1purp/oYrerLgSHMlG4iElUOv
-         JVr3/YZjB2H9Wl6CjC3a3ABryGYEFN7a8ovTs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784691233; x=1785296033;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=oss.qualcomm.com; s=google; t=1784697920; x=1785302720; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=9KcR04mJabpHychs/QIME5IF7elu7nLc7+YdcFBgs0g=;
-        b=IX38o+O1+g1SE3OqWHcsaCrFkB4C7QFL0Rnw9YTFEsLRDvvAM2B6qGTByhijGtkZM9
-         XrtuFfoVkab04nGcyMVHsAbEAAvLVR85fbbY03BlfebBxFQXQJeiaXxX3T2qHEl110+z
-         fXs1mbEWUoYWADgo2M/H1QhooQZ/QPnqSbceagUDVCUl8S7CnFOAKr8bT4ih/6UzRTDV
-         5dqCQ6KfHQWZ19mYdmmtAQz7Ixn0atwCkDQrAt9o7GPp3XsVFI8yGz/6KzUa/tA2tk6q
-         mpd+g3DBqoURAFJjQ8Wz1tstfyUHmyZunAfaDa//1JFoPn6NRZD0P54nq78ppkguAct+
-         fc7g==
-X-Forwarded-Encrypted: i=1; AHgh+RojPG12chJFwM5B+RIKPBwGLY507qvY1qZPdmmbqRbbANgJ7VON+fuMRf8hjpFngLDZUbVanS5xZOg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxH8DqVZZAbNQy3gP1CE6slQ9ApprPgSw1/PAdmdSAdNvZlQZ7I
-	lS8jhiJ36f/7tbucM0O6rNpaGxghoCCch3EjKSiVvQE8l9aCYatb2dkvnQfJotG/Y6hU9b1jlPd
-	3sBv9onxbyYOfpGEbazyM+s91AvDnbaQ0mr2wZTX9
-X-Gm-Gg: AR+sD13l4aq9bxsDYSOEuGbPVEYiyJGuYvOssbVtuq2ydNZfEA3lL0ydgV48TXKPK8e
-	KNhn/5iFqvkE4LSgQThvSCoE2sexXvhThEl+n1KzaWxHTske1C0lwEFBzrETu2zlK0wzPKI+cW5
-	LWA9i13343rPwWZRUdsUdO6cPQSjN6a5m9+8J9hLj7RfiGe36QvxG2Tsh9H0ExaUUXfMecKJkMC
-	BAGh0JJ7l4q1/nUovS3pqZlJ/eo5GvmPo91HhLQBtIuvp7w2T1Lhre2i3rP11eHc7tZqVHCTG1R
-	kWDYgUgrDE0A0hg=
-X-Received: by 2002:a05:690c:6e82:b0:80d:f376:5ba9 with SMTP id
- 00721157ae682-81ef252e359mr66727137b3.24.1784691233300; Tue, 21 Jul 2026
- 20:33:53 -0700 (PDT)
+        bh=0CPv89+vhijrrUJHLgTqDg2ulQOVqGpYMe53CZkhxZ8=;
+        b=MBOuwfFfgg8ULNLJEFCvM2savY9LYJv4dgF/LVu8OVrrEgVay/8Qt+MSXHCma1tNDY
+         HdPFy/DPTQc2KspdjHV6eL5AQ4z3Z3OQBiiOKXL/HGzvAgRa02WSMadbSo6JrRsH2MlI
+         2D+FcW5Un9zET6oq5lnTtbLE6jliKIAMVnQkcXGqbDDT8araTgYnM+0pHlCwhwuUDLG3
+         siNizQxtnTXM+ewUwd7S8z1NwUnSyvDWVyOOKL+U2jouFEI4WabFGveQyvtFoNtra5aC
+         TiMtyYBYMj37TIlRiE6Ryp9qvAaGjpXwDY9i3ac2pHde/hwaB7zHhbLv4ngEu8mDRfFt
+         pStw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784697920; x=1785302720;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=0CPv89+vhijrrUJHLgTqDg2ulQOVqGpYMe53CZkhxZ8=;
+        b=sHRyDOBCaDPdHLg6eKBrCWa/lRwJwNJvlSzZbfew7szB9hDiEppYE5CA17hzGIvwB4
+         UfiKzXUXIrjT5lPN9BBPoq8Y5aN05aPtPYXfz1Cc2+BBTb8GWsiPgeURJoLMJJfbzazQ
+         51p7ysTDIMI30PRKZNLKPiyRFNY4H5AKI4nBhI5IAO8gK8V4JyLRl44D8qwbgnW1XOpe
+         hsPp5Uk8RkCC/UCMmdCP57Ry3izU1znlUEzMvo/9yFl83Hc8EtKBNyHZN6aD2vvl/EWd
+         hC/DDSjG1cQHPlNfY52y+PWbW8pyS+xiiAK285R3JZ9ZG9Hn3xZpObtRoEJr4s8CpcpP
+         RGGQ==
+X-Gm-Message-State: AOJu0YzLfhSLaddikkYL4ZxSRGENNPRFohjESPhJtuLKpJz9NLytXc/S
+	18a5FD8vHmgvnmkkKRQIuPhqjeoupIQKG/CIyI5GioVW/3BXYroLxEEeSTf0ePh8xKrVO94Wugy
+	Qj7YVQn2Ik9gCyDNfffVFGwxMUrHuqu7QTqxVRlECKQKmpPaJZwgClztT/GQG2nY=
+X-Gm-Gg: AR+sD12iDmwoZqWDgrnCFcRMXdjdqdP/S7Ncm2IXJuWlw8TVEDFccNYLt7nkDl4Rdgm
+	S7yheUUS5kb+QWOxA08EkB7yxj+J4ZxHsJ+N3T9H2MscG+Bt50TN+hGmh190NskhdM3+4udd2Sk
+	o+mBVywLFMBsrR/L3cYbPoIzziel6wQ73/K0rLuYOMkpQUcNf6nC4sDmNq21JRriNt94PKG92q4
+	+0bMtMnHi1ohViAIkKdwqZZwu9aO/n69GNKYzePeHyFQcVCgzi09WgA54TzghECuDNR8DSuDoUi
+	rur+pOqitoea27F5Rk/4kL95jWzEklwFTJq6Ylx3g3NpYLM9APYSIDZjacaJPY95gCoqJBDzNXz
+	ox+uLDv6jLsndgnD+7GwuvTDP1YnN9h4ZzBI=
+X-Received: by 2002:a05:6a00:438d:b0:848:68d7:c673 with SMTP id d2e1a72fcca58-84c2948848fmr21272971b3a.47.1784697919637;
+        Tue, 21 Jul 2026 22:25:19 -0700 (PDT)
+X-Received: by 2002:a05:6a00:438d:b0:848:68d7:c673 with SMTP id d2e1a72fcca58-84c2948848fmr21272952b3a.47.1784697919169;
+        Tue, 21 Jul 2026 22:25:19 -0700 (PDT)
+Received: from [10.217.219.142] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e172376ebsm736724b3a.12.2026.07.21.22.25.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Jul 2026 22:25:18 -0700 (PDT)
+Message-ID: <e1e38c71-5f79-406e-821c-ce37904102ba@oss.qualcomm.com>
+Date: Wed, 22 Jul 2026 10:55:14 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260721075226.2347933-1-wenst@chromium.org> <20260721075226.2347933-8-wenst@chromium.org>
- <al9JivV0SZCiOgK8@ashevche-desk.local>
-In-Reply-To: <al9JivV0SZCiOgK8@ashevche-desk.local>
-From: Chen-Yu Tsai <wenst@chromium.org>
-Date: Wed, 22 Jul 2026 11:33:41 +0800
-X-Gm-Features: AUfX_mxYNc8IPOzIIfv3TBCyd0Fs8lnIBTuyeRs9t7NJj3-mYtf52pIbJvj-z9A
-Message-ID: <CAGXv+5Es0RZiAdUj-Y3FEFHU4Km6XBOL-Gk2DbTLrF-OcD54cw@mail.gmail.com>
-Subject: Re: [PATCH v3 7/9] platform/chrome: of_hw_prober: Add delay for hana trackpads
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, 
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jul 21, 2026 at 6:27=E2=80=AFPM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> On Tue, Jul 21, 2026 at 03:52:21PM +0800, Chen-Yu Tsai wrote:
-> > Up until now, the MT8173 elm/hana device tree has set the dedicated
-> > regulator supplying the trackpad as always-on, simply because the Elan
-> > driver was missing proper delays. As a result the delay for the
-> > Synaptics trackpad was also omitted, as it was not strictly required
-> > under such a model and delayed the availability of the trackpad to the
-> > user.
-> >
-> > The Elan driver recently gained proper delays after power-up, with
-> > adaptive skipping of the delay if the regulator was originally
-> > on. The I2C HID driver and I2C OF component prober library gained
-> > similar adaptive delay skipping. The device tree will be fixed to have
-> > the regulator not be always on, and proper post-power-on delay time
-> > added to the I2C HID device.
-> >
-> > Also add the post-power-on delay to the ChromeOS OF component prober,
-> > so that if the regulator is off at the time of probing, the prober know=
-s
-> > to wait for the hardware to initialize.
->
-> ...
->
-> > +++ b/drivers/platform/chrome/chromeos_of_hw_prober.c
->
-> >               /*
-> >                * ELAN trackpad needs 2 ms for H/W init and 100 ms for F=
-/W init.
-> >                * Synaptics trackpad needs 100 ms.
-> > -              * However, the regulator is set to "always-on", presumab=
-ly to
-> > -              * avoid this delay. The ELAN driver is also missing dela=
-ys.
-> >                */
-> > -             .post_power_on_delay_ms =3D 0,
-> > +             .post_power_on_delay_ms =3D 110,
->
-> This and the other delay in the previous patches are all HW-related. What=
- if
-> another touchpad gets connected? I mean that the delays for the certain H=
-W
-> should not affect other possible devices connected to the platform.
-
-This is a complete laptop, not a development board. You can't just randomly
-swap out the trackpad. The model AFAIK is no longer in production, and we
-have already added all possible configurations to the device tree. And
-there's no extra connector or pin header to attach additional peripherals.
-If someone hacks their own device to swap out a trackpad, then handling
-the additional bring-up should fall on them.
-
-If you are referring to the delay for the other trackpad option, that is
-100 ms, and is described in the device tree. See patch 8 of this series.
-
-Any other device with different delay requirements should have its own
-entry, not reuse this one. The information in the entry is tightly
-coupled to the device tree anyway. I already corrected the other device
-that incorrectly reused this entry [1]. We have some additional offenders
-downstream, but nothing that can't be corrected in the same manner.
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 0/2] i2c: Add dynamic transfer timeout based on message
+ length and frequency
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
+Content-Language: en-US
+From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+In-Reply-To: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: Hxnjd3tUMUYDkhcxuxiwHZmrs1GsdVt-
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDA0NyBTYWx0ZWRfX0HdAz8sst/nF
+ A89VAqI+9SZmJVA9vNfk8gU4pdOqo0cUj3JM6DxU9gXCSePkhYAWGhnAcUmWvtax7adcUnFWyN2
+ RN3T3J200eHcOnOxh8WTuLeFouzzJDO5bZFjMuZEknvQ2/4fh071xsf6ASAuh1e7e3rHP4Z40A9
+ +rgXdfh5orxOhuF9qvDw/aYYZI0UrOOYGsxVAm6bjrvgFh0EoajYSRS5v4spaFttjwxIqIzzCrc
+ Gk0TOlsrapWr/IezSzLQpTGBMkVqgDK/4EK1QRFdrjtJkYTAzCaQHI8UZY5joSqSd/6qD43/V/J
+ 25fLaQMlWVyPd9N7Aj0FUSTDTT6J21vCtcETGRNyYMTOh1P8aqLHcHDNa5x/wbDXQ2F9+EWQ0eW
+ GJzvEBL3ccE/kSbUuQ6UaYf43JdJYjOOm7CKKCxFDjVhv/xOIsHuXlafJ57Ffawy8TY6a2bmkK7
+ M4n+nhI3yzTyXwTGddQ==
+X-Proofpoint-GUID: Hxnjd3tUMUYDkhcxuxiwHZmrs1GsdVt-
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDA0NyBTYWx0ZWRfX7ZtqO1xCEIbO
+ /bWg5wOl29PLM3sexTtlt8ooY17+dcsUa9XR8fA+VB08V/NWZmc/W5SE6tcDbzU5BrM2ap7s9mh
+ tCimcFpqObgChKnrf5kbYxmjnnljE+E=
+X-Authority-Analysis: v=2.4 cv=QK1YgALL c=1 sm=1 tr=0 ts=6a605440 cx=c_pps
+ a=mDZGXZTwRPZaeRUbqKGCBw==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=_aoH3E5U2PYf42VYXqgA:9 a=QEXdDO2ut3YA:10
+ a=zc0IvFSfCIW2DFIPzwfm:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-22_02,2026-07-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 phishscore=0 impostorscore=0 bulkscore=0
+ suspectscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220047
 
 
-ChenYu
 
-[1] https://lore.kernel.org/all/20260625060859.1020483-1-wenst@chromium.org=
-/
+On 7/20/2026 5:11 PM, Aniket Randive wrote:
+> The I2C core and most controller drivers use a static 1-second timeout
+> for all transfers regardless of message length or bus frequency.  This
+> causes unnecessarily long delays on error paths for short transfers, and
+> may be tight for very long transfers at low bus frequencies.
+> 
+OR can be more than 1 sec for big transfer at low frequency. Hence 
+better to make it generic saying depends on data length and frequency 
+which you have mentioned. So limit it that.
+> This series introduces a generic helper in i2c-core that computes a
+generic helper function
+> transfer-specific timeout and stores it in the standard adap->timeout
+> field, making the dynamic value visible to the core retry loop in
+> __i2c_transfer() as well as to the driver's own wait sites.
+> 
+> The helper accepts a safety coefficient and a minimum floor as parameters
+what's the policy to accept ? i think should explain here.
+read from dtsi or hard coded ?
+> so each driver retains control over its own timing policy without those
+> values becoming public API.
+> 
+> The second patch converts the Qualcomm GENI I2C controller to use this
+> helper.  The 10x safety margin over the theoretical wire time and the
+> 300ms minimum floor (to budget for clock stretching) remain private to
+> the qcom-geni driver.
+geni i2c driver
+> 
+> Changes in v6:
+> - Split into two patches: core helper + driver consumer
+> - Moved timeout calculation to i2c-core as i2c_update_timeout(), which
+>    writes directly into adap->timeout so all consumers of that field
+>    (including the __i2c_transfer() retry loop) benefit automatically
+please Add suggested-by: dmitry guzman < >
+Also add reviewer into to/cc list specifically.
+> - Driver supplies safety coefficient and minimum floor as parameters,
+>    keeping I2C_TIMEOUT_SAFETY_COEFFICIENT and I2C_TIMEOUT_MIN_USEC
+>    internal to i2c-qcom-geni.c
+> - Compute timeout once per batch in geni_i2c_xfer() using max message
+>    length, all internal wait sites read adap->timeout directly
+> 
+> Link: https://lore.kernel.org/r/20260715101805.3615166-1-aniket.randive@oss.qualcomm.com
+> 
+> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
+> ---
+
+[...]
+> 
+
