@@ -1,54 +1,42 @@
-Received: from ms2.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+Received: from mail-m49210.qiye.163.com (mail-m49210.qiye.163.com [45.254.49.210])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AA4F3ACA79;
-	Wed, 22 Jul 2026 06:32:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C16AD18A6CF;
+	Wed, 22 Jul 2026 07:36:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784701952; cv=none; b=g97W3ngJWc30Wchzszd1s2TAu/98D8cOTj2nNud9mPw2xiZwQcYkWCTQp8M6EuI+p4Z48TVG//5U/tHTH1BYmhif3LogGG/ikq3UOiYMZ+mGCmng9bGR/xAp0ef/pmObdeVqJd8gU2H33q/d/zNExh/jwOf2pdk8kc2zPM7cDcY=
+	t=1784705771; cv=none; b=RLXPoXLGlRlhG9xXn2HcH91ReCy5WXF9Nk/GUgW4ZjgiuCwW21IMD3UldFjsBEEQFtH+GYUM/NkuQF85wNa9CJD1OIitsUteixlGjv92NSG1zHMGkWZ8zjOdY1QwpZS2J4+59O1MRZnIEXWGrwMs4kpWPL8VFuWRoCjlg6O9oZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784701952; c=relaxed/simple;
-	bh=goAb6jmqkn4rbQbDd3avqu2XFE5QLB8KZyPuggkz4kc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bxeqCODwYJ5sdpf96eFWAJ/0TeJHdu1q/YgGhX+ZSiVQvbG++kTiWtBz2STOH8THaUvaPQJYSnnCpwoZ+98xgcvNdf+ulrlwvAZQT62oY9cr2SsobKwJ/bIbzrPXa4lEcCOmpbVblz7O5N1qDeBlaULzUOGX8y+ZqbF9Xj+tB9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=UFGnqjPs; arc=none smtp.client-ip=210.202.87.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
+	s=arc-20240116; t=1784705771; c=relaxed/simple;
+	bh=TLK1Rv1AmlTbINIklcoklmnRTZ4ZvCjAGAtyQka5Ay4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RgRPqYANGyDVcmM1N2Yh7TL+0LME3Ddmk2K5+RZtj85FjE5SJSuXBLwKmsIHSLmpw3Os2bb7SlEzVoygD9eRrs3qrGehYew3EsViV8J4dsnm2CTYcJcJZKK2YX+T4G4hxlNkZNqRNn7txoc3ca5vFH2wv2t6tqu7sr+s9iHUyC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com; spf=pass smtp.mailfrom=hj-micro.com; dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b=NH3naXSF; arc=none smtp.client-ip=45.254.49.210
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hj-micro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="UFGnqjPs"
-X-UUID: 1a83869e859711f1b694ffd7d3467620-20260722
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=goAb6jmqkn4rbQbDd3avqu2XFE5QLB8KZyPuggkz4kc=;
-	b=UFGnqjPsVXMvPiR22qfgpw2KiEinBpcm3acyN1C6Nj68X7c0lM57BPLBtnJlErjK/q7JTkApWJlNmqo5XltU2ofdvCbR4J0X0hUlqyHQVbcwlP7NFMuFwSG5htUHxH3/aW3BNouHOkoLVfPv5SsStb7HupXEUBrtH//5vhLWmJA=;
-X-UUID: 1a83869e859711f1b694ffd7d3467620-20260722
-Received: from spmgt1 [(172.20.13.10)] by ms2.novatek.com.tw
-	(envelope-from <sp_isw1_at@novatek.com.tw>)
-	(Generic MTA)
-	with ESMTP id 1015380996; Wed, 22 Jul 2026 14:32:25 +0800
-Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id A3C161A1E1C;
-	Wed, 22 Jul 2026 14:32:25 +0800 (CST)
-Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id EA7ABC600CC; Wed, 22 Jul 2026 14:32:24 +0800 (CST)
-From: nina_kuo@novatek.com.tw
-To: krzk@kernel.org
-Cc: andi.shyti@kernel.org,
-	ben_huang@novatek.com.tw,
-	conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	krzk+dt@kernel.org,
+	dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b="NH3naXSF"
+Received: from 1clarkelill.hj-micro.com (unknown [122.224.241.34])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 472001f3d;
+	Wed, 22 Jul 2026 15:30:44 +0800 (GMT+08:00)
+From: "clarke.li" <clarke.li@hj-micro.com>
+To: andi.shyti@kernel.org,
+	andriy.shevchenko@linux.intel.com,
+	rafael@kernel.org,
+	jarkko.nikula@linux.intel.com,
+	jsd@semihalf.com,
+	lenb@kernel.org
+Cc: andy.xu@hj-micro.com,
+	linux-acpi@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh@kernel.org,
-	shihpei_hsu@novatek.com.tw,
-	toby_chui@novatek.com.tw,
-	Ben Huang <Ben_Huang@novatek.com.tw>
-Subject: Re: [PATCH v3 2/3] dt-bindings: i2c: Add Novatek NT726xx SoC I2C controller
-Date: Wed, 22 Jul 2026 14:29:34 +0800
-Message-Id: <20260722062932.543004-1-nina_kuo@novatek.com.tw>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <7c6d1cef-1337-4645-b3cf-94085997cb4d@kernel.org>
-References: <7c6d1cef-1337-4645-b3cf-94085997cb4d@kernel.org>
+	peter.du@hj-micro.com,
+	clarke.li@hj-micro.com
+Subject: [PATCH v3] ACPI: APD: Add clock frequency for HJMC01 I2C controller
+Date: Wed, 22 Jul 2026 15:30:31 +0800
+Message-ID: <20260722073031.1078080-1-clarke.li@hj-micro.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <yha25jhjmd5qh4prwnyhqr2sfxvw7v2hzwhhv66twtx7ft4siz@fk3d4t2d73dj>
+References: <yha25jhjmd5qh4prwnyhqr2sfxvw7v2hzwhhv66twtx7ft4siz@fk3d4t2d73dj>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -56,18 +44,52 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0a9f88bbe95209d6kunm3d6ca45574ff2
+X-HM-MType: 1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlDHhhPVk4eGhkeQkMZH0IeH1YVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSUlVSUlPVUlPSlVIT1lXWRYaDxIVHRRZQVlPS0hVSk
+	tJT09PSFVKS0tVSkJLS1kG
+DKIM-Signature: a=rsa-sha256;
+	b=NH3naXSFaXBIzGRfddkOrgdPTg9lSUDJeZ1o0yzq+3S2ypChpKmAujiECJylIN8xbj1GBgJ9+hqygF7Mph4aK70DHiPKMJ+JqrhW5kid25ZwzLdEjMiuy4Zxv+Yg3jJTLL01h0WJ0YGvJen4SKxqF4Bd3u/jMZy7ztdQqkVjVCI=; s=default; c=relaxed/relaxed; d=hj-micro.com; v=1;
+	bh=ge/pmYth0IkVKjCzXp0bEbXzIs6tKqipYycsTpVSGP4=;
+	h=date:mime-version:subject:message-id:from;
 
-From: Ben Huang <Ben_Huang@novatek.com.tw>
+From: Xiangyang Yu <hunter.yu@hj-micro.com>
 
-On Wed, July 22, 2026 at 2:12 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> No. Read the comment again.
->
-> Please follow writing bindings document. What does it say about wild cards?
+I2C clock frequency for HJMC01 is 200MHz, define a new ACPI
+HID for it.
 
-Understood.
-Compatible strings will be re-defined without any wildcards or device-family names.
+Signed-off-by: Xiangyang Yu <hunter.yu@hj-micro.com>
+Signed-off-by: Hongnan Li <clarke.li@hj-micro.com>
+---
+ drivers/acpi/acpi_apd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Thank you!
+diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+index 008bd0552cb7..a193d8a6538e 100644
+--- a/drivers/acpi/acpi_apd.c
++++ b/drivers/acpi/acpi_apd.c
+@@ -192,6 +192,11 @@ static const struct apd_device_desc leca_i2c_desc = {
+ 	.fixed_clk_rate = 250000000,
+ };
 
-Sincerely,
-Ben Huang
++static const struct apd_device_desc hjmc_i2c_desc = {
++	.setup = acpi_apd_setup,
++	.fixed_clk_rate = 200000000,
++};
++
+ #endif /* CONFIG_ARM64 */
+
+ #endif
+@@ -264,6 +269,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+ 	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
+ 	{ "LECA0002", APD_ADDR(leca_spi_desc) },
+ 	{ "LECA0003", APD_ADDR(leca_i2c_desc) },
++	{ "HJMC3001", APD_ADDR(hjmc_i2c_desc) },
+ 	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
+ #endif
+ 	{ }
+--
+2.55.0
+
