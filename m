@@ -1,173 +1,244 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8973415F3A
-	for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 11:36:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88D20471439
+	for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 11:44:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784806596; cv=none; b=nQeDDXnCufmdHThpeuobYt4xyPPHVZiiINXLW10vms9Fep9VnVU07IaGYBOLETM4CMLiaDxwYrgjZIHiU+espD7xwMG/IukABssK2Fg00c9V6t8iADH6h/j4sHmpo+350i/VQrsAZ/l8I86EHvvIuzia1SPmyeFfOK+RECX+dgY=
+	t=1784807081; cv=none; b=sFWokhOWNIIVyixatFCMKO3vHsfxuXGGnz/R5ra4qsKotcmV/JbSxvV/CACwDClz09WVD0J/M/+wLZ8th3acvsuF7hBJMwUIE3pl0kXjASoS2T2xvyNaxkvA2JU94eMAi8+hA51QIjxYwm8HFBJ5eMp40B+WgPNlBc5tiE6TYVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784806596; c=relaxed/simple;
-	bh=3fzE7QX96TA6InJnpjFGsnjlRpj7E0/XiyaA3d4eAOA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ptxm+7049NrzJDlsxJdcnjmKT5onPf8vJLnFT4hwB4qYqRuSN1OCJ2mg5dr06NSp/2FRe5ZRqvQLgwehopjGljrDt6wI6x9JnDpLfsht77uSOeV3SsEXxaaQGck29ZubHBtQOljSXBBErZlhTFO2YSGykexqURPWX0AcYjZ/He4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ssi6C/vP; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784807081; c=relaxed/simple;
+	bh=yNk5ayV+sOFk5lN+oWzOgeSWPGYcPRXYNiFi5ZzWQ/g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Br9GB8R0P3viV8tWjCOTa0LBy7RqAFJ9eLdt6+j09r2THgKpTKBOC0DeoDIkc+d9eexsmkOhjVKaglhWDeHFse87BvaMCoGlKQjzlXoAz70U53gUbulWqk3Raq97XGG/9UmHHVNZ5hPNSp4koBZVXPzLj6shQXKZ09vSfz9mlco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=JeZaRZi6; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=aUb4hEob; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ssi6C/vP"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-698aa7ba320so819353a12.1
-        for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 04:36:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="JeZaRZi6";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="aUb4hEob"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66N8qWxL3390464
+	for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 11:44:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	w0BzviMLtfRALGN+wRIhQVvryB1XDCPgSTyAMutH4w4=; b=JeZaRZi6gegkPELU
+	+9dhHDIlhooz/rvluMEpkl+J2S8Mar7sFubdswm0PMngSvnOisI2EPNOCE27ohJ4
+	y0sbK8+jBsaD9iMVVW63bXqW6B8IwYmqfqQeKUeNaE5laK8WVzwxkplgEphQLgi9
+	ggH3h8GZOkue0A7GfVGVc+R0o09nC7pYeVv3YpxC9Q2Ev1rnWNVEKPevRumNtSsh
+	G6Mccb1WaQr7LS1qLTDgJuBUDjBXWnNe2ItwDDL3+FF1SELMG9aZjVThRvbEKgEy
+	wjDhIcYVDknPIe6cE4a1XcNu3AtNdCn3Sexf6sHurQihQi5puQxxJPB04OvxJtCq
+	LFuq4Q==
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fke0ks4s9-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 11:44:34 +0000 (GMT)
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2ccd1958e8fso8871975ad.2
+        for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 04:44:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784806593; x=1785411393; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=FAUuYkKzKbrrKb0ZtaRbfH0JfxAr3PFg0MM+Bw2KxlA=;
-        b=ssi6C/vPxhBMGKa7sDyDjep67hVJ5Q1g4XNNqnaMd0ExPFLY1DREjop0Nvk1Vh/oA/
-         rh6cSGDF6ecrin7+Quf2/t5thVvDV84dJxO2gNGJ0XFrBMPFvB4oc4xlc8esJcQItpen
-         a4PQaHGfuB90TLP+RA9oG6PRr1mrtkLfhEtCX7ZE4uVoW8g6Du3NyMQPxSWW2MNplUPi
-         cWmh7A8a+4Fj+ez6gBvzx0GjH2GjCaD9JFCDTTqdSKSp1jOC306RlLAWhQWctfZpsnwG
-         srCBJ5VsJKrer4AdHomdO34qztyi5uuzM59cCr+6pCaY0C70MaoZQw4KCzc+r2APCTmp
-         z28g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784806593; x=1785411393;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=oss.qualcomm.com; s=google; t=1784807074; x=1785411874; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=FAUuYkKzKbrrKb0ZtaRbfH0JfxAr3PFg0MM+Bw2KxlA=;
-        b=i/ZqO/a+QE1Fl6l6cE+X+BPw4qCk8+pfABPgGw6/oOdYie6xFwSUS5pxzx/7kkh9CD
-         cKAvd5wC0wGW0mu1gPlsSoPvI6e8di3WsZUf9g9uJYcA0MCx4i8GMOawCO7gAHLjFS7Q
-         2Supi/LwifFEm+ELBLI9BlvGxJse3lp6OK7z+sgVDmvF2swXtTJsYFmRU2hu18uWb/K5
-         NUKDUpzjBBqIpI6HFkmcjwuFgm0QpSPP3Z7IQKkByMk+vfKfM+s6bRNYW0gIwZuGwQIj
-         cFjwiNcHarfnali+uFg7n4QgeN9IQgc07Pk9nfXIla/xIN3pQNkHfIws/RxcHwdic58t
-         MGfA==
-X-Forwarded-Encrypted: i=1; AHgh+RrB3QOaWyk1wanL6qvdapU1faHXqlqnTwubS8Xm7PNl6GYzDi19RihGqz2B7qZGFGgoTN1ltklN3us=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw4Yna4MmoBWJVjzkVo6MeQMqJRw6qHxrNjefR1JxqTzJCpHpsv
-	iLbhvca5tYT8uUQH9ccCk03uuUf45/adVnD/GIDticllcznhke/ijAUV
-X-Gm-Gg: AR+sD12oPVcYR2x2/XkJon9VlasWlYXPRU+cYnUQSSA9JY3eQDtgCYyZU8DyK4OyYXR
-	tl8OURtkuToK0xsTEawjgZp1LWBaS77DqtLHg79/kJ5xmTsWMvEBOKobdWv+h+XNabMzR3vKjLt
-	u/yMc/T8IcksvcM9oQG/MPPYvno+maVrgg/zSObFXSTfA9WgS8eNvaROT3JW5Owv8a39vc2Ru+I
-	6AAILreIQ56tKtLj+cY3m93atQXsqTmZO1qal5TIyBOX2w6brwm5uJYa0PYmVjWPSL0T3Njrcnl
-	9GKDJEz8pTNo+zmYCVHRsU/GMdk+xFbjuFC/1QKlckvEmlkE9MoK3KJtuIflh90AD+onEAQJ+JO
-	rQvcpAjhdtGeBC4Tz8IQ5n4DjHj1TDCgk1hafcdB5N4WcogykAyrK3bHG1o7G431Qw3R9P7k7Uo
-	dt5gaLBtXKd1ZE7t75ufIhnC8d2Rjkuj24T/PfpZI=
-X-Received: by 2002:a05:6402:1ecc:b0:698:7418:57a9 with SMTP id 4fb4d7f45d1cf-69f748ae779mr1009923a12.17.1784806592716;
-        Thu, 23 Jul 2026 04:36:32 -0700 (PDT)
-Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69f350377b7sm1980490a12.27.2026.07.23.04.36.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 04:36:31 -0700 (PDT)
-Date: Thu, 23 Jul 2026 13:36:29 +0200
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v12 1/7] i2c: core: add callback to change bus frequency
-Message-ID: <amH8vX-M6lAWajQ_@gmail.com>
-References: <20260719-i2c-mux-v12-0-a5010d623a57@gmail.com>
- <20260719-i2c-mux-v12-1-a5010d623a57@gmail.com>
- <19dbf4be-5f17-46b3-924d-eb24ae41fdd9@lysator.liu.se>
+        bh=w0BzviMLtfRALGN+wRIhQVvryB1XDCPgSTyAMutH4w4=;
+        b=aUb4hEobqfXV+m3O5DrYUEutC1UatM9TpZka2s9Hvh+/kpa+9a3noUJbeyzOqzUnjA
+         J4xGGklcwqYbtPgl9wSWTFS90XJMgtmqK5iiGYmJbkXQaUu0CUS0y3JJWVbRbzj+Xbxw
+         BVJaHHZvgb/J5z03tKIb30TU2MBlvKU+M4gQJiEgvYg9wreGGmMG3ORmfk4dWZfdWXcI
+         rVzKPXRLRryimWSnLtLs/ZRgjHaevwEBWUaU+TOGfGzT0KYIQJoVpdkoexAVpaE0buFQ
+         ZH1wprvM3EJHRophjS7oDuJ3h3ygSNKLeP84T5/+Usc1+HSoLF0xzxrE4dvZWCQ5RAwW
+         gmHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784807074; x=1785411874;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=w0BzviMLtfRALGN+wRIhQVvryB1XDCPgSTyAMutH4w4=;
+        b=mVVUUwMN11oJGJKThfkjchClP82gIVfuYDOrJm8TA+F35eZ0aeEsHBxFeCjDm8cSqJ
+         bfTSVciQ/XDDuAHourBW/J/Gkf4KW8L9B57DOA3fbVClgKizKP1tzOgP6Ga8dKn0t0kC
+         W7S6toyK4pp5kteCZwLYe9A5q8SlG+k4ZQI1pLvejzhp8HptQosc+wF3+UcfwQfYW+6b
+         iX1HFvI4wwoWY4i2UH56O/YwuHVAlgQu6jE5YEsNXsS6ec5y4wKzEo0nNgObtIWGClLa
+         Fhr3XaAU3RqHJQwBTLeL/MBzMoidz37ih5YaJrFlBJR+EyRLIQMcO6ebNnS3g4s/Q5ZJ
+         BxUQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rqz218u4NS821aa2fsRNccn7EwgcNC/OV1q2b5ABxzBwzUOY1RToQku9duwvPxa8Hyp8Q7Jk2WwfZ8=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwRr5TkRxwrqjyWvT9Hxf4Ah4Zh8mCW0XWnKh558ac+KxA+WIPB
+	BAScZKKVTd1WiylMFYgmEif4kZCFXrlWWsDkSnJHwgxxyvQxOGhjh2Fzlz8+Qw7nziYQvVJRgQY
+	AaneD6tb0BbG2mrnybnqgP364l7jjrhWNfLg3BnQCJO7NA/ZoroevcymAQrNYork=
+X-Gm-Gg: AR+sD133kxmLtiQXXZKDITJFfsiKwlsRA7NW9OM4GWOm6szzilmnF5FECY6NgNEM4id
+	o27njFTPG9VfCnNYI7fMZczNDmEtMF/6e448Q3QGTgyHiFmkYZuonDfSNeczE0BMzozHAqRuGTF
+	YRHDzaytdxr4Z//Y7bgqoGWdGqEOfHxDPwPMbubI7SdHfu+KRNzP3QlkTgHc0NVxQSaysz85V3C
+	7qLh3ljtJyqexMNXV+2D2nW0QlOrpDMojD1Nsqk8xhzCLpr3KCacnfPSk8BZNL/0kLqaVs6AVWE
+	raQSGegyVBv/MkfPooy1fSnGNB8Zs8rhg/xaVl1pyGIexpKrkuEhCzMQZPczNq4G6/7OfHRbci2
+	f93ptaQvE1MxlhL8xejrlGh7DuwZQfS+rF/E=
+X-Received: by 2002:a17:903:22cc:b0:2c1:ee75:56bb with SMTP id d9443c01a7336-2cfa6b9aefdmr34135055ad.20.1784807073887;
+        Thu, 23 Jul 2026 04:44:33 -0700 (PDT)
+X-Received: by 2002:a17:903:22cc:b0:2c1:ee75:56bb with SMTP id d9443c01a7336-2cfa6b9aefdmr34134805ad.20.1784807073412;
+        Thu, 23 Jul 2026 04:44:33 -0700 (PDT)
+Received: from [10.217.219.142] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f350560sm32340755ad.68.2026.07.23.04.44.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jul 2026 04:44:32 -0700 (PDT)
+Message-ID: <86828cb8-0e96-48ce-aff4-0f7e59438ad7@oss.qualcomm.com>
+Date: Thu, 23 Jul 2026 17:14:26 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="OVfm+UyA/qXeCYnJ"
-Content-Disposition: inline
-In-Reply-To: <19dbf4be-5f17-46b3-924d-eb24ae41fdd9@lysator.liu.se>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 1/2] i2c: qcom-geni: Handle runtime PM disabled state
+ during early resume
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>, Frank.Li@kernel.org,
+        viken.dadhaniya@oss.qualcomm.com, andi.shyti@kernel.org,
+        dmitry.baryshkov@oss.qualcomm.com, zhengxingda@iscas.ac.cn,
+        kees@kernel.org, quic_jseerapu@quicinc.com,
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: bjorn.andersson@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com,
+        Aniket Randive <aniketrandive@oss.qualcomm.com>
+References: <20260709134623.1724212-1-mukesh.savaliya@oss.qualcomm.com>
+ <20260709134623.1724212-2-mukesh.savaliya@oss.qualcomm.com>
+ <9cf5b5ab-c418-4b0d-8b2f-b888a64db0f0@oss.qualcomm.com>
+ <933d864d-f0c2-4727-a01d-f564eb854d23@oss.qualcomm.com>
+ <4133bbcb-22e7-41e0-b9f4-affd63df0e38@oss.qualcomm.com>
+Content-Language: en-US
+From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+In-Reply-To: <4133bbcb-22e7-41e0-b9f4-affd63df0e38@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: XAPysmuRR72jBRtMifB4G3wcmzS0BLz0
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIzMDExNCBTYWx0ZWRfX/gwz7+cngvGf
+ ztaSt6jH9Ik70ZFDX9JeQVjWokMX8/0NxUAwSE4r+a2Mkef3hWPiixjG8l4Ql/LqrG9DXi5jYZd
+ czwh7lzu1D9MDRvCMDZkxrOWZJ1qEvM=
+X-Authority-Analysis: v=2.4 cv=S7DpBosP c=1 sm=1 tr=0 ts=6a61fea2 cx=c_pps
+ a=MTSHoo12Qbhz2p7MsH1ifg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
+ a=7mBe-9PINDt9wbQolioA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=GvdueXVYPmCkWapjIL-Q:22
+X-Proofpoint-GUID: XAPysmuRR72jBRtMifB4G3wcmzS0BLz0
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIzMDExNCBTYWx0ZWRfX2tz39G42JySb
+ SynPb1m/r2NGVbZa6UuXVHN3OzLJyTIRWcbVGdzw5w92XQ5EiKalBZLV6Tv0g+gRz2zZ7K5Vctq
+ JDAOIRDtT90MMbWb7u/H6FreHpAm+qt6ZF0jfBjpx1CaVJkVCCUapHRtC4Zf5/3CFWbdhQVS2eB
+ K2hR4eudtsOirS0Bn2Q7Wc/ZxQuyrFhjWL8rRS70TxP5cd48Id0YVtAw+mLLio7cNsT0QGmUq7J
+ m1oEZwR/AOh+EWGAhSddGss2XHUyNbpkJsU6I+/s8ju38gxgwxfgifWcBOSuYzQyj18rOhfwZpT
+ ZvkTHmOa7ST4iaHtHqQXDhUoOY4kB7Xp6FTy3ZP5HAcbyK9M9Qtmu6uZgbwvK6BGw7wOIHHNeEr
+ mX6Cex516vtQ4oVZ0jt27uw6fO4c8YFpY+uMWhVCsqSQqhhwqVLDVyLwkFvGdQ5z1yKM+XkjC8F
+ 3D9CA8em3ajvorFnUcg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-23_03,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 malwarescore=0 suspectscore=0 bulkscore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607230114
 
 
---OVfm+UyA/qXeCYnJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Peter!
+On 7/23/2026 4:24 PM, Praveen Talari wrote:
+> Hi mukesh
+> 
+> On 23-07-2026 15:47, Mukesh Savaliya wrote:
+>> Hi Praveen,
+>>
+>> On 7/23/2026 3:32 PM, Praveen Talari wrote:
+>>> Hi Mukesh
+>>>
+>> [...]
+>>
+>>>> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/ 
+>>>> busses/i2c-qcom-geni.c
+>>>> index 96dbf04138be..4bc00922cd97 100644
+>>>> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+>>>> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+>>>> @@ -917,6 +917,10 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
+>>>>       gi2c->err = 0;
+>>>>       reinit_completion(&gi2c->done);
+>>>>       ret = pm_runtime_get_sync(gi2c->se.dev);
+>>>> +    if (ret == -EACCES) {
+>>>> +        dev_warn(gi2c->se.dev, "Runtime PM is disabled:%d\n", ret);
+>>>> +        ret = 0;
+>>>
+>>> Here it is clear that pm_runtime_get_sync() is returning -EACCES from 
+>>> the runtime PM framework,
+>>>
+>>> which indicates that the request was rejected before the runtime 
+>>> resume path could enable any resources.
+>>>
+>>>  From the rpm_resume() implementation:
+>>>
+>>> static int rpm_resume(struct device *dev, int rpmflags) 
+>>> __releases(&dev-  >power.lock) __acquires(&dev->power.lock) { [...] 
+>>> repeat: if (dev-  >power.runtime_error) { retval = -EINVAL; } else if 
+>>> (dev-  >power.disable_depth > 0) { [...] else retval = -EACCES; } if 
+>>> (retval) goto out; [...] out: if (parent && !dev->power.irq_safe) 
+>>> { spin_unlock_irq(&dev->power.lock); pm_runtime_put(parent); 
+>>> spin_lock_irq(&dev->power.lock); } trace_rpm_return_int(dev, 
+>>> _THIS_IP_, retval); return retval; }
+>>>
+>>> The -EACCES error is returned when runtime PM is disabled 
+>>> (disable_depth  > 0),
+>>>
+>>> causing the function to exit without invoking the device's runtime 
+>>> resume callback.
+>>>
+>>> As a result, no resource enablement is performed by the PM framework.
+>>>
+>>>
+>>> In your change, the error is effectively converted to ret = 0 and 
+>>> execution continues.
+>>>
+>>> How can we guarantee that the required resources have been enabled in 
+>>> this scenario?
+>>>
+>>> More importantly, where are those resources expected to be enabled if 
+>>> the runtime PM resume path was never executed?
+>>>
+>>
+>> This was answered in V6 already on 7/3 exactly at same place.
+>> Pasting below.
+>>
+>> ==
+>> > Why we are checking specific error code here? Why can't we use the 
+>> below error check directly?
+>> > if get sync itself is failed with pm runtime disabled then why we 
+>> are going ahead by making ret = 0 here? How you will make sure 
+>> resources are enabled?
+>>
+>> This reason is also mentioned in the commit log. we surely get - 
+>> EACCESS as runtime PM is disabled during no_irq resume phase. We still 
+>> need to serve the transfer, hence we need to override it.
+> 
+> We should not get it and not go further since you are already enabled in 
+> system_resume_no_irq().
+> 
+> I just need to understand why we need to proceed when we get -EACCESS as 
+> runtime PM .
+> 
 
-On Thu, Jul 23, 2026 at 01:03:53PM +0200, Peter Rosin wrote:
-> > + *
-> > + * @set_clk_freq: Set clock frequency for the adapter. Returns the act=
-ual set frequency.
-> > + *      This function is optional.
-> >    */
-> >   struct i2c_adapter {
-> >   	struct module *owner;
-> > @@ -742,6 +745,8 @@ struct i2c_adapter {
-> >   	struct rt_mutex mux_lock;
-> >  =20
-> >   	int timeout;			/* in jiffies */
-> > +	u32 clock_Hz;			/* bus clock speed */
-> > +	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_Hz); /* Optio=
-nal */
->=20
-> To expand on the comment from v9 by Wolfram [1], I too think it
-> would be good if this function pointer did not live directly in
-> i2c_adapter but instead in some other struct so that the actual
-> pointer could live in read-only memory. I.e. if i2c_algorithm
-> does not fit for some reason, a new function pointer struct might
-> be called for?
+ret = 0 was added because during early system resume, -EACCES from 
+pm_runtime_get_sync() indicates runtime PM is disabled, not that the 
+controller is unusable; treating it as an error would incorrectly reject 
+valid I2C transfers occurring during resume.
 
-My objection to move it to i2c_algorithm, was mostly based on that the
-algorithm should not be aware of the current clock frequency. When I
-reread the comment from Wolfram (and you), I realize that we are only
-talking about the function pointer, which is fine to put into the
-i2c_algorithm struct.
+Other than early PM time, we are not going to get -EACESS. So i don't 
+see any case where this will be a problem.
+>>
+>> Review geni_i2c_resume_noirq() to know what all we do to enable 
+>> resources. That's guaranteed and tested with system suspend/resume 
+>> test back to back and PCIe could do i2c transfer successfully.
+>> ==
+>>>
+>>> Thanks,
+>>>
+>>> Praveen Talari
+>>>
+>> Do not keep this thanks/regards here. only leave the comments.
+>>
+>>>> +    }
+>> [...]
 
-Sorry for the misinterpretation, I will move the pointer to
-i2c_algorithm and keep clock_Hz in i2c_adapter.
-
-
->=20
-> Also, returning int instead of unsigned hints that the function
-> might return a negative error code, but the new code in 3/7 does
-> not handle errors. So, either change to unsigned int, or update
-> the support code in 3/7 to handle errors. I think the latter is
-> the better approach.
-
-Agree, thanks.
->=20
-> Cheers,
-> Peter
->=20
-> [1] https://lore.kernel.org/all/ahX44_rzaRlTLSLU@shikoro/
->=20
-> >   	int retries;
-> >   	struct device dev;		/* the adapter device */
-> >   	unsigned long locked_flags;	/* owned by the I2C core */
-> >=20
->=20
-
-
-Best regards,
-Marcus Folkesson
-
---OVfm+UyA/qXeCYnJ
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmph/LgACgkQiIBOb1ld
-UjImNA//dFlLVBf+3iuSWVyzi5/TaqJrTyo993+vC/Iq8vZPYcabFRIM7vl7+adb
-+df/fj8ph8NtPZAmGiaq+da6i6bKEdVowVEgrD/sactK6PRAcxFxeNMdHpKgsaY7
-HnOAf8YEFcwjZ0QPoQimY5Idh/Qv0NTw8Pf7iPIvPfFxBuwVKT5XDB2ncoccxjMW
-ezPMdzk3sBED7xPcys/Z6Qeh41EdP4ez2uRfWdDaPBBJ94kEY3LTuEDX0oCnIoCS
-y7MBafA2mqwT1bAuZYKOAqBCzqgkx9oiGN9gWH7DWrPpj8l7sGO3BcsPzJ0JlFNo
-VabrYsyPA84qPo3Z6ZAb9uRbnrIlVmr+3sfAmBJfJ//1uSRfY3RWqelps7XZrt6d
-oO0NX19S1rXeChsLEcT+YfCGXE2a3Jdnsy53PDvCduUaVyUs/euPjMacICzOfbQm
-Hbv5fUTEq+rej6BmwBpAcQxaap0liwf4qBF7vzgKJIxpsMa826qM83q7x4fbhUgn
-Ph/2jvBQFX0v5vdME4J18smKjXQalggtU9dxREWJ/cQ42JYh7eG5iaTD8wr+7K4y
-Ing9Tm5Y5kRBUAs3oRvgyAoPQkpxQagvaqJ7H0fzDNTF5djqX4F7h14uk+zB2XOm
-qDrt7QPJNmHqdzSBAj5okLUlhMIp9mFuMiAPlCc920QS2yfBSms=
-=nf2D
------END PGP SIGNATURE-----
-
---OVfm+UyA/qXeCYnJ--
