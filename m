@@ -1,336 +1,173 @@
-Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37066431E4A;
-	Thu, 23 Jul 2026 11:06:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8973415F3A
+	for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 11:36:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784804801; cv=none; b=LJFxHJUQCPk8pD97pa8tVFcOZTL9ly49lKmF0dyyIMJ16B0cvgm9ROX04rA7qVrMteRZTYGkwRdhODcGlPm2mupgPFWcK4dVEIqvoqEh1oGVB35rwe72f6Cjx2330/ZGJAqprqRNbFUnsxy9lFFRZE9MhWsjIu0Vta1mcdgJNj4=
+	t=1784806596; cv=none; b=nQeDDXnCufmdHThpeuobYt4xyPPHVZiiINXLW10vms9Fep9VnVU07IaGYBOLETM4CMLiaDxwYrgjZIHiU+espD7xwMG/IukABssK2Fg00c9V6t8iADH6h/j4sHmpo+350i/VQrsAZ/l8I86EHvvIuzia1SPmyeFfOK+RECX+dgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784804801; c=relaxed/simple;
-	bh=iB+itzYWCHNZZ3o5cei/xxMrlYhVWL5HBHuf2Di68qk=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=LokTew33Ulp9K3yqVKFFmrAZU5Koa8o15SvLr10IqzVrXYsXJijJaD2+EgS4/nnDZhVpHqPAQWIKdS2Ftv4OwoqK42e/ifhFrJARzkZIdjlPFHX46+w7IZvXHA34pkgK10k+i48n0Eo2+oEw+jJaztqRbX582DrOyZPJMJmpKjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=DJibEIxM; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=DJibEIxM; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=tL+WPGkB; arc=none smtp.client-ip=130.236.254.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+	s=arc-20240116; t=1784806596; c=relaxed/simple;
+	bh=3fzE7QX96TA6InJnpjFGsnjlRpj7E0/XiyaA3d4eAOA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ptxm+7049NrzJDlsxJdcnjmKT5onPf8vJLnFT4hwB4qYqRuSN1OCJ2mg5dr06NSp/2FRe5ZRqvQLgwehopjGljrDt6wI6x9JnDpLfsht77uSOeV3SsEXxaaQGck29ZubHBtQOljSXBBErZlhTFO2YSGykexqURPWX0AcYjZ/He4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ssi6C/vP; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="DJibEIxM";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="DJibEIxM";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="tL+WPGkB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784804798;
-	bh=iB+itzYWCHNZZ3o5cei/xxMrlYhVWL5HBHuf2Di68qk=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-	b=DJibEIxM3NLhMSZ/1pt6kikTEFq2d/paZlfFdh4INtIZzkms820ju21cHFJzEElGR
-	 k606MD1my6f71U4rXGHCn4VuwuyYkfN/VMfkXKufIT0C8T8rzz+gfN1znOprVvlWWE
-	 HW7fgjZInzvsBfp69QespTfK71ol1rxe9USNq1AJTMQF+gnDiSaxXghdWhc1G76RuH
-	 wsCFbfllSjBmQpSMsGyjl2U72piA+D9Z+wq6gqsbMsum6v7R1THSkB3AY8gUjDwU7c
-	 2TmKewOTmSCZsmwP2gDSE73DbVl9Fiq9ZfztIKfm1YWK/LCSynFoVHr1FHb5Hj8Whn
-	 LgSlmohCu7l4g==
-Received: from mail.lysator.liu.se (localhost [127.0.0.1])
-	by mail.lysator.liu.se (Postfix) with ESMTP id 5E4B21B97B;
-	Thu, 23 Jul 2026 13:06:38 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784804798;
-	bh=iB+itzYWCHNZZ3o5cei/xxMrlYhVWL5HBHuf2Di68qk=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-	b=DJibEIxM3NLhMSZ/1pt6kikTEFq2d/paZlfFdh4INtIZzkms820ju21cHFJzEElGR
-	 k606MD1my6f71U4rXGHCn4VuwuyYkfN/VMfkXKufIT0C8T8rzz+gfN1znOprVvlWWE
-	 HW7fgjZInzvsBfp69QespTfK71ol1rxe9USNq1AJTMQF+gnDiSaxXghdWhc1G76RuH
-	 wsCFbfllSjBmQpSMsGyjl2U72piA+D9Z+wq6gqsbMsum6v7R1THSkB3AY8gUjDwU7c
-	 2TmKewOTmSCZsmwP2gDSE73DbVl9Fiq9ZfztIKfm1YWK/LCSynFoVHr1FHb5Hj8Whn
-	 LgSlmohCu7l4g==
-Received: by mail.lysator.liu.se (Postfix, from userid 1004)
-	id 43C131B97A; Thu, 23 Jul 2026 13:06:38 +0200 (CEST)
-X-Spam-Level: 
-X-Spam-Score: -1.1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1784804792;
-	bh=iB+itzYWCHNZZ3o5cei/xxMrlYhVWL5HBHuf2Di68qk=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-	b=tL+WPGkBoq1qI5lFkvqLgDrdcBwy+Lr4ZmQpnsOSuzB1Q91fNGVAId+qZBFT9tNK2
-	 CSMcgSmC1CtMrkOqFHTLNRLk3iAQmRDEf7aJ3u0ThRlPj+tN+B6voddpasZ1E8tq+q
-	 0x5yEnpMzYr0rvbVeK5udzn3yuIjr98Tq2aOOuEEB441uhfTay5BT99jqve2MDsG8x
-	 KTxBOXdTuseUteyqB1YYAmoMUso12+ZYk0v19NfTXEDLGf10s4uLtUgAe1Yx3Qmmtz
-	 cM4zIkOm3f5Eeolu4zQgxv86Hq5UUQijKTxAXFmqMKV58NGmdJcVAiw5UqVadBLo3A
-	 MAOIvC1tdijUA==
-Received: from [192.168.2.172] (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by mail.lysator.liu.se (Postfix) with ESMTPSA id A31751BA45;
-	Thu, 23 Jul 2026 13:06:32 +0200 (CEST)
-Message-ID: <e0b9cafb-1aae-4ea9-ae9c-ccbcdcf08ff1@lysator.liu.se>
-Date: Thu, 23 Jul 2026 13:06:32 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ssi6C/vP"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-698aa7ba320so819353a12.1
+        for <linux-i2c@vger.kernel.org>; Thu, 23 Jul 2026 04:36:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784806593; x=1785411393; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=FAUuYkKzKbrrKb0ZtaRbfH0JfxAr3PFg0MM+Bw2KxlA=;
+        b=ssi6C/vPxhBMGKa7sDyDjep67hVJ5Q1g4XNNqnaMd0ExPFLY1DREjop0Nvk1Vh/oA/
+         rh6cSGDF6ecrin7+Quf2/t5thVvDV84dJxO2gNGJ0XFrBMPFvB4oc4xlc8esJcQItpen
+         a4PQaHGfuB90TLP+RA9oG6PRr1mrtkLfhEtCX7ZE4uVoW8g6Du3NyMQPxSWW2MNplUPi
+         cWmh7A8a+4Fj+ez6gBvzx0GjH2GjCaD9JFCDTTqdSKSp1jOC306RlLAWhQWctfZpsnwG
+         srCBJ5VsJKrer4AdHomdO34qztyi5uuzM59cCr+6pCaY0C70MaoZQw4KCzc+r2APCTmp
+         z28g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784806593; x=1785411393;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=FAUuYkKzKbrrKb0ZtaRbfH0JfxAr3PFg0MM+Bw2KxlA=;
+        b=i/ZqO/a+QE1Fl6l6cE+X+BPw4qCk8+pfABPgGw6/oOdYie6xFwSUS5pxzx/7kkh9CD
+         cKAvd5wC0wGW0mu1gPlsSoPvI6e8di3WsZUf9g9uJYcA0MCx4i8GMOawCO7gAHLjFS7Q
+         2Supi/LwifFEm+ELBLI9BlvGxJse3lp6OK7z+sgVDmvF2swXtTJsYFmRU2hu18uWb/K5
+         NUKDUpzjBBqIpI6HFkmcjwuFgm0QpSPP3Z7IQKkByMk+vfKfM+s6bRNYW0gIwZuGwQIj
+         cFjwiNcHarfnali+uFg7n4QgeN9IQgc07Pk9nfXIla/xIN3pQNkHfIws/RxcHwdic58t
+         MGfA==
+X-Forwarded-Encrypted: i=1; AHgh+RrB3QOaWyk1wanL6qvdapU1faHXqlqnTwubS8Xm7PNl6GYzDi19RihGqz2B7qZGFGgoTN1ltklN3us=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw4Yna4MmoBWJVjzkVo6MeQMqJRw6qHxrNjefR1JxqTzJCpHpsv
+	iLbhvca5tYT8uUQH9ccCk03uuUf45/adVnD/GIDticllcznhke/ijAUV
+X-Gm-Gg: AR+sD12oPVcYR2x2/XkJon9VlasWlYXPRU+cYnUQSSA9JY3eQDtgCYyZU8DyK4OyYXR
+	tl8OURtkuToK0xsTEawjgZp1LWBaS77DqtLHg79/kJ5xmTsWMvEBOKobdWv+h+XNabMzR3vKjLt
+	u/yMc/T8IcksvcM9oQG/MPPYvno+maVrgg/zSObFXSTfA9WgS8eNvaROT3JW5Owv8a39vc2Ru+I
+	6AAILreIQ56tKtLj+cY3m93atQXsqTmZO1qal5TIyBOX2w6brwm5uJYa0PYmVjWPSL0T3Njrcnl
+	9GKDJEz8pTNo+zmYCVHRsU/GMdk+xFbjuFC/1QKlckvEmlkE9MoK3KJtuIflh90AD+onEAQJ+JO
+	rQvcpAjhdtGeBC4Tz8IQ5n4DjHj1TDCgk1hafcdB5N4WcogykAyrK3bHG1o7G431Qw3R9P7k7Uo
+	dt5gaLBtXKd1ZE7t75ufIhnC8d2Rjkuj24T/PfpZI=
+X-Received: by 2002:a05:6402:1ecc:b0:698:7418:57a9 with SMTP id 4fb4d7f45d1cf-69f748ae779mr1009923a12.17.1784806592716;
+        Thu, 23 Jul 2026 04:36:32 -0700 (PDT)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69f350377b7sm1980490a12.27.2026.07.23.04.36.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 04:36:31 -0700 (PDT)
+Date: Thu, 23 Jul 2026 13:36:29 +0200
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v12 1/7] i2c: core: add callback to change bus frequency
+Message-ID: <amH8vX-M6lAWajQ_@gmail.com>
+References: <20260719-i2c-mux-v12-0-a5010d623a57@gmail.com>
+ <20260719-i2c-mux-v12-1-a5010d623a57@gmail.com>
+ <19dbf4be-5f17-46b3-924d-eb24ae41fdd9@lysator.liu.se>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH v12 7/7] docs: i2c: i2c-topology: add section about bus
- speed
-To: Marcus Folkesson <marcus.folkesson@gmail.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Michael Hennerich <michael.hennerich@analog.com>,
- Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@intel.com>,
- Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-References: <20260719-i2c-mux-v12-0-a5010d623a57@gmail.com>
- <20260719-i2c-mux-v12-7-a5010d623a57@gmail.com>
-Content-Language: en-US, sv-SE
-In-Reply-To: <20260719-i2c-mux-v12-7-a5010d623a57@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="OVfm+UyA/qXeCYnJ"
+Content-Disposition: inline
+In-Reply-To: <19dbf4be-5f17-46b3-924d-eb24ae41fdd9@lysator.liu.se>
 
-Hi!
 
-On 2026-07-19 16:59, Marcus Folkesson wrote:
-> Describe what needs to be consideraed and taken into account
+--OVfm+UyA/qXeCYnJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-considered
+Hi Peter!
 
-> when using different bus speeds for different mux channels.
-> 
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> ---
->   Documentation/i2c/i2c-topology.rst | 178 +++++++++++++++++++++++++++++++++++++
->   1 file changed, 178 insertions(+)
-> 
-> diff --git a/Documentation/i2c/i2c-topology.rst b/Documentation/i2c/i2c-topology.rst
-> index 48fce0f7491b..1ee0de6dbcb4 100644
-> --- a/Documentation/i2c/i2c-topology.rst
-> +++ b/Documentation/i2c/i2c-topology.rst
-> @@ -367,6 +367,184 @@ When D1 or D2 are accessed, accesses to D3 and D4 are locked out while
->   accesses to D5 may interleave. When D3 or D4 are accessed, accesses to
->   all other devices are locked out.
->   
-> +Bus Speed and I2C Multiplexers
-> +================================
+On Thu, Jul 23, 2026 at 01:03:53PM +0200, Peter Rosin wrote:
+> > + *
+> > + * @set_clk_freq: Set clock frequency for the adapter. Returns the act=
+ual set frequency.
+> > + *      This function is optional.
+> >    */
+> >   struct i2c_adapter {
+> >   	struct module *owner;
+> > @@ -742,6 +745,8 @@ struct i2c_adapter {
+> >   	struct rt_mutex mux_lock;
+> >  =20
+> >   	int timeout;			/* in jiffies */
+> > +	u32 clock_Hz;			/* bus clock speed */
+> > +	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_Hz); /* Optio=
+nal */
+>=20
+> To expand on the comment from v9 by Wolfram [1], I too think it
+> would be good if this function pointer did not live directly in
+> i2c_adapter but instead in some other struct so that the actual
+> pointer could live in read-only memory. I.e. if i2c_algorithm
+> does not fit for some reason, a new function pointer struct might
+> be called for?
 
-Too many equal signs.
+My objection to move it to i2c_algorithm, was mostly based on that the
+algorithm should not be aware of the current clock frequency. When I
+reread the comment from Wolfram (and you), I realize that we are only
+talking about the function pointer, which is fine to put into the
+i2c_algorithm struct.
 
-> +
-> +I2C bus multiplexers allow multiple downstream channels to be exposed
-> +as separate I2C adapters which also could set their own bus speed.
-> +
-> +The multiplexer itself cannot change the bus speed as it uses the upstream
-> +clock and data lines to communicate with the downstream devices. The speed
-> +is therefore changed in the root adapter resulting in that the whole bus is
-> +affected.
-> +
-> +This increases the complexity of the topology and some considerations must
-> +be taken into account.
-> +
-> +Bus speed
-> +----------
+Sorry for the misinterpretation, I will move the pointer to
+i2c_algorithm and keep clock_Hz in i2c_adapter.
 
-Too many dashes.
 
-> +
-> +Downstream channels of an I2C multiplexer can only operate at the same or
-> +lower bus speed as the upstream bus. This is because the upstream bus may
-> +have devices that cannot operate at higher speeds and those will be affected
-> +by the speed change.
-> +
-> +The example below illustrates the problem.
-> +The root adapter is operating at 100kHz. D2 can only operate with 100kHz,
-> +but D1 can operate at 400kHz. When D1 is selected, the bus speed of the
-> +root adapter would have to be set to 400kHz, a speed that D2 may not support.
+>=20
+> Also, returning int instead of unsigned hints that the function
+> might return a negative error code, but the new code in 3/7 does
+> not handle errors. So, either change to unsigned int, or update
+> the support code in 3/7 to handle errors. I think the latter is
+> the better approach.
 
-would have been set
+Agree, thanks.
+>=20
+> Cheers,
+> Peter
+>=20
+> [1] https://lore.kernel.org/all/ahX44_rzaRlTLSLU@shikoro/
+>=20
+> >   	int retries;
+> >   	struct device dev;		/* the adapter device */
+> >   	unsigned long locked_flags;	/* owned by the I2C core */
+> >=20
+>=20
 
-> +
-> +This topology is therefore not allowed: ::
-> +
-> +                          .----------. 400kHz .--------.
-> +        .--------. 100kHz |   mux-   |--------| dev D1 |
-> +        |  root  |--+-----|  locked  |        '--------'
-> +        '--------'  |     |  mux M1  |
-> +                    |     '----------'
-> +                    |  .--------.
-> +                    '--| dev D2 |
-> +                       '--------'
-> +
-> +
-> +This topology is allowed: ::
-> +
-> +                          .----------. 100kHz .--------.
-> +        .--------. 400kHz |   mux-   |--------| dev D2 |
-> +        |  root  |--+-----|  locked  |        '--------'
-> +        '--------'        |  mux M1  |--. 400kHz .--------.
-> +                          '----------'  '--------| dev D1 |
-> +                                                 '--------'
-> +
-> +Preferred topology
-> +-------------------
 
-Too many dashes.
+Best regards,
+Marcus Folkesson
 
-> +
-> +The preferred topology when using different bus speeds is to have the multiplexer
+--OVfm+UyA/qXeCYnJ
+Content-Type: application/pgp-signature; name=signature.asc
 
-There are many over-long lines in this patch.
+-----BEGIN PGP SIGNATURE-----
 
-> +connected directly to the root adapter without any devices as siblings.
-> +By this arrangement, the bus speed can be changed without affecting any other devices
-> +and many of the caveats are avoided.
-> +
-> +Other multiplexers in parallel are still okay as those are locked out during transfers.
-> +
-> +This is the preferred topology: ::
-> +
-> +                          .----------. 100kHz .--------.
-> +        .--------. 400kHz |   mux-   |--------| dev D2 |
-> +        |  root  |--+-----|  locked  |        '--------'
-> +        '--------'        |  mux M1  |--. 400kHz .--------.
-> +                          '----------'  '--------| dev D1 |
-> +                                                 '--------'
-> +
-> +Locking
-> +--------
+iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmph/LgACgkQiIBOb1ld
+UjImNA//dFlLVBf+3iuSWVyzi5/TaqJrTyo993+vC/Iq8vZPYcabFRIM7vl7+adb
++df/fj8ph8NtPZAmGiaq+da6i6bKEdVowVEgrD/sactK6PRAcxFxeNMdHpKgsaY7
+HnOAf8YEFcwjZ0QPoQimY5Idh/Qv0NTw8Pf7iPIvPfFxBuwVKT5XDB2ncoccxjMW
+ezPMdzk3sBED7xPcys/Z6Qeh41EdP4ez2uRfWdDaPBBJ94kEY3LTuEDX0oCnIoCS
+y7MBafA2mqwT1bAuZYKOAqBCzqgkx9oiGN9gWH7DWrPpj8l7sGO3BcsPzJ0JlFNo
+VabrYsyPA84qPo3Z6ZAb9uRbnrIlVmr+3sfAmBJfJ//1uSRfY3RWqelps7XZrt6d
+oO0NX19S1rXeChsLEcT+YfCGXE2a3Jdnsy53PDvCduUaVyUs/euPjMacICzOfbQm
+Hbv5fUTEq+rej6BmwBpAcQxaap0liwf4qBF7vzgKJIxpsMa826qM83q7x4fbhUgn
+Ph/2jvBQFX0v5vdME4J18smKjXQalggtU9dxREWJ/cQ42JYh7eG5iaTD8wr+7K4y
+Ing9Tm5Y5kRBUAs3oRvgyAoPQkpxQagvaqJ7H0fzDNTF5djqX4F7h14uk+zB2XOm
+qDrt7QPJNmHqdzSBAj5okLUlhMIp9mFuMiAPlCc920QS2yfBSms=
+=nf2D
+-----END PGP SIGNATURE-----
 
-Too many dashes.
-
-> +
-> +If the multiplexer is mux-locked, transfers to D3 may interleave between the
-> +select-transfer-deselect to D1 or D2.
-> +This results in a situation where the bus speed to D3 may be lower than it
-> +is supposed to be. This is usually not a problem.
-> +
-> +This topology is allowed but some transfers to D3 may be at 100kHz: ::
-> +
-> +                          .----------. 100kHz .--------.
-> +        .--------. 400kHz |   mux-   |--------| dev D1 |
-> +        |  root  |--+-----|  locked  |        '--------'
-> +        '--------'  |     |  mux M1  |--. 400kHz .--------.
-> +                    |     '----------'  '--------| dev D2 |
-> +                    |  .--------.                '--------'
-> +                    '--| dev D3 |
-> +                       '--------'
-> +
-> +Multiple muxes in series
-> +--------------------------
-
-Too many dashes.
-
-> +
-> +When multiple muxes are used in series the same rules apply.
-> +
-> +Transfers to D3 may interleave between select-transfer-deselect to D1, which
-> +results in that the bus speed to D2 or D3 will be at 100KHz.
-> +
-> +Transfers to D2 may interleave between select-transfer-deselect to D1, which
-> +results in that the bus speed to D1 may be at 400kHz as the transfer to D2
-> +will set the bus speed to before the transfer to D1 starts.
-
-There is a missing word or something? I suggest this:
-
-Transfers to D2 may interleave between select-transfer-deselect to D1,
-which may result in a bus speed to D1 at 400kHz as the transfer to D2 may
-clobber the bus speed before the transfer to D1 starts.
-
-> +
-> +This is probably a bad topology ::
-> +
-> +                     .----------. 400kHz .----------. 100kHz .--------.
-> +    .--------.400kHz |   mux-   |--------|   mux-   |--------| dev D1 |
-> +    |  root  |--+----|  locked  | 400kHz |  locked  |        '--------'
-> +    '--------'  |    |  mux M1  |--.     |  mux M2  |
-> +                |    '----------'  |     '----------'
-> +                |  .--------.      |  .--------.
-> +                '--| dev D3 |      '--| dev D2 |
-> +                   '--------'         '--------'
-> +
-> +Multiple muxes in parallel
-> +----------------------------
-
-Too many dashes.
-
-> +
-> +When multiple muxes are used in parallel all access to other muxes are locked out
-> +so this is not a problem.
-> +
-> +If the muxes are mux-locked, access to D3 may still interleave though.
-> +
-> +In the example below, D3 may not interleave between select-transfer-deselect for D1
-> +or D2 as both muxes are parent-locked: ::
-> +
-> +
-> +                   .----------. 100kHz   .--------.
-> +                   |  parent- |----------| dev D1 |
-> +                .--|  locked  |          '--------'
-> +                |  |  mux M1  |
-> +                |  '----------'
-> +                |      .----------. 400KHz  .--------.
-> +    .--------. 400kHz  |  parent- |---------| dev D2 |
-> +    |  root  |--+------|  locked  |         '--------'
-> +    '--------'  |      |  mux M2  |
-> +                |      '----------'
-> +                |  .--------.
-> +                '--| dev D3 |
-> +                   '--------'
-> +
-> +Idle state
-> +-----------
-
-Too many dashes.
-
-> +
-> +Muxes have an idle state, which is the state the channels are put into when no channel
-> +is active. The state is typically one of the following:
-> +
-> +- All channels are disconnected
-> +- The last selected channel is left as-is
-> +- A predefined channel is selected
-> +
-> +Muxes that support an idle state where all channels are disconnected are preferred when using
-> +different bus speeds. Otherwise high bus speeds may "leak" through to devices that
-> +may not support that higher speed.
-> +
-> +Consider the following example: ::
-> +
-> +                          .----------. 100kHz .--------.
-> +        .--------. 400kHz |   mux-   |--------| dev D1 |
-> +        |  root  |--+-----|  locked  |        '--------'
-> +        '--------'  |     |  mux M1  |--. 400kHz .--------.
-> +                    |     '----------'  '--------| dev D2 |
-> +                    |  .--------.                '--------'
-> +                    '--| dev D3 |
-> +                       '--------'
-> +
-> +If the idle state of M1 is:
-> +
-> +- All channels disconnected: No problem, D1 and D2 are not affected by communication
-> +  to D3.
-> +- Last selected channel: Problem if D1 was the last selected channel. High speed
-> +  communication to D3 will be "leaked" to D1.
-> +- Predefined channel: Problem if the predefined channel is D1. Set predefined channel
-> +  to D2 as D2 may handle 400kHz.
-> +
-> +Supported controllers
-> +-----------------------
-
-Too many dashes.
-
-Cheers,
-Peter
-
-> +
-> +Not all I2C controllers support setting the bus speed dynamically.
-> +At the time of writing, the following controllers have support:
-> +
-> +============================   =============================================
-> +i2c-davinci                    Supports dynamic bus speed
-> +============================   =============================================
->   
->   Mux type of existing device drivers
->   ===================================
-> 
-
+--OVfm+UyA/qXeCYnJ--
