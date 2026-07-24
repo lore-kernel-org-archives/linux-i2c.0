@@ -1,184 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 606E43B27E3
-	for <linux-i2c@vger.kernel.org>; Fri, 24 Jul 2026 21:31:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F28D4746C6;
+	Fri, 24 Jul 2026 22:44:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784928704; cv=none; b=iuTe99pVEhoHqcMcHPl41btJ0emxhIViAccFaPkI3sL/81cpRSg9NNgR0lb8FEzQb5wErFrAJnsRhW7nliQGKzN78cE9LVMi7x7ZBcYUUF4MJIMp+mnbOJkkL/frOKr0V6/WcVSQBNuS3fR8fbR2h8KmHpIIchQMwakEmj/mupw=
+	t=1784933078; cv=none; b=LfwrV2lYoDm5x+0bPgIjxZIO7c5cjsTW+gKm+mDBXVm265ZSJX0wcXuXV/5YuArtbRo/jm5ruixPDy5WvfSibtgyjqj1MoLxl+1bEMzKJ3SVsq+uGFVK+pCyky+wOpQAzb1u7LsoDHxK0f0GC7UGmTVrYPB+cJ6QXaXBBMAvkR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784928704; c=relaxed/simple;
-	bh=3BXWnD402hSfrfyEk+w77kbuQrHpzt9R/PGME+Cz84g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KBqVFmFyVJcPiuMXI/MUgPA5J8dK6ZYqEnL07GlI8ZmgklqLaeXGRP+WZcNaEF5jKPBLUEQjEsWuCGKlnykQJIy8sG3c5AIrfKiVGyi5T7TOEjnzd9q8WQ1MUYtEewwoLBtSsqOkeaK1oxtObHkIUvhOWYwZDHuSv7liCh539IY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OCoFx7j2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784933078; c=relaxed/simple;
+	bh=QqIaBCRieId5IemtvcpKahPh19xZYLf1hGy70SKg0PQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sG7X8k1XRzI8QjeeHrXZ2h3HFiM34CB3HD+rOP7ebYPV0OAcpvWjHMCtDo187eqH1h3O3ehbB3/rFLnp09FYXD8GtnySrgdS66jk7E7imGL9Kg05gustOxGsMYgvW5d6T9Gb8kJsrP4wEynm35+xGflH/yilYGFJB8YspvjpQJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i4rBpEhf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OCoFx7j2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484C91F00ADE
-	for <linux-i2c@vger.kernel.org>; Fri, 24 Jul 2026 21:31:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i4rBpEhf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D6331F000E9;
+	Fri, 24 Jul 2026 22:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784928703;
-	bh=1lyKPNn2+QBheUHLLKeFUz3rZkaxAhPd6rt5QtwoqWY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=OCoFx7j2pIEMeh9nhRSL8q/TYgVfqJjt4dtbiICKctHvcakmeRD09WLrhX6nKPJu0
-	 dVndMg9nCsYBR6MLTXYiH2aATB7R79iQp0JN9vuhmWubEnXHCytzsVrVdCNdffdJmU
-	 dpYnFt1ZYDI2GJPyp452rcXEi8stnsMn/HpGFR9LcatN7nAVjuHJa7tztCCtmLXET0
-	 hmUCtkuP5lUKHcvJhw1IWPuOnRHoHurSUf354KkaNVSGR39tW7IZtGtDh2UQvuoV+f
-	 rFz0D08y4+BuGwd69jzb0XhxjEVtAPJ7NvGUNXzAFkKnqRrRBNTKBtom0VsTmxqLjT
-	 esqUfx3aGyY2g==
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-39c8e65e3f5so7812811fa.0
-        for <linux-i2c@vger.kernel.org>; Fri, 24 Jul 2026 14:31:43 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpIqF9+uCBWGxj7yLTketOX5yosXZIirJxEqUIalSzJvLCtVHFwWaZEFubzMEOt3bpBryFk1JJEZKg=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy4dCpXrY5MR5lixogApMpnM5tOtvzNO5HgWx10eimRjdtfPwrt
-	CgVCty55mE+9+ti6S5Gfe5HceG0xEkgbhtWA0xn3rNDztgc9ph6cI9ue2n893NMgUsiBfuHgTfR
-	Bl2us6wZ0rFsVyHcvaFsKqi8zyvttsjQ=
-X-Received: by 2002:a05:6512:368e:b0:5ae:b584:562b with SMTP id
- 2adb3069b0e04-5b2b2f76626mr1381067e87.48.1784928701837; Fri, 24 Jul 2026
- 14:31:41 -0700 (PDT)
+	s=k20260515; t=1784933065;
+	bh=WtuhOUxYiTRsl5zK5BpJ83EHAdKYT9hBTgyqeW8tiGU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=i4rBpEhfhegDJ8TnMvpAXKQi/Ojo4RmSa/KXofg+CF4tn12KC+kqaOGsaMY2m+cfy
+	 Ea2jV+6FPwoWpZ0elNj1jcNdIlqDQtJE6FGMzLRqXU5wWjaXvMuOSoPJ/xICgP12ob
+	 tTfYBvWvrR0mp2WTqL5M7BMCIF64pZbZPPGST8P4cQC14s50zibwsC+FvjSa827u0e
+	 TDl8qXpxwxMb+ByiZGwlLn/3kEZJZ5rQFEDWELIVENkd1hWMOrL4iFn+xD/MJ54sUi
+	 WqIMfw2jOW0t/TAJOnnvmJ2WubbgrquuKaXO5yII4yOLAyAuhURIMkWh/Dvp3ugCLL
+	 TZifoJMdjx2fg==
+Date: Sat, 25 Jul 2026 00:44:21 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+Cc: jdelvare@suse.com, djkurtz@chromium.org, hkallweit1@gmail.com, 
+	wsa@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: i801: Clamp adapter timeout to prevent system
+ lockup
+Message-ID: <amPinh8c7GwQx4Le@zenone.zhora.eu>
+References: <20260723034331.116690-1-25181214217@stu.xidian.edu.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com> <20260714-upstream-v2-v2-2-76e5e41026db@advantech.com>
-In-Reply-To: <20260714-upstream-v2-v2-2-76e5e41026db@advantech.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Fri, 24 Jul 2026 23:31:29 +0200
-X-Gmail-Original-Message-ID: <CAD++jLn9VMq5RcGQy-1TB=SdgkynSDbjeeKoNQ7Z4ZArw-AGFw@mail.gmail.com>
-X-Gm-Features: AUfX_mx-62JQQDBcTKutXOrN-Q2fNr59laJWx5ddo44mrkoC0a-8lhzFzZvvk98
-Message-ID: <CAD++jLn9VMq5RcGQy-1TB=SdgkynSDbjeeKoNQ7Z4ZArw-AGFw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/8] Add Advantech EIO GPIO driver
-To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
-Cc: Lee Jones <lee@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Andi Shyti <andi.shyti@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
-	Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
-	Lukasz Luba <lukasz.luba@arm.com>, linux-kernel@vger.kernel.org, mfd@lists.linux.dev, 
-	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, 
-	linux-pm@vger.kernel.org, Wenkai Chung <wenkai.chung@advantech.com.tw>, 
-	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>, 
-	Hongzhi Wang <hongzhi.wang@advantech.com>, 
-	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>, 
-	Thomas Kastner <thomas.kastner@advantech.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260723034331.116690-1-25181214217@stu.xidian.edu.cn>
 
-Hi Ramiro,
+Hi Mingyu,
 
-thanks for your patch!
+On Thu, Jul 23, 2026 at 11:43:31AM +0800, Mingyu Wang wrote:
+> Userspace applications with access to /dev/i2c-* can use the I2C_TIMEOUT
+> ioctl to manipulate the adap->timeout value. In the i2c-i801 driver,
+> this user-controlled timeout is used directly in both the interrupt
+> waiting paths (wait_for_completion_timeout) and the polling loops
+> (time_after(jiffies, timeout)).
+> 
+> If a malicious or arbitrarily large timeout value is injected from
+> userspace, and the hardware (or an emulated device in a fuzzing/VM
+> environment) fails to respond, the driver will block for the entirety
+> of that requested timeout while holding the i2c adapter's rt_mutex.
 
-On Tue, Jul 14, 2026 at 5:54=E2=80=AFPM Ramiro Oliveira
-<ramiro.oliveira@advantech.com> wrote:
+I am not convinced that we should fix this in the i801 driver.
 
+Access to /dev/i2c-* is normally restricted to the administrator.
+We cannot protect the kernel from every unreasonable value chosen
+by a privileged user.
 
-> +static int get_dir(struct gpio_chip *chip, unsigned int offset)
+...
+
+> Fix this by introducing i801_get_timeout(), which clamps the timeout
+> to a maximum of HZ (1 second). This is safe and strictly necessary:
+> 1. Normal operations complete in milliseconds and are unaffected by
+>    this ceiling. The timeout is only consumed during hardware failures.
+> 2. Per the SMBus 2.0 specification, the maximum clock low timeout
+>    (tTIMEOUT) is 25-35 ms. A 1-second clamp provides immense headroom
+
+The SMBus clock low timeout is not the maximum duration of a
+complete transaction. It does not prove that one second is a
+safe limit for every user.
+
+The one second limit still looks arbitrary to me.
+
+>    (orders of magnitude) for legitimate transactions while decisively
+>    preventing prolonged rt_mutex lock contention and D-state lockups.
+> 
+> Fixes: 1de93d5d5217 ("i2c: i801: Replace waitqueue with completion API")
+
+This commit did not introduce the problem. It only replaced the
+waitqueue with a completion. It looks like a convenient point in
+the history rather than the actual commit that introduced the
+"issue".
+
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+
+...
+
+> +/*
+> + * Bound the maximum wait time to prevent system lockup if the
+> + * userspace passes an arbitrarily large timeout via ioctl.
+> + */
+> +static inline unsigned long i801_get_timeout(struct i801_priv *priv)
 > +{
-> +       u8 dir;
-> +       int ret;
-> +
-> +       ret =3D pmc_read(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
-> +       if (ret)
-> +               return ret;
-> +
-> +       return dir ? 0 : 1;
+> +	return min_t(unsigned long, priv->adapter.timeout, HZ);
 
-Please use:
-return dir ? GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
+This also silently ignores the timeout requested by userspace. A
+user may request ten seconds and the ioctl will succeed, but the
+driver will use only one second. There is no warning or other
+indication that the value was clamped.
 
-> +static int dir_input(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +       u8 dir =3D 0;
+More generally, once a user has privileged access to a device
+node, there are many ways to misuse the hardware. I do not think
+adding arbitrary limits to individual drivers is the right way to
+address that.
 
-Use some local define for this stuff like:
+Thanks,
+Andi
 
-#define EIO_GPIO_DIR_IN 0
-#define EIO_GPIO_DIR_OUT 1
-
-> +static int dir_output(struct gpio_chip *chip, unsigned int offset, int v=
-alue)
-> +{
-> +       u8 dir =3D 1;
-
-Also here.
-
-> +       u8 val =3D value;
-> +
-> +       pmc_write(chip->parent, EIO_GPIO_PIN_DIR, offset, &dir);
-> +
-> +       return pmc_write(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &val);
 > +}
-> +
-> +static int gpio_get(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +       u8 level;
-> +       int ret;
-> +
-> +       ret =3D pmc_read(chip->parent, EIO_GPIO_PIN_LEVEL, offset, &level=
-);
-> +       if (ret)
-> +               return ret;
-> +
-> +       return level;
-
-return !!level;
-
-so you clamp this to [0, 1]
-
-> +static int check_support(struct device *dev)
-
-Check support for what? Spell it out.
-
-> +{
-> +       u8  data;
-> +       int ret;
-> +
-> +       ret =3D pmc_read(dev, EIO_GPIO_STATUS, 0, &data);
-> +       if (ret)
-> +               return ret;
-> +
-> +       if ((data & 0x01) =3D=3D 0)
-> +               return -EOPNOTSUPP;
-
-Use:
-
-#define EIO_GPIO_HAS_SUPPORT_FOR_X BIT(0)
-
-if (!(data & EIO_GPIO_HAS_SUPPORT_FOR_X))
-        return -EOPNOTSUPP;
-
-> +static int check_pin(struct device *dev, int pin)
-> +{
-> +       int ret;
-> +       int group, bit;
-> +       u16 data;
-> +
-> +       /* Get pin mapping */
-> +       ret =3D pmc_read(dev, EIO_GPIO_MAPPING, pin, &data);
-> +       if (ret)
-> +               return ret;
-> +
-> +       if ((data & 0xFF) > ARRAY_SIZE(group_map))
-> +               return -EINVAL;
-> +
-> +       group =3D group_map[data & 0xFF].group;
-> +       bit   =3D data >> 8;
-> +
-> +       /* Check mapped pin */
-> +       ret =3D pmc_read(dev, EIO_GPIO_GROUP_AVAIL, group, &data);
-> +       if (ret)
-> +               return ret;
-> +
-> +       return data & BIT(bit) ? 0 : -EOPNOTSUPP;
-> +}
-
-So there is some pin muxing going on here. If that should be made dynamic
-at some point this should make use of the pin control subsystem, but I gues=
-s
-it is currently hard-coded?
-
-Yours,
-Linus Walleij
