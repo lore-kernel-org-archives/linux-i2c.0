@@ -1,81 +1,202 @@
-Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3B17B19D07A;
-	Sat, 25 Jul 2026 01:16:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784942190; cv=none; b=Ca3uvZ6VYd9MKyJxhS83UNISPaXOHQtMpTFZMJaN4wb3+ni9gzUfrCHmvBLl0J4ADcJ6eP7bs/lYXuZweIhYbyvjrHfzlPSOlTGFvHYtbuqJBIInPygQr2MGRdHXvySveaWJTaMIDJENbpERvTq/ENzufDZczEJpVQk0l6nwdBo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784942190; c=relaxed/simple;
-	bh=iwEk3kkgTGHHJCCelUOaKx7UpanA3TG91XR6QN9yAxQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LeAOsxveb+kHz5GBwl5nlvJ9xaKzxTmZPIsrMQmHc+CaGLjVOt1JuYxbOc3gKxmFmbkWqSCvEwuoSWAGY+f3ARn/Pp97j4AiHZhFBckb1eHqyTUXkvzAigjP1VE+pQuAfSlH19CG9bOCjCyQLTaRLq5oCtV1aw10xNAGX5XvBsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn; spf=pass smtp.mailfrom=stu.xidian.edu.cn; dkim=fail (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b=F/XwVEk+ reason="key not found in DNS"; arc=none smtp.client-ip=162.243.164.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
+Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A18CE30F531;
+	Sat, 25 Jul 2026 01:41:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784943716; cv=pass; b=le6njyzWbRplIyxN1txZsCIIlmHQb2CZd3sdua3V/4OesVx+kUoeP2fbsevzAFizhGRLHzYK3Nlvo2I7ye9d7bbtaO8RSLGDZLiXYXmNe/aeODxRUPaQyU/RyINn4m6bi3m02KdOW683JLoSwyTEwyVRApeQYFGeR92b0MgoOTE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784943716; c=relaxed/simple;
+	bh=NZyVFpIRyK2rNwaMXjWMJlx5PJeZGjemTrC+PWB+WmY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ebqCrIqESpAtA9iy2HZ0/SLKFxGrDhVGPKyFTwdWLT/QX2xqZBmfHGgqsKSLF5gvFFeeXN3VmaU5LWhLg5TiAUKgbxIkMH40S32fF9XjLdrKl4MwSO6P4UwAeUa4n0HDxETThHpqYGaS3Q3g54uX30med5X3oeIpvpAOyU+BOIg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=sebastian.reichel@collabora.com header.b=kDM2xX65; arc=pass smtp.client-ip=136.143.188.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b="F/XwVEk+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=stu.xidian.edu.cn; s=dkim; h=Received:Message-ID:Date:
-	MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	In-Reply-To:Content-Type:Content-Transfer-Encoding; bh=xmUYPvi32
-	T1uurAIi9LSAnx0uzTTiR/ExGW/8cnA/Rw=; b=F/XwVEk+QoKnxtublNoptqCy3
-	lONlM4ULNsgHYbO2Dzv+2UIcV16VSvmkfe6ugxvPDduKjuNy8FDOZrI/Y7QYPDFx
-	tLaBaNAvAYghRKvsCQWk+v6F9cD92vuW28fxxwTBZS0P7ekWq7sKcvzdQyh3xaMc
-	zjfod2CikSmI4gZtLE=
-Received: from [192.168.1.110] (unknown [115.53.186.114])
-	by hzbj-edu-front-2.icoremail.net (Coremail) with SMTP id BLQMCkC2+S5eDmRqwM5wAQ--.14099S3;
-	Sat, 25 Jul 2026 09:16:15 +0800 (CST)
-Message-ID: <0fbbc160-a599-4384-b78a-bf8e6afd963e@stu.xidian.edu.cn>
-Date: Sat, 25 Jul 2026 09:16:13 +0800
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=sebastian.reichel@collabora.com header.b="kDM2xX65"
+ARC-Seal: i=1; a=rsa-sha256; t=1784943702; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=lMrrV9vou/udhD54x/d1OJXy38OqQLeUw1vHRFqX4cThDHyh74iHVoUmq334x+yzGnbSZM09NpPBTw8vu2cjZM5n5ErUyzyZcquLu3tXxXOBZGd0Gqy2fD7mznQuXKPKPAYc0KD1dZDlQWKg+qXTkgjDwBOTjHbt8vqcPqDxJ6c=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1784943702; h=Content-Type:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=sH6CqLJTGi8ISCigCTRSI5cDrts97yVGtVPSig9GIGk=; 
+	b=RTr4lha7eCMULJZyHNUR1LxWTw3vTGrP9Tq+dPcM3pPnEPvcdklDS2ClvqWxdMkvIoZPYrvthf0nHK0IvzZmRK/goUCh48d1mksled/CCBOpDOF0n62Qb0JLYUdmWvmuq+jPA/CQvCL2DJ9Z7BEr07gylXmk+jTSinPzvIVabHo=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=sebastian.reichel@collabora.com;
+	dmarc=pass header.from=<sebastian.reichel@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1784943702;
+	s=zohomail; d=collabora.com; i=sebastian.reichel@collabora.com;
+	h=Date:Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:MIME-Version:Content-Type:In-Reply-To:Message-Id:Reply-To;
+	bh=sH6CqLJTGi8ISCigCTRSI5cDrts97yVGtVPSig9GIGk=;
+	b=kDM2xX65FhVl5v1HHE7bUlOtCmlEFWjYuLu/2bXo+Coekl4Bu/IlPfXXuypWeRUH
+	iCvxNU7vfE83f5WNFPe7zEA38ZIVOKZfhUpZiaY3XhczGFt0DW3Uj1DBrcWitzMiX0f
+	+N+aYGzfqS4oy0WtbFsLuQi8plWza7pEtJuyhpi0=
+Received: by mx.zohomail.com with SMTPS id 1784943699375320.3677950223381;
+	Fri, 24 Jul 2026 18:41:39 -0700 (PDT)
+Received: by venus (Postfix, from userid 1000)
+	id 9CED8181F16; Sat, 25 Jul 2026 03:41:35 +0200 (CEST)
+Date: Sat, 25 Jul 2026 03:41:35 +0200
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
+To: Bruce Robertson <brucer42@gmail.com>
+Cc: rust-for-linux@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, 
+	Igor Korotin <igor.korotin@linux.dev>, Gary Guo <gary@garyguo.net>, 
+	Tamir Duberstein <tamird@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Boqun Feng <boqun@kernel.org>
+Subject: Re: [RFC PATCH 0/3] rust: power_supply class abstraction and SMB347
+ charger driver
+Message-ID: <amQPYhBkj9rIdSZ_@venus>
+References: <20260708214738.25008-1-brucer42@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] i2c: i801: Clamp adapter timeout to prevent system
- lockup
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: jdelvare@suse.com, djkurtz@chromium.org, hkallweit1@gmail.com,
- wsa@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20260723034331.116690-1-25181214217@stu.xidian.edu.cn>
- <amPinh8c7GwQx4Le@zenone.zhora.eu>
-From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-In-Reply-To: <amPinh8c7GwQx4Le@zenone.zhora.eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:BLQMCkC2+S5eDmRqwM5wAQ--.14099S3
-X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUYT7k0a2IF6F4UM7kC6x804xWl14x267AK
-	xVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGw
-	A2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26r1j
-	6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Gr
-	0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r4UJwAac4AC62xK8xCEY4vEwIxC4wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-	Y48IcVAKI48JMxAIw28IcxkI7VAKI48JMxAqzxv26xkF7I0En4kS14v26r126r1DMxC20s
-	026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_
-	JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14
-	v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xva
-	j40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJV
-	W8JbIYCTnIWIevJa73UjIFyTuYvjxU7RpBDUUUU
-X-CM-SenderInfo: qsvrmiqsrujiux6v33wo0lvxldqovvfxof0/1tbiAQUFEWpjgew1bQAAss
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="t4jkyeocqyd2wit6"
+Content-Disposition: inline
+In-Reply-To: <20260708214738.25008-1-brucer42@gmail.com>
+X-Zoho-Virus-Status: 1
+X-Zoho-AV-Stamp: zmail-av-0.2.10.1.5.2/284.919.37
+X-ZohoMailClient: External
 
-Hi Andi,
 
-Thanks for the review.
+--t4jkyeocqyd2wit6
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [RFC PATCH 0/3] rust: power_supply class abstraction and SMB347
+ charger driver
+MIME-Version: 1.0
 
-I agree with your points. Silently clamping the timeout violates the 
-userspace API expectations, and adding arbitrary limits to restrict a 
-privileged user is indeed not the right approach.
+Hi,
 
-I will drop this patch and handle the timeout constraints locally in my 
-testing environment.
+On Wed, Jul 08, 2026 at 09:47:35PM +0000, Bruce Robertson wrote:
+> This series adds a Rust abstraction for the power supply class -- which
+> does not currently exist in mainline or rust-next -- together with the
+> SMBus helpers needed to drive an I2C charger from Rust,
 
-Thanks for your time.
+Having Rust bindings for new drivers sounds good to me.
 
-Best regards,
-Mingyu Wang
+> and a Rust port of the Summit SMB347 battery charger as the first
+> consumer.
 
+Any reason for Summit SMB347 specifically? I would prefer not to
+have two drivers for the same hardware. Looks like this is used
+by just three relatively old devices:
+
+rg -l '"summit,smb347"' arch
+arch/arm/boot/dts/ti/omap/omap4-samsung-espresso10.dts
+arch/arm/boot/dts/nvidia/tegra30-asus-nexus7-grouper-common.dtsi
+arch/arm/boot/dts/samsung/exynos4412-p4note.dtsi
+
+All are ARM32 based, so Rust is at least available by all users.
+So I suppose replacing this C driver would be an option, OTOH I
+don't want to motivate people to rewrite things either :)
+
+> Motivation
+> ----------
+> Rust drivers for power supply hardware are currently blocked: there is
+> no safe Rust interface to the power supply class, and the I2cClient
+> abstraction exposes no register I/O. This series provides a minimal,
+> self-contained path from binding an I2C charger to reporting charging
+> state through sysfs, entirely in safe Rust, with the unsafe FFI confined
+> to the two abstraction layers.
+>=20
+> The series is structured abstraction-first:
+>=20
+>   1/3  Safe SMBus read/write/update_bits over i2c::I2cClient.
+>   2/3  A power_supply Driver trait, a generic get_property trampoline,
+>        and an RAII Registration that owns the descriptor lifetime.
+>   3/3  A Rust SMB347 charger driver consuming both: it binds over I2C
+>        and reports STATUS, ONLINE and CHARGE_TYPE.
+
+A new driver supporting CHARGE_TYPE should also support
+CHARGE_TYPES.
+
+> Testing
+> -------
+> Built and exercised against an emulated SMB347 using i2c-stub: seeding
+> the chip's status registers and reading back the corresponding sysfs
+> attributes (status, online, charge_type) confirms the full C->Rust->C
+> path. No physical hardware or interrupt path has been tested.
+
+If the idea is to just have a user for the Rust binding and
+something to test/play around: Maybe convert test_power instead? It
+would also decouple the power-supply Rust bindings from I2C/SMBus.
+The disadvantage is, that this driver is a special-case, since it
+has no parent device :)
+
+Greetings,
+
+-- Sebastian
+
+> Open questions / known limitations (hence RFC)
+> ----------------------------------------------
+>   - get_property recovers the driver's private data via the parent
+>     device's drvdata. The current code relies on the observed ordering
+>     (callbacks only fire after probe() has set drvdata); the contract
+>     should be made explicit.
+>   - smbus_update_bits() is not atomic against concurrent callers; a lock
+>     will be required before a charger IRQ handler is added (not yet
+>     implemented).
+>   - Only get_property and a handful of properties are wired up;
+>     set_property, property_is_writeable and the IRQ-driven
+>     power_supply_changed() notification are future work.
+>=20
+> Feedback on the abstraction's shape -- especially the descriptor
+> lifetime and the drvdata recovery -- would be very welcome.
+>=20
+> checkpatch emits one MAINTAINERS warning on patch 3/3 (new driver file);
+> it is a false positive -- the driver is covered by the existing POWER
+> SUPPLY CLASS "F: drivers/power/supply/" glob and needs no new entry.
+> Patch 2/3 adds the one file outside any existing glob
+> (rust/kernel/power_supply.rs) and updates MAINTAINERS accordingly.
+>=20
+> Based on rust-next (v7.2-rc1).
+>=20
+> Bruce Robertson (3):
+>   rust: i2c: add SMBus byte transfer helpers
+>   rust: power_supply: add power supply class abstraction
+>   power: supply: add Rust SMB347 charger driver
+>=20
+>  MAINTAINERS                                 |   1 +
+>  drivers/power/supply/Kconfig                |  14 ++
+>  drivers/power/supply/Makefile               |   1 +
+>  drivers/power/supply/smb347-charger_rust.rs | 180 ++++++++++++++++++++
+>  rust/bindings/bindings_helper.h             |   1 +
+>  rust/kernel/i2c.rs                          |  42 +++++
+>  rust/kernel/lib.rs                          |   1 +
+>  rust/kernel/power_supply.rs                 | 133 +++++++++++++++
+>  8 files changed, 373 insertions(+)
+>  create mode 100644 drivers/power/supply/smb347-charger_rust.rs
+>  create mode 100644 rust/kernel/power_supply.rs
+>=20
+> --=20
+> 2.43.0
+>=20
+
+--t4jkyeocqyd2wit6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmpkFEsACgkQ2O7X88g7
++pqG5A/+OXDSMBBeBQeHtPnntBd8Wx6nflqqmyNWgjtgNzc1Hmk+yQzj2BFnvkwq
+UwzB7KOiUxVJbNzOuV19yRqVeSFmxYHGXEUzNsQNFHBpvSPopOj/IN/sd3uw6eEw
+w8a356v9gJdEP/cMd2pKOKQmRzDDDwNbMSOYaAxhMLaBa8kSepf37L2nWx8RnxoK
+7Usvij75cQN4RIsGzg5QsjwujoSNuBdk0naHkGUsdVjq0eTPLiYMeIck6nQ69VtU
+NUsUy96WDAgiZJU+iir1rh/IVRJQS+nNO/Kd41ANyMhP47e3idOVJ24PJivjFnWw
+wq8wKSGxOT9rhkrLDddgJwFKKeZYp5AH2NmvquSCS3xF3k1uSow2uPmBYpP9nx4K
+Aay0TjibqIJWt58swQegj2OpogWn72VTs7l3HQUp6ARy06FOv/LXxFMPKWDnH22u
+vL4MrUC+Brbt5751q6hOfna9399fv+C8KO6WblFlBXs5hfumLNjbWilNCy/BH+6v
+7QOcT1WvOuwbNAsMnECGSsf/Tlv4EVh/6XBYl9eN8PrlIM/r6lnXGVZUgwtwbz0w
+3MsLJwdBiqHKPYZsHr1NN5Uy5+GUhkHORT3Rc+3YbxyR0PRrnanu3dTvSY6pHsLQ
+mhW9p1sgguehZBDH6411FwsEkO+dMSCV8v1Q0AyPI2Q4RDCnaqQ=
+=V0FH
+-----END PGP SIGNATURE-----
+
+--t4jkyeocqyd2wit6--
