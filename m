@@ -1,45 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFD7E37D10E;
-	Sun, 26 Jul 2026 15:08:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A909258EF9;
+	Sun, 26 Jul 2026 20:11:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785078518; cv=none; b=ddmZLuXm5xixq2ORZXXz8BZKP8U7lRTukEjIZM/G1WcrS6zO5uHvsV8BDCGxJd1iZRDzDCvWDE5R7Kg9v6au/XN5yLXD4LscBFoRsV3V0wPQW97RNQvlSe9kbMs2hXRizRBnl1Bd8q3PDXnBoRzJtQO7mbs82K13saWLTC3bnpw=
+	t=1785096673; cv=none; b=H8eGwQ35Ye0/JeQWTOZfLCiKtMpWMC7MYT+T4CoJGPUral5goC8oWadCyQ7LSnQHXJL2JrRkSjMR226osCnrtO/S31qDNqGxb9RvIMbOT5pKDu0oBYTW/g3JS0Izf+VuncT3RP173/nqkGXGMJXW0YqgZpa5SXwue6tMiQn6Gdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785078518; c=relaxed/simple;
-	bh=jWTf6zp76Onyvup4be8YktyMr2K+oZxpnt7jHhb/RKM=;
+	s=arc-20240116; t=1785096673; c=relaxed/simple;
+	bh=OreYQOrZ6UNqoHhuVoPOtIOPmzrs9/KeCA7aSaFTXzY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NAWVTZ9+L/ZIyxbEEjt4E65vqeoO4FTcyBFZIxxNFMvBrcdO3q92aQXQDUOAP0FM2w4x+UT51ZzSknvOAX/yIDVQLsx5pwNcwUYG9EOVK0CJfA9Ge/iN8xi8P4As00nFeioctIx5YmLEtljy1fP2f6uJwrdE+mLZtaUFOclSaCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ww4Ct2QB; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=eNR6xehckQZMAqIxW3bFxDYWBx76wnaDDuPaRKy9vf14UvI+IVK2WQTvrL5NW3g5RCYSKAiXKrKpnnp1Rnzs4amIk8+CAi4A4QICt6VYT+yVVhyYqUi4vJCDqatZEj5dv9F4qVLOaA1tn2Ak7w9drK3stol3DmXd7GZby/fUiOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hLbku/9O; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ww4Ct2QB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4734D1F000E9;
-	Sun, 26 Jul 2026 15:08:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hLbku/9O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258C71F000E9;
+	Sun, 26 Jul 2026 20:11:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785078517;
-	bh=ciH6yAMA2aKn7oOOIrPyidEOBIpTmgO0qyHn8gQTyvc=;
+	s=k20260515; t=1785096671;
+	bh=k3nHeAEMQLfO3MELUrR33VPFp3S0R650orjQi8TyOcQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Ww4Ct2QBwq2UUh474XFFFOQOW6vJpLMjeWP2MOMHHzFZI6OoD1uy6cSVK7iCafl15
-	 HtLyiIu1LgHLu65vbHVoTomN9GDWoQL117UZYmMxRwg+6yMRTZVU4SQ9wLwx9puXWe
-	 Vrvbofn4AZl2Q4XoaIAgP9V545IpfHbNAMFOBQ428zRaVX/1VkpMEyA1G5y/XxNh9v
-	 ajFUyfP5+kBkfKneZIF903MFUDPJRr/Xra8Wt3RnYUoKKdWSvFVS5UI1XJfsxmWRbe
-	 C1KU2sXE6+ZrxzvL59ETP+iONGWmjNWc6fX4/pfODUu2zTA2jM8lMrG5NFd7yNZTqK
-	 2WEAdjyNrJn2A==
-Date: Sun, 26 Jul 2026 17:08:33 +0200
+	b=hLbku/9O0USRWmuDaaHB1IFPBfIHuHs8SIWUKez9d12XwfP5y4i4TpKDGhnqrmyRz
+	 CjdLoSuqPNCOEeQK+8TINH+T6Fe3yBozqG5q9QO08f91i0RUMWfIorEs2Mut0HHKVP
+	 mSYRDy6ChwRUcr3lwJe+DS61bx+FVR+6cndjrRPd8doGg4x/0IFUFYZzxGKZMrjNwu
+	 rXiLBWqmYxlH5qbuCdsHqUUob+Y20/K6NGgo7p+yC3rVqoko9+PUu3CEogSsEcHTiy
+	 MOJCPCaV0ETQlXMSK5sIXfP5HoJt8zsM7T0HOeiY6UKp3pU4Qy5pxq7A68K/+pDdH1
+	 aNNKpcIDyHYWA==
+Date: Sun, 26 Jul 2026 22:11:08 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Robert Foss <rfoss@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Revert "i2c: qcom-cci: Remove unused struct member
- cci_clk_rate"
-Message-ID: <amYiutsYT5ol_nof@zenone.zhora.eu>
-References: <20260721-cci-clk-fix-v1-0-5eae78700da8@oss.qualcomm.com>
- <20260721-cci-clk-fix-v1-1-5eae78700da8@oss.qualcomm.com>
- <amPtXU_RkseFbpKm@zenone.zhora.eu>
- <fae7e3f6-2d9e-4972-a091-749295f2cc3c@linaro.org>
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
+ dynamic transfer timeouts
+Message-ID: <amZkf3lu7gjWhw04@zenone.zhora.eu>
+References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
+ <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -48,32 +45,85 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fae7e3f6-2d9e-4972-a091-749295f2cc3c@linaro.org>
+In-Reply-To: <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
 
-Hi Vladimir,
+Hi Aniket,
 
-> > > The cci_clk_rate field is needed to enforce the correct CCI clock rate
-> > > at probe time. The hw_params timing values are in clock ticks and were
-> > > calibrated for a specific frequency per hardware variant, so running at
-> > > the wrong rate would violate I2C timing specifications.
-> > > 
-> > > Signed-off-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
-> > 
-> > Does this revert need a Fixes tag? I haven't seen very often
-> > reverts with Fixes tag, but it makes sense if they need to be
-> > backported.
-
-There is a Requires tag (or similar, I don't remember).
-
-> > I'm going to take patch 1 and 2 already while we discuss patch 3
-> > separately, but please let me know first if you agree adding the
-> > Fixes tag.
-> > 
+On Mon, Jul 20, 2026 at 05:11:19PM +0530, Aniket Randive wrote:
+> The transfer timeout for an I2C controller should reflect the actual
+> message length and bus frequency rather than a static 1-second value.
+> A static timeout causes unnecessary delays on error paths for short
+> messages, and may be insufficient for very long transfers.
 > 
-> please put all commits from this series on hold due to my last finding:
+> Add i2c_update_timeout() to i2c-core which computes a transfer-specific
+> timeout and stores it directly in the standard adap->timeout field.  The
+> formula accounts for 9 bits per byte (8 data + 1 ACK) at the configured
+> bus frequency.  The caller supplies a safety multiplier and a minimum
+> floor so that each driver retains full control over its timing policy
+> without those values becoming public API.
 > 
-> https://lore.kernel.org/linux-arm-msm/8d20f3ab-696e-40a4-a05a-688779299071@linaro.org
+> Storing the result in adap->timeout makes it visible to all consumers of
+> that field, including the arbitration-loss retry loop in __i2c_transfer().
 
-Thanks Vladimir!
+this patch does not take into account a timeout set by userspace
+through the I2C_TIMEOUT ioctl. That value would be silently
+overwritten by the driver.
 
+> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
+
+...
+
+> +/**
+> + * i2c_update_timeout - compute and set a dynamic transfer timeout on an adapter
+> + * @adap: the i2c_adapter whose timeout field will be updated
+> + * @bus_freq_hz: I2C bus clock frequency in Hz
+> + * @len: transfer length in bytes
+> + * @safety_coeff: multiplier applied over the theoretical wire time
+> + * @min_usec: minimum timeout floor in microseconds
+> + *
+> + * Computes a transfer-specific timeout from the message length and bus
+> + * frequency, applies a safety multiplier and a minimum floor, then stores
+> + * the result in adap->timeout (in jiffies).  The caller supplies the policy
+> + * constants so they remain internal to the driver.
+> + */
+> +void i2c_update_timeout(struct i2c_adapter *adap, u32 bus_freq_hz,
+> +			size_t len, unsigned int safety_coeff,
+> +			unsigned int min_usec)
+> +{
+> +	u64 bit_usec = mul_u64_u32_div(len * 9, USEC_PER_SEC, bus_freq_hz);
+
+bus_freq_hz must be checked before the division, otherwise a zero
+value will cause a division by zero.
+
+> +	adap->timeout = usecs_to_jiffies(bit_usec * safety_coeff + min_usec);
+
+If min_usec is a minimum timeout, why is it added to the
+calculated value?
+
+I would expect something like:
+
+   max(bit_usec * safety_coeff, min_usec)
+
+Otherwise, min_usec is an additional margin, not a minimum.
+
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_update_timeout);
+
+I'm wondering whether changing the adapter timeout from the I2C
+core is the right approach.
+
+Perhaps i2c_update_timeout() could return the calculated value
+instead, but then  do not see much value in exposing such a small
+calculation through the I2C core.
+
+I know you were advised to move this into the core, but it does
+not seem particularly useful there and, as it stands, it looks
+somewhat controversial.
+
+Unless there is another good reason for keeping it in the core,
+I would drop this helper and keep the calculation in the driver.
+
+Thanks,
 Andi
+
+> +
