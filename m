@@ -1,180 +1,194 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C2B19D07A
-	for <linux-i2c@vger.kernel.org>; Sat, 25 Jul 2026 14:19:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 894D72749ED
+	for <linux-i2c@vger.kernel.org>; Sun, 26 Jul 2026 02:33:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784989182; cv=none; b=mDSlMpqxwW7ENIBcm11JZTsopXP97oIaJjJ8lozHa/7cREPOhjTak866TyUjYLruBXd3cPgGy6powyE6ESAcklpJ7ZIaAin+SPpJLR51viqGwrf495rrm4Yzrh6RbjivJ1TMXmAQLI3xGRk1q+C2jYI59Et58sOQ2p9eSHw2SRY=
+	t=1785033210; cv=none; b=BmIo/uxRYuu2WvP3TgKo63aP5P0mJlya+JYZP+lm/djdExiNlTRAypuTHRydnE6F7ULJ7wh+2gsYfyodwNK8muCKf9lBQnTGkk5rQ6Mws1vxQdMA0hZoOvb0xEkZqTEej5Fvu/YjZcmHYwoARkJVfZRwMLHlTCKAV+20UeRAvDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784989182; c=relaxed/simple;
-	bh=cc2QAS7AmJQYin06oY3u5By9NlAK3ZC+dJCh52nbJew=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GeVwpJGm9JcSSZ60/mHMuRAYIbq5bcyZcwnt0Z1ouWTsmp+kIJKJg4VEAkuB1OIJksN0Df3O06VRBDvktYaH/Y4IjFo55lvtSnxLV6rTcWohCd+lJy2996iI6sGkLSiZHyesuBi5uJ9VBcGPEzFfWjqOFds1GyE6rhXv92wdTp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=J6kg0kRk; arc=none smtp.client-ip=209.85.167.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1785033210; c=relaxed/simple;
+	bh=Z8o+7L5AcN0mc5L4ZBXWEkwZ88tRim+Z49ttFoGnBwk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=DWofITI//acXqaEmpjKJ8uBTcDvJ4cFsbaxZkn8gOwEhnRXSNblldK2w4o7hBn3gADUARKJNp25eg1yD54p2NJGnWxSHIA5phSD48Vb2FJxFOjapC9NHR3Y505OUIfUSIS0AP2lQCJfZj32AErgUei5v5JjMNhBBf7TDvqvjAMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pf0116UP; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="J6kg0kRk"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5aebe49b227so329345e87.2
-        for <linux-i2c@vger.kernel.org>; Sat, 25 Jul 2026 07:19:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pf0116UP"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-ca913a601fbso1211759a12.3
+        for <linux-i2c@vger.kernel.org>; Sat, 25 Jul 2026 19:33:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1784989179; x=1785593979; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=qakNqoswZBGD97uQf4jL75REPWcF8Z3ba+lxKiFGD+o=;
-        b=J6kg0kRkqCAfKR2XsyG1orrnebZ0epfomLWj3K7iytlWCU1fWFWdCbtULd/qKFdPQh
-         /qP0iRYPyFO1TGs+rA2E6d1bOEdWHY9mEER36zoq2Sl3IM3ZKhJzibsiW6+WEbms1TCW
-         yRNUEOVjYD0KheNLovR+Ilmglv0KMctacpzGBwgf6pjJXcYIK/oKqDbvOaHhVm9z10FQ
-         9c3dzSxVlr2ELk1JBXheVFqK+Pi18OneLUtPRdEoOybitAV3v5HGXJ9+3xFCHqM9qBkE
-         /fJ4t+J2a9CU8oDwsglHUsdGAB7tzqqMXS3BIa6LiVEzxPZwocJdj9zmZReFK1q4MR76
-         ZALQ==
+        d=gmail.com; s=20251104; t=1785033209; x=1785638009; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sjXzoSujIP+9dDYXqm3Aab2DrXJeEn6UY/TChtANBQI=;
+        b=Pf0116UPcFARZ5UI+z00eqkzao7AiZ4Fi5S8Zh50yL13JqalyzfoxqBU2PaJdzWnqO
+         J5c4hq9CPKJuFeuanxV2/MK3ijJ/3SCckcyCtdyWTvzeoHz4J45ONp27jXuMIv4T1Yv2
+         7xdNLC5r0dvXpKhsegaKrU3DF1oQvS2naECqY4QiLDvag2Ed50AIPnfe6aBZFU1ldrlN
+         hA6e58iqZnwyxoUn7Anx9Mh/sDCXivUUv0P/JoRltBsz34+XwvcMx8oQi1gVIYB7h15T
+         JTen9AsTO0FCWmfpoWyvAyDn8my8kZJuhoNgp7kLCrO1FDggo9ZSutwDB3o22zrDD4KP
+         iDGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784989179; x=1785593979;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qakNqoswZBGD97uQf4jL75REPWcF8Z3ba+lxKiFGD+o=;
-        b=KHB/BZ0yV3nGdlhOHmJAf5pMh2QKsyspH77sdBW2zKkggUNjEtZemQxa+YDRftmp4B
-         HT/kr1bhjAWv7YLsqq1LRp2H/ULm2sB02r9uChRZKL/JgFhyh6PAHz/ZTOTQuIfgbXhC
-         vhXKzqszkQeUgmGv9xlsbstGbKMqoGewLq+SyDIa5N6TmNV3+ROkmpO4IiqWZvNZCzmk
-         dokAc7KOVYCa4T6I6VvZPvxt5J/nPAY+eG2zFxHkl2sYhDcnVjD14umdWqdyDJ/QCRUo
-         Im757pquuUfcnRVd5oD+Dyk2cfjx396oacVODZflhTZX1okIiB48EqXxL58j/q5T64XV
-         rdLw==
-X-Forwarded-Encrypted: i=1; AHgh+RrMF1e1OH8swL9oCGmLCF9O01i4WdfLYYjMXyhuHHVhQy/AiU1HGDLPKHfiOUTEnI3sbk/VoNA8myw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwQ0j79LBoiFuQrdJbaNYE6BTqAuchz88CkwWkolV03bDS6Gs0I
-	HM6NMeVJXiG1zQSYoldSn66224QxA3Fc3xLRze7WzUK2JvI1z0XBo5FdkPseQSL53QrCVKPq7+Y
-	HFGvyb8w=
-X-Gm-Gg: AR+sD13ARTqKagxRZKuoMvoseqGf8hFyGb9tibnB43FyLAPa/aSSJoyIgFZf4jRTQiD
-	clej7+0M5FoaOHL+yhPsRl798W6x/pE92eGOi8NUI4KNJr94dzeaF6+1tOGOLr5V7SoJCgppX5O
-	15LwaujQBhYLLBZhJmi9MBM6wzPiC5gL/Mol+uosIm1j8Kyq5gbGcr3waY5Iy+85Ry4Ot/uAaNe
-	XRZIzvasLAvyCUm/TrGBLbSPmBtJh1cBuX1iPisVbbfME79muGvNz2VCcuXmVFaCQP4kCiiO3fv
-	o7bgFx4xMjqiuxLz6vLWvcpMGrJ9XB0HAAGb7PvRiGpz6DoDQallhNxI3gCxErmGcdxVwGegyB7
-	WtB8XQId3vaYMixkHhv2NA+oEVUCEC/7nd9Zo0igGdR+e2MHhb9KDY/C1UMnY7tOKf+ZdFFn03s
-	vOMR3cRIMGIFWe4LdvJWk2T5z09w4VkOkpuqnrSYtm94YX8DNWst4B2KbQ
-X-Received: by 2002:a2e:b8c2:0:b0:39c:74ef:1a87 with SMTP id 38308e7fff4ca-39f28776116mr2153271fa.2.1784989179110;
-        Sat, 25 Jul 2026 07:19:39 -0700 (PDT)
-Received: from [192.168.1.100] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-39f222364d9sm4354551fa.27.2026.07.25.07.19.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 25 Jul 2026 07:19:38 -0700 (PDT)
-Message-ID: <1f64e023-e5f4-4620-a01f-1cd98faa4ca1@linaro.org>
-Date: Sat, 25 Jul 2026 17:19:37 +0300
+        d=1e100.net; s=20251104; t=1785033209; x=1785638009;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sjXzoSujIP+9dDYXqm3Aab2DrXJeEn6UY/TChtANBQI=;
+        b=lOHlppoxyO/KpBGdPqj0ne4ZzkUHWChl5kX6Vu45swkT+oDUSVeRR8YUB/23TWrAQr
+         ut3bwOhad2UWNhKxkMTkqo00dAESsBM7Kxy2LIdvDX8VCVeoTj/c09gUcs6/wM0RqlqP
+         X3lkV0pqaeC36+IMoywONMW39AMC5Yi0aN6Pk2AleLAJeCm8d4pNid7RPchktKcz0hCJ
+         w2du6D3GacdVLyXXMoxiUxRvpnk+sZA902MY8dnIezwVAwi0p3VR1nq8CAFIJcr+e761
+         Z+LC+lWBdSwx71Cm0/h8kM5dWcaFD3/uHuto5LObjotldHkZ4sM4eNJD27tt4A1XJxaO
+         IxUA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro2X3pduj894XI0NxulZkjZZI7ysisPiNRQaH5dbG54IX+5bT1P666zc5LPQE1l4/UyXh5BEuq36QM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzv9b24nmG8QNNbHbxo/R8jxuuUNPFIwVn4Z00D1xUoPZW+kqil
+	dkY7+es4GDUa2v6lFpvBOwhMUFeiyk9jaiycmGQ8BP5ljCbpDHKQwB5l
+X-Gm-Gg: AR+sD117xdtJjJ/Us2m5uoWpnBiFvl5MXtR2NkyC0Pb9jom/C7qchQXnrwLVDQE9+ix
+	FG0mTOW2/hkcmJi7gFT6p9pnb4aG/wWljULAdRkcuYfWa8yL0rc0Cdvm1SnlwbsHnNlLKAN9DQo
+	N6PCtsdfmSILbCaDYvSIaJeY9FxcsYy3p9f4XmZiBObH/07uhY2PX2kax8PZ7DJUu6qyN3xvFSj
+	BsAL3wON8AjWuOx9eVaI17Uu1dhNwvsuolLuUtW1iRmPaDqERLLfkCJcLE4gzgpRXJNcKWOCWxH
+	L7gk9dvACs3YAfMpGk+wIvEih5PaC24yY6AnOJg+skMLlRHW8d8XH6GjAnFzbDWuaFh3JxJMYww
+	3ZISQPy74+Y8pot/6doIa1PrVIrW+uBVFtxFQ4g9QiCgpG43HHTI2h3H1l0LDk2N17WYqKHXKqY
+	l1VNtvda1UmwYjgVRpp+6YGZ+3aHLvSilHJ+Zn9ZATzY4m3+H+HLxV6PoBOEiZQ8vdMaaBnwtOc
+	HeyMh6hFSqzope/fA5A5WyNnPCeCF7OgiTckmscZxABbPOmxQ==
+X-Received: by 2002:a05:6a21:a09:b0:3c0:9c19:6586 with SMTP id adf61e73a8af0-3c67e159021mr3525765637.64.1785033208757;
+        Sat, 25 Jul 2026 19:33:28 -0700 (PDT)
+Received: from localhost ([50.38.60.151])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbbb66b282asm1722846a12.18.2026.07.25.19.33.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Jul 2026 19:33:28 -0700 (PDT)
+From: Bruce Robertson <brucer42@gmail.com>
+To: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: rust-for-linux@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	ojeda@kernel.org,
+	igor.korotin@linux.dev,
+	gary@garyguo.net,
+	tamird@kernel.org,
+	aliceryhl@google.com,
+	boqun@kernel.org
+Subject: Re: [RFC PATCH 0/3] rust: power_supply class abstraction and SMB347 charger driver
+Date: Sat, 25 Jul 2026 19:33:27 -0700
+Message-ID: <20260726023327.51519-1-brucer42@gmail.com>
+X-Mailer: git-send-email 2.44.0
+In-Reply-To: <amQPYhBkj9rIdSZ_@venus>
+References: <amQPYhBkj9rIdSZ_@venus>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] i2c: qcom-cci: Add missing cci_clk_rate for msm8953
-To: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260721-cci-clk-fix-v1-0-5eae78700da8@oss.qualcomm.com>
- <20260721-cci-clk-fix-v1-2-5eae78700da8@oss.qualcomm.com>
- <8d20f3ab-696e-40a4-a05a-688779299071@linaro.org>
- <CAFEp6-3OKp0XhpNmp-yYwf4r16A=CD5eA-Ts1kk+mFjdCA38RQ@mail.gmail.com>
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-In-Reply-To: <CAFEp6-3OKp0XhpNmp-yYwf4r16A=CD5eA-Ts1kk+mFjdCA38RQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi Loic,
+[Resent as plain text -- my first attempt was rejected by the vger
+lists for containing HTML, so it reached only the people Cc'd
+directly. Apologies to those of you getting this twice; please reply
+to this copy, as the first one never made it to the archives.]
 
-On 7/25/26 16:06, Loic Poulain wrote:
-> Hi Vladimir,
-> 
-> On Sat, Jul 25, 2026 at 10:36 AM Vladimir Zapolskiy
-> <vladimir.zapolskiy@linaro.org> wrote:
->>
->> Hi Loic, Luca,
->>
->> On 7/21/26 17:58, Loic Poulain wrote:
->>> The msm8953 CCI data was added after cci_clk_rate was removed from the
->>> driver, so it never got a clock rate entry. The DT assigns 19.2 MHz to
->>> GCC_CAMSS_CCI_CLK and the hw_params values match those of v1/v1.5 which
->>> were also calibrated for 19.2 MHz.
->>>
->>> Fixes: d202341d9b0c ("i2c: qcom-cci: Add msm8953 compatible")
->>> Signed-off-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
->>> ---
->>>    drivers/i2c/busses/i2c-qcom-cci.c | 1 +
->>>    1 file changed, 1 insertion(+)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
->>> index 19e4719f13b29b2cf60e113565b1b63f19d0e669..5f74edde8558382e63e2c3d0fbe19489f325e8ce 100644
->>> --- a/drivers/i2c/busses/i2c-qcom-cci.c
->>> +++ b/drivers/i2c/busses/i2c-qcom-cci.c
->>> @@ -783,6 +783,7 @@ static const struct cci_data cci_msm8953_data = {
->>>                .max_write_len = 11,
->>>                .max_read_len = 12,
->>>        },
->>> +     .cci_clk_rate = 19200000,
->>>        .params[I2C_MODE_STANDARD] = {
->>>                .thigh = 78,
->>>                .tlow = 114,
->>>
->>
->> this simple change is wrong, but commit d202341d9b0c ("i2c: qcom-cci: Add
->> msm8953 compatible") causes it, but please note that the commit d202341d9b0c
->> has no explicit issues per se (if proper frequencies are set in dt), but
->> this particular commit 2/3 breaks the whole picture.
->>
->> Let's see, MSM8953 I2C_MODE_STANDARD/I2C_MODE_FAST settings repeat the ones
->> for v1/v1.5 and 19.2MHz supply clock frequency, but I2C_MODE_FAST_PLUS
->> speed setting very close to v2 parameters and assumes 37.MHz supply clock
->> frequency.
-> 
-> Good catch, there's a real inconsistency in the table, and it's also
-> why configuring the clock rate in DT independently of the timing table
-> is fragile (and not even enforced by the bindings).
-> 
->> So, at least one clock rate setting for all modes is invalid in this case.
->> Automatically it means the reverted commit 1/3 in the series does not
->> directly lead to the wanted and well-managed data, and the logic in 3/3
->> becomes invalid.
-> 
-> Agreed on the analysis. To be precise though, this doesn't make things
-> worse than they already are upstream, msm8953.dtsi assigns 19.2 MHz,
-> and the Standard/Fast rows are identical to v1/v1.5 (calibrated for
-> 19.2 MHz), so those two modes are fine today. Only Fast+ is broken
-> (without a DT change).
-> 
->> I would suggest to grasp the statement above carefully, design a bit
->> better solution, meanwhile postpone applying any commits from the
->> series, especially if a breaking change holds a Fixes tag.
-> 
-> So if you agree? my short-term plan is submitting a V2 with a
-> switching of msm8953 to the CCI v2 params table, so running the CCI
-> clock at 37.5 MHz, which is what SDM630/MSM8996 already do (same HW
-> version). Moreover 37.5 MHz is supported by the msm8953 CCI RCG, so
-> this is a viable single rate that makes all three modes
-> self-consistent.
+On Sat, Jul 25, 2026 at 01:41:35 +0000, Sebastian Reichel wrote:
+> Having Rust bindings for new drivers sounds good to me.
 
-please consider to add .cci_clk_rate property into 'struct hw_params',
-since that is its proper and valid place, the rest of the logic can be
-build similarly to this series, for instance. Basically that's why
-1/3 revert change is not the right step towards a wanted data placement.
+Thanks -- good to hear. That was the part I most wanted confirmed
+before putting more time into it.
 
-Next good (IMO) optimization/improvement might be to describe hardware
-programming modes in their own list, and in v1/v1_5/v2/msm8953 cci_data
-simply pick the wanted IP programming data up by an index parametrized
-by mode speed/clock frequency/hardware revision.
+One status note first: patch 1/3 (the SMBus helpers) is dropped. Igor
+Korotin pointed out that I2cClient is meant to implement
+kernel::io::Io rather than grow standalone SMBus methods, and there is
+an in-flight series from Muchamad Coirul Anwar doing exactly that [1].
+The SMB347 driver will consume those accessors once they land.
+Patches 2/3 and 3/3 are unaffected -- more on that at the end.
 
-> Longer term, clock scaling (probably OPP-based) could be an elegant
-> improvement, but it's a bigger change, also CCI block's masters share
-> one clock yet can run in different modes, the per-mode timing/rate
-> can't be chosen independently per master.
-> 
+> Any reason for Summit SMB347 specifically? I would prefer not to
+> have two drivers for the same hardware.
 
-That's right.
+I wrote the C one. drivers/power/supply/smb347-charger.c came in via
+commit ed1a230f96eb ("Add I2C driver for Summit Microelectronics
+SMB347 Battery Charger.") in v3.4, back in 2012, and the file header
+still carries my name. So this is me porting my own driver rather than
+a drive-by rewrite of someone else's -- which I think also speaks to:
 
--- 
-Best wishes,
-Vladimir
+> All are ARM32 based, so Rust is at least available by all users.
+> So I suppose replacing this C driver would be an option, OTOH I
+> don't want to motivate people to rewrite things either :)
+
+Agreed on both counts, and I don't want two drivers either.
+Replacement is the goal. But I should be straight that the RFC is
+nowhere near it yet: the C driver is ~1640 lines, the Rust one is 180,
+with three properties, no IRQ, no set_property, no OTG/regulator
+support and no DT charge-parameter configuration.
+
+Two things I can do in the meantime:
+
+ - Make the two mutually exclusive in Kconfig so that no configuration
+   ever builds both. For v2 I was planning the ax88796b arrangement --
+   the Rust option as a bool modifier on CHARGER_SMB347 with the
+   Makefile selecting the object -- rather than a second tristate.
+
+ - Build-test ARM32. So far I have only built and run this on x86_64
+   against i2c-stub; I don't have any of the three boards.
+
+What would you want to see before the C driver could actually go away
+-- parity against a specific feature list, a hardware test from one of
+the espresso10 / nexus7 / p4note users, a deprecation cycle? I can aim
+at whatever the bar is, but I can't self-certify a swap on hardware I
+don't have.
+
+> A new driver supporting CHARGE_TYPE should also support CHARGE_TYPES.
+
+Happy to add it. One question on how it should map here.
+
+Reading the ABI and the in-tree users, charge_types is read-write: the
+supported set comes from the desc->charge_types bitmask, the active
+one from get_property, and writing selects an algorithm. On the SMB347
+the charge type isn't selectable -- the progression from trickle/
+pre-charge through fast to taper is autonomous hardware state that the
+driver only reports out of STAT_C. That is why the C driver has never
+had a set_property or property_is_writeable at all.
+
+So: would you want CHARGE_TYPES exposed read-only here, with a
+Trickle|Fast|N/A bitmask and the active value from STAT_C? Or do you
+consider a read-only CHARGE_TYPE to be exactly the mis-modelling that
+CHARGE_TYPES is meant to replace? I'll follow whichever you prefer.
+
+Either way it lands on the abstraction rather than just the driver:
+desc->charge_types is a descriptor field, not a property callback, so
+the Rust Driver trait needs a way to express it, and the writable case
+needs set_property and property_is_writeable plumbed through. Those
+were on the cover letter's future-work list; this moves them up.
+
+> If the idea is to just have a user for the Rust binding and
+> something to test/play around: Maybe convert test_power instead? It
+> would also decouple the power-supply Rust bindings from I2C/SMBus.
+
+The decoupling is already there, as it happens. Patch 2/3 touches only
+MAINTAINERS, rust/kernel/lib.rs, rust/bindings/bindings_helper.h and
+the new rust/kernel/power_supply.rs -- no I2C dependency at all. It is
+only the driver in 3/3 that consumes both. And with 1/3 dropped, the
+SMBus layer leaves this series entirely.
+
+> The disadvantage is, that this driver is a special-case, since it
+> has no parent device :)
+
+That is the part that gives me pause about it as the *first* consumer.
+The open question I flagged in the cover letter -- how the get_property
+trampoline recovers the driver's private data -- is specifically about
+the parent-device path, and it is what reviewers have pushed on most.
+A consumer with no parent device wouldn't exercise it at all, so I'd
+risk shaping the abstraction around the special case.
+
+For v2 I'm moving the private data into power_supply_config::drv_data
+at registration time instead of recovering it from parent drvdata,
+which removes the ordering dependency Alice and I discussed [2] -- and
+that is also what a parentless supply would need. test_power becomes
+straightforward once that's in. I'd be glad to do it as a second
+consumer on top; I'd just rather it not be the only one.
+
+[1] https://lore.kernel.org/all/20260707151542.91997-1-muchamadcoirulanwar@gmail.com/
+[2] https://lore.kernel.org/all/ak9kAP1SZF8AchQT@google.com/
+
+Bruce
