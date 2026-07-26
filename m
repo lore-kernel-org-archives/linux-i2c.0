@@ -1,42 +1,49 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A909258EF9;
-	Sun, 26 Jul 2026 20:11:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51FE0355F53;
+	Sun, 26 Jul 2026 20:41:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785096673; cv=none; b=H8eGwQ35Ye0/JeQWTOZfLCiKtMpWMC7MYT+T4CoJGPUral5goC8oWadCyQ7LSnQHXJL2JrRkSjMR226osCnrtO/S31qDNqGxb9RvIMbOT5pKDu0oBYTW/g3JS0Izf+VuncT3RP173/nqkGXGMJXW0YqgZpa5SXwue6tMiQn6Gdk=
+	t=1785098485; cv=none; b=PDEsppLl+ZrRtCz7MlhlsnJYdXG7gkkUnndzmp1D9SLguZ4x1UvPJlzyivTtWn5OVqmX/kwOX+1N6PJeFJcrF42WVZh7H7cjSeslF2W8Qss+jocWOaW42xo2JFTm9FU0g2T1QyDm0hx0RPafAxOkwmZ9+tOaYbIrDars3boLGh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785096673; c=relaxed/simple;
-	bh=OreYQOrZ6UNqoHhuVoPOtIOPmzrs9/KeCA7aSaFTXzY=;
+	s=arc-20240116; t=1785098485; c=relaxed/simple;
+	bh=S/9uXYuR87xvRihC+6Q+uMs1Sa+/mqujN+9MH28NOzs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eNR6xehckQZMAqIxW3bFxDYWBx76wnaDDuPaRKy9vf14UvI+IVK2WQTvrL5NW3g5RCYSKAiXKrKpnnp1Rnzs4amIk8+CAi4A4QICt6VYT+yVVhyYqUi4vJCDqatZEj5dv9F4qVLOaA1tn2Ak7w9drK3stol3DmXd7GZby/fUiOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hLbku/9O; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=AZWByuUtCYjLvkCTV6mAjSh9na1IgSwxdtAFgK/RHu1oVZ8r4kHCRbgDtk3SHfyNYKBPA/reUm/PywDnqxOCDztqtyTgIopOX+M7cYaUtWfQ6NxGOMCTE+BhLUUmBaz8MBOMftiRk0zs48lOun3sRSp7laVJJer/VCc24aTQx0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SwAw7hCV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hLbku/9O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 258C71F000E9;
-	Sun, 26 Jul 2026 20:11:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SwAw7hCV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3751A1F000E9;
+	Sun, 26 Jul 2026 20:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785096671;
-	bh=k3nHeAEMQLfO3MELUrR33VPFp3S0R650orjQi8TyOcQ=;
+	s=k20260515; t=1785098483;
+	bh=OgS8x+YxtWW3VM3C8eV4VxTKs6jaXLAxn9D/IY92PQc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=hLbku/9O0USRWmuDaaHB1IFPBfIHuHs8SIWUKez9d12XwfP5y4i4TpKDGhnqrmyRz
-	 CjdLoSuqPNCOEeQK+8TINH+T6Fe3yBozqG5q9QO08f91i0RUMWfIorEs2Mut0HHKVP
-	 mSYRDy6ChwRUcr3lwJe+DS61bx+FVR+6cndjrRPd8doGg4x/0IFUFYZzxGKZMrjNwu
-	 rXiLBWqmYxlH5qbuCdsHqUUob+Y20/K6NGgo7p+yC3rVqoko9+PUu3CEogSsEcHTiy
-	 MOJCPCaV0ETQlXMSK5sIXfP5HoJt8zsM7T0HOeiY6UKp3pU4Qy5pxq7A68K/+pDdH1
-	 aNNKpcIDyHYWA==
-Date: Sun, 26 Jul 2026 22:11:08 +0200
+	b=SwAw7hCVypDAaiEHmxfTtCYQJ2Grenmca009TOXZ8piIcvjtYwqp4X3avnu74Q6yR
+	 LOqlAQ6odlId20dVFRE8yx0iCCC6x5K02Oae78rJYbk3N87UjYUcSFk9ktr/nEFTpo
+	 +6ZBJ+3tWCGUk9euMCIoLuITT2m8z4Uf6ic48I68sSkaz7eiL60Uyoku2E5mR9Nzfp
+	 d65xLArIhWlbeTz2wQ5KskWMGDIrqhu31g4xDeauzzzs0ax1K6w0G3tNuWQlz5LuXL
+	 Bd0JIeXGop3+taiyGTsh1meJDMl8wHy2qMnmrM/TenkWzttzpXfa+cRJuxhF8oVAKD
+	 nJDC5dUjG3S4A==
+Date: Sun, 26 Jul 2026 22:41:20 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Aniket Randive <aniket.randive@oss.qualcomm.com>
-Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
- dynamic transfer timeouts
-Message-ID: <amZkf3lu7gjWhw04@zenone.zhora.eu>
-References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
- <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
+To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+Cc: Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+	Lukasz Luba <lukasz.luba@arm.com>, linux-kernel@vger.kernel.org, mfd@lists.linux.dev, 
+	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+	linux-pm@vger.kernel.org, Wenkai Chung <wenkai.chung@advantech.com.tw>, 
+	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>, Hongzhi Wang <hongzhi.wang@advantech.com>, 
+	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>, Thomas Kastner <thomas.kastner@advantech.com>
+Subject: Re: [PATCH v2 4/8] Add Advantech EIO I2C driver
+Message-ID: <amZsX1SEjK0irSRv@zenone.zhora.eu>
+References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
+ <20260714-upstream-v2-v2-4-76e5e41026db@advantech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,85 +52,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
+In-Reply-To: <20260714-upstream-v2-v2-4-76e5e41026db@advantech.com>
 
-Hi Aniket,
+Hi Ramiro,
 
-On Mon, Jul 20, 2026 at 05:11:19PM +0530, Aniket Randive wrote:
-> The transfer timeout for an I2C controller should reflect the actual
-> message length and bus frequency rather than a static 1-second value.
-> A static timeout causes unnecessary delays on error paths for short
-> messages, and may be insufficient for very long transfers.
-> 
-> Add i2c_update_timeout() to i2c-core which computes a transfer-specific
-> timeout and stores it directly in the standard adap->timeout field.  The
-> formula accounts for 9 bits per byte (8 data + 1 ACK) at the configured
-> bus frequency.  The caller supplies a safety multiplier and a minimum
-> floor so that each driver retains full control over its timing policy
-> without those values becoming public API.
-> 
-> Storing the result in adap->timeout makes it visible to all consumers of
-> that field, including the arbitration-loss retry loop in __i2c_transfer().
+I had a fast look and I'm limiting to few comments this round.
 
-this patch does not take into account a timeout set by userspace
-through the I2C_TIMEOUT ioctl. That value would be silently
-overwritten by the driver.
+On Tue, Jul 14, 2026 at 05:54:18PM +0200, Ramiro Oliveira wrote:
+> This commit adds the driver to control the Advantech EIO I2C block, this
+> block is included in the Advantech EIO MFD.
 
-> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
+Can you please read the SubmittingPatches documentation for
+properly formatting the commit log? Please ask if you have
+questions.
 
 ...
 
-> +/**
-> + * i2c_update_timeout - compute and set a dynamic transfer timeout on an adapter
-> + * @adap: the i2c_adapter whose timeout field will be updated
-> + * @bus_freq_hz: I2C bus clock frequency in Hz
-> + * @len: transfer length in bytes
-> + * @safety_coeff: multiplier applied over the theoretical wire time
-> + * @min_usec: minimum timeout floor in microseconds
-> + *
-> + * Computes a transfer-specific timeout from the message length and bus
-> + * frequency, applies a safety multiplier and a minimum floor, then stores
-> + * the result in adap->timeout (in jiffies).  The caller supplies the policy
-> + * constants so they remain internal to the driver.
-> + */
-> +void i2c_update_timeout(struct i2c_adapter *adap, u32 bus_freq_hz,
-> +			size_t len, unsigned int safety_coeff,
-> +			unsigned int min_usec)
+> +static inline int eio_reg_set_bits(const struct eio_i2c_chan *chan,
+> +				   unsigned int reg, unsigned int mask)
 > +{
-> +	u64 bit_usec = mul_u64_u32_div(len * 9, USEC_PER_SEC, bus_freq_hz);
+> +	return regmap_update_bits(chan->parent->regmap, reg, mask, mask);
+> +}
+> +
+> +static inline int eio_reg_clear_bits(const struct eio_i2c_chan *chan,
+> +				     unsigned int reg, unsigned int mask)
+> +{
+> +	return regmap_update_bits(chan->parent->regmap, reg, mask, 0);
 
-bus_freq_hz must be checked before the division, otherwise a zero
-value will cause a division by zero.
-
-> +	adap->timeout = usecs_to_jiffies(bit_usec * safety_coeff + min_usec);
-
-If min_usec is a minimum timeout, why is it added to the
-calculated value?
-
-I would expect something like:
-
-   max(bit_usec * safety_coeff, min_usec)
-
-Otherwise, min_usec is an additional margin, not a minimum.
+should the two regmap_update_bits above use chan->base + reg?
 
 > +}
-> +EXPORT_SYMBOL_GPL(i2c_update_timeout);
 
-I'm wondering whether changing the adapter timeout from the I2C
-core is the right approach.
+...
 
-Perhaps i2c_update_timeout() could return the calculated value
-instead, but then  do not see much value in exposing such a small
-calculation through the I2C core.
+> +static int smb_access(struct eio_i2c_chan *i2c_chan, u8 addr, bool is_read, u8 cmd,
+> +		      int size, union i2c_smbus_data *data)
+> +{
+> +	int i, tmp, ret = 0;
+> +	unsigned int st1, st2;
+> +	int len = 0;
 
-I know you were advised to move this into the core, but it does
-not seem particularly useful there and, as it stands, it looks
-somewhat controversial.
+...
 
-Unless there is another good reason for keeping it in the core,
-I would drop this helper and keep the calculation in the driver.
+> +		for (i = 1; i <= len; i++)
+> +			eio_reg_read(i2c_chan, SMB_REG_HBLOCK,
+> +				     (unsigned int *)&data->block[i]);
 
-Thanks,
+mmmhhhh... how many bytes are you sending to eio_reg_read()
+starting from &data_block[i]?
+
+> +		break;
+
+...
+
+> +static int eio_i2c_probe(struct platform_device *pdev)
+> +{
+> +	static const char * const names[] = { "i2c0", "i2c1", "smb0", "smb1" };
+> +	struct device *dev = &pdev->dev;
+> +	struct eio_i2c_dev *eio_i2c;
+> +	struct eio_dev *eio_dev = dev_get_drvdata(dev->parent);
+> +	int ret = 0;
+> +	enum eio_chan_id ch;
+> +
+> +	if (!eio_dev) {
+> +		dev_err(dev, "Error contact eio_core\n");
+
+please use dev_err_probe()
+
 Andi
 
-> +
+> +		return -ENODEV;
+> +	}
