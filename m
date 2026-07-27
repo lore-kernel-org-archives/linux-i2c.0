@@ -1,167 +1,94 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF1D42DA45;
-	Mon, 27 Jul 2026 20:42:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 793F942903B;
+	Mon, 27 Jul 2026 20:59:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785184950; cv=none; b=M6OuAVBPwDAUXaqyzpl/N3elUFTbtBrAAXHN2JXsU2Z6arjYpSEF7uOUNnfHPGd1M3lOEHq6jrelmIwm1mQZrdPBE8AEFGaPBtiS+mIf0+K7Up5bWudJ8Cd6d/I2NGxZhl+zRj+gE8tMymBsx3DHC6W8JqAq2Hb0eJjqtaPv+IA=
+	t=1785185997; cv=none; b=WM756h91taUxAYpQIBO7Y3nKKYZ33FcZQRzdHxq3kAPf/rbk3/xl2tEy+uelJ5zv9kLJNLxPNmQWumqHIGnVJadEMagUVw7OSLx8qoqNJ0omi+B0ycBNZjcZMsQwnwi4KBK00lhD4Orb7JuEsTKl2ZrmfPAzL3+vFDj295WEC/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785184950; c=relaxed/simple;
-	bh=ClpIV/dYmo8QIApKdFYOU31XO7WVbv2jLDwmiam9A8U=;
+	s=arc-20240116; t=1785185997; c=relaxed/simple;
+	bh=yeTBjCtcRprg5WepPxqF5sroGINv0iSKe1nwkluM1LI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AgqCnRsqZNo0c1hvNnef6WuYb2iT7dmMLvnIeDSBuLu6u4rfTolF7pycOvSAeweEXBehl0w70qjPynNWn8hqcOLhT8WCapIJKScVq83qYNXqpc035c02VeBJvUJlh2EwCvtWZn/eLNPgqujamWDy9lZK4Wt/TlTHtV5zSMY1V5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZMGjl6h7; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=bLq5rdI5OToIjKiAA+N5hARRnAW250Iqd7TYFi9mISdf5qsJCxRYmwGHzJUjvxtsDbNBdwXv1o9p7KmtWjArqma9t+MYLyWIY1mSdhDH6fltJ6hONuiDQQooh1YH0/JmrbkWTgmnsiI4K9kHAWGOhXFQeCeV0NcVcHm7e2YUuLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IYg3x19G; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZMGjl6h7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CBAD1F000E9;
-	Mon, 27 Jul 2026 20:42:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IYg3x19G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC251F00A3E;
+	Mon, 27 Jul 2026 20:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785184948;
-	bh=Pp4Tl2Ls7v7HGSxkjzMUgBscZWn39kifXrL4ELP+m/k=;
+	s=k20260515; t=1785185996;
+	bh=aaBgis3qtdrlzFxJhP9EiyfEffuF2wJyLIrF4U8tTE4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ZMGjl6h7nR3QgPAKw8+2gJoKnuF5AMfDZk4++O2qUgllXSH/QSQanymB1RVrCXFGF
-	 Mump4INVi5IBGHs3ENwchjHf0j80QjLuLozLvnTEVieo8hHCwOpxZBVmNroBonP5zZ
-	 B7+CxKvTHpKim2LjthlmsdbDGDnYsJCTbgwEQgQCKAgBH8xXV4PWg6SGnTvBap0SYH
-	 hOaY0oLERXbRwwAIHBKYYSWcaP061JHqzSFIK/AM5MU1Tvg2a3IkMMndDk21C4sJep
-	 EQzC3WPF6xpXcYLMHuZT1GCmreNg3ezEtwFEOOJkAB95Hw786Xe/SdIQJpOmc700ml
-	 oHcN+EG/67iGw==
-Date: Mon, 27 Jul 2026 22:42:23 +0200
+	b=IYg3x19G9DTmDhuE1lTpB8VI6TlwzJZoJ2LqLBbInQYpQE9WvjnKURbktuthf5T8b
+	 70CAluturJW1yu6kwHxeoCe1P4RBEFjmGlEoYYf3JuGDyBFe5OXO1yua0GHTYg+3xd
+	 Sv1ncYWicPwf/E61M5tI+GeZcCDWUzWYUnVPCnakDlJWxoM8tjE14ZljI/8f5Fpm7O
+	 xEwB3fY2ebPu/3aLMZIc7WVHMhdNuqY0A9Jct4ei9MpVlwSudUq5tVvQmnd8JNhEHQ
+	 FiT2cBW2o/XJa+nnS8QFGHHtb+XmNzZKTWPzb1N9yKHEPc8fBQRXRFhFnDv9kLZjJ3
+	 uHpC0Nz0sgy6A==
+Date: Mon, 27 Jul 2026 22:59:50 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
-Cc: Aniket Randive <aniket.randive@oss.qualcomm.com>, 
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
- dynamic transfer timeouts
-Message-ID: <ame2tX1RwOo4F6Lk@zenone.zhora.eu>
-References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
- <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
- <amZkf3lu7gjWhw04@zenone.zhora.eu>
- <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Paul Cercueil <paul@crapouillou.net>, linux-mips@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: jz4780: Cache host clock rate at probe to
+ prevent CCF prepare_lock deadlock
+Message-ID: <amfGZudmo_oNgf04@zenone.zhora.eu>
+References: <2db6fd233aceb7238474e4833f4d25ca681c3ffb.1784492382.git.hns@goldelico.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
+In-Reply-To: <2db6fd233aceb7238474e4833f4d25ca681c3ffb.1784492382.git.hns@goldelico.com>
 
-Hi Mukesh,
+Hi Nikolaus,
 
-thanks for the nice discussion!
-
-On Mon, Jul 27, 2026 at 09:45:23AM +0530, Mukesh Savaliya wrote:
-> On 7/27/2026 1:41 AM, Andi Shyti wrote:
-> > On Mon, Jul 20, 2026 at 05:11:19PM +0530, Aniket Randive wrote:
-> > > The transfer timeout for an I2C controller should reflect the actual
-> > > message length and bus frequency rather than a static 1-second value.
-> > > A static timeout causes unnecessary delays on error paths for short
-> > > messages, and may be insufficient for very long transfers.
-> > > 
-> > > Add i2c_update_timeout() to i2c-core which computes a transfer-specific
-> > > timeout and stores it directly in the standard adap->timeout field.  The
-> > > formula accounts for 9 bits per byte (8 data + 1 ACK) at the configured
-> > > bus frequency.  The caller supplies a safety multiplier and a minimum
-> > > floor so that each driver retains full control over its timing policy
-> > > without those values becoming public API.
-> > > 
-> > > Storing the result in adap->timeout makes it visible to all consumers of
-> > > that field, including the arbitration-loss retry loop in __i2c_transfer().
-> > 
-> > this patch does not take into account a timeout set by userspace
-> > through the I2C_TIMEOUT ioctl. That value would be silently
-> > overwritten by the driver.
-> > 
+On Sun, Jul 19, 2026 at 10:19:43PM +0200, H. Nikolaus Schaller wrote:
+> Fix a severe AB/BA deadlock between the Common Clock Framework (CCF)
+> and the I2C adapter lock, which triggers when an I2C-controlled clock
+> generator client (like the Si5351) is registered or modified under the CCF.
 > 
-> Can we make timeout handling a kernel responsibility and avoid placing this
-> burden on userspace ? Every userspace client already accesses the bus
-> through the adapter/core layer, so the kernel has full visibility into
-> factors such as bus frequency, transfer size, and controller characteristics
-> to compute a sensible default timeout.
+> During an i2c client clock (generator) frequency change, the CCF acquires its global
+> 'prepare_lock' mutex and the driver calls i2c_transfer() to update the client's
+> chip registers, stalling for the adapter's I2C bus lock.
 > 
-> Also, if both a userspace provided timeout and a kernel-calculated timeout
-> are specified, which one should win? Having two independent timeout
-> mechanisms could easily lead to ambiguity and inconsistent behavior.
-
-There is no explicit policy for this today, and I am not against
-a driver selecting a timeout according to its own requirements.
-
-However, once userspace explicitly sets I2C_TIMEOUT, I would
-expect that value to take precedence. Otherwise, the ioctl
-succeeds but the value can later be silently overwritten by
-the driver.
-
-> > > Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
-> > 
-> > ...
-> > 
-> > > +/**
+> Concurrently, an independent, parallel transfer on the same bus (e.g., a GPIO
+> expander handling LEDs) can hold the I2C adapter lock. Inside this parallel
+> transfer path, jz4780_i2c_set_speed() calls clk_get_rate() on the host
+> controller's input clock to calculate bus timings. This call attempts to acquire
+> the blocked CCF 'prepare_lock', creating a circular dependency that freezes
+> the system.
 > 
-> [...]
+> The jz4780 host controller clock itself is static and never changes at runtime.
 > 
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(i2c_update_timeout);
-> > 
-> > I'm wondering whether changing the adapter timeout from the I2C
-> > core is the right approach.
-> > 
-> > Perhaps i2c_update_timeout() could return the calculated value
-> > instead, but then  do not see much value in exposing such a small
-> > calculation through the I2C core.
-> > 
-> > I know you were advised to move this into the core, but it does
-> > not seem particularly useful there and, as it stands, it looks
-> > somewhat controversial.
-> > 
-> > Unless there is another good reason for keeping it in the core,
-> > I would drop this helper and keep the calculation in the driver.
-> > 
+> However, calling clk_get_rate() inside the active transfer path introduces
+> an unnecessary dependency on the CCF internal locks.
 > 
-> There may not always be a userspace application available to configure the
-> timeout.
+> Eliminate this synchronous clk_get_rate() call from the active transfer
+> path by caching the static host peripheral clock rate once - inside the private
+> jz4780_i2c structure during jz4780_i2c_probe(). Update jz4780_i2c_set_speed()
+> to use this cached value, safely decoupling active I2C transactions from the
+> CCF internal locks without any risk of stale timings.
+> 
+> Assisted-by web based Google AI (pinpointing the bug and writing the message).
+> 
+> Fixes: ba92222ed63a12 ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 
-That is fine. I do not expect userspace to configure the timeout
-during normal operation. The ioctl is mostly useful for
-debugging
+To be clear, I wasn't against the patch itself, I just didn't
+like the commit log and I raised questions coming just from
+reading the log.
 
-The driver can still provide its own default when userspace has
-not selected one.
+In this v2 you are missing the changelog, please, don't forget
+next time to add it.
 
-> My suggestion was that the I²C core could derive the timeout based on the
-> bus frequency, transfer length, and a reasonable safety margin. This would
-> provide a generic solution that works across all clients without requiring
-> userspace involvement.
-
-Is there a standard formula which works for every I2C controller?
-
-The timeout may depend on controller specific behaviour, hardware
-limitations, clock stretching, FIFO handling and whether the
-driver uses interrupts or polling. A calculation based only on
-the transfer length and bus frequency does not seem generic
-enough to cover all of that.
-
-> To account for variations in system load, we could optionally expose a DT
-> property for an offset or scaling coefficient to tune the computed timeout.
-> Even with such tuning, I believe this approach would be significantly better
-> than the current fixed 1-second (HZ) timeout.
-
-I do not think a safety margin or scaling coefficient belongs in
-devicetree. Devicetree should describe the hardware, not a
-software timeout policy.
-
-If a controller has a real hardware timeout parameter, that can
-be described by the DT. Otherwise, I think the timeout policy
-should remain in the driver.
+I merged your patch in i2c/i2c-fixes.
 
 Thanks,
 Andi
-
-> > Thanks,
-> > Andi
-> > 
-> > > +
-> 
