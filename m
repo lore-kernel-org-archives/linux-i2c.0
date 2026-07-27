@@ -1,94 +1,75 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 793F942903B;
-	Mon, 27 Jul 2026 20:59:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969B7224234;
+	Tue, 28 Jul 2026 03:29:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785185997; cv=none; b=WM756h91taUxAYpQIBO7Y3nKKYZ33FcZQRzdHxq3kAPf/rbk3/xl2tEy+uelJ5zv9kLJNLxPNmQWumqHIGnVJadEMagUVw7OSLx8qoqNJ0omi+B0ycBNZjcZMsQwnwi4KBK00lhD4Orb7JuEsTKl2ZrmfPAzL3+vFDj295WEC/8=
+	t=1785209390; cv=none; b=EqRm4U8WzWbnYKKv1eJpfx21NiyhLImuB5OKYHPmb0RLHusXo3AnO73uMim/zgbobgvr+mPAfFo/2IKfNl7PObiulEJ3lBK6PvaeC23JDmBepv1qoYk9R3hwlL0GuJn8BqwJXoSznlxB4xYR5XYq/ly6gDWcQrVhfQIMrCG4rx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785185997; c=relaxed/simple;
-	bh=yeTBjCtcRprg5WepPxqF5sroGINv0iSKe1nwkluM1LI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bLq5rdI5OToIjKiAA+N5hARRnAW250Iqd7TYFi9mISdf5qsJCxRYmwGHzJUjvxtsDbNBdwXv1o9p7KmtWjArqma9t+MYLyWIY1mSdhDH6fltJ6hONuiDQQooh1YH0/JmrbkWTgmnsiI4K9kHAWGOhXFQeCeV0NcVcHm7e2YUuLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IYg3x19G; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785209390; c=relaxed/simple;
+	bh=5Vlosz0bqS0SgkPJqOUlF2YX68S8aYCbz+TUKqq3SV0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=btOGG95xzLjIroJytHAmIHUBDiNf8BdixqE/GuROjN+wAr1JXEjf8GDARD47LAyCDDw9UO0QID1FXwf0jooQDqUu8ybjN3pN9u/DrVOBM8/Wlmib7iVuxhFJd5tEh6fuexUGrbQL47QAs4F3yB3BjvDjw6HH5iz04kdQfkt86ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=GTkWLCR4; arc=none smtp.client-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IYg3x19G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC251F00A3E;
-	Mon, 27 Jul 2026 20:59:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785185996;
-	bh=aaBgis3qtdrlzFxJhP9EiyfEffuF2wJyLIrF4U8tTE4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=IYg3x19G9DTmDhuE1lTpB8VI6TlwzJZoJ2LqLBbInQYpQE9WvjnKURbktuthf5T8b
-	 70CAluturJW1yu6kwHxeoCe1P4RBEFjmGlEoYYf3JuGDyBFe5OXO1yua0GHTYg+3xd
-	 Sv1ncYWicPwf/E61M5tI+GeZcCDWUzWYUnVPCnakDlJWxoM8tjE14ZljI/8f5Fpm7O
-	 xEwB3fY2ebPu/3aLMZIc7WVHMhdNuqY0A9Jct4ei9MpVlwSudUq5tVvQmnd8JNhEHQ
-	 FiT2cBW2o/XJa+nnS8QFGHHtb+XmNzZKTWPzb1N9yKHEPc8fBQRXRFhFnDv9kLZjJ3
-	 uHpC0Nz0sgy6A==
-Date: Mon, 27 Jul 2026 22:59:50 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Paul Cercueil <paul@crapouillou.net>, linux-mips@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: jz4780: Cache host clock rate at probe to
- prevent CCF prepare_lock deadlock
-Message-ID: <amfGZudmo_oNgf04@zenone.zhora.eu>
-References: <2db6fd233aceb7238474e4833f4d25ca681c3ffb.1784492382.git.hns@goldelico.com>
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="GTkWLCR4"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 31E471189C8;
+	Tue, 28 Jul 2026 05:29:41 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
+	s=dkim; t=1785209382;
+	h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=pdKoxXbF/nFF5vgavbEMb9NhmAnaYq7CksgwlMxSPXM=;
+	b=GTkWLCR4nLoJfmF78vKBwt5yfljUQ3pSbQkrM/okCRNBN8mQtN1Nm/opRGGkTcq8kHh/Jl
+	WKs/2W4Z6tN7Ww2zzUjRLBjqXjBh+j6wUBBSpKRjzQDJ4w8wGBbkSh7JyXt7d/E0c7dMMD
+	UbLNCWxgs7DqekEeRlopex3WYGbKpBqGTgRewIIDYO7PkxaMcp+dI8Dvbm8yBEiQ43XHll
+	M5/a0RpweTsKAAkPyMtpQRHzLZVoXggT8wx4Ds63r6xLPePjlx/bebeMDlRD6ehPP15nUB
+	dUbJNBA0z78IObkPpvhHQXfJ9OIA5xdNtRF79Cs9jHG4GQ1uIlVUzJnvOiBLkw==
+Message-ID: <6b7f6317-97bf-420a-84b1-6338ad236d13@nabladev.com>
+Date: Mon, 27 Jul 2026 15:24:11 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2db6fd233aceb7238474e4833f4d25ca681c3ffb.1784492382.git.hns@goldelico.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] nvmem: core: Mark nWP GPIO as non-exclusive
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Srinivas Kandagatla <srini@kernel.org>, linux-kernel@vger.kernel.org
+References: <20260511163518.51104-1-marex@nabladev.com>
+ <CAMRc=Mdqxen+8rd-5yR+_cvtFkM=qeAG78uqG+ZHWR3CQsa1Ow@mail.gmail.com>
+ <46051025-8b50-47de-839a-a901615b8227@nabladev.com>
+ <CAMRc=MfgsjFO9R3bzSQiWmA6tvHGWcprhWMLSDTMML60-NfhCg@mail.gmail.com>
+ <8a5838f6-8582-4ce2-b80d-cd05bb984a4f@nabladev.com>
+ <CAMRc=Mfm1R+CNt5nRY=A29TqTxHFZCHzZsWYd-WpE1yGrwt3Vw@mail.gmail.com>
+Content-Language: en-US
+From: Marek Vasut <marex@nabladev.com>
+In-Reply-To: <CAMRc=Mfm1R+CNt5nRY=A29TqTxHFZCHzZsWYd-WpE1yGrwt3Vw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Nikolaus,
+On 7/27/26 3:10 PM, Bartosz Golaszewski wrote:
 
-On Sun, Jul 19, 2026 at 10:19:43PM +0200, H. Nikolaus Schaller wrote:
-> Fix a severe AB/BA deadlock between the Common Clock Framework (CCF)
-> and the I2C adapter lock, which triggers when an I2C-controlled clock
-> generator client (like the Si5351) is registered or modified under the CCF.
-> 
-> During an i2c client clock (generator) frequency change, the CCF acquires its global
-> 'prepare_lock' mutex and the driver calls i2c_transfer() to update the client's
-> chip registers, stalling for the adapter's I2C bus lock.
-> 
-> Concurrently, an independent, parallel transfer on the same bus (e.g., a GPIO
-> expander handling LEDs) can hold the I2C adapter lock. Inside this parallel
-> transfer path, jz4780_i2c_set_speed() calls clk_get_rate() on the host
-> controller's input clock to calculate bus timings. This call attempts to acquire
-> the blocked CCF 'prepare_lock', creating a circular dependency that freezes
-> the system.
-> 
-> The jz4780 host controller clock itself is static and never changes at runtime.
-> 
-> However, calling clk_get_rate() inside the active transfer path introduces
-> an unnecessary dependency on the CCF internal locks.
-> 
-> Eliminate this synchronous clk_get_rate() call from the active transfer
-> path by caching the static host peripheral clock rate once - inside the private
-> jz4780_i2c structure during jz4780_i2c_probe(). Update jz4780_i2c_set_speed()
-> to use this cached value, safely decoupling active I2C transactions from the
-> CCF internal locks without any risk of stale timings.
-> 
-> Assisted-by web based Google AI (pinpointing the bug and writing the message).
-> 
-> Fixes: ba92222ed63a12 ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Hello Bartosz,
 
-To be clear, I wasn't against the patch itself, I just didn't
-like the commit log and I raised questions coming just from
-reading the log.
-
-In this v2 you are missing the changelog, please, don't forget
-next time to add it.
-
-I merged your patch in i2c/i2c-fixes.
-
-Thanks,
-Andi
+>>> No, this is literally how you do it. If you enable HAVE_SHARED_GPIOs and
+>>> DEBUG_GPIO, you should see it being picked up in the kernel log.
+>> Ah, HAVE_SHARED_GPIOS is what I did not have enabled. Is there any
+>> reason why this is not enabled by default ?
+>>
+> 
+> It will be. I'm doing it gradually. It's enabled for Qualcomm platforms by
+> default and - by extension - in arm64 defconfig. I plan to enable it for other
+> platforms and architectures too, I just don't want to rush it. Enabling it for
+> arm64 defconfig had caused quite a lot of regressions a few months ago so I
+> prefer to be careful.
+> 
+> What platform are you running this on?
+NXP i.MX8M Nano (arm64)
