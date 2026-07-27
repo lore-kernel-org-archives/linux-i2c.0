@@ -1,88 +1,119 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06D1C3F58E9;
-	Mon, 27 Jul 2026 10:22:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 201D236F8F1
+	for <linux-i2c@vger.kernel.org>; Mon, 27 Jul 2026 11:35:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785147728; cv=none; b=Ngc+UYqqn19XHRt8ejhl42vdfYwl5whqy81hydVGE9Xg30t41h+918txik1UzkitQaPNf+/aqrMguuAV/1KAP8UBxYO7lC9Oc5Y7jJ9ZyyEQK9aM4UqHP8lkloStM0BX8bcmCtfbLVObiKRaBPO9JzXvjH48Pnb4ld7+5cJEb9k=
+	t=1785152112; cv=none; b=pJ19kQmAHxtJ3dS3ipvfUJakZK6ipwxzjDOqoaMKJHT1YiDHQV5aXFsw9gbV4kdGmLfkYxCOz05TI5OpXyz1y+gA9cEQwl5rk+4ZuC6ECjMmnY/ysTR8TBDouMdUTBN3Ht3RNrBAuxmsfTH5Saf7TbmCCz800aUzrd4EqkA7Gc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785147728; c=relaxed/simple;
-	bh=C9HJ6eByHTY2KuMJ+CkOIFHan4gnKHBTRtyYpX5oLUg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rIF/95YpYjZ8Mnrg5fmqxn/wTHp6DBxKDh86OMYLxYrsIkn2LMNhZA+H68YCqGurE8tiU2p2E6QBm3aFNXorPYS+7nzjdZP/oqij0xhUwzS3k0Hec1dxeRRcrVxJCoJZS4bABvA1bCcX+NzvPkKyffA81nkohpXjbdUR0+CaWGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aZHsMSUG; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1785152112; c=relaxed/simple;
+	bh=hdSGShFGJGsT/dc3xbpf7sNgejjVXXGrA2Dn/uCY+VE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=V+26g+ysnwmo8ibgQJuAhCN8R4R9WsjM/FH3vOabZ2Sas/3GtR5uz5e1X1pNAHODI11LpbPBbEC7XFfrwYe39/O0kgfF71Mn2cqopPvLhclzqZbhohgzh5lS5TlF5GYGTmAWXntnxtOJegPQNtSlK1N0+1/kno4YQHZlogMjIfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=SuHcYSD3; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aZHsMSUG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785147727; x=1816683727;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=C9HJ6eByHTY2KuMJ+CkOIFHan4gnKHBTRtyYpX5oLUg=;
-  b=aZHsMSUG0VRu/DDjfvD5yPYUtQ/k5YHFDrCjMgKu5VPRA8k3xF+i7MPP
-   wSulSMMEYqfHEb/XsgICmaHR5fPA9gaeNoRa3LnsiWfYQ3Ykbl9yZ73x/
-   WgU4wgtV3JXa+kh84/N5zagk6QbL3u0GQZM+FWfET6tvbQBHiAsq/x+BN
-   lGxBj/+8l9B1lD5aTcVNKVhN271LOVfteYZuZ2lmBCL0SNyzrc7vsPu1Q
-   YKwv7FiybTA/c5RIgtxjOUB9BsqT66JKX/iybD/i6OCVovGPZeObyzKwH
-   c4Pd3CHsf+7xwos2F5d/80ojD3F4M7XoJCfP0ppZ/Mm0L/2sHC2nm+sbZ
-   Q==;
-X-CSE-ConnectionGUID: ckPXfH+8RECm0RScJ/ERKA==
-X-CSE-MsgGUID: BP6pImRWQrql6gmMXRCoJA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="84688987"
-X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
-   d="scan'208";a="84688987"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 03:22:06 -0700
-X-CSE-ConnectionGUID: I3ZfdP2yT/6Pa21cwl7qqQ==
-X-CSE-MsgGUID: lKFaiLkqRBenZu0qW7lcmw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
-   d="scan'208";a="257591228"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa006.jf.intel.com with ESMTP; 27 Jul 2026 03:22:02 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 6069E99; Mon, 27 Jul 2026 12:22:01 +0200 (CEST)
-Date: Mon, 27 Jul 2026 12:22:01 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
-Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	Min Lin <linmin@eswincomputing.com>,
-	Yulin Lu <luyulin@eswincomputing.com>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Darshan Prajapati <darshan.prajapati@einfochips.com>,
-	Pritesh Patel <pritesh.patel@einfochips.com>
-Subject: Re: [PATCH v2 6/8] dt-bindings: i2c: dw: add ESWIN EIC7700 SoC I2C
- controller
-Message-ID: <20260727102201.GD2365036@black.igk.intel.com>
-References: <20260706081055.1126275-1-pinkesh.vaghela@einfochips.com>
- <20260706081055.1126275-7-pinkesh.vaghela@einfochips.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="SuHcYSD3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=K7muAPk8j9p8FQyHmYALkCxfCYbzHHEUnk70zJaymgg=; b=SuHcYS
+	D3l3CT+6bGaF0SE5dDd3KDeTyuXFLiH3rtBhZ2DfwS/EliGIQSZhrQ1VfJ4bUM7N
+	HNthEXvAPWZxWPwKniqW1iJsFZXsUhcdQHrqeus/0CyUayn0SCCdg99im8iYCimF
+	6dUE3oVcyNnx2R2Sl9hyUMZzEq5Plf26S7BYvwWUJ30+2dWLRZEq7S1cO8sjadI1
+	jQfGFGltaopxUZhhKXuQgrmlV89Aor8kR0PeUmUxRYB6zP6FVd41DjLpZiI5zR1w
+	60yIfJ7n4Kw66iKHhFX0c4pTLVWkVB0lOuZ4CxJepG51FtgWhE48ihevcyVfmoeu
+	PMgzzesDWUPdL0yQ==
+Received: (qmail 589354 invoked from network); 27 Jul 2026 13:35:05 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Jul 2026 13:35:05 +0200
+X-UD-Smtp-Session: l3s3148p1@7a4cHZZXSM8ujnuy
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-renesas-soc@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-i2c@vger.kernel.org
+Subject: [PATCH 2/2] i2c: rcar: add R-Car Gen5 support
+Date: Mon, 27 Jul 2026 13:34:43 +0200
+Message-ID: <20260727113441.11193-6-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260727113441.11193-4-wsa+renesas@sang-engineering.com>
+References: <20260727113441.11193-4-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260706081055.1126275-7-pinkesh.vaghela@einfochips.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jul 06, 2026 at 01:40:53PM +0530, Pinkesh Vaghela wrote:
-> From: Pritesh Patel <pritesh.patel@einfochips.com>
-> 
-> Add compatible string for the DesignWare-based I2C controllers present
-> in ESWIN EIC7700 SoC.
-> 
-> Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
-> Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+To support the next generation of R-Car SoCs, we need to skip polling
+the reset status. SCMI doesn't support it and the firmware must take
+care of this anyhow. Other than that, the driver works fine as-is.
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 5ce8f8e4856f..46508176712c 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -137,6 +137,7 @@ enum rcar_i2c_type {
+ 	I2C_RCAR_GEN2,
+ 	I2C_RCAR_GEN3,
+ 	I2C_RCAR_GEN4,
++	I2C_RCAR_GEN5,
+ };
+ 
+ struct rcar_i2c_priv {
+@@ -900,8 +901,12 @@ static int rcar_i2c_do_reset(struct rcar_i2c_priv *priv)
+ 	if (ret)
+ 		return ret;
+ 
+-	return read_poll_timeout_atomic(reset_control_status, ret, ret == 0, 1,
+-					100, false, priv->rstc);
++	/* SCMI based resets don't need to poll for success */
++	if (priv->devtype < I2C_RCAR_GEN5)
++		return read_poll_timeout_atomic(reset_control_status, ret, ret == 0,
++						1, 100, false, priv->rstc);
++
++	return 0;
+ }
+ 
+ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+@@ -1111,6 +1116,7 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,rcar-gen2-i2c", .data = (void *)I2C_RCAR_GEN2 },
+ 	{ .compatible = "renesas,rcar-gen3-i2c", .data = (void *)I2C_RCAR_GEN3 },
+ 	{ .compatible = "renesas,rcar-gen4-i2c", .data = (void *)I2C_RCAR_GEN4 },
++	{ .compatible = "renesas,rcar-gen5-i2c", .data = (void *)I2C_RCAR_GEN5 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
+@@ -1194,9 +1200,15 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 			goto out_pm_put;
+ 		}
+ 
+-		ret = reset_control_status(priv->rstc);
+-		if (ret < 0)
+-			goto out_pm_put;
++		/*
++		 * Gen5+ uses SCMI based reset which cannot report status.
++		 * Firmware has to ensure proper reset
++		 */
++		if (priv->devtype < I2C_RCAR_GEN5) {
++			ret = reset_control_status(priv->rstc);
++			if (ret < 0)
++				goto out_pm_put;
++		}
+ 
+ 		/* hard reset disturbs HostNotify local target, so disable it */
+ 		priv->flags &= ~ID_P_HOST_NOTIFY;
+-- 
+2.47.3
+
