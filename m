@@ -1,48 +1,52 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31BBD3F0765
-	for <linux-i2c@vger.kernel.org>; Mon, 27 Jul 2026 11:35:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A6A8392836
+	for <linux-i2c@vger.kernel.org>; Mon, 27 Jul 2026 11:35:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785152112; cv=none; b=K7x55Eh+spwnB6MU7lBPiibLDnX+uoAQV5n5idAO6bwxJyZE2SfroUhAiAD4x3sOu4rDc63ZHbhn+mAQxHxJ7cS8n1M5mCuuoNqVy+4x0iLgdxCiyeLxfgLlN8462UVW3b6RKSWa6Kin+QtijmvFSr4JRWHF6b+o/9Bw6fbmWdY=
+	t=1785152113; cv=none; b=rS5/s03auSKBv7OKmsPZZTKf+bsRVGtg/cKVbQa0KIQ7GV6QjnHz0/QD0y8/PYgYH4l4lcrPmT5VAttfl6Lgb3NryqPJezYbPzIt0vMaUjcK+rjdNlCWcog3ilAh26vnDXagQlpZY6s3kRHTJXlnNwQ6nUjrYrIZIwcGB/4fWm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785152112; c=relaxed/simple;
-	bh=X7BOrbOKgVYBaWBjnm17gHA/GSUobwLU4YlTZtFnIS0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QgrFbK97CrnPuB2yZXwmXrFmc1nJPkJv7JYNUl0Y7Ad68clsN8l3k5CQwB3qjXlPLbyq2KtnR5QUXXRyRytdNxxkLmATN9ZD8D9zwm/aUknPTn23gJLLlBqXuVXhThF9QR2AgqWPWPITDLcIv2t1gtAaeeVIXeSb46kz7vtKmm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bRhQ1bOl; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1785152113; c=relaxed/simple;
+	bh=TzINDbs+VbgzH2YheSF3cDlUZ7+ZuUFX1umEZ5dY+kc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=KRirHZV8cSb0nxcx6PleqBurhGCO1J7fbK3yEOtZiu+IHn5pcgLzbuiBiLGoN6lJbeH0SEqXLNx2QEeD3t/BUk+Aim5cayVkUM6eebrEiau9GFQrX8vetwX063BV/QP//r6hrYKTzv7TWED+FpTGzc/yQ3rENIqyr5Tghy2qRao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=IJ0bCOHG; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bRhQ1bOl"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="IJ0bCOHG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=b1qPyzRIxoinFY
-	2OA75dNXzOPaDtWK1gRGmwyQZb+38=; b=bRhQ1bOlUxNtS15Y3IdvM+BgyY4Mpb
-	rU9payV2iwC7Du7c7/8JeKcMG+N5mb8k/qnjpQWJcJLYMWvvAmw9jOt8F6w46Gtv
-	LcGf57c5mXNweoRCt1ViSiotUkng5GXsBpoQQSxRSBGaUEfL+k3UOlYNhTi5N0iH
-	MkYTzPAOrYNvZDxSu8io+apXK2zksqhj5ojuB4u1jdkd2/PT8LwrxmUM1LieEWC8
-	nrB779/rttjkFvaZ4mdYeAlyu9YBQC+bqe97mj5BYpK8fkIspUrnCWq6uCBXKoz4
-	uUQ4MaeG8G6bi9uY8FaHYMBoCldylZucjizvzsbm1dL7aNvan6lJ38FA==
-Received: (qmail 589247 invoked from network); 27 Jul 2026 13:35:04 +0200
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=IhASfEUPTeqfb8JyVjNSBH9Y4Frmem9Jz52g3v5FJKY=; b=IJ0bCO
+	HGgAXsDn7ehwFEzx62QNV+rb/7ZLlbzB3Ax1esufL1ncIV+Fdyuhowm+36b43Msz
+	FL74unL88HsyedZj6d2b2sygn1Vo6QiVsIYZkVgPzmXN6UttLIx6OOYI1UHgNrvP
+	c5NonqNjuHw/85HCoO24cnaeUpqYMcG1KNMz5BF70urD0/vgxwL+7Qc4rKEVxCop
+	c2nuqK+HZmnS/tNV70yvaEAyQzO+Zkr5QkV+suRi+dXo50ctZ/JnirCQ6U87/iKD
+	cHeQRi3q9LWz5/HUsSPza0ajOPO0Pu1++Glp7oYbHNQNaUEZH5HDzoNuSHHgUeN6
+	ga5bIXGvJa9fkklQ==
+Received: (qmail 589300 invoked from network); 27 Jul 2026 13:35:04 +0200
 Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Jul 2026 13:35:04 +0200
-X-UD-Smtp-Session: l3s3148p1@M5YIHZZXMs8ujnuy
+X-UD-Smtp-Session: l3s3148p1@cOISHZZXOs8ujnuy
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+Cc: Minh Le <minh.le.aj@renesas.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	devicetree@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-i2c@vger.kernel.org,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
 	Magnus Damm <magnus.damm@gmail.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Rob Herring <robh@kernel.org>
-Subject: [PATCH 0/2] i2c: rcar: add Gen5 support
-Date: Mon, 27 Jul 2026 13:34:41 +0200
-Message-ID: <20260727113441.11193-4-wsa+renesas@sang-engineering.com>
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: [PATCH 1/2] dt-bindings: i2c: rcar-i2c: Document R-Car X5H support
+Date: Mon, 27 Jul 2026 13:34:42 +0200
+Message-ID: <20260727113441.11193-5-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260727113441.11193-4-wsa+renesas@sang-engineering.com>
+References: <20260727113441.11193-4-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -51,29 +55,33 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This small series adds support for the Renesas R-Car X5H SoC to the
-i2c-rcar driver. Not much changes needed, only skip polling for reset.
-And add some compatibles.
+From: Minh Le <minh.le.aj@renesas.com>
 
-Tested with a Renesas R-Car Gen5 Ironhide board. Branch is here:
+Document support for rcar-i2c on R8A78000 (X5H) SoCs.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/x5h/i2c-experimental
+Signed-off-by: Minh Le <minh.le.aj@renesas.com>
+[wsa: fixed white space issues]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-'dt_binding_check' also passed.
-
-Happy hacking!
-
-
-Minh Le (1):
-  dt-bindings: i2c: rcar-i2c: Document R-Car X5H support
-
-Wolfram Sang (1):
-  i2c: rcar: add R-Car Gen5 support
-
- .../bindings/i2c/renesas,rcar-i2c.yaml        |  5 +++++
- drivers/i2c/busses/i2c-rcar.c                 | 22 ++++++++++++++-----
- 2 files changed, 22 insertions(+), 5 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
+index 6cc60c3f61cd..46b4bd16c593 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
+@@ -56,6 +56,11 @@ properties:
+               - renesas,i2c-r8a779h0     # R-Car V4M
+           - const: renesas,rcar-gen4-i2c # R-Car Gen4
+ 
++      - items:
++          - enum:
++              - renesas,i2c-r8a78000     # R-Car X5H
++          - const: renesas,rcar-gen5-i2c # R-Car Gen5
++
+   reg:
+     maxItems: 1
+ 
 -- 
 2.47.3
 
