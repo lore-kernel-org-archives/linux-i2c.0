@@ -1,222 +1,314 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93849420472
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:15:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785233708; cv=none; b=WOe3zTu0PqOHGBflSIDEF7HLYDYEtdU/OBO5AtiUtqzX+8c4sqFzzK5M47ElphPxzTmrHBgWIDFt1fkhntQBk+z7Cq0/FWe0KZzK6kWrMZUoGadUg6wfP+zzK9xcuXLmwSBBt5XUcdf517RKGYt4xZ0r3sOsxbTwo7/Dl7PZk5I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785233708; c=relaxed/simple;
-	bh=MMmeuxILIP+TAdSL+HmgIqFdpj+gmOWW38hJ1+E4IBI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=StywLjvb6gJkSUkoiKSWNA70CXmZQd7LmWa1FaqdD5L6AG9QVnjQ7WeP0bdNzIgdaJSTafucUC2SFgT+6zfu8+azoMxRCYdv2YSxuOmDXgB4d/FEsot/PYpCqZ1S0iCR12WVWJd3CX73+btsHEhE1TM6RB+w23+KJVdM1YjRzow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=C8y5Nkfp; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Mi73dijC; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7B9C40DB58
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:26:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.168.131
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785234384; cv=pass; b=Q7l4VeXbOmF4GvbxepoyVOPTvfrfFmotTx+qyHCc/IpE/G1KWCRS64WDan+uDbCuSkRl5cFOHMLk1cYIrWQkTP5HL8F8j/s5wV9Awzuhcf/nXPP0/qLxQCG/8RWxtlwWedTLIJX2xfQD4p2cPVxV8lH1kJvIeZu6Icl/dUtSAco=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785234384; c=relaxed/simple;
+	bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HvopnTEHCleGSoplHN80K5wH8uharR3YvULDHqO+U9RPkXz/NxFJCX43201BJfZ96/FF319WNLvKqNjJxOSy0ad2SDRq3Mrq+r/U8cqpJPN4012NwXN1Dt+v9r2iV8Sn28WleBdfrdpeinJaxdSLKpB9yhv112UtWAsWacpFMu8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=gt2GmXkY; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=X1N3TiCk; arc=pass smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="C8y5Nkfp";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Mi73dijC"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S82Gw22144859
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:15:05 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="gt2GmXkY";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="X1N3TiCk"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S82GRO1908846
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:26:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	j0hLbfdy5mgjgFCzYatzKmlRtop8Ya/eJckf6yBTaIw=; b=C8y5Nkfp254qpf60
-	4x3RqPMyxvx0inCaro3dT2qVZJEQqZcDbOG1/aLK75ptIBG0D6kuEIGRPFTMxbw+
-	qs70Cp85rEZ2eFmgJM66XuyOkneca7pGinjbsDBfZEFNm3/58ew7OkFb1Z1v4tdf
-	qIhJjmlZYc/MptbPLpXmV8Qd/igoSDokXrDS/s0bXdGTtis0wlEx/DZ8BEoABhrB
-	fC38g9VRNWAHw9iPxKo75+ogsRriQooTS0qPzedYYvxOsn02JznoPxRPktb3T1gh
-	N3DR7MUekdHAJY5FjWd4asX8ARiIJq0EgWbgODB+iqkxpUpuGujAy1Uw4UtB4Yv2
-	iyUMAg==
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fpn19henk-1
+	tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=; b=gt2GmXkY8O7FK7wD
+	PPppSjnabNNCxpjiO2QYZmCYJWDsDVSwWV2l+DoiKMfEBxoCSJeyFe/0nJwvLGVG
+	JqoO/J3Pat5HfPUBszkaC1dz2vcA8V29J/UpXiZbMAMO7iyoCiM7vdjcOOq9sw4A
+	QligSi6q7eZfxJbNtqYG1oTFogXjTi21D8/e2KXXbEuXb1x3aLvqnc7N+1esROla
+	sZ2x0BmREUDQVm3RvdJIXn/eettPHjyqA2sW0ANBvnHrkhDEalrSDURC5rafnJvg
+	Tnj5krUW5MFzF8jPxlKfo/gweBd9mzZKitrcVUj4TK3EU/YRclKUm1D1orzCYwL9
+	G63rzQ==
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fpbp8btrc-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:15:05 +0000 (GMT)
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-8486ffba174so5930415b3a.1
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 03:15:05 -0700 (PDT)
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:26:21 +0000 (GMT)
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-92e6ed4fe99so670438285a.0
+        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 03:26:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785234381; cv=none;
+        d=google.com; s=arc-20260327;
+        b=SAGHP0YXHnKosvNCLffhqzt3Q+HMx9Qw8bVFZGXKhrLwYHauN0R/3uowFm8Ltmf5gr
+         iBUf2EEbcmwr6iML8Vr+no4LfrUeRViFvQzpSq5748rw4Me2QKtE8xkjKnYWrb1/qhhG
+         ng8M/aZchggg+3q7eYcVdme9D2reVFa60+CV9tIME5AZEwWx0GdvyVSbAdU7lFbsvO0B
+         OXaNyf5mSu2hl+1PdweuNwbNTcuwZqEYjthBc+D5+zMDki6JD5D6pjAfxHDkI1H/t9fR
+         HIxUaSeXL0RZhXjXRy7ABCZR9PwZ04JnijrxAjhO21YRL6JwHFB8c0jtwk9enWB5ixVA
+         OGLQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
+        fh=+GX3QNDB0X+0ccbzYW7bTFryRkj1mKgYulcjXbhUXwc=;
+        b=RvOL0qRqQyqaf6pUpfB4dQ7SVtnO/Ed0sUPsgnpY70J2p0+5J9vceDljliPdj6SLrf
+         dRcMYM/U0igOb8QlS4hk/8ROXvk0jg8mgtUrAxkDRF/Q/AXuaeHORSB/Cb4rP4oDUMNy
+         GDH/5GOzN0LmNdjyr5MfziWBqxyEdLzPF0NPVY8uygrlY3Q1z9oqlLcu+2uqSaEXlA7y
+         +NBSGZqZQGdmY7Ujv9z1ayYpo94DWa6x+/zDk9RpMJdx2UNyL7LElvji9vrCAJB79KkT
+         CSk0278fruC3zEhZCRHiFqW3cr4lFjH8K+MC7lB77IOm5ZvPUb3RBNWamXEKuv7OU9RG
+         rKcA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1785233704; x=1785838504; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=j0hLbfdy5mgjgFCzYatzKmlRtop8Ya/eJckf6yBTaIw=;
-        b=Mi73dijCbs81F7ueGvNNBe89ncPEidxPAHcoRYRrzg5bDW6OwzS8w3jK4Hg9ZFMfP5
-         ggrA4i16eP6cwE++mnCwmne10CtBhq2OMorL6SSddpEyzbMfob2epUeXzJ/TYWZSjK9Z
-         87kxDPDkCEjD1Mtjd1tTnMCf2pgCndJsOUjaqjQW4pmrEUY3XuAesU2Je1aZ2vi3k/uW
-         sc6RB4KsRA3SEoEwKLQZjuzlVAG69cXEeWGV1N+yhWeqjwJgZDDMz9VPt7IVPb0ck8YI
-         w5OlfLBduPZn3/kkjBeB/cc7T9IeWwt7c9d9CSOkt7SI51HwCNod7pFPiNg0Gy+k8dlv
-         /u4g==
+        d=oss.qualcomm.com; s=google; t=1785234381; x=1785839181; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
+        b=X1N3TiCkFW33g93VAXyIcIxgTzhXQCAw67lC78zLbiwI5zFDOuyxwLsYDd/++dYSN/
+         HwlWUL6bPLqakynSuh3VSr0QfAvYyVQKkAGZKveJYGNIf+jo3EBs+2xJftaHDXtkFfMf
+         IGlIImfv1A3P4/70UZiO29mZjmn4pHBzPi7AuEWTEMQ6zZWo/r/aEYDM6V6ymXtiDuHO
+         v2/TEQhUcy3LSOjmKXVguI5fsnSUSdLLmhTyO2l7rtnks+D9yBSl//iTzPq2fAj7jcex
+         CKjgcM2lpw05EQ/wuB/ZCVNbl0VeT9qh5UOFwXeoirAnUppMhUarSmkYk6O8tzAnfoeu
+         1X0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785233704; x=1785838504;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=j0hLbfdy5mgjgFCzYatzKmlRtop8Ya/eJckf6yBTaIw=;
-        b=nDfssH1lxEmKyRspAkuwGaY4chU2p5THhrH1h3pPRjXhJSBWxNRrwC9iips1OOF3fr
-         srJGoLu+tQKskBA5BfVXzVxZ37RsdzNl31TR71z6DnnXWex1Q58n6dtY4ef/zAClP2Tr
-         ibHMpbvmVpJMPG87TLepEne1lgf2AlOIjHnkpEacCrAGIpMwVEZnW/1qIyyD4tmUiQhU
-         y98aXOHXuV25dnuSJShPv/GBPafERShPROnyNyRTKVWvEkA8GOUSkV/t8v5Hp2Pte1mW
-         EqxnKSUZwl7RFdS2WRYRHnnEt4zHBSiBYCxKz4wcEwJ7LVofA7flQFNbaUgscdrZF2x3
-         6Crg==
-X-Forwarded-Encrypted: i=1; AHgh+RrzlDXUPUXsrPy711cEIXKajq6FoZ9014Og2vDVvHRbILCd5JT+PcEZKl/653kgYmmgoLNWINlUwfQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwwwYnu2kza8WOqk/BaAUjQFXYwUtp3Vpj62klBl0CP2ZOTksqK
-	WD2I+mm3dhnFtNNxiwfasEY39MK4y+LUnKi5NbGC+ATiSgsKwIBk8q3Q5IuIKpjuR1XIVI/Nw+9
-	WIkvRKVQCrL/nd1Lb07K1G3IPepgfkqaOe3iRcKoiR0VQ5QbIcjh3kTE9Lmpj/oo=
-X-Gm-Gg: AR+sD10BlCayWxomV+4M/bahsot/UWm2XRNB0uP4u3AQ/tbkQ3eUjmf4+luqQpum6pS
-	YLvK/UPO2SjXKiPzJV/dDv8FUeRbxO/pvPRF3i+I7g+bxLEIWoXdfzmL37CA72W4MZZsy5eQMeZ
-	R3O6vLoMhM25a5sbwhQYACeFOaK5gjWHkYpxwaquAudeA8oaCm1hNT2SSxdT7erWQVfz3zC5acA
-	vDN3SOK68NSl2kXlmldlmmlQVlN07bY3pmwt3FHpFMA0OaOFg3gHNFznfAKs0oo9o1K+7KTXvjh
-	i3FDHz5ECBIYQCUX2WaMBWpxvf0f8LjfrK9sTh1QZnsAGstbwExWmDi8cdl5nGYcgWBLuc+00yp
-	WV1Fw5QVIWAQVL6krBM7lcRx76bvQSmtDYQ==
-X-Received: by 2002:a05:6a00:10d0:b0:845:e41f:9696 with SMTP id d2e1a72fcca58-84e9325b4famr1835436b3a.25.1785233704089;
-        Tue, 28 Jul 2026 03:15:04 -0700 (PDT)
-X-Received: by 2002:a05:6a00:10d0:b0:845:e41f:9696 with SMTP id d2e1a72fcca58-84e9325b4famr1835405b3a.25.1785233703606;
-        Tue, 28 Jul 2026 03:15:03 -0700 (PDT)
-Received: from [10.217.219.72] ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e532590bdsm4210071b3a.3.2026.07.28.03.14.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Jul 2026 03:15:02 -0700 (PDT)
-Message-ID: <fc90084e-c9bf-43da-bb8b-43a8d2d0cb7f@oss.qualcomm.com>
-Date: Tue, 28 Jul 2026 15:44:58 +0530
+        d=1e100.net; s=20251104; t=1785234381; x=1785839181;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
+        b=DrCeQjSY5WxtAWQjol3i+0AW9rQyDa4Pou043xVTLPF33+i6n/51YklPtFVQnPUwyp
+         xP1RX2rBlcQ2Y6USviskR7T6QcCVyg4FfMtI3PPugbtH01+tHo240yz3JAW6xRsepHqu
+         KAlKM8xpDJjN0k4iiqsgrc646dznf2PKSp42NgaN5QT/Ph/QI2+I369NmY7VZ5JAhR/U
+         T0tDPdjl3q7rql/KuzOv4HNpHT/1DW4CFEoRi1Fvn6YcQ7ucHJdiVm8tuIOgFYVuL8EG
+         t9SfjTKWz0EJ8AUZSaD+bO85En7i/1tAOgQKmSPLNcDbVAHUufSSv3FQMWAPKSaO5auS
+         nxWw==
+X-Forwarded-Encrypted: i=1; AHgh+RpGhYzAok3CsPyZnQfBkGxOUP5SMJoMPyqk0Snmk8FpZWZJQ7UjvEVupZccbo3yxFERlGAC6NiMZh4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzZX+CP8jE1wUT5THov0jJ2QZEE5O26hMt3NecbRdCak9FQdhoA
+	WZ7yhZHtt2psryRrNkXwB9TqWz+S+cZ2B8ZNGelVPK5XBZGB5Ef0E5PYCrkpsKKdtZbXGBJwChh
+	mo07agUnMVu0ZxdX+6W9oBI8bgVprT4pfxGv4g4UPC67WxpwbVu0EgAu871AyaGKT8MBGgARhgK
+	mFka9bC0eqSo1Juvkdm03crEFdvofn3zsbQK8ftQ==
+X-Gm-Gg: AR+sD117+8iQ8CgmRv+QMiNll3fufwDmS1eAMz9OtGUON8Hn30nRNn6P4X2Lc3a2jxo
+	REpdjOkb+AbHE/INMsA8GB42IMdS42Fwc0ioUlTZV4GH63vVt5f3b9hWFW6W5KbT0WngpEEp0eU
+	vWsPcmMFON8hNh+0Py0Lb82oOeiiwea44Uw6UBvTS61acyKZtXH70g/AMsuLkOCyJhFkyHRs83n
+	1bVowCGqcYvpSN2JvZxD9uujoOqsXutlWyTz/A9CobSLdzrg0sRc78EcGeaBKUzfnLXsYh2Hkrg
+	BB5LbloFAdUrscZu02uPvOlR/CRO
+X-Received: by 2002:a05:620a:4455:b0:930:b5e8:a40e with SMTP id af79cd13be357-93302656b33mr148384385a.23.1785234380776;
+        Tue, 28 Jul 2026 03:26:20 -0700 (PDT)
+X-Received: by 2002:a05:620a:4455:b0:930:b5e8:a40e with SMTP id
+ af79cd13be357-93302656b33mr148381385a.23.1785234380245; Tue, 28 Jul 2026
+ 03:26:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
- dynamic transfer timeouts
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-        Aniket Randive <aniket.randive@oss.qualcomm.com>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
-References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
- <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
- <amZkf3lu7gjWhw04@zenone.zhora.eu>
- <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
- <ame2tX1RwOo4F6Lk@zenone.zhora.eu>
- <cb1e00ea-658a-416b-aef6-46c151d15685@oss.qualcomm.com>
- <amh5l4Yvwemws6Cx@shikoro>
-Content-Language: en-US
-From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
-In-Reply-To: <amh5l4Yvwemws6Cx@shikoro>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=TJV1jVla c=1 sm=1 tr=0 ts=6a688129 cx=c_pps
- a=rEQLjTOiSrHUhVqRoksmgQ==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
- a=QebkMiaCAiKBxjCz028A:9 a=QEXdDO2ut3YA:10 a=2VI0MkxyNR6bbpdq8BZq:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA4OSBTYWx0ZWRfX2VjJNIlJeSN2
- 2g/svOGlSnwDBicW6U9fXV9FpBvZtJb59K8vakAMQFJd/52m6j2jFx2Doaf0mudSw6lr7S1SVtU
- 4nLFTusnxiBqBIbGSuVYoHlG3ZeLrliitRw0AFzIxJG6jgR1buJKk3tcLuzigKtuqU3NveHHk6X
- KxW+KbPXdB+5Y1YE/1WyIAnMRbQ9417UjTP/GU887fvDyKZXY2CgkBr6sBgVsMDVBTxB+Tg/HYH
- 443hP8S8b9cIqh6JoVvbZ8BM+0RfQ113nxZV9TWQPa5MlvmI0UjgULv8HVp/Xpr2Cy+MSsT7aRn
- IAkkhNGVhAb+1NclwDx7lrYfDdf+mkDdeUlJCP37bLSBZ2fVDVGsZXK+MmgR4xIliFvn34dBJ6k
- cOQjWZib5g2lF/vd9DmHhVJXAluo3Zsl9J5/0/bdg1CeVf7lXP9uxRsSayBcoSheZS6+OajGSYV
- lwezRhm9Be10MwpKIkQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA4OSBTYWx0ZWRfX7oHaPjh5rYFa
- tYbDnExz0XONKhuXcx1FKPwrAgFm84Y4lGHk6izZuVU9fjqpiFgq6NjnkL1E4RadTqsUi7flpxV
- 6RD8JoNpF8f8S6/J6fLza06CggYlMiU=
-X-Proofpoint-GUID: yLYSUY2Aw6maT1lPJzdcAyzm_N03oi4b
-X-Proofpoint-ORIG-GUID: yLYSUY2Aw6maT1lPJzdcAyzm_N03oi4b
+References: <20260727-cci-clk-fix-v2-0-c3958f28b045@oss.qualcomm.com>
+ <20260727-cci-clk-fix-v2-1-c3958f28b045@oss.qualcomm.com> <c7b0213d-a4c9-4ac8-be09-b449da457230@linaro.org>
+ <CAFEp6-2VP1pVbKJEkPTOFdMn8kv=83CrP-MCYPDTN0BHURn2Jg@mail.gmail.com> <2b4b3fe3-9062-437b-8b4f-65a0b121d8ce@linaro.org>
+In-Reply-To: <2b4b3fe3-9062-437b-8b4f-65a0b121d8ce@linaro.org>
+From: Loic Poulain <loic.poulain@oss.qualcomm.com>
+Date: Tue, 28 Jul 2026 12:26:09 +0200
+X-Gm-Features: AUfX_mzVSdXkEzuqpaHYAUj4GP3qPfyFb8m0lNIU6eH7QVaUcshwbXsnyVgrHTE
+Message-ID: <CAFEp6-1zXcsXqez6dba_BT4YXnJU_YT8k7OQ+Cp-gnWL0n27Qg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] i2c: qcom-cci: Switch msm8953 to the CCI v2
+ timing/rate config
+To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+        Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA5MSBTYWx0ZWRfX2c3GDlWtaG+I
+ mq8G8mUXFyA/s0WxU9j2zRVeaCuNCeMIZOObvqJaiY9qvPCUqwEHmfRwGjzRoBG7oR0g/eSey+w
+ weTLmQDEuzMmsjmnZYvh4gi7unn5k8E=
+X-Proofpoint-GUID: _fkFBgO9PrBLNimPr8LF7xgB47ACCOKb
+X-Proofpoint-ORIG-GUID: _fkFBgO9PrBLNimPr8LF7xgB47ACCOKb
+X-Authority-Analysis: v=2.4 cv=KLJqylFo c=1 sm=1 tr=0 ts=6a6883cd cx=c_pps
+ a=qKBjSQ1v91RyAK45QCPf5w==:117 a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10
+ a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=YMgV9FUhrdKAYTUUvYB2:22 a=NEAV23lmAAAA:8 a=KKAkSRfTAAAA:8
+ a=BhYqSYu7UfpT2a6lJnYA:9 a=QEXdDO2ut3YA:10 a=NFOGd7dJGGMPyQGDc5-O:22
+ a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA5MSBTYWx0ZWRfXxIu04Vl49YM/
+ DEZ6vEqpMXHyonWBIiGf44npJgQ+woetU8KqdjjeMRusSwsp/P2AMUmHf2KCCq/GLG5HV2NEYdR
+ gR/yK6A3SqLAfFH+yqZKXUDU+zpM1l7qluLcyZkJYrUopRMsFpY2fJPlu3dYfti3s1IXIDopUXc
+ G8ngbJ4JkvZp2twWgDjW7NrOsXkuCa8i2KqQ8lqG3q8S0zdIGfT7PhNwBzZ5PLh8zJmuHAzwijq
+ 5zjYyX6T4rL1swZ6+zGRIKAf+oZZukhGwOGhNRwe1HHgR+/DBnQ2s0Sak5Rds/76aWy4ijmlG2A
+ LvLl06HWG+2nG3wfJd+Mssc0c6jmOWkYHxaQs3ZF/B9byyoxdH6EBtaDCVqGUt9cU9TnyTYu9Jc
+ MD/ruOWs1vmE7LUBkF8PxU0DI4N/HHbBgwk2yUldb5AMoMNUvTa2TWXxuJ7S9oJmObnYdWRefXv
+ yW47hT18U0tjniFnHrA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-07-28_02,2026-07-27_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- spamscore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607280089
+ clxscore=1015 priorityscore=1501 suspectscore=0 spamscore=0 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280091
 
-Thanks a lot Wolfram !
+On Tue, Jul 28, 2026 at 11:38=E2=80=AFAM Vladimir Zapolskiy
+<vladimir.zapolskiy@linaro.org> wrote:
+>
+> Hi Loic,
+>
+> On 7/28/26 11:20, Loic Poulain wrote:
+> > Hi Vladimir,
+> >
+> > On Mon, Jul 27, 2026 at 9:21=E2=80=AFPM Vladimir Zapolskiy
+> > <vladimir.zapolskiy@linaro.org> wrote:
+> >>
+> >> Hi Loic,
+> >>
+> >> On 7/27/26 12:21, Loic Poulain wrote:
+> >>> The msm8953 CCI timing table is internally inconsistent. Its Standard
+> >>
+> >> likely I was misunderstood in my v1 review comments, and I believe v3
+> >> will be needed...
+> >>
+> >> If there is just one master, or two masters set in equal speed mode,
+> >> then there is no such issue as "msm8953 CCI timing table is internally
+> >> inconsistent". In other words generally it shall be permitted to have
+> >> supply clock frequency intermixed speed modes for any CCI variant.
+> >
+> > The two masters sharing the supply clock are independently
+> > configurable in terms of mode, so we simply can't guarantee they will
+> > run in same mode.
+>
+> There should be no restriction or guarantee to configure the same mode
+> for two masters. The supply clock frequency is one for both masters,
+> but speed mode selection is based on its presense in the driver by
+> the CCI frequency.
+>
+> If there is no match in the driver for CCI clock frequency/speed mode,
+> return -EOPNOTSUPP for such master.
+>
+> Think of it, right now for each CCI hardware revision 3 'struct hw_params=
+'
+> are provided by the driver, some of them match 19.2MHz frequency, some of
+> them match 37.5MHz frequency or intermixed for msm8953 case. Likely there
+> is no restriction to provide 6 'struct hw_params' for each CCI hardware
+> revision covering both 19.2MHz and 37.5MHz supply clock frequencies, then
+> any combination of speed modes can be configured on any CCI hardware for
+> two masters.
+>
+> The main point is that CCI clock frequency is not specific to CCI hardwar=
+e,
+> but it is specific to 'struct hw_params' mode.
+>
+> >> I'll repeat the same point as given in v1, namely supply clock frequen=
+cy
+> >> is not a property of CCI revision (therefore v1 1/3 or v2 2/3 is inval=
+id),
+> >> it is a property of the mode settings. It's correct to remove 'cci_clk=
+_rate'
+> >> from 'struct cci_data', and it will be correct to add (or parameterize=
+ in
+> >> any other way) 'cci_clk_rate' to 'struct hw_params'. Each instance of
+> >> 'struct hw_params' is strictly bound to a particular CCI clock frequen=
+cy.
+> >>
+> >>> and Fast timings match v1/v1.5, which are calibrated for a 19.2 MHz C=
+CI
+> >>> clock, but its Fast+ timings are essentially the v2 values, which are
+> >>> calibrated for 37.5 MHz. Since all masters share a single CCI clock,
+> >
+> > So, you're right that the supply clock frequency is a property of the
+> > mode/timing settings (though I'm not entirely sure timings are fully
+> > hardware rev agnostic). I don't dispute that.
+> > However, this reflects the current driver behavior. It's not
+> > incorrect, it is a simplified approach that uses a single frequency
+> > point across all operating modes of a given platform.
+>
+> The driver should be fixed/improved. Reverting the link between CCI
+> clock frequency and CCI hardware revision is invalid, it should not
+> be done.
+>
+> > I added a brief paragraph in the V2 cover letter to explain why it's
+> > out of scope.
+> >
+> > My argument is about scope. Today the driver has no mechanism to pick
+> > a rate per mode, a single CCI clock is shared by N masters (usually
+> > two) that can run in different modes simultaneously, so per-mode
+> > scaling requires (1) per-mode rate info in the params table, and (2)
+> > vote/arbitration logic to select the highest required rate and still
+> > apply correct timings for every master at that rate. Concretely, with
+> > one master in Standard and another in Fast+, you'd need a 37.5 MHz
+> > shared clock and a Standard-mode row calibrated for 37.5 MHz, which
+>
+> This is a limitation of the driver only. For a selected CCI revision
+> please add 'struct hw_params' for Standard mode / 37.5MHz supply clock
+> frequency, and the problem is solved.
+>
+> > the msm8953 table simply does not provide today. So this isn't a small
+> > tweak, it's a new capability backed by new table data. It would bring
+> > more fine tuned supply rate, but without huge benefit, as cci clock is
+> > gated most of the time due to runtime-pm.
+> >
+> >> But what if you have only one master?..
+> >
+> > It's not important here? we have N master (usually two) and have to
+> > deal with that.
+>
+> It is important in sense that any one master usecases are properly
+> supported.
+>
+> >> I think the msm8953 data is correct, it shall not be removed.
+> >
+> > The msm8953 table as it stands is internally inconsistent (without
+> > per-mode rate info), no single clock makes all three modes correct.
+>
+> It is so, because there is msm8953 data is incomplete. But the present
+> msm8953 data is correct.
+>
+> > Moreover, msm8953 is the same HW version as msm8996/sdm630, which
+> > already use cci_v2_data, there's no strong reason for msm8953 to keep
+> > a bespoke, half-and-half table.
+> >
+>
+> Okay, I read it as 'struct hw_params' data for msm8953 can be removed
+> and v2 data should be used for this CCI hardvare variant.
+>
+> >>> no single rate can satisfy all three modes with the current table, an=
+d
+> >>> the DT assigns 19.2 MHz, so Fast+ timings are wrong.
+>
+> If hypotetically 'struct hw_params' Fast+ timing for 19.2MHz supply
+> clock is added to the driver, this usecase will supported by the driver.
+> As for today the driver has a bug, no doubt.
+>
+> > This series intentionally does the minimal correct thing, aligning the
+> > timings with a single supply clock and enforcing that clock in the
+> > driver, which owns hw_params and has all the info to produce correct
+> > timing. It fixes reported devices misbehaving when no (or incorrect)
+> > assigned-clock-rate is set.
+>
+> Since we're discussing it, this fix is not the only one possible,
+> and the fix which returns the link between CCI hardware revision and
+> CCI supply clock frequency is an invalid fix.
+>
+> > Not saying what you propose is not do-able, and I clearly understand
+> > what you mean, but I'd prefer to land this simple
+> > alignment/enforcement first and treat per-mode clock scaling as a
+> > follow-up, rather than coupling a straightforward fix to a larger
+> > refactor. Please clearly Nack if you do not agree with this first
+> > step.
+>
+> Instead of a non-productive NAK I can provide a simple change adding
+> a proper link between speed mode and registers programming.
 
-On 7/28/2026 3:12 PM, Wolfram Sang wrote:
-> Hi,
-> 
->> My thinking was that we are trying to derive a timeout for transfer
->> completion, so the transfer length and bus frequency should already give
->> us the theoretical on-the-wire transfer time.
-> 
-> With my experience in all these years with I2C, this is exactly true. It
-> is a _theoretical_ value, and the practical value is at least board(!)
-> dependant. It may also depend on the environment in other cases. So, the
-> theoretical value may supply a minimum but IMO this doesn't help.
-> Because we want a precise value, but we don't know it.
-> 
-I agree that the precise timeout is platform dependent and cannot be 
-derived exactly from the transfer parameters alone. My intention is not 
-to determine the perfect value, but rather to provide a reasonable 
-kernel-side default for cases where no timeout has been configured 
-explicitly.
+So I guess what you'd like is something along these lines:
+https://github.com/loicpoulain/linux/commit/fdacebb22d914ca64b0c3d4e257a913=
+dc0cd16dd
 
-Since kernel-space clients have no generic mechanism to tune adapter 
-timeouts on a per-system basis, deriving a baseline from the transfer 
-length and bus frequency, combined with a conservative margin, seems 
-preferable to relying solely on a fixed constant.
+My intention was simply to move this 'disruptive' change out of the
+series scope, as I don't believe this series itself is incorrect.
 
-I am also suggesting let userspace add something on top of this if the 
-core derived final timeout is not sufficient.
+However, if you'd really rather have everything addressed in a single
+series, I'd be inclined to either pick/rework the series in that
+direction.
 
->> On top of that, we could add a fixed margin to account for interrupt and
->> system scheduling latency before converting the result to jiffies.
->>
->> The exact margin is open for discussion. I was considering something on
->> the order of a few hundred milliseconds (e.g. 500 ms), but perhaps that
->> is still too optimistic on some systems?
-> 
-> See, you simply cannot know. So, why not leaving it to those who do know
-> for their system?
-> 
-
-This is an option for userspace. Should we expose device attributes for 
-kernel space ? if no, then there has to be some calculated value with 
-reasonable offset.
-
->> Alternatively, the core could provide a calculated baseline timeout
->> (transfer time + fixed margin) and allow userspace to add an optional
->> extra offset when needed. That way the default behavior remains automatic
->> and works for most clients, while systems with unusual latency
->> requirements can still increase the timeout without every userspace client
->> having to determine an appropriate value itself.
-> 
-> We already have a mechanism for userspace to set a timeout.
-> 
-
-Yes, and I fully support keeping I2C_TIMEOUT as the mechanism for 
-userspace adjustment. What I am proposing is complementary rather than a 
-replacement. The core could calculate a baseline timeout from the 
-transfer characteristics and apply a conservative margin, while 
-I2C_TIMEOUT would remain available for systems that require additional 
-headroom beyond the default calculation.
-
->> Do you see cases where a transfer-time-based timeout with a generous
->> system-latency margin would still be insufficient?
-> 
-> Regressions. You could time out too early on boards which worked before.
-> 
-
-That is a valid concern. My assumption is that any calculated timeout 
-would include a sufficiently conservative margin, based on measurements 
-across a range of systems, so that existing working platforms would not 
-regress. If a platform still requires significantly larger values due to 
-exceptional latency characteristics, I would expect that requirement to 
-be addressed through the existing timeout override mechanism rather than 
-by forcing every client to use a large fixed timeout.
-
-Looking further for common approach to be finalized considering both 
-userspace, kernel space.
-
-> Happy hacking,
-> 
->     Wolfram
-> 
-
+Regards,
+Loic
