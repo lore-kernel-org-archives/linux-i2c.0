@@ -1,314 +1,355 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7B9C40DB58
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:26:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.168.131
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785234384; cv=pass; b=Q7l4VeXbOmF4GvbxepoyVOPTvfrfFmotTx+qyHCc/IpE/G1KWCRS64WDan+uDbCuSkRl5cFOHMLk1cYIrWQkTP5HL8F8j/s5wV9Awzuhcf/nXPP0/qLxQCG/8RWxtlwWedTLIJX2xfQD4p2cPVxV8lH1kJvIeZu6Icl/dUtSAco=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785234384; c=relaxed/simple;
-	bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HvopnTEHCleGSoplHN80K5wH8uharR3YvULDHqO+U9RPkXz/NxFJCX43201BJfZ96/FF319WNLvKqNjJxOSy0ad2SDRq3Mrq+r/U8cqpJPN4012NwXN1Dt+v9r2iV8Sn28WleBdfrdpeinJaxdSLKpB9yhv112UtWAsWacpFMu8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=gt2GmXkY; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=X1N3TiCk; arc=pass smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46554432316
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 12:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785241470; cv=none; b=kNj4fxGZmTq+uJ/HWHxwtX2Wke5Y7fpWKPTDCGoNNK9If/Hw/lwO+rVcRTYDugC5EgosLhrOTasRUFA0hDFKo91vkFvIt4pzXE0gF1nuuanwtnGobD7SJxtcULHq25dsDe3ApJstbDD1D9RjvNPfWa90hZHuyluZql1/Rg0jbwk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785241470; c=relaxed/simple;
+	bh=s98uX6obr3g8JsWCB6x0jmZaNfcpCwsSJ/Ug+Jg56lU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Omm/Wjwl6WRNiZVFYlCJyi/OfvmK8cvBv1cFVvuJ7Il9/5IRGlqrKdPKfiUfoUxBQggAtG3SW3cNluZVMf60MIegazWPfm7PTt+dkhz3kfsgGhiVNV0id0tNUzRsplBqaG85ds9qsfkSTGZFNUQ+3RiAk1rQT/8Zn4qqmYlnNXg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gTfp2RvR; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="gt2GmXkY";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="X1N3TiCk"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S82GRO1908846
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:26:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=; b=gt2GmXkY8O7FK7wD
-	PPppSjnabNNCxpjiO2QYZmCYJWDsDVSwWV2l+DoiKMfEBxoCSJeyFe/0nJwvLGVG
-	JqoO/J3Pat5HfPUBszkaC1dz2vcA8V29J/UpXiZbMAMO7iyoCiM7vdjcOOq9sw4A
-	QligSi6q7eZfxJbNtqYG1oTFogXjTi21D8/e2KXXbEuXb1x3aLvqnc7N+1esROla
-	sZ2x0BmREUDQVm3RvdJIXn/eettPHjyqA2sW0ANBvnHrkhDEalrSDURC5rafnJvg
-	Tnj5krUW5MFzF8jPxlKfo/gweBd9mzZKitrcVUj4TK3EU/YRclKUm1D1orzCYwL9
-	G63rzQ==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fpbp8btrc-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 10:26:21 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-92e6ed4fe99so670438285a.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 03:26:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785234381; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SAGHP0YXHnKosvNCLffhqzt3Q+HMx9Qw8bVFZGXKhrLwYHauN0R/3uowFm8Ltmf5gr
-         iBUf2EEbcmwr6iML8Vr+no4LfrUeRViFvQzpSq5748rw4Me2QKtE8xkjKnYWrb1/qhhG
-         ng8M/aZchggg+3q7eYcVdme9D2reVFa60+CV9tIME5AZEwWx0GdvyVSbAdU7lFbsvO0B
-         OXaNyf5mSu2hl+1PdweuNwbNTcuwZqEYjthBc+D5+zMDki6JD5D6pjAfxHDkI1H/t9fR
-         HIxUaSeXL0RZhXjXRy7ABCZR9PwZ04JnijrxAjhO21YRL6JwHFB8c0jtwk9enWB5ixVA
-         OGLQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
-        fh=+GX3QNDB0X+0ccbzYW7bTFryRkj1mKgYulcjXbhUXwc=;
-        b=RvOL0qRqQyqaf6pUpfB4dQ7SVtnO/Ed0sUPsgnpY70J2p0+5J9vceDljliPdj6SLrf
-         dRcMYM/U0igOb8QlS4hk/8ROXvk0jg8mgtUrAxkDRF/Q/AXuaeHORSB/Cb4rP4oDUMNy
-         GDH/5GOzN0LmNdjyr5MfziWBqxyEdLzPF0NPVY8uygrlY3Q1z9oqlLcu+2uqSaEXlA7y
-         +NBSGZqZQGdmY7Ujv9z1ayYpo94DWa6x+/zDk9RpMJdx2UNyL7LElvji9vrCAJB79KkT
-         CSk0278fruC3zEhZCRHiFqW3cr4lFjH8K+MC7lB77IOm5ZvPUb3RBNWamXEKuv7OU9RG
-         rKcA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gTfp2RvR"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-495757ccbc1so34666205e9.2
+        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 05:24:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1785234381; x=1785839181; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
-        b=X1N3TiCkFW33g93VAXyIcIxgTzhXQCAw67lC78zLbiwI5zFDOuyxwLsYDd/++dYSN/
-         HwlWUL6bPLqakynSuh3VSr0QfAvYyVQKkAGZKveJYGNIf+jo3EBs+2xJftaHDXtkFfMf
-         IGlIImfv1A3P4/70UZiO29mZjmn4pHBzPi7AuEWTEMQ6zZWo/r/aEYDM6V6ymXtiDuHO
-         v2/TEQhUcy3LSOjmKXVguI5fsnSUSdLLmhTyO2l7rtnks+D9yBSl//iTzPq2fAj7jcex
-         CKjgcM2lpw05EQ/wuB/ZCVNbl0VeT9qh5UOFwXeoirAnUppMhUarSmkYk6O8tzAnfoeu
-         1X0A==
+        d=gmail.com; s=20251104; t=1785241465; x=1785846265; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bxJRceg/nCJ1Uzt6qzDcuq3q6rSwVGtr3AXAUYTTWPw=;
+        b=gTfp2RvR2XyCytXy43OwASyOVgK6n+gn7eM9aRda4YxIKuMySZtK+aSXs/O5hkkvqi
+         qgbobNdpS3WgVIxFtGe5IBWses0HlbUAJnOSy6c9EQTw/XB3Ay3h0VzdXSc2d6wCvJ0Q
+         2pMsfb3jQl4r6w44rX/SJDqrjvGz+emsxdsGNSTiq+cz5q3dxD7V6rVm6PNodoO95BqB
+         RBicAO3ivyG8+UssozxcyGAK48uAh+UldEoSXt8XLNY8BKMPYUCgElAbeTMnxF6tSWFC
+         hWcPNuA7iQINUOqXcNn51TEYce2po7m5O/QfGUYWMrO7b5S7CG2g90WY8Gl21HJQHw2+
+         vxNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785234381; x=1785839181;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=tP+Mk6padNxzkLgkssX/FxjONAaKRjr7MoVnIKCagrI=;
-        b=DrCeQjSY5WxtAWQjol3i+0AW9rQyDa4Pou043xVTLPF33+i6n/51YklPtFVQnPUwyp
-         xP1RX2rBlcQ2Y6USviskR7T6QcCVyg4FfMtI3PPugbtH01+tHo240yz3JAW6xRsepHqu
-         KAlKM8xpDJjN0k4iiqsgrc646dznf2PKSp42NgaN5QT/Ph/QI2+I369NmY7VZ5JAhR/U
-         T0tDPdjl3q7rql/KuzOv4HNpHT/1DW4CFEoRi1Fvn6YcQ7ucHJdiVm8tuIOgFYVuL8EG
-         t9SfjTKWz0EJ8AUZSaD+bO85En7i/1tAOgQKmSPLNcDbVAHUufSSv3FQMWAPKSaO5auS
-         nxWw==
-X-Forwarded-Encrypted: i=1; AHgh+RpGhYzAok3CsPyZnQfBkGxOUP5SMJoMPyqk0Snmk8FpZWZJQ7UjvEVupZccbo3yxFERlGAC6NiMZh4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZX+CP8jE1wUT5THov0jJ2QZEE5O26hMt3NecbRdCak9FQdhoA
-	WZ7yhZHtt2psryRrNkXwB9TqWz+S+cZ2B8ZNGelVPK5XBZGB5Ef0E5PYCrkpsKKdtZbXGBJwChh
-	mo07agUnMVu0ZxdX+6W9oBI8bgVprT4pfxGv4g4UPC67WxpwbVu0EgAu871AyaGKT8MBGgARhgK
-	mFka9bC0eqSo1Juvkdm03crEFdvofn3zsbQK8ftQ==
-X-Gm-Gg: AR+sD117+8iQ8CgmRv+QMiNll3fufwDmS1eAMz9OtGUON8Hn30nRNn6P4X2Lc3a2jxo
-	REpdjOkb+AbHE/INMsA8GB42IMdS42Fwc0ioUlTZV4GH63vVt5f3b9hWFW6W5KbT0WngpEEp0eU
-	vWsPcmMFON8hNh+0Py0Lb82oOeiiwea44Uw6UBvTS61acyKZtXH70g/AMsuLkOCyJhFkyHRs83n
-	1bVowCGqcYvpSN2JvZxD9uujoOqsXutlWyTz/A9CobSLdzrg0sRc78EcGeaBKUzfnLXsYh2Hkrg
-	BB5LbloFAdUrscZu02uPvOlR/CRO
-X-Received: by 2002:a05:620a:4455:b0:930:b5e8:a40e with SMTP id af79cd13be357-93302656b33mr148384385a.23.1785234380776;
-        Tue, 28 Jul 2026 03:26:20 -0700 (PDT)
-X-Received: by 2002:a05:620a:4455:b0:930:b5e8:a40e with SMTP id
- af79cd13be357-93302656b33mr148381385a.23.1785234380245; Tue, 28 Jul 2026
- 03:26:20 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785241465; x=1785846265;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bxJRceg/nCJ1Uzt6qzDcuq3q6rSwVGtr3AXAUYTTWPw=;
+        b=oGQh00EhC38CYw0q+2GSHNDECApc+4fQ5jGyFzp9xbwO5UpIqhyNCBOdKhjxCWek4D
+         R99Q903guNnng2+uWfsSX55aLWN7PQEe+vVds6Rh10+3PqFVZ7a/rA0cVVVtejqu+GfT
+         5y2cPC0O4TvnzgXjGhtNIbcPdlagxycGfOLODs7e61JZF9a3/72pnKzg4mN4u4aXpiH3
+         02fu8yg4UDHRUfb/fSsXK6pRroEGDaOo2HFDjCG4hcOFD6WjAxTTmgLVCnPCzTRRKaYm
+         dJSel2eKPaFlazXvW3Ez9JZyS8tTXvPREPZpg8l79606xc3IIq6iMig1tM/WUYhEBI9j
+         p/mg==
+X-Gm-Message-State: AOJu0YxTmbL989Auv/kKvAnFSFCWeuNTuWPLMsbQSKcsglvgOwvmot79
+	uo8m/GAjCFR8/O9fTqig2Dihr78puwU78r6UgI53icyW1WOc3eB0QP+m
+X-Gm-Gg: AR+sD11VpYl+uh0aN3uwKQkHD23Zu+1ksPgCwMd1Enx8QodvtupRzL2LU4TYbHazsUV
+	Mo+nlm11u05O0lzlF7r/Ui0evipMhOGj4XN5Fj9bU2rWYQgGtoLEdByYtwQHezhkSprr7mKd+Tg
+	wo2Ns9hwrCuGIjKoUhlUqyKQSD3ONW/m7nDH4UUnQ2JvEgizGDEWvhoIZTvgtfD26zBopmpv7I3
+	8/NJRPzRICeMzudMFVoC85+RXxkKXG5cE5ZZhXc4zg78zJ1DAgQWyUbB+5yjkerP0KaT/TQeBVf
+	uqi7GgMhidq5cggLYbnanBqydukG+AcDIg+Fm0Q+vMKk73t8Qf+6OzB1H0RaTnz+nzPnnRRVyVX
+	KtS1BixsamUtNDaaDmBe4yt1DraAkO5zvy8iX/NXGxYvX/66n2+sTjKniYcFpxmPDFoisl6OTJX
+	bwPr9pael/PG5cyKBBCkrwumkd7qiPveysSTapBVsCdj0ZaDb+3Y7Vqu9fZsCi/E3Dvi0g1cOLD
+	XQCdoQ2WOYN
+X-Received: by 2002:a05:600c:4744:b0:495:4c74:6a14 with SMTP id 5b1f17b1804b1-496c6438e91mr24063305e9.14.1785241465205;
+        Tue, 28 Jul 2026 05:24:25 -0700 (PDT)
+Received: from ws1-mint.. (host165-7-217-213.cgnat.broadband.ehiweb.it. [213.217.7.165])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496c45e0424sm76427265e9.13.2026.07.28.05.24.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jul 2026 05:24:24 -0700 (PDT)
+From: Simone Chifari <simone.chifari@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andy Lutomirski <luto@kernel.org>,
+	Stefan Schaeckeler <schaecsn@gmx.net>,
+	Simone Chifari <simone.chifari@gmail.com>
+Subject: [PATCH v3 0/1] i2c: imc-skylake: add Intel Skylake-X iMC SMBus adapter
+Date: Tue, 28 Jul 2026 14:24:22 +0200
+Message-ID: <20260728122423.358416-1-simone.chifari@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727-cci-clk-fix-v2-0-c3958f28b045@oss.qualcomm.com>
- <20260727-cci-clk-fix-v2-1-c3958f28b045@oss.qualcomm.com> <c7b0213d-a4c9-4ac8-be09-b449da457230@linaro.org>
- <CAFEp6-2VP1pVbKJEkPTOFdMn8kv=83CrP-MCYPDTN0BHURn2Jg@mail.gmail.com> <2b4b3fe3-9062-437b-8b4f-65a0b121d8ce@linaro.org>
-In-Reply-To: <2b4b3fe3-9062-437b-8b4f-65a0b121d8ce@linaro.org>
-From: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Date: Tue, 28 Jul 2026 12:26:09 +0200
-X-Gm-Features: AUfX_mzVSdXkEzuqpaHYAUj4GP3qPfyFb8m0lNIU6eH7QVaUcshwbXsnyVgrHTE
-Message-ID: <CAFEp6-1zXcsXqez6dba_BT4YXnJU_YT8k7OQ+Cp-gnWL0n27Qg@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] i2c: qcom-cci: Switch msm8953 to the CCI v2
- timing/rate config
-To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-        Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA5MSBTYWx0ZWRfX2c3GDlWtaG+I
- mq8G8mUXFyA/s0WxU9j2zRVeaCuNCeMIZOObvqJaiY9qvPCUqwEHmfRwGjzRoBG7oR0g/eSey+w
- weTLmQDEuzMmsjmnZYvh4gi7unn5k8E=
-X-Proofpoint-GUID: _fkFBgO9PrBLNimPr8LF7xgB47ACCOKb
-X-Proofpoint-ORIG-GUID: _fkFBgO9PrBLNimPr8LF7xgB47ACCOKb
-X-Authority-Analysis: v=2.4 cv=KLJqylFo c=1 sm=1 tr=0 ts=6a6883cd cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=YMgV9FUhrdKAYTUUvYB2:22 a=NEAV23lmAAAA:8 a=KKAkSRfTAAAA:8
- a=BhYqSYu7UfpT2a6lJnYA:9 a=QEXdDO2ut3YA:10 a=NFOGd7dJGGMPyQGDc5-O:22
- a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA5MSBTYWx0ZWRfXxIu04Vl49YM/
- DEZ6vEqpMXHyonWBIiGf44npJgQ+woetU8KqdjjeMRusSwsp/P2AMUmHf2KCCq/GLG5HV2NEYdR
- gR/yK6A3SqLAfFH+yqZKXUDU+zpM1l7qluLcyZkJYrUopRMsFpY2fJPlu3dYfti3s1IXIDopUXc
- G8ngbJ4JkvZp2twWgDjW7NrOsXkuCa8i2KqQ8lqG3q8S0zdIGfT7PhNwBzZ5PLh8zJmuHAzwijq
- 5zjYyX6T4rL1swZ6+zGRIKAf+oZZukhGwOGhNRwe1HHgR+/DBnQ2s0Sak5Rds/76aWy4ijmlG2A
- LvLl06HWG+2nG3wfJd+Mssc0c6jmOWkYHxaQs3ZF/B9byyoxdH6EBtaDCVqGUt9cU9TnyTYu9Jc
- MD/ruOWs1vmE7LUBkF8PxU0DI4N/HHbBgwk2yUldb5AMoMNUvTa2TWXxuJ7S9oJmObnYdWRefXv
- yW47hT18U0tjniFnHrA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-28_02,2026-07-27_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 suspectscore=0 spamscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280091
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 28, 2026 at 11:38=E2=80=AFAM Vladimir Zapolskiy
-<vladimir.zapolskiy@linaro.org> wrote:
->
-> Hi Loic,
->
-> On 7/28/26 11:20, Loic Poulain wrote:
-> > Hi Vladimir,
-> >
-> > On Mon, Jul 27, 2026 at 9:21=E2=80=AFPM Vladimir Zapolskiy
-> > <vladimir.zapolskiy@linaro.org> wrote:
-> >>
-> >> Hi Loic,
-> >>
-> >> On 7/27/26 12:21, Loic Poulain wrote:
-> >>> The msm8953 CCI timing table is internally inconsistent. Its Standard
-> >>
-> >> likely I was misunderstood in my v1 review comments, and I believe v3
-> >> will be needed...
-> >>
-> >> If there is just one master, or two masters set in equal speed mode,
-> >> then there is no such issue as "msm8953 CCI timing table is internally
-> >> inconsistent". In other words generally it shall be permitted to have
-> >> supply clock frequency intermixed speed modes for any CCI variant.
-> >
-> > The two masters sharing the supply clock are independently
-> > configurable in terms of mode, so we simply can't guarantee they will
-> > run in same mode.
->
-> There should be no restriction or guarantee to configure the same mode
-> for two masters. The supply clock frequency is one for both masters,
-> but speed mode selection is based on its presense in the driver by
-> the CCI frequency.
->
-> If there is no match in the driver for CCI clock frequency/speed mode,
-> return -EOPNOTSUPP for such master.
->
-> Think of it, right now for each CCI hardware revision 3 'struct hw_params=
-'
-> are provided by the driver, some of them match 19.2MHz frequency, some of
-> them match 37.5MHz frequency or intermixed for msm8953 case. Likely there
-> is no restriction to provide 6 'struct hw_params' for each CCI hardware
-> revision covering both 19.2MHz and 37.5MHz supply clock frequencies, then
-> any combination of speed modes can be configured on any CCI hardware for
-> two masters.
->
-> The main point is that CCI clock frequency is not specific to CCI hardwar=
-e,
-> but it is specific to 'struct hw_params' mode.
->
-> >> I'll repeat the same point as given in v1, namely supply clock frequen=
-cy
-> >> is not a property of CCI revision (therefore v1 1/3 or v2 2/3 is inval=
-id),
-> >> it is a property of the mode settings. It's correct to remove 'cci_clk=
-_rate'
-> >> from 'struct cci_data', and it will be correct to add (or parameterize=
- in
-> >> any other way) 'cci_clk_rate' to 'struct hw_params'. Each instance of
-> >> 'struct hw_params' is strictly bound to a particular CCI clock frequen=
-cy.
-> >>
-> >>> and Fast timings match v1/v1.5, which are calibrated for a 19.2 MHz C=
-CI
-> >>> clock, but its Fast+ timings are essentially the v2 values, which are
-> >>> calibrated for 37.5 MHz. Since all masters share a single CCI clock,
-> >
-> > So, you're right that the supply clock frequency is a property of the
-> > mode/timing settings (though I'm not entirely sure timings are fully
-> > hardware rev agnostic). I don't dispute that.
-> > However, this reflects the current driver behavior. It's not
-> > incorrect, it is a simplified approach that uses a single frequency
-> > point across all operating modes of a given platform.
->
-> The driver should be fixed/improved. Reverting the link between CCI
-> clock frequency and CCI hardware revision is invalid, it should not
-> be done.
->
-> > I added a brief paragraph in the V2 cover letter to explain why it's
-> > out of scope.
-> >
-> > My argument is about scope. Today the driver has no mechanism to pick
-> > a rate per mode, a single CCI clock is shared by N masters (usually
-> > two) that can run in different modes simultaneously, so per-mode
-> > scaling requires (1) per-mode rate info in the params table, and (2)
-> > vote/arbitration logic to select the highest required rate and still
-> > apply correct timings for every master at that rate. Concretely, with
-> > one master in Standard and another in Fast+, you'd need a 37.5 MHz
-> > shared clock and a Standard-mode row calibrated for 37.5 MHz, which
->
-> This is a limitation of the driver only. For a selected CCI revision
-> please add 'struct hw_params' for Standard mode / 37.5MHz supply clock
-> frequency, and the problem is solved.
->
-> > the msm8953 table simply does not provide today. So this isn't a small
-> > tweak, it's a new capability backed by new table data. It would bring
-> > more fine tuned supply rate, but without huge benefit, as cci clock is
-> > gated most of the time due to runtime-pm.
-> >
-> >> But what if you have only one master?..
-> >
-> > It's not important here? we have N master (usually two) and have to
-> > deal with that.
->
-> It is important in sense that any one master usecases are properly
-> supported.
->
-> >> I think the msm8953 data is correct, it shall not be removed.
-> >
-> > The msm8953 table as it stands is internally inconsistent (without
-> > per-mode rate info), no single clock makes all three modes correct.
->
-> It is so, because there is msm8953 data is incomplete. But the present
-> msm8953 data is correct.
->
-> > Moreover, msm8953 is the same HW version as msm8996/sdm630, which
-> > already use cci_v2_data, there's no strong reason for msm8953 to keep
-> > a bespoke, half-and-half table.
-> >
->
-> Okay, I read it as 'struct hw_params' data for msm8953 can be removed
-> and v2 data should be used for this CCI hardvare variant.
->
-> >>> no single rate can satisfy all three modes with the current table, an=
-d
-> >>> the DT assigns 19.2 MHz, so Fast+ timings are wrong.
->
-> If hypotetically 'struct hw_params' Fast+ timing for 19.2MHz supply
-> clock is added to the driver, this usecase will supported by the driver.
-> As for today the driver has a bug, no doubt.
->
-> > This series intentionally does the minimal correct thing, aligning the
-> > timings with a single supply clock and enforcing that clock in the
-> > driver, which owns hw_params and has all the info to produce correct
-> > timing. It fixes reported devices misbehaving when no (or incorrect)
-> > assigned-clock-rate is set.
->
-> Since we're discussing it, this fix is not the only one possible,
-> and the fix which returns the link between CCI hardware revision and
-> CCI supply clock frequency is an invalid fix.
->
-> > Not saying what you propose is not do-able, and I clearly understand
-> > what you mean, but I'd prefer to land this simple
-> > alignment/enforcement first and treat per-mode clock scaling as a
-> > follow-up, rather than coupling a straightforward fix to a larger
-> > refactor. Please clearly Nack if you do not agree with this first
-> > step.
->
-> Instead of a non-productive NAK I can provide a simple change adding
-> a proper link between speed mode and registers programming.
+The integrated memory controller of Intel Skylake-X and Cascade Lake-X
+processors contains an SMBus engine wired to the DDR4 DIMMs.  This driver
+exposes its two channels as standard Linux I2C adapters, so that DDR4 SPD
+EEPROMs and DIMM thermal sensors can be read with i2c-tools, decode-dimms
+and lm-sensors.
 
-So I guess what you'd like is something along these lines:
-https://github.com/loicpoulain/linux/commit/fdacebb22d914ca64b0c3d4e257a913=
-dc0cd16dd
+v2 was posted as i2c-imc-x299 and received no replies:
 
-My intention was simply to move this 'disruptive' change out of the
-series scope, as I don't believe this series itself is incorrect.
+  https://lore.kernel.org/linux-i2c/20260620144131.415559-1-simone.chifari@gmail.com/
 
-However, if you'd really rather have everything addressed in a single
-series, I'd be inclined to either pick/rework the series in that
-direction.
+Correction to v2
+~~~~~~~~~~~~~~~~
+v2 claimed that firmware filters CF8/CFC config writes to this function and
+that the registers can only be reached through the ECAM window.  That claim
+was wrong and I am retracting it.
 
-Regards,
-Loic
+It was never tested directly.  The only evidence behind it was the boot log
+line "PCI: Using configuration type 1", which says which accessor the kernel
+uses and nothing about a write failing.  Measured on the same board:
+
+  # setpci -s 16:1e.5 9c.L=20085002    # read SPD 0x50, register 0x02
+  # setpci -s 16:1e.5 9c.L
+  20005002                             # GO consumed
+  # setpci -s 16:1e.5 a8.L
+  0000500c                             # READ_DONE, no error
+  # setpci -s 16:1e.5 b4.L
+  0000000c                             # SPD byte 2: DDR4 type code
+
+The command written through CF8/CFC is executed and returns correct data,
+and MSR_SMI_COUNT does not move across it.  This driver therefore uses
+pci_read_config_dword() and pci_write_config_dword() like any other driver.
+There is no ECAM mapping, no MCFG parsing and no PCI-core change in this
+series any more.
+
+Firmware arbitration
+~~~~~~~~~~~~~~~~~~~~
+This is the reason no iMC SMBus driver has ever been merged, and this patch
+does not solve it either.  It does make the condition detectable.
+
+Andy Lutomirski's original i2c_imc put it plainly: a BMC, the memory
+controller's power management, and possibly SMM all like to touch this bus,
+and Intel defined no way to arbitrate between them.  That driver already had
+a module parameter called allow_unsafe_access.  Stefan Schaeckeler's 2020
+Broadwell rewrite went further and stopped the PCU's TSOD polling for the
+duration of a transfer (write 0 to TSODCNTL, wait 10 ms for in-flight
+transactions to drain, restore afterwards), because on Broadwell the
+original driver's consistency check tripped about every 30 minutes.
+
+  https://lwn.net/Articles/635898/
+  https://lore.kernel.org/linux-i2c/1582498270-50674-1-git-send-email-schaecsn@gmx.net/
+
+So this driver:
+
+  - keeps the default-off allow_unsafe_access gate, deliberately the same
+    name as the original;
+  - serializes both channels under one mutex and waits for the whole engine
+    to be idle before touching any register;
+  - saves the command state of both channels, clears TSOD_ACTIVE for the
+    duration of the transfer, and restores both afterwards;
+  - after every transfer compares the command registers against what it
+    left in them and fails the transfer with -EAGAIN if anything else
+    changed.  This is the check the original driver had, and it is what
+    makes an unarbitrated system detectable rather than silently wrong;
+  - reads the command word back and requires it to be the one just
+    written, because the done bits are latched.  With the driver unloaded
+    and nothing running, STATUS on the test system reads 0x0000300c:
+    READ_DONE and WRITE_DONE both still set from an earlier transaction.
+    Without the check, a command word that never reaches the register is
+    indistinguishable from a completed transfer and the caller receives the
+    previous transaction's data.  The engine only ever clears GO, so that
+    is the single permitted difference between the two words.
+
+  - refuses to bind when the memory controller is polling the DIMM thermal
+    sensors itself.  Intel documents SMBCNTL on the iMC channel function
+    (device 10 and 12, function 0, offsets 0xe88 and 0xe98) in the Xeon
+    Processor Scalable Family datasheet volume 2, reference 614073, section
+    3.1.9.  Its SMB_TSOD_POLL_EN bit is documented as mutually exclusive
+    with SPD command access, so it answers directly whether the engine is
+    in use.  On the test system all four channels read 0xac000000: polling
+    disabled, TSOD_PRESENT mask empty, which also explains why no jc42
+    device appears at 0x18-0x1f.
+
+This is deliberately weaker than what the Broadwell-E driver did.  That one
+switched the polling off for the duration of a transfer.  Reading the bit
+and declining is a smaller claim on hardware the driver does not own, and
+it needs no write to a firmware-configured register.  It covers the memory
+controller only; SMM and a BMC remain out of reach, which is what the
+opt-in is for.
+
+Relation to prior work
+~~~~~~~~~~~~~~~~~~~~~~
+There is no iMC I2C driver in mainline.  Lutomirski's i2c-imc was an RFC;
+the 2020 resend and github.com/Linux4/i2c-imc are out of tree.  Neither can
+be extended to cover this part: the device ID (0x2085 vs 0x3ca8/0x6fa8) and
+the register layout (0x9C-0xB8 vs 0x180-0x188) differ.  A separate file is
+cleaner than a hw_data table.
+
+The register encoding was cross-checked against an independent Windows
+implementation for the same engine, which predates this work:
+
+  https://github.com/namazso/PawnIO.Modules/blob/c975ca1d1b8a9c7473a175fa1ca24d83b6cbc8f3/SmbusIntelSkylakeIMC.p
+
+It also implements SMBus BYTE through a pointer-select bit, without saying
+which bit.  That bit is 18 here.  The datasheet gave it away: SMBCMD on the
+iMC channel functions places PNTR_SEL immediately above WORD_ACCESS, and
+word access on the PCU function is bit 17.
+
+Bit 18 is the only part of this driver that rests on an undocumented
+encoding, so it is worth saying exactly what was measured rather than
+asserting it works.  With the bit set on a read, eight consecutive
+transfers to an SPD EEPROM returned bytes 0x01 through 0x08 in order,
+matching an ordinary dump of the same range.  That is the auto-increment
+of a Receive Byte; a transfer that still named a register would have
+returned the same byte eight times.  With the bit set on a write, a Send
+Byte to the DDR4 page-select addresses moves the 256-byte window: byte
+0x00 stops reading as the JEDEC 0x23 after selecting page 1 and returns
+to it after selecting page 0.
+
+ee1004 consequently binds, and decode-dimms reads all four DIMMs on this
+system with both SPD CRCs valid on each.  jc42 binds where a sensor is
+populated.  i2cdetect scans in read mode.
+
+With Receive Byte in place the driver can also do what the other SMBus
+host drivers do and call i2c_register_spd() per adapter, so the SPD
+EEPROMs are instantiated at probe rather than by hand.  The helper counts
+the populated slots from DMI and probes upwards from 0x50, leaving alone
+any address that does not answer; each channel carries half the DIMMs and
+the scan is per adapter, so each finds its own.  Nothing else is
+instantiated, jc42 included: there is no firmware description of these
+buses and this driver does not scan for anything but the SPDs.
+
+I used the write_disable variant.  This part is DDR4 only, where the two
+are equivalent - the distinction gates spd5118 on DDR5 - and between two
+equivalent calls the one that does not read as "this driver enables SPD
+writes" seemed the better thing to leave in a memory-bus driver.  Happy
+to switch to write_enable for consistency with i801 and piix4 if you
+prefer the convention.
+
+SMBus Quick is still not implemented, and not only because the engine has
+no obvious encoding for it.  A write to the 0x30-0x37 range is how an
+EE1004 SPD is write-protected, permanently on many modules.  An adapter
+whose bus is the memory bus should not advertise a probe that writes.
+
+Changes since v2
+~~~~~~~~~~~~~~~~
+  - Retract the CF8/CFC claim; use the ordinary config accessors.  The
+    driver no longer maps anything.
+  - Rename i2c-imc-x299 to i2c-imc-skylake; the engine is in the CPU, not
+    the chipset.
+  - Add the default-off allow_unsafe_access gate.
+  - Wait for both channels to be idle before touching the data latch.
+  - Preserve and restore command and TSOD state for both channels.
+  - Validate READ_DONE, WRITE_DONE and the hardware error state.
+  - Detect interference from another master and report it as -EAGAIN.
+  - Read the command word back and require it to be the one written.
+  - Add bounded command-toggle recovery for a stuck BUSY state.
+  - Add WORD_DATA support with the hardware byte ordering.
+  - Reject I2C_M_TEN explicitly and validate transfer direction.
+  - Use the i2c core's suspended-adapter mechanism instead of a private
+    flag and a non-standard errno.
+  - Use devm_mutex_init() and devm-managed adapters; drop the unnecessary
+    pci_enable_device(); return -ENODEV rather than -EPERM from the
+    default-off gate, which was logging a driver-core error on every boot.
+  - Add Documentation/i2c/busses/i2c-imc-skylake.rst.
+  - Drop the ACPI dependency.
+  - Refuse to bind when the iMC reports TSOD polling enabled.
+  - Correct the claim that BYTE_DATA and WORD_DATA cover ee1004: they do
+    not, ee1004 also needs Receive Byte and Send Byte.
+  - Implement both, on the pointer-select bit, so ee1004 binds and
+    decode-dimms works.
+  - Instantiate the SPD EEPROMs with i2c_register_spd() instead of
+    leaving it to the user.
+
+Validation
+~~~~~~~~~~
+  - In-tree build, W=1, x86_64 GCC and arm64 Clang COMPILE_TEST: no
+    diagnostics.
+  - checkpatch.pl --strict: clean.
+  - Sparse with __CHECK_ENDIAN__: clean.
+  - Hardware test on one Intel Core i9-10900X (Cascade Lake-X) system with
+    four DDR4 DIMMs: both adapters, four SPD EEPROMs, BYTE_DATA, WORD_DATA
+    byte order, Receive Byte tracking the EEPROM pointer, Send Byte moving
+    the SPD page and putting it back, ENXIO for an absent device, 100
+    concurrent reads per channel, the default-off gate, and 20
+    unload/reload cycles: 19 checks, 0 failures, no kernel warning or oops,
+    no interference reported, every command word confirmed in the register.
+  - i2c_register_spd() instantiated ee1004 on all four populated SPD
+    addresses at probe, two per channel, and claimed none of the empty
+    ones.  decode-dimms then decoded all four modules, each with the CRC
+    of bytes 0-125 and of bytes 128-253 valid.  The part number reads out
+    of page 1, so the page select is exercised end to end.  The four
+    module serial numbers were identical before and after every
+    experiment in this series.
+  - Engine registers sampled every 2 s for one hour with the driver
+    unloaded: 1791 samples, 0 changes.  No firmware activity while the
+    system is up.
+  - Suspend and resume, s2idle and S3, with continuous traffic on both
+    adapters: transfers recover and nothing complains.  Across S3 the
+    firmware demonstrably drives the engine.  Both channels, sampled
+    immediately before suspend and immediately after resume:
+
+      DATA   0x2000b600 -> 0x20005000
+      STATUS 0x0000500c -> 0x00005004
+
+    The command word came back addressing SPD 0x50 for a read, and the
+    status went from both done bits latched to READ_DONE alone.  Nothing in
+    Linux issued that: the adapter was marked suspended and userspace was
+    frozen.  This is consistent with firmware reading SPD during memory
+    training on resume.  It is the only direct observation of a second
+    master on this engine I have, and it is the concrete reason the driver
+    restores command state per transfer and compares it afterwards.
+  - SMBCNTL on all four iMC channels reads 0xac000000: TSOD polling
+    disabled, TSOD_PRESENT empty.
+  - Writes validated end to end against a populated device: a 12-write
+    frame to an LED controller at 0x27, across both channels, every write
+    acknowledged, no NACK, and the device applied the result.  A byte
+    write to an unpopulated address returns -ENXIO with the engine
+    reporting the address NACK.  No SPD was written at any point, and the
+    four SPD EEPROMs were verified present with valid CRCs before and
+    after.
+
+Still missing: an independent Tested-by, ideally on Skylake-X rather than
+Cascade Lake-X.
+
+One note on the register interface, since a reader with the datasheet will
+ask.  That document describes an SMBus interface on the iMC channel
+function at 0xe80-0xe9c, with a different encoding from the one this driver
+uses on PCU function 5 at 0x9c-0xb8; it does not describe function 5 at all,
+covering device 30 functions 0 and 2 only.  I tried the documented path on
+this system: issuing SMBCMD with CMD_TRIGGER sets SMB_RDO and clears
+SMB_BUSY, but returns 0x00 for a populated DIMM at 0x50, for a second one
+at 0x52, and for an empty slot at 0x57 alike, with SMB_SBE never set.  An
+interface that cannot tell a populated slot from an empty one is not
+reaching the bus here, while the path this driver uses returns the correct
+SPD contents and a NACK for the empty slot.  I may well be missing a setup
+step; if someone knows what it is, I would rather use the documented
+interface.
+
+Tool assistance
+~~~~~~~~~~~~~~~
+Per Documentation/process/generated-content.rst: this work was developed
+with an AI coding assistant, run interactively rather than autonomously.
+
+  - What: Claude Code, model claude-opus-5.
+  - Where: it contributed to the transaction state machine, the .rst
+    documentation, the commit message and this cover letter.  The register
+    decoding is mine.
+  - How it was used: iteratively, one reviewed change at a time, in
+    response to specific requests, not from a single generating prompt.  A
+    representative request is "the done bits are latched; show me how a
+    command that is never accepted can be mistaken for a completed one, and
+    make that case detectable", which produced imc_engine_responded().  It
+    also designed the measurement that retracted the CF8/CFC claim above,
+    after asking why that claim had never been tested directly.
+  - Testing: every revision was built with W=1, checked with
+    checkpatch --strict and sparse, and tested on the hardware by me.
+
+I have reviewed all of it, I understand it, and I take responsibility for
+it.
+
+Simone Chifari (1):
+  i2c: imc-skylake: add Intel Skylake-X iMC SMBus adapter
+
+ Documentation/i2c/busses/i2c-imc-skylake.rst | 178 +++++
+ Documentation/i2c/busses/index.rst           |   1 +
+ MAINTAINERS                                  |   7 +
+ drivers/i2c/busses/Kconfig                   |  27 +
+ drivers/i2c/busses/Makefile                  |   1 +
+ drivers/i2c/busses/i2c-imc-skylake.c         | 734 +++++++++++++++++++
+ 6 files changed, 948 insertions(+)
+ create mode 100644 Documentation/i2c/busses/i2c-imc-skylake.rst
+ create mode 100644 drivers/i2c/busses/i2c-imc-skylake.c
+
+
+base-commit: 8cd9520d35a6c38db6567e97dd93b1f11f185dc6
+-- 
+2.43.0
+
