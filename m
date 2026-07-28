@@ -1,108 +1,146 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E998439F79;
-	Tue, 28 Jul 2026 13:17:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C8D4749D8;
+	Tue, 28 Jul 2026 14:50:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785244667; cv=none; b=dFSoci61qVIsObleulAXqjieftehhv5Zz19WL3j+uHOQBhCZlOKtPwx7/ErG4P4Rx7QyJzRBakkAezGOLQhGRDlFkaL+H4xL9rSYvniZN4T8UNPzQPw4865i5cMN4gQy7C4dsFJkiAzuC4eUCEfy4WqzmIpOBrvcpmpHHfQwP2o=
+	t=1785250231; cv=none; b=tLebXAOm0yIp35BHseKjeE03Ri4JnlhdHWzXFiJ/MfMdGtSrlgmom0Tod3GJXD4A5e0FdLQyPnIboDf01F0h7U5E+06q1AGbudZ9i/p7ZWU4nproQ/wc2tdwrIkv5DtEFG/uI/EcA/WwQBIZkXp1z6DjizuNVEz2j4rM56U02oI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785244667; c=relaxed/simple;
-	bh=lnrDzLa/AgadkUg8PxBMHJ7uZgQReQdq3/H/zedUZjw=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=uphBNgILkx7Ums6vhcf/CRHjWPnBi1E+MS5ul5cbkjFrdYQilWZ7WTUFrxAwVvSuptLuX4X9fxSqGfQlSNDD3X+60JkWxtysCGrPC11MmwLoUB01KEhcnHW3Qy698DNPEIq3rniAiij77sAJFxyg5YNmDk4uvsnDrC5rQgYfvto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: b45f2b3a8a8611f1aa26b74ffac11d73-20260728
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:2c80877d-ad3e-450d-8e39-6acca5156fcd,IP:0,U
-	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:25
-X-CID-META: VersionHash:e7bac3a,CLOUDID:7f89ccfcf22edcbadd552ca9c92cbf15,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|102|136|850|865|898,TC:nil,Content
-	:0|15|50,EDM:5,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,
-	OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: b45f2b3a8a8611f1aa26b74ffac11d73-20260728
-X-User: yijiangshan@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <yijiangshan@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 534480777; Tue, 28 Jul 2026 21:17:38 +0800
-From: Jiangshan Yi <yijiangshan@kylinos.cn>
-To: gupt21@gmail.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: hamish.martin@alliedtelesis.co.nz,
-	sashal@kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	13667453960@163.com,
-	Jiangshan Yi <yijiangshan@kylinos.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH v2 3/3] HID: mcp2221: validate report size in mcp2221_raw_event()
-Date: Tue, 28 Jul 2026 21:14:42 +0800
-Message-Id: <20260728131442.834604-4-yijiangshan@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260728131442.834604-1-yijiangshan@kylinos.cn>
-References: <20260728131442.834604-1-yijiangshan@kylinos.cn>
+	s=arc-20240116; t=1785250231; c=relaxed/simple;
+	bh=FcKMq7ivEVGdNeKjq0ySmvgAH9sJGQCW3CDz04d2SX4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O/DrAUQI6IISMslBOObzbakzB1NFEJyVi39L2kxY9uCal41w6NN9IaNWMt+YcSAAJZvjvW15CpF/rcNHgiUxtqgzjaWlUMBlCAj/bXmbDKwLCT/TI1r1+4u8kaPbRSU46YW7aLAoY8SqUBBzFtLqbJDXkfNjH/PELUdTfMvsoVU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yx3AY1dc; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yx3AY1dc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA441F00A3E;
+	Tue, 28 Jul 2026 14:50:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785250229;
+	bh=lmIYHvk+gGwj+4CXSQhmRwSaIFfa2O0uQrBaGsucooY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Yx3AY1dchgmXCM0ZH0vMpO6Lj8rjRHa051sDqYcYuTuvKsCP+YOVyiMEE4n94U49m
+	 YPW5MWJgHY8AXxkI+k5RjlNv2Q03bbmjtq4IMLFRAhgl2uhE+4kYuLRi7EIrVBo8BQ
+	 HTOhauaMnwYXUkUFp73l33brWuNs8bFo4gmgyV7dlRpVIV6rRGO75Gqzq5/OL7Kyk9
+	 sWURKFi+SfGTQbfp0cYcW+OEZ7ZXMReXdLjTF68PJaKKl5UK7RUbWD3MNdu3bsHJo7
+	 B8RBnhJW1ErldYt+zBsfAfEOWdGRLOhwxUUYuGILcwvLKC8pozbuJ65lPJSiiMrt4v
+	 Mckh6rhYmxygA==
+Date: Tue, 28 Jul 2026 16:50:24 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Weiming Shi <bestswngs@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Xiang Mei <xmei5@asu.edu>
+Subject: Re: [PATCH v2] i2c: i801: keep the byte-by-byte ISR buffer private
+ to the driver
+Message-ID: <ami-gn0BRV3Fa429@zenone.zhora.eu>
+References: <20260718090329.1622366-2-bestswngs@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260718090329.1622366-2-bestswngs@gmail.com>
 
-mcp2221_raw_event() never validates the size of incoming HID reports.
-In the MCP2221_I2C_GET_DATA path it trusts the device-supplied data[3]
-as the copy length without checking that 4 + data[3] bytes actually
-exist in the received report. A malicious or misbehaving USB device can
-send a short report with a large data[3], causing the memcpy to read
-past the valid report data in the HID transfer buffer and leak
-uninitialized kernel memory back to userspace through the I2C/SMBus
-read path.
+Hi Weiming,
 
-Add a minimum size check at entry and validate that the source range
-fits within the received report before the copy.
+Jean, any chance you can review this?
 
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiangshan Yi <yijiangshan@kylinos.cn>
----
- drivers/hid/hid-mcp2221.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+On Sat, Jul 18, 2026 at 02:03:30AM -0700, Weiming Shi wrote:
+> For interrupt-driven byte-by-byte block transfers,
+> i801_block_transaction_byte_by_byte() points priv->data at the caller's
+> union i2c_smbus_data and lets the BYTE_DONE interrupt handler
+> i801_isr_byte_done() fill or drain it one byte at a time.  In the i2c-dev
+> ioctl path that buffer lives on the caller's kernel (vmap) stack.
+> 
+> On a wait_for_completion_timeout() the transfer thread returns -ETIMEDOUT
+> without fencing the interrupt, and a BYTE_DONE that is still in flight or
+> fires later then writes a byte through priv->data
+> (priv->data[priv->count++] = inb(...)) after the caller has returned and
+> its vmap stack has been freed:
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 9e03d1f..d52ce35 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -865,6 +865,9 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 	u8 *buf;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
+How are you fixing in this patch the pending BYTE_DONE interrupt?
 
-+	if (size < 4)
-+		return 0;
-+
- 	switch (data[0]) {
+Andi
 
- 	case MCP2221_I2C_WR_DATA:
-@@ -930,6 +933,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 					mcp->status = -EINVAL;
- 					break;
- 				}
-+				if (4 + data[3] > size) {
-+					mcp->status = -EINVAL;
-+					break;
-+				}
- 				buf = mcp->rxbuf;
- 				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
- 				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
---
-2.25.1
-
+>   BUG: KASAN: stack-out-of-bounds in i801_isr
+>   Write of size 1 at addr ffffc90002a2fda9 by task exploit/5144
+>    <IRQ>
+>    i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:546 [inlined]
+>    i801_isr drivers/i2c/busses/i2c-i801.c:613
+>    __handle_irq_event_percpu kernel/irq/handle.c:158
+>    handle_irq_event kernel/irq/handle.c:195
+>    handle_fasteoi_irq kernel/irq/chip.c:661
+>    __common_interrupt arch/x86/kernel/irq.c:263
+>    common_interrupt arch/x86/kernel/irq.c:240
+>    </IRQ>
+>   The buggy address belongs to a freed vmap kernel stack (task exploit),
+>   created by kernel_clone -> copy_process.
+> 
+> The completion-based paths (i801_transaction(),
+> i801_block_transaction_by_block()) never expose the caller's buffer to the
+> handler: they copy to/from the hardware block buffer in process context
+> and use the interrupt only to signal completion.  Give the byte-by-byte
+> path the same property.  The handler now fills a driver-private buffer
+> (priv->data_buf); the transfer copies the caller's data in before starting
+> and copies the result back out on success, so a late or spurious BYTE_DONE
+> can only ever touch driver-owned memory.  i801_block_transaction() already
+> bounds data->block[0] to I2C_SMBUS_BLOCK_MAX, so the buffer cannot overflow.
+> 
+> Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
+> Reported-by: Xiang Mei <xmei5@asu.edu>
+> Assisted-by: Claude:claude-opus-4-8
+> Signed-off-by: Weiming Shi <bestswngs@gmail.com>
+> ---
+> Changes in v2:
+> - Fix the author: From/Signed-off-by. No code change.
+> 
+>  drivers/i2c/busses/i2c-i801.c | 18 ++++++++++++++++--
+>  1 file changed, 16 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index c8cb5ed55..37741fdca 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -279,6 +279,9 @@ struct i801_priv {
+>  	int count;
+>  	int len;
+>  	u8 *data;
+> +	/* Driver-private buffer the isr fills/drains, so a late interrupt
+> +	 * never dereferences a pointer into the caller's block buffer. */
+> +	u8 data_buf[I2C_SMBUS_BLOCK_MAX + 2];
+>  
+>  #if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
+>  	const struct i801_mux_config *mux_drvdata;
+> @@ -671,12 +674,23 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>  		priv->cmd = smbcmd | SMBHSTCNT_INTREN;
+>  		priv->len = len;
+>  		priv->count = 0;
+> -		priv->data = &data->block[1];
+> +		/*
+> +		 * The interrupt handler fills or drains this buffer
+> +		 * asynchronously and may still run after a timeout, so keep it
+> +		 * in driver-private storage instead of pointing into the
+> +		 * caller's block buffer, which is freed once we return.
+> +		 */
+> +		memcpy(priv->data_buf, data->block, len + 1);
+> +		priv->data = &priv->data_buf[1];
+>  
+>  		reinit_completion(&priv->done);
+>  		outb_p(priv->cmd | SMBHSTCNT_START, SMBHSTCNT(priv));
+>  		result = wait_for_completion_timeout(&priv->done, adap->timeout);
+> -		return result ? priv->status : -ETIMEDOUT;
+> +		if (!result)
+> +			return -ETIMEDOUT;
+> +		if (priv->is_read)
+> +			memcpy(data->block, priv->data_buf, priv->len + 1);
+> +		return priv->status;
+>  	}
+>  
+>  	for (i = 1; i <= len; i++) {
+> -- 
+> 2.43.0
+> 
