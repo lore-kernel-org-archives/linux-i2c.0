@@ -1,41 +1,51 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC2182BEFEF;
-	Tue, 28 Jul 2026 15:04:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D371456DEC;
+	Tue, 28 Jul 2026 15:11:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785251093; cv=none; b=UXbz85I8iC/qXfl5GA1HpmNADDjKql/ABWn5v7yhJqMbUSDJ0RFfMTmsmBlju0SDjk0m0vy/ZqUK4orzPRA7qkwESnaclmKVQyBcEAHn7VIOtReK9D6ypSr+1D6Fc2xeGv9IjZALrJdmoQGG+78oNsGMGPs4ePTGTiVKp9ChwLg=
+	t=1785251486; cv=none; b=HEESgRdablHsOQSuZIR5NfupKAiIPwLLMlfFOpx18MYwkooxkeEdpi51p1UNIoG10G33qNDkIHkJw+aMa4jKuoJ3P0P1hPcYlI8+BwLAJPtMJsJyGzDioYxeQI5AlquYaCORY7TTCPFxA9Yd/1MkgZk2h+zldNWeGVvF/51XACM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785251093; c=relaxed/simple;
-	bh=+HKsrMkCi+XzPBvfB3IlHVER/UvclDLfqQoXW9pXG7s=;
+	s=arc-20240116; t=1785251486; c=relaxed/simple;
+	bh=Oheb5h8sMc8to/vLYHU6BByn/jRGPVwEJh5mGtTa+Ho=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kBhn68rrkgsf3sYlRSiSNAn/VQdDgFNYHitGpxXVDeHU7bch1EddjoaROJ62Hs22JCIPFzK6gMVIMv9AQ6RgU+BvOGCkjdt7r7OZhH6Q8GEYfDQzU7Q2LIWXqE7OZKzTzy1VjE6CwUnXfv+stgFDfi5YIK9NGyxQ012o3Pwarvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dwgtnfnn; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=T4Gl+FkLZniV5l8Q7qsDd5TR7vOm2/d/u7++ZAuB7MzlmQvdp0y/heZF6HHJuu5hcs1csWo/vu3lLs2Kg3IKVxbQKkyJzg9mHa1B9GsqzPxfho74WczlVgrpRwzNGGVkOFx7+wnHQ7iYcC0OigaBGdz7tZF1RRbvgFvEbQzutuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EVhR5Hlv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dwgtnfnn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DEAC1F000E9;
-	Tue, 28 Jul 2026 15:04:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EVhR5Hlv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7263F1F000E9;
+	Tue, 28 Jul 2026 15:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785251092;
-	bh=OU1UYYzgK2OnsQUDtZlUXsO0y8vH10YtQbu83GhdYec=;
+	s=k20260515; t=1785251484;
+	bh=P2h0zvhiWJL99Ql/LzjPEa4TBK4rGTdRlw5CNE1+M5o=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=dwgtnfnnoetGxkNWCraCuFJ0wy+gNQtppjs7e8vtB01nHBGxtOI89/oujAOaFFNKH
-	 jvj2iF6k5jRwlfpUOAWiuAQW7dG5Vm47p0oimg4Hj6BZtfH4LxJUFsokUoRQoAz3YY
-	 YAV+nV0QpSQ+y0hOIKnrs84dt69Q5ToRmidWF6mI5wq+Z+njqSOf5CmrAwpAoBR1VK
-	 H8GriH7jHWyXl8ENgHcHnXy3S7S699/hhbK3lfJ3ReGcyYEbyusxJdynD9TZ4ZbftI
-	 4N1L2rxWH+7R0HHWPByIkeDzP/EMDHIzLih2wWCQs0yE6eh11axrQs3DKKgmoJZF0K
-	 tsBoySQX2Pf7g==
-Date: Tue, 28 Jul 2026 17:04:48 +0200
+	b=EVhR5HlvuT1lZzNuSDVgOjAPEYxN1UXWOjDHMF42Al88ql5VBXHTz0zc/I1+qKmA1
+	 3TCF7yGMwxeewqJ6xW1vr+9JdpBYj8LfP6UxPQe2eOxOWRhbOtxsRwOxRvI2ewRJeH
+	 d59QIYqyLJg0iNCBH26m5PaV4O1hiXkKjh0Hr1cRzfdyU3be/BCsdycZsOguWMpQNL
+	 YmD+A3WKNSNcY9Fpm++V7tz8VB6duU88XPXLV55UnQWe9EdRVYWEBrkOvLhir+6m5V
+	 avDAn1aZWF4Y1XE4DuxO2tKudWhej7/euP+WBRN+liVa9XRbMqsAYIFYjPVAnHYNm7
+	 G8GpR9d8irT7A==
+Date: Tue, 28 Jul 2026 17:11:20 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Jonas Gorski <jonas.gorski@bisdn.de>
-Cc: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
-	Kevin Cernekee <cernekee@chromium.org>, Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: iproc: reset bus after timeout if START_BUSY is
- stuck
-Message-ID: <amjDbiXiq6Rse0Ir@zenone.zhora.eu>
-References: <20260717085507.34209-1-jonas.gorski@bisdn.de>
+To: Swark Yang <syang@axiado.com>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Harshit Shah <hshah@axiado.com>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Jan Kotas <jank@cadence.com>, 
+	Michal Simek <michal.simek@amd.com>, =?utf-8?Q?Przemys=C5=82aw?= Gaj <pgaj@cadence.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Frank Li <Frank.Li@nxp.com>, 
+	Boris Brezillon <bbrezillon@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>, 
+	Mathias Nyman <mathias.nyman@intel.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-i3c@lists.infradead.org, linux-serial@vger.kernel.org, linux-spi@vger.kernel.org, 
+	linux-usb@vger.kernel.org
+Subject: Re: [PATCH v3 3/8] dt-bindings: i2c: cdns: add Axiado AX3005 I2C
+ variant
+Message-ID: <amjGh1ZQXTGXFv7q@zenone.zhora.eu>
+References: <20260716-upstream-axiado-ax3005-upstream-v3-0-c429095143ec@axiado.com>
+ <20260716-upstream-axiado-ax3005-upstream-v3-3-c429095143ec@axiado.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,37 +54,17 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260717085507.34209-1-jonas.gorski@bisdn.de>
+In-Reply-To: <20260716-upstream-axiado-ax3005-upstream-v3-3-c429095143ec@axiado.com>
 
-Hi Jonas,
+Hi Swark,
 
-...
+On Thu, Jul 16, 2026 at 08:51:10PM -0700, Swark Yang wrote:
+> Add binding for Axiado AX3005 I2C controller. So far, no changes
+> are known, so it can fall back to the cdns,i2c-r1p14 compatible.
+> 
+> Signed-off-by: Swark Yang <syang@axiado.com>
 
-> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-> index b5629cffe99b..86ca4c2221c4 100644
-> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
-> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-> @@ -803,6 +803,17 @@ static int bcm_iproc_i2c_xfer_wait(struct bcm_iproc_i2c_dev *iproc_i2c,
->  	}
->  
->  	if (!time_left && !iproc_i2c->xfer_is_done) {
-> +		/*
-> +		 * The controller may fail to clear START_BUSY after a timeout,
-> +		 * reset the controller to recover in that case.
-> +		 */
-> +		if (!!(iproc_i2c_rd_reg(iproc_i2c, M_CMD_OFFSET) &
-> +		       BIT(M_CMD_START_BUSY_SHIFT))) {
-> +			bcm_iproc_i2c_enable_disable(iproc_i2c, false);
-> +			bcm_iproc_i2c_init(iproc_i2c);
-> +			bcm_iproc_i2c_enable_disable(iproc_i2c, true);
-> +		}
-> +
->  		/* flush both TX/RX FIFOs */
->  		val = BIT(M_FIFO_RX_FLUSH_SHIFT) | BIT(M_FIFO_TX_FLUSH_SHIFT);
->  		iproc_i2c_wr_reg(iproc_i2c, M_FIFO_CTRL_OFFSET, val);
-
-the patch makes sense to me, but can I have an ack from the
-Broadcom folks? Ray? Scott?
+merged to i2c/i2c.
 
 Thanks,
 Andi
