@@ -1,94 +1,90 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2F85476CFC
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 22:04:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FA9F380FC9;
+	Wed, 29 Jul 2026 05:03:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785276262; cv=none; b=Jv7p+cnVFnd+MqAc/FBymOipPHxv/wNsOZxSVnPvKofXBd4xHzAAmtIJy5nBmmbknZVwnBq/daFbAv1ZglglQFQvOmKWgwxft2qIqihuiwSTRRhg2usGXbKLm2g2CUk+FcyokA/4hylwnj9o6H3KdRFsKTD0B28uNrBYXrcDTb0=
+	t=1785301405; cv=none; b=jEbGETHVe7PL3fPB3VWNu2CmsI+euniE2DED8YMQR5L09Ncb8i7DWinhEd5tOA91xrVyT8K8hFe/52l3/GQm+SHpDtcy2RHKTRV+Y2ofgyfKC8xw4Go59LUy7MQrNPxMSX/5YToycJmOSLUl/mtfJBB49RNoJ7olrI3PWsFn5R4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785276262; c=relaxed/simple;
-	bh=dY8MPUoogrKlg5U6lHOf/140PZiQt8XPJTKz1Kidrkk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lLNjyLsmoPtKi9jlG/BkvY2GNgnklTA8EwhEIB4wTLA+g5ysgfwopOBtjLhvo0BycOW3uCNkMrpg9xZtOq6nGDZ7si+oM+MPQwuT8CMZP4VY9rHgP7KxI2VoPjxxRFxjE/wCahvz8iYXQO5RYbaB1hyPYsQzYuDkrjT3OKb+Be4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L0TbBTNT; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1785301405; c=relaxed/simple;
+	bh=bD6VP+sVAr4du614X0QPDOeoATQKRkvnWGlWpbuRQD4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Oyfr7Bs2GAl+g13xw4zJz3AThkciXidIckKYUl8SeIQR7/n4c4yeuIhJojF91Xf2rQPXxJk0ez//4GMp4l3/IhxcrATgwxHuyAgFrv1gNrCQC9PR6TVY7xTrzhRr8cq4eNeLIXna1XoZCBSISuj5WtjBp4FBrblfOY0VDflWOpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=TIi3cogr; arc=none smtp.client-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L0TbBTNT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=dY8M
-	PUoogrKlg5U6lHOf/140PZiQt8XPJTKz1Kidrkk=; b=L0TbBTNTkcCXzVCzcQqa
-	PAr3AEuPe/asXhGf/1PrNQc8pTDOgybMjYz3kt1dRwgZj0TSey1h5xDZUnHhx75+
-	fGym6uB8q1rBamog/7Dc9+YnczQcclUFVJrhKLC+77mYHr+0FxOnyuMXC4I+JETo
-	0dWKf7NyKwu8LgkFYc2wzuguKo8CWMLXZ5aiNkrYSmZEVQ1x6SaEtNqxr5yqN5g2
-	y6qsrk6KYwFLCzU33p6BHNDK4SIq1EyhZGxogcS4ggTzZnStQ5HNfXKxw7BlPKSh
-	1aO3qDPtG+RS7E/61P2U0LJbfM1bMke92BXOMKSAek8IZpVpBzrz1NoqEkSG302e
-	YQ==
-Received: (qmail 1104465 invoked from network); 29 Jul 2026 00:04:10 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jul 2026 00:04:10 +0200
-X-UD-Smtp-Session: l3s3148p1@kU+zBLNX+pEujnsk
-Date: Wed, 29 Jul 2026 00:04:09 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Markus Stockhausen <markus.stockhausen@gmx.de>, linusw@kernel.org,
-	brgl@kernel.org, linux-i2c@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Sander Vanheule <sander@svanheule.net>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: Re: [PATCH v7 2/2] i2c: i2c-gpio: Enhance driver for buses with
- shared SCL
-Message-ID: <amknWXx31wBY8j17@ninjato>
-References: <20260714162915.3018703-1-markus.stockhausen@gmx.de>
- <20260714162915.3018703-3-markus.stockhausen@gmx.de>
- <alfvXUq_lNXhKQZk@ninjato>
- <amkB2rm2Ochu1bxJ@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="TIi3cogr"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 369A211B56D;
+	Wed, 29 Jul 2026 07:03:08 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
+	s=dkim; t=1785301390;
+	h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=aoBdzD7ZGM/ZAoh9BSTUbAg/eppEtmMYRivX71EhxZo=;
+	b=TIi3cogrKU9LX15vhgHSOM5VuDKYR2p+ixlqGG/eU9W1583VXJS1M7g6Hf07vyJYGVJFtE
+	iNYJWPFEeb2vR4cmvvGi3p4PKhDhxipQFV5hCbfKLtBr1bq7D7F8v7cifOA6cRcyROcSFx
+	IBjQjiTVy6SRIY2L4XfO97vlcdOZMa6AiQVS0kW1kH8MRaeIw7dKMnZeTbWZe8X7fbx3GX
+	oIBc5gkHka4LX4uK+T4peTMxxgj/zcFMp/qeTDkTrscOH978qsc/GXIPWrxqDedgjuGtx2
+	Wc/W0d5xSPJDZ8k24oTTGHDCDwuM7XEQWtlLEuVIMiEY7gjRJQ22R5+NYaDgvQ==
+Message-ID: <3ae60c13-f56b-432d-81b0-0c2b9788945f@nabladev.com>
+Date: Tue, 28 Jul 2026 13:21:49 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="WAjOE9nbACDaiY9A"
-Content-Disposition: inline
-In-Reply-To: <amkB2rm2Ochu1bxJ@zenone.zhora.eu>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] nvmem: core: Mark nWP GPIO as non-exclusive
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Srinivas Kandagatla <srini@kernel.org>, linux-kernel@vger.kernel.org
+References: <20260511163518.51104-1-marex@nabladev.com>
+ <CAMRc=Mdqxen+8rd-5yR+_cvtFkM=qeAG78uqG+ZHWR3CQsa1Ow@mail.gmail.com>
+ <46051025-8b50-47de-839a-a901615b8227@nabladev.com>
+ <CAMRc=MfgsjFO9R3bzSQiWmA6tvHGWcprhWMLSDTMML60-NfhCg@mail.gmail.com>
+ <8a5838f6-8582-4ce2-b80d-cd05bb984a4f@nabladev.com>
+ <CAMRc=Mfm1R+CNt5nRY=A29TqTxHFZCHzZsWYd-WpE1yGrwt3Vw@mail.gmail.com>
+ <6b7f6317-97bf-420a-84b1-6338ad236d13@nabladev.com>
+ <CAMRc=MfJz1ma5efcxm7_pf051FkxtgGN6EY6kJFY3350dHtjRQ@mail.gmail.com>
+Content-Language: en-US
+From: Marek Vasut <marex@nabladev.com>
+In-Reply-To: <CAMRc=MfJz1ma5efcxm7_pf051FkxtgGN6EY6kJFY3350dHtjRQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
+On 7/28/26 10:32 AM, Bartosz Golaszewski wrote:
 
---WAjOE9nbACDaiY9A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello Bartosz,
 
+>>> It will be. I'm doing it gradually. It's enabled for Qualcomm platforms by
+>>> default and - by extension - in arm64 defconfig. I plan to enable it for other
+>>> platforms and architectures too, I just don't want to rush it. Enabling it for
+>>> arm64 defconfig had caused quite a lot of regressions a few months ago so I
+>>> prefer to be careful.
+>>>
+>>> What platform are you running this on?
+>> NXP i.MX8M Nano (arm64)
+>>
+> 
+> Just consider sending the following once you can make this work for you?
+> 
+> diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
+> index d2acfac730037..a02b37c752887 100644
+> --- a/arch/arm64/Kconfig.platforms
+> +++ b/arch/arm64/Kconfig.platforms
+> @@ -281,6 +281,7 @@ config ARCH_MXC
+>   	select PM_GENERIC_DOMAINS
+>   	select SOC_BUS
+>   	select TIMER_IMX_SYS_CTR
+> +	select HAVE_SHARED_GPIOS
+>   	help
+>   	  This enables support for the ARMv8 based SoCs in the
+>   	  NXP i.MX family.
+Will do (sorted alphabetically).
 
-> are you going to send a pull request at the merge window or can I
-> pull it? Either way works.
-
-I'd prefer if you apply the patches to your branch directly. So, that
-'for-andi' is only a branch where you can look up what I reviewed.
-
-But if it is easier for you that I send a PR and you pull, I can do
-this, too.
-
-
---WAjOE9nbACDaiY9A
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmppJ1YACgkQFA3kzBSg
-KbaaXRAAl5tI6NLP8Gs4qrzpqSwJxVvwbaG0u7fi81gbCEBdnkKkbK3tUcj73qJo
-FxPW9p2LO9vaMOFh397D9/CFjnZAwClOKM1FEWJvFhTaHoIk/IghA5zyBhWTbqlu
-k0ffrt8CsrekZuMvhq7pcgaW21qkzoPVOE3dN9Jx7sQIho8DWTpFIlM54cveUlrb
-xyjdiPchJTqaxr/1RaLycRDEp3N1FE9ejg5WwFlGir2RPK1QYP5tC+lk2otWqlGs
-TG93fn3wbDKEeoPQYVvkTIt9Hl6R7he1CsBLex6EpTjN3hy075TAk4ey1e50fceH
-pR8R7R6ZktsqjfcR8KVsGjLiUDNP84XlP4rAcIOyNhXtFwi7kgFix0Z3b6Hg0Oin
-jtH/O3BAsbr5H6ntkfVbYvyibC9kebk2lbnbWzK/PRCH6YiCiu0Dzr7XhL0tSw2u
-ArwDduTlwYRcN1sCPZ7UMI6qht2xMxbLYH84Jj4pAQmiYgerOCiNNiI/JRLy6GM4
-7o81+d1jE3Q7GFNz90i7Xx6nx9ATO36RL/F+MubXl8VD30G9eyybKRA5GnMeiNgM
-yXY/mIzzHu/e3WlObtbWUMmoACR+0k2V6OwWNDa7NmBcAI+143Bq7bsrJcrzKdWX
-4CB/bTwpQkOLrXITIA7nXGjw4Pj7LKA/wwTyKF4Lj4TOXK+gavc=
-=mNJo
------END PGP SIGNATURE-----
-
---WAjOE9nbACDaiY9A--
+Thank you !
