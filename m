@@ -1,312 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E55B400996;
-	Tue, 28 Jul 2026 08:30:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EB683F660E
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 08:32:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785227460; cv=none; b=qpXvZWXK4uaGbgq9P0ulpBmlEVQOIN/Lj45dyaZ4VeiATeInnPhNzWtKvpa9t3zuqhpA0o8P0/t6R5gp2vngnfouAYYdtblGadJY3niqE0wMey0L+WeKSN9kRVvSHDGerfQXzdABfgGk0//PWnWAn5c6XDjjxr35Z0c4l4ruPUc=
+	t=1785227583; cv=none; b=PNEcOvIzujF9Pob7pii9A5q/sIGlYdwid7m5jV4be5PpPnMhLCmOF9nU2U8UDHPSWy8iJM+T9BwzfL8BNOki39y07I9ZhrJ2X3xr3niaoQ91dtaJqvaNQLKFQODWKVfeowEDvVwFGJFz8gvvt+GAIttwOxmIJI+fkoJp9l0n3g4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785227460; c=relaxed/simple;
-	bh=4mRZ1E33uUWVognT8iSTdIxl57jSwCTimss1LD4NGEY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tgIkKCT2KKJPQbn9ax4Ak0r+NhygZ+UZ0lhROqJ/C4fPU5AHNZC0/H23qWG2ME8n30K0rDuYWUPwRJqco6Un3RlvSEGd7W+Ehe4QtHKNMCMCzHQ0nHbXFcl1EepbDLB7J39T0C1X2NiwyP4WEMX/1u/T+2ILbBaUXOK6G9acaVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XOtCERTM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785227583; c=relaxed/simple;
+	bh=sSrS7WKeRXOkk6/tjHzPzHLzPxTO5IjaD/xLOAFZ2to=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hedYtd9gBjsKjc4oVsfv5h1MpVDH01Di4JQIGaOjKZJgsqdsKXsjAJoV0Dw6xIo6pKGaZ1syG9VoUgxcoA7Xis8hUeBw+ng2+wuxoPTmosM7SxYhUOcoPXYK9VQvuPLgzeZCAc/CETn46BzfAalCAamF1nN5uHk91Gg1n/y9epw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U54jyQxC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XOtCERTM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2873E1F000E9;
-	Tue, 28 Jul 2026 08:30:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U54jyQxC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 909E51F000E9
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 08:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785227458;
-	bh=EZEIVIWP6rHMILD6MHiFQqIs2luNVm4p4VbDh2UlzgE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=XOtCERTML7f6QxvV8IpQzU4v19NkFlHkPR2KAzzxEKgGZnfqaJ/Hwp4QnuGf0V0uR
-	 Yhtbf8ZToZTTbAiKYUHRTE0k2QLriCmHZGVKNaz/YIcMHPp76rrnyZTFpTYCSu1NkU
-	 HT0wRn72lpr6D4juKrzyH+pLPX4kvNYOwVnKuTacCJ/NiuSARl7GGeci17XBqG1W5k
-	 hE2N3x0UOfKG6yWfmf9t+R5bUJjSi+Vb/4XBLabwL7rauRnDYHZR2T+RWnnANfAAE6
-	 LK4JrGtKY5+mCXe2F/Fn4snttPIAZAnVe3TdSJdN51ZNy67rbrP9SJQWMDdToB/YEe
-	 fE+OW0klSbTyg==
-Date: Tue, 28 Jul 2026 10:30:54 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
-	andriy.shevchenko@intel.com, mario.limonciello@amd.com, brgl@bgdev.pl, 
-	basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org, 
-	chaitanya.kumar.borah@intel.com
-Subject: Re: [PATCH v13] i2c: designware: defer probe if child GpioInt
- controllers are not bound
-Message-ID: <amhodWpAI3K6aeBH@zenone.zhora.eu>
-References: <20260718054330.8975-2-hardikprakash.official@gmail.com>
+	s=k20260515; t=1785227575;
+	bh=hFeUlNnmI/tjgBenS9p+P2H+Y40iYbX7BhHpOnXtIIg=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=U54jyQxCh/Gt6nJfUVMrhEcpMMDrUZEtllDpVWJ2qurZaqGdHAavol67UJYPEuZKf
+	 I1fSDZcoJ3OCxN1xISQzAHLQNMXxP1Zc1Fz4SNMtCk1gYsbw7MiHfPWbdgXgTAwlkr
+	 wjor7SfXH9QKJjAGE331VPm6YCk4yhQhejEg16O6nasE9hCccgqkVHeQB9aBC0h7Eb
+	 9+AXE+Dr10hV4tUjPFgLz6Qlg/ZgmqUZHeOHlzieIj/g2c4GGJDA8ziifY5egq7xIz
+	 GSEvWoUB1ldh0C5y1wFJrcPkHXOuX8AHLaEqc2E8KTcMKcgRTzLH+6FAm0QSY5g5aQ
+	 UyFidxWYqwiuQ==
+Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5b00d083818so616179e87.1
+        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 01:32:55 -0700 (PDT)
+X-Gm-Message-State: AOJu0Yw3nc1mMoT98G+ANMy776eQd5dc4qRBI/gdaIfQkOU+VeTJzCVT
+	laXnIq3+UNCcG38S+5cm/mKOJwRGwMFXpusEF6E9+DQMs+8JY3fECJkqN8DYsgXN06YlIRYCsC6
+	5+BJ1Y5PyYCF7+A1NJMq7VhgpYfGUmxAFX6HIm7dVTw==
+X-Received: by 2002:a05:6512:1351:b0:5b2:b02c:e8ce with SMTP id
+ 2adb3069b0e04-5b2d025e1bcmr237773e87.30.1785227574320; Tue, 28 Jul 2026
+ 01:32:54 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Tue, 28 Jul 2026 01:32:52 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Tue, 28 Jul 2026 01:32:52 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <6b7f6317-97bf-420a-84b1-6338ad236d13@nabladev.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260718054330.8975-2-hardikprakash.official@gmail.com>
+References: <20260511163518.51104-1-marex@nabladev.com> <CAMRc=Mdqxen+8rd-5yR+_cvtFkM=qeAG78uqG+ZHWR3CQsa1Ow@mail.gmail.com>
+ <46051025-8b50-47de-839a-a901615b8227@nabladev.com> <CAMRc=MfgsjFO9R3bzSQiWmA6tvHGWcprhWMLSDTMML60-NfhCg@mail.gmail.com>
+ <8a5838f6-8582-4ce2-b80d-cd05bb984a4f@nabladev.com> <CAMRc=Mfm1R+CNt5nRY=A29TqTxHFZCHzZsWYd-WpE1yGrwt3Vw@mail.gmail.com>
+ <6b7f6317-97bf-420a-84b1-6338ad236d13@nabladev.com>
+Date: Tue, 28 Jul 2026 01:32:52 -0700
+X-Gmail-Original-Message-ID: <CAMRc=MfJz1ma5efcxm7_pf051FkxtgGN6EY6kJFY3350dHtjRQ@mail.gmail.com>
+X-Gm-Features: AUfX_myR2Gx5wKcH9mLWEnkk32RT-BDJJNjSkfCmsXHQJCa5S1ZiJZBGlOBi--I
+Message-ID: <CAMRc=MfJz1ma5efcxm7_pf051FkxtgGN6EY6kJFY3350dHtjRQ@mail.gmail.com>
+Subject: Re: [PATCH] nvmem: core: Mark nWP GPIO as non-exclusive
+To: Marek Vasut <marex@nabladev.com>
+Cc: linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Srinivas Kandagatla <srini@kernel.org>, 
+	linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Hardik,
+On Mon, 27 Jul 2026 15:24:11 +0200, Marek Vasut <marex@nabladev.com> said:
+> On 7/27/26 3:10 PM, Bartosz Golaszewski wrote:
+>
+> Hello Bartosz,
+>
+>>>> No, this is literally how you do it. If you enable HAVE_SHARED_GPIOs and
+>>>> DEBUG_GPIO, you should see it being picked up in the kernel log.
+>>> Ah, HAVE_SHARED_GPIOS is what I did not have enabled. Is there any
+>>> reason why this is not enabled by default ?
+>>>
+>>
+>> It will be. I'm doing it gradually. It's enabled for Qualcomm platforms by
+>> default and - by extension - in arm64 defconfig. I plan to enable it for other
+>> platforms and architectures too, I just don't want to rush it. Enabling it for
+>> arm64 defconfig had caused quite a lot of regressions a few months ago so I
+>> prefer to be careful.
+>>
+>> What platform are you running this on?
+> NXP i.MX8M Nano (arm64)
+>
 
-On Sat, Jul 18, 2026 at 11:13:31AM +0530, Hardik Prakash wrote:
-> I2C controllers may have child devices with GpioInt resources that
-> depend on GPIO controllers being fully initialized. If the I2C
-> controller probes and enumerates children before the referenced GPIO
-> controller has completed probe, GPIO interrupts may not be properly
-> configured, leading to device failures.
-> 
-> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> fail with lost arbitration errors:
-> 
->   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->   2.348157  lost arbitration
-> 
-> Add a dependency check that walks ACPI child devices and defers probe
-> until any referenced GPIO controller is bound.
-> 
-> Fixes: 3812a9e84265 ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11")
-> Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
-> Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-> Assisted-by: Claude:claude-sonnet-5
-> Assisted-by: DeepSeek:deepseek-v4-pro
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=221494
+Just consider sending the following once you can make this work for you?
 
-This should be "Closes:". "Link:" is referred to the page where
-the patch has been discussed.
+diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
+index d2acfac730037..a02b37c752887 100644
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -281,6 +281,7 @@ config ARCH_MXC
+ 	select PM_GENERIC_DOMAINS
+ 	select SOC_BUS
+ 	select TIMER_IMX_SYS_CTR
++	select HAVE_SHARED_GPIOS
+ 	help
+ 	  This enables support for the ARMv8 based SoCs in the
+ 	  NXP i.MX family.
 
-merged to i2c/i2c-fixes.
 
 Thanks,
-Andi
-
-> ---
-> v12 -> v13:
-> - v12 was sent as an incomplete diff (generated against v11 rather than
->   against current master due to a git format-patch invocation mistake on
->   my end), not a real standalone patch (Andy Shevchenko)
-> - Not carrying forward Bartosz Golaszewski's v12 Acked-by, per Andy's
->   request
-> - Add blank line before guard(device)(gpio_dev) for readability (Andy
->   Shevchenko)
-> - No other functional code changes since v12
-> 
-> v11 -> v12:
-> - Move gdev declaration to point of use with gpio_device_find_by_fwnode()
->   call (Andy Shevchenko)
-> - Extract acpi_get_handle() return into acpi_status variable rather than
->   inline in ACPI_FAILURE() (Andy Shevchenko)
-> - Use guard(device)(...) instead of scoped_guard(device, ...) {} for a
->   single following statement (Andy Shevchenko)
-> - Use LIST_HEAD(res_list) instead of separate declaration + INIT_LIST_HEAD()
->   (Andy Shevchenko)
-> - Check acpi_dev_get_resources() error before freeing the resource list,
->   restoring the check-then-free ordering that had regressed in v11
->   (Andy Shevchenko)
-> - Split ACPI_COMPANION(dev) assignment onto its own line rather than at
->   declaration (Andy Shevchenko)
-> 
-> v10 -> v11:
-> - Replaced custom gpio_controller_ref list and dedup logic with
->   gpio_device_find_by_fwnode() (Suggested-by: Andy Shevchenko)
-> - Moved resource-skip explanation from commit message into a code comment
-> - Fixed device_is_bound() to check gpio_device_to_device(gdev)->parent
->   rather than the gpio_device's own internal class device, which is
->   registered on the synthetic "gpio" bus and never has a driver bound to it
-> 
-> v9 -> v10:
-> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
->   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
-> - Simplify string_source guard to a single string_length check, confirmed
->   sufficient via ACPICA parser in drivers/acpi/acpica/rsutils.c
->   (Andy Shevchenko)
-> - acpi_dev_get_resources() on single line, free only on success path
->   (Andy Shevchenko)
-> - Reversed xmas tree ordering for variable declarations (Andy Shevchenko)
-> - Removed useless int ret = 0 assignment (Andy Shevchenko)
-> - acpi_dev_for_each_child() on single line (Andy Shevchenko)
-> - Use guard(device)(gpio_dev) pattern to avoid uninitialized variable
->   warning and deduplicate the !gpio_dev check (Andy Shevchenko)
-> 
-> v8 -> v9:
-> - Sent as a 2-patch series: revert of the broken v8 patch, plus a
->   corrected resubmission
-> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
->   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
-> - Remove gpio_dep_ctx wrapper struct, pass list_head * directly (Andy Shevchenko)
-> - Add const to gpio_controller_ref.path (Andy Shevchenko)
-> - Add NULL check for resource_source.string_ptr to fix a crash on hardware
->   where GPIO resources have no named controller (Reported-by: Nathan
->   Chancellor, Reported-by: Chaitanya Kumar Borah)
-> - Use acpi_dev_get_resources() return value properly (Andy Shevchenko)
-> - Fix all error paths to call free_gpio_controller_list() (Andy Shevchenko)
-> - Change guard to #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
-> - Remove erroneous put_device() calls -- acpi_get_first_physical_node()
->   returns a borrowed pointer with no refcount increment
-> - Use LIST_HEAD() macro, split adev declaration and assignment (Andy Shevchenko)
-> - scoped_guard single statement without braces (Andy Shevchenko)
-> - Remove misused Reported-by/Closes tags (Andy Shevchenko)
-> 
-> v7 -> v8:
-> - Add revert of the earlier pinctrl-amd DMI quirk (patch 1 of the original
->   v1-v7 series), confirmed unnecessary once probe ordering is fixed
->   (Mario Limonciello)
-> - Collect Acked-by (Bartosz Golaszewski) and Reviewed-by (Mario Limonciello)
-> 
-> v6 -> v7:
-> - Fix unused 'ret' variable in check_child_gpioint() (kernel test robot)
-> - Replace BugLink: with Link: (Bartosz Golaszewski)
-> - Add Reported-by and Closes tags for kernel test robot warning
-> 
-> v5 -> v6:
-> - Replace DMI-specific deferral with a generic GpioInt dependency check
->   walking ACPI child devices (Suggested-by: Mario Limonciello)
-> 
-> v4 -> v5:
-> - Add blank line before #include <linux/acpi.h> (Bartosz Golaszewski)
-> - Use scoped_guard(device, gpio_dev) (Bartosz Golaszewski)
-> 
-> v3 -> v4:
-> - Rebase onto Linus Walleij's tree (the original patch 1 already there)
-> - Use --base so series is correctly 1/1 (Andy Shevchenko)
-> 
-> v2 -> v3:
-> - Fix variable declaration style (Andy Shevchenko)
-> - Add BugLink tag (Andy Shevchenko)
-> - CC AMD engineers (Andy Shevchenko)
-> 
-> v1 -> v2:
-> - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev()
-> - Use device_is_bound() under device_lock() with explanatory comments
-> - Add Assisted-by tags per coding-assistants.rst
-> 
-> Note: this patch was originally part of a 2-patch series (v1-v7) whose
-> first patch was a DMI-specific pinctrl-amd IRQ quirk; that patch was
-> merged separately into Linus Walleij's tree at v1 and later reverted at
-> v8 once this patch made the manual IRQ restoration unnecessary.
-> 
->  drivers/i2c/busses/i2c-designware-platdrv.c | 80 +++++++++++++++++++++
->  1 file changed, 80 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 6d6e81242f74..c8a203fff4d1 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -8,12 +8,14 @@
->   * Copyright (C) 2007 MontaVista Software Inc.
->   * Copyright (C) 2009 Provigent Ltd.
->   */
-> +#include <linux/acpi.h>
->  #include <linux/clk-provider.h>
->  #include <linux/clk.h>
->  #include <linux/delay.h>
->  #include <linux/dmi.h>
->  #include <linux/err.h>
->  #include <linux/errno.h>
-> +#include <linux/gpio/driver.h>
->  #include <linux/i2c.h>
->  #include <linux/interrupt.h>
->  #include <linux/io.h>
-> @@ -130,6 +132,80 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
->  	return 0;
->  }
->  
-> +#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
-> +/*
-> + * Check whether an ACPI GpioInt resource's referenced GPIO controller
-> + * has finished probing. Resources with no named controller (resource
-> + * source string) are skipped, since they can't be resolved to a
-> + * struct device.
-> + */
-> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
-> +{
-> +	struct acpi_resource_gpio *agpio;
-> +	struct acpi_device *gpio_adev;
-> +	struct device *gpio_dev;
-> +	acpi_handle handle;
-> +	acpi_status status;
-> +
-> +	if (!acpi_gpio_get_irq_resource(ares, &agpio))
-> +		return 1; /* not a GpioInt resource, skip */
-> +
-> +	if (!agpio->resource_source.string_length)
-> +		return 1; /* no named controller, skip */
-> +
-> +	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
-> +	if (ACPI_FAILURE(status))
-> +		return 1;
-> +
-> +	gpio_adev = acpi_fetch_acpi_dev(handle);
-> +	if (!gpio_adev)
-> +		return 1;
-> +
-> +	struct gpio_device *gdev __free(gpio_device_put) =
-> +		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
-> +	if (!gdev)
-> +		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
-> +
-> +	gpio_dev = gpio_device_to_device(gdev)->parent;
-> +
-> +	guard(device)(gpio_dev);
-> +	if (!device_is_bound(gpio_dev))
-> +		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
-> +
-> +	return 1; /* bound, skip adding to resource list, continue walk */
-> +}
-> +
-> +static int check_child_gpioint(struct acpi_device *adev, void *data)
-> +{
-> +	LIST_HEAD(res_list);
-> +	int ret;
-> +
-> +	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	acpi_dev_free_resource_list(&res_list);
-> +
-> +	return 0;
-> +}
-> +
-> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> +{
-> +	struct acpi_device *adev;
-> +
-> +	adev = ACPI_COMPANION(dev);
-> +	if (!adev)
-> +		return 0;
-> +
-> +	return acpi_dev_for_each_child(adev, check_child_gpioint, NULL);
-> +}
-> +#else
-> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
-> +
->  static int dw_i2c_plat_probe(struct platform_device *pdev)
->  {
->  	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
-> @@ -138,6 +214,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->  	struct dw_i2c_dev *dev;
->  	int irq, ret;
->  
-> +	ret = i2c_dw_check_gpio_dependencies(device);
-> +	if (ret)
-> +		return ret;
-> +
->  	irq = platform_get_irq_optional(pdev, 0);
->  	if (irq == -ENXIO)
->  		flags |= ACCESS_POLLING;
-> 
-> base-commit: 58717b2a1365d06c8c64b72aa948541b53fe31eb
-> -- 
-> 2.54.0
-> 
+Bartosz
