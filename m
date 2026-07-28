@@ -1,73 +1,42 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690C53FB7F1
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 20:57:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BC5531E852;
+	Tue, 28 Jul 2026 21:32:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785272269; cv=none; b=k2kiIQ1D+FuiaP6FG8CB3QhVJrEZL40/b57epi46QFwc8DFcBbBDYqhMjD61XiIkOblU/j4NfjxBPMbSfbsWi6Xbs3c++B+uwBCykd/Zb5tQk14FBWH95vX0h1sXmN8g554ijVKT5vVESFk+A1Z8zUUhlnPYKgZm9UPEuRlczhU=
+	t=1785274357; cv=none; b=PZ2THJDNtNUh5alAaVRjp6NqvE0QThw/vpVPTcbo5kOwpkMU6kWl8TXYrkD3oq1n7fO80gkkDr9BIeOXy+40F02etJV+wzdfYxnQx9jLgT0xHVpD7F7DnMyqx581ypLGEBtqpCoT10iuCLuDPBCuHAD0UHKXAPVaVst3zfcmbMk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785272269; c=relaxed/simple;
-	bh=pp6cMPDGEoyvxUAEAodoMlmAX35D4rEQic6x2YXFrAY=;
+	s=arc-20240116; t=1785274357; c=relaxed/simple;
+	bh=SAId/SJQnhSGCllCBQIdNG7uxRU7BQcCXX0iAkOuc5o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MjyVramw48gwlLJnm9ibxQtYSFzulXAXU+Ia3htHrqOI882TDEAjPENBdWdOyP6R834MXi10YAu4YAo8jEiUNqg9t5tvoU21uz4nQGwCVl1kQPo/eXMufLpzLJIps/gf7SG2HEwA7a+VVxoyDLo1xlegW6UGgYVJ/upoPb62KV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DCfXXEG0; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=dt6lkE/dUgJxlaKiZysUeTdmCwuXE4KMDfkPk40Y0qcOgVpY59bn59riVC7UCZTnWatgxxr/mijGBuBh9cFvW5qjMmXb+KIG5wv7ZUX3Yyv05uCEVaUTduslmxAdqK9tvzPNlKHWMfTwbVxNjBIbMLoD7n/ttXBKvcgGq/iopXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nRQD3VZg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DCfXXEG0"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-ca913a601fbso123511a12.3
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 13:57:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785272266; x=1785877066; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=IGBo4mzkQGDipH80tXiWUY8LE+Lu9hX02+5XGAA/YIU=;
-        b=DCfXXEG0Sc9/CuR9L7VDaQ91TWqKQWi9KwCmSXonQZSFNriwxjACGa13VIJZ56mgCJ
-         7jsCj9glzeYFPZ6b61cbdGJbvF/j7ql0ybUqcgvh4CM+Rcb79Cp5DuiPEyuGpHk9JjJj
-         hprtDCozg7tDdJBtTu7WdG1gCzDmglD1/yidQrfzdJLBArILr8h84cNvCAxUCgPYcqxF
-         5A52cyNQXVbN407pVzXtt9o2shMaoCgYWGUJVOguVKHO26Sv1PpK+DdEve6Zlt7QVgVW
-         kW5jdchONR2i6hMLvUVE75M/3/TzNBVGoXE0OVIBjznyNnNiX1p4wBsRuRMDMO3ums98
-         jd9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785272266; x=1785877066;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IGBo4mzkQGDipH80tXiWUY8LE+Lu9hX02+5XGAA/YIU=;
-        b=rnafkf74Be+ixkBbmL5gt8UPPmfm8PXqb2OdIyZ0bcMBejUCXNjJMB2Gxwzj80aNSm
-         Xnh2hyqhMK7ZnHzmn+lnAoNro1HgMTzYVvOAkd8Yj0Gpj7ORlwEB5FBf/3LN8uKEB/cP
-         HCEX94Z8UTnvgppM8PyRYYsQbQWETYF8hE+1037s3sYIco8ikxtYlQnhbgLZxmfXm1nI
-         dboJra1jBz1OGqck+3eEv0S+USeJbvM/BCz8kZfEjATUsrA2d+DKoS85LB571GJYWLNS
-         fA9QT4eUsckRpMRz2yuB0nh+oRsB31PFVVfg0pBu+pGdEb6oU2C47JWe65JYWXQrUUpE
-         He3A==
-X-Forwarded-Encrypted: i=1; AHgh+Rq2Xal5PbOjJpt7Auw7BBk9DdQgTEGzzxAmRu83cRaCVhznkW72e+MvmnHNujnNjKdYSu3dUy/AVpw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmMTPHJMVmqSNvlbElDvN9AGRmrkLLv2yvANPt/Hv9EoORWWtN
-	lGkQWKuQTokr1+2TAkazRFekSFd+Ib62Kd01zFzPrbDhaPuB20cXcxxG
-X-Gm-Gg: AR+sD13gUturlG4nAHp+Bi4tEGj6QoLSwCIBJE9v3Jeil+zZGhRA0IF2AXdHNt7GRSk
-	vc9EbU5wPUadYBvCIbfQ9GaBJ8TMRnxf083TpD2wuO4Y47B8Mct99bEdCQH6ANSTTKzaIP4ZDLW
-	K4/FKpB2ZfAp4U7EhRNiZiGeP03BHHefx9TpcAmneFHB95sAcJr1dufqa6XqAJXEzMBAWVXUz2l
-	dzupW8ZUOONcMHFd/vhLrKdqDmP8GuxBtrVK89XCSem3UreGLdOJt64YKOGblHw4tdyybVgtIZ4
-	TjTwNnW/U5UUK//yKTpRyeE+9L5rlkmUr5tDWvyzmC7Npcg3VmYyczdnU00zP4qBL4ULyCx1yIg
-	+xnMCuSCgOcwyAop21fmC7fhrjwbaOyrifZhRJhsgrzY9aW5J+G3PK4Fld/F0TGxnQkuPHXk4Rn
-	D+GP/3NGTy70RxwMImFSeLQSbqXUA371+NWY2YY2Q6ynY=
-X-Received: by 2002:a05:6a20:7f9d:b0:3b4:b276:a789 with SMTP id adf61e73a8af0-3c8ba545762mr4766802637.36.1785272265674;
-        Tue, 28 Jul 2026 13:57:45 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:3062:3727:f62a:314c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504d3250asm1815624eec.20.2026.07.28.13.57.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 13:57:44 -0700 (PDT)
-Date: Tue, 28 Jul 2026 13:57:42 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Bryam Vargas <hexlabsecurity@proton.me>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RESEND PATCH] i2c: smbus: make i2c_smbus_read_block_data() safer
-Message-ID: <amkVnPwEteFKjRNY@google.com>
-References: <alWiYfNDrOfo66HM@google.com>
- <amkE_TftCv75VrJC@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nRQD3VZg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0310F1F000E9;
+	Tue, 28 Jul 2026 21:32:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785274355;
+	bh=pF6qsVRp/ynTp2yRc9Y/qPH4ccaUnT2tJzJbz05IV1c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=nRQD3VZgBgKkO/5uSFj/C8fT3mHdEYFIDxMtSx+SAEwZ627vDQJ8kT902LIF3/VrI
+	 6tEBT/NfZdpoMS+697uakFbh6PDCoJOFQvnWD/d9SFq+pvIx9sRAC7N5elClETWdNx
+	 pl1CKQ6aRN7jZp0hjvYFIcjZB32K5cNEz9Bw4GOkKGJ7e/zKF9dpycGWD7PrxGPu7W
+	 O95/K1mY+6Xi04dZkimVL1BEcH1efIqD7ELSOx7MgPLhGllMv++Ti9MfnijvdHAlyK
+	 KcFt6mQnwq1jDr1fJAZzhkF6CE7OR1/kwfrS1k8UwHWPHMczJjCD/6D5SE8e4nj4h8
+	 ZEzryOcjmCvEA==
+Date: Tue, 28 Jul 2026 23:32:31 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Liem <liem16213@gmail.com>
+Cc: carlos.song@oss.nxp.com, biwen.li@nxp.com, festevam@gmail.com, 
+	frank.li@nxp.com, frank.li@oss.nxp.com, imx@lists.linux.dev, kernel@pengutronix.de, 
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	o.rempel@pengutronix.de, s.hauer@pengutronix.de, stable@vger.kernel.org, wsa@kernel.org
+Subject: Re: [PATCH v4 0/2] i2c: imx: Fix slave mode corner issues
+Message-ID: <amkftflH9EQ6JDQ4@zenone.zhora.eu>
+References: <AM0PR04MB6802B863CD9B9AE1609C1785E8EB2@AM0PR04MB6802.eurprd04.prod.outlook.com>
+ <20260629023829.152651-1-liem16213@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -76,80 +45,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <amkE_TftCv75VrJC@zenone.zhora.eu>
+In-Reply-To: <20260629023829.152651-1-liem16213@gmail.com>
 
-Hi Andi,
+Hi Liem,
 
-On Tue, Jul 28, 2026 at 10:30:33PM +0200, Andi Shyti wrote:
-> Hi Dmitry,
+> Changes in v4:
+> - Patch 1: reworked to avoid race with shared IRQ handler, as
+>   suggested by Sashiko.
+> - Patch 2: unchanged.
 > 
-> thanks for your patch. The core, indeed, does not know the size
-> of the caller's buffer, so this can be, indeed, handled in the
-> generic I2C code, instead of delegating it to individual host
-> drivers.
-> 
-> ...
-> 
-> > diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
-> > index c277a8e1202b..4df5330aca00 100644
-> > --- a/Documentation/i2c/dev-interface.rst
-> > +++ b/Documentation/i2c/dev-interface.rst
-> > @@ -161,9 +161,10 @@ for details) through the following functions::
-> >    __s32 i2c_smbus_process_call(int file, __u8 command, __u16 value);
-> >    __s32 i2c_smbus_block_process_call(int file, __u8 command, __u8 length,
-> >                                       __u8 *values);
-> > -  __s32 i2c_smbus_read_block_data(int file, __u8 command, __u8 *values);
-> > +  __s32 i2c_smbus_read_block_data(int file, __u8 command, __u8 length,
-> > +                                  __u8 *values);
-> >    __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
-> > -                                   __u8 *values);
-> > +                                   const __u8 *values);
-> 
-> The kernel and userspace APIs should remain aligned. If the
-> kernel helper gains a buffer-length argument, it makes sense to
-> consider the same improvement for libi2c.
-> 
-> This requires a coordinated i2c-tools change. Updating this
-> prototype here alone would document a userspace function which
-> does not yet exist.
+> Changes in v3:
+> - Split the original patch into two separate patches as suggested by
+>   Frank Li.
+> - v2: https://lore.kernel.org/imx/
+>   20260625160219.55116-1-liem16213@gmail.com/
 
-Oops, I missed the fact that that document is for libi2c, not the
-kernel. I'll drop this chunk.
+you were already told not to send the subsequent series as
+--in-reply-to.
 
-> 
-> Wolfram, do you have any opinion here?
-> 
-> >  
-> >  All these transactions return -1 on failure; you can read errno to see
-> >  what happened. The 'write' transactions return 0 on success; the
-> 
-> ...
-> 
-> > +	if (length > I2C_SMBUS_BLOCK_MAX)
-> > +		return -EINVAL;
-> > +
-> >  	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-> >  				I2C_SMBUS_READ, command,
-> >  				I2C_SMBUS_BLOCK_DATA, &data);
-> >  	if (status)
-> >  		return status;
-> >  
-> > -	memcpy(values, &data.block[1], data.block[0]);
-> > -	return data.block[0];
-> > +	ret_len = min(length, data.block[0]);
-> 
-> I don't like silently truncating the response.
-> 
-> If the device returns more data than the supplied buffer can
-> hold, the caller should be notified. Otherwise, a truncated
-> response is indistinguishable from a valid shorter response.
-> 
-> I think this should return an error, for example -EMSGSIZE, when
-> data.block[0] is greater than length.
+> Liem (2):
+>   i2c: imx: Fix slave registration race and error handling
+>   i2c: imx: Cancel hrtimer before clearing slave pointer
 
-Yeah, I can do this.
+merged to i2c/i2c-fixes.
 
-Thanks.
-
--- 
-Dmitry
+Thanks,
+Andi
