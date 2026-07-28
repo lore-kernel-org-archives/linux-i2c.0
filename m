@@ -1,39 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58E1E4756C6;
-	Tue, 28 Jul 2026 21:45:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 236AE4772A9;
+	Tue, 28 Jul 2026 22:01:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785275122; cv=none; b=VLiDZdg2vbgx/WaVqVEy5l2A41mUsIN3HquKVu5uqjXPEARHkUIcOyKVxKzQi1NCAy+6qPbHQ0OjqgHePbJlDE5cNNlUkb+gA42yj5vEibzl1WYDyp0I8/PqXGwPjbvBHOKfLJo+ToKBptqrYkDE0tsZr7BliG2QJVXUxGED8oM=
+	t=1785276118; cv=none; b=aRm6H6++2wJP9P0YGEnNT2Xu1dTGEbMYBbS9xBj7CbLgGbNic0SOlEj0qcywskb24DLe+u2X0rUq8B2TkN1jC0bqIEhZi3S1aKvor7VtH6oVKxLk4JPLJz6z1P3OVHicCsXe/TCJNEj+wOMX6rRhCpuu3Jjah1Yq4p/iYysFSXY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785275122; c=relaxed/simple;
-	bh=h1zCt8EHcisfLKYfK9WwKSYzcS6M2hNq6PRLOlsHJV0=;
+	s=arc-20240116; t=1785276118; c=relaxed/simple;
+	bh=DrVylEHDiKI8qzs6jTHO0H+61k/y3iJnY6UeYSu4YXg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rn07Ma0zYNT7O4TCbtuC4NgUlGQ1dQY5hl6PK2oVGiTT61eSa8WgIyxpB5XWmhundqjz2ba+GYgxaV+Sv9f8LPtP0vHsYIyOOYXh1pHZicrXjt5ORUUF03NiDxsQPzRchd6oidtjNLhpleYzDnGIlZ42Gpj6pEwI77mpKEgoJqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XD5knu49; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=iaYQSSBIGp8MBEtWg1HqyVCuICkQT3VXvbtw4HidoRiSTlLHYxN1VnIp0CF/jr3+8OffArAt18NZsIdMQnN6D/uX9Ly2kcMF5ShxaKFVX+oqV0/T4bQazhXXxtFtVCFcSoptJYcmBMqvdPkfvqlM4WJWVFntrJzntuLRpOtSPxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nfuEoGnu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XD5knu49"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C951F000E9;
-	Tue, 28 Jul 2026 21:45:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nfuEoGnu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9623A1F000E9;
+	Tue, 28 Jul 2026 22:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785275118;
-	bh=qNtDWY6Bt58ip+pEibT2pyM15K9fVpCH15MHNgCkPxQ=;
+	s=k20260515; t=1785276099;
+	bh=ecznKoyZ52idkaym97OS10IGOQbXzYxh928piO1MWRU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=XD5knu49CrjuP1967HIlOcLrTKl/yND3EPRzmBQjO9ohELJwoe5PHmur5AAZhUFd0
-	 2YdS0mltOaURbgkX7wGUmJJQZTCsydKl95yO6Rxb3SEL575JkB9oDAltcYRJHkdQTE
-	 mi7Mn2/9iTpCdHLmV24HDOkUjkTFAxaFKDqKDzv7wDmXXgJ0eeMSvjIVVVPzDubBrl
-	 +tUTD1bAv/sFep1bPe8H7mdG2ll5HnSE/bdjFTB6xkGuxekgLGATFEKOtAiWQpC5J0
-	 zeMC7SJG55mQUQTpCwMbzI2OwZiPOWVSdGFJfuHyH7T6dfipvbLiOpodBzFXyNFZpg
-	 U5+jLqwyjJRbw==
-Date: Tue, 28 Jul 2026 23:45:13 +0200
+	b=nfuEoGnukdvfU2BRIzn9ZvNzfrpUefGZwSSmdUgYq6ri8ouiSR23blUoQ4sjdRby0
+	 MbUJQH3dn9gUtnX+8l3Zqs7kKcVnaO1FkhqMf3kWzoVb1Gith2D2YfTrNtTNJWcir1
+	 TqPoY5uvGZZQjr6zTViuNwdoIUPWveukS7NYoWmWmx6CDLoNej93KUUs5V/JSr7TXv
+	 s7pwxR0s/s3cbiekcLjXuICMXc2ndCswNHCrQMwfXrxyMnzMqU7jGgc159IDhQAQo4
+	 4PF5eNxSv/CRliIpnJcTZPqEAg1/4lKJkTiLLCUJ6ZWhIplrxw/2+Yj7e4FfbHvST/
+	 8jVzFG98wio3w==
+Date: Wed, 29 Jul 2026 00:01:35 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: qup: Propagate clock enable failures
-Message-ID: <amkiyQln7g2y04JF@zenone.zhora.eu>
-References: <20260624055237.29977-1-pengpeng@iscas.ac.cn>
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, 
+	linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, aniket.randive@oss.qualcomm.com, 
+	chandana.chiluveru@oss.qualcomm.com, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Subject: Re: [PATCH v2 0/2] Add trace events for Qualcomm GENI I2C drivers
+Message-ID: <amkmqdFyxlYsNfuS@zenone.zhora.eu>
+References: <20260703-add-tracepoints-for-qcom-geni-i2c-v2-0-e8bf8b178290@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -42,21 +46,37 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260624055237.29977-1-pengpeng@iscas.ac.cn>
+In-Reply-To: <20260703-add-tracepoints-for-qcom-geni-i2c-v2-0-e8bf8b178290@oss.qualcomm.com>
 
-Hi Pengpeng,
+Hi Praveen,
 
-On Wed, Jun 24, 2026 at 01:52:37PM +0800, Pengpeng Hou wrote:
-> The QUP I2C driver treats the core and iface clocks as required
-> resources, but qup_i2c_enable_clocks() ignores clk_prepare_enable()
-> failures.  Probe can then continue to register the I2C adapter, and
-> runtime/system resume can return success, even when a required clock
-> transition failed.
+On Fri, Jul 03, 2026 at 08:38:08PM +0530, Praveen Talari wrote:
+> Add a new trace event header providing tracepoints for the Qualcomm
+> GENI I2C controller.
 > 
-> Make the helper return an error, unwind a partially enabled clock, and
-> propagate failures from probe and resume paths.
+> The trace events cover controller bus setup, interrupt status and 
+> error reporting. These events enable structured debugging and performance
+> analysis using ftrace.
 > 
-> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+> Usage examples:
+> 
+> Enable all I2C traces:
+> echo 1 > /sys/kernel/tracing/events/i2c/enable
+> echo 1 > /sys/kernel/tracing/events/qcom_geni_i2c/enable
+> 
+> cat /sys/kernel/debug/tracing/trace_pipe
+> 
+> Example trace output:
+> 79.737075: i2c_write: i2c-11 #0 a=057 f=0200 l=3 [00-00-3f]
+> 79.737075: geni_i2c_bus_setup: a90000.i2c: clk_freq=400000 clk_div=2
+>    t_high=5 t_low=11 t_cycle=22
+> 79.737084: geni_i2c_irq: a90000.i2c: m_stat=0x40000000 rx_st=0x00000000
+>    dm_tx=0x00000000 dm_rx=0x00000000
+> 79.737201: geni_i2c_irq: a90000.i2c: m_stat=0x00000001 rx_st=0x00000000
+>    dm_tx=0x00000000 dm_rx=0x00000000
+> 79.737211: i2c_result: i2c-11 n=1 ret=1
+> 
+> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
 
 merged to i2c/i2c.
 
