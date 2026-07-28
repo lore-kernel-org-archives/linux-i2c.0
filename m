@@ -1,84 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 236AE4772A9;
-	Tue, 28 Jul 2026 22:01:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2F85476CFC
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 22:04:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785276118; cv=none; b=aRm6H6++2wJP9P0YGEnNT2Xu1dTGEbMYBbS9xBj7CbLgGbNic0SOlEj0qcywskb24DLe+u2X0rUq8B2TkN1jC0bqIEhZi3S1aKvor7VtH6oVKxLk4JPLJz6z1P3OVHicCsXe/TCJNEj+wOMX6rRhCpuu3Jjah1Yq4p/iYysFSXY=
+	t=1785276262; cv=none; b=Jv7p+cnVFnd+MqAc/FBymOipPHxv/wNsOZxSVnPvKofXBd4xHzAAmtIJy5nBmmbknZVwnBq/daFbAv1ZglglQFQvOmKWgwxft2qIqihuiwSTRRhg2usGXbKLm2g2CUk+FcyokA/4hylwnj9o6H3KdRFsKTD0B28uNrBYXrcDTb0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785276118; c=relaxed/simple;
-	bh=DrVylEHDiKI8qzs6jTHO0H+61k/y3iJnY6UeYSu4YXg=;
+	s=arc-20240116; t=1785276262; c=relaxed/simple;
+	bh=dY8MPUoogrKlg5U6lHOf/140PZiQt8XPJTKz1Kidrkk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iaYQSSBIGp8MBEtWg1HqyVCuICkQT3VXvbtw4HidoRiSTlLHYxN1VnIp0CF/jr3+8OffArAt18NZsIdMQnN6D/uX9Ly2kcMF5ShxaKFVX+oqV0/T4bQazhXXxtFtVCFcSoptJYcmBMqvdPkfvqlM4WJWVFntrJzntuLRpOtSPxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nfuEoGnu; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=lLNjyLsmoPtKi9jlG/BkvY2GNgnklTA8EwhEIB4wTLA+g5ysgfwopOBtjLhvo0BycOW3uCNkMrpg9xZtOq6nGDZ7si+oM+MPQwuT8CMZP4VY9rHgP7KxI2VoPjxxRFxjE/wCahvz8iYXQO5RYbaB1hyPYsQzYuDkrjT3OKb+Be4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L0TbBTNT; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nfuEoGnu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9623A1F000E9;
-	Tue, 28 Jul 2026 22:01:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785276099;
-	bh=ecznKoyZ52idkaym97OS10IGOQbXzYxh928piO1MWRU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=nfuEoGnukdvfU2BRIzn9ZvNzfrpUefGZwSSmdUgYq6ri8ouiSR23blUoQ4sjdRby0
-	 MbUJQH3dn9gUtnX+8l3Zqs7kKcVnaO1FkhqMf3kWzoVb1Gith2D2YfTrNtTNJWcir1
-	 TqPoY5uvGZZQjr6zTViuNwdoIUPWveukS7NYoWmWmx6CDLoNej93KUUs5V/JSr7TXv
-	 s7pwxR0s/s3cbiekcLjXuICMXc2ndCswNHCrQMwfXrxyMnzMqU7jGgc159IDhQAQo4
-	 4PF5eNxSv/CRliIpnJcTZPqEAg1/4lKJkTiLLCUJ6ZWhIplrxw/2+Yj7e4FfbHvST/
-	 8jVzFG98wio3w==
-Date: Wed, 29 Jul 2026 00:01:35 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, 
-	linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, aniket.randive@oss.qualcomm.com, 
-	chandana.chiluveru@oss.qualcomm.com, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Subject: Re: [PATCH v2 0/2] Add trace events for Qualcomm GENI I2C drivers
-Message-ID: <amkmqdFyxlYsNfuS@zenone.zhora.eu>
-References: <20260703-add-tracepoints-for-qcom-geni-i2c-v2-0-e8bf8b178290@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L0TbBTNT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=dY8M
+	PUoogrKlg5U6lHOf/140PZiQt8XPJTKz1Kidrkk=; b=L0TbBTNTkcCXzVCzcQqa
+	PAr3AEuPe/asXhGf/1PrNQc8pTDOgybMjYz3kt1dRwgZj0TSey1h5xDZUnHhx75+
+	fGym6uB8q1rBamog/7Dc9+YnczQcclUFVJrhKLC+77mYHr+0FxOnyuMXC4I+JETo
+	0dWKf7NyKwu8LgkFYc2wzuguKo8CWMLXZ5aiNkrYSmZEVQ1x6SaEtNqxr5yqN5g2
+	y6qsrk6KYwFLCzU33p6BHNDK4SIq1EyhZGxogcS4ggTzZnStQ5HNfXKxw7BlPKSh
+	1aO3qDPtG+RS7E/61P2U0LJbfM1bMke92BXOMKSAek8IZpVpBzrz1NoqEkSG302e
+	YQ==
+Received: (qmail 1104465 invoked from network); 29 Jul 2026 00:04:10 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jul 2026 00:04:10 +0200
+X-UD-Smtp-Session: l3s3148p1@kU+zBLNX+pEujnsk
+Date: Wed, 29 Jul 2026 00:04:09 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Markus Stockhausen <markus.stockhausen@gmx.de>, linusw@kernel.org,
+	brgl@kernel.org, linux-i2c@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Sander Vanheule <sander@svanheule.net>,
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Subject: Re: [PATCH v7 2/2] i2c: i2c-gpio: Enhance driver for buses with
+ shared SCL
+Message-ID: <amknWXx31wBY8j17@ninjato>
+References: <20260714162915.3018703-1-markus.stockhausen@gmx.de>
+ <20260714162915.3018703-3-markus.stockhausen@gmx.de>
+ <alfvXUq_lNXhKQZk@ninjato>
+ <amkB2rm2Ochu1bxJ@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="WAjOE9nbACDaiY9A"
+Content-Disposition: inline
+In-Reply-To: <amkB2rm2Ochu1bxJ@zenone.zhora.eu>
+
+
+--WAjOE9nbACDaiY9A
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260703-add-tracepoints-for-qcom-geni-i2c-v2-0-e8bf8b178290@oss.qualcomm.com>
 
-Hi Praveen,
 
-On Fri, Jul 03, 2026 at 08:38:08PM +0530, Praveen Talari wrote:
-> Add a new trace event header providing tracepoints for the Qualcomm
-> GENI I2C controller.
-> 
-> The trace events cover controller bus setup, interrupt status and 
-> error reporting. These events enable structured debugging and performance
-> analysis using ftrace.
-> 
-> Usage examples:
-> 
-> Enable all I2C traces:
-> echo 1 > /sys/kernel/tracing/events/i2c/enable
-> echo 1 > /sys/kernel/tracing/events/qcom_geni_i2c/enable
-> 
-> cat /sys/kernel/debug/tracing/trace_pipe
-> 
-> Example trace output:
-> 79.737075: i2c_write: i2c-11 #0 a=057 f=0200 l=3 [00-00-3f]
-> 79.737075: geni_i2c_bus_setup: a90000.i2c: clk_freq=400000 clk_div=2
->    t_high=5 t_low=11 t_cycle=22
-> 79.737084: geni_i2c_irq: a90000.i2c: m_stat=0x40000000 rx_st=0x00000000
->    dm_tx=0x00000000 dm_rx=0x00000000
-> 79.737201: geni_i2c_irq: a90000.i2c: m_stat=0x00000001 rx_st=0x00000000
->    dm_tx=0x00000000 dm_rx=0x00000000
-> 79.737211: i2c_result: i2c-11 n=1 ret=1
-> 
-> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
+> are you going to send a pull request at the merge window or can I
+> pull it? Either way works.
 
-merged to i2c/i2c.
+I'd prefer if you apply the patches to your branch directly. So, that
+'for-andi' is only a branch where you can look up what I reviewed.
 
-Thanks,
-Andi
+But if it is easier for you that I send a PR and you pull, I can do
+this, too.
+
+
+--WAjOE9nbACDaiY9A
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmppJ1YACgkQFA3kzBSg
+KbaaXRAAl5tI6NLP8Gs4qrzpqSwJxVvwbaG0u7fi81gbCEBdnkKkbK3tUcj73qJo
+FxPW9p2LO9vaMOFh397D9/CFjnZAwClOKM1FEWJvFhTaHoIk/IghA5zyBhWTbqlu
+k0ffrt8CsrekZuMvhq7pcgaW21qkzoPVOE3dN9Jx7sQIho8DWTpFIlM54cveUlrb
+xyjdiPchJTqaxr/1RaLycRDEp3N1FE9ejg5WwFlGir2RPK1QYP5tC+lk2otWqlGs
+TG93fn3wbDKEeoPQYVvkTIt9Hl6R7he1CsBLex6EpTjN3hy075TAk4ey1e50fceH
+pR8R7R6ZktsqjfcR8KVsGjLiUDNP84XlP4rAcIOyNhXtFwi7kgFix0Z3b6Hg0Oin
+jtH/O3BAsbr5H6ntkfVbYvyibC9kebk2lbnbWzK/PRCH6YiCiu0Dzr7XhL0tSw2u
+ArwDduTlwYRcN1sCPZ7UMI6qht2xMxbLYH84Jj4pAQmiYgerOCiNNiI/JRLy6GM4
+7o81+d1jE3Q7GFNz90i7Xx6nx9ATO36RL/F+MubXl8VD30G9eyybKRA5GnMeiNgM
+yXY/mIzzHu/e3WlObtbWUMmoACR+0k2V6OwWNDa7NmBcAI+143Bq7bsrJcrzKdWX
+4CB/bTwpQkOLrXITIA7nXGjw4Pj7LKA/wwTyKF4Lj4TOXK+gavc=
+=mNJo
+-----END PGP SIGNATURE-----
+
+--WAjOE9nbACDaiY9A--
