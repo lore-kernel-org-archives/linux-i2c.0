@@ -1,238 +1,312 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A30B23F4DDC
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 08:21:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.168.131
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785226874; cv=pass; b=UV5RqmTgkdIRhstWNCMxcpXukO/W4lT21BbH1KDsO4km+wVj3G8PFc3GpK1f8pzraMG8XOWjry/AV/H59ZfpIploqJwv4Mwgje7UZ7cq+8xaOPw+JtjyLguvUk4thHiamhgAE4gDRXw+Gdz5IbWiBIru4ynmflJDIQLzgc11u6w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785226874; c=relaxed/simple;
-	bh=psbVZug5PRiB7TIApmYfCqaUIt7m7uBgwaKFqFfBhgg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KP98XvT9uDqPQbPuauAOpQPvMmTYTt2hw7LR/AqDICyV6Y1N8CTO/yduGAwyLQVt/xm0zejoQUUFjPayx6o1CpmeEAU8PdXdY8qlShEyo5mAA4puZ2dIS+DC/7InX0Yk165c/UjpNtm1hACvoRRU4jmPDo/2x9ET/Y7ol8soXVg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=jb4WFy6w; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=hthpaN9Z; arc=pass smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E55B400996;
+	Tue, 28 Jul 2026 08:30:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785227460; cv=none; b=qpXvZWXK4uaGbgq9P0ulpBmlEVQOIN/Lj45dyaZ4VeiATeInnPhNzWtKvpa9t3zuqhpA0o8P0/t6R5gp2vngnfouAYYdtblGadJY3niqE0wMey0L+WeKSN9kRVvSHDGerfQXzdABfgGk0//PWnWAn5c6XDjjxr35Z0c4l4ruPUc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785227460; c=relaxed/simple;
+	bh=4mRZ1E33uUWVognT8iSTdIxl57jSwCTimss1LD4NGEY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tgIkKCT2KKJPQbn9ax4Ak0r+NhygZ+UZ0lhROqJ/C4fPU5AHNZC0/H23qWG2ME8n30K0rDuYWUPwRJqco6Un3RlvSEGd7W+Ehe4QtHKNMCMCzHQ0nHbXFcl1EepbDLB7J39T0C1X2NiwyP4WEMX/1u/T+2ILbBaUXOK6G9acaVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XOtCERTM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="jb4WFy6w";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="hthpaN9Z"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66S82DSV2480127
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 08:21:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	psbVZug5PRiB7TIApmYfCqaUIt7m7uBgwaKFqFfBhgg=; b=jb4WFy6w+C3vBF45
-	B1f/F2ZUZXQinx5ZKBwrwmNP7X4YMbEhhwOYcrkCSBbffIeYbKfQo/YQI71EZJBB
-	Gx8jguhUwEvj4MBJnCW8/8+P0JnQQZ6u2IvIS7juiZvLFKMVdPYBhDECWd34WzXu
-	t/cVPrT9ZsFC5AJVPvVLDecexAntedNAMOBPRpL47s3f1w5D2e8fPxLWfq6J8l2n
-	PYwi9pHRSZ7+xItoIoPDz6ctG/KyCLOxWcjAU3FUxutXIYdgRHRkD9WxmdkRr58U
-	QyvMgKf6ZQge34rgks6TuJY+CU4SQ1iO3U8KVI0hHMJQf2/6n6pyTj9CP5y3CHGc
-	oHHxBg==
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fpmy10y0u-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 08:21:09 +0000 (GMT)
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-92e606e8f3eso280572885a.3
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 01:21:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785226869; cv=none;
-        d=google.com; s=arc-20260327;
-        b=PVmKx5g46/yuFN62lhHBSplGzZnPoPlKh+pEfrI8HrysKUph9+POtgmxjUKvRC5Hyl
-         82RkDZ/vyUxc1cnkQj6S18J07QMyjQ/DnwvlB6chmPpe9AIXMh3EL5CU4yv7c+1LLQBN
-         XkQBoRaDfZ0bKCD2B6xEj4woGXE+j9l14VYk7DwS/oR5im3nbdaVCpQpJBBvyTslSrr0
-         G3YOfiu8MEKDpTA308klpgGH+ERhG1wdXEzFPzM01EmDQzXqlV7zCuuPu2x/FWqteQkf
-         9vZuhFhtEKV0FaFdZUitny9j9qEsIRb3vIBtUGFDCpmfP8eyuaTu8u5D3G46pgoiPPP+
-         W4Yg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=psbVZug5PRiB7TIApmYfCqaUIt7m7uBgwaKFqFfBhgg=;
-        fh=K0fX2bIODPV+Hv1ns9OqTpTS9bbn5hK+OA+56UMGY04=;
-        b=JMC7Ga8ZH9MHo3fu8BXBtNs9l6/lTGAZVjb5gBcovmVkJNnL0kXc/pGzJYQkkifnTT
-         diawpvw2+c0oTVB2aNaeFCvIpRH4bywlPetdRZT9in5pCsTp+YYIfcdsUPTWRh9aO3X2
-         /mnqFkSEyUCuuuqNSJBBVaVMJP0ykNZB243I6453SIB+RIHihAqOoBhm5RmNDNpKqCzV
-         H7Oi/ORR+ObB8YxwSr7hqQ2DvZkvnhZuTHzS7G9kLcwQNqmNmWEUoNgOkMHSlXrDhTPz
-         G3n+CD5QGUV7ZYckKJkiuAsZmokYf08sflGm1YSagBOhoWBm4cMrmUX0fibavo9I+bhi
-         XvQg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1785226869; x=1785831669; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=psbVZug5PRiB7TIApmYfCqaUIt7m7uBgwaKFqFfBhgg=;
-        b=hthpaN9ZYv9R/NSXhLPjzgngjdcna3fTDgi5F5ZqWcFpddAkW/05RRjCw/IKmXMD7f
-         fvlWIPoxvfeJwctWma8ZUC2rNTkAJlNw8Y8+6RsUyTSB/n3cPRYK2ncBuYklFrWqV+OY
-         v5Qv5q/vKmFs+qAyUuOoy3Sjozo2QO9m8YifXIVYLac63ZHoZEOAObx0gQ5RF/PuhAH8
-         fxC4tG10W5DTOhnjoMiuYFYNSc07H9bjbK7EQkRDj+1GqXdYWo3idWfn8KNGCx4Os93W
-         ThVgMMTcPy7ATyWFEHv6SdA9xFg0u6wDPTfiRYWVJEgY89bRuabNkHWDBuOcnLf8Og5u
-         zNug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785226869; x=1785831669;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=psbVZug5PRiB7TIApmYfCqaUIt7m7uBgwaKFqFfBhgg=;
-        b=bo8ou7+hWy6dv6JGMLqWGfFY2aIt6NE5LywU7xieSHu5zGi+UZW3ep/K0vs+tOwjXo
-         iiFNyX12i6SIIjvHo72bD63MQdv6C/pXM3b0VM5uAYKv0ofayx2H+2ZRl3M4phEwvqJl
-         Ja+dUA1/YYxK5HGoc6W/T3kvpAUyuiA8/8QUoxsYmhH9g2nZyZDxnYeYdIIHQZod8w69
-         msrTt6yT2ByGpoLI7slgXDsjt+zwv7rGdFi+hQb3hLYiO5bn1hBr0R6U9Hysl+A3LGkk
-         NEFAFQKzTHxntc8P8CxpROqvIDqxy4flg3N2wdaJSyd1vxJflZMceyjLS94+H2/ujgFX
-         7q/g==
-X-Forwarded-Encrypted: i=1; AHgh+RoFTNdaDS4XIyVjm+++58EOTf+bLmzTYainGm6X/Prs+gfsU+YESD8VZqHxseudoxomvWOjhlCAQ6M=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxRjrnYybJXgf45QH+6lDv/A/f4ApB+TnqFg3Kzh9u+5NvM+BLr
-	WZZ9AEw3GZZmmITOrS2HVj2PntxuXDaOrVbnQpEyOx6sIzz2oGxqgRbTN1TprNhBsrA9pZlCQFo
-	NuoOmTtJ0uXoStp3PieVvymFYLA5ZSJtXm5Oby/tkbUVCPWUUJQpVjma2lzAdm6gsoA2bhTHt0H
-	2TrSO+0LMflFngtwA29U8MfqRLiPtVTOdPRfv5Hg==
-X-Gm-Gg: AR+sD13ZNgAp8QpJdFrZoy+O+7NdVgubzh48Cg99OeM2ghrNtGrWlRzfNIk0PnKpkoR
-	IPKUa0+KXPSMxXiY9YthrW9O9r+nirIdU7yUOTUtUGj6yphL1kRU/BNj1KpAVRSJNrsRoGjQCwJ
-	vQtEqewyEekaAX0eFPKL5fBSmUeue0BrVuZ5am+5Xilr1taomS0wwvmnxoc8sJi6Qt82bAhv9C/
-	zg5xaqMRMrGgNK9B49uT4uLwEsvnVEMc/mPbkyOVRlEGyl5sLU3hqtoEXiX2WjM8kAqnKFHSZNi
-	sHIuiILyzC1mysx6g2VnNfxa8+/7
-X-Received: by 2002:a05:620a:1b99:b0:8cf:c106:faca with SMTP id af79cd13be357-933025a6cecmr116304685a.36.1785226868431;
-        Tue, 28 Jul 2026 01:21:08 -0700 (PDT)
-X-Received: by 2002:a05:620a:1b99:b0:8cf:c106:faca with SMTP id
- af79cd13be357-933025a6cecmr116302785a.36.1785226867986; Tue, 28 Jul 2026
- 01:21:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XOtCERTM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2873E1F000E9;
+	Tue, 28 Jul 2026 08:30:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785227458;
+	bh=EZEIVIWP6rHMILD6MHiFQqIs2luNVm4p4VbDh2UlzgE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=XOtCERTML7f6QxvV8IpQzU4v19NkFlHkPR2KAzzxEKgGZnfqaJ/Hwp4QnuGf0V0uR
+	 Yhtbf8ZToZTTbAiKYUHRTE0k2QLriCmHZGVKNaz/YIcMHPp76rrnyZTFpTYCSu1NkU
+	 HT0wRn72lpr6D4juKrzyH+pLPX4kvNYOwVnKuTacCJ/NiuSARl7GGeci17XBqG1W5k
+	 hE2N3x0UOfKG6yWfmf9t+R5bUJjSi+Vb/4XBLabwL7rauRnDYHZR2T+RWnnANfAAE6
+	 LK4JrGtKY5+mCXe2F/Fn4snttPIAZAnVe3TdSJdN51ZNy67rbrP9SJQWMDdToB/YEe
+	 fE+OW0klSbTyg==
+Date: Tue, 28 Jul 2026 10:30:54 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
+	andriy.shevchenko@intel.com, mario.limonciello@amd.com, brgl@bgdev.pl, 
+	basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org, 
+	chaitanya.kumar.borah@intel.com
+Subject: Re: [PATCH v13] i2c: designware: defer probe if child GpioInt
+ controllers are not bound
+Message-ID: <amhodWpAI3K6aeBH@zenone.zhora.eu>
+References: <20260718054330.8975-2-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727-cci-clk-fix-v2-0-c3958f28b045@oss.qualcomm.com>
- <20260727-cci-clk-fix-v2-1-c3958f28b045@oss.qualcomm.com> <c7b0213d-a4c9-4ac8-be09-b449da457230@linaro.org>
-In-Reply-To: <c7b0213d-a4c9-4ac8-be09-b449da457230@linaro.org>
-From: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Date: Tue, 28 Jul 2026 10:20:56 +0200
-X-Gm-Features: AUfX_mxSXGa68pk4Kz1yQ8PsRKYdtiXqJrr9OnpBEFcc6F3FtJJEooLPHFz-yKg
-Message-ID: <CAFEp6-2VP1pVbKJEkPTOFdMn8kv=83CrP-MCYPDTN0BHURn2Jg@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] i2c: qcom-cci: Switch msm8953 to the CCI v2
- timing/rate config
-To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-        Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-GUID: dhWUYdlFyJXuQh9_enXMhVRA_0KpQg6u
-X-Proofpoint-ORIG-GUID: dhWUYdlFyJXuQh9_enXMhVRA_0KpQg6u
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDA3MCBTYWx0ZWRfX3cnq+JYl0SNk
- pgGFMu3BL4xfBzGvQcDUlTzH9Di9j4pcwNmDkyVE08CUZ+tmM172H/OQqY/65lkK+wKU+ni0iFF
- 3iaCut5lacdb8x2uFlRlWJtnlAdQVb2sGdoypUALm03jE0basKzcrPt98J4Ls2v0vzEfW0zabBz
- w7uTglTlacLiFbs903OaOHd5P/tjSB/fuCzlwbi3r/AVsG5tfjX+zTbKo7pSWM1qi+PNbN8xNIS
- Rnaja4l/0L3cj05T9zIObn083IYE+t578phhqWi1V8AwFeotG/paYHOpAh9S3OZVt7l2cjNSmhE
- HLU5DeQ0z4t336Is+tQuQOVBea7XKOouPjcG1wKvibf20v3pgjIFF01BeI6f8121rWM/A/FF79K
- vpYDujBk9QHBiJ29/HJItGxJsaihe5POX3d0jpR7duQe6LzgkcVwVZw0nyamqcd2K3j7O6aN272
- fTuUkxOSynF+LCJCj+w==
-X-Authority-Analysis: v=2.4 cv=PJo/P/qC c=1 sm=1 tr=0 ts=6a686675 cx=c_pps
- a=hnmNkyzTK/kJ09Xio7VxxA==:117 a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=Um2Pa8k9VHT-vaBCBUpS:22 a=KKAkSRfTAAAA:8 a=vOiYUO998qp6HqxB24gA:9
- a=QEXdDO2ut3YA:10 a=PEH46H7Ffwr30OY-TuGO:22 a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDA3MCBTYWx0ZWRfX/8phTvSDMjvO
- mINMZNy7j6cK5cScp/NEqXtUq3Iy3iMggB6C6C0Xe+WOn1AkNcJcn711nKO4sPVaX43A/VxQt0h
- Q59D2a7VJnFDXoJrDYRt6VzRr2Bb4TE=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-28_02,2026-07-27_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- priorityscore=1501 malwarescore=0 adultscore=0 suspectscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280070
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260718054330.8975-2-hardikprakash.official@gmail.com>
 
-Hi Vladimir,
+Hi Hardik,
 
-On Mon, Jul 27, 2026 at 9:21=E2=80=AFPM Vladimir Zapolskiy
-<vladimir.zapolskiy@linaro.org> wrote:
->
-> Hi Loic,
->
-> On 7/27/26 12:21, Loic Poulain wrote:
-> > The msm8953 CCI timing table is internally inconsistent. Its Standard
->
-> likely I was misunderstood in my v1 review comments, and I believe v3
-> will be needed...
->
-> If there is just one master, or two masters set in equal speed mode,
-> then there is no such issue as "msm8953 CCI timing table is internally
-> inconsistent". In other words generally it shall be permitted to have
-> supply clock frequency intermixed speed modes for any CCI variant.
+On Sat, Jul 18, 2026 at 11:13:31AM +0530, Hardik Prakash wrote:
+> I2C controllers may have child devices with GpioInt resources that
+> depend on GPIO controllers being fully initialized. If the I2C
+> controller probes and enumerates children before the referenced GPIO
+> controller has completed probe, GPIO interrupts may not be properly
+> configured, leading to device failures.
+> 
+> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
+> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
+> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
+> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
+> fail with lost arbitration errors:
+> 
+>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
+>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
+>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
+>   2.348157  lost arbitration
+> 
+> Add a dependency check that walks ACPI child devices and defers probe
+> until any referenced GPIO controller is bound.
+> 
+> Fixes: 3812a9e84265 ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11")
+> Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
+> Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+> Assisted-by: Claude:claude-sonnet-5
+> Assisted-by: DeepSeek:deepseek-v4-pro
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=221494
 
-The two masters sharing the supply clock are independently
-configurable in terms of mode, so we simply can't guarantee they will
-run in same mode.
+This should be "Closes:". "Link:" is referred to the page where
+the patch has been discussed.
 
->
-> I'll repeat the same point as given in v1, namely supply clock frequency
-> is not a property of CCI revision (therefore v1 1/3 or v2 2/3 is invalid)=
-,
-> it is a property of the mode settings. It's correct to remove 'cci_clk_ra=
-te'
-> from 'struct cci_data', and it will be correct to add (or parameterize in
-> any other way) 'cci_clk_rate' to 'struct hw_params'. Each instance of
-> 'struct hw_params' is strictly bound to a particular CCI clock frequency.
->
-> > and Fast timings match v1/v1.5, which are calibrated for a 19.2 MHz CCI
-> > clock, but its Fast+ timings are essentially the v2 values, which are
-> > calibrated for 37.5 MHz. Since all masters share a single CCI clock,
+merged to i2c/i2c-fixes.
 
-So, you're right that the supply clock frequency is a property of the
-mode/timing settings (though I'm not entirely sure timings are fully
-hardware rev agnostic). I don't dispute that.
-However, this reflects the current driver behavior. It's not
-incorrect, it is a simplified approach that uses a single frequency
-point across all operating modes of a given platform.
-I added a brief paragraph in the V2 cover letter to explain why it's
-out of scope.
+Thanks,
+Andi
 
-My argument is about scope. Today the driver has no mechanism to pick
-a rate per mode, a single CCI clock is shared by N masters (usually
-two) that can run in different modes simultaneously, so per-mode
-scaling requires (1) per-mode rate info in the params table, and (2)
-vote/arbitration logic to select the highest required rate and still
-apply correct timings for every master at that rate. Concretely, with
-one master in Standard and another in Fast+, you'd need a 37.5 MHz
-shared clock and a Standard-mode row calibrated for 37.5 MHz, which
-the msm8953 table simply does not provide today. So this isn't a small
-tweak, it's a new capability backed by new table data. It would bring
-more fine tuned supply rate, but without huge benefit, as cci clock is
-gated most of the time due to runtime-pm.
-
-> But what if you have only one master?..
-
-It's not important here? we have N master (usually two) and have to
-deal with that.
-
-> I think the msm8953 data is correct, it shall not be removed.
-
-The msm8953 table as it stands is internally inconsistent (without
-per-mode rate info), no single clock makes all three modes correct.
-Moreover, msm8953 is the same HW version as msm8996/sdm630, which
-already use cci_v2_data, there's no strong reason for msm8953 to keep
-a bespoke, half-and-half table.
-
-> > no single rate can satisfy all three modes with the current table, and
-> > the DT assigns 19.2 MHz, so Fast+ timings are wrong.
-
-This series intentionally does the minimal correct thing, aligning the
-timings with a single supply clock and enforcing that clock in the
-driver, which owns hw_params and has all the info to produce correct
-timing. It fixes reported devices misbehaving when no (or incorrect)
-assigned-clock-rate is set.
-
-Not saying what you propose is not do-able, and I clearly understand
-what you mean, but I'd prefer to land this simple
-alignment/enforcement first and treat per-mode clock scaling as a
-follow-up, rather than coupling a straightforward fix to a larger
-refactor. Please clearly Nack if you do not agree with this first
-step.
-
-Cheers,
-Loic
+> ---
+> v12 -> v13:
+> - v12 was sent as an incomplete diff (generated against v11 rather than
+>   against current master due to a git format-patch invocation mistake on
+>   my end), not a real standalone patch (Andy Shevchenko)
+> - Not carrying forward Bartosz Golaszewski's v12 Acked-by, per Andy's
+>   request
+> - Add blank line before guard(device)(gpio_dev) for readability (Andy
+>   Shevchenko)
+> - No other functional code changes since v12
+> 
+> v11 -> v12:
+> - Move gdev declaration to point of use with gpio_device_find_by_fwnode()
+>   call (Andy Shevchenko)
+> - Extract acpi_get_handle() return into acpi_status variable rather than
+>   inline in ACPI_FAILURE() (Andy Shevchenko)
+> - Use guard(device)(...) instead of scoped_guard(device, ...) {} for a
+>   single following statement (Andy Shevchenko)
+> - Use LIST_HEAD(res_list) instead of separate declaration + INIT_LIST_HEAD()
+>   (Andy Shevchenko)
+> - Check acpi_dev_get_resources() error before freeing the resource list,
+>   restoring the check-then-free ordering that had regressed in v11
+>   (Andy Shevchenko)
+> - Split ACPI_COMPANION(dev) assignment onto its own line rather than at
+>   declaration (Andy Shevchenko)
+> 
+> v10 -> v11:
+> - Replaced custom gpio_controller_ref list and dedup logic with
+>   gpio_device_find_by_fwnode() (Suggested-by: Andy Shevchenko)
+> - Moved resource-skip explanation from commit message into a code comment
+> - Fixed device_is_bound() to check gpio_device_to_device(gdev)->parent
+>   rather than the gpio_device's own internal class device, which is
+>   registered on the synthetic "gpio" bus and never has a driver bound to it
+> 
+> v9 -> v10:
+> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
+>   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
+> - Simplify string_source guard to a single string_length check, confirmed
+>   sufficient via ACPICA parser in drivers/acpi/acpica/rsutils.c
+>   (Andy Shevchenko)
+> - acpi_dev_get_resources() on single line, free only on success path
+>   (Andy Shevchenko)
+> - Reversed xmas tree ordering for variable declarations (Andy Shevchenko)
+> - Removed useless int ret = 0 assignment (Andy Shevchenko)
+> - acpi_dev_for_each_child() on single line (Andy Shevchenko)
+> - Use guard(device)(gpio_dev) pattern to avoid uninitialized variable
+>   warning and deduplicate the !gpio_dev check (Andy Shevchenko)
+> 
+> v8 -> v9:
+> - Sent as a 2-patch series: revert of the broken v8 patch, plus a
+>   corrected resubmission
+> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
+>   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
+> - Remove gpio_dep_ctx wrapper struct, pass list_head * directly (Andy Shevchenko)
+> - Add const to gpio_controller_ref.path (Andy Shevchenko)
+> - Add NULL check for resource_source.string_ptr to fix a crash on hardware
+>   where GPIO resources have no named controller (Reported-by: Nathan
+>   Chancellor, Reported-by: Chaitanya Kumar Borah)
+> - Use acpi_dev_get_resources() return value properly (Andy Shevchenko)
+> - Fix all error paths to call free_gpio_controller_list() (Andy Shevchenko)
+> - Change guard to #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
+> - Remove erroneous put_device() calls -- acpi_get_first_physical_node()
+>   returns a borrowed pointer with no refcount increment
+> - Use LIST_HEAD() macro, split adev declaration and assignment (Andy Shevchenko)
+> - scoped_guard single statement without braces (Andy Shevchenko)
+> - Remove misused Reported-by/Closes tags (Andy Shevchenko)
+> 
+> v7 -> v8:
+> - Add revert of the earlier pinctrl-amd DMI quirk (patch 1 of the original
+>   v1-v7 series), confirmed unnecessary once probe ordering is fixed
+>   (Mario Limonciello)
+> - Collect Acked-by (Bartosz Golaszewski) and Reviewed-by (Mario Limonciello)
+> 
+> v6 -> v7:
+> - Fix unused 'ret' variable in check_child_gpioint() (kernel test robot)
+> - Replace BugLink: with Link: (Bartosz Golaszewski)
+> - Add Reported-by and Closes tags for kernel test robot warning
+> 
+> v5 -> v6:
+> - Replace DMI-specific deferral with a generic GpioInt dependency check
+>   walking ACPI child devices (Suggested-by: Mario Limonciello)
+> 
+> v4 -> v5:
+> - Add blank line before #include <linux/acpi.h> (Bartosz Golaszewski)
+> - Use scoped_guard(device, gpio_dev) (Bartosz Golaszewski)
+> 
+> v3 -> v4:
+> - Rebase onto Linus Walleij's tree (the original patch 1 already there)
+> - Use --base so series is correctly 1/1 (Andy Shevchenko)
+> 
+> v2 -> v3:
+> - Fix variable declaration style (Andy Shevchenko)
+> - Add BugLink tag (Andy Shevchenko)
+> - CC AMD engineers (Andy Shevchenko)
+> 
+> v1 -> v2:
+> - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev()
+> - Use device_is_bound() under device_lock() with explanatory comments
+> - Add Assisted-by tags per coding-assistants.rst
+> 
+> Note: this patch was originally part of a 2-patch series (v1-v7) whose
+> first patch was a DMI-specific pinctrl-amd IRQ quirk; that patch was
+> merged separately into Linus Walleij's tree at v1 and later reverted at
+> v8 once this patch made the manual IRQ restoration unnecessary.
+> 
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 80 +++++++++++++++++++++
+>  1 file changed, 80 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 6d6e81242f74..c8a203fff4d1 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -8,12 +8,14 @@
+>   * Copyright (C) 2007 MontaVista Software Inc.
+>   * Copyright (C) 2009 Provigent Ltd.
+>   */
+> +#include <linux/acpi.h>
+>  #include <linux/clk-provider.h>
+>  #include <linux/clk.h>
+>  #include <linux/delay.h>
+>  #include <linux/dmi.h>
+>  #include <linux/err.h>
+>  #include <linux/errno.h>
+> +#include <linux/gpio/driver.h>
+>  #include <linux/i2c.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+> @@ -130,6 +132,80 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+>  	return 0;
+>  }
+>  
+> +#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
+> +/*
+> + * Check whether an ACPI GpioInt resource's referenced GPIO controller
+> + * has finished probing. Resources with no named controller (resource
+> + * source string) are skipped, since they can't be resolved to a
+> + * struct device.
+> + */
+> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
+> +{
+> +	struct acpi_resource_gpio *agpio;
+> +	struct acpi_device *gpio_adev;
+> +	struct device *gpio_dev;
+> +	acpi_handle handle;
+> +	acpi_status status;
+> +
+> +	if (!acpi_gpio_get_irq_resource(ares, &agpio))
+> +		return 1; /* not a GpioInt resource, skip */
+> +
+> +	if (!agpio->resource_source.string_length)
+> +		return 1; /* no named controller, skip */
+> +
+> +	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
+> +	if (ACPI_FAILURE(status))
+> +		return 1;
+> +
+> +	gpio_adev = acpi_fetch_acpi_dev(handle);
+> +	if (!gpio_adev)
+> +		return 1;
+> +
+> +	struct gpio_device *gdev __free(gpio_device_put) =
+> +		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
+> +	if (!gdev)
+> +		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
+> +
+> +	gpio_dev = gpio_device_to_device(gdev)->parent;
+> +
+> +	guard(device)(gpio_dev);
+> +	if (!device_is_bound(gpio_dev))
+> +		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
+> +
+> +	return 1; /* bound, skip adding to resource list, continue walk */
+> +}
+> +
+> +static int check_child_gpioint(struct acpi_device *adev, void *data)
+> +{
+> +	LIST_HEAD(res_list);
+> +	int ret;
+> +
+> +	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	acpi_dev_free_resource_list(&res_list);
+> +
+> +	return 0;
+> +}
+> +
+> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
+> +{
+> +	struct acpi_device *adev;
+> +
+> +	adev = ACPI_COMPANION(dev);
+> +	if (!adev)
+> +		return 0;
+> +
+> +	return acpi_dev_for_each_child(adev, check_child_gpioint, NULL);
+> +}
+> +#else
+> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
+> +{
+> +	return 0;
+> +}
+> +#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
+> +
+>  static int dw_i2c_plat_probe(struct platform_device *pdev)
+>  {
+>  	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
+> @@ -138,6 +214,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>  	struct dw_i2c_dev *dev;
+>  	int irq, ret;
+>  
+> +	ret = i2c_dw_check_gpio_dependencies(device);
+> +	if (ret)
+> +		return ret;
+> +
+>  	irq = platform_get_irq_optional(pdev, 0);
+>  	if (irq == -ENXIO)
+>  		flags |= ACCESS_POLLING;
+> 
+> base-commit: 58717b2a1365d06c8c64b72aa948541b53fe31eb
+> -- 
+> 2.54.0
+> 
