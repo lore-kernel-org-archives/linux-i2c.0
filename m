@@ -1,137 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A89B1235C01;
-	Wed, 29 Jul 2026 21:06:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9C53229B18;
+	Wed, 29 Jul 2026 21:16:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785359206; cv=none; b=UcKNLG8ZGKUpNjzManqB74Cr8bpfiyvBE/zkZqITFHS2rnXdjXsmTYP0YMZ3OGZABxJivNvoy2hNiQL5+2Ooy2LLbEvsg+dRcsdwKa89xn4eXhkf0dMTYZtxuh8N1G+5uzRJggMYPoZFdiqqM1taB7ojhX/Gn3JYpQ+riZxjwWw=
+	t=1785359798; cv=none; b=Yq9zouzHhrMihRasrtvJ/FdEZQITZ95bvBhzEahflK8v5I9k9+SEMZdLrLHU5/xHF4wvwOr71zF06l2x8576ScAd+gLDTymLKbxDLDpj148Vd2qW9qNlkumDQBKYdDiDu2LoZvIUS6kX/FVcCIFsa0YQN49O4ySGJdOammbYiTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785359206; c=relaxed/simple;
-	bh=HgfY090xy0vuEUd+5KPG4ENtkxTKypqg2iIs6aVHUa0=;
+	s=arc-20240116; t=1785359798; c=relaxed/simple;
+	bh=jhCXA+dWSWUpif09/n0d8Qt4sEbpdN8adehF2YoLyx4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d1JlajhX7FKZbkjY81BAYEWZckIIPK8+OpjXnu/DqfOepo5kMNeoZMuy8tJpT+d7FzNU7XRWjO6ctC7r5WfAL4oOQIYOr1YAoF1kbtcKltRMZ+1WYgLlj5KdoWPSSraVWatTfjUrtHAnpNnUs3NTxnCH4e57uq2NALzoZtoaS+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IU1ZOudV; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=rBF6HWB2yiLzqNyMmI1ecbGqUrLAdOXqdK1nAE9RavLFBlwb+2+2ugAkyMap07y65Km+q+djRQoZPU0gyx2ZfUu8VTysCqpQELdf4+pyTtnSOQsTDNm68GGrIClJiZum8NkzzcATafyFqtj1I3oQIM0A6QPaaLvVEE7QKqW1VsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ti3vd3LC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IU1ZOudV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0641F000E9;
-	Wed, 29 Jul 2026 21:06:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ti3vd3LC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4031F000E9;
+	Wed, 29 Jul 2026 21:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785359205;
-	bh=7+FCVvhI3Xheokbmt2/UdTHQUuxm0dysdqGb3CqIcBo=;
+	s=k20260515; t=1785359797;
+	bh=ICOOmH7oPMkeN55Q6RYj17FT0y6ZKJX2Y/p6cYzEeJ0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=IU1ZOudVvxPdWnp1DPRNuIk8LrhrFjyL6heQEcgdMHrqZu2ZHxDPsLsRHugbCbxHg
-	 BLua11y1f68ZEwt8a5rYDZfsB+PpaZGCLCYeJBOCBLXofequouIJr3rQHrkpHY58ER
-	 VPWK6VDyKrQsA81yAi/Su0JWhGVQnZLcIabB/PldOfq80ers9sRkKAHOpiEaqLrKAt
-	 YKoU4bRiM27NGLG5vVwL+eWjip40D61q5xvabdhf+DhD/GGedgiOsbTOkpM8ck8ZwJ
-	 DfSH5l/Sw1UiX0jKJeGFVBvJZyI0gRgULNvB2a+scepCPtEE7bahaHxiuXTQ1BW/qQ
-	 EZ9AdpkzebQGw==
-Date: Wed, 29 Jul 2026 23:06:40 +0200
+	b=Ti3vd3LCwYY+TxXB6RQSTLBlF7YvGZjEH2Xzx+vmu07cvKyKDHfS8I0iRe7vlx0f1
+	 z9AEALmHpQkqDfmVmdXZ76ALyR9aIfj7lYO6k+DFYXMjckJjwtWsnJUQwxXR3Ki1br
+	 ctP+yTmsSqM4fnqVcVF7FLIdGGwW8Z8FXhSPWlnpojJda1zojeaKctZxykav5bvDms
+	 ctpKAAk8DpTV1wn/HTYcDqESLUNWo7eoHdQUPh8qMK4UcpBKX733YG8u82DTw6DVoT
+	 8Co+ilgSUCRJ3ArIS3GEx6uNeoBGgSmNHAeizHYrh6hsK4b6XmL9GGZD8J5bALQban
+	 nQVt9w9YG4RXQ==
+Date: Wed, 29 Jul 2026 23:16:32 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Zi-Yu Chen <zychennvt@gmail.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Jacky Huang <ychuang3@nuvoton.com>, 
-	Shan-Chun Hung <schung@nuvoton.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v7 2/3] i2c: ma35d1: Add Nuvoton MA35D1 I2C driver support
-Message-ID: <ampnhe-GqNoQwmJZ@zenone.zhora.eu>
-References: <20260727081859.1737223-1-zychennvt@gmail.com>
- <20260727081859.1737223-3-zychennvt@gmail.com>
+To: HE WEI =?utf-8?B?KOOCruOCq+OCryk=?= <skyexpoc@gmail.com>
+Cc: Hans de Goede <hansg@kernel.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, 
+	linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] usb: misc: usbio: reject endpoints smaller than
+ the packet header
+Message-ID: <ampsSryj3Vtjo37H@zenone.zhora.eu>
+References: <20260726113511.57596-1-skyexpoc@gmail.com>
+ <20260726113511.57596-2-skyexpoc@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260727081859.1737223-3-zychennvt@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260726113511.57596-2-skyexpoc@gmail.com>
 
-Hi Zi-Yu,
+Hi He Wei,
 
-...
+On Sun, Jul 26, 2026 at 08:35:07PM +0900, HE WEI (ギカク) wrote:
+> usbio_ctrl_msg() and usbio_bulk_msg() bound the caller's transfer sizes
+> against the endpoint packet size minus the fixed protocol header:
+> 
+> 	if ((obuf_len > (usbio->txbuf_len - sizeof(*bpkt))) ||
+> 	    (ibuf_len > (usbio->txbuf_len - sizeof(*bpkt))))
+> 		return -EMSGSIZE;
+> 
+> usbio->txbuf_len is a u16 and sizeof(*bpkt) is a size_t, so the
+> subtraction is done in size_t.  struct usbio_bulk_packet is 5 bytes and
 
-> +static void ma35d1_i2c_stop(struct ma35d1_i2c *i2c, int ret)
-> +{
-> +	ma35d1_i2c_write_ctl(i2c, MA35_CTL_STO_SI);
+... blah blah blah ...
 
-I think there is a valid review from sashiko here.
+> via usbio_i2c_init() with obuf_len = 7.  The wrapped check passes and the
+> packet header stores overflow the slab object before memcpy() is even
+> reached:
+> 
+> 	bpkt = usbio->txbuf;
+> 	bpkt->header.type = type;	/* txbuf[0] */
+> 	bpkt->header.cmd = cmd;		/* txbuf[1], out of bounds */
+> 	bpkt->header.flags = ...;	/* txbuf[2], out of bounds */
+> 	bpkt->len = cpu_to_le16(obuf_len);	/* txbuf[3..4] */
+> 	memcpy(bpkt->data, obuf, obuf_len);	/* txbuf[5..] */
+> 
+> Note that this is all complete before usb_bulk_msg() is called, so it
+> does not depend on the host controller being willing to run a transfer
+> on such an endpoint.  With KASAN it is a slab-out-of-bounds write.
 
-> +	if (ret)
-> +		i2c->err = ret;
-> +
-> +	ma35d1_i2c_controller_complete(i2c);
-> +}
+... blah blah blah ...
 
-...
+> combined with "(udev->speed >= USB_SPEED_SUPER && i > 0)" below, so
+> bMaxPacketSize0 of 0 or 1 gives a ctrlbuf of 1 or 2 bytes and the same
+> wrap, during the five usbio_ctrl_msg() calls in usbio_probe().  Whether
+> a given host controller will operate such an ep0 has not been
 
-> +static irqreturn_t ma35d1_i2c_irq(int irqno, void *dev_id)
-> +{
-> +	struct ma35d1_i2c *i2c = dev_id;
-> +	unsigned long status;
-> +
-> +	status = readl(i2c->regs + MA35_STATUS0);
-> +
-> +	if (status == MA35_BUS_ERROR) {
-> +		dev_err(i2c->dev, "Bus error during transfer\n");
-> +		ma35d1_i2c_stop(i2c, -EIO);
-> +		goto out;
-> +	}
-> +
-> +	if (ma35d1_is_controller_status(status))
-> +		ma35d1_i2c_irq_controller_trx(i2c, status);
-> +	else
-> +		ma35d1_i2c_irq_target_trx(i2c, status);
+... blah blah blah ...
 
-Why are these functions void? We should at least print an error
-in case of failures.
+> Found by code review, doing variant analysis on the code around
+> 8c6314489550.  The overflow was reproduced under AddressSanitizer with a
+> userspace model of usbio_probe() and usbio_bulk_msg() that uses this
+> driver's struct definitions, checks and stores verbatim; it has not been
+> exercised on hardware or on dummy_hcd.
+> 
+> Fixes: 121a0f839dbb ("usb: misc: Add Intel USBIO bridge driver")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Claude:claude-opus-5 asan
+> Signed-off-by: HE WEI (ギカク) <skyexpoc@gmail.com>
 
-> +
-> +out:
-> +	return IRQ_HANDLED;
-> +}
+Please use Latin characters, with the first letter of each name
+capitalized: "He Wei", not "HE WEI".
 
-...
+Also, your commit logs are far too long. If I had to spend this
+much time reading AI generated commit logs, I'd end up spending
+all my time chatting with AI instead of real people.
 
-> +static int ma35d1_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct ma35d1_i2c *i2c;
-> +	struct resource *res;
-> +	int ret, clkdiv;
-> +	u32 val;
-> +	unsigned int busfreq;
-
-you can immediately initialize busfreq here.
-
-> +	struct device *dev = &pdev->dev;
-
-nit: can you please sort the declaration by line length, in a
-reverse christmast tree shape?
-
-> +	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-> +	if (!i2c)
-> +		return -ENOMEM;
-
-...
-
-> +	ret = devm_add_action_or_reset(dev, ma35d1_i2c_pm_cleanup, dev);
-> +	if (ret)
-> +		goto rpm_put;
-> +
-> +	writel(MA35_CTL_I2CEN | MA35_CTL_INTEN, i2c->regs + MA35_CTL0);
-> +	writel(FIELD_PREP(MA35_CLKDIV_MSK, clkdiv), i2c->regs + MA35_CLKDIV);
-> +
-> +	ret = devm_request_irq(dev, i2c->irq, ma35d1_i2c_irq, 0, dev_name(dev),
-> +			       i2c);
-> +	if (ret) {
-> +		dev_err_probe(dev, ret, "cannot claim IRQ %d\n", i2c->irq);
-> +		goto rpm_put;
-
-The actions in rpm_put are executed twice, considering
-devm_add_action_or_reset.
+Please check what you are posting before sending it. Write the
+commit logs yourself and use AI only to help with the grammar.
 
 Thanks,
 Andi
-
-> +	}
