@@ -1,240 +1,307 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE07456E0E
-	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 11:35:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785324940; cv=pass; b=k5XntT7gEaVbJSeHUWSpOwuz5NWFNhpcLr/UMudC2E4gLny9WmzbM0LlTckpQNd9TmCrKFntH2y/nz1q2sc9B1+tDPiwh+ampiDWzq9l22kw5mBUzzJtYJc0PC3RuQXH9fsakt89PFvPOSYXuxYpNo8flceJp/rhuFR2zunigso=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785324940; c=relaxed/simple;
-	bh=C3VfRcT+sZcCo/DQKkIcGwGNwWmfsfBT5Zt9pBRzoPM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Jq9CA4S1bZk4a1e3LHiCludsOSoUbsi3euVtsH3ou8thfTVeswWdUo6CjXoEqpWdc0r6bkGuoKH0VqLSSx5iMJDMuOGVi0P04VWO8P3uhGmhCXPx6LMepCtTx6fPwfwjik1v6Qm057ycEJpGe8t6qw13MIcdtA7P32INnp5HG/o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FD8+Aead; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=evOXn+Oj; arc=pass smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3914929AB1A
+	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 11:40:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785325259; cv=none; b=qWEpMwYuL0ENWHOxJsRQbZeSHl1hEVYUZMpASlJcdQphhEiGtsCV0dG9HbTFU7mtZ0+sYfwQ4BBH6qeg9f5qaE+mKpqBmf3U9LtM64HWQvjpl3uXtDsXEbpszC9ggE9qk5WrOOtEQ0WfZFZadxjxRz89JwTLLmIsTaqw/HGk1N4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785325259; c=relaxed/simple;
+	bh=1ILedmnxZpakpCdjZKCC3sWp+t+p8i89yHNriC7BFl0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PW5gQfbB28aLgH1Tk7lrkmliM/HA3+W97AsMOfheudWNDBopOenx+5/ALQff4Iip3KR3BexPl2OQmlqcJqF3ZLwF64aHQ1AhAm+aLlrLqB1ifzZpC2MIui8o1zElJx2Y7oP9WHSmqfotKxoZoPw93QsazBtYYk51D7IMEB4FgdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=OiB6aiCO; arc=none smtp.client-ip=209.85.167.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FD8+Aead";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="evOXn+Oj"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66TBV0iV1697483
-	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 11:35:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	MIJLeAnQsHAofyxe1GOfsiufaRlLhGM0oKTM71bUBWc=; b=FD8+AeadImKoU9lE
-	h3LKTSn0HRGdhr/+UmIEGM1IEKDQiKH1deZDa3sdGedO0CFy2qRQHbRKAePS8dhs
-	ZdKCc/eUwxMTPKNGvzMonmSyzOO4DKkXgoL/Oaf+eQdkhp/owgoqh7InB/33NC+8
-	RlsOMp2KZdi/Vab5XifvBhtaCp5bf223QOXUKMeTX1/WTE1VG1NQC4hkiHuTbggH
-	EdB0A85xHSFwofdoYqdOvgTPXKNyESro53sL+XAxRDQtYIO29lRQpRJjr7RyrLXb
-	fQgBGnZmwiEuJUhmg/zNwabz8PMtYHwEUj/5Y/eY1F3aSl1aQMuKnFNgQlZd43pQ
-	REz+qA==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fqgqc80kp-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 11:35:37 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-93106d8affcso83535885a.0
-        for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 04:35:37 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785324937; cv=none;
-        d=google.com; s=arc-20260327;
-        b=K4R0sshfWa+XhaMINudOCNMs1H66wEutRQXjVx/PtZaH3+syolh/JFM8AWaVVvViJh
-         idhat81lkiDA8YUxbUpIlDg2NgOMiQgPdh7aCItMRqEdJs8EOe4VyK6ViyLBDTe0x2zt
-         JHGHPnHmdzNmtK2HmMwbYtsHeVduUy6O38l9SkZAXd9R3L1SS8tnscEpUKFpR7g1L66b
-         8IW3sFdFEN6MyGMuiB5NxDlf8oK2rQCB2OV3vMnJruPzCCwlC7Cdr0ugp/jPWQNot/Cj
-         D/iY6S+bTyfI0VAQ6X4GQz16tiXFmhIRczVFl09Ui+tFYmMrPJ5E+83efYnnfnHr/oCM
-         o/kg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=MIJLeAnQsHAofyxe1GOfsiufaRlLhGM0oKTM71bUBWc=;
-        fh=FeT9Vgp40Ys6CBqdnIbXmmXxnj4vaE9t0xCdwlg709g=;
-        b=pnZzU8TNEr/GcpJXbInFWHxwJFI9I5oUe7w8l4+StuTMJ6BrnSR5ahiBxiSvUyyp4O
-         wInPF5MMuzBxlTqMBUvHb9JOmA75UUaWozEr5KGO+NhX/CbP9Xs8oWCTXFQl7QAC2mn9
-         wn6oWs52sT8aUkgxc2PxMm7TQXnTqbKz1HbtS0mJNN7j9bh/pXQ2rlqnl9VKBqaKhCBJ
-         14WWssAg/PzF7P5W4psL0f1STjfty1NAxg0bSVpPWohlrQuzxE80I7ObIKNkbhDk3IDq
-         rEPywiK5HV3cno+0AAyfYUeHuQHleJV174IEGME1dEJCiS29atIGsgaJXKMhN+iigoSi
-         Ne1Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="OiB6aiCO"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5aeb7ccb9f0so92327e87.0
+        for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 04:40:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1785324937; x=1785929737; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=MIJLeAnQsHAofyxe1GOfsiufaRlLhGM0oKTM71bUBWc=;
-        b=evOXn+OjtqC/znTPs14eCYGQQ6RW3RGs7pPNqXhn5F65nAizL7Z3R+q0jaGr6g4ka+
-         0pdsHjZQN2qQt0lnzjRlClukru1qR04jTsLohqE6Gveh+cDog1DNuIO1Wto38g3Ylwl5
-         9tOxijFbsTNzB298bQgkorSpMl9OPAJr2VrxzcS4iUpmx2AQ6hYMec9cF1nqbwQOyq9t
-         jvG1VhcG5cSS15fosd1NgDQxO+hMbfeTpsnsKUq9n2Nj7m2Y01rWh3R9taEWFOz1urDw
-         Y9VAwHec4MDKWx8fyDs+Pq7p/6DTenueTjApRGMd2bDyP6swaUprcsq8EjLO1T22feHl
-         aUcA==
+        d=linaro.org; s=google; t=1785325253; x=1785930053; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=HHS8LyYwcNUW10LvssA0fR3Rb5EpddNaHSJU6gUDkyY=;
+        b=OiB6aiCOWqk247wURHqeP7duMWp3uA6KTVk4KsjrYyszafs9aGCgYnCwJbj34vKZFR
+         6IQ9r76+zOk9ZMYpxJpJcH1rR98nEs7ojrEY9WYQgtX+yWi9Z/7hbpzfEi8QW9/c5Ird
+         V4mtyy2mu6scOneyWuF6R4uBWNTnSA7B2nc8mJ82BSNeizj53UI0Eb4nLi1NQJDMsSK8
+         HHpf5US8+AR5sKanX0VZiuopVy0r/OrlLsq1EeTOgG25C8HHihV7OPSRej/fVoOWAVMP
+         9rxZEOSYV9VTpxKWXKvGO4dAIjktnLz/22qGs/cT/9+V0XXcG0zaJ7+ZPiNkCiUC7ddQ
+         5e8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785324937; x=1785929737;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1785325253; x=1785930053;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=MIJLeAnQsHAofyxe1GOfsiufaRlLhGM0oKTM71bUBWc=;
-        b=FtHtPyNClWlATebthpryyXkJDt4qawEYr5+rKm6pZwC1umsUKXM0WPIXm9ZnBfK9zG
-         h7LSlgWq17hUGL72632Bmg/acUtOURiDPK8ttfU1dHpzmLHfDcRLUpIeSWNklPK390jc
-         jNGdljNhhwnWyz0GQb3wrlbWJfcFuVDOEWGM804A1VEcEciLsLU+MRvai18hZpTJr9+7
-         jF6o0P/KiygBzQb7wZiG4hLtWW0chwu+Xw7EC6ulesAyTb8yyOnKqq/w5hAJER+ODJxj
-         YCMxdz7M3gNLx9ulQML7s277Xu7F0tseY11pla4Vq2InzxTfEhfD5nZ+434tTBaxcq6J
-         TJsg==
-X-Forwarded-Encrypted: i=1; AHgh+RoC7SgKdK19zbU/XrXU+aUSVlEaJkBdqS2oQ6SmczXWNChqm0XeyiaQn90j6zuuAzO8l+J/J5CjBCs=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+y08mrQ26glaQ41hsZ68KZ2ineuEL6GZ84ztyQaYj2EOnSZR0
-	9iSKdGilQ4eIOn9ujpNTw4h6fo5UaFzi//nLWmyGa0wpJQehiu5kD+VuQrEezkyrNk2nzpyUTK9
-	zCbFau87AR2ElVM9LC3hYQwDUHn31ghpzt+/d9P5o38s6gRf3SyhjONQZ3/tOG3yWm4XlYzAR/w
-	OllLI0WNf6JHXszd6Jr7Z/1P0DEuqeW2iGYYeR1Q==
-X-Gm-Gg: AR+sD10VQyCeV3L1N1cfHmKY5BUWN5tPIgqMlFCCkMHWnDd9HCoZAWPPnmAeUrXMGJ5
-	OiTQ0MoUbl6qbc3B2oqCRZXb6E8Sj9OiDvnyxq/RA9UFrJGKyzq+Ev48YM4UnvXNZ2J1Dj8C9Dy
-	NQaRLd+jGfBMnIVlsS/fTEubvcPvLQkH1cxORTVeWNxNAd9WLEUP0QZSZaL0HQjcEm9c8z/9VBR
-	Oc5v0K1hmdklZU0n1bEOivE3JwOYq0aubwOdyk9TjPzHQXZ3dsdzIYpPakdbEo2RPut19m6LrY=
-X-Received: by 2002:a05:620a:370e:b0:92b:67e6:8ad0 with SMTP id af79cd13be357-9330272a40cmr620254485a.74.1785324936669;
-        Wed, 29 Jul 2026 04:35:36 -0700 (PDT)
-X-Received: by 2002:a05:620a:370e:b0:92b:67e6:8ad0 with SMTP id
- af79cd13be357-9330272a40cmr620252285a.74.1785324936085; Wed, 29 Jul 2026
- 04:35:36 -0700 (PDT)
+        bh=HHS8LyYwcNUW10LvssA0fR3Rb5EpddNaHSJU6gUDkyY=;
+        b=DCMYOZ/Gc8YDX0x/dTGpJUzVnhx8qrcNMgmxhpr5XdCro+5EW8H38sM3OiWy/W7zQt
+         gZ5o4GK6RP672T8fHdx2MYuoPg6B+e8yZFcUVbFl7WFzTNBUnGuW1guoiJ6QNFOkS2A5
+         eBwZ+aScLkSNAAsc/+4sEOSH3XKsxH3JkC9mBVFvulQET6I9e8pS+pyizIknrJjsyDZY
+         IJwnaRCCgZW4iA7JHvI8T2dlXkYxUNvFluCyFD0ZDz6dcEouCDktiGO/ha1qIvawWEuq
+         YtZIuLP3TxKRfhmyrUngxQOqCAFL6S45oAORX57R5HuUXsiKrXkuc5lsbEoGdZtPk8ZH
+         neLg==
+X-Forwarded-Encrypted: i=1; AHgh+Rr7kdHeVWV4HR3bpKLyXjlr+j8WqtvA/DmltWyZTHbWahGCWv9kAA8fghHKQueLUTGsNK26IgZ3jzw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy7Ct71T3CpyKcCwfwcjzTb3+7eTWW712SB4vUzSiQInqpQloMU
+	J4TryoUTGIQPEoU41t5cA9JcvlnFuIvcaPDU19+JttcnLk4184dRjUoN2MUXCNGrxGk=
+X-Gm-Gg: AR+sD13J5r2q0kjarv1DGCha27+oNNYUdmeG/+k3yNNr2AToaynBU/hejTajIP1kfCW
+	trTH8giKuroStwhqXO2SNI8WS4n6jNYSHjSqKmCjZ3IvXKY8QaB+kR/6q/s0lxykJ55L81EOw5W
+	ohbV6rcXSivob/Qm8zZrFL7lOPFPIH8iZo4xqiutoryOwMKJ7mNVF9opisNnBT6yN/S5mqxu/93
+	pFtmbSFrO7Jvva/3T6uaXH49cUy5lFw5rJ+PtrC5Dfmu4l3yXxhW4A23pOBvDKCVbOn5jHDCdwB
+	IGMUjzvlkU+TjNehOitoOzEE77A/lv/YPZAw5qv80lNBFgmpS91wn5V2jtQPfRvKVzVBePvv4u0
+	l9Liics8GpkpI1WHmHMAQi96dkQwY8toBjdGGWlrs1Y4ZIB04rz1WC5u3aVWAqkroqGRpYGklFe
+	ys05934vq9ItYKazkTqOMfURhgH8O9hkiZ/DJVLiJnaumQIEuzIBzjaQdq4Y7WI9CqHvEDjfnGM
+	Il3lPTbkxAmabPjg4h7T8GnqrwT9zZM4qp/WmnRknE=
+X-Received: by 2002:a05:6512:3d15:b0:5ae:bf3b:cb0 with SMTP id 2adb3069b0e04-5b2d02456eamr1174096e87.3.1785325252353;
+        Wed, 29 Jul 2026 04:40:52 -0700 (PDT)
+Received: from [192.168.1.100] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-39f5d69dca2sm3969401fa.35.2026.07.29.04.40.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 29 Jul 2026 04:40:51 -0700 (PDT)
+Message-ID: <661db3cf-ddac-4252-8aa7-b7ba8c39c0ab@linaro.org>
+Date: Wed, 29 Jul 2026 14:40:51 +0300
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260727-cci-clk-fix-v2-0-c3958f28b045@oss.qualcomm.com>
- <20260727-cci-clk-fix-v2-3-c3958f28b045@oss.qualcomm.com> <9fc0577e-ce2a-43fe-85ac-e382e930d5da@linaro.org>
-In-Reply-To: <9fc0577e-ce2a-43fe-85ac-e382e930d5da@linaro.org>
-From: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Date: Wed, 29 Jul 2026 13:35:25 +0200
-X-Gm-Features: AUfX_myQFTsRFeurmOduisqWnALh9oOceQK1Qw7einicpQvlHeEihgTLrOlfag4
-Message-ID: <CAFEp6-1tvsg1gNHYwiyaBWqw2=bQazwRViN4ia3VHz9VWNOJjg@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] i2c: qcom-cci: Fix CCI clock rate enforcement
-To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/3] i2c: qcom-cci: Switch msm8953 to the CCI v2
+ timing/rate config
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>
 Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
-        Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDA5NCBTYWx0ZWRfXxm5IY9vnQX1p
- 6C5rVtdqMgULJNusuU9tNqByEwFE6v+1P4GbfbJRhSIHOtyhGbgLkWLQo/97RLyoSj9DQruudjl
- zXXWZj+ymkYOdyCdEceev8NL9RAAZEo=
-X-Proofpoint-GUID: DjU6mzNA9-JmiicfkUQojWPHcHtZ8o35
-X-Authority-Analysis: v=2.4 cv=XdG5Co55 c=1 sm=1 tr=0 ts=6a69e589 cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=rJkE3RaqiGZ5pbrm-msn:22 a=NEAV23lmAAAA:8 a=KKAkSRfTAAAA:8 a=EUspDBNiAAAA:8
- a=hEHBz4w9bolPAqnzaVcA:9 a=QEXdDO2ut3YA:10 a=NFOGd7dJGGMPyQGDc5-O:22
- a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-ORIG-GUID: DjU6mzNA9-JmiicfkUQojWPHcHtZ8o35
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDA5NCBTYWx0ZWRfX8f2RLcLI12Wp
- teaodiqM86I2a+5G5d2gBN++2sPgQgicOBDGRAHgRhQ5WVu4o/yvKU9zBgCuUx47iYp2/w8auwH
- 1AH34si7MKdEJER2zZNGD++rW/jbgXK0nZH5ndfhTvOrMH+Cs1VtnVWNkShvzwcB9jXLbsV08/X
- SM45a1tyX81YFDbBVzABatzwtscIPLJmxN6vmMa4GzkRgf1jILB3Yx9Yc9kSGTXtx8wsgQ8jHaV
- 3gTeU47lHjkWn/JJPnD1PNMyNCGn2Q9KIfbdgwlKkmWtx57HL5zPv5PYRRFZ1oZDUANJGubfbqF
- JKsgoBejCL5Esr3Z2c1ByhfBffzXl3Ag//TBBSWziKK1HXnhyPb85w6Qahw3U01tBdy1N2PPS7I
- Ee3Ndnc+kQxtnjYLzGNpTx1YXPzB0K1yjsgZf5lt40CLwS0BK3Oyx29KMtjNP5YCSTnJKS4hD9w
- /etApf5kv5n/FoBl8kA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-29_04,2026-07-28_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 spamscore=0 adultscore=0 clxscore=1015
- bulkscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607290094
+ Wolfram Sang <wsa+renesas@sang-engineering.com>,
+ Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+ Luca Weiss <luca@lucaweiss.eu>, linux-i2c@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Konrad Dybcio <konradybcio@kernel.org>,
+ Stephan Gerhold <stephan.gerhold@linaro.org>
+References: <20260727-cci-clk-fix-v2-0-c3958f28b045@oss.qualcomm.com>
+ <20260727-cci-clk-fix-v2-1-c3958f28b045@oss.qualcomm.com>
+ <c7b0213d-a4c9-4ac8-be09-b449da457230@linaro.org>
+ <CAFEp6-2VP1pVbKJEkPTOFdMn8kv=83CrP-MCYPDTN0BHURn2Jg@mail.gmail.com>
+ <2b4b3fe3-9062-437b-8b4f-65a0b121d8ce@linaro.org>
+ <CAFEp6-1zXcsXqez6dba_BT4YXnJU_YT8k7OQ+Cp-gnWL0n27Qg@mail.gmail.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+In-Reply-To: <CAFEp6-1zXcsXqez6dba_BT4YXnJU_YT8k7OQ+Cp-gnWL0n27Qg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Vladimir,
+Hi Loic,
 
-On Tue, Jul 28, 2026 at 5:58=E2=80=AFPM Vladimir Zapolskiy
-<vladimir.zapolskiy@linaro.org> wrote:
->
-> Hi Loic.
->
-> On 7/27/26 12:21, Loic Poulain wrote:
-> > The hw_params timing values (thigh, tlow, etc.) are in CCI clock ticks
-> > and were calibrated for a specific clock rate per hardware variant. If
-> > the clock is running at a different rate the I2C timings will be wrong,
-> > potentially violating the I2C specification.
-> >
-> > Rather than just warning about a mismatch like before, actively set
-> > the clock to the expected rate, using the OPP framework so that boards
-> > which (will) describe an opp table also get the required power-domain a=
-nd
-> > regulator votes for that rate. The OPP table is optional, boards withou=
-t
-> > one simply fall back to a plain clk_set_rate() behavior, so existing DT=
-s
-> > keep working.
-> >
->
-> Can you please share any deficiencies you see, if a regular mechanism
-> of 'assigned-clock-rates' is used in dt descriptions instead of setting
-> a supported clock rate from the driver? Or is opps mechanism supposed to
-> substitute it?
+cc: Stephan, Konrad as participants of this old discussion:
 
-assigned-clock-rates describes an initial hardware clock configuration
-applied before probe, but is a bit unclear about when we should really
-use it. In our case the CCI core rate isn't a fixed hardware property,
-it's a software policy tied to the I2C mode(s) the driver programs.
-The driver is then component that knows which rate a given mode
-needs, so it should own that decision.
+* https://lore.kernel.org/linux-arm-msm/aL6Vp-3er71AJPJd@linaro.org/
 
-Driving it from DT means the DT author has to know the per-mode rate
-constraints (effectively reading the driver) and keep the two in sync
-(the CCI/I2C bus rate and the CCI core rate), which is probably why
-several dts files got it wrong today. Enforcing the rate in the driver
-fixes all of those cases in one go.
+On 7/28/26 13:26, Loic Poulain wrote:
+> On Tue, Jul 28, 2026 at 11:38 AM Vladimir Zapolskiy
+> <vladimir.zapolskiy@linaro.org> wrote:
+>>
+>> Hi Loic,
+>>
+>> On 7/28/26 11:20, Loic Poulain wrote:
+>>> Hi Vladimir,
+>>>
+>>> On Mon, Jul 27, 2026 at 9:21 PM Vladimir Zapolskiy
+>>> <vladimir.zapolskiy@linaro.org> wrote:
+>>>>
+>>>> Hi Loic,
+>>>>
+>>>> On 7/27/26 12:21, Loic Poulain wrote:
+>>>>> The msm8953 CCI timing table is internally inconsistent. Its Standard
+>>>>
+>>>> likely I was misunderstood in my v1 review comments, and I believe v3
+>>>> will be needed...
+>>>>
+>>>> If there is just one master, or two masters set in equal speed mode,
+>>>> then there is no such issue as "msm8953 CCI timing table is internally
+>>>> inconsistent". In other words generally it shall be permitted to have
+>>>> supply clock frequency intermixed speed modes for any CCI variant.
+>>>
+>>> The two masters sharing the supply clock are independently
+>>> configurable in terms of mode, so we simply can't guarantee they will
+>>> run in same mode.
+>>
+>> There should be no restriction or guarantee to configure the same mode
+>> for two masters. The supply clock frequency is one for both masters,
+>> but speed mode selection is based on its presense in the driver by
+>> the CCI frequency.
+>>
+>> If there is no match in the driver for CCI clock frequency/speed mode,
+>> return -EOPNOTSUPP for such master.
+>>
+>> Think of it, right now for each CCI hardware revision 3 'struct hw_params'
+>> are provided by the driver, some of them match 19.2MHz frequency, some of
+>> them match 37.5MHz frequency or intermixed for msm8953 case. Likely there
+>> is no restriction to provide 6 'struct hw_params' for each CCI hardware
+>> revision covering both 19.2MHz and 37.5MHz supply clock frequencies, then
+>> any combination of speed modes can be configured on any CCI hardware for
+>> two masters.
+>>
+>> The main point is that CCI clock frequency is not specific to CCI hardware,
+>> but it is specific to 'struct hw_params' mode.
+>>
+>>>> I'll repeat the same point as given in v1, namely supply clock frequency
+>>>> is not a property of CCI revision (therefore v1 1/3 or v2 2/3 is invalid),
+>>>> it is a property of the mode settings. It's correct to remove 'cci_clk_rate'
+>>>> from 'struct cci_data', and it will be correct to add (or parameterize in
+>>>> any other way) 'cci_clk_rate' to 'struct hw_params'. Each instance of
+>>>> 'struct hw_params' is strictly bound to a particular CCI clock frequency.
+>>>>
+>>>>> and Fast timings match v1/v1.5, which are calibrated for a 19.2 MHz CCI
+>>>>> clock, but its Fast+ timings are essentially the v2 values, which are
+>>>>> calibrated for 37.5 MHz. Since all masters share a single CCI clock,
+>>>
+>>> So, you're right that the supply clock frequency is a property of the
+>>> mode/timing settings (though I'm not entirely sure timings are fully
+>>> hardware rev agnostic). I don't dispute that.
+>>> However, this reflects the current driver behavior. It's not
+>>> incorrect, it is a simplified approach that uses a single frequency
+>>> point across all operating modes of a given platform.
+>>
+>> The driver should be fixed/improved. Reverting the link between CCI
+>> clock frequency and CCI hardware revision is invalid, it should not
+>> be done.
+>>
+>>> I added a brief paragraph in the V2 cover letter to explain why it's
+>>> out of scope.
+>>>
+>>> My argument is about scope. Today the driver has no mechanism to pick
+>>> a rate per mode, a single CCI clock is shared by N masters (usually
+>>> two) that can run in different modes simultaneously, so per-mode
+>>> scaling requires (1) per-mode rate info in the params table, and (2)
+>>> vote/arbitration logic to select the highest required rate and still
+>>> apply correct timings for every master at that rate. Concretely, with
+>>> one master in Standard and another in Fast+, you'd need a 37.5 MHz
+>>> shared clock and a Standard-mode row calibrated for 37.5 MHz, which
+>>
+>> This is a limitation of the driver only. For a selected CCI revision
+>> please add 'struct hw_params' for Standard mode / 37.5MHz supply clock
+>> frequency, and the problem is solved.
+>>
+>>> the msm8953 table simply does not provide today. So this isn't a small
+>>> tweak, it's a new capability backed by new table data. It would bring
+>>> more fine tuned supply rate, but without huge benefit, as cci clock is
+>>> gated most of the time due to runtime-pm.
+>>>
+>>>> But what if you have only one master?..
+>>>
+>>> It's not important here? we have N master (usually two) and have to
+>>> deal with that.
+>>
+>> It is important in sense that any one master usecases are properly
+>> supported.
+>>
+>>>> I think the msm8953 data is correct, it shall not be removed.
+>>>
+>>> The msm8953 table as it stands is internally inconsistent (without
+>>> per-mode rate info), no single clock makes all three modes correct.
+>>
+>> It is so, because there is msm8953 data is incomplete. But the present
+>> msm8953 data is correct.
+>>
+>>> Moreover, msm8953 is the same HW version as msm8996/sdm630, which
+>>> already use cci_v2_data, there's no strong reason for msm8953 to keep
+>>> a bespoke, half-and-half table.
+>>>
+>>
+>> Okay, I read it as 'struct hw_params' data for msm8953 can be removed
+>> and v2 data should be used for this CCI hardvare variant.
+>>
+>>>>> no single rate can satisfy all three modes with the current table, and
+>>>>> the DT assigns 19.2 MHz, so Fast+ timings are wrong.
+>>
+>> If hypotetically 'struct hw_params' Fast+ timing for 19.2MHz supply
+>> clock is added to the driver, this usecase will supported by the driver.
+>> As for today the driver has a bug, no doubt.
+>>
+>>> This series intentionally does the minimal correct thing, aligning the
+>>> timings with a single supply clock and enforcing that clock in the
+>>> driver, which owns hw_params and has all the info to produce correct
+>>> timing. It fixes reported devices misbehaving when no (or incorrect)
+>>> assigned-clock-rate is set.
+>>
+>> Since we're discussing it, this fix is not the only one possible,
+>> and the fix which returns the link between CCI hardware revision and
+>> CCI supply clock frequency is an invalid fix.
+>>
+>>> Not saying what you propose is not do-able, and I clearly understand
+>>> what you mean, but I'd prefer to land this simple
+>>> alignment/enforcement first and treat per-mode clock scaling as a
+>>> follow-up, rather than coupling a straightforward fix to a larger
+>>> refactor. Please clearly Nack if you do not agree with this first
+>>> step.
+>>
+>> Instead of a non-productive NAK I can provide a simple change adding
+>> a proper link between speed mode and registers programming.
+> 
+> So I guess what you'd like is something along these lines:
+> https://github.com/loicpoulain/linux/commit/fdacebb22d914ca64b0c3d4e257a913dc0cd16dd
+> 
 
-OPP doesn't really substitute the  assigned-clock-rates, we just use
-it to describe the constraints/votes (power-domain, regulator)
-associated with each operating rate (picked at runtime), if any.
+I shared another and personally more preferred variant yesterday:
+* https://github.com/vzapolskiy/linux-lpc32xx/commit/e3dee612da90
 
-> For instance qcom,i2c-cci.yaml example uses 'assigned-clock-rates'
-> properly, in many .dtsi files (NB, but not all, which means for a number
-> of platforms CCI hw programming is done incorrectly today) CCI clock
-> rate is set this way.
+The main differences:
+* all CCI programming data is consolidated and removed from driver
+   data specific to CCI revisions,
+* as an immediate positive side effect 19.2MHz supply clock frequency
+   is supported for v2 revision of CCI.
 
-Yes and that's fragile. I think we should remove that from the example.
+> My intention was simply to move this 'disruptive' change out of the
+> series scope, as I don't believe this series itself is incorrect.
+> 
+> However, if you'd really rather have everything addressed in a single
+> series, I'd be inclined to either pick/rework the series in that
+> direction.
+> 
 
->
-> It seems to be sufficient to get the clock rate in probe, compare it
-> against the supported clock rate associated with a wanted mode, return
-> -EOPNOTSUPP if there is no match.
+If you find it possible to incorporate the change above, it would
+be very much appreciated.
 
-Certainly valid, but I don't think it would hurt to complement it with
-additional enforcement in the driver. I don't see why the CCI driver
-should be prevented from configuring its own clock. It has all the
-information required to determine the correct rate and should not have
-to rely on or trust whatever clock state happens to be programmed
-beforehand. Instead of merely rejecting an unexpected rate, it can
-program the correct one itself, which is standard driver behavior and
-not particularly different from what many other drivers do.
+The next question to solve is to fix CCI mode programming for all
+platforms with CCI v2 revision, which are obviously broken right
+now, and partially are fixed by the change proposed by me above.
 
-> To get a better idea of my proposal please check this simple commit:
->
-> * https://github.com/torvalds/linux/compare/master...vzapolskiy:linux-lpc=
-32xx:cci-speed-modes
+These platform .dtsi files contain CCI clock rate assignment:
+* agatti.dtsi
+* msm8916.dtsi
+* msm8939.dtsi
+* msm8953.dtsi
+* msm8996.dtsi
+* sdm630.dtsi
+* sdm845.dtsi
+* sm6350.dtsi
 
-Thanks, I think I have a clear understanding of what you're advocating
-for. While it does expand the scope of the original series somewhat,
-now we've discussed it in enough detail, I've taken your suggestions
-into account for the upcoming v3. Let's continue the discussion on
-that version.
+These platform .dtsi files do not contain CCI clock rate assignments:
+* kodiak.dtsi
+* lemans.dtsi
+* milos.dtsi
+* monaco.dtsi
+* sc8280xp.dtsi
+* sdm670.dtsi
+* sm8250.dtsi
+* sm8450.dtsi
+* sm8550.dtsi
+* sm8650.dtsi
+* talos.dtsi
 
-Regards,
-Loic
+One proposed "fix" (note that formally it is not a fix, but it compliments
+a today's flaw in the driver) is to add CCI clock rate assigments like this,
+it seems Stephan and me support such an approach, its benefit is that it
+does not require any driver changes:
+* https://lore.kernel.org/linux-arm-msm/20260729112719.1151700-1-vladimir.zapolskiy@linaro.org
 
+Another and likely more preferred approach suggested by Konrad is to
+use OPP tables. If this one is selected, then, as Konrad said, it would
+be needed to resurrect/rebase his series, it would be important to update
+the dt binding documentation etc. Please note, that a forcible setting
+of CCI clock rate over OPP mechanism can also be done independently on
+top of my non-intrusive "read-only" change.
 
->
-> > Tested-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
-> > Suggested-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-> > Signed-off-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
->
-> --
-> Best wishes,
-> Vladimir
+-- 
+Best wishes,
+Vladimir
