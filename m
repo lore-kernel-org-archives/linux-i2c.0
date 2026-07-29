@@ -1,159 +1,165 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27ED3FB7E5
-	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 07:21:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45E543E5A0B;
+	Wed, 29 Jul 2026 07:30:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785309702; cv=none; b=Nv090sAB0e/vFhETBrnvGzHfu2/ySmYE3a4Go1oyM//8Br0+RNeZl8UiiaXHzWnwPk3IhJiBTrmofTIhgbRHQm0dDb7irBozL6T+PeGbvqUmvXntlTtJ5qa5WXtqIH1DivRKil/Ew3nQ0gDqk7gGUF3dr1y2TUxru1sd589OFoo=
+	t=1785310261; cv=none; b=PWn9gTDZgl/hxea5DTgENtWT1HibDPXxqF0rQQo2Mk+WiOIeE9hr6ph+WkgzTTNWpss5NAYY1asAeTVQ2rnsrM6dGOuX1l/lW2KCx6S+VVrEh0qw6ja7l1UxnibvaT6HsRA4mQGmM971oj5g6wpQOrjsyp2jUyn7IWr9IV6SOxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785309702; c=relaxed/simple;
-	bh=ZipfWBVaKl0EMYAJTfhiM2oCEYXXGMydyR5EHeflR94=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ufZZ7f+tgTqnsLUlzuXCXr1F41ykpvZdz+pQkGxAgZTcl1fbsUXRWpb9mzLePKNDUdfaBD9p1f1SdEm+aV45R3GT6RulC1h+v3SU8fKrQ7EQJlPgK34Kr9jWzhYS0AAJsWiFZZFXL+mPtyZaNqD1kdo7v9UR8fw5g/0sy8Q0cPg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eKnExpYF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=V3z1lWE2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DfQSAsox; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qHzkFwWs; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1785310261; c=relaxed/simple;
+	bh=TrkPsdHifxWxlu9JPjHwoslczde4iSfr9O5NgjlL5Hg=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=pluD7C2kU1t80c3CH39EcPvNhQNL7thBHkTuH/6Rq2AhqTKknrTcQ7EXnGuDXMM0LbsxHf7vS3OO8OgjERG9WWxrLUnQ8B5GynMPp6XIiRgs2+atCuoWJUp959bOgKlI7TceFcmr3mJbDiL+Wyt++iWvtWeUk2ry57oFzUH6ls8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=E6/eU71b; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eKnExpYF";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="V3z1lWE2";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DfQSAsox";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qHzkFwWs"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id AD1863E35;
-	Wed, 29 Jul 2026 07:21:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1785309685; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
-	b=eKnExpYF++UYtFBVGYQ+8XUuXb2/VIFkg1mlMEZxdNMFOJdVDOuIHHh402rzWopZqT+gzq
-	Ng5dnOMRjavI8hkfHg3AhQaCK02ASUD278UGxEPYfkkX9pTIyV4ShsWhC6z3gLH+oRw1Lz
-	w1znr6QKyCe2QXqA7tgMtkrrwqiS2u4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1785309685;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
-	b=V3z1lWE2h3p7lMoPsAOMY/zQZx02NhzX84N4CmAAfxOSSEAihUjcgM82pRuLBvxZPXLIkM
-	Rek9HFid0WWv4dDw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=DfQSAsox;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=qHzkFwWs
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1785309681; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
-	b=DfQSAsox9xvq9T4+DSGvT7hOvH0Q6qOjbqLTHF6OflXCvkhd/5GdM8yzUCScnVfqCoae5G
-	IFVV3OVnVpPVFq3kh35yRlUn+M1bNw77QivKdjGn8aBCrp3dkmPwJXP8WVgwDRS7/yf4lN
-	p3++KuIduoSrFU22ssJr2lPvqLEEgFs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1785309681;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
-	b=qHzkFwWsJ2ekIzIAt1JnNozkq2JLcGCQjfLlEQx4al/HtS9zUKWbSWmKAAHljB79Z/yWfC
-	vgfHzdCE5WS9BKDA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 686AC779B7;
-	Wed, 29 Jul 2026 07:21:21 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id TLqEF/GpaWoeDQAAD6G6ig
-	(envelope-from <jdelvare@suse.de>); Wed, 29 Jul 2026 07:21:21 +0000
-Date: Wed, 29 Jul 2026 09:21:34 +0200
-From: Jean Delvare <jdelvare@suse.de>
-To: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-Cc: Andi Shyti <andi.shyti@kernel.org>, w15303746062@163.com,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: i801: fix hardware state machine corruption in
- error path
-Message-ID: <20260729092134.455c06a2@endymion>
-In-Reply-To: <ca6fbfb1-1e08-4b4f-b823-8312327d5b38@stu.xidian.edu.cn>
-References: <20260512093534.348655-1-w15303746062@163.com>
-	<ajqtEIAX_D5z_UW5@zenone.zhora.eu>
-	<ca6fbfb1-1e08-4b4f-b823-8312327d5b38@stu.xidian.edu.cn>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.50; x86_64-suse-linux-gnu)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="E6/eU71b"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66T4cY2P927380;
+	Wed, 29 Jul 2026 07:30:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=qcppdkim1; bh=P6AdHUCVESn/EVbc2I7mbpWhfPePhUFunBq
+	8rmD7ZnM=; b=E6/eU71b/c+mBYgZVrnaYs6fGxGtAowP9v+cJOOIOglzpduWP03
+	kYD4TegWFJABfYMnKuLykFBWnt72nKAAfGWD5A6ifooF0SfGrbe30NKA672fo0iI
+	S9jhloiTTZAHQ1s+yWCrTROMxLawYGvUdE+BU+D1qbN224SNsGIn+zEnMJhXPy/w
+	aMgov0SC20tE0/rj5rcLs0E9saHyw+3GjQeI/iXLsmAm4cpl5XKjaJEYZlGbhqau
+	AOrilNHg2naPSKNQtC0taOyfg2B+A7cnH/yR8cSOruPBifTMK3GgQCqRHfRIdKcl
+	3GVWW6Eo7uNH20GZzbcF37XL+596++9vZcA==
+Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fq0q6tth0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Jul 2026 07:30:46 +0000 (GMT)
+Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 66T7UhVc028941;
+	Wed, 29 Jul 2026 07:30:43 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 4fmp7kfw0m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Jul 2026 07:30:43 +0000 (GMT)
+Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66T7UVD8028849;
+	Wed, 29 Jul 2026 07:30:43 GMT
+Received: from hu-devc-hyd-u24-a.qualcomm.com (hu-msavaliy-hyd.qualcomm.com [10.147.246.140])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 66T7UhRf028935
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Jul 2026 07:30:43 +0000 (GMT)
+Received: by hu-devc-hyd-u24-a.qualcomm.com (Postfix, from userid 429934)
+	id 641BC21C25; Wed, 29 Jul 2026 13:00:42 +0530 (+0530)
+From: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+To: mukesh.savaliya@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
+        andi.shyti@kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: qcom-geni: Use modern PM operation macros
+Date: Wed, 29 Jul 2026 13:00:40 +0530
+Message-ID: <20260729073040.3227692-1-mukesh.savaliya@oss.qualcomm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.01
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: AD1863E35
-X-Spamd-Result: default: False [-4.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	HAS_ORG_HEADER(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[163.com];
-	FREEMAIL_CC(0.00)[kernel.org,163.com,vger.kernel.org];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[6];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spam-Flag: NO
+Content-Transfer-Encoding: 8bit
+X-QCInternal: smtphost
+X-QCInternal: smtphost
+X-Proofpoint-GUID: aw549fz8nAiDNTslH6fvjxMlrsv_XobR
+X-Authority-Analysis: v=2.4 cv=DqpmPm/+ c=1 sm=1 tr=0 ts=6a69ac27 cx=c_pps
+ a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=yOCtJkima9RkubShWh1s:22 a=EUspDBNiAAAA:8 a=0KRUuRaIvqVBs3DjABkA:9
+X-Proofpoint-ORIG-GUID: aw549fz8nAiDNTslH6fvjxMlrsv_XobR
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDA1OSBTYWx0ZWRfX2cACx54bdrQ/
+ q/3Rjg0lrIvNt3QBsAyRNRIWRVIhoB1lT0x5V/J4iNAZeyaU7LkrU1oFRRrf5TFeZA8gB9w9O8V
+ hDoxLw6rg9z/ogTdzE7K92WAIAjxJSw=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDA1OSBTYWx0ZWRfX+xOl3oD8wWOZ
+ CRIOqMHWh4uCtcRwjBYC1RG9HNqyzPUzVvFUbB3VGhXNE3Z8aLx1T64cX5DcYviFCSvIRK1B0yF
+ Jc9bQyKmJBcY8SQngNvU1CnDNQeIngcK24An9PUiP8nB/+cFrkscIxA3ipB059lJoP2+95XkENd
+ 3FORRVwcSiCte3x1AHQm2yDWE+6Pq7iXjxBPMwLWgrGMA/Wh2K65TEE67+NsIC4oGqiHkr3t0Fu
+ HMJVvDk9wcm4vjMSy45OAoRVjrjPeLFc8M4cV2t1mHwP47Q1gy6triYXDpwVxokjJV3dyDHBmxj
+ TcY5oOyJtpX4UBw36WW/OiekSK9ABYusSuXymZZ/t8HX+PlRb/+c84vZ0Q+Z/5COAfmnT7CIZoG
+ xfWTpVYwZjhXpWJ20EZ2VoEEr+GEjKdeFz7zHjZzvxsmOCx14BxVqIyHgExpALcVwxEdyhHqsUq
+ +zeAZIVblXf7oM9RaCQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-29_02,2026-07-28_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 impostorscore=0 adultscore=0 bulkscore=0 spamscore=0
+ suspectscore=0 lowpriorityscore=0 malwarescore=0 priorityscore=1501
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607290059
 
-Hi Andi, Mingyu,
+The driver uses the legacy SET_NOIRQ_SYSTEM_SLEEP_PM_OPS() and
+SET_RUNTIME_PM_OPS() helpers to initialize struct dev_pm_ops.
 
-On Wed, 24 Jun 2026 09:20:09 +0800, Mingyu Wang wrote:
-> >> Fixes: 1f760b87e54c ("i2c: i801: Call i801_check_pre() from i801_access()")
-> >> Cc: stable@vger.kernel.org # v6.3+  
-> > Please, next time don't leave a blank space in the tag section.  
-> I apologize for that; it was an oversight on my part. I'll be more 
-> careful in future submissions.
-> > The patch looks correct to me, although I'd have liked an ack
-> > from Jean.
-> >
-> > I merged it to i2c/i2c-fixes.  
-> 
-> I understand.
-> 
-> If Jean has any concerns, I'm happy to provide a follow-up fix if needed.
-> 
-> I'll also keep an eye on the thread in case he comments.
+Switch to the modern NOIRQ_SYSTEM_SLEEP_PM_OPS() and RUNTIME_PM_OPS()
+macros instead. These macros keep PM callbacks referenced by the
+compiler and help avoid potential unused-function warnings in
+configurations where PM support is disabled or partially enabled.
 
-No concerns, this v2 of the patch addresses all my comments from v1.
-Thanks for applying this fix and sorry for not commenting earlier.
+No functional change intended.
 
+Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index d5c977e34994..71ae821dd147 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -1163,7 +1163,7 @@ static void geni_i2c_shutdown(struct platform_device *pdev)
+ 	i2c_mark_adapter_suspended(&gi2c->adap);
+ }
+ 
+-static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
++static int geni_i2c_runtime_suspend(struct device *dev)
+ {
+ 	int ret = 0;
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+@@ -1181,7 +1181,7 @@ static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
++static int geni_i2c_runtime_resume(struct device *dev)
+ {
+ 	int ret = 0;
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+@@ -1197,7 +1197,7 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused geni_i2c_suspend_noirq(struct device *dev)
++static int geni_i2c_suspend_noirq(struct device *dev)
+ {
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+ 	int ret;
+@@ -1211,7 +1211,7 @@ static int __maybe_unused geni_i2c_suspend_noirq(struct device *dev)
+ 	return ret;
+ }
+ 
+-static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
++static int geni_i2c_resume_noirq(struct device *dev)
+ {
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+ 	int ret;
+@@ -1225,9 +1225,10 @@ static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops geni_i2c_pm_ops = {
+-	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, geni_i2c_resume_noirq)
+-	SET_RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
+-									NULL)
++	NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq,
++				  geni_i2c_resume_noirq)
++	RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
++		       NULL)
+ };
+ 
+ static const struct geni_i2c_desc geni_i2c = {
 -- 
-Jean Delvare
-SUSE L3 Support
+2.43.0
+
