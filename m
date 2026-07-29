@@ -1,165 +1,194 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from xry111.site (xry111.site [89.208.246.23])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45E543E5A0B;
-	Wed, 29 Jul 2026 07:30:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E330C42B75C;
+	Wed, 29 Jul 2026 08:09:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.208.246.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785310261; cv=none; b=PWn9gTDZgl/hxea5DTgENtWT1HibDPXxqF0rQQo2Mk+WiOIeE9hr6ph+WkgzTTNWpss5NAYY1asAeTVQ2rnsrM6dGOuX1l/lW2KCx6S+VVrEh0qw6ja7l1UxnibvaT6HsRA4mQGmM971oj5g6wpQOrjsyp2jUyn7IWr9IV6SOxU=
+	t=1785312580; cv=none; b=oEofhq81HmgTj08idLhbluyvYkYAuVXX03o7wsD+jC+gzgg2mCuxigfTIhHf6Zl7wMmzr1sVZq9bYL998Np760DPyN7VutEsTYsvYAoJaeuMlYzpyBco5nQ28Old+bteh3kWyc/WEc2cOUYKMPLJNE6OZReo49G9zrdOAHoL7P4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785310261; c=relaxed/simple;
-	bh=TrkPsdHifxWxlu9JPjHwoslczde4iSfr9O5NgjlL5Hg=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=pluD7C2kU1t80c3CH39EcPvNhQNL7thBHkTuH/6Rq2AhqTKknrTcQ7EXnGuDXMM0LbsxHf7vS3OO8OgjERG9WWxrLUnQ8B5GynMPp6XIiRgs2+atCuoWJUp959bOgKlI7TceFcmr3mJbDiL+Wyt++iWvtWeUk2ry57oFzUH6ls8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=E6/eU71b; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
+	s=arc-20240116; t=1785312580; c=relaxed/simple;
+	bh=FKRCzNl9iXi9B2N+9NYj5FAjRRrTLfK+wJOxreVTgFs=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QMkLxpXk5FuscuSOvfNT1MOWBC3mKQlo0uv7jIBgrdmCXb9CJIFOb5pfpBJ4BdD+tG8h1p9JJ/tenHR2tP6Ouk2O2Rbi9kTO/+nnKzT0+Z6j1u0HMaWwhleCWVRcOct50MqDUQGwGzHs5rYBKkYzU9Ru38okqH1T5GmXt3vm/SA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xry111.site; spf=pass smtp.mailfrom=xry111.site; dkim=pass (1024-bit key) header.d=xry111.site header.i=@xry111.site header.b=WhwvIDxd; arc=none smtp.client-ip=89.208.246.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xry111.site
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xry111.site
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="E6/eU71b"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66T4cY2P927380;
-	Wed, 29 Jul 2026 07:30:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=P6AdHUCVESn/EVbc2I7mbpWhfPePhUFunBq
-	8rmD7ZnM=; b=E6/eU71b/c+mBYgZVrnaYs6fGxGtAowP9v+cJOOIOglzpduWP03
-	kYD4TegWFJABfYMnKuLykFBWnt72nKAAfGWD5A6ifooF0SfGrbe30NKA672fo0iI
-	S9jhloiTTZAHQ1s+yWCrTROMxLawYGvUdE+BU+D1qbN224SNsGIn+zEnMJhXPy/w
-	aMgov0SC20tE0/rj5rcLs0E9saHyw+3GjQeI/iXLsmAm4cpl5XKjaJEYZlGbhqau
-	AOrilNHg2naPSKNQtC0taOyfg2B+A7cnH/yR8cSOruPBifTMK3GgQCqRHfRIdKcl
-	3GVWW6Eo7uNH20GZzbcF37XL+596++9vZcA==
-Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fq0q6tth0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 07:30:46 +0000 (GMT)
-Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA02.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 66T7UhVc028941;
-	Wed, 29 Jul 2026 07:30:43 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 4fmp7kfw0m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 07:30:43 +0000 (GMT)
-Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66T7UVD8028849;
-	Wed, 29 Jul 2026 07:30:43 GMT
-Received: from hu-devc-hyd-u24-a.qualcomm.com (hu-msavaliy-hyd.qualcomm.com [10.147.246.140])
-	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 66T7UhRf028935
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jul 2026 07:30:43 +0000 (GMT)
-Received: by hu-devc-hyd-u24-a.qualcomm.com (Postfix, from userid 429934)
-	id 641BC21C25; Wed, 29 Jul 2026 13:00:42 +0530 (+0530)
-From: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
-To: mukesh.savaliya@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
-        andi.shyti@kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: qcom-geni: Use modern PM operation macros
-Date: Wed, 29 Jul 2026 13:00:40 +0530
-Message-ID: <20260729073040.3227692-1-mukesh.savaliya@oss.qualcomm.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=xry111.site header.i=@xry111.site header.b="WhwvIDxd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xry111.site;
+	s=default; t=1785312576;
+	bh=EDLt92zXnWfQkNO/nMchV0mYN1bzrdRqmWVRBvOZuQ8=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=WhwvIDxddwF8BefP8Ku3WrZ9cHlrrGRjUlcYodcN4r0I0OdASSpQgC033WV/tvz1e
+	 uTlW62UoIqsdZfpb/wrwr9ez80VpUpXFbVV9UKBkB8H/D7tCACaE34x7oa7JC7L9/v
+	 yWb+mHk6LhoYZa9BPjSsvyh3f2jHy+Rosad7Uj6Q=
+Received: from [127.0.0.1] (2607-8700-5500-e873-0000-0000-0000-1001.16clouds.com [IPv6:2607:8700:5500:e873::1001])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (secp384r1) server-digest SHA384)
+	(Client did not present a certificate)
+	(Authenticated sender: xry111@xry111.site)
+	by xry111.site (Postfix) with ESMTPSA id 8C52765AAE;
+	Wed, 29 Jul 2026 04:09:33 -0400 (EDT)
+Message-ID: <affa49c80b0762b5b9e6ae4f4fa4ae787afecbd8.camel@xry111.site>
+Subject: Re: [PATCH v8 2/2] i2c: ls2x: Add clocks property parsing and
+ adjust bus speed
+From: Xi Ruoyao <xry111@xry111.site>
+To: Hongliang Wang <wanghongliang@loongson.cn>, Binbin Zhou
+	 <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>, Rob Herring
+	 <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+	 <conor+dt@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	loongarch@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>, 
+	stable@vger.kernel.org
+Date: Wed, 29 Jul 2026 16:09:31 +0800
+In-Reply-To: <20260721122604.12717-3-wanghongliang@loongson.cn>
+References: <20260721122604.12717-1-wanghongliang@loongson.cn>
+	 <20260721122604.12717-3-wanghongliang@loongson.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Proofpoint-GUID: aw549fz8nAiDNTslH6fvjxMlrsv_XobR
-X-Authority-Analysis: v=2.4 cv=DqpmPm/+ c=1 sm=1 tr=0 ts=6a69ac27 cx=c_pps
- a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
- a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=yOCtJkima9RkubShWh1s:22 a=EUspDBNiAAAA:8 a=0KRUuRaIvqVBs3DjABkA:9
-X-Proofpoint-ORIG-GUID: aw549fz8nAiDNTslH6fvjxMlrsv_XobR
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDA1OSBTYWx0ZWRfX2cACx54bdrQ/
- q/3Rjg0lrIvNt3QBsAyRNRIWRVIhoB1lT0x5V/J4iNAZeyaU7LkrU1oFRRrf5TFeZA8gB9w9O8V
- hDoxLw6rg9z/ogTdzE7K92WAIAjxJSw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDA1OSBTYWx0ZWRfX+xOl3oD8wWOZ
- CRIOqMHWh4uCtcRwjBYC1RG9HNqyzPUzVvFUbB3VGhXNE3Z8aLx1T64cX5DcYviFCSvIRK1B0yF
- Jc9bQyKmJBcY8SQngNvU1CnDNQeIngcK24An9PUiP8nB/+cFrkscIxA3ipB059lJoP2+95XkENd
- 3FORRVwcSiCte3x1AHQm2yDWE+6Pq7iXjxBPMwLWgrGMA/Wh2K65TEE67+NsIC4oGqiHkr3t0Fu
- HMJVvDk9wcm4vjMSy45OAoRVjrjPeLFc8M4cV2t1mHwP47Q1gy6triYXDpwVxokjJV3dyDHBmxj
- TcY5oOyJtpX4UBw36WW/OiekSK9ABYusSuXymZZ/t8HX+PlRb/+c84vZ0Q+Z/5COAfmnT7CIZoG
- xfWTpVYwZjhXpWJ20EZ2VoEEr+GEjKdeFz7zHjZzvxsmOCx14BxVqIyHgExpALcVwxEdyhHqsUq
- +zeAZIVblXf7oM9RaCQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-29_02,2026-07-28_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 adultscore=0 bulkscore=0 spamscore=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 priorityscore=1501
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607290059
 
-The driver uses the legacy SET_NOIRQ_SYSTEM_SLEEP_PM_OPS() and
-SET_RUNTIME_PM_OPS() helpers to initialize struct dev_pm_ops.
+On Tue, 2026-07-21 at 20:26 +0800, Hongliang Wang wrote:
+> The i2c-ls2x driver supports dts and acpi parameter passing.
+>=20
+> In dts, uses clock framework, by parsing clocks property to
+> get i2c bus reference clock, and define the div of reference
+> clock by device data.
+>=20
+> In acpi, by passing clocks property to describe i2c bus reference
+> clock and clock-div property to describe the div of reference clock.
+>=20
+> Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
+> and div, calculate the prcescale of i2c divider register. The
+> calculation formula is
+>=20
+> prcescale =3D (clock_a*10)/(div*clock_s)-1
+>=20
+> Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
 
-Switch to the modern NOIRQ_SYSTEM_SLEEP_PM_OPS() and RUNTIME_PM_OPS()
-macros instead. These macros keep PM callbacks referenced by the
-compiler and help avoid potential unused-function warnings in
-configurations where PM support is disabled or partially enabled.
+This resolves the jittery touchpad input on the EAECIS NL60R laptop.
 
-No functional change intended.
+Tested-by: Xi Ruoyao <xry111@xry111.site>
 
-Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+> ---
+> =C2=A0drivers/i2c/busses/i2c-ls2x.c | 40 ++++++++++++++++++++++++++++++++=
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+> =C2=A01 file changed, 37 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.=
+c
+> index b475dd27b7af..25f8301ae14f 100644
+> --- a/drivers/i2c/busses/i2c-ls2x.c
+> +++ b/drivers/i2c/busses/i2c-ls2x.c
+> @@ -12,6 +12,7 @@
+> =C2=A0
+> =C2=A0#include <linux/bitfield.h>
+> =C2=A0#include <linux/bits.h>
+> +#include <linux/clk.h>
+> =C2=A0#include <linux/completion.h>
+> =C2=A0#include <linux/device.h>
+> =C2=A0#include <linux/iopoll.h>
+> @@ -63,11 +64,19 @@
+> =C2=A0/* The default bus frequency, which is an empirical value */
+> =C2=A0#define LS2X_I2C_FREQ_STD	(33 * HZ_PER_KHZ)
+> =C2=A0
+> +/* The div of i2c reference clock on LS2K0500/2K1000/2K2000 */
+> +#define LS2X_I2C_2K_CLOCK_DIV	40
+> +
+> +/* The div of i2c reference clock on LS7A1000/7A2000 */
+> +#define LS2X_I2C_7A_CLOCK_DIV	50
+> +
+> =C2=A0struct ls2x_i2c_priv {
+> =C2=A0	struct i2c_adapter	adapter;
+> =C2=A0	void __iomem		*base;
+> =C2=A0	struct i2c_timings	i2c_t;
+> =C2=A0	struct completion	cmd_complete;
+> +	unsigned int		div;
+> +	unsigned int		pclk;
+> =C2=A0};
+> =C2=A0
+> =C2=A0/*
+> @@ -107,12 +116,13 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i=
+2c_priv *priv)
+> =C2=A0	else
+> =C2=A0		t->bus_freq_hz =3D LS2X_I2C_FREQ_STD;
+> =C2=A0
+> +	val =3D (priv->pclk * 10) / (priv->div * t->bus_freq_hz) - 1;
+> +
+> =C2=A0	/*
+> =C2=A0	 * According to the chip manual, we can only access the registers =
+as bytes,
+> =C2=A0	 * otherwise the high bits will be truncated.
+> =C2=A0	 * So set the I2C frequency with a sequential writeb() instead of =
+writew().
+> =C2=A0	 */
+> -	val =3D LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
+> =C2=A0	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_L=
+O);
+> =C2=A0	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_=
+HI);
+> =C2=A0}
+> @@ -287,6 +297,7 @@ static const struct i2c_algorithm ls2x_i2c_algo =3D {
+> =C2=A0static int ls2x_i2c_probe(struct platform_device *pdev)
+> =C2=A0{
+> =C2=A0	int ret, irq;
+> +	struct clk *clk;
+> =C2=A0	struct i2c_adapter *adap;
+> =C2=A0	struct ls2x_i2c_priv *priv;
+> =C2=A0	struct device *dev =3D &pdev->dev;
+> @@ -304,6 +315,29 @@ static int ls2x_i2c_probe(struct platform_device *pd=
+ev)
+> =C2=A0	if (irq < 0)
+> =C2=A0		return irq;
+> =C2=A0
+> +	if (dev_of_node(dev)) {
+> +		clk =3D devm_clk_get_optional_enabled(dev, NULL);
+> +		if (IS_ERR(clk))
+> +			return PTR_ERR(clk);
+> +		if (clk)
+> +			priv->pclk =3D clk_get_rate(clk);
+> +		else
+> +			priv->pclk =3D LS2X_I2C_PCLK_FREQ;
+> +
+> +		priv->div =3D (unsigned long)device_get_match_data(dev);
+> +		if (!priv->div)
+> +			priv->div =3D LS2X_I2C_2K_CLOCK_DIV;
+> +	} else {
+> +		/* clocks and clock-div are only ACPI properties. */
+> +		ret =3D device_property_read_u32(dev, "clocks", &priv->pclk);
+> +		if (ret)
+> +			priv->pclk =3D LS2X_I2C_PCLK_FREQ;
+> +
+> +		ret =3D device_property_read_u32(dev, "clock-div", &priv->div);
+> +		if (ret || !priv->div)
+> +			priv->div =3D LS2X_I2C_7A_CLOCK_DIV;
+> +	}
+> +
+> =C2=A0	/* Add the i2c adapter */
+> =C2=A0	adap =3D &priv->adapter;
+> =C2=A0	adap->retries =3D 5;
+> @@ -349,8 +383,8 @@ static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
+> =C2=A0				 ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
+> =C2=A0
+> =C2=A0static const struct of_device_id ls2x_i2c_id_table[] =3D {
+> -	{ .compatible =3D "loongson,ls2k-i2c" },
+> -	{ .compatible =3D "loongson,ls7a-i2c" },
+> +	{ .compatible =3D "loongson,ls2k-i2c", .data =3D (void *)LS2X_I2C_2K_CL=
+OCK_DIV, },
+> +	{ .compatible =3D "loongson,ls7a-i2c", .data =3D (void *)LS2X_I2C_7A_CL=
+OCK_DIV, },
+> =C2=A0	{ /* sentinel */ }
+> =C2=A0};
+> =C2=A0MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index d5c977e34994..71ae821dd147 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -1163,7 +1163,7 @@ static void geni_i2c_shutdown(struct platform_device *pdev)
- 	i2c_mark_adapter_suspended(&gi2c->adap);
- }
- 
--static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
-+static int geni_i2c_runtime_suspend(struct device *dev)
- {
- 	int ret = 0;
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
-@@ -1181,7 +1181,7 @@ static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
-+static int geni_i2c_runtime_resume(struct device *dev)
- {
- 	int ret = 0;
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
-@@ -1197,7 +1197,7 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused geni_i2c_suspend_noirq(struct device *dev)
-+static int geni_i2c_suspend_noirq(struct device *dev)
- {
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
- 	int ret;
-@@ -1211,7 +1211,7 @@ static int __maybe_unused geni_i2c_suspend_noirq(struct device *dev)
- 	return ret;
- }
- 
--static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
-+static int geni_i2c_resume_noirq(struct device *dev)
- {
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
- 	int ret;
-@@ -1225,9 +1225,10 @@ static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
- }
- 
- static const struct dev_pm_ops geni_i2c_pm_ops = {
--	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq, geni_i2c_resume_noirq)
--	SET_RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
--									NULL)
-+	NOIRQ_SYSTEM_SLEEP_PM_OPS(geni_i2c_suspend_noirq,
-+				  geni_i2c_resume_noirq)
-+	RUNTIME_PM_OPS(geni_i2c_runtime_suspend, geni_i2c_runtime_resume,
-+		       NULL)
- };
- 
- static const struct geni_i2c_desc geni_i2c = {
--- 
-2.43.0
-
+--=20
+Xi Ruoyao <xry111@xry111.site>
