@@ -1,197 +1,159 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6814E34BA20
-	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 06:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27ED3FB7E5
+	for <linux-i2c@vger.kernel.org>; Wed, 29 Jul 2026 07:21:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785304831; cv=none; b=JLTdYAAynE1NvixqQegRisQScyU1ZqHfIr8x/M2wViPxwm4ydtmSf4Wcr+xMSv1S9F+vvhRput6F0E5CTtAkKD4fUZodwFfUBkGqynzsGbT+xDtuWNfZP8Sg9cJcx9CpyjZ/Qmed5AVBvzKvK9wf+qvHdfW5fuAxKauu1D6KaH4=
+	t=1785309702; cv=none; b=Nv090sAB0e/vFhETBrnvGzHfu2/ySmYE3a4Go1oyM//8Br0+RNeZl8UiiaXHzWnwPk3IhJiBTrmofTIhgbRHQm0dDb7irBozL6T+PeGbvqUmvXntlTtJ5qa5WXtqIH1DivRKil/Ew3nQ0gDqk7gGUF3dr1y2TUxru1sd589OFoo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785304831; c=relaxed/simple;
-	bh=3uOFEjPnMnUccJZMetPT3Gaw/TbJJKA+mh1hwKmYbz4=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=ZipPPif8UKW1CPlyyd9RNxqOHlxjLr0S4eB9td5NaxHVmLoDB68qzIfkDMjTzQOL2BngH0IlbLo5U2ZPxgVL8+QOd8NABVkpd5A2W7J352mZUEj8D9eoAdrJRxO4i/7zRr41GMFRkoQFGDFiITBhoNHvmRdnLv3zj+vo0SVRv4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BtiTONOW; arc=none smtp.client-ip=209.85.215.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785309702; c=relaxed/simple;
+	bh=ZipfWBVaKl0EMYAJTfhiM2oCEYXXGMydyR5EHeflR94=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ufZZ7f+tgTqnsLUlzuXCXr1F41ykpvZdz+pQkGxAgZTcl1fbsUXRWpb9mzLePKNDUdfaBD9p1f1SdEm+aV45R3GT6RulC1h+v3SU8fKrQ7EQJlPgK34Kr9jWzhYS0AAJsWiFZZFXL+mPtyZaNqD1kdo7v9UR8fw5g/0sy8Q0cPg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eKnExpYF; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=V3z1lWE2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=DfQSAsox; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qHzkFwWs; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BtiTONOW"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c981c2c37cbso376021a12.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Jul 2026 23:00:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785304827; x=1785909627; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=F3U12xTMjb/SxJ8KmAFJLEVtQeA5qw3lxjMjThYvljA=;
-        b=BtiTONOWATUdjuFHZZ/86ez5oNfTXiR/6o0o506HwXQcVzmrU163DWKHE57OjQtSWf
-         m42KvYqkOv3cV1WpQtWBdkw/gvMc73COxUD9Xkhs/PxbH+Sej01+BQG3g+VPYXEbB0FV
-         Y2mvimOVNxyqvJeDWY0vOoY7Yk9TKfgurIg9FGt3TgnFC72Uu5BTlG04tjQ15OtTnjj5
-         9hR9stCkZ8Qzqc4jo5rEXltqmvBQl2863YuFNyRVXluRxN/JgL4MnPK//RsTCWk2nUWJ
-         ZdMeM2fqx9nBC/m4XdmW/lyfDA6oFEv82v+pCM4oIKgquuROYO2O0cA3t60DXwKARq0Q
-         0LOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785304827; x=1785909627;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=F3U12xTMjb/SxJ8KmAFJLEVtQeA5qw3lxjMjThYvljA=;
-        b=STKaYz5C3J26qjY+8Z5n5uA9e6kU6uoPn6IIpOTa6ysH2A6gFlMDLfrzjxFrnHjaUU
-         O9xI4MYAdLlbzamCa/vbr1DQcNhjtNd7jaTfzTEBtgmCwZd8h10OxivLGq+t57C+VQiX
-         3/D6DF+OEwUZX9i3xj4sxU/f06HsfXiWIxrar6uDBRgpcpMtYUMqrNhO0OY0F8cVbxSS
-         VqUElAyyYOkLCPSuFvgUPtaID7mIaWjlEWLgd84u9S8fwBrrRzQkqw3oOY7dQT4qdyNy
-         YzdQ3EadV6eRlTQxcmND7sr2TzglCuDJviPy0S2DxFS9Y4BGJR+Dj4BMa+C7oSKfFt4U
-         40Mg==
-X-Forwarded-Encrypted: i=1; AHgh+RrgYkm2B2IW+h7a+V0HrlwYruTVWJN+uuQ17xtPcc9oZl5feygSKvAY3O5EOW7dG04Die6a86BKYVs=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw9ucLR7xSh9MKQPa0EVPRmU9T1VOhDvT/iaLZSaqjJoJ8f8vFU
-	th5YcD+s9Ejnpu6z9PyJkORWtt/H8Sn7DIlHl62dHK7KMTmRB7SVm2TE
-X-Gm-Gg: AR+sD11Ss4ADTOCvcyTUgvnA9v5vn36YWkjOIBtl51+gaGIcSYavPCD2WF2yjvhPBcH
-	GqWEucjSsgwvP6F+n0yTc6qfCRPzqG1Gat7fJ0tbORmdkfAiIMuh4D8u6IHEBl/fmfllMOShTnX
-	o5QZAIAzDby+s+6G/rcZq0D1uQk983uBE4gfas3UXcokjqU5Jbuco3SyEILIwUC1LjdlohtFP+w
-	78/Kfi/g69+SZhspAhLsF77ZcJMmUjigHqqIEmxUGgRp5zwSRgsZ+v0Rus4xzpdrPnNWOXHXMlH
-	6SbLwJoSdb12xhNHhWH4JntW7LzUGyxJYL+ps7KSwodz8u8YnC5exI8QYEVQOZtxg+Jpwwiv1F1
-	o6fc2FPTq8aCJppez3OvYM2Sdkj8/kVc7rxS69CxQEzRjzd7NAP+2OeTnpC1K+R1DxSTJ+BzcR3
-	CAKDm5uTjw00IU14dBegQTBmeeRs1ljdWTxlKMwWSLgO7JmnQgWTc2axOG/SsuPPXn2wRh3BvSj
-	t4lXARFFNyW/3upbBY9P9kffZLGFg==
-X-Received: by 2002:a05:6a21:4685:b0:3c3:f5ff:8c9b with SMTP id adf61e73a8af0-3c8ba70c0bbmr6325745637.71.1785304827393;
-        Tue, 28 Jul 2026 23:00:27 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:3062:3727:f62a:314c])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504b67063sm6302046eec.9.2026.07.28.23.00.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2026 23:00:26 -0700 (PDT)
-Date: Tue, 28 Jul 2026 23:00:23 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Bryam Vargas <hexlabsecurity@proton.me>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] i2c: smbus: make i2c_smbus_read_block_data() safer
-Message-ID: <ammWUROtUGeriY8G@google.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eKnExpYF";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="V3z1lWE2";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="DfQSAsox";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qHzkFwWs"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id AD1863E35;
+	Wed, 29 Jul 2026 07:21:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1785309685; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
+	b=eKnExpYF++UYtFBVGYQ+8XUuXb2/VIFkg1mlMEZxdNMFOJdVDOuIHHh402rzWopZqT+gzq
+	Ng5dnOMRjavI8hkfHg3AhQaCK02ASUD278UGxEPYfkkX9pTIyV4ShsWhC6z3gLH+oRw1Lz
+	w1znr6QKyCe2QXqA7tgMtkrrwqiS2u4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1785309685;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
+	b=V3z1lWE2h3p7lMoPsAOMY/zQZx02NhzX84N4CmAAfxOSSEAihUjcgM82pRuLBvxZPXLIkM
+	Rek9HFid0WWv4dDw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=DfQSAsox;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=qHzkFwWs
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1785309681; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
+	b=DfQSAsox9xvq9T4+DSGvT7hOvH0Q6qOjbqLTHF6OflXCvkhd/5GdM8yzUCScnVfqCoae5G
+	IFVV3OVnVpPVFq3kh35yRlUn+M1bNw77QivKdjGn8aBCrp3dkmPwJXP8WVgwDRS7/yf4lN
+	p3++KuIduoSrFU22ssJr2lPvqLEEgFs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1785309681;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qstx5oED49uWFmWin7WYk0cjeKFM3dh/wlf0Qa/El48=;
+	b=qHzkFwWsJ2ekIzIAt1JnNozkq2JLcGCQjfLlEQx4al/HtS9zUKWbSWmKAAHljB79Z/yWfC
+	vgfHzdCE5WS9BKDA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 686AC779B7;
+	Wed, 29 Jul 2026 07:21:21 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id TLqEF/GpaWoeDQAAD6G6ig
+	(envelope-from <jdelvare@suse.de>); Wed, 29 Jul 2026 07:21:21 +0000
+Date: Wed, 29 Jul 2026 09:21:34 +0200
+From: Jean Delvare <jdelvare@suse.de>
+To: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+Cc: Andi Shyti <andi.shyti@kernel.org>, w15303746062@163.com,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: i801: fix hardware state machine corruption in
+ error path
+Message-ID: <20260729092134.455c06a2@endymion>
+In-Reply-To: <ca6fbfb1-1e08-4b4f-b823-8312327d5b38@stu.xidian.edu.cn>
+References: <20260512093534.348655-1-w15303746062@163.com>
+	<ajqtEIAX_D5z_UW5@zenone.zhora.eu>
+	<ca6fbfb1-1e08-4b4f-b823-8312327d5b38@stu.xidian.edu.cn>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.50; x86_64-suse-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.01
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: AD1863E35
+X-Spamd-Result: default: False [-4.01 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	HAS_ORG_HEADER(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[163.com];
+	FREEMAIL_CC(0.00)[kernel.org,163.com,vger.kernel.org];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[6];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
 
-i2c_smbus_read_block_data() is dangerous to use because it may deliver
-up to I2C_SMBUS_BLOCK_MAX (32) bytes, which may be surprising to the
-caller. Callers tend to allocate buffers of sizes big enough to hold
-data from a well-behaving device and do not expect that
-i2c_smbus_read_block_data() may attempt to write more data than
-expected.
+Hi Andi, Mingyu,
 
-To make i2c_smbus_read_block_data() safer to use, change it so that
-it accepts size of the supplied buffer as another argument and ensure
-that it will not copy more data than the size of the buffer. Signal
-oversized responses with -EMSGSIZE.
+On Wed, 24 Jun 2026 09:20:09 +0800, Mingyu Wang wrote:
+> >> Fixes: 1f760b87e54c ("i2c: i801: Call i801_check_pre() from i801_access()")
+> >> Cc: stable@vger.kernel.org # v6.3+  
+> > Please, next time don't leave a blank space in the tag section.  
+> I apologize for that; it was an oversight on my part. I'll be more 
+> careful in future submissions.
+> > The patch looks correct to me, although I'd have liked an ack
+> > from Jean.
+> >
+> > I merged it to i2c/i2c-fixes.  
+> 
+> I understand.
+> 
+> If Jean has any concerns, I'm happy to provide a follow-up fix if needed.
+> 
+> I'll also keep an eye on the thread in case he comments.
 
-To allow users to gradually transition to the new API employ some
-macro trickery allowing calling i2c_smbus_read_block_data() with either
-3 or 4 arguments. When called with 3 arguments it is assumed that
-the buffer size is I2C_SMBUS_BLOCK_MAX bytes. Once everyone is
-transitioned to the 4 argument form the macros should be removed.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
-
-v2:
-- dropped incorrect changes to Documentation (Andi)
-- signal oversized responses with -EMSGSIZE (Andi)
-
- drivers/i2c/i2c-core-smbus.c | 24 ++++++++++++++++--------
- include/linux/i2c.h          | 19 +++++++++++++++++--
- 2 files changed, 33 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index fa63bee0b345..57f55bbab8a1 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -208,11 +208,11 @@ s32 i2c_smbus_write_word_data(const struct i2c_client *client, u8 command,
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
- 
- /**
-- * i2c_smbus_read_block_data - SMBus "block read" protocol
-+ * __i2c_smbus_read_block_data - SMBus "block read" protocol
-  * @client: Handle to slave device
-  * @command: Byte interpreted by slave
-- * @values: Byte array into which data will be read; big enough to hold
-- *	the data returned by the slave.  SMBus allows at most 32 bytes.
-+ * @length: size of the @values array. SMBus allows at most 32 bytes
-+ * @values: Byte array into which data will be read
-  *
-  * This executes the SMBus "block read" protocol, returning negative errno
-  * else the number of data bytes in the slave's response.
-@@ -222,22 +222,30 @@ EXPORT_SYMBOL(i2c_smbus_write_word_data);
-  * support this; its emulation through I2C messaging relies on a specific
-  * mechanism (I2C_M_RECV_LEN) which may not be implemented.
-  */
--s32 i2c_smbus_read_block_data(const struct i2c_client *client, u8 command,
--			      u8 *values)
-+s32 __i2c_smbus_read_block_data(const struct i2c_client *client, u8 command,
-+				u8 length, u8 *values)
- {
- 	union i2c_smbus_data data;
-+	int ret_len;
- 	int status;
- 
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		return -EINVAL;
-+
- 	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
- 				I2C_SMBUS_READ, command,
- 				I2C_SMBUS_BLOCK_DATA, &data);
- 	if (status)
- 		return status;
- 
--	memcpy(values, &data.block[1], data.block[0]);
--	return data.block[0];
-+	ret_len = data.block[0];
-+	if (ret_len > length)
-+		return -EMSGSIZE;
-+
-+	memcpy(values, &data.block[1], ret_len);
-+	return ret_len;
- }
--EXPORT_SYMBOL(i2c_smbus_read_block_data);
-+EXPORT_SYMBOL(__i2c_smbus_read_block_data);
- 
- /**
-  * i2c_smbus_write_block_data - SMBus "block write" protocol
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 14ab4d3055af..3e685476fa15 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -174,8 +174,23 @@ i2c_smbus_write_word_swapped(const struct i2c_client *client,
- }
- 
- /* Returns the number of read bytes */
--s32 i2c_smbus_read_block_data(const struct i2c_client *client,
--			      u8 command, u8 *values);
-+s32 __i2c_smbus_read_block_data(const struct i2c_client *client,
-+				u8 command, u8 length, u8 *values);
-+/*
-+ * This monstrosity allows to call i2c_smbus_read_block_data() with either
-+ * 3 or 4 arguments and will be removed once all users have been switched
-+ * to the 4 argument version.
-+ */
-+#define __i2c_smbus_read_block_data_3arg(client, cmd, values)			\
-+	__i2c_smbus_read_block_data(client, cmd, I2C_SMBUS_BLOCK_MAX, values)
-+#define __i2c_smbus_read_block_data_4arg(client, cmd, length, values)		\
-+	__i2c_smbus_read_block_data(client, cmd, length, values)
-+#define __i2c_smbus_read_block_data_impl(_1, _2, _3, _4, impl, ...) impl
-+#define i2c_smbus_read_block_data(client, cmd, varargs...)			\
-+	__i2c_smbus_read_block_data_impl(client, cmd, varargs,			\
-+					 __i2c_smbus_read_block_data_4arg,	\
-+					 __i2c_smbus_read_block_data_3arg)	\
-+					 (client, cmd, varargs)
- s32 i2c_smbus_write_block_data(const struct i2c_client *client,
- 			       u8 command, u8 length, const u8 *values);
- /* Returns the number of read bytes */
--- 
-2.55.0.487.gaf234c4eb3-goog
-
+No concerns, this v2 of the patch addresses all my comments from v1.
+Thanks for applying this fix and sorry for not commenting earlier.
 
 -- 
-Dmitry
+Jean Delvare
+SUSE L3 Support
