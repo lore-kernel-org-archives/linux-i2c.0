@@ -1,196 +1,99 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B97CD39CCF9
-	for <linux-i2c@vger.kernel.org>; Thu, 30 Jul 2026 18:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BEDB369D64
+	for <linux-i2c@vger.kernel.org>; Thu, 30 Jul 2026 20:23:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785437009; cv=none; b=oIiMtYbAuOb22VioBpx81g1CJQx//v7CsXbr7Trle9pFslPfCtaFOCHwvPekhCfS5yqyT/xCBVZCnbIkMHjtVYHPEDZ9F4D8YvZkosbxFmGEh90tU1ugQU24QqRkIflPbWQtg8SwrRY2qcmMR1t7mXcU/eej9i6qg/y0NO0Lmo8=
+	t=1785443040; cv=none; b=G1jg10f7Ok34ZEfG9zWAoojeQ1ki7+/AivncWAPpwwbChEpIPm28Hv6LHfeiFrgGU3qwz9MTUHQ6ZAJ3skxT2MCVdXBoAMn/enNbmNA7ZGtVePc6QkvmqcBGDiuLbTAhS7jF/Qc5am52aIUbVsZBmUTHJFnD6OYXABYSvNrBoKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785437009; c=relaxed/simple;
-	bh=4xFtkt4SqgrrsbihRYg7+zsmObBemKDSQ0N/M4YFj0w=;
-	h=Content-Type:Date:Message-Id:Subject:From:To:Cc:Mime-Version:
-	 References:In-Reply-To; b=bJ3E1V/obcbWdo14aKjTmHSrcW2Et/e+XUwgv1HkXwUMHwLR6XZ5VIblsmuSHRgImUPrlqcd3mvSIu2EJwQuZEKhhp9b7OPSy6hY1RfJ6yzFBeBJn5nRPENDUY14+GzvxmxA3dzGeTvcZ9AA8djqk6z7Gt/Q3YG1kR3rrwgh62s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=J3nKrVaC; arc=none smtp.client-ip=209.85.215.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1785443040; c=relaxed/simple;
+	bh=cLEDCXJcA8BK/WrOkUtMR7BaGv9prsWZhysV/YchxbI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pwXCwZLv7RA1z86xG6S0umm860lvrtI/Dw3WTEVOcLVjDn6oeY24up6LrN5NzIPecs4z78DqAM4RyqyPZSQP/QDa7Y5dKVE2zRqMdhp5cA7Hkzv4MquQKcyEVaTLO6A/lBzOnD+vlgZ4VOX3hSqxzatU0MeH150zzapyZDEK2z4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mK691obv; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="J3nKrVaC"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-cb5b8572b70so99218a12.2
-        for <linux-i2c@vger.kernel.org>; Thu, 30 Jul 2026 11:43:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1785437001; x=1786041801; darn=vger.kernel.org;
-        h=in-reply-to:references:content-transfer-encoding:mime-version:cc:to
-         :from:subject:message-id:date:content-type:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=QlS7RV+1d0UdZ7kkR4emrD6is23fEjwNoBFFfOWF5D8=;
-        b=J3nKrVaC/T1tCJxYym6JpOLrwJIq/tL9wC81jF710qOCuB7lJuK0y9PUEZZR7Ho/o4
-         PrT7OSTyuRAsgDHo+0CM1jwIXq0wMZAhq6FOM/XP9Ti1WUUWL35toiREvWjk7YoZXzJO
-         hQxk9NuEQUTTah5i+rvkVQ9t6vgOCBMEKCB3WKsYbAWUaGfoZb7dWatunxZJ9M2+v9Kc
-         SaVCkNtIEBq0MZEk9hbwpPw97hVEUJ46nPfxsT1QPeBDHToORKoYu6zOuxZa1Yt8sOQG
-         p9GWwFOXYRCwJMIo5ApyRKZ7WYB2/yND64WjvmtSHRWvAccSzmsPO7DvKZdNeiuojdHI
-         CyZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785437001; x=1786041801;
-        h=in-reply-to:references:content-transfer-encoding:mime-version:cc:to
-         :from:subject:message-id:date:content-type:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QlS7RV+1d0UdZ7kkR4emrD6is23fEjwNoBFFfOWF5D8=;
-        b=Os5vl5BRGnJizRLJzsCJ3B2/npKenabYBGFdSstyQ2c6FAVtXyrXk3eoCToF5dwoMm
-         m+US9FSr1Nh4Gu8a7YnVyzx+25n59/MeEJp94a8OkIeFGllQKbYyayYABS3Hf57mrKYO
-         PCM+gGPfyB+o25YTS9i54CNO34ngYeApXGJ4jH6M9Pb73C675ezrEdrNvU+sNly+1wfo
-         DJ96mN3LR58oY1x0tt2cQzyOzVvDK8h6KycwGT0sT6khgO04+oPUHCdyR3GKGPKdVGjp
-         /Z/peM9sMp/pRg3TeYzqCscPIVRCxrPoybunHtO6ieuQOnoAsH1ldZ++/5jLj1Fpd/Kw
-         LKKA==
-X-Forwarded-Encrypted: i=1; AHgh+RqjfA9x2flm7BYVxh5LDzQRyAQqCCGd6kSMPfrcLrKHZZBtS7LaCeG+LFb4qNVvVuoxzacVt+rdGDc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YztXKb5nFd2p4yai8Ijvq/DcNS8VoRropDREtsBA0wncPEgVhKj
-	9EsUMtZm3e6qdpgxSaBQmWSspvuvEn/w72s8Wo4oOSdF5Cg2I1BAMyQ8pgxaXL/UyOQ=
-X-Gm-Gg: AR+sD12Peie/FrhWQ6iUUy95DSlRFey9v/I109i00+ftcAdiJjcYxXJ4b+0JkclOS1b
-	GwE29D+qQF9v0+FtAVWio4KK3LoGPcead8XiLtAuqLpVt1EB9MCSkjOalOrsZhfNkWgiUJqhxnw
-	YYnW0jloYmUf0W07HWsN8YSMMdVwuSFoqf3aFyRmqsQwu7rmzeQCBjS9Q0Arw8veKptmwwrdxHX
-	UUm7Kbd8HmL5aWywu34HCgTFpIjvxNnhfDPlJOuAWZyoOfsOlmuEfFVd9eXJc+6YUp47snNqSA8
-	8SFDswy68u9jUIJnh4ddps9jZiopfs6u7kwaU8SqRIxPmxEYgZmt4pVwOz8uO4SfFrAEtY5oMZa
-	Raonrtt8kv9jHnb1TenFT37FHZCSHYVNnFeTyTNqUXNrKrKi/y1p2AaVqa0gWQMMgd4eOeneUIk
-	vJTjopIpbRU54FDKvyUTw2hLzkESyPr2SDERjB4nPqEOB3tS0q1Pekz5GFzse8
-X-Received: by 2002:a05:6a21:70cb:b0:3bf:6c08:fba2 with SMTP id adf61e73a8af0-3c900978720mr3358115637.54.1785437000995;
-        Thu, 30 Jul 2026 11:43:20 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504d37368sm44493802eec.22.2026.07.30.11.43.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jul 2026 11:43:20 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 30 Jul 2026 11:43:19 -0700
-Message-Id: <DKC4LEBVE3DK.29E8XONGJDS14@nexthop.ai>
-Subject: Re: [PATCH v3 0/3] i2c: xiic: fix SMBus block read and PEC support
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Michal Simek" <michal.simek@amd.com>, "Abdurrahman Hussain"
- <abdurrahman@nexthop.ai>, "Andi Shyti" <andi.shyti@kernel.org>
-Cc: <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mK691obv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=cLED
+	CXJcA8BK/WrOkUtMR7BaGv9prsWZhysV/YchxbI=; b=mK691obvzHJwb4BfCLm+
+	4aDPFY6VNRLDZQKnsQCq80mPGjnZ2njo27ly2lnoB7rSR9biVexy1OW1Z68sSnKj
+	RuD12YpF/Skp6qAsfXkvaYCoEY99464CPzNPxkIK4ra5MXYCgWaWqbg8/c89aRNN
+	BWpTKHmk5IH4LAGWyyhMCaqpV7FDM3mhlDJEJYjyce4nblxkI4DmlBVHb2qI99Sk
+	T8iNKAkzPLQGXImJX2bInSCJlh5Hs7n8fQwYVJYVadX0dFgRUqoVeiFY8jyycWAL
+	RQj/141RPg3V5wO14N4JpLTYsWnmXl440wdUOxxX3c7NB51EUhum0HidHWGpxrUw
+	1Q==
+Received: (qmail 1850518 invoked from network); 30 Jul 2026 22:23:47 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 Jul 2026 22:23:47 +0200
+X-UD-Smtp-Session: l3s3148p1@sANf2dlX/i0vQDOV
+Date: Thu, 30 Jul 2026 22:23:46 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Aniket RANDIVE <aniket.randive@oss.qualcomm.com>
+Cc: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
+Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
+ dynamic transfer timeouts
+Message-ID: <amuy0mdHQlYCcRfb@shikoro>
+References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
+ <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
+ <amZkf3lu7gjWhw04@zenone.zhora.eu>
+ <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
+ <ame2tX1RwOo4F6Lk@zenone.zhora.eu>
+ <cb1e00ea-658a-416b-aef6-46c151d15685@oss.qualcomm.com>
+ <amh5l4Yvwemws6Cx@shikoro>
+ <fc90084e-c9bf-43da-bb8b-43a8d2d0cb7f@oss.qualcomm.com>
+ <amoaEGX8Q4zwHF2i@shikoro>
+ <be5ba8e8-15d0-4fe4-a66c-fe7ce8da6cc3@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: aerc 0.21.0
-References: <20260513-i2c-xiic-v3-0-ccb3cf70ba03@nexthop.ai>
- <7a967984-9979-4874-b636-94014487ea11@amd.com>
-In-Reply-To: <7a967984-9979-4874-b636-94014487ea11@amd.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="LtUAlmVp+O5c2oKO"
+Content-Disposition: inline
+In-Reply-To: <be5ba8e8-15d0-4fe4-a66c-fe7ce8da6cc3@oss.qualcomm.com>
 
-On Tue Jun 9, 2026 at 7:41 AM PDT, Michal Simek wrote:
->
->
-> On 5/13/26 12:09, Abdurrahman Hussain wrote:
->> This series fixes three independent bugs in the Xilinx AXI IIC driver
->> that together make SMBus block reads with PEC return -EBADMSG or -EIO
->> on otherwise clean transfers. They only surface when the client has
->> I2C_CLIENT_PEC set; non-PEC block reads happen to mask each issue in
->> turn.
->>=20
->> The problems were uncovered driving an adm1266 PMBus device behind a
->> Xilinx AXI IIC FPGA block and reading its 64-byte blackbox record.
->>=20
->> Patch 1 stops xiic_smbus_block_read_setup() from truncating rx_msg->len.
->> The i2c core appends a byte to msg->len when PEC is enabled, so
->> overwriting the length to "block size + 1" silently drops the PEC byte
->> and i2c_smbus_check_pec() then reads the last payload byte as the PEC.
->>=20
->> Patch 2 raises the RX_FULL threshold so the interrupt only fires once
->> every remaining byte (payload plus optional PEC) is already buffered in
->> the FIFO. The previous threshold of rxmsg_len - 2 caused the
->> bytes_rem =3D=3D 1 path in xiic_read_rx() to NACK a byte still on the wi=
-re.
->> The chunk-vs-defer guard now also accounts for the PEC byte so a
->> rxmsg_len =3D=3D IIC_RX_FIFO_DEPTH PEC-enabled read does not push
->> XIIC_RFD_REG_OFFSET past its 4-bit range.
->>=20
->> Patch 3 stops the BNB handler from forcing tx_msg->len =3D 1 to signal
->> completion. tx_msg and rx_msg alias the same i2c_msg during a receive,
->> so this also clobbered rx_msg->len; and because tx_pos is already at 2
->> in the PEC case, the unsigned subtraction in xiic_tx_space() underflowed
->> and the STATE_DONE check fell through to STATE_ERROR. Advancing tx_pos
->> up to msg->len drives tx_space to zero without touching the length.
->>=20
->> All three patches are pure bug fixes; non-PEC behaviour is unchanged.
->> Tested on real hardware -- a Xilinx AXI IIC controller talking to an
->> adm1266, where 64-byte PEC-checked block reads now complete cleanly.
->>=20
->> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
->> ---
->> Changes in v3 (addresses the sashiko automated review of v2):
->> - Patch 1: handle short SMBus block reads where the controller pads
->>    rx_msg->len up to SMBUS_BLOCK_READ_MIN_LEN for its end-of-message
->>    workaround. In v2 this branch left the PEC byte at the padded
->>    offset rather than the actual end-of-payload, so the i2c core's
->>    PEC validator read past the chip data. Track the on-wire length
->>    in a new smbus_actual_len field populated in the minlen branch
->>    of xiic_smbus_block_read_setup(), and trim rx_msg->len back at
->>    RX_FULL completion before passing the message up. Addresses
->>    sashiko's v2 note about the pec_len adjustment missing the
->>    rxmsg_len < 3 padding branch; that branch was indeed the cause
->>    of pmbus_check_block_register() silently failing on zero-length
->>    MFR_* fields and skipping debugfs auto-discovery on affected
->>    hardware.
->> - Patch 3: defensively reset smbus_actual_len in the BNB completion
->>    handler so a subsequent non-SMBus transfer cannot see a stale
->>    trim value from a completed short block read.
->> - Patch 2 is unchanged from v2. sashiko's two other v2 notes were
->>    investigated and judged not to require code changes: the concern
->>    about removed padding in the chunked-vs-deferred drain misread
->>    the patch (the padding survives via the else branch and the new
->>    PEC-aware guard preserves the original semantics), and the
->>    flagged unsigned underflow in xiic_tx_space() is unreachable
->>    because tx_pos is bounded by tx_msg->len at the call site.
->> - Link to v2: https://patch.msgid.link/20260511-i2c-xiic-v2-0-c16380cb15=
-94@nexthop.ai
->>=20
->> Changes in v2:
->> - Patch 2: widen the chunk-vs-defer guard in xiic_smbus_block_read_setup=
-()
->>    to include pec_len, so a 16-byte PEC-enabled block read routes throug=
-h
->>    the chunked drain rather than writing 16 into the 4-bit
->>    XIIC_RFD_REG_OFFSET register. No tree-level change to patches 1 or 3.
->> - Link to v1: https://patch.msgid.link/20260427-i2c-xiic-v1-0-e6207f9aa5=
-ad@nexthop.ai
->>=20
->> To: Michal Simek <michal.simek@amd.com>
->> To: Andi Shyti <andi.shyti@kernel.org>
->> Cc: linux-arm-kernel@lists.infradead.org
->> Cc: linux-i2c@vger.kernel.org
->> Cc: linux-kernel@vger.kernel.org
->>=20
->> ---
->> Abdurrahman Hussain (3):
->>        i2c: xiic: preserve PEC byte length in SMBus block read setup
->>        i2c: xiic: defer RX_FULL until all trailing bytes are in FIFO
->>        i2c: xiic: don't clobber msg->len to signal block-read completion
->>=20
->>   drivers/i2c/busses/i2c-xiic.c | 67 ++++++++++++++++++++++++++++++++---=
---------
->>   1 file changed, 50 insertions(+), 17 deletions(-)
->> ---
->> base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
->> change-id: 20260427-i2c-xiic-2aeb501ec02a
->>=20
->> Best regards,
->> --
->> Abdurrahman Hussain <abdurrahman@nexthop.ai>
->>=20
->
-> Acked-by: Michal Simek <michal.simek@amd.com>
->
-> Thanks,
-> Michal
 
-Hi Andi,
+--LtUAlmVp+O5c2oKO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I haven't heard from the list on this patch series in a while. Could
-this be added to the next merge window? I'd be more than happy to
-address any issues/comments.
 
-Thanks,
-Abdurrahman
+> Given the feedback so far, would maintainers prefer that if i drop the core
+> helper entirely and keep the dynamic timeout calculation local to the
+> qcom-geni driver or should we continue exploring an opt-in core-based
+> approach?
+
+Well, I suggested a potential way in my last mail (Kconfig option). So,
+what do you think about it? Does it handle your use case?
+
+
+--LtUAlmVp+O5c2oKO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmprssIACgkQFA3kzBSg
+Kbaftw//f4sM4W3OptQWLvmi+D+5r6RzcQ5yaxgI8XDtr+iuV7uRh5mc8lsV8GLK
+V8pQLX7MSJuDfopakepHsCEBb6RcGAV+DrP3WrA5hzYK5jkROpUb7kyeY2F1EUQ3
+RI8TKkPBWzoovKkRkQNXEl40hLKJ6oEyTYnsCyfoRrMNKW7hbr0aKEvMDV6PsnwQ
+s8HXqsDlCTgo4Y5ZCBXUbfXyNOSlh7K+/HQnxy2oNhy7OVatcnYbNYyqSZC3WXx2
+q+N+axoMviTXxcpMNlBm/jiZ01zc6quR7cfUos9OboMHe0hFAnuAD8br97y8F0nn
+tD+IK1VpDpv1yRleCyuwE05jKxKwTqIwhboYPY6tXk+gm7QL7mXrUnDTBz0LqYwm
+iDp9W5nwhwVKr8hA29WHgo1XEuy2Xwd3HyMupj7fHIngGt8+0BY2Z/0n4RD4TY1N
+RHCm2hxn/8/YVJULmvsLwE5kti5qAxQzLLA29XRybo22YwN5dEsxHSB4xza0T43y
+fd222yWYpuc9taHsmkb2hF3/Pj78zTL2ppauaixX6ZiczW1SsUnV/ItH+CfrG7yK
+3LIbztrteC2zP22ezgW8N3y0mVvLLhchPyEAWTJx+NSElonQfEsV1gLvF181brsf
+cYkJ6tAKc3hjGMtBNlPh5pIMeQvB1ZuPfzcT28DRw9p6rOtBqys=
+=BDhl
+-----END PGP SIGNATURE-----
+
+--LtUAlmVp+O5c2oKO--
