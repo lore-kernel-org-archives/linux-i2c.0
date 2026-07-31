@@ -1,99 +1,141 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BEDB369D64
-	for <linux-i2c@vger.kernel.org>; Thu, 30 Jul 2026 20:23:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785443040; cv=none; b=G1jg10f7Ok34ZEfG9zWAoojeQ1ki7+/AivncWAPpwwbChEpIPm28Hv6LHfeiFrgGU3qwz9MTUHQ6ZAJ3skxT2MCVdXBoAMn/enNbmNA7ZGtVePc6QkvmqcBGDiuLbTAhS7jF/Qc5am52aIUbVsZBmUTHJFnD6OYXABYSvNrBoKM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785443040; c=relaxed/simple;
-	bh=cLEDCXJcA8BK/WrOkUtMR7BaGv9prsWZhysV/YchxbI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pwXCwZLv7RA1z86xG6S0umm860lvrtI/Dw3WTEVOcLVjDn6oeY24up6LrN5NzIPecs4z78DqAM4RyqyPZSQP/QDa7Y5dKVE2zRqMdhp5cA7Hkzv4MquQKcyEVaTLO6A/lBzOnD+vlgZ4VOX3hSqxzatU0MeH150zzapyZDEK2z4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mK691obv; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D8A6357CEB;
+	Fri, 31 Jul 2026 06:05:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=85.215.255.22
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785477922; cv=pass; b=SqLAFGO1zmzwqRct+4S5Kc2GtktnMT02+WOH3YwrVkw+qAaQqaM2uXmkpotrMmrhURvgchfkXfv38EXJnDlXC9kYm5BYnTDUMZypQ74iZmwl4yeCHHtxBzq3vtaj27+mTlRN3rP7F1E0NPA3Cqn6uNLwmreJGfGqxy9P31dDpxE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785477922; c=relaxed/simple;
+	bh=FZPuiNPLColRGuD2p0o4n07puVxWjsu8hBU/ZFNjAL4=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=H1tP0NqXc6TU71FQjRz0NMXhDBdRqmcX8tr3Jhg3ncbWzwo0qBU0LO2wsGpA965TrpSPf/k3+APNuBXbSs80aObLnqcLv7Z4oQrpel+1fdWuFX8xTtkgl+SQ1lPz2zSiZjyTIUvkr0oNc4m7MYLYb0/L3ZOGOMqHFJwg7fZmYQ0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=goldelico.com; spf=pass smtp.mailfrom=goldelico.com; dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=WzeMwm4I; dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=xjQm0LrB; arc=pass smtp.client-ip=85.215.255.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=goldelico.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goldelico.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mK691obv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=cLED
-	CXJcA8BK/WrOkUtMR7BaGv9prsWZhysV/YchxbI=; b=mK691obvzHJwb4BfCLm+
-	4aDPFY6VNRLDZQKnsQCq80mPGjnZ2njo27ly2lnoB7rSR9biVexy1OW1Z68sSnKj
-	RuD12YpF/Skp6qAsfXkvaYCoEY99464CPzNPxkIK4ra5MXYCgWaWqbg8/c89aRNN
-	BWpTKHmk5IH4LAGWyyhMCaqpV7FDM3mhlDJEJYjyce4nblxkI4DmlBVHb2qI99Sk
-	T8iNKAkzPLQGXImJX2bInSCJlh5Hs7n8fQwYVJYVadX0dFgRUqoVeiFY8jyycWAL
-	RQj/141RPg3V5wO14N4JpLTYsWnmXl440wdUOxxX3c7NB51EUhum0HidHWGpxrUw
-	1Q==
-Received: (qmail 1850518 invoked from network); 30 Jul 2026 22:23:47 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 Jul 2026 22:23:47 +0200
-X-UD-Smtp-Session: l3s3148p1@sANf2dlX/i0vQDOV
-Date: Thu, 30 Jul 2026 22:23:46 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Aniket RANDIVE <aniket.randive@oss.qualcomm.com>
-Cc: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
-Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
- dynamic transfer timeouts
-Message-ID: <amuy0mdHQlYCcRfb@shikoro>
-References: <20260720-master-v6-0-671261b05c61@oss.qualcomm.com>
- <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
- <amZkf3lu7gjWhw04@zenone.zhora.eu>
- <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
- <ame2tX1RwOo4F6Lk@zenone.zhora.eu>
- <cb1e00ea-658a-416b-aef6-46c151d15685@oss.qualcomm.com>
- <amh5l4Yvwemws6Cx@shikoro>
- <fc90084e-c9bf-43da-bb8b-43a8d2d0cb7f@oss.qualcomm.com>
- <amoaEGX8Q4zwHF2i@shikoro>
- <be5ba8e8-15d0-4fe4-a66c-fe7ce8da6cc3@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="WzeMwm4I";
+	dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="xjQm0LrB"
+ARC-Seal: i=1; a=rsa-sha256; t=1785477896; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=cn54T8Pph86GPd3iNW60mFsdTv+cVok/7GC4P9/PJupPumyf58wt1gXGrs8+XH/cv/
+    TCOD7YpgoqbIUhBHlTAGg6XawUucbqXJNZVVEEE8mAkRX8Cvd12CLyBNTjhBdHA57QZr
+    foqe83lzKyvG0YFNqoQfZZC9bjU9K9QXzzPMBDqhQh/vSVQpnObDEMjuSP2DR3i46Ozo
+    l38axfV9nphoWrYRXkpzhZDvPDyH82IFCrZXYct1W4HJ0e9sLZT0SIX6kIqRSKJiyxwF
+    QRNUCKXG9G03nxfYH5MrOsJZbFYjbEmzN32giuLZD9lLCtewVOiJU54uhD1vGh0D3sKu
+    9+yQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1785477896;
+    s=strato-dkim-0002; d=strato.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=uuXJa+xDFktqYPmqVdoF+1ivi4iMQpzMIO1q+Wq+kPE=;
+    b=gUVM0PmmF6d0UJDyOy1MGi6jSWjyiJlioYUcRjHCfJSQ4fz+t+n/KkypEzBbZHmn1d
+    b8kZ57Spi8h88rrtDaYYAWTTL/FfJ9KE1fVO4d0DYwkZTy/k7M7BMgl1ZvaI1mqzOnDE
+    JIy8dwesmO/mxbnB6be4r/+DjMd80q66Qs7hUVfzNNJSHrZkOvREpRMolICXSEyC3RYj
+    13Tzq9oecEP0pKhuPFPFOSMhscg/ld2AIq++x7hQhzg0MD3S2mhoLr0uCaezebPgnR9S
+    DqcIG0vtRSGtJM6A5dmG7sCi1BUO0tPeOflDcydogCFjKVXXEeu11VVKF6RCTkl5ltSi
+    CFDg==
+ARC-Authentication-Results: i=1; strato.com;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo00
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1785477896;
+    s=strato-dkim-0002; d=goldelico.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=uuXJa+xDFktqYPmqVdoF+1ivi4iMQpzMIO1q+Wq+kPE=;
+    b=WzeMwm4IU75d9jmlhS2VGKBwsQ80aoylCPr9pBY15I4q/x4sVOGQjbnb/3m2GGnUaE
+    RcgPxYBsZr73qaetTsyX9fTVD+L0xd0cRQwAdJR0YHGhiAC9vBDgp9xbrWCnY9sjrt4b
+    ACbdYqRd0cYosLuNUKz7w3i+AK5FeKD82MgWlEt4UNqC2I4eP9g2HX1y/w9b3oSqn/u3
+    BwTuA3QVDVgkn3eEqMLnw3BIdQ0FUfTqbl0ab1lfW+mvZhEgyb5ctDc9Vy8PFkZMZlXb
+    NtO1ybgOGxxekD96SpHfp5q+7A072OEgJ9iyiCxh+p9VaKBG9//p+SykB41MHMiDyq88
+    TmvA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1785477896;
+    s=strato-dkim-0003; d=goldelico.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=uuXJa+xDFktqYPmqVdoF+1ivi4iMQpzMIO1q+Wq+kPE=;
+    b=xjQm0LrBPvtT9sc2Xfppam9927IebyDYOLywkDEs/gDNZ71vZbEFdg1DhwCA31NXXi
+    w6G0Ohffz8gQcwHGLzDQ==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9qVpwcQVkPW4I1HrQ3poGy8iN5FQZqiT/KMInHXoNih5eIi83vL33"
+Received: from smtpclient.apple
+    by smtp.strato.de (RZmta 55.5.6 AUTH)
+    with ESMTPSA id Q58eac26V64u62v
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+	(Client did not present a certificate);
+    Fri, 31 Jul 2026 08:04:56 +0200 (CEST)
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="LtUAlmVp+O5c2oKO"
-Content-Disposition: inline
-In-Reply-To: <be5ba8e8-15d0-4fe4-a66c-fe7ce8da6cc3@oss.qualcomm.com>
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81.1.8\))
+Subject: Re: [PATCH v2] i2c: jz4780: Cache host clock rate at probe to prevent
+ CCF prepare_lock deadlock
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <amfGZudmo_oNgf04@zenone.zhora.eu>
+Date: Fri, 31 Jul 2026 08:04:45 +0200
+Cc: Paul Cercueil <paul@crapouillou.net>,
+ linux-mips@vger.kernel.org,
+ linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ letux-kernel@openphoenux.org,
+ stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <D3C4DA12-B486-48F6-85D3-E11648EBE8C2@goldelico.com>
+References: <2db6fd233aceb7238474e4833f4d25ca681c3ffb.1784492382.git.hns@goldelico.com>
+ <amfGZudmo_oNgf04@zenone.zhora.eu>
+To: Andi Shyti <andi.shyti@kernel.org>
+X-Mailer: Apple Mail (2.3826.700.81.1.8)
 
+Hi Andi,
 
---LtUAlmVp+O5c2oKO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Am 27.07.2026 um 22:59 schrieb Andi Shyti <andi.shyti@kernel.org>:
+>=20
+> Hi Nikolaus,
+>=20
+>> Fixes: ba92222ed63a12 ("i2c: jz4780: Add i2c bus controller driver =
+for Ingenic JZ4780")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+>=20
+> To be clear, I wasn't against the patch itself, I just didn't
+> like the commit log and I raised questions coming just from
+> reading the log.
 
+Sorry that I did not get this because I could not see a question.
 
-> Given the feedback so far, would maintainers prefer that if i drop the core
-> helper entirely and keep the dynamic timeout calculation local to the
-> qcom-geni driver or should we continue exploring an opt-in core-based
-> approach?
+> In this v2 you are missing the changelog, please, don't forget
+> next time to add it.
 
-Well, I suggested a potential way in my last mail (Kconfig option). So,
-what do you think about it? Does it handle your use case?
+That is the downside of too much automation on our side. It did
+not properly catch the case of a single patch without cover letter.
+So the changelog is in the suppressed cover letter...
 
+Here for the records:
 
---LtUAlmVp+O5c2oKO
-Content-Type: application/pgp-signature; name="signature.asc"
+PATCH V2 2026-07-19 22:19:42:
+Changes:
+1)  improved the commit message to clearly separate between i2c host =
+clock rate
+    and the clock rate of the clock generator which is controlled =
+through i2c
+    Suggested-by: andi.shyti@kernel.org
+2a) changed to clk_rate_khz (and moved the division by 1000 to probe)
+2b) fixed the variable type and name definition (wrong spacing/tabs)
+    Suggested-by: paul@crapouillou.net
 
------BEGIN PGP SIGNATURE-----
+PATCH V1 2026-07-10 08:58:35:
+initial version.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmprssIACgkQFA3kzBSg
-Kbaftw//f4sM4W3OptQWLvmi+D+5r6RzcQ5yaxgI8XDtr+iuV7uRh5mc8lsV8GLK
-V8pQLX7MSJuDfopakepHsCEBb6RcGAV+DrP3WrA5hzYK5jkROpUb7kyeY2F1EUQ3
-RI8TKkPBWzoovKkRkQNXEl40hLKJ6oEyTYnsCyfoRrMNKW7hbr0aKEvMDV6PsnwQ
-s8HXqsDlCTgo4Y5ZCBXUbfXyNOSlh7K+/HQnxy2oNhy7OVatcnYbNYyqSZC3WXx2
-q+N+axoMviTXxcpMNlBm/jiZ01zc6quR7cfUos9OboMHe0hFAnuAD8br97y8F0nn
-tD+IK1VpDpv1yRleCyuwE05jKxKwTqIwhboYPY6tXk+gm7QL7mXrUnDTBz0LqYwm
-iDp9W5nwhwVKr8hA29WHgo1XEuy2Xwd3HyMupj7fHIngGt8+0BY2Z/0n4RD4TY1N
-RHCm2hxn/8/YVJULmvsLwE5kti5qAxQzLLA29XRybo22YwN5dEsxHSB4xza0T43y
-fd222yWYpuc9taHsmkb2hF3/Pj78zTL2ppauaixX6ZiczW1SsUnV/ItH+CfrG7yK
-3LIbztrteC2zP22ezgW8N3y0mVvLLhchPyEAWTJx+NSElonQfEsV1gLvF181brsf
-cYkJ6tAKc3hjGMtBNlPh5pIMeQvB1ZuPfzcT28DRw9p6rOtBqys=
-=BDhl
------END PGP SIGNATURE-----
+>=20
+> I merged your patch in i2c/i2c-fixes.
 
---LtUAlmVp+O5c2oKO--
+Thank you very much.
+
+BR,
+Nikolaus
+
