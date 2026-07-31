@@ -1,40 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7770D30E0E5;
-	Fri, 31 Jul 2026 21:48:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C790631F9BD;
+	Fri, 31 Jul 2026 21:55:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785534515; cv=none; b=IEwVDbvkAMKC97eQJLHDK6P1JIwz8qew8tGdNluAul5marpVCLSaTKENvLLwKw5IrkDVF/Gg6BSbsSUCVYSMkIz5t3ueRaY3dIqPLn1lynt+m/W5VxtLoZk1cWXhSce7DfvJdpaHE6T0v1jg3cFXPYXWnSxHX30YrUXrAT8TR6M=
+	t=1785534953; cv=none; b=u6pKj/+YVRAjIe10Bfo7gzycXF989y1GHzRMkrYy9Cif1dXFb6HqImsp2sT52gwDDURHeEu0fXsEmQ+NY+C4b0vwFv8bqFIo6pOoijpldRtIaA3vPe3XbBl1AsjX33z6WVzdk1TLOP6Kv6DATfWLPSRon9rMiMYYGO7mpZYhjxc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785534515; c=relaxed/simple;
-	bh=tCz/ZvoyXT2Yt5cc7mssElCMLGtgowCCmlUPpxkoYWY=;
+	s=arc-20240116; t=1785534953; c=relaxed/simple;
+	bh=fYf1qlL9j9qyQCOrVi/D5QORIS35BCtc3xBzPK0cZl4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mvn9oP3qzHeGRnYCmV2e5Co8oU8MThPD7WOLyIK9hImt3FFYbZTikXUgkJulOaApXpz5einXqrJLtfCs0XAjRo+mYD7DrmsN/lMoGeT4nGkziBL783Gjy6t+j4K3SlNhc0VAkgySUQTXfhkZtLGzmFkl3CgnvCyyNaGoNlTy4qA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wx/dHYrr; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=QVvMNPnn/4f/Br0ByQO/OXHCsG9GR6Lezgn6kY8t4vUdttl5Ve7LgeVpE5lA6H9zzBYjzmdMXxwdWmEE0fZ/UVdda+dtOy1ieB8+LUm0x67RYMvMjcNcN8TNRfAwKl4yOzhBb3O+UjLmf0pZ77sx425wkTbAMcmJPf4KKykvvIA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RDYBXAiQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wx/dHYrr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB821F00AC4;
-	Fri, 31 Jul 2026 21:48:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RDYBXAiQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2F341F00AC4;
+	Fri, 31 Jul 2026 21:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785534514;
-	bh=RTtGIKL9RPgJ0U1UOip0fsT74kLUBfK0n1Jz4UE8dRo=;
+	s=k20260515; t=1785534952;
+	bh=cMSjTqdHknhfls9RT4vAyO+9IODQTaIP2vwd4ElelXQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Wx/dHYrrQtn3tGbiN9D8P34uMpclbbxHgTa/ySZKR4z5+yqLxfTesd/CoGhRjpA3c
-	 c5tP4MdapZystPEDIsgp9uBcEMeUz+BE9y1KB9UU3RPWzxkT/0dk5CGuPWMyZ8vccc
-	 tV6EmRDaXTwDPnvLjS0maSuH7QhTRQvMiZNNcm81OiXUvJF5kJJMufC6uLljZsO4MM
-	 HVUAZ/+TM3R661VnmJXgRNZwCYyA/Npj6b+MaPG2l7iBVzyJYpf7Nr7BAxUHKsSUJo
-	 ye72jQcuANOD0OIwosJ+35R88TS3VBIgNlCHmaxQl51xbrrO3ryd4TCjQXP4UpjqnE
-	 +EttKrW2B1XDQ==
-Date: Fri, 31 Jul 2026 23:48:31 +0200
+	b=RDYBXAiQZes7pSarPogQTeWLkGXhEdvxQlEwasx0n6xxQz/GL+3UKx0BGsbB8PPAT
+	 pjvn30hL0SZgbGo34CO/pkc6zv6kCiZ5B0EsmBbrwKxo2jlXjWfRAO2OY6y/bf+HlP
+	 zSnbwjDUkDeqcVjikB0TUG1VyvmqNefe5VP//DkhR41qgJfCIKLX0lHCdqlfb+x67G
+	 QiuUBzCUc18jaJF9vYNsWzFpLqHOsYwJkiyMgzDyn1pUeYavK7KUOxNn5z8m08U1Mr
+	 ApU4mqYeRtHHsCDt9WQddzL+UFDG0UMZ8admYj/e32rtrZiHR0/jtn+pGY0Nh7rHur
+	 vg16WGnx3aLmw==
+Date: Fri, 31 Jul 2026 23:55:47 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
 To: Yun Zhou <yun.zhou@windriver.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Vasileios Almpanis <vasilisalmpanis@gmail.com>
-Subject: Re: [PATCH] i2c: prevent new device registration during adapter
- removal
-Message-ID: <am0WA-ar1NsjNXYw@zenone.zhora.eu>
-References: <20260730071831.352749-1-yun.zhou@windriver.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: fix use-after-free in debugfs directory during
+ adapter removal
+Message-ID: <am0YZFhbzuze-rd8@zenone.zhora.eu>
+References: <20260729085853.1624451-1-yun.zhou@windriver.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,58 +42,39 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260730071831.352749-1-yun.zhou@windriver.com>
+In-Reply-To: <20260729085853.1624451-1-yun.zhou@windriver.com>
 
 Hi Yun,
 
-uuhh... woow, check this patch here[*]. Your AI agents look to be
-in sync.
-
-I read Vasileios patch first and then yours.
-
-On Thu, Jul 30, 2026 at 03:18:31PM +0800, Yun Zhou wrote:
-> Remove new_device and delete_device sysfs attributes early in
-> i2c_del_adapter() to prevent concurrent client registrations during
-> adapter teardown. Without this, a racing new_device_store() can
-> register a client that will never be cleaned up, causing
-> wait_for_completion() to block indefinitely.
-
-You can also mention the UAF that Vasileios AI found.
-
-> Fixes: 99cd8e25875a ("i2c: Add a sysfs interface to instantiate devices")
+On Wed, Jul 29, 2026 at 04:58:53PM +0800, Yun Zhou wrote:
+> Move debugfs_remove_recursive() after device_unregister() in
+> i2c_del_adapter() to fix a race condition where a new i2c device probe
+> can access the adapter's already-freed debugfs dentry.
+> 
+> The race occurs when:
+> 1. i2c_del_adapter() calls debugfs_remove_recursive(adap->debugfs),
+>    freeing the debugfs dentry.
+> 2. Before device_unregister() completes, another thread writes to the
+>    sysfs 'new_device' attribute, triggering i2c_device_probe().
+> 3. i2c_device_probe() calls debugfs_create_dir() with the stale
+>    adapter->debugfs pointer, causing a GPF in start_dirop() when
+>    trying to lock the freed inode.
+> 
+> Reported-by: syzbot+1e3d934ee3cff1ac188b@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=1e3d934ee3cff1ac188b
+> Fixes: 73febd775bdb ("i2c: create debugfs entry per adapter")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
-> ---
->  drivers/i2c/i2c-core-base.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 3ec04787a737..0f207520d6f9 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -1817,6 +1817,14 @@ void i2c_del_adapter(struct i2c_adapter *adap)
->  
->  	i2c_acpi_remove_space_handler(adap);
->  
-> +	/*
-> +	 * Remove new_device/delete_device sysfs attrs early to prevent
-> +	 * new client registrations via userspace while we're tearing down.
-> +	 * kernfs will wait for any in-flight writes to complete.
-> +	 */
-> +	device_remove_file(&adap->dev, &dev_attr_new_device);
-> +	device_remove_file(&adap->dev, &dev_attr_delete_device);
 
-I prefer this fix, though, but I don't think we need to manually
-remove delete_device.
+This is the third patch of this kind I've reviewed, starting from
+the latest. I'm sorry, but I don't need AI to send me patches; I
+can do that myself. I don't need intermediaries.
+
+If your goal is to be replaced by AI, you're doing a pretty good
+job.
+
+I'm NAKing this patch on principle. Read your second patch to
+understand why; read your own patches and understand them before
+sending.
 
 Andi
-
-[*] https://patchwork.ozlabs.org/project/linux-i2c/patch/20260730162540.291570-1-vasilisalmpanis@gmail.com/
-
-> +
->  	i2c_deregister_clients(adap);
->  
->  	/* device name is gone after device_unregister */
-> -- 
-> 2.43.0
-> 
