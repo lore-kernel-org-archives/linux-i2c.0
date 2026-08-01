@@ -1,113 +1,96 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F9E23546DE
-	for <linux-i2c@vger.kernel.org>; Sat,  1 Aug 2026 21:02:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 006902F3614;
+	Sat,  1 Aug 2026 21:15:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785618160; cv=none; b=d+lzMcdTxzXB/0XJUqaGiDdYFcosDEOCil+E7fygtNMJWf8jBveULcptoZg4kyrH7lxYeCifD5tSU/7eMfkKQDOTzXH0V/lDe/BEL+Dkn4pzcLnWOMTeEqNGOT4FJFechf8tO88A8vB9gjysFBm65/5ky0HW/OCbpxLCEM6Mmog=
+	t=1785618946; cv=none; b=m+bQ2qT2bNrt/wtdcsrRsYXwJOMZKQN+/wwUV4ul/UmIkjsIrZjxSe+LJcd/NSoU4LrWuNLiUzBQj19SrKBkWdmrTdPWgOfTpEEudSfQ+xhH4utaIeIEKQDxzg/pzn+qj4Eujh5tVWdB27SJOiGnaOW7ms1BXy0lddvveGio8KQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785618160; c=relaxed/simple;
-	bh=xwwA1YvI/X4mutqLIpkbuE4ICC1y+3Y/dUHwcE6ZnCE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OtIIYrgoiUryIfCzwJWgCWsCz7qGrBm9Yg4aXHDBJLRHTX9ddJTbDHq9w41m2VeKpu109LPL70XUWtsWXs+bICzVoJ5dMZ032HjuL+lrLmmDhLy0TMtSlS9jFq6EeWdQ53PjNK9kxab1szXTKxpodEQ83QJ3ECgwAkKqfghdhos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=KBLDwAHD; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1785618946; c=relaxed/simple;
+	bh=yw+MLqi6kPElwJpEjcpjKLSULkrOxxXPtHNEfOiqU90=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=aDdUGcwU73c6xUwTAEk0ZHP0RkC/8990AoYSmFBu0aTx2jJUntQKyPPg4GxQkacfe2F7W9OtaPqT6lsn/YiY8ouYqZr2dtGAtIrSWCK2D2EKEwK0a+VGol3v00mLhJEBEi17/TZVY5km8uvdDfr8EKARfqyS+dcFcVxqSVof5CY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iu2suDeR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="KBLDwAHD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=xwwA
-	1YvI/X4mutqLIpkbuE4ICC1y+3Y/dUHwcE6ZnCE=; b=KBLDwAHDAvlkUu959dME
-	HJu9Dl3iBTtLVwOtuIhXPCm8v9sLSxb0DCCU0bGHJcaiik85fUyaBxR4x3itu1y2
-	9vWPpfWg+Y9+TukkJYrMjJEnwK1dFsOq8MdpBLodVOZwLJ+ABHzcp0NSjtMEm1bj
-	aP0A8RQqcDQl9fG9c/32jvc+KzQB/Mc4DcC0xxsf6yhLtvImPucV8in+5YaC3fGW
-	Ug29mZwro0Iyvl5Su7mn6KzTJOwJNM4pK1USNtBajB3RM5PhwveT0im6ckLMrcku
-	pTDn5BNGB4vVbEwWaMVyVN8cCYI2z72/p2/UskRiFB0hrO7lxwWP6JPnqsVOJBBH
-	eA==
-Received: (qmail 2496436 invoked from network); 1 Aug 2026 23:02:36 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 1 Aug 2026 23:02:36 +0200
-X-UD-Smtp-Session: l3s3148p1@TZ7lnwJYKKwujnt8
-Date: Sat, 1 Aug 2026 23:02:35 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Aniket RANDIVE <aniket.randive@oss.qualcomm.com>
-Cc: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
-Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
- dynamic transfer timeouts
-Message-ID: <am5e6yBm-4ZH1W27@shikoro>
-References: <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
- <amZkf3lu7gjWhw04@zenone.zhora.eu>
- <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
- <ame2tX1RwOo4F6Lk@zenone.zhora.eu>
- <cb1e00ea-658a-416b-aef6-46c151d15685@oss.qualcomm.com>
- <amh5l4Yvwemws6Cx@shikoro>
- <fc90084e-c9bf-43da-bb8b-43a8d2d0cb7f@oss.qualcomm.com>
- <amoaEGX8Q4zwHF2i@shikoro>
- <be5ba8e8-15d0-4fe4-a66c-fe7ce8da6cc3@oss.qualcomm.com>
- <amuy0mdHQlYCcRfb@shikoro>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iu2suDeR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1621F00AC4;
+	Sat,  1 Aug 2026 21:15:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785618944;
+	bh=ALbadrPlzW4YdLs9fKrKevLx7dPEsNFJd83WcTvC4co=;
+	h=Date:Subject:To:References:From:In-Reply-To;
+	b=iu2suDeRu/dT8WnlAiU+FK9hRedcQZ3iPHg2hYKJN80fk09m4XzYI9nVyPNEaqZxa
+	 REtFtLP5uBVTM+EjII/Pq2mthEdWYqGKeYz9v18FgcbvdJOyzkV3dO7ahaaJsaneZo
+	 Nj/lmFrmw2GUo3yDwd4GcPvXOPAIaYWm1+JE387Q1t17HQeh+thY7ma+gtsatcMRSW
+	 fxImTGZJ9SmQAxQNHKBBgGEZfmaq1RkbFe6VWm2eskesrtnAAqVi8GKAMpnMrGrin3
+	 HZmaSHy271wjIwRn71y/FeeZXnOA3FtU2qpJbZpU43UWLquFFKChIveXiKBHXb9WCD
+	 nOCOrht2bkZ2g==
+Message-ID: <4b763098-a91e-46f0-88c9-d08670d31328@kernel.org>
+Date: Sat, 1 Aug 2026 14:15:40 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="1qJfCwis4bv+clGb"
-Content-Disposition: inline
-In-Reply-To: <amuy0mdHQlYCcRfb@shikoro>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: Correct white-space style
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@arm.com>,
+ James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>,
+ Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+ Jyri Sarha <jyri.sarha@iki.fi>,
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Patrice Chotard <patrice.chotard@foss.st.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Jassi Brar <jassisinghbrar@gmail.com>,
+ Lee Jones <lee@kernel.org>, Johannes Berg <johannes@sipsolutions.net>,
+ Jeff Johnson <jjohnson@kernel.org>, Viresh Kumar <vireshk@kernel.org>,
+ Nishanth Menon <nm@ti.com>, Stephen Boyd <sboyd@kernel.org>,
+ Yangbo Lu <yangbo.lu@nxp.com>, =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?=
+ <ukleinek@kernel.org>, Paul Walmsley <pjw@kernel.org>,
+ Samuel Holland <samuel.holland@sifive.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Richard Cochran <richardcochran@gmail.com>,
+ Jens Wiklander <jenswi@kernel.org>,
+ Yuanfang Zhang <yuanfang.zhang@oss.qualcomm.com>,
+ YC Hung <yc.hung@mediatek.com>, Svyatoslav Ryhel <clamor95@gmail.com>,
+ Sean Wang <sean.wang@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+ Peter Ujfalusi <peter.ujfalusi@gmail.com>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ coresight@lists.linaro.org, linux-arm-msm@vger.kernel.org,
+ linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-mediatek@lists.infradead.org, linux-gpio@vger.kernel.org,
+ linux-i2c@vger.kernel.org, mfd@lists.linux.dev,
+ linux-wireless@vger.kernel.org, ath10k@lists.infradead.org,
+ linux-pm@vger.kernel.org, netdev@vger.kernel.org, linux-pwm@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-usb@vger.kernel.org
+References: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
+From: Jeff Johnson <jjohnson@kernel.org>
+Content-Language: en-US
+In-Reply-To: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+On 8/1/2026 12:56 PM, Krzysztof Kozlowski wrote:
+> Correct a few white-space issues, like double space after '=' or before
+> bracket '{' characters, which will be flagged by dt-check-style.  No
+> functional changes.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> 
+> ---
+>  .../bindings/net/wireless/qcom,ath10k.yaml    | 34 +++----
+
+Acked-by: Jeff Johnson <jjohnson@kernel.org> # qcom,ath10k.yaml
 
 
---1qJfCwis4bv+clGb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jul 30, 2026 at 10:23:46PM +0200, Wolfram Sang wrote:
->=20
-> > Given the feedback so far, would maintainers prefer that if i drop the =
-core
-> > helper entirely and keep the dynamic timeout calculation local to the
-> > qcom-geni driver or should we continue exploring an opt-in core-based
-> > approach?
->=20
-> Well, I suggested a potential way in my last mail (Kconfig option). So,
-> what do you think about it? Does it handle your use case?
-
-Another bit which may be important for you: there is currently a patch
-set under discussion [1] to allow changing bus speeds dynamically. You
-probably want to base your work on top of it and/or help getting it
-discussed?
-
-Happy hacking!
-
-[1] https://lore.kernel.org/all/20260719-i2c-mux-v12-0-a5010d623a57@gmail.c=
-om/
-
-
-
---1qJfCwis4bv+clGb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpuXusACgkQFA3kzBSg
-Kbbq6hAAoYOvUh7GIllIPMFO4jAtyc0tuw1DDAPrJxsovz3cOGtm03SVzXLiQ2QM
-Eysn/mQmoczzYnkEpX7UQAYyJBTUVn4IBSCrrQkximE84QnfsRdOnsZRD6R1s8w/
-/WcG8nBPWyHlqNcvZDOrKyk+LIRA8WtD2sr5/Fqvnb/92H2XTeHxfoK/YA4xHROT
-qCugmqdH0LIU5i5Ys1LZ4rYsi57yqCa4dHC8NZnT/SeSKy3xQlSKiaOWbx435HBE
-bpKNrokG9oOQU8HKWVQCZA+0xbqBfk/iC4zMg8IhjDikfjuCb7ydxbQAjbuTkm10
-Db+3FEGgHDjPmG52M1lfSeEiLCSMGrWYR4ktYLriJeF0irk49GSwdbKBHZJMWAM3
-pYKwoNIMy50Xfa5hJywCeD4tuowDpMQRQDyj0KraabOMhGJdClpI6II3ZiNvbKz4
-HrK3IsIFt6ywU/K7oUcZaUTcVkztpkLS4uQ/8k5duI9js3P2s6Lnno8PblNLN3zu
-q/266a2Bk40eTbRFzIaGrTTFtgPWjxMruOmAfNg2+JNLB0TE287WbJjLybTV/YbW
-s1QYJGE5HYq6puYVLnpZ0cdXwsUZ4t9IOuFLN1IjF8loLOIBUrGRN9H5CJwFWAFN
-/H+naDrdeJaF546jJ6eS2tUDFiDfgiTR2794FI2Hzyq0XXnQNS0=
-=ToTX
------END PGP SIGNATURE-----
-
---1qJfCwis4bv+clGb--
