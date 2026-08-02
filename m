@@ -1,228 +1,128 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E1D3909BF
-	for <linux-i2c@vger.kernel.org>; Sun,  2 Aug 2026 08:53:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785660826; cv=pass; b=Beihr1Tq3h9iGmio7ano/9gju5etSwZdk3nZnaYMA3L1z6i4kO8wsgr1ACn7W2cOAcra3+L6xK79i8ZfNK+ISo8phjBk3ompUuEzuZQdOMOlR1HW5/jgpvYl5gTt2YXb+JlAKU4UYzosaMhQAO+c6KHq2OHCXKOg/qmv9aHk25o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785660826; c=relaxed/simple;
-	bh=GlDcPw1uDy8z/zj9y8sPWY/XJkKEOhvrec3hjox2kSE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=K/RH8m4MjNWkrgbXYt5kRh4wcRlM9qayxP1GTfu0shhDKKQwWApqhRuMnkqZ+F1EDi5aYnGJR8RIZKtjWWumUeA09FVMpi6jKo9eZVH+JlTpz9FlfgPpz+F2Fr7qsCiwalPvjsHhsA2jBv0BKvfcU2b7btEhbksACDI57y7yj/8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UJduNRdl; arc=pass smtp.client-ip=209.85.167.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C25733938C;
+	Sun,  2 Aug 2026 12:29:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785673760; cv=none; b=qO/rcRAFnXWUWQa341URwKoj+uLscP9GrkSPKxZkoNdwcmCN8pkW95QJdsliHDIbo0P3HGI7oI04CspwLrYFILyJ22H4SgRPshtdSN+8kcwkiGC09DKA2Fb+earvHYjBTHHZBGm9whHuiv5uGKdmGySmAQAx99ydDsYeP2ipHp4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785673760; c=relaxed/simple;
+	bh=Oc+Pf6P+wet7UHezAuJRNaKASH+UQW2bFsWGp3UkczE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mf6Fm0hvQAAJI/h04j0SzTVXjWRPswwTU27YOyhlujQ7ZrDNjgplkL+GDpzp9b6k+m4xH/0IQuJl8+yhfwf4G8iWpdan3u1w46NCn+rwFND3hL21/ucXdoIw6hOSUu1VmJTdFK211Wbo9aCInysHqXes8SmoV6c62l1WL3IOzWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H2OmZJER; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UJduNRdl"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5b01cb18515so2141038e87.2
-        for <linux-i2c@vger.kernel.org>; Sun, 02 Aug 2026 01:53:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785660821; cv=none;
-        d=google.com; s=arc-20260327;
-        b=DuMklZwch+cYTsrL7eRS950n0oH7G2qgez/WDY1sLCdhra4WpLIiFa0YsWevpmGWE/
-         JPlHDoW1/rb3lMDfX8WnGEx9DSr3fO2Og6oWoVcO7Jt5Fibw+Qk3DsEiduYmeHrNWr/g
-         mzXOa7Uiy1KMGftahuwNKVh07UKKR+ZcmC29l9S0Y+71W6940yXl7xiXqTCuJ0qKveyD
-         cnSxfVCmkNHpBZMn6ZfBpsb+zc0CCUhHN5qkT1pC95gkGUK64Ywh5L+KqWcWOSt6KkT2
-         APGyaPW/3dUdVBkQxYdhMNydRWzE3G8rsFocyLcRXouUq1N1TygZ5KEjLyyuiPYk9cYj
-         XMSw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=v4W89YSh3PEwSTfuZU0IYJ+ax6WMvSRUucxN96Vtil8=;
-        fh=CXvCZCiSJkvcHERt1UN4HBGbLOT+2YYqMYziVGf/eOg=;
-        b=i7P5DEj0LUTEMzErxOwKYqiQBRTlORJF07i1CZciuFCOv7TcTogiXX0Ik8gg/IznOT
-         jRsF3ioDprcQFxW65Z+++beU2Pm5F/tg4inQwPVUvsYeNVekbHu+au3GjsqmsGXXGDvp
-         xVsH4WNFlBRRTLrmCBFunvqELOm7jF8uyCN16V6oQ0gyoZ9aq9Y2tAec7tUCmKTxsviY
-         l4wKf5u4FWDeR7yMsSKwnSLK12+KyMFINkWj3F8B9lKxx41hu9xVlQDRE9n85gykuIHE
-         T0E4m3H8hu1LlhCuGzY6EFWJRdFodcPBoHTptKL9iV9gWC4dcUymgkUnpBH76/vMm8Ax
-         VEkA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785660821; x=1786265621; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=v4W89YSh3PEwSTfuZU0IYJ+ax6WMvSRUucxN96Vtil8=;
-        b=UJduNRdlO8hSJ0rcfagVdGnOEDSmjnDRcUDqyEVzZRkF8s9r2BaTgpm5MsEOblXfdL
-         37DuDOV9IL0jjNcVZgdE+5SP7cSNP1sDAgGgf6T45P4GhK066RlEDWU7dz9ymVMS+8Ei
-         2mkcCgTotOpBWdt46fU4/5hGJFC4/MvkgK/KQ5yZFYt9dd1QX7ma5A/dBwrNmm90DZN5
-         oxBF4+CovkkKQyKHopy5WPqkSTCVGVu3EORmPyKieraiJRYMJROyi71TodwlMfyE1RlK
-         mR107EsTRToJrNghbqcsfror63iX9AltZ8JBtp7EtyonpjBUV/McPNDD5oqjaWK9Lvjw
-         oMCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785660821; x=1786265621;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=v4W89YSh3PEwSTfuZU0IYJ+ax6WMvSRUucxN96Vtil8=;
-        b=Hb1hOmhi7iiPE7pEAoAjSXFSo7QDxR8wCO5NKxfnSiLKoNN3HKChDvDep0fiLt5LTZ
-         Da76oXW28JoTaZ6HV/OhM3FtbheaS80EO0qr14yVVr4lm5o9ah11FN8Tpup0wV1Ifqbk
-         bsqe2c0n1gu+l5IlCuwZifwcLKnwwpLh/0ijKSCLDqg0RqcEG6EzDNLUNsba4SDV8lP/
-         coi35of1Q5qoJbYFVVRL00Qrsb6KpVCRZA1j2KZVy1wjjSYiTDWxV9J853wvGtZmmNuA
-         zOx188iSefEkSBwWhqjNGwnBXdvnV9tplI6r7vuL81ko03+XCKBHYsxicGFIVHH7Zfv4
-         iXSw==
-X-Forwarded-Encrypted: i=1; AHgh+RoyDZRWb+YMXNk+gzwku7DcQ0AsVA/ZUH/b72rtV8RzYd7sniKdgwN2XYRxqb+IADBJgEUG/UgItuI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwvlOMp52dh3AAyQRIyo75VRvKSt2P4OmLtbd7HYwOZLcNfN2Qw
-	r9Vzw2KjvwXmRiU5ebf2ET7w2G8AnUcNP2CVxf6XQpPh2/E38gwh/aQC9t3jSmmNACmeYzFBjk4
-	SOyS9/qXO51RaHr2VfXsiG0qsgygi9dI=
-X-Gm-Gg: AR+sD138B/mPJP2zB6Bs5sAASb/MQohM0Q8z3yJgbYrdg2Pur6t4zM4bWgyM+nhHiWT
-	McuzBS1zKS5UCxS4GPjF+S8h3iMJVsEIkKIA+YGe+KNA3DVpSnDq6YQLWal5vXCOr37jpuAQtLv
-	2v0Ga7+jKmM04tMRVehZEt0j+cDGY4O8VR7SpjLwHV6Fr8SE8BzC2ThpQo2G+Sm5NCj/8D+i8eb
-	ABUkC3p434BYMI3Xz6nLd5QkNfZWdME0QqfE2FUAOwuB6nG8elBuf9FQcL/jugIbmoYEwYa9A9z
-	53+uBR5UgjTao+eIcBIBrs+35+f/8fKQMmw1evGDqZANNjdKX+ghyJDsfool08mpSqDjHGi2lFk
-	=
-X-Received: by 2002:a05:6512:6883:10b0:5b0:23b4:be97 with SMTP id
- 2adb3069b0e04-5b2e4f1ad94mr606688e87.6.1785660820400; Sun, 02 Aug 2026
- 01:53:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H2OmZJER"
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id C46541F000E9;
+	Sun,  2 Aug 2026 12:29:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785673758;
+	bh=SHSGsM0vu6t3zdEJHGFOqvnDDQ/hs9cDuA8s50LeKfA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=H2OmZJERCYxtrOOph6nrStzZdf9Px2+Qu52EKRUMyRnmj4QfSbClOGXvOwLQl/4aA
+	 QXrUGppcGBhRWhY9tW992RTQ83AkGGQJozNyGViEgllW7DJ8ayJ1pfg/mDZfKLYM+O
+	 iaCJu9ozHHoC9OJbqbp8GE2FXVc48vGCq9wTtZKsOYsPdu40/jveDStEa4FnAS8dvh
+	 eBwmazAysE+S1N5/1Od2as8vkHZiBiRzJzW/3NReG/Vr6BQSlyRO9SCgOFK91LoO0Z
+	 4Wat2UmYU94tkzX5l86TF3Srukt7Yi+4nQ/P5F5pqFRu3Ol3LaLh9TJ1K2EelnS/lt
+	 PpuVHx/cRwcTg==
+Date: Sun, 2 Aug 2026 14:29:15 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+	Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@arm.com>, 
+	James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>, Damien Le Moal <dlemoal@kernel.org>, 
+	Niklas Cassel <cassel@kernel.org>, Jyri Sarha <jyri.sarha@iki.fi>, 
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Patrice Chotard <patrice.chotard@foss.st.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Jassi Brar <jassisinghbrar@gmail.com>, 
+	Lee Jones <lee@kernel.org>, Johannes Berg <johannes@sipsolutions.net>, 
+	Jeff Johnson <jjohnson@kernel.org>, Viresh Kumar <vireshk@kernel.org>, Nishanth Menon <nm@ti.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Yangbo Lu <yangbo.lu@nxp.com>, Paul Walmsley <pjw@kernel.org>, 
+	Samuel Holland <samuel.holland@sifive.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Richard Cochran <richardcochran@gmail.com>, Jens Wiklander <jenswi@kernel.org>, 
+	Yuanfang Zhang <yuanfang.zhang@oss.qualcomm.com>, YC Hung <yc.hung@mediatek.com>, 
+	Svyatoslav Ryhel <clamor95@gmail.com>, Sean Wang <sean.wang@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Peter Ujfalusi <peter.ujfalusi@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, coresight@lists.linaro.org, linux-arm-msm@vger.kernel.org, 
+	linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linux-mediatek@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	mfd@lists.linux.dev, linux-wireless@vger.kernel.org, ath10k@lists.infradead.org, 
+	linux-pm@vger.kernel.org, netdev@vger.kernel.org, linux-pwm@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-usb@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Correct white-space style
+Message-ID: <am83ac93gyowUgSQ@monoceros>
+References: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260726113511.57596-1-skyexpoc@gmail.com> <20260726113511.57596-4-skyexpoc@gmail.com>
- <2026080222-capped-registrar-be10@gregkh>
-In-Reply-To: <2026080222-capped-registrar-be10@gregkh>
-From: =?UTF-8?B?SEUgV0VJ77yI44Ku44Kr44Kv77yJ?= <skyexpoc@gmail.com>
-Date: Sun, 2 Aug 2026 17:53:28 +0900
-X-Gm-Features: AUfX_mwsnzhqwwiZ5-vWpV54VrFFRaFP87nkGsCAIHxTVBUc4dBUHQK3zx-PnBU
-Message-ID: <CAOC0qyK9YwvzZt4q4pWL_TQXETcG=yULZ98twetzYxv_n7Vr+w@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] usb: misc: usbio: bound the debug hex dumps by the
- received length
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Hans de Goede <hansg@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, linux-usb@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ynduf7ixmtnk7fvw"
+Content-Disposition: inline
+In-Reply-To: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
+
+
+--ynduf7ixmtnk7fvw
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] dt-bindings: Correct white-space style
+MIME-Version: 1.0
 
-Answering your question on 1/3: the diff was generated by hand with
-diff -u, not git format-patch. That is why the hunk headers have no
-function names.
+On Sat, Aug 01, 2026 at 09:56:14PM +0200, Krzysztof Kozlowski wrote:
+> Correct a few white-space issues, like double space after '=3D' or before
+> bracket '{' characters, which will be flagged by dt-check-style.  No
+> functional changes.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> [...]
+> diff --git a/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml b/Docu=
+mentation/devicetree/bindings/pwm/pwm-sifive.yaml
+> index bae993128981..40397bdf2d69 100644
+> --- a/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml
+> +++ b/Documentation/devicetree/bindings/pwm/pwm-sifive.yaml
+> @@ -62,7 +62,7 @@ additionalProperties: false
+> =20
+>  examples:
+>    - |
+> -    pwm:  pwm@10020000 {
+> +    pwm@10020000 {
+>        compatible =3D "sifive,fu540-c000-pwm", "sifive,pwm0";
+>        reg =3D <0x10020000 0x1000>;
+>        clocks =3D <&tlclk>;
 
-Your comments on 3/3 are correct as well, including min_t.
+I'm ok with this change (as &pwm is unused in the example), I also don't
+care much about this not being a whitespace only change and thus not
+really matching the commit log.
 
-I am not resubmitting this series, so please do not spend more time
-reviewing it. Sorry for the wasted effort.
+Acked-by: Uwe Kleine-K=F6nig <ukleinek@kernel.org> # for Documentation/devi=
+cetree/bindings/pwm
 
-Thanks again.
+Best regards
+Uwe
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> =E4=BA=8E2026=E5=B9=B48=E6=
-=9C=882=E6=97=A5=E5=91=A8=E6=97=A5 17:46=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Sun, Jul 26, 2026 at 08:35:09PM +0900, HE WEI (=E3=82=AE=E3=82=AB=E3=
-=82=AF) wrote:
-> > usbio_ctrl_msg() and usbio_bulk_msg() hex dump the reply with "%*phN",
-> > using a length the device supplied and that has not been validated yet:
-> >
-> >       ret =3D usb_control_msg(usbio->udev, pipe, 0, request | USB_DIR_I=
-N, 0, 0,
-> >                             cpkt, cpkt_len, USBIO_CTRLXFER_TIMEOUT);
-> >       dev_dbg(usbio->dev, "control in %d hdr %*phN data %*phN\n", ret,
-> >               (int)sizeof(*cpkt), cpkt, (int)cpkt->len, cpkt->data);
-> >
-> > cpkt->len is a u8 read back out of usbio->ctrlbuf after the IN transfer=
-,
-> > and bpkt_len in usbio_bulk_msg() is le16_to_cpu(bpkt->len) read out of
-> > usbio->rxbuf.  Both are handed to "%*phN" as the field width.
-> > hex_string() in lib/vsprintf.c caps that at 64, and dereferences every
-> > byte up to that cap regardless of how much room the output buffer has:
-> >
-> >       if (spec.field_width > 0)
-> >               len =3D min(spec.field_width, 64);
-> >
-> >       for (i =3D 0; i < len; ++i) {
-> >               if (buf < end)
-> >                       *buf =3D hex_asc_hi(addr[i]);
-> >
-> > So the dump reads up to byte 67 of ctrlbuf and byte 68 of rxbuf.  Both
-> > buffers are sized from the endpoint packet sizes, so this is out of
-> > bounds whenever ep0 wMaxPacketSize is below 68 and whenever the bulk in
-> > endpoint is below 69.  That covers every low, full and high speed ep0
-> > (8, 16, 32 or 64) and the bulk sizes the supported bridges actually use
-> > (64, or 63 for the Synaptics Sabre via USBIO_QUIRK_BULK_MAXP_63).
-> >
-> > A device answering one of the five usbio_ctrl_msg() calls in
-> > usbio_probe() with cpkt->len =3D 255 therefore leaks up to 60 bytes of
-> > adjacent slab memory into the kernel log during enumeration, before any
-> > user space is involved.  On the bulk path a reply claiming
-> > bpkt->len =3D 0xffff reads 5 bytes past a 64 byte rxbuf.
-> >
-> > Unlike the endpoint size issues this needs no malformed descriptor at
-> > all; it only needs the dev_dbg() calls to be enabled.  When they are, i=
-t
-> > is a slab-out-of-bounds read under KASAN and the bytes reach dmesg.
-> >
-> > Bound both dumps by the number of bytes actually received.  That is in
-> > bounds by construction and also stops the dump printing stale bytes lef=
-t
-> > over from an earlier transfer.  The matching dumps on the two OUT paths
-> > are left alone: they use lengths the driver itself just wrote, which th=
-e
-> > size checks above them already bound.
-> >
-> > Found by code review.  The out-of-bounds read was reproduced under
-> > AddressSanitizer with a userspace model of the two dev_dbg() call sites
-> > and of hex_string()'s field-width handling; it has not been exercised o=
-n
-> > hardware or on dummy_hcd.
-> >
-> > Fixes: 121a0f839dbb ("usb: misc: Add Intel USBIO bridge driver")
-> > Cc: stable@vger.kernel.org
-> > Assisted-by: Claude:claude-opus-5 asan
-> > Signed-off-by: HE WEI (=E3=82=AE=E3=82=AB=E3=82=AF) <skyexpoc@gmail.com=
->
-> > ---
-> > --- a/drivers/usb/misc/usbio.c
-> > +++ b/drivers/usb/misc/usbio.c
-> > @@ -14,6 +14,7 @@
-> >  #include <linux/dev_printk.h>
-> >  #include <linux/device.h>
-> >  #include <linux/lockdep.h>
-> > +#include <linux/minmax.h>
-> >  #include <linux/mutex.h>
-> >  #include <linux/string.h>
-> >  #include <linux/types.h>
-> > @@ -141,7 +142,7 @@
-> >       struct usbio_ctrl_packet *cpkt;
-> >       unsigned int pipe;
-> >       u16 cpkt_len;
-> > -     int ret;
-> > +     int dbg_len, ret;
-> >
-> >       lockdep_assert_held(&usbio->ctrl_mutex);
-> >
-> > @@ -181,8 +182,15 @@
-> >       cpkt_len =3D sizeof(*cpkt) + ibuf_len;
-> >       ret =3D usb_control_msg(usbio->udev, pipe, 0, request | USB_DIR_I=
-N, 0, 0,
-> >                             cpkt, cpkt_len, USBIO_CTRLXFER_TIMEOUT);
-> > +     /*
-> > +      * cpkt->len has just been written by the device and is not valid=
-ated
-> > +      * until below, while %*phN dereferences up to 64 bytes of whatev=
-er
-> > +      * field width it is handed.  Bound the dump by what was received=
-.
-> > +      */
-> > +     dbg_len =3D (ret > (int)sizeof(*cpkt)) ?
-> > +               min_t(int, cpkt->len, ret - (int)sizeof(*cpkt)) : 0;
->
-> LLMs love to write comments, please think about what it is attempting to
-> do here and if a comment is even needed.
->
-> And that line is crazy, please write code for people first, compilers
-> second.  Make that readable, because as-is, it's not.
->
-> And finally, it's obviously LLM generated as they do not know how to
-> properly deal with min_t() lines due to it being trained on "old" kernel
-> code.  That's wrong, please do it properly, you should almost never be
-> using min_t() anymore.
->
-> thanks,
->
-> greg k-h
+--ynduf7ixmtnk7fvw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpvOBgACgkQj4D7WH0S
+/k5+WQf8CivH89faKCp48CBlupnrahHpA3qdaBm48BnUdJduo4BaximYlTqDGSxO
+NXL529LwysgvuiHkOxrg9bUdk/Lx68V5xZboTmO5BFwMGnqiXaazc9iWfyHrau7M
+YVderOTLj5yWcB/0FkMdHb59nmaH6H3DTA7lTyzhEH2rK1e56Xe0bWxXn5wPx//K
+Fg6BzFpjoO28RLKp88OCsgzFiu3Y6yaJNenCx2MeV0T15/L721ZmHJDKsQqu5iDJ
+iXzPSntzwtR7HAs/3NUW1jSaAV2Jq41LUqlqjX4CeZDwSDaX6iquowVSJDhJvYuK
+ZtKTkgqchOdbv2qhQEqje3UkwK9pWQ==
+=9CRH
+-----END PGP SIGNATURE-----
+
+--ynduf7ixmtnk7fvw--
