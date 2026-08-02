@@ -1,40 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF043905F9;
-	Sun,  2 Aug 2026 08:44:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15A43947B5;
+	Sun,  2 Aug 2026 08:46:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785660280; cv=none; b=T1YARg+yEeoHojo4crm5C4aGPCXq6ab0b/xlPvUmfyXn3B6rwgdtXfjzJg+tEtkRhK8wqHCkL+8p/J2mFigS53n4wKaSWyMBzAg5bJuy5d8bhWLgEDgmDIAqAsivJ5NGCQk6fnm1JfVbbtegSNC5X52EIC/H04Rw2F2d0+7Y9k0=
+	t=1785660384; cv=none; b=Dj0X5wXQmrhaEa1sHQIzQsX7MH3YngyFVQbmad3MrqNFuv701U4HRskyp7OW7b2cDEG/4xqvbUhcuhXHEU+YLTNY/pQrxLIIbjR/ywKCK/QaA9PXtk9CT9yqTbc0MR6H+3TBJLTgKU0Y6RYdqFRS/gs6/Gwixy35TGmNS3EfqyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785660280; c=relaxed/simple;
-	bh=7sfW5wlvZYnYnzcSvnYlUi9Nes8niWZernyfcxy7UWg=;
+	s=arc-20240116; t=1785660384; c=relaxed/simple;
+	bh=3ZcwpEa2NfHQVR5Nd5SyiUeFflcH5yvoc99YgRW0cmE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bpNaH6SPe74ELo7P3IYtakM4G83EmDBDDqVmrBzPIJ5yIUYOx+FgojY6DErK1oOF+n2iAgSrc1kdvDQnN9TnDNgy8AbMzn8A3bpZMNVTIiCC2el9kvyyK2yygweXgxgSTuLShr/6ITIWvOTTyq7rhSGTffhf41TKueLNrQDIqAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=y299rIWR; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=GZlvUl2fjFLJ7nX+TXqDCiG+4Y88S9GEiZPKgqDkTcOHxQoa+O0NqYQmJy2CeUpb9LhJc2oUn+qFpkILV+XlGE+KeDksktFfe6dWYJvaNZUhPI99/uoWSUKN1JyyVkV970eVDTROJN2FFwpnZP4ZvSOjX2/WgItatO/P85EZmoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=bCVJxIR4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="y299rIWR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA4111F00AC4;
-	Sun,  2 Aug 2026 08:44:37 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="bCVJxIR4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F0D21F00AC4;
+	Sun,  2 Aug 2026 08:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1785660278;
-	bh=1Roupk5IXNgnb0jQ7zaI+Ly47KyHYdNPIJ5Qwm1Ktso=;
+	s=korg; t=1785660381;
+	bh=uuqVVnThs34ehZg3XRXY2PllsT/tzs+Y4xani+c6xrI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=y299rIWRBVsf7PVUy/+/ich9HT/PFAxKthYj2Z5VQ3cpSrywr+WAPamNXaOOFQzBX
-	 ZUcJKSwmVDIJptvz53pC2Q9K2Z5XQAvIZ1nh82q64XomwCApyIFx2D0IS9sTCFjcyp
-	 wMajmZxqV//VWOo6EwCr0xxbLU17/j7kodtOAVao=
-Date: Sun, 2 Aug 2026 10:43:10 +0200
+	b=bCVJxIR4nRBkhHTBBKTsnmXPynPSPzZkUXTDwGwd2P7+WdenZpg0EmgnVYKqmfqAT
+	 obMzscQAlQgpDkeFUdn7K9E6MzZt2sBSS0dyrpvkDZlyo7051eQ+tkv5m1m7ZepP7M
+	 ev26qbsOgTb5nPyuW5TIoUww/o0MEEwbrg6fwAIw=
+Date: Sun, 2 Aug 2026 10:44:52 +0200
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: HE WEI =?utf-8?B?KOOCruOCq+OCryk=?= <skyexpoc@gmail.com>
 Cc: Hans de Goede <hansg@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
 	Sakari Ailus <sakari.ailus@linux.intel.com>,
 	linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] usb: misc: usbio: reject endpoints smaller than
- the packet header
-Message-ID: <2026080209-satin-existing-5450@gregkh>
+Subject: Re: [PATCH v2 3/3] usb: misc: usbio: bound the debug hex dumps by
+ the received length
+Message-ID: <2026080222-capped-registrar-be10@gregkh>
 References: <20260726113511.57596-1-skyexpoc@gmail.com>
- <20260726113511.57596-2-skyexpoc@gmail.com>
+ <20260726113511.57596-4-skyexpoc@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,106 +44,57 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260726113511.57596-2-skyexpoc@gmail.com>
+In-Reply-To: <20260726113511.57596-4-skyexpoc@gmail.com>
 
-On Sun, Jul 26, 2026 at 08:35:07PM +0900, HE WEI (ギカク) wrote:
-> usbio_ctrl_msg() and usbio_bulk_msg() bound the caller's transfer sizes
-> against the endpoint packet size minus the fixed protocol header:
+On Sun, Jul 26, 2026 at 08:35:09PM +0900, HE WEI (ギカク) wrote:
+> usbio_ctrl_msg() and usbio_bulk_msg() hex dump the reply with "%*phN",
+> using a length the device supplied and that has not been validated yet:
 > 
-> 	if ((obuf_len > (usbio->txbuf_len - sizeof(*bpkt))) ||
-> 	    (ibuf_len > (usbio->txbuf_len - sizeof(*bpkt))))
-> 		return -EMSGSIZE;
+> 	ret = usb_control_msg(usbio->udev, pipe, 0, request | USB_DIR_IN, 0, 0,
+> 			      cpkt, cpkt_len, USBIO_CTRLXFER_TIMEOUT);
+> 	dev_dbg(usbio->dev, "control in %d hdr %*phN data %*phN\n", ret,
+> 		(int)sizeof(*cpkt), cpkt, (int)cpkt->len, cpkt->data);
 > 
-> usbio->txbuf_len is a u16 and sizeof(*bpkt) is a size_t, so the
-> subtraction is done in size_t.  struct usbio_bulk_packet is 5 bytes and
-> struct usbio_ctrl_packet is 4 bytes, so any endpoint smaller than that
-> makes the expression wrap to a value close to ULONG_MAX, both
-> comparisons become false and the check is disabled.
+> cpkt->len is a u8 read back out of usbio->ctrlbuf after the IN transfer,
+> and bpkt_len in usbio_bulk_msg() is le16_to_cpu(bpkt->len) read out of
+> usbio->rxbuf.  Both are handed to "%*phN" as the field width.
+> hex_string() in lib/vsprintf.c caps that at 64, and dereferences every
+> byte up to that cap regardless of how much room the output buffer has:
 > 
-> txbuf_len and rxbuf_len come from the bulk endpoint wMaxPacketSize.
-> usb_parse_endpoint() only clamps wMaxPacketSize downwards, it never
-> enforces a lower bound:
+> 	if (spec.field_width > 0)
+> 		len = min(spec.field_width, 64);
 > 
-> 	if (maxp > j) {
-> 		dev_notice(ddev, "... has invalid maxpacket %d, setting to %d\n",
-> 		    ..., maxp, j);
-> 		maxp = j;
-> 		endpoint->desc.wMaxPacketSize = cpu_to_le16(i | maxp);
-> 	}
+> 	for (i = 0; i < len; ++i) {
+> 		if (buf < end)
+> 			*buf = hex_asc_hi(addr[i]);
 > 
-> A wMaxPacketSize of 0 is merely logged with dev_notice(), and a bulk
-> endpoint declaring 1 is accepted verbatim.  usb_submit_urb() rejects
-> maxpacket 0, but nothing rejects 1.
+> So the dump reads up to byte 67 of ctrlbuf and byte 68 of rxbuf.  Both
+> buffers are sized from the endpoint packet sizes, so this is out of
+> bounds whenever ep0 wMaxPacketSize is below 68 and whenever the bulk in
+> endpoint is below 69.  That covers every low, full and high speed ep0
+> (8, 16, 32 or 64) and the bulk sizes the supported bridges actually use
+> (64, or 63 for the Synaptics Sabre via USBIO_QUIRK_BULK_MAXP_63).
 > 
-> A device claiming one of the ids in usbio_table[] and advertising a bulk
-> out endpoint with wMaxPacketSize 1 therefore ends up with a one byte
-> usbio->txbuf, and the very first I2C transfer reaches usbio_bulk_msg()
-> via usbio_i2c_init() with obuf_len = 7.  The wrapped check passes and the
-> packet header stores overflow the slab object before memcpy() is even
-> reached:
+> A device answering one of the five usbio_ctrl_msg() calls in
+> usbio_probe() with cpkt->len = 255 therefore leaks up to 60 bytes of
+> adjacent slab memory into the kernel log during enumeration, before any
+> user space is involved.  On the bulk path a reply claiming
+> bpkt->len = 0xffff reads 5 bytes past a 64 byte rxbuf.
 > 
-> 	bpkt = usbio->txbuf;
-> 	bpkt->header.type = type;	/* txbuf[0] */
-> 	bpkt->header.cmd = cmd;		/* txbuf[1], out of bounds */
-> 	bpkt->header.flags = ...;	/* txbuf[2], out of bounds */
-> 	bpkt->len = cpu_to_le16(obuf_len);	/* txbuf[3..4] */
-> 	memcpy(bpkt->data, obuf, obuf_len);	/* txbuf[5..] */
+> Unlike the endpoint size issues this needs no malformed descriptor at
+> all; it only needs the dev_dbg() calls to be enabled.  When they are, it
+> is a slab-out-of-bounds read under KASAN and the bytes reach dmesg.
 > 
-> Note that this is all complete before usb_bulk_msg() is called, so it
-> does not depend on the host controller being willing to run a transfer
-> on such an endpoint.  With KASAN it is a slab-out-of-bounds write.
-> Through usbio_i2c_write() obuf_len becomes sizeof(struct usbio_i2c_rw) +
-> msg->len, so the length and the contents of the overflow are controlled
-> by whoever can issue I2C transfers, up to the 4096 byte adapter limit.
+> Bound both dumps by the number of bytes actually received.  That is in
+> bounds by construction and also stops the dump printing stale bytes left
+> over from an earlier transfer.  The matching dumps on the two OUT paths
+> are left alone: they use lengths the driver itself just wrote, which the
+> size checks above them already bound.
 > 
-> wMaxPacketSize 0 is worse in a different way: devm_kzalloc(dev, 0)
-> returns ZERO_SIZE_PTR rather than NULL, so the existing
-> 
-> 	if (!usbio->txbuf)
-> 		return -ENOMEM;
-> 
-> does not catch it and the same header stores dereference ZERO_SIZE_PTR.
-> usbio_bulk_recv() has the same problem on the receive side: it reads
-> bpkt->header.flags at offset 2 of usbio->rxbuf before any length
-> validation.
-> 
-> The control side is different.  For low, full and high speed hub.c
-> forces ep0 wMaxPacketSize to 8, 16, 32 or 64, all larger than the
-> control header, so usbio_ctrl_msg()'s check cannot wrap there.  For
-> SuperSpeed it accepts any bMaxPacketSize0 that encodes a non-zero value:
-> 
-> 	i = maxp0;
-> 	if (udev->speed >= USB_SPEED_SUPER) {
-> 		if (maxp0 <= 16)
-> 			i = 1 << maxp0;
-> 		else
-> 			i = 0;		/* Invalid */
-> 	}
-> 
-> combined with "(udev->speed >= USB_SPEED_SUPER && i > 0)" below, so
-> bMaxPacketSize0 of 0 or 1 gives a ctrlbuf of 1 or 2 bytes and the same
-> wrap, during the five usbio_ctrl_msg() calls in usbio_probe().  Whether
-> a given host controller will operate such an ep0 has not been
-> established; the control length is checked here regardless so that the
-> invariant is stated once for all three buffers.
-> 
-> Validate the three lengths in usbio_probe(), which is the only place
-> that assigns them, instead of hardening each arithmetic site.  A bridge
-> whose endpoints cannot even carry the protocol header is unusable, so
-> refusing to probe is the correct outcome.  Rejecting the equal case as
-> well is deliberate: it does not wrap, but it leaves no room for a
-> payload, and excluding it makes every "<buf>_len - sizeof(*pkt)" in the
-> driver a valid size of at least one.
-> 
-> No supported bridge is affected.  The low, full and high speed devices
-> this driver binds to have an ep0 packet size of at least 8, and they use
-> bulk endpoints of 64, or 63 via USBIO_QUIRK_BULK_MAXP_63.
-> 
-> Found by code review, doing variant analysis on the code around
-> 8c6314489550.  The overflow was reproduced under AddressSanitizer with a
-> userspace model of usbio_probe() and usbio_bulk_msg() that uses this
-> driver's struct definitions, checks and stores verbatim; it has not been
-> exercised on hardware or on dummy_hcd.
+> Found by code review.  The out-of-bounds read was reproduced under
+> AddressSanitizer with a userspace model of the two dev_dbg() call sites
+> and of hex_string()'s field-width handling; it has not been exercised on
+> hardware or on dummy_hcd.
 > 
 > Fixes: 121a0f839dbb ("usb: misc: Add Intel USBIO bridge driver")
 > Cc: stable@vger.kernel.org
@@ -152,11 +103,45 @@ On Sun, Jul 26, 2026 at 08:35:07PM +0900, HE WEI (ギカク) wrote:
 > ---
 > --- a/drivers/usb/misc/usbio.c
 > +++ b/drivers/usb/misc/usbio.c
-> @@ -577,6 +577,24 @@
+> @@ -14,6 +14,7 @@
+>  #include <linux/dev_printk.h>
+>  #include <linux/device.h>
+>  #include <linux/lockdep.h>
+> +#include <linux/minmax.h>
+>  #include <linux/mutex.h>
+>  #include <linux/string.h>
+>  #include <linux/types.h>
+> @@ -141,7 +142,7 @@
+>  	struct usbio_ctrl_packet *cpkt;
+>  	unsigned int pipe;
+>  	u16 cpkt_len;
+> -	int ret;
+> +	int dbg_len, ret;
+>  
+>  	lockdep_assert_held(&usbio->ctrl_mutex);
+>  
+> @@ -181,8 +182,15 @@
+>  	cpkt_len = sizeof(*cpkt) + ibuf_len;
+>  	ret = usb_control_msg(usbio->udev, pipe, 0, request | USB_DIR_IN, 0, 0,
+>  			      cpkt, cpkt_len, USBIO_CTRLXFER_TIMEOUT);
+> +	/*
+> +	 * cpkt->len has just been written by the device and is not validated
+> +	 * until below, while %*phN dereferences up to 64 bytes of whatever
+> +	 * field width it is handed.  Bound the dump by what was received.
+> +	 */
+> +	dbg_len = (ret > (int)sizeof(*cpkt)) ?
+> +		  min_t(int, cpkt->len, ret - (int)sizeof(*cpkt)) : 0;
 
-This is a very odd diff, what tool created it?  Did "Claude" manually
-write a diff?  Please use the correct git diff output so that we can
-correctly validate it is proper.
+LLMs love to write comments, please think about what it is attempting to
+do here and if a comment is even needed.
+
+And that line is crazy, please write code for people first, compilers
+second.  Make that readable, because as-is, it's not.
+
+And finally, it's obviously LLM generated as they do not know how to
+properly deal with min_t() lines due to it being trained on "old" kernel
+code.  That's wrong, please do it properly, you should almost never be
+using min_t() anymore.
 
 thanks,
 
