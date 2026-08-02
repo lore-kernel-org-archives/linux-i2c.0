@@ -1,237 +1,169 @@
-Received: from flow-b3-smtp.messagingengine.com (flow-b3-smtp.messagingengine.com [202.12.124.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C890E3B42E1;
-	Sun,  2 Aug 2026 13:54:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C3243438B5
+	for <linux-i2c@vger.kernel.org>; Sun,  2 Aug 2026 15:46:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785678900; cv=none; b=XB6ayHlCC7Qw7SOCotKZwB5zpJKIgjVp622RG426fktzOB0dzuc36FJzUwm7VvJzhV86oSWjl6TKt9qYZyxmx6Up+4zhgXMej1nIC0qPxjtIyU+FlTMZsJHOGX5VHUZrc3epugmysGPW6UPo33+NZ89UgYzlSpVyyhFoP+gM/lc=
+	t=1785685589; cv=none; b=bXAnlpEM8L/IcElib0LCe3ytlxnGYFLlHHpMOebvTtNkfXgnAFdUF4Du1532UwHpOj1NtSQj5G7IojIQ5PTCPC5QKMSHV2WrJtko7ooy6KfuNcb56u4/K+ndwpVVWFY8el9adxqWALIjl5xF3HaSeqNB/Rz5g9jrHvcqbOlNyCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785678900; c=relaxed/simple;
-	bh=VOcJjiss4niXEUvQDfQflafcnB6M0cWpgiPL7XqFakk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WWz/qjPO7QdS+ao/ejH4Hlcz4Bz4coZqWbrQxAFsZGDzcisXAeYFeskP9RtdECmru4YKhpcRE2nV56ItUK4nRDRLwC4FN1Bd0Zp9vLtCDIc8b1cl10uPH2PpkjE8+DDqzWf5lIoDwfuTA+n/m80RkAjYEff0wBPSE0YR4TtQYDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net; spf=pass smtp.mailfrom=jannau.net; dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b=DplQdUY4; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=XmXujbLf; arc=none smtp.client-ip=202.12.124.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
+	s=arc-20240116; t=1785685589; c=relaxed/simple;
+	bh=+jvAOF5SO3XqNwhCfQ0NZDjaKKztJGcQ5/Rywfk07Pw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bVJoSGdBRb2CdJ6T/1RUlLlPHvcU/ZA22LxanJSkp/UTYkHzoK+KBYGc0zltpZ4+bm6DadGl00oxHh+k+wZUn1FeSES3OMvTwHkG/P02MxzcZOWMIhe6vL1cDvVB4yilP2rW9qw4N2hAJpiLzglVQHqJP09ycasZQWFJrdNmPuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sDr9yjWh; arc=none smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="DplQdUY4";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="XmXujbLf"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailflow.stl.internal (Postfix) with ESMTP id 452731300080;
-	Sun,  2 Aug 2026 09:54:55 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Sun, 02 Aug 2026 09:54:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm1; t=1785678895; x=1785686095; bh=wr9KcQd5UO
-	YPcDKO9OAtdsNMsJA9M3uNYC31Vb57iYw=; b=DplQdUY4k5pHQXGjL444hzwd6x
-	Uq8dSWgKlS+OHbGSPASMrkkGChOSifHzzrcROinwlM/LbRiWRYwRepZ6NzEcq62J
-	1kHQB8c+GkHsi8Xy5ozdjGTV0UT0VfrO/ZCcAJib89mL/KBFed3s24XJXa0y4XR9
-	DmG07CgkJacT0R78Bx7D1e+PztPQNCrh105GK2Hel+sJVor6HeDuhC5/7cpoV6xQ
-	YjNshJiU/Krc1H5FAlRgLVfjqKGUUyYNT0cH1WmnIhiPUbpRAix/RkmQXRlkVgbM
-	acWu0zj9m3upJo6c++8sRnxmrgq5sK85QGKvzAIwtjybopnlu+AehCjw6D/w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1785678895; x=1785686095; bh=wr9KcQd5UOYPcDKO9OAtdsNMsJA9M3uNYC3
-	1Vb57iYw=; b=XmXujbLftAvTzmIRsm3mJklvTHKNeuEFC/RkixKrfD0Mtz+K0QW
-	CD+BrUdFEAD4GJLRGUY49krlo/4WFwreAYfzd1zd1jSIbtSciI8kGuFZaceRc7Vq
-	Y7PRwikXC54QM3rLe6gMWLoYRglvL4ZRr6A9VOVKVHHvdoknMKisqi57ki0UBcCD
-	pvxjVsXivQxijNKu/pxj8f87L++4SmL8+MWJ0WH9QeS5HEr2c81sKgpbnzrDaZwr
-	tHKM4H159b94yLV8tQvs8KSWfraamvoV4njSnahvQMZGI0AU7fv5/OcqhV2/NQUd
-	NbZ83SIH8TXlD3UwxfXv2cRw8IK6W6jyO3A==
-X-ME-Sender: <xms:LkxvauCaoemi6ekbEL9n1F5lQzcO8jBhOXr2q22E3cdSKkDBc7sdiw>
-    <xme:LkxvakHYhXc-hWPSL2n9ehREvUyQMNYpvZFqUp57Koi0HCHbm9AXAlBznGHY43fYy
-    wtCSx1OlpFrZP5KmeYuogTxS-a6R57xJf5_41EDPpxNuQ4SqBl-f-eg>
-X-ME-Received: <xmr:LkxvahkWLqzXMhat6N7CPn46vxNua51boNrAuicmbkwZty6wGHJpTGIjE6L5vRXbV6EZ6rGww3WMNVYpl201s2WGZivyDdDTvs8>
-X-ME-Proxy-Cause: dmFkZTFlapO+z6cp3wvBebk5lTAia5phm9tTAKSNHefTMzPdePd5v+T7JVgHEkLB41y5Ob
-    eSvN7viLYvrIAaqw29v6S68ef3GuIe/2QfmzPl60v9SPYjt+CGGoHIW4icP01WLKDzOc6C
-    MiBlzN9g5EQDae7iZTKYWr2YlkWF31TgHFKA+LB0yLkroETBvzCa+CA0RRC4tNufFsVOkV
-    rBdO8gOdXsYuegeK25nP42KabMus7xNwyQdViuVL8OaIh7kc5VQHPyc0zfTyon2d0FkYKU
-    iKGSoWac7r1ZoY7PQNed9fLAr9J3ro1NKAbgYiWXJJ8jWVM7YjMG9Y3saYGTypBJmAoANg
-    6oyVuzBsRLxCsCECJx6mzrLQKjXPPDHic5NrLn4ffrLwK0LVVeX1gZ0Xk2S6fP1r9ng8rS
-    JictUazSi5ecwImXJh9ByzRm9cRSeuTXsMNeYC6L+UY13nPaxF/yi0rzjqeQDNB0/kfdwQ
-    7KinW3spMgGWUzGBKXz+yv830VxsxGCoeMjdqciLz8LbA1UDF/b68vIYDiGFV4WePjXVRy
-    Ljjjyl0eJI4aDHemiD5CRG+9GLw327mg51Vd9A4CxF++M/+65FvYbANoIyQ+nubqAvFiuR
-    ZfkRufrt8jndKpUKNswRdOgYbLvXM/0Sva+kw0GvSxAUnmTFekcIuPPkf3+A
-X-ME-Proxy: <xmx:LkxvahvS1sbdmvnJZ79bvRMoB4wNkKEXllAdwxfgsQmg_zYiyk3EMQ>
-    <xmx:LkxvalPISx2OLXNqtyUDD7RWX9DKGenGyH6nXZGyL_U3bWBDAYDzoQ>
-    <xmx:LkxvajqtZUL0UFkgWV4d3V9XSJ_CEH_wJ0DXe--DGmcfvHAzCkXYtA>
-    <xmx:Lkxvau82rTgkUyaBlOMluJnPrylfJgR9EPqvuTQkmdXVMpX1Vqqqlg>
-    <xmx:L0xval7YbN51x2-d2X3fl9RZ4c2iEFgHkPjz_Oa7-MvVDSfgkqY73WVC>
-Feedback-ID: i47b949f6:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 2 Aug 2026 09:54:53 -0400 (EDT)
-Date: Sun, 2 Aug 2026 15:54:52 +0200
-From: Janne Grunau <j@jannau.net>
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Hector Martin <marcan@marcan.st>, Linus Walleij <linusw@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sDr9yjWh"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-cbe431467e6so707142a12.1
+        for <linux-i2c@vger.kernel.org>; Sun, 02 Aug 2026 08:46:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785685587; x=1786290387; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kbnrAvB6TS3MK29/B8lpsoG39eR5hWxmezJin1MS/dY=;
+        b=sDr9yjWhsKeQY1txWWd/tHo+LXjUCXGNe+B15bh06Jzx77XCQcZoPacj/MLXU2r8BF
+         qp2kGLCDUp2sd5UQCMv0zTgfHRc6e6R+qKc0cuZcfNr6Cxm+LKTGoWsylsD/xwFy1Hee
+         ThJwno5M59GZG628WuCQuxoFk03SMZC8czkGZ/i4D92Uq/CY3ZWOV+Brd/jNZD0cEqzU
+         inHSkEr5UCLXf8wlndPYx6S7SN8aoVTmYb5zcT0D+bVw1YNPJ8KjT3t5U5SocOnUAdL0
+         atWEPiyhK8vJqbprWb6iK/dOssksGFrh66EH0Ixn3wMAgOUG7A/J6ShvO3kiqaQfNsp2
+         5wEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785685587; x=1786290387;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=kbnrAvB6TS3MK29/B8lpsoG39eR5hWxmezJin1MS/dY=;
+        b=USMzuIjpb/pp3UVAoP+Sf+BeTC3lkhtUBddy3+YU0Yq40TDpoK492M+2k7u0YWAK9K
+         zHXyfJn/Ma3JxJdIWJ107is7OMRfC4opgTh+vf3zb23rXl7eke6z0qu5y+xYeonQBUrQ
+         QAgkwEaUX7C0PsovSqSZtgK54kppsNCEAv6CEfwf9nJX++v15bDxGACv/JjvSoc2IiM4
+         kECKh/vtgcgWY0MPnpQS0F56/ql/ZbpaGugFdjtLfruB/NNe9SMBZtWxlW2JEWI82ull
+         Bfl+0fGww+D4lA2Dr18T5dtgtsbGETYEERe2/biK9ABzEHLEpYGA7M4uWEdK737q1o1/
+         MKbg==
+X-Forwarded-Encrypted: i=1; AHgh+Rqj71M2zRp1I3WmqdfHnTZIjgJpfD60XPkQqsRyLHwkQdJxboZu0BY4XW2wIKjtCfQOB47vtcXLjdw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0UXbt6FHpsgd4R0oI5z5xDhz84Z7uHaHVBQa60tMsoLhuPPdz
+	P8fnZhvPoe/T6eFac0UKP8M39k3TIa2axlC92kf78az2cgw8FuifINoR
+X-Gm-Gg: AR+sD12kdaau+coRAntipueCTm2QIbRhDmFQjzQfhSF26KOyMqvz2oM/gsou+eHcRos
+	xKXXgyXbtvE8GL6IK+zHf3enOpT3/XN9fLBUT0mj5zVti+TGIN2A3Xmqq3T9pUxxmiv3/ytHXhY
+	ygtcQDUQJTSyzeHdDMvTGT42si7y6TMGLdVr6+4Ka0hSN8J81HLm5uCsvRYZVJjpqhbhvRbW5h6
+	6FCYrCzen3ergkT0JUaFyKX5pI75VsddpDKchyP9JiQZH+gPW3Zc9eKIKni6h7D1b7HVQTSL8C1
+	1DLDtpLyCe+mjGJQ78hVl0fTXVp0QMGjoJriQqy4sslM4et9Gjk+ZsfnnH8wM5V6++j2XaAgfZG
+	HsHHvap7u4090JTKlZL1/ZkBLeQUQVyPmpAMLbwVSQX17wNdoadN0l2L/4km7UNhj3XsgzJVyk/
+	EBcyk8Q3KLMVlBB5f7p3PtRsy0tNzmTKRWskmGnYkwAXNDWEPOvDCv46PKWBNSlyvoW6FvOg2Yv
+	Q9s9RHW/geGKe8cP5kMvdkqWF5i8n7fXY6yXd0=
+X-Received: by 2002:a05:6a21:6089:b0:3c4:2cd3:f0bb with SMTP id adf61e73a8af0-3c91a777750mr9595530637.10.1785685587512;
+        Sun, 02 Aug 2026 08:46:27 -0700 (PDT)
+Received: from Mac.net (198-27-228-154.fiber.dynamic.sonic.net. [198.27.228.154])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e29a126sm30602192eec.31.2026.08.02.08.46.26
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 02 Aug 2026 08:46:26 -0700 (PDT)
+From: Ahmad Byagowi <ahmadexp@gmail.com>
+To: Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
-	Sasha Finkelstein <k@chaosmail.tech>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org
-Subject: Re: [PATCH v2 9/9] arm64: dts: apple: Add minimal t8132 (M4) device
- trees
-Message-ID: <20260802135452.GJ806854@robin.jannau.net>
-References: <20260801-apple-m4-initial-devicetrees-v2-0-5cb07cc275da@cyberchaos.dev>
- <20260801-apple-m4-initial-devicetrees-v2-9-5cb07cc275da@cyberchaos.dev>
+	Peter Rosin <peda@lysator.liu.se>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	davem@davemloft.net,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	linux-leds@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ahmad Byagowi <ahmadexp@gmail.com>
+Subject: [RFC net-next 0/4] ptp: ocp: Add R4006 I2C peripheral support
+Date: Sun,  2 Aug 2026 08:46:16 -0700
+Message-ID: <cover.1785684064.git.ahmadexp@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260801-apple-m4-initial-devicetrees-v2-9-5cb07cc275da@cyberchaos.dev>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Aug 01, 2026 at 11:40:39PM +0200, Yureka Lilian wrote:
-> Added device trees for the following devices:
-> - apple,j604 - MacBook Pro (14-inch, M4, 2024)
-> - apple,j623 - iMac (24-inch, 2x USB-C, M4, 2024)
-> - apple,j624 - iMac (24-inch, 4x USB-C, M4, 2024)
-> - apple,j713 - MacBook Air (13-inch, M4, 2025)
-> - apple,j715 - MacBook Air (15-inch, M4, 2025)
-> - apple,j773g - Mac mini (M4, 2024)
-> 
-> The device trees have a minimal set of devices limited to CPU cores,
-> interrupt controller, power states, watchdog, serial, pin controller,
-> i2c and framebuffer.
-> The device trees for the notebooks add a PWM controller for the keyboard
-> LED illumination.
-> 
-> Using the macOS 26.6 iBoot/firmware, the Mac mini reliably boots on a
-> single core using the stock kernel.
-> Booting with smp requires avoiding the wfi and wfit instructions
-> in the idle loop and `delay()` respectively, since those instructions
-> cause a loss of architectural state on the secondary cores, and even
-> then boot is unreliable.
-> 
-> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
-> ---
->  arch/arm64/boot/dts/apple/Makefile        |    6 +
->  arch/arm64/boot/dts/apple/t8132-j604.dts  |   35 +
->  arch/arm64/boot/dts/apple/t8132-j623.dts  |   18 +
->  arch/arm64/boot/dts/apple/t8132-j624.dts  |   18 +
->  arch/arm64/boot/dts/apple/t8132-j713.dts  |   35 +
->  arch/arm64/boot/dts/apple/t8132-j715.dts  |   35 +
->  arch/arm64/boot/dts/apple/t8132-j773g.dts |   25 +
->  arch/arm64/boot/dts/apple/t8132-jxxx.dtsi |   48 ++
->  arch/arm64/boot/dts/apple/t8132-pmgr.dtsi | 1130 +++++++++++++++++++++++++++++
->  arch/arm64/boot/dts/apple/t8132.dtsi      |  447 ++++++++++++
->  10 files changed, 1797 insertions(+)
+The R4006 Time Card places a PCA9546 I2C mux behind the FPGA XIIC
+controller. Its downstream buses contain temperature, humidity, and
+pressure sensors, an 18-channel LED controller, and a BNO08x inertial
+sensor. The current ptp_ocp driver exposes the root bus but does not
+describe these peripherals.
 
-...
+This RFC adds the generic infrastructure and board description needed to
+let existing subsystem drivers bind to the R4006 devices:
 
-> diff --git a/arch/arm64/boot/dts/apple/t8132.dtsi b/arch/arm64/boot/dts/apple/t8132.dtsi
-> new file mode 100644
-> index 000000000000..6df6ccdda90e
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/apple/t8132.dtsi
-> @@ -0,0 +1,447 @@
-> +// SPDX-License-Identifier: GPL-2.0+ OR MIT
-> +/*
-> + * Apple T8132 "M4" SoC
-> + *
-> + * Copyright The Asahi Linux Contributors
-> + */
-> +
-> +#include <dt-bindings/interrupt-controller/apple-aic.h>
-> +#include <dt-bindings/interrupt-controller/irq.h>
-> +#include <dt-bindings/pinctrl/apple.h>
-> +
-> +/ {
-> +	compatible = "apple,t8132", "apple,arm-platform";
-> +
-> +	#address-cells = <2>;
-> +	#size-cells = <2>;
-> +
-> +	cpus {
-> +		#address-cells = <2>;
-> +		#size-cells = <0>;
-> +
-> +		cpu-map {
-> +			cluster0 {
-> +				core0 {
-> +					cpu = <&cpu_e0>;
-> +				};
-> +				core1 {
-> +					cpu = <&cpu_e1>;
-> +				};
-> +				core2 {
-> +					cpu = <&cpu_e2>;
-> +				};
-> +				core3 {
-> +					cpu = <&cpu_e3>;
-> +				};
-> +				core4 {
-> +					cpu = <&cpu_e4>;
-> +				};
-> +				core5 {
-> +					cpu = <&cpu_e5>;
-> +				};
-> +			};
-> +
-> +			cluster1 {
-> +				core0 {
-> +					cpu = <&cpu_p0>;
-> +				};
-> +				core1 {
-> +					cpu = <&cpu_p1>;
-> +				};
-> +				core2 {
-> +					cpu = <&cpu_p2>;
-> +				};
-> +				core3 {
-> +					cpu = <&cpu_p3>;
-> +				};
-> +			};
-> +		};
-> +
-> +		cpu_e0: cpu@0 {
-> +			compatible = "apple,donan-e";
-> +			device_type = "cpu";
-> +			reg = <0x0 0x0>;
-> +			enable-method = "spin-table";
-> +			cpu-release-addr = <0 0>;
-> +			next-level-cache = <&l2_cache_0>;
+  1. A binding for the Lumissil IS32FL3207 LED controller.
+  2. A generic IS32FL3207 LED class driver with individual and multicolor
+     LED support and per-output current limits.
+  3. Software-node propagation from an I2C mux to its channel adapters.
+  4. EEPROM-based R4006 detection and a per-card software-node topology
+     in ptp_ocp.
 
-missing "i-cache-size" and "d-cache-size". As far as I'm aware they
-remain unchanged. 128kB i-cache, 64kB d-cache for the e-cores and 192kB
-i-cache, 128kB d-cache for the p-cores
+The BNO08x is intentionally not instantiated because there is no upstream
+driver for it. LED status policy is also left to userspace. The kernel
+exports one multicolor LED class device for GNSS and one for each SMA
+connector.
 
-...
+The zero-based IS32FL3207 output mapping, confirmed on production
+hardware, is:
 
-> +		pmgr_mini: power-management@388280000 {
-> +			compatible = "apple,t8132-pmgr", "apple,t8103-pmgr", "syscon", "simple-mfd";
-> +			#address-cells = <1>;
-> +			#size-cells = <1>;
-> +			reg = <0x3 0x88280000 0 0x4000>;
-> +			/* child nodes are added in t8132-pmgr.dtsi */
-> +		};
-> +
-> +		wdt: watchdog@3882b0000 {
-> +			compatible = "apple,t8132-wdt", "apple,t8103-wdt";
-> +			reg = <0x3 0x882b0000 0x0 0x4000>;
-> +			clocks = <&clkref>;
-> +			interrupt-parent = <&aic>;
-> +			interrupts = <AIC_IRQ 507 IRQ_TYPE_LEVEL_HIGH>;
-> +		};
-> +
-> +		pinctrl_nub: pinctrl@3881f0000 {
+             red  green  blue
+  GNSS        13    12    14
+  SMA1         7     6     8
+  SMA2        10     9    11
+  SMA3         1     0     2
+  SMA4         4     3     5
 
-out of order node, it belongs before pmgr_mini in unit-address order
+Questions for this RFC:
 
-Janne
+  - Should IS32FL3207 remain a standalone multicolor driver, or should
+    support be integrated into the older is31fl32xx driver?
+  - Is assigning software-node children in the generic I2C mux core the
+    preferred way to describe PCI-card mux topologies?
+  - Which tree should carry the cross-subsystem series once the LED and
+    I2C changes are reviewed?
+
+Validation performed:
+
+  - dt_binding_check, including schema lint and example compilation
+  - ARM64 and x86-64 W=1 builds of all three modified driver objects
+  - x86-64 sparse C=2 checks with endian checking enabled
+  - strict checkpatch and git diff --check
+  - I2C addresses and LED channel mapping validated on an R4006 using the
+    existing downstream implementation
+
+The complete upstream series has not yet been boot-tested on the card.
+One portability limitation is that the ICP10100 has a fixed 1.8 V board
+rail but its driver requires a vdd regulator. ACPI server systems provide
+the dummy regulator used by this PCI target; an ACPI-disabled system may
+leave the pressure sensor unbound. Feedback on whether that supply needs
+an explicit representation before v1 would be useful.
+
+Ahmad Byagowi (4):
+  dt-bindings: leds: Add IS32FL3207 controller
+  leds: rgb: Add IS32FL3207 controller driver
+  i2c: mux: Propagate software nodes to channel adapters
+  ptp: ocp: Add R4006 I2C peripheral topology
+
+ .../bindings/leds/issi,is32fl3207.yaml        | 204 +++++++
+ MAINTAINERS                                   |   7 +
+ drivers/i2c/i2c-mux.c                         |  55 ++
+ drivers/leds/rgb/Kconfig                      |  11 +
+ drivers/leds/rgb/Makefile                     |   1 +
+ drivers/leds/rgb/leds-is32fl3207.c            | 541 ++++++++++++++++++
+ drivers/ptp/ptp_ocp.c                         | 485 +++++++++++++++-
+ 7 files changed, 1278 insertions(+), 26 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
+ create mode 100644 drivers/leds/rgb/leds-is32fl3207.c
+
+
+base-commit: 69963a0678a347d57c4ac8b16939dba216eb95ce
+-- 
+2.50.1 (Apple Git-155)
