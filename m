@@ -1,229 +1,308 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013056.outbound.protection.outlook.com [40.107.162.56])
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9EC37A854;
-	Mon,  3 Aug 2026 03:25:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.56
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785727519; cv=fail; b=NCQxE/3W7R7ExY3MQOCyCP4FsnlAGwHgocJaIRLNza+7YZHGha1/mPNooDogrJRvg7HBoL4hd5PgaXZ17d02g+FVcXQT7opXVCfCJjb6a35q8GAYPJHw72aO4u7V727rLNwIHlilqLOSlomYCiSxqaWiUQY8iY991edeeo7JBAU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785727519; c=relaxed/simple;
-	bh=lopcnmaHVG3hWiVohC9h+AHVKQasPeHWLzKTzd0/A8w=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=Rb3RhMALV+MRcyLWXP7nJMnsK81M0/mxs0cl6jRUsGLbbwEnqL1tty+ZIGhE1tazFjGi2K3nCgD5fcuDY7WeZKV1Qv1mjFM0YM+AHXGi6ELBUEZiJLuZlbik27DnRY3UYUEa6UxiRgx0Vm9/D6wX46VkiIWdd0vAg2CpsUNQYjs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=N5R7IcA8; arc=fail smtp.client-ip=40.107.162.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D899396572;
+	Mon,  3 Aug 2026 06:31:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785738686; cv=none; b=kXQtbNxBKmzgEPQQFzMZEC+xt3P1DnE6mr6sJCCHNsBPo73UchO6OF81SHdbjcPWjQCMymSe5h7xhiySgjlbiHfpPOxcIp2ih/OaxJVxqgNLB6p9oI9UnP1wYYygwYkIsuhQISgwHSO1R+HsWQPkT7PlN4UxFrOgyrJM98OOdvQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785738686; c=relaxed/simple;
+	bh=0w26mLCibxmzad5cJ4RsBqQcZLwhm5292+fwf5AEBhg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
+	 In-Reply-To:Content-Type; b=SpiroXl7M7H0nhWnWb+cnXpRfn/Ws6M6SMBxHVCdQCYX+DRu+wPojcBNnsqrR+i9cmrjn8M7IT4lAdZGIKfWcMpTps/sX3uMLuipDijqrVKr2NbhkPUXwNtii3wSuYJQOXvaIDf9HxRqPxhDWrtawm77fgo8q68PFqnBC0fLZek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=oer8sGJV; arc=none smtp.client-ip=213.167.242.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="N5R7IcA8"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=IL6ec8nxBlJ+ObpGviriJRG65yDgXsOvx/QK0KM4Kgbpi+ITz/hE3Bsm/HOJBP00X9OmIwClsnYr1pC79ybji+xTYTptrq1Mjbd4ZtouBGqyfNxNn9YxsiIW/f9b2Lz71ENiuJeRfj5rfQx1PBqLxNP2egG7oFY97fvdu3g/iSoQ9ca8v3QlU0w04Dvkkz7BiUMuXpOe4we6Ow045B0zUS0oFMaui+SEboHZxttSjHdTY9m0RvYVwQlG3bePwJnxkb6ScR9q3ztkWNswc2lxM0hqd+pL76Enm1HYxDBFo5M1YGALW5gTrzdNQk+pWRiHhi8JjHZMnHbgLIB+TGy/cA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FEiwEuL4+GN4IRv7M5hZmeQdKXFVv2aifz7RscTTYpU=;
- b=ZvPcM6arH/G+T9gnXRTZ/obbwprUbaEeGXde5Hey3uG8QGtRIFFAB8UQmdaqjiNZjUS9g70uz26lPOuo5G8kec44pPtqMQ1s9V4L82X/yicSX9fzXLwCWjHrpI97TjjWOCbVMw3vObqy+0Pqu6l0IAZeHSNouKVkFRrsR8sjt+5lDkUADmAa3iT2C8R4pwRhCNQjzDMjgB9jj2i0p5r5pi0okCufAsTqW7++zYkpAwOOPPkMAMFWSFPQI0qJ5uWWnYXPvVaR4XhP7DRSSzTXm9hvK+/m3mlC7Y8Yjod98KzlvqDoSACye+5FGwYqmLMmZvdFbwvyo+MRXvPmmxq0tQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FEiwEuL4+GN4IRv7M5hZmeQdKXFVv2aifz7RscTTYpU=;
- b=N5R7IcA8CQLFSq4WQALoyyuYBq/Ki1BMCb0ZvrMBlRBaDJJaQT/D0S987RK3WIu6hQsJGuKtj1XUd2sTrLtzQ5VydsD/aPqUQ5ogeEskPYwn6g6A33UXRRemZ8ZHFIBFTpN+LfqHGmbux6TXhMflBCZzJyN84selBSu2vjGSmU2Z9Jdrd8JZz35iuaweIkyfh7byFWB0JLJEoAhThM26CU7eQOa8EcSQzBiFEbR1/ZiZtuuPm2Td1GPjNyuqP0QYIPcWJuZL1vOFaXPcmaXrzzK46IJwDj5ZNMO4B6UjESHmpVWZ4dPSQODFK6w8GUvuqlD1NJgvE56UTA5nruPKDA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from PA4PR04MB9462.eurprd04.prod.outlook.com (2603:10a6:102:2aa::9)
- by GVXPR04MB10850.eurprd04.prod.outlook.com (2603:10a6:150:216::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.17; Mon, 3 Aug
- 2026 03:25:05 +0000
-Received: from PA4PR04MB9462.eurprd04.prod.outlook.com
- ([fe80::9feb:f56:a1df:51fa]) by PA4PR04MB9462.eurprd04.prod.outlook.com
- ([fe80::9feb:f56:a1df:51fa%6]) with mapi id 15.21.0270.016; Mon, 3 Aug 2026
- 03:25:05 +0000
-From: carlos.song@oss.nxp.com
-To: aisheng.dong@nxp.com,
-	andi.shyti@kernel.org,
-	Frank.Li@nxp.com,
-	s.hauer@pengutronix.de,
-	kernel@pengutronix.de,
-	festevam@gmail.com,
-	carlos.song@nxp.com
-Cc: linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: imx-lpi2c: avoid accessing target registers on master-only controllers
-Date: Mon,  3 Aug 2026 11:27:05 +0800
-Message-ID: <20260803032705.2250373-1-carlos.song@oss.nxp.com>
-X-Mailer: git-send-email 2.43.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: AS4P192CA0028.EURP192.PROD.OUTLOOK.COM
- (2603:10a6:20b:5e1::13) To PA4PR04MB9462.eurprd04.prod.outlook.com
- (2603:10a6:102:2aa::9)
+	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="oer8sGJV"
+Received: from [192.168.88.20] (91-158-153-178.elisa-laajakaista.fi [91.158.153.178])
+	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 9B0DE512;
+	Mon,  3 Aug 2026 08:30:09 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+	s=mail; t=1785738612;
+	bh=0w26mLCibxmzad5cJ4RsBqQcZLwhm5292+fwf5AEBhg=;
+	h=Date:Subject:To:References:Cc:From:In-Reply-To:From;
+	b=oer8sGJVImG3eAdX/1tDX4OfNrWm4pjhxRA/1dweeK0/QNZxTPxYqBKHqEkpRPb3+
+	 Egk1n6NaDUmYkxMzDpzoE4nw/3yETSw8cW+rrdPTRWBDGvsL/5y/zRRpTIM1V1Upa9
+	 AsybJri2Bo0Ucca/CHkw+txSHZGcz913RI4heSi4=
+Message-ID: <f428f54b-90dd-425a-b204-531df0e1d5fa@ideasonboard.com>
+Date: Mon, 3 Aug 2026 09:31:14 +0300
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PA4PR04MB9462:EE_|GVXPR04MB10850:EE_
-X-MS-Office365-Filtering-Correlation-Id: cbf00c2e-5cc2-4687-b69d-08def10ecfd2
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|366016|19092799006|376014|1800799024|6133799003|56012099006|10067099003|11063799006|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	vtV5z0wH1GgB2/gV8Bn8aa59xp9knp+e1s+46ajdh58NOwjSSWZZAl1dqSjaIZzZV6JeMucIf8PoB3hevns3uMcbTzQYLpLM4ZbxwVnyzKQOZmyAZezUuQbKd/xUauKkmWk+u4N1YIdAL9C51A9aETBmB1wkwS9lXVgdPUZN+N4IecOT3jW+hdlHIfpbbRvQJQ0MAfU24cv8dLJWxZOLw3W4Ku98LvNCVBq+SKe5+p525YY8vZYxrTVsI5zaf3aHyeJxbK7/ZuZk0hZ95XuuIGxCkUx8bok5afvIteOIc0hVDZdDyVR+dAtPcPA2+aRZY53f0F+C3pkXfvgBxry7p7QDLC3CCBEJg3PJD0iSGpdZGIvbxEwBQiHSvkY6XJjBYTV4tk1lALI5ystdkjJpFozzfSmaxfW7w8s4xzabXKGa/RFc+CfoN/z5dOOmW7tMQqVk/4/coxb8wC4aluMGYuVmvMgQGJH/257RSlTwcGw1/Wjp2VR7aL+B/hxOWI1rOlmId9/yk2rys5KTvFY3MMC91ewAqEKfoweetWTyqxrlYfPnEAeO2nrKMxI4u5AdzOf4PzhDuI3RTR2/i2jsBw+vGrj3yz6YC+dNzBYsGaUXbaWTbF26biEZXNvINr68o1T6pTY93GVMLWEEAvg53aOvBRHI/tPmkRm50BihZwU=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PA4PR04MB9462.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(19092799006)(376014)(1800799024)(6133799003)(56012099006)(10067099003)(11063799006)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?NLzmpilqIQF674flrCMQHPcwydSnkUUtJRC5qJtEA9rvYmPnJvcjPPp3Yn7j?=
- =?us-ascii?Q?NayqoFnnqtzp2o0zUzrvFD6ORJWx6VzDFUeIydckKLUocjk+xYpCFMs7l8Ca?=
- =?us-ascii?Q?Ai0SFavW0xhLWI1VDpEsuChS6x0rA2Ju8FFlAlGbj4wxOfy0Ei5OE+cD2o5/?=
- =?us-ascii?Q?LCrnUaKavV2oP2N6Fh25wD1dTlsakXoF86NEizjrVm/pj1l83WO1ltHYklS0?=
- =?us-ascii?Q?TV9MESjD6pWEPPMsJLIsHJ7BqKVla9Wy1qc7PL0MfQy+382X2x6xtQ1ndRZh?=
- =?us-ascii?Q?u8CIQ0LC8KEnl/Tiw/PGCC2z0h/cUumMg0J1ivRh47oJpMIJauF3X5En63e0?=
- =?us-ascii?Q?bB7evdwikPQwkmNc4Soe57UyFCJIM+cPC+PxuP6W+SzJr4djOU8LQiMVlxQy?=
- =?us-ascii?Q?uFaagA7J82xanR9I+osMosOlSXviJgHc0mHzR86GgZhGvhGHRUMxxZC5kqwB?=
- =?us-ascii?Q?+nYjOKfFr6SbfHbUDoyKglsDJoe4dcSZu9WJXkJePINEOmx3F01laER3P/Wq?=
- =?us-ascii?Q?XcrR9f5aEjKRmdMj7zDpkG1sPAGDwwJ6N4GTGtzyQbvyfWaOpEcNATkNiK3V?=
- =?us-ascii?Q?aJw+Ju4uPFHDS+QE4ollJgM+uPbqfyws0R9VfNuAaJRFxc3XUpKMxMR7nDBd?=
- =?us-ascii?Q?GXoYO52YxLkgaa3X5DLfcmt4735tfUZ6+q2o0Gqvg+45tRmqiyvQSJT1Uuti?=
- =?us-ascii?Q?bEjPTgNriIrbjlUvK1QPIjMnWRshdWvlKMxVce3DBYNAORJe1MrRZ1/m/cOh?=
- =?us-ascii?Q?/xPHdC1zHXbtIhRbIK6srIqMdwI3EOq9nQv0xTnuhUOcmps7M5mL6oTeNh7Q?=
- =?us-ascii?Q?w6xeAqjkCR77FcvwnSN+MM+AR40VPX1FOmzhuSJODW456gRPVTynmEXL953K?=
- =?us-ascii?Q?LOxswRBMicd0q0dSfWmVDoNtL/MwqNmWlvuKvyNNASTSxxq28IC5VLGUC+ik?=
- =?us-ascii?Q?8V4dPlU/KWS7NATi1gGqvWWWhayr2j1rZp1Q8fegiQVFI0+pel3j58fimnDF?=
- =?us-ascii?Q?UhxjnM/FJliCONqowas7JchNsXq95tvuw1YIFx/sC+D9X9kRxBfBOe4/2Muw?=
- =?us-ascii?Q?cY6FgEdVz1ZppDBa1BReKPmOVmRjd+VnIWSb0aEesG3vpOaltttgPe2AHVH8?=
- =?us-ascii?Q?7iN1DhgkYYFTZPyICXf6k+gsDPN9QZ92cS1jmTZKh9YuDVvkkVyXLB4101Dc?=
- =?us-ascii?Q?IW+TS0bRzqQ6KL/5TF6Yk6OrC1ATCSjDZCnAkzn4QSPEMPF1tVRuPhha7Y+V?=
- =?us-ascii?Q?LWnJYT2ikXmevtAApkVBCrXK+HLhNmHrtSWfxJXYR4w9ng1lZAgnQTkj1QjY?=
- =?us-ascii?Q?1mWHeAAyY1IWfdgtj7YDgpsxzFy8daZZH1MqkDMHq/MiKxayGJnL41jcspxM?=
- =?us-ascii?Q?Rjvzs+hVon+DGO5HgpKSggisXTfySmGNM04bp59hJbUMoDx6t2B5SHlAuJj3?=
- =?us-ascii?Q?8/4jS9LOxcitbl/FWqEMXh35z3pgRpmPfLsJFcNk5YUcRD+Ygieq3PgEv4yf?=
- =?us-ascii?Q?iaUsayMBNBARAT2hfIT5exeD2fHuEAWfzQNql5TlNbAFQYvXw8ETgJnpGHWR?=
- =?us-ascii?Q?VD5ukrA/tJu+EkRsPJuQdjRGhq1lcizzFVWCfti4ZFlMPLO1PcanyMAf2Zlf?=
- =?us-ascii?Q?C5zwIfVqu6w14JesKoYTVGt895qIQC3y0uovFDv6cVUDoGbzv0MoiUgTpygU?=
- =?us-ascii?Q?qgs2VMkFPrDdE8+XgFGzfRFmG7trWGuMf8jjNjD4Fi1nTKD13775AdAnGX9b?=
- =?us-ascii?Q?Lk6naudjSNO/e5BoCWTCXFRYqkV2dGWdLnoXXabZ/TJpKeHb3okW?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cbf00c2e-5cc2-4687-b69d-08def10ecfd2
-X-MS-Exchange-CrossTenant-AuthSource: PA4PR04MB9462.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 03:25:05.7507
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: U7oNFZidbNj4GlaUMgdE4C7WAtW3zgduDfofK9AMOXk8YAwqNI7tHntAMnBYRnIi1PwwF/sRLb/RmzkSaMEtrlyEpUgWCgj2MzQTJC/6CJtZsbiffuN9XGrlqz3xaF31
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR04MB10850
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: Correct white-space style
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+References: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
+Content-Language: en-US
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@arm.com>,
+ James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>,
+ Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+ Jyri Sarha <jyri.sarha@iki.fi>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Patrice Chotard <patrice.chotard@foss.st.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Jassi Brar <jassisinghbrar@gmail.com>,
+ Lee Jones <lee@kernel.org>, Johannes Berg <johannes@sipsolutions.net>,
+ Jeff Johnson <jjohnson@kernel.org>, Viresh Kumar <vireshk@kernel.org>,
+ Nishanth Menon <nm@ti.com>, Stephen Boyd <sboyd@kernel.org>,
+ Yangbo Lu <yangbo.lu@nxp.com>, =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?=
+ <ukleinek@kernel.org>, Paul Walmsley <pjw@kernel.org>,
+ Samuel Holland <samuel.holland@sifive.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Richard Cochran <richardcochran@gmail.com>,
+ Jens Wiklander <jenswi@kernel.org>,
+ Yuanfang Zhang <yuanfang.zhang@oss.qualcomm.com>,
+ YC Hung <yc.hung@mediatek.com>, Svyatoslav Ryhel <clamor95@gmail.com>,
+ Sean Wang <sean.wang@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+ Peter Ujfalusi <peter.ujfalusi@gmail.com>, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ coresight@lists.linaro.org, linux-arm-msm@vger.kernel.org,
+ linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-mediatek@lists.infradead.org, linux-gpio@vger.kernel.org,
+ linux-i2c@vger.kernel.org, mfd@lists.linux.dev,
+ linux-wireless@vger.kernel.org, ath10k@lists.infradead.org,
+ linux-pm@vger.kernel.org, netdev@vger.kernel.org, linux-pwm@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-usb@vger.kernel.org
+From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+In-Reply-To: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Carlos Song <carlos.song@nxp.com>
+Hi,
 
-Not all LPI2C controller instances implement the Target block.
-Since commit 90311787f483 ("i2c: imx-lpi2c: reset controller in
-probe stage"), the driver unconditionally resets both the Master
-and Target blocks during probe.
+On 01/08/2026 22:56, Krzysztof Kozlowski wrote:
+> Correct a few white-space issues, like double space after '=' or before
+> bracket '{' characters, which will be flagged by dt-check-style.  No
+> functional changes.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> 
+> ---
+> 
+> Patch applies on Rob's for-next branch.
+> ---
+>   .../arm/firmware/linaro,optee-tz.yaml         |  8 +-
+>   .../devicetree/bindings/arm/psci.yaml         | 18 ++--
+>   .../bindings/arm/qcom,coresight-tnoc.yaml     |  2 +-
+>   .../devicetree/bindings/ata/st,ahci.yaml      | 22 ++---
+>   .../bindings/display/ti/ti,am65x-dss.yaml     | 12 +--
+>   .../bindings/display/ti/ti,j721e-dss.yaml     | 96 +++++++++----------
+>   .../bindings/display/ti/ti,k2g-dss.yaml       | 36 +++----
+>   .../bindings/dsp/mediatek,mt8195-dsp.yaml     |  2 +-
+>   .../bindings/gpio/st,nomadik-gpio.yaml        |  2 +-
+>   .../devicetree/bindings/i2c/st,sti-i2c.yaml   |  2 +-
+>   .../bindings/mailbox/st,sti-mailbox.yaml      |  2 +-
+>   .../bindings/mfd/maxim,max77620.yaml          |  2 +-
+>   .../bindings/net/wireless/qcom,ath10k.yaml    | 34 +++----
+>   .../devicetree/bindings/opp/opp-v2.yaml       | 28 +++---
+>   .../pinctrl/mediatek,mt7988-pinctrl.yaml      |  2 +-
+>   .../devicetree/bindings/ptp/fsl,ptp.yaml      | 12 +--
+>   .../devicetree/bindings/pwm/pwm-sifive.yaml   |  2 +-
+>   .../bindings/usb/ti,twl4030-usb.yaml          |  2 +-
+>   18 files changed, 142 insertions(+), 142 deletions(-)
 
-On controllers that do not support target mode, accessing the
-Target registers triggers an asynchronous SError and prevents the
-driver from probing successfully. For example on i.MX8QM:
 
-  SError Interrupt on CPU2, code 0x00000000bf000002 -- SError
-  Hardware name: Freescale i.MX8QM MEK (DT)
-  pc : lpi2c_imx_probe+0x280/0x594
-  lr : lpi2c_imx_probe+0x224/0x594
-  Kernel panic - not syncing: Asynchronous SError Interrupt
+> diff --git a/Documentation/devicetree/bindings/display/ti/ti,am65x-dss.yaml b/Documentation/devicetree/bindings/display/ti/ti,am65x-dss.yaml
+> index 49a007cbcd3a..d1e530e12604 100644
+> --- a/Documentation/devicetree/bindings/display/ti/ti,am65x-dss.yaml
+> +++ b/Documentation/devicetree/bindings/display/ti/ti,am65x-dss.yaml
+> @@ -261,9 +261,9 @@ examples:
+>                   "ovr1", "ovr2", "vp1", "vp2", "common1";
+>           ti,am65x-oldi-io-ctrl = <&dss_oldi_io_ctrl>;
+>           power-domains = <&k3_pds 67 TI_SCI_PD_EXCLUSIVE>;
+> -        clocks =        <&k3_clks 67 1>,
+> -                        <&k3_clks 216 1>,
+> -                        <&k3_clks 67 2>;
+> +        clocks = <&k3_clks 67 1>,
+> +                 <&k3_clks 216 1>,
+> +                 <&k3_clks 67 2>;
+>           clock-names = "fck", "vp1", "vp2";
+>           interrupts = <GIC_SPI 166 IRQ_TYPE_EDGE_RISING>;
+>           ports {
+> @@ -299,9 +299,9 @@ examples:
+>               reg-names = "common", "vidl1", "vid",
+>                           "ovr1", "ovr2", "vp1", "vp2", "common1";
+>               power-domains = <&k3_pds 186 TI_SCI_PD_EXCLUSIVE>;
+> -            clocks =        <&k3_clks 186 6>,
+> -                            <&vp1_clock>,
+> -                            <&k3_clks 186 2>;
+> +            clocks = <&k3_clks 186 6>,
+> +                     <&vp1_clock>,
+> +                     <&k3_clks 186 2>;
+>               clock-names = "fck", "vp1", "vp2";
+>               interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>;
+>               oldi-transmitters {
+> diff --git a/Documentation/devicetree/bindings/display/ti/ti,j721e-dss.yaml b/Documentation/devicetree/bindings/display/ti/ti,j721e-dss.yaml
+> index 65ae8a1c3998..cac5ef1743d3 100644
+> --- a/Documentation/devicetree/bindings/display/ti/ti,j721e-dss.yaml
+> +++ b/Documentation/devicetree/bindings/display/ti/ti,j721e-dss.yaml
+> @@ -154,54 +154,54 @@ examples:
+>       #include <dt-bindings/soc/ti,sci_pm_domain.h>
+>   
+>       dss: dss@4a00000 {
+> -            compatible = "ti,j721e-dss";
+> -            reg =   <0x04a00000 0x10000>, /* common_m */
+> -                    <0x04a10000 0x10000>, /* common_s0*/
+> -                    <0x04b00000 0x10000>, /* common_s1*/
+> -                    <0x04b10000 0x10000>, /* common_s2*/
+> -                    <0x04a20000 0x10000>, /* vidl1 */
+> -                    <0x04a30000 0x10000>, /* vidl2 */
+> -                    <0x04a50000 0x10000>, /* vid1 */
+> -                    <0x04a60000 0x10000>, /* vid2 */
+> -                    <0x04a70000 0x10000>, /* ovr1 */
+> -                    <0x04a90000 0x10000>, /* ovr2 */
+> -                    <0x04ab0000 0x10000>, /* ovr3 */
+> -                    <0x04ad0000 0x10000>, /* ovr4 */
+> -                    <0x04a80000 0x10000>, /* vp1 */
+> -                    <0x04aa0000 0x10000>, /* vp2 */
+> -                    <0x04ac0000 0x10000>, /* vp3 */
+> -                    <0x04ae0000 0x10000>, /* vp4 */
+> -                    <0x04af0000 0x10000>; /* wb */
+> -            reg-names = "common_m", "common_s0",
+> -                    "common_s1", "common_s2",
+> -                    "vidl1", "vidl2","vid1","vid2",
+> -                    "ovr1", "ovr2", "ovr3", "ovr4",
+> -                    "vp1", "vp2", "vp3", "vp4",
+> -                    "wb";
+> -            clocks =        <&k3_clks 152 0>,
+> -                            <&k3_clks 152 1>,
+> -                            <&k3_clks 152 4>,
+> -                            <&k3_clks 152 9>,
+> -                            <&k3_clks 152 13>;
+> -            clock-names = "fck", "vp1", "vp2", "vp3", "vp4";
+> -            power-domains = <&k3_pds 152 TI_SCI_PD_EXCLUSIVE>;
+> -            interrupts =    <GIC_SPI 602 IRQ_TYPE_LEVEL_HIGH>,
+> -                            <GIC_SPI 603 IRQ_TYPE_LEVEL_HIGH>,
+> -                            <GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
+> -                            <GIC_SPI 605 IRQ_TYPE_LEVEL_HIGH>;
+> -            interrupt-names =       "common_m",
+> -                                    "common_s0",
+> -                                    "common_s1",
+> -                                    "common_s2";
+> -            ports {
+> -                    #address-cells = <1>;
+> -                    #size-cells = <0>;
+> -                    port@0 {
+> -                            reg = <0>;
+> +        compatible = "ti,j721e-dss";
+> +        reg = <0x04a00000 0x10000>, /* common_m */
+> +              <0x04a10000 0x10000>, /* common_s0*/
+> +              <0x04b00000 0x10000>, /* common_s1*/
+> +              <0x04b10000 0x10000>, /* common_s2*/
+> +              <0x04a20000 0x10000>, /* vidl1 */
+> +              <0x04a30000 0x10000>, /* vidl2 */
+> +              <0x04a50000 0x10000>, /* vid1 */
+> +              <0x04a60000 0x10000>, /* vid2 */
+> +              <0x04a70000 0x10000>, /* ovr1 */
+> +              <0x04a90000 0x10000>, /* ovr2 */
+> +              <0x04ab0000 0x10000>, /* ovr3 */
+> +              <0x04ad0000 0x10000>, /* ovr4 */
+> +              <0x04a80000 0x10000>, /* vp1 */
+> +              <0x04aa0000 0x10000>, /* vp2 */
+> +              <0x04ac0000 0x10000>, /* vp3 */
+> +              <0x04ae0000 0x10000>, /* vp4 */
+> +              <0x04af0000 0x10000>; /* wb */
+> +        reg-names = "common_m", "common_s0",
+> +                "common_s1", "common_s2",
+> +                "vidl1", "vidl2","vid1","vid2",
+> +                "ovr1", "ovr2", "ovr3", "ovr4",
+> +                "vp1", "vp2", "vp3", "vp4",
+> +                "wb";
+> +        clocks = <&k3_clks 152 0>,
+> +                 <&k3_clks 152 1>,
+> +                 <&k3_clks 152 4>,
+> +                 <&k3_clks 152 9>,
+> +                 <&k3_clks 152 13>;
+> +        clock-names = "fck", "vp1", "vp2", "vp3", "vp4";
+> +        power-domains = <&k3_pds 152 TI_SCI_PD_EXCLUSIVE>;
+> +        interrupts = <GIC_SPI 602 IRQ_TYPE_LEVEL_HIGH>,
+> +                     <GIC_SPI 603 IRQ_TYPE_LEVEL_HIGH>,
+> +                     <GIC_SPI 604 IRQ_TYPE_LEVEL_HIGH>,
+> +                     <GIC_SPI 605 IRQ_TYPE_LEVEL_HIGH>;
+> +        interrupt-names = "common_m",
+> +                          "common_s0",
+> +                          "common_s1",
+> +                          "common_s2";
+> +        ports {
+> +            #address-cells = <1>;
+> +            #size-cells = <0>;
+> +            port@0 {
+> +                reg = <0>;
+>   
+> -                            dpi_out_0: endpoint {
+> -                                    remote-endpoint = <&dp_bridge_input>;
+> -                            };
+> -                    };
+> +                dpi_out_0: endpoint {
+> +                    remote-endpoint = <&dp_bridge_input>;
+> +                };
+>               };
+> +        };
+>       };
+> diff --git a/Documentation/devicetree/bindings/display/ti/ti,k2g-dss.yaml b/Documentation/devicetree/bindings/display/ti/ti,k2g-dss.yaml
+> index 96b1439f88e3..87721da0a8af 100644
+> --- a/Documentation/devicetree/bindings/display/ti/ti,k2g-dss.yaml
+> +++ b/Documentation/devicetree/bindings/display/ti/ti,k2g-dss.yaml
+> @@ -80,26 +80,26 @@ examples:
+>       #include <dt-bindings/interrupt-controller/arm-gic.h>
+>       #include <dt-bindings/interrupt-controller/irq.h>
+>   
+> -    dss: dss@2540000 {
+> -            compatible = "ti,k2g-dss";
+> -            reg =   <0x02540000 0x400>,
+> -                    <0x02550000 0x1000>,
+> -                    <0x02557000 0x1000>,
+> -                    <0x0255a800 0x100>,
+> -                    <0x0255ac00 0x100>;
+> -            reg-names = "cfg", "common", "vid1", "ovr1", "vp1";
+> -            clocks =        <&k2g_clks 0x2 0>,
+> -                            <&k2g_clks 0x2 1>;
+> -            clock-names = "fck", "vp1";
+> -            interrupts = <GIC_SPI 247 IRQ_TYPE_EDGE_RISING>;
+> +    dss@2540000 {
+> +        compatible = "ti,k2g-dss";
+> +        reg = <0x02540000 0x400>,
+> +              <0x02550000 0x1000>,
+> +              <0x02557000 0x1000>,
+> +              <0x0255a800 0x100>,
+> +              <0x0255ac00 0x100>;
+> +        reg-names = "cfg", "common", "vid1", "ovr1", "vp1";
+> +        clocks = <&k2g_clks 0x2 0>,
+> +                 <&k2g_clks 0x2 1>;
+> +        clock-names = "fck", "vp1";
+> +        interrupts = <GIC_SPI 247 IRQ_TYPE_EDGE_RISING>;
+>   
+> -            power-domains = <&k2g_pds 0x2>;
+> +        power-domains = <&k2g_pds 0x2>;
+>   
+> -            max-memory-bandwidth = <230000000>;
+> +        max-memory-bandwidth = <230000000>;
+>   
+> -            port {
+> -                    dpi_out: endpoint {
+> -                            remote-endpoint = <&sii9022_in>;
+> -                    };
+> +        port {
+> +            dpi_out: endpoint {
+> +                remote-endpoint = <&sii9022_in>;
+>               };
+> +        };
+>       };
+For the TI DSS parts:
 
-The VERID register is implemented in the Master block and can be
-safely accessed on all controller variants. Its FEATURE field
-indicates whether target mode is supported.
+Acked-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-Read VERID during probe and use it to determine whether the
-Target block is present. Only access Target registers when target
-mode is supported and reject target registration requests with
--EOPNOTSUPP otherwise.
-
-Fixes: 90311787f483 ("i2c: imx-lpi2c: reset controller in probe stage")
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
----
- drivers/i2c/busses/i2c-imx-lpi2c.c | 27 +++++++++++++++++++++++----
- 1 file changed, 23 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index e1a4338bc51e..1cfd7a4c8237 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -29,6 +29,7 @@
- 
- #define DRIVER_NAME "imx-lpi2c"
- 
-+#define LPI2C_VERID	0x00	/* i2c version ID */
- #define LPI2C_PARAM	0x04	/* i2c RX/TX FIFO size */
- #define LPI2C_MCR	0x10	/* i2c contrl register */
- #define LPI2C_MSR	0x14	/* i2c status register */
-@@ -136,6 +137,9 @@
- #define I2C_PM_LONG_TIMEOUT_MS	1000 /* Avoid dead lock caused by big clock prepare lock */
- #define I2C_DMA_THRESHOLD	8 /* bytes */
- 
-+/* Bit 0 indicates the presence of the target feature */
-+#define VERID_FEATURE_TARGET_PRESENT	BIT(0)
-+
- enum lpi2c_imx_mode {
- 	STANDARD,	/* 100+Kbps */
- 	FAST,		/* 400+Kbps */
-@@ -194,6 +198,7 @@ struct lpi2c_imx_struct {
- 	bool			can_use_dma;
- 	struct lpi2c_imx_dma	*dma;
- 	struct i2c_client	*target;
-+	bool			target_supported;
- 	int			irq;
- 	const struct imx_lpi2c_hwdata *hwdata;
- };
-@@ -1330,6 +1335,10 @@ static int lpi2c_imx_register_target(struct i2c_client *client)
- 	struct lpi2c_imx_struct *lpi2c_imx = i2c_get_adapdata(client->adapter);
- 	int ret;
- 
-+	/* Reject target-mode registration on controllers that don't support it. */
-+	if (!lpi2c_imx->target_supported)
-+		return -EOPNOTSUPP;
-+
- 	if (lpi2c_imx->target)
- 		return -EBUSY;
- 
-@@ -1546,13 +1555,23 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
- 
- 	/*
--	 * Reset all internal controller registers of both Master and Target
--	 * to avoid effects of previous status.
-+	 * Reset all internal controller registers to avoid effects of any
-+	 * state left over from a previous stage (e.g. the bootloader).
-+	 *
-+	 * The Master block (MCR) is present on every controller, so reset it
-+	 * unconditionally. VERID shows whether the target feature is supported.
-+	 * Do not touch the Target block (SCR) on a master-only controller to
-+	 * avoid an asynchronous SError.
- 	 */
- 	writel(MCR_RST, lpi2c_imx->base + LPI2C_MCR);
--	writel(SCR_RST, lpi2c_imx->base + LPI2C_SCR);
- 	writel(0, lpi2c_imx->base + LPI2C_MCR);
--	writel(0, lpi2c_imx->base + LPI2C_SCR);
-+
-+	lpi2c_imx->target_supported = !!(readl(lpi2c_imx->base + LPI2C_VERID) &
-+					 VERID_FEATURE_TARGET_PRESENT);
-+	if (lpi2c_imx->target_supported) {
-+		writel(SCR_RST, lpi2c_imx->base + LPI2C_SCR);
-+		writel(0, lpi2c_imx->base + LPI2C_SCR);
-+	}
- 
- 	ret = devm_request_irq(&pdev->dev, lpi2c_imx->irq, lpi2c_imx_isr, IRQF_NO_SUSPEND,
- 			       pdev->name, lpi2c_imx);
--- 
-2.43.0
+  Tomi
 
