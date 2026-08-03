@@ -1,77 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69420380FC3;
-	Mon,  3 Aug 2026 17:16:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1921C2931E9
+	for <linux-i2c@vger.kernel.org>; Mon,  3 Aug 2026 17:17:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785777371; cv=none; b=AytpGJLa9lI+XKyslhiChRQpuFUT3wWs4/h5dyXPHPlkonbMX/PI0mkW074QVJQ2OUsb46aEpj8JYTPXEXAbrWVqaI7NfBn7jVILKO9YEUJC0zotzs9bhDVg0DlSQ4RbH89Kv6C8sh/MzLCLM4J2dZf7Cgvio3a+NELn7RPvm/k=
+	t=1785777467; cv=none; b=FNQ9Goid2BcizM6Ws+3SgJee6p8k80XeJhl6grTuIhCU1MYSXTd3sd5HtohIAF+cpPJatOQy6JanIF19awnG/oI93bh3S86dTz89vYAnspXSZqlw+bBVIIqkjhYBpXYZHbphPcjl0/EGY8MFtbIqEcbFhBFOgGZCB/vrOq4fuR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785777371; c=relaxed/simple;
-	bh=5m+iPAqq75hv7VfUFvXPO1ogpuOGUQYXbxc6zf+FcDI=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=RzsxDoA6lTzJwXNSitp+1c92cCK7QWlNm71RgqyRXjBh6U7XLavBkwx181G+Of7lFVKsGhIEFobYJ41mhdBoEbRxMbJIfCyZiejjYe2Ns+zelTfRVQ8bmUCI3FElEqd1+srelQ7W6eG5BhGZzHBqh8Y+/63ZdSiMoaufd+pvlVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oJGg7rJL; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785777467; c=relaxed/simple;
+	bh=L65B46A8goJWpKzCf36fS5lhtfkQzprXZLX0JFXqj18=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NMtVv/glDtw+iq2e+POKEAJUipI+E9Qid1of1MPlKiFJrVFDoDlv4YWfr5QUOkii4SM4SvBWpynQskwgLu60ppWQvC/NrFX5+TGYvPoLthCEpum583HnEXKX7H5Lq5Uev23qctkliS7fg2/Z0skbHbBfOeTizRKZXPlzyPorWu0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=ZpOSxGEm; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oJGg7rJL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B421F000E9;
-	Mon,  3 Aug 2026 17:16:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785777370;
-	bh=XV0LqaRs52swoayCHZPcZPLugQUXbiDRfzkvm1W5VV8=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=oJGg7rJLQkOS8tldMWTLeojQUqhrxQb58duO69lOzryS69pN7e3CrKYgY3Qf+o8IS
-	 gKS0W/augEuCtsV32Pj3aV2jvb9B0GB9hmuQmkKvGmeDDcfqyI85111lalLLn5ZFqQ
-	 5nS5fqIQYYBscRp6m6M7Omn37ESXLlhMUkW73V0EOLvJpTaMyASMIBIJvVlLNaJ9nh
-	 x6QclWxJ2a/RjEAL44T4jIvuxWX66vwnj+kzQkiYe47sxtMbqPhkbzsj5cy4RRCTd0
-	 xTyyIr5aITz94OWrnZyUSbgYQGsWc1b1nLeZYlbrc4qvHMthgNbQEBQmYRe5Rpp44Y
-	 JCUBptxAP06xQ==
-Date: Mon, 3 Aug 2026 19:16:07 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-cc: michael.zaidman@gmail.com, bentiss@kernel.org, linux-i2c@vger.kernel.org, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: ft260: fix SMBus block read protocol handling
-In-Reply-To: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
-Message-ID: <4onpr0o3-1794-3213-9o52-33478n727rps@xreary.bet>
-References: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ZpOSxGEm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=L65B
+	46A8goJWpKzCf36fS5lhtfkQzprXZLX0JFXqj18=; b=ZpOSxGEmzwvoWDcucYIl
+	CzOOsUDaXmufTTO4GJLFx88WUHrl5PRPYbggdoU++4Tgf8kOx73Jy21G0AjqmXcj
+	76pqBNl4FndcSGd1gEu7h+0bCpgGy4GHKE55JrhrRm8+FptNoLWA2FyTTz+XWRFR
+	pHnZ8Pi2rXc2yEDQgSsv7gpCPKV93Vc+dj+32/9aDlL9hF/7tQcj3F3EeYCbbqYx
+	d+iDbLojIo+7ZdC4kbHsPwRb0uuK06i9PDZ6CJUEiWz7EoSjg7IyvzUpaYQ0caeM
+	LlrqeuaQI4TRza3PU+TAfSRaeR1XKxeVskLULjvmQSwDNCcsuztfd02i2JcqPMN0
+	mg==
+Received: (qmail 3111719 invoked from network); 3 Aug 2026 19:17:40 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 3 Aug 2026 19:17:40 +0200
+X-UD-Smtp-Session: l3s3148p1@CF4ltydYFJoujntL
+Date: Mon, 3 Aug 2026 19:17:39 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-renesas-soc@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] i2c: rcar: add R-Car Gen5 support
+Message-ID: <anDNM1Mxt0nWXJDo@ninjato>
+References: <20260727122546.4232-4-wsa+renesas@sang-engineering.com>
+ <20260727122546.4232-6-wsa+renesas@sang-engineering.com>
+ <CAMuHMdVAgjguscFMKd7u1XPuZEkB7mH9-G-Y8nYfXqbzJ2hH9Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="iSysX90dcdyNC2tw"
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdVAgjguscFMKd7u1XPuZEkB7mH9-G-Y8nYfXqbzJ2hH9Q@mail.gmail.com>
 
-On Wed, 10 Jun 2026, Raman Varabets wrote:
 
-> For I2C_SMBUS_BLOCK_DATA reads, ft260_smbus_xfer() passed
-> data->block[0] + 1 as the read length. But on a block read the byte
-> count is supplied by the slave as the first byte of the response;
-> data->block[0] is not initialized by the caller, so the transfer
-> length was taken from stale buffer contents, and the count byte the
-> slave did return was stored without any validation.
-> 
-> Implement the SMBus 2.0 block read protocol properly: read the count
-> byte first with a repeated START and no STOP, validate it against
-> I2C_SMBUS_BLOCK_MAX (resetting the bus and returning -EPROTO on a
-> bogus count), then read exactly that many data bytes and finish the
-> transaction with STOP. This keeps the whole sequence within a single
-> I2C transaction:
-> 
->   S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
-> 
-> To support issuing the two reads as one transaction, teach
-> ft260_i2c_read() to honor the caller's flags instead of always
-> forcing a START and unconditionally appending STOP to the last
-> chunk: START is only emitted if requested, and STOP is appended to
-> the final chunk only when the caller asked for it.
-> 
-> Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+--iSysX90dcdyNC2tw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thanks.
 
--- 
-Jiri Kosina
-SUSE Labs
+> How to differentiate between using SCMI and running on bare metal?
+> The latter still needs polling.
+>=20
+> I think you should call reset_control_status() first, and check for
+> -ENOTSUPP, which would indicate that reset status is not available.
 
+Okay, will send an incremental patch to handle the bare metal case.
+
+Thank you!
+
+
+--iSysX90dcdyNC2tw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpwzS8ACgkQFA3kzBSg
+KbaxhBAAkBXYTLLyLEaPabvM6lMgNOHi4dkdCul8TIKW/jVYYAxZys+Jg8ZzfxTj
+fbW9oqcdx2x/UNKgM2SkfoZTMSd/YHIpouwZXRtvo90udjXh2YGOilNKr7aexCfd
+5EyAjW6FcvbO1KNrSGGFHxNZIqPsaXf1VZFhGmleFagdzRndAfl92XxkoPkRGsTm
+FxjIHctjJe33WHdpd/d+zEssOAPAxJjyW1gpWgkKRLpHxzpkCgYpLTmBRQ1k2LrP
+siAd1ZUwZpvFmvXF+EkXOP0Rx0EShLtREaPCkOfgjhwHV5txU1mP2kKD4ZUAs8HC
+LNzfP2kqFdk5gD2v0fE1mWVYgAfz94U5xQHkaVPKj+eegokbhi59RhMHqywpwBCv
+PrLthN3uHXQf9wRT5qahK/VurQKTZcuOYMhx5TEG4rDVDNpzG1DMQgB2J0+w8IWA
+Cv0EzYQX962GcZP5xRdxKqmgXJ8KLJY0njokQBWfkcQQnDBp8uyInhHsVjG+eAql
+ZkvxHtBXbMMMhwc0LtvDmTBNK8Y/TandMj2f+F0CH3SWnVFF8tD/T4Qf2CpCxhjz
+mwDOsfIRv1cFTTsRawMeNjNFJuwC3q/iohbiZ7SonTTjnff2mwBN5qunSdlf6Vyj
+oRJ0W+cC/7BID8CFB2SKwTYxi5zDt5ocHXMcYlZr+QchQt3OwBk=
+=Gcky
+-----END PGP SIGNATURE-----
+
+--iSysX90dcdyNC2tw--
