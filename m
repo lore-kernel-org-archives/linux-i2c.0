@@ -1,107 +1,185 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82B4B1DFFB;
-	Mon,  3 Aug 2026 08:28:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FE24367F48
+	for <linux-i2c@vger.kernel.org>; Mon,  3 Aug 2026 10:53:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785745739; cv=none; b=MQkuMbwEwg+6i/sGS7MhbgWFErwYLolsOAybfPhVDuOsNpbv00aSoDaYMXyj2Fzru+pml9h0HkCVZ3FLBtS3ZjDFwOsFR4N+egy1C+bo5HB7nTVyeP0b5FgBeeCdg6zGueQeibUtN78wUZYj7foYVNoKpsX6UElf/gESnh2UYsk=
+	t=1785754434; cv=none; b=obbKZxqxS7mzD4DnCQ6nPrRZGdWZozgQ7Xj8m914TXNL71ufK2A4SKKrA1ICEnfqEFDD3yGC2JOKae0rWU5pLyMoolncXQbW8Nq7+Y/ThfHP4lkm0t33oWyvu5RT3SkncsZ/dTX7aPyAd69HMT9iP0zjzV58NZsJ0Yj0+4fmPDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785745739; c=relaxed/simple;
-	bh=xC3OrNnP/G/fQTfG7vaW1/GEapYnFwmRXLB2yIGlMC8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aKU4VZZEbNxtk5rP8pGk9/7Wk8moMiYJGzADNEePF2u1tgvGKtCL1zhtBatMhaptR9epb2q50W5NL0RhRi4qT+lqgk8BUnVSc8X2mUtlHf3JS7qvmhCEH7+Ao5jlaRnPA0h2TXLmcfHSlR4EI0aS2OjXMwe0uHiLVMcINVG7mj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hk7siMCm; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1785754434; c=relaxed/simple;
+	bh=W4pjUQoMEum1rTBka7R+6cyJe1uJzGSmpQoSoqotukY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ERJwASlLgphyn6Fbv4NaBHMO1Ba+fqINcVY83X0izodF7+A5IRof25Cb5V/D6Fa5hhzcrCxNYqboYYvp3H+fdi20Ls3yxlR2Lz/Twz3ytddFSmqzVxICEyhieBsdIArauV60/e95ZFECtvKxPjCSxfRKb8d07s1CqjqfWWJKsE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=eiVC9egI; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=FLDkX6H+; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hk7siMCm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785745736; x=1817281736;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=xC3OrNnP/G/fQTfG7vaW1/GEapYnFwmRXLB2yIGlMC8=;
-  b=hk7siMCmiJK1idYtxJqkcQc1JMVSQIxTqCJ33TgFF0Y7f9TW4QvqSW9N
-   DvCe7AVy4MOLkMDADxh2RX9TLIawRqqOyP0fKlzkCjFzNeQMxZZpEIJ1E
-   VjsJVLoT1dNqKXW5DdDYeeZReOKGKHQ+7lrZ4I09bVnEdpkuntwn2bGZM
-   ASnqF2OV59MwR6vnNcBtnbk9sARyBoViHLC+ktNzJbxQ9G8w3dXYZZloT
-   dA5gEYYe/+64ixZH8grAkvH/GXQnoYBznB/Zo7IZirhROmPBcm/gLVxS/
-   dj1Xzu4fM0xaA3V7kFZE8LpTx3pTPsMwwHbvhMZ872VXE1bTc0vERRQ6V
-   w==;
-X-CSE-ConnectionGUID: QeA3CivvRVKv2XKuqwh9gw==
-X-CSE-MsgGUID: s64aPPsxS9eGb7gExMZdQg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11863"; a="111828634"
-X-IronPort-AV: E=Sophos;i="6.25,202,1779174000"; 
-   d="scan'208";a="111828634"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 01:28:55 -0700
-X-CSE-ConnectionGUID: Ag1Csky0THygb39DjHKQlg==
-X-CSE-MsgGUID: Q3rjCMSzRxy8JGh8k8BaNg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,202,1779174000"; 
-   d="scan'208";a="254882189"
-Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
-  by fmviesa009.fm.intel.com with ESMTP; 03 Aug 2026 01:28:53 -0700
-Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wqo2U-000000006WT-0ms4;
-	Mon, 03 Aug 2026 08:28:50 +0000
-Date: Mon, 3 Aug 2026 16:28:09 +0800
-From: kernel test robot <lkp@intel.com>
-To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
-	mukesh.savaliya@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
-	andi.shyti@kernel.org, sumit.semwal@linaro.org,
-	christian.koenig@amd.com
-Cc: oe-kbuild-all@lists.linux.dev, linux-i2c@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, naresh.maramaina@oss.qualcomm.com,
-	aniket.randive@oss.qualcomm.com
-Subject: Re: [PATCH V5] i2c: qcom-geni: Add dynamic transfer timeout based on
- transfer length and frequency
-Message-ID: <202608031643.mPIeogxp-lkp@intel.com>
-References: <20260715101805.3615166-1-aniket.randive@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="eiVC9egI";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="FLDkX6H+"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 673AKRPK3654877
+	for <linux-i2c@vger.kernel.org>; Mon, 3 Aug 2026 10:53:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	eL2H0jG7cWNshG9pGpR0BK3e3nbsXkAHLazXPY8v5m4=; b=eiVC9egIHMMMr92n
+	lN+F0/F8ujtHP6bInwATQerx1UVy7WsSWQfNyM54hSY6Y7bW6QQZ0oU1PD01qnGP
+	olkgnM5/ullIeDEBC7ewLwQoYKtWO6Q4pzcnOtc+2HUKrlkjgOR3TmP4KcnZKHwR
+	aBQ5k2x2RE7dJ2MdkSdq/mR9KQ+2bKyBS5ItBLGeFbp0DgpVCuZ0fVnb43ommTEd
+	ld1RRpvIQrMiw9hHTZDVi0EOltfpfEc5ryCQ4CHsCVHOvhWuD24QaQ86ILNV6TL6
+	0MCUPFE+EEdd3ljSsMOM2qMik8zKgyRLpzgRWFIa1KsexykQ/+VYlkVbpxCyRv6h
+	M12fcQ==
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ftnhb17cg-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 03 Aug 2026 10:53:52 +0000 (GMT)
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e22137fb3so5293568a91.0
+        for <linux-i2c@vger.kernel.org>; Mon, 03 Aug 2026 03:53:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1785754432; x=1786359232; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=eL2H0jG7cWNshG9pGpR0BK3e3nbsXkAHLazXPY8v5m4=;
+        b=FLDkX6H+W6vMICMpDZ7iP76IztzTo49HJxInNuV13WkdwDHQzigD0q4Yv57SSgm6de
+         JFXCWsZQvuLUVgkvmTwNXOfDboa+3EmY68lBj66lKjunHrRm2fYcJjrAOV1JsFk/AZrP
+         xiSwsYM6ldfYMHt/cvOPJI1uZs4q0ZculuoBOQ7rJhe/yXRvcEueeJlaMVPJjkg3BkQu
+         MiGQECdI5X0eSP6F0sgO3IBYz+ymqubPJEU5r6zUnboNruaprjBtEely944ozVLntWax
+         /aTmit5fZms1uiTFLz0ONsD6pkPLnBO9nQ0QqeNultr4VAYz7FDDO9pU6qYJp+gkkX1j
+         kHEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785754432; x=1786359232;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=eL2H0jG7cWNshG9pGpR0BK3e3nbsXkAHLazXPY8v5m4=;
+        b=R2ktVIwwK5zvAahrkeWEQ++TidTNMmQGMhsKuaxmnSSjSnyGhfon2e5GEnm9/qo1rQ
+         Tsgx2bpOXPPj+0ePoHisIzecw22nNVlOmefHdqh2mmoGIX6Th7HeULISkxAUBrhSI0uK
+         JWNNZhrik3ZIEobc5NlZ9rp7hUcalQXrHLb35TCourfu8bYJtI6wyCQ8fB0Cjrrr7/vK
+         PPMbOCHDpydFaPp1eO/omcAoj7Mz7CpHg2rug2kl33G3UcPVU27lSRsG09k3PXWFl2FH
+         P70rNXMi9PLqZXW1zbrLt02mkraaJiM1yB8Ao6bgKz8fJAgfNl+DUls+IbCo7ifkLUTu
+         qkdg==
+X-Forwarded-Encrypted: i=1; AHgh+Rp4f9tsdIBeY/JjWiTyXlVsA2o9AOK3TSUr5fCYDxvG1gnnJgG/iWRmVxtSVmqPVzlxFWjazHYB4Jc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz3yepWEJIPnkmZHjQc/ACBto47FDalzhpAGQw8xkX4YAhvyhOj
+	wokM6Ht5hv1KHaFkEyl1Kv4gTEeZYE07LAJUyb8ZtysQ7czdxZ/tRWMA8ZSLXovuC6jpJ4qM7NA
+	i+lLIAth7ytuVyWUwqGgMkxaExXEw2pWLrLxbUK7Qz8ZRnnyQ4m+tVlwUhlw5taQ=
+X-Gm-Gg: AR+sD10JUdoT0G6/KEbOE050hXYjIxRgvtvp2geR35xWj+e3JaivF4X2dHpzidIyceU
+	myDbdbtj/mKP02zlzFJEFi0uSjwnGp9Wp+rAb09Tk+EMdUif78lHo47RUbsLyRjdNFPnsD+ZCxT
+	91ydYrjMmpMutyHUs2D1YhmQDgfnybvbbKzX7y3SjiBDyR4kW5axUo5RpXIfi+xrFOPnQF8Vqfh
+	4vlgNCiaZlOmaya9+eV2/7e/ig30O+FM8GnzIsSj07o4B9zX5iH+ixAYEAT5bS+XIE3t56eon2O
+	6Hx18FaZR8BOntw3pm0qo244jYdzCg+wsahwlqEY6AkUbCpzHF3asELk0HEyRdRU0O78tqty1xA
+	K9nxEiWR6GOBPFGjXI2FXj7VyRWjZ+CTNHQ==
+X-Received: by 2002:a05:6a20:431d:b0:3c3:bbe6:95c9 with SMTP id adf61e73a8af0-3c92a524e5cmr8551439637.16.1785754431905;
+        Mon, 03 Aug 2026 03:53:51 -0700 (PDT)
+X-Received: by 2002:a05:6a20:431d:b0:3c3:bbe6:95c9 with SMTP id adf61e73a8af0-3c92a524e5cmr8551416637.16.1785754431473;
+        Mon, 03 Aug 2026 03:53:51 -0700 (PDT)
+Received: from [10.217.218.252] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153ddda5d9sm44339354eec.13.2026.08.03.03.53.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Aug 2026 03:53:50 -0700 (PDT)
+Message-ID: <8a7fa505-1102-49d8-9343-0fce37850b48@oss.qualcomm.com>
+Date: Mon, 3 Aug 2026 16:23:45 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260715101805.3615166-1-aniket.randive@oss.qualcomm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 1/2] i2c: core: Add i2c_update_timeout() helper for
+ dynamic transfer timeouts
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
+References: <20260720-master-v6-1-671261b05c61@oss.qualcomm.com>
+ <amZkf3lu7gjWhw04@zenone.zhora.eu>
+ <0c0d1406-949b-49ee-b203-3833b9f8433b@oss.qualcomm.com>
+ <ame2tX1RwOo4F6Lk@zenone.zhora.eu>
+ <cb1e00ea-658a-416b-aef6-46c151d15685@oss.qualcomm.com>
+ <amh5l4Yvwemws6Cx@shikoro>
+ <fc90084e-c9bf-43da-bb8b-43a8d2d0cb7f@oss.qualcomm.com>
+ <amoaEGX8Q4zwHF2i@shikoro>
+ <be5ba8e8-15d0-4fe4-a66c-fe7ce8da6cc3@oss.qualcomm.com>
+ <amuy0mdHQlYCcRfb@shikoro> <am5e6yBm-4ZH1W27@shikoro>
+Content-Language: en-US
+From: Aniket RANDIVE <aniket.randive@oss.qualcomm.com>
+In-Reply-To: <am5e6yBm-4ZH1W27@shikoro>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: Y4-CCz3SxqaxZr67vfnAZJfx8CpBNaaU
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAzMDA5NiBTYWx0ZWRfX00BVFiM18iAW
+ W0tx0xqw3R1RlvFjcGp12+iI27WkXkr0dCYpPgGi1vKeWZDx8MPEbBxIDuXaCyVSkEeWfDNQHKm
+ PChjYtNKNDRFqQaaICUEu3ujqnPDPEQ=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAzMDA5NiBTYWx0ZWRfX9gdclbm0Hbre
+ E8zCb5lPbmlKPleT0HYPn5vrGejjpftc+yvpDgBHu23168NgTYIBAtmYTSRNCTfMgf5X6VnpKhU
+ HjwhCsb/nMRHL6X5iwmiKO+JRchWVfltSnKuFdqh4b1OML44pwUl7fkb7WnMtN/ikknAtviWZlx
+ lPeOjivbdv9kJNjMZMTsqMDemml9LJiUZNTiHIWxfCP82mi1fJ9OcZCtEbUYu/8OhsO4NikFF9L
+ aV58FptkG/DKiE+VjVmiVi9R5JGVsxZ3ryp5/6sANYv5IWJ+xvYqGLIJ5WY4ciXEi1WhKdlt68g
+ YBpJNtWvl9LrpccTQwWiDA51rhgluuu3xu5QdZJiiEpvCi9VPNBMtMcRIJrEn/F8SbpgxsVMcd6
+ cNoXPgMru8Qz/3x6qLbiu3Ye5I/B4iNuJYF+lPlln8a6Ra8ORbRavnNwHmIZZpCFmaTc4a7iH97
+ vZAwciZtug2/zwo4EWg==
+X-Proofpoint-GUID: Y4-CCz3SxqaxZr67vfnAZJfx8CpBNaaU
+X-Authority-Analysis: v=2.4 cv=bKEm5v+Z c=1 sm=1 tr=0 ts=6a707340 cx=c_pps
+ a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
+ a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=wk_Bz9T5fIWzqFoZPV4A:9 a=QEXdDO2ut3YA:10
+ a=rl5im9kqc5Lf4LNbBjHf:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-02_06,2026-07-30_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 suspectscore=0 phishscore=0 adultscore=0
+ impostorscore=0 bulkscore=0 malwarescore=0 clxscore=1015 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608030096
 
-Hi Aniket,
+Hi Wolfram,
 
-kernel test robot noticed the following build warnings:
+Thanks for the suggestion.
 
-[auto build test WARNING on andi-shyti/i2c/i2c-host]
-[cannot apply to linus/master v7.2-rc5 next-20260731]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+I'm okay with the Kconfig-based approach, as it would avoid regressions 
+for platforms that prefer the existing static 1 Hz timeout behavior 
+while allowing controllers that benefit from dynamic timeout calculation 
+to opt in.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Aniket-Randive/i2c-qcom-geni-Add-dynamic-transfer-timeout-based-on-transfer-length-and-frequency/20260803-151058
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
-patch link:    https://lore.kernel.org/r/20260715101805.3615166-1-aniket.randive%40oss.qualcomm.com
-patch subject: [PATCH V5] i2c: qcom-geni: Add dynamic transfer timeout based on transfer length and frequency
-config: alpha-allmodconfig (https://download.01.org/0day-ci/archive/20260803/202608031643.mPIeogxp-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 16.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260803/202608031643.mPIeogxp-lkp@intel.com/reproduce)
+I have reviewed the patch series in [1], and my understanding is that it 
+does not directly conflict with the dynamic timeout changes. My series 
+calculates transfer timeouts based on the configured bus frequency, 
+while the referenced work focuses on dynamically changing bus speeds. At 
+the moment, I don't see any functional overlap that would require the 
+timeout series to be based on top of it.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608031643.mPIeogxp-lkp@intel.com/
+That said, please let me know if I'm missing any relationship between 
+the two series that should be considered before posting the next revision.
 
-All warnings (new ones prefixed by >>):
+Thanks,
+Aniket
 
->> Warning: drivers/i2c/busses/i2c-qcom-geni.c:622 function parameter 'timeout_jiffies' not described in 'geni_i2c_gpi_multi_xfer_timeout_handler'
->> Warning: drivers/i2c/busses/i2c-qcom-geni.c:622 Excess function parameter 'transfer_timeout_msecs' description in 'geni_i2c_gpi_multi_xfer_timeout_handler'
->> Warning: drivers/i2c/busses/i2c-qcom-geni.c:622 function parameter 'timeout_jiffies' not described in 'geni_i2c_gpi_multi_xfer_timeout_handler'
->> Warning: drivers/i2c/busses/i2c-qcom-geni.c:622 Excess function parameter 'transfer_timeout_msecs' description in 'geni_i2c_gpi_multi_xfer_timeout_handler'
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+On 8/2/2026 2:32 AM, Wolfram Sang wrote:
+> On Thu, Jul 30, 2026 at 10:23:46PM +0200, Wolfram Sang wrote:
+>>
+>>> Given the feedback so far, would maintainers prefer that if i drop the core
+>>> helper entirely and keep the dynamic timeout calculation local to the
+>>> qcom-geni driver or should we continue exploring an opt-in core-based
+>>> approach?
+>>
+>> Well, I suggested a potential way in my last mail (Kconfig option). So,
+>> what do you think about it? Does it handle your use case?
+> 
+> Another bit which may be important for you: there is currently a patch
+> set under discussion [1] to allow changing bus speeds dynamically. You
+> probably want to base your work on top of it and/or help getting it
+> discussed?
+> 
+> Happy hacking!
+> 
+> [1] https://lore.kernel.org/all/20260719-i2c-mux-v12-0-a5010d623a57@gmail.com/
+> 
+> 
