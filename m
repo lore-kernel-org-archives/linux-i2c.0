@@ -1,220 +1,105 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2867B437845
-	for <linux-i2c@vger.kernel.org>; Mon,  3 Aug 2026 20:50:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7352B328B7F;
+	Mon,  3 Aug 2026 20:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785790243; cv=none; b=nXvrRgzpIYHzCX92vptldWBnaNsidZiF3l/gFyjSJDHDjkVtgdluAuoXmn1YHkrfwJpx1XC4SVQHrl3VSbPzli5PogNP1pezG+CvK+76CAy7k4FKN3qItaVbnKMEDm/6/2PR38ZgesyJ3nW7nzU6rSQcwBhzNALv+CmdVJfHWX4=
+	t=1785790409; cv=none; b=pa4NkaWIWyXJQWwGzokLYGUoMHgjQwBsUM47ybrwQL9n5LyALCwIW0UZ66YQRpsY146Gbk5QQBqtIzcqwivSSJdD6Q7mRLLlbEE5T2Q7OMs3MQ+HyaItzKk2qffatFn3Tob+SBL71NMSp+4EpLGJXBotCAss+HMdopzTzY8Gv6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785790243; c=relaxed/simple;
-	bh=XrAFZS+IhJxi+kxMlYidEjTvpsk2txu5b59dVurg6+0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=H9TzwKLpRMtZOBF+yyoSFfQkCfyrL8Z9Fr4zUx7APaPvL0E/E+kaoeCSch/Im+gzM0OoA9yk6iCtHKWbPej7meN/RsLSJ5MTqg8RuLP8S92s4l6o6Q8u/aZjcsO2Tud49BeyPCv0mZ1kxN/Tn9SsVvThh9fvM56tV9CKLfHiQ0I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ujv/X5aa; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785790409; c=relaxed/simple;
+	bh=MDzfBwhETVtZ+aaDo4ix5KcYZIh3rn9zmcx1yyWNTp8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fw1Z5Wg3z9t7SwTc1HP9s0Y+Ux2UVmhUK6TfXJ+t3WOKUioF4D/x91yP+YyhX0Xtbe89K3noFAAVYxeFLkuC9XRubZLUjOYyZqjgRhu4QQuPep6eP/+dx1svGbvYJVZTZ5vh0lhXgHZSHlLPT/UPw0V68my+lVxpzloLxglZ8B0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WcECJy5z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ujv/X5aa"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38e69bdb0fcso2684048a91.1
-        for <linux-i2c@vger.kernel.org>; Mon, 03 Aug 2026 13:50:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785790240; x=1786395040; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=rDd38SZH0rN9ZI+VsvQIWz/trEy5IHBaWNCDHbcZ/KY=;
-        b=Ujv/X5aazGxrcUKwL53R8k9kPLYxWDrtLARF80Vt7DjUu74eMfl3GBeCCQHJh+ggCN
-         lrGxREyzJ0wDbInQlbGONxJ5GfT7HxG+MFL24GadBnDrYprS0PimjBK1DIRzYiFljk1H
-         srJY72leZeHEUwm2/DdSKuUPRwndeTHg3GEjcSMF1SV0Q1A98SjxOd0bM/q8PkOhK9If
-         zKC7ttcB/VEbDkqQqtZ84/R14NmclJlDnHHeD5HxacDAh2VQR3JCqdf6U1fXmOaaeYQX
-         AqFq6TYpGOwk44CwhmiltnjDxqByQmB/e9K8MlTo9yUY5c86FDiZfYo8dSaJHCOURz+W
-         x1yA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785790240; x=1786395040;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rDd38SZH0rN9ZI+VsvQIWz/trEy5IHBaWNCDHbcZ/KY=;
-        b=WUufQkyjVytJdBkWWRx6L6jKiY7QOLE7tSz+TDTEHIIx18GJBERcy2GXqTOD5EcmHJ
-         jfJASRZbSXn+Z5KCNlFj9N9GRbkWlLkH46AKPmf/UnSh05+S6Rx3G9xtwkR19nqmKbAy
-         jRuCyD/D3aPS/j36t0C9QYiQmYjuyJzEmD0Y4WcHnbL0mIlSU08z6Gz6QE8LdoEK1bzg
-         wDSMemg+Z4dfvNWxopfxNFNa5+95NGFCJjdgwm5wRyW1BoFEp+c9NDbcHdnfp4VsM4qV
-         4BeNj9Q61ELJmyfCK4/KPthN+syrgVf9xA4sfF1R69X94I2wwhF+zmkefd9KU3yf/Kl9
-         D+Zw==
-X-Forwarded-Encrypted: i=1; AHgh+RpC9ECCu+JcipI457DKtEWHbJRYG8UzyirauEAou3++NT5C8IyRpoxCnp6BLEUPcKQ0mYeG+rLPUiM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzlS+FjtZUEx+4CTjYkffaMzQ/RnW8o9LA7H0T24yCyo0HfCiUm
-	4qMyGfgTQn6LiHnE07APD8pYfmQfwWx5ds9ilieNI5cVvT2iU2EXxPN5
-X-Gm-Gg: AR+sD11q5P2IVfZSuAk7J0oS/UnvDJfdK1ar95E6tmDA9pD4luTuDwQvKL51U6eyVqw
-	/fKr+EuS/1l76PMesdf1aWtWAvEb3WLPlOZ4saxbTtmNM0LvJCS5r8It+TNLrra7zP5j/INsZkM
-	Ix80kInBERZ9dmyU2yXXsi5XG0LV+HTJwBFgYWFTH6QQS7Bwa3pdOW4uefM1zirun6OgMdbvT4u
-	ra8EG4EgLZI24T6CteQo3L04olM6QqTsGDuv01V4UgfoScGXAPpdWb81hwCC/H3BrJAfYPKtPdT
-	TfUx1oBcxJi0FLtDjHbkLyK+iBqpYrmhfekN9RGKKRmc1jA3c5fWK3+yEeCFvNGmeD+XCxmUN7u
-	6IaIfIvcrN2YeiVX2f7BfMsZZgV1/2sncsW9mWo54/lOCJpfVvqU5C2T78+mI2otrtbYSlKUUgX
-	1peuEq0QhJFGwkpt19AWIZ8DKwhDrwSC2Bz9S9WoS7AL2jqU0pCVT263d0i/lrEeSDEIs=
-X-Received: by 2002:a17:90b:4c51:b0:38e:75f3:ad4d with SMTP id 98e67ed59e1d1-38fbc3f9ab6mr10445999a91.7.1785790240510;
-        Mon, 03 Aug 2026 13:50:40 -0700 (PDT)
-Received: from Mac.net ([12.162.234.74])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab4d10bbsm33112324c88.11.2026.08.03.13.50.37
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 03 Aug 2026 13:50:39 -0700 (PDT)
-From: Ahmad Byagowi <ahmadexp@gmail.com>
-To: linux-leds@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Peter Rosin <peda@lysator.liu.se>,
-	Nam Tran <trannamatk@gmail.com>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	linux-hardening@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [RFC net-next v2 6/6] ptp: ocp: Add Time Card V9 I2C peripheral topology
-Date: Mon,  3 Aug 2026 13:50:11 -0700
-Message-ID: <20260803205011.1249-7-ahmadexp@gmail.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260803205011.1249-1-ahmadexp@gmail.com>
-References: <20260803205011.1249-1-ahmadexp@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WcECJy5z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3681F00A3A;
+	Mon,  3 Aug 2026 20:53:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785790408;
+	bh=42fMjfMmyKoxIac5xGfUWe0H4Hd5p40u1U7vZae7AME=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WcECJy5zwe3it57uD+HxHZblPLjWVcBNQ4VhRCHd+jKDvO2jXi+m1kaTmRCsRRtg2
+	 QZv+SCD+KsaR3eZlvT0BW/ID679n01MbA83TiXwbEoW1L+W3NZwEyTU1zQpKDvOGCE
+	 urFSI4Joboi6Hyiq5c2YqJ6nXTowsFtdF/4P6kZgUHmg/GSO7B+hNn4Hqlen68o8R/
+	 q9bBSdE7BE92kMkNHFWafNdaz3b4KDwLwEOSwwtD5f8211u/yLgB7/tTHtKXWQzNHT
+	 MQg75JSK1wxMkLL4SVfp7mSe+XGv74BCfS570fKjbcvIODC2S4wXYzjPPjvkQ2o8Q3
+	 bLV42DdnxLicQ==
+Date: Mon, 3 Aug 2026 22:53:24 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+	Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@arm.com>, 
+	James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>, Damien Le Moal <dlemoal@kernel.org>, 
+	Niklas Cassel <cassel@kernel.org>, Jyri Sarha <jyri.sarha@iki.fi>, 
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Patrice Chotard <patrice.chotard@foss.st.com>, 
+	Jassi Brar <jassisinghbrar@gmail.com>, Lee Jones <lee@kernel.org>, 
+	Johannes Berg <johannes@sipsolutions.net>, Jeff Johnson <jjohnson@kernel.org>, 
+	Viresh Kumar <vireshk@kernel.org>, Nishanth Menon <nm@ti.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Yangbo Lu <yangbo.lu@nxp.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+	Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Richard Cochran <richardcochran@gmail.com>, 
+	Jens Wiklander <jenswi@kernel.org>, Yuanfang Zhang <yuanfang.zhang@oss.qualcomm.com>, 
+	YC Hung <yc.hung@mediatek.com>, Svyatoslav Ryhel <clamor95@gmail.com>, 
+	Sean Wang <sean.wang@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Peter Ujfalusi <peter.ujfalusi@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, coresight@lists.linaro.org, linux-arm-msm@vger.kernel.org, 
+	linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linux-mediatek@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	mfd@lists.linux.dev, linux-wireless@vger.kernel.org, ath10k@lists.infradead.org, 
+	linux-pm@vger.kernel.org, netdev@vger.kernel.org, linux-pwm@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-usb@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Correct white-space style
+Message-ID: <anD_bci501e0J3q2@zenone.zhora.eu>
+References: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260801195613.235430-2-krzysztof.kozlowski@oss.qualcomm.com>
 
-Time Card V9 places a BME280 at 0x76, a BNO055 at 0x29, and an
-IS32FL3207 at 0x37 on PCA9546 channel 1.
+Hi Krzysztof,
 
-Describe GNSS1 and GNSS2 as RGB LEDs on outputs 0 through 5 and SMA1
-through SMA4 on outputs 6 through 17. Select this profile only for the
-exact EEPROM ID "TIMECARD-V9".
+On Sat, Aug 01, 2026 at 09:56:14PM +0200, Krzysztof Kozlowski wrote:
+> Correct a few white-space issues, like double space after '=' or before
+> bracket '{' characters, which will be flagged by dt-check-style.  No
+> functional changes.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> 
+> ---
+> 
+> Patch applies on Rob's for-next branch.
+> ---
+>  .../arm/firmware/linaro,optee-tz.yaml         |  8 +-
+>  .../devicetree/bindings/arm/psci.yaml         | 18 ++--
+>  .../bindings/arm/qcom,coresight-tnoc.yaml     |  2 +-
+>  .../devicetree/bindings/ata/st,ahci.yaml      | 22 ++---
+>  .../bindings/display/ti/ti,am65x-dss.yaml     | 12 +--
+>  .../bindings/display/ti/ti,j721e-dss.yaml     | 96 +++++++++----------
+>  .../bindings/display/ti/ti,k2g-dss.yaml       | 36 +++----
+>  .../bindings/dsp/mediatek,mt8195-dsp.yaml     |  2 +-
+>  .../bindings/gpio/st,nomadik-gpio.yaml        |  2 +-
+>  .../devicetree/bindings/i2c/st,sti-i2c.yaml   |  2 +-
 
-Earlier Time Card revisions expose the same I2C device population with
-different LED routing, so probing cannot distinguish them safely. Leave
-erased, malformed, and unknown board IDs unconfigured.
+Yes, I had noticed this recent white space which slipped off my
+review, but it looked too much hassle for a single patch removing
+the white space.
 
-Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
----
- drivers/ptp/ptp_ocp.c | 68 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 67 insertions(+), 1 deletion(-)
+Thanks!
 
-diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
-index 70ba47096..c8c28d792 100644
---- a/drivers/ptp/ptp_ocp.c
-+++ b/drivers/ptp/ptp_ocp.c
-@@ -353,7 +353,7 @@ struct ptp_ocp_serial_port {
- 
- #define OCP_I2C_MUX_CHANNELS		4
- #define OCP_I2C_MAX_SENSOR_COUNT	5
--#define OCP_I2C_MAX_LED_COUNT		5
-+#define OCP_I2C_MAX_LED_COUNT		6
- #define OCP_I2C_MAX_LED_COMPONENT_COUNT	(3 * OCP_I2C_MAX_LED_COUNT)
- #define OCP_I2C_MUX_NAME_LEN		32
- #define OCP_I2C_RETRY_MAX		10
-@@ -617,9 +617,61 @@ static const struct ptp_ocp_led ptp_ocp_r4006_leds[] = {
- 	},
- };
- 
-+static const struct ptp_ocp_i2c_device ptp_ocp_v9_sensors[] = {
-+	{ "pressure@76", "bosch,bme280", "bme280", 1, 0x76 },
-+	{ "imu@29", "bosch,bno055", "bno055", 1, 0x29 },
-+};
-+
-+static const struct ptp_ocp_led ptp_ocp_v9_leds[] = {
-+	{
-+		.node_name = "multi-led@0",
-+		.function = LED_FUNCTION_STATUS,
-+		.function_enumerator = 1,
-+		.has_function_enumerator = true,
-+		.channel = { 0, 1, 2 },
-+	},
-+	{
-+		.node_name = "multi-led@3",
-+		.function = LED_FUNCTION_STATUS,
-+		.function_enumerator = 2,
-+		.has_function_enumerator = true,
-+		.channel = { 3, 4, 5 },
-+	},
-+	{
-+		.node_name = "multi-led@6",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 1,
-+		.has_function_enumerator = true,
-+		.channel = { 6, 7, 8 },
-+	},
-+	{
-+		.node_name = "multi-led@9",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 2,
-+		.has_function_enumerator = true,
-+		.channel = { 9, 10, 11 },
-+	},
-+	{
-+		.node_name = "multi-led@c",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 3,
-+		.has_function_enumerator = true,
-+		.channel = { 12, 13, 14 },
-+	},
-+	{
-+		.node_name = "multi-led@f",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 4,
-+		.has_function_enumerator = true,
-+		.channel = { 15, 16, 17 },
-+	},
-+};
-+
- static_assert(ARRAY_SIZE(ptp_ocp_r4006_sensors) <=
- 	      OCP_I2C_MAX_SENSOR_COUNT);
- static_assert(ARRAY_SIZE(ptp_ocp_r4006_leds) <= OCP_I2C_MAX_LED_COUNT);
-+static_assert(ARRAY_SIZE(ptp_ocp_v9_sensors) <= OCP_I2C_MAX_SENSOR_COUNT);
-+static_assert(ARRAY_SIZE(ptp_ocp_v9_leds) <= OCP_I2C_MAX_LED_COUNT);
- 
- static const struct ptp_ocp_i2c_profile ptp_ocp_r4006_profile = {
- 	.name = "r4006",
-@@ -631,6 +683,16 @@ static const struct ptp_ocp_i2c_profile ptp_ocp_r4006_profile = {
- 	.led_address = 0x34,
- };
- 
-+static const struct ptp_ocp_i2c_profile ptp_ocp_v9_profile = {
-+	.name = "v9",
-+	.sensors = ptp_ocp_v9_sensors,
-+	.sensor_count = ARRAY_SIZE(ptp_ocp_v9_sensors),
-+	.leds = ptp_ocp_v9_leds,
-+	.led_count = ARRAY_SIZE(ptp_ocp_v9_leds),
-+	.led_node_name = "led-controller@37",
-+	.led_address = 0x37,
-+};
-+
- #define bp_assign_entry(bp, res, val) ({				\
- 	uintptr_t addr = (uintptr_t)(bp) + (res)->bp_offset;		\
- 	*(typeof(val) *)addr = val;					\
-@@ -2259,6 +2321,10 @@ ptp_ocp_i2c_select_profile(struct ptp_ocp *bp)
- 	if (!strncmp(bp->board_id, "R4006", 5))
- 		return &ptp_ocp_r4006_profile;
- 
-+	/* Older revisions share V9's I2C devices but not its LED wiring. */
-+	if (!strcmp(bp->board_id, "TIMECARD-V9"))
-+		return &ptp_ocp_v9_profile;
-+
- 	return NULL;
- }
- 
--- 
-2.50.1 (Apple Git-155)
+Acked-by: Andi Shyti <andi.shyti@kernel.org>
 
+Andi
