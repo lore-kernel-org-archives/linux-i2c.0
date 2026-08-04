@@ -1,218 +1,135 @@
-Received: from out-162.mta1.migadu.com (out-162.mta1.migadu.com [95.215.58.162])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B114E468C00;
-	Tue,  4 Aug 2026 13:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.162
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004B234B1A5
+	for <linux-i2c@vger.kernel.org>; Tue,  4 Aug 2026 14:56:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785851747; cv=none; b=TZtlc+uRo2HohIIyN1dXJyFTlJp837OSyao3mKFEW2ZGdbCXLIU+NqClPkNFvcKOuVA9EgXQ2a1n/R4RXh0/HGDt/1HXtC/t7zmjpXLEDw0/WyktCi50vZdbtHdTaIWJfi12aiOB5hQrZeiz712REtgUx21K0xz7FZQmo1kOaHE=
+	t=1785855370; cv=none; b=T0ZWhT0OPW4R2xcMKA+g1Dk9G6Mb5UKiyRN+KWASgZrD1dtHvdsBJKmgQ0Jv7VQYUurao3fBseGLNSb5Hly0YtDFUBdj82n4KV7WKtrAqDpNZeBOghE/Hzvjw2gKtG0Vr2859viqbYlgyF3z5qrVpljHw3lmAwErSEBAVC3kFHE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785851747; c=relaxed/simple;
-	bh=LcYiPqB4tVrRiy7Cltegl8juqIwND8gItntjWapowOk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a0vhF+2agdppJMFa+hLFh1q5L117Fk9fplRpOThkDV6jxA5Sl34Hs6L8vXe24pq9gBZIbQCP3s9xTZ7dBTWf3EnrT/dYO32Vc5dA3UOPMBA3OezV7jUjeYsZPnH34/20dIk50a1Iult6wY/eNiOCAR66DAB5py5TOe2Ah1XbXxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=FYZtil51; arc=none smtp.client-ip=95.215.58.162
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1785855370; c=relaxed/simple;
+	bh=i+H7jY0mSc+KEc7VSzDtqOTfn56oYjDd3KqE1qtHxmE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e9BL9H62yGDpt6N+TlmoluYQA3qsOpwdRtTretqqw/85dpfEwu852wnZHP5ztL2ESnHRAfheuTqxBeUBY52pMpszIKduLBbF28MXSbHifG3Pjv9FHQLaITDp7aFZGuqt4a/KLa2CnxSgaCuBJvZn9j+OHxMq91XsHBX2z9egr4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jNaxwrPT; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="FYZtil51"
-Message-ID: <4ef01fa0-969f-4ec0-997b-5f5f3f67e11a@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1785851742;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gYaRYJJ4lK/MLOWAM2e1uCFUmqoZIVPfPNaQ31GMp0Q=;
-	b=FYZtil51LzrZNx/hTwezUS2eYSm/487ebVTBuTingdSO8uBcyrhjubzK1fAG6PcwWSkRPD
-	zBrz32hja2gVCBTzht+8r03mrRntjCdIpIvmrBDfj3qKue+wASayNRuJEd3iYBE708hwp2
-	46ODWFVYxV9tghywi/XhsIpsaAGZbZM=
-Date: Tue, 4 Aug 2026 14:55:17 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jNaxwrPT"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4953e04ef16so33849715e9.2
+        for <linux-i2c@vger.kernel.org>; Tue, 04 Aug 2026 07:56:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785855367; x=1786460167; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dw7iJbqbHaMY2LBdW8tLp5jrEOVyIbWuPmPQ4OlZuQ4=;
+        b=jNaxwrPTdiDg27z2uFqzTSPKHFp5tfNnhj7YWC1WHwJam18D6mO7cPGU3keJkB/3Dr
+         KOt29CLrRPrMIn02BAd5buyshdGdlspqhbzjq15FK+3YVhqPJDAEtw6wJqJKnlZ/OL19
+         hIbvbI5k0shcqJtDXdpD8/+DSN6dVVUqoxT3fj9R5UyzU13Xzyckf2tWOEvEZ4RoRjEs
+         sPPy6kM/PsUhNIr8/ziwNN1rOKi5dX1C8q2lj70Mmf9r3hSMwIm4IUNXHSEkk0akp24v
+         V05Eswr2bUnyYmdGNFWDMIi9Pwe+KnV6OsFp5fY4P2hPFtLvHAOBl+PItPHu3Evm9e4V
+         1hWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785855367; x=1786460167;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=dw7iJbqbHaMY2LBdW8tLp5jrEOVyIbWuPmPQ4OlZuQ4=;
+        b=ZRXsdBU3I0PD3TzBZpR1o7rCa6lWDbx8ofT8W0Q3KzbRUShdqVRfFCYLS/ZEQVSuud
+         YfWx8hO4x9zMlmsKxI3RLGrt2n1vlFUxnESX6aAFNkNZDsBXgyfQ8MYbatYjBOwMpyNk
+         DYwCq2pEcKAxPDoInpFmOxSn/bxt7Fc/kjBPurCf5dQjZ8adB3i9vgHFQV9QVTMKX9tv
+         wXGR97vHVqjFuSyzMDBkY1/cdfeBP2qAmsGRdqQ7pQol8csanSEQBCLlTa6T65DKQhT3
+         TMSY4gU+VEOMnZ6uI+ndrl1xxYTLP/3a82VDFwhEuSJ6cDNhv5sniapvV/hudnIqnHh4
+         RwLg==
+X-Forwarded-Encrypted: i=1; AHgh+Rrq0Mbut2ZB/Y7eK5JaeazRzK6mh5w6y36R6CUOCH6m3cVGKYVI4xlhAWsTCoLdA2KVvM9/xeR04Dg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yztt4r2JrjEyZTBQyhjxp4PshGTzV32+ApgqsTJEMT08qEjAGsu
+	Ka0rXEuYBfDDVQfwgyiLx3OF7EphwT2oqWXBfPFXyP+9jBptTs6Njp2A
+X-Gm-Gg: AR+sD13ic0VHurW5DHe0j6OvrTpQrcVj41x08uqD3pNO11q8VtM9lW8FVHZQ1e6T4Ce
+	M0h2ehsLQbjPlw6KjX6fsf1IanDTH6s705M7/W7isxKnhduxfHYiJuedwl0553nxcIivRvgJknc
+	4JlvIvqDNgbSNyzy9BVhk0cS472+NhC+Whqpa1U9ScD6/+YU+SlMoK2B4ExGdw8Ksm5NCQUtDcj
+	U+DSLKuSkC2tY4B4PmrDkCAUTyZVJW9+ovOQkM6R7/xqRIr/nDeEcLgMnG3ccf+1VRxWMGXc2n1
+	Cf/ZWnYxpNufSOpJvTc2Y31H1H8q265kEFezl9T3qyvl06PNRNCnG2lEWQnT4FH1TEl0uhmCy3F
+	lMZL6TRXr23caUKHgxhe4UvxYNZG+dwNbLX1LacxFxTL9JRNEtsvmU5JP76CL/XxJIY1GGi0jxu
+	eE32YmmD4pGRtQn73LCr82kh3qduBuVxoJqzGQwhU8mftprR3CiQ+u
+X-Received: by 2002:a05:600c:8b16:b0:492:6447:7a7f with SMTP id 5b1f17b1804b1-4980c66c84emr273645135e9.6.1785855366892;
+        Tue, 04 Aug 2026 07:56:06 -0700 (PDT)
+Received: from nsa ([148.63.225.166])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4994e041b4bsm3730495e9.12.2026.08.04.07.56.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Aug 2026 07:56:06 -0700 (PDT)
+Date: Tue, 4 Aug 2026 15:57:17 +0100
+From: Nuno =?utf-8?B?U8Oh?= <noname.nuno@gmail.com>
+To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+Cc: jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, andi.shyti@kernel.org, 
+	wsa+renesas@sang-engineering.com, ojeda@kernel.org, dakr@kernel.org, igor.korotin@linux.dev, 
+	branstj@gmail.com
+Subject: Re: [RFC PATCH v4 3/3] iio: position: add Rust driver for ams AS5600
+Message-ID: <anH7kbxvS6z5GlPI@nsa>
+References: <20260707151542.91997-1-muchamadcoirulanwar@gmail.com>
+ <20260707151542.91997-4-muchamadcoirulanwar@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [RFC net-next v2 4/6] ptp: ocp: Validate EEPROM board IDs
-To: Ahmad Byagowi <ahmadexp@gmail.com>, linux-leds@vger.kernel.org,
- devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org
-Cc: Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Peter Rosin <peda@lysator.liu.se>, Nam Tran <trannamatk@gmail.com>,
- Richard Cochran <richardcochran@gmail.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20260803205011.1249-1-ahmadexp@gmail.com>
- <20260803205011.1249-5-ahmadexp@gmail.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Vadim Fedorenko <vadim.fedorenko@linux.dev>
-In-Reply-To: <20260803205011.1249-5-ahmadexp@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260707151542.91997-4-muchamadcoirulanwar@gmail.com>
 
-On 03/08/2026 21:50, Ahmad Byagowi wrote:
-> The EEPROM board ID is a fixed 13-byte field. It is stored without room
-> for a terminator and passed to devlink as a C string. An erased EEPROM
-> therefore exposes 0xff bytes and can make devlink read beyond the field
-> while formatting board.id.
+Hi Coirul,
+
+Same as Jonathan on my rust capabilities (maybe now I'll have proper
+motivation to learn it :)).
+
+Just one question below...
+
+On Tue, Jul 07, 2026 at 10:15:42PM +0700, Muchamad Coirul Anwar wrote:
+> Add a Rust driver for the ams AS5600 12-bit magnetic rotary position
+> sensor. The driver exposes in_angl_raw and in_angl_scale via the IIO
+> sysfs interface.
 > 
-> Reserve a trailing byte, classify erased and malformed contents, and
-> publish board.id only when the field contains printable text with valid
-> padding. Continue reporting the serial number when the board ID is
-> absent.
+> Features:
+> - ARef<I2cClient> for safe refcounted I2C client access
+> - Mutex-serialized status + angle read sequence
+> - Static channel spec (module-level const)
+> - No magnet validation at probe (deferred to read_raw per IIO convention)
+> - Error propagation via ? operator (no recovery state machine)
 > 
-> Fixes: 0cfcdd1ebcfe1a9b262f6ad8419580720dc843c4 ("ptp: ocp: add nvmem interface for accessing eeprom")
-
-use short format of hash to provide commit to fix:
-
-Fixes: 0cfcdd1ebcfe ("ptp: ocp: add nvmem interface for accessing eeprom")
-
-And as this is a fix, it has to go to net rather than net-next
-
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
+> The byte order for the AS5600's big-endian registers is handled via
+> swap_bytes() in-driver. This is equivalent to C's
+> i2c_smbus_read_word_swapped(). The long-term solution is regmap-rs
+> where endianness is configured once at the transport level.
+> 
+> Tested on BeagleBone Black (AM335x) with AS5600 on i2c-2 (0x36).
+> 
+> Signed-off-by: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
 > ---
->   drivers/ptp/ptp_ocp.c | 69 +++++++++++++++++++++++++++++++++++++++++--
->   1 file changed, 66 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
-> index 35e911f1a..cec936bd1 100644
-> --- a/drivers/ptp/ptp_ocp.c
-> +++ b/drivers/ptp/ptp_ocp.c
-> @@ -347,6 +347,13 @@ struct ptp_ocp_serial_port {
->   #define OCP_SIGNAL_NUM			4
->   #define OCP_FREQ_NUM			4
->   
-> +enum ptp_ocp_board_id_state {
-> +	OCP_BOARD_ID_UNREAD,
-> +	OCP_BOARD_ID_VALID,
-> +	OCP_BOARD_ID_ERASED,
-> +	OCP_BOARD_ID_INVALID,
-> +};
-> +
->   enum {
->   	PORT_GNSS,
->   	PORT_GNSS2,
-> @@ -401,8 +408,9 @@ struct ptp_ocp {
->   	bool			fw_loader;
->   	u8			fw_tag;
->   	u16			fw_version;
-> -	u8			board_id[OCP_BOARD_ID_LEN];
-> +	char			board_id[OCP_BOARD_ID_LEN + 1];
->   	u8			serial[OCP_SERIAL_LEN];
-> +	enum ptp_ocp_board_id_state board_id_state;
->   	bool			has_eeprom_data;
->   	u32			pps_req_map;
->   	int			flash_start;
-> @@ -472,18 +480,23 @@ struct ptp_ocp_eeprom_map {
->   	.len = sizeof_field(struct ptp_ocp, member),		\
->   	.bp_offset = offsetof(struct ptp_ocp, member)
->   
-> +#define EEPROM_ENTRY_LEN(addr, member, entry_len)		\
-> +	.off = addr,						\
-> +	.len = entry_len,					\
-> +	.bp_offset = offsetof(struct ptp_ocp, member)
-> +
->   #define BP_MAP_ENTRY_ADDR(bp, map) ({				\
->   	(void *)((uintptr_t)(bp) + (map)->bp_offset);		\
->   })
->   
->   static struct ptp_ocp_eeprom_map fb_eeprom_map[] = {
-> -	{ EEPROM_ENTRY(0x43, board_id) },
-> +	{ EEPROM_ENTRY_LEN(0x43, board_id, OCP_BOARD_ID_LEN) },
->   	{ EEPROM_ENTRY(0x00, serial), .tag = "mac" },
->   	{ }
->   };
->   
->   static struct ptp_ocp_eeprom_map art_eeprom_map[] = {
-> -	{ EEPROM_ENTRY(0x200 + 0x43, board_id) },
-> +	{ EEPROM_ENTRY_LEN(0x200 + 0x43, board_id, OCP_BOARD_ID_LEN) },
->   	{ EEPROM_ENTRY(0x200 + 0x63, serial) },
->   	{ }
->   };
-> @@ -1969,6 +1982,52 @@ ptp_ocp_nvmem_device_put(struct nvmem_device **nvmemp)
->   	*nvmemp = NULL;
->   }
->   
-> +static enum ptp_ocp_board_id_state
-> +ptp_ocp_classify_board_id(char *board_id)
-> +{
-> +	bool all_zero = true;
-> +	bool all_ones = true;
-> +	bool terminated = false;
-> +	unsigned int i;
-> +
-> +	board_id[OCP_BOARD_ID_LEN] = '\0';
-> +	for (i = 0; i < OCP_BOARD_ID_LEN; i++) {
-> +		u8 value = board_id[i];
-> +
-> +		all_zero &= value == 0;
-> +		all_ones &= value == 0xff;
-> +	}
-> +
-> +	if (all_zero || all_ones) {
-> +		board_id[0] = '\0';
-> +		return OCP_BOARD_ID_ERASED;
-> +	}
-> +
-> +	for (i = 0; i < OCP_BOARD_ID_LEN; i++) {
-> +		u8 value = board_id[i];
-> +
-> +		if (terminated) {
-> +			if (value)
-> +				goto invalid;
-> +			continue;
-> +		}
-> +
-> +		if (!value) {
-> +			terminated = true;
-> +			continue;
-> +		}
-> +		if (value < 0x20 || value > 0x7e)
-> +			goto invalid;
-> +	}
-> +
-> +	if (board_id[0])
-> +		return OCP_BOARD_ID_VALID;
-> +
-> +invalid:
-> +	board_id[0] = '\0';
-> +	return OCP_BOARD_ID_INVALID;
-> +}
-> +
->   static void
->   ptp_ocp_read_eeprom(struct ptp_ocp *bp)
->   {
-> @@ -2001,6 +2060,7 @@ ptp_ocp_read_eeprom(struct ptp_ocp *bp)
->   			goto fail;
->   	}
->   
-> +	bp->board_id_state = ptp_ocp_classify_board_id(bp->board_id);
->   	bp->has_eeprom_data = true;
->   
->   out:
-> @@ -2177,6 +2237,9 @@ ptp_ocp_devlink_info_get(struct devlink *devlink, struct devlink_info_req *req,
->   	if (err)
->   		return err;
->   
-> +	if (bp->board_id_state != OCP_BOARD_ID_VALID)
-> +		return 0;
-> +
 
-why don't simply
-snprintf(buf, OCP_BOARD_ID_LEN + 1, "%s", bp->board_id); ?
+...
 
-buf is already used in the function, let's reuse it
+> +impl IioDriver for As5600Priv {
+> +    fn read_raw(&self, _chan: *const iio_chan_spec, mask: isize) -> Result<IioVal> {
+> +        const INFO_RAW: isize = iio_chan_info_enum_IIO_CHAN_INFO_RAW as isize;
+> +        const INFO_SCALE: isize = iio_chan_info_enum_IIO_CHAN_INFO_SCALE as isize;
 
->   	err = devlink_info_version_fixed_put(req,
->   			DEVLINK_INFO_VERSION_GENERIC_BOARD_ID,
->   			bp->board_id);
+Likely stupid question but do we always need the above? Some drivers might have
+several INFO_* bits sets and we often need to nest the match if multiple channels have the
+same bits. For those cases having to define all of them like this and
+then doing the match seems not great to me. I guess we can directly have 
+` iio_chan_info_enum_IIO_CHAN_INFO_RAW as isize` in match but not sure
+if it's also that neat...
+
+So bottom line, it would be nice if we could have something nicely
+readable that we could directly pass to match.
+
+On another topic, I believe mask is present in several drivers for
+historic reasons but note that this parameter is not really a mask. So
+other name like 'info' is more appropriate.
+
+- Nuno Sá
 
