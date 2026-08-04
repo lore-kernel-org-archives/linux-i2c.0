@@ -1,82 +1,175 @@
-Received: from ms2.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A3FA32B10D;
-	Tue,  4 Aug 2026 07:13:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1B142AF84;
+	Tue,  4 Aug 2026 07:44:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785827640; cv=none; b=QsBh7aJfl5VaYCD85skaOAClTuiZj6qaCnVANRGRKkz27OlOLhuwcI17z526MS0Xhmi6lo4qhY3Fx6gohgp2p1yYDKgLqQvsf4nX1eekMC44LMma1b+um2M0dw/OB1Phhbl05iYUHfmiR9XZqZBX6+xPXZfjVIQ6NXBzYDuqP8k=
+	t=1785829464; cv=none; b=a0mdy7GZwDpAEM/3mxTtY68MHHXc3IjyZ1xj3QfgfHcheip9AWN0nR03Dz44rb/cppozhwZLd0tInId2EuFoagZU2Iro8bbgSpr5unwOONIROqRjzcxcHMrdd3dwtZibmKKcIk6nGFexhpzJNmjgNZa9jQDWfwrAATeipRZ8P/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785827640; c=relaxed/simple;
-	bh=wMyhhx2JrwaYK0fhDaESYWCW/0/1xgN9+n0k4fjv238=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=YooFxZrCzEY2BDAOfT2ftg/TI7xpAaw4FCMdP/LKiXJiuOTQFaBnwarWx08UdsuTGPR369zjifoD1vs9pUQa+keF8UXQrVOpMMlscPrlGXtwDAD14gH880UWLDDL96lNM0bwpEGw4YiH4IKu/ImdMlcYMF94a+9yXtR0lPFV2MU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=yXAGGiiA; arc=none smtp.client-ip=210.202.87.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
+	s=arc-20240116; t=1785829464; c=relaxed/simple;
+	bh=woxzAFK4rGmHYykcqk0oUVS5YeU8Z14WkTA9bJ6vHUY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=f6YJKoOz8IOoOswRon+p/POouIvui1KgtFtiCxxhizHiE1h9vNH3vW8hXhE3y9b9bSKzrS0TCVuexPf2+AWkXKcRvfCrlqgOI0r4XDVcKx9PjHNVsCR6UJpPaMrZsNxYnNTg/bPZmLP6NdsEncnlY0QQW7qYeVg6annSilGFAkk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WPG+GITw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="yXAGGiiA"
-X-UUID: 0c969c828fd411f1b694ffd7d3467620-20260804
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=cGFbIbfpq6Zxiip8DJSFW1kIdNwm18WpuIXDUv/bezA=;
-	b=yXAGGiiAv86CtzdlqmI7ZgjyLZlMeGJp/Iu3pH9IIsThCnoyMouKsIVsCZIEFicAmyDBSmv38ncNpkZNTRniXhJO6Y5icsMH4pcQDAoSu+6pR3noZPpGHz1oGop36f+btx9SPihnHWZh1Xify/LZqf7SK8R36mbJVarOYbKJFfg=;
-X-UUID: 0c969c828fd411f1b694ffd7d3467620-20260804
-Received: from spmgt1 [(172.20.13.10)] by ms2.novatek.com.tw
-	(envelope-from <sp_isw1_at@novatek.com.tw>)
-	(Generic MTA)
-	with ESMTP id 1626675240; Tue, 04 Aug 2026 15:13:53 +0800
-Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id 2FC7F1A1E1C;
-	Tue,  4 Aug 2026 15:13:53 +0800 (CST)
-Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id 48CDBC600CF; Tue,  4 Aug 2026 15:13:52 +0800 (CST)
-From: nina_kuo@novatek.com.tw
-To: krzk@kernel.org
-Cc: andi.shyti@kernel.org,
-	ben_huang@novatek.com.tw,
-	conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	krzk+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh@kernel.org,
-	shihpei_hsu@novatek.com.tw,
-	toby_chui@novatek.com.tw,
-	Ben Huang <Ben_Huang@novatek.com.tw>
-Subject: Re: [PATCH v5 1/3] dt-bindings: i2c: Add Novatek NT72676 I2C controller
-Date: Tue,  4 Aug 2026 15:11:39 +0800
-Message-Id: <20260804071137.701934-1-nina_kuo@novatek.com.tw>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20260804-uppish-abstract-starfish-32e1da@quoll>
-References: <20260804-uppish-abstract-starfish-32e1da@quoll>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WPG+GITw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5CCC1F000E9;
+	Tue,  4 Aug 2026 07:44:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785829462;
+	bh=e5AKaJyQ3VcM1xlNOIoeCK1YfocbTCi5WGBcnip5BX0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WPG+GITweFhEayZqj2MWkOyhQbgpbQ0cgIwMwvAuDHciQqwJYRwGkuPoKrJZUvGXH
+	 f1lBXfkCPvYKAn+k93V2SZrGCjRsRkZ1rLslwixY+mWytdu2kVwQ4YHdRfC/qCv0db
+	 BnsIWCX0cQMvxt59QFvXCVrRN9RK9tEQwfHbMHdurNe1CSVufmD0iptNOAWDYEYnsN
+	 nNRGIdZbwzFWn5Buc58Ch+/kE/vmUIeWhpLXePlpBC781MMpBGWUGKVjvKr2jSWCFe
+	 aRN0mg26PRbI6CTdHA1XzdhNyTacBf7+XoTP2QoB1sgpiuFL9oHGguskCjdtdFpYuF
+	 bb27xbYYhNihw==
+Date: Tue, 4 Aug 2026 09:44:18 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: Add Qualcomm I2C target
+ controller
+Message-ID: <20260804-airborne-impala-of-proficiency-a9a8d9@quoll>
+References: <20260802-i2c-qcom-slave-v2-0-27653118fa75@oss.qualcomm.com>
+ <20260802-i2c-qcom-slave-v2-1-27653118fa75@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260802-i2c-qcom-slave-v2-1-27653118fa75@oss.qualcomm.com>
 
-From: Ben Huang <Ben_Huang@novatek.com.tw>
+On Sun, Aug 02, 2026 at 06:43:30PM +0530, Viken Dadhaniya wrote:
+> QDU1000 and related Qualcomm SoCs include a dedicated I2C target
+> controller that operates exclusively in target mode. It is a distinct
+> IP from the Qualcomm I2C master controllers (GENI, QUP) with a
+> different register interface, so it requires its own binding.
+> 
+> Document the MMIO region, interrupt, XO and AHB clocks, interconnect
+> path, and optional pinctrl states for the controller.
+> 
+> Signed-off-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+> ---
+>  .../devicetree/bindings/i2c/qcom,i2c-target.yaml   | 84 ++++++++++++++++++++++
 
-On Tuesday, August 4, 2026 2:49 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> On Tue, Aug 04, 2026 at 11:34:17AM +0800, nina_kuo@novatek.com.tw wrote:
->> From: Ben Huang <Ben_Huang@novatek.com.tw>
->> 
->> Add Devicetree binding documentation for Novatek NT72676 I2C
->> controller.
->> 
->> Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
->> Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
->> ---
->>  .../bindings/i2c/novatek,nt72676-i2c.yaml     | 90 +++++++++++++++++++
->>  1 file changed, 90 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
->
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Filename must match compatible.
 
-Thank you very much!
-Appreciate your reviews of this patch series.
+>  1 file changed, 84 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-target.yaml b/Documentation/devicetree/bindings/i2c/qcom,i2c-target.yaml
+> new file mode 100644
+> index 000000000000..1e34e874cc4c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-target.yaml
+> @@ -0,0 +1,84 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/qcom,i2c-target.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Qualcomm I2C Target Controller
+> +
+> +maintainers:
+> +  - Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+> +  - Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+> +
+> +description:
+> +  Dedicated hardware IP found on Qualcomm SoCs that operates exclusively
+> +  as an I2C target (slave) device on the bus. Supports FIFO (PIO) mode
+> +  for data transfer.
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - qcom,qdu1000-i2c-target
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    items:
+> +      - description: XO reference clock
+> +      - description: AHB bus clock
+> +
+> +  clock-names:
+> +    items:
+> +      - const: xo
+> +      - const: ahb
+> +
+> +  interconnects:
+> +    maxItems: 1
+> +
+> +  interconnect-names:
+> +    const: i2c
 
-Sincerely,
-Ben Huang
+Pretty useless name, drop the interconnect-names.
+
+> +
+> +  pinctrl-0: true
+> +  pinctrl-1: true
+> +
+> +  pinctrl-names:
+> +    items:
+> +      - const: default
+> +      - const: sleep
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - clocks
+> +  - clock-names
+> +  - interconnects
+> +  - interconnect-names
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+
+This wasn't here before. Is this a controller or a target? Now I am
+confused.
+
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
+> +    #include <dt-bindings/clock/qcom,qdu1000-gcc.h>
+> +    #include <dt-bindings/interconnect/qcom,qdu1000-rpmh.h>
+> +
+> +    i2c@88ca000 {
+> +        compatible = "qcom,qdu1000-i2c-target";
+> +        reg = <0x88ca000 0x64>;
+> +        clocks = <&gcc GCC_SM_BUS_XO_CLK>, <&gcc GCC_SM_BUS_AHB_CLK>;
+> +        clock-names = "xo", "ahb";
+> +        interrupts = <GIC_SPI 358 IRQ_TYPE_LEVEL_HIGH>;
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+
+How is this valid?
+
+What sort of children the target has? What does it do with these
+children?
+
+> +        interconnect-names = "i2c";
+> +        interconnects = <&gem_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_SMBUS_CFG 0>;
+> +    };
+> +...
+> 
+> -- 
+> 2.34.1
+> 
