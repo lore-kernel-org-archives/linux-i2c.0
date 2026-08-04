@@ -1,79 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAC83428464
-	for <linux-i2c@vger.kernel.org>; Tue,  4 Aug 2026 07:51:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A842343C078;
+	Tue,  4 Aug 2026 08:40:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785829870; cv=none; b=rga2Two4aB7mQKbeAiF6lMGeOf0P7xPCh6N9q1iaUK9AOKuxWTSA9Y5NlPPAr0AqCIXONwzJcYuzhBUymokoXgk35Z0w/ScIYNoHtFlak/G74vPKdzxVQF3fp3o/Qs4gJG0NDZvLhp7UYtRUcUy+JKGKLJ1zdoSRwEHL4ZH6PPw=
+	t=1785832835; cv=none; b=alUbFNAFoAKwtGUWSDSnuhrOw0OvyQVQaawLX/CP+xf+BHT6atZYuGSTd6ELPfx1LCicToFVayHF3brb4kcqf4/WgXCKsD9bG8k4Wfb97Jt/w8p4/hmCTkqhxxWqFMsxNdpkXBTpGY85h4CB0Fz8rjIF6Lw5qrob1amuXhPeGQc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785829870; c=relaxed/simple;
-	bh=UeaaGkfj+CmXQK3D7/sp1H2v+3bv6fIBMs0uAbi+VxE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SNnvbNwoYa0ZdSgz/Bis6GETQPaUO5NnK+zVokKCARC3siCEb9KFGmOqWTsdKRfHLlwno2sFA5xput0BCr8v0hNRCkwsVPJPE3JWmpcNHJsNwYVEcVSS8x/m/jJoqt5o4sLpCVndDLGQsiSyhXFxKlWPlwshbB/fCOgR0XUJi9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lh//8K/B; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785832835; c=relaxed/simple;
+	bh=p2hRbF6OR9u6soQD8uwd3KG20dyyAPFIEut3UyAAn20=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=eh9eMbTH4To492OEzAxBI5g9Ln1we+8RhFNshDis5o+tNhOeng2Gm4HBa/R82lYxb3ApfT4pChECuQNwY89EJ+pu4gAjos+7e7o7wj39ufgzzKACS1eTzqJUOaHX446ymZXTAxqdDrNWlFSjfWr+5imD4i55o6vC9xRa7Oo7FPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=TxqyMj3z; arc=none smtp.client-ip=65.21.61.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lh//8K/B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA481F0155D
-	for <linux-i2c@vger.kernel.org>; Tue,  4 Aug 2026 07:51:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785829868;
-	bh=UeaaGkfj+CmXQK3D7/sp1H2v+3bv6fIBMs0uAbi+VxE=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=Lh//8K/BjNLfqPOULpksK3++stnAXFzDO7EQjE7RTS72eRu03/yiUQxcZSuM+L5np
-	 2PKIOyi37oW7GwEbPksUNbxSo142sphFkeF4sJQ1ori5DYjV9Pwmr0baYlAYiSHLPb
-	 eh1O0GhAMkgXyM37ZPWKVVmOe1ehK9H9TiSyBO5MntPmbqhkY1/Z58FKTvjoyb1hIQ
-	 VJU7ZAnZT3orLOwpdldiLYNuyZximnx/qx/wcY4RCithAZ67jozuXoDr3RiJruvih5
-	 39i1vgGKDKngp41aQZBCvccOATqvJWuK5911lTscvbF0OnTEza5c/+F0nqMXTDmJY2
-	 61T2CXr6Cke5w==
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5aeb24c0807so2967605e87.0
-        for <linux-i2c@vger.kernel.org>; Tue, 04 Aug 2026 00:51:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RrSJu9Y0EG4U6Hg6AHPJjG5gqP9cnciplWJTVPIiQCSsHF4+Z/1UkAxnZkgwY79D6Ys1oeIcXF1LLc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwppGoPiLJiu8+7SmHp9Tkveb2EiO4BPckl/7G01WBAJx7XOQLP
-	X64rzRKjX72hD5XeHJonILePYa7r12UOkqn/XVzwH0LD05EQ5LTcJYiI6i1Xw2PrOQMalBc10Ml
-	g00fLVzRq9ntE811p6mvxS3keVsFtWAE=
-X-Received: by 2002:a05:6512:10d5:b0:5b2:9c9d:6448 with SMTP id
- 2adb3069b0e04-5b2e4f11a0fmr2873674e87.12.1785829867354; Tue, 04 Aug 2026
- 00:51:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="TxqyMj3z"
+Message-ID: <42363af0-a2af-4f8b-8ad2-834539c979b0@aliel.fr>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
+	s=courrier-s1; t=1785832273;
+	bh=p2hRbF6OR9u6soQD8uwd3KG20dyyAPFIEut3UyAAn20=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=TxqyMj3z1Lg2uE0F//7bjxqsXG1z7qyHSQ/66bPbAUtMFaPEBrytueMpUZpuZy/Qc
+	 mRmdKvaYJ5Fvb1d8aVSO1M2Bct0I0AbM9nlq/Q7ynqP7UZAka/+kXnAxSBBf24+YpH
+	 oJo6XkMgCCF0ivRjz7XUkw654IL4NXB8uGzEVmF8=
+Date: Tue, 4 Aug 2026 10:30:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260801-apple-m4-initial-devicetrees-v2-0-5cb07cc275da@cyberchaos.dev>
- <20260801-apple-m4-initial-devicetrees-v2-5-5cb07cc275da@cyberchaos.dev>
-In-Reply-To: <20260801-apple-m4-initial-devicetrees-v2-5-5cb07cc275da@cyberchaos.dev>
-From: Linus Walleij <linusw@kernel.org>
-Date: Tue, 4 Aug 2026 09:50:54 +0200
-X-Gmail-Original-Message-ID: <CAD++jLkkvrHR9nqO3gTiyU0s=q2-7mr3FY_07JAG4sFyuCENQA@mail.gmail.com>
-X-Gm-Features: AUfX_mxbSJUYZ_-VvnAPg1iAT8y_V2wQkeDasemCN2JDNhyPEfoJfdRT5MtVKyg
-Message-ID: <CAD++jLkkvrHR9nqO3gTiyU0s=q2-7mr3FY_07JAG4sFyuCENQA@mail.gmail.com>
-Subject: Re: [PATCH v2 5/9] dt-bindings: pinctrl: apple,pinctrl: Add t8132 compatible
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
-	Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, Hector Martin <marcan@marcan.st>, 
-	Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
-	Sasha Finkelstein <k@chaosmail.tech>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-pwm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird Beta
+From: linux-kernel-dev@aliel.fr
+Subject: Re: [PATCH v8 0/8] Add VIM4 MCU/FAN support
+To: Daniel Lezcano <daniel.lezcano@oss.qualcomm.com>
+Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+ Conor Dooley <conor.dooley@microchip.com>,
+ Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Beniamino Galvani <b.galvani@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>
+References: <20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr>
+ <713c728a-f68f-41fa-a64b-09ccecef9157@oss.qualcomm.com>
+Content-Language: en-US
+In-Reply-To: <713c728a-f68f-41fa-a64b-09ccecef9157@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sat, Aug 1, 2026 at 11:41=E2=80=AFPM Yureka Lilian <yureka@cyberchaos.de=
-v> wrote:
+On 7/8/26 3:42 PM, Daniel Lezcano wrote:
+> On 7/2/26 11:55, Ronald Claveau via B4 Relay wrote:
+>> The Khadas VIM4 board features a different MCU variant compared to
+>> previous VIM boards.
+>> While it shares the same I2C-based communication model,
+>> it differs in some ways:
+>>
+>>    - A distinct register map with its own volatile/writeable register set
+>>    - A fan control with 0–100 levels instead of the 0–3 levels previously
+> 
+> That means for a eg. 100 ms polling, the first one takes 10s to reach
+> the max speed, while the second takes 300ms, right ?
+> 
 
-> The pin controller on the Apple silicon t8132 (M4) SoC is compatible
-> with t8103. Add "apple,t8132-pinctrl" as SoC specific compatible under
-> "apple,t8103-pinctrl".
->
-> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+Sorry for the delay.
+Yes I defined levels 30-100 in the DT as the MCU register description
+stated that:
+`Note: the parameter value of fan normally open is 0x1E~0x64`
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+I didn't find any issue with the stress test, but I will address your
+concern with a smaller list.
 
-Yours,
-Linus Walleij
+>>    - A fan power supply gated through a regulator
+>>
+>> This series adds support for this new variant by:
+>>
+>>    1. Refactoring the khadas-mcu MFD driver to use per-variant data
+>>       structures (regmap config, cells, fan platform data),
+>>       and adding the khadas,vim4-mcu compatible string.
+>>
+>>    2. Extending the fan thermal driver to retrieve the fan register
+>>       and maximum level from platform_data,
+>>       and to optionally manage a power regulator for the fan supply.
+> 
+> Through which tree do you expect patch 5/8 to go ?
+> 
+
+MFD seems a good candidate as this patch depends on it.
+
+-- 
+Best regards,
+Ronald
