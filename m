@@ -1,40 +1,40 @@
 Received: from naesa05.arrow.com (naesa05.arrow.com [216.150.161.26])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E36044C66D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 005114503E9;
 	Tue,  4 Aug 2026 10:45:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.150.161.26
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785840344; cv=none; b=FIYkAl+lC2PrDiA+sd0xRNvx7KLM8xxSbCKDN343H5AeoomucEpZFSkExkNxSrnjeDrI/CYhn6FRcI4m1a5qmusiGBwuuCy4j6PZwToWgD4sIA+4YIwfgwaCd/cYEY1R8yw2AzHqjVXbGufyfeiNphxlH+WBRQHQGwl83tHBWOc=
+	t=1785840345; cv=none; b=KhkizCX1ENXHS1SeRpcXg6VU0Duq5p3tHOGkX/yCCpkGlZ5/NT/hndRp3YpeGVBuqAeTwbEmK8UoC9G4PJbzRDLyMep2fFgsQ5QPZiNZAL6ZPI2Mo4RIEK+DIp5dWsKk+M2VJHexTEU/vQ9VRR3QfhxSR4yGRMCZHreIW2GTU4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785840344; c=relaxed/simple;
-	bh=jw3+3lJtQgkvf5fDUwPS8TNUCR+dBtI2QeQxiyX6HAI=;
+	s=arc-20240116; t=1785840345; c=relaxed/simple;
+	bh=oGOFlSyRwWNSipqtC663/06NHwSVZdbzySBFSwSOxLY=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=q+um6aivgHQi5kKf02BXuglGRKOVXAdCmi3vIUUv0aM1pbjbc6uKSKLVJZNUPFWbVdf3LR6eZwNAVGM8wDCGAZSxtm/+oc76+7FBVvM2TQczGZdf/UdVMOmA9/+ZD7SdyP4cp7qtl4U/kNtWnN2SnJRPW6PrV05D+lEnS5rYkk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=WlhzEnzm; arc=none smtp.client-ip=216.150.161.26
+	 MIME-Version; b=nN2wWK2WvWYgqGJ/5vsHb1xNl3uxDcpijDvqRWA6lgnlYaFx+nIpSpFq+xIdSv8UbwDQLe2Dt5E7O/JXMDCzvN0pyoqZblh39AMlLknrz3NeWCwWvHhBHI6WzuI6EwDmFbd3z+McGjuCXugLJPVHb8fkZ6ahnCTEQx7aZTdg56Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=hK6acFdd; arc=none smtp.client-ip=216.150.161.26
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=einfochips.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="WlhzEnzm"
+	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="hK6acFdd"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=einfochips.com; i=@einfochips.com; l=908; q=dns/txt;
-  s=NAESA-Selector1; t=1785840343; x=1817376343;
+  d=einfochips.com; i=@einfochips.com; l=1887; q=dns/txt;
+  s=NAESA-Selector1; t=1785840344; x=1817376344;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=5/2A2ZLlbiY9nslJ7nQB+Yn+IkxiipPp1ULDmEpmnRE=;
-  b=WlhzEnzm/E3HhacoUL3ZJ91dGECeDQk2JRhx+vhVCoS76sZuMGB75QJe
-   +316HmMU5WR+THVhRPt9BQG1LNYdCyCHjhrTO0rwJEfEmxXhJ+Nk/shWd
-   6L0EI9U2VN4YzrRTRRxB9FCb69H5YuRrUm22caZkQbqa1c0TdVl6ubilf
-   /i21dWRKFwUtUKNV7fojPTFAvtawYZ8v1Z4Nx8BPjl0UAhfT0+7abPtoc
-   ZB7ilESsuZ/sdpM3huEzKPdVzxBHNFU8NrzYAmR+hnJ97qCUDrFB+8FQI
-   lF04iYP9foVL1WTl9WXx1aoQfUGTuPyWuxylCOvQMBBpKJT/WpMdtpTCw
+  bh=ShnbVuSJnvDO1yDDDt1DyIbRfQh4el11rwFcGN8Hw/E=;
+  b=hK6acFddzwUp2R+K3QnoWzzeNxEfrg+Lv125FGUhTC6WqlKjGo5AGdZR
+   O9VOmG1PJgsqhF8/rC4rOxT50uTgYlzFkJ0C7u6SX9NVXx5pZqcZBkj3w
+   NyXVdSrokMz0WtjIIkY4IFUHugSjvOcHAceon6Y+fUHFjvs4TXGgmlMDH
+   hO2WOyY0dwrEbTQPOY0QDWwo/bnOC6jT0ZC5bCcp3CQWYkbR/rr7yCw1k
+   IonlrnmQ6RaFmqhgRUAwrlvhsj62q1zzj43xXpofpSUOUmkJVrn05Q5MQ
+   cvUR8WhtQIM2rC7MnHauERjxV1eTsQvWq8Zj29QqZ4BC9SQfEbn9wrpKT
    g==;
-X-CSE-ConnectionGUID: ZUZrybezSBOdsc1AmZ5Iew==
-X-CSE-MsgGUID: E7/idmQnTIuCGen8xSRXog==
+X-CSE-ConnectionGUID: +8AiglH9RhO5V5XUMEn9RA==
+X-CSE-MsgGUID: N6jk9ZLGS7OTI5hDPUxRAA==
 X-IronPort-AV: E=Sophos;i="6.25,204,1779170400"; 
-   d="scan'208";a="59628994"
+   d="scan'208";a="59628997"
 Received: from unknown (HELO eicahmirelay01.einfochips.com) ([10.100.49.50])
-  by naesa05out.arrow.com with ESMTP; 04 Aug 2026 04:44:34 -0600
+  by naesa05out.arrow.com with ESMTP; 04 Aug 2026 04:44:36 -0600
 Received: from AHMCPU1888.localdomain ([172.25.5.100]) by eicahmirelay01.einfochips.com with Microsoft SMTPSVC(10.0.20348.1);
 	 Tue, 4 Aug 2026 16:14:31 +0530
 From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
@@ -58,9 +58,9 @@ Cc: Yulin Lu <luyulin@eswincomputing.com>,
 	Darshan Prajapati <darshan.prajapati@einfochips.com>,
 	Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>,
 	Pritesh Patel <pritesh.patel@einfochips.com>
-Subject: [PATCH v3 1/8] riscv: dts: eswin: add reset generator for EIC7700 SoC
-Date: Tue,  4 Aug 2026 16:14:24 +0530
-Message-Id: <20260804104431.1391839-2-pinkesh.vaghela@einfochips.com>
+Subject: [PATCH v3 2/8] riscv: dts: eswin: add clock generator for EIC7700 SoC
+Date: Tue,  4 Aug 2026 16:14:25 +0530
+Message-Id: <20260804104431.1391839-3-pinkesh.vaghela@einfochips.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20260804104431.1391839-1-pinkesh.vaghela@einfochips.com>
 References: <20260804104431.1391839-1-pinkesh.vaghela@einfochips.com>
@@ -71,42 +71,75 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 04 Aug 2026 10:44:31.0587 (UTC) FILETIME=[3B612330:01DD23FE]
+X-OriginalArrivalTime: 04 Aug 2026 10:44:31.0618 (UTC) FILETIME=[3B65DE20:01DD23FE]
 
 From: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Add reset generator node for EIC7700 SoC
+Add clock generator node for EIC7700 SoC.
+HiFive Premier P550 boards have 24MHz crystal oscillator to provide
+the input clock.
 
 Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
 Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
 ---
- arch/riscv/boot/dts/eswin/eic7700.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../boot/dts/eswin/eic7700-hifive-premier-p550.dts  |  5 +++++
+ arch/riscv/boot/dts/eswin/eic7700.dtsi              | 13 +++++++++++++
+ 2 files changed, 18 insertions(+)
 
+diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+index 131ed1fc6b2e..a5c76b14a38f 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
++++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
+@@ -20,6 +20,11 @@ chosen {
+ 	};
+ };
+ 
++&osc {
++	clock-frequency = <24000000>;
++	clock-output-names = "osc_24m";
++};
++
+ &uart0 {
+ 	status = "okay";
+ };
 diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-index c3ed93008bca..430a210f01e6 100644
+index 430a210f01e6..b3a230870315 100644
 --- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
 +++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
 @@ -4,6 +4,7 @@
   */
  
  /dts-v1/;
-+#include <dt-bindings/reset/eswin,eic7700-reset.h>
++#include <dt-bindings/clock/eswin,eic7700-clock.h>
+ #include <dt-bindings/reset/eswin,eic7700-reset.h>
  
  / {
- 	#address-cells = <2>;
-@@ -341,5 +342,11 @@ gpioD: gpio-port@3 {
- 				#gpio-cells = <2>;
+@@ -203,6 +204,11 @@ pmu {
+ 				<0x00000000 0x0000000f 0xfffffffc 0x000000ff 0x00000078>;
+ 	};
+ 
++	osc: oscillator {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++	};
++
+ 	soc {
+ 		compatible = "simple-bus";
+ 		ranges;
+@@ -343,6 +349,13 @@ gpioD: gpio-port@3 {
  			};
  		};
-+
-+		reset: reset-controller@51828300 {
-+			compatible = "eswin,eic7700-reset";
-+			reg = <0x0 0x51828300 0x0 0x200>;
-+			#reset-cells = <1>;
+ 
++		clk: clock-controller@51828000 {
++			compatible = "eswin,eic7700-clock";
++			reg = <0x0 0x51828000 0x0 0x300>;
++			clocks = <&osc>;
++			#clock-cells = <1>;
 +		};
- 	};
- };
++
+ 		reset: reset-controller@51828300 {
+ 			compatible = "eswin,eic7700-reset";
+ 			reg = <0x0 0x51828300 0x0 0x200>;
 -- 
 2.34.1
 
