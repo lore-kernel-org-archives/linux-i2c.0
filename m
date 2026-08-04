@@ -1,35 +1,35 @@
 Received: from ms2.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 971C232B10D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9710B2609E3;
 	Tue,  4 Aug 2026 03:34:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785814473; cv=none; b=LW9p6lskeRIishUUlk6fiYfnoZOnWx9jLWBhLR98hloSX5qIiIiPi+IYJec4T//GV/TpcAuHMhNqSr33rDBdTIYGYAS2aVP0cSrkV+BNc9EZQMcq/Lqc0V9LQAEAFpuTuLN3hr2TpPlEGybX/+IqkkL8Oa/gvzJZe68RBUJeDVU=
+	t=1785814473; cv=none; b=jUZT+hdFAYgR4h0xUSpdhKU2P+eNDN2y8MajNX9tgRQmXYEUQnrPLPSMOADn1jSF99DH0U0fCvLBgrcy5UCfGyCAFSoL4WrSA6jfRxj4huFSMUD7UWjbuL+xv0tBd0cJjKVyqjI5Oc+ly9L3sdfpYeHNBfmXxF1/fOLjYmX04tY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785814473; c=relaxed/simple;
-	bh=LRKFOPO282aSZrWzRc3WxzX1U1+x753cfBqROyXims4=;
+	bh=DGl02r0mT4aWJwo3f0IGjnLy/ITr++GXMP5cqxNkqds=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=lh4DRxRR7kTj94rUb8AlXuTbtxiGy+A4IULFRfllNAjnHSrSXpsxMRvcg9nptt+AHD+p6zeUUILcIluNKAgquTs6xBol6lbt/DZ5saA7PkGIiuT3x2R99xexjpfbrGFCe6ePe1E2+LoKV2mUHSdaBWBwW5MMwdrYnHr65uizPWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=c5ju38zj; arc=none smtp.client-ip=210.202.87.108
+	 MIME-Version; b=c3Pql1IsUJrTquCbUUCQ6PjAJy6jC9xYTtG1nqgSUu6NZ9Ip175tz7m/FlYBF/4owJeA8wMW5ad2FitZI4maer0SdiAVTHEKytWMBEHq+/BcPD6mKXiUO/mesoZAeOLTWYzpBJX5hO93Ul2U/kfO5B02NOjt4qpkoSZ4A5IWStY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=kZ7QQ20V; arc=none smtp.client-ip=210.202.87.108
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="c5ju38zj"
-X-UUID: 6197b0968fb511f1b694ffd7d3467620-20260804
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="kZ7QQ20V"
+X-UUID: 6191d6128fb511f1b694ffd7d3467620-20260804
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=CFVEmsBt/C5/w4jFH1LJC7FMzNt7zzaIrJXiIXAUpVE=;
-	b=c5ju38zjQ4OO8OZ77rcKNt57mdPHvXF+leUloYiUQoYP8inLYzRWcYC5v4XVcAI7w19oVVIuJSpinto6Ws4x8A2SvtZ8xiK6F57/uIQQ6aBZblnHZQJQI3KNXDm+4VUmfMUSLmmk/re4XqIqlQuuAkPlBhmFMDDNvFnPplXDiOc=;
-X-UUID: 6197b0968fb511f1b694ffd7d3467620-20260804
+	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=JHrt8in/uLZd4aS5YElnWeCpy+FUpQbQT7HgzDyUWzQ=;
+	b=kZ7QQ20VXx2Pba6G0740BElwN7SEYkPGlksNc2qKOr5iHtfrCakAN5nyhgkwkuIi/UVsupNXvffuRYRH2tHby4wsTGm4xhDeT2fmDAg0C4wB5yqsBCJSpIP94l0SaX5kzEnigHBxBhkMVbvFHquBHqkqAF0dxfE3s4eDZ/pyieM=;
+X-UUID: 6191d6128fb511f1b694ffd7d3467620-20260804
 Received: from spmgt1 [(172.20.13.10)] by ms2.novatek.com.tw
 	(envelope-from <sp_isw1_at@novatek.com.tw>)
 	(Generic MTA)
-	with ESMTP id 1628691671; Tue, 04 Aug 2026 11:34:21 +0800
+	with ESMTP id 910508403; Tue, 04 Aug 2026 11:34:21 +0800
 Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id 6E8911A22CB;
+	by spmgt1 (Postfix) with ESMTP id 648271A22CB;
 	Tue,  4 Aug 2026 11:34:21 +0800 (CST)
 Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id E3233C600CF; Tue,  4 Aug 2026 11:34:19 +0800 (CST)
+	id D91B4C600CF; Tue,  4 Aug 2026 11:34:19 +0800 (CST)
 From: nina_kuo@novatek.com.tw
 To: andi.shyti@kernel.org,
 	robh@kernel.org,
@@ -41,9 +41,9 @@ To: andi.shyti@kernel.org,
 Cc: ben_huang@novatek.com.tw,
 	toby_chui@novatek.com.tw,
 	shihpei_hsu@novatek.com.tw
-Subject: [PATCH v5 3/3] MAINTAINERS: Add entry for Novatek NT72676 I2C controller driver
-Date: Tue,  4 Aug 2026 11:34:19 +0800
-Message-Id: <20260804033419.693819-4-nina_kuo@novatek.com.tw>
+Subject: [PATCH v5 1/3] dt-bindings: i2c: Add Novatek NT72676 I2C controller
+Date: Tue,  4 Aug 2026 11:34:17 +0800
+Message-Id: <20260804033419.693819-2-nina_kuo@novatek.com.tw>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20260804033419.693819-1-nina_kuo@novatek.com.tw>
 References: <20260804033419.693819-1-nina_kuo@novatek.com.tw>
@@ -57,32 +57,112 @@ Content-Transfer-Encoding: 8bit
 
 From: Ben Huang <Ben_Huang@novatek.com.tw>
 
-Add a maintainer entry for Novatek NT72676 I2C controller driver.
+Add Devicetree binding documentation for Novatek NT72676 I2C
+controller.
 
 Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
 Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
 ---
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../bindings/i2c/novatek,nt72676-i2c.yaml     | 90 +++++++++++++++++++
+ 1 file changed, 90 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 5114e6db7307..ea0f8fde4430 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19239,6 +19239,13 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/nolibc/linux-nolibc.git
- F:	tools/include/nolibc/
- F:	tools/testing/selftests/nolibc/
- 
-+NOVATEK NT72676 I2C CONTROLLER DRIVER
-+M:	Ben Huang <ben_huang@novatek.com.tw>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
-+F:	drivers/i2c/busses/i2c-nt72676.c
+diff --git a/Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml b/Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
+new file mode 100644
+index 000000000000..c9dd1c0d7957
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
+@@ -0,0 +1,90 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/novatek,nt72676-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- NOVATEK NVT-TS I2C TOUCHSCREEN DRIVER
- M:	Hans de Goede <hansg@kernel.org>
- L:	linux-input@vger.kernel.org
++title: Novatek NT72676 I2C Controller
++
++maintainers:
++  - Ben Huang <ben_huang@novatek.com.tw>
++  - Jason JJ Wu <jason_jj_wu@novatek.com.tw>
++
++description:
++  Novatek NT72676 SoC provides two I2C controller variants, generic I2C and
++  STBC I2C.
++  The generic I2C controllers are accessible only by the host CPU and driven
++  by a 96 MHz AHB clock.
++  On the other hand, the STBC I2C controllers can be controlled by either the
++  host CPU or STBC (Standby Controller, an 8051-based microcontroller) and
++  driven by a 12 MHz STBC clock. Authentication with STBC is required before
++  the host CPU can access the STBC I2C controller registers.
++
++properties:
++  compatible:
++    enum:
++      - novatek,nt72676-i2c
++      - novatek,nt72676-stbc-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-frequency:
++    default: 100000
++    enum: [ 100000, 400000 ]
++
++  novatek,stbc-syscon:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description:
++      Phandle to the STBC system controller registers used to authenticate
++      host access and switch ownership of the STBC I2C controller.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: novatek,nt72676-stbc-i2c
++    then:
++      required:
++        - novatek,stbc-syscon
++    else:
++      properties:
++        novatek,stbc-syscon: false
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c@fd000000 {
++      compatible = "novatek,nt72676-i2c";
++      reg = <0xfd000000 0x100>;
++      interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
++      clock-frequency = <400000>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++    };
++
++    i2c@fc040a00 {
++      compatible = "novatek,nt72676-stbc-i2c";
++      reg = <0xfc040a00 0x40>;
++      interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
++      novatek,stbc-syscon = <&sysreg_system_controller>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++    };
 -- 
 2.40.1
 
