@@ -1,1152 +1,844 @@
-Received: from naesa05.arrow.com (naesa05.arrow.com [216.150.161.26])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA26C4519BC
-	for <linux-i2c@vger.kernel.org>; Tue,  4 Aug 2026 10:45:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.150.161.26
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CE3D466B13
+	for <linux-i2c@vger.kernel.org>; Tue,  4 Aug 2026 11:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785840347; cv=none; b=Gzp3X44UW1aRRhaVDUGhkq/teT2Bl+ZUbrNlv6lUiVgXxmi2uBMl7V0iRgG680LRGXMDXeLgp7vJ5Fg4LuO39eZuzmmxzgbUtRoB8ChBPuxqqPi4L/aoauLLydGnRcbxyYDR5P/+N53wafDNL9cBcgSg2W/Wyuk9/c56cB9wTxA=
+	t=1785841454; cv=none; b=Lvt00JS6ZmEuWSfFC7A3Tm6ABCQpYgAvaENwikaiH+39a/JVdZi43+bPLXXysh2OQXCvu10K2O6VeO5clPG0mcvQGF4hwo0dc1OQLQKxPBAnE/Xc11wAyYHDvIDnNKQdWChjKM8MRl47/WLSlJuOHLewYfEurtTgQEIjYimt1dw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785840347; c=relaxed/simple;
-	bh=ihOZQ3CROarOys56TGMj0McBmXV08uqEFQOM/pi8Y70=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=IxDRLhqSgrOCK3jc4JLW7LXRxs8Ty131enskEhQaedGKZLf9NlQSPZdOL612PwNBmSBBI7e8O/pxZeo80JPp8kgQDN2v+FLQOKdpb1Jt4TfhDDG2uWN5rSxv07nb511l+26j8Vb9uchPBs8qCbDvZVB1+GGp50Wl4ZYwePJa7vI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=IejVL28u; arc=none smtp.client-ip=216.150.161.26
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=einfochips.com
+	s=arc-20240116; t=1785841454; c=relaxed/simple;
+	bh=Y6PsSwX9DajXTnFG8g6Cnyod/+70T3dHQdM5HyIwPsA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gSlHvaERkPGEkwGwESTf67U6mi/osoHButkcKMrNtNR4HrKMXBN+afpfc3ChLQlRXeSjUh7UV7xw4dmlLlAnASltnOWdPK1EknK+u4vgeo9mtopApgB0YwxWyzKyQtP6kk8DzBfdYY/mNduBbctlupKL5VWNO94XXUkaL0xXlGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=a0ekHbuT; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=cUbIQdFN; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="IejVL28u"
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="a0ekHbuT";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="cUbIQdFN"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6748wvZx2726226
+	for <linux-i2c@vger.kernel.org>; Tue, 4 Aug 2026 11:04:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	yorfc4vpFwCdFkT4Gu/c1xyT9cROQDqd60fHGwsW0gw=; b=a0ekHbuTbYTRhbVg
+	mNtfJoPSf9eWw9tNIPAeMHBqa/wlUInfYizdyy0gKYGj0PZfVjiOXtysa6LCdsK/
+	eGprjJPFsbAASLcbf2+Y0h9QQIHNrGEIVoDuLE87Xoe/nhdYKQyUY6lS7Gg74uOo
+	pcFjoEFfv/bNlE2400e761qox/yEqyHG2EXKDRt/8dr87LW2Yk7kEG4422ocCPEg
+	ELNOipA3xdfFIIjNvo+8d+pVkTKF0mC3RUm3fexucTLd9JmguWHIwQ+CNdJqX83d
+	CpMzBQq05IR7PMoMzgHXQ58QSakqMFoW/dJ3pY3lkxFFapLGGcARHV7s/98jLtgM
+	FBwdXw==
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fud23gf9s-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Tue, 04 Aug 2026 11:04:07 +0000 (GMT)
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-8487eb67173so8420394b3a.2
+        for <linux-i2c@vger.kernel.org>; Tue, 04 Aug 2026 04:04:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=einfochips.com; i=@einfochips.com; l=20670;
-  q=dns/txt; s=NAESA-Selector1; t=1785840345;
-  x=1817376345;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=cKOjD0kHAgU5hnQRZdLMQ7hlnw3RXR6xgyOmv9GgTBI=;
-  b=IejVL28uB2LtvQANmoCHfJ2jdLLYu8vtiYU+faf/uOcYThoyBBPp2phC
-   lc8BBl7DJM/mPVJvIump1AekdnU6Fsk0eQmyeHU3AKwGJfzwXghlxlfNr
-   1+IifNiluJPLVLkVoMsK/c9LXC9fd/h5w302xJ/k57I/QtBUUVRQCsjfY
-   LxnuELVfexlSAqOZuvqjc8eZ9Xj1o86PYmm2FeQpumDJEOYQ9EY/2Rp2G
-   TsoiObi1WtJLYyDJRuOYy7TRW/15skvO1KcP9UBX4oCX7qIJ3UoLgP8DI
-   SWhI7HVQJcmwOwmMLTwEWRXTaXQ5goIi3+aBXlIa2ZH8b63/C0JlAdR59
-   g==;
-X-CSE-ConnectionGUID: 6Unkz514TGebQf/kWsp1dQ==
-X-CSE-MsgGUID: 2qI+FVTIR2WB3yEXIGk32g==
-X-IronPort-AV: E=Sophos;i="6.25,204,1779170400"; 
-   d="scan'208";a="59629002"
-Received: from unknown (HELO eicahmirelay01.einfochips.com) ([10.100.49.50])
-  by naesa05out.arrow.com with ESMTP; 04 Aug 2026 04:44:37 -0600
-Received: from AHMCPU1888.localdomain ([172.25.5.100]) by eicahmirelay01.einfochips.com with Microsoft SMTPSVC(10.0.20348.1);
-	 Tue, 4 Aug 2026 16:14:31 +0530
-From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
-To: Lee Jones <lee@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	Min Lin <linmin@eswincomputing.com>
-Cc: Yulin Lu <luyulin@eswincomputing.com>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Darshan Prajapati <darshan.prajapati@einfochips.com>,
-	Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>,
-	Pritesh Patel <pritesh.patel@einfochips.com>
-Subject: [PATCH v3 3/8] riscv: dts: eswin: eic7700: add pinctrl support
-Date: Tue,  4 Aug 2026 16:14:26 +0530
-Message-Id: <20260804104431.1391839-4-pinkesh.vaghela@einfochips.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260804104431.1391839-1-pinkesh.vaghela@einfochips.com>
-References: <20260804104431.1391839-1-pinkesh.vaghela@einfochips.com>
+        d=oss.qualcomm.com; s=google; t=1785841447; x=1786446247; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yorfc4vpFwCdFkT4Gu/c1xyT9cROQDqd60fHGwsW0gw=;
+        b=cUbIQdFNdTIYXjtiLrv1plQDtambWETFXjWiRUFv99rpfUK/qWep3Aug3JibWf96ZQ
+         TxLfbWLFIHfgVCnd4r7q90k95sED0e7dbKz7iPObCLekjzD3p4I85GzbI3NdaKRuAET9
+         0XYKbC+gjjSn9nX9iah0RyBQ2f27W6ppIzgIX9Q3Fpk3728KdxmyrgcWFEsN5XbDYWq2
+         M0S04GU+tZkjhKydvlZpLEDkmRC+OpSkBqpa1LBnYPkSVf1PmkGyc3XO6Gy2kqRYI2D8
+         6/x6hzS5xJFvBP7mU+Ydh1dPpJlYSga8uzuqOzX3ieYYeKlABJY9Mv/+pmHyWxTrft0i
+         ZMog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785841447; x=1786446247;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yorfc4vpFwCdFkT4Gu/c1xyT9cROQDqd60fHGwsW0gw=;
+        b=H6tC9Wd4osDUXG377Ip/hY0JehdFHWVM0rN+bHTsK5Be34/7uxr9pb25uYO2d41Jfn
+         fzOjQZo6ylP6X5VqN1WrIThvlS9VFo6yLrbQmzKDD6Z7YKU9sQ0O6Wq4UZ+6hDh9os2R
+         AbsKqqtQHcvqaDHgN5KKR5ltiEvZt1nMY8fS0mbmBQ1TWdfShUP8r8wcjCVbwk6n1nIL
+         C1n82lAb1e+cBOKQnA26nIntBZLA6/37OKRESWagmbxw3fDp/4HtaQuBaM2JecWc+4sz
+         +wbdu7gDxtjNb/KRA7BfpskGchRVYihwvxTzSMYx1Sq4gG8tOf9X0eiBn7lC4Yi5gCNB
+         7u5A==
+X-Forwarded-Encrypted: i=1; AHgh+Ror3KK4uBvp3w5OOiOobd3jNpjihdmq5825yDwloT+jeCCA4Uaoxs5pelAcmLXKiE4qTLUKj1wchBo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBodPbpDYWAVRfiUd5hBHcLxobiabhPdaZH9QfAqzAAGuRaveX
+	Pi9fKvx+5XNzVS8YkOXvmFQpJPW1Io97MWhfFyZbLmPrOhAEnoIzKbddC276zSv/OIOHqVGfEfq
+	s2C17ZfbFKsJbHxek9wv4U1y1XQZjannxJ9jTyP2U99VwS5K0wJ9+6h1PBrqynbA=
+X-Gm-Gg: AR+sD10deW2IyzdAUgoSTK1eG4rzFK6hm4wS3gdt/9L5mvj0kbxdULFRZcVSgXU0K9O
+	TIPbUG6koy/MxqhUJCMcAobs6LrdynKLMKVrtKNXCldUzfQS4EhrknBdQr/dC1vQ7mSJsq6kUmo
+	aTgLkwHGSvjftOdyyvV2Txam5LkK/dZ/NkHTMgF4/OqR/4T8E9aqZwhiclO6kjL16HbG8n8l2bs
+	1FeEKvpcAuQQpsmUEGc2lVo56QUCm3rN9ibnid/OBatUErtIfcfx9QBJgTG1zeAHfWeGl0tOX+I
+	AGIciHx3FmAI80SPxKk3vwQkGqzMo87spPwdARjaQIsvkE37FjiIcdOACfDCEBGKEHNJ74r8B31
+	OrGR/wmO+S6YtzIJ8geCCwT9Hf0PZ25D4FA==
+X-Received: by 2002:a05:6a00:4c95:b0:848:7b92:8e79 with SMTP id d2e1a72fcca58-84ee4903f38mr12269875b3a.67.1785841446698;
+        Tue, 04 Aug 2026 04:04:06 -0700 (PDT)
+X-Received: by 2002:a05:6a00:4c95:b0:848:7b92:8e79 with SMTP id d2e1a72fcca58-84ee4903f38mr12269836b3a.67.1785841446113;
+        Tue, 04 Aug 2026 04:04:06 -0700 (PDT)
+Received: from [10.217.219.96] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84edc29f312sm4904678b3a.33.2026.08.04.04.04.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Aug 2026 04:04:05 -0700 (PDT)
+Message-ID: <27795202-6b1c-473d-bcfe-97c0f276586b@oss.qualcomm.com>
+Date: Tue, 4 Aug 2026 16:33:59 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] i2c: qcom-target: Add driver for Qualcomm I2C
+ target controller
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260802-i2c-qcom-slave-v2-0-27653118fa75@oss.qualcomm.com>
+ <20260802-i2c-qcom-slave-v2-2-27653118fa75@oss.qualcomm.com>
+ <CAFEp6-0GkLx3G=8DxH6Rmk_niEnPKO0D4HZxeME5O9UB3bFZcQ@mail.gmail.com>
+Content-Language: en-US
+From: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+In-Reply-To: <CAFEp6-0GkLx3G=8DxH6Rmk_niEnPKO0D4HZxeME5O9UB3bFZcQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 04 Aug 2026 10:44:31.0650 (UTC) FILETIME=[3B6AC020:01DD23FE]
+X-Proofpoint-ORIG-GUID: 6qWmcO5GjZvonwkIXEtqEJ-EY1zwh6Rf
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA0MDA4NyBTYWx0ZWRfX9+jg+FTDtHT8
+ MhAlOoBTqWabs9spOITLH9Zc0qcNf+EnRYbwhszN7p7DIkn0gFa2XZYIOCOrEZR9rleFAXz5R+Q
+ x24D3DEf9IaEKFmYGGQf0IxeFjrO95Q=
+X-Authority-Analysis: v=2.4 cv=XIkAjwhE c=1 sm=1 tr=0 ts=6a71c727 cx=c_pps
+ a=rEQLjTOiSrHUhVqRoksmgQ==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
+ a=EUspDBNiAAAA:8 a=VwQbUJbxAAAA:8 a=Kele7Zhv1GDg7qBs_6oA:9
+ a=LE4JqWSOfUlPNiRa:21 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=2VI0MkxyNR6bbpdq8BZq:22
+X-Proofpoint-GUID: 6qWmcO5GjZvonwkIXEtqEJ-EY1zwh6Rf
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA0MDA4NyBTYWx0ZWRfX6shScDTjrmch
+ Xwmg3K3bEMMaIl8u9Yf67h403AKJ/g983PGKh/+mhLaurQWanvvOdta75t6JVeDcpeBSSF/Kq85
+ Ku9Nw7PH52rzUKiEfvVZ3BpYLEHlRxzRp+0tASUthmo7GbmYJjMxDYhMobVkSiBI9hXy5a4XCWB
+ Pm3Olj+82ehpKVRIAI+LEoGvBWkSpM4HxXitV+6a+dQfKNaR5D6jmc/aTOFEYSAk0bv829/ulBS
+ dPTgh4+iT0yNgGI9itLVfTSbOHXc3Zo+MZ9J4E2UOOI5HftDOQ4t8E4kuBlxUCMcauwz0YOzeiL
+ PtNT686zWZH7EQ/WoOxdC6SmIovSfidQC4EJAHEYHFOG7BSURrh0xKmJic73ylb6oqPQyHPz8O7
+ 9xfirT9yJHvlDrrKyL6C1JNLOv6y8LOJrp0GR3QoIErHs/w/g3ddGhbx9affsM7gZrdVY+GEDhV
+ 0wng+P0lOnIOE8zytOw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-04_02,2026-08-03_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 lowpriorityscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 adultscore=0 impostorscore=0 bulkscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608040087
 
-From: Yulin Lu <luyulin@eswincomputing.com>
 
-Add pinctrl node and related pin configuration for EIC7700 SoC
 
-Co-developed-by: Pritesh Patel <pritesh.patel@einfochips.com>
-Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
-Signed-off-by: Yulin Lu <luyulin@eswincomputing.com>
-Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
----
- .../dts/eswin/eic7700-hifive-premier-p550.dts | 119 +++
- .../riscv/boot/dts/eswin/eic7700-pinctrl.dtsi | 888 ++++++++++++++++++
- arch/riscv/boot/dts/eswin/eic7700.dtsi        |   5 +
- 3 files changed, 1012 insertions(+)
- create mode 100644 arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
+On 8/3/2026 1:35 PM, Loic Poulain wrote:
+> On Sun, Aug 2, 2026 at 3:16 PM Viken Dadhaniya
+> <viken.dadhaniya@oss.qualcomm.com> wrote:
+>>
+>> QDU1000 and related Qualcomm SoCs include a dedicated I2C target
+>> controller that operates exclusively in target mode. The existing
+>> Qualcomm I2C controller drivers (GENI, QUP) are master-only and cannot
+>> serve systems where the SoC must respond as an I2C target on the bus.
+>>
+>> Register the controller with the Linux I2C slave framework via
+>> i2c_algorithm.reg_target and i2c_algorithm.unreg_target so that any
+>> standard slave backend (e.g. slave-24c02) can be attached at runtime
+>> via i2c_slave_register(). Handle IRQ events for RX FIFO service, clock
+>> stretching during read and write phases, STOP and repeated-start
+>> conditions, and error recovery with SW reset. Enable the required AHB
+>> and XO clocks, vote for interconnect bandwidth, and restore hardware
+>> state across suspend and resume using the noirq PM callbacks.
+>>
+>> Signed-off-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+>> ---
+>>  MAINTAINERS                          |   9 +
+>>  drivers/i2c/busses/Kconfig           |  15 +
+>>  drivers/i2c/busses/Makefile          |   1 +
+>>  drivers/i2c/busses/i2c-qcom-target.c | 560 +++++++++++++++++++++++++++++++++++
+>>  4 files changed, 585 insertions(+)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index fe67f7bfa44c..c3f273b0002b 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -22380,6 +22380,15 @@ S:     Maintained
+>>  F:     Documentation/devicetree/bindings/i2c/qcom,i2c-geni-qcom.yaml
+>>  F:     drivers/i2c/busses/i2c-qcom-geni.c
+>>
+>> +QUALCOMM I2C TARGET CONTROLLER DRIVER
+>> +M:     Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+>> +M:     Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+>> +L:     linux-i2c@vger.kernel.org
+>> +L:     linux-arm-msm@vger.kernel.org
+>> +S:     Maintained
+>> +F:     Documentation/devicetree/bindings/i2c/qcom,i2c-target.yaml
+>> +F:     drivers/i2c/busses/i2c-qcom-target.c
+>> +
+>>  QUALCOMM I2C CCI DRIVER
+>>  M:     Loic Poulain <loic.poulain@oss.qualcomm.com>
+>>  M:     Robert Foss <rfoss@kernel.org>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index d7b89508311f..2e18238e0ae6 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -1070,6 +1070,21 @@ config I2C_QCOM_GENI
+>>           This driver can also be built as a module.  If so, the module
+>>           will be called i2c-qcom-geni.
+>>
+>> +config I2C_QCOM_TARGET
+>> +       tristate "Qualcomm I2C target controller"
+>> +       depends on ARCH_QCOM || COMPILE_TEST
+>> +       depends on COMMON_CLK
+>> +       depends on INTERCONNECT
+>> +       select I2C_SLAVE
+>> +       help
+>> +         This driver supports I2C target mode on Qualcomm Technologies
+>> +         SoCs. If you say yes to this option, support will be included
+>> +         for the built-in I2C target controller on QDU1000 and other
+>> +         compatible Qualcomm SoCs.
+>> +
+>> +         This driver can also be built as a module. If so, the module
+>> +         will be called i2c-qcom-target.
+>> +
+>>  config I2C_QUP
+>>         tristate "Qualcomm QUP based I2C controller"
+>>         depends on ARCH_QCOM || COMPILE_TEST
+>> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+>> index 3755c54b3d82..ab3070cdb144 100644
+>> --- a/drivers/i2c/busses/Makefile
+>> +++ b/drivers/i2c/busses/Makefile
+>> @@ -101,6 +101,7 @@ obj-$(CONFIG_I2C_PXA)               += i2c-pxa.o
+>>  obj-$(CONFIG_I2C_PXA_PCI)      += i2c-pxa-pci.o
+>>  obj-$(CONFIG_I2C_QCOM_CCI)     += i2c-qcom-cci.o
+>>  obj-$(CONFIG_I2C_QCOM_GENI)    += i2c-qcom-geni.o
+>> +obj-$(CONFIG_I2C_QCOM_TARGET)  += i2c-qcom-target.o
+>>  obj-$(CONFIG_I2C_QUP)          += i2c-qup.o
+>>  obj-$(CONFIG_I2C_RIIC)         += i2c-riic.o
+>>  obj-$(CONFIG_I2C_RK3X)         += i2c-rk3x.o
+>> diff --git a/drivers/i2c/busses/i2c-qcom-target.c b/drivers/i2c/busses/i2c-qcom-target.c
+>> new file mode 100644
+>> index 000000000000..79b0b9ff7b9b
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-qcom-target.c
+>> @@ -0,0 +1,560 @@
+>> +// SPDX-License-Identifier: GPL-2.0-only
+>> +/*
+>> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+>> + */
+>> +
+>> +#include <linux/bitfield.h>
+>> +#include <linux/clk.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/interconnect.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/io.h>
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+>> +
+>> +/* Register offsets */
+>> +#define I2C_S_DEVICE_ADDR                      0x00
+>> +#define I2C_S_IRQ_STATUS                       0x08
+>> +#define I2C_S_IRQ_CLR                          0x0C
+>> +#define I2C_S_IRQ_EN                           0x10
+>> +#define I2C_S_CONFIG                           0x18
+>> +#define I2C_S_CONTROL                          0x1C
+>> +#define I2C_S_FIFOS_STATUS                     0x20
+>> +#define I2C_S_TX_FIFO                          0x24
+>> +#define I2C_S_RX_FIFO                          0x28
+>> +#define I2C_S_DEBUG_REG1                       0x3C
+>> +#define I2C_S_DEBUG_REG2                       0x40
+>> +#define I2C_S_SW_RESET_REG                     0x4C
+>> +#define I2C_S_CLK_LOW_TIMEOUT                  0x50
+>> +#define I2C_S_CLK_RELEASE_DELAY_CNT_VAL        0x54
+>> +#define I2C_S_SDA_HOLD_CNT_VAL                 0x58
+>> +
+>> +/* I2C_S_CONFIG register fields */
+>> +#define I2C_S_CORE_EN                          BIT(0)
+>> +
+>> +/* I2C_S_CONTROL register fields */
+>> +#define CLEAR_RX_FIFO                          BIT(0)
+>> +#define CLEAR_TX_FIFO                          BIT(1)
+>> +#define NACK                                   BIT(2)
+>> +#define ACK_RESUME                             BIT(3)
+>> +
+>> +/* I2C_S_SW_RESET_REG register fields */
+>> +#define SW_RESET                               BIT(0)
+>> +
+>> +/* I2C_S_FIFOS_STATUS register fields */
+>> +#define RX_FIFO_COUNT_MASK                     GENMASK(31, 16)
+>> +
+>> +/* Interconnect bandwidth vote in bytes per second */
+>> +#define APPS_PROC_TO_I2C_TARGET_VOTE           1190000
+>> +
+>> +/**
+>> + * enum qcom_i2c_target_irq - IRQ bit positions in I2C_S_IRQ_STATUS
+>> + * @STOP_DETECTED:     I2C stop condition detected on the bus
+>> + * @RX_FIFO_FULL:      receive FIFO has reached capacity
+>> + * @TX_FIFO_EMPTY:     transmit FIFO is empty
+>> + * @RX_DATA_AVAIL:     receive data is available in the RX FIFO
+>> + * @CLOCK_LOW_TIMEOUT: SCL held low longer than the configured timeout
+>> + * @STRCH_WR:          clock stretching during a write (Rx) phase
+>> + * @STRCH_RD:          clock stretching during a read (Tx) phase
+>> + * @GCA_DETECTED:      general call address detected (not used)
+>> + * @ERR_CONDITION:     unexpected start or stop bit detected (error)
+>> + * @RESTART_DETECTED:  repeated start condition detected
+>> + */
+>> +enum qcom_i2c_target_irq {
+>> +       STOP_DETECTED,
+>> +       RX_FIFO_FULL,
+>> +       TX_FIFO_EMPTY,
+>> +       RX_DATA_AVAIL,
+>> +       CLOCK_LOW_TIMEOUT,
+>> +       STRCH_WR,
+>> +       STRCH_RD,
+>> +       GCA_DETECTED,
+>> +       ERR_CONDITION,
+>> +       RESTART_DETECTED,
+>> +};
+>> +
+>> +/*
+>> + * TX_FIFO_EMPTY is excluded: this driver fills the TX FIFO one byte at a
+>> + * time in response to STRCH_RD (clock-stretch during read phase), so
+>> + * TX_FIFO_EMPTY adds no value and would double the interrupt rate.
+>> + * GCA (general call address) is unsupported.
+>> + */
+>> +#define QCOM_I2C_TARGET_ALL_IRQ        (GENMASK(RESTART_DETECTED, STOP_DETECTED) \
+>> +                                & ~(BIT(GCA_DETECTED) | BIT(TX_FIFO_EMPTY)))
+>> +
+>> +/* Bit indices for the status bitmask, used with set_bit/test_bit/clear_bit */
+>> +enum qcom_i2c_target_status {
+>> +       READ_IN_PROGRESS,
+>> +       WRITE_IN_PROGRESS,
+>> +};
+>> +
+>> +/**
+>> + * struct qcom_i2c_target - Qualcomm I2C target controller private data
+>> + * @dev:               driver model device node
+>> + * @base:              base address of HW registers
+>> + * @adap:              I2C adapter (slave mode)
+>> + * @ahb_clk:           AHB bus clock
+>> + * @xo_clk:            XO reference clock
+>> + * @icc_path:          interconnect bandwidth path
+>> + * @slave:             currently registered slave backend client; written only
+>> + *                     under disable_irq() in reg_slave()/unreg_slave() so the
+>> + *                     ISR sees a stable pointer for its entire execution
+>> + * @status:            bitmask of enum qcom_i2c_target_status flags; must be
+>> + *                     unsigned long for set_bit/test_bit/clear_bit; accessed
+>> + *                     only from the ISR and from reg_slave()/unreg_slave()
+>> + *                     under disable_irq(), so no additional lock is needed
+>> + * @irq:               interrupt line number
+>> + */
+>> +struct qcom_i2c_target {
+>> +       struct device           *dev;
+>> +       void __iomem            *base;
+>> +       struct i2c_adapter      adap;
+>> +       struct clk              *ahb_clk;
+>> +       struct clk              *xo_clk;
+>> +       struct icc_path         *icc_path;
+>> +       struct i2c_client       *slave;
+>> +       unsigned long           status;
+>> +       int                     irq;
+>> +};
+>> +
+>> +static void qcom_i2c_target_dump_regs(struct qcom_i2c_target *target)
+>> +{
+>> +       dev_dbg(target->dev, "I2C_S_DEVICE_ADDR:               0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_DEVICE_ADDR));
+>> +       dev_dbg(target->dev, "I2C_S_IRQ_STATUS:                0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_IRQ_STATUS));
+>> +       dev_dbg(target->dev, "I2C_S_CONFIG:                    0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_CONFIG));
+>> +       dev_dbg(target->dev, "I2C_S_IRQ_EN:                    0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_IRQ_EN));
+>> +       dev_dbg(target->dev, "I2C_S_FIFOS_STATUS:              0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_FIFOS_STATUS));
+>> +       dev_dbg(target->dev, "I2C_S_DEBUG_REG1:                0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_DEBUG_REG1));
+>> +       dev_dbg(target->dev, "I2C_S_DEBUG_REG2:                0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_DEBUG_REG2));
+>> +       dev_dbg(target->dev, "I2C_S_CLK_LOW_TIMEOUT:           0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_CLK_LOW_TIMEOUT));
+>> +       dev_dbg(target->dev, "I2C_S_CLK_RELEASE_DELAY_CNT_VAL: 0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_CLK_RELEASE_DELAY_CNT_VAL));
+>> +       dev_dbg(target->dev, "I2C_S_SDA_HOLD_CNT_VAL:          0x%x\n",
+>> +               readl_relaxed(target->base + I2C_S_SDA_HOLD_CNT_VAL));
+>> +}
+>> +
+>> +
+>> +static void qcom_i2c_target_hw_init(struct qcom_i2c_target *target)
+>> +{
+>> +       dev_dbg(target->dev, "HW init: resetting FIFOs, enabling IRQs and core\n");
+>> +       writel(CLEAR_TX_FIFO | CLEAR_RX_FIFO, target->base + I2C_S_CONTROL);
+>> +       writel(QCOM_I2C_TARGET_ALL_IRQ, target->base + I2C_S_IRQ_EN);
+>> +       writel(I2C_S_CORE_EN, target->base + I2C_S_CONFIG);
+>> +}
+>> +
+>> +static void qcom_i2c_target_write_requested(struct qcom_i2c_target *target)
+>> +{
+>> +       u8 val = 0;
+>> +
+>> +       if (!test_bit(WRITE_IN_PROGRESS, &target->status)) {
+> 
+> If (!test_and_set_bit(...)) ?
 
-diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
-index a5c76b14a38f..3101fd90d171 100644
---- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
-+++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
-@@ -6,6 +6,7 @@
- /dts-v1/;
- 
- #include "eic7700.dtsi"
-+#include "eic7700-pinctrl.dtsi"
- 
- / {
- 	compatible = "sifive,hifive-premier-p550", "eswin,eic7700";
-@@ -18,6 +19,15 @@ aliases {
- 	chosen {
- 		stdout-path = "serial0:115200n8";
- 	};
-+
-+	vcc_1v8: regulator-vcc1v8 {
-+		compatible = "regulator-fixed";
-+		regulator-name = "vcc1v8";
-+		regulator-always-on;
-+		regulator-boot-on;
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+	};
- };
- 
- &osc {
-@@ -25,10 +35,119 @@ &osc {
- 	clock-output-names = "osc_24m";
- };
- 
-+&gpio0_pins {
-+	bias-disable;
-+	input-enable;
-+};
-+
-+&gpio5_pins {
-+	bias-disable;
-+	input-enable;
-+};
-+
-+&gpio11_pins {
-+	bias-disable;
-+	input-enable;
-+};
-+
-+&gpio14_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio15_pins {
-+	bias-disable;
-+	input-enable;
-+};
-+
-+&gpio28_pins {
-+	bias-disable;
-+	input-enable;
-+};
-+
-+&gpio43_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&gpio71_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio74_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio76_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&gpio77_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio79_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&gpio80_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio82_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio84_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&gpio85_pins {
-+	bias-pull-up;
-+	input-disable;
-+};
-+
-+&gpio94_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&gpio106_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&gpio111_pins {
-+	bias-disable;
-+	input-disable;
-+};
-+
-+&pinctrl {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&gpio0_pins>, <&gpio5_pins>, <&gpio11_pins>,
-+		    <&gpio14_pins>, <&gpio15_pins>, <&gpio28_pins>, <&gpio43_pins>,
-+		    <&gpio71_pins>, <&gpio74_pins>, <&gpio76_pins>, <&gpio77_pins>,
-+		    <&gpio79_pins>, <&gpio80_pins>, <&gpio82_pins>, <&gpio84_pins>,
-+		    <&gpio85_pins>, <&gpio94_pins>, <&gpio106_pins>, <&gpio111_pins>;
-+	vrgmii-supply = <&vcc_1v8>;
-+};
-+
- &uart0 {
- 	status = "okay";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart0_pins>;
- };
- 
- &uart2 {
- 	status = "okay";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart2_pins>;
- };
-diff --git a/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi b/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
-new file mode 100644
-index 000000000000..2d655b442982
---- /dev/null
-+++ b/arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
-@@ -0,0 +1,888 @@
-+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
-+/*
-+ * Copyright (c) 2025 Beijing ESWIN Computing Technology Co., Ltd.
-+ *
-+ * ESWIN's EIC7700 SoC pin-mux and pin-config options are listed as
-+ * device tree nodes in this file.
-+ *
-+ * Authors: Yulin Lu <luyulin@eswincomputing.com>
-+ */
-+
-+&pinctrl{
-+	default-pins-grp {
-+		sata_act_led_pins: sata-act-led-pins{
-+			pins = "gpio27";
-+			function = "sata";
-+		};
-+
-+		emmc_led_ctrl_pins: emmc-led-ctrl-pins {
-+			pins = "gpio29";
-+			function = "emmc";
-+		};
-+
-+		sd0_led_ctrl_pins: sd0-led-ctrl-pins {
-+			pins = "gpio34";
-+			function = "sdio";
-+		};
-+
-+		sd1_led_ctrl_pins: sd1-led-ctrl-pins {
-+			pins = "spi1_d2";
-+			function = "sdio";
-+		};
-+
-+		i2c6_pins: i2c6-pins {
-+			pins = "uart1_cts", "uart1_rts";
-+			function = "i2c";
-+		};
-+
-+		i2c7_pins: i2c7-pins {
-+			pins = "uart2_tx", "uart2_rx";
-+			function = "i2c";
-+		};
-+
-+		i2c9_pins: i2c9-pins {
-+			pins = "spi1_d0", "spi1_d1";
-+			function = "i2c";
-+		};
-+
-+		pwm1_pins: pwm1-pins {
-+			pins = "spi1_d3";
-+			function = "pwm";
-+		};
-+
-+		pwm2_pins: pwm2-pins {
-+			pins = "spi1_cs1_n";
-+			function = "pwm";
-+		};
-+
-+		mipi_csi_xtrig0_pins: mipi-csi-xtrig0-pins {
-+			pins = "gpio92";
-+			function = "mipi_csi";
-+		};
-+
-+		mipi_csi_xtrig1_pins: mipi-csi-xtrig1-pins {
-+			pins = "gpio93";
-+			function = "mipi_csi";
-+		};
-+
-+		dual_spi2_pins: dual-spi2-pins {
-+			pins = "spi2_cs0_n", "jtag0_tck", "jtag0_tms", "jtag0_tdi";
-+			function = "spi";
-+		};
-+
-+		quad_spi2_pins: quad-spi2-pins {
-+			pins = "spi2_cs0_n", "spi2_cs1_n", "jtag0_tck", "jtag0_tms",
-+			       "jtag0_tdi", "jtag0_tdo", "gpio5";
-+			function = "spi";
-+		};
-+
-+		gpio1_pins: gpio1-pins {
-+			pins = "jtag0_tck";
-+			function = "gpio";
-+		};
-+
-+		gpio2_pins: gpio2-pins {
-+			pins = "jtag0_tms";
-+			function = "gpio";
-+		};
-+
-+		gpio3_pins: gpio3-pins {
-+			pins = "jtag0_tdi";
-+			function = "gpio";
-+		};
-+
-+		gpio4_pins: gpio4-pins {
-+			pins = "jtag0_tdo";
-+			function = "gpio";
-+		};
-+
-+		gpio6_pins: gpio6-pins {
-+			pins = "spi2_cs0_n";
-+			function = "gpio";
-+		};
-+
-+		gpio7_pins: gpio7-pins {
-+			pins = "jtag1_tck";
-+			function = "gpio";
-+		};
-+
-+		gpio8_pins: gpio8-pins {
-+			pins = "jtag1_tms";
-+			function = "gpio";
-+		};
-+
-+		gpio9_pins: gpio9-pins {
-+			pins = "jtag1_tdi";
-+			function = "gpio";
-+		};
-+
-+		gpio10_pins: gpio10-pins {
-+			pins = "jtag1_tdo";
-+			function = "gpio";
-+		};
-+
-+		gpio12_pins: gpio12-pins {
-+			pins = "spi2_cs1_n";
-+			function = "gpio";
-+		};
-+
-+		gpio13_pins: gpio13-pins {
-+			pins = "mode_set0";
-+			function = "gpio";
-+		};
-+
-+		gpio14_pins: gpio14-pins {
-+			pins = "mode_set1";
-+			function = "gpio";
-+		};
-+
-+		gpio15_pins: gpio15-pins {
-+			pins = "mode_set2";
-+			function = "gpio";
-+		};
-+
-+		gpio16_pins: gpio16-pins {
-+			pins = "mode_set3";
-+			function = "gpio";
-+		};
-+
-+		gpio17_pins: gpio17-pins {
-+			pins = "jtag2_trst";
-+			function = "gpio";
-+		};
-+
-+		gpio18_pins: gpio18-pins {
-+			pins = "i2s0_bclk";
-+			function = "gpio";
-+		};
-+
-+		gpio19_pins: gpio19-pins {
-+			pins = "i2s0_wclk";
-+			function = "gpio";
-+		};
-+
-+		gpio20_pins: gpio20-pins {
-+			pins = "i2s0_sdi";
-+			function = "gpio";
-+		};
-+
-+		gpio21_pins: gpio21-pins {
-+			pins = "i2s0_sdo";
-+			function = "gpio";
-+		};
-+
-+		gpio22_pins: gpio22-pins {
-+			pins = "i2s_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio23_pins: gpio23-pins {
-+			pins = "i2s2_bclk";
-+			function = "gpio";
-+		};
-+
-+		gpio24_pins: gpio24-pins {
-+			pins = "i2s2_wclk";
-+			function = "gpio";
-+		};
-+
-+		gpio25_pins: gpio25-pins {
-+			pins = "i2s2_sdi";
-+			function = "gpio";
-+		};
-+
-+		gpio26_pins: gpio26-pins {
-+			pins = "i2s2_sdo";
-+			function = "gpio";
-+		};
-+
-+		gpio29_pins: gpio29-pins {
-+			pins = "gpio29";
-+			function = "gpio";
-+		};
-+
-+		gpio30_pins: gpio30-pins {
-+			pins = "i2s1_bclk";
-+			function = "gpio";
-+		};
-+
-+		gpio31_pins: gpio31-pins {
-+			pins = "i2s1_wclk";
-+			function = "gpio";
-+		};
-+
-+		gpio32_pins: gpio32-pins {
-+			pins = "i2s1_sdi";
-+			function = "gpio";
-+		};
-+
-+		gpio33_pins: gpio33-pins {
-+			pins = "i2s1_sdo";
-+			function = "gpio";
-+		};
-+
-+		gpio34_pins: gpio34-pins {
-+			pins = "gpio34";
-+			function = "gpio";
-+		};
-+
-+		gpio35_pins: gpio35-pins {
-+			pins = "spi1_cs0_n";
-+			function = "gpio";
-+		};
-+
-+		gpio36_pins: gpio36-pins {
-+			pins = "spi1_clk";
-+			function = "gpio";
-+		};
-+
-+		gpio37_pins: gpio37-pins {
-+			pins = "spi1_d0";
-+			function = "gpio";
-+		};
-+
-+		gpio38_pins: gpio38-pins {
-+			pins = "spi1_d1";
-+			function = "gpio";
-+		};
-+
-+		gpio39_pins: gpio39-pins {
-+			pins = "spi1_d2";
-+			function = "gpio";
-+		};
-+
-+		gpio40_pins: gpio40-pins {
-+			pins = "spi1_d3";
-+			function = "gpio";
-+		};
-+
-+		gpio41_pins: gpio41-pins {
-+			pins = "spi1_cs1_n";
-+			function = "gpio";
-+		};
-+
-+		gpio42_pins: gpio42-pins {
-+			pins = "usb0_pwren";
-+			function = "gpio";
-+		};
-+
-+		gpio43_pins: gpio43-pins {
-+			pins = "usb1_pwren";
-+			function = "gpio";
-+		};
-+
-+		gpio44_pins: gpio44-pins {
-+			pins = "i2c0_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio45_pins: gpio45-pins {
-+			pins = "i2c0_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio46_pins: gpio46-pins {
-+			pins = "i2c1_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio47_pins: gpio47-pins {
-+			pins = "i2c1_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio48_pins: gpio48-pins {
-+			pins = "i2c2_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio49_pins: gpio49-pins {
-+			pins = "i2c2_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio50_pins: gpio50-pins {
-+			pins = "i2c3_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio51_pins: gpio51-pins {
-+			pins = "i2c3_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio52_pins: gpio52-pins {
-+			pins = "i2c4_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio53_pins: gpio53-pins {
-+			pins = "i2c4_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio54_pins: gpio54-pins {
-+			pins = "i2c5_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio55_pins: gpio55-pins {
-+			pins = "i2c5_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio56_pins: gpio56-pins {
-+			pins = "uart0_tx";
-+			function = "gpio";
-+		};
-+
-+		gpio57_pins: gpio57-pins {
-+			pins = "uart0_rx";
-+			function = "gpio";
-+		};
-+
-+		gpio58_pins: gpio58-pins {
-+			pins = "uart1_tx";
-+			function = "gpio";
-+		};
-+
-+		gpio59_pins: gpio59-pins {
-+			pins = "uart1_rx";
-+			function = "gpio";
-+		};
-+
-+		gpio60_pins: gpio60-pins {
-+			pins = "uart1_cts";
-+			function = "gpio";
-+		};
-+
-+		gpio61_pins: gpio61-pins {
-+			pins = "uart1_rts";
-+			function = "gpio";
-+		};
-+
-+		gpio62_pins: gpio62-pins {
-+			pins = "uart2_tx";
-+			function = "gpio";
-+		};
-+
-+		gpio63_pins: gpio63-pins {
-+			pins = "uart2_rx";
-+			function = "gpio";
-+		};
-+
-+		gpio64_pins: gpio64-pins {
-+			pins = "jtag2_tck";
-+			function = "gpio";
-+		};
-+
-+		gpio65_pins: gpio65-pins {
-+			pins = "jtag2_tms";
-+			function = "gpio";
-+		};
-+
-+		gpio66_pins: gpio66-pins {
-+			pins = "jtag2_tdi";
-+			function = "gpio";
-+		};
-+
-+		gpio67_pins: gpio67-pins {
-+			pins = "jtag2_tdo";
-+			function = "gpio";
-+		};
-+
-+		gpio68_pins: gpio68-pins {
-+			pins = "fan_pwm";
-+			function = "gpio";
-+		};
-+
-+		gpio69_pins: gpio69-pins {
-+			pins = "fan_tach";
-+			function = "gpio";
-+		};
-+
-+		gpio70_pins: gpio70-pins {
-+			pins = "mipi_csi0_xvs";
-+			function = "gpio";
-+		};
-+
-+		gpio71_pins: gpio71-pins {
-+			pins = "mipi_csi0_xhs";
-+			function = "gpio";
-+		};
-+
-+		gpio72_pins: gpio72-pins {
-+			pins = "mipi_csi0_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio73_pins: gpio73-pins {
-+			pins = "mipi_csi1_xvs";
-+			function = "gpio";
-+		};
-+
-+		gpio74_pins: gpio74-pins {
-+			pins = "mipi_csi1_xhs";
-+			function = "gpio";
-+		};
-+
-+		gpio75_pins: gpio75-pins {
-+			pins = "mipi_csi1_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio76_pins: gpio76-pins {
-+			pins = "mipi_csi2_xvs";
-+			function = "gpio";
-+		};
-+
-+		gpio77_pins: gpio77-pins {
-+			pins = "mipi_csi2_xhs";
-+			function = "gpio";
-+		};
-+
-+		gpio78_pins: gpio78-pins {
-+			pins = "mipi_csi2_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio79_pins: gpio79-pins {
-+			pins = "mipi_csi3_xvs";
-+			function = "gpio";
-+		};
-+
-+		gpio80_pins: gpio80-pins {
-+			pins = "mipi_csi3_xhs";
-+			function = "gpio";
-+		};
-+
-+		gpio81_pins: gpio81-pins {
-+			pins = "mipi_csi3_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio82_pins: gpio82-pins {
-+			pins = "mipi_csi4_xvs";
-+			function = "gpio";
-+		};
-+
-+		gpio83_pins: gpio83-pins {
-+			pins = "mipi_csi4_xhs";
-+			function = "gpio";
-+		};
-+
-+		gpio84_pins: gpio84-pins {
-+			pins = "mipi_csi4_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio85_pins: gpio85-pins {
-+			pins = "mipi_csi5_xvs";
-+			function = "gpio";
-+		};
-+
-+		gpio86_pins: gpio86-pins {
-+			pins = "mipi_csi5_xhs";
-+			function = "gpio";
-+		};
-+
-+		gpio87_pins: gpio87-pins {
-+			pins = "mipi_csi5_mclk";
-+			function = "gpio";
-+		};
-+
-+		gpio88_pins: gpio88-pins {
-+			pins = "spi3_cs_n";
-+			function = "gpio";
-+		};
-+
-+		gpio89_pins: gpio89-pins {
-+			pins = "spi3_clk";
-+			function = "gpio";
-+		};
-+
-+		gpio90_pins: gpio90-pins {
-+			pins = "spi3_di";
-+			function = "gpio";
-+		};
-+
-+		gpio91_pins: gpio91-pins {
-+			pins = "spi3_do";
-+			function = "gpio";
-+		};
-+
-+		gpio92_pins: gpio92-pins {
-+			pins = "gpio92";
-+			function = "gpio";
-+		};
-+
-+		gpio93_pins: gpio93-pins {
-+			pins = "gpio93";
-+			function = "gpio";
-+		};
-+
-+		gpio94_pins: gpio94-pins {
-+			pins = "s_mode";
-+			function = "gpio";
-+		};
-+
-+		gpio95_pins: gpio95-pins {
-+			pins = "gpio95";
-+			function = "gpio";
-+		};
-+
-+		gpio96_pins: gpio96-pins {
-+			pins = "spi0_cs_n";
-+			function = "gpio";
-+		};
-+
-+		gpio97_pins: gpio97-pins {
-+			pins = "spi0_clk";
-+			function = "gpio";
-+		};
-+
-+		gpio98_pins: gpio98-pins {
-+			pins = "spi0_d0";
-+			function = "gpio";
-+		};
-+
-+		gpio99_pins: gpio99-pins {
-+			pins = "spi0_d1";
-+			function = "gpio";
-+		};
-+
-+		gpio100_pins: gpio100-pins {
-+			pins = "spi0_d2";
-+			function = "gpio";
-+		};
-+
-+		gpio101_pins: gpio101-pins {
-+			pins = "spi0_d3";
-+			function = "gpio";
-+		};
-+
-+		gpio102_pins: gpio102-pins {
-+			pins = "i2c10_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio103_pins: gpio103-pins {
-+			pins = "i2c10_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio104_pins: gpio104-pins {
-+			pins = "i2c11_scl";
-+			function = "gpio";
-+		};
-+
-+		gpio105_pins: gpio105-pins {
-+			pins = "i2c11_sda";
-+			function = "gpio";
-+		};
-+
-+		gpio107_pins: gpio107-pins {
-+			pins = "boot_sel0";
-+			function = "gpio";
-+		};
-+
-+		gpio108_pins: gpio108-pins {
-+			pins = "boot_sel1";
-+			function = "gpio";
-+		};
-+
-+		gpio109_pins: gpio109-pins {
-+			pins = "boot_sel2";
-+			function = "gpio";
-+		};
-+
-+		gpio110_pins: gpio110-pins {
-+			pins = "boot_sel3";
-+			function = "gpio";
-+		};
-+
-+		uart3_pins: uart3-pins {
-+			pins = "gpio92", "gpio93";
-+			function = "uart";
-+		};
-+
-+		uart4_pins: uart4-pins {
-+			pins = "spi1_d0", "spi1_d1";
-+			function = "uart";
-+		};
-+
-+		gpio0_pins: gpio0-pins {
-+			pins = "gpio0";
-+			function = "gpio";
-+		};
-+
-+		gpio5_pins: gpio5-pins {
-+			pins = "gpio5";
-+			function = "gpio";
-+		};
-+
-+		gpio11_pins: gpio11-pins {
-+			pins = "gpio11";
-+			function = "gpio";
-+		};
-+
-+		gpio27_pins: gpio27-pins {
-+			pins = "gpio27";
-+			function = "gpio";
-+		};
-+
-+		gpio28_pins: gpio28-pins {
-+			pins = "gpio28";
-+			function = "gpio";
-+		};
-+
-+		gpio106_pins: gpio106-pins {
-+			pins = "gpio106";
-+			function = "gpio";
-+		};
-+
-+		gpio111_pins: gpio111-pins {
-+			pins = "gpio111";
-+			function = "gpio";
-+		};
-+
-+		chip_mode_pins: chip-mode-pins {
-+			pins = "chip_mode";
-+			function = "chip_mode";
-+		};
-+
-+		sdio0_pins: sdio0-pins {
-+			pins = "mode_set0", "mode_set1";
-+			function = "sdio";
-+		};
-+
-+		sdio1_pins: sdio1-pins {
-+			pins = "mode_set2", "mode_set3";
-+			function = "sdio";
-+		};
-+
-+		jtag0_pins: jtag0-pins {
-+			pins = "jtag0_tck", "jtag0_tms", "jtag0_tdi", "jtag0_tdo";
-+			function = "jtag";
-+		};
-+
-+		jtag1_pins: jtag1-pins {
-+			pins = "jtag1_tck", "jtag1_tms", "jtag1_tdi", "jtag1_tdo";
-+			function = "jtag";
-+		};
-+
-+		jtag2_pins: jtag2-pins {
-+			pins = "jtag2_trst", "jtag2_tck", "jtag2_tms", "jtag2_tdi",
-+			       "jtag2_tdo";
-+			function = "jtag";
-+		};
-+
-+		pcie_pins: pcie-pins {
-+			pins = "pcie_clkreq_n", "pcie_wake_n", "pcie_perst_n";
-+			function = "pcie";
-+		};
-+
-+		hdmi_pins: hdmi-pins {
-+			pins = "hdmi_scl", "hdmi_sda", "hdmi_cec";
-+			function = "hdmi";
-+		};
-+
-+		rgmii0_pins: rgmii0-pins {
-+			pins = "rgmii0_clk_125", "rgmii0_txen", "rgmii0_txclk", "rgmii0_txd0",
-+			       "rgmii0_txd1", "rgmii0_txd2", "rgmii0_txd3", "rgmii0_rxclk",
-+			       "rgmii0_rxdv", "rgmii0_rxd0", "rgmii0_rxd1", "rgmii0_rxd2",
-+			       "rgmii0_rxd3", "rgmii0_mdc", "rgmii0_mdio", "rgmii0_intb";
-+			function = "rgmii";
-+		};
-+
-+		rgmii1_pins: rgmii1-pins {
-+			pins = "rgmii1_clk_125", "rgmii1_txen", "rgmii1_txclk", "rgmii1_txd0",
-+			       "rgmii1_txd1", "rgmii1_txd2", "rgmii1_txd3", "rgmii1_rxclk",
-+			       "rgmii1_rxdv", "rgmii1_rxd0", "rgmii1_rxd1", "rgmii1_rxd2",
-+			       "rgmii1_rxd3", "rgmii1_mdc", "rgmii1_mdio", "rgmii1_intb";
-+			function = "rgmii";
-+		};
-+
-+		i2s0_pins: i2s0-pins {
-+			pins = "i2s0_bclk", "i2s0_wclk", "i2s0_sdi", "i2s0_sdo", "i2s_mclk";
-+			function = "i2s";
-+		};
-+
-+		i2s1_pins: i2s1-pins {
-+			pins = "i2s1_bclk", "i2s1_wclk", "i2s1_sdi", "i2s1_sdo", "i2s_mclk";
-+			function = "i2s";
-+		};
-+
-+		i2s2_pins: i2s2-pins {
-+			pins = "i2s2_bclk", "i2s2_wclk", "i2s2_sdi", "i2s2_sdo", "i2s_mclk";
-+			function = "i2s";
-+		};
-+
-+		usb0_pwren_pins: usb0-pwren-pins {
-+			pins = "usb0_pwren";
-+			function = "usb";
-+		};
-+
-+		usb1_pwren_pins: usb1-pwren-pins {
-+			pins = "usb1_pwren";
-+			function = "usb";
-+		};
-+
-+		i2c0_pins: i2c0-pins {
-+			pins = "i2c0_scl", "i2c0_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c1_pins: i2c1-pins {
-+			pins = "i2c1_scl", "i2c1_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c2_pins: i2c2-pins {
-+			pins = "i2c2_scl", "i2c2_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c3_pins: i2c3-pins {
-+			pins = "i2c3_scl", "i2c3_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c4_pins: i2c4-pins {
-+			pins = "i2c4_scl", "i2c4_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c5_pins: i2c5-pins {
-+			pins = "i2c5_scl", "i2c5_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c8_pins: i2c8-pins {
-+			pins = "gpio92", "gpio93";
-+			function = "i2c";
-+		};
-+
-+		i2c10_pins: i2c10-pins {
-+			pins = "i2c10_scl", "i2c10_sda";
-+			function = "i2c";
-+		};
-+
-+		i2c11_pins: i2c11-pins {
-+			pins = "i2c11_scl", "i2c11_sda";
-+			function = "i2c";
-+		};
-+
-+		uart0_pins: uart0-pins {
-+			pins = "uart0_tx", "uart0_rx";
-+			function = "uart";
-+		};
-+
-+		uart1_pins: uart1-pins {
-+			pins = "uart1_tx", "uart1_rx", "uart1_cts", "uart1_rts";
-+			function = "uart";
-+		};
-+
-+		uart2_pins: uart2-pins {
-+			pins = "uart2_tx", "uart2_rx";
-+			function = "uart";
-+		};
-+
-+		fan_pwm_pins: fan-pwm-pins {
-+			pins = "fan_pwm";
-+			function = "pwm";
-+		};
-+
-+		fan_tach_pins: fan-tach-pins {
-+			pins = "fan_tach";
-+			function = "fan_tach";
-+		};
-+
-+		mipi_csi0_pins: mipi-csi0-pins {
-+			pins = "mipi_csi0_xvs", "mipi_csi0_xhs", "mipi_csi0_mclk";
-+			function = "mipi_csi";
-+		};
-+
-+		mipi_csi1_pins: mipi-csi1-pins {
-+			pins = "mipi_csi1_xvs", "mipi_csi1_xhs", "mipi_csi1_mclk";
-+			function = "mipi_csi";
-+		};
-+
-+		mipi_csi2_pins: mipi-csi2-pins {
-+			pins = "mipi_csi2_xvs", "mipi_csi2_xhs", "mipi_csi2_mclk";
-+			function = "mipi_csi";
-+		};
-+
-+		mipi_csi3_pins: mipi-csi3-pins {
-+			pins = "mipi_csi3_xvs", "mipi_csi3_xhs", "mipi_csi3_mclk";
-+			function = "mipi_csi";
-+		};
-+
-+		mipi_csi4_pins: mipi-csi4-pins {
-+			pins = "mipi_csi4_xvs", "mipi_csi4_xhs", "mipi_csi4_mclk";
-+			function = "mipi_csi";
-+		};
-+
-+		mipi_csi5_pins: mipi-csi5-pins {
-+			pins = "mipi_csi5_xvs", "mipi_csi5_xhs", "mipi_csi5_mclk";
-+			function = "mipi_csi";
-+		};
-+
-+		s_mode_pins: s-mode-pins {
-+			pins = "s_mode";
-+			function = "s_mode";
-+		};
-+
-+		boot_sel0_pins: boot-sel0-pins {
-+			pins = "boot_sel0";
-+			function = "boot_sel";
-+		};
-+
-+		boot_sel1_pins: boot-sel1-pins {
-+			pins = "boot_sel1";
-+			function = "boot_sel";
-+		};
-+
-+		boot_sel2_pins: boot-sel2-pins {
-+			pins = "boot_sel2";
-+			function = "boot_sel";
-+		};
-+
-+		boot_sel3_pins: boot-sel3-pins {
-+			pins = "boot_sel3";
-+			function = "boot_sel";
-+		};
-+
-+		ddr_ref_clk_sel_pins: ddr-ref-clk-sel-pins {
-+			pins = "gpio95";
-+			function = "ddr_ref_clk_sel";
-+		};
-+
-+		lpddr_ref_clk_pins: lpddr-ref-clk-pins {
-+			pins = "lpddr_ref_clk";
-+			function = "lpddr_ref_clk";
-+		};
-+
-+		spi0_pins: spi0-pins {
-+			pins = "spi0_cs_n", "spi0_clk", "spi0_d0", "spi0_d1", "spi0_d2",
-+			       "spi0_d3";
-+			function = "spi";
-+		};
-+
-+		dual_spi1_pins: dual-spi1-pins {
-+			pins = "spi1_cs0_n", "spi1_clk", "spi1_d0", "spi1_d1";
-+			function = "spi";
-+		};
-+
-+		quad_spi1_pins: quad-spi1-pins {
-+			pins = "spi1_cs0_n", "spi1_cs1_n", "spi1_clk", "spi1_d0", "spi1_d1",
-+			       "spi1_d2", "spi1_d3";
-+			function = "spi";
-+		};
-+
-+		spi3_pins: spi3-pins {
-+			pins = "spi3_cs_n", "spi3_clk", "spi3_di", "spi3_do";
-+			function = "spi";
-+		};
-+	};
-+};
-diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-index b3a230870315..b16e3e28632c 100644
---- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
-+++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-@@ -349,6 +349,11 @@ gpioD: gpio-port@3 {
- 			};
- 		};
- 
-+		pinctrl: pinctrl@51600080 {
-+			compatible = "eswin,eic7700-pinctrl";
-+			reg = <0x0 0x51600080 0x0 0x1fff80>;
-+		};
-+
- 		clk: clock-controller@51828000 {
- 			compatible = "eswin,eic7700-clock";
- 			reg = <0x0 0x51828000 0x0 0x300>;
--- 
-2.34.1
+Sure, Will update in V3.
+
+> 
+>> +               dev_dbg(target->dev, "Write phase started\n");
+>> +               set_bit(WRITE_IN_PROGRESS, &target->status);
+>> +               i2c_slave_event(target->slave, I2C_SLAVE_WRITE_REQUESTED, &val);
+>> +       }
+>> +}
+>> +
+>> +static int qcom_i2c_target_drain_rx_fifo(struct qcom_i2c_target *target)
+>> +{
+>> +       unsigned int rx_count;
+>> +       int i, ret = 0;
+>> +       u8 val;
+>> +
+>> +       rx_count = FIELD_GET(RX_FIFO_COUNT_MASK,
+>> +                            readl_relaxed(target->base + I2C_S_FIFOS_STATUS));
+>> +
+>> +       for (i = 0; i < rx_count; i++) {
+>> +               val = (u8)readl_relaxed(target->base + I2C_S_RX_FIFO);
+>> +               dev_dbg(target->dev, "Data from RX FIFO: 0x%x\n", val);
+>> +               ret = i2c_slave_event(target->slave, I2C_SLAVE_WRITE_RECEIVED, &val);
+>> +               if (ret)
+>> +                       break;
+>> +       }
+>> +
+>> +       return ret;
+>> +}
+>> +
+>> +static void qcom_i2c_target_hw_reset(struct qcom_i2c_target *target)
+>> +{
+>> +       /* Clear error bits before SW_RESET; the reset may not be instantaneous */
+>> +       writel(BIT(ERR_CONDITION) | BIT(CLOCK_LOW_TIMEOUT),
+>> +              target->base + I2C_S_IRQ_CLR);
+>> +       writel(SW_RESET, target->base + I2C_S_SW_RESET_REG);
+> 
+> You mentioned above the reset is not instantaneous, is it safe to
+> configure hardware from there or should we wait for a specific delay
+> or bit (like RESET_DONE or READY)?
+
+Sure, Will add delay in v3.
+
+> 
+>> +       qcom_i2c_target_hw_init(target);
+>> +       writel(target->slave->addr, target->base + I2C_S_DEVICE_ADDR);
+> 
+> Why not configuring the address in qcom_i2c_target_hw_init.
+> 
+
+hw_init() is called from probe (no slave yet) and resume (slave may be absent) — keeping it
+stateless is intentional.
+
+>> +}
+>> +
+>> +static irqreturn_t qcom_i2c_target_handle_error(struct qcom_i2c_target *target,
+>> +                                                 u32 irq_stat)
+>> +{
+>> +       u8 val = 0;
+>> +
+>> +       if (irq_stat & BIT(ERR_CONDITION))
+>> +               dev_err(target->dev, "Error condition: unexpected Start/Stop bits\n");
+>> +       else
+>> +               dev_err(target->dev, "Clock low timeout\n");
+>> +       qcom_i2c_target_dump_regs(target);
+>> +       qcom_i2c_target_hw_reset(target);
+>> +       i2c_slave_event(target->slave, I2C_SLAVE_STOP, &val);
+>> +       target->status = 0;
+>> +       return IRQ_HANDLED;
+>> +}
+>> +
+>> +static irqreturn_t qcom_i2c_target_handle_stop(struct qcom_i2c_target *target,
+>> +                                                u32 irq_stat)
+>> +{
+>> +       u8 val = 0;
+>> +
+>> +       dev_dbg(target->dev, "Stop bit detected\n");
+>> +       /*
+>> +        * Short-write corner case: WRITE_IN_PROGRESS was never set because
+>> +        * no RX_DATA_AVAIL or STRCH_WR fired before STOP. Do not call
+>> +        * qcom_i2c_target_write_requested() here — STOP ends the transaction
+>> +        * so setting WRITE_IN_PROGRESS now would leave a stale bit after
+>> +        * target->status is cleared below.
+>> +        */
+>> +       if (!test_bit(WRITE_IN_PROGRESS, &target->status)) {
+>> +               unsigned int rx_count;
+>> +
+>> +               rx_count = FIELD_GET(RX_FIFO_COUNT_MASK,
+>> +                                    readl_relaxed(target->base + I2C_S_FIFOS_STATUS));
+>> +               if (rx_count)
+>> +                       i2c_slave_event(target->slave, I2C_SLAVE_WRITE_REQUESTED,
+>> +                                       &val);
+>> +       }
+>> +       qcom_i2c_target_drain_rx_fifo(target);
+>> +       i2c_slave_event(target->slave, I2C_SLAVE_STOP, &val);
+>> +       target->status = 0;
+>> +       writel(CLEAR_RX_FIFO, target->base + I2C_S_CONTROL);
+>> +       /*
+>> +        * STOP terminates the transaction, so any other Rx or clock
+>> +        * stretch bits latched in this same status read have already
+>> +        * been serviced by the drain above or are now stale. Ack the
+>> +        * whole word rather than just STOP_DETECTED; clearing only STOP
+>> +        * would leave those bits set and immediately re-enter the
+>> +        * handler, which for a co-asserted STRCH_RD would push a stale
+>> +        * byte into the TX FIFO.
+>> +        */
+> 
+> How do you know no data arrived in the RX FIFO since the last drain?
+
+No, not in v2 — drain_rx_fifo reads the FIFO count once up front and
+iterates with a for loop, so bytes arriving after that initial read could
+be missed. Will fix this in v3 by re-reading the count on each iteration
+and looping until the FIFO is observed empty.
+
+> 
+>> +       writel(irq_stat, target->base + I2C_S_IRQ_CLR);
+>> +       return IRQ_HANDLED;
+>> +}
+>> +
+>> +static void qcom_i2c_target_handle_rx_data(struct qcom_i2c_target *target,
+>> +                                           u32 rx_irq_bits)
+>> +{
+>> +       int ret;
+>> +
+>> +       dev_dbg(target->dev, "Rx data event (rx_irq_bits=0x%x)\n", rx_irq_bits);
+>> +       qcom_i2c_target_write_requested(target);
+>> +       ret = qcom_i2c_target_drain_rx_fifo(target);
+>> +       if (ret)
+>> +               dev_dbg(target->dev, "Backend requested NACK\n");
+>> +       writel(ret ? NACK | CLEAR_RX_FIFO : ACK_RESUME,
+>> +              target->base + I2C_S_CONTROL);
+>> +       writel(rx_irq_bits, target->base + I2C_S_IRQ_CLR);
+>> +}
+>> +
+>> +static void qcom_i2c_target_handle_strch_rd(struct qcom_i2c_target *target)
+>> +{
+>> +       enum i2c_slave_event event = I2C_SLAVE_READ_PROCESSED;
+>> +       u8 val = 0;
+>> +
+>> +       dev_dbg(target->dev, "Clock stretching during read (Tx) phase\n");
+>> +       if (!test_bit(READ_IN_PROGRESS, &target->status)) {
+> 
+> You can use test_and_set.
+
+Will update in v3.
+
+> 
+>> +               set_bit(READ_IN_PROGRESS, &target->status);
+>> +               /* Repeated-start: master switched direction from write to read */
+>> +               clear_bit(WRITE_IN_PROGRESS, &target->status);
+>> +               event = I2C_SLAVE_READ_REQUESTED;
+>> +       }
+>> +       i2c_slave_event(target->slave, event, &val);
+>> +       dev_dbg(target->dev, "Data to TX FIFO: 0x%x\n", val);
+>> +       writel(val, target->base + I2C_S_TX_FIFO);
+>> +       writel(ACK_RESUME, target->base + I2C_S_CONTROL);
+>> +       writel(BIT(STRCH_RD), target->base + I2C_S_IRQ_CLR);
+>> +}
+>> +
+>> +static irqreturn_t qcom_i2c_target_irq(int irq, void *dev)
+>> +{
+>> +       struct qcom_i2c_target *target = dev;
+>> +       u32 irq_stat, rx_bits;
+>> +
+>> +       /*
+>> +        * Dispatch priority (highest first):
+>> +        *   ERR_CONDITION / CLOCK_LOW_TIMEOUT  — hardware error, triggers SW reset
+>> +        *   STOP_DETECTED                      — end of transaction, clears all state
+>> +        *   STRCH_RD                           — read-phase data supply
+>> +        *   RX_FIFO_FULL / RX_DATA_AVAIL /
+>> +        *   STRCH_WR                           — write-phase Rx, coalesced into one drain
+>> +        *   RESTART_DETECTED                   — repeated start, resets state
+>> +        */
+>> +       irq_stat = readl_relaxed(target->base + I2C_S_IRQ_STATUS);
+>> +       if (!irq_stat)
+>> +               return IRQ_NONE;
+>> +
+>> +       dev_dbg(target->dev, "IRQ status: 0x%x\n", irq_stat);
+>> +
+>> +       /*
+>> +        * Load target->slave once. Both reg_slave() and unreg_slave() disable
+>> +        * the IRQ before writing the pointer, so it cannot change while this
+>> +        * handler runs. Sub-handlers may dereference target->slave directly.
+>> +        */
+>> +       if (!READ_ONCE(target->slave)) {
+>> +               writel(irq_stat, target->base + I2C_S_IRQ_CLR);
+>> +               return IRQ_HANDLED;
+>> +       }
+>> +
+>> +       if (irq_stat & (BIT(ERR_CONDITION) | BIT(CLOCK_LOW_TIMEOUT)))
+>> +               return qcom_i2c_target_handle_error(target, irq_stat);
+>> +
+>> +       if (irq_stat & BIT(STOP_DETECTED))
+>> +               return qcom_i2c_target_handle_stop(target, irq_stat);
+>> +
+>> +       if (irq_stat & BIT(STRCH_RD))
+>> +               qcom_i2c_target_handle_strch_rd(target);
+>> +
+>> +       /*
+>> +        * Coalesce all write-phase Rx bits into a single drain+ACK. When the
+>> +        * RX FIFO fills at threshold, RX_FIFO_FULL, RX_DATA_AVAIL and STRCH_WR
+>> +        * can all assert in the same irq_stat snapshot. Pass the combined mask
+>> +        * so ACK_RESUME is written exactly once and all bits are cleared together.
+>> +        */
+>> +       rx_bits = irq_stat & (BIT(RX_FIFO_FULL) | BIT(RX_DATA_AVAIL) |
+>> +                             BIT(STRCH_WR));
+>> +       if (rx_bits)
+>> +               qcom_i2c_target_handle_rx_data(target, rx_bits);
+>> +
+>> +       if (irq_stat & BIT(RESTART_DETECTED)) {
+>> +               dev_dbg(target->dev, "Repeated start bit detected\n");
+>> +               target->status = 0;
+>> +               writel(ACK_RESUME, target->base + I2C_S_CONTROL);
+>> +               writel(BIT(RESTART_DETECTED), target->base + I2C_S_IRQ_CLR);
+>> +       }
+>> +
+>> +       return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int qcom_i2c_target_reg_slave(struct i2c_client *slave)
+>> +{
+>> +       struct qcom_i2c_target *target = i2c_get_adapdata(slave->adapter);
+>> +
+>> +       if (target->slave)
+>> +               return -EBUSY;
+>> +
+>> +       if (slave->flags & I2C_CLIENT_TEN)
+>> +               return -EAFNOSUPPORT;
+>> +
+>> +       disable_irq(target->irq);
+>> +       WRITE_ONCE(target->slave, slave);
+>> +       writel(slave->addr, target->base + I2C_S_DEVICE_ADDR);
+>> +       enable_irq(target->irq);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int qcom_i2c_target_unreg_slave(struct i2c_client *slave)
+>> +{
+>> +       struct qcom_i2c_target *target = i2c_get_adapdata(slave->adapter);
+>> +
+>> +       if (!target->slave)
+>> +               return -EINVAL;
+>> +       disable_irq(target->irq);
+> 
+> You should probably introduce proper locking...
+
+Concurrent calls to reg_target/unreg_target are already serialised by the
+I2C core — both i2c_slave_register() and i2c_slave_unregister() hold
+I2C_LOCK_ROOT_ADAPTER around the adapter callbacks. 
+
+No additional lock is needed; will update the struct comment to mention
+the adapter lock.
+
+> 
+>> +       WRITE_ONCE(target->slave, NULL);
+>> +       target->status = 0;
+>> +       writel(0, target->base + I2C_S_DEVICE_ADDR);
+>> +       enable_irq(target->irq);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int qcom_i2c_target_icc_init(struct qcom_i2c_target *target)
+>> +{
+>> +       int ret;
+>> +
+>> +       target->icc_path = devm_of_icc_get(target->dev, "i2c");
+>> +       if (IS_ERR(target->icc_path))
+>> +               return dev_err_probe(target->dev, PTR_ERR(target->icc_path),
+>> +                                    "failed to get ICC path\n");
+>> +
+>> +       /*
+>> +        * The controller only needs interconnect bandwidth while it is
+>> +        * powered. The vote is placed here and across resume with
+>> +        * icc_set_bw(), and dropped with icc_set_bw(path, 0, 0) on suspend
+>> +        * and remove, so the vote and unvote are always symmetric.
+>> +        */
+>> +       ret = icc_set_bw(target->icc_path, APPS_PROC_TO_I2C_TARGET_VOTE,
+>> +                        APPS_PROC_TO_I2C_TARGET_VOTE);
+>> +       if (ret)
+>> +               return dev_err_probe(target->dev, ret, "icc_set_bw failed\n");
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static u32 qcom_i2c_target_func(struct i2c_adapter *adap)
+>> +{
+>> +       return I2C_FUNC_SLAVE;
+>> +}
+>> +
+>> +static const struct i2c_algorithm qcom_i2c_target_algo = {
+>> +       .reg_target     = qcom_i2c_target_reg_slave,
+>> +       .unreg_target   = qcom_i2c_target_unreg_slave,
+>> +       .functionality  = qcom_i2c_target_func,
+>> +};
+>> +
+>> +static int qcom_i2c_target_adap_init(struct qcom_i2c_target *target)
+>> +{
+>> +       target->adap.algo = &qcom_i2c_target_algo;
+>> +       target->adap.dev.parent = target->dev;
+>> +       target->adap.dev.of_node = target->dev->of_node;
+>> +       strscpy(target->adap.name, "qcom-i2c-target",
+>> +               sizeof(target->adap.name));
+>> +       i2c_set_adapdata(&target->adap, target);
+>> +
+>> +       return i2c_add_adapter(&target->adap);
+>> +}
+>> +
+>> +static int qcom_i2c_target_probe(struct platform_device *pdev)
+>> +{
+>> +       struct qcom_i2c_target *target;
+>> +       struct device *dev = &pdev->dev;
+>> +       int ret;
+>> +
+>> +       target = devm_kzalloc(dev, sizeof(*target), GFP_KERNEL);
+>> +       if (!target)
+>> +               return -ENOMEM;
+>> +
+>> +       target->dev = dev;
+>> +
+>> +       target->base = devm_platform_ioremap_resource(pdev, 0);
+>> +       if (IS_ERR(target->base))
+>> +               return dev_err_probe(dev, PTR_ERR(target->base),
+>> +                                    "failed to map registers\n");
+>> +
+>> +       target->xo_clk = devm_clk_get_enabled(dev, "xo");
+>> +       if (IS_ERR(target->xo_clk))
+>> +               return dev_err_probe(dev, PTR_ERR(target->xo_clk),
+>> +                                    "failed to get and enable XO clock\n");
+>> +
+>> +       target->ahb_clk = devm_clk_get_enabled(dev, "ahb");
+>> +       if (IS_ERR(target->ahb_clk))
+>> +               return dev_err_probe(dev, PTR_ERR(target->ahb_clk),
+>> +                                    "failed to get and enable AHB clock\n");
+>> +
+>> +       target->irq = platform_get_irq(pdev, 0);
+>> +       if (target->irq < 0)
+>> +               return target->irq;
+>> +
+>> +       ret = qcom_i2c_target_icc_init(target);
+>> +       if (ret)
+>> +               return ret;
+>> +
+>> +       ret = devm_request_irq(dev, target->irq, qcom_i2c_target_irq, 0,
+>> +                              dev_name(dev), target);
+>> +       if (ret)
+>> +               return dev_err_probe(dev, ret, "request_irq failed for IRQ %d\n",
+>> +                                    target->irq);
+>> +
+>> +       qcom_i2c_target_hw_init(target);
+>> +
+>> +       platform_set_drvdata(pdev, target);
+>> +
+>> +       ret = qcom_i2c_target_adap_init(target);
+>> +       if (ret)
+>> +               return dev_err_probe(dev, ret, "i2c_add_adapter failed\n");
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static void qcom_i2c_target_remove(struct platform_device *pdev)
+>> +{
+>> +       struct qcom_i2c_target *target = platform_get_drvdata(pdev);
+>> +
+>> +       disable_irq(target->irq);
+>> +       i2c_del_adapter(&target->adap);
+>> +       writel(0, target->base + I2C_S_CONFIG);
+>> +       icc_set_bw(target->icc_path, 0, 0);
+>> +}
+>> +
+>> +static int qcom_i2c_target_suspend(struct device *dev)
+>> +{
+>> +       struct qcom_i2c_target *target = dev_get_drvdata(dev);
+>> +       int ret;
+>> +
+>> +       ret = icc_set_bw(target->icc_path, 0, 0);
+>> +       if (ret)
+>> +               dev_err(dev, "icc_set_bw failed on suspend: %d\n", ret);
+>> +
+>> +       clk_disable_unprepare(target->xo_clk);
+>> +       clk_disable_unprepare(target->ahb_clk);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int qcom_i2c_target_resume(struct device *dev)
+>> +{
+>> +       struct qcom_i2c_target *target = dev_get_drvdata(dev);
+>> +       int ret;
+>> +
+>> +       ret = clk_prepare_enable(target->ahb_clk);
+>> +       if (ret) {
+>> +               dev_err(dev, "failed to enable AHB clock\n");
+>> +               return ret;
+>> +       }
+>> +
+>> +       ret = clk_prepare_enable(target->xo_clk);
+>> +       if (ret) {
+>> +               dev_err(dev, "failed to enable XO clock\n");
+>> +               goto err_disable_ahb;
+>> +       }
+>> +
+>> +       ret = icc_set_bw(target->icc_path, APPS_PROC_TO_I2C_TARGET_VOTE,
+>> +                        APPS_PROC_TO_I2C_TARGET_VOTE);
+>> +       if (ret) {
+>> +               dev_err(dev, "icc_set_bw failed\n");
+>> +               goto err_disable_xo;
+>> +       }
+>> +
+>> +       qcom_i2c_target_hw_init(target);
+>> +       if (target->slave)
+>> +               writel(target->slave->addr, target->base + I2C_S_DEVICE_ADDR);
+>> +
+>> +       return 0;
+>> +
+>> +err_disable_xo:
+>> +       clk_disable_unprepare(target->xo_clk);
+>> +err_disable_ahb:
+>> +       clk_disable_unprepare(target->ahb_clk);
+>> +       return ret;
+>> +}
+>> +
+>> +static const struct dev_pm_ops qcom_i2c_target_pm_ops = {
+>> +       SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(qcom_i2c_target_suspend,
+>> +                                     qcom_i2c_target_resume)
+>> +};
+>> +
+>> +static const struct of_device_id qcom_i2c_target_dt_match[] = {
+>> +       { .compatible = "qcom,qdu1000-i2c-target" },
+>> +       {}
+>> +};
+>> +MODULE_DEVICE_TABLE(of, qcom_i2c_target_dt_match);
+>> +
+>> +static struct platform_driver qcom_i2c_target_driver = {
+>> +       .driver = {
+>> +               .name           = "qcom-i2c-target",
+>> +               .pm             = &qcom_i2c_target_pm_ops,
+>> +               .of_match_table = qcom_i2c_target_dt_match,
+>> +       },
+>> +       .probe  = qcom_i2c_target_probe,
+>> +       .remove = qcom_i2c_target_remove,
+>> +};
+>> +module_platform_driver(qcom_i2c_target_driver);
+>> +
+>> +MODULE_DESCRIPTION("Qualcomm I2C target controller driver");
+>> +MODULE_AUTHOR("Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>");
+>> +MODULE_LICENSE("GPL");
+>>
+>> --
+>> 2.34.1
+>>
+>>
 
