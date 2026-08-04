@@ -1,40 +1,40 @@
 Received: from naesa05.arrow.com (naesa05.arrow.com [216.150.161.26])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B8E330648A;
-	Tue,  4 Aug 2026 10:44:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E89A4477F1;
+	Tue,  4 Aug 2026 10:44:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.150.161.26
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785840283; cv=none; b=fnzGTn2/8BpQhOO9aj+LXwQfFxZqeA496TPw80EPlrHS5pg14sZBQcVp0ruc/BaQ9yikY4LLofCrUxiS7058w4PIKDLwxoP5lNkoAfShvGyGzM+uC1M6e/yQs5OuqIe/HEB+tB1+vBhRMaZ67u+h/A64BaExasKgiW9KcXFvUoY=
+	t=1785840284; cv=none; b=nIuodY0VQJhlbzuheiRR0XKxMWSYKOygeYdiYDSR4bQke4euRJmNYZG+NvYzW5r1/paKL8EzkrGyQAA7QE11h52+epTcQlzx6JvKkVC5rn51tSyi+uPAv30QENaaXqVZEoSRvym9IShWmxQEMpk6C/8D7ixiHLVjJYG+WWC1d4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785840283; c=relaxed/simple;
-	bh=l14NkZUeEmSiEliJNOziJ+7kDTrcYuUPelCIBKPHRYs=;
+	s=arc-20240116; t=1785840284; c=relaxed/simple;
+	bh=IgPFcaWjJKZXYSiDEOt9HHAeookxKAzELEI3gWtwbJ0=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=sXGymBjUCb3vkgorumJZ4M95dvzPP90j3MrO/zwMTXC7Pt0eDQH9NzRHfzVw12jDRQ+NamXruLYl/M/9t/9an+z/jsPNRqY+N5NUBFGWwRyy5shVOq17PchANjR1r4zxJta33CdK6ECR70BYS60n/LPHSMu2LJSXSibDksbGWPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=KUom6fKd; arc=none smtp.client-ip=216.150.161.26
+	 MIME-Version; b=I6wymcA9osz8ozzhIY5SCsYYPBR0VntiTAJPyCR9XNU4VrSZJJAtIy3N4VTNlvlFMt9mkOZ7If4TdCiMEZqcfZ+oEJQj/0mt+fuu0G/+zCtjxOkWdudDXgFIX8mu/y+w+4QfhS0/5uSEtdm+Q1J8t2QefAAbVdCs9iKnJhv/DFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=k4fg2y3I; arc=none smtp.client-ip=216.150.161.26
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=einfochips.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="KUom6fKd"
+	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="k4fg2y3I"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=einfochips.com; i=@einfochips.com; l=794; q=dns/txt;
-  s=NAESA-Selector1; t=1785840281; x=1817376281;
+  d=einfochips.com; i=@einfochips.com; l=1135; q=dns/txt;
+  s=NAESA-Selector1; t=1785840283; x=1817376283;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=jmElgJvR2SxXAb5fMQrJa0XzibcaGBksUwer/D+qE6I=;
-  b=KUom6fKdUQG8tTV0dzN5VKrTxLkrE8MIc5BClUTt6wcI30GKjtqo1s5V
-   F3tQRT3vdfdSiEvQIOXuYn8i6qZ/qbmCq3/1xGuh3fejFbRD6Xzl+b+im
-   s5B8lkO0wCTI+gZmN4euA4SwszP1dY8oPccMDYt8Eoqi4aDocAZXzT1Zh
-   P5PLjd6II63RdfDPNNzE3qrKo7b+F5h3w4e2C6BcMGmVQG6rWijg9BP7q
-   NtaM6Zicb1tPbfMFWFYjdH0G3mnU5zRQZbl6TV/MTTWUcKGZA6VmdCvBq
-   dXfSkMGn5yPkdoWVEe5DrC8B2mPSt3AYvQoHBuij1TXK82JgrYAlWsB6G
-   Q==;
-X-CSE-ConnectionGUID: bffZQSOBSUGxI5Bw/j7g3g==
-X-CSE-MsgGUID: rLRGZas7SZKfwSz7pDkUFQ==
+  bh=fhMulqfAdieip+w70VJod08BqyqQUojtyVidc3DwEBk=;
+  b=k4fg2y3IP/+LRnH+CMXq4umTA8zb9sPNx1oPwGZIITZ8+TREpr8E3/XP
+   6u6l5V1O9C6Q+IGSZbUodPADPobSWORnDROF3Ywg8YgoM3JUrTYmoSRbA
+   OAMVCz6VGga65Mn915nAmS37mY+PWuWxIAmsNfrEIUfp5xh1cFMy7T9/D
+   ay4CzYZ61YTZOzDi99xjL4C+BoZV+VyGsuQ+gxgCRmpqpw9KpHRTFG9H1
+   pkOwRXxN+BPfXGJ9sIrDlIt0MPi03PCHDRvW2H4UBFAzVUK3N1+lM6ogt
+   NaXTWWG1vnPLFPbGSqb93LSKCcJfIl5vEUWNjjJIxJUpqs1U85aGfUia6
+   g==;
+X-CSE-ConnectionGUID: rvS3T3juRemI57OTRGZ4DQ==
+X-CSE-MsgGUID: zIyuZ8rdSr2Tgr21PrQ3Nw==
 X-IronPort-AV: E=Sophos;i="6.25,204,1779170400"; 
-   d="scan'208";a="59629004"
+   d="scan'208";a="59629008"
 Received: from unknown (HELO eicahmirelay01.einfochips.com) ([10.100.49.50])
-  by naesa05out.arrow.com with ESMTP; 04 Aug 2026 04:44:39 -0600
+  by naesa05out.arrow.com with ESMTP; 04 Aug 2026 04:44:41 -0600
 Received: from AHMCPU1888.localdomain ([172.25.5.100]) by eicahmirelay01.einfochips.com with Microsoft SMTPSVC(10.0.20348.1);
 	 Tue, 4 Aug 2026 16:14:31 +0530
 From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
@@ -58,9 +58,9 @@ Cc: Yulin Lu <luyulin@eswincomputing.com>,
 	Darshan Prajapati <darshan.prajapati@einfochips.com>,
 	Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>,
 	Pritesh Patel <pritesh.patel@einfochips.com>
-Subject: [PATCH v3 4/8] dt-bindings: mfd: syscon: add ESWIN EIC7700 compatible
-Date: Tue,  4 Aug 2026 16:14:27 +0530
-Message-Id: <20260804104431.1391839-5-pinkesh.vaghela@einfochips.com>
+Subject: [PATCH v3 5/8] riscv: dts: eswin: add hsp bus node
+Date: Tue,  4 Aug 2026 16:14:28 +0530
+Message-Id: <20260804104431.1391839-6-pinkesh.vaghela@einfochips.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20260804104431.1391839-1-pinkesh.vaghela@einfochips.com>
 References: <20260804104431.1391839-1-pinkesh.vaghela@einfochips.com>
@@ -71,28 +71,41 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 04 Aug 2026 10:44:31.0712 (UTC) FILETIME=[3B743600:01DD23FE]
+X-OriginalArrivalTime: 04 Aug 2026 10:44:31.0759 (UTC) FILETIME=[3B7B61F0:01DD23FE]
 
-Document ESWIN EIC7700 SoC compatible for syscon registers.
+Add an HSP bus node to manage the HSP CFG clock used by HSP
+peripherals. This clock is required for accessing both the HSP CSR
+registers and the register spaces of HSP peripheral devices.
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
 ---
- Documentation/devicetree/bindings/mfd/syscon.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/boot/dts/eswin/eic7700.dtsi | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/syscon.yaml b/Documentation/devicetree/bindings/mfd/syscon.yaml
-index fe882d3f828b..8e24c6be2fdd 100644
---- a/Documentation/devicetree/bindings/mfd/syscon.yaml
-+++ b/Documentation/devicetree/bindings/mfd/syscon.yaml
-@@ -59,6 +59,7 @@ properties:
-               - cirrus,ep7209-syscon3
-               - cnxt,cx92755-uc
-               - econet,en751221-chip-scu
-+              - eswin,eic7700-syscfg
-               - freecom,fsg-cs2-system-controller
-               - fsl,imx93-aonmix-ns-syscfg
-               - fsl,imx93-wakeupmix-syscfg
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index b16e3e28632c..771a88645d83 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -252,6 +252,19 @@ plic: interrupt-controller@c000000 {
+ 			#interrupt-cells = <1>;
+ 		};
+ 
++		hsp: bus@50400000 {
++			compatible = "simple-pm-bus";
++			ranges = <0x0 0x50400000 0x0 0x50400000 0x0 0xa0000>;
++			clocks = <&clk EIC7700_CLK_GATE_HSP_CFG_CLK>;
++			#address-cells = <2>;
++			#size-cells = <2>;
++
++			syscon: syscon@50440000 {
++				compatible = "eswin,eic7700-syscfg", "syscon";
++				reg = <0x0 0x50440000 0x0 0x2000>;
++			};
++		};
++
+ 		uart0: serial@50900000 {
+ 			compatible = "snps,dw-apb-uart";
+ 			reg = <0x0 0x50900000 0x0 0x10000>;
 -- 
 2.34.1
 
