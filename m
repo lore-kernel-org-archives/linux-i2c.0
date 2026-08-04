@@ -1,67 +1,32 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B62D3CC7DB
-	for <linux-i2c@vger.kernel.org>; Tue,  4 Aug 2026 06:03:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0C01C23EAB0;
+	Tue,  4 Aug 2026 06:27:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785823384; cv=none; b=i6M7C3laTTOWW9g7MZ3UpD6dtfzwoGnYN/iGrWK2sHjeJfIqk1OwF+7JwPJ5o7MFreZAV8jvg+fzkQmnxHju6gB05yU33vYhtn6zI7pnVviE3CXwivqNCY0eIBs1t40RYJjYGUYUQUW9+9Rrz1ZWaNTUnGlqG8Pxp5AIzefNreA=
+	t=1785824836; cv=none; b=YMlSKc/oupGjY/wfZ1AIy37SputZsFgJ5Z58SNtyCgTPgrk/qn0Xqm9Bk7QVFdlxdMCSYV1FywpFC3OpaNfmgw5pd139pRU5GNmArOl1SnXpPCNxZ+gX7aXXgBguTlcgfLLd7zRcPTwakVOy3pOLA6kDu36LLkFULjXdTjA+rAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785823384; c=relaxed/simple;
-	bh=WzGPQZPZvSE6OgmQ2f+YB2EIUiU59wlOHVjvsMguvtQ=;
+	s=arc-20240116; t=1785824836; c=relaxed/simple;
+	bh=GZw+V1zr6GJ+fFmlwMN9cGDcnrj9DC3erOpXhpi1qdA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rnAzO5fgwwQiVcqBJ7JLXVqeUcfyw/XlWDus7lG2lB3U3a2Hr+H3jeTzP1q0t0V7S6mBNMIcfPoDMRC4DTGvZCxxrwvFssxAwBMdpSHm6VCm2ftN++PByPcod58nUfBKU7+qP92jGQA7jZlFmQ5AGYRLRY2zRvF8m9wo59ZYbOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=s3NVvUF5; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=Xr9BGmEdMrGaqLjs1+VFCTzDOvgNnk/YYWu1yhYhHNiJQ+bfJkeg3ge1ZucvRg01bT937/xeGYw7pDHIt+ht48RAMBgbezJEe5q4uLolyhEX4og5acK44pfQyWS2ERtzej+Avcv9KanAX4Q022ezEDfvZ7WuegjhxXgldpqcads=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn; spf=pass smtp.mailfrom=stu.xidian.edu.cn; dkim=fail (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b=bzLrhpra reason="key not found in DNS"; arc=none smtp.client-ip=162.243.164.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s3NVvUF5"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2cf52d15d88so34585095ad.2
-        for <linux-i2c@vger.kernel.org>; Mon, 03 Aug 2026 23:03:03 -0700 (PDT)
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b="bzLrhpra"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785823383; x=1786428183; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=dqptnEF5UgYmd45YEaHNyWvrU1VG+w375D9PvPQlhLU=;
-        b=s3NVvUF584JhtO2/HeFxA+81KUn8jNMGJBmLkzirrbrYTxYwzollkY8lY7qY2BBVkV
-         va3XvSGkDdMg8qT0X9e83T3GBJ2NjTknbJ/dqHS5WdgLU2tFJOmwcEnWAB2TOhJiKriB
-         RF+pl224INA1L66gzR9mDDv18U+MieEj1IJxKh3Y+VkPu//KO2cTJA4huW5l+ZU8xl9o
-         BPBMfBac7wQBOUUhc6zZnclF8Z2Ia8IcefwNrt3Rhnit5CT3tnB3TBr2BiwHndewZhof
-         CTwHc94/4ixs0i1C5RtdwTTPBZxtPGBOuxuuxU+dfAvinSLFj1aIeRgsLYcXRMLq9weN
-         KRWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785823383; x=1786428183;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=dqptnEF5UgYmd45YEaHNyWvrU1VG+w375D9PvPQlhLU=;
-        b=k1Wv0dWXM4lOxNHvmJAhf9mPJdUcbheJJ3cGo0IPFU4Z7s+a0rOLE2vz+QtbhnAGOJ
-         uHp8inaU2cMVfyFK+RRwhG9UDXl7oXYpvPh6n8+C8rrYtwJ7OlmePYi8jHq5kmsVo22y
-         2sFvcXJMDa2kPWY6TiW/5qrlieJ0dyHJJC5mC+BIX19pBJonRfC0kAM8EH9+B/z3u/Yg
-         mA+gcWXQG011iaoX1b/2ss8IBxsPt3KRebbolIZvIlSyr8XAb92zbkj/oqUu1tv8k7zX
-         YY4HqZOYtuWiD5A1bgJqw8zQXGe3k1KbMbVwGSirOhedMRjpMQDfbTTtoHcITdcq8g7x
-         rlDw==
-X-Gm-Message-State: AOJu0Yzu8iuHsKi/cE2BJZ/DFwR5/R08QkRSoxdTQE6c3lockFAOafom
-	w99KRCj2xu/YaAgrUXv2AOcPCdnGGDQdRrwNMkJKKVyKA0XTnBOve3Ta
-X-Gm-Gg: AR+sD1352tQKI17Lep3bZqnvbzlREsYiYjbqvX+j8ni6NArYeJwCPo+sV4YKRAu2wwc
-	MpuOU6C5bA4F0UqUOimRspZB1d5gKTzATAUHO9gTCkgMBWbJyw6HQBbKeoEObh/CDULHqIXSfX8
-	typ1L111BpbTvI7xRufKru6XFc3nSFocer1NjiFsEBk/+JGAwO1RwwiIssWOSZ9Z3YAR3z3Kmbr
-	mdBhXV3057kPOZnfeqcqR5eZGxdACGR5/ntSqaIYUI3SrAfS2ajfj7ZQEWf2E/qrGApTtbZf22R
-	cdwh2KX2UF5r3TkRerKkVgpMZ9vPA+gW29ZDZCtXvg2b6RB547nKVIX14w+OYr8/5OTf26WE5mZ
-	5+Khtv6qnid6H27P3f1lfD1dTvND9p9or5C3Hm6AK4zLJzs/sTjXzgShMzVuyvm+8ELFveHpp05
-	HfiebXk7tcb7QEK5SC69AiRfkgSgha0o4JMtiOViVFiVVwzJtLwimasQqhkbYCp2Ms2DdRZZpfx
-	HBKE5hQD8B4wETUrYNRKP4Vq6LW669UUn6V
-X-Received: by 2002:a17:903:185:b0:2ca:52ce:6f91 with SMTP id d9443c01a7336-2d0522983b5mr136311625ad.27.1785823382566;
-        Mon, 03 Aug 2026 23:03:02 -0700 (PDT)
-Received: from [172.19.1.48] (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d0aa492c74sm98315ad.54.2026.08.03.23.02.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Aug 2026 23:03:02 -0700 (PDT)
-Message-ID: <db91085b-ae1e-4cfd-8f8e-89c379684303@gmail.com>
-Date: Tue, 4 Aug 2026 14:02:58 +0800
+	d=stu.xidian.edu.cn; s=dkim; h=Received:Message-ID:Date:
+	MIME-Version:User-Agent:Subject:To:Cc:References:From:
+	In-Reply-To:Content-Type:Content-Transfer-Encoding; bh=GZw+V1zr6
+	GJ+fFmlwMN9cGDcnrj9DC3erOpXhpi1qdA=; b=bzLrhpraoh59nOUwD/6K6ofme
+	IBgkMlABKu/dc9gRaEPrQtu1DWLXiKLEabbMfc4ilx/Tp77cpugcypB9IlK8UlpY
+	0wj6uOLcngxIqHft43MCKe5ruNko26RiPCM+KOWCo9GLg+UWvV2Kojoqo9rXGnnB
+	5EEqpDujOvNBlgCAFA=
+Received: from [192.168.1.110] (unknown [115.53.189.222])
+	by hzbj-edu-front-3.icoremail.net (Coremail) with SMTP id BbQMCkD2WdM2hnFqWlDbAQ--.59253S3;
+	Tue, 04 Aug 2026 14:27:03 +0800 (CST)
+Message-ID: <461151f7-9474-4856-bf5c-d5145d9bb9dc@stu.xidian.edu.cn>
+Date: Tue, 4 Aug 2026 14:27:02 +0800
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -69,131 +34,45 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 2/3] i2c: ma35d1: Add Nuvoton MA35D1 I2C driver support
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- Jacky Huang <ychuang3@nuvoton.com>, Shan-Chun Hung <schung@nuvoton.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Philipp Zabel <p.zabel@pengutronix.de>
-References: <20260727081859.1737223-1-zychennvt@gmail.com>
- <20260727081859.1737223-3-zychennvt@gmail.com>
- <ampnhe-GqNoQwmJZ@zenone.zhora.eu>
-Content-Language: en-US
-From: zychen <zychennvt@gmail.com>
-In-Reply-To: <ampnhe-GqNoQwmJZ@zenone.zhora.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v3] i2c: i801: Fix hardware state machine corruption and
+ stack-out-of-bounds
+To: jdelvare@suse.com, andi.shyti@kernel.org
+Cc: wsa@kernel.org, hkallweit1@gmail.com, djkurtz@chromium.org,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20260627111749.482415-1-25181214217@stu.xidian.edu.cn>
+From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+In-Reply-To: <20260627111749.482415-1-25181214217@stu.xidian.edu.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID:BbQMCkD2WdM2hnFqWlDbAQ--.59253S3
+X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
+	VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUYd7k0a2IF6F4UM7kC6x804xWl14x267AK
+	xVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGw
+	A2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26r1I
+	6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Gr
+	1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAac4AC62xK8xCEY4vEwIxC
+	4wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7
+	IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4U
+	M4x0Y48IcVAKI48JMxkIecxEwVAFwVW8AwCF04k20xvY0x0EwIxGrwCF54CYxVCY1x0262
+	kKe7AKxVWUAVWUtwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18
+	MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr4
+	1lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l
+	IxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4
+	A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jr_-PUUUUU=
+X-CM-SenderInfo: qsvrmiqsrujiux6v33wo0lvxldqovvfxof0/1tbiAgUPEWpwsH1obgAAsI
 
+Hi Jean and Andi,
 
-Hi Andi,
+Just a gentle ping on this patch.
 
-Andi Shyti 於 2026/7/30 上午 05:06 寫道:
-> Hi Zi-Yu,
-> 
-> ...
-> 
->> +static void ma35d1_i2c_stop(struct ma35d1_i2c *i2c, int ret)
->> +{
->> +	ma35d1_i2c_write_ctl(i2c, MA35_CTL_STO_SI);
-> 
-> I think there is a valid review from sashiko here.
-> 
-Address sashiko's review, I will introduce a new helper to handle
-bus errors and spurious interrupts based on the current state, while
-keeping ma35d1_i2c_stop() unchanged and used exclusively during
-active transfers.
+It addresses a critical KASAN stack-out-of-bounds issue that occurs
+when a transaction times out or aborts, and the hardware fires a
+delayed or spurious interrupt after the stack frame is destroyed.
 
->> +	if (ret)
->> +		i2c->err = ret;
->> +
->> +	ma35d1_i2c_controller_complete(i2c);
->> +}
-> 
-> ...
-> 
->> +static irqreturn_t ma35d1_i2c_irq(int irqno, void *dev_id)
->> +{
->> +	struct ma35d1_i2c *i2c = dev_id;
->> +	unsigned long status;
->> +
->> +	status = readl(i2c->regs + MA35_STATUS0);
->> +
->> +	if (status == MA35_BUS_ERROR) {
->> +		dev_err(i2c->dev, "Bus error during transfer\n");
->> +		ma35d1_i2c_stop(i2c, -EIO);
->> +		goto out;
->> +	}
->> +
->> +	if (ma35d1_is_controller_status(status))
->> +		ma35d1_i2c_irq_controller_trx(i2c, status);
->> +	else
->> +		ma35d1_i2c_irq_target_trx(i2c, status);
-> 
-> Why are these functions void? We should at least print an error
-> in case of failures.
-> 
-Agree.
-Changed the return types of both TRX helper functions to irqreturn_t.
-On unhandled/unknown status codes, will return IRQ_NONE.
+Please let me know if there are any further comments, or if it
+looks good to be queued up.
 
->> +
->> +out:
->> +	return IRQ_HANDLED;
->> +}
-> 
-> ...
-> 
->> +static int ma35d1_i2c_probe(struct platform_device *pdev)
->> +{
->> +	struct ma35d1_i2c *i2c;
->> +	struct resource *res;
->> +	int ret, clkdiv;
->> +	u32 val;
->> +	unsigned int busfreq;
-> 
-> you can immediately initialize busfreq here.
-Sure.
+Thanks,
+Mingyu
 
-> 
->> +	struct device *dev = &pdev->dev;
-> 
-> nit: can you please sort the declaration by line length, in a
-> reverse christmast tree shape?
-Sure.
-> 
->> +	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
->> +	if (!i2c)
->> +		return -ENOMEM;
-> 
-> ...
-> 
->> +	ret = devm_add_action_or_reset(dev, ma35d1_i2c_pm_cleanup, dev);
->> +	if (ret)
->> +		goto rpm_put;
->> +
->> +	writel(MA35_CTL_I2CEN | MA35_CTL_INTEN, i2c->regs + MA35_CTL0);
->> +	writel(FIELD_PREP(MA35_CLKDIV_MSK, clkdiv), i2c->regs + MA35_CLKDIV);
->> +
->> +	ret = devm_request_irq(dev, i2c->irq, ma35d1_i2c_irq, 0, dev_name(dev),
->> +			       i2c);
->> +	if (ret) {
->> +		dev_err_probe(dev, ret, "cannot claim IRQ %d\n", i2c->irq);
->> +		goto rpm_put;
-> 
-> The actions in rpm_put are executed twice, considering
-> devm_add_action_or_reset.
-> 
-Agree.
-Removed the redundant rpm_put label and changed error paths to return
-ret directly, leaving PM cleanup to devm_add_action_or_reset().
-
-All these changes will be included in v8.
-
-> Thanks,
-> Andi
-> 
->> +	}
-
-Best regards,
-Zi-Yu
