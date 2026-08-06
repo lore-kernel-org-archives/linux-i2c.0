@@ -1,156 +1,169 @@
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ms2.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 070A7175A83
-	for <linux-i2c@vger.kernel.org>; Thu,  6 Aug 2026 02:52:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785984723; cv=pass; b=dtE8Y/MSrBUhN61riQ/BxmGQyEC3pVcsjGWxxx6NiGizm1zkdiLUzBKiKQts1k0t26RKbQ1VBtjFxzAH10fpXTj0LrTJuhbhsK3U6phCf7V0GruDNxZzNsRnQPVgAOBdeXaOERunnRJX5bYp+uE16AAujXkE9xrF+me6Prc4YRU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785984723; c=relaxed/simple;
-	bh=BofN+QkBqcBCXaM7Ffk3SnOnc6dFmU5Id2Z8stGZ/CI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Tb37Kxu6GGE/bt9tHtPo/bkfqiWhl3ladAOYdm38ZIRFn59yc6wWP9Vk2nmqMrdMASrDT2GkoZv9cijFhbkHR3cs3vFLGpHcEr9WIer64pVSXr6grLbccic8vcN5xnSStOH69RsrnN7/HOQ5lwvBomZalrjF2zHmvVgIYU9nYEc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GP9HOzyJ; arc=pass smtp.client-ip=209.85.208.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C70531A9F85;
+	Thu,  6 Aug 2026 03:56:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785988600; cv=none; b=p7bQKf6O9rLA/i0CUocKbyKUb2wIQicVDelSOJD7U0qxPCJUwNXA25f0qsFpHrtyDQWVzXzIKkZHhRf5n6VDWVm/zBWlCsc1f+Gco5Zi5C6wn/sW1sU8Jg7RDAnhn8cgV+uWIt+TXXhGwxXQrMslo3+BmLDTZLXNL0Q73DSNWJg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785988600; c=relaxed/simple;
+	bh=hfHhiTgb4XN6+OmhxPjnbiGJhpiE+aEFIzGv7DFVI+A=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=PW2e2U2ywlJyRUy3iOSqDfRdyBk1WjAC0uAksrFQ887w/sqVuJPf3hJAvhxEKZflyUn3XLUZSU3LRJ2df3Wp7t6GR/aR1x6kuEaNFAvBp86SJYe0CMVQOj6hpNemVJjybgJQazaPKqulCdVKM9ZHlK/yiCrXd6SRuEbAFRkMn7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=Dp+yd4wl; arc=none smtp.client-ip=210.202.87.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GP9HOzyJ"
-Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-39c7ef2b1e2so17658441fa.1
-        for <linux-i2c@vger.kernel.org>; Wed, 05 Aug 2026 19:52:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785984720; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Z6b0wSnyP+HFvlwug0eBeNo8J6fdya5fON2XkMU4JBuE07buVuDxn6+KBAp6IRwP7M
-         6uCbNHrrDd848HIjhQdzSp7wQpUt66vP2Dq5Z+0mx+9qMQZmeh4VAlVxi1U87yEDxHcq
-         nsA3jfsPNBLWLW8Hqm36B6Qh+TtQI+PsgkiGLOkBv98hMqxAmFLF4zaQvCH5ZfuzBKVu
-         cTPeHVuaqrFy3JxY5iI1/7cPRGfHElQWEN5pxATfrW7pQQEeqiDfMd8Cm3eM2s6WQGtQ
-         UGcYZ/A8Xbd6mDc9JSr77IqUNEbJeyXhwv8SyYBdExAK3743jBhrxfFyvfSFTAvODzPR
-         CRyA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LH9Hb22G5gTotHoIdzC5eUl1OJHBKnjFRO4+QY5Ci1U=;
-        fh=q/SAs6St7Tf2JiwMLOGB1I56AUyCch3uXVIB5P4h6rE=;
-        b=nsVEAsuXI2NT+HxD4lPsGGjATraNLCGJBbNw55f4Er+XawZl/72nt4mcoyXTUSdVki
-         VqOqOWnhXgVWvTnt5VsgEKpgp3i3ZihFCxrs7eq69BfcIidbHtUWTExnLRDwPJUGGtl9
-         zuJ+4rcUp5SR4GAo/LPYnA0z1Ovsci2EL2gjZyA6VSSkTpax+AgDso1wN/mRohZYR2eG
-         feaKbeLbLSrAHEIP+dQCoTwZGX7LAtNiSFiaE35/wiMwTPi6xiApn884MAAI5qjeJWcA
-         CPqm9Trsl5E5sUUq58mwhwU2+sW0w/S6XzA/SOvOc8zkdY3PLEBzWSLtBBH9Ex/YEUlD
-         Ns6A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785984720; x=1786589520; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=LH9Hb22G5gTotHoIdzC5eUl1OJHBKnjFRO4+QY5Ci1U=;
-        b=GP9HOzyJkjXzt2dbcuJG5kY6a1t+fskClpHSqYhiokGzmNXtRKLdGHL4O4KZwMzP71
-         ICU16Y+nbJuX7ilIEDlpW6bhGdzxUzQZaRO5bnD0MbnZvcpEjdVlzeTaFX9m6Ip/q4C5
-         MHl5FYd6oC0UGG4DZmpJUC/fd5doCzgLkekB/EFxE1zluzLhhQzfdwxb1hGC4iB1mOgK
-         5FUbfGiQekZneqmzrSBE+PTWpLk500NsjLgW+MZbPZj21CoWJjNEMasnruGwwMWYubu3
-         9/4tE+R21uUAvzif7Tm82tsbdSHKQnBUdok2v8W3H7Ol4w0RlpskRjcgoa0orKPOFmtG
-         S+Ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785984720; x=1786589520;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LH9Hb22G5gTotHoIdzC5eUl1OJHBKnjFRO4+QY5Ci1U=;
-        b=aQLok2Lgq7PFMDHXgHfJdoJ7XaqMv3ojljMCZ2ea0jMCDLlliFlxuGg1PpmdsAZ9ly
-         9vgk5EBW2fEEJpIxnSwTdIn9DuPnUSWunFZW8h5n9ge50w53n0mB4F+8/UpY3yRicC1e
-         XC7KGPqxH5pKYs6/POuRW6JMzLEAP8FmcNHa2Vvg8d4zIcZv7+y0gggcDPmWNh9ZVG7t
-         Ln9xsmpOh/d26bKTLUG6fFECMGCuN9H6i/orhP3tPL6Rkofsxv8HQkc9TBgxQT3Koz9v
-         WaCPHGBKrO6uD+lPrH6DNh9CmGrV+VjRXzZhe73jumiFFe6kXH41NYq9v55QBTRFhdRc
-         iagw==
-X-Forwarded-Encrypted: i=1; AHgh+Rp/Z9fdrHYoZlGBDlX8J6+0X2np/LFJgEFmQM4KKCkynAV12/Ot0cx3IgDt+C43E5rWVzWzX90a3fQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yysf88hzOctK6onxyvHyiCga8LjaJW43P3tg8NN1oCaH9wLp/ev
-	Qz0U75vplPWFJq91wW5W3UZy8xbcL0Hj8MlTPWrYOmixBhBBl3Xeq85h+ZQ43i7pa0dD0XUDvFz
-	aN4N+jmQO+HSt/e6krHl0ziGGCMOAeRs=
-X-Gm-Gg: AR+sD13AsIWG0JGNkHcoaN+3a3bTMfuwJAo6fFgBizFYxKhn/LGeehmUaL/Hv80dwXg
-	gNV/lVAbzoike2+LSIX6L08tzXEV0YYhc5bhzv+862PbqBLzrsU+oQxEbq1Fc1oQlQaiG7ChGua
-	vAxtAs4xitNNYzbouz4oA4mrrckmIQeE4Q4E5aDlfHiCjg348YrKw2hdA5AXqyygXlj5EtvG8yk
-	a8rKedEiGuIO+uk5qh2gJv5tERzLeo+r8o1d+u0kce8WVPghXTYh1DxPftpLwAGqHlHn6ZdUnpG
-	7E2rh3DoRGa9ofsHxJVty3D0xdSXB5w7cWuLjRyYGhFv14M=
-X-Received: by 2002:a2e:a99d:0:b0:39f:bc94:eba1 with SMTP id
- 38308e7fff4ca-39fbc94ecdbmr12993261fa.16.1785984719852; Wed, 05 Aug 2026
- 19:51:59 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="Dp+yd4wl"
+X-UUID: d0b2ff08914a11f1b694ffd7d3467620-20260806
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
+	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=2hzHDIWE3mEzGndEe4qZhyai4rE2yhXImI+04A3g1jw=;
+	b=Dp+yd4wlEM4tdS0EJZRpzz/vz/POomrh1OMzYM1u7mA+FY2yFqs2/l5X8d1cAYlhCnvCz5P1UB5GqrdGKtrZFt4iTLer7rZmEm/uzeOq+5DV/27K+/t/1uQGWQuEJemuURnGBMXyBuLrBqWZ9cAcvOiIJw0f+2oXqc/PPnZPqXQ=;
+X-UUID: d0b2ff08914a11f1b694ffd7d3467620-20260806
+Received: from spmgt1 [(172.20.13.10)] by ms2.novatek.com.tw
+	(envelope-from <sp_isw1_at@novatek.com.tw>)
+	(Generic MTA)
+	with ESMTP id 1102781565; Thu, 06 Aug 2026 11:56:34 +0800
+Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
+	by spmgt1 (Postfix) with ESMTP id 138781A22CB;
+	Thu,  6 Aug 2026 11:56:34 +0800 (CST)
+Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
+	id 701BCC600D0; Thu,  6 Aug 2026 11:56:32 +0800 (CST)
+From: nina_kuo@novatek.com.tw
+To: andi.shyti@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: ben_huang@novatek.com.tw,
+	toby_chui@novatek.com.tw,
+	shihpei_hsu@novatek.com.tw
+Subject: [PATCH v6 1/3] dt-bindings: i2c: Add Novatek NT72676 I2C controller
+Date: Thu,  6 Aug 2026 11:56:30 +0800
+Message-Id: <20260806035632.777782-2-nina_kuo@novatek.com.tw>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <20260806035632.777782-1-nina_kuo@novatek.com.tw>
+References: <20260806035632.777782-1-nina_kuo@novatek.com.tw>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260707151542.91997-1-muchamadcoirulanwar@gmail.com>
- <20260707151542.91997-4-muchamadcoirulanwar@gmail.com> <anH7kbxvS6z5GlPI@nsa>
-In-Reply-To: <anH7kbxvS6z5GlPI@nsa>
-From: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Date: Thu, 6 Aug 2026 09:51:46 +0700
-X-Gm-Features: AUfX_my6-BQjJU5blWOqxW9TqLep4CD_a6rLqYdTK1XAnpRjYthQlcT_QYPHuLc
-Message-ID: <CAO26r3Rxe1kVSU_JeZetvTF9Z3ChoxYj5x8rHNFwcdX+mHLuiw@mail.gmail.com>
-Subject: Re: [RFC PATCH v4 3/3] iio: position: add Rust driver for ams AS5600
-To: =?UTF-8?B?TnVubyBTw6E=?= <noname.nuno@gmail.com>
-Cc: jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	andi.shyti@kernel.org, wsa+renesas@sang-engineering.com, ojeda@kernel.org, 
-	dakr@kernel.org, igor.korotin@linux.dev, branstj@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, 4 Aug 2026 at 21:56, Nuno S=C3=A1 <noname.nuno@gmail.com> wrote:
->
-> Hi Coirul,
->
-> Same as Jonathan on my rust capabilities (maybe now I'll have proper
-> motivation to learn it :)).
->
-> Just one question below...
+From: Ben Huang <Ben_Huang@novatek.com.tw>
 
-Hi Nuno,
+Add Devicetree binding documentation for Novatek NT72676 I2C
+controller.
 
-Thanks for taking the time to look at this. I'm still learning too,
-especially on the kernel side.
+Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
+Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+---
+ .../bindings/i2c/novatek,nt72676-i2c.yaml     | 90 +++++++++++++++++++
+ 1 file changed, 90 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
 
+diff --git a/Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml b/Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
+new file mode 100644
+index 000000000000..c9dd1c0d7957
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
+@@ -0,0 +1,90 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/novatek,nt72676-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Novatek NT72676 I2C Controller
++
++maintainers:
++  - Ben Huang <ben_huang@novatek.com.tw>
++  - Jason JJ Wu <jason_jj_wu@novatek.com.tw>
++
++description:
++  Novatek NT72676 SoC provides two I2C controller variants, generic I2C and
++  STBC I2C.
++  The generic I2C controllers are accessible only by the host CPU and driven
++  by a 96 MHz AHB clock.
++  On the other hand, the STBC I2C controllers can be controlled by either the
++  host CPU or STBC (Standby Controller, an 8051-based microcontroller) and
++  driven by a 12 MHz STBC clock. Authentication with STBC is required before
++  the host CPU can access the STBC I2C controller registers.
++
++properties:
++  compatible:
++    enum:
++      - novatek,nt72676-i2c
++      - novatek,nt72676-stbc-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-frequency:
++    default: 100000
++    enum: [ 100000, 400000 ]
++
++  novatek,stbc-syscon:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description:
++      Phandle to the STBC system controller registers used to authenticate
++      host access and switch ownership of the STBC I2C controller.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: novatek,nt72676-stbc-i2c
++    then:
++      required:
++        - novatek,stbc-syscon
++    else:
++      properties:
++        novatek,stbc-syscon: false
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c@fd000000 {
++      compatible = "novatek,nt72676-i2c";
++      reg = <0xfd000000 0x100>;
++      interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
++      clock-frequency = <400000>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++    };
++
++    i2c@fc040a00 {
++      compatible = "novatek,nt72676-stbc-i2c";
++      reg = <0xfc040a00 0x40>;
++      interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>;
++      novatek,stbc-syscon = <&sysreg_system_controller>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++    };
+-- 
+2.40.1
 
-> > +impl IioDriver for As5600Priv {
-> > +    fn read_raw(&self, _chan: *const iio_chan_spec, mask: isize) -> Re=
-sult<IioVal> {
-> > +        const INFO_RAW: isize =3D iio_chan_info_enum_IIO_CHAN_INFO_RAW=
- as isize;
-> > +        const INFO_SCALE: isize =3D iio_chan_info_enum_IIO_CHAN_INFO_S=
-CALE as isize;
->
-> Likely stupid question but do we always need the above? Some drivers migh=
-t have
-> several INFO_* bits sets and we often need to nest the match if multiple =
-channels have the
-> same bits. For those cases having to define all of them like this and
-> then doing the match seems not great to me. I guess we can directly have
-> ` iio_chan_info_enum_IIO_CHAN_INFO_RAW as isize` in match but not sure
-> if it's also that neat...
->
-> So bottom line, it would be nice if we could have something nicely
-> readable that we could directly pass to match.
-
-On the const definitions, yes, they are necessary in Rust. Your point
-about scalability is well taken though. AS5600 is simple enough that I
-didn't notice this, but for a driver with multiple channels and
-several INFO bits the const list grows quickly. Brandon Saint-John
-raised a related concern in v3 [1] and suggested wrapping the
-iio_chan_info_enum_* variants in a Rust #[repr] enum. I didn't get to
-it in v4 and I'm planning to address it in a future patch.
-
-> On another topic, I believe mask is present in several drivers for
-> historic reasons but note that this parameter is not really a mask. So
-> other name like 'info' is more appropriate.
->
-> - Nuno S=C3=A1
-
-On mask vs info, you're right that mask implies a bitmask operation
-when what arrives is a single enum index. I'll rename it to info for
-v5.
-
-Coirul
-
-[1] https://lore.kernel.org/all/20260529053803.3256031-1-branstj@gmail.com/
