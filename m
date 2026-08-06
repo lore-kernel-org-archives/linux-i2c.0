@@ -1,110 +1,99 @@
-Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6837D343D85
-	for <linux-i2c@vger.kernel.org>; Thu,  6 Aug 2026 12:16:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9943C3D903E;
+	Thu,  6 Aug 2026 20:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786018588; cv=none; b=kYrU0yIUK8dH+1d8RgQ8/khU1GC1QTKZV19NELYFRm8mKaEdBGZQMq5aQgESO3eir3eiy8hTzobHWIOylioqSlxxPveDRvrWWt3Nat2ID2gDVTK7Ewkod0WCjjzL+BODD0PxjOgTOIyZRvwBcujt38eZk7RLI4RkZ6thCaccjYw=
+	t=1786048269; cv=none; b=VSdUTJ4KrJzgWLWFpuB+ewC/TDaGMdb0NWIMOWTDFwP+TpFFrNIrD3SDIKwbugepRgwK4fKscMJr5Oj144wOG8JrZVllKWUZ55Vz6czb92GQGj+pNE9IGha78us+f8TG+a9/DO3kv+sh+KqgZxqT83X28y3NMv2MizhmOk5mwi4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786018588; c=relaxed/simple;
-	bh=MfcI2RhcsTr0yzfFod4885W1pqBXaezKzSsvnaGWzuc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tKOZrPYtaeCNECNGafmfkpS5ymst3ArRbn1x7xAexf0BhE28VbS3rEsMZC13yaEpjeiTRbe/qccTT3yiDNNoQ/DtvOMmNOX8p55ToIEi/y3VS/wFNsXX0keSW5gZdDkS2OTnx1aRHxxgurgz1K3+jwRzaU/es7K4nNiPMEvJmhs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f180.google.com with SMTP id 71dfb90a1353d-5bfaf91daa2so509776e0c.0
-        for <linux-i2c@vger.kernel.org>; Thu, 06 Aug 2026 05:16:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786018579; x=1786623379;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=U36O9R4trTBcyOnxyg/ehmF6oGcafbI8ItUkmxAwOdM=;
-        b=KMEXRugCRY5YKPh7E5Fa1HZABYPTSmsHdgjfFXssTsNCXjepzZsvXhnUzLRVfDHGf5
-         7E0oaFAauzJjcZsLpHtlZCOW7TZrtguZyimUlDcanSJ9Rppe8FMciAHFDfBV6h+fSS/y
-         hTWEfsn61d7TPeUHWTg0zBUsu27byU5AqIgkelUegSYelinvy3RkT6bsOOwwKjGY/iUP
-         We99Gtu0y3DOvjrVNEJGoWfR2Kp4poPKN1inAAT+Bv8BmZCLy8c1q9fDxaD6CTrSx0M3
-         sGui/8sGjQ1Pjw8zlYk3eQc0axxOugRpjWBB6TjrrU9t9XvMchTqi71BJpErBNtoEj2v
-         cEIg==
-X-Forwarded-Encrypted: i=1; AHgh+RoAd6QhFHHve5pKgesQ/EQ6DbmGVBz08aEPSrSqStwbt6alFcYMZCK40hAqkIwB8rR14/vZici1jBY=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzfx5JFGBeX1KZ2MrUBTpmkgJu1On75ESnWZ0Sr0QOmP0Gt9Yeb
-	677lhLf7OBWpRWEjY4k4ZQsohqdISmBnRF2Mfa+IjdAK1xJ9ep2pNMYuI2KPyUda
-X-Gm-Gg: AR+sD11J1GCvO3Mb1GbDnO2dtdMw9aYV4O5emn4koFLPw3RW8X8HGVU0Fdgdfd11Jp3
-	CzMNiKMUzMSfvl/+OUNgM9o6RCVBprfIrvOSZAjC7a1zC7CPZLH09T7OpP/vUqlWMq2iBIn/VdX
-	EUdpGQteUPwjAdgDSdjp2JnIXwngke/QcaerdjTxr97YqZDnCIEtmZgFmBF4knl+rWM8MX+dtIA
-	AcPZrSfB//zjp79Q75fF/dT9QxwUWdxZJy5gu1FhzJuejuVDgV7Zm4x1KXUhOo/Tu5S5nvckUJN
-	CW1O7xlcZOymzPRiXl95zw0JNraZyAcwVYsE6JqJZKhVVS8adIQI8lwnE/vkkbwtH6ApLbc6qKt
-	P12tb8II5tK2P5Ok8zZmOZEaFudqibi3z7uYixHXOMqitdE6Qk5fxBOK1hE38oAYzwrng+WtNcg
-	TjnQre0jBJvP7eplsJdmglm5ptIziW6PXtvKpbKjTB5pgo/AE2ABoyhSLfviVzXlVZOxpqke/b8
-	0Gxs3qYxRexcKOTNwz1I1ygoQ==
-X-Received: by 2002:a05:6122:512:b0:5a0:370:f12c with SMTP id 71dfb90a1353d-5c3d92647a7mr1683844e0c.11.1786018579222;
-        Thu, 06 Aug 2026 05:16:19 -0700 (PDT)
-Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com. [209.85.222.53])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c3d08e9351sm3375695e0c.15.2026.08.06.05.16.17
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Aug 2026 05:16:18 -0700 (PDT)
-Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-9770fffa5a6so636865241.3
-        for <linux-i2c@vger.kernel.org>; Thu, 06 Aug 2026 05:16:17 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RoaHVAa4P2RiJV3RutRbb88wgaC2UT+AtV+nX63qBDohxO2RfYNdjHaTpB/vHBsDaLB+i+T2XscLIE=@vger.kernel.org
-X-Received: by 2002:a05:6102:449b:b0:745:7f23:a876 with SMTP id
- ada2fe7eead31-760ea84c5f5mr3661787137.1.1786018577628; Thu, 06 Aug 2026
- 05:16:17 -0700 (PDT)
+	s=arc-20240116; t=1786048269; c=relaxed/simple;
+	bh=t/PIAtEvXxDRpBZQM2ESUuIuueEch/Z/b5otMUZkrKA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hoMlDD9/HG4qi4oQ0e5BNHGFPtMbFzHXe6I+QIUPJc/qjstT+Q4AAtaPPdLoPmho+8X3ih1Iof4CRJxHcruB63o3tIuOa4KIBDxvALyu8hDCDUhJRt/7qwLcnHm5CLfr5/T9TBwP6juhVt/nU4ost7t2+Wb3kwqd2GE83cdDY4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PcgQR0nU; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PcgQR0nU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786048268; x=1817584268;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=t/PIAtEvXxDRpBZQM2ESUuIuueEch/Z/b5otMUZkrKA=;
+  b=PcgQR0nUG5FJ/On1bvnUaEy5WVXBtU+tIgbmjisEszG8fFpNn7Qx++nh
+   Vxuk30Kjs63czHv1BeaQV5lfbK+teMmt6y6gnWwmdosoYii7r+BzcFGS3
+   tldNfk/BtdVprlNqx2W9/sjvSVlqW8nYDiX3HOYofwFqApPFwRLTVeZfZ
+   vrlqEbX/SdN3PjVDgnHG+SMN61mPxOkV+iSCvVwupXc/y8uEWR77KRHy9
+   yYTFotX5jqAD6FqplnAUU1WJIqTGbBMGBVKlgqWSxup3dgpDOCRb6ap+u
+   m8CpExi6v+jBtcFzClD7gxcvIho471mO8gbvj2tsaDUfs2RsDTJEqbgPZ
+   Q==;
+X-CSE-ConnectionGUID: YX+ln0UPThW684r7+1BoKg==
+X-CSE-MsgGUID: 1EyH9fCcS/mTkwVqkF1FYQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11867"; a="90471592"
+X-IronPort-AV: E=Sophos;i="6.25,209,1779174000"; 
+   d="scan'208";a="90471592"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Aug 2026 13:31:07 -0700
+X-CSE-ConnectionGUID: Q4DuLegUQMa5j67akLn1oA==
+X-CSE-MsgGUID: d6gGHfqhSXqSoIbHgV5brA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,209,1779174000"; 
+   d="scan'208";a="262268896"
+Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.50])
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Aug 2026 13:31:04 -0700
+Date: Thu, 6 Aug 2026 23:31:01 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "clarke.li" <clarke.li@hj-micro.com>
+Cc: andi.shyti@kernel.org, rafael@kernel.org, jarkko.nikula@linux.intel.com,
+	jsd@semihalf.com, lenb@kernel.org, andy.xu@hj-micro.com,
+	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
+	peter.du@hj-micro.com
+Subject: Re: [PATCH v3] ACPI: APD: Add clock frequency for HJMC01 I2C
+ controller
+Message-ID: <anTvBaRZNDhCz60e@ashevche-desk.local>
+References: <yha25jhjmd5qh4prwnyhqr2sfxvw7v2hzwhhv66twtx7ft4siz@fk3d4t2d73dj>
+ <20260722073031.1078080-1-clarke.li@hj-micro.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260806111018.782380-1-tommaso.merciai.xr@bp.renesas.com>
-In-Reply-To: <20260806111018.782380-1-tommaso.merciai.xr@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 6 Aug 2026 14:16:05 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXBxvXQW43P9QGJxYnnoDrwGxJzCv1d7bXiAcP8CCw+_g@mail.gmail.com>
-X-Gm-Features: AUfX_mwjDsO_L7mP6JsEcg0THPfhb-ZJpCX_tP9gPgzN2ZLuyGkUnH850M6oOv0
-Message-ID: <CAMuHMdXBxvXQW43P9QGJxYnnoDrwGxJzCv1d7bXiAcP8CCw+_g@mail.gmail.com>
-Subject: Re: [PATCH v2] dt-bindings: i2c: renesas,riic: Drop clock-frequency
- from required
-To: Tommaso Merciai <tommaso.merciai.xr@bp.renesas.com>
-Cc: tomm.merciai@gmail.com, linux-renesas-soc@vger.kernel.org, 
-	biju.das.jz@bp.renesas.com, Chris Brandt <chris.brandt@renesas.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Magnus Damm <magnus.damm@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260722073031.1078080-1-clarke.li@hj-micro.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Thu, 6 Aug 2026 at 13:10, Tommaso Merciai
-<tommaso.merciai.xr@bp.renesas.com> wrote:
-> clock-frequency is described as optional, with 100 kHz assumed when
-> absent, yet it is also listed as required.
->
-> The description is correct: i2c-riic calls i2c_parse_fw_timings() with
-> use_defaults set, so the core falls back to I2C_MAX_STANDARD_MODE_FREQ
-> when the property is absent.
->
-> The stale requirement only produces dtbs_check noise on boards relying
-> on the default:
->
->   i2c@14400800 (renesas,riic-r9a09g047): 'clock-frequency' is a
->   required property
->
-> Drop it.
->
-> Signed-off-by: Tommaso Merciai <tommaso.merciai.xr@bp.renesas.com>
+On Wed, Jul 22, 2026 at 03:30:31PM +0800, clarke.li wrote:
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> I2C clock frequency for HJMC01 is 200MHz, define a new ACPI
+> HID for it.
 
-Gr{oetje,eeting}s,
+...
 
-                        Geert
+> +	.fixed_clk_rate = 200000000,
+
+Can you at some point update these constants to use
+
+	.fixed_clk_rate = 200 * HZ_PER_MHZ,
+
+and so on?
+
+...
+
+>  	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
+>  	{ "LECA0002", APD_ADDR(leca_spi_desc) },
+>  	{ "LECA0003", APD_ADDR(leca_i2c_desc) },
+> +	{ "HJMC3001", APD_ADDR(hjmc_i2c_desc) },
+>  	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
+
+Keep it sorted.
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+With Best Regards,
+Andy Shevchenko
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
