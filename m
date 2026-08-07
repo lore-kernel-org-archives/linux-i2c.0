@@ -1,358 +1,171 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A60EF3F1AB7;
-	Thu,  6 Aug 2026 22:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61900272E6D
+	for <linux-i2c@vger.kernel.org>; Fri,  7 Aug 2026 02:34:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786055887; cv=none; b=pKdZYbdHkHuDKlm+Y8b1o5UV4NVSyS+zR/kN6sTGEq5DBQnqvUNLzhM55QrkaB6p6ckNsBQNgOrMms9fBHr+vueoHZ0QBMApkDCbLnnNoR9SvKzb8sXzAL0yeY1pFAak7zY4kB1aNKrUY/xYdPKxhs4zHiG/PmuM6n3BHps+ff4=
+	t=1786070067; cv=none; b=q6FClr/nYOkPdWGeAsf3PLmGsvJVP5fCEbtd2vzMIH96U5m2zL66a4jc/l/A1E1vkpghgBDpNHh5jYAnSGbxI2a9i9rgJPIaen/vfVrDjtd1NkClZCSss/1S8zIlMct6j6r1avPCXfcQw27CHHOLP+/Mhr/jDgYDJRtLU6C+Fno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786055887; c=relaxed/simple;
-	bh=sMyFg2l7lnlWFeGVa1ojHrlMnGIE2oFVs4TtYvNDkE0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Po1SAf3lJDmmQ7iIH79N5JawjElhAO2huvlBMGJd+MZcZpoa2YlXyECAJbxuo1tSsGRkDoDAis8VaLhQYMooIdHeGv6TNjHXVLg8EhNdzMPYE3m3wYJJGzLIG141hdZiIdGHBMA5HeNyvDec7lMENf4lWzLSYa8apCPVN7SKaDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kjhvN+jh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1786070067; c=relaxed/simple;
+	bh=F3sahIc5F9H37XPLmF3ypq3puhEsMkLGGOfvBF+VKNM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KMwLDvT3F/yZq7TXavbh7LabEkXRIggHbDJ9EmaRuptpZJ0glm1q0SFLzkXsXqUoGhifEE3EtgH2gV3yjbZNBjVv6jTbN2/V8yvCODZykDU59ZaERAc/wUJo4KXyElUKKWSj3xQxP3ERJG+UM4p/nc/U47KXKkYK9kznU8kDtcM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=AoVUPr/K; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=FRubIIj2; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kjhvN+jh"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6E1A1C2BCB9;
-	Thu,  6 Aug 2026 22:38:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786055887;
-	bh=sMyFg2l7lnlWFeGVa1ojHrlMnGIE2oFVs4TtYvNDkE0=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=kjhvN+jh/BmIptwHLNMmXev4HP545JXJmP+NhBzY1P8i9HKurufYLmvgEuilUNfRD
-	 IbeMDlYFbiFu9Eejmjkqhn2Q0PP6ZA5pwRSVbYEObVvBJvQOQkBZD7u1OC6dVvRFK3
-	 ECvDv81WOrDXzEdCo5LNv4mk8R59Yo8/NCK+hRcSfS9rFpHhUy8396TKU1Ky9FrI+S
-	 ckb2zeYxZ5n40sy0kNTOhSK2FCy7XsUn7YfErhucnlK1fsuFib4LT3dLaQKoS20Hfu
-	 3A/I9r6j6r2Uxk4fk64QuB9JDre8UFrQQTpn70doLfIiYfwNBTbGf1/6mpvH7mgmYB
-	 0JLrNP8tnSQ9A==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48EADC5AC7C;
-	Thu,  6 Aug 2026 22:38:07 +0000 (UTC)
-From: Vincent Jardin via B4 Relay <devnull+vjardin.free.fr@kernel.org>
-Date: Fri, 07 Aug 2026 00:37:54 +0200
-Subject: [PATCH] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="AoVUPr/K";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="FRubIIj2"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6770GlAs3822004
+	for <linux-i2c@vger.kernel.org>; Fri, 7 Aug 2026 02:34:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	ndFmLvtglCbgUdpFBjfySPC0n0eZtwY946Lp1MLj3Lo=; b=AoVUPr/KMBCJWVge
+	qjJSDEs1VQYikwckSmo7dfD9rW9exsurvTREmlIY/goqwA3EpvD6QjXkEEbNFLf+
+	IVCkf62Zcl6gCQGgLwbivuGOQ6g+tUElaqeAt9H3ihgavJ8m1eu5eguyJTOyGBPC
+	RIE7H2c8mDtuceV+a/Bqv26NgznSEsxSmsC5ngZwBZ92keCGplQfZwvXsL6k1ZBd
+	gQ7KnvSjvFetFxuB7ulCTyFVfvFX8x/wyTgzT0J8zer/hWV3+VRxSmQM9RuuU1M9
+	mSBWDF6Rjq9NsadiuAtO61EjskxftmFLDPBict7DeqZJb3OGRuwd2RTvPAXw2lkx
+	hQILAg==
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fvy6gsv2v-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Fri, 07 Aug 2026 02:34:25 +0000 (GMT)
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-51c01ff996dso32589761cf.2
+        for <linux-i2c@vger.kernel.org>; Thu, 06 Aug 2026 19:34:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1786070065; x=1786674865; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ndFmLvtglCbgUdpFBjfySPC0n0eZtwY946Lp1MLj3Lo=;
+        b=FRubIIj2YCRh24dc8EZtVpZzO+ga2QY6daaHrOKy2HHHqJTVjA63QC18M3QPy0GVUj
+         ZGq1CKc6o9Zc+Lzrdf3rmYVN7ojlgZTD71M6Mpj/LkkIldtEBHaYJWhyc5yIfMPpFZR+
+         GRpnaxD7ZcrrGz3CKdGipSzgQV4mcWJv4HchLPfJUB5xGoqDnr1cCvYJi/i4e8AsK6ML
+         bLnLTKw+SGboGl2tb4lZIeJLWA6Zv+eilpY47lBudGwadlUtIzUDoEhUtU0dAb/H2MX+
+         I2r7vWRYIH9H5SU4bssEadrF1c+mqD9yRQFQ2Tnw1PBaXA92O0uQE0MreyhCBOvBapyb
+         PHaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786070065; x=1786674865;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ndFmLvtglCbgUdpFBjfySPC0n0eZtwY946Lp1MLj3Lo=;
+        b=Ln8CZO/Ka858EG9u7OOgpHQCynj/GHXbwmFEZDc6LQSMefDttdgVby9t6K24ojLuSK
+         iY74UVlCESGW5OPdPoWK2Tl+Cdc75r7KP3bR61RTR2gi7XKgYwcVaoEx2HFSzlhQHxWw
+         hCTrkGOWkmc75q1dKoU7xWSVIVRH6mcUxEKFfcM1EZdD8hYUxUcXxucK/mW463t54a12
+         Vop45cDs/iVdKBYC+3yMK26dvdA9JkXZE4ssj6q5HYKFbXNQdUfEgqfXRP5q7MHlNUNL
+         BqEaBbH5dV3e2NgT0hCd+DEWF/NmQBZoBlHbv/aLBgzP2gnWCc4CI+Z8nJ0hIto9ooDb
+         2a5g==
+X-Forwarded-Encrypted: i=1; AHgh+RoCpvX5dO8L9A6f5mHQsoWjLwf84BdqIe6+rdTuPMKUsl+6qEynLXX4O17ad+3trjOKAXcSUZ2hB5s=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzv/Wn/b898Ao4OtONtL2EztGZSk+7o5cLDYMwrwutvwJK62v5s
+	GXKOVDbeQmlBCaD2RGDzJDGtWSqWX9V1DzcWiN7rCURppjsfB099ti5R1oO6NqNzrwF42smiXXw
+	fcJ64mlNT7Yb9A8vufaHgh7dNVlBqV2hfdPbjApsk6KqOalk84osVnq+SO+9AKsQ=
+X-Gm-Gg: AR+sD13kFtlExw0aHFR6nFyH/QbD5c4l1QrW7gT8gCQYclnABfrHczNy4Q3ryjcgjaZ
+	bl7ORf6IRi1dka25qiTRdSd6hT/aUzVqQnEBN6tFKSemI95vTyi3Ifl2pyfMB5PCiV0JVoLIq2D
+	9hljUnCC5d4arEGlcAmCXmq0jCvvMQXS0J0wf49g5dHw3aEH5l2qjR89oDaWaiVu/eL5vhLXRN3
+	wVA6O+Ecka7l2idO/abmSeflxaLwPqTGxaFYz2L7XX6LiIWKcT8eiUyHi8SbY4zuqjs+NCsEh4a
+	//lcdW9vhYFadYrkicPbbFDbENqEdFkxsYWfNir2mgdrtHgMevuaTF4gLvsGD/w1dH4HcpVUe1M
+	9KySOHEFRTOEz15m7WFZUDdjoNTkFUPN7wFo1c48AuuAJpg==
+X-Received: by 2002:ac8:5c8b:0:b0:51c:1f97:e860 with SMTP id d75a77b69052e-52d18e1a675mr1913591cf.3.1786070064612;
+        Thu, 06 Aug 2026 19:34:24 -0700 (PDT)
+X-Received: by 2002:ac8:5c8b:0:b0:51c:1f97:e860 with SMTP id d75a77b69052e-52d18e1a675mr1913241cf.3.1786070064134;
+        Thu, 06 Aug 2026 19:34:24 -0700 (PDT)
+Received: from [192.168.2.1] (146725694.box.freepro.com. [130.180.211.218])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995427a4dcsm113421675e9.11.2026.08.06.19.34.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Aug 2026 19:34:21 -0700 (PDT)
+Message-ID: <64e146aa-4907-495d-b394-7cecb1727816@oss.qualcomm.com>
+Date: Fri, 7 Aug 2026 04:34:11 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 4/6] thermal: khadas-mcu-fan: Add fan config from
+ platform data Add regulator support
+To: linux-kernel-dev@aliel.fr, Neil Armstrong <neil.armstrong@linaro.org>,
+        Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Beniamino Galvani <b.galvani@gmail.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+        Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
+Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+        mfd@lists.linux.dev
+References: <20260805-add-mcu-fan-khadas-vim4-v9-0-75df78710b9e@aliel.fr>
+ <20260805-add-mcu-fan-khadas-vim4-v9-4-75df78710b9e@aliel.fr>
+Content-Language: en-US
+From: Daniel Lezcano <daniel.lezcano@oss.qualcomm.com>
+In-Reply-To: <20260805-add-mcu-fan-khadas-vim4-v9-4-75df78710b9e@aliel.fr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260807-for-upstream-i2c-imx-lx2160-reverse-v1-1-f276ce8cb660@free.fr>
-X-B4-Tracking: v=1; b=H4sIAMEMdWoC/x3NTQqDMBBA4avIrDuQBI3Rq5Quoh3bAf+YqRII3
- t3Q5dt8L4OSMCn0VQahk5W3tYR9VDB+4/oh5HdpcMZ5E0yL0yZ47PoTiguyG5GXhHNy1hssAIk
- StrGrh67x1oYARdqFJk7/y/N1XTezEcJsdQAAAA==
-To: Oleksij Rempel <o.rempel@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Vincent Jardin <vjardin@free.fr>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786055885; l=10154;
- i=vjardin@free.fr; s=20260525; h=from:subject:message-id;
- bh=sWQpLP0Szu/R9WT0qEP4YovwXnmUkqkaF446pfks7eE=;
- b=4Jj2H3DJvmChAzccUOh+WYDK9nGaQx7x5X38IzQ+TD+Ghtr9Hy7NRbq4YGMBvJCwK0fmi+M9v
- Ly+SGky+cL5Dw9Ui7UpB88aX51n3MIt9TyIOEBXUAB1OPpPzcJkV+MT
-X-Developer-Key: i=vjardin@free.fr; a=ed25519;
- pk=hppgLeFpGpKOi7LNwGEZ4jOYofJCoGd4Jf1ltAabiLw=
-X-Endpoint-Received: by B4 Relay for vjardin@free.fr/20260525 with
- auth_id=871
-X-Original-From: Vincent Jardin <vjardin@free.fr>
-Reply-To: vjardin@free.fr
+X-Authority-Analysis: v=2.4 cv=EYH4hvmC c=1 sm=1 tr=0 ts=6a754431 cx=c_pps
+ a=JbAStetqSzwMeJznSMzCyw==:117 a=uw/3876vWhRnNVL35W6mqQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=3WHJM1ZQz_JShphwDgj5:22
+ a=KKAkSRfTAAAA:8 a=YaFGZCiNkOP6CsGDcAoA:9 a=QEXdDO2ut3YA:10
+ a=uxP6HrT_eTzRwkO_Te1X:22 a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-ORIG-GUID: DaNDUuJlYaLCCor_pmEMfAdP234DDNI1
+X-Proofpoint-GUID: DaNDUuJlYaLCCor_pmEMfAdP234DDNI1
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODA3MDAxNSBTYWx0ZWRfXyy6LTbHpU3Ap
+ z8LhKUZ0wq8jkG66hpONza+hdFQ/7QytEOMZgny160fLjKWl83cVkIsyKynp7Lico0YbWQzYzLf
+ Zrvzbt7+05LszGgwnGQW2J4YeZ5CklY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODA3MDAxNSBTYWx0ZWRfX5mFPrKPPVp6G
+ afoEY8D8dnLPHMUykxQmw2ZF9lzxtaHpJYqud4wmGXnYYk72T8bB54ByCH0LpUOpTL1CVE0y93D
+ B7Tyvf0zGWt5K4LImoEPWgAckX4izQBC2PkNgswrZw93jcumie0GH3wBd+cTill1FI6uu8L4qiv
+ bH/cca6Htpiqv+yrkXTQJw6ytaygvlFHJiw8nnwgbdx5enwmU+dwbncJDUysXugL7Cu3/F7uCe0
+ YxrIHKRYBLgsql+Y+5C+WsxBHG/4brEpoaFuCDtgNhFHGxBEN6s85B8Y2HgN04UJPR8jaQaxLnt
+ tUTJkOtlC1TdNLr+bTEw8MVpCpLdmukQLXlK+c0+d0/XlakEo1FhMinsum2udMILeUnw7F7aSUo
+ gRUMAcoiTuGoDsx5QxshwET+n0WL4jIqCy33ObLD16EkkiJZvWltEbEgk6D2+mgbC/3eWHRLZfh
+ jPiqrnC1BXYEFARfAlA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-07_01,2026-08-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 phishscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ clxscore=1015 malwarescore=0 bulkscore=0 impostorscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608070015
 
-From: Vincent Jardin <vjardin@free.fr>
+On 8/5/26 10:06, Ronald Claveau via B4 Relay wrote:
+> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> 
+> Replace the hardcoded MAX_LEVEL constant and fan register
+> with values read from platform_data (fan_reg, levels[] and nlevels),
+> as new MCUs need different values.
+> 
+> The cooling device's state is stored as an index into levels[],
+> and khadas_mcu_fan_set_level() writes levels[state] to fan_reg,
+> rather than writing the raw state value as before.
+> 
+> Optionally acquire and enable a "fan" regulator supply
+> at probe time and on resume,
+> so boards that gate fan power through a regulator are handled.
+> 
+> Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> ---
 
-The Realtek RTL8366SE SMI read frame per:
+  * Through which tree this patch should go ? (assuming there is a 
+dependency on other patches)
 
-  S Addr Rd [A] reg[7:0] [A] reg[15:8] [A] [data[7:0]] A [data[15:8]] NA P
-
-Linux support it using I2C_M_REV_DIR_ADDR on a write message
-that inverts the transmitted R/W bit, and I2C_M_NOSTART on the following
-read message that continues the frame without re-addressing.
-
-This NXP i2c-imx is missing such support, so on an LX2160A the Realtek switch
-could not be used.
-
-Signed-off-by: Vincent Jardin <vjardin@free.fr>
----
-Follow the logics from i2c-algo-bit and i2c-s3c2410 (addr ^= 1).
-
-Documentation/i2c/i2c-protocol.rst says I2C_M_NOSTART "may also be used
-between direction changes by some rare devices"; the RTL8366SE is one of
-such device !
-
-- The NOSTART read turns the bus around without waiting for a completion,
-  because the controller stretches SCL after the previous byte and the
-  frame is therefore still open. That is what lets i2c_imx_read() enter
-  the state the ISR would otherwise have moved to.
-
-- I2C_FUNC_PROTOCOL_MANGLING also covers I2C_M_IGNORE_NAK,
-  I2C_M_NO_RD_ACK and I2C_M_STOP, which this driver does not implement.
-  They are rejected with -EOPNOTSUPP rather than advertised and silently
-  ignored. I2C_M_NOSTART on the first message is rejected as well.
----
- drivers/i2c/busses/i2c-imx.c | 143 +++++++++++++++++++++++++++++++------------
- 1 file changed, 103 insertions(+), 40 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 9477d814fde9..81c1bd461606 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1000,16 +1000,10 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
- 	return 1;
- }
- 
--static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
-+static inline void i2c_imx_setup_read(struct imx_i2c_struct *i2c_imx)
- {
--	int result;
- 	unsigned int temp;
- 
--	result = i2c_imx_isr_acked(i2c_imx);
--	if (result)
--		return result;
--
--	/* setup bus to read data */
- 	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 	temp &= ~I2CR_MTX;
- 	if ((i2c_imx->msg->len - 1) || (i2c_imx->msg->flags & I2C_M_RECV_LEN))
-@@ -1017,6 +1011,18 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
- 
- 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
-+}
-+
-+static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
-+{
-+	int result;
-+
-+	result = i2c_imx_isr_acked(i2c_imx);
-+	if (result)
-+		return result;
-+
-+	/* setup bus to read data */
-+	i2c_imx_setup_read(i2c_imx);
- 
- 	return 0;
- }
-@@ -1172,6 +1178,16 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
- 	return i2c_imx_master_isr(i2c_imx, status);
- }
- 
-+static u8 i2c_imx_addr_byte(struct i2c_msg *msg)
-+{
-+	u8 addr = i2c_8bit_addr_from_msg(msg);
-+
-+	if (msg->flags & I2C_M_REV_DIR_ADDR)
-+		addr ^= 1;
-+
-+	return addr;
-+}
-+
- static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
- 					struct i2c_msg *msgs)
- {
-@@ -1200,7 +1216,7 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
- 	 * Write slave address.
- 	 * The first byte must be transmitted by the CPU.
- 	 */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
-+	imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
- 	time_left = wait_for_completion_timeout(
- 				&i2c_imx->dma->cmd_complete,
- 				msecs_to_jiffies(DMA_TIMEOUT));
-@@ -1242,14 +1258,20 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
- 	int result;
- 	unsigned int temp = 0;
- 
--	/* write slave address */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
--	result = i2c_imx_trx_complete(i2c_imx, !use_dma);
--	if (result)
--		return result;
--	result = i2c_imx_acked(i2c_imx);
--	if (result)
--		return result;
-+	/*
-+	 * I2C_M_NOSTART continues a frame that is already open, so there is
-+	 * no address phase: go straight to turning the bus around.
-+	 */
-+	if (!(msgs->flags & I2C_M_NOSTART)) {
-+		/* write slave address */
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
-+		result = i2c_imx_trx_complete(i2c_imx, !use_dma);
-+		if (result)
-+			return result;
-+		result = i2c_imx_acked(i2c_imx);
-+		if (result)
-+			return result;
-+	}
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> setup bus\n", __func__);
- 
-@@ -1371,16 +1393,18 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
- 	int i, result;
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
--		__func__, i2c_8bit_addr_from_msg(msgs));
-+		__func__, i2c_imx_addr_byte(msgs));
- 
--	/* write slave address */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
--	result = i2c_imx_trx_complete(i2c_imx, true);
--	if (result)
--		return result;
--	result = i2c_imx_acked(i2c_imx);
--	if (result)
--		return result;
-+	if (!(msgs->flags & I2C_M_NOSTART)) {
-+		/* write slave address */
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
-+		result = i2c_imx_trx_complete(i2c_imx, true);
-+		if (result)
-+			return result;
-+		result = i2c_imx_acked(i2c_imx);
-+		if (result)
-+			return result;
-+	}
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
- 
- 	/* write data */
-@@ -1402,7 +1426,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
- static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- {
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
--		__func__, i2c_8bit_addr_from_msg(msgs));
-+		__func__, i2c_imx_addr_byte(msgs));
- 
- 	i2c_imx->state = IMX_I2C_STATE_WRITE;
- 	i2c_imx->msg = msgs;
-@@ -1411,8 +1435,16 @@ static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- 	/*
- 	 * By writing the device address we start the state machine in the ISR.
- 	 * The ISR will report when it is done or when it fails.
-+	 *
-+	 * I2C_M_NOSTART continues a frame that is already open and so has no
-+	 * address byte: push the first data byte instead. That raises the same
-+	 * interrupt and the ISR carries on from the second byte.
- 	 */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
-+	if (msgs->flags & I2C_M_NOSTART)
-+		imx_i2c_write_reg(msgs->buf[i2c_imx->msg_buf_idx++], i2c_imx,
-+				  IMX_I2C_I2DR);
-+	else
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
- 	wait_event_timeout(i2c_imx->queue,
- 			   i2c_imx->state == IMX_I2C_STATE_DONE ||
- 			   i2c_imx->state == IMX_I2C_STATE_FAILED,
-@@ -1529,22 +1561,29 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 
- 	dev_dbg(&i2c_imx->adapter.dev,
- 		"<%s> write slave address: addr=0x%x\n",
--		__func__, i2c_8bit_addr_from_msg(msgs));
-+		__func__, i2c_imx_addr_byte(msgs));
- 
- 	i2c_imx->is_lastmsg = is_lastmsg;
- 
--	if (block_data)
--		i2c_imx->state = IMX_I2C_STATE_READ_BLOCK_DATA;
--	else
--		i2c_imx->state = IMX_I2C_STATE_READ;
- 	i2c_imx->msg = msgs;
- 	i2c_imx->msg_buf_idx = 0;
- 
--	/*
--	 * By writing the device address we start the state machine in the ISR.
--	 * The ISR will report when it is done or when it fails.
--	 */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
-+	if (msgs->flags & I2C_M_NOSTART) {
-+		i2c_imx->state = block_data ? IMX_I2C_STATE_READ_BLOCK_DATA_LEN
-+					    : IMX_I2C_STATE_READ_CONTINUE;
-+		i2c_imx_setup_read(i2c_imx);
-+	} else {
-+		if (block_data)
-+			i2c_imx->state = IMX_I2C_STATE_READ_BLOCK_DATA;
-+		else
-+			i2c_imx->state = IMX_I2C_STATE_READ;
-+
-+		/*
-+		 * By writing the device address we start the state machine in the ISR.
-+		 * The ISR will report when it is done or when it fails.
-+		 */
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
-+	}
- 	wait_event_timeout(i2c_imx->queue,
- 			   i2c_imx->state == IMX_I2C_STATE_DONE ||
- 			   i2c_imx->state == IMX_I2C_STATE_FAILED,
-@@ -1583,6 +1622,27 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
- 	int use_dma = 0;
- 
-+	for (i = 0; i < num; i++) {
-+		/*
-+		 * I2C_FUNC_PROTOCOL_MANGLING is advertised for
-+		 * I2C_M_REV_DIR_ADDR only; reject the flags it also covers but
-+		 * that this driver does not implement, rather than silently
-+		 * transferring something the caller did not ask for.
-+		 */
-+		if (msgs[i].flags & (I2C_M_IGNORE_NAK | I2C_M_NO_RD_ACK |
-+				     I2C_M_STOP))
-+			return -EOPNOTSUPP;
-+
-+		if (!(msgs[i].flags & I2C_M_NOSTART))
-+			continue;
-+
-+		/* Nothing to continue from, and a zero-length continuation
-+		 * would leave the controller with no byte to clock.
-+		 */
-+		if (i == 0 || msgs[i].len == 0)
-+			return -EOPNOTSUPP;
-+	}
-+
- 	/* Start I2C transfer */
- 	result = i2c_imx_start(i2c_imx, atomic);
- 	if (result) {
-@@ -1604,7 +1664,7 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 		if (i == num - 1)
- 			is_lastmsg = true;
- 
--		if (i) {
-+		if (i && !(msgs[i].flags & I2C_M_NOSTART)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
- 				"<%s> repeated start\n", __func__);
- 			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-@@ -1636,7 +1696,8 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- #endif
- 
- 		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
--			msgs[i].flags & I2C_M_DMA_SAFE;
-+			msgs[i].flags & I2C_M_DMA_SAFE &&
-+			!(msgs[i].flags & I2C_M_NOSTART);
- 		if (msgs[i].flags & I2C_M_RD) {
- 			int block_data = msgs->flags & I2C_M_RECV_LEN;
- 
-@@ -1730,7 +1791,9 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
- static u32 i2c_imx_func(struct i2c_adapter *adapter)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
--		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
-+		| I2C_FUNC_SMBUS_READ_BLOCK_DATA
-+		| I2C_FUNC_NOSTART
-+		| I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
- static const struct i2c_algorithm i2c_imx_algo = {
-
----
-base-commit: 6c68fa601b49683ecb04eded993a71dfa8b2ba0b
-change-id: 20260807-for-upstream-i2c-imx-lx2160-reverse-7a94b9561188
-
-Best regards,
--- 
-Vincent Jardin <vjardin@free.fr>
-
-
+  * How this will behave with 100 levels with the step wise governor ? 
+For a 100ms passive delay and 100 states, it will take 10s before 
+reaching the full speed
