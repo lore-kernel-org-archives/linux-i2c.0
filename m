@@ -1,402 +1,231 @@
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.102])
+Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11013071.outbound.protection.outlook.com [40.107.159.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2DBA28DB54;
-	Fri,  7 Aug 2026 14:07:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.63.102
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786111664; cv=none; b=F7rwb068bkSbM9M4bpXEsddCda+mNFa/+nKoESqtFRoZVBUQLsO5jiDolPO2lszdug+k/zoUHoa5rW6MejA70MT7EqKrfb9DHMHOK5oC8YIeKRDVsYmHA+G02Y6xXiKX4xSuDnnLeMJ9vVpDKH86sd3uuCJUgl2midt82smq/P4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786111664; c=relaxed/simple;
-	bh=OlINJuSfHyW+KxBCr6ii0RuJGP+wReHA7vLxUxoQDUs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Hs+E3v3u/ylC0viq2oSngTWTvxXFNdvsWGFt4Bx/A2qWB3shooA+kSXHPIuKC7eI2QhhpcKODGB9r+gdVFT7wUPMUPDE8yv0nKxrGNNgwULuUtTVaTqQMyhe7m3Z5ejJBX4N6Nbl93NwrzzSXt9HA8F2y3cYRfaxOdCn4oAr1K8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=XZhgm+Xc; arc=none smtp.client-ip=188.68.63.102
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E10396567;
+	Fri,  7 Aug 2026 19:24:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.71
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786130691; cv=fail; b=ePKjMw3eBSlhsg6cDMy7RIc6UD/onSeXIZZimB+ksIOELoVsO1lhGvOBc2jp/9fBtNsuzMb2tk+msfTdBzSkZSfjA86MroX/rizATFQVxzw/ADlorgvuHufzsn30nrWlDmaYBCJgUB+OtPS6YwuzDetkltWEqvdLKpdd6+GRnoI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786130691; c=relaxed/simple;
+	bh=RMBAJdXu2WqZzxcGkqazHxTWihgcWkl1OkFXTrzz6cs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=QVNP39/m+/fpcso9wRjVbYZIVUsSlHDtGv33Tx+PdCLlwPfBzKcWwGCQiPDuzcumqLYoi/0gJYNorS1EUzbADfEXCIlLYZm2jnz+mVuCBnH3zpZLDtrPigKPWbKlGE/As8Ry5azk2idkF93RCAq2GDBeko6of12UEhQ4DRIKaxU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=KFPjEClD; arc=fail smtp.client-ip=40.107.159.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="XZhgm+Xc"
-Received: from mors-relay-2502.netcup.net (localhost [127.0.0.1])
-	by mors-relay-2502.netcup.net (Postfix) with ESMTPS id 4hGmDz5DWBz6B07;
-	Fri,  7 Aug 2026 16:07:31 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
-	s=key2; t=1786111651;
-	bh=OlINJuSfHyW+KxBCr6ii0RuJGP+wReHA7vLxUxoQDUs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XZhgm+XcMW42+KFAcl6TJwtEAkWGVLFxaOJs7qbSiWppkQ6rm46JgaCDxH8JesSKq
-	 uBP17nRPvsv63FWQ0Vz5VyGk3KO9h0d+dMTm3elWMDjnK6Z95V09LHFIPd2CWasZO5
-	 29Sv/EjWvPJ4WgoInWIs/qvw5NLG6THLBwesd+Y5qcO3qXnRkqbAgVgF5kjdtY+Io3
-	 aoKB9xSET34HS62ioVyMH+OshxTo7KpuV6iw6dKOiVjwb7CiEKyOAKCPkWx5aa/d+y
-	 mj2IebJZgGVfV1af8I5rQodLVGnLrtSRXCVPSbeQUUyxp7fGn7wdcCZ6yUi3DyIeD1
-	 /3dHKOJsB2QVA==
-Received: from policy01-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay-2502.netcup.net (Postfix) with ESMTPS id 4hGmDz4TcTz4wjk;
-	Fri,  7 Aug 2026 16:07:31 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at policy01-mors.netcup.net
-X-Spam-Flag: NO
-X-Spam-Score: -2.898
-X-Spam-Level: 
-Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by policy01-mors.netcup.net (Postfix) with ESMTPS id 4hGmDx5slkz8tYb;
-	Fri,  7 Aug 2026 16:07:29 +0200 (CEST)
-Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
-	by mxe9fb.netcup.net (Postfix) with ESMTPSA id BE53C5FA52;
-	Fri,  7 Aug 2026 16:07:24 +0200 (CEST)
-Authentication-Results: mxe9fb;
-        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=linux@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
-Received-SPF: pass (mxe9fb: connection is authenticated)
-Message-ID: <b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info>
-Date: Fri, 7 Aug 2026 16:07:23 +0200
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="KFPjEClD"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=NsD4NBD9oOesnC6vVlFMLpoci6+1M1kxxLnnEXGB96kar5U0kzcnkC0uONA0r2ISKQrSEYYfeyHQ3Yvyhni8azzpwF+7C+KqgDEcPkeW4IUhua4nEu/+9IY+6uYGDKgdMU9PsXnclUE8bjFiveufKZu9PAvF2ZQ2Sac0Z1NAA8FKO077ItEXY4anl/uFje8Gh4eTmHBPrbIXgEWjv780INs4r9ZNZNoKmvYdwbWRjT/ZnegybZnRAdZEM62yvl/DzVk7GUUl5ntXWitzJTbE8zQ+7Q9SG1pvbj3u6WvY5LuNprqAPdKnsJ8+Uzv5YL92c6Icg6xJDevuFtt6yRATQA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=W6wf+tCNe8Ds0tCr4QqTWkOkMNxo7IRlrCk7zhiLNfA=;
+ b=gqHW5D5QyCZCBFsp2YxiIvLSJjbZdsy/qZiD7yAs2qjfjrbp0TqxUy7bqXIxgcBLKyMoFRTeWmz6vKeg9U6koQgLHQnzEbfCdUFWBMtEMePUnLQ8ldAemWcsvG0EBOA4OPBu6YQ0tsuZ1Ov2/x6/dK46hqloLjZhqJx8W6BrXiCR6Blyznjt5uRYKqXB5RO9jEuJo/v/RJjbZBlqe7KjjkNN/eDvqGEktc7yaV49topavHHQGKA4z4iKIqQBOdcMIiVUo2Mn5P18v2BBsnTwe183T9DhV1TQdFm+IxiWMWuHpClf47PQxTcVXXAZkZb1W8rHEERTymQSqzcWE8SMcg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=W6wf+tCNe8Ds0tCr4QqTWkOkMNxo7IRlrCk7zhiLNfA=;
+ b=KFPjEClD+jnoA/i0swolaqF1q+j5j8Fj6durbKt5MfCqK/Sk06/AuVuebVrwxF9uhRV9vcqpvs2Fw7IVYuhyaMmVzlEGHSK3HEZlNVODcMNzf628KgyPZCWFETbilGguiUw+N7aE1dW3XKNevB3eskeJpcRTWVVY4J8iLLto+Bu0L+FAB73BEvY6BUP3xfZAM1BoXwtotiINSwzsD1d/fsGEH9pJuM46JJ1poef92CLbNehsdeXI3gLeFhh3vcYdURe9aOJpH+VZI5BvIiH44EVXFtW35wVA58GqjMw92xaLnGOjXOAuqFslwGO63wWLdjErDnZl7JhmFp5bCTIf3w==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
+ by AS8PR04MB7653.eurprd04.prod.outlook.com (2603:10a6:20b:299::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.24; Fri, 7 Aug
+ 2026 19:24:46 +0000
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c%7]) with mapi id 15.21.0292.018; Fri, 7 Aug 2026
+ 19:24:45 +0000
+Date: Fri, 7 Aug 2026 14:24:37 -0500
+From: Frank Li <Frank.li@oss.nxp.com>
+To: carlos.song@oss.nxp.com
+Cc: aisheng.dong@nxp.com, andi.shyti@kernel.org, Frank.Li@nxp.com,
+	s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
+	carlos.song@nxp.com, linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: imx-lpi2c: avoid accessing target registers on
+ master-only controllers
+Message-ID: <anYw9d3s2mONCkfx@SMW015318>
+References: <20260803032705.2250373-1-carlos.song@oss.nxp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260803032705.2250373-1-carlos.song@oss.nxp.com>
+X-ClientProxiedBy: SA9PR03CA0003.namprd03.prod.outlook.com
+ (2603:10b6:806:20::8) To GV2PR04MB11799.eurprd04.prod.outlook.com
+ (2603:10a6:150:2cf::9)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: i2c designware change broke touchpad of a thinkpad (was: i2c:
- designware: defer probe if child GpioInt controllers are not bound)
-To: Andi Shyti <andi.shyti@kernel.org>,
- Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
- andriy.shevchenko@intel.com, mario.limonciello@amd.com, brgl@bgdev.pl,
- basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org,
- chaitanya.kumar.borah@intel.com,
- Linux kernel regressions list <regressions@lists.linux.dev>
-References: <20260718054330.8975-2-hardikprakash.official@gmail.com>
- <amhodWpAI3K6aeBH@zenone.zhora.eu>
-From: Thorsten Leemhuis <linux@leemhuis.info>
-Content-Language: de-DE, en-US
-Autocrypt: addr=linux@leemhuis.info; keydata=
- xsFNBFJ4AQ0BEADCz16x4kl/YGBegAsYXJMjFRi3QOr2YMmcNuu1fdsi3XnM+xMRaukWby47
- JcsZYLDKRHTQ/Lalw9L1HI3NRwK+9ayjg31wFdekgsuPbu4x5RGDIfyNpd378Upa8SUmvHik
- apCnzsxPTEE4Z2KUxBIwTvg+snEjgZ03EIQEi5cKmnlaUynNqv3xaGstx5jMCEnR2X54rH8j
- QPvo2l5/79Po58f6DhxV2RrOrOjQIQcPZ6kUqwLi6EQOi92NS9Uy6jbZcrMqPIRqJZ/tTKIR
- OLWsEjNrc3PMcve+NmORiEgLFclN8kHbPl1tLo4M5jN9xmsa0OZv3M0katqW8kC1hzR7mhz+
- Rv4MgnbkPDDO086HjQBlS6Zzo49fQB2JErs5nZ0mwkqlETu6emhxneAMcc67+ZtTeUj54K2y
- Iu8kk6ghaUAfgMqkdIzeSfhO8eURMhvwzSpsqhUs7pIj4u0TPN8OFAvxE/3adoUwMaB+/plk
- sNe9RsHHPV+7LGADZ6OzOWWftk34QLTVTcz02bGyxLNIkhY+vIJpZWX9UrfGdHSiyYThHCIy
- /dLz95b9EG+1tbCIyNynr9TjIOmtLOk7ssB3kL3XQGgmdQ+rJ3zckJUQapLKP2YfBi+8P1iP
- rKkYtbWk0u/FmCbxcBA31KqXQZoR4cd1PJ1PDCe7/DxeoYMVuwARAQABzSdUaG9yc3RlbiBM
- ZWVtaHVpcyA8bGludXhAbGVlbWh1aXMuaW5mbz7CwZQEEwEKAD4CGwMFCwkIBwMFFQoJCAsF
- FgIDAQACHgECF4AWIQSoq8a+lZZX4oPULXVytubvTFg9LQUCaOO74gUJHfEI0wAKCRBytubv
- TFg9Lc4iD/4omf2z88yGmior2f1BCQTAWxI2Em3S4EJY2+Drs8ZrJ1vNvdWgBrqbOtxN6xHF
- uvrpM6nbYIoNyZpsZrqS1mCA4L7FwceFBaT9CTlQsZLVV/vQvh2/3vbj6pQbCSi7iemXklF7
- y6qMfA7rirvojSJZ2mi6tKIQnD2ndVhSsxmo/mAAJc4tiEL+wkdaX1p7bh2Ainp6sfxTqL6h
- z1kYyjnijpnHaPgQ6GQeGG1y+TSQFKkb/FylDLj3b3efzyNkRjSohcauTuYIq7bniw7sI8qY
- KUuUkrw8Ogi4e6GfBDgsgHDngDn6jUR2wDAiT6iR7qsoxA+SrJDoeiWS/SK5KRgiKMt66rx1
- Jq6JowukzNxT3wtXKuChKP3EDzH9aD+U539szyKjfn5LyfHBmSfR42Iz0sofE4O89yvp0bYz
- GDmlgDpYWZN40IFERfCSxqhtHG1X6mQgxS0MknwoGkNRV43L3TTvuiNrsy6Mto7rrQh0epSn
- +hxwwS0bOTgJQgOO4fkTvto2sEBYXahWvmsEFdLMOcAj2t7gJ+XQLMsBypbo94yFYfCqCemJ
- +zU5X8yDUeYDNXdR2veePdS3Baz23/YEBCOtw+A9CP0U4ImXzp82U+SiwYEEQIGWx+aVjf4n
- RZ/LLSospzO944PPK+Na+30BERaEjx04MEB9ByDFdfkSbM7BTQRSeAENARAAzu/3satWzly6
- +Lqi5dTFS9+hKvFMtdRb/vW4o9CQsMqL2BJGoE4uXvy3cancvcyodzTXCUxbesNP779JqeHy
- s7WkF2mtLVX2lnyXSUBm/ONwasuK7KLz8qusseUssvjJPDdw8mRLAWvjcsYsZ0qgIU6kBbvY
- ckUWkbJj/0kuQCmmulRMcaQRrRYrk7ZdUOjaYmjKR+UJHljxLgeregyiXulRJxCphP5migoy
- ioa1eset8iF9fhb+YWY16X1I3TnucVCiXixzxwn3uwiVGg28n+vdfZ5lackCOj6iK4+lfzld
- z4NfIXK+8/R1wD9yOj1rr3OsjDqOaugoMxgEFOiwhQDiJlRKVaDbfmC1G5N1YfQIn90znEYc
- M7+Sp8Rc5RUgN5yfuwyicifIJQCtiWgjF8ttcIEuKg0TmGb6HQHAtGaBXKyXGQulD1CmBHIW
- zg7bGge5R66hdbq1BiMX5Qdk/o3Sr2OLCrxWhqMdreJFLzboEc0S13BCxVglnPqdv5sd7veb
- 0az5LGS6zyVTdTbuPUu4C1ZbstPbuCBwSwe3ERpvpmdIzHtIK4G9iGIR3Seo0oWOzQvkFn8m
- 2k6H2/Delz9IcHEefSe5u0GjIA18bZEt7R2k8CMZ84vpyWOchgwXK2DNXAOzq4zwV8W4TiYi
- FiIVXfSj185vCpuE7j0ugp0AEQEAAcLBfAQYAQoAJgIbDBYhBKirxr6Vllfig9QtdXK25u9M
- WD0tBQJo47viBQkd8QjTAAoJEHK25u9MWD0tCH8P/1b+AZ8K3D4TCBzXNS0muN6pLnISzFa0
- cWcylwxX2TrZeGpJkg14v2R0cDjLRre9toM44izLaz4SKyfgcBSj9XET0103cVXUKt6SgT1o
- tevoEqFMKKp3vjDpKEnrcOSOCnfH9W0mXx/jDWbjlKbBlN7UBVoZD/FMM5Ul0KSVFJ9Uij0Z
- S2WAg50NQi71NBDPcga21BMajHKLFzb4wlBWSmWyryXI6ouabvsbsLjkW3IYl2JupTbK3viH
- pMRIZVb/serLqhJgpaakqgV7/jDplNEr/fxkmhjBU7AlUYXe2BRkUCL5B8KeuGGvG0AEIQR0
- dP6QlNNBV7VmJnbU8V2X50ZNozdcvIB4J4ncK4OznKMpfbmSKm3t9Ui/cdEK+N096ch6dCAh
- AeZ9dnTC7ncr7vFHaGqvRC5xwpbJLg3xM/BvLUV6nNAejZeAXcTJtOM9XobCz/GeeT9prYhw
- 8zG721N4hWyyLALtGUKIVWZvBVKQIGQRPtNC7s9NVeLIMqoH7qeDfkf10XL9tvSSDY6KVl1n
- K0gzPCKcBaJ2pA1xd4pQTjf4jAHHM4diztaXqnh4OFsu3HOTAJh1ZtLvYVj5y9GFCq2azqTD
- pPI3FGMkRipwxdKGAO7tJVzM7u+/+83RyUjgAbkkkD1doWIl+iGZ4s/Jxejw1yRH0R5/uTaB MEK4
-In-Reply-To: <amhodWpAI3K6aeBH@zenone.zhora.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-PPP-Message-ID: 
- <178611164533.1324321.17645473351261494769@mxe9fb.netcup.net>
-X-Rspamd-Server: rspamd-worker-8404
-X-Rspamd-Queue-Id: BE53C5FA52
-X-NC-CID: sxMiVO3Cy4RDvxaFE024WLSZ8Wt856n00+g3iclWmsXiUVO8x1s=
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|AS8PR04MB7653:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8c43d02f-5b5d-4a03-a3ce-08def4b98a09
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|376014|23010399003|19092799006|18002099003|22082099003|56012099006|11063799006|6133799003|10067099003;
+X-Microsoft-Antispam-Message-Info:
+	mUCU7JlMiuSVbvel7zjXNVDomRw4GeU32K7m86NJsyH9saeJ/brJRY7xUdQtcGDkmLi+DXWpHe2/ZgtSGkTvKN1UOXgmfmM5tt1LB9m3B0nshc8JonGwzkGhOpT+82LGFQ2LISV3zaV7AbVqmDzdLdB0u904SqJd6iU/+ANg4u4BHbs9KPAzcrQcjJD4G9JmtIW9bPxz4RDYVkEMx4h/etno852YxZ6frndmJkoX60oXP8DulIAglhp37jOvRDu3OF0LsfPviavVp4MUd2V0/54nCKCYkm7KJjrjSnHU2FUnLvdrs3zoRsaMSA6E5qmxMDsGMc24sxsydPNMbgWXcAU3Ag26p5OCg0H93BbBPinDs9UyI2mB10NT+kTunlrTTQHijDK3HxqQNWtxdVE98iodJW6mYd7IgRZcbzcHk98aS0+N4VgcFvY2EXzGtQk3NcjssN9VDCWq/YNa+7RlCDDKxWM9tNMbgLd/4hIMbsPJ7MYDPhM9nyJ9OxvCkcJGXuM0G9WIsSWQf+a1jyFLxMUIPMHcAkr920x6Mv2hFKTaedfhmzywjzcnGvCBiNkZKtefXt2Dx0Wh0Lz6XSWI38jucRPWlNEKcF9+UTpjjB+C4ShLVMUrZL5WQsYa0+74OBK888YC2+AtxJGqcSgwPfg7yw/ztErvGy0aqslmvJA=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(23010399003)(19092799006)(18002099003)(22082099003)(56012099006)(11063799006)(6133799003)(10067099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?4LqdhvoHvWI8ENOCg1kbEB1BeyB8vNz6B0lfzOKVg87QAUAmedkesQbTE+NP?=
+ =?us-ascii?Q?MGMY9Ty95j2mS25jIm6hsQFOIl9Se0DR2bR/DJB7QCYdIp+B9UHU1Q8JVOaP?=
+ =?us-ascii?Q?lYSZvmgQnEUnUnapHSTEQ5umtfnqapcr3qwDeyFZl/2ipzFjImurd+NVOdTp?=
+ =?us-ascii?Q?HTTeTpR2Z3qTfmG/gLG+aJhHup4pzHsZFNm+25lOS9hFBDPWPp7no4zVbKFS?=
+ =?us-ascii?Q?436p7Me2fyX203FxrUt56bMjdduK5gdSK/dNEoJ1IefFbv5pMPtlUwEEXq0M?=
+ =?us-ascii?Q?UdEaRf8LUdbxk/W/0WRmeh1p0+L/ZnN1CG8kjZH9SmJs+k3WanxND/r4Tl+7?=
+ =?us-ascii?Q?fQ/RI0hLbHWe2b6P5luoiwr53CH1pZJenSLFtloQhk4gsUYEaMwp3khDawjP?=
+ =?us-ascii?Q?Ezc5jOGqc0xsAKdNUg2mmeW6cSIR4yXRLabg+0oACoD4t+3yaB1n1TRalT65?=
+ =?us-ascii?Q?KgtUmSH9t4VvuySyhzx/0UUAsQzGi3VDcKTxcISB56Brn5S+z8LcrgIzHOqF?=
+ =?us-ascii?Q?dTn1BjlE95V0PdNPXblYxn3zQXszsXWrPWOOpd/S8RqzvxWqgrAr0YF+CAhF?=
+ =?us-ascii?Q?4ASfQqWHeR426Ixvz2QTztUcKrfRlm5ZiqJdkPzXJ0c1K8et+gZ1dPsvFIG6?=
+ =?us-ascii?Q?K6+Q7iJLxhDx3skUGdf/53PwTlHVCEXOl1Mcyb03eSM8cY+Q2rWWf1KTBahM?=
+ =?us-ascii?Q?oEkq2wKtaYlqb0O0TjGGIS87+z7Rhdz6hQFS3PYlfkN0+sTozWOcZtH8nUV3?=
+ =?us-ascii?Q?ikiHoW4sxhk93sRV8NwV/alID6008g4MQuMx5VTJWLluuuoKD0kN/tENICWN?=
+ =?us-ascii?Q?6B9eOIpaswsa3mj81frk8DjBqK57rl5lBZK3O9UHaeAg0l78qQDGTR1yulj8?=
+ =?us-ascii?Q?w3htjR9sPakp9u+lR8tcsMT161islxzRja6bzfToJ5vmFtZVYYcOq58i3vA2?=
+ =?us-ascii?Q?NIMoEox7df4k7kbbT6ESMv5hkeGkm8JDMjWfyuwToIrXDWBhFFpRYMEi+kOy?=
+ =?us-ascii?Q?ekiODMMUVBmwdZ58kzGPp8beOytk/c2/PSgUD7Osr2msG0QkgnBDMWAkHr4q?=
+ =?us-ascii?Q?ehnais1LH/CGQX0gzFTAXfwkql4T9vaiWQYVjs56jpTZ6hZ+hXDJRJ8cPIBG?=
+ =?us-ascii?Q?aa0i9dfwWHjhk7V6WyuWelZWTQj0rDpcvCD2T+tZnnzT0sgXe3zH8pjomI2w?=
+ =?us-ascii?Q?9NtHS71s7q+SSdR214eqDTD+y9bEpg5drOPM1Zd0ta1gjwxZ8JUg2SrHEwWM?=
+ =?us-ascii?Q?XnYymYsaI79WYa3SVNmAvKgL7SxSMM8ZzO9gP1LEC7LLdcJ4Zdi7y07iQI9N?=
+ =?us-ascii?Q?oPK3d4B5ymOjKqLbLUlD6tOJRK2jriKLwh/AqhWmvFQ25LE4KC25YINTh21B?=
+ =?us-ascii?Q?0W2zcUQcGSOHrpi9qAOT73Eki43AQE7JqQGU0EylQHZPO/iZ3tTCDo8l0p9d?=
+ =?us-ascii?Q?K3NvblioqfHyKbDJ8sRUu6vANDfYg9iTqT0dLqcahLa0rmkc09IJ0E94VUIo?=
+ =?us-ascii?Q?d00wdi96vgnnj9wPonKULB0Grn1RE+GAv+1nLbBtE/DZdT+hW4VtulLgsFCO?=
+ =?us-ascii?Q?ctRVw0OgRrEucytyGlzIOhLNJOs6JYZLUe9TayPjUJIXC6t+2SKxPoQMxZmF?=
+ =?us-ascii?Q?VDMlTeX9sdRAr3BaPPa8R8jeS9yNtd2cBbksQEfOk4IE60Pz6XP8NL0Zu9OW?=
+ =?us-ascii?Q?1nvkBN8VOVAMtz8s8yos+zwFX2pE7eviBUWsKnl0Nm7bnxuktyQZfmuVxkT5?=
+ =?us-ascii?Q?h1+gmcax7tNpbSatLYB7uMdd+ON9lXTPzqYSF2t5xub62WV37iDO?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8c43d02f-5b5d-4a03-a3ce-08def4b98a09
+X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Aug 2026 19:24:45.8880
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 42zp1YZkcqc823CLDj8CmsY/UmROE1cv6Wsmzhhj6cWBOWRyETenOHpgEoIi/LOm/F8R4e8YnrPDXPy2KkyzqY9lb34vBCNgnYnqOynudv9SwQXNJYKr4QBlT907IINM
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB7653
 
-On 7/28/26 10:30, Andi Shyti wrote:
-> On Sat, Jul 18, 2026 at 11:13:31AM +0530, Hardik Prakash wrote:
->> I2C controllers may have child devices with GpioInt resources that
->> depend on GPIO controllers being fully initialized. If the I2C
->> controller probes and enumerates children before the referenced GPIO
->> controller has completed probe, GPIO interrupts may not be properly
->> configured, leading to device failures.
->>
->> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
->> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
->> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
->> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
->> fail with lost arbitration errors:
->>
->>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->>   2.348157  lost arbitration
->>
->> Add a dependency check that walks ACPI child devices and defers probe
->> until any referenced GPIO controller is bound.
->>
->> Fixes: 3812a9e84265 ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11")
->> Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
->> Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> [...]
-> merged to i2c/i2c-fixes.
-> 
-> Thanks,
-> Andi
+On Mon, Aug 03, 2026 at 11:27:05AM +0800, carlos.song@oss.nxp.com wrote:
+> From: Carlos Song <carlos.song@nxp.com>
+>
+> Not all LPI2C controller instances implement the Target block.
+> Since commit 90311787f483 ("i2c: imx-lpi2c: reset controller in
+> probe stage"), the driver unconditionally resets both the Master
+> and Target blocks during probe.
+>
+> On controllers that do not support target mode, accessing the
+> Target registers triggers an asynchronous SError and prevents the
+> driver from probing successfully. For example on i.MX8QM:
+>
+>   SError Interrupt on CPU2, code 0x00000000bf000002 -- SError
+>   Hardware name: Freescale i.MX8QM MEK (DT)
+>   pc : lpi2c_imx_probe+0x280/0x594
+>   lr : lpi2c_imx_probe+0x224/0x594
+>   Kernel panic - not syncing: Asynchronous SError Interrupt
+>
+> The VERID register is implemented in the Master block and can be
+> safely accessed on all controller variants. Its FEATURE field
+> indicates whether target mode is supported.
+>
+> Read VERID during probe and use it to determine whether the
+> Target block is present. Only access Target registers when target
+> mode is supported and reject target registration requests with
+> -EOPNOTSUPP otherwise.
+>
+> Fixes: 90311787f483 ("i2c: imx-lpi2c: reset controller in probe stage")
+> Signed-off-by: Carlos Song <carlos.song@nxp.com>
+> ---
 
-This became 0a4bb2abc3e56d ("i2c: designware: defer probe if child
-GpioInt controllers are not bound") and causes a regression for me: the
-Touchpad in my ThinkPad T14s Gen 4 (AMD) stopped working. From the
-kernel log:
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
 
-i2c_designware AMDI0010:01: i2c_dw_handle_tx_abort: lost arbitration
-i2c_designware AMDI0010:01: controller timed out
-i2c_hid_acpi i2c-SYNA8018:00: failed to fetch HID descriptor: -110
-i2c_hid_acpi i2c-SYNA8018:00: Failed to fetch the HID Descriptor
-
-Reverting this change in current mainline/master (f9a2394a23482) fixed
-things for me. Full dmesg of current master and master+revert can be
-found here:
-
-https://www.leemhuis.info/files/misc/dmesg-master
-https://www.leemhuis.info/files/misc/dmesg-master-plus_revert
-
-Ciao, Thorsten
-
-#regzbot introduced: 0a4bb2abc3e56d
-#regzbot title i2c: designware: ThinkPad touchpad broke
-
->> ---
->> v12 -> v13:
->> - v12 was sent as an incomplete diff (generated against v11 rather than
->>   against current master due to a git format-patch invocation mistake on
->>   my end), not a real standalone patch (Andy Shevchenko)
->> - Not carrying forward Bartosz Golaszewski's v12 Acked-by, per Andy's
->>   request
->> - Add blank line before guard(device)(gpio_dev) for readability (Andy
->>   Shevchenko)
->> - No other functional code changes since v12
->>
->> v11 -> v12:
->> - Move gdev declaration to point of use with gpio_device_find_by_fwnode()
->>   call (Andy Shevchenko)
->> - Extract acpi_get_handle() return into acpi_status variable rather than
->>   inline in ACPI_FAILURE() (Andy Shevchenko)
->> - Use guard(device)(...) instead of scoped_guard(device, ...) {} for a
->>   single following statement (Andy Shevchenko)
->> - Use LIST_HEAD(res_list) instead of separate declaration + INIT_LIST_HEAD()
->>   (Andy Shevchenko)
->> - Check acpi_dev_get_resources() error before freeing the resource list,
->>   restoring the check-then-free ordering that had regressed in v11
->>   (Andy Shevchenko)
->> - Split ACPI_COMPANION(dev) assignment onto its own line rather than at
->>   declaration (Andy Shevchenko)
->>
->> v10 -> v11:
->> - Replaced custom gpio_controller_ref list and dedup logic with
->>   gpio_device_find_by_fwnode() (Suggested-by: Andy Shevchenko)
->> - Moved resource-skip explanation from commit message into a code comment
->> - Fixed device_is_bound() to check gpio_device_to_device(gdev)->parent
->>   rather than the gpio_device's own internal class device, which is
->>   registered on the synthetic "gpio" bus and never has a driver bound to it
->>
->> v9 -> v10:
->> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
->>   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
->> - Simplify string_source guard to a single string_length check, confirmed
->>   sufficient via ACPICA parser in drivers/acpi/acpica/rsutils.c
->>   (Andy Shevchenko)
->> - acpi_dev_get_resources() on single line, free only on success path
->>   (Andy Shevchenko)
->> - Reversed xmas tree ordering for variable declarations (Andy Shevchenko)
->> - Removed useless int ret = 0 assignment (Andy Shevchenko)
->> - acpi_dev_for_each_child() on single line (Andy Shevchenko)
->> - Use guard(device)(gpio_dev) pattern to avoid uninitialized variable
->>   warning and deduplicate the !gpio_dev check (Andy Shevchenko)
->>
->> v8 -> v9:
->> - Sent as a 2-patch series: revert of the broken v8 patch, plus a
->>   corrected resubmission
->> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
->>   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
->> - Remove gpio_dep_ctx wrapper struct, pass list_head * directly (Andy Shevchenko)
->> - Add const to gpio_controller_ref.path (Andy Shevchenko)
->> - Add NULL check for resource_source.string_ptr to fix a crash on hardware
->>   where GPIO resources have no named controller (Reported-by: Nathan
->>   Chancellor, Reported-by: Chaitanya Kumar Borah)
->> - Use acpi_dev_get_resources() return value properly (Andy Shevchenko)
->> - Fix all error paths to call free_gpio_controller_list() (Andy Shevchenko)
->> - Change guard to #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
->> - Remove erroneous put_device() calls -- acpi_get_first_physical_node()
->>   returns a borrowed pointer with no refcount increment
->> - Use LIST_HEAD() macro, split adev declaration and assignment (Andy Shevchenko)
->> - scoped_guard single statement without braces (Andy Shevchenko)
->> - Remove misused Reported-by/Closes tags (Andy Shevchenko)
->>
->> v7 -> v8:
->> - Add revert of the earlier pinctrl-amd DMI quirk (patch 1 of the original
->>   v1-v7 series), confirmed unnecessary once probe ordering is fixed
->>   (Mario Limonciello)
->> - Collect Acked-by (Bartosz Golaszewski) and Reviewed-by (Mario Limonciello)
->>
->> v6 -> v7:
->> - Fix unused 'ret' variable in check_child_gpioint() (kernel test robot)
->> - Replace BugLink: with Link: (Bartosz Golaszewski)
->> - Add Reported-by and Closes tags for kernel test robot warning
->>
->> v5 -> v6:
->> - Replace DMI-specific deferral with a generic GpioInt dependency check
->>   walking ACPI child devices (Suggested-by: Mario Limonciello)
->>
->> v4 -> v5:
->> - Add blank line before #include <linux/acpi.h> (Bartosz Golaszewski)
->> - Use scoped_guard(device, gpio_dev) (Bartosz Golaszewski)
->>
->> v3 -> v4:
->> - Rebase onto Linus Walleij's tree (the original patch 1 already there)
->> - Use --base so series is correctly 1/1 (Andy Shevchenko)
->>
->> v2 -> v3:
->> - Fix variable declaration style (Andy Shevchenko)
->> - Add BugLink tag (Andy Shevchenko)
->> - CC AMD engineers (Andy Shevchenko)
->>
->> v1 -> v2:
->> - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev()
->> - Use device_is_bound() under device_lock() with explanatory comments
->> - Add Assisted-by tags per coding-assistants.rst
->>
->> Note: this patch was originally part of a 2-patch series (v1-v7) whose
->> first patch was a DMI-specific pinctrl-amd IRQ quirk; that patch was
->> merged separately into Linus Walleij's tree at v1 and later reverted at
->> v8 once this patch made the manual IRQ restoration unnecessary.
->>
->>  drivers/i2c/busses/i2c-designware-platdrv.c | 80 +++++++++++++++++++++
->>  1 file changed, 80 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index 6d6e81242f74..c8a203fff4d1 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -8,12 +8,14 @@
->>   * Copyright (C) 2007 MontaVista Software Inc.
->>   * Copyright (C) 2009 Provigent Ltd.
->>   */
->> +#include <linux/acpi.h>
->>  #include <linux/clk-provider.h>
->>  #include <linux/clk.h>
->>  #include <linux/delay.h>
->>  #include <linux/dmi.h>
->>  #include <linux/err.h>
->>  #include <linux/errno.h>
->> +#include <linux/gpio/driver.h>
->>  #include <linux/i2c.h>
->>  #include <linux/interrupt.h>
->>  #include <linux/io.h>
->> @@ -130,6 +132,80 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
->>  	return 0;
->>  }
->>  
->> +#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
->> +/*
->> + * Check whether an ACPI GpioInt resource's referenced GPIO controller
->> + * has finished probing. Resources with no named controller (resource
->> + * source string) are skipped, since they can't be resolved to a
->> + * struct device.
->> + */
->> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
->> +{
->> +	struct acpi_resource_gpio *agpio;
->> +	struct acpi_device *gpio_adev;
->> +	struct device *gpio_dev;
->> +	acpi_handle handle;
->> +	acpi_status status;
->> +
->> +	if (!acpi_gpio_get_irq_resource(ares, &agpio))
->> +		return 1; /* not a GpioInt resource, skip */
->> +
->> +	if (!agpio->resource_source.string_length)
->> +		return 1; /* no named controller, skip */
->> +
->> +	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
->> +	if (ACPI_FAILURE(status))
->> +		return 1;
->> +
->> +	gpio_adev = acpi_fetch_acpi_dev(handle);
->> +	if (!gpio_adev)
->> +		return 1;
->> +
->> +	struct gpio_device *gdev __free(gpio_device_put) =
->> +		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
->> +	if (!gdev)
->> +		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
->> +
->> +	gpio_dev = gpio_device_to_device(gdev)->parent;
->> +
->> +	guard(device)(gpio_dev);
->> +	if (!device_is_bound(gpio_dev))
->> +		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
->> +
->> +	return 1; /* bound, skip adding to resource list, continue walk */
->> +}
->> +
->> +static int check_child_gpioint(struct acpi_device *adev, void *data)
->> +{
->> +	LIST_HEAD(res_list);
->> +	int ret;
->> +
->> +	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
->> +	if (ret < 0)
->> +		return ret;
->> +
->> +	acpi_dev_free_resource_list(&res_list);
->> +
->> +	return 0;
->> +}
->> +
->> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
->> +{
->> +	struct acpi_device *adev;
->> +
->> +	adev = ACPI_COMPANION(dev);
->> +	if (!adev)
->> +		return 0;
->> +
->> +	return acpi_dev_for_each_child(adev, check_child_gpioint, NULL);
->> +}
->> +#else
->> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
->> +{
->> +	return 0;
->> +}
->> +#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
->> +
->>  static int dw_i2c_plat_probe(struct platform_device *pdev)
->>  {
->>  	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
->> @@ -138,6 +214,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->>  	struct dw_i2c_dev *dev;
->>  	int irq, ret;
->>  
->> +	ret = i2c_dw_check_gpio_dependencies(device);
->> +	if (ret)
->> +		return ret;
->> +
->>  	irq = platform_get_irq_optional(pdev, 0);
->>  	if (irq == -ENXIO)
->>  		flags |= ACCESS_POLLING;
->>
->> base-commit: 58717b2a1365d06c8c64b72aa948541b53fe31eb
->> -- 
->> 2.54.0
->>
-> 
+>  drivers/i2c/busses/i2c-imx-lpi2c.c | 27 +++++++++++++++++++++++----
+>  1 file changed, 23 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> index e1a4338bc51e..1cfd7a4c8237 100644
+> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
+> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> @@ -29,6 +29,7 @@
+>
+>  #define DRIVER_NAME "imx-lpi2c"
+>
+> +#define LPI2C_VERID	0x00	/* i2c version ID */
+>  #define LPI2C_PARAM	0x04	/* i2c RX/TX FIFO size */
+>  #define LPI2C_MCR	0x10	/* i2c contrl register */
+>  #define LPI2C_MSR	0x14	/* i2c status register */
+> @@ -136,6 +137,9 @@
+>  #define I2C_PM_LONG_TIMEOUT_MS	1000 /* Avoid dead lock caused by big clock prepare lock */
+>  #define I2C_DMA_THRESHOLD	8 /* bytes */
+>
+> +/* Bit 0 indicates the presence of the target feature */
+> +#define VERID_FEATURE_TARGET_PRESENT	BIT(0)
+> +
+>  enum lpi2c_imx_mode {
+>  	STANDARD,	/* 100+Kbps */
+>  	FAST,		/* 400+Kbps */
+> @@ -194,6 +198,7 @@ struct lpi2c_imx_struct {
+>  	bool			can_use_dma;
+>  	struct lpi2c_imx_dma	*dma;
+>  	struct i2c_client	*target;
+> +	bool			target_supported;
+>  	int			irq;
+>  	const struct imx_lpi2c_hwdata *hwdata;
+>  };
+> @@ -1330,6 +1335,10 @@ static int lpi2c_imx_register_target(struct i2c_client *client)
+>  	struct lpi2c_imx_struct *lpi2c_imx = i2c_get_adapdata(client->adapter);
+>  	int ret;
+>
+> +	/* Reject target-mode registration on controllers that don't support it. */
+> +	if (!lpi2c_imx->target_supported)
+> +		return -EOPNOTSUPP;
+> +
+>  	if (lpi2c_imx->target)
+>  		return -EBUSY;
+>
+> @@ -1546,13 +1555,23 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
+>  	pm_runtime_enable(&pdev->dev);
+>
+>  	/*
+> -	 * Reset all internal controller registers of both Master and Target
+> -	 * to avoid effects of previous status.
+> +	 * Reset all internal controller registers to avoid effects of any
+> +	 * state left over from a previous stage (e.g. the bootloader).
+> +	 *
+> +	 * The Master block (MCR) is present on every controller, so reset it
+> +	 * unconditionally. VERID shows whether the target feature is supported.
+> +	 * Do not touch the Target block (SCR) on a master-only controller to
+> +	 * avoid an asynchronous SError.
+>  	 */
+>  	writel(MCR_RST, lpi2c_imx->base + LPI2C_MCR);
+> -	writel(SCR_RST, lpi2c_imx->base + LPI2C_SCR);
+>  	writel(0, lpi2c_imx->base + LPI2C_MCR);
+> -	writel(0, lpi2c_imx->base + LPI2C_SCR);
+> +
+> +	lpi2c_imx->target_supported = !!(readl(lpi2c_imx->base + LPI2C_VERID) &
+> +					 VERID_FEATURE_TARGET_PRESENT);
+> +	if (lpi2c_imx->target_supported) {
+> +		writel(SCR_RST, lpi2c_imx->base + LPI2C_SCR);
+> +		writel(0, lpi2c_imx->base + LPI2C_SCR);
+> +	}
+>
+>  	ret = devm_request_irq(&pdev->dev, lpi2c_imx->irq, lpi2c_imx_isr, IRQF_NO_SUSPEND,
+>  			       pdev->name, lpi2c_imx);
+> --
+> 2.43.0
+>
+>
