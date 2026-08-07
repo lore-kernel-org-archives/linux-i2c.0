@@ -1,64 +1,64 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0263F449B21
-	for <linux-i2c@vger.kernel.org>; Fri,  7 Aug 2026 06:04:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EBF7448BA4
+	for <linux-i2c@vger.kernel.org>; Fri,  7 Aug 2026 06:04:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786082666; cv=none; b=ei1zdFiJcdkyXAP7MjTn+QB2oU1bugmUrre86JOwM3vRKuYGvo1Qx7NmZZewkc3WQvi5797ULMSmonj9hKNXlHTknhop0fmN3LvEo90pgyTrlbDcKDLTAoraVJ/UVyQNw3l8hnDDT7B5d2DEyUFJ3BrHLCEG0EG081t8L10aCKg=
+	t=1786082668; cv=none; b=USRWKR9ISA4aiegSBprssyg2bXbp8gp3UzDaBvQre8pGTrqMaHiuGf/gy35wSvDlcWLw/2Q1atS66cglylFpRHiBmvT+dVva8ufcls17Xzp25blkA7dG06cXO+HteEFy1Q3jCCvxTIDnXA6tc0Bl9kGLv9P3KbW/HKgXSga28Yg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786082666; c=relaxed/simple;
-	bh=4MV/le0hTisvWe0y8sciox961e/5jw6oLysl9F/1cms=;
+	s=arc-20240116; t=1786082668; c=relaxed/simple;
+	bh=0aK3nrisfIvMUC7hMzoMx1aGyZsFxW2jrw74ipuIpwY=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Pm8e4vDyf0iIsAzAGvFX+3ZDX7trEIWEBBkcUm5d/WdK3PhfNk92tP8aZg7rRiLyIdbdQQxacKnG3pzZVfN85Ql02eTlWvZTuoGMsKxwyuqluRyOdVKmdzjL6UwKJvO1aObNHNPPDb5keVR1XYLJLSffdcFUCUgiNHasTC625tg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SwLfAexf; arc=none smtp.client-ip=209.85.216.47
+	 MIME-Version; b=VTNOVTnpjnsAne94sWfyo4A7+ZluMAYQVLg1w/9l76BpFdpuMAyHBtgJPh9k/Y8GpTOrwufXsxx6xNUW2Uh+XeReTgjoKM7km1J/oHfeegS/A1J+ZmocseYWlz7nZ8mY1QNx/p9qrJ2LAe3xrGP0VSccYrpfDlobzkDuqGtzDBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NY9tFTWM; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SwLfAexf"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3856d6fbcb3so2506250a91.2
-        for <linux-i2c@vger.kernel.org>; Thu, 06 Aug 2026 23:04:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NY9tFTWM"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cacb8416a1so31601065ad.1
+        for <linux-i2c@vger.kernel.org>; Thu, 06 Aug 2026 23:04:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786082662; x=1786687462; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786082666; x=1786687466; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=fYzL2//u/kCrWsOsUlN7jqC3nVL+qRhw0SRrztk5eeQ=;
-        b=SwLfAexfH5lHNLYY431+ycvVARI305loclcDdxSj5tJHUFp86Mwy2yyAqEkfXJXwW3
-         M5+nEdFsasGXzsjBvZGVSy0COFbqOJ4BZAvbi8i55YXQnxyXqjucWctrGvXjQRTYZJYo
-         1o/JjGWK38c7I7wsxoe52vem2ienoH/zJ/r0cbR5w2Td6pJfbdVo04Rfhwj4jG2o/Fg/
-         kxUsODcpo/4//rmro9uadT9RM0W+p+TA3JXh4JlKWjo+r4UUhIU+QCvLG8IOu6GHOUMo
-         toh7z3EuBoDxVRZBW/i6/VZxVB4LGkuKbHS4CFNJnWqStV4HIARjjG7LOxoroDrZ8pYQ
-         v/4Q==
+        bh=6y8Hcxg9MXxS8AWcFY2VAmn1cCgVHpq4caMsrXoFzEI=;
+        b=NY9tFTWMWonEkxo1QiTCSvKXI1nM3ykBDeY88wvgkSb9Z3sGFIUVpmppen/hCGMdVm
+         llHyxf5YQ0uqHXG0o+D3Re1hndnLNrcD0AeJg4PeyJhQvJx3rMw9+4TAmSQeOqlCTVed
+         Vu/VOsH6Gs+CCeVgAqGF2B0ck1gkVEstdn3+m9zD6VXhUvG9iu7UF0wF5ZdubS9aDmUg
+         bRaG5BgwLOZWLGyYrH8+93QZ3oGUleJMW8tTL7A15WDi8Ewzst4bRLMVBqX+4TQvZF1L
+         dAKYzppQjaeyAvL0Qu9jhYAvGiyH1k4SyCO8QIRPfV6wWAx/h1Gm7gzb3J/yrFWCtGTx
+         Uskw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786082662; x=1786687462;
+        d=1e100.net; s=20251104; t=1786082666; x=1786687466;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fYzL2//u/kCrWsOsUlN7jqC3nVL+qRhw0SRrztk5eeQ=;
-        b=Lat3a1oXQSxsvOvZQz5rkp2heRuWhexHiZedLEwAEjllZ7W88Tc1+0GdAC5kzcClfr
-         3CDNk7PYR9HbnWlvsZgPXguuFgAYoMz4gSPeXdzt+tO0P0bhxnh3uQ9epGOGO6U8SnFw
-         pdLwG1/7GVCcMHiD9IUMfwr/uN7KQpOoZrKajuhQY11DeK76wyXgr5eq84HBuuiI6ZQ6
-         I21y/4lGN1gXlgLwiCdo2L0CKvGZuPozAiTwbp8gWHUF9RClYE9/EqQQMBVptQAXYlrS
-         Tnuz6fFmDQymG6Txla3bXDTNeoUMFUCWYIgD1FF35Lo9vDoRex1+VVbboM2gzxiUr+GL
-         1Ahw==
-X-Forwarded-Encrypted: i=1; AHgh+Rop2b3dvYSXgl6YUbdrGg9ruHCNlRSjIzdmbdWXv9Tg8+L+Hx0CDLWIeBGq/DVoACZEoo1dA8NYpew=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxHazcLQuaOE5C6YRTyYzsNOBK2a1KtLRHr9gfYyeErM6Ubo8j8
-	QMvBktKAGGTA/gIAtStCRgu/1R9zEJqwlOqsaFUD5+CJF+0eoKYroWCi
-X-Gm-Gg: AR+sD11FsDxbncyvOI25BNMctqDfzFuht5wpY5YA+7c/EYxWFo8k/OV9dFBO8LiYfmy
-	L3Gsw6AWx4L0la66Y2Cc1SBpLiR4FveacZzmXB2VDfG+i8fu8wJaORwg04s47+pJQ7ChIvSCEpD
-	8ycizYwic755VuNXy9dv/yH9AhkMTMlbPr4OqWNA9RenoI5+En5BlKEHO7Bu7qgKKBSer41iqBE
-	pSxCjosWNxuIQnF/sYltbqMeTE5d9Vzkccs6cEpojI5ssxdEjGbmAvTJH8IoifUQhF6LYkhpco1
-	Qx6S+97hy5WkR8zfdze+glVlD/C6WWqq1Qhrg4rtrKtNmFKdefYEUbknKyUeYh32Zx79UvFo/vN
-	BBz7ti42Y9vogbWPidp4Ut9RG6zBLerBChHUUY+hLGrEuhKAadkc1EFZFNNFE48JfOCw3cfUO57
-	XJPaNiN5su7gFWwrLX9dGdNG4GAvQsOZggGzWmPn2IT/oGxUnabTzt+qkmQlZByFLSZoyHClc8A
-	YfuWLCMsPhN9R8YyX0AKvhxb185NiutQ3ULwxTAy6FwshU=
-X-Received: by 2002:a17:90b:1d02:b0:37f:fd1f:d30f with SMTP id 98e67ed59e1d1-3903c595ef1mr20425538a91.12.1786082662123;
-        Thu, 06 Aug 2026 23:04:22 -0700 (PDT)
+        bh=6y8Hcxg9MXxS8AWcFY2VAmn1cCgVHpq4caMsrXoFzEI=;
+        b=aWCG7p/TE/Kvvj2i5/rl+YYD3QYa2KbGlWQKAopUZVzbgtGYE90m15Ne52gyTV0ega
+         HkNaqFKM88Rop1ld9fCfNp9jGlHueVrCPYD0DfYqbxd9BH1b8FKAxQzjCIG0a82Z/lfe
+         Fh1BTdc39V5YU5DB9rqYlaZc71tIOu15RiXtox2ct7XVmZvqYYwj1XllgUqZ4c+Rmle0
+         wAzJAcjT0ba+nJ8CI8Iv6l73Y8T0Z5WKstIF1MuyZUZgzJ5hJHWj9af17abMUzwIMcmK
+         StAm+F4u3BRQFItHrIkr9jGc0bU66hYI32u0TkKzMOANcHu0vTI3szieLvO9jwoEuSzZ
+         U9+Q==
+X-Forwarded-Encrypted: i=1; AHgh+RrfTVrFBVOdpT2tHJItAEncCFcYlah74jYsJBbDjdS9Y209hQLdI6t0dOR2HLJ9dKIxxRycCa35aJ4=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6HltgNtx+GvC1BY310t2l5E9wQbsjob0bG1wIhOU0pML64Gzg
+	f2AoWcDAvgr7eEyk6ibvEg4tsvrDn3g1KPPE1iGpSbknUbLd+IlnqkVi
+X-Gm-Gg: AR+sD10H8coyf6nXnSokpG8eGUTUcf1f2HbRZk3u2tXKER6TVI5F5B84mpg7NipGZpH
+	4tpXd6DLTXFIfhFw2nP7+Y3k+TEkR2zxL/SUSK3dX6sDa306U8M0BuzWHpvPVek3ID+SmOItpkJ
+	8nyLzW/Gz4cVaN50vImONAvufWtJ7vxYL58IlXpIYW1P37OMXTiIkHNgGN6AJ6ARL+/HNBh24i9
+	lG8PumAVzgBOhBCmieYBReTzxvBxt5ynykTFasKdyJU7nWqHUQiRzmglMcNDYaaNFwfqeT75/Gm
+	8vPFzYpyDLCR8CUB6/kcQtQoZXN8xhfRiKWhmJSRiPXHYB5ro9cW8GrAOmMcWtzRPCFB6ytYUWC
+	xRqfOdogFNlotpiGSYE8ahz71SKysYJAqfCCO63fDDKuMAOMeMMPXcKdxnAtEJTEaO4Je27ouo3
+	m6xnFzRgknt5Md6J58tHibzwAbWb3UhAeuKk0sGGMvZIAjNVKW4vcq+aXdZDxAN52pWkPdOU3nF
+	q1r5d/byJXqPyb3a/HgboZqVvO3CYNqdDjVo/PtuFnsijI=
+X-Received: by 2002:a17:90b:524c:b0:38e:5ac1:9517 with SMTP id 98e67ed59e1d1-3903c54b386mr19817734a91.3.1786082665738;
+        Thu, 06 Aug 2026 23:04:25 -0700 (PDT)
 Received: from localhost.localdomain (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39085de9c0fsm3375588a91.5.2026.08.06.23.04.18
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39085de9c0fsm3375588a91.5.2026.08.06.23.04.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2026 23:04:21 -0700 (PDT)
+        Thu, 06 Aug 2026 23:04:25 -0700 (PDT)
 From: Zi-Yu Chen <zychennvt@gmail.com>
 To: Andi Shyti <andi.shyti@kernel.org>,
 	linux-i2c@vger.kernel.org,
@@ -73,9 +73,9 @@ Cc: Jacky Huang <ychuang3@nuvoton.com>,
 	Philipp Zabel <p.zabel@pengutronix.de>,
 	Andrew Jeffery <andrew@codeconstruct.com.au>,
 	Zi-Yu Chen <zychennvt@gmail.com>
-Subject: [PATCH v9 2/3] i2c: ma35d1: Add Nuvoton MA35D1 I2C driver support
-Date: Fri,  7 Aug 2026 14:03:59 +0800
-Message-Id: <20260807060400.2047517-3-zychennvt@gmail.com>
+Subject: [PATCH v9 3/3] arm64: dts: nuvoton: Add I2C nodes for MA35D1 SoC
+Date: Fri,  7 Aug 2026 14:04:00 +0800
+Message-Id: <20260807060400.2047517-4-zychennvt@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260807060400.2047517-1-zychennvt@gmail.com>
 References: <20260807060400.2047517-1-zychennvt@gmail.com>
@@ -87,837 +87,138 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add I2C support for Nuvoton MA35D1 SoC.
-The controller supports standard, fast and fast-plus modes,
-and provides controller/target functionality.
+Add I2C controller nodes to the MA35D1 SoC dtsi file.
+Also, enable the I2C2 interface on the MA35D1 SOM board and
+configure its pinctrl to allow communication with the onboard
+NAU8822 audio codec
 
 Signed-off-by: Zi-Yu Chen <zychennvt@gmail.com>
 ---
- drivers/i2c/busses/Kconfig      |  13 +
- drivers/i2c/busses/Makefile     |   1 +
- drivers/i2c/busses/i2c-ma35d1.c | 779 ++++++++++++++++++++++++++++++++
- 3 files changed, 793 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-ma35d1.c
+ .../boot/dts/nuvoton/ma35d1-som-256m.dts      | 20 ++++++
+ arch/arm64/boot/dts/nuvoton/ma35d1.dtsi       | 72 +++++++++++++++++++
+ 2 files changed, 92 insertions(+)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d7b89508311f..e69120d46977 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1602,4 +1602,17 @@ config I2C_VIRTIO
-           This driver can also be built as a module. If so, the module
-           will be called i2c-virtio.
+diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts b/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
+index a029b660e8dc..422468dbc3bf 100644
+--- a/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
++++ b/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
+@@ -57,6 +57,18 @@ &clk {
+ 			   "integer";
+ };
  
-+config I2C_MA35D1
-+	tristate "Nuvoton MA35D1 I2C driver"
-+	depends on ARCH_MA35 || COMPILE_TEST
-+	select I2C_SLAVE
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C controller in the Nuvoton MA35D1 SoC. This driver
-+	  supports the standard I2C bus protocols, including master and
-+	  slave modes.
++&i2c2 {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c2>;
 +
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-ma35d1.
++	nau8822: audio-codec@1a {
++		compatible = "nuvoton,nau8822";
++		reg = <0x1a> ;
++		nuvoton,spk-btl;
++	};
++};
 +
- endmenu
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 3755c54b3d82..ca75dae4955c 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -131,6 +131,7 @@ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
- obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
- obj-$(CONFIG_I2C_GXP)		+= i2c-gxp.o
-+obj-$(CONFIG_I2C_MA35D1)	+= i2c-ma35d1.o
+ &pinctrl {
+ 	uart-grp {
+ 		pinctrl_uart0: uart0-pins {
+@@ -100,6 +112,14 @@ pinctrl_uart16: uart16-pins {
+ 			power-source = <1>;
+ 		};
+ 	};
++
++	i2c-grp {
++		pinctrl_i2c2: i2c2-pins {
++			nuvoton,pins = <1 8 4>,
++				       <1 9 4>;
++			bias-disable;
++		};
++	};
+ };
  
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
-diff --git a/drivers/i2c/busses/i2c-ma35d1.c b/drivers/i2c/busses/i2c-ma35d1.c
-new file mode 100644
-index 000000000000..61d7605c3a05
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-ma35d1.c
-@@ -0,0 +1,779 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) 2026 Nuvoton technology corporation.
-+ *
-+ * Author: Zi-Yu Chen <zychennvt@gmail.com>
-+ */
-+
-+#include <linux/bitfield.h>
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/iopoll.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/property.h>
-+#include <linux/reset.h>
-+#include <linux/units.h>
-+
-+/* MA35D1 I2C registers offset */
-+#define MA35_CTL0		0x00
-+#define MA35_ADDR0		0x04
-+#define MA35_DAT		0x08
-+#define MA35_STATUS0	0x0c
-+#define MA35_CLKDIV		0x10
-+#define MA35_TOCTL		0x14
-+#define MA35_ADDR1		0x18
-+#define MA35_ADDR2		0x1c
-+#define MA35_ADDR3		0x20
-+#define MA35_ADDRMSK0	0x24
-+#define MA35_ADDRMSK1	0x28
-+#define MA35_ADDRMSK2	0x2c
-+#define MA35_ADDRMSK3	0x30
-+#define MA35_WKCTL		0x3c
-+#define MA35_WKSTS		0x40
-+#define MA35_CTL1		0x44
-+#define MA35_STATUS1	0x48
-+#define MA35_TMCTL		0x4c
-+#define MA35_BUSCTL		0x50
-+#define MA35_BUSTCTL	0x54
-+#define MA35_BUSSTS		0x58
-+#define MA35_PKTSIZE	0x5c
-+#define MA35_PKTCRC		0x60
-+#define MA35_BUSTOUT	0x64
-+#define MA35_CLKTOUT	0x68
-+#define MA35_AUTOCNT	0x78
-+
-+/* MA35D1 I2C Status */
-+/* Controller */
-+#define MA35_M_START				0x08	/* Start */
-+#define MA35_M_REPEAT_START			0x10	/* Controller Repeat Start */
-+#define MA35_M_TRAN_ADDR_ACK		0x18	/* Controller Transmit Address ACK */
-+#define MA35_M_TRAN_ADDR_NACK		0x20	/* Controller Transmit Address NACK */
-+#define MA35_M_TRAN_DATA_ACK		0x28	/* Controller Transmit Data ACK */
-+#define MA35_M_TRAN_DATA_NACK		0x30	/* Controller Transmit Data NACK */
-+#define MA35_M_ARB_LOST				0x38	/* Controller Arbitration Lost */
-+#define MA35_M_RECE_ADDR_ACK		0x40	/* Controller Receive Address ACK */
-+#define MA35_M_RECE_ADDR_NACK		0x48	/* Controller Receive Address NACK */
-+#define MA35_M_RECE_DATA_ACK		0x50	/* Controller Receive Data ACK */
-+#define MA35_M_RECE_DATA_NACK		0x58	/* Controller Receive Data NACK */
-+#define MA35_BUS_ERROR				0x00	/* Bus error */
-+
-+/*  Target */
-+#define MA35_S_REPEAT_START_STOP	0xa0	/* Target Transmit Repeat Start or Stop */
-+#define MA35_S_TRAN_ADDR_ACK		0xa8	/* Target Transmit Address ACK */
-+#define MA35_S_TRAN_DATA_ACK		0xb8	/* Target Transmit Data ACK */
-+#define MA35_S_TRAN_DATA_NACK		0xc0	/* Target Transmit Data NACK */
-+#define MA35_S_TRAN_LAST_DATA_ACK	0xc8	/* Target Transmit Last Data ACK */
-+#define MA35_S_RECE_ADDR_ACK		0x60	/* Target Receive Address ACK */
-+#define MA35_S_RECE_ARB_LOST		0x68	/* Target Receive Arbitration Lost */
-+#define MA35_S_RECE_DATA_ACK		0x80	/* Target Receive Data ACK */
-+#define MA35_S_RECE_DATA_NACK		0x88	/* Target Receive Data NACK */
-+
-+/* Other */
-+#define MA35_ADDR_TRAN_ARB_LOST		0xb0	/* Address Transmit Arbitration Lost */
-+#define MA35_BUS_RELEASED			0xf8	/* Bus Released */
-+
-+/*  I2C_CTL constant definitions. */
-+#define MA35_CTL_AA			BIT(2)
-+#define MA35_CTL_SI			BIT(3)
-+#define MA35_CTL_STO		BIT(4)
-+#define MA35_CTL_STA		BIT(5)
-+#define MA35_CTL_I2CEN		BIT(6)
-+#define MA35_CTL_INTEN		BIT(7)
-+#define MA35_CTL_SI_AA		(MA35_CTL_SI | MA35_CTL_AA)
-+#define MA35_CTL_STO_SI		(MA35_CTL_STO | MA35_CTL_SI)
-+#define MA35_CTL_STA_SI		(MA35_CTL_STA | MA35_CTL_SI)
-+
-+/* Constants */
-+#define MA35_CLKDIV_MSK		GENMASK(15, 0)
-+#define I2C_PM_TIMEOUT_MS	5000
-+#define STOP_TIMEOUT_MS		50
-+
-+struct ma35d1_i2c {
-+	spinlock_t lock;
-+	wait_queue_head_t wait;
-+	struct i2c_msg *msg;
-+	unsigned int msg_num;
-+	unsigned int msg_idx;
-+	unsigned int msg_ptr;
-+	int err;
-+	int irq;
-+	void __iomem *regs;
-+	struct clk *clk;
-+	struct device *dev;
-+	struct i2c_adapter adap;
-+	struct i2c_client *target;
-+	struct reset_control *rst;
-+};
-+
-+static inline bool ma35d1_is_controller_status(unsigned int status)
-+{
-+	return status >= MA35_M_START && status <= MA35_M_RECE_DATA_NACK;
-+}
-+
-+/*
-+ * ma35d1_i2c_write_ctl - Update the I2C control register
-+ * @i2c: Pointer to the ma35d1 i2c instance
-+ * @ctl: Control bits to set (e.g., MA35_CTL_STA, SI, AA)
-+ *
-+ * Read-modify-write the CTL0 register while preserving unrelated bits.
-+ */
-+static void ma35d1_i2c_write_ctl(struct ma35d1_i2c *i2c, unsigned int ctl)
-+{
-+	unsigned int val;
-+
-+	guard(spinlock_irqsave)(&i2c->lock);
-+	val = readl(i2c->regs + MA35_CTL0);
-+	val &= ~(MA35_CTL_SI_AA);
-+	val |= ctl;
-+	writel(val, i2c->regs + MA35_CTL0);
-+}
-+
-+static void ma35d1_i2c_set_addr(struct ma35d1_i2c *i2c)
-+{
-+	unsigned int rw = i2c->msg->flags & I2C_M_RD;
-+
-+	writel(((i2c->msg->addr & 0x7f) << 1) | rw, i2c->regs + MA35_DAT);
-+}
-+
-+static void ma35d1_i2c_controller_complete(struct ma35d1_i2c *i2c)
-+{
-+	i2c->msg_ptr = 0;
-+	i2c->msg = NULL;
-+	i2c->msg_idx++;
-+	i2c->msg_num = 0;
-+
-+	wake_up(&i2c->wait);
-+}
-+
-+static void ma35d1_i2c_reset(struct ma35d1_i2c *i2c)
-+{
-+	unsigned int clkdiv, slvaddr;
-+
-+	clkdiv = readl(i2c->regs + MA35_CLKDIV);
-+	slvaddr = readl(i2c->regs + MA35_ADDR0);
-+
-+	disable_irq(i2c->irq);
-+	i2c->msg = NULL;
-+	reset_control_assert(i2c->rst);
-+	usleep_range(10, 20);
-+	reset_control_deassert(i2c->rst);
-+	enable_irq(i2c->irq);
-+
-+	writel(clkdiv, (i2c->regs + MA35_CLKDIV));
-+	ma35d1_i2c_write_ctl(i2c, MA35_CTL_I2CEN | MA35_CTL_INTEN);
-+
-+	if (i2c->target)
-+		writel(slvaddr, i2c->regs + MA35_ADDR0);
-+}
-+
-+static void ma35d1_i2c_stop(struct ma35d1_i2c *i2c, int ret)
-+{
-+	ma35d1_i2c_write_ctl(i2c, MA35_CTL_STO_SI);
-+
-+	if (ret)
-+		i2c->err = ret;
-+
-+	ma35d1_i2c_controller_complete(i2c);
-+}
-+
-+/*
-+ * ma35d1_i2c_restore_idle - restore controller state to idle
-+ * @i2c: Pointer to the ma35d1 i2c instance
-+ *
-+ * Restore the controller to an idle state after an unexpected event.
-+ * Abort an active controller transfer, otherwise re-arm target mode
-+ * if enabled.
-+ */
-+static void ma35d1_i2c_restore_idle(struct ma35d1_i2c *i2c)
-+{
-+	if (i2c->msg)
-+		ma35d1_i2c_stop(i2c, -EIO);
-+	else if (i2c->target)
-+		ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI_AA);
-+	else
-+		ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI);
-+}
-+
-+/* Check if this is the last message in the set */
-+static inline bool is_last_msg(struct ma35d1_i2c *i2c)
-+{
-+	return i2c->msg_idx >= (i2c->msg_num - 1);
-+}
-+
-+/* Check if this is the last byte in the current message */
-+static inline bool is_last_byte(struct ma35d1_i2c *i2c)
-+{
-+	return i2c->msg_ptr == i2c->msg->len - 1;
-+}
-+
-+/* Check if reached the end of the current message */
-+static inline bool is_msgend(struct ma35d1_i2c *i2c)
-+{
-+	return i2c->msg_ptr >= i2c->msg->len;
-+}
-+
-+/*
-+ * ma35d1_i2c_irq_target_trx - I2C Target state machine handler
-+ * @i2c: ma35d1 i2c instance
-+ * @i2c_status: hardware status code from MA35_STATUS0
-+ */
-+static irqreturn_t ma35d1_i2c_irq_target_trx(struct ma35d1_i2c *i2c,
-+					     unsigned long i2c_status)
-+{
-+	unsigned char byte = 0;
-+
-+	switch (i2c_status) {
-+	case MA35_S_RECE_ARB_LOST:
-+		/*
-+		 * Arbitration lost during address transmission phase.
-+		 * The hardware switches to Target Transmitter mode when
-+		 * our own SLA+W is detected on the bus.
-+		 */
-+		i2c->err = -EAGAIN;
-+		ma35d1_i2c_controller_complete(i2c);
-+		i2c_slave_event(i2c->target, I2C_SLAVE_WRITE_REQUESTED, &byte);
-+		break;
-+
-+	case MA35_S_RECE_ADDR_ACK:
-+		/* Own SLA+W has been receive; ACK has been return */
-+		i2c_slave_event(i2c->target, I2C_SLAVE_WRITE_REQUESTED, &byte);
-+		break;
-+
-+	case MA35_S_TRAN_DATA_NACK:
-+	case MA35_S_RECE_DATA_NACK:
-+		/*
-+		 * Data byte or last data in I2CDAT has been transmitted and NACK received,
-+		 * or previously addressed with own SLA address and NACK returned.
-+		 */
-+		break;
-+
-+	case MA35_S_RECE_DATA_ACK:
-+		/*
-+		 * Previously address with own SLA address Data has been received;
-+		 * ACK has been returned
-+		 */
-+		byte = readb(i2c->regs + MA35_DAT);
-+		i2c_slave_event(i2c->target, I2C_SLAVE_WRITE_RECEIVED, &byte);
-+		break;
-+
-+	case MA35_ADDR_TRAN_ARB_LOST:
-+		/*
-+		 * Arbitration lost during address transmission phase.
-+		 * The hardware switches to Target Receiver mode when
-+		 * our own SLA+R is detected on the bus.
-+		 */
-+		i2c->err = -EAGAIN;
-+		ma35d1_i2c_controller_complete(i2c);
-+		i2c_slave_event(i2c->target, I2C_SLAVE_READ_REQUESTED, &byte);
-+		writel(byte, i2c->regs + MA35_DAT);
-+		break;
-+
-+	case MA35_S_TRAN_ADDR_ACK:
-+		/* Own SLA+R has been receive; ACK has been return */
-+		i2c_slave_event(i2c->target, I2C_SLAVE_READ_REQUESTED, &byte);
-+		writel(byte, i2c->regs + MA35_DAT);
-+		break;
-+
-+	case MA35_S_TRAN_DATA_ACK:
-+		i2c_slave_event(i2c->target, I2C_SLAVE_READ_PROCESSED, &byte);
-+		writel(byte, i2c->regs + MA35_DAT);
-+		break;
-+
-+	case MA35_S_REPEAT_START_STOP:
-+	/*
-+	 *  A STOP or repeated START has been received
-+	 *  while still addressed as Target/Receiver
-+	 */
-+		i2c_slave_event(i2c->target, I2C_SLAVE_STOP, &byte);
-+		break;
-+
-+	default:
-+		dev_err(i2c->dev, "Status 0x%02lx is NOT processed\n",
-+			i2c_status);
-+		ma35d1_i2c_restore_idle(i2c);
-+		return IRQ_NONE;
-+	}
-+	ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI_AA);
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * ma35d1_i2c_irq_controller_trx - I2C Controller state machine handler
-+ * @i2c: ma35d1 i2c instance
-+ * @i2c_status: hardware status code from MA35_STATUS0
-+ */
-+static irqreturn_t ma35d1_i2c_irq_controller_trx(struct ma35d1_i2c *i2c,
-+						 unsigned long i2c_status)
-+{
-+	unsigned char byte;
-+
-+	/* Ensuring messages are absolutely valid in Controller mode. */
-+	if (unlikely(!i2c->msg)) {
-+		dev_err(i2c->dev, "Spurious controller interrupt (status: 0x%02lx)\n", i2c_status);
-+		ma35d1_i2c_restore_idle(i2c);
-+		return IRQ_HANDLED;
-+	}
-+
-+	switch (i2c_status) {
-+	case MA35_M_START:
-+	case MA35_M_REPEAT_START:
-+		ma35d1_i2c_set_addr(i2c);
-+		ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI);
-+		break;
-+
-+	case MA35_M_TRAN_ADDR_ACK:
-+	case MA35_M_TRAN_DATA_ACK:
-+		/* SLA+W has been transmitted and ACK has been received */
-+		if (i2c_status == MA35_M_TRAN_ADDR_ACK) {
-+			if (is_last_msg(i2c) && i2c->msg->len == 0) {
-+				ma35d1_i2c_stop(i2c, 0);
-+				return IRQ_HANDLED;
-+			}
-+		}
-+
-+		if (!is_msgend(i2c)) {
-+			byte = i2c->msg->buf[i2c->msg_ptr++];
-+			writel(byte, i2c->regs + MA35_DAT);
-+			ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI);
-+		} else if (!is_last_msg(i2c)) {
-+			dev_dbg(i2c->dev, "WRITE: Next Message\n");
-+
-+			i2c->msg_ptr = 0;
-+			i2c->msg_idx++;
-+			i2c->msg++;
-+
-+			ma35d1_i2c_write_ctl(i2c, MA35_CTL_STA | MA35_CTL_SI);
-+		} else {
-+			ma35d1_i2c_stop(i2c, 0);
-+		}
-+		break;
-+
-+	case MA35_M_TRAN_DATA_NACK:
-+		ma35d1_i2c_stop(i2c, -EIO);
-+		break;
-+
-+	case MA35_M_TRAN_ADDR_NACK:
-+	case MA35_M_RECE_ADDR_NACK:
-+		/*
-+		 * Controller Transmit Address NACK
-+		 * 0x20: SLA+W has been transmitted and NACK has been received
-+		 * 0x48: SLA+R has been transmitted and NACK has been received
-+		 */
-+		dev_dbg(i2c->dev, "\n i2c: ack was not received\n");
-+		ma35d1_i2c_stop(i2c, -ENXIO);
-+		break;
-+
-+	case MA35_M_RECE_ADDR_ACK:
-+		if (is_msgend(i2c)) {
-+			if (is_last_msg(i2c)) {
-+				ma35d1_i2c_stop(i2c, 0);
-+			} else {
-+				dev_dbg(i2c->dev, "READ: Next Transfer\n");
-+
-+				i2c->msg_ptr = 0;
-+				i2c->msg_idx++;
-+				i2c->msg++;
-+
-+				ma35d1_i2c_write_ctl(i2c, MA35_CTL_STA_SI);
-+			}
-+		} else if (i2c->msg->len == 1) {
-+			ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI);
-+		} else {
-+			ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI_AA);
-+		}
-+		break;
-+
-+	case MA35_M_RECE_DATA_ACK:
-+	case MA35_M_RECE_DATA_NACK:
-+		/* DATA has been received and ACK/NACK has been received */
-+		byte = readb(i2c->regs + MA35_DAT);
-+		i2c->msg->buf[i2c->msg_ptr++] = byte;
-+
-+		if (is_last_byte(i2c)) {
-+			ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI);
-+		} else if (is_msgend(i2c)) {
-+			if (is_last_msg(i2c)) {
-+				dev_dbg(i2c->dev, "READ: Send Stop\n");
-+
-+				ma35d1_i2c_stop(i2c, 0);
-+			} else {
-+				dev_dbg(i2c->dev, "READ: Next Transfer\n");
-+
-+				i2c->msg_ptr = 0;
-+				i2c->msg_idx++;
-+				i2c->msg++;
-+
-+				ma35d1_i2c_write_ctl(i2c, MA35_CTL_STA_SI);
-+			}
-+		} else {
-+			ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI_AA);
-+		}
-+		break;
-+
-+	case MA35_M_ARB_LOST:
-+		/* Arbitration Lost */
-+		i2c->err = -EAGAIN;
-+		ma35d1_i2c_controller_complete(i2c);
-+		ma35d1_i2c_write_ctl(i2c, MA35_CTL_SI);
-+		break;
-+
-+	default:
-+		dev_err(i2c->dev, "Status 0x%02lx is NOT processed\n",
-+			i2c_status);
-+		ma35d1_i2c_restore_idle(i2c);
-+		return IRQ_NONE;
-+	}
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t ma35d1_i2c_irq(int irqno, void *dev_id)
-+{
-+	struct ma35d1_i2c *i2c = dev_id;
-+	unsigned long status;
-+
-+	status = readl(i2c->regs + MA35_STATUS0);
-+
-+	if (status == MA35_BUS_ERROR) {
-+		dev_err(i2c->dev, "bus error\n");
-+		ma35d1_i2c_restore_idle(i2c);
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (ma35d1_is_controller_status(status))
-+		return ma35d1_i2c_irq_controller_trx(i2c, status);
-+	else
-+		return ma35d1_i2c_irq_target_trx(i2c, status);
-+}
-+
-+static int ma35d1_i2c_doxfer(struct ma35d1_i2c *i2c, struct i2c_msg *msgs,
-+			     int num)
-+{
-+	unsigned long timeout;
-+	unsigned int val;
-+	int ret, err;
-+
-+	i2c->msg = msgs;
-+	i2c->msg_num = num;
-+	i2c->msg_ptr = 0;
-+	i2c->msg_idx = 0;
-+	i2c->err = 0;
-+
-+	ma35d1_i2c_write_ctl(i2c, MA35_CTL_STA);
-+
-+	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
-+	ret = i2c->msg_idx;
-+
-+	if (timeout == 0) {
-+		dev_dbg(i2c->dev, "xfer timeout\n");
-+		ret = -ETIMEDOUT;
-+		goto reset;
-+	}
-+
-+	err = readl_poll_timeout(i2c->regs + MA35_CTL0, val,
-+				 !(val & MA35_CTL_STO), 100,
-+				 STOP_TIMEOUT_MS * 1000);
-+	if (err) {
-+		dev_err(i2c->dev, "bus idle timeout\n");
-+		ret = -EBUSY;
-+		goto reset;
-+	} else if (i2c->err) {
-+		dev_dbg(i2c->dev, "xfer error %d\n", i2c->err);
-+		ret = i2c->err;
-+	}
-+	return ret;
-+
-+reset:
-+	ma35d1_i2c_reset(i2c);
-+	return ret;
-+}
-+
-+static int ma35d1_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			   int num)
-+{
-+	struct ma35d1_i2c *i2c = i2c_get_adapdata(adap);
-+	int ret;
-+
-+	ret = pm_runtime_resume_and_get(i2c->dev);
-+	if (ret)
-+		return ret;
-+
-+	ret = ma35d1_i2c_doxfer(i2c, msgs, num);
-+
-+	if (i2c->target)
-+		ma35d1_i2c_write_ctl(i2c, MA35_CTL_AA);
-+	pm_runtime_put_autosuspend(i2c->dev);
-+
-+	return ret;
-+}
-+
-+static int ma35d1_reg_target(struct i2c_client *target)
-+{
-+	struct ma35d1_i2c *i2c = i2c_get_adapdata(target->adapter);
-+	unsigned int slvaddr;
-+	int ret;
-+
-+	if (i2c->target)
-+		return -EBUSY;
-+
-+	if (target->flags & I2C_CLIENT_TEN)
-+		return -EAFNOSUPPORT;
-+
-+	/* Keep device active for target mode listening. */
-+	ret = pm_runtime_resume_and_get(i2c->dev);
-+	if (ret) {
-+		dev_err(i2c->dev, "failed to resume i2c controller\n");
-+		return ret;
-+	}
-+
-+	i2c->target = target;
-+
-+	slvaddr = target->addr << 1;
-+	writel(slvaddr, i2c->regs + MA35_ADDR0);
-+
-+	/* I2C enter SLV mode */
-+	ma35d1_i2c_write_ctl(i2c, MA35_CTL_AA);
-+
-+	return 0;
-+}
-+
-+static int ma35d1_unreg_target(struct i2c_client *target)
-+{
-+	struct ma35d1_i2c *i2c = i2c_get_adapdata(target->adapter);
-+	int ret;
-+
-+	if (!i2c->target)
-+		return -EINVAL;
-+
-+	writel(0, i2c->regs + MA35_ADDR0);
-+	/* Clear AA bit */
-+	ma35d1_i2c_write_ctl(i2c, 0);
-+
-+	synchronize_irq(i2c->irq);
-+	i2c->target = NULL;
-+
-+	ret = pm_runtime_put_sync(i2c->dev);
-+	if (ret < 0)
-+		dev_err(i2c->dev, "failed to suspend i2c controller");
-+
-+	return 0;
-+}
-+
-+/* Declare Our I2C Functionality */
-+static u32 ma35d1_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+/* I2C Bus Registration Info */
-+static const struct i2c_algorithm ma35d1_i2c_algorithm = {
-+	.xfer = ma35d1_i2c_xfer,
-+	.functionality = ma35d1_i2c_func,
-+	.reg_target = ma35d1_reg_target,
-+	.unreg_target = ma35d1_unreg_target,
-+};
-+
-+static const struct i2c_adapter_quirks ma35d1_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN_READ,
-+};
-+
-+static int ma35d1_i2c_suspend(struct device *dev)
-+{
-+	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-+	unsigned int val;
-+
-+	/* Prepare for wake-up from I2C events if target mode is active */
-+	if (i2c->target) {
-+		ma35d1_i2c_write_ctl(i2c, MA35_CTL_AA);
-+
-+		/* Setup wake-up control */
-+		writel(0x1, i2c->regs + MA35_WKCTL);
-+
-+		/* Clear pending wake-up flags */
-+		val = readl(i2c->regs + MA35_WKSTS);
-+		writel(val, i2c->regs + MA35_WKSTS);
-+
-+		enable_irq_wake(i2c->irq);
-+
-+		return 0;
-+	}
-+	return pm_runtime_force_suspend(dev);
-+}
-+
-+static int ma35d1_i2c_resume(struct device *dev)
-+{
-+	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-+	unsigned int val;
-+
-+	if (i2c->target) {
-+		/* Disable wake-up */
-+		writel(0x0, i2c->regs + MA35_WKCTL);
-+
-+		/* Clear pending wake-up flags */
-+		val = readl(i2c->regs + MA35_WKSTS);
-+		writel(val, i2c->regs + MA35_WKSTS);
-+
-+		disable_irq_wake(i2c->irq);
-+		return 0;
-+	}
-+	return pm_runtime_force_resume(dev);
-+}
-+
-+static int ma35d1_i2c_runtime_suspend(struct device *dev)
-+{
-+	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-+
-+	clk_disable(i2c->clk);
-+
-+	return 0;
-+}
-+
-+static int ma35d1_i2c_runtime_resume(struct device *dev)
-+{
-+	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = clk_enable(i2c->clk);
-+	if (ret) {
-+		dev_err(dev, "failed to enable clock in resume\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void ma35d1_i2c_pm_cleanup(void *data)
-+{
-+	struct device *dev = data;
-+
-+	pm_runtime_get_sync(dev);
-+	pm_runtime_disable(dev);
-+	pm_runtime_put_noidle(dev);
-+}
-+
-+static int ma35d1_i2c_probe(struct platform_device *pdev)
-+{
-+	unsigned int busfreq = I2C_MAX_STANDARD_MODE_FREQ;
-+	struct device *dev = &pdev->dev;
-+	struct ma35d1_i2c *i2c;
-+	struct resource *res;
-+	int ret, clkdiv;
-+	u32 val;
-+
-+	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	init_waitqueue_head(&i2c->wait);
-+	spin_lock_init(&i2c->lock);
-+
-+	i2c->dev = dev;
-+
-+	i2c->clk = devm_clk_get_enabled(dev, NULL);
-+	if (IS_ERR(i2c->clk))
-+		return dev_err_probe(dev, PTR_ERR(i2c->clk),
-+				     "failed to get core clk\n");
-+
-+	i2c->regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
-+	if (IS_ERR(i2c->regs))
-+		return PTR_ERR(i2c->regs);
-+
-+	i2c->rst = devm_reset_control_get_exclusive(&pdev->dev, NULL);
-+	if (IS_ERR(i2c->rst))
-+		return dev_err_probe(dev, PTR_ERR(i2c->rst),
-+				     "failed to get reset control\n");
-+
-+	ret = reset_control_deassert(i2c->rst);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "failed to deassert reset line\n");
-+
-+	/* Setup info block for the I2C core */
-+	strscpy(i2c->adap.name, "ma35d1-i2c", sizeof(i2c->adap.name));
-+	i2c->adap.owner = THIS_MODULE;
-+	i2c->adap.algo = &ma35d1_i2c_algorithm;
-+	i2c->adap.quirks = &ma35d1_i2c_quirks;
-+	i2c->adap.retries = 2;
-+	i2c->adap.algo_data = i2c;
-+	i2c->adap.dev.parent = &pdev->dev;
-+	i2c->adap.dev.of_node = pdev->dev.of_node;
-+	i2c_set_adapdata(&i2c->adap, i2c);
-+
-+	if (!device_property_read_u32(dev, "clock-frequency", &val)) {
-+		if (val != 0 && val <= MEGA)
-+			busfreq = val;
-+	}
-+	/* Calculate divider based on the current peripheral clock rate */
-+	clkdiv = DIV_ROUND_CLOSEST(clk_get_rate(i2c->clk), busfreq * 4) - 1;
-+	if (clkdiv < 0 || clkdiv > 0xffff)
-+		return dev_err_probe(dev, -EINVAL, "invalid clkdiv value: %d\n",
-+				     clkdiv);
-+
-+	i2c->irq = platform_get_irq(pdev, 0);
-+	if (i2c->irq < 0)
-+		return dev_err_probe(dev, i2c->irq, "failed to get irq\n");
-+
-+	platform_set_drvdata(pdev, i2c);
-+
-+	pm_runtime_set_autosuspend_delay(dev, I2C_PM_TIMEOUT_MS);
-+	pm_runtime_use_autosuspend(dev);
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
-+
-+	ret = devm_add_action_or_reset(dev, ma35d1_i2c_pm_cleanup, dev);
-+	if (ret)
-+		return ret;
-+
-+	writel(MA35_CTL_I2CEN | MA35_CTL_INTEN, i2c->regs + MA35_CTL0);
-+	writel(FIELD_PREP(MA35_CLKDIV_MSK, clkdiv), i2c->regs + MA35_CLKDIV);
-+
-+	ret = devm_request_irq(dev, i2c->irq, ma35d1_i2c_irq, 0, dev_name(dev),
-+			       i2c);
-+	if (ret) {
-+		dev_err_probe(dev, ret, "cannot claim IRQ %d\n", i2c->irq);
-+		return ret;
-+	}
-+
-+	ret = devm_i2c_add_adapter(dev, &i2c->adap);
-+	if (ret) {
-+		dev_err_probe(dev, ret, "failed to add bus to i2c core\n");
-+		return ret;
-+	}
-+
-+	dev_info(&i2c->adap.dev, "%pa MA35D1 I2C adapter registered\n",
-+		 &res->start);
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops ma35d1_i2c_pmops = {
-+	SYSTEM_SLEEP_PM_OPS(ma35d1_i2c_suspend, ma35d1_i2c_resume)
-+		RUNTIME_PM_OPS(ma35d1_i2c_runtime_suspend,
-+			       ma35d1_i2c_runtime_resume, NULL)
-+};
-+
-+static const struct of_device_id ma35d1_i2c_of_match[] = {
-+	{ .compatible = "nuvoton,ma35d1-i2c" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, ma35d1_i2c_of_match);
-+
-+static struct platform_driver ma35d1_i2c_driver = {
-+	.probe      = ma35d1_i2c_probe,
-+	.driver     = {
-+		.name   = "ma35d1-i2c",
-+		.of_match_table = ma35d1_i2c_of_match,
-+		.pm = pm_ptr(&ma35d1_i2c_pmops),
-+	},
-+};
-+module_platform_driver(ma35d1_i2c_driver);
-+
-+MODULE_AUTHOR("Zi-Yu Chen <zychennvt@gmail.com>");
-+MODULE_DESCRIPTION("MA35D1 I2C Bus Driver");
-+MODULE_LICENSE("GPL");
+ &uart0 {
+diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
+index 7228ad4735b5..28488889f564 100644
+--- a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
++++ b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
+@@ -372,6 +372,78 @@ uart15: serial@407f0000 {
+ 			status = "disabled";
+ 		};
+ 
++		i2c0: i2c@40800000 {
++			compatible = "nuvoton,ma35d1-i2c";
++			reg = <0x0 0x40800000 0x0 0x1000>;
++			interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk I2C0_GATE>;
++			clock-frequency = <100000>;
++			resets = <&sys MA35D1_RESET_I2C0>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c1: i2c@40810000 {
++			compatible = "nuvoton,ma35d1-i2c";
++			reg = <0x0 0x40810000 0x0 0x1000>;
++			interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk I2C1_GATE>;
++			clock-frequency = <100000>;
++			resets = <&sys MA35D1_RESET_I2C1>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c2: i2c@40820000 {
++			compatible = "nuvoton,ma35d1-i2c";
++			reg = <0x0 0x40820000 0x0 0x1000>;
++			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk I2C2_GATE>;
++			clock-frequency = <100000>;
++			resets = <&sys MA35D1_RESET_I2C2>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c3: i2c@40830000 {
++			compatible = "nuvoton,ma35d1-i2c";
++			reg = <0x0 0x40830000 0x0 0x1000>;
++			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk I2C3_GATE>;
++			clock-frequency = <100000>;
++			resets = <&sys MA35D1_RESET_I2C3>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c4: i2c@40840000 {
++			compatible = "nuvoton,ma35d1-i2c";
++			reg = <0x0 0x40840000 0x0 0x1000>;
++			interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk I2C4_GATE>;
++			clock-frequency = <100000>;
++			resets = <&sys MA35D1_RESET_I2C4>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c5: i2c@40850000 {
++			compatible = "nuvoton,ma35d1-i2c";
++			reg = <0x0 0x40850000 0x0 0x1000>;
++			interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk I2C5_GATE>;
++			clock-frequency = <100000>;
++			resets = <&sys MA35D1_RESET_I2C5>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
+ 		uart16: serial@40880000 {
+ 			compatible = "nuvoton,ma35d1-uart";
+ 			reg = <0x0 0x40880000 0x0 0x100>;
 -- 
 2.34.1
 
