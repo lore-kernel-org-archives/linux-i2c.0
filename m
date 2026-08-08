@@ -1,252 +1,415 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAC6912CDA5;
-	Sat,  8 Aug 2026 20:46:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC4C31D6DA9
+	for <linux-i2c@vger.kernel.org>; Sat,  8 Aug 2026 21:24:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786222021; cv=none; b=AX5BAIux+CmItPnpfeU7anMbcGZItYc/Gpr6LzTCAdnM8WSC1P8iXoKWwiIKGHAoo8TTLEL10B4smUMR9k3WQ5EP7G3UuQtsp4Zh7IXKMjU96xcB9N3BBiTZWHBfS96qeIrmQIGEwgKh6QxDjE6JA1tDS7nkuYdPr0egx2prlD8=
+	t=1786224259; cv=none; b=ETrbW93oKOiKw41U6pf3koLCsOZdaduV2Ru+AqYxGxSbvD+ib2UL3smu7JVw7zttXyXYa0InxzSZSwgr5DMwYPwiN1UDSNkaPPsVmI/6N5HUmHGmjsbV47yn8s+kZM1oNYWOQSjDNQrDsGrnA/WyU4hNTa8cP8tKdSBMjdZqyK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786222021; c=relaxed/simple;
-	bh=a7qobFD5p6pxF/niembnFqu5jYJKrEIWj6ctD5Fr98k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Vd9RW/bdl5uRObOeWnB8f6OtSGNbYJ3/Z6tXUb4kgMuhGoWWTWgO0t/AQwZz5/G6rLgZSUBSofkWtrLYn4WmmFwLuXrIRJ53VsE+S0Cc/fOR+z/BoKDG9nhCtmtFSL1CZUTFwZcoge1RTeVjoqgQEx/sDPLixDLoaM366lgymqc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WYhQc6Nh; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1786224259; c=relaxed/simple;
+	bh=OCqQ2Nn4papiP21Uwj0hUaQuuGx4ETQV4A2PUtoLLg8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XLY4l991S7TYYzv7+46N8dZbfgbobDcXk1Hvr49QEjjn2Wikk7xsc99EiwLqNRs54WXmX5MIPIikp4hBGwIn2YRFqG8gZqq9ogthPc6RZtI1GZD6b0AbIDQoqsKScCNOEuFR6NA52H3Epyu25PWIdrFgcvhFY91ZDfCTgacZ0T4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IFDOdAD3; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WYhQc6Nh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786222019; x=1817758019;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=a7qobFD5p6pxF/niembnFqu5jYJKrEIWj6ctD5Fr98k=;
-  b=WYhQc6NhvuJXApf25a2cUiL7rsvBfYjPUO8zVgg2xEND8BicGQF+luGx
-   hyGTJGVubGp8rYl+4ieNWLjA1Xk06JW+hXX9lrU3Eyc2pj6yEqR4fITNo
-   n1tH+5uoomby9L+FU3K4sPqxdOLwZokrGv3T+VKYjNEVst5irKsj7QhwV
-   +iRokcHRNPosJp1w0VPCPs4GuD639gSbKbzUAxDSCwVSXMnihzVdhD/QS
-   BDkUHoUxvlleVtneCSI5kHVXFAk0vYzgPqlYovCZcCjQRMgF/SMljitT3
-   f6YvjOODfknH/18AaHdHgnKnN8AT1MmZPYBrd0jIxqbw+REh74FWCu/NX
-   Q==;
-X-CSE-ConnectionGUID: kuQCZ2m5TeSYG1U5rH8Ggw==
-X-CSE-MsgGUID: HlmCAOOuTXShKAoKl5UXOA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11869"; a="97444631"
-X-IronPort-AV: E=Sophos;i="6.25,212,1779174000"; 
-   d="scan'208";a="97444631"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2026 13:46:58 -0700
-X-CSE-ConnectionGUID: Qy3n1POiQH643kk4Dn3sQQ==
-X-CSE-MsgGUID: ysd/4jkyS62KwMUA33tpjQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,212,1779174000"; 
-   d="scan'208";a="263305922"
-Received: from slindbla-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.2])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Aug 2026 13:46:56 -0700
-Date: Sat, 8 Aug 2026 23:46:53 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Baineng Shou <shoubaineng@gmail.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] i2c: designware: add atomic transfer support for
- IRQ-off contexts
-Message-ID: <aneVvWDgfYr5bEun@ashevche-desk.local>
-References: <20260807113333.1635449-1-shoubaineng@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IFDOdAD3"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-47f6609c657so288095f8f.2
+        for <linux-i2c@vger.kernel.org>; Sat, 08 Aug 2026 14:24:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786224256; x=1786829056; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PCNxMH1XT4/+REutTMQhITKxqTNoEAt0LrsX5B80yiE=;
+        b=IFDOdAD3avO55xlpTSpweZym8RNp9Ixq+NxwLcVWWRef01qrohxlTl1I113wCIb8GJ
+         k3Q/fJOlIjhJCwqA04DQmQ/VdtwNHKvipEylFcOCdycLHgEjgKnlyU7p5K7miB1URSwv
+         j6CH1yg6vF62IqrpdFOFMEZLy4oDuV3R7q3BTvSj1zIBmDrMeork+kIprRADXAYYovcR
+         jLeaGSNirrwsflLpa8LmV7fKMfrR4b2jeBXTzr9uv5h6LWsNNvjvAcKmFHPMtuggLjRM
+         /JS7QFFkji2cx4Kl3V12VFHRuDd6eF0V+69r1IX7KQ2kr6Zz+2kxxVQulfLrx49++nMj
+         Kdjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786224256; x=1786829056;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PCNxMH1XT4/+REutTMQhITKxqTNoEAt0LrsX5B80yiE=;
+        b=Sl5nD7HYNBuInS4tfqvCScD/qaDQDAgtQZ7mBfm8UnkTayC/H6CgOCPvklPYCfcEer
+         Ir7mNuaqkOJlBoAcbjLD/Vwj4jNS2Q9f+GDQlWvxkIvn1yZnm/AdPuAW8NMfmBDbs/Of
+         CdbI7Ad6nZpCKVBWv64tX7W7m6CxRkDJoVmuOOCrJGGnA+SO/gWq/QC4Kr3GVsgmmFAj
+         STS+1QYZSzRAhEW4sPF5xSWmKDQps76vtVXcDHH+3CIiJ6ZDhyvxUhkIlbVlWtxMFt26
+         0jKX4ZzXf/YeiCxEf9SB/yl3JfwbQkWG3J/S8Q2eNqExHXNz1TzYr9bw/fJCVXjZlypj
+         QNUA==
+X-Gm-Message-State: AOJu0YzAVx5YswvFvlcvjIUQqLnMcONkl5J4NnRKOaUXj4Vxekpt0OdB
+	/aXpdZs/lGcVgBFuSaHyn5eZUlj6TKXQpsrLzPnb0u0rtfpOcZMqDrba
+X-Gm-Gg: AR+sD11oxVrU8hjyMBSR+KZBViRgeQ0CpbCkTOL74chpzTjMt+p8ZNwlL/OP+/Hju+D
+	jF3iwm2ymFM7Xj5I8SiWr6CPKC+RyXJyhax/J7xrI+QyaxsoLSspHfJMm0AW6pHSnnvgGE+7Jo+
+	ETUbqEqsmAviK1vVtHc9uVZmfLgJ7/PbrEUXZ2tjjJw8rvm1sCZJLB6RJp36/lvkZ1EdEe8uADQ
+	VswZA0cAf/Q/5slBLAYWNlHSNLF1Ca/G18MgztZYc0U0jObwftEkP1BeA6j/SSPllHhfV/kZumF
+	2OBmvZMXt1nd9MttC+8IUmHZf+hsvqIYnojibSqVACoUjGV3S+tYVLCw2gHT/dNqanjJcYmSdVh
+	q+ETU2r4qzhFWNspSHoiX5q+jIdgXhOIHXlNd3lJRRzJCUVxAlT0S5tJiPCELmBkekh3ApsnBFg
+	KrhSd6+EeYDPEp+Fy55ZaZXph2YFVFnZx8Izq+sS/MYC+uMexjmG7XSDQNjMxlyOWWegB3sLW9x
+	cfqcLSUl9XZ1cIgWK7yyXiCMnhuUxHNPaQuzrkxtrqavZcIdsJl65xr6Ec=
+X-Received: by 2002:a05:6000:186b:b0:47f:ecbb:55f4 with SMTP id ffacd0b85a97d-480026edcc8mr17939403f8f.27.1786224255577;
+        Sat, 08 Aug 2026 14:24:15 -0700 (PDT)
+Received: from ws1-mint.. (host89-210-55-185.dimensionesrl.eu. [185.55.210.89])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4800220727bsm18965783f8f.33.2026.08.08.14.24.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 08 Aug 2026 14:24:15 -0700 (PDT)
+From: Simone Chifari <simone.chifari@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andy Lutomirski <luto@kernel.org>,
+	Stefan Schaeckeler <schaecsn@gmx.net>,
+	Simone Chifari <simone.chifari@gmail.com>
+Subject: [PATCH v4 0/1] i2c: imc-skylake: add Intel Skylake-X iMC SMBus adapter
+Date: Sat,  8 Aug 2026 23:24:13 +0200
+Message-ID: <20260808212414.217511-1-simone.chifari@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260807113333.1635449-1-shoubaineng@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-+Cc: @bigeasy (the question below)
+The integrated memory controller of Intel Skylake-X and Cascade Lake-X
+processors contains an SMBus engine wired to the DDR4 DIMMs.  This driver
+exposes its two channels as standard Linux I2C adapters, so that DDR4 SPD
+EEPROMs and DIMM thermal sensors can be read with i2c-tools, decode-dimms
+and lm-sensors.
 
-On Fri, Aug 07, 2026 at 07:33:33PM +0800, Baineng Shou wrote:
-> The DesignWare I2C controller driver cannot perform transfers when
-> IRQs are disabled, e.g. during noirq system resume where an I2C
-> client (GPIO expander, PMIC) must be accessed before IRQs are
-> re-enabled: the interrupt-driven path calls wait_for_completion_timeout()
-> which deadlocks with IRQs off.
-> 
-> The i2c core already routes to master_xfer_atomic() when
-> i2c_in_atomic_xfer_mode() is true, but that gate requires
-> system_state > SYSTEM_RUNNING, which does not hold during resume_noirq
-> (system_state is already SYSTEM_RUNNING there).  So the framework
-> atomic path does not cover resume_noirq either, and designware does
-> not implement master_xfer_atomic at all.
-> 
-> Implement i2c_dw_xfer_atomic() and register it as ->xfer_atomic.
-> It reuses the existing i2c_dw_process_transfer() state machine (the
-> TX/RX/STOP/ABRT handling is identical to the interrupt path) but:
-> 
->   - drives the clock directly via i2c_dw_prepare_clk() instead of
->     pm_runtime (which may sleep),
->   - sets ACCESS_POLLING for the duration of the transfer so register
->     reads use IC_RAW_INTR_STAT and the hardware interrupt is masked,
->   - polls with udelay() + a retry count instead of usleep_range() +
->     jiffies, neither of which is safe with IRQs disabled (the tick is
->     frozen so jiffies does not advance, and usleep_range() may sleep).
-> 
-> Also fall back to i2c_dw_xfer_atomic() from i2c_dw_xfer() when IRQs
-> are disabled, since i2c_in_atomic_xfer_mode() does not cover
-> resume_noirq.
+v2 was posted as i2c-imc-x299 and received no replies:
 
-The below paragraph should go...
+  https://lore.kernel.org/linux-i2c/20260620144131.415559-1-simone.chifari@gmail.com/
 
-> This is an RFC: the resume_noirq coverage relies on the driver-side
-> irqs_disabled() fallback because the framework gate is closed there.
-> I'd like feedback on whether that fallback is acceptable or whether
-> the gate should be widened in the i2c core instead.
-> 
-> Signed-off-by: Baineng Shou <shoubaineng@gmail.com>
-> ---
+v3:
 
-...here as a comment / question.
+  https://lore.kernel.org/linux-i2c/20260728122423.358416-1-simone.chifari@gmail.com/
 
-> +/* Poll up to ~1s in 10us steps; bounded fallback for the IRQ-off path. */
-> +#define I2C_DESIGNWARE_ATOMIC_POLL_RETRIES	100000
+Correction to v2
+~~~~~~~~~~~~~~~~
+v2 claimed that firmware filters CF8/CFC config writes to this function and
+that the registers can only be reached through the ECAM window.  That claim
+was wrong and I am retracting it.
 
-Just add a constant for the step time, this will give some clarification to the
-above comment.
+It was never tested directly.  The only evidence behind it was the boot log
+line "PCI: Using configuration type 1", which says which accessor the kernel
+uses and nothing about a write failing.  Measured on the same board:
 
-#define I2C_DESIGNWARE_ATOMIC_POLL_STEP_US	10
+  # setpci -s 16:1e.5 9c.L=20085002    # read SPD 0x50, register 0x02
+  # setpci -s 16:1e.5 9c.L
+  20005002                             # GO consumed
+  # setpci -s 16:1e.5 a8.L
+  0000500c                             # READ_DONE, no error
+  # setpci -s 16:1e.5 b4.L
+  0000000c                             # SPD byte 2: DDR4 type code
 
-> +/*
-> + * Atomic-context variant of i2c_dw_wait_transfer().  The normal polling
-> + * path (ACCESS_POLLING branch in i2c_dw_wait_transfer()) uses usleep_range()
-> + * and a jiffies deadline, neither of which is safe when IRQs are disabled
-> + * (noirq system resume, shutdown): the tick is frozen so jiffies does not
-> + * advance, and usleep_range() may sleep.  Poll IC_RAW_INTR_STAT with
-> + * udelay() and a retry count instead, while reusing the shared
-> + * i2c_dw_process_transfer() state machine so TX/RX/STOP/ABRT handling is
-> + * identical to the interrupt path.  Caller must have set ACCESS_POLLING.
-> + */
-> +static int i2c_dw_wait_transfer_atomic(struct dw_i2c_dev *dev)
-> +{
-> +	unsigned int stat;
-> +	int retries = I2C_DESIGNWARE_ATOMIC_POLL_RETRIES;
-> +
-> +	do {
-> +		if (try_wait_for_completion(&dev->cmd_complete))
-> +			return 0;
-> +
-> +		stat = i2c_dw_read_clear_intrbits(dev);
-> +		if (stat)
-> +			i2c_dw_process_transfer(dev, stat);
-> +		else
-> +			udelay(10);
-> +	} while (--retries > 0);
+The command written through CF8/CFC is executed and returns correct data,
+and MSR_SMI_COUNT does not move across it.  This driver therefore uses
+pci_read_config_dword() and pci_write_config_dword() like any other driver.
+There is no ECAM mapping, no MCFG parsing and no PCI-core change in this
+series any more.
 
-' > 0' is redundant and gives actually off-by-one (the amount of retries).
+Firmware arbitration
+~~~~~~~~~~~~~~~~~~~~
+This is the reason no iMC SMBus driver has ever been merged, and this patch
+does not solve it either.  It does make the condition detectable.
 
-> +	return -ETIMEDOUT;
-> +}
-> +
-> +/*
-> + * i2c_dw_xfer_atomic - transfer messages in atomic context.
-> + *
-> + * Used when IRQs are disabled, e.g. during noirq system resume where an
-> + * I2C client (GPIO expander, PMIC) must be accessed before IRQs are
-> + * re-enabled.  pm_runtime and mutexes may sleep, so drive the clock
-> + * directly via i2c_dw_prepare_clk(); ACCESS_POLLING makes register reads
-> + * use IC_RAW_INTR_STAT and routes the wait through
-> + * i2c_dw_wait_transfer_atomic().
-> + */
+Andy Lutomirski's original i2c_imc put it plainly: a BMC, the memory
+controller's power management, and possibly SMM all like to touch this bus,
+and Intel defined no way to arbitrate between them.  That driver already had
+a module parameter called allow_unsafe_access.  Stefan Schaeckeler's 2020
+Broadwell rewrite went further and stopped the PCU's TSOD polling for the
+duration of a transfer (write 0 to TSODCNTL, wait 10 ms for in-flight
+transactions to drain, restore afterwards), because on Broadwell the
+original driver's consistency check tripped about every 30 minutes.
 
-> +int
-> +i2c_dw_xfer_atomic(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+  https://lwn.net/Articles/635898/
+  https://lore.kernel.org/linux-i2c/1582498270-50674-1-git-send-email-schaecsn@gmx.net/
 
-Make it a single line.
+So this driver:
 
-> +{
-> +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-> +	unsigned int flags = dev->flags;
-> +	int ret;
-> +
-> +	dev->flags |= ACCESS_POLLING;
-> +
-> +	ret = i2c_dw_prepare_clk(dev, true);
-> +	if (ret)
-> +		goto out_flags;
-> +
-> +	ret = i2c_dw_acquire_lock(dev);
-> +	if (ret)
-> +		goto out_clk;
-> +
-> +	reinit_completion(&dev->cmd_complete);
-> +	dev->msgs = msgs;
-> +	dev->msgs_num = num;
-> +	dev->cmd_err = 0;
-> +	dev->msg_write_idx = 0;
-> +	dev->msg_read_idx = 0;
-> +	dev->msg_err = 0;
-> +	dev->status = 0;
-> +	dev->abort_source = 0;
-> +	dev->rx_outstanding = 0;
-> +
-> +	i2c_dw_xfer_init(dev);
-> +
-> +	ret = i2c_dw_wait_transfer_atomic(dev);
-> +
-> +	if (i2c_dw_is_controller_active(dev)) {
-> +		i2c_recover_bus(&dev->adapter);
-> +		i2c_dw_init(dev);
-> +	} else {
-> +		__i2c_dw_disable_nowait(dev);
-> +	}
+  - keeps the default-off allow_unsafe_access gate, deliberately the same
+    name as the original;
+  - serializes both channels under one mutex and waits for the whole engine
+    to be idle before touching any register;
+  - saves the command state of both channels, clears TSOD_ACTIVE for the
+    duration of the transfer, and restores both afterwards;
+  - after every transfer compares the command registers against what it
+    left in them and fails the transfer with -EAGAIN if anything else
+    changed.  This is the check the original driver had, and it is what
+    makes an unarbitrated system detectable rather than silently wrong;
+  - reads the command word back and requires it to be the one just
+    written, because the done bits are latched.  With the driver unloaded
+    and nothing running, STATUS on the test system reads 0x0000300c:
+    READ_DONE and WRITE_DONE both still set from an earlier transaction.
+    Without the check, a command word that never reaches the register is
+    indistinguishable from a completed transfer and the caller receives the
+    previous transaction's data.  The comparison covers the bits the
+    driver produces, minus GO, which the engine clears itself;
+  - documents the one case the read-back check cannot see: two
+    consecutive, identical commands - the shape of an ee1004 Receive Byte
+    stream - leave the same word in the register, so a command write
+    dropped between them is invisible.  Bit 29 would be the natural
+    per-command nonce, but the engine refuses it: measured on this
+    system, a command with bit 29 clear consumes GO and completes with
+    the error bit set, on reads that succeed with the bit set.  Every
+    dropped write between commands that differ in address, register,
+    direction or size is caught.
 
-> +	if (!ret) {
+  - refuses to bind when the memory controller is polling the DIMM thermal
+    sensors itself.  Intel documents SMBCNTL on the iMC channel function
+    (device 10 and 12, function 0, offsets 0xe88 and 0xe98) in the Xeon
+    Processor Scalable Family datasheet volume 2, reference 614073, section
+    3.1.9.  Its SMB_TSOD_POLL_EN bit is documented as mutually exclusive
+    with SPD command access, so it answers directly whether the engine is
+    in use.  On the test system all four channels read 0xac000000: polling
+    disabled, TSOD_PRESENT mask empty, which also explains why no jc42
+    device appears at 0x18-0x1f.
 
-Use traditional pattern, id est
+This is deliberately weaker than what the Broadwell-E driver did.  That one
+switched the polling off for the duration of a transfer.  Reading the bit
+and declining is a smaller claim on hardware the driver does not own, and
+it needs no write to a firmware-configured register.  It covers the memory
+controller only; SMM and a BMC remain out of reach, which is what the
+opt-in is for.
 
-	if (ret)
-		goto out_release_lock;
+Relation to prior work
+~~~~~~~~~~~~~~~~~~~~~~
+There is no iMC I2C driver in mainline.  Lutomirski's i2c-imc was an RFC;
+the 2020 resend and github.com/Linux4/i2c-imc are out of tree.  Neither can
+be extended to cover this part: the device ID (0x2085 vs 0x3ca8/0x6fa8) and
+the register layout (0x9C-0xB8 vs 0x180-0x188) differ.  A separate file is
+cleaner than a hw_data table.
 
-> +		if (likely(!dev->cmd_err && !dev->status))
-> +			ret = 0;
+The register encoding was cross-checked against an independent Windows
+implementation for the same engine, which predates this work:
 
-		goto out_release_lock;
+  https://github.com/namazso/PawnIO.Modules/blob/c975ca1d1b8a9c7473a175fa1ca24d83b6cbc8f3/SmbusIntelSkylakeIMC.p
 
-> +		else if (dev->cmd_err == DW_IC_ERR_TX_ABRT)
-> +			ret = i2c_dw_handle_tx_abort(dev);
-> +		else
-> +			ret = -EIO;
-> +	}
-> +
-> +	i2c_dw_release_lock(dev);
-> +out_clk:
-> +	i2c_dw_prepare_clk(dev, false);
-> +out_flags:
-> +	dev->flags = flags;
-> +	return ret < 0 ? ret : num;
-> +}
+It also implements SMBus BYTE through a pointer-select bit, without saying
+which bit.  That bit is 18 here.  The datasheet gave it away: SMBCMD on the
+iMC channel functions places PNTR_SEL immediately above WORD_ACCESS, and
+word access on the PCU function is bit 17.
 
-...
+Bit 18 is the only part of this driver that rests on an undocumented
+encoding, so it is worth saying exactly what was measured rather than
+asserting it works.  With the bit set on a read, eight consecutive
+transfers to an SPD EEPROM returned bytes 0x01 through 0x08 in order,
+matching an ordinary dump of the same range.  That is the auto-increment
+of a Receive Byte; a transfer that still named a register would have
+returned the same byte eight times.  With the bit set on a write, a Send
+Byte to the DDR4 page-select addresses moves the 256-byte window: byte
+0x00 stops reading as the JEDEC 0x23 after selecting page 1 and returns
+to it after selecting page 0.
 
-> +	/*
-> +	 * Fall back to the atomic path when IRQs are disabled, e.g. during
-> +	 * noirq system resume where an I2C client (GPIO expander, PMIC)
-> +	 * must be accessed before IRQs are re-enabled.  The i2c core's
-> +	 * i2c_in_atomic_xfer_mode() gate does not cover resume_noirq
-> +	 * (system_state is already SYSTEM_RUNNING there), so the driver has
-> +	 * to route the transfer itself.
-> +	 */
-> +	if (IS_ENABLED(CONFIG_PREEMPT_COUNT) ? !preemptible() : irqs_disabled())
+ee1004 consequently binds, and decode-dimms reads all four DIMMs on this
+system with both SPD CRCs valid on each.  i2cdetect scans in read mode.
+jc42 needs only BYTE_DATA and WORD_DATA reads, which are implemented and
+validated against the SPDs; jc42 itself has not been exercised, because no
+DIMM on the test system populates a thermal sensor (TSOD_PRESENT reads
+0x00).
 
-I don't like this. Do we have something better for this?
-Perhaps @bigeasy knows?
+With Receive Byte in place the driver can also do what the other SMBus
+host drivers do and call i2c_register_spd() per adapter, so the SPD
+EEPROMs are instantiated at probe rather than by hand.  The helper counts
+the populated slots from DMI and probes upwards from 0x50, leaving alone
+any address that does not answer; each channel carries half the DIMMs and
+the scan is per adapter, so each finds its own.  Nothing else is
+instantiated, jc42 included: there is no firmware description of these
+buses and this driver does not scan for anything but the SPDs.
 
-> +		return i2c_dw_xfer_atomic(adap, msgs, num);
+I used the write_disable variant.  This part is DDR4 only, where the two
+are equivalent - the distinction gates spd5118 on DDR5 - and between two
+equivalent calls the one that does not read as "this driver enables SPD
+writes" seemed the better thing to leave in a memory-bus driver.  Happy
+to switch to write_enable for consistency with i801 and piix4 if you
+prefer the convention.
 
+SMBus Quick is still not implemented, and not only because the engine has
+no obvious encoding for it.  A write to the 0x30-0x37 range is how an
+EE1004 SPD is write-protected, permanently on many modules.  An adapter
+whose bus is the memory bus should not advertise a probe that writes.
+
+Changes since v3
+~~~~~~~~~~~~~~~~
+All of these came out of a self-review of v3; none changes what the driver
+supports.
+
+  - Self-review found the read-back check blind for two identical
+    commands in a row - precisely the shape of an ee1004 Receive Byte
+    stream.  The obvious fix, alternating bit 29 per command, was
+    implemented and then reverted after measurement: the engine consumes
+    GO but sets the error bit for every command with bit 29 clear, so
+    the bit cannot serve as a nonce.  The limitation is now documented
+    at the check instead of silently present.
+  - Compare only the bits the driver produces in the read-back check, and
+    use the post-write read-back, not the pre-transfer word, as the
+    baseline for the interference check on the driven channel.  v3
+    implicitly required every undocumented bit of the command register to
+    read as zero, which held on the test system but is not something to
+    assume across steppings.
+  - Read the result before the interference check, not after, so the check
+    also covers the window in which the data latch is read.
+  - Re-run the TSOD-polling check on resume and keep the adapters
+    suspended if firmware enabled it across suspend; the probe-time
+    refusal alone cannot see that.  The S3 observation below is exactly
+    the scenario that motivates this.
+  - Stop before writing a saved command word back if the config read that
+    fetched it had already failed.
+  - Rename the register accessors: the command register is now CMD and
+    the data latch DATA.  v3 called the command register DATA and the
+    data latch CTRL, which read backwards.
+  - State plainly that jc42 itself has not been run (no TSOD populated
+    here), only the transactions it needs.
+  - Note that PCI ID 8086:2085 also matches Skylake-SP/Cascade Lake-SP
+    servers, where a BMC is far more likely to own the engine; the gate,
+    the SMBCNTL refusal and the interference detection are the same, but
+    the audience of the warning is different.
+  - Correct a stale function name in the v3 cover letter:
+    imc_engine_responded() is imc_command_landed() in the code as posted.
+  - Cast ~COMMAND_OUR_BITS to u32 in the interference check; BIT() and
+    GENMASK() are unsigned long, so the complement was computed in 64
+    bits and truncated on assignment.  The truncated value was already
+    correct; this silences a clang W=1 -Wconstant-conversion warning.
+    Reported-by: kernel test robot <lkp@intel.com>
+    Closes: https://lore.kernel.org/oe-kbuild-all/202607291626.TnSyWh0f-lkp@intel.com/
+
+Changes since v2
+~~~~~~~~~~~~~~~~
+  - Retract the CF8/CFC claim; use the ordinary config accessors.  The
+    driver no longer maps anything.
+  - Rename i2c-imc-x299 to i2c-imc-skylake; the engine is in the CPU, not
+    the chipset.
+  - Add the default-off allow_unsafe_access gate.
+  - Wait for both channels to be idle before touching the data latch.
+  - Preserve and restore command and TSOD state for both channels.
+  - Validate READ_DONE, WRITE_DONE and the hardware error state.
+  - Detect interference from another master and report it as -EAGAIN.
+  - Read the command word back and require it to be the one written.
+  - Add bounded command-toggle recovery for a stuck BUSY state.
+  - Add WORD_DATA support with the hardware byte ordering.
+  - Reject I2C_M_TEN explicitly and validate transfer direction.
+  - Use the i2c core's suspended-adapter mechanism instead of a private
+    flag and a non-standard errno.
+  - Use devm_mutex_init() and devm-managed adapters; drop the unnecessary
+    pci_enable_device(); return -ENODEV rather than -EPERM from the
+    default-off gate, which was logging a driver-core error on every boot.
+  - Add Documentation/i2c/busses/i2c-imc-skylake.rst.
+  - Drop the ACPI dependency.
+  - Refuse to bind when the iMC reports TSOD polling enabled.
+  - Correct the claim that BYTE_DATA and WORD_DATA cover ee1004: they do
+    not, ee1004 also needs Receive Byte and Send Byte.
+  - Implement both, on the pointer-select bit, so ee1004 binds and
+    decode-dimms works.
+  - Instantiate the SPD EEPROMs with i2c_register_spd() instead of
+    leaving it to the user.
+
+Validation
+~~~~~~~~~~
+  - In-tree build, W=1, x86_64 GCC and arm64 Clang COMPILE_TEST: no
+    diagnostics.
+  - checkpatch.pl --strict: clean.
+  - Sparse with __CHECK_ENDIAN__: clean.
+  - Hardware test on one Intel Core i9-10900X (Cascade Lake-X) system with
+    four DDR4 DIMMs: both adapters, four SPD EEPROMs, BYTE_DATA, WORD_DATA
+    byte order, Receive Byte tracking the EEPROM pointer, Send Byte moving
+    the SPD page and putting it back, ENXIO for an absent device, 100
+    concurrent reads per channel, the default-off gate, and 20
+    unload/reload cycles: 19 checks, 0 failures, no kernel warning or oops,
+    no interference reported, every command word confirmed in the register.
+  - i2c_register_spd() instantiated ee1004 on all four populated SPD
+    addresses at probe, two per channel, and claimed none of the empty
+    ones.  decode-dimms then decoded all four modules, each with the CRC
+    of bytes 0-125 and of bytes 128-253 valid.  The part number reads out
+    of page 1, so the page select is exercised end to end.  The four
+    module serial numbers were identical before and after every
+    experiment in this series.
+  - Engine registers sampled every 2 s for one hour with the driver
+    unloaded: 1791 samples, 0 changes.  No firmware activity while the
+    system is up.
+  - Suspend and resume, s2idle and S3, with continuous traffic on both
+    adapters: transfers recover and nothing complains.  Across S3 the
+    firmware demonstrably drives the engine.  Both channels, sampled
+    immediately before suspend and immediately after resume:
+
+      DATA   0x2000b600 -> 0x20005000
+      STATUS 0x0000500c -> 0x00005004
+
+    The command word came back addressing SPD 0x50 for a read, and the
+    status went from both done bits latched to READ_DONE alone.  Nothing in
+    Linux issued that: the adapter was marked suspended and userspace was
+    frozen.  This is consistent with firmware reading SPD during memory
+    training on resume.  It is the only direct observation of a second
+    master on this engine I have, and it is the concrete reason the driver
+    restores command state per transfer and compares it afterwards.
+  - SMBCNTL on all four iMC channels reads 0xac000000: TSOD polling
+    disabled, TSOD_PRESENT empty.
+  - Writes validated end to end against a populated device: a 12-write
+    frame to an LED controller at 0x27, across both channels, every write
+    acknowledged, no NACK, and the device applied the result.  A byte
+    write to an unpopulated address returns -ENXIO with the engine
+    reporting the address NACK.  No SPD was written at any point, and the
+    four SPD EEPROMs were verified present with valid CRCs before and
+    after.
+
+Still missing: an independent Tested-by, ideally on Skylake-X rather than
+Cascade Lake-X.
+
+One note on the register interface, since a reader with the datasheet will
+ask.  That document describes an SMBus interface on the iMC channel
+function at 0xe80-0xe9c, with a different encoding from the one this driver
+uses on PCU function 5 at 0x9c-0xb8; it does not describe function 5 at all,
+covering device 30 functions 0 and 2 only.  I tried the documented path on
+this system: issuing SMBCMD with CMD_TRIGGER sets SMB_RDO and clears
+SMB_BUSY, but returns 0x00 for a populated DIMM at 0x50, for a second one
+at 0x52, and for an empty slot at 0x57 alike, with SMB_SBE never set.  An
+interface that cannot tell a populated slot from an empty one is not
+reaching the bus here, while the path this driver uses returns the correct
+SPD contents and a NACK for the empty slot.  I may well be missing a setup
+step; if someone knows what it is, I would rather use the documented
+interface.
+
+Tool assistance
+~~~~~~~~~~~~~~~
+Per Documentation/process/generated-content.rst: this work was developed
+with an AI coding assistant, run interactively rather than autonomously.
+
+  - What: Claude Code, model claude-opus-5.
+  - Where: it contributed to the transaction state machine, the .rst
+    documentation, the commit message and this cover letter.  The register
+    decoding is mine.
+  - How it was used: iteratively, one reviewed change at a time, in
+    response to specific requests, not from a single generating prompt.  A
+    representative request is "the done bits are latched; show me how a
+    command that is never accepted can be mistaken for a completed one, and
+    make that case detectable", which produced imc_command_landed().  It
+    also designed the measurement that retracted the CF8/CFC claim above,
+    after asking why that claim had never been tested directly.
+  - Testing: every revision was built with W=1, checked with
+    checkpatch --strict and sparse, and tested on the hardware by me.
+
+I have reviewed all of it, I understand it, and I take responsibility for
+it.
+
+Simone Chifari (1):
+  i2c: imc-skylake: add Intel Skylake-X iMC SMBus adapter
+
+ Documentation/i2c/busses/i2c-imc-skylake.rst | 196 +++++
+ Documentation/i2c/busses/index.rst           |   1 +
+ MAINTAINERS                                  |   7 +
+ drivers/i2c/busses/Kconfig                   |  30 +
+ drivers/i2c/busses/Makefile                  |   1 +
+ drivers/i2c/busses/i2c-imc-skylake.c         | 780 +++++++++++++++++++
+ 6 files changed, 1015 insertions(+)
+ create mode 100644 Documentation/i2c/busses/i2c-imc-skylake.rst
+ create mode 100644 drivers/i2c/busses/i2c-imc-skylake.c
+
+
+base-commit: 8cd9520d35a6c38db6567e97dd93b1f11f185dc6
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.43.0
 
