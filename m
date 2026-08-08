@@ -1,510 +1,294 @@
-Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com [209.85.167.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D1CA38552C
-	for <linux-i2c@vger.kernel.org>; Sat,  8 Aug 2026 17:01:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786208504; cv=pass; b=OMEIjx7G2KRw74f0371sUL61vU47BPaAyl+AVxdcwHkUCuAGUu10AyVoWfYMhLBmerP4wainNbFcs1ptVhQf191py4s3yTanKnD9enkRNFlLaUiJrKg33WE40XrInLhcZX37oCH88ZobRYYU0Ukd6c5Nazoc2y/jC6/8HP0LEKE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786208504; c=relaxed/simple;
-	bh=BnMDSRNjNw20oAOI4gyQsj0DSZVWVcUWrdMCZjibsIA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Le31Ki4BJEe0EmN12mLG62v6Ex8XI/v9u6ANfSDYJsyIZWiSW86dMRi4GJgTgvWkKLivJc82APOre0emoZzuPlhbH+CJM5ZvR4QQMz2LqGpVCwlW0VzIlW5hSB9VxBfZNFSa0LbjaVmW2uxqYLU1gqqLUuG/tFg0s3g8h6e6YLI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c6FP6hiy; arc=pass smtp.client-ip=74.125.224.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c6FP6hiy"
-Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-6626b5ace23so4353342d50.0
-        for <linux-i2c@vger.kernel.org>; Sat, 08 Aug 2026 10:01:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786208501; cv=none;
-        d=google.com; s=arc-20260327;
-        b=IKuoWhyvqayoOb4u72X56Xt49rMosEbLWTtnHmp0JVX/Hl5NIiLBsQmf1VhQrA+QfJ
-         9yc3dZUymdSQ4AympVIGZfJ+5A3EtwuBH4xdts4ZsKQlryvNZt7yGieOo1Rd4POMB0Pl
-         vcAh82M0iAn2L5IH7UDpWfRDvgANxkJIv1zwL50npr+LHvO5c4eLsdkQQkFSEAaB1O8x
-         ZTZ5lJCMq5j6gZ0JUfvFz2vdLu9rgy1q1LlFShGcyct91jdOTQr3T8pbk/AD79IJEIrB
-         lRLPa5ItcjEe0+4B816vZYymAQotr1CQygqdp8PwuWCQL98PQJc4/JC6RvB5naMhTeyJ
-         POBA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=k5Kw6iWw8DKnsUx3b3rb1toOSaarB1+4MB2gi1oFZkI=;
-        fh=COcTmKrebiTKFpAFw8wgBTh2qD8pB4lQdSKWngQYckw=;
-        b=ke0dSvZH5LkNDdluN9QiIoFJTeJu+jElbkmluhWxPQ+5NGGk71ybQOIyU0RphYQWv8
-         C7N51yQOyVrRAij8Z9xaNsp9y/IL72fZcEzMsT26e1uuYrYeCELUr48Vchynk7imLDwI
-         lt4iI33esu9Bdxh7br196Rl4cCgotwC/XM8PTLZMqzvJKQNQ7TX/Iheuw8xx6k9UX+NV
-         TK6JpisTxCx2D951srvm9IJ/ClZnTuqGTvSAli2YcHbAAWKOMkVpkEuKW8IE0XG9dlJR
-         hdq6ChtDyqo1NMxwDXzve1rwkyFpBBQr0NIz76DLnxAdPBh4vhI7/Lwj7faN055Lnc9P
-         akGw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786208501; x=1786813301; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=k5Kw6iWw8DKnsUx3b3rb1toOSaarB1+4MB2gi1oFZkI=;
-        b=c6FP6hiyS4WT7qICjwloNPpBoDBj2wzh3d2hQGieB/NV035i6QrtM+9x8GSxA1P7d0
-         aP/zF1A3OEkaQJgW6F9HDfBNVS/CwgWoAZ/h353Au5l+HeE3UMDfL3smdMgAIrx6OiEf
-         3q2Q0HUGwq3/8zEpWaW8CaF4Evqk2EHjIZvE0QVUTM+VZJpYcppOZta9TEqBrObyKd2M
-         N23/7ZMBQ3I01aambgwXQZOo2s2ADtMuDvUiK56vLJGV91KGfeFIeiNXAf3kxPYL1Icp
-         l/oXCTT6pKfdeiTu1gA+VGw2qt/LPiZM5uJI2ZFE34CUZ9DX4Z1aPSJbtyQXsE/z7jTy
-         zGag==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D112C33F58D
+	for <linux-i2c@vger.kernel.org>; Sat,  8 Aug 2026 17:19:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.200
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786209579; cv=none; b=DynN9x8lIroeD8/0HhOrqAJh5QzelyMSzc0Rn3FcAZAuTCiiX9FX3xHRLe8kI6O6aHSc3Z4VoftrPYKNnwu9Y51Drtn6nkVyeze9dMDKUoN3kiV9iRxgKKcbaZulHR1Hy8tiTDZ2tK4bIqZ6hWK8tVA2GFIYuYT2Z7UaMWEF0lY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786209579; c=relaxed/simple;
+	bh=ZusuPtUeLvPKRfy2boqe9zfZ0PDQDrcHrZmJCsXzxg4=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=ocEpTT5XvnLCFWBEWQZsHQB5OwpHR6PG2JonS1TQJM1UkYVQiaBt/zLaiOzmCgVi/2JlICubIRJtxWQgKT+Sh2lv71IQPu40M8a70zyoX0DNqWT9exFHWZrNPkUpS/WJLwYLrIY+s9g3iGnU249AqKs02d61Uiz/KCs/GSHup/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f200.google.com with SMTP id 5614622812f47-4b1a69b1188so562627b6e.1
+        for <linux-i2c@vger.kernel.org>; Sat, 08 Aug 2026 10:19:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786208501; x=1786813301;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=k5Kw6iWw8DKnsUx3b3rb1toOSaarB1+4MB2gi1oFZkI=;
-        b=KXTmXL98oHYZJQ5FHtYZixAI1lDIohQiEDe0C8tnTD5teRhdHceL6t/93yjZWJpt6D
-         XIjqMhTnmgiTg1qoFAp8iLj2rR3l9Ss5n4oCHtOFor1ulgN7GrSPyaCC/0HSt3c6H2Q2
-         drWP025uUZ363AnQxJ4hYoAQAbQMkRqQp1jTg6Y3UVND2lLpJVLHwKfIj3CXpZNo85/y
-         Tw0B30cNl2BRLMXpI7bixbhTQbx7C6loRElbaeZ/bdbik3gUb3S+NqRr9z3yyob4enVh
-         Uj2/BrL/77Y/8BxuVEE3zkq+7HZTf08mThv+FcDuf3zLMH2qEGHImJhEOQaOGDQ4r7Bl
-         CCug==
-X-Forwarded-Encrypted: i=1; AHgh+Rqcqwvo0oipFsvW9UMlfj76MeWfucYO5EOOPiLl4LnQl/EhhhbyaIyu0EIX+Sklw1325HTJ1xTkPt4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwwpnphjwEknazGBrD5OadN9YJxLHxsg1qeWoaQFK0RHQTMSoI7
-	gJ1UONBfpezFa+zozEULniri5dA4toUySSDFSWALvRhfVoNM/jC6rLXMBPlEhkMrEvuhxG/XIu9
-	3nbe8mu7TjnGwRGzI6oUxb8d4oJz59ec=
-X-Gm-Gg: AR+sD10ony5DykSg+16PZ/UiL7CJ7On9zEBDvmjQS9PKeh8m2GlUYillHC9ZL5h4BeY
-	xQhY1TR14Trf8eKFneP3e++N947mq/Sk8RNbzeCz2V0h/Prm3dgTxf1E/knoPRB1Zco/6rgoMN3
-	7MGq4qUTDc/xpOD4VOxIdNNjlfiav6YitWsGzaYsq2iX/DsjU1r9y2wU+tP/M0qZm/rkJkq4Y2U
-	1blSXfAra1qdEwVo6hN0TtmO/4zsA43yHmkFAFf97RA0B/WTq0dwUiSABJn48F1vSFLoUXNyOJ4
-	Ok1cM/RfMzVENVjaY3fvLf27OkU+fIqqDfmjUApOxqFzbFuxF6N4BpqkFAYoPjHkV9pp0vRV9Zc
-	jUBJZUr7o9PuhKyT4JwrBhARL5vjjG4HBcfQ44kTNsyhunmxXBaZNmbGbhTwhYmLusYxy/N6qw3
-	aoWmDuxHQDxJMPH7v9UQRR
-X-Received: by 2002:a05:690e:440d:b0:668:43a3:de0c with SMTP id
- 956f58d0204a3-66ada8b11b7mr2246918d50.15.1786208501149; Sat, 08 Aug 2026
- 10:01:41 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786209577; x=1786814377;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=NMtzi1gKqOwfX9n9OcTv5GNQZwL3+goR+VH0iASvKwI=;
+        b=L/WAFru8BmfQmU+vWASXbAwJJx9bRJrfGcD5/0Mv80ALXoVtfNvUUvMqjSdkC3EZSO
+         c1XqioQfk4P92jyIQOFqMwObktxqJSGj1Pzl3SefGwg0/aExBrlHV6339HKdP7kW2oIR
+         8g4MvEex4hLFtGTiiEEfPd7RvuCjTDIzUpSMMwWUr2B3njBsZCETevUn0GbLKqQCBHe7
+         RDEP3o0QW/sq+NzfZx+f24wHILPdmLypeHY3K8MzUZniMG2/H33dAEOuXGx8Ppt4lCS8
+         rWrQSZKFOKMme77Xzj6nFxzFParqPEqgF1UfUiFJ9VkUQYi+cVyKJKi+CpqsRe3w+I8U
+         R2Jg==
+X-Forwarded-Encrypted: i=1; AHgh+RqnRkho5/iBkJ6+LVv9aGJar4xqL8nEFYonYlSPmCWAG6UPdo0qW9FecfsDUb3IbJgheY8mPgnA1/Y=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzIDu0bGQwQ6UYlhj2MNWblgJAszH0RMyCDu4cIIPpKsHIpup9j
+	JYaYvPIjw/FDdpw3OLXYUFMuzaPDe2VDSRFpoEwvemiykDwDI+oaJj2H3yTYOrEtsHiDVl+kRnF
+	tnjstyFpT+ZoeVpxn+YAlEQFuni4xZsajtynwoBQSJczemvEPE5H6B7nVxAg=
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260718054330.8975-2-hardikprakash.official@gmail.com>
- <amhodWpAI3K6aeBH@zenone.zhora.eu> <b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info>
-In-Reply-To: <b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info>
-From: Hardik Prakash <hardikprakash.official@gmail.com>
-Date: Sat, 8 Aug 2026 22:31:28 +0530
-X-Gm-Features: AUfX_mzVDjIbW7plLibMpnBCE3SlFrPHY_Ps7vfYZh7gapEYkpLA_ZlcrT0jT5w
-Message-ID: <CANTFpSW+w1GZMbLXszuqZFCZjeVJfFG2bc1vJad+OMzsy-CPCg@mail.gmail.com>
-Subject: Re: i2c designware change broke touchpad of a thinkpad (was: i2c:
- designware: defer probe if child GpioInt controllers are not bound)
-To: Thorsten Leemhuis <linux@leemhuis.info>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, wsa@kernel.org, andriy.shevchenko@intel.com, 
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
-	linusw@kernel.org, nathan@kernel.org, chaitanya.kumar.borah@intel.com, 
-	Linux kernel regressions list <regressions@lists.linux.dev>
-Content-Type: multipart/mixed; boundary="00000000000034ea4606588c13bc"
-
---00000000000034ea4606588c13bc
+X-Received: by 2002:a05:6808:17a8:b0:4aa:d5f:123e with SMTP id
+ 5614622812f47-4afadfb6a86mr19227238b6e.9.1786209576818; Sat, 08 Aug 2026
+ 10:19:36 -0700 (PDT)
+Date: Sat, 08 Aug 2026 10:19:36 -0700
+In-Reply-To: <6a6e88da.13bfb6d0.1ecdd5.0269.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a776528.01d0871a.3a0d52.0064.GAE@google.com>
+Subject: Re: [syzbot] [i2c?] KASAN: slab-use-after-free Read in i2c_adapter_lock_bus
+From: syzbot <syzbot+450abcfc7906fe1a1e16@syzkaller.appspotmail.com>
+To: andi.shyti@kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 7 Aug 2026, Thorsten Leemhuis wrote:
-> This became 0a4bb2abc3e56d ("i2c: designware: defer probe if child
-> GpioInt controllers are not bound") and causes a regression for me: the
-> Touchpad in my ThinkPad T14s Gen 4 (AMD) stopped working. From the
-> kernel log:
->
-> i2c_designware AMDI0010:01: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware AMDI0010:01: controller timed out
-> i2c_hid_acpi i2c-SYNA8018:00: failed to fetch HID descriptor: -110
-> i2c_hid_acpi i2c-SYNA8018:00: Failed to fetch the HID Descriptor
->
-> Reverting this change in current mainline/master (f9a2394a23482) fixed
-> things for me. Full dmesg of current master and master+revert can be
-> found here:
->
-> https://www.leemhuis.info/files/misc/dmesg-master
-> https://www.leemhuis.info/files/misc/dmesg-master-plus_revert
+syzbot has found a reproducer for the following issue on:
 
-Thanks for the report and both dmesg dumps, that's very helpful. Comparing
-the two: the working log shows SYNA8018:00 probing cleanly around 2.33s
-with no GPIO-related activity, while the broken log hits lost arbitration
-on AMDI0010:01 at almost the same timestamp. Neither log has dynamic debug
-enabled for the relevant code paths, so I can't yet tell what my dependency
-check actually decided for AMDI0010:01's children on your machine.
+HEAD commit:    a7c7074b58d2 Merge tag 'fbdev-for-7.2-rc7' of git://git.ke..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=14b0bfb9580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=65b94396067a4182
+dashboard link: https://syzkaller.appspot.com/bug?extid=450abcfc7906fe1a1e16
+compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11ce6132580000
 
-Two things that would help narrow this down, whenever you have a moment:
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+450abcfc7906fe1a1e16@syzkaller.appspotmail.com
 
-1. A DSDT dump, to see what GpioInt resource (if any) AMDI0010:01's
-   children declare, and what it points to:
+==================================================================
+BUG: KASAN: slab-use-after-free in i2c_adapter_depth drivers/i2c/i2c-core-base.c:1243 [inline]
+BUG: KASAN: slab-use-after-free in i2c_adapter_lock_bus+0x5e/0xf0 drivers/i2c/i2c-core-base.c:849
+Read of size 8 at addr ffff888029a0d108 by task syz-executor130/5941
 
-   sudo cat /sys/firmware/acpi/tables/DSDT > dsdt.dat
-   iasl -d dsdt.dat
+CPU: 0 UID: 0 PID: 5941 Comm: syz-executor130 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ print_address_description+0x55/0x1e0 mm/kasan/report.c:378
+ print_report+0x58/0x70 mm/kasan/report.c:482
+ kasan_report+0x117/0x150 mm/kasan/report.c:595
+ i2c_adapter_depth drivers/i2c/i2c-core-base.c:1243 [inline]
+ i2c_adapter_lock_bus+0x5e/0xf0 drivers/i2c/i2c-core-base.c:849
+ i2c_lock_bus include/linux/i2c.h:809 [inline]
+ __i2c_lock_bus_helper drivers/i2c/i2c-core.h:47 [inline]
+ i2c_transfer+0xc8/0x2d0 drivers/i2c/i2c-core-base.c:2339
+ i2cdev_ioctl_rdwr+0x460/0x740 drivers/i2c/i2c-dev.c:306
+ i2cdev_ioctl+0x6a5/0x880 drivers/i2c/i2c-dev.c:467
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:597 [inline]
+ __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:583
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f3d34dcf35b
+Code: 00 48 89 44 24 18 31 c0 48 8d 44 24 60 c7 04 24 10 00 00 00 48 89 44 24 08 48 8d 44 24 20 48 89 44 24 10 b8 10 00 00 00 0f 05 <89> c2 3d 00 f0 ff ff 77 1c 48 8b 44 24 18 64 48 2b 04 25 28 00 00
+RSP: 002b:00007ffdd493db60 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f3d34dcf35b
+RDX: 00007ffdd493dbe0 RSI: 0000000000000707 RDI: 0000000000000004
+RBP: 0000555578ce89c0 R08: 0000000000000000 R09: 0000000000000000
+R10: 00007ffdd493db80 R11: 0000000000000246 R12: 0000000000001736
+R13: 0000555578ce89e0 R14: 00007f3d34e51c80 R15: 0000000000000002
+ </TASK>
 
-   The resulting dsdt.dsl, or just the section under AMDI0010:01, should
-   help.
+Allocated by task 1:
+ kasan_save_stack mm/kasan/common.c:57 [inline]
+ kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
+ poison_kmalloc_redzone mm/kasan/common.c:398 [inline]
+ __kasan_kmalloc+0x93/0xb0 mm/kasan/common.c:415
+ kasan_kmalloc include/linux/kasan.h:263 [inline]
+ __kmalloc_cache_noprof+0x32d/0x660 mm/slub.c:5489
+ _kmalloc_noprof include/linux/slab.h:988 [inline]
+ _kzalloc_noprof include/linux/slab.h:1309 [inline]
+ usb_alloc_dev+0x5f/0xf10 drivers/usb/core/usb.c:651
+ usb_add_hcd+0x407/0xf80 drivers/usb/core/hcd.c:2880
+ dummy_hcd_probe+0x134/0x270 drivers/usb/gadget/udc/dummy_hcd.c:2722
+ platform_probe+0xf9/0x190 drivers/base/platform.c:1439
+ call_driver_probe drivers/base/dd.c:-1 [inline]
+ really_probe+0x254/0xae0 drivers/base/dd.c:706
+ __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
+ driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
+ __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
+ bus_for_each_drv+0x258/0x2f0 drivers/base/bus.c:500
+ __device_attach+0x2c4/0x450 drivers/base/dd.c:1098
+ device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
+ bus_probe_device+0x12a/0x220 drivers/base/bus.c:620
+ device_add+0x7d7/0xb80 drivers/base/core.c:3772
+ platform_device_add+0x4bd/0x860 drivers/base/platform.c:762
+ dummy_hcd_init+0x667/0xd00 drivers/usb/gadget/udc/dummy_hcd.c:2873
+ do_one_initcall+0x250/0x870 init/main.c:1347
+ do_initcall_level+0x10a/0x1a0 init/main.c:1409
+ do_initcalls+0x59/0xa0 init/main.c:1425
+ kernel_init_freeable+0x29d/0x3e0 init/main.c:1658
+ kernel_init+0x1d/0x1d0 init/main.c:1548
+ ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
 
-2. A dmesg with dynamic debug from a kernel built with the attached
-   patch on top of current mainline/master (adds pr_info() tracing to
-   the exact decision path, no functional changes):
+Freed by task 5941:
+ kasan_save_stack mm/kasan/common.c:57 [inline]
+ kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
+ kasan_save_free_info+0x40/0x50 mm/kasan/generic.c:584
+ poison_slab_object mm/kasan/common.c:253 [inline]
+ __kasan_slab_free+0x5c/0x80 mm/kasan/common.c:285
+ kasan_slab_free include/linux/kasan.h:235 [inline]
+ slab_free_hook mm/slub.c:2677 [inline]
+ slab_free mm/slub.c:6377 [inline]
+ kfree+0x1c5/0x640 mm/slub.c:6692
+ device_release+0xc4/0x1f0 drivers/base/core.c:-1
+ kobject_cleanup lib/kobject.c:689 [inline]
+ kobject_release lib/kobject.c:720 [inline]
+ kref_put include/linux/kref.h:65 [inline]
+ kobject_put+0x222/0x550 lib/kobject.c:737
+ usb_put_invalidate_rhdev drivers/usb/core/hcd.c:2769 [inline]
+ usb_remove_hcd+0x460/0x670 drivers/usb/core/hcd.c:3090
+ dummy_hcd_remove+0xed/0x130 drivers/usb/gadget/udc/dummy_hcd.c:2761
+ device_remove drivers/base/dd.c:616 [inline]
+ __device_release_driver drivers/base/dd.c:1349 [inline]
+ device_release_driver_internal+0x48b/0x880 drivers/base/dd.c:1372
+ unbind_store+0x1a1/0x1d0 drivers/base/bus.c:244
+ kernfs_fop_write_iter+0x3a4/0x540 fs/kernfs/file.c:345
+ new_sync_write fs/read_write.c:595 [inline]
+ vfs_write+0x612/0xba0 fs/read_write.c:687
+ ksys_write+0x150/0x270 fs/read_write.c:739
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
-   dmesg | grep i2c-dw-gpio-dbg
+Last potentially related work creation:
+ kasan_save_stack+0x3e/0x60 mm/kasan/common.c:57
+ kasan_record_aux_stack+0xbd/0xd0 mm/kasan/generic.c:556
+ insert_work+0x3d/0x330 kernel/workqueue.c:2226
+ __queue_work+0xcd8/0x1090 kernel/workqueue.c:2401
+ queue_work_on+0x106/0x1c0 kernel/workqueue.c:2452
+ queue_work include/linux/workqueue.h:699 [inline]
+ rpm_idle+0x511/0x980 drivers/base/power/runtime.c:537
+ rpm_suspend+0x126f/0x17b0 drivers/base/power/runtime.c:729
+ __pm_runtime_idle+0x12f/0x1a0 drivers/base/power/runtime.c:1129
+ pm_runtime_put_sync include/linux/pm_runtime.h:679 [inline]
+ __device_release_driver drivers/base/dd.c:1347 [inline]
+ device_release_driver_internal+0x3cf/0x880 drivers/base/dd.c:1372
+ bus_remove_device+0x444/0x560 drivers/base/bus.c:664
+ device_del+0x524/0x8f0 drivers/base/core.c:3961
+ usb_disable_device+0x3d4/0x8d0 drivers/usb/core/message.c:1478
+ usb_disconnect+0x346/0x9a0 drivers/usb/core/hub.c:2345
+ usb_remove_hcd+0x275/0x670 drivers/usb/core/hcd.c:3059
+ dummy_hcd_remove+0xed/0x130 drivers/usb/gadget/udc/dummy_hcd.c:2761
+ device_remove drivers/base/dd.c:616 [inline]
+ __device_release_driver drivers/base/dd.c:1349 [inline]
+ device_release_driver_internal+0x48b/0x880 drivers/base/dd.c:1372
+ unbind_store+0x1a1/0x1d0 drivers/base/bus.c:244
+ kernfs_fop_write_iter+0x3a4/0x540 fs/kernfs/file.c:345
+ new_sync_write fs/read_write.c:595 [inline]
+ vfs_write+0x612/0xba0 fs/read_write.c:687
+ ksys_write+0x150/0x270 fs/read_write.c:739
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
-Both together should tell us whether the dependency check is finding a
-GpioInt resource on your hardware and mishandling it, or whether
-something else is going on. Appreciate you taking the time.
+Second to last potentially related work creation:
+ kasan_save_stack+0x3e/0x60 mm/kasan/common.c:57
+ kasan_record_aux_stack+0xbd/0xd0 mm/kasan/generic.c:556
+ insert_work+0x3d/0x330 kernel/workqueue.c:2226
+ __queue_work+0xcd8/0x1090 kernel/workqueue.c:2401
+ queue_work_on+0x106/0x1c0 kernel/workqueue.c:2452
+ queue_work include/linux/workqueue.h:699 [inline]
+ rpm_idle+0x511/0x980 drivers/base/power/runtime.c:537
+ __pm_runtime_idle drivers/base/power/runtime.c:1129 [inline]
+ pm_request_idle include/linux/pm_runtime.h:447 [inline]
+ __pm_runtime_set_status+0x646/0xa60 drivers/base/power/runtime.c:1399
+ pm_runtime_set_suspended include/linux/pm_runtime.h:768 [inline]
+ pm_runtime_reinit drivers/base/power/runtime.c:1875 [inline]
+ pm_runtime_remove+0xb4/0x1f0 drivers/base/power/runtime.c:1899
+ device_pm_remove+0x1bc/0x310 drivers/base/power/main.c:179
+ device_del+0x52c/0x8f0 drivers/base/core.c:3962
+ usb_disconnect+0x630/0x9a0 drivers/usb/core/hub.c:2376
+ hub_disconnect_children drivers/usb/core/hub.c:2294 [inline]
+ usb_disconnect+0x2b6/0x9a0 drivers/usb/core/hub.c:2338
+ usb_remove_hcd+0x275/0x670 drivers/usb/core/hcd.c:3059
+ dummy_hcd_remove+0xed/0x130 drivers/usb/gadget/udc/dummy_hcd.c:2761
+ device_remove drivers/base/dd.c:616 [inline]
+ __device_release_driver drivers/base/dd.c:1349 [inline]
+ device_release_driver_internal+0x48b/0x880 drivers/base/dd.c:1372
+ unbind_store+0x1a1/0x1d0 drivers/base/bus.c:244
+ kernfs_fop_write_iter+0x3a4/0x540 fs/kernfs/file.c:345
+ new_sync_write fs/read_write.c:595 [inline]
+ vfs_write+0x612/0xba0 fs/read_write.c:687
+ ksys_write+0x150/0x270 fs/read_write.c:739
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
-Thanks,
-Hardik
+The buggy address belongs to the object at ffff888029a0d000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 264 bytes inside of
+ freed 2048-byte region [ffff888029a0d000, ffff888029a0d800)
 
-On Fri, 7 Aug 2026 at 19:37, Thorsten Leemhuis <linux@leemhuis.info> wrote:
->
-> On 7/28/26 10:30, Andi Shyti wrote:
-> > On Sat, Jul 18, 2026 at 11:13:31AM +0530, Hardik Prakash wrote:
-> >> I2C controllers may have child devices with GpioInt resources that
-> >> depend on GPIO controllers being fully initialized. If the I2C
-> >> controller probes and enumerates children before the referenced GPIO
-> >> controller has completed probe, GPIO interrupts may not be properly
-> >> configured, leading to device failures.
-> >>
-> >> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> >> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> >> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> >> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> >> fail with lost arbitration errors:
-> >>
-> >>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
-> >>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
-> >>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
-> >>   2.348157  lost arbitration
-> >>
-> >> Add a dependency check that walks ACPI child devices and defers probe
-> >> until any referenced GPIO controller is bound.
-> >>
-> >> Fixes: 3812a9e84265 ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11")
-> >> Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
-> >> Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> > [...]
-> > merged to i2c/i2c-fixes.
-> >
-> > Thanks,
-> > Andi
->
-> This became 0a4bb2abc3e56d ("i2c: designware: defer probe if child
-> GpioInt controllers are not bound") and causes a regression for me: the
-> Touchpad in my ThinkPad T14s Gen 4 (AMD) stopped working. From the
-> kernel log:
->
-> i2c_designware AMDI0010:01: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware AMDI0010:01: controller timed out
-> i2c_hid_acpi i2c-SYNA8018:00: failed to fetch HID descriptor: -110
-> i2c_hid_acpi i2c-SYNA8018:00: Failed to fetch the HID Descriptor
->
-> Reverting this change in current mainline/master (f9a2394a23482) fixed
-> things for me. Full dmesg of current master and master+revert can be
-> found here:
->
-> https://www.leemhuis.info/files/misc/dmesg-master
-> https://www.leemhuis.info/files/misc/dmesg-master-plus_revert
->
-> Ciao, Thorsten
->
-> #regzbot introduced: 0a4bb2abc3e56d
-> #regzbot title i2c: designware: ThinkPad touchpad broke
->
-> >> ---
-> >> v12 -> v13:
-> >> - v12 was sent as an incomplete diff (generated against v11 rather than
-> >>   against current master due to a git format-patch invocation mistake on
-> >>   my end), not a real standalone patch (Andy Shevchenko)
-> >> - Not carrying forward Bartosz Golaszewski's v12 Acked-by, per Andy's
-> >>   request
-> >> - Add blank line before guard(device)(gpio_dev) for readability (Andy
-> >>   Shevchenko)
-> >> - No other functional code changes since v12
-> >>
-> >> v11 -> v12:
-> >> - Move gdev declaration to point of use with gpio_device_find_by_fwnode()
-> >>   call (Andy Shevchenko)
-> >> - Extract acpi_get_handle() return into acpi_status variable rather than
-> >>   inline in ACPI_FAILURE() (Andy Shevchenko)
-> >> - Use guard(device)(...) instead of scoped_guard(device, ...) {} for a
-> >>   single following statement (Andy Shevchenko)
-> >> - Use LIST_HEAD(res_list) instead of separate declaration + INIT_LIST_HEAD()
-> >>   (Andy Shevchenko)
-> >> - Check acpi_dev_get_resources() error before freeing the resource list,
-> >>   restoring the check-then-free ordering that had regressed in v11
-> >>   (Andy Shevchenko)
-> >> - Split ACPI_COMPANION(dev) assignment onto its own line rather than at
-> >>   declaration (Andy Shevchenko)
-> >>
-> >> v10 -> v11:
-> >> - Replaced custom gpio_controller_ref list and dedup logic with
-> >>   gpio_device_find_by_fwnode() (Suggested-by: Andy Shevchenko)
-> >> - Moved resource-skip explanation from commit message into a code comment
-> >> - Fixed device_is_bound() to check gpio_device_to_device(gdev)->parent
-> >>   rather than the gpio_device's own internal class device, which is
-> >>   registered on the synthetic "gpio" bus and never has a driver bound to it
-> >>
-> >> v9 -> v10:
-> >> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
-> >>   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
-> >> - Simplify string_source guard to a single string_length check, confirmed
-> >>   sufficient via ACPICA parser in drivers/acpi/acpica/rsutils.c
-> >>   (Andy Shevchenko)
-> >> - acpi_dev_get_resources() on single line, free only on success path
-> >>   (Andy Shevchenko)
-> >> - Reversed xmas tree ordering for variable declarations (Andy Shevchenko)
-> >> - Removed useless int ret = 0 assignment (Andy Shevchenko)
-> >> - acpi_dev_for_each_child() on single line (Andy Shevchenko)
-> >> - Use guard(device)(gpio_dev) pattern to avoid uninitialized variable
-> >>   warning and deduplicate the !gpio_dev check (Andy Shevchenko)
-> >>
-> >> v8 -> v9:
-> >> - Sent as a 2-patch series: revert of the broken v8 patch, plus a
-> >>   corrected resubmission
-> >> - Use acpi_gpio_get_irq_resource() instead of open-coding GPIO resource
-> >>   type checks, eliminating duplication with gpiolib-acpi (Andy Shevchenko)
-> >> - Remove gpio_dep_ctx wrapper struct, pass list_head * directly (Andy Shevchenko)
-> >> - Add const to gpio_controller_ref.path (Andy Shevchenko)
-> >> - Add NULL check for resource_source.string_ptr to fix a crash on hardware
-> >>   where GPIO resources have no named controller (Reported-by: Nathan
-> >>   Chancellor, Reported-by: Chaitanya Kumar Borah)
-> >> - Use acpi_dev_get_resources() return value properly (Andy Shevchenko)
-> >> - Fix all error paths to call free_gpio_controller_list() (Andy Shevchenko)
-> >> - Change guard to #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
-> >> - Remove erroneous put_device() calls -- acpi_get_first_physical_node()
-> >>   returns a borrowed pointer with no refcount increment
-> >> - Use LIST_HEAD() macro, split adev declaration and assignment (Andy Shevchenko)
-> >> - scoped_guard single statement without braces (Andy Shevchenko)
-> >> - Remove misused Reported-by/Closes tags (Andy Shevchenko)
-> >>
-> >> v7 -> v8:
-> >> - Add revert of the earlier pinctrl-amd DMI quirk (patch 1 of the original
-> >>   v1-v7 series), confirmed unnecessary once probe ordering is fixed
-> >>   (Mario Limonciello)
-> >> - Collect Acked-by (Bartosz Golaszewski) and Reviewed-by (Mario Limonciello)
-> >>
-> >> v6 -> v7:
-> >> - Fix unused 'ret' variable in check_child_gpioint() (kernel test robot)
-> >> - Replace BugLink: with Link: (Bartosz Golaszewski)
-> >> - Add Reported-by and Closes tags for kernel test robot warning
-> >>
-> >> v5 -> v6:
-> >> - Replace DMI-specific deferral with a generic GpioInt dependency check
-> >>   walking ACPI child devices (Suggested-by: Mario Limonciello)
-> >>
-> >> v4 -> v5:
-> >> - Add blank line before #include <linux/acpi.h> (Bartosz Golaszewski)
-> >> - Use scoped_guard(device, gpio_dev) (Bartosz Golaszewski)
-> >>
-> >> v3 -> v4:
-> >> - Rebase onto Linus Walleij's tree (the original patch 1 already there)
-> >> - Use --base so series is correctly 1/1 (Andy Shevchenko)
-> >>
-> >> v2 -> v3:
-> >> - Fix variable declaration style (Andy Shevchenko)
-> >> - Add BugLink tag (Andy Shevchenko)
-> >> - CC AMD engineers (Andy Shevchenko)
-> >>
-> >> v1 -> v2:
-> >> - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev()
-> >> - Use device_is_bound() under device_lock() with explanatory comments
-> >> - Add Assisted-by tags per coding-assistants.rst
-> >>
-> >> Note: this patch was originally part of a 2-patch series (v1-v7) whose
-> >> first patch was a DMI-specific pinctrl-amd IRQ quirk; that patch was
-> >> merged separately into Linus Walleij's tree at v1 and later reverted at
-> >> v8 once this patch made the manual IRQ restoration unnecessary.
-> >>
-> >>  drivers/i2c/busses/i2c-designware-platdrv.c | 80 +++++++++++++++++++++
-> >>  1 file changed, 80 insertions(+)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> >> index 6d6e81242f74..c8a203fff4d1 100644
-> >> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> >> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> >> @@ -8,12 +8,14 @@
-> >>   * Copyright (C) 2007 MontaVista Software Inc.
-> >>   * Copyright (C) 2009 Provigent Ltd.
-> >>   */
-> >> +#include <linux/acpi.h>
-> >>  #include <linux/clk-provider.h>
-> >>  #include <linux/clk.h>
-> >>  #include <linux/delay.h>
-> >>  #include <linux/dmi.h>
-> >>  #include <linux/err.h>
-> >>  #include <linux/errno.h>
-> >> +#include <linux/gpio/driver.h>
-> >>  #include <linux/i2c.h>
-> >>  #include <linux/interrupt.h>
-> >>  #include <linux/io.h>
-> >> @@ -130,6 +132,80 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
-> >>      return 0;
-> >>  }
-> >>
-> >> +#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
-> >> +/*
-> >> + * Check whether an ACPI GpioInt resource's referenced GPIO controller
-> >> + * has finished probing. Resources with no named controller (resource
-> >> + * source string) are skipped, since they can't be resolved to a
-> >> + * struct device.
-> >> + */
-> >> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
-> >> +{
-> >> +    struct acpi_resource_gpio *agpio;
-> >> +    struct acpi_device *gpio_adev;
-> >> +    struct device *gpio_dev;
-> >> +    acpi_handle handle;
-> >> +    acpi_status status;
-> >> +
-> >> +    if (!acpi_gpio_get_irq_resource(ares, &agpio))
-> >> +            return 1; /* not a GpioInt resource, skip */
-> >> +
-> >> +    if (!agpio->resource_source.string_length)
-> >> +            return 1; /* no named controller, skip */
-> >> +
-> >> +    status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
-> >> +    if (ACPI_FAILURE(status))
-> >> +            return 1;
-> >> +
-> >> +    gpio_adev = acpi_fetch_acpi_dev(handle);
-> >> +    if (!gpio_adev)
-> >> +            return 1;
-> >> +
-> >> +    struct gpio_device *gdev __free(gpio_device_put) =
-> >> +            gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
-> >> +    if (!gdev)
-> >> +            return -EPROBE_DEFER; /* controller not registered yet: abort walk */
-> >> +
-> >> +    gpio_dev = gpio_device_to_device(gdev)->parent;
-> >> +
-> >> +    guard(device)(gpio_dev);
-> >> +    if (!device_is_bound(gpio_dev))
-> >> +            return -EPROBE_DEFER; /* controller not bound yet: abort walk */
-> >> +
-> >> +    return 1; /* bound, skip adding to resource list, continue walk */
-> >> +}
-> >> +
-> >> +static int check_child_gpioint(struct acpi_device *adev, void *data)
-> >> +{
-> >> +    LIST_HEAD(res_list);
-> >> +    int ret;
-> >> +
-> >> +    ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
-> >> +    if (ret < 0)
-> >> +            return ret;
-> >> +
-> >> +    acpi_dev_free_resource_list(&res_list);
-> >> +
-> >> +    return 0;
-> >> +}
-> >> +
-> >> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> >> +{
-> >> +    struct acpi_device *adev;
-> >> +
-> >> +    adev = ACPI_COMPANION(dev);
-> >> +    if (!adev)
-> >> +            return 0;
-> >> +
-> >> +    return acpi_dev_for_each_child(adev, check_child_gpioint, NULL);
-> >> +}
-> >> +#else
-> >> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> >> +{
-> >> +    return 0;
-> >> +}
-> >> +#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
-> >> +
-> >>  static int dw_i2c_plat_probe(struct platform_device *pdev)
-> >>  {
-> >>      u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
-> >> @@ -138,6 +214,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
-> >>      struct dw_i2c_dev *dev;
-> >>      int irq, ret;
-> >>
-> >> +    ret = i2c_dw_check_gpio_dependencies(device);
-> >> +    if (ret)
-> >> +            return ret;
-> >> +
-> >>      irq = platform_get_irq_optional(pdev, 0);
-> >>      if (irq == -ENXIO)
-> >>              flags |= ACCESS_POLLING;
-> >>
-> >> base-commit: 58717b2a1365d06c8c64b72aa948541b53fe31eb
-> >> --
-> >> 2.54.0
-> >>
-> >
+The buggy address belongs to the physical page:
+page: refcount:0 mapcount:0 mapping:0000000000000000 index:0xffff888029a0b000 pfn:0x29a08
+head: order:3 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 pincount:0
+flags: 0xfff00000000240(workingset|head|node=0|zone=1|lastcpupid=0x7ff)
+page_type: f5(slab)
+raw: 00fff00000000240 ffff88813fe40000 ffffea0001e4f610 ffffea0001db2c10
+raw: ffff888029a0b000 0000000800080006 00000000f5000000 0000000000000000
+head: 00fff00000000240 ffff88813fe40000 ffffea0001e4f610 ffffea0001db2c10
+head: ffff888029a0b000 0000000800080006 00000000f5000000 0000000000000000
+head: 00fff00000000003 fffffffffffffe01 00000000ffffffff 00000000ffffffff
+head: ffffffffffffffff 0000000000000000 00000000ffffffff 0000000000000008
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 3, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 136, tgid 136 (kworker/u8:5), ts 10281980212, free_ts 0
+ set_page_owner include/linux/page_owner.h:32 [inline]
+ post_alloc_hook+0x1f9/0x250 mm/page_alloc.c:1859
+ prep_new_page mm/page_alloc.c:1867 [inline]
+ get_page_from_freelist+0x21fa/0x2270 mm/page_alloc.c:3946
+ __alloc_frozen_pages_noprof+0x18d/0x380 mm/page_alloc.c:5304
+ alloc_slab_page mm/slub.c:3266 [inline]
+ allocate_slab+0x79/0x5e0 mm/slub.c:3380
+ new_slab mm/slub.c:3426 [inline]
+ refill_objects+0x2d5/0x350 mm/slub.c:7310
+ refill_sheaf mm/slub.c:2804 [inline]
+ __pcs_replace_empty_main+0x2bf/0x6b0 mm/slub.c:4675
+ alloc_from_pcs mm/slub.c:4773 [inline]
+ slab_alloc_node mm/slub.c:4905 [inline]
+ __do_kmalloc_node mm/slub.c:5333 [inline]
+ __kmalloc_noprof+0x485/0x720 mm/slub.c:5359
+ _kmalloc_noprof include/linux/slab.h:992 [inline]
+ _kzalloc_noprof include/linux/slab.h:1309 [inline]
+ scsi_alloc_target+0x138/0xbd0 drivers/scsi/scsi_scan.c:505
+ __scsi_scan_target+0x164/0xe10 drivers/scsi/scsi_scan.c:1780
+ scsi_scan_channel drivers/scsi/scsi_scan.c:1885 [inline]
+ scsi_scan_host_selected+0x3d3/0x7a0 drivers/scsi/scsi_scan.c:1914
+ do_scsi_scan_host drivers/scsi/scsi_scan.c:2047 [inline]
+ do_scan_async+0x10e/0x660 drivers/scsi/scsi_scan.c:2057
+ async_run_entry_fn+0x9d/0x430 kernel/async.c:129
+ process_one_work kernel/workqueue.c:3322 [inline]
+ process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405
+ worker_thread+0x92d/0xe10 kernel/workqueue.c:3486
+ kthread+0x388/0x470 kernel/kthread.c:436
+ ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
+page_owner free stack trace missing
 
---00000000000034ea4606588c13bc
-Content-Type: text/x-patch; charset="US-ASCII"; name="i2c-designware-gpio-debug.patch"
-Content-Disposition: attachment; filename="i2c-designware-gpio-debug.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_mskmd1060>
-X-Attachment-Id: f_mskmd1060
+Memory state around the buggy address:
+ ffff888029a0d000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888029a0d080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>ffff888029a0d100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888029a0d180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888029a0d200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
 
-U3ViamVjdDogW0RFQlVHIE9OTFldIGkyYzogZGVzaWdud2FyZTogdHJhY2UgR3Bpb0ludCBkZXBl
-bmRlbmN5IGNoZWNrIGRlY2lzaW9ucwoKVGVtcG9yYXJ5IGRlYnVnIGluc3RydW1lbnRhdGlvbiBm
-b3IgZGlhZ25vc2luZyB0aGUgcmVncmVzc2lvbiByZXBvcnRlZApieSBUaG9yc3RlbiBMZWVtaHVp
-cyBvbiBUaGlua1BhZCBUMTRzIEdlbiA0IChBTUQpLCB3aGVyZSBBTURJMDAxMDowMQpoaXRzICJs
-b3N0IGFyYml0cmF0aW9uIiB3aXRoIDBhNGJiMmFiYzNlNTZkIGFwcGxpZWQuCgpBZGRzIHByX2lu
-Zm8oKSB0cmFjaW5nIHRvIGV2ZXJ5IGJyYW5jaCBvZiB0aGUgZGVwZW5kZW5jeSBjaGVjayBzbyB3
-ZQpjYW4gc2VlIGV4YWN0bHkgd2hhdCBpdCBkZWNpZGVzIGZvciBlYWNoIEFDUEkgY2hpbGQgZGV2
-aWNlIGFuZApHcGlvSW50IHJlc291cmNlIG9uIGFmZmVjdGVkIGhhcmR3YXJlLiBObyBmdW5jdGlv
-bmFsIGNoYW5nZXMuCkNvbXBpbGUtdmVyaWZpZWQgYWdhaW5zdCBjdXJyZW50IG1haW5saW5lIChh
-N2M3MDc0YjU4ZDIpLgoKTm90IGZvciBzdWJtaXNzaW9uIC0tIGRpYWdub3N0aWMgb25seS4gQXBw
-bHkgd2l0aDoKICBnaXQgYXBwbHkgdGhpcy5wYXRjaApvcgogIHBhdGNoIC1wMSA8IHRoaXMucGF0
-Y2gKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxhdGRy
-di5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBsYXRkcnYuYwppbmRleCBj
-OGEyMDNmZmY0ZDEuLmI3ZDMyM2IzYzY4OSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvYnVzc2Vz
-L2kyYy1kZXNpZ253YXJlLXBsYXRkcnYuYworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
-c2lnbndhcmUtcGxhdGRydi5jCkBAIC0xNTAsMjcgKzE1MCw0NiBAQCBzdGF0aWMgaW50IGNoZWNr
-X2dwaW9pbnRfcmVzb3VyY2Uoc3RydWN0IGFjcGlfcmVzb3VyY2UgKmFyZXMsIHZvaWQgKmRhdGEp
-CiAJaWYgKCFhY3BpX2dwaW9fZ2V0X2lycV9yZXNvdXJjZShhcmVzLCAmYWdwaW8pKQogCQlyZXR1
-cm4gMTsgLyogbm90IGEgR3Bpb0ludCByZXNvdXJjZSwgc2tpcCAqLwogCisJcHJfaW5mbygiaTJj
-LWR3LWdwaW8tZGJnOiBHcGlvSW50IHJlc291cmNlX3NvdXJjZT0lLipzIChsZW49JXUpXG4iLAor
-CQkoaW50KWFncGlvLT5yZXNvdXJjZV9zb3VyY2Uuc3RyaW5nX2xlbmd0aCwKKwkJYWdwaW8tPnJl
-c291cmNlX3NvdXJjZS5zdHJpbmdfcHRyID8gYWdwaW8tPnJlc291cmNlX3NvdXJjZS5zdHJpbmdf
-cHRyIDogIjxOVUxMPiIsCisJCWFncGlvLT5yZXNvdXJjZV9zb3VyY2Uuc3RyaW5nX2xlbmd0aCk7
-CisKIAlpZiAoIWFncGlvLT5yZXNvdXJjZV9zb3VyY2Uuc3RyaW5nX2xlbmd0aCkKIAkJcmV0dXJu
-IDE7IC8qIG5vIG5hbWVkIGNvbnRyb2xsZXIsIHNraXAgKi8KIAogCXN0YXR1cyA9IGFjcGlfZ2V0
-X2hhbmRsZShOVUxMLCBhZ3Bpby0+cmVzb3VyY2Vfc291cmNlLnN0cmluZ19wdHIsICZoYW5kbGUp
-OwotCWlmIChBQ1BJX0ZBSUxVUkUoc3RhdHVzKSkKKwlpZiAoQUNQSV9GQUlMVVJFKHN0YXR1cykp
-IHsKKwkJcHJfaW5mbygiaTJjLWR3LWdwaW8tZGJnOiBhY3BpX2dldF9oYW5kbGUoKSBmYWlsZWQg
-Zm9yICUuKnNcbiIsCisJCQkoaW50KWFncGlvLT5yZXNvdXJjZV9zb3VyY2Uuc3RyaW5nX2xlbmd0
-aCwKKwkJCWFncGlvLT5yZXNvdXJjZV9zb3VyY2Uuc3RyaW5nX3B0ciA/IGFncGlvLT5yZXNvdXJj
-ZV9zb3VyY2Uuc3RyaW5nX3B0ciA6ICI8TlVMTD4iKTsKIAkJcmV0dXJuIDE7CisJfQogCiAJZ3Bp
-b19hZGV2ID0gYWNwaV9mZXRjaF9hY3BpX2RldihoYW5kbGUpOwotCWlmICghZ3Bpb19hZGV2KQor
-CWlmICghZ3Bpb19hZGV2KSB7CisJCXByX2luZm8oImkyYy1kdy1ncGlvLWRiZzogYWNwaV9mZXRj
-aF9hY3BpX2RldigpIHJldHVybmVkIE5VTExcbiIpOwogCQlyZXR1cm4gMTsKKwl9CisJcHJfaW5m
-bygiaTJjLWR3LWdwaW8tZGJnOiBhY3BpX2ZldGNoX2FjcGlfZGV2KCkgc3VjY2VlZGVkLCBkZXZp
-Y2U9JXNcbiIsIGRldl9uYW1lKCZncGlvX2FkZXYtPmRldikpOwogCiAJc3RydWN0IGdwaW9fZGV2
-aWNlICpnZGV2IF9fZnJlZShncGlvX2RldmljZV9wdXQpID0KIAkJZ3Bpb19kZXZpY2VfZmluZF9i
-eV9md25vZGUoYWNwaV9md25vZGVfaGFuZGxlKGdwaW9fYWRldikpOwotCWlmICghZ2RldikKKwlp
-ZiAoIWdkZXYpIHsKKwkJcHJfaW5mbygiaTJjLWR3LWdwaW8tZGJnOiBncGlvX2RldmljZV9maW5k
-X2J5X2Z3bm9kZSgpIHJldHVybmVkIE5VTEwsIGRlZmVycmluZ1xuIik7CiAJCXJldHVybiAtRVBS
-T0JFX0RFRkVSOyAvKiBjb250cm9sbGVyIG5vdCByZWdpc3RlcmVkIHlldDogYWJvcnQgd2FsayAq
-LworCX0KKwlwcl9pbmZvKCJpMmMtZHctZ3Bpby1kYmc6IGdwaW9fZGV2aWNlX2ZpbmRfYnlfZndu
-b2RlKCkgc3VjY2VlZGVkXG4iKTsKIAogCWdwaW9fZGV2ID0gZ3Bpb19kZXZpY2VfdG9fZGV2aWNl
-KGdkZXYpLT5wYXJlbnQ7CiAKIAlndWFyZChkZXZpY2UpKGdwaW9fZGV2KTsKLQlpZiAoIWRldmlj
-ZV9pc19ib3VuZChncGlvX2RldikpCisJaWYgKCFkZXZpY2VfaXNfYm91bmQoZ3Bpb19kZXYpKSB7
-CisJCXByX2luZm8oImkyYy1kdy1ncGlvLWRiZzogZGV2aWNlX2lzX2JvdW5kKCk9ZmFsc2UgZm9y
-ICVzLCBkZWZlcnJpbmdcbiIsCisJCQlkZXZfbmFtZShncGlvX2RldikpOwogCQlyZXR1cm4gLUVQ
-Uk9CRV9ERUZFUjsgLyogY29udHJvbGxlciBub3QgYm91bmQgeWV0OiBhYm9ydCB3YWxrICovCisJ
-fQorCXByX2luZm8oImkyYy1kdy1ncGlvLWRiZzogZGV2aWNlX2lzX2JvdW5kKCk9dHJ1ZSBmb3Ig
-JXNcbiIsIGRldl9uYW1lKGdwaW9fZGV2KSk7CiAKIAlyZXR1cm4gMTsgLyogYm91bmQsIHNraXAg
-YWRkaW5nIHRvIHJlc291cmNlIGxpc3QsIGNvbnRpbnVlIHdhbGsgKi8KIH0KQEAgLTE4MCw5ICsx
-OTksMTMgQEAgc3RhdGljIGludCBjaGVja19jaGlsZF9ncGlvaW50KHN0cnVjdCBhY3BpX2Rldmlj
-ZSAqYWRldiwgdm9pZCAqZGF0YSkKIAlMSVNUX0hFQUQocmVzX2xpc3QpOwogCWludCByZXQ7CiAK
-Kwlwcl9pbmZvKCJpMmMtZHctZ3Bpby1kYmc6IGNoZWNrX2NoaWxkX2dwaW9pbnQoYWRldj0lcylc
-biIsIGRldl9uYW1lKCZhZGV2LT5kZXYpKTsKKwogCXJldCA9IGFjcGlfZGV2X2dldF9yZXNvdXJj
-ZXMoYWRldiwgJnJlc19saXN0LCBjaGVja19ncGlvaW50X3Jlc291cmNlLCBOVUxMKTsKLQlpZiAo
-cmV0IDwgMCkKKwlpZiAocmV0IDwgMCkgeworCQlwcl9pbmZvKCJpMmMtZHctZ3Bpby1kYmc6IGNo
-ZWNrX2NoaWxkX2dwaW9pbnQgcmV0PSVkIChkZWZlcilcbiIsIHJldCk7CiAJCXJldHVybiByZXQ7
-CisJfQogCiAJYWNwaV9kZXZfZnJlZV9yZXNvdXJjZV9saXN0KCZyZXNfbGlzdCk7CiAKQEAgLTE5
-NCw5ICsyMTcsMTMgQEAgc3RhdGljIGludCBpMmNfZHdfY2hlY2tfZ3Bpb19kZXBlbmRlbmNpZXMo
-c3RydWN0IGRldmljZSAqZGV2KQogCXN0cnVjdCBhY3BpX2RldmljZSAqYWRldjsKIAogCWFkZXYg
-PSBBQ1BJX0NPTVBBTklPTihkZXYpOwotCWlmICghYWRldikKKwlpZiAoIWFkZXYpIHsKKwkJcHJf
-aW5mbygiaTJjLWR3LWdwaW8tZGJnOiBpMmNfZHdfY2hlY2tfZ3Bpb19kZXBlbmRlbmNpZXMoJXMp
-IEFDUElfQ09NUEFOSU9OPU5VTExcbiIsCisJCQlkZXZfbmFtZShkZXYpKTsKIAkJcmV0dXJuIDA7
-CisJfQogCisJcHJfaW5mbygiaTJjLWR3LWdwaW8tZGJnOiBpMmNfZHdfY2hlY2tfZ3Bpb19kZXBl
-bmRlbmNpZXMoJXMpXG4iLCBkZXZfbmFtZShkZXYpKTsKIAlyZXR1cm4gYWNwaV9kZXZfZm9yX2Vh
-Y2hfY2hpbGQoYWRldiwgY2hlY2tfY2hpbGRfZ3Bpb2ludCwgTlVMTCk7CiB9CiAjZWxzZQo=
---00000000000034ea4606588c13bc--
+
+---
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
