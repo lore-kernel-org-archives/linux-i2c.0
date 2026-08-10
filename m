@@ -1,232 +1,158 @@
-Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
+Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 481642D7BF
-	for <linux-i2c@vger.kernel.org>; Mon, 10 Aug 2026 05:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 469B737E5EA
+	for <linux-i2c@vger.kernel.org>; Mon, 10 Aug 2026 05:23:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.52
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786339398; cv=pass; b=d0fls5qO8nwrCprt7iNHNwzHdCg0Wahh4SIeYm3fwZ373wdqNYwPsY+oumcvbRsrMjdXW2cM99eFpOsUWWrE7YoVYUKaCCfMSJeYFo1SDrvq4c6mhcadJTxFvwHsQtumbl2t6jD/46krwakae3zbmw0CwrfkUYCkYrugyNbH34k=
+	t=1786339404; cv=pass; b=tVxD5msvFUXiEPcxS3YsVw+b2qZu/v5q60ryyts3rRZs4mcLQX5xEUaoa3JerHcUTCFWPDk94r2LxUz8TfUzsue620gIllg6Aahf/vCfvL6SY08uwYTnaIQuSbYdCLZr2ZCrh+9XScuYiDUt0MKk4artLy52C9bY+KEjXIovii8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786339398; c=relaxed/simple;
-	bh=DyPbHUAtcMi/e7oergn3BUmtEbDPiOqnxDcdQz3Fu8I=;
+	s=arc-20240116; t=1786339404; c=relaxed/simple;
+	bh=nRWtorTzFUCpTNAMPfvtchJBwm2gA5LTQZCmbppyTgg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YH71xovxknvMoZY9qpfg6cQkKwCPSvJyMb5Sn9CbRXgtx7aRYxmEeb6P8DD9tbR6ktHdqmGBq6Pc0/4F6kDm2O9/tm7ygwGhaf3l/Sqw1tS1y7sq4aVpgSKi9p7tmrFkkTFAIlwli3pqofoToAf17Atsh62Dk1GBau2i/sysOrA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LXT1JuK8; arc=pass smtp.client-ip=74.125.224.50
+	 To:Cc:Content-Type; b=OeIyi5/E9Wp/ZV+GDOkWgIH7i0s0IN90ATSXno+COzuKOrIwwUQxBiA4p224U4yt3xYNun0Kq3WP4xegem5oWmo+QU6cIZ2Hy2yjG8U7nqlx8MwtHfYjwDtxJo6P2FFkJeaWQFljUKqX+POG3t+hmAtFXiVfeLrdiB8XybOvxpA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=htfUz/Lw; arc=pass smtp.client-ip=74.125.224.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LXT1JuK8"
-Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-6689f36ae56so1854360d50.3
-        for <linux-i2c@vger.kernel.org>; Sun, 09 Aug 2026 22:23:15 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786339395; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="htfUz/Lw"
+Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-6688a2dceb8so752353d50.3
+        for <linux-i2c@vger.kernel.org>; Sun, 09 Aug 2026 22:23:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786339402; cv=none;
         d=google.com; s=arc-20260327;
-        b=nJJoMphjfw8WijDO51+fUyIKxSLcsof3F7U57Ac7GUCIl5e4vesHTX/tiahqdtqsPB
-         jTyFAgDRkGrqQ68bCi9Xz21PyddD5lc6NM1tSzJ1sj418czNClQky3hMuhPxrLWZi4TJ
-         q0hfSszXe7G2RXWLX8B4SohGTmzFpoOFTMybWdhzcECn27kXPQS+yLlrdi742YH1NP5L
-         eRkNmBFSVyN7rqsbXbUfKloEN3HoDOoREIZeUFrlRuZMXqUju+l/AZbVglcBxx2Lx28B
-         8FzsC0Wo23IxF4Kp0GdwnJ348LkXIPYF8FWATfKF+tEw/Pri+msiBBiz8OW1Cs2EhRkl
-         i5pA==
+        b=pmc2BRg9/WCUPwAE5F9y5feG/Utr2ciMoAWFd/9wiPdprjxD0qStpFItgI121+opwu
+         sRg5TVzDbQeHAznhF7GRBOvEDKr+0vmQ5hKRSZBgAtieFQF1ZnGTdLeOiHXvz4gsdi3X
+         iYcMjc/JMYxojNhtaJcCZbJHLVFwZhgi5/dO73CBj7EaTH4BNDAzBjuCwEUKut3+8o+h
+         2LRUvpTfU3Wp4l1pGNG/2nIoPDKnXCUbjus8HOWpmxAoMj/+aqNiweQ0fD+Y8l0slNOF
+         V1Rg5BBRm/e1xO/biOVBYEqmgOIALaTuEFNFGyvFsvgnLCpmHOOIz1pN7joIYJSTUn0W
+         MUnA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=V5cg9cUMM483feITK+A0fq23fgcoTcw/hMKjOKcFiHw=;
-        fh=1c2X1MRVATxCvT/eLmiNbonuJl7R/16F3ztxkeOROPs=;
-        b=kR4MT5XynuAcq45CINFuPhJM9bJ89aejbZP4xbhCQxiMDuXGheGiGYvXPIXvFNhQyX
-         W8nRUe9Xadu1z6NBU5ExFumYxYOsLQG49k58FyIT+haF8h9fRko2prs5+5R3ouTK3L7S
-         L8B57HEYPvprEPoA+3hBpnk+lZAHPKPtCZtmhbVFZl86s8v3JI7nakHWIefmb0uGhS4H
-         T1vZFJmebmQ0mbT3RRxoQsHoUYCTLV8eIIu4VmVdZG21TxqW8TqagWaVpwli3seuZ8nQ
-         D4iEkpokJ+yJ3k9mJtXBOBcP7rrrWXy/UVA0uzuipEX0y4xy6MWqBxxsL2UIkC3aNBot
-         cv6Q==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=4CUaInJTpwQwrQNEPX4tsX7iKPUF9PSnuP5rHsDFXo4=;
+        fh=O0umIWMGoDyuiZ3hMUoy3HGtVLuSICjdqLPTvzjtSg0=;
+        b=RGwP8Iqr1/evkMmIRaUmAk0YbpwQOLrdOZZ8cjqcG2GD0krquqc0SmUcnKi//lfYli
+         2SR7+BwUecd3e7t3kSSBw1M7mYMq2vFSUoCjnAEnB2W9kAaadfVP3ozxPszmYnNJUV2X
+         RDBzDBArGbWIQa5QNvsoPAJTsINj640Sjur+FFAyYtHjwrjJJzghABBiEeYtJY/gxLqj
+         YcYe23HTZBJTj8cNWo/w2VLhOPVVYb6U+oLot8Df50vmSRtNIxegz1e4syI8tBcHa1uF
+         vnAWL2lTYmgvHzNyeEuY1W00WsaYWTs84EBN3txB7GwXbTmHQ80GiJMSxwxUwhNcDBiH
+         hiuw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786339395; x=1786944195; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=V5cg9cUMM483feITK+A0fq23fgcoTcw/hMKjOKcFiHw=;
-        b=LXT1JuK8wuLZmiGZ+CBer19SQ7JcLLtQVjWrDN+Ek7K7ys0opvcDUDT/qvMsflVa0i
-         U680UU/GEqW4O0iF0wFSI07jnv6QgnfwyJ/Oe7jxiu45QSnnc7DsW3/Iw48rVLWDQ2aA
-         ryk6ZzwrSzarSvceyZgCIGd5ALz8iN+Uizqxo1ru45IuM+08KErV0Ly1O5nBRm4jwyyr
-         YAjpSXl4oQ0SETp3J0P5JwEbCqGfLN0gmPjF0Gyuq/ddGZAgbkNLKdjK88XcD4Swo2e4
-         DDi+a8k01NSGamcpStaPqXJgJl6puRh5OLJSOIN2C4woJqVAM9vnc4MDMdD/wTo1zor9
-         TWDQ==
+        d=gmail.com; s=20251104; t=1786339402; x=1786944202; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4CUaInJTpwQwrQNEPX4tsX7iKPUF9PSnuP5rHsDFXo4=;
+        b=htfUz/Lw7qev2v3/tNBUrmCeS7rKBCW2wYH/9pXwB/Y+XDh2Rm7uFSxo8Y72g6uE6s
+         pGYvUQ5Sch8JGRmr/mQElpxkiB738lOTXKfQh3tGSfuDTO2ac+fTkdNu1p+n9Cu09AiW
+         fKtpxABme3mSuE4F/4SxzLB7IWacmIYCsQrmgkARZdayNH1Joq2xJGcKL+B66rP3JH6S
+         YFic4xCbEgKzuGPjtLMdqgyXoPr7YfNw+i8s1BA/GxsO7pDf8jAxR+w8goL1hlGCW9VG
+         //wQh3SY/ZK5bXBRQD/T4pHHkIsGAt3JInOooRnH3HfeJVP5HmtXyTpkAhX9TOSPaX19
+         yUdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786339395; x=1786944195;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=V5cg9cUMM483feITK+A0fq23fgcoTcw/hMKjOKcFiHw=;
-        b=mDLmERDGfP/dO4nyawgSTYMMP1X48E7O7UkQURTTKFJq+TUzQE/7duiM7qbytD7cjZ
-         v/P5ijgMzhMxUZ2Gl4bOyQx6rGpYRA6BLvrrDqUOjj0NAVqyZoCaH8ppoaU09cbxgvSK
-         4x99SQ4owwhNZG0GuptKffPeRYV55i0zcUUunSQ+xj6irMtKhUnMHv6xYr8QlDEd/XQF
-         5pacAbnohcNVbfBTQH35989NiHu8ICuTcc7J1KBg43pgKB/5UfGZuru2vwk4BYEkBUz/
-         flLxExZ5Y9h7bd65n5ksBYGVjdK2oD+TqqaCLhS3qEKrSEzfF9OnjQl7XWjK5mM5Kzzj
-         wYNQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpLpqlBKEDPVF0WCCA4pUsINRNV558POGiJUQ34xfSK2EaaAlX70IzGY/Vf0hBFEEc4C97PDK/2J14=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwTAEX5QR/bKJ9o2hUxJ9Jz/nPLFEww2HPX1PctJWR7uqMLlDIe
-	/jf8PbymOmYoBjPR2Nk4gXxDX2QBSPnU9tH+y9MzZoBDbk8RzDyY0JwxZBK0uIIVrWMht3ycJJ0
-	yRxUXZTTMuBTUI+lg7XZFxRR2T2Nj20I=
-X-Gm-Gg: AR+sD119Xg65K4paMi+XMU5ORje8gFhniO2lD2MMhPwNHP+tAtco5fPk9QcOMOWtAyC
-	zxlo1EbNNzzLxWOL/cfq2BPZiuI9w7Dh0S5UJ5BxoLDg+9yPvCZNOIbGY2lCsKrBhH2xrH0NLEt
-	WgtDu2mr8L320Aifd3wppGRdeop21V3JocZ/oEC0+6msOOjE77l9ynCrMVqTC2ANFjpZWxT/8Nl
-	Daqqis4147D6FSJyb4Z5gXsbrs//ahDhutK2TWmLy6yvc7z/jA3XoNmWIuTbfRwVLXF+JdzJ0CD
-	DcmEckVjMISMkp/P6cqHDIhUVxqCeTWab9vuE5OWojYIYReq+fvTZ3odswPZkHrg30i8CERQdkO
-	LbsKQnzxwhMyySAPEhJynCPpQl51+NXIoKzH6E7k2XznLt/Pcijh+sfFYhWYTTf8zsTqGLcQ4jr
-	AvN6lxh+7+URgbMt3x5WE=
-X-Received: by 2002:a53:e031:0:b0:668:2e27:22a7 with SMTP id
- 956f58d0204a3-6699ab03662mr18080078d50.33.1786339394857; Sun, 09 Aug 2026
- 22:23:14 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786339402; x=1786944202;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4CUaInJTpwQwrQNEPX4tsX7iKPUF9PSnuP5rHsDFXo4=;
+        b=fXejO9g/RCtsep0ROUxcMrucP7ljT1wJ/CAfwogWj1a+rNEAA6nR3AWbz7usgxq1+k
+         FHnCkaXSlTfYu/XbpEgi7ecL4enBqjDRlZMw3xpA6XSfqNDrLtnzsczww2ukyEW9dA+H
+         fmtcjSy6sEUXNLUNCgqUCXQoxVOk101PZGCMw4vEFnnBEP0xND4892yVn7ZngCl8GXxz
+         EHuuad9rptlAL0D5jea13Dh3G4eoPTF9vIJGwNN1yNFuMkOD1/yLmYiutOt0n0OjbkzV
+         y6pJ83kdrez2yd+B6AhQZfNnlKvRn5dmzLmlmnsxGzfDxJVCpAMmsM2SWGLWCma6aXfV
+         D46A==
+X-Forwarded-Encrypted: i=1; AHgh+RrXcMz/oBK7qmId9Wf+iI0IaqL8NKn0Wx6JLYOOSYOGNoN9w9KkzBFkT9r99nSRJ1J0rvJNngkhByM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzL5C4a/ywEfLR7vTeEasaDVKGziT56afKwLPk0xHyDeYuN3YPm
+	7f2fKRu/nRpWyvci6PcpnxOwezOguiiwefEoxh1RS1v+u0fXizCy/On0R/yppt4dk1ZruZ4Czbe
+	iGKjNcoTka+LLjIDF9YKd5xH95LfGNRg=
+X-Gm-Gg: AR+sD11Am+2xDI+1y9u9hjyjGEG5r/q+XI5d6nqtRp4TgkUsTvJKxL2cMSVuH8G//yR
+	x7C3sR2dl4PQtnDgEk1P6TBLws1a0Yuu2EY+HbQFLnZXdHPxMrGDZWVTZaWwJ5PrEpUEhmjl20E
+	Di7Gb5lK8EJ9Elb+V3ABgS6hxIYdPPbQBtbxyGvoe+zadqcsiP8GmRWVj9yHm/6kG91DaW1QDhz
+	qlZsxNEr9P+3SeqUngiTfBam6T3xvDYOt96HZb+W6WhFAgohlzsjl1wHnDrG4NJTZywgxdoSp+i
+	NKszf8MieqBfUszppmXcYwBAXZBeDcRE6Qskkr0gz8Qe9w==
+X-Received: by 2002:a05:690e:4102:b0:668:37ed:12ad with SMTP id
+ 956f58d0204a3-66acd206e31mr11235972d50.19.1786339402205; Sun, 09 Aug 2026
+ 22:23:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260718054330.8975-2-hardikprakash.official@gmail.com>
- <amhodWpAI3K6aeBH@zenone.zhora.eu> <b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info>
- <CANTFpSW+w1GZMbLXszuqZFCZjeVJfFG2bc1vJad+OMzsy-CPCg@mail.gmail.com>
- <aneQvMN_Zet2b62n@ashevche-desk.local> <b5b95476-636f-40b1-8575-47918169b7bb@leemhuis.info>
-In-Reply-To: <b5b95476-636f-40b1-8575-47918169b7bb@leemhuis.info>
-From: Hardik Prakash <hardikprakash.official@gmail.com>
-Date: Mon, 10 Aug 2026 10:53:03 +0530
-X-Gm-Features: AUfX_mzc26r5Gwao6z1n18JIQF8v7sMo9AJLWMgvWgubjztpIoyYpHjrO1eEy8Y
-Message-ID: <CANTFpSWzV9tzMwc2cURCQBhpZmrv1SsZqnwBEu0jt=ZQWfvWgQ@mail.gmail.com>
-Subject: Re: i2c designware change broke touchpad of a thinkpad
-To: Thorsten Leemhuis <linux@leemhuis.info>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
-	linusw@kernel.org, nathan@kernel.org, chaitanya.kumar.borah@intel.com, 
-	Linux kernel regressions list <regressions@lists.linux.dev>
+References: <20260701035025.3082927-1-a0282524688@gmail.com>
+ <20260701035025.3082927-7-a0282524688@gmail.com> <20260709092759.GC2045740@google.com>
+In-Reply-To: <20260709092759.GC2045740@google.com>
+From: Ming Yu <a0282524688@gmail.com>
+Date: Mon, 10 Aug 2026 13:23:11 +0800
+X-Gm-Features: AUfX_mw60mPRtAodJtPHW33YszFKPUsZpTStYaWt5nfL_V8wGiYgE7fJSI9_-fc
+Message-ID: <CAOoeyxXgqfts9ytFEYLe=jCpBkPaPwrzwTBQX3oTsTME90CEBw@mail.gmail.com>
+Subject: Re: [PATCH v6 6/7] mfd: nct6694: Introduce regmap-based transport abstraction
+To: Lee Jones <lee@kernel.org>
+Cc: Ming Yu <tmyu0@nuvoton.com>, Andi Shyti <andi.shyti@kernel.org>, 
+	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, 8 Aug 2026, Thorsten Leemhuis wrote:
-> https://www.leemhuis.info/files/misc/dmesg-master-plus_revert
+Hi Lee,
+
+Thank you for your reviewing.
+
+Lee Jones <lee@kernel.org> =E6=96=BC 2026=E5=B9=B47=E6=9C=889=E6=97=A5=E9=
+=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=885:28=E5=AF=AB=E9=81=93=EF=BC=9A
 >
-> [    0.619018] i2c-dw-gpio-dbg: i2c_dw_check_gpio_dependencies(AMDI0010:00)
-> [...]
-> [    1.136010] i2c-dw-gpio-dbg: device_is_bound()=true for AMDI0030:00
+...
+> > +/*
+> > + * A few firmware commands (e.g. the I2C "deliver") transmit a request=
+ and
+> > + * read the reply back in a single transaction. Model this as a regmap=
+ read of
+> > + * a SET register: @buf carries the request on entry and holds the rep=
+ly on
+> > + * return, so the firmware exchange stays a single message as before.
+> > + */
+> > +static inline int nct6694_write_read_msg(struct nct6694 *nct6694,
+> > +                                      const struct nct6694_cmd_header =
+*cmd_hd,
+> > +                                      void *buf)
+> > +{
+> > +     return regmap_bulk_read(nct6694->regmap,
+> > +                             nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_=
+SET),
+> > +                             buf, le16_to_cpu(cmd_hd->len));
+> > +}
+>
+> [Severity: Medium]
+> Are we misusing the regmap API by passing an input payload through
+> regmap_bulk_read() in nct6694_write_read_msg()?
+>
+> The driver handles command exchanges by modeling them as a regmap_bulk_re=
+ad()
+> of a SET register, passing the request payload inside the buf parameter.
+> However, the regmap API strictly defines this as an output buffer.
+>
+> This currently works because regmap bypasses bounce buffers and cache for=
+ this
+> specific configuration. Any future changes in the regmap subsystem, such =
+as
+> initializing output buffers, enabling a regmap cache, or adding bounce bu=
+ffers
+> for DMA alignment, will silently discard the outgoing request payload.
+>
 
-Thanks, this trace looks correct on its face (defer at 0.619s, retry
-succeeds at 1.122-1.136s), but the link above points to the same file
-you sent last round (the master+revert baseline, no debug patch, no
-i2c-dw-gpio-dbg lines in it at all) rather than this new capture.
+On the write_read finding: it's safe as-is (REGCACHE_NONE, val_bits 8,
+so val_buf passes straight to bus->read), but I agree the read
+semantics are bent for this one request/response command.
 
-Could you share the full, unfiltered dmesg from this exact boot (the
-one with the debug patch applied)? I need to see where
-"lost arbitration" falls relative to the trace above.
+Would you prefer I keep nct6694_write_read_msg() and document the
+in/out contract, plus a note that this regmap must never enable
+caching, so everything stays behind regmap as you asked in v5?
 
-Separately, from your DSDT: NFC1 (NXP1001), which shows up as a child
-of AMDI0010:01 in your trace, declares its _CRS as a raw resource
-buffer containing three GPIO resources referencing \_SB.GPIO -- one
-GpioIo and two separate GpioInt entries. Not sure yet if that's
-relevant, but it's a pattern I haven't seen on my hardware
-which I've tested against.
+Or would you rather I add a thin transport helper just for the
+"deliver" command? That reintroduces the ops-style you pushed back on
+in v5, so I didn't want to go that way without checking first.
 
 Thanks,
-Hardik
-
-On Sun, 9 Aug 2026 at 21:49, Thorsten Leemhuis <linux@leemhuis.info> wrote:
->
-> On 8/8/26 22:25, Andy Shevchenko wrote:
-> > On Sat, Aug 08, 2026 at 10:31:28PM +0530, Hardik Prakash wrote:
-> >> On Fri, 7 Aug 2026, Thorsten Leemhuis wrote:
-> >>> This became 0a4bb2abc3e56d ("i2c: designware: defer probe if child
-> >>> GpioInt controllers are not bound") and causes a regression for me: the
-> >>> Touchpad in my ThinkPad T14s Gen 4 (AMD) stopped working. From the
-> >>> kernel log:
-> >>>
-> >>> i2c_designware AMDI0010:01: i2c_dw_handle_tx_abort: lost arbitration
-> >>> i2c_designware AMDI0010:01: controller timed out
-> >>> i2c_hid_acpi i2c-SYNA8018:00: failed to fetch HID descriptor: -110
-> >>> i2c_hid_acpi i2c-SYNA8018:00: Failed to fetch the HID Descriptor
-> >>>
-> >>> Reverting this change in current mainline/master (f9a2394a23482) fixed
-> >>> things for me. Full dmesg of current master and master+revert can be
-> >>> found here:
-> >>>
-> >>> https://www.leemhuis.info/files/misc/dmesg-master
-> >>> https://www.leemhuis.info/files/misc/dmesg-master-plus_revert
-> >> [...]
-> >> Two things that would help narrow this down, whenever you have a moment:
->
-> Thx for looking into this. Here we go:
->
-> >> 1. A DSDT dump
->
-> https://www.leemhuis.info/files/misc/dsdt.dsl
->
-> >> 2. A dmesg with dynamic debug from a kernel built with the attached
-> >>    patch on top of current mainline/master
->
-> https://www.leemhuis.info/files/misc/dmesg-master-plus_revert
->
-> [    0.619018] i2c-dw-gpio-dbg: i2c_dw_check_gpio_dependencies(AMDI0010:00)
-> [    0.619018] i2c-dw-gpio-dbg: check_child_gpioint(adev=XXXX0000:00)
-> [    0.619076] i2c-dw-gpio-dbg: GpioInt resource_source=\_SB.GPIO (len=10)
-> [    0.619079] i2c-dw-gpio-dbg: acpi_fetch_acpi_dev() succeeded,
-> device=AMDI0030:00
-> [    0.619080] i2c-dw-gpio-dbg: gpio_device_find_by_fwnode() returned
-> NULL, deferring
-> [    0.619082] i2c-dw-gpio-dbg: check_child_gpioint ret=-517 (defer)
-> [    0.619102] i2c-dw-gpio-dbg: i2c_dw_check_gpio_dependencies(AMDI0010:01)
-> [    0.619104] i2c-dw-gpio-dbg: check_child_gpioint(adev=SYNA8018:00)
-> [    0.619159] i2c-dw-gpio-dbg: GpioInt resource_source=\_SB.GPIO (len=10)
-> [    0.619162] i2c-dw-gpio-dbg: acpi_fetch_acpi_dev() succeeded,
-> device=AMDI0030:00
-> [    0.619162] i2c-dw-gpio-dbg: gpio_device_find_by_fwnode() returned
-> NULL, deferring
-> [    0.619164] i2c-dw-gpio-dbg: check_child_gpioint ret=-517 (defer)
-> [    1.122517] i2c-dw-gpio-dbg: i2c_dw_check_gpio_dependencies(AMDI0010:00)
-> [    1.122523] i2c-dw-gpio-dbg: check_child_gpioint(adev=XXXX0000:00)
-> [    1.122625] i2c-dw-gpio-dbg: GpioInt resource_source=\_SB.GPIO (len=10)
-> [    1.122636] i2c-dw-gpio-dbg: acpi_fetch_acpi_dev() succeeded,
-> device=AMDI0030:00
-> [    1.122639] i2c-dw-gpio-dbg: gpio_device_find_by_fwnode() succeeded
-> [    1.122642] i2c-dw-gpio-dbg: device_is_bound()=true for AMDI0030:00
-> [    1.135894] i2c-dw-gpio-dbg: i2c_dw_check_gpio_dependencies(AMDI0010:01)
-> [    1.135898] i2c-dw-gpio-dbg: check_child_gpioint(adev=SYNA8018:00)
-> [    1.135976] i2c-dw-gpio-dbg: GpioInt resource_source=\_SB.GPIO (len=10)
-> [    1.135980] i2c-dw-gpio-dbg: acpi_fetch_acpi_dev() succeeded,
-> device=AMDI0030:00
-> [    1.135983] i2c-dw-gpio-dbg: gpio_device_find_by_fwnode() succeeded
-> [    1.135985] i2c-dw-gpio-dbg: device_is_bound()=true for AMDI0030:00
-> [    1.135987] i2c-dw-gpio-dbg: check_child_gpioint(adev=NXP1001:00)
-> [    1.136005] i2c-dw-gpio-dbg: GpioInt resource_source=\_SB.GPIO (len=10)
-> [    1.136008] i2c-dw-gpio-dbg: acpi_fetch_acpi_dev() succeeded,
-> device=AMDI0030:00
-> [    1.136009] i2c-dw-gpio-dbg: gpio_device_find_by_fwnode() succeeded
-> [    1.136010] i2c-dw-gpio-dbg: device_is_bound()=true for AMDI0030:00
->
-> HTH, Ciao, Thorsten
->
-> >> On Fri, 7 Aug 2026 at 19:37, Thorsten Leemhuis <linux@leemhuis.info> wrote:
-> >>> On 7/28/26 10:30, Andi Shyti wrote:
-> >>>> On Sat, Jul 18, 2026 at 11:13:31AM +0530, Hardik Prakash wrote:
-> >>>>> I2C controllers may have child devices with GpioInt resources that
-> >>>>> depend on GPIO controllers being fully initialized. If the I2C
-> >>>>> controller probes and enumerates children before the referenced GPIO
-> >>>>> controller has completed probe, GPIO interrupts may not be properly
-> >>>>> configured, leading to device failures.
-> >>>>>
-> >>>>> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> >>>>> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> >>>>> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> >>>>> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> >>>>> fail with lost arbitration errors:
-> >>>>>
-> >>>>>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
-> >>>>>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
-> >>>>>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
-> >>>>>   2.348157  lost arbitration
-> >>>>>
-> >>>>> Add a dependency check that walks ACPI child devices and defers probe
-> >>>>> until any referenced GPIO controller is bound.
-> >
-> > [...]
-> >
-> >>> #regzbot introduced: 0a4bb2abc3e56d
-> >>> #regzbot title i2c: designware: ThinkPad touchpad broke
-> >
->
+Ming
