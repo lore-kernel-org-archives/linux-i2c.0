@@ -1,97 +1,131 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 53C8F37E5D7;
-	Mon, 10 Aug 2026 07:51:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2519463CB;
+	Mon, 10 Aug 2026 10:43:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786348315; cv=none; b=eIMHKLdYgKaUSJABiQ1d9IKv4hetVEl9N3udRzlKx0UEoka1fOVkPpi9uy9rAZA4Mfg9GjjUNMQ0F3WvxlFzZL76oSlvqTnwCatA89dlUZwhMIYOmvnOIkQ1mHCyLOICYCB2MpKXwAwOAGKJtczk+2xnlCgK9FUoBfdxPxzl+UQ=
+	t=1786358619; cv=none; b=IberXFXeQqBvSX0c1mnAmDxzzdHngbHK08EVmB51g9umkOgVFgM7GhmUg5JDfgOBZd7wgpPVRb8jra1YPA+39cBLKNhkpG8MOywe9soCRmZNj/vH+42Sr8jFSLLEZksC9VgL73xgswoYx2cqLnajx1qOkP66hXVIhfUY+/3zSBY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786348315; c=relaxed/simple;
-	bh=9QyzrGwtsAeFA6AEPpKbURPN5nrm65NIvoeoDNJNCmk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=nWrNoM8td9R6fRj2nZHQ51y48EINJsnFB9gyPVILQRdly5xO7xlm1D6mlny4aqoMazokVS0+AbG1ciIgB03E1lJ42jx9vKooRWVzde6ZCH1DMpUZSPhw8PUoMq1ipVuyFP9DdFJFGPEAccdUj7c9+XRYD4I3UMzNLiUv0cH/YhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8Dx8+kTg3lqvdsLAA--.28037S3;
-	Mon, 10 Aug 2026 15:51:47 +0800 (CST)
-Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJDxesQOg3lqooAqAA--.20187S3;
-	Mon, 10 Aug 2026 15:51:47 +0800 (CST)
-From: Hongliang Wang <wanghongliang@loongson.cn>
-To: Hongliang Wang <wanghongliang@loongson.cn>,
-	Binbin Zhou <zhoubinbin@loongson.cn>,
+	s=arc-20240116; t=1786358619; c=relaxed/simple;
+	bh=epolczuAc7GxWGuU6Bvb17IYNH0UhTUkzI3167ryA9E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pyOzOXjF5H06c/Fk6I2Efz+2kem+C+xS7p4juk9GYrGsBTvT9UUrChaXAaaRzvSY1+6LEN1jkCWgTPDbyAIUYydKlrsNpTLJiuA2FeNwpBajRJ0/IFDhkSsES5gS2snZRDCcTYKPmQvXY77MvPFhUMhQdb9Q8+H3LbQfUXhvHpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N5YCJPqk; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N5YCJPqk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AA21F000E9;
+	Mon, 10 Aug 2026 10:43:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786358617;
+	bh=GgZ70L0wlgjg35CbCp9eIm1NV7cv1FWYClANFiFsvW8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=N5YCJPqkc9MoVS1gejFwO5Or9z7HmV3NM0Y2+2quFgMl9VygR13TRpA7IMNitvcKo
+	 m88VhiTNIhqNuaspNE8OFtVh3c/pD1nIxshzCJjjp1Qrgr32veAbtBXcX0ZMs0glcx
+	 AgN0JdC63xjiltCUc4tAPnUBNty8g2K3u3C6gLxwFtworLqJR4dvoJyOthaJFrpNJA
+	 dvIzaNqFRCsB0o2zqDQtw3GlRtUiWNTsn/2qeXj+WU9A9+HttMQS3vf9tKmLfa9zkV
+	 WVBfGYDTdDk8mOAw5pL2i5pw/ug6l9VXaVcH/l+ASWR5pUN72MZKT88TF1TQdndszl
+	 UY7KNvHFJY3Cg==
+Date: Mon, 10 Aug 2026 11:43:30 +0100
+From: Daniel Thompson <danielt@kernel.org>
+To: Ramiro Oliveira <ramiro.oliveira@advantech.com>
+Cc: Lee Jones <lee@kernel.org>, Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	Huacai Chen <chenhuacai@loongson.cn>,
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v9 1/2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
-Date: Mon, 10 Aug 2026 15:49:26 +0800
-Message-Id: <20260810074927.25284-2-wanghongliang@loongson.cn>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20260810074927.25284-1-wanghongliang@loongson.cn>
-References: <20260810074927.25284-1-wanghongliang@loongson.cn>
+	Jingoo Han <jingoohan1@gmail.com>, Helge Deller <deller@gmx.de>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+	linux-kernel@vger.kernel.org, mfd@lists.linux.dev,
+	linux-gpio@vger.kernel.org, linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	Wenkai Chung <wenkai.chung@advantech.com.tw>,
+	Francisco Aragon-Trivino <francisco.aragon-trivino@advantech.com>,
+	Hongzhi Wang <hongzhi.wang@advantech.com>,
+	Mikhail Tsukerman <mikhail.tsukerman@advantech.com>,
+	Thomas Kastner <thomas.kastner@advantech.com>
+Subject: Re: [PATCH v2 5/8] Add Advantech EIO Backlight driver
+Message-ID: <anmrUnA9fBfUCEYU@aspen.lan>
+References: <20260714-upstream-v2-v2-0-76e5e41026db@advantech.com>
+ <20260714-upstream-v2-v2-5-76e5e41026db@advantech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJDxesQOg3lqooAqAA--.20187S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj9xXoW7Gr17ur43Kw47trW8JFW7WrX_yoWkZFXEka
-	4xAw18GrsxAF1Fg3yqvF4xJr43Ja42y3WrC3WUCF4vya4Ut345GFykJ343Ar4fWrsxu3W3
-	uFs7GrZ3Za1fKosvyTuYvTs0mTUanT9S1TB71UUUUjUqnTZGkaVYY2UrUUUUj1kv1TuYvT
-	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
-	cSsGvfJTRUUUbS8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
-	vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr1j6F4UJwAaw2AFwI0_Jrv_JF1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0c
-	Ia020Ex4CE44I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jw0_
-	WrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
-	xGrwCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWU
-	JVW8JwCFI7km07C267AKxVWUXVWUAwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4
-	vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IY
-	x2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26c
-	xKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAF
-	wI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jrcTPUUUUU=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260714-upstream-v2-v2-5-76e5e41026db@advantech.com>
 
-Add clocks and clock-frequency properties to examples.
+On Tue, Jul 14, 2026 at 05:54:19PM +0200, Ramiro Oliveira wrote:
+> diff --git a/drivers/video/backlight/eio_bl.c b/drivers/video/backlight/eio_bl.c
+> new file mode 100644
+> index 000000000000..c2826400de45
+> --- /dev/null
+> +++ b/drivers/video/backlight/eio_bl.c
+> @@ -0,0 +1,243 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Backlight driver for Advantech EIO Embedded controller.
+> + *
+> + * Copyright (C) 2025 Advantech Corporation. All rights reserved.
+> + */
+> +
+> +#include <linux/backlight.h>
+> +#include <linux/errno.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/eio.h>
+> +#include <linux/module.h>
+> +#include <linux/uaccess.h>
+> +
+> +#define PMC_BL_WRITE		0x20
+> +#define PMC_BL_READ		0x21
+> +
+> +#define BL_CTRL_STATUS		0x00
+> +#define BL_CTRL_ENABLE		0x12
+> +#define BL_CTRL_ENABLE_INVERT	0x13
+> +#define BL_CTRL_DUTY		0x14
+> +#define BL_CTRL_INVERT		0x15
+> +#define BL_CTRL_FREQ		0x16
+> +
+> +#define BL_MAX			2
+> +
+> +#define BL_STATUS_AVAIL		0x01
+> +#define BL_ENABLE_OFF		0x00
+> +#define BL_ENABLE_ON		0x01
+> +#define BL_ENABLE_AUTO		BIT(1)
+> +
+> +#define USE_DEFAULT		-1
+> +#define THERMAL_MAX		100
+> +
+> +static uint bri_freq = USE_DEFAULT;
+> +module_param(bri_freq, uint, 0444);
+> +MODULE_PARM_DESC(bri_freq, "Setup backlight PWM frequency.\n");
+> +
+> +static int bri_invert = USE_DEFAULT;
+> +module_param(bri_invert, int, 0444);
+> +MODULE_PARM_DESC(bri_invert, "Setup backlight PWM polarity.\n");
+> +
+> +static int bl_power_invert = USE_DEFAULT;
+> +module_param(bl_power_invert, int, 0444);
+> +MODULE_PARM_DESC(bl_power_invert, "Setup backlight enable pin polarity.\n");
 
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
----
- Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+There is still pending feedback on the module parameters and I can't see
+any reaction anywhere.
 
-diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-index ee09c6d9c5f0..0beb7f2515c8 100644
---- a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-@@ -37,11 +37,14 @@ unevaluatedProperties: false
- 
- examples:
-   - |
-+    #include <dt-bindings/clock/loongson,ls2k-clk.h>
-     #include <dt-bindings/interrupt-controller/irq.h>
- 
-     i2c0: i2c@1fe21000 {
-         compatible = "loongson,ls2k-i2c";
-         reg = <0x1fe21000 0x8>;
-+        clock-frequency = <100000>;
-+        clocks = <&clk LOONGSON2_APB_CLK>;
-         interrupt-parent = <&extioiic>;
-         interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
-         #address-cells = <1>;
--- 
-2.47.2
+: Module parameters are not really expected these days and are
+: pretty user hostile.
+:
+: Are they really needed? AFAICT this is a firmware based device. Why
+: doesn't the firmware provide this information if the drivers need it
+: (either directly or via PNP ID and a lookup table)?
 
+Please don't ignore feedback!
+
+
+Daniel.
