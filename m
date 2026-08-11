@@ -1,41 +1,42 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8BE2466B65
-	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 16:15:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DF65468C30;
+	Tue, 11 Aug 2026 16:15:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786464949; cv=none; b=fgPynlaNwzRC0Fc7KAWoC9S6KmQSx1OglEG/DR7JQJHNFgFVETaGjRpqIzNzsByNTPpxaANIbVoYAoBv3GDusYmr4fWWXKBL7Z6ZKETFP0dxh5KmOc8ynmaqx+GFh3ivacUjDxoGhnuCyY6WYrO2HLtp4rfFSD64F7MNN/iTwSw=
+	t=1786464953; cv=none; b=jOdaBbMN6/cvgeglyHNN6MJdxR+Bb0dG+z+lelX75XS+p6Eop9xd9c6mG1q61LcqSi2FYebF6slEofG/2Epq9P13RrtGXa5Xsv+TQt85ljARWbD3/xy2z+vIQIam4zIrcFi9FhWDRvSvLkJfw4sVj/O3h8A5sPzDG8+ML44mYGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786464949; c=relaxed/simple;
-	bh=TGXtrZXdjVqoMa48XR5MI8NAV1kEc9n6IXNdRcpAAaM=;
+	s=arc-20240116; t=1786464953; c=relaxed/simple;
+	bh=C95/eT/B4XgIoNYdkna/BJk2cUyTQgBKearWQIH0Omo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=W4J9U76lpIwWP7vBl5nUWShH5BHKtXfE2X5ZGBugIQWDkdrvSWrlb40bCvCTdm2DxMInHPjrdSzxVzq0PCkkiXIVsf9Fn/Hw1Zbf1c6iH6L7eMB1oaHk9pF5OwEFW1tqo2c+b8aadYvNeSTwePuqr87+BE/JqnLv1zXi1ZWl4+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=KiWyFUmk; arc=none smtp.client-ip=185.246.84.56
+	 In-Reply-To:To:Cc; b=MQMWz9hssR3iuRBzAC9JO5odXS3NcxCKCzFjsEOJP0ONTGbdSMi4GhyASC8svt04CHD5G0QFX+Tq1wO5tUXK1FzUIoFG3ujFWjLff0djH6XXJeeOdSqkc1Ix5mArCFGAwMQA1ny7I+IViX1wbPqSRx0sp/RamUmbC8xRFp1d6vY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=NxRFacBB; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="KiWyFUmk"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="NxRFacBB"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id F14921A1570
-	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 16:15:45 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id CDEAD4E411B7;
+	Tue, 11 Aug 2026 16:15:50 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id C4AA96033C;
-	Tue, 11 Aug 2026 16:15:45 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id F046011C48FAE;
-	Tue, 11 Aug 2026 18:15:39 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id A35756033C;
+	Tue, 11 Aug 2026 16:15:50 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5BE2C11C48FB5;
+	Tue, 11 Aug 2026 18:15:45 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1786464941; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1786464946; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=swodfQHwP9uXMPGV1udBQbxCGjaTe6Q09FMEiRmHWfU=;
-	b=KiWyFUmk5IrIi71HwscYdukh1eqz/jBjbRlGnq1PAah8eRYy6hjHk+jUe+SRTjDxSyOmRR
-	lQaWsxU0Z+LVBAhnhPLY1/5G/0z86sxF++7CKPZWhOwbxoY+l3Bj0JASWfC7LBwMrtYTi8
-	nLHyLClAOUAjyA6wTP+9EtGrNjfFvOYkBTA1Q+xygkS8QGXWvXF0PzItY2r4Jt21gPa8Sr
-	GBSvfHhSWFMT1AylbrwlBjckSJc8NYHJOU9i4+amB/FeZpI8vO/J8sYZqQU1V2tzBR2HGy
-	YajJiPBaork/e/4WkHpSRKMZhFfdPv3KysyJJfGkJxfRc2W5E+S98DWbmoUPUA==
+	bh=/1MK41sLZ4JfBlj5GNXVc1XloBGgOyqLMLE6J7DkXhw=;
+	b=NxRFacBB7eL4zuyPyj9vfKDpbjfZd9yyv1JSFdibG5IejcVfYko/3UgeiTF9503FVCv4Xi
+	N3VMyxiZpkZj4TQ/FX1KxFjg4QcA5yGxkzy+v0L/LKk4aGQfrOX83S+wMm9N3wT2PsYx4w
+	q8NMKeYk8i52sDsXIAT8kbxHXPs/fotqus8GR9BpQP9xfnweXGj2meWuh7jD0mWdfNekjV
+	RLk8QiDvruXLqulemQMXJMvdZqs9494mN1m6/iF+p3r7nmSfwoL3ieDOGai2+phiRdTwAu
+	TkKBIeIYbHDBwNK6O6a12E2GwSHnJckxEVgsYkZX1YZmsFM6c+ebSjJy6xUuxw==
 From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Date: Tue, 11 Aug 2026 18:15:05 +0200
-Subject: [PATCH v2 4/5] mfd: cgbc: Add virtual I2C bus support
+Date: Tue, 11 Aug 2026 18:15:06 +0200
+Subject: [PATCH v2 5/5] i2c: cgbc: Add virtual storage devices on the
+ virtual I2C bus
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,7 +45,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260811-cgbc-i2c-storage-devices-support-v2-4-3efa998e0ef5@bootlin.com>
+Message-Id: <20260811-cgbc-i2c-storage-devices-support-v2-5-3efa998e0ef5@bootlin.com>
 References: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
 In-Reply-To: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
@@ -55,27 +56,195 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.15.2
 X-Last-TLS-Session-Version: TLSv1.3
 
-Internally the Board Controller has a virtual I2C bus with some virtual
-storage devices (EEPROM and RAM). So add a new I2C cell for this virtual
-bus.
+Add support for virtual storage devices exposed by the Board Controller
+on its virtual I2C bus. There are two device types: EEPROM for persistent
+storage and RAM for non-persistent storage:
+- Secure Data EEPROM  (64 bytes, RO): static and dynamic board info
+- BIOS EEPROM         (32 bytes, RW): reserved for BIOS applications
+- BC EEPROM           (32 bytes, RO): Board Controller operational params
+- User EEPROM         (32 bytes, RW): user applications
+- BIOS RAM            (32 bytes, RW): reserved for BIOS applications
+- BC RAM               (8 bytes, RO): Board Controller operational params
+- User RAM            (16 bytes, RW): user applications
+
+Use the at24 driver with the 24c01 entry (the most generic one) for all
+virtual storage devices, customizing parameters via software_node
+properties (size, pagesize, read-only flag, label).
 
 Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 ---
- drivers/mfd/cgbc-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-cgbc.c | 151 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 150 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
-index f09fd671bc8c..e800a0f4e50a 100644
---- a/drivers/mfd/cgbc-core.c
-+++ b/drivers/mfd/cgbc-core.c
-@@ -240,6 +240,7 @@ static const struct mfd_cell cgbc_devs[] = {
- 	{ .name = "cgbc-gpio"	},
- 	{ .name = "cgbc-i2c", .id = 1 },
- 	{ .name = "cgbc-i2c", .id = 2 },
-+	{ .name = "cgbc-i2c", .id = 3 },
- 	{ .name = "cgbc-hwmon"	},
- 	{ .name = "cgbc-backlight" },
+diff --git a/drivers/i2c/busses/i2c-cgbc.c b/drivers/i2c/busses/i2c-cgbc.c
+index c3f1c83b105a..e36755cc963b 100644
+--- a/drivers/i2c/busses/i2c-cgbc.c
++++ b/drivers/i2c/busses/i2c-cgbc.c
+@@ -372,6 +372,149 @@ static const struct i2c_adapter cgbc_i2c_adapter[] = {
+ 	},
  };
+ 
++static const struct property_entry cgbc_secure_data_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 64),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	PROPERTY_ENTRY_STRING("label", "cgbc-secure-data-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_secure_data_eeprom_node = {
++	.properties = cgbc_secure_data_eeprom_props,
++};
++
++static const struct property_entry cgbc_bc_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bc-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_bc_eeprom_node = {
++	.properties = cgbc_bc_eeprom_props,
++};
++
++static const struct property_entry cgbc_user_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-user-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_user_eeprom_node = {
++	.properties = cgbc_user_eeprom_props,
++};
++
++static const struct property_entry cgbc_bios_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bios-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_bios_eeprom_node = {
++	.properties = cgbc_bios_eeprom_props,
++};
++
++static const struct property_entry cgbc_bc_ram_props[] = {
++	PROPERTY_ENTRY_U32("size", 8),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bc-ram"),
++	{ }
++};
++
++static const struct software_node cgbc_bc_ram_node = {
++	.properties = cgbc_bc_ram_props,
++};
++
++static const struct property_entry cgbc_user_ram_props[] = {
++	PROPERTY_ENTRY_U32("size", 16),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-user-ram"),
++	{ }
++};
++
++static const struct software_node cgbc_user_ram_node = {
++	.properties = cgbc_user_ram_props,
++};
++
++static const struct property_entry cgbc_bios_ram_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bios-ram"),
++	{ }
++};
++
++static const struct software_node cgbc_bios_ram_node = {
++	.properties = cgbc_bios_ram_props,
++};
++
++static const struct i2c_board_info cgbc_i2c_board_info[] = {
++	{
++		.type = "24c01",
++		.addr = 0x40,
++		.dev_name = "cgbc-secure-data-eeprom",
++		.swnode = &cgbc_secure_data_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x48,
++		.dev_name = "cgbc-bc-eeprom",
++		.swnode = &cgbc_bc_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x50,
++		.dev_name = "cgbc-user-eeprom",
++		.swnode = &cgbc_user_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x58,
++		.dev_name = "cgbc-bios-eeprom",
++		.swnode = &cgbc_bios_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x60,
++		.dev_name = "cgbc-bc-ram",
++		.swnode = &cgbc_bc_ram_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x68,
++		.dev_name = "cgbc-user-ram",
++		.swnode = &cgbc_user_ram_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x70,
++		.dev_name = "cgbc-bios-ram",
++		.swnode = &cgbc_bios_ram_node,
++	}
++};
++
++static void cgbc_i2c_instantiate_devices(struct i2c_adapter *adap)
++{
++	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
++	struct i2c_client *client;
++	int i;
++
++	/* We only instantiate devices on Virtual bus */
++	if (algo_data->bus_id != CGBC_I2C_VIRTUAL_BUS_ID)
++		return;
++
++	for (i = 0; i < ARRAY_SIZE(cgbc_i2c_board_info); i++) {
++		client  = i2c_new_client_device(adap, &cgbc_i2c_board_info[i]);
++		if (IS_ERR(client))
++			dev_err(&adap->dev, "Failed to register %s\n",
++				cgbc_i2c_board_info[i].dev_name);
++	}
++}
++
+ static int cgbc_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct cgbc_device_data *cgbc = dev_get_drvdata(pdev->dev.parent);
+@@ -393,7 +536,13 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	return i2c_add_numbered_adapter(&i2c->adap);
++	ret = i2c_add_numbered_adapter(&i2c->adap);
++	if (ret)
++		return ret;
++
++	cgbc_i2c_instantiate_devices(&i2c->adap);
++
++	return ret;
+ }
+ 
+ static void cgbc_i2c_remove(struct platform_device *pdev)
 
 -- 
 2.53.0
