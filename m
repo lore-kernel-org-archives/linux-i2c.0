@@ -1,85 +1,95 @@
-Received: from smtp.smtpout.orange.fr (smtp-77.smtpout.orange.fr [80.12.242.77])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-m49221.qiye.163.com (mail-m49221.qiye.163.com [45.254.49.221])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58E94071F3
-	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 07:37:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A627425CC4;
+	Tue, 11 Aug 2026 09:13:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.221
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786433860; cv=none; b=CV4J8VPgUQSgd70V4wUauHhPVB+0XlYXGRepzLBS60LGuQnWCAjiqpvUjjhpal5D6WaIjtshU5xV35jZylw979G9cTbe+OQK/ku2VwGifsKangZGhW7hQuPc4vuCVyIBfLfLh2+lJ1jUfLCC6X+0rCysROrshddxcqcSjVxwaKg=
+	t=1786439617; cv=none; b=FYcPzpDJRQTnZMrQy7hqTTxmd9sEeN3ruje8DF1qYXRTWI+iaQE2fDxr+0eJucH+n/P/05Po12Ckgn6C49T0Y9P7Bz7tYM6AZ71jkL3sCK1sbYJ2rSP3NRulmQ1up/ZrWVkiwKpvO48If66T3WrtppI1P+OVzRjw9VGAsTyM5Ik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786433860; c=relaxed/simple;
-	bh=UMw6VZEzWAWIh3tsa4Rn0DyfCSwUJ6WFV4XQ7X/U0KE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NRcQqxm0KnxmrUytTtHq1g1mftI0LuEM9wj2/UirtegJRnXcmU/t9mtbS0w3h5z3fgXhJU7dyCvTPds3SsFuhkVFH3GytApe3ry5sXFqq8L3TQzDUXztxJOAT+gPANQUpQCBc5dE4c5QzD5+ApUCHAZswY8qlt9lm6T6J3Vp9Ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=VnK2AAoe; arc=none smtp.client-ip=80.12.242.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+	s=arc-20240116; t=1786439617; c=relaxed/simple;
+	bh=k+5q2GFDm/w/4Wxk+VW6ipO2KJOZ8aNul3VUW3j42JQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZIzdCPX+qqmdzO5EXvCY2xfIwQzP9WdUe0SD5w4sKLBish79zDmbRewzncI2EQlom3KDKfOKHKMUNnT51j2Ciwn4yC0duf29Z1+SGgrmYHBfDb+kq3mCM6rv2t4/t8CSUDaO2lPLzHmCecJ5+vzgo+vnfi5mOC3s87oK5JzHjdE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com; spf=pass smtp.mailfrom=hj-micro.com; dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b=QFcxNGFQ; arc=none smtp.client-ip=45.254.49.221
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hj-micro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="VnK2AAoe"
-Received: from [IPV6:2a01:cb10:785:b00:6128:9b8c:c203:905] ([10.65.86.58])
-	by smtp.orange.fr with ESMTP
-	id th3Bw91gEFIYEth3BwxYNJ; Tue, 11 Aug 2026 09:37:29 +0200
-Received: from [IPV6:2a01:cb10:785:b00:6128:9b8c:c203:905]
- ([IPv6:2a01:cb10:785:b00:6128:9b8c:c203:905])
-	by smtp.orange.fr with ESMTPSA
-	id th2vwU4tTgBE0th2ww8Cgs; Tue, 11 Aug 2026 09:37:22 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1786433842;
-	bh=wwfnzUnBo6SSbPICFQmZ3w/vYTc+O/42eMBYe7UVmyM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From;
-	b=VnK2AAoei/+Qpsxu0/VpScQ9D/dfdJT+4VvJxz5Qzx1i9rHwm4J9G+RDbIrHK/xSs
-	 yKHt16MiVbf++4Ts/JaPGl7oy9kD/CzRjVvZXIYh9+vfIgoVCA3LF/4z5sqP18xU3H
-	 X0xmDI/UGsidkq8+dwSesyhdvzdKXybQ4n4oLNRPjVTcFyOJaseLSFo3OPIZsGlppE
-	 vWtJ5r3XftvBmW0zVOuhVt8bY5cX+ZF21Xjnhl8Ol7iQEIs7HgmbrwzYIOYUPBRoBz
-	 mPXbIydUrrveJ3dj8jNintr3LqP9nyrF/WYtwbObTfZcYLUtwhHtd2aCo8dXyJ4D6C
-	 s6GTZ8ooXgu6g==
-X-ME-Helo: [IPV6:2a01:cb10:785:b00:6128:9b8c:c203:905]
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Tue, 11 Aug 2026 09:37:22 +0200
-X-ME-IP: 2a01:cb10:785:b00:6128:9b8c:c203:905
-Message-ID: <361b7fa5-0e4c-429a-ad66-c81fbee86c45@wanadoo.fr>
-Date: Tue, 11 Aug 2026 09:37:12 +0200
+	dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b="QFcxNGFQ"
+Received: from 1clarkelill.hj-micro.com (unknown [122.224.241.34])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 498f1a1a8;
+	Tue, 11 Aug 2026 17:08:11 +0800 (GMT+08:00)
+From: "clarke.li" <clarke.li@hj-micro.com>
+To: andriy.shevchenko@linux.intel.com
+Cc: andi.shyti@kernel.org,
+	andy.xu@hj-micro.com,
+	clarke.li@hj-micro.com,
+	jarkko.nikula@linux.intel.com,
+	jsd@semihalf.com,
+	lenb@kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	peter.du@hj-micro.com,
+	rafael@kernel.org
+Subject: Re: [PATCH v3] ACPI: APD: Add clock frequency for HJMC01 I2C controller
+Date: Tue, 11 Aug 2026 17:07:51 +0800
+Message-ID: <20260811090751.123062-1-clarke.li@hj-micro.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <anrHKdFEUF339B7Q@ashevche-desk.local>
+References: <anrHKdFEUF339B7Q@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/4] i2c: add Andes I2C driver support
-To: ben717@andestech.com, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexandre Ghiti <alex@ghiti.fr>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org
-References: <20260811-atciic100-v5-0-1d306c21dba3@andestech.com>
- <20260811-atciic100-v5-2-1d306c21dba3@andestech.com>
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Content-Language: en-US, fr-FR
-In-Reply-To: <20260811-atciic100-v5-2-1d306c21dba3@andestech.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0a9ff014512f09d6kunm82230f2d286765
+X-HM-MType: 1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlDThhDVhlMSR1NHkhPHUMaQlYVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSUlVSUlPVUlPSlVIT1lXWRYaDxIVHRRZQVlPS0hVQk
+	JJTktVSktLVUpCS0JZBg++
+DKIM-Signature: a=rsa-sha256;
+	b=QFcxNGFQvZjNVM10SiNBkAfTwc+xKL3C82Jg9ifekhhoK/QZBsVwvIy8qCiduQZp1/2EcgN7q6S3gam63SR3PqaouTnqicBQq3UEvfMk9BMIXMEQrpbUgTnMDvMw//WuK6ktMax0iMXtm07fYyRt8UZwX47mdEFngJZ/29n8VVo=; s=default; c=relaxed/relaxed; d=hj-micro.com; v=1;
+	bh=L6eZGn+z7EEql0hETPKjW0bixv3kp5tuxmyYGRtLz2w=;
+	h=date:mime-version:subject:message-id:from;
 
-Le 11/08/2026 à 08:29, Ben Zong-You Xie via B4 Relay a écrit :
-> From: Ben Zong-You Xie <ben717@andestech.com>
-> 
-> Add support for Andes I2C driver. Andes I2C can act as either a
-> controller or a target, depending on the control register settings. Now,
-> we only support controller mode.
-> 
-> Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
+On Tue, Aug 11, 2026 at 09:54:33AM +0300, Andy Shevchenko wrote:
 
-Hi
+> On Tue, Aug 11, 2026 at 02:22:34PM +0800, clarke.li wrote:
+> > On Thu, Aug 06, 2026 at 11:31:01PM +0300, Andy Shevchenko wrote:
+> > > On Wed, Jul 22, 2026 at 03:30:31PM +0800, clarke.li wrote:
+>
+> ...
+>
+> > > > +	.fixed_clk_rate = 200000000,
+> > >
+> > > Can you at some point update these constants to use
+> > >
+> > > 	.fixed_clk_rate = 200 * HZ_PER_MHZ,
+> > >
+> > > and so on?
+> >
+> > Thanks for the suggestion, I will use 200 * HZ_PER_MHZ in the
+> > next version.
+> >
+> > By the way, do you also want me to convert the other
+> > fixed_clk_rate constants in acpi_apd.c to use HZ_PER_MHZ?
+> > If so, I can send it as a separate cleanup patch.
+>
+> The idea is that you convert existing ones in a separate patch and then use a
+> new format for the new hw support.
 
-...
+Understood. I will send the next revision as a two-patch series:
 
-> +static struct i2c_algorithm andes_i2c_algo = {
+  [PATCH v4 1/2] ACPI: APD: Convert fixed clock rates to HZ_PER_MHZ
+  [PATCH v4 2/2] ACPI: APD: Add clock frequency for HJMC01 I2C controller
 
-Could this be const?
+The first patch converts the existing fixed_clk_rate constants in
+acpi_apd.c to use HZ_PER_MHZ, and the second one adds the HJMC01
+support using the new format (200 * HZ_PER_MHZ).
 
-> +	.xfer = andes_i2c_xfer,
-> +	.functionality = andes_i2c_func,
-> +};
-CJ
+--
+Thanks,
+Hongnan Li
