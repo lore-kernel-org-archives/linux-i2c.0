@@ -1,92 +1,183 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580EC382298;
-	Tue, 11 Aug 2026 15:53:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 346803CA4A9
+	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 15:56:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786463596; cv=none; b=mHqiZjwQ7sLj21sOtjVkK3mD6lLaLUbvUsU1HY3Xy0tgXcvQ7p5WD/QKlkI+VbXIkivpf6Mn79WeBKg3clO+SqwzzUfqJM5SSAXJqD9EweY9tw6vdu6Vq0dIjnBVmmKjN+5O1XJHDJ6uyiWKrgHj7YfmDGtPDnxnPiUQReeUiec=
+	t=1786463817; cv=none; b=l1HhOFjbqABI8R56fMPYYv3R5eluZqEtO282K2MLvFVmJaftMZQMIOx1i0C0sKMxGXS/EMOvVjiqDCV6oAD5gMcFbYZKolkOUpXOTYUhRsY7cPiDaAE0apuGPzORW0uiIsZZ1uNf0yLD3fYJmDmV+oMMIC7TDCm0X0Wn3FkkdUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786463596; c=relaxed/simple;
-	bh=DnF3aQdkXNx4oU+Fl+i9D15DW8KRXhFLW9FERxBFTB4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pf0KHz/HXir6hiHBh8EQCYWLAmM8nsnYEGLmNyDcgHNfqyeCodvDvwO/njwpYbgWBULQpwXgu9exwh9igBJ/qqfVIfDh712ck7FpyJ/bOj2+p9R7Bmy/hyN7tAos0ndRCmamC2CJYhNiY2NwgGrlafHXlIoBxzvHLrIZHfgUKqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AnBX8YUZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786463817; c=relaxed/simple;
+	bh=gR20aVHHdNNlZ7jePZMWsNtnoXNWpfKzZwiuOpo80jA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sSVwAH1vbxGZfH5a8/i3vIF3Zlbxha1c4KvMUVDZrEO5NDUahk8IjamLmzuzB77i41qOxqLp+gVFGfOGJzNCgiT+tDgcn6u2SQ+GWJmlOgDNJSTISaEAVFNmsAd5g1DzMpN75ZAVUsRtksVT73fzEoaIs8AwhpqqzeRc+dwlhik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ZwKG8Tq5; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=ZHbXiKkx; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AnBX8YUZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16171F000E9;
-	Tue, 11 Aug 2026 15:53:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786463595;
-	bh=DnF3aQdkXNx4oU+Fl+i9D15DW8KRXhFLW9FERxBFTB4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=AnBX8YUZAaCz4DWFbJVo8gwN0rMr0SQ87izcGiOCA8nKHT0RqjFPMsRZojovf1ARD
-	 R5XkNTvGzeFQAU5mg2idWrFbIwVVzAD9RSLBSFdfsCWYwNHz4H+gjbsAPn88kJWRk+
-	 wveagclyOQ7huxROaH9sdj2yv6rNO1qXpteNII8BFYSFExL2MDPOcYxWHR7f3mm5LR
-	 /jU41Z3dF5zhd1omvwkQVRIy5/zaud7PaVIy3tHMqxf3jNtOXwVGNc/ZXUC3X6uwqq
-	 DjWjoFk+g0u02Vd8xPFPyxWH/V95eAmH0jPD/oqP3vkmOrLhHgrclkzlhC5O0382d6
-	 uCdkZ/wtPpeJA==
-Date: Tue, 11 Aug 2026 08:53:13 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <ukleinek@kernel.org>
-Cc: Vladislav Leonov <vlad@zlab.su>, linux-rockchip@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, Simon Glass <sjg@chromium.org>,
- linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, Alexandre Torgue
- <alexandre.torgue@foss.st.com>, Andi Shyti <andi.shyti@kernel.org>, Andrew
- Lunn <andrew+netdev@lunn.ch>, Aurelien Jarno <aurelien@aurel32.net>, Brian
- Masney <bmasney@redhat.com>, Conor Dooley <conor+dt@kernel.org>, Daniel
- Golle <daniel@makrotopia.org>, "David S. Miller" <davem@davemloft.net>,
- David Wu <david.wu@rock-chips.com>, Eric Dumazet <edumazet@google.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Stuebner
- <heiko@sntech.de>, Herbert Xu <herbert@gondor.apana.org.au>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Mark Brown <broonie@kernel.org>, Maxime
- Chevallier <maxime.chevallier@bootlin.com>, Maxime Coquelin
- <mcoquelin.stm32@gmail.com>, Michael Turquette <mturquette@baylibre.com>,
- Neil Armstrong <neil.armstrong@linaro.org>, Nicolas Frattaroli
- <nicolas.frattaroli@collabora.com>, Olivia Mackall <olivia@selenic.com>,
- Paolo Abeni <pabeni@redhat.com>, Philipp Zabel <p.zabel@pengutronix.de>,
- Rob Herring <robh@kernel.org>, Stephen Boyd <sboyd@kernel.org>, Vinod Koul
- <vkoul@kernel.org>, linux-crypto@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-phy@lists.infradead.org,
- linux-pwm@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-stm32@st-md-mailman.stormreply.com, linux-usb@vger.kernel.org,
- netdev@vger.kernel.org
-Subject: Re: [PATCH 00/25] ARM: rockchip: Add peripheral support for RV1106
-Message-ID: <20260811085313.379ac489@kernel.org>
-In-Reply-To: <anq1ouUnKA02Eauj@monoceros>
-References: <20260810121121.210040-1-vlad@zlab.su>
-	<20260810113548.7fd24d56@kernel.org>
-	<anq1ouUnKA02Eauj@monoceros>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ZwKG8Tq5";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="ZHbXiKkx"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDWwYd3718396
+	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 15:56:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	NWx5wQiFNSaNvgfeLEooxmOF1j+J8p0cFgG5R5h1z48=; b=ZwKG8Tq57c/E3VCr
+	LlkDKeIoxXAGpvibamQBFQ53x01w56qpMw2ssikYTZzNIEZoU2HD/GvuHNRdcz/p
+	5qpYxOEibkMKtw1bOYMgoH16HvDEdU3AoLXh5WkIuhuVlNEn8EGI3YiXXD7MYLhM
+	2wrvEu41v+9Mr+V61jEjLwpVWP2SAccO2x+LVsig+xWHsNeQjfl6FSn/ohsF+Lw8
+	DZUtACqaLoTxhAR8CfxbsbdrzpaFGbp37C8B/Lj+T9CDcdt8X/Cd7llJbV0IflUH
+	ZUB3iQ6qO7RarLkIqPB9/rfZdQco4QOAHiOqEgrFfe2Lhj3ATIFEY8ZFUisSG2Y1
+	RmGqpQ==
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fyxwet46p-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 15:56:53 +0000 (GMT)
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2cfe48ca1efso899855ad.0
+        for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 08:56:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1786463813; x=1787068613; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=NWx5wQiFNSaNvgfeLEooxmOF1j+J8p0cFgG5R5h1z48=;
+        b=ZHbXiKkxljOaGRuOYf9/ybUI/Hr7lFKLlXOCX7Hm7Oh4/gyHgXs86vlAMUDsSJzzmT
+         m8MlUzchm6Q/HmWYcc86dKjvx/LllKmO6T7RY8D9U+ytpfCZ7KbV5cBCCFxVOUH9cMCD
+         m15b/aLggDC201HP0avMVkyg2j7CV61CvgVBZLLsUUv/ayy2DaoxhnsftUvJtQLVlwrm
+         kYPnKDUawvD4IFcWwdWYW/IETnDb5Y77LI3Vc94sGdBrwUuTnnBQZF6Y1dq52E2tntIu
+         RFGtX8nb7yNiGjo6liZ9hcJElOTmX/dIGNbgN+cEd2D5PCMnIp+UOrkwnuzDaZTmQ44c
+         IFDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786463813; x=1787068613;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NWx5wQiFNSaNvgfeLEooxmOF1j+J8p0cFgG5R5h1z48=;
+        b=ELnl/ddglgTPJAUqpWcLrNyOhE9zdOO0U5x2dliOWGGlaORUE/8TzWqHrwSBd1MuKc
+         qBZyPz9hCbDQ1Wc44SQ2gG+W7hOBBzBJiVV/6JfgrKbRkIOPoNAtSsoilRAfnIrULYAK
+         npP3gzzYvnza57DiVJ/9NGJN29VdLHCPcv49MU23fV/53wjBrZSwkOio+9BcoO6IHEHj
+         Bj7CwL2sNBDPnMy+SkiFmemtmOSVcDXeBM3I8VpcijWWpa0Lz5o5p/+wVGPSAmn0Vx7k
+         hNgvRbS4sZTIez7VPxRtlCbnvyExfG/vr/FDR08RObqKA+rl3HXnFvxBbK7Mt6xZQoH9
+         bqsg==
+X-Forwarded-Encrypted: i=1; AHgh+RqeS3gGdKLOo59uQVagsa7N8v7WTCXStw2lie3YxugIMIm1z5bNlj3gP0SDoTSSXQmMl3bln+RDhis=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw3bXXIdoEZr9k1BIwAetpN2r/RsatUBAFZLXBz0txVn0TN/E98
+	6k3pQ+FZeednT6GlFc6KowTNb8OBuDov2zzKSxr2ZfWYbf4qemununVSr1Wj1J4NUKCYoTQpNcB
+	RqMIs6Qj2Hk5nfQPWsPXacOMzxP1sutj83PIt2hmXapVRdF1T10jYph7GloRVuVZV/eTh+Z0=
+X-Gm-Gg: AR+sD12kxg+p0uN75vhCTW4uQisUGfgN6ex+/E4VKY283xL5D4k8wTCkGxBJml0d9uI
+	kkV+2jR/jVZsP4qeKwizK+JIkKnNmJZUxilW5CoJ7d5xscN3N0Gom26tdqEdeG9QweSxd2D+ZqG
+	azLa2IlGx32jvgLMLl8grA1QdCMNhwTKpo9d+rCTmJnsLKSQtsLjcyKXH0Y0xvUBHDTCDQVr1RZ
+	Mh/4OSeF+gFmojZ6fQbaI2kYxaUF9ESKWA0DxxtuARqvBwyZxPhjZfQF35FOcu87skWeO6L9z3Y
+	ho1G3Q6F3nlYNpXZAWgp8npDWGdAaPOmXveYbTjFk4E+s5aus0kqBJC3uJ9f4LhB8Ll/HQltKss
+	iT24MGgl7b2JhmDCFQLHPTmyca6Urr3RFcZBgf6U3kz0y
+X-Received: by 2002:a17:902:ecc8:b0:2d0:cc92:f7c2 with SMTP id d9443c01a7336-2d317761f7bmr45176605ad.1.1786463812739;
+        Tue, 11 Aug 2026 08:56:52 -0700 (PDT)
+X-Received: by 2002:a17:902:ecc8:b0:2d0:cc92:f7c2 with SMTP id d9443c01a7336-2d317761f7bmr45175815ad.1.1786463812092;
+        Tue, 11 Aug 2026 08:56:52 -0700 (PDT)
+Received: from [192.168.1.9] ([122.164.84.216])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d3160cf975sm10526335ad.48.2026.08.11.08.56.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Aug 2026 08:56:51 -0700 (PDT)
+Message-ID: <208f6a30-603e-4c0e-a7a9-a6e647b95d69@oss.qualcomm.com>
+Date: Tue, 11 Aug 2026 21:26:45 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] i2c: qcom-geni: update frequency table to fix timing
+ parameters
+To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20260811-ipq5424_i2c_scl_updates-v1-0-bddcb2ceebda@oss.qualcomm.com>
+ <20260811-ipq5424_i2c_scl_updates-v1-1-bddcb2ceebda@oss.qualcomm.com>
+ <8a6581f8-e9e3-4c02-8d26-245c102e7428@oss.qualcomm.com>
+Content-Language: en-US
+From: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
+In-Reply-To: <8a6581f8-e9e3-4c02-8d26-245c102e7428@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: HZymM1c69Od26HyVyq9ss4niIXPFcvfC
+X-Authority-Analysis: v=2.4 cv=K8QS2SWI c=1 sm=1 tr=0 ts=6a7b4645 cx=c_pps
+ a=IZJwPbhc+fLeJZngyXXI0A==:117 a=0/lRlipvHLU+ZVN6ZkkSUA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=pous5NoX4yLtaCBAYDcA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=uG9DUKGECoFWVXl0Dc02:22
+X-Proofpoint-ORIG-GUID: HZymM1c69Od26HyVyq9ss4niIXPFcvfC
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDEzMyBTYWx0ZWRfX/BJBA1NRsIi6
+ qpjLZfrq7q847W8HoMhbHE6HdWDMw/+X2Vr3hU8CyRiYdYJl+2UszvXL8Y0XLVdmS1gNkbvtjMr
+ F2SlNvEWjrIaRrgQTUNBZLuLz0nr5DM=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDEzMyBTYWx0ZWRfX7d2oEoKyBeYm
+ 44feL/UPZd22i85umBadHSYMpZSA4xkQLz9GxBLNVI8/kYzh1OIbzCZREc2QkyIYzilzYWECAm6
+ bY64By8EYoLrD810ugI7xHp6Y90o99ub12sJvbP3cP1DgxtUPux3aJyEJUKhsKtGLy8vdZm9P+w
+ 468Ulld3fVLkxvgF2Yd/Cl7QwSDIM3/tI32cpw12cTIXB4CSiHVOLmORSJuiFCGbcRQ9kNTriuX
+ vljyzBP4jU7bmINQf7iybG4o9DaAAJEKHJJe8k+UkiL2twwVqKEnXjkZgCRcteANAgVPPSfXTFo
+ A+1K64NhqRe1iM35BelSfkO6+NFngcUUiDLTseKrk3zzQL1oVUZuUJ84OGaRdNVhyH8nj3YlTvW
+ 8NwQ4cG9M11cwDkbJmGug/9PDy85fQxCn4kIkgzzO6yjxT8zYgWmhHxi2s/gIasMmykPUm/ojZ8
+ Pf5w4knfsbqlnc9+1yA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-11_03,2026-08-10_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 malwarescore=0 spamscore=0 priorityscore=1501 bulkscore=0
+ clxscore=1015 phishscore=0 impostorscore=0 adultscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608110133
 
-On Tue, 11 Aug 2026 07:43:16 +0200 Uwe Kleine-K=C3=B6nig wrote:
-> On Mon, Aug 10, 2026 at 11:35:48AM -0700, Jakub Kicinski wrote:
-> > On Mon, 10 Aug 2026 15:10:51 +0300 Vladislav Leonov wrote: =20
-> > > Basic support for the Rockchip RV1106/RV1103 SoCs currently under rev=
-iew.
-> > > This series builds on top of that and enables the peripherals needed =
-to
-> > > bring up a board beyond a serial console: =20
-> >=20
-> > Don't expect maintainers to dig out patches for their subsystems
-> > from a big series. This is not how upstream development works. =20
->=20
-> I see this from time to time and I personally think it's fine to have
-> these patches together. Also the only the patch that affects my
-> subsystem was Cc:d to me which is how I like it (but I think opinions
-> differ on that one, too).
->=20
-> `b4 am -P _` is great!
 
-We have automation and CI systems which ignore anything that isn't
-scoped to networking to save cost. Not sure if there's a polite way=20
-to say this but the smaller the subsystem the more flexibility can=20
-be afforded? Let's stick to the existing process, please.
+On 8/11/2026 6:12 PM, Mukesh Savaliya wrote:
+>
+>
+> On 8/11/2026 2:53 PM, Kathiravan Thirumoorthy wrote:
+>> In IPQ5424, to meet the setup and hold timing requirements in the
+>> standard mode, update the frequency table with the values recommended by
+> Changes are fore FAST mode too, please update the commit log accordingly.
+
+There are no changes to the FAST mode. As mentioned below, I just 
+removed the extra space between values 4 and 3.
+
+>> HW design team.
+>>
+>> Also remove the stray space in the I2C_MAX_FAST_MODE_FREQ entry.
+>>
+>> Cc: <stable@vger.kernel.org>
+>> Fixes: 85c34532849d ("i2c: qcom-geni: fix I2C frequency table to 
+>> achieve accurate bus rates")
+>> Fixes: 506bb2ab0075 ("i2c: qcom-geni: Support systems with 32MHz 
+>> serial engine clock")
+>> Signed-off-by: Kathiravan Thirumoorthy 
+>> <kathiravan.thirumoorthy@oss.qualcomm.com>
+>> ---
+>>   drivers/i2c/busses/i2c-qcom-geni.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c 
+>> b/drivers/i2c/busses/i2c-qcom-geni.c
+>> index 658636c1ee0e..00013b41a6f5 100644
+>> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+>> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+>> @@ -188,8 +188,8 @@ static const struct geni_i2c_clk_fld 
+>> geni_i2c_clk_map_19p2mhz[] = {
+>>     /* source_clock = 32 MHz */
+>>   static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz[] = {
+>> -    { I2C_MAX_STANDARD_MODE_FREQ, 8, 14, 18, 38 },
+>> -    { I2C_MAX_FAST_MODE_FREQ, 4,  3, 9, 19 },
+>> +    { I2C_MAX_STANDARD_MODE_FREQ, 12, 9, 10, 26 },
+>> +    { I2C_MAX_FAST_MODE_FREQ, 4, 3, 9, 19 },
+>>       { I2C_MAX_FAST_MODE_PLUS_FREQ, 2, 3, 5, 15 },
+>>       {}
+>>   };
+>>
+>
