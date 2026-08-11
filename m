@@ -1,42 +1,41 @@
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F403FE34D
-	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 16:15:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B536449B30
+	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 16:15:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786464933; cv=none; b=Al4JJVnOPtRSR4kU/LCWlNjEQdujHeeiXBn3yUv9zuf2FIyj4OUucSAayEb6oQnFMDhrLO0GNUwshmNN9H2R3ZkTFh1W0J3E5YCXLjTTA9oXgoIZDuzvcW6oRDJ/3i66ND2JGNd8ubZaLTNSrQlZRlvGOI9v564a85OI/RsAnDI=
+	t=1786464938; cv=none; b=nAhxbX+OfsaMrf0QS9WAYEM1rKcHO85ZRSDZACnk+r1pnZexD1Tpcl0dTaxAqSQOQ9W+mVD/hOU0e7VH/JxCodRxChX8N2VlBIsEAZtPR4zE6BXtS6VcUN2s+n9MAVULWdty5QRTuqG/eEj8EaLStvgmlKfeWtT8fFSLKsw+kuw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786464933; c=relaxed/simple;
-	bh=gb+fwROmnOkLdeNycb9l18F0EWuU7KY89ynmb/WqDF4=;
+	s=arc-20240116; t=1786464938; c=relaxed/simple;
+	bh=wc21kG4AX+ZzJq0gJVXiWEcD+lnUKOYtfwLGM0hGkZ4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iQL+VEenNq7wnRI+QO4HgvlNl/8g0jRJCwHqt/pOcVcvJTWv2uO7WUJfJKYuyNg7iWgGkB7l8cMkD8tXUbaUnw7QxKcgJgmsJJseYIeupTn+gQ/FEfmhsJg6dqpNUgq2CAPO8PiaoOH5/1JTyNupAsI8PTEekUSX/O8qYA3iUfY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=pCNlLA79; arc=none smtp.client-ip=185.246.85.4
+	 In-Reply-To:To:Cc; b=Z6cjILFAxVj7UH8Z0tpWaflxcpAJOD6psr8DBelnS1nncZhNvKvuJg6vWPzvk5mKMa3YurKtgn9Zf1VXf6oshr3fg/e00qO8ENI2s24slZn0iMcjnEuvgyEL7pP/oewb1SBJXimoJRjApNksAn1MG+4xZTKdCftMeFL0zc5YBmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=T9QBwAJc; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="pCNlLA79"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="T9QBwAJc"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 944DD4E411B7;
-	Tue, 11 Aug 2026 16:15:30 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 70DCA4E411B7;
+	Tue, 11 Aug 2026 16:15:35 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 68C206033C;
-	Tue, 11 Aug 2026 16:15:30 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6D2CA11C48FA8;
-	Tue, 11 Aug 2026 18:15:24 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 4598E6033C;
+	Tue, 11 Aug 2026 16:15:35 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C3E2111C48FAA;
+	Tue, 11 Aug 2026 18:15:29 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1786464925; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1786464930; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=HAyABBQS0V8BnfnIm9rFYNSgw2zlmJq/eAOs916odWA=;
-	b=pCNlLA798FKrWL8fUi9p3sK5BlMSIFQF3uUQSugJ1Sm+wCSUnrAMCKU2K6MYYPecOlaQ40
-	jxYcF0DvNX+1F+vmWxzaWfVCytG0Bw9n4tjGvNbLV4xx2wX2/+EGj/fZo9n+qwFxZC4VQX
-	LFUoIyCwyAGDtJ+z991Z6LwxzzPIi6yGs9U7fbwKe+dBftWGMxO0RYoGfghohOyJ+m4n/u
-	KC7uofdDLrbKQNrHg2B7NwjDc4LsaZx7QEu/AGMrTH5FrRir98Jhx8uV3z9K716vIrXNBn
-	ByBsxgMCpY7rFMm5xW0OOgXuWb9tVXIpU9SRAaLfRxOAGscIfKuuUcdv82hDPA==
+	bh=IojpC1611eNpzo/tBaBNvfHDBqXXqjdiSpsL7i7OgbM=;
+	b=T9QBwAJckWUfHjAs534fe1YJcsBfKdQHIgEZHWkL/oHLk3/loVGPHrYZyL5vHKXQDdJmKz
+	2ddqnrG7wrDJwgYcEFqqPqdMq4nBiFvPUGfncTwA16F3dGunSJXTXaXEgbNtbTeJTcRikl
+	6jm+NPl7H26cW5yoaaKjJBOFRe33hLlJuIZBnJR5Kn6AB3kl9isOpMQa5qAbnLqKtvogAk
+	lwaOQL/Uce6xJzeQk8CH2VrZdjkbh5aNYfVdvhkl/svoqcKQg53eTJohRXwthqr4H5Mw27
+	McJagdNfuDx+uXMAG4yJ4ILw+mvCjomClKYBNTHxoo8K4zUiBpjsRxT6XOA2BQ==
 From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Date: Tue, 11 Aug 2026 18:15:02 +0200
-Subject: [PATCH v2 1/5] mfd: cgbc: Fix use of negative error code as valid
- session handle
+Date: Tue, 11 Aug 2026 18:15:03 +0200
+Subject: [PATCH v2 2/5] mfd: cgbc: Make cgbc_devs const
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,49 +44,37 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260811-cgbc-i2c-storage-devices-support-v2-1-3efa998e0ef5@bootlin.com>
+Message-Id: <20260811-cgbc-i2c-storage-devices-support-v2-2-3efa998e0ef5@bootlin.com>
 References: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
 In-Reply-To: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
 Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
  linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>, 
- stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
 X-Mailer: b4 0.15.2
 X-Last-TLS-Session-Version: TLSv1.3
 
-The cgbc_session_command() return value was directly cast to u8 and used
-as session handle without error checking. Casting a negative error to u8
-produces a valid-looking session handle. So check if return value is
-positive before to cast and use it.
+Make cgbc_devs const, so it will be placed in .rodata section.
 
-Cc: stable@vger.kernel.org
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://sashiko.dev/#/patchset/20260713-cgbc-core-fix-cgbc-remove-v1-1-79274ad62b3a%40bootlin.com?part=1
-Fixes: 6f1067cfbee7 ("mfd: Add Congatec Board Controller driver")
 Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 ---
- drivers/mfd/cgbc-core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/mfd/cgbc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
-index 2becaf797646..4a409234e66c 100644
+index 4a409234e66c..f09fd671bc8c 100644
 --- a/drivers/mfd/cgbc-core.c
 +++ b/drivers/mfd/cgbc-core.c
-@@ -103,7 +103,11 @@ static int cgbc_session_request(struct cgbc_device_data *cgbc)
- 	if (ret)
- 		return dev_err_probe(cgbc->dev, ret, "device not found or not ready\n");
+@@ -235,7 +235,7 @@ int cgbc_command(struct cgbc_device_data *cgbc, void *cmd, unsigned int cmd_size
+ }
+ EXPORT_SYMBOL_GPL(cgbc_command);
  
--	cgbc->session = cgbc_session_command(cgbc, CGBC_SESSION_CMD_REQUEST);
-+	ret = cgbc_session_command(cgbc, CGBC_SESSION_CMD_REQUEST);
-+	if (ret < 0)
-+		return dev_err_probe(cgbc->dev, ret, "session handle request timed out\n");
-+
-+	cgbc->session = ret;
- 
- 	/* The Board Controller sent us a wrong session handle, we cannot communicate with it */
- 	if (cgbc->session < CGBC_SESSION_VALID_MIN || cgbc->session > CGBC_SESSION_VALID_MAX)
+-static struct mfd_cell cgbc_devs[] = {
++static const struct mfd_cell cgbc_devs[] = {
+ 	{ .name = "cgbc-wdt"	},
+ 	{ .name = "cgbc-gpio"	},
+ 	{ .name = "cgbc-i2c", .id = 1 },
 
 -- 
 2.53.0
