@@ -1,127 +1,98 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0D013CB2D4;
-	Tue, 11 Aug 2026 16:06:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4C333FCB32
+	for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 16:15:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786464405; cv=none; b=h5jNatKUYb/WSGq6xcKgcLU/xgYtdEty13J6Ec7PguQWuZNgST3NL57A7O/jkcDFL3EnU+ea3UV3xPRipS2CStxbUoN7AjYLxUEiNsf5+02bOtNCez7Rv5Gi3/b34vmlOQNlrCwRlf1QdZXqMoNiMoqM2E9Rc+UbRdAClzYUeDw=
+	t=1786464930; cv=none; b=BqE81eJ+nwXs4fZpfnCTTOck/bnkbxOXSl0BjP/1JyKzxgdPuE0bLHF2PtI5qAYZnePnrfF3VPaoto1NiEmJNJoWp9CcjHJiQ3BQzifOFWtGcBISLcxUaZmK6JxTVKO6QFcx/kcNL4lgVutik2ClyYdl1AB+FV66eImLMpzfNao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786464405; c=relaxed/simple;
-	bh=l6y6SBQuraQkb5VQ3z8ukPOghHgP1nT1Wtp4BjufNz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T4g8F33OE0+fDacb3ecmG1sfp9zP0ORMIb+IeH8HqxSsPFWB26q2IhBEDylktjaYU0//lD7WO1/bCGvWNIaMQM4a/DBLkOclwn17je86XKkdL5kNfju0C/h1BHNv+1DdjATJn7XKx/Dpp+8UApKqt73CR7irXU8zmaSR8WPcr8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TYwtWdMZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786464930; c=relaxed/simple;
+	bh=mGbZ1GW0jaDBHaStQ08vsvP8mgvL/kVAeAh3oXcwYBk=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=TUHbELYGKavHK1zki6AbWovxBqGX5fWbkgmQ+adwhkhyE4QM3beaXNzhji651Bm57Ys1aOma7eYWaaDq3GXCsgxpVvqhwW3ePj3x9SsxFIEFhUt9rl+Zx3E/m9DTxpMml8Qvbvn77f+0f0b9kuxP23XEqoFvmtC5TzWUJX4DSaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=JMfXITWB; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TYwtWdMZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B111F000E9;
-	Tue, 11 Aug 2026 16:06:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786464403;
-	bh=bsFrD+8bsJ8zTcQSeMYM7e3hb54WciAWCpQseABIlqk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=TYwtWdMZ8Ao51ww1bhZblT18MUr7qDxkwcAcEbYPHbrC9TY069ydowFfdIi4cZ0Lv
-	 ERS1UVOj9x3CsUP3r4umtrc1DF47emrHnID7XpG/ci5cVHd5IDDaSRmEJpHiVJDSyH
-	 vUuQDBfUIX6WfjufpcE/0Gn8Bd0HaeK2cgvDMkxjyp3uK3tiT+Pw/tdqKkOJ9jtUNl
-	 fwhqizf9b6nF61KCY8HGWkMJ7SKUjqwc2i2Os0BSGcDJ2jrNIWtKrwprSH2lDz7DSg
-	 OzuRy9uqldfzfdgP9fiG6WWT7yuDL31/Ms1hpXehzZVDaIa8uIG5WJj4YWY5LAqds6
-	 qlHnUwAcPLFqQ==
-Date: Tue, 11 Aug 2026 17:06:33 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>, Vladislav Leonov <vlad@zlab.su>,
-	linux-rockchip@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	Simon Glass <sjg@chromium.org>, linux-clk@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Aurelien Jarno <aurelien@aurel32.net>,
-	Brian Masney <bmasney@redhat.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Daniel Golle <daniel@makrotopia.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	David Wu <david.wu@rock-chips.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Stuebner <heiko@sntech.de>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Maxime Chevallier <maxime.chevallier@bootlin.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Nicolas Frattaroli <nicolas.frattaroli@collabora.com>,
-	Olivia Mackall <olivia@selenic.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Rob Herring <robh@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
-	Vinod Koul <vkoul@kernel.org>, linux-crypto@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-phy@lists.infradead.org,
-	linux-pwm@vger.kernel.org, linux-spi@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com, linux-usb@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH 00/25] ARM: rockchip: Add peripheral support for RV1106
-Message-ID: <5842f89b-ef11-41fd-a5c6-f07d4110b65a@sirena.org.uk>
-References: <20260810121121.210040-1-vlad@zlab.su>
- <20260810113548.7fd24d56@kernel.org>
- <anq1ouUnKA02Eauj@monoceros>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="JMfXITWB"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 2171B4E411B7;
+	Tue, 11 Aug 2026 16:15:25 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id E139B6033C;
+	Tue, 11 Aug 2026 16:15:24 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C88C611C48FAB;
+	Tue, 11 Aug 2026 18:15:18 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1786464920; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=gdJP/zHnkNl7Ej8I/X0I5yEKNU4m3rUyi6cTL8dO6+I=;
+	b=JMfXITWB/zBXYYPqWoM0mcr7XMisMMFK++GK4yeDTnGSOQCxUlYBEhYK6RPxyKfV7b3IB8
+	FWY5+EuzkM2vElpG43byKgoVOJ5y6Amjx4Oi4V8oUiIkWLniM6EuF30AK3TsAiqDCd1dBg
+	dzjdkN5FO+Voa/zQn1dm6MYfVgeTf8nK4eYwdhAvDlPZ9kfxH3UUMZuiDbpMLAYJJJdJWT
+	FAHLCUmNrf7RBEA/SFjAhgQjT0u4qJ+M1+OEOj+rkvxCFqPryM/yqcTSTAra+Qi45PDh9b
+	gEzVq9clC6IvApi4lGxQmMjJXuB7DDKXdLdvKmbWlFjGb+70cnxHG9z+qEMd/g==
+From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+Subject: [PATCH v2 0/5] Congatec Board Controller: Add storage devices
+ support
+Date: Tue, 11 Aug 2026 18:15:01 +0200
+Message-Id: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="0rdiv1roUnHM6tDX"
-Content-Disposition: inline
-In-Reply-To: <anq1ouUnKA02Eauj@monoceros>
-X-Cookie: Now, let's SEND OUT for QUICHE!!
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WOyw6CMBBFf4V07Zg+lBpX/odhAcMAkyjFthAN4
+ d8tsHDp8tzJvWdmEcgzBXHNZuFp4sCuT6APmcCu7FsCrhMLLXUurbKAbYXAGiFE58t0r1MLKUA
+ Yh8H5CJUhskilMVqKNDN4avi9Ke7Fzp5eYzLFX9jxOvfZ3pjUmu7Gizz9N04KJDRUm8tZydwqv
+ FXOxQf3R3RPUSzL8gXEZObx5wAAAA==
+X-Change-ID: 20260717-cgbc-i2c-storage-devices-support-b3ee7cea3320
+To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>, 
+ stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+X-Mailer: b4 0.15.2
+X-Last-TLS-Session-Version: TLSv1.3
 
+Second iteration and nothing fancy, I just fixed a typo in CGBC BIOS EEPROM
+label, and added a patch to make cgbc_devs (MFD cells) const in MFD driver.
 
---0rdiv1roUnHM6tDX
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+---
+Changes in v2:
+- i2c: fix typo in CGBC BIOS EEPROM labeli.
+- mfd: make cgbc_devs const
+- Link to v1: https://patch.msgid.link/20260804-cgbc-i2c-storage-devices-support-v1-0-fed38510671c@bootlin.com
 
-On Tue, Aug 11, 2026 at 07:43:16AM +0200, Uwe Kleine-K=F6nig wrote:
-> On Mon, Aug 10, 2026 at 11:35:48AM -0700, Jakub Kicinski wrote:
+To: Thomas Richard <thomas.richard@bootlin.com>
+To: Lee Jones <lee@kernel.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Cc: Werner Gartner <Werner.Gartner@congatec.com>
+Cc: mfd@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
 
-> > Don't expect maintainers to dig out patches for their subsystems
-> > from a big series. This is not how upstream development works.
+---
+Thomas Richard (congatec GmbH) (5):
+      mfd: cgbc: Fix use of negative error code as valid session handle
+      mfd: cgbc: Make cgbc_devs const
+      i2c: cgbc: Add virtual I2C bus support
+      mfd: cgbc: Add virtual I2C bus support
+      i2c: cgbc: Add virtual storage devices on the virtual I2C bus
 
-> I see this from time to time and I personally think it's fine to have
-> these patches together. Also the only the patch that affects my
-> subsystem was Cc:d to me which is how I like it (but I think opinions
-> differ on that one, too).
+ drivers/i2c/busses/i2c-cgbc.c | 174 ++++++++++++++++++++++++++++++++++++++++--
+ drivers/mfd/cgbc-core.c       |   9 ++-
+ 2 files changed, 175 insertions(+), 8 deletions(-)
+---
+base-commit: 498c377a1ca412502649484c7b1788d5d328fc85
+change-id: 20260717-cgbc-i2c-storage-devices-support-b3ee7cea3320
 
-Any cross tree thing is just always going to be more effort, at a
-minimum you need to figure out if there are actually any dependencies or
-if it's just a lot of tangentially related stuff bundled together.  Plus
-the larger CC lists and whatever.
+Best regards,
+--  
+Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 
-> `b4 am -P _` is great!
-
-OTOH b4 won't ingest serieses unless it can commit them to git and I
-have *no* idea what the base is supposed to be here, it's not my tree,
-Linus' tree or -next.
-
-Please resend the spi bits as a separate series.
-
---0rdiv1roUnHM6tDX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmp7SIgACgkQJNaLcl1U
-h9CgzAf+Mfyz8kncpmkuFsip4V/KEWeY/74EiaopCxYZu9ER12XWRS+3hpvAP06t
-FzE4FyJ4b5uGDeBclT3D4mSAIoI1xT63Br7sqmOlocnv85dq3wqcimH5FwpoisgP
-5o7v5A2Bw9BkYeZW7XsKzJ2raxgqYKgQcbvIffN77mT78KVu2yBG3hkiD+PvJWLA
-Kv2uKKzxmBely9BaCFeZ7M/N5D6vGZMhGDL+seRSttR6Xn+3sA1AAi3RKObAWLya
-ZorJCLDgynNI5VEU2Jkv+oT3n0y9sdMToX9eDXrAI3JP8Vt4xncCBw2lhPerORRx
-ULbQrEoR959v7lubt5ZIQdwdztM4uw==
-=gZCM
------END PGP SIGNATURE-----
-
---0rdiv1roUnHM6tDX--
