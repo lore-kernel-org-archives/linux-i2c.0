@@ -1,42 +1,49 @@
-Received: from mail-m1973175.qiye.163.com (mail-m1973175.qiye.163.com [220.197.31.75])
+Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8147330C157;
-	Tue, 11 Aug 2026 06:58:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.75
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FF103FD139;
+	Tue, 11 Aug 2026 07:30:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786431520; cv=none; b=bsM63GXzw34LcoP0TmfMLxXUq+vGzGoTlQ1hdWSDQn04MNiV0++50axaAx9Lsa6K1DbrTV10znKsR1ly1MzI3u8ZfYCqFpolerX9wxRrjXXQzsC4ztjw5sqyIN3wtby6kivnGxmKGf0NGD2n079XD9RCj6zQ3PvhwvH5aQVBOWU=
+	t=1786433447; cv=none; b=M+LJoXVjcsVG5P4k4ZW7c/tccn4t50SUb9w3OjlBLpAL0tUVHCeM+FlyG9DnzIuwGodMCJpruPhZDjS2bv0w9zDplUgfMBZAyhLE6AQBreG23UhMSQz0ilqkqnTdjOhlyuAuaMJsFJhgz2VLlCm5zZuxQRDGEvn54UO/wANq4VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786431520; c=relaxed/simple;
-	bh=adMLUAY0dxKNLIZG5jtn1IcB1Idln7VdnPHy5XqNFYs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fXVYayj3/EUbxBZQikTWuL88WN0nrMJo1XycuhlU1T/kJkEQh2Y94ETaFdZl3xfxPiNR1M5qDesCoYHQI2cjqGSEB6mz67zZen7N+a2Mf5EKMX90cSLMNsuIqtlM6i4HYcdWiXZ5JBPe8Ji7i3RmXfFHtYjbMWeWwjx5ktph4eE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com; spf=pass smtp.mailfrom=hj-micro.com; dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b=j83JQwvQ; arc=none smtp.client-ip=220.197.31.75
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hj-micro.com
+	s=arc-20240116; t=1786433447; c=relaxed/simple;
+	bh=pQvbm859US7PYhb6B+bNDD/Lm9FA9m+P3JXYFow6Rhg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=gOwKxEom9NGeY3C45rNqwzHsRF0ZI3uVVOoXebhnEoe7ga57sWle48Q3FGQbRAS74Rk7VFF2XejBcneoVqRaz4LvMFN20NMIWARNc8NxBmVJikInAHF1E4oiA5c5ZLeVwo78OOJZViL83ZZdTB5Jb+NLL5BX8bDI0hp1aM56ArY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=o7vfXSSp; arc=none smtp.client-ip=210.202.87.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b="j83JQwvQ"
-Received: from 1clarkelill.hj-micro.com (unknown [122.224.241.34])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 498815963;
-	Tue, 11 Aug 2026 14:22:56 +0800 (GMT+08:00)
-From: "clarke.li" <clarke.li@hj-micro.com>
-To: andriy.shevchenko@linux.intel.com
-Cc: andi.shyti@kernel.org,
-	andy.xu@hj-micro.com,
-	clarke.li@hj-micro.com,
-	jarkko.nikula@linux.intel.com,
-	jsd@semihalf.com,
-	lenb@kernel.org,
-	linux-acpi@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="o7vfXSSp"
+X-UUID: 8906785a955611f181a149c3f3c08161-20260811
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
+	h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:From; bh=bp80VYkzuEyErFHFLFYPVK959iD4wEwz0P7VeuMMRPQ=;
+	b=o7vfXSSpQg6bsxMZncZchvpY3sZD+R7MCF47nWpkAZpnyks0rLrUPAHkL7fb0bv6fjCZKIRMCghLkoo07rV24yDell63erMNdBWzONduT1ohcdfmyrx4ExObLSNd2fpMxg1otmGhXPQ9y/OHFE5QTER6EBCun4v3BIw7h0M4Yao=;
+X-UUID: 8906785a955611f181a149c3f3c08161-20260811
+Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
+	(envelope-from <sp_isw1_at@novatek.com.tw>)
+	(Generic MTA)
+	with ESMTP id 560657524; Tue, 11 Aug 2026 15:30:32 +0800
+Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
+	by spmgt1 (Postfix) with ESMTP id 5D8631A1E1C;
+	Tue, 11 Aug 2026 15:30:32 +0800 (CST)
+Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
+	id 63B5AC600D0; Tue, 11 Aug 2026 15:30:31 +0800 (CST)
+From: nina_kuo@novatek.com.tw
+To: andi.shyti@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
 	linux-i2c@vger.kernel.org,
-	peter.du@hj-micro.com,
-	rafael@kernel.org
-Subject: Re: [PATCH v3] ACPI: APD: Add clock frequency for HJMC01 I2C controller
-Date: Tue, 11 Aug 2026 14:22:34 +0800
-Message-ID: <20260811062234.74676-1-clarke.li@hj-micro.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <anTvBaRZNDhCz60e@ashevche-desk.local>
-References: <anTvBaRZNDhCz60e@ashevche-desk.local>
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: ben_huang@novatek.com.tw,
+	toby_chui@novatek.com.tw,
+	shihpei_hsu@novatek.com.tw
+Subject: [PATCH v7 0/3] i2c: Add Novatek NT72676 SoC I2C controller
+Date: Tue, 11 Aug 2026 15:30:28 +0800
+Message-Id: <20260811073031.1019576-1-nina_kuo@novatek.com.tw>
+X-Mailer: git-send-email 2.26.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,54 +51,168 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0a9fef7d081609d6kunm0b4f2cbe268487
-X-HM-MType: 1
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCHkNDVkkZGE4aSk5LQ0JKHlYVFA
-	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSUlVSUlPVUlPSlVIT1lXWRYaDxIVHRRZQVlPS0hVQk
-	JJTktVSktLVUpCS0JZBg++
-DKIM-Signature: a=rsa-sha256;
-	b=j83JQwvQlxQHqjISdRqjdfDidyWoZLYn1Hj2e7ME3V7iKYzRsbI22YJOY7U1nzwTcWX9C7XcnS51YSne5V+m7HwkcZYF6qmPPR6wAP+yBuG8d3Q7ZSlsciY7rGifCQJ2A/FzK6WIn/v2opJzDYOsJ7xJpy1O5w4iYGCd6mMrdUo=; s=default; c=relaxed/relaxed; d=hj-micro.com; v=1;
-	bh=mGF/urkIDDD2MMxbnXFOmgL1YfXDsUMK69/3yb2oOmM=;
-	h=date:mime-version:subject:message-id:from;
 
-On Thu, Aug 06, 2026 at 11:31:01PM +0300, Andy Shevchenko wrote:
+From: Ben Huang <Ben_Huang@novatek.com.tw>
 
-> On Wed, Jul 22, 2026 at 03:30:31PM +0800, clarke.li wrote:
->
-> > I2C clock frequency for HJMC01 is 200MHz, define a new ACPI
-> > HID for it.
->
-> ...
 
-> > +	.fixed_clk_rate = 200000000,
->
-> Can you at some point update these constants to use
->
-> 	.fixed_clk_rate = 200 * HZ_PER_MHZ,
->
-> and so on?
+This patch series adds support for the I2C bus controllers on
+Novatek NT72676 SoC.
 
-Thanks for the suggestion, I will use 200 * HZ_PER_MHZ in the
-next version.
+NT72676 SoC provides two I2C controller variants:
 
-By the way, do you also want me to convert the other
-fixed_clk_rate constants in acpi_apd.c to use HZ_PER_MHZ?
-If so, I can send it as a separate cleanup patch.
+- Generic I2C controller
+  - Accessible only by the host CPU
+  - Driven by a 96 MHz AHB clock
 
-> ...
->
-> >  	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
-> >  	{ "LECA0002", APD_ADDR(leca_spi_desc) },
-> >  	{ "LECA0003", APD_ADDR(leca_i2c_desc) },
-> > +	{ "HJMC3001", APD_ADDR(hjmc_i2c_desc) },
-> >  	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
->
-> Keep it sorted.
+- STBC I2C controller
+  - Accessible by either the host CPU or STBC (Standby Controller)
+  - Driven by a 12 MHz STBC clock
+  - Requires STBC authentication before CPU access
 
-You are right, HJMC3001 should be placed before LECA0002
-alphabetically. I will fix the order in the next version.
+The controller driver implements the fundamental I2C read/write
+operations and supports Standard-mode and Fast-mode.
 
---
-Thanks,
-Hongnan Li
+The input clock rates of the two controller variants are fixed by
+hardware integration and are not configurable. There is currently
+no clock provider driver available for NT72676 SoC, therefore the
+driver uses compatible-specific clock rate data instead of the common
+clock framework.
+
+This series was tested with concurrent I2C read/write operations on
+two I2C buses for 1,000,000 iterations on NT72676 SoC.
+No errors or data corruption were observed.
+
+---
+v7:
+  From Sashiko AI's review of i2c-nt72676.c in PATCH 2/3:
+  - Modify the flow of checking the sub-address pattern for 2-message
+    transfer and the control to I2C_REG_CTRL and I2C_REG_SUBADDR
+  - Add NULL checking of i2c->comp_data
+  - IRQ will be enabled only before read/write operation
+  - Add spin lock protection to msg_complete
+  - Use regmap_update_bits() instead to control the STBC syscon
+    registers
+  - Advertise the I2C_AQ_NO_ZERO_LEN quirk
+
+v6:
+  https://lore.kernel.org/lkml/20260806035632.777782-1-nina_kuo@novatek.com.tw/T/#t
+
+  - Add a Reviewed-by tag to PATCH 1/3, where novatek,nt72676-i2c.yaml
+    is not changed
+  - From Sashiko AI's review of i2c-nt72676.c in PATCH 2/3:
+    - Fix potential interrupt storm in the IRQ handler
+    - Add IRQ handling for I2C_IRQ_CLK_STR_TIMEOUT interrupt
+    - Add a spinlock for the synchronization of current_msg and
+      interrupt register control
+    - Check the first message type is a sub-address write and with the
+      maximum length of 4 bytes (32 bits)
+    - Interrupt registers would be cleared if failed to
+      i2c_add_adapter()
+    - Move i2c_del_adapter() before disabling I2C controller
+
+v5:
+  https://lore.kernel.org/lkml/20260804033419.693819-1-nina_kuo@novatek.com.tw/T/#t
+
+  From Krzysztof's review:
+  - In novatek,nt72676-i2c.yaml:
+    - Remove '|' in description
+    - Add `clock` property
+
+  From internal review:
+  - In i2c-nt72676.c:
+    - Use dev_err_probe() for errors in probing
+    - Modify coding styles
+
+v4:
+  https://lore.kernel.org/lkml/20260730072529.492398-1-nina_kuo@novatek.com.tw/T/#t
+
+  From Krzysztof's review:
+  - Replace all occurrences of "726xx" with "72676"
+  - Reorganize the patch series
+  - In novatek,nt72676-i2c.yaml:
+    - Correct the order of entries
+    - Change the compatible string of generic I2C to
+      "novatek,nt72676-i2c"
+    - Add the compatible string of STBC I2C as
+      "novatek,nt72676-stbc-i2c"
+    - Remove `novatek,hwmods` custom property
+  - In i2c-nt72676.c:
+    - Use dev_err() and dev_info() for driver messages
+    - Remove unnecessary logs
+    - Add different compatible data to "novatek,nt72676-i2c" and
+      "novatek,nt72676-stbc-i2c"
+    - Replace platform_get_resource() and devm_ioremap_resource() with
+      devm_platform_ioremap_resource()
+    - Remove definition of owner under nvt_i2c_driver
+    - Register this driver with module_platform_driver()
+
+  From internal review:
+  - Modify commit messages
+  - In novatek,nt72676-i2c.yaml:
+    - Add description about the I2C controllers on Novatek NT72676 SoC
+    - Add `novatek,stbc-syscon` custom property for STBC authentication
+    - Modify the examples for generic I2C and STBC I2C
+  - In i2c-nt72676.c:
+    - Add nt72676_i2c_writel() and nt72676_i2c_readl() wrappers for
+      register access
+    - Modify definitions of the I2C registers for both generic I2C and
+      STBC I2C use
+    - Use BIT() and GENMASK() for register bit definitions
+    - Use regmap to access STBC syscon registers for authentication
+      before CPU access
+
+v3:
+  https://lore.kernel.org/lkml/20260715073443.147490-1-Nina_Kuo@novatek.com.tw/T/#t
+
+  - Only remove attached HTML messages, no code is modified.
+
+v2:
+  https://lore.kernel.org/lkml/20260714094145.84387-1-Nina_Kuo@novatek.com.tw/T/#t
+
+  From Krzysztof's review of novatek,nt726xx-i2c.yaml:
+  - Explicitly specify the unique compatibles "novatek,nt72600-i2c" for
+    Novatek NT726xx SoCs
+  - Modify `maxItems` as 1 for both `reg` and `interrupts` properties
+  - Modify description and allowed values for `clock-frequency`
+    property
+  - Remove `minItems` for `novatek,hwmods` custom property
+  - Rename, fix wrong type definition and add more description for
+    `novatek,stbc-controllable` custom property
+  - Remove `bus-enable` custom property
+  - Add an example for dtsi declaration
+
+  From Sashiko AI's review of i2c-nt726xx.c:
+  - Remove flows related to `bus-enable` custom property
+  - Add default value 100000 (100 kHz) of `clock-frequency` property
+    to prevent from divide-by-zero panic
+  - Add flows for handling ioremap() in nvt_i2c_use_case_feature()
+  - Remove I2C_FUNC_SMBUS_QUICK functionality due to unsupported handling
+    of 0-byte messages
+  - Add flows of disabling IRQs in nvt_i2c_suspend() and nvt_i2c_remove()
+  - Add of_node_get() to release the reference to device tree node in
+    nvt_i2c_remove()
+
+v1:
+  https://lore.kernel.org/lkml/20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw/T/#t
+
+Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
+Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
+
+
+Ben Huang (3):
+  dt-bindings: i2c: Add Novatek NT72676 I2C controller
+  i2c: nt72676: Add Novatek NT72676 I2C controller driver
+  MAINTAINERS: Add entry for Novatek NT72676 I2C controller driver
+
+ .../bindings/i2c/novatek,nt72676-i2c.yaml     |  90 +++
+ MAINTAINERS                                   |   7 +
+ drivers/i2c/busses/Kconfig                    |  10 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-nt72676.c              | 756 ++++++++++++++++++
+ 5 files changed, 864 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
+ create mode 100644 drivers/i2c/busses/i2c-nt72676.c
+
+-- 
+2.40.1
+
