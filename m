@@ -1,51 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33E9630567B;
-	Tue, 11 Aug 2026 13:54:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 727A3442FB6;
+	Tue, 11 Aug 2026 14:36:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786456483; cv=none; b=JpBnAuEk4AlWCr3eqsXfysI7RHdJw8vzMpZs4VBSeBECbVxEThqsar6eC/4d7lQWwe/cQR1O0HTe0HSIrJo8FYz0chk3wlNoDHBdCUKRnDBCl7ugtqUv7jHn4cjcOiyiyhbh1xDN5pHFLQ9IXCPL2K8mCX8D9oiKXRXb/hjcexQ=
+	t=1786458981; cv=none; b=jHDHyPTQyTW+WZtyTaSYILwEbil18L//H+htfijxtrqxF0c7tslBQdU+llAkgR8AKfOQeiJaybJBtPf4HKOsKGKkqztogZ93dNoz2yVXMmGN785FxQlZJpzTbQPmrg6hYybm6FUzl0QCuWU3t9rW2dYuw2ZyybIKWJJUki8zkGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786456483; c=relaxed/simple;
-	bh=0Iq+a3XQnmuU8OKhx0xHgNoDs12Odag4xbp14zLZDrM=;
+	s=arc-20240116; t=1786458981; c=relaxed/simple;
+	bh=stvGy0a6DnjjtudB4LekJRbsww1XodWJSsNYx9IC76Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nq7XY1YZXyH2BFXM76xNcSQz7LaCx/CX7eVEgcMEVbtzPMBHrKkOiH8NyNxhj0TCby12UqTuXTrYq/YtQCtpGWZtOTirPy8nWyeXSn8IijEHt4eunnMlHEubN3VX7s1PJdXHkv+iNWqmMko75iGwPR6mBIWHeH0N1EJrJYt18xc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JGLfuozP; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=hInfK8wTokPjytf8pO0FW+91cBUvhHDJ78hkQv9h11LDLMPRePBgaCnckKGM1ba+9JoD6Cfi3ZE8Yu5kYpWxlNfb35G9nfkeoHXtMUoqcFIuxDuJx52qzDhFqkMIGltAx8dFS8U7qMbTdS1ij/CMRpOCZ3+5R0vQzYfZ2enNS8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hdH5JE2c; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JGLfuozP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95EB1F00A3A;
-	Tue, 11 Aug 2026 13:54:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786456481;
-	bh=0JZA17aHcI0IRIEiveRVYy3aeVmVhVMofUrMfE0EO3w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JGLfuozPTND9eWwSdd1YMCkf5wDMHWMqzqX3A10OvSKNYSnavA+xPAMEvITpisaUP
-	 NbbEhGfVNf0YAxGZFIzGA7jfaVz5uv7Zz1MSFD/LnlbdPwO24oJCrrFD6u6NJDPeV4
-	 q3/7Wvme4QGZ07JUy1dCUZbpZ22KM6gAMxeDxBGWetXSGiPMrxWTr7nrnVxTAtvk3g
-	 XHfzbdWwpxK5aOT3FiqVVw9yqq1M1BHV3HAXNB0Apj29Bzc6L9C85iksD3vosiun3K
-	 PXrosZyFreHyAxjJTvMK6G4ztVpdrDtzoP+zZzmPo2cEyz70YcZC5Kc4P8lZPYemJG
-	 VfUo1/x81zMyA==
-Date: Tue, 11 Aug 2026 08:54:41 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Radu Rendec <radu@rendec.net>, Linus Walleij <linusw@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>, linux-gpio@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
-	linux-pwm@vger.kernel.org, Neal Gompa <neal@gompa.dev>,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Janne Grunau <j@jannau.net>, Sasha Finkelstein <k@chaosmail.tech>,
-	Hector Martin <marcan@marcan.st>, Thomas Gleixner <tglx@kernel.org>,
-	Sven Peter <sven@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	Conor Dooley <conor+dt@kernel.org>, asahi@lists.linux.dev,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>
-Subject: Re: [PATCH v2 8/9] dt-bindings: arm: apple: Add M4 based devices
-Message-ID: <178645648045.2076922.10746333465104640376.robh@kernel.org>
-References: <20260801-apple-m4-initial-devicetrees-v2-0-5cb07cc275da@cyberchaos.dev>
- <20260801-apple-m4-initial-devicetrees-v2-8-5cb07cc275da@cyberchaos.dev>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hdH5JE2c"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786458978; x=1817994978;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=stvGy0a6DnjjtudB4LekJRbsww1XodWJSsNYx9IC76Q=;
+  b=hdH5JE2cGAzaHuFVzCyx3ltHZeLP61xhrxJZr6USYb3xpSiNnpgGETkD
+   A+Iu7YegesqTY7PJC4vLKL8K+4ASmX/aFUWPPMXtSVPIOzY4OXdDzQMR/
+   VGp/BHJAeTZUYjEhbvKVENTngT/+O+O5h2NnSgTaXCRFh8RxU8wp+od3I
+   MpV57ONVTfwEzXHo7WejDLSjeZOyvcxmLlrMp+o7xzuWtCXw3fj2Z7PKf
+   FunKAGVO/xWGLvXrQzMUNPOaEVEDclmgkk6XfE3bG7BVOeonX7AxUo/0n
+   qs4jze2JXi0CfdBg75Lfn1bTYTnrlzTonY3MoSteCY57RlaVPH3J9Ua04
+   Q==;
+X-CSE-ConnectionGUID: umxRVt5vTO+a4KmtyhcCbA==
+X-CSE-MsgGUID: SDPu1WSGRVy3MtcnV9KHQQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11872"; a="98138635"
+X-IronPort-AV: E=Sophos;i="6.25,217,1779174000"; 
+   d="scan'208";a="98138635"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2026 07:36:18 -0700
+X-CSE-ConnectionGUID: 5607S1XxRr60dgzaTUkAqw==
+X-CSE-MsgGUID: JJ1oDp2BTKe3PobNr/tAIg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,217,1779174000"; 
+   d="scan'208";a="265360506"
+Received: from kniemiec-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.207])
+  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Aug 2026 07:36:16 -0700
+Date: Tue, 11 Aug 2026 17:36:13 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Linkai Gong <gonglinkai@kylinos.cn>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: atr: fix dangling adapter pointer on add failure
+Message-ID: <anszXdhlAJk7p7ts@ashevche-desk.local>
+References: <20260806073545.2071006-1-gonglinkai@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -54,21 +63,36 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260801-apple-m4-initial-devicetrees-v2-8-5cb07cc275da@cyberchaos.dev>
+In-Reply-To: <20260806073545.2071006-1-gonglinkai@kylinos.cn>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
+On Thu, Aug 06, 2026 at 03:35:45PM +0800, Linkai Gong wrote:
+> i2c_atr_add_adapter() stores atr->adapter[chan_id] before
+> i2c_add_adapter() so that the I2C bus notifier can match child clients
+> during registration. On failure the channel is freed but the slot was
+> left pointing at freed memory, which can lead to use-after-free in
+> i2c_atr_del_adapter() / cleanup and also block reuse with -EEXIST.
+> 
+> Clear the slot on the i2c_add_adapter() error path before freeing chan.
 
-On Sat, 01 Aug 2026 23:40:38 +0200, Yureka Lilian wrote:
-> The Apple devices with the t8132 SoC (M4) are very similar to their M3
-> predecessors.
-> 
-> In addition to the MacBook Pro and the various MacBook Air and iMac
-> variants, a Mac mini is offered again with the M4.
-> 
-> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
-> ---
->  Documentation/devicetree/bindings/arm/apple.yaml | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
-> 
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+...
+
+>  	if (ret) {
+>  		dev_err(dev, "failed to add atr-adapter %u (error=%d)\n",
+>  			chan_id, ret);
+> +		atr->adapter[chan_id] = NULL;
+
+It's better to NULLify first and print after. This will reduce the window of
+possible calls with the stale pointer.
+
+>  		goto err_free_alias_pool;
+>  	}
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
