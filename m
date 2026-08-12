@@ -1,115 +1,165 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404CE3AAF4E
-	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 08:50:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 482EB3AD513
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 08:55:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786524607; cv=none; b=EYy3kIJfu0J1razuWgBzhsnYWMgMHE+uRYwC6io92qe5OpSW8ahCMIKW8RUEAjjvNJtBxJ3XfN032yiIpKB33JGPmSF2N3obTCjMJ6aWLXNVKDSzKMUrwEDkS+I7BrR9rCVt0sOjS2uRZpz3xKvSmMWO2E1ScKrfKkF/RQlDNV8=
+	t=1786524916; cv=none; b=B9czqw4xNoUE6hc14ymmiDAapM2+IwOzmq9R3X0jPi9QMDokeZfU2Vj6qInft9MzRX4jqLmAJYB7uajkWPLFhapo7UPmKtPRWWqNPhACcQ5kBN1rCNIMUHmhPZpWdpVUt774vwzN21kRkLy+VMhCcvLGUD/lRCzUvq9POVYzayk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786524607; c=relaxed/simple;
-	bh=BnlANvI8WbeEf1Ztphy2XQiPW9daGoWnPs+LvO5U9AI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dgdEm5hB6dSalxMT0rGCC80GDUkXOTtxhYAnrbL2z1DTJ9Wuk33HKqHUZtlzPXenqWHgLy33XmShW/lDq+w8/IbOMzCUjuOpbz+X4XKSA/wqnXtqkeJfVPGX3LyBlcKNkPsRPktruNZLVRNd1u065S27NwAenBxJC2vSK2Wkh58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gOl4qfCf; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786524916; c=relaxed/simple;
+	bh=F7MqsTpvXEhShRZzCrVhWm+SLKO+Vc5RAc23Ul79HmY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uAfKyR9M+4iGr/thX8xCRiOdHubG4nRo0tG4+ySn1SCTX8XGivHPVdVtMmvfAfEA8R0IAH7OrdY+r8tFCEQuovy88beE0NNb4cfeSbwVGhPgdVqYx3NPglEd/909s1SDaNSAnzIzyND8khyZyk+9zJEpt+1bFHgymVVPri4VpL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=cL67h0iu; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=QfbOGbE1; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gOl4qfCf"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cad8076b01so8719425ad.2
-        for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 01:50:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="cL67h0iu";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="QfbOGbE1"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C8YGfO236286
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 08:55:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	l/9WLhEJTgXWRjhzQHboMAkJhxat9TGdxV61Ba2hGvY=; b=cL67h0iuMunP3Yqn
+	+dKF8mXZ2XFnPGfyvHp1w2Ih1MY1WrOc6GqtrXdddlSD7I0/N47HFrp6Div3gJ4N
+	KSf0k7v4+2I4IDFhcaTepJbDkcoV0eepRY4mCcUExPzizr1RZuCVaqtdzohIYdkq
+	C4aobWj+TeBFiCVxLqNYUQouMenBZeDMXHXsWhzR//tZPW8TUGKKDIB80rQmCA25
+	ZujvmJvrbpJtjiwR12Rs24X/aFvxhZSvEsQO4USZgnlEgX0t2cA5XejgTsQc9YBT
+	Ad1nc5Wr4jv9C01nbuBtwEPSe7UWmUWbuftY/gnXRceX0v2IsDfI8M7CqP12vA+M
+	4zclJw==
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g049bvca5-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 08:55:14 +0000 (GMT)
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e8fee6af3so932242a91.1
+        for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 01:55:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786524606; x=1787129406; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=MkRv/h1X+HN1BXMoAhiYtkmVo70dmlygE4GMmGeHZkE=;
-        b=gOl4qfCfX+I9LHvp8EpvI9MrJ9ZZkRcuy+vgW9Htg5wY2Qluo4LeYv+yIcHt32fivI
-         nb65PWmZjwPNgzzggY3WxIWjZPf6r/QhP0s+wlsMWQDBdezwBGJ5LhoA1kcYzh+d7yvv
-         Zt5uqQ3Oq3xs9QtZjGgLUKBXxY8nEy/PJ+pTkzAOo5ZoAftCRRfvkpcM3wAPbu+g6SA2
-         rVKRTd5KB4OdE2rCuMWaEBfeZTTTtyhFXmEAjXOf7WM5KpWyqcZLqge+IDPjD2YtjTLn
-         klj4UVmhhDP5zaI6vVKnOOKDBdQdNVVcyciLEnsSMgFIjT8wImPVgN7CeC6yoeQEMdov
-         nvtQ==
+        d=oss.qualcomm.com; s=google; t=1786524914; x=1787129714; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=l/9WLhEJTgXWRjhzQHboMAkJhxat9TGdxV61Ba2hGvY=;
+        b=QfbOGbE1dT4ou/+9LRTPtoNUH8UNZMkDn6xnSeV/pE9QkX4Ue23uAY+ExS9evvb+Kd
+         Jzz9jdosEVxztAA5YkGXoLBG8A7dFoITcxBJutE0Fe34VCuHV40njSjniTPwPym4o94L
+         nTivS27WwQL6OOhaJm/FHjUDOLwhuSclxv/fVdomAs6LRniVUrPj0FcvT1TprseA5AKS
+         HpaXqlRqiMk526WE05YSmu6nxX5b1/c505GE908jb+CVU0xJPVzjlUNQlLBxQAnqZvKB
+         jWSpAhZHbRetdAVodjucv2osdP4avQz6dHnsoSVhVhuHKWSJnQYcDBezx+o+LjJcDSuW
+         JQ5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786524606; x=1787129406;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1786524914; x=1787129714;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=MkRv/h1X+HN1BXMoAhiYtkmVo70dmlygE4GMmGeHZkE=;
-        b=aMD7z7WztJ6kFKs7Givhk2YBr4+UTHGl8J68lX7Dnn6crjpRmL5RmXCz9PJiQfowpQ
-         ffooCrMN7wMfLndJ9ixMrDTYGV779deTiwJMIcMNoZCzp1GbVNTTGd4Kmj7R3Tq6r3g2
-         /Olro3T4tE10qXyhTGyfsCT9EohsP4QT4QdaZtMB1JVrjzwt0LnScErrcHxpCrC+mw0i
-         M4CNQHkD6RXMeyyE+gNajUTCQbkcBWQI+FpaATjR/N868rcQjZtiPXwSAaOVuVuoNpeg
-         BH35D8O3vFP2Cz+E5Tkb+/bXgYYlGCrylOa+H85uh+1uzWLPHbSYhYzIlJWurqfb19y2
-         bFhw==
-X-Forwarded-Encrypted: i=1; AHgh+RqIjIQAi46gyzjixLsPTPRksjPjv9KZzoTNitG0zhLg7N2iK9WG/zVcZ0CxWJQwyKF0oMS0SoIMBbk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyAg3E+1pmHsp4rJtrEGNDdIDqzTzXLgpr8+RQeEhvY9EU8K0w4
-	oi0fJ8GTaMStKjg+hG6u5nr0UDBoE8tzWuhG6795qHvS3sGBjZTT5w8u
-X-Gm-Gg: AR+sD12mbbbCQWKZupodHunwRETVDnyfMR6y0kuATUHj/NB5Ed6Oqe4kOuHWu7KcwpU
-	IZq1ldEvI9g2CyEsbeOPqv1SxKrI8l14N4MXZ8E3Pw8phGW1VFOeZOs/LMzZzWfXUYIy9Zmx3uE
-	d0sRBZILr2AZf+YiAOmHx72hifEFGwvhjQ5M1g4nA8m35HmcYRdGZXYEOyKOenttJfxWuJ+pmg/
-	d36Z/5RU7z1IcJcE0D4JR03EL1fHjXtoWfVCA0nRPGAJYaGVixEHy5W0KJaFiNjsiNhehivPuNA
-	/k1H1B6Gi2cqZWG7wVi5ckNhmND7rotQlGlZB3hSLnHEVQhtCM2msBMZ8kvSo7GSuOamTjGL8bC
-	TolerCPppzwrAdFJhBS/rb94jRs1EIUCES8VTp+03JfXGhJH+/FMTxwha/h7W2rT3XmnVrXeOF1
-	+fW282UmAgEDNDiSaiq3+bkuu5d0UD/h1aB9GaQbJvfNZvnY3dE6QozA==
-X-Received: by 2002:a05:6a21:6e96:b0:3b1:882a:607b with SMTP id adf61e73a8af0-3cc3f6ea473mr4441127637.22.1786524605619;
-        Wed, 12 Aug 2026 01:50:05 -0700 (PDT)
-Received: from lgs.. ([2001:250:5800:1000::f280])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbee7d528absm370351a12.29.2026.08.12.01.50.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Aug 2026 01:50:05 -0700 (PDT)
-From: Guangshuo Li <lgs201920130244@gmail.com>
-To: Jean Delvare <jdelvare@suse.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa@kernel.org>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Guangshuo Li <lgs201920130244@gmail.com>
-Subject: [PATCH] i2c: i801: fix usage_count leak when autosuspend_delay is negative
-Date: Wed, 12 Aug 2026 16:47:49 +0800
-Message-ID: <20260812084749.3267780-1-lgs201920130244@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        bh=l/9WLhEJTgXWRjhzQHboMAkJhxat9TGdxV61Ba2hGvY=;
+        b=ZMh4gZpmXLnHdOUZLqihxPJ44TnYPM0GnICy0Po0C8FtAMq+AM+BUjLGj/e4MdSTo/
+         jVDc6GRnYNlTReRiKTfHaxlRvbmQUJT5utecr9P2dkSCsCPI+cpMVGz21nwSjBqTM2dk
+         VWc/I2Y9kJJn0w2r+uiqV7qkQJmyXV0OqfTMJRfqI4+eaz/hvMrhDfImBddv2zD3r4kL
+         Bwta0tqdm2csDROpKQuTmf12ixaFowTn9POxycvAHVmZ1fenSviqEXsB6R0wyRVu6Xdc
+         MgU+JxLpDYlgnvqXe6inyg/N1hQ/6M9RRP5K6OG2OCc2EkX6Pt7wtjAxIErXJzoiws+o
+         W5FA==
+X-Forwarded-Encrypted: i=1; AHgh+Rrss/la64uLyOkCSUixoX2iXS7iqEfKo3FL+YCnptk3bBEbmZLrV3fedLg7uV3M3qramiPyfUktPT0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxprB0zAXpky8JRPonbTiZJ52SucoG1QeDS6r8uDXEJ0ESrJ38G
+	aRmxjKC+J4QDHOKAK4q0k/+zcs7eov5ZuFTI09DAoKb/WPYFEQOlyFuYi/KGUKcQ9wXFMQPr4XI
+	N8FcI6AGfrpQanOX49LTz7J6+hfQkMODP3ss1NUH8M9mOC+skNy6bvkkE8mmWfvA=
+X-Gm-Gg: AR+sD11/M68Su6WdF2z+QdTSLBKOKbZtjdvfQ3lPHz7mVc2PH6EO8k1UHSo+eQhc4GL
+	mjDlxN1Z2kwbmf7zODgNTjcIHA5u41Ss85uHxMJBkGznvSmYHM7qd4dOa+Wf2rXiri+b6xbtwWt
+	gVbiKXoAkCd4sMDZzl5t54jnzZ83gkWZ1QGQV69g+X4jNV09ztB4q086zaX1T3nmO35h8I08t5u
+	WPZT4RwdGtFI1Gh2cstNkm4LMW1PbTCqkcSCgIUcj4jCXWJd0YPVtHGmLFrCaVdWLkBQcx6oQ7w
+	MrjAHcoRDbtd5HrmPm1FckYT5zUQ3qaCkl1Zxbzq2X/QuHmwCuLRenBNlAvKkP/YdtBpbE4rO+l
+	jLD5UKYCbbaDAE8TMCZ1eM6HJCjofWiE2qQ==
+X-Received: by 2002:a17:90b:3802:b0:38e:5c6:4db9 with SMTP id 98e67ed59e1d1-39301490a5emr3605677a91.11.1786524913686;
+        Wed, 12 Aug 2026 01:55:13 -0700 (PDT)
+X-Received: by 2002:a17:90b:3802:b0:38e:5c6:4db9 with SMTP id 98e67ed59e1d1-39301490a5emr3605632a91.11.1786524913227;
+        Wed, 12 Aug 2026 01:55:13 -0700 (PDT)
+Received: from [10.217.219.92] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-392f908a82bsm2808212a91.0.2026.08.12.01.55.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Aug 2026 01:55:12 -0700 (PDT)
+Message-ID: <de19d0ac-3b3c-494b-a3da-028570989bc7@oss.qualcomm.com>
+Date: Wed, 12 Aug 2026 14:25:04 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/7] soc: qcom: geni-se: Add helper to set SE clock rate
+ via OPP
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>,
+        konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc: chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+References: <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-0-61171ab1cdce@oss.qualcomm.com>
+ <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-3-61171ab1cdce@oss.qualcomm.com>
+Content-Language: en-US
+From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+In-Reply-To: <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-3-61171ab1cdce@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-GUID: lWdp8UaIyokKty-pguJZ5rg_Ts8FIfSa
+X-Authority-Analysis: v=2.4 cv=ENg2FVZC c=1 sm=1 tr=0 ts=6a7c34f2 cx=c_pps
+ a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
+ a=EUspDBNiAAAA:8 a=9aiwZt7zaXvVnErAyWsA:9 a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10
+ a=rl5im9kqc5Lf4LNbBjHf:22
+X-Proofpoint-ORIG-GUID: lWdp8UaIyokKty-pguJZ5rg_Ts8FIfSa
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA3MCBTYWx0ZWRfX0Df5ha2U5hFo
+ keBIwXTq/DEY3fJRusmCG0cVfMimWGy5tjmgpYDAr007Ze76nipoOnMk+Qe3NbcmvJaUQ9gMMdI
+ NjDfDL1yKvOtSp58ZxEi+eJ+UeaUNp/DTksuQF9p1s2IAFuFmOjwVhG0ZZxNsfxfKkk/OXTcq9H
+ WhZST9w+RwHvyJpuMwjO3R2T/Dum16alqCdJmltnqgu3Dlmcn9JqPk7EEUHzP0tKZRBOngQXvuJ
+ gO5aYY7PkzLvViWqiMq2lz4YpgPBk5Rp6xKYIKT4Z6sny+atCj52VrXDCR+QHWXhJZn8EG1I9CF
+ neygAT/pGXvNSbXwD22zowjaPg08Q6gU5iy1m8Apx05zSWw7objOW8GggmSZkBydjMVfNt3PTHN
+ HhAxHTSRF9B6ZB0+Mvei4rSfyOTY2efVfJoqfm6OdcO+0VLPqfngenX1aZmybLlGZ10I7QXNq7A
+ 1/KJ/u/EzgtyK8EFLSw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA3MCBTYWx0ZWRfXy+0CEkYjWf1f
+ +qtEQUf6bYtBdOhlRUG4HlCtUTvJdFtncuf/Mnxhi6JQOMRgX4YQHhMDqt+Xt0Me1MkrFw766b9
+ YNGnr2BaA9j1+3lju8/XrAklexP/v2U=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-12_02,2026-08-10_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 priorityscore=1501 lowpriorityscore=0 phishscore=0
+ impostorscore=0 bulkscore=0 clxscore=1015 spamscore=0 adultscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608120070
 
-i801_probe() calls pm_runtime_use_autosuspend(), but i801_remove()
-does not call the matching pm_runtime_dont_use_autosuspend() when
-tearing down the device.
 
-If the autosuspend delay is set to a negative value while autosuspend
-is enabled, the runtime PM core increments usage_count to prevent
-runtime suspend. Without calling pm_runtime_dont_use_autosuspend()
-during driver teardown, this reference is not dropped and usage_count
-remains unbalanced.
 
-Add the missing pm_runtime_dont_use_autosuspend() call in i801_remove()
-before restoring the runtime PM usage reference.
+On 8/5/2026 1:27 AM, Praveen Talari wrote:
+> GENI protocol drivers need a common way to scale the SE source clock
+> through the OPP framework. However, the device that owns the OPP table
+> differs depending on how the SE resources are managed. For Linux clock
+> managed platforms, the OPP table is associated with the SE device,
+> whereas on firmware-managed platforms it is associated with the
+> performance power-domain device. This requires protocol drivers to be
+> aware of the underlying resource management model when requesting
+> frequency changes.
+> 
+> Introduce geni_se_set_rate(), a common helper that abstracts this
+> difference and applies the requested frequency through the appropriate
+> device. The helper automatically selects the performance-domain device
+> when power domains are attached and falls back to the SE device
+> otherwise.
+> 
+> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
+> ---
 
-This issue was found by manual code inspection.
-
-Fixes: a7401ca5596e ("i2c: i801: Add runtime PM support with autosuspend")
-Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
----
- drivers/i2c/busses/i2c-i801.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index b29c99ed3883..629115b5c76d 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1698,6 +1698,8 @@ static void i801_remove(struct pci_dev *dev)
- 
- 	platform_device_unregister(priv->tco_pdev);
- 
-+	pm_runtime_dont_use_autosuspend(&dev->dev);
-+
- 	/* if acpi_reserved is set then usage_count is incremented already */
- 	if (!priv->acpi_reserved)
- 		pm_runtime_get_noresume(&dev->dev);
--- 
-2.43.0
-
+Acked-by: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
