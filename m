@@ -1,64 +1,64 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F89544780B
-	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 14:17:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E88B345C716
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 14:17:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786544252; cv=none; b=LjxSEAYqAXIa4P1lmXsPqx6zONMB4oYRl/XOI91WwaPqDwwRCQX8tCErgFzp4/kdVoRv4Kr1j5El1QhToJvEP9XjBcLF4Eb/6gNnaFsVoCWTp388NQp9wG5ZXVNIU8iQKTuRRmZFS0go5QAjR2UtJ+2P8cuFo66TopKzicoab2o=
+	t=1786544256; cv=none; b=DhMZKF/wndDwiS2FhkMW8N7yPBvTdsSS1AZgFGmzQ3V8A+FfsLF4gJYECVvPSDk/Ipw3M8ddh0uYTp4sKqH6F0WTeHvHt2VXlcrXmuc5P7ocijPEWVkOBhUX3WFj8dQgj+CO4UiyMx/7Rd5TOaa4YYFPHrVP+sJEWm+vRWUe/ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786544252; c=relaxed/simple;
-	bh=TMJAnG8b4psorsvMOOOR3YdZzaqaqHlSJnvqJmht61Y=;
+	s=arc-20240116; t=1786544256; c=relaxed/simple;
+	bh=GfzBwg4ZHphT0HU4JIpIzgvGvublxLx3VU0uduAtHN8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PPkMbxKaxN085X/5oU3KUAqNtJM53rWUkAHDt3Uz7/WV8560UbaW9gSREbb/BehiW2eUxV3lIFLgLkUH5JodlZ3ojCbtrS3F3Jct21OC96M3DLXBNK7fecnEGlAbm8lAZiDuXc+STjJX4kdLGBcsQpf7rMCLLGqZvNhApH+yt7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rSN8aq1O; arc=none smtp.client-ip=209.85.215.174
+	 MIME-Version; b=mTA+s3O/wuzj0x6MR3wL42JVQKx1hV0Cmvo9ivjl4dmM650hF6crfCDiWofB+oCmPOuCCCKNp4hgmvB2TrqcRs3jbWkN+3ZfXWcpc4MlU5SrU1hn2Ho7+CwPpKuS0b0eHUjODCrvzB+TOc2zQhXN+L24n9I6cD+g1ddBMO3NilA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J9PEs6sS; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rSN8aq1O"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-ca88130e09aso627369a12.3
-        for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 07:17:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J9PEs6sS"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38deea72eebso1167423a91.1
+        for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 07:17:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786544248; x=1787149048; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786544252; x=1787149052; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=CiwN7fMyor0aHM1D7i8wQ5RI5PPro03COVrr2/AFUGU=;
-        b=rSN8aq1OBO3CaDMuvy9LtomCaSAd5F5oiH3VqSFaySpywPPzx+IlEwaWaE0W6VAS/V
-         nCprzmgvpmoF2X5PT7d2qqT/7yfLYG9kqSzhD47mQyYXOzLbXXFQMvOG0egone3L4+FN
-         7DzO1oERXDl/pQaHMcsGyDIaH61U5I/Tawqa+hLtx3QGD2fQLS8cI4ux6nqUMw6/nIDI
-         J5r3BA1h+8RpjVpNebPVipkZ13BrJDy70UJdxWprcpB87QdzkBM52aw+aUDlRC1VCafI
-         zh8JB4fqpWPNCfwDpnu+Q8u0tmx9kC+VARo3mQAUQY3JKYr9vgjqWw5JVAtGHeE9nHBI
-         FXxw==
+        bh=/70XqHwKtpkb8Nem1mvPAp3age5VnZSIpQXUrCBp0Sw=;
+        b=J9PEs6sSN6TRv7rae6EJnMJV1fJFkMR5LYzm4yAseH7WWu7D6IEGn4UMhMFbnBnNEw
+         3LD4Y5sRVjilCXbsYDSTG8bNqYf7R/2mp9h7FCTLFSehkAKqjPteDBJY+DDCPN/OkMPQ
+         67DJ8HDWqbdEFE+flPmJHuFFa5V1nXHtqGD8KSfx4vzZ2+Y9nI2bMbjG97XoKZ+u7KIT
+         dhHZsIrfYfHSvcAOYJg+Zkga6+y4BYRTZXvoamsqw7DRc/l/lOFl9cq59v05q9OmMlxi
+         O71c3KI97tJsjpKj8L5aXBb1CQORjUjGjCzcoeLecuw4nAaCAhCjzvtajUCLEAZeImmm
+         0SEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786544248; x=1787149048;
+        d=1e100.net; s=20251104; t=1786544252; x=1787149052;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=CiwN7fMyor0aHM1D7i8wQ5RI5PPro03COVrr2/AFUGU=;
-        b=QMf82XVGfgV4Ahig925bY5y3Qbz7V1OvIzYUPRLrJiECWymkNd72VWghJFdPaX95Iw
-         R8y49frY8dBDuzSWYV3mbDRPIL7Xh4I3d+CMP9ylZr0o50o8Yak9mPKwxErgLDkN2IOc
-         SncitgBlvjMOJYwXrfQspCRNJLhh9UlFPrTDjZWkZ80Y1/Z7wC7575rmHXO7OHte74YZ
-         810FTdue7PiGfnIqKCV49UGOGf//lMGZQ3AYKbtroVGY+y9Mv9N6zmFX4pfTcqt4tgeW
-         HpWqsdjCP4a+B1VmqT5gGZ20xI9/klw7eegSHWWmqzB1gfPh6IVdFnVq0JZseF+ipKal
-         UEnQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpkXk3/DDgur4rl9GTScmxjSGGMcy8QXxvnE1juFC7+MeeHcvNBM4j5qawAE+5x8Su9whcvHttfjw8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxutVMeC3c33BRoU9aK6hmJhjXd0dYx7Yc7nXMMbP7Rr8vuC5WG
-	kQ7Wogyu55XJExq3JQN83l9AWtJeMrL5HIntYYp4ioZzrYl1R5CwrWtS
-X-Gm-Gg: AR+sD11iKEzkOw4IQpwKlP+vV3Y0kCGz6EeH/e+Xu2Oi7p2aQhL8oEzHrviqq3GecjA
-	8yl4sBDxqhETLh3ETiqGm7qL0RajcFlNBtFrbH+t/6xQuaa4whABNUK/qTIqIqxJHesyq0z8HTt
-	Ave1Q7qwbKpOmPowAFQIkpMb0rIYj/UxQTCjiZTFszkvkNTwOSUWkHfBCcKOqwLAgFFvLsc1OZZ
-	TVjF0SJR0Tkz0jXmQIOAfnm2z5r7g/K81G4KzCJRhnbALzV7qq5pVAojpDJ8l5N6y85vlrOz6vP
-	uZLBWR2mhMmWu2vg+PefUJV7UEEt6FEXEzOkFR/EbXEcFIWoHH5E1q/6uhPBnZrCxqoFRufrN6i
-	ofL//7e1z3j6bnbLtYfhwT6oAM7HTR4KNv8S749x7gjIq0CPjj/eyk6A1EtAqVrZUZu4qDOp3zW
-	a7BU11XSrKpmXMJfhDWhQI3BP0WKXOLiQvcb+RMFJQw1ylIX24IBPYomIGMUme02BDnMKfQatD7
-	8r5bArLlcd/kJZKihNQq4dUzZ9tA+OIdFGEtDsuXeTf+uHvYg==
-X-Received: by 2002:a05:6a20:2587:b0:3c3:c3fb:2473 with SMTP id adf61e73a8af0-3cc3f731173mr5685375637.20.1786544247452;
-        Wed, 12 Aug 2026 07:17:27 -0700 (PDT)
+        bh=/70XqHwKtpkb8Nem1mvPAp3age5VnZSIpQXUrCBp0Sw=;
+        b=LQ3NWFrlFBfnAWBZl2JOMWH57USnx2inqIx6UhGP14SgOrlQ5tPt0RDGwkI0SuPnFX
+         jJf95yt1C/SjL/kUekZBkQcV7Z2MZcEbcuwrv0bzW4JpczyecJK7dSZIw3KHfh7WwVBZ
+         P7i9rXKrionceI4F3qlIAZ98p3U7kL70qoiuwKAMDagH/LpZwKdE1mjnM0byBx/9n+FN
+         jzlHgv5f3Ij2Ndvd2JZXbiu2V+jbVaurxU8mCY5NV+/PysvQqKJtdoPAsq6UHeIvGZbH
+         grURTfSWr9OtKVuyoHFkhU4m1QHyk+tLnkwxYQxZZlX09jAG1rMomwuU0WEkGNEa2FeD
+         VUJA==
+X-Forwarded-Encrypted: i=1; AHgh+RrUTWPdy/1gTe6DKomXYMzjwOLcT86/yev1YDZX5/NU4A1gfvh5kjOfb7BRNbQ05yci/GOCqEalSds=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzxg/ECgM2fhZMaHKv2N0rsyN8diiZcsm3nYU4G9WZBORQN3Dek
+	/lzJ5px8QAvJYU11n3My86+hJoG3cG+0XD1r7J3eAcBPE8qjIs4rcYxM
+X-Gm-Gg: AR+sD134VdA62yl9fZjSvaQ1z+y+LBOhhAByKa13zoi3IjC7oTbeBwSSWDGGGY07SpT
+	Be0yQNjegTHt3mCJmQL6xTUScRLayIaW2VZngK9YAzXOzv6oqpG1AaoIddl6aM9QvNVEitpl2ty
+	tZtLtVJbukeRVz4zVrdxa0CN/OEDIYk2oRKjJz/W6abCcLho9c3zMwaXUZbNyMwPdHHENN1Ur3g
+	TPvJAcRSnS0a6ws3/BFcx+UBNkTcIHtEpcWUr9EVJ+ZBVGRwHho04YHDwb5arm006bu3KD9Kgxw
+	RF5g++XIlUAK1jMVWAA1vt5Tk1LQyOBXi5IQIwTlPq5ByTouKbVq/gGDflDiTIIp1sQkjTWZqep
+	eqBUI5kl4hIgzw+6cTdmqoVY8bRKqc0dTPk7dpWotHZuxczmGSdbR9qWKPvP9vIybt/yPVm/3/i
+	O2IgQmioEZ1KKeIB5O3cpE33LYfjHhgg/eZwTAD6aLbBI2QaZJWIgmCXlRRXszf9SGGuCiQL6Kw
+	PxZrrqLgnf9w8RLkOsG406TSDEdApkGx2PKlnKXSHslp3hGYoP3vrWYKaDK
+X-Received: by 2002:a17:90b:3802:b0:38d:e0c4:c955 with SMTP id 98e67ed59e1d1-393014f2d24mr5947349a91.15.1786544251973;
+        Wed, 12 Aug 2026 07:17:31 -0700 (PDT)
 Received: from Mac.localdomain (198-27-228-154.fiber.dynamic.sonic.net. [198.27.228.154])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31cf361d57asm11963071eec.6.2026.08.12.07.17.24
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31cf361d57asm11963071eec.6.2026.08.12.07.17.29
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 12 Aug 2026 07:17:25 -0700 (PDT)
+        Wed, 12 Aug 2026 07:17:30 -0700 (PDT)
 From: Ahmad Byagowi <ahmadexp@gmail.com>
 To: netdev@vger.kernel.org
 Cc: Lee Jones <lee@kernel.org>,
@@ -83,9 +83,9 @@ Cc: Lee Jones <lee@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-hardening@vger.kernel.org
-Subject: [PATCH net-next v4 3/5] i2c: mux: Propagate software nodes to channel adapters
-Date: Wed, 12 Aug 2026 07:17:13 -0700
-Message-ID: <e962f3ba58a44cbec8e1f0cfae321d5c8d99d8b6.1786543681.git.ahmadexp@gmail.com>
+Subject: [PATCH net-next v4 5/5] ptp: ocp: Add Time Card V9 I2C peripheral topology
+Date: Wed, 12 Aug 2026 07:17:15 -0700
+Message-ID: <1db6580bc69f73f7b0273b0444484b1f391c8616.1786543681.git.ahmadexp@gmail.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <cover.1786543681.git.ahmadexp@gmail.com>
 References: <cover.1786543681.git.ahmadexp@gmail.com>
@@ -97,158 +97,139 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Device Tree channel nodes are associated with the adapters created by
-i2c-mux, but equivalent software-node descriptions are not.
+Time Card V9 places a BME280 at 0x76, a BNO055 at 0x29, and an
+IS32FL3207 at 0x37 on PCA9546 channel 1.
 
-Find the software-node child whose reg value matches the channel and
-assign it to the new adapter. Keep a reference for the adapter lifetime
-so downstream clients can find the channel by firmware node.
+Describe GNSS1 and GNSS2 as RGB LEDs on outputs 0 through 5 and SMA1
+through SMA4 on outputs 6 through 17. The board uses a 4.7 kohm RISET
+resistor, sequential red, green, and blue output wiring, and an 8100 uA
+per-output limit.
+
+Select this profile only for the exact fixed-width EEPROM ID
+"TIMECARD-V9". Earlier revisions expose the same I2C devices with
+different LED routing, so probing cannot distinguish them safely. Leave
+erased, malformed, and unknown board IDs unconfigured.
 
 Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
 ---
- drivers/i2c/i2c-mux.c | 71 +++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 69 insertions(+), 2 deletions(-)
+ drivers/ptp/ptp_ocp.c | 73 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 72 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 681a201c239b..040284236275 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -20,11 +20,13 @@
-  */
+diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
+index f2c2979daaf1..a843198796ab 100644
+--- a/drivers/ptp/ptp_ocp.c
++++ b/drivers/ptp/ptp_ocp.c
+@@ -353,7 +353,7 @@ struct ptp_ocp_serial_port {
  
- #include <linux/acpi.h>
-+#include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/property.h>
- #include <linux/slab.h>
- #include <linux/sysfs.h>
- 
-@@ -33,6 +35,7 @@ struct i2c_mux_priv {
- 	struct i2c_adapter adap;
- 	struct i2c_algorithm algo;
- 	struct i2c_mux_core *muxc;
-+	struct fwnode_handle *swnode;
- 	u32 chan_id;
+ #define OCP_I2C_MUX_CHANNELS		4
+ #define OCP_I2C_MAX_SENSOR_COUNT	5
+-#define OCP_I2C_MAX_LED_COUNT		5
++#define OCP_I2C_MAX_LED_COUNT		6
+ #define OCP_I2C_MAX_LED_COMPONENT_COUNT	(3 * OCP_I2C_MAX_LED_COUNT)
+ #define OCP_I2C_MUX_NAME_LEN		32
+ #define OCP_I2C_MUX_COMPATIBLE		"nxp,pca9546"
+@@ -613,9 +613,61 @@ static const struct ptp_ocp_led ptp_ocp_r4006_leds[] = {
+ 	},
  };
  
-@@ -264,10 +267,60 @@ static const struct i2c_lock_operations i2c_parent_lock_ops = {
- 	.unlock_bus =  i2c_parent_unlock_bus,
++static const struct ptp_ocp_i2c_device ptp_ocp_v9_sensors[] = {
++	{ "pressure@76", "bosch,bme280", "bme280", 1, 0x76 },
++	{ "imu@29", "bosch,bno055", "bno055", 1, 0x29 },
++};
++
++static const struct ptp_ocp_led ptp_ocp_v9_leds[] = {
++	{
++		.node_name = "multi-led@0",
++		.function = LED_FUNCTION_STATUS,
++		.function_enumerator = 1,
++		.has_function_enumerator = true,
++		.channel = { 0, 1, 2 },
++	},
++	{
++		.node_name = "multi-led@3",
++		.function = LED_FUNCTION_STATUS,
++		.function_enumerator = 2,
++		.has_function_enumerator = true,
++		.channel = { 3, 4, 5 },
++	},
++	{
++		.node_name = "multi-led@6",
++		.function = LED_FUNCTION_INDICATOR,
++		.function_enumerator = 1,
++		.has_function_enumerator = true,
++		.channel = { 6, 7, 8 },
++	},
++	{
++		.node_name = "multi-led@9",
++		.function = LED_FUNCTION_INDICATOR,
++		.function_enumerator = 2,
++		.has_function_enumerator = true,
++		.channel = { 9, 10, 11 },
++	},
++	{
++		.node_name = "multi-led@c",
++		.function = LED_FUNCTION_INDICATOR,
++		.function_enumerator = 3,
++		.has_function_enumerator = true,
++		.channel = { 12, 13, 14 },
++	},
++	{
++		.node_name = "multi-led@f",
++		.function = LED_FUNCTION_INDICATOR,
++		.function_enumerator = 4,
++		.has_function_enumerator = true,
++		.channel = { 15, 16, 17 },
++	},
++};
++
+ static_assert(ARRAY_SIZE(ptp_ocp_r4006_sensors) <=
+ 	      OCP_I2C_MAX_SENSOR_COUNT);
+ static_assert(ARRAY_SIZE(ptp_ocp_r4006_leds) <= OCP_I2C_MAX_LED_COUNT);
++static_assert(ARRAY_SIZE(ptp_ocp_v9_sensors) <= OCP_I2C_MAX_SENSOR_COUNT);
++static_assert(ARRAY_SIZE(ptp_ocp_v9_leds) <= OCP_I2C_MAX_LED_COUNT);
+ 
+ static const struct ptp_ocp_i2c_profile ptp_ocp_r4006_profile = {
+ 	.name = "r4006",
+@@ -630,6 +682,19 @@ static const struct ptp_ocp_i2c_profile ptp_ocp_r4006_profile = {
+ 	.led_max_microamp = 8150,
  };
  
-+static struct fwnode_handle *
-+i2c_mux_get_channel_swnode(struct i2c_mux_core *muxc, u32 chan_id)
-+{
-+	struct fwnode_handle *dev_node = dev_fwnode(muxc->dev);
-+	struct fwnode_handle *mux_node, *child = NULL;
-+	u32 reg;
++static const struct ptp_ocp_i2c_profile ptp_ocp_v9_profile = {
++	.name = "v9",
++	.sensors = ptp_ocp_v9_sensors,
++	.sensor_count = ARRAY_SIZE(ptp_ocp_v9_sensors),
++	.leds = ptp_ocp_v9_leds,
++	.led_count = ARRAY_SIZE(ptp_ocp_v9_leds),
++	.led_node_name = "led-controller@37",
++	.led_mux_channel = 1,
++	.led_address = 0x37,
++	.led_riset_ohms = 4700,
++	.led_max_microamp = 8100,
++};
 +
-+	/* A software node supplementing ACPI is the secondary fwnode. */
-+	if (!is_software_node(dev_node)) {
-+		if (IS_ERR_OR_NULL(dev_node))
-+			return NULL;
-+		dev_node = dev_node->secondary;
-+	}
-+	if (!is_software_node(dev_node))
-+		return NULL;
-+
-+	if (muxc->arbitrator)
-+		mux_node = fwnode_get_named_child_node(dev_node, "i2c-arb");
-+	else if (muxc->gate)
-+		mux_node = fwnode_get_named_child_node(dev_node, "i2c-gate");
-+	else
-+		mux_node = fwnode_get_named_child_node(dev_node, "i2c-mux");
-+
-+	if (mux_node) {
-+		/* A "reg" property indicates an old-style firmware entry. */
-+		if (!fwnode_property_read_u32(mux_node, "reg", &reg)) {
-+			fwnode_handle_put(mux_node);
-+			mux_node = NULL;
-+		}
-+	}
-+
-+	if (!mux_node)
-+		mux_node = fwnode_handle_get(dev_node);
-+	else if (muxc->arbitrator || muxc->gate)
-+		child = fwnode_handle_get(mux_node);
-+
-+	if (!child) {
-+		fwnode_for_each_child_node(mux_node, child) {
-+			if (fwnode_property_read_u32(child, "reg", &reg))
-+				continue;
-+			if (chan_id == reg)
-+				break;
-+		}
-+	}
-+
-+	fwnode_handle_put(mux_node);
-+	return child;
-+}
-+
- int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 			u32 force_nr, u32 chan_id)
+ #define bp_assign_entry(bp, res, val) ({				\
+ 	uintptr_t addr = (uintptr_t)(bp) + (res)->bp_offset;		\
+ 	*(typeof(val) *)addr = val;					\
+@@ -2230,6 +2295,7 @@ static const struct ptp_ocp_i2c_profile *
+ ptp_ocp_i2c_select_profile(struct ptp_ocp *bp)
  {
- 	struct i2c_adapter *parent = muxc->parent;
-+	struct fwnode_handle *channel_node = NULL;
- 	struct i2c_mux_priv *priv;
- 	char symlink_name[20];
- 	int ret;
-@@ -324,8 +377,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 		priv->adap.lock_ops = &i2c_parent_lock_ops;
+ 	static const char r4006_id[] = "R4006";
++	static const char v9_id[] = "TIMECARD-V9";
+ 	size_t board_id_len;
  
- 	/*
--	 * Try to populate the mux adapter's of_node, expands to
--	 * nothing if !CONFIG_OF.
-+	 * Associate the mux adapter with its DT or software-node channel.
-+	 * DT support expands to nothing if !CONFIG_OF.
- 	 */
- 	if (muxc->dev->of_node) {
- 		struct device_node *dev_node = muxc->dev->of_node;
-@@ -364,6 +417,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	if (!ptp_ocp_has_eeprom_data(bp))
+@@ -2242,6 +2308,11 @@ ptp_ocp_i2c_select_profile(struct ptp_ocp *bp)
+ 	    !memcmp(bp->board_id, r4006_id, sizeof(r4006_id) - 1))
+ 		return &ptp_ocp_r4006_profile;
  
- 		priv->adap.dev.of_node = child;
- 		of_node_put(mux_node);
-+	} else {
-+		channel_node = i2c_mux_get_channel_swnode(muxc, chan_id);
- 	}
- 
- 	/*
-@@ -374,6 +429,16 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 				      ACPI_COMPANION(muxc->dev),
- 				      chan_id);
- 
-+	if (channel_node) {
-+		ret = device_add_software_node(&priv->adap.dev,
-+					       to_software_node(channel_node));
-+		if (!ret)
-+			priv->swnode = channel_node;
-+		fwnode_handle_put(channel_node);
-+		if (ret)
-+			goto err_free_priv;
-+	}
++	/* Older revisions share V9's I2C devices but not its LED wiring. */
++	if (board_id_len == sizeof(v9_id) - 1 &&
++	    !memcmp(bp->board_id, v9_id, sizeof(v9_id) - 1))
++		return &ptp_ocp_v9_profile;
 +
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
-@@ -408,6 +473,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 	return 0;
- 
- err_free_priv:
-+	device_remove_software_node(&priv->adap.dev);
- 	kfree(priv);
- 	return ret;
+ 	return NULL;
  }
-@@ -430,6 +496,7 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
  
- 		sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
- 		i2c_del_adapter(adap);
-+		fwnode_handle_put(priv->swnode);
- 		of_node_put(np);
- 		kfree(priv);
- 	}
 -- 
 2.50.1 (Apple Git-155)
 
