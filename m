@@ -1,149 +1,133 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCDF92F6931;
-	Wed, 12 Aug 2026 03:40:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786506030; cv=none; b=bUJVuRkRuhhFNLNAY6bb0G5c7wKu2rpgz0zR49s7dG7QnCSSWwmAmPMxSCzdyJIcERcyXQeULp+iI9PbVfdSwYn0KQJ+eq07Rd01twt9Q9UAEn8b/Rwm/6fpzyffXsBpodNC7bJCSwf1Yk78MD+1q7SilMOHbhuzw4cUFjacCZU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786506030; c=relaxed/simple;
-	bh=BcsXN0Ib6wAZjIIulVryN09L7ihMwG/FovRH40Br0Ws=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=V5YYfBcITZ1x3QhDFFDzvQn4wXHsJFkf3lm/hob2bmSIsQdtF3FsO9xFQ3XNoLcgAZ2PXR92BRAp3bLxyqxMt7wRFa4C33/pFf0mVrgZ3S+XMH6rY5didceINW6ieq3zH4W3DSKjJN1BbaKP1nkpvbCvz0alyIF2mVgo2beOdKg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=Z+SJ8xlc; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E875C377023
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 04:39:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786509596; cv=pass; b=HPAsV5NLEhwzO36dtlTeSQgYfAjfD2cJOH2VCHXzM3FLUSIVAZg6GglKjZWhscHR3Z0DBWT4yYu+MxfNOzU48Ib104j+2n+LQ6GD5uF29Y4VcIyP0i3WwyTqSOylA9zBOpwlOCaAbrV3BDbBKU/TgbRzij1mkeyfKbj3SS5sI/4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786509596; c=relaxed/simple;
+	bh=Bn5EA8mnuFm3bH5umIuq0sbge5qbiERu/rawKyKCdjs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P7fza0gCu9VIfSu2J2k83qkeLdwDoDFA4jAq+07rsGvEvWSuUX3w/JU9F0t5PE70AC7tbJMiBelt2I4OFwulJkpegh4r2lseb6HYnM9ZRCHzbyJ2Vs9nQqGyd1vAHAeadROHiYYiuKd7piVr8ig+aq/VI6V6Lufm3jpDmbWLNYs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=SCEhEFlg; arc=pass smtp.client-ip=209.85.160.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="Z+SJ8xlc"
-Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C2gqLf1576587;
-	Tue, 11 Aug 2026 20:40:24 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=F
-	yN9aTDjTBXOLgSB9yxyt/xn4zUKlKWvUMQM8Q1nQQY=; b=Z+SJ8xlcxMUwY0rcs
-	Ya6ATJ7RNQ4g96rhdYUcTnmlzDvwCP0gn672sGmCtrwGswZNqE6HH7EWAggRVCCg
-	qAq9If7krJ+J4IHF66um7sQvEmr0g+dse+xNnBVzHuUSaF51HQqP3sqzigxJpGSI
-	yi4b39yV4R7UEULj+50mc9WHO9N4vcE6BKr6Yu5oUuu/FQDlSw6tPEYFWCNezXxk
-	L+FJrM955+cL9FDYtx6ZxWy+mkzNlfR4U5CZ51kihUr+Plvlfv7jbf+rrrqBqvRY
-	J3l1IodbQr74oIafsii+Dw1SOkGanK/0mf7PcD83hm11z+xUlO3S0xKmqaBgfpft
-	uUABg==
-Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4g0deh8m0q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 20:40:23 -0700 (PDT)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Tue, 11 Aug 2026 20:40:22 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Tue, 11 Aug 2026 20:40:22 -0700
-Received: from marvell-Dell-Pro-Tower-Plus-QBT1250.. (unknown [10.28.34.91])
-	by maili.marvell.com (Postfix) with ESMTP id 90DA43F7052;
-	Tue, 11 Aug 2026 20:40:20 -0700 (PDT)
-From: Umesh Kumar <ukumar@marvell.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andi Shyti
-	<andi.shyti@kernel.org>
-CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        <bbhushan2@marvell.com>, <linux-i2c@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, Umesh Kumar <ukumar@marvell.com>
-Subject: [PATCH v2] i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
-Date: Wed, 12 Aug 2026 09:10:17 +0530
-Message-ID: <20260812034017.3654884-1-ukumar@marvell.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260804041842.3205356-1-ukumar@marvell.com>
-References: <20260804041842.3205356-1-ukumar@marvell.com>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="SCEhEFlg"
+Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-45691990234so310103fac.3
+        for <linux-i2c@vger.kernel.org>; Tue, 11 Aug 2026 21:39:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786509594; cv=none;
+        d=google.com; s=arc-20260327;
+        b=jypESech2Z2BnOkBHrfVtXHJQxZ4fpw9FpFHQ32YdySVFJya+tcHWoxcNbkA2G/4BC
+         Yr+YZAYpjeib3EsuRmdNEoL7tTnya2h0K+ST37EH4WX2QU0LTMIg+EkYIc9jyKOOx1Gl
+         1vOX8cde7UuXAyaliXCDv03EtwAbeng4GYnwmr6nuoz8lPXrxxkzAt5hVK3RNA1kRwEU
+         swKqAsm0bIKUZUrD8wyzK0fudTZPquqct039r+Z/cpHLSkyJtmQ5arbOcmUfIP/xP8ox
+         I/BDv7YqJourM3YNLulHiwwjFoHNRqmJtmf0yzrlzSP0QOmonM5JK8CG0wy9f5YX+SK4
+         bd/Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=y8EqzbJg8fD3KowEEfKkshsn5eXfhPp6NSIWl0mIxuU=;
+        fh=dJj7PDYxvC1F4/uI/jvVnPLo78OW+6jetYZnylRw4cQ=;
+        b=SwtT+OJxqEpYpV2BnowHsUSFSRLGv6gwkGRneperrf/jH60G/R6xIkyLoz9OMrmH5s
+         LX8WKoqSDCsQFUX+hUV/P5i9fuwtEHRPIUg2V5Wc7EsnBUUiJbiVA6UgdAy2OHHxRH4v
+         5ePPXECpX3A8zpS6WCTAbfZgiZ6FwZlH1h4C6tVHpq32o/6+S+T8oZR4Ol1M5mAdUkUz
+         dagDL8t2NwC0LOuJ+t1Epw+H9puYOPY6Qwc+u27fdoIn/41AA3qUik9bC3hSfLt/D2NZ
+         QUHENBVdjqUNAl+DA37RX8LiK6ar8zWB+9tcy2VqXZspLV8HYeou/jnC0uqs25KivlmP
+         46qg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1786509594; x=1787114394; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=y8EqzbJg8fD3KowEEfKkshsn5eXfhPp6NSIWl0mIxuU=;
+        b=SCEhEFlgd74xOyfBIj27VZ9v0UZnM9YfgSkzGDtY8wgdxjQPcWSY1DsH/o0QfXTwHN
+         2Le5BFDtThj66x48BVeVT2jfg6y+MLmBwxerE2AuLgXtaK7q5oI7e10w2/I8YMRcviXi
+         bcPIb3/pImk6nK08Y20lAkDKR2wdUKqOOd+zY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786509594; x=1787114394;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=y8EqzbJg8fD3KowEEfKkshsn5eXfhPp6NSIWl0mIxuU=;
+        b=q7jU2aZ5BCwNHAC5lmIL3b+thsFPEe0sm/v7Ox3jnFICnqCtv+dRsvwnIPpF5fBwD3
+         CI90Nybw/ixm5wLW0CoB3EEtQ4JggOnY9Glwb3bW8cug+x8hvudYHjI3YV3B2V/CabJC
+         5LVsKSic4vLXG5uoQ03cyNxq8/8GzpFIHRt6J3xYgy6iE/pAniEbrnjkuX5muXYsPdIy
+         /d1Y5IdkKy5tVO8RttQ8KTJhnWHMHHoMp4D4MEFKLVeWhzT9H4BOAStW/7Qr8aT2jr+V
+         z2kzATri1qQm082tT+XAc6IXJiYPCgyEg0MXBz6mnvewUKWiqpul8BmEaxZI/IN8bvup
+         O5ww==
+X-Forwarded-Encrypted: i=1; AHgh+RoKdlEIZq+Ek6lK6KxrXAxFsMiZ+KJzVAzsSxNYZ8G4RKFeYzkiZyTMhjCIN0mAJgHERBaXSdseXCc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxsPEd+dQ9mDYYXrOhz/4q9rK9B004sagmTNzXzzXHncZApmYqn
+	13/9zOqn5O/88urr+GsQHyhFj5hBMudW1xqL5JwkTF/ed+jERqe++7cCFN7W7NbhWBVrs0FryRs
+	CgI1B0g/AMud0OM4CanO7wXnN0ol0X3epSMkAKp9u
+X-Gm-Gg: AR+sD11/aM99Xl13nl/oU7e/Ek+9cwMdW5W2UiVGYqRwxFix+B7MYYHrNj5AE98l2Ml
+	R2WRcoX0Fh8GMVsOMvLVK3ndClNB5w41uY2577849abVFT+rzo0CuWJHtjlwb102YmiFweD9ma7
+	wCcMrF7zYPJK9fC/d3B50AtvfHwKTTLlqP21uDoAgVLTWwayAXsSUkh+LBUxQRvPi8sMQ5PpYZW
+	/7r0jWfe/6fpKdfEytjxBxeZ3W9nob98lrKD1GU0sujfhD2yM2Kq67MapfV37bQMCsePbmTQ2OZ
+	mqWWgxkDUF4NHrRupapKeMaustLHuvGYyeOr3SEpNZpKL1CUt+VXCa11zavnBiJhh4Sn0BqH5p2
+	TckQ6GtA=
+X-Received: by 2002:a05:6808:2f13:b0:495:d7ec:b6be with SMTP id
+ 5614622812f47-4b210ca8dc6mr1833103b6e.18.1786509593853; Tue, 11 Aug 2026
+ 21:39:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDAyNSBTYWx0ZWRfX9u9gyYMzgZmF
- GfwfKAXC3kYd0U6btTufRW29oI+MXWfYnLABuPBWJz7ZpMacc8L3XEV8qqpMy42Q+FG6sJFTxuL
- RKW0d34WlshYg/5eJyMLSf+xOdhd2mQ=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDAyNSBTYWx0ZWRfX5m8whrgiu5ex
- t3NlBKGCtwKf51btK6mKZ6l8t+IGsY+NUI1er89TNxoz16DQ/LhyG9ru1Vs7cXb8HBLOvrq6rtg
- bMBelmjb52YmMIjgrF6XC+UvyH/CDRs/lS3apZD54YCCCbI+7aPq2fhQXRecjXjfBX1vhfCuW0o
- o12sD2s45p+zjVenQsV+fRuVRGtLQTcc40vGWYQ/8AWfAcMXn9yqKWf4Glusv0FfwvUAip8syyd
- BfYy8vW5m9LGSsC0mDo+5qQr+YAEFiXZlxjocboTkVxhNrtb0BL3FpsR0lAwuGhp+NoFd9AFUoV
- NA4y+APVSycYee6AyP9bZtO84v5ooWt1OjoehM7FHXNIHzDvdz+0j+PZV3QRiguwpAaRUcCrx1U
- e3EhLeFimXx9o+l9KOqhZzjapTJa4FV+y7FrcrRtO0hoC2p1Eg6iScRLmvMCSP0m4JKYV1SGUSk
- k0G4JSLYfcIYZWwEfDg==
-X-Authority-Analysis: v=2.4 cv=crirVV4i c=1 sm=1 tr=0 ts=6a7beb27 cx=c_pps
- a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
- a=qit2iCtTFQkLgVSMPQTB:22 a=M5GUcnROAAAA:8 a=QyXUC8HyAAAA:8
- a=gLBk0peu4sbVRRmL7qUA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-ORIG-GUID: EPkpVwX6wfXGLX_bw1gRbHNLWf0fVBGJ
-X-Proofpoint-GUID: EPkpVwX6wfXGLX_bw1gRbHNLWf0fVBGJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_01,2026-08-10_03,2025-10-01_01
+References: <20260811122011.3539250-1-wenst@chromium.org> <20260811122011.3539250-2-wenst@chromium.org>
+ <99ad23ba-f8f2-404b-960e-1c22a20c9ac4@sirena.org.uk>
+In-Reply-To: <99ad23ba-f8f2-404b-960e-1c22a20c9ac4@sirena.org.uk>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Wed, 12 Aug 2026 12:39:42 +0800
+X-Gm-Features: AUfX_myPgwTrMoDWlXxd7K4JTdOxXQP71DAA9qzbfq1hbTylwiYJcqKiFEh4if4
+Message-ID: <CAGXv+5EeEQM6O8Vb8e8fGjRzMe1icmz=cPm3GoKLxvEO=weVcA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/9] regulator: core: Add "enable and wait" functions
+To: Mark Brown <broonie@kernel.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, 
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-DesignWare controllers synthesised with the Multiple SAR feature (e.g.
-Marvell CN20K) only acknowledge traffic to the primary slave address
-(IC_SAR) when IC_ENABLE[19] (SAR_EN) is set. The slave enable path
-writes only IC_ENABLE[0], so on such controllers the target never ACKs
-its address and a remote master cannot reach it.
+On Tue, Aug 11, 2026 at 8:43=E2=80=AFPM Mark Brown <broonie@kernel.org> wro=
+te:
+>
+> On Tue, Aug 11, 2026 at 08:20:01PM +0800, Chen-Yu Tsai wrote:
+> > In device power sequencing and initialization use cases, it is common
+> > for the driver to enable the regulator and then wait for a certain
+> > period of time to pass before continuing.
+>
+> Please don't bury core changes for subsystems in the middle of random
+> other serieses, this is the first time I've seen this.  :(
 
-Set SAR_EN together with ENABLE when entering slave mode. The bit is
-reserved (and ignored) on single-SAR controllers, so existing users are
-unaffected.
+Sorry, that is entirely my fault. I was using an old v1 recipient list
+on the previous two versions and that list didn't include you.
 
-Signed-off-by: Umesh Kumar <ukumar@marvell.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
-Changes in v2:
- - No functional change; dropped the RFC tag.
- - Added Mika's Acked-by.
+> > One case in particular is not optimized yet: a regulator left on either
+> > by hardware reset default or by the bootloader, but does not have the
+> > "regulator-boot-on" property set. As the enable timestamp only gets
+> > updated when enabled by a consumer or by the core, the first enablement
+> > always needs to wait.
+>
+> Just take a timestamp during registration if the regulator is enabled,
+> we check if it's enabled anyway so we may as well take that as the last
+> time the enable happened.
 
- drivers/i2c/busses/i2c-designware-common.c | 9 ++++++++-
- drivers/i2c/busses/i2c-designware-core.h   | 6 ++++++
- 2 files changed, 14 insertions(+), 1 deletion(-)
+Yeah, I just haven't figured out where exactly in regulator_register() to
+put it. I think it should be after the supplies are resolved, so maybe
+I could do this in the "final setup" part in regulator_resolve_supply()?
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 4dc57fd56170..b6f3d71cf268 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -374,7 +374,14 @@ static void i2c_dw_configure_mode(struct dw_i2c_dev *dev, int mode)
- 		regmap_write(dev->map, DW_IC_CON, dev->slave_cfg);
- 		regmap_write(dev->map, DW_IC_SAR, dev->slave->addr);
- 		regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_SLAVE_MASK);
--		__i2c_dw_enable(dev);
-+		/*
-+		 * Controllers synthesised with the Multiple SAR feature only
-+		 * acknowledge traffic to IC_SAR when SAR_EN is set; a plain
-+		 * enable is not enough. The bit is reserved (ignored) on
-+		 * single-SAR controllers.
-+		 */
-+		regmap_write(dev->map, DW_IC_ENABLE,
-+			     DW_IC_ENABLE_ENABLE | DW_IC_ENABLE_SAR_EN);
- 		break;
- 	default:
- 		WARN(1, "Invalid mode %d\n", mode);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9d8d104cc391..35eaf2d7404f 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -125,6 +125,12 @@
- 
- #define DW_IC_ENABLE_ENABLE			BIT(0)
- #define DW_IC_ENABLE_ABORT			BIT(1)
-+/*
-+ * On controllers synthesised with the Multiple SAR feature (e.g. Marvell
-+ * CN20K), the primary slave address register (IC_SAR) only acknowledges bus
-+ * traffic when this bit is set. It is reserved on single-SAR controllers.
-+ */
-+#define DW_IC_ENABLE_SAR_EN			BIT(19)
- 
- #define DW_IC_STATUS_ACTIVITY			BIT(0)
- #define DW_IC_STATUS_TFE			BIT(2)
--- 
-2.43.0
 
+Thanks
+ChenYu
