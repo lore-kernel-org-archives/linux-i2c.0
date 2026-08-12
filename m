@@ -1,86 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from Atcsqr.andestech.com (220-128-198-181.hinet-ip.hinet.net [220.128.198.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7485A384CEC;
-	Wed, 12 Aug 2026 02:56:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3D742472B6;
+	Wed, 12 Aug 2026 03:32:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.128.198.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786503365; cv=none; b=IP3KRh98ZAT71r4tJVPNmR4T0rNlYdC/0UMt5dYEoNpZ2SfeRCxJhFtTR5H2L5DO8ivx63rwYk6DYBSbYxca5yQnP/dxcGyB+WpWAbnWedm2MEu50AawIzMcqoIjgxu/KoHkPLOBo3v6V2YpGoCCgM/HVr+E5AZvP/0eF9O71HU=
+	t=1786505558; cv=none; b=R8Jfz50Y5k9OQHxruz4xDfC+3SPp2FqEJnvJZJ3WTDaGdRsKHLGZ0iKcz8jdz6veatJgyhyYnOM0k+IvZ14RZN5JHD5NGVv272K8RP0cyXag5zkGZeLxNmDs3zFOTV+mdKERdo8xj5SuRCf4kpYE/T6R98eJYiQNKQqcaGMurpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786503365; c=relaxed/simple;
-	bh=Fl9dwupjRVsTufLFUNfCSw+H80KDBbSEtOlBtZLc5xw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hgYYsShaKMQu134OqKA+LdX6UCP3OiC4wsN8vfqhtt7fOgh/rJZb4l4IPxf/0Ystnh6XYmj1WH8nKvdVw7PVUI1RnB2EI/gAYA/FPTIm7/EFbqCxpcEFV1z3ciQp31fu5Ztd2ZpDtdJTzyj6/XzMsdwXkRtFY9Xa32neK+usCj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YjXzq2nC; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YjXzq2nC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1423B1F000E9;
-	Wed, 12 Aug 2026 02:56:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786503363;
-	bh=Kt/Gnj2b43EWiU5G4BOTMXgY7mqqkW+KfAi5AcqL9kY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=YjXzq2nCTd8I3ZQ6SvSwxEMzkA2jzNZ0sNTQP+9kjseN+91VKqd4RaatuZ5kH1+Ix
-	 yCFkzj63Sf7lv4G8hEudXMhRBuRp+sxN6F/RYjNLNUBX9Fpc6URACXmerA4GBU/fly
-	 dP+Dfev2Dz+makZybB04h2MnMtIraUikbKJlar9S1F/9J/dMbMw95FVrj3cw4gaVAM
-	 Vuii1Ssnw4fGY/Zmt01KfnVaS939ik3M/1/ESE71k+mqKyO6W2mlXdFpjDxHtIAO07
-	 8Y6m/SZpbN7hJfrm3DqTteNv1HANoUoOy2FUxYTrnc9qk3wYxDjj7ZCuz2h5T7Q9o2
-	 SQRPPfGYJ6PJg==
-Date: Tue, 11 Aug 2026 21:56:02 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Tommaso Merciai <tommaso.merciai.xr@bp.renesas.com>
-Cc: tomm.merciai@gmail.com, Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Chris Brandt <chris.brandt@renesas.com>, devicetree@vger.kernel.org,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
-	biju.das.jz@bp.renesas.com
-Subject: Re: [PATCH v2] dt-bindings: i2c: renesas,riic: Drop clock-frequency
- from required
-Message-ID: <178650336197.631765.122141109682113788.robh@kernel.org>
-References: <20260806111018.782380-1-tommaso.merciai.xr@bp.renesas.com>
+	s=arc-20240116; t=1786505558; c=relaxed/simple;
+	bh=Vt4npGdHVAVO1FMJtYfce7egZqTKAr+j0do1EqgqjVk=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RJXwI7MJue/uBdDuLwSurJ5VcEs2LyHmeTPBO+JpVsprHOaxDDrpHxFa+aLZ+9aiD8kkSobEKBzsOFje/QDZUHVh6NjCSO/tBSMxyl6RzM4gDDy2v47DssM2tYAzOf69PRH/Q5/Jx/vjwtg1DAs0hWFlLoQmfZEGT67jzWHGMLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=andestech.com; spf=pass smtp.mailfrom=andestech.com; arc=none smtp.client-ip=220.128.198.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=andestech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=andestech.com
+Received: from mail.andestech.com (atcpcs54.andestech.com [10.0.1.154])
+	by Atcsqr.andestech.com with ESMTPS id 67C3VclI039026
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Aug 2026 11:31:38 +0800 (+08)
+	(envelope-from ben717@andestech.com)
+Received: from ATCPCS34.andestech.com (10.0.1.134) by atcpcs54.andestech.com
+ (10.0.1.154) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.43; Wed, 12 Aug
+ 2026 11:31:38 +0800
+Received: from swlinux02 (10.0.15.183) by ATCPCS34.andestech.com (10.0.1.134)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Wed, 12 Aug
+ 2026 11:31:38 +0800
+Date: Wed, 12 Aug 2026 11:31:37 +0800
+From: Ben Zong-You Xie <ben717@andestech.com>
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+CC: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        "Albert
+ Ou" <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-riscv@lists.infradead.org>
+Subject: Re: [PATCH v5 2/4] i2c: add Andes I2C driver support
+Message-ID: <anvpGTqOnwlbERgR@swlinux02>
+References: <20260811-atciic100-v5-0-1d306c21dba3@andestech.com>
+ <20260811-atciic100-v5-2-1d306c21dba3@andestech.com>
+ <361b7fa5-0e4c-429a-ad66-c81fbee86c45@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20260806111018.782380-1-tommaso.merciai.xr@bp.renesas.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <361b7fa5-0e4c-429a-ad66-c81fbee86c45@wanadoo.fr>
+User-Agent: Mutt/2.3.0 (2026-01-25)
+X-ClientProxiedBy: ATCPCS33.andestech.com (10.0.1.100) To
+ ATCPCS34.andestech.com (10.0.1.134)
+X-DKIM-Results: atcpcs54.andestech.com; dkim=none;
+X-DNSRBL: 
+X-SPAM-SOURCE-CHECK: pass
+X-MAIL:Atcsqr.andestech.com 67C3VclI039026
 
+On Tue, Aug 11, 2026 at 09:37:12AM +0200, Christophe JAILLET wrote:
+>
+> Le 11/08/2026 à 08:29, Ben Zong-You Xie via B4 Relay a écrit :
+> > From: Ben Zong-You Xie <ben717@andestech.com>
+> >
+> > Add support for Andes I2C driver. Andes I2C can act as either a
+> > controller or a target, depending on the control register settings. Now,
+> > we only support controller mode.
+> >
+> > Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
+>
 
-On Thu, 06 Aug 2026 13:10:13 +0200, Tommaso Merciai wrote:
-> clock-frequency is described as optional, with 100 kHz assumed when
-> absent, yet it is also listed as required.
-> 
-> The description is correct: i2c-riic calls i2c_parse_fw_timings() with
-> use_defaults set, so the core falls back to I2C_MAX_STANDARD_MODE_FREQ
-> when the property is absent.
-> 
-> The stale requirement only produces dtbs_check noise on boards relying
-> on the default:
-> 
->   i2c@14400800 (renesas,riic-r9a09g047): 'clock-frequency' is a
->   required property
-> 
-> Drop it.
-> 
-> Signed-off-by: Tommaso Merciai <tommaso.merciai.xr@bp.renesas.com>
-> ---
-> v1->v2:
->  - Dropped all v1 series, need a rework.
->  - Fixed dtbs_check failure by dropping clock-frequency from the required list,
->    instead of adding it to the dts, as the absence of this property
->    indicates the default frequency 100 kHz.
->    v1: https://lore.kernel.org/all/20260803132828.3249424-3-tommaso.merciai.xr@bp.renesas.com/
-> 
->  Documentation/devicetree/bindings/i2c/renesas,riic.yaml | 1 -
->  1 file changed, 1 deletion(-)
-> 
+Hi CJ,
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> ...
+>
+> > +static struct i2c_algorithm andes_i2c_algo = {
+>
+> Could this be const?
 
+Yes, I will add const in v6.
+
+> > +     .xfer = andes_i2c_xfer,
+> > +     .functionality = andes_i2c_func,
+> > +};
+> CJ
+
+Thanks,
+Ben
