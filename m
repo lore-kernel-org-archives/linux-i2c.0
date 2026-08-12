@@ -1,381 +1,81 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08F24368D47;
-	Wed, 12 Aug 2026 19:16:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from smtpfb2-g21.free.fr (smtpfb2-g21.free.fr [212.27.42.10])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B7134379C5E;
+	Wed, 12 Aug 2026 19:44:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786562174; cv=none; b=ObKBDo6G2EtzerMXeF8eCahJcnHcDjHYR9Gw/PJQD6ojPIqWD74GTFmwiUffGiKVXztob2UmRLN1xlaQcpzm4dOtjeQxEdlBEGscJXzMeTkEg0aNuWwnLdUUat5f4xeZi+z9mbkMAyotsheSlpEvEKBqmSdbkxyZt0KrK15LARc=
+	t=1786563871; cv=none; b=qTY19GhmS/U41XTQbGfcK7fCnw7fi2linMa50s9Lnj9yRZcSgKvjPDjBRuJrLbM4exXsUs7mDd5fvYZOnM9XPoBDo6nvdpdzGSJMqHX0MqRDSD37VGE7dFiWLhVD0kJf1BfHqzJ2IhM2taVd6UQUsMa9O+oZd9lvR4Huv8xBxJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786562174; c=relaxed/simple;
-	bh=Q1Vle0rqeQ3K3aV4e5/QzUYwn9ftpZkyCHoxfFIHFXg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=HLMLkU7HLq7dB/+4J3Xs7DVQLZqSkE/9nQ5/z3YoE/ge5KXyK5L+ZeCVJkqVGYANilxYg+NRaZT11km4ivxqXaCnO98QCSYvvL6xMMNxDSPD1wnGC+bUr0VVySVVisi7KZsRiNwmZoFgpnII9e7Wllvx786aTTGq2m6UZXyGAXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vNq8WpzO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1786563871; c=relaxed/simple;
+	bh=Gh9v9arV+AA5L9lbrpbqXH67R8Y8ZcLwr29YLXWFfVQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JjQQhfqBj9alfpifu4uQbl8CHJEC3X/sJTSi4M9Mw4PHRb9Y+jxu5d3gTYULbkBdeY2m0ZN74K8S/slG0fZ3XAFCuqFhspBsfPqaqzHLYhxDYsBvzE2MKvi6zr2IKVVyQvhCHdjD1g0dcFUp2G3YwqrSQh4lM+ft4F0H8F922nU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=Qmp7I944; arc=none smtp.client-ip=212.27.42.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vNq8WpzO"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7FDAEC2BCB3;
-	Wed, 12 Aug 2026 19:16:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786562173;
-	bh=Q1Vle0rqeQ3K3aV4e5/QzUYwn9ftpZkyCHoxfFIHFXg=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=vNq8WpzOi7wioumZhHQhQl8XiNTiwFlf6T7Ibh39KzDnM+ZZBInLL6G+EjQ1W2VDp
-	 6qdOdKEMFfYujg3/r+7tUXslWcdqW62l4ThEEim4oGgJSHj4rlnUpvSLs11qP/u/RE
-	 My2GZy9g08dKB/PLZakOjy439Lth0CVoSkpdYaeJjzSrMgXVFIUyMEDUfE3owOFquh
-	 apTJfo+nG0EcvujDO+1chwf/CC0tlm1uScaZO1jC12r4L1My0Txo88skTOHfDIO+Cj
-	 fhaeVGQQWQ8bnzfv27zm5/7EGzRKEtinHaGySr4j4qxYerfuadzwFJoQOlV0pDHZST
-	 YE+VOTd+yLx1g==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5299BC5CFEB;
-	Wed, 12 Aug 2026 19:16:13 +0000 (UTC)
-From: Vincent Jardin via B4 Relay <devnull+vjardin.free.fr@kernel.org>
-Date: Wed, 12 Aug 2026 21:16:05 +0200
-Subject: [PATCH v2] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="Qmp7I944"
+Received: from smtp6-g21.free.fr (smtp6-g21.free.fr [212.27.42.6])
+	by smtpfb2-g21.free.fr (Postfix) with ESMTP id A0DF04CF77;
+	Wed, 12 Aug 2026 21:37:15 +0200 (CEST)
+Received: from L30177.local (unknown [IPv6:2a01:e0a:ac2:22b0:f846:40e6:d9d0:ef5a])
+	(Authenticated sender: vjardin@free.fr)
+	by smtp6-g21.free.fr (Postfix) with ESMTPSA id 17475780368;
+	Wed, 12 Aug 2026 21:36:57 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+	s=smtp-20201208; t=1786563428;
+	bh=Gh9v9arV+AA5L9lbrpbqXH67R8Y8ZcLwr29YLXWFfVQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Qmp7I944J+iQHWP4pbdlxSrc0gSEXFqR9BlLSTuthMW8y6UUa4NoXTjqWaC9fiD0R
+	 t3Z2nQiHuL3pkUrKvpVHp9iX2n4Ka2riv+KN00edPBUneNQesRBTDtLA6X8jX8FcFO
+	 cHTxImLGeZHtIAYcfIdZf/0hvucldnI0EZQlpRGZsTBi+wW+IEAEIrnPrkLiZQsMpj
+	 iKxV6y1jesTqRSGDWaRM8lXHe7uIHEZi9CK8Sx8wVfG1LGlBuKmK51zSebzdDfTunO
+	 7xM5CL2rkGpt8e4qVMDT+0RKJ0WzG/5zAJi/Bo3IDVb4Fok/nwujm0Kkl1gXVrXmdD
+	 bRjviZ4/zz9Tw==
+Date: Wed, 12 Aug 2026 21:36:55 +0200
+From: Vincent Jardin <vjardin@free.fr>
+To: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Andi Shyti <andi.shyti@kernel.org>, Frank Li <frank.li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"imx@lists.linux.dev" <imx@lists.linux.dev>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+Message-ID: <anzLV--D6z-QB_iF@L30177.local>
+References: <20260807-for-upstream-i2c-imx-lx2160-reverse-v1-1-f276ce8cb660@free.fr>
+ <AM0PR04MB6802658862C4E2ED8628FFA8E8DD2@AM0PR04MB6802.eurprd04.prod.outlook.com>
+ <anwI6qnsikPrd80W@L30177.local>
+ <AM0PR04MB680259939B7ED9AF5BA5957BE8DC2@AM0PR04MB6802.eurprd04.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
-X-B4-Tracking: v=1; b=H4sIAHTGfGoC/5WNSw6CMBBAr0Jm7Zi20VJccQ/DAupUJpFPpkgwp
- He3cgOX7y3e2yGSMEW4FTsIrRx5GjOYUwG+b8cnIT8yg1HGKqdKDJPge46LUDsgG488bPjajLY
- Kc4AkEpZtdemqq9XaOcilWSjwdlzuTeae4zLJ55iu+mf/668aNQZTWk/Od9aqOgjROQg0KaUvt
- JtifNQAAAA=
-To: Oleksij Rempel <o.rempel@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Vincent Jardin <vjardin@free.fr>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786562171; l=10750;
- i=vjardin@free.fr; s=20260525; h=from:subject:message-id;
- bh=FpCrX4lwAPTSqYANmveCLwNTw7LbAWMK39UMM8ZpFjM=;
- b=d9BrWXfGUbEbRbxkwNLachmppbCdcpjE/h9wqbXbfvdVGW1hk8f/9g+XcFzGJVAzpFfqur2Et
- 5L2BeMsIwB6Bwj0a5wPsnSAEpJH1GJLqBQPSq5hmXimpaCKUylTtsRx
-X-Developer-Key: i=vjardin@free.fr; a=ed25519;
- pk=hppgLeFpGpKOi7LNwGEZ4jOYofJCoGd4Jf1ltAabiLw=
-X-Endpoint-Received: by B4 Relay for vjardin@free.fr/20260525 with
- auth_id=871
-X-Original-From: Vincent Jardin <vjardin@free.fr>
-Reply-To: vjardin@free.fr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM0PR04MB680259939B7ED9AF5BA5957BE8DC2@AM0PR04MB6802.eurprd04.prod.outlook.com>
 
-From: Vincent Jardin <vjardin@free.fr>
+Hi Carlos,
 
-The Realtek RTL8366SE SMI read frame per:
+> Do I understand right?
 
-  S Addr Rd [A] reg[7:0] [A] reg[15:8] [A] [data[7:0]] A [data[15:8]] NA P
+Yes
 
-Linux support it using I2C_M_REV_DIR_ADDR on a write message
-that inverts the transmitted R/W bit, and I2C_M_NOSTART on the following
-read message that continues the frame without re-addressing.
+> Only change the r/w bit, other data flow keep write logic.
 
-This NXP i2c-imx is missing such support, so on an LX2160A the Realtek switch
-could not be used.
+Yes
 
-Signed-off-by: Vincent Jardin <vjardin@free.fr>
----
-Follow the logics from i2c-algo-bit and i2c-s3c2410 (addr ^= 1).
+> About code, Could this part of the code be improved?
 
-Documentation/i2c/i2c-protocol.rst says I2C_M_NOSTART "may also be used
-between direction changes by some rare devices"; the RTL8366SE is one of
-such device !
+Yes, done into v2 per your suggestion. I did squeeze a bit the comments.
 
-- The NOSTART read turns the bus around without waiting for a completion,
-  because the controller stretches SCL after the previous byte and the
-  frame is therefore still open. That is what lets i2c_imx_read() enter
-  the state the ISR would otherwise have moved to.
+See, https://lore.kernel.org/r/20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr
 
-- I2C_FUNC_PROTOCOL_MANGLING also covers I2C_M_IGNORE_NAK,
-  I2C_M_NO_RD_ACK and I2C_M_STOP, which this driver does not implement.
-  They are rejected with -EOPNOTSUPP rather than advertised and silently
-  ignored. I2C_M_NOSTART on the first message is rejected as well.
----
-Changes in v2:
-- message validation with i2c_imx_check_msgs() (Carlos Song)
-  No functional change
-- Link to v1: https://lore.kernel.org/r/20260807-for-upstream-i2c-imx-lx2160-reverse-v1-1-f276ce8cb660@free.fr
----
- drivers/i2c/busses/i2c-imx.c | 153 ++++++++++++++++++++++++++++++++-----------
- 1 file changed, 113 insertions(+), 40 deletions(-)
+If you are fine with it, your/NXP Reviewed by or Ack would be very welcomed ;)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 9477d814fde9..7dc9c43673ee 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1000,16 +1000,10 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
- 	return 1;
- }
- 
--static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
-+static inline void i2c_imx_setup_read(struct imx_i2c_struct *i2c_imx)
- {
--	int result;
- 	unsigned int temp;
- 
--	result = i2c_imx_isr_acked(i2c_imx);
--	if (result)
--		return result;
--
--	/* setup bus to read data */
- 	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 	temp &= ~I2CR_MTX;
- 	if ((i2c_imx->msg->len - 1) || (i2c_imx->msg->flags & I2C_M_RECV_LEN))
-@@ -1017,6 +1011,18 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
- 
- 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
-+}
-+
-+static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
-+{
-+	int result;
-+
-+	result = i2c_imx_isr_acked(i2c_imx);
-+	if (result)
-+		return result;
-+
-+	/* setup bus to read data */
-+	i2c_imx_setup_read(i2c_imx);
- 
- 	return 0;
- }
-@@ -1172,6 +1178,16 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
- 	return i2c_imx_master_isr(i2c_imx, status);
- }
- 
-+static u8 i2c_imx_addr_byte(struct i2c_msg *msg)
-+{
-+	u8 addr = i2c_8bit_addr_from_msg(msg);
-+
-+	if (msg->flags & I2C_M_REV_DIR_ADDR)
-+		addr ^= 1;
-+
-+	return addr;
-+}
-+
- static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
- 					struct i2c_msg *msgs)
- {
-@@ -1200,7 +1216,7 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
- 	 * Write slave address.
- 	 * The first byte must be transmitted by the CPU.
- 	 */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
-+	imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
- 	time_left = wait_for_completion_timeout(
- 				&i2c_imx->dma->cmd_complete,
- 				msecs_to_jiffies(DMA_TIMEOUT));
-@@ -1242,14 +1258,20 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
- 	int result;
- 	unsigned int temp = 0;
- 
--	/* write slave address */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
--	result = i2c_imx_trx_complete(i2c_imx, !use_dma);
--	if (result)
--		return result;
--	result = i2c_imx_acked(i2c_imx);
--	if (result)
--		return result;
-+	/*
-+	 * I2C_M_NOSTART continues a frame that is already open, so there is
-+	 * no address phase: go straight to turning the bus around.
-+	 */
-+	if (!(msgs->flags & I2C_M_NOSTART)) {
-+		/* write slave address */
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
-+		result = i2c_imx_trx_complete(i2c_imx, !use_dma);
-+		if (result)
-+			return result;
-+		result = i2c_imx_acked(i2c_imx);
-+		if (result)
-+			return result;
-+	}
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> setup bus\n", __func__);
- 
-@@ -1371,16 +1393,18 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
- 	int i, result;
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
--		__func__, i2c_8bit_addr_from_msg(msgs));
-+		__func__, i2c_imx_addr_byte(msgs));
- 
--	/* write slave address */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
--	result = i2c_imx_trx_complete(i2c_imx, true);
--	if (result)
--		return result;
--	result = i2c_imx_acked(i2c_imx);
--	if (result)
--		return result;
-+	if (!(msgs->flags & I2C_M_NOSTART)) {
-+		/* write slave address */
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
-+		result = i2c_imx_trx_complete(i2c_imx, true);
-+		if (result)
-+			return result;
-+		result = i2c_imx_acked(i2c_imx);
-+		if (result)
-+			return result;
-+	}
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
- 
- 	/* write data */
-@@ -1402,7 +1426,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
- static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- {
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
--		__func__, i2c_8bit_addr_from_msg(msgs));
-+		__func__, i2c_imx_addr_byte(msgs));
- 
- 	i2c_imx->state = IMX_I2C_STATE_WRITE;
- 	i2c_imx->msg = msgs;
-@@ -1411,8 +1435,16 @@ static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- 	/*
- 	 * By writing the device address we start the state machine in the ISR.
- 	 * The ISR will report when it is done or when it fails.
-+	 *
-+	 * I2C_M_NOSTART continues a frame that is already open and so has no
-+	 * address byte: push the first data byte instead. That raises the same
-+	 * interrupt and the ISR carries on from the second byte.
- 	 */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
-+	if (msgs->flags & I2C_M_NOSTART)
-+		imx_i2c_write_reg(msgs->buf[i2c_imx->msg_buf_idx++], i2c_imx,
-+				  IMX_I2C_I2DR);
-+	else
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
- 	wait_event_timeout(i2c_imx->queue,
- 			   i2c_imx->state == IMX_I2C_STATE_DONE ||
- 			   i2c_imx->state == IMX_I2C_STATE_FAILED,
-@@ -1529,22 +1561,29 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 
- 	dev_dbg(&i2c_imx->adapter.dev,
- 		"<%s> write slave address: addr=0x%x\n",
--		__func__, i2c_8bit_addr_from_msg(msgs));
-+		__func__, i2c_imx_addr_byte(msgs));
- 
- 	i2c_imx->is_lastmsg = is_lastmsg;
- 
--	if (block_data)
--		i2c_imx->state = IMX_I2C_STATE_READ_BLOCK_DATA;
--	else
--		i2c_imx->state = IMX_I2C_STATE_READ;
- 	i2c_imx->msg = msgs;
- 	i2c_imx->msg_buf_idx = 0;
- 
--	/*
--	 * By writing the device address we start the state machine in the ISR.
--	 * The ISR will report when it is done or when it fails.
--	 */
--	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
-+	if (msgs->flags & I2C_M_NOSTART) {
-+		i2c_imx->state = block_data ? IMX_I2C_STATE_READ_BLOCK_DATA_LEN
-+					    : IMX_I2C_STATE_READ_CONTINUE;
-+		i2c_imx_setup_read(i2c_imx);
-+	} else {
-+		if (block_data)
-+			i2c_imx->state = IMX_I2C_STATE_READ_BLOCK_DATA;
-+		else
-+			i2c_imx->state = IMX_I2C_STATE_READ;
-+
-+		/*
-+		 * By writing the device address we start the state machine in the ISR.
-+		 * The ISR will report when it is done or when it fails.
-+		 */
-+		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
-+	}
- 	wait_event_timeout(i2c_imx->queue,
- 			   i2c_imx->state == IMX_I2C_STATE_DONE ||
- 			   i2c_imx->state == IMX_I2C_STATE_FAILED,
-@@ -1574,6 +1613,33 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 	return ret;
- }
- 
-+#define I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS \
-+	(I2C_M_IGNORE_NAK | I2C_M_NO_RD_ACK | I2C_M_STOP)
-+
-+static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
-+{
-+	int i;
-+
-+	for (i = 0; i < num; i++) {
-+		/* Reject rather than silently transfer */
-+		if (msgs[i].flags & I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS)
-+			return -EOPNOTSUPP;
-+
-+		if (msgs[i].flags & I2C_M_NOSTART) {
-+			/*
-+			 * NOSTART continues an already open frame. The first
-+			 * message has nothing to continue from,
-+			 * a 0 length continuation leaves the controller with
-+			 * no byte to clock.
-+			 */
-+			if (i == 0 || msgs[i].len == 0)
-+				return -EOPNOTSUPP;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 			       struct i2c_msg *msgs, int num, bool atomic)
- {
-@@ -1583,6 +1649,10 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
- 	int use_dma = 0;
- 
-+	result = i2c_imx_check_msgs(msgs, num);
-+	if (result)
-+		return result;
-+
- 	/* Start I2C transfer */
- 	result = i2c_imx_start(i2c_imx, atomic);
- 	if (result) {
-@@ -1604,7 +1674,7 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 		if (i == num - 1)
- 			is_lastmsg = true;
- 
--		if (i) {
-+		if (i && !(msgs[i].flags & I2C_M_NOSTART)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
- 				"<%s> repeated start\n", __func__);
- 			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-@@ -1636,7 +1706,8 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- #endif
- 
- 		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
--			msgs[i].flags & I2C_M_DMA_SAFE;
-+			msgs[i].flags & I2C_M_DMA_SAFE &&
-+			!(msgs[i].flags & I2C_M_NOSTART);
- 		if (msgs[i].flags & I2C_M_RD) {
- 			int block_data = msgs->flags & I2C_M_RECV_LEN;
- 
-@@ -1730,7 +1801,9 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
- static u32 i2c_imx_func(struct i2c_adapter *adapter)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
--		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
-+		| I2C_FUNC_SMBUS_READ_BLOCK_DATA
-+		| I2C_FUNC_NOSTART
-+		| I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
- static const struct i2c_algorithm i2c_imx_algo = {
-
----
-base-commit: 3d6d817622b0a9721e3cc404df3469171582be13
-change-id: 20260807-for-upstream-i2c-imx-lx2160-reverse-7a94b9561188
-
-Best regards,
--- 
-Vincent Jardin <vjardin@free.fr>
-
-
+best regards,
+  Vincent
