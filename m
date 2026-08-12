@@ -1,92 +1,149 @@
-Received: from Atcsqr.andestech.com (220-128-198-181.hinet-ip.hinet.net [220.128.198.181])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3D742472B6;
-	Wed, 12 Aug 2026 03:32:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.128.198.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCDF92F6931;
+	Wed, 12 Aug 2026 03:40:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786505558; cv=none; b=R8Jfz50Y5k9OQHxruz4xDfC+3SPp2FqEJnvJZJ3WTDaGdRsKHLGZ0iKcz8jdz6veatJgyhyYnOM0k+IvZ14RZN5JHD5NGVv272K8RP0cyXag5zkGZeLxNmDs3zFOTV+mdKERdo8xj5SuRCf4kpYE/T6R98eJYiQNKQqcaGMurpA=
+	t=1786506030; cv=none; b=bUJVuRkRuhhFNLNAY6bb0G5c7wKu2rpgz0zR49s7dG7QnCSSWwmAmPMxSCzdyJIcERcyXQeULp+iI9PbVfdSwYn0KQJ+eq07Rd01twt9Q9UAEn8b/Rwm/6fpzyffXsBpodNC7bJCSwf1Yk78MD+1q7SilMOHbhuzw4cUFjacCZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786505558; c=relaxed/simple;
-	bh=Vt4npGdHVAVO1FMJtYfce7egZqTKAr+j0do1EqgqjVk=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RJXwI7MJue/uBdDuLwSurJ5VcEs2LyHmeTPBO+JpVsprHOaxDDrpHxFa+aLZ+9aiD8kkSobEKBzsOFje/QDZUHVh6NjCSO/tBSMxyl6RzM4gDDy2v47DssM2tYAzOf69PRH/Q5/Jx/vjwtg1DAs0hWFlLoQmfZEGT67jzWHGMLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=andestech.com; spf=pass smtp.mailfrom=andestech.com; arc=none smtp.client-ip=220.128.198.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=andestech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=andestech.com
-Received: from mail.andestech.com (atcpcs54.andestech.com [10.0.1.154])
-	by Atcsqr.andestech.com with ESMTPS id 67C3VclI039026
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 11:31:38 +0800 (+08)
-	(envelope-from ben717@andestech.com)
-Received: from ATCPCS34.andestech.com (10.0.1.134) by atcpcs54.andestech.com
- (10.0.1.154) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.43; Wed, 12 Aug
- 2026 11:31:38 +0800
-Received: from swlinux02 (10.0.15.183) by ATCPCS34.andestech.com (10.0.1.134)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Wed, 12 Aug
- 2026 11:31:38 +0800
-Date: Wed, 12 Aug 2026 11:31:37 +0800
-From: Ben Zong-You Xie <ben717@andestech.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-CC: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        "Albert
- Ou" <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-riscv@lists.infradead.org>
-Subject: Re: [PATCH v5 2/4] i2c: add Andes I2C driver support
-Message-ID: <anvpGTqOnwlbERgR@swlinux02>
-References: <20260811-atciic100-v5-0-1d306c21dba3@andestech.com>
- <20260811-atciic100-v5-2-1d306c21dba3@andestech.com>
- <361b7fa5-0e4c-429a-ad66-c81fbee86c45@wanadoo.fr>
+	s=arc-20240116; t=1786506030; c=relaxed/simple;
+	bh=BcsXN0Ib6wAZjIIulVryN09L7ihMwG/FovRH40Br0Ws=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=V5YYfBcITZ1x3QhDFFDzvQn4wXHsJFkf3lm/hob2bmSIsQdtF3FsO9xFQ3XNoLcgAZ2PXR92BRAp3bLxyqxMt7wRFa4C33/pFf0mVrgZ3S+XMH6rY5didceINW6ieq3zH4W3DSKjJN1BbaKP1nkpvbCvz0alyIF2mVgo2beOdKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=Z+SJ8xlc; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="Z+SJ8xlc"
+Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C2gqLf1576587;
+	Tue, 11 Aug 2026 20:40:24 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=F
+	yN9aTDjTBXOLgSB9yxyt/xn4zUKlKWvUMQM8Q1nQQY=; b=Z+SJ8xlcxMUwY0rcs
+	Ya6ATJ7RNQ4g96rhdYUcTnmlzDvwCP0gn672sGmCtrwGswZNqE6HH7EWAggRVCCg
+	qAq9If7krJ+J4IHF66um7sQvEmr0g+dse+xNnBVzHuUSaF51HQqP3sqzigxJpGSI
+	yi4b39yV4R7UEULj+50mc9WHO9N4vcE6BKr6Yu5oUuu/FQDlSw6tPEYFWCNezXxk
+	L+FJrM955+cL9FDYtx6ZxWy+mkzNlfR4U5CZ51kihUr+Plvlfv7jbf+rrrqBqvRY
+	J3l1IodbQr74oIafsii+Dw1SOkGanK/0mf7PcD83hm11z+xUlO3S0xKmqaBgfpft
+	uUABg==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4g0deh8m0q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Aug 2026 20:40:23 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Tue, 11 Aug 2026 20:40:22 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Tue, 11 Aug 2026 20:40:22 -0700
+Received: from marvell-Dell-Pro-Tower-Plus-QBT1250.. (unknown [10.28.34.91])
+	by maili.marvell.com (Postfix) with ESMTP id 90DA43F7052;
+	Tue, 11 Aug 2026 20:40:20 -0700 (PDT)
+From: Umesh Kumar <ukumar@marvell.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andi Shyti
+	<andi.shyti@kernel.org>
+CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        <bbhushan2@marvell.com>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, Umesh Kumar <ukumar@marvell.com>
+Subject: [PATCH v2] i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
+Date: Wed, 12 Aug 2026 09:10:17 +0530
+Message-ID: <20260812034017.3654884-1-ukumar@marvell.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260804041842.3205356-1-ukumar@marvell.com>
+References: <20260804041842.3205356-1-ukumar@marvell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <361b7fa5-0e4c-429a-ad66-c81fbee86c45@wanadoo.fr>
-User-Agent: Mutt/2.3.0 (2026-01-25)
-X-ClientProxiedBy: ATCPCS33.andestech.com (10.0.1.100) To
- ATCPCS34.andestech.com (10.0.1.134)
-X-DKIM-Results: atcpcs54.andestech.com; dkim=none;
-X-DNSRBL: 
-X-SPAM-SOURCE-CHECK: pass
-X-MAIL:Atcsqr.andestech.com 67C3VclI039026
+Content-Type: text/plain
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDAyNSBTYWx0ZWRfX9u9gyYMzgZmF
+ GfwfKAXC3kYd0U6btTufRW29oI+MXWfYnLABuPBWJz7ZpMacc8L3XEV8qqpMy42Q+FG6sJFTxuL
+ RKW0d34WlshYg/5eJyMLSf+xOdhd2mQ=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDAyNSBTYWx0ZWRfX5m8whrgiu5ex
+ t3NlBKGCtwKf51btK6mKZ6l8t+IGsY+NUI1er89TNxoz16DQ/LhyG9ru1Vs7cXb8HBLOvrq6rtg
+ bMBelmjb52YmMIjgrF6XC+UvyH/CDRs/lS3apZD54YCCCbI+7aPq2fhQXRecjXjfBX1vhfCuW0o
+ o12sD2s45p+zjVenQsV+fRuVRGtLQTcc40vGWYQ/8AWfAcMXn9yqKWf4Glusv0FfwvUAip8syyd
+ BfYy8vW5m9LGSsC0mDo+5qQr+YAEFiXZlxjocboTkVxhNrtb0BL3FpsR0lAwuGhp+NoFd9AFUoV
+ NA4y+APVSycYee6AyP9bZtO84v5ooWt1OjoehM7FHXNIHzDvdz+0j+PZV3QRiguwpAaRUcCrx1U
+ e3EhLeFimXx9o+l9KOqhZzjapTJa4FV+y7FrcrRtO0hoC2p1Eg6iScRLmvMCSP0m4JKYV1SGUSk
+ k0G4JSLYfcIYZWwEfDg==
+X-Authority-Analysis: v=2.4 cv=crirVV4i c=1 sm=1 tr=0 ts=6a7beb27 cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
+ a=qit2iCtTFQkLgVSMPQTB:22 a=M5GUcnROAAAA:8 a=QyXUC8HyAAAA:8
+ a=gLBk0peu4sbVRRmL7qUA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-ORIG-GUID: EPkpVwX6wfXGLX_bw1gRbHNLWf0fVBGJ
+X-Proofpoint-GUID: EPkpVwX6wfXGLX_bw1gRbHNLWf0fVBGJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-12_01,2026-08-10_03,2025-10-01_01
 
-On Tue, Aug 11, 2026 at 09:37:12AM +0200, Christophe JAILLET wrote:
->
-> Le 11/08/2026 à 08:29, Ben Zong-You Xie via B4 Relay a écrit :
-> > From: Ben Zong-You Xie <ben717@andestech.com>
-> >
-> > Add support for Andes I2C driver. Andes I2C can act as either a
-> > controller or a target, depending on the control register settings. Now,
-> > we only support controller mode.
-> >
-> > Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
->
+DesignWare controllers synthesised with the Multiple SAR feature (e.g.
+Marvell CN20K) only acknowledge traffic to the primary slave address
+(IC_SAR) when IC_ENABLE[19] (SAR_EN) is set. The slave enable path
+writes only IC_ENABLE[0], so on such controllers the target never ACKs
+its address and a remote master cannot reach it.
 
-Hi CJ,
+Set SAR_EN together with ENABLE when entering slave mode. The bit is
+reserved (and ignored) on single-SAR controllers, so existing users are
+unaffected.
 
-> ...
->
-> > +static struct i2c_algorithm andes_i2c_algo = {
->
-> Could this be const?
+Signed-off-by: Umesh Kumar <ukumar@marvell.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+Changes in v2:
+ - No functional change; dropped the RFC tag.
+ - Added Mika's Acked-by.
 
-Yes, I will add const in v6.
+ drivers/i2c/busses/i2c-designware-common.c | 9 ++++++++-
+ drivers/i2c/busses/i2c-designware-core.h   | 6 ++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-> > +     .xfer = andes_i2c_xfer,
-> > +     .functionality = andes_i2c_func,
-> > +};
-> CJ
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 4dc57fd56170..b6f3d71cf268 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -374,7 +374,14 @@ static void i2c_dw_configure_mode(struct dw_i2c_dev *dev, int mode)
+ 		regmap_write(dev->map, DW_IC_CON, dev->slave_cfg);
+ 		regmap_write(dev->map, DW_IC_SAR, dev->slave->addr);
+ 		regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_SLAVE_MASK);
+-		__i2c_dw_enable(dev);
++		/*
++		 * Controllers synthesised with the Multiple SAR feature only
++		 * acknowledge traffic to IC_SAR when SAR_EN is set; a plain
++		 * enable is not enough. The bit is reserved (ignored) on
++		 * single-SAR controllers.
++		 */
++		regmap_write(dev->map, DW_IC_ENABLE,
++			     DW_IC_ENABLE_ENABLE | DW_IC_ENABLE_SAR_EN);
+ 		break;
+ 	default:
+ 		WARN(1, "Invalid mode %d\n", mode);
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9d8d104cc391..35eaf2d7404f 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -125,6 +125,12 @@
+ 
+ #define DW_IC_ENABLE_ENABLE			BIT(0)
+ #define DW_IC_ENABLE_ABORT			BIT(1)
++/*
++ * On controllers synthesised with the Multiple SAR feature (e.g. Marvell
++ * CN20K), the primary slave address register (IC_SAR) only acknowledges bus
++ * traffic when this bit is set. It is reserved on single-SAR controllers.
++ */
++#define DW_IC_ENABLE_SAR_EN			BIT(19)
+ 
+ #define DW_IC_STATUS_ACTIVITY			BIT(0)
+ #define DW_IC_STATUS_TFE			BIT(2)
+-- 
+2.43.0
 
-Thanks,
-Ben
