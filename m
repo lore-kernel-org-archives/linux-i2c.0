@@ -1,217 +1,166 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E388B43C7C5
-	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 13:51:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.168.131
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786542665; cv=pass; b=MYcCkP7ns4TWa9OofPEQHXBwLjrb2U1Hc5nrskSWrQBgQwczwaKfsbug8JNG70fhG2+09puHTbuXHRWJddbSHcp+/nhPdA1yZV2aosyk0xrBefn/u6S322o9rayNm3NBLB21Hsgzp2TdTDRn+amMEfWnqbz6v4NCG2RrMasTqXg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786542665; c=relaxed/simple;
-	bh=hOWhDc6Fqp7yVb+hb/ELo5AQ6mHpP50RQtdPn6I3HFQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bkXFw7siy6YLNsEkmmj6n/1ihaQm0dwe1YxZwSigkSBbhMF2bvRBtTZs/9pXmwQKKVaIK4DZ5a8CBvLGOmyeT4tu/AVuB8sNNtlFqueDKkH6KEoc+AuKLpKBznYod0aD2drM721uIBJMslS1jb1WFfXagkV95ILBRlj4cyrn+VY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=VmvzAV/z; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Zoyn60cu; arc=pass smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FDDB319617
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 14:17:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786544242; cv=none; b=lRvHOK24csnyIApbClRv9RM26LFO8tylFem3grE/V3WkY56+mPpInaNm98sfC4zgREBo9ZeFdp2OScH5QgRnHvT3irwGMMP7aTMoHkGm9toF/emXWLhyyvGgk/hm301PWkVC/eusl0U46RS0Nk2nDyp8iTWaE6s9Vf8CEoP0oXs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786544242; c=relaxed/simple;
+	bh=lW7zxZqx7Njnrn6nen+3u4o3GCHZTEp4Ur108DTPK9Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MxPyOTtbsoj7vFdAGzZsFzv5W6pb4J7njnEiLQB3tZgTi4Xh3WDGpm5NEapMa6PhHY9ak/wmREv8O0Y8So+r8q4jO+zgCy6zFXMn/GPPtn77DQLxZTEmpovAsaJP+4rugC5rf06CNP0GGwiBP6nnWnXINJIqSBoIiqv2O0Znwhs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KRI2Q9LF; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="VmvzAV/z";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Zoyn60cu"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CDbYMw3597619
-	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 13:51:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	qdaZ6sdPXiAoVOIokOjzAD5jN5cH1HtUETlaWKI67X0=; b=VmvzAV/zdNb39Nu4
-	ACKmZ7WgdeZxyr7zKWUr39PM7rY1CHc778fkmaJFbleyaQW/549Kurtkky+8i2oi
-	irHpy9zLbPRjp4xGAo0O3BeJPaDzxpqRFVfCpJglrLUKHTDgRPMCZdtm0qKwu8P0
-	DgKxdIMy6gWlUPt8IQ/JwRMJDWYtNDmR6Pggjd9Wp0XFPDzF5cshLolsoJSdoQCb
-	QmLs2nzpMXrnRHJfvC7pey6WGHSgb8KSmfpY4PEr7HdAcb1o1wN8w5f+RY4NsuF3
-	P85nCVXlYUjbx4sw4b6I84chDfkFkSuJhioqfX9DjUV/PCTfH4MKaylc5JffV+GX
-	+VLxBQ==
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g08jrm4jg-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 13:51:03 +0000 (GMT)
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-92ec3146553so178394685a.1
-        for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 06:51:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786542662; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AmUXeedv53P9f34FB7/DHzm1qCfPu1Ww2X6GfKdTbOsKGPezXp23QIk/blGIyq+5tC
-         Z+J0WVetjQwRAmt5bmw7aOfwgQHe4KZjB2/hmIRAm3ZroTb1+EnSNe9F2Oo9rUCfmMnm
-         LmMN59W5/Vw4XLtsl1ykCQk/bED2456y4lr+5NmKWqLdNQoOf+UbbvN43sMZCIChAbHC
-         3uEpIm7fOX+si3qfcy+wzfRPLgMzuYQTiNOxXVIhrRgtn4Qw/InUoPgshieiUqLuynWD
-         UlP5SYI1j0e/K5QuqPrWsXC7g6S0w6AFup0mAfGo/yqp/Y3FYFX+6lpWLYPrUfIOVpn0
-         xLnA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=qdaZ6sdPXiAoVOIokOjzAD5jN5cH1HtUETlaWKI67X0=;
-        fh=NQ/a85QP+ZYTmjtwzQl7zPGD10yPxOIJCyjqTBJ7Z9U=;
-        b=Eisz6UgSwjrsKLJYVlZMOuZY0oCJl+igCMP/qzEq8HqUDx7SShZwPTiHRRcIHL44Hj
-         8DcdxP/ZX707VPz5wxAtlkPKMLmceFjCqtZv/1AWhsGSC/pDlT6banjxzaMNJqkA4XYo
-         p+tHVOB2nOGsj62Ja2rxqHb3XnY346tjVOgRmCAN/aEhBh1Rl5Ua2O4a1o9OQNIoGf8m
-         dPM9A/OATqESEfKfXTT9kaGR8NCbPiTh+illfGo1G+/qv8S8/Ev3JTycLodgsbpYP4l0
-         C3gTKrNfEVaWAr4N1FZFlTeSz1SyYjsRZ430xpvr5k/JElHeKr7eY4jyxXc8SBLQV1sd
-         k07Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KRI2Q9LF"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38dc4553f62so1292447a91.0
+        for <linux-i2c@vger.kernel.org>; Wed, 12 Aug 2026 07:17:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1786542662; x=1787147462; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=qdaZ6sdPXiAoVOIokOjzAD5jN5cH1HtUETlaWKI67X0=;
-        b=Zoyn60cuxd3Y+S2glqlcx0ebPmiTYKyY30X3gXeBM2KjGoZ/Et3dzYIKQLuRvrw5Hl
-         MfxxApDEf64FmWE0hNFWm/oL6bb9CtJkkezmqW7SB885TsblXKfgqTUyAGZVWkJgP8vV
-         r9mfEXF8rkKQ4r8iI7D7IJXHEv1tN9ZUxlBcet4u3fnV1kDlIqca2gNBniLAOSnljwSW
-         hCT1HH+5PClnw1b/jgEUVP2lx6F8dLTzMVJNdq7Lxipk84VLu3KeTuhSuzeYeD0FmBqX
-         Bxo1l3hi/bPBt9fT/UyGC85t5PB7NaNyut6/scxrVQtxh1kSbZtnpewaY1cHBIciX1Cv
-         hdTw==
+        d=gmail.com; s=20251104; t=1786544240; x=1787149040; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=IFXEKRNC613kArjQkSDoySIwrg59q2YplhF5qCQ3nq4=;
+        b=KRI2Q9LF4g3P4OMFeOJUK/d89oCYcE5+83T1f8eTz9ptO3qQV6VH8+wPe/hg2/ND9M
+         knRx4CX/cBjsbaHHMaCpyUosGQduuOh2B655d2ZG9T28mFgzcgi+iUjfMnvHnBXVRvLE
+         +S5sH3VvkIQn/NgMOzxcIRdXz3/Y2kKtMwVSW3OgTAsRwk7Xd4EnJ9WoRINIAaJR6Zo8
+         0+TFRUnuy3JypNn580IfCNqn4B3mAxQ+bgwxPBlWU8Zcz9xzUFzHevAwxs9brraTCvdp
+         WsCjVdv2ke/6feIWkcMR7naRq9C/bFodamOuAwqSnS+FjSkka/YB/jhHkyWTpcuM8YCm
+         y2Kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786542662; x=1787147462;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qdaZ6sdPXiAoVOIokOjzAD5jN5cH1HtUETlaWKI67X0=;
-        b=QFJbWfVVbVyYw2K0O9WNLgVyezPP2UvSK2dgnortpkpT4jEWHOmvr0G7ovyQnkCmK+
-         P5xEBk9MCrBJYBaOx4vgJLTb/qG2+U0Dbm2ZVE2c1GlHzVsbIJkE3xXNIdTKtfsBn7E3
-         E5TGtEmJ7bxzhMRhld3NnWE3GV58+l5t9A4CXSQjVeq6sVQG9KARFaIvO5NZGL+U2WH0
-         HInk3V4CWV7yQKja3U28fSCWBHpGhGpvuXgm1e/HC6GsVS7kw+XC7cypX6IuYmzUSrU4
-         7gUQqVkjkxaQD+Ff725Ie76UYKQ8RmEudct6Zaook++iT+qnkOvHbZsUOqaBoZ7SJlci
-         Vdpg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr1b0UqaZLTSDzhsu8dC8eCuNmAqvUZDb+pdeh0Phjm9AOxa4NeRgty9CXKWr2VQ63fu+mEDoKL+3U=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyi/yZ1qTMpZ6zVVR64H1I/rIb5s130ztEnexFVMGempYiaT6f7
-	n2rnulQjpGfy0xRxXORmuG4LdzHScESLEHiKdv0h2nkSfJvkKLrdoOSsrIefho2+w+38dlZ9hGr
-	FaT5tvHI3Vsh4dB1YS5BSc+mcw89vIGf1UAkqUQqMUkAsIS+uwEcmlZ5IhKIdWevMnY1Zr2/TQi
-	oOvHVzrrdgOvAglHIrj+lL/0lbmPAOIW1h6k/ShQ==
-X-Gm-Gg: AR+sD11HNktz/z31sRf7eA9LFLPwK6YCDMeANMR4mgwxpzhcKPGlrrhwCbCuHP10ZoQ
-	x3ihvMIj5Y3MUGN0X3M98pYoHXLYKINfmY2vMdcHRqHGazAiFEc7GWsW7P+07shzegArxmd3ETn
-	KnrVRRy9EJppYBcX/JAJvSrKrNqu8owCM2Ve7wkR1osA3TZtSGeFNv9/82G+n4yJLYeQDVgFF87
-	VAsjZ1Yxr8tTOkgZNgsPaGvL3EdTgyYiflTqyRDRlPj+Kl0Bd5dJsMrhyiEa3vEGBFm62P8AXQo
-X-Received: by 2002:a05:620a:648b:b0:923:8612:f15 with SMTP id af79cd13be357-936b3ad916cmr450086485a.18.1786542662271;
-        Wed, 12 Aug 2026 06:51:02 -0700 (PDT)
-X-Received: by 2002:a05:620a:648b:b0:923:8612:f15 with SMTP id
- af79cd13be357-936b3ad916cmr450082885a.18.1786542661921; Wed, 12 Aug 2026
- 06:51:01 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786544240; x=1787149040;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=IFXEKRNC613kArjQkSDoySIwrg59q2YplhF5qCQ3nq4=;
+        b=fkN9o1F6EYTZnioLIAo3fxBafWsruSBMlybyDEt1dyPjKG00GSYEs4pnotxHiK4YWc
+         6zhMx0pnWawTlIrVkr0h7xes0wP8ESChQTms73UkpqQRKi5+J+950yU32UQCpfty/r5u
+         xVjXcArt+wjYtNHqTNWs7OC47WrgGJmTGnvWGRQrkn0Nd7IaPq4++rtIOeVR5kKl+wWB
+         oxdR7eFZkWTogk3VPD7bW8iZMXnNW4+RwX0E7ADGFMxyhoQx6b2HJTD0H9bx1yzndy6N
+         18m1EmUyyRalKG2FtfFyyd676h2J9CFQQdHmX/Rw6VaDw/jsLOutEM8mmoj+2lsSF13L
+         7C9Q==
+X-Forwarded-Encrypted: i=1; AHgh+RrgOmg2v9cn+Ked3q8/OC+yFvt9vsAw8RmP9LAJQfCuFMKJxtzlo5s9bxcvG/8SipT/beLIynO9teo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzNhqWVGoFctO0uPcD88SFzJaV/xyDOtRzQU89Dam0CVT48vgfI
+	Jmv7qfAydK029FckhRvNRYBDuEDWfThkk0BCa3XG4ibtbdMG/sUvDfjLvordaCEJ
+X-Gm-Gg: AR+sD12rvjD7sxetTlgTCQsheQdEqlN37oh+AD3zcZLU3zLetMGOFsK+JJHVrUwYhgA
+	dsEbEhdmmF0sGAVjQwnfV4wPrpfPVob4XFCcHEhjsq0IiCsVdi8D5pN6XEciBnl3NdzN2AElyY+
+	IeUoGu7jY0i/Npm66o33NDSosPFpvV5i7q9ymdTuvD9UhuiX1eAW1CMnjGK/XMsaxREATmHMFNa
+	NCFZJ0+uEUYaw9eZS2mSxv7ChJDluAhyZOnWujSInBNva3LxXi7Re8aI6SEX88iAwhn0yI7VIgh
+	bnPetDc68bLrbybLafRw+Y7cF/NvrsN5QLvvG6W1kF+AUzG5vRLF+LFmPtkzFOBtFnUh/ylmJaS
+	5GCYtMR5rsHAU1/gTn/RiZh5dRef/1aQanIL22Dwf19V0AR6mg65daud/NtpUxNQmVeL3DaqatU
+	keUqP/CmQdtDx3guCuxQ/9vRw7LAvWeJWSkQd3N7x9u+NnwxlstVqSoJXDM7eLhrPDwLurZRBGy
+	JODrmezjO/+LMiEkr45JGn3eX8IshEFOWamP0jqI/jyEIC+Tg==
+X-Received: by 2002:a17:90a:e7c6:b0:38f:57f0:1f5d with SMTP id 98e67ed59e1d1-3930164ea38mr5615471a91.15.1786544239634;
+        Wed, 12 Aug 2026 07:17:19 -0700 (PDT)
+Received: from Mac.localdomain (198-27-228-154.fiber.dynamic.sonic.net. [198.27.228.154])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31cf361d57asm11963071eec.6.2026.08.12.07.17.16
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 12 Aug 2026 07:17:17 -0700 (PDT)
+From: Ahmad Byagowi <ahmadexp@gmail.com>
+To: netdev@vger.kernel.org
+Cc: Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Nam Tran <trannamatk@gmail.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Peter Rosin <peda@lysator.liu.se>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	linux-leds@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-hardening@vger.kernel.org
+Subject: [PATCH net-next v4 0/5] ptp: ocp: Add R4006 and V9 I2C peripheral support
+Date: Wed, 12 Aug 2026 07:17:10 -0700
+Message-ID: <cover.1786543681.git.ahmadexp@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260812094425.3515179-1-lgs201920130244@gmail.com>
-In-Reply-To: <20260812094425.3515179-1-lgs201920130244@gmail.com>
-From: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Date: Wed, 12 Aug 2026 15:50:50 +0200
-X-Gm-Features: AUfX_mx6BU4whCh4J6zK1bhvqjl7XdzdnNX_zuruD8pdUd_6rsfBiSjTp64h08o
-Message-ID: <CAFEp6-177whXgFj1uViqg1Gv=68GkqzG_gYqEbV1kX-9UXkSHw@mail.gmail.com>
-Subject: Re: [PATCH] i2c: qcom-cci: fix autosuspend cleanup
-To: Guangshuo Li <lgs201920130244@gmail.com>
-Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Todor Tomov <todor.too@gmail.com>, Wolfram Sang <wsa@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-GUID: WQ_Db1lZ59GMuApjRGrUD2D0RMTpKpSF
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDExMiBTYWx0ZWRfX+rA+h3yRwLkM
- FhSYhdvAf20RYdOdYazbEMdGcH3ocrKn4/rWym2oHhIh17Vhlf/k6xkOrjVmBZKNSnlqroRGT0h
- Heu/TZnrfruh71++5CT2KDTYp3qk3rw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDExMiBTYWx0ZWRfX6VpFK6lfMCe/
- RSfG2G2eezDjaSGBCXCl2IR/9aUlBkiGy/sBqZuOTVTp3QkumE5PCASGNVgPQuQgBg6ROWNkMQ1
- pJD1dh86o7o4iujIRm+Cc6w9H5SPsTNbDl0VGWkigmYD/scxm4F4Bw+4BEHHW+pch9GJK6ZMQCY
- wxR/ZQLv8EyLKCE7cR3UA2+U9HV8uLIW8EyhiA0QVPXFrehypLYAEb7TPQHtpn2nri9TYOs+WhJ
- bef+LPpbR/gTyR+u6wLlyd5fJ3JdDBjC6sYdn7lyksIHwsjvsIxZsuSt5nUUSbBMaiJBKNDlWEG
- OPS1d4O5u9xq2P9eeeX8Hwxup0mMX2FVVhU47rKSTFCHwOg2QmNcIK3WmB2ttK4iQsmCMZc3r31
- daleb3+/XQ631HmYFCoTaP1c7QUHQ2756EVdbfMo7YR1w9Yb7VK/Jx9KqQNgAbT7N9ktSHdU5jq
- VlohmKyNoKK4sIvV1zw==
-X-Authority-Analysis: v=2.4 cv=Z7Dc2nRA c=1 sm=1 tr=0 ts=6a7c7a47 cx=c_pps
- a=50t2pK5VMbmlHzFWWp8p/g==:117 a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=YMgV9FUhrdKAYTUUvYB2:22 a=pGLkceISAAAA:8 a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8
- a=XDTyClmYPJ3ucqjADi8A:9 a=QEXdDO2ut3YA:10 a=IoWCM6iH3mJn3m4BftBB:22
-X-Proofpoint-ORIG-GUID: WQ_Db1lZ59GMuApjRGrUD2D0RMTpKpSF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_04,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 adultscore=0 clxscore=1015 impostorscore=0
- spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120112
+Content-Transfer-Encoding: 8bit
 
-On Wed, Aug 12, 2026 at 11:46=E2=80=AFAM Guangshuo Li <lgs201920130244@gmai=
-l.com> wrote:
->
-> cci_probe() calls pm_runtime_use_autosuspend(), but the remove path
-> does not call the matching pm_runtime_dont_use_autosuspend() before
-> disabling runtime PM.
->
-> If the autosuspend delay is set to a negative value while autosuspend
-> is enabled, the runtime PM core increments usage_count to prevent
-> runtime suspend. Without undoing the autosuspend setting during
-> teardown, this reference is not dropped and usage_count remains
-> unbalanced.
->
-> Use devm_pm_runtime_set_active_enabled() to manage the runtime PM
-> state. Its managed cleanup disables autosuspend and runtime PM and
-> restores the suspended state on probe failure and driver removal.
-> Remove the now redundant manual runtime PM cleanup.
->
-> This issue was found by manual code inspection.
->
-> Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
+Add the generic LED and I2C-mux support needed to describe peripherals
+behind the FPGA I2C controller, then use it to instantiate the R4006 and
+Time Card V9 board topologies from software nodes.
 
-Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
+Patches 1 and 2 add the binding and LED-class driver for the Lumissil
+IS32FL3207. The driver supports individual and multicolor LEDs, enforces
+per-output current limits, and keeps the controller shut down until every
+channel has been configured.
 
-> ---
->  drivers/i2c/busses/i2c-qcom-cci.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-q=
-com-cci.c
-> index bdeda3979c48..25b6e4e9e3fa 100644
-> --- a/drivers/i2c/busses/i2c-qcom-cci.c
-> +++ b/drivers/i2c/busses/i2c-qcom-cci.c
-> @@ -595,9 +595,11 @@ static int cci_probe(struct platform_device *pdev)
->                 goto disable_clocks;
->
->         pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
-> +       ret =3D devm_pm_runtime_set_active_enabled(dev);
-> +       if (ret)
-> +               goto disable_clocks;
-> +
->         pm_runtime_use_autosuspend(dev);
-> -       pm_runtime_set_active(dev);
-> -       pm_runtime_enable(dev);
->
->         for (i =3D 0; i < cci->data->num_masters; i++) {
->                 if (!cci->master[i].cci)
-> @@ -613,8 +615,6 @@ static int cci_probe(struct platform_device *pdev)
->         return 0;
->
->  error_i2c:
-> -       pm_runtime_disable(dev);
-> -       pm_runtime_dont_use_autosuspend(dev);
->
->         for (--i ; i >=3D 0; i--) {
->                 if (cci->master[i].cci) {
-> @@ -640,9 +640,6 @@ static void cci_remove(struct platform_device *pdev)
->                         cci_halt(cci, i);
->                 }
->         }
-> -
-> -       pm_runtime_disable(&pdev->dev);
-> -       pm_runtime_set_suspended(&pdev->dev);
->  }
->
->  static const struct cci_data cci_v1_data =3D {
-> --
-> 2.43.0
->
+Patch 3 propagates software-node channel descriptions to adapters created
+by i2c-mux, including a software node attached behind a primary ACPI node.
+
+Patch 4 adds the R4006 profile for the temperature, humidity, pressure,
+GNSS LED, and four SMA LEDs. The BNO08x channel remains empty because no
+upstream driver binds that device. Profile selection is fail-closed and
+requires a supported PCI device plus a printable fixed-width EEPROM ID
+with valid padding and an R4006 prefix.
+
+Patch 5 adds the V9 BME280, BNO055, two GNSS LEDs, and four SMA LEDs. It
+uses the exact EEPROM ID "TIMECARD-V9" because earlier revisions expose
+the same detectable I2C devices with different LED routing.
+
+The prerequisite patches touch DT bindings, LED, and I2C code. Reviews or
+acks from those maintainers are requested so the complete dependency
+series can be carried through net-next.
+
+Hardware and build validation:
+  - Exercised the R4006 LED routing on hardware.
+  - Checked the V9 controller address, 4.7 kohm RISET, sequential RGB
+    routing, and second GNSS LED against the V9 schematic.
+  - Ran dt_binding_check for issi,is32fl3207.yaml.
+  - Built i2c-mux.o, leds-is32fl3207.o, and ptp_ocp.o with W=1 for x86-64
+    and arm64 using both defconfig and allmodconfig.
+  - Ran strict checkpatch with an 80-column limit on all five patches.
+  - Applied the generated mailbox to the stated base and compared the
+    resulting tree with the source branch.
+
+Changes since v3:
+  - Carry Krzysztof Kozlowski's Reviewed-by tag on the DT binding.
+  - Document that registers remain accessible with SDB low, preserving the
+    retained-scaling clear before hardware shutdown is released.
+  - Establish any ACPI primary before attaching the channel software node.
+  - Keep channel software nodes attached until child clients have been
+    removed, then release the held node reference after adapter deletion.
+  - Rebase onto current net-next.
+
+v3:
+https://lore.kernel.org/r/cover.1786423898.git.ahmadexp@gmail.com/
+
+Ahmad Byagowi (5):
+  dt-bindings: leds: Add IS32FL3207 controller
+  leds: is32fl3207: Add controller driver
+  i2c: mux: Propagate software nodes to channel adapters
+  ptp: ocp: Add R4006 I2C peripheral topology
+  ptp: ocp: Add Time Card V9 I2C peripheral topology
+
+ .../bindings/leds/issi,is32fl3207.yaml        | 251 +++++
+ MAINTAINERS                                   |   7 +
+ drivers/i2c/i2c-mux.c                         |  71 +-
+ drivers/leds/rgb/Kconfig                      |  11 +
+ drivers/leds/rgb/Makefile                     |   1 +
+ drivers/leds/rgb/leds-is32fl3207.c            | 691 ++++++++++++++
+ drivers/ptp/ptp_ocp.c                         | 881 +++++++++++++++++-
+ 7 files changed, 1865 insertions(+), 48 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
+ create mode 100644 drivers/leds/rgb/leds-is32fl3207.c
+
+
+base-commit: ac155a26750a595703e7dadff84735456d75a479
+-- 
+2.50.1 (Apple Git-155)
