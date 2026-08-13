@@ -1,129 +1,143 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ixit.cz (ixit.cz [84.42.129.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E161D44683F
-	for <linux-i2c@vger.kernel.org>; Thu, 13 Aug 2026 08:52:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A57B432D0F5;
+	Thu, 13 Aug 2026 09:20:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786611167; cv=none; b=qVLzcApsg86iOEdNqOM4Uzxhd4otzS4n+qAYpd2no/hYjrijq4pWwWaqyUWP+doxpFoy9r1SZq/WedofoUBe3tgy6itnwGPtdRnTlGYunFRY/aywaJk4f29kxtDJtip8tmHn2Zfz/mobYc2IfI0o21U/NuntBgFZRPr9oxmMZqY=
+	t=1786612831; cv=none; b=pc9cq6Q0YmGs1plpSl7cb4qXT2mwP9BPVpA+O1vLLYIu/fRkkZppodZ5Wna29qPOKamntEdYkgzdmBuM1xwAyYss1ZGObQmF/ZAp67enW6XPKKY3M6pAS1Emil3A8E3qdKfZcMfjfhQhGAhS5jBFKS5dvWzDIU/k2k1YnO9ytXs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786611167; c=relaxed/simple;
-	bh=ldbF5ILBtjfVdXOICss/RvJxBQ+h5ZIfdab/mT+/gKk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nPQiHtbK8Y17jZyKvHXxMbJXscXu3JQkF2gS6LjqU5PpZjGfH7dy4Kc8dcuJCo2ww0674zEr118crCvNHiNb9wqEHrHvO1dJofXnMWNgUnCEh5U3P4rAp1UawD/uQNGuZ8gCLGVL3RKk1lQbJ/phBtwTNRfBQqXc3R9avy3mns8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aKMSe8rB; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786612831; c=relaxed/simple;
+	bh=XSbxuFNDxlXVpQ/cS578M2yFcGMkc7DG8pgNdZPizcw=;
+	h=Content-Type:From:Mime-Version:Subject:Date:Message-Id:References:
+	 Cc:In-Reply-To:To; b=r6MS6xcjUZisslsbzqA12opEBkddOi83zt8xbCOO2KUxk8K1Alxq1JFmsyNhRMdRcyA75EwzAqKvpz/KlsemzRLbfzwH5DeylfJdWt4h1YA/n8rMvHY9+HA5aCb+9rjrx28+gQPrEuxVEBcVNTTmU+qx3xxGv+Kn0vkYzDf9V54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=LZXlAaqM; arc=none smtp.client-ip=84.42.129.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aKMSe8rB"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-38e07ebd263so1463301a91.1
-        for <linux-i2c@vger.kernel.org>; Thu, 13 Aug 2026 01:52:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786611165; x=1787215965; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=sX9XI6O6qjCjlu3Bv7EdsrhNGWhNvzRT2+KyAOXZhAk=;
-        b=aKMSe8rB+bOM7nIKZPrqaIcQ+zsSf5HAW4IAAZW+xj1HQJdFdRstb5GRwXycvF4ZWe
-         E3tA9XPUX8mKMVu9OxuYTCSA5fD068gyTF0aOnASajKyEUMxvPBvevUvJfo96s+Lxuyk
-         2u7RHratoi2iY0o5oq9/81ncqcsicFhZDM580xHCQbrMd4fN69yinuHPe2vYjbjvdSPQ
-         S7Zwj7wehsojA7OLR13GPTF6njsmNP4uLfSU1Mep6SfR0NOg6EfFo+Iq56xmFXuyXl7j
-         B7I8UqyeqJGBTAIHdYNxpIhD8VPFBHuJvzN4idFBkDR6x4dJwGNrBrqDsXKDGlgbnjHr
-         XSAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786611165; x=1787215965;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=sX9XI6O6qjCjlu3Bv7EdsrhNGWhNvzRT2+KyAOXZhAk=;
-        b=P6IR9LKuoCnEdwnmVdLGeYay5goRn6GCW3iV3sx1oUSG5k5geN/ae+xDmxoWdlfABm
-         gBfkOak3Td+uPFI87I1E7LJR0JkaBtFmswTaMjz6rMxJGolP7bxF7Hybnzg8qkrBKdI0
-         mGtGHOkxDqmcVBGFJDEsIa99kQI/lhEK67LO4+W9HWj7CkdOMU5SnFxHbrzSwLgT4ee8
-         YydSSGKBOQyD3oMRvBnuw97TewxS5a0XNpVghQ1hyMYgxt0bwoLghlmr57OsDxoNOBBG
-         FReGXYZSpbe/8NZ3C+AYCO5H3pzN/AInlo46MKzCo8yzPC+Zxn87NUgCmUfRxfWGHOVM
-         NmWA==
-X-Forwarded-Encrypted: i=1; AHgh+RrTCm5iLG2kftewHLR3/ecqAy/dXW7EL4GhNkf/48vWPpgYhaV8KYGL/M2EoXEPqp/aYgO7/lXapL8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzNXyh2NvRlfO3PdloUFkn/RJ6MUYXoAmLLuE3F7BEDZdfIMrRy
-	foYyFYxUykGbpPpZDj++kbW3oQSoY6v9C4+08ylJXNmZf5emTzoj4csM
-X-Gm-Gg: AR+sD13DJUjdzxiz+wOwbmechzhwg1k7KWgq3xokLsQ7sLXZ1Z4Q5Rv4gYfUfCS4Li0
-	NeQL6RYVvykzT4L9bv9mZcVPUzNPo1nKOmXCv7bMQKd91kSYvcbbFtSu1QTqz+N2+vLbrjjDKQh
-	oM8t+qhNNs8ZdjPv+pe/R+PPfQpblSluClLHnSrMMXGR6WjmapSZhXYdMGegY8TX/d25xJYM0kw
-	daRLSD6NwobHtlM0zQXG5+/GlzL2x6CeXNeNruv40S0u/4xHmBmTRpSA5djVehYMZNcuiExcg3x
-	xBXliv5Rp3cD0WI3/MtAKtJZEFmVYbThT569twZMWNnaqXKxb5mWcRqyvaJ4cL1lNHVbuXTM9q8
-	/n6NdiKJtL3zVZoQCbo4FCNXa23n2hqxHVrZCweLqR9JyaXYpTX7pPexndXhGw2ac/BIddTrJ6U
-	itO3hMzUP25U82sbO+4Sv37ugemWAUTqP6ZJZq/AqD1y0lyUiNZ5xKape1+Z7w6ppdIcnTyfMwP
-	Gpcn2IOTWA1i3NOo2Z7y7RiZx98rRghKtgX8dEwrXIrfHjutD/glnFKWvR9kOafiLE629h0i4OY
-	r8PUtYWyBWcmtto=
-X-Received: by 2002:a17:90b:278e:b0:381:25ce:bcc2 with SMTP id 98e67ed59e1d1-3931e0242f8mr5395506a91.6.1786611165058;
-        Thu, 13 Aug 2026 01:52:45 -0700 (PDT)
-Received: from phuc-desktop.. ([14.160.25.72])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31ec0223e31sm5465372eec.25.2026.08.13.01.52.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Aug 2026 01:52:44 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: Kamal Dasu <kamal.dasu@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	linux-i2c@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@kernel.org>,
-	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH 3/3] i2c: brcmstb: Correct optional IRQ handling
-Date: Thu, 13 Aug 2026 15:52:13 +0700
-Message-ID: <20260813085213.44001-4-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260813085213.44001-1-phucduc.bui@gmail.com>
-References: <20260813085213.44001-1-phucduc.bui@gmail.com>
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="LZXlAaqM"
+Received: from smtpclient.apple (85-70-170-181.rcd.o2.cz [85.70.170.181])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by ixit.cz (Postfix) with ESMTPSA id BC3165340217;
+	Thu, 13 Aug 2026 11:20:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1786612821;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XSbxuFNDxlXVpQ/cS578M2yFcGMkc7DG8pgNdZPizcw=;
+	b=LZXlAaqMDuz1Eu1qoATS2mQYnT7CsZwlU8A/IXlgD06ajK8b+e6H1n9LYw4UJuCZm5U/K1
+	45EC+UwLTUEFW7hK5NTe7T8cn5/fV82S+8GeZjkxTS2flC4JayGWz1E96Y3dcIj8ur1J4R
+	hWWn2JaZ0EhUTvH7hyEn/4YiTGlPbJw=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From: David Heidelberg <david@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH 00/33] Add support for Qualcomm Snapdragon SM7150 SoC and Google Pixel 4a
+Date: Thu, 13 Aug 2026 11:20:11 +0200
+Message-Id: <7B026D92-3826-494D-B1A9-EF01D41B4461@ixit.cz>
+References: <b15b2687-0c2e-43b2-ac9e-78e04e77e065@mainlining.org>
+Cc: Jens Reidel <adrian@mainlining.org>,
+ Danila Tikhonov <danila@jiaxyga.com>, Miro Mraz <mraz.miro@seznam.cz>,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-mmc@vger.kernel.org,
+ netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, iommu@lists.linux.dev,
+ linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ neil.armstrong@linaro.org, linux-hardening@vger.kernel.org,
+ linux@mainlining.org, Connor Mitchell <c.dog29@hotmail.com>
+In-Reply-To: <b15b2687-0c2e-43b2-ac9e-78e04e77e065@mainlining.org>
+To: Danila Tikhonov <danila@mainlining.org>
+X-Mailer: iPhone Mail (23G71)
 
-From: bui duc phuc <phucduc.bui@gmail.com>
 
-dev->irq is assigned from platform_get_irq_optional(), which returns a
-non-zero interrupt number on success or a negative error number on
-failure. Therefore, 0 is not a valid IRQ number.
+> On 12. 8. 2026, at 22:54, Danila Tikhonov <danila@mainlining.org> wrote:
+>=20
+> =EF=BB=BFHi David,
+>=20
+> Thank you for your comment.
+>=20
+>> On 12/08/2026 14:40, David Heidelberg wrote:
+>>=20
+>>=20
+>>> On 23/04/2025 09:26, Neil Armstrong wrote:
+>>> Hi,
+>>>=20
+>>> On 23/04/2025 00:07, Jens Reidel wrote:
+>>>> Hi everyone,
+>>>>=20
+>>>> apologies for the mess this created. Danila's mail provider ratelimited=
+ him halfway through sending the series and the attempt to re-try sending th=
+e second half an hour later ended up with a new message ID (I think due to n=
+ot using --in-reply-to).
+>>>> He asked me to let you know that this will be resolved later and the wh=
+ole series will be re-sent once the problems are resolved.
+>>>=20
+>>> The b4 web submission is a great alternative when the mail provider is r=
+ate limited:
+>>> https://b4.docs.kernel.org/en/latest/contributor/send.html#web-endpoint
+>>>=20
+>>=20
+>> I see people interested in moving Pixel 4a forward, but it seems this was=
+ never upstreamed? I looked at sm7150 repository [1] where I see FROMLIST, b=
+ut these patches never arrived to the list and this series is from 2025.
+>>=20
+>> Should we expect v2 (re)based on recent tree?
+>>=20
+>=20
+> I'd definitely like to get back to upstreaming SM7150 and the devices
+> based on it, but I don't think there's much value in continuing with
+> this particular series as-is. A lot has changed in the kernel over the
+> past year, which would require substantial changes throughout the series
+> and would effectively force the maintainers to review it from scratch
+> anyway.
 
-Check for a positive IRQ number before requesting the IRQ instead of
-treating 0 as a valid IRQ.
+After longer period of time maintainers will have to do full review anyway. S=
+ure, the reviews needs to be addressed :)
 
-Also use a positive IRQ number when reporting the operating mode. The
-driver sets dev->irq to -1 when devm_request_irq() fails, so the mode
-check should only consider positive IRQ numbers as interrupt mode.
+>=20
+> I'd also like to split the series up to avoid targeting such a large
+> number of maintainers in a single submission.
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
- drivers/i2c/busses/i2c-brcmstb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Yes, that=E2=80=99s exactly what=E2=80=99s needed (at least for the part pat=
+ches I saw).
 
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-index 91525a36e575..3adc73f3d608 100644
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -655,7 +655,7 @@ static int brcmstb_i2c_probe(struct platform_device *pdev)
- 	brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
- 
- 	/* register the ISR handler */
--	if (dev->irq >= 0) {
-+	if (dev->irq > 0) {
- 		rc = devm_request_irq(&pdev->dev, dev->irq, brcmstb_i2c_isr,
- 				      IRQF_SHARED,
- 				      int_name ? int_name : pdev->name,
-@@ -697,7 +697,7 @@ static int brcmstb_i2c_probe(struct platform_device *pdev)
- 
- 	dev_info(dev->device, "%s@%dhz registered in %s mode\n",
- 		 int_name ? int_name : " ", dev->clk_freq_hz,
--		 (dev->irq >= 0) ? "interrupt" : "polling");
-+		 (dev->irq > 0) ? "interrupt" : "polling");
- 
- 	return 0;
- }
--- 
-2.43.0
+> Hopefully, I'll be able to
+> find some time to work on this in the near future.
 
+Where the most recent patchset can be found? Just in case someone wanted to p=
+ush some bits in meantime.
+
+Thanks
+David
+
+>=20
+>=20
+>> Thanks
+>> David
+>>=20
+>> [1] https://github.com/sm7150-mainline/linux/commit/7ea41523c678e94a7c048=
+936052b5b1b1b109cdd
+>>=20
+>>> Neil
+>>>=20
+>>>>=20
+>>>> Best regards,
+>>>> Jens
+>>>=20
+>>>=20
+> ---
+> Best regards,
+> Danila
