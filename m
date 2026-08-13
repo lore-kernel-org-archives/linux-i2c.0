@@ -1,174 +1,128 @@
-Received: from mail-m60199.netease.com (mail-m60199.netease.com [210.79.60.199])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A689341A4F6;
-	Thu, 13 Aug 2026 06:30:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.79.60.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6174728030E;
+	Thu, 13 Aug 2026 06:37:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786602658; cv=none; b=HZqwTMwFRQGpVQ+g+pYWwqjv8w0Q+Glx3dOugtX3uvR33jiGlXk9SsMCYx3ox7EfjSnHcYtlQ6hI5+kttBykHB2mq8uL1iVXwHxuE46DLmZRaN+5ExdMKRk6VtCrN7dgaWOP9GxqvzE10sSxIQj1pG2rVU4W8uvlU0Xhjlv15ZI=
+	t=1786603074; cv=none; b=m8rlDTFSms27ukFWLAjpK6X+eVPU08Q0S5U1c96XSG6Xp2zZR1duVEdQ0mqQpwZ9G9gLlsuBlq79NET/AP3zkpHdzSTOh3OQj/gNNYedsdR6DrI0ZwOxPJ1YJe/3TEtIXz8P9elvHPVCsCLNFxZkML3vIpejPLPVENN9YicFueE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786602658; c=relaxed/simple;
-	bh=XFMM5bqs/AO41XLvj+2fa+9/dMCWI2BOAliSlrA6yfo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mOmhepO2LypzIv339K6FT5ZwqS7lhrlkgp0MoMgpS40z6IiKOihx2tTA/Ol6feFcP1AgTG+ehanbz5N3IVqGAeaYTOpjomCSPtkJ77ggtTl7lPjfwioCrOlmM9VA6gRGTL1hxxDR8O3uLK1sSd2+m26fhtMSePuhRDsMOgepaic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com; spf=pass smtp.mailfrom=hj-micro.com; dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b=ORVD9QRG; arc=none smtp.client-ip=210.79.60.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hj-micro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hj-micro.com
+	s=arc-20240116; t=1786603074; c=relaxed/simple;
+	bh=rF09dkfZ3K0vz9pFWm4Q2Eh+5l9tDU+a7xzIsYn0zTc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pAaMzcVSXyEKZ1fdn1sFO40tDTNgCYmE1qv5Zv3Zy0WUmfedcdex92bXFY9WygDYrInRcecfDozntAmJlo45Isjcnh+QJqCZyADPpI7EZ7gRt+RhjkAHO8gqyubfWxBUvMSYARPVgPOiG6iRmPQ3PZoWo7IDAbQRQXQ9fFhW7V4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WvyQBYLM; arc=none smtp.client-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hj-micro.com header.i=@hj-micro.com header.b="ORVD9QRG"
-Received: from 1clarkelill.hj-micro.com (unknown [122.224.241.34])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 49d4e2e55;
-	Thu, 13 Aug 2026 14:30:35 +0800 (GMT+08:00)
-From: "clarke.li" <clarke.li@hj-micro.com>
-To: "Rafael J . Wysocki" <rafael@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-acpi@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Len Brown <lenb@kernel.org>,
-	andy.xu@hj-micro.com,
-	peter.du@hj-micro.com,
-	Hongnan Li <clarke.li@hj-micro.com>
-Subject: [PATCH v4 1/2] ACPI: APD: Convert fixed clock rates to use HZ_PER_MHZ
-Date: Thu, 13 Aug 2026 14:30:04 +0800
-Message-ID: <20260813063005.42925-1-clarke.li@hj-micro.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260722073031.1078080-1-clarke.li@hj-micro.com>
-References: <20260722073031.1078080-1-clarke.li@hj-micro.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WvyQBYLM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786603072; x=1818139072;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=rF09dkfZ3K0vz9pFWm4Q2Eh+5l9tDU+a7xzIsYn0zTc=;
+  b=WvyQBYLM2Kk5AJ7iRw38j63ggTrkQpx7jRjPY4rLZUkYR4Oll0m1Nopd
+   qgvK0wOSYhMVeAmJaccFLAdj2AQROrMInxK7uuvPnOtLNa7xy/9SwuHH4
+   tqZ0CXR7dYZHXOuuDLDSpm+bOG9475uXuDxJ8TIUXt2qytzyo6fgyf07i
+   Xt5vOnkKHQPjmEZV8j/Yzjw0p6OtoqRcId6T5K6RJcWoZbghkMwapcoqp
+   AW0JVunD9wU73LLHGtKQsaIKktG7kpVioMF5utIFIf42cafPRCri2jHWm
+   9FRuZ1edY6BTDlbfCdXr5ekHvWNBVyZlhDkk9jC0F1vAiepxUEIQKXqA+
+   Q==;
+X-CSE-ConnectionGUID: yIIul5CbRPekmpXsjsdPlg==
+X-CSE-MsgGUID: SyMTVoeRQvimPuajiVlo7A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11873"; a="97833758"
+X-IronPort-AV: E=Sophos;i="6.25,220,1779174000"; 
+   d="scan'208";a="97833758"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2026 23:37:51 -0700
+X-CSE-ConnectionGUID: +KtouXQkSBGvI0d8jcLZag==
+X-CSE-MsgGUID: 7Z1FN42BTBqK6h1JEoY7og==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,220,1779174000"; 
+   d="scan'208";a="263395391"
+Received: from slindbla-desk.ger.corp.intel.com (HELO localhost) ([10.245.245.250])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Aug 2026 23:37:49 -0700
+Date: Thu, 13 Aug 2026 09:37:47 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Umesh Kumar <ukumar@marvell.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	bbhushan2@marvell.com, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] i2c: designware: Enable SAR in slave mode for
+ Multiple SAR controllers
+Message-ID: <an1mOxBoqTc_8DE0@ashevche-desk.local>
+References: <20260804041842.3205356-1-ukumar@marvell.com>
+ <20260812114514.3817964-1-ukumar@marvell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0a9ff9d0bfb709d6kunmebbce19d3eb22b
-X-HM-MType: 1
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCTBgeVk1MHk8dHkIaThpKHVYVFA
-	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSUlVSUlPVUlPSlVIT1lXWRYaDxIVHRRZQVlPS0hVSk
-	tISkpCTVVKS0tVSkJZBg++
-DKIM-Signature: a=rsa-sha256;
-	b=ORVD9QRG0gVXT//M+ul0h0JW6MQGVdP73fzOqC0ROOsNUxEnvHQ3T6IHLXASiU4dZ2KSMKDHJ70wWqEKGpWDpzO6kCIHAXFfpQgCII6rrAs5BcpxBWhpDH0XzAQiEIUBmHLVlq1UgoQjcoWRghfS1//r+zdOJtShFw+Ttno0Cz0=; s=default; c=relaxed/relaxed; d=hj-micro.com; v=1;
-	bh=KJNrRzQ2oIZdJYb182wGJCuIuqJuvEH6CreRJX73yyE=;
-	h=date:mime-version:subject:message-id:from;
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260812114514.3817964-1-ukumar@marvell.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-From: Hongnan Li <clarke.li@hj-micro.com>
+On Wed, Aug 12, 2026 at 05:15:14PM +0530, Umesh Kumar wrote:
+> DesignWare controllers synthesised with the Multiple SAR feature (e.g.
+> Marvell CN20K) gate the primary slave address behind IC_ENABLE.SAR_EN
+> (bit 19). Per the Synopsys DW_apb_i2c DataBook (Multiple SAR feature),
 
-Use HZ_PER_MHZ multiplier for fixed_clk_rate values to
-improve readability.
+Also provide a version of the DataBook. Something like v2.20c (hypothetical
+example).
 
-Signed-off-by: Hongnan Li <clarke.li@hj-micro.com>
----
- drivers/acpi/acpi_apd.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+> when this bit is set the core acknowledges the address matching IC_SAR;
+> otherwise the address is NACKed. The slave enable path writes only
+> IC_ENABLE.ENABLE (bit 0), so on such controllers the target never ACKs
+> its address and a remote master cannot reach it.
+> 
+> Set SAR_EN together with ENABLE when entering slave mode. The bit is
+> reserved (and ignored) on single-SAR controllers, so existing users are
+> unaffected.
+> 
+> Signed-off-by: Umesh Kumar <ukumar@marvell.com>
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
 
-diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-index 008bd0552cb7..275027ebd01f 100644
---- a/drivers/acpi/acpi_apd.c
-+++ b/drivers/acpi/acpi_apd.c
-@@ -14,6 +14,7 @@
- #include <linux/io.h>
- #include <linux/platform_data/clk-fch.h>
- #include <linux/platform_device.h>
-+#include <linux/units.h>
- 
- #include "internal.h"
- 
-@@ -110,17 +111,17 @@ static int fch_misc_setup(struct apd_private_data *pdata)
- 
- static const struct apd_device_desc cz_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 133000000,
-+	.fixed_clk_rate = 133 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc wt_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 150000000,
-+	.fixed_clk_rate = 150 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc wt_i3c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 125000000,
-+	.fixed_clk_rate = 125 * HZ_PER_MHZ,
- };
- 
- static struct property_entry uart_properties[] = {
-@@ -132,7 +133,7 @@ static struct property_entry uart_properties[] = {
- 
- static const struct apd_device_desc cz_uart_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 48000000,
-+	.fixed_clk_rate = 48 * HZ_PER_MHZ,
- 	.properties = uart_properties,
- };
- 
-@@ -144,52 +145,52 @@ static const struct apd_device_desc fch_misc_desc = {
- #ifdef CONFIG_ARM64
- static const struct apd_device_desc xgene_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 100000000,
-+	.fixed_clk_rate = 100 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc vulcan_spi_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 133000000,
-+	.fixed_clk_rate = 133 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc hip07_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 200000000,
-+	.fixed_clk_rate = 200 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc hip08_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 250000000,
-+	.fixed_clk_rate = 250 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc hip08_lite_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 125000000,
-+	.fixed_clk_rate = 125 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc thunderx2_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 125000000,
-+	.fixed_clk_rate = 125 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc nxp_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 350000000,
-+	.fixed_clk_rate = 350 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc hip08_spi_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 250000000,
-+	.fixed_clk_rate = 250 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc leca_spi_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 400000000,
-+	.fixed_clk_rate = 400 * HZ_PER_MHZ,
- };
- 
- static const struct apd_device_desc leca_i2c_desc = {
- 	.setup = acpi_apd_setup,
--	.fixed_clk_rate = 250000000,
-+	.fixed_clk_rate = 250 * HZ_PER_MHZ,
- };
- 
- #endif /* CONFIG_ARM64 */
+This is a v3 and no changelog here... What's going on?
+
+Assuming this will be provided
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+...
+
+> +		/*
+> +		 * Per the Synopsys DW_apb_i2c DataBook (Multiple SAR feature),
+
+Ditto (mind the version).
+
+> +		 * controllers synthesised with multiple SARs only acknowledge
+> +		 * traffic to IC_SAR when IC_ENABLE.SAR_EN is set; a plain enable
+> +		 * is not enough. The bit is reserved (ignored) on single-SAR
+> +		 * controllers.
+> +		 */
+
+...
+
+> +/*
+> + * IC_ENABLE.SAR_EN, per the Synopsys DW_apb_i2c DataBook (Multiple SAR
+> + * feature): on controllers synthesised with multiple SARs (e.g. Marvell
+> + * CN20K) the primary slave address (IC_SAR) is only acknowledged when this
+> + * bit is set. Must be programmed while IC_ENABLE.ENABLE is 0. Reserved on
+> + * single-SAR controllers.
+> + */
+
+Not sure if we need a dup comment as it's also in the code. Perhaps leave only
+in the C code where it makes more sense?
+
+> +#define DW_IC_ENABLE_SAR_EN			BIT(19)
+
 -- 
-2.55.0
+With Best Regards,
+Andy Shevchenko
+
 
