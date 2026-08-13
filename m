@@ -1,78 +1,132 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4528A4A341A
-	for <linux-i2c@vger.kernel.org>; Thu, 13 Aug 2026 17:20:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4953146D0A2
+	for <linux-i2c@vger.kernel.org>; Thu, 13 Aug 2026 21:06:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786641624; cv=none; b=jTx5huWQ5SyIe+4mCcEMUQOuSX3S07xv5II5YIBh7swyqCUzkkw1fFiQCtcjexqeT7lw2yKiMSPc4fP8XM1wFDcaN968JNRgoYRrLwi1zNPfn/xb4Dqy9kUwq76u4QaT0zoFHFY0oxncB6Y9VbizRNe/U+VdbzbhQyh9kGr+H3s=
+	t=1786655219; cv=none; b=GwfKwfk9v42kZSjc8yM0qZNwSUzB1RO7T7cewe/dqA5TzlbxcjbVHC61taBPMaw/nt70SDoPmaMnPOBUe+QASMMX2iy5Eyr2UI8gee81TJ60h+mtBJ8nbg4qXMUfzesjZ9lKy0NsxrKfr/bQ7wBH3Cq+Abz17LXL7tddlKgTT3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786641624; c=relaxed/simple;
-	bh=gPF20lBUTfWowRPUaCbUzpH+o91/NSADtbsPUJB+mQI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=c4cV4n8+vbrcC7Tcx8ulVBvUZ6ekk6FJm4dO71231QSKtDK6T5YzwqNNTHb2mvw1sSiTvNz+egXckmYF/VfCnSGzD9j9zz5H9yvPZzCyF6kIXi5L9vATuo1gOCIIs6rRCqfBThcicIljIn3SCdJ2ZwwlaoFIFE0DyXcSmqhE5sc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=QEJ9051v; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1786655219; c=relaxed/simple;
+	bh=+Iyoqht06orAWWu+u7sHJGc4N1C/gzIr5LzUDuiY8Bc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=FMKyEkLgJBLyI7Z3mHRjJd6tLeO3N8BV147kiylH2yEIzxNYbd7kH+e9V5qAfTNeIM3mq++zW26Snl/Md/SUslaQevswVuAVwcg0EUz+UZ8yfIs/m41MLe0v3kTItw7L71JWWvIXkghkxkuB/N2vSUaJTQDMdfrV4lxgyrhxCSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=YRJrVvYJ; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="QEJ9051v"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 170471A1605;
-	Thu, 13 Aug 2026 17:20:19 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id D685C5FF0B;
-	Thu, 13 Aug 2026 17:20:18 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A5BE511C4E21A;
-	Thu, 13 Aug 2026 19:20:12 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1786641614; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=gPF20lBUTfWowRPUaCbUzpH+o91/NSADtbsPUJB+mQI=;
-	b=QEJ9051vxTgV+mzzjEJVOCeRmwxhuQ6J12DnZWl57XwWTUTfZpNZJHwmhMa/TsoD0bMMoj
-	Aq6VaXFt65fMurYTOM4DsXmaUc+SRu+2nb60Qyzyh2wLuotsIRiKRkWZwCRb9yjEMxGGBi
-	t/jOc53/U6pWBOy4VeLy1TWd8ehO1A1hudD+5YDJmmTuNBi7DhmCIGc2J+A2TCFAQD7ggC
-	/5UmTJOL43Uto6+neOO13l5beJPI8YoRRXsq2adfzPQF1n7syraukHnvSBjA/rQYz0RB7s
-	qU/h+eiwjhhzEn1Rm15LP/+UtMadgU9QYx8FW1CJnYELHboF0Wi8BnLjOXqNTQ==
-Message-ID: <c36a39d2-f5b8-4290-a482-54696f810ab0@bootlin.com>
-Date: Thu, 13 Aug 2026 19:20:10 +0200
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="YRJrVvYJ"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cbed97fa26fso174674a12.0
+        for <linux-i2c@vger.kernel.org>; Thu, 13 Aug 2026 14:06:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1786655206; x=1787260006; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=ultvd+YwB2CCLSLTdZwfLPvD251NBr4TYb3rtNreqUc=;
+        b=YRJrVvYJ41jpJFl3nnKHGmmdguXAwWSgdgAymXvI66PrLPTfImx5XAK1lGMAtFtcJc
+         cutf5XEL2QjR8cuan55gdbxOk7Z24mZpvj04yu6YMlhDXHkJniKU22h5VYRBbKK7NqAu
+         rpgczz5iJBxIaFRuTtKI0zaUW9f7YjrdG3zIoPSxYI6mdJ1tT82bsS6INfNUCLyY1We6
+         mt9ym0eW4WYy7VIwczI14tV+YTWquID+gzu4hT4s2wUDqGByFdcYTaWDGH4E2CT5wAIF
+         JFFE5QS8FSPDWAibxbRCbCt4EQj4oSoBLqlOwBRUurN5yyAlrv9sQXTtz8Akqb2Rf9iM
+         //gQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786655206; x=1787260006;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=ultvd+YwB2CCLSLTdZwfLPvD251NBr4TYb3rtNreqUc=;
+        b=I4GBm5dO0mnOxgfet+WSCaxYentyn5xpmbLQER8IxgCyosWjlQk5ZyqRveo1YoMRA5
+         G42t/r611bGT1ynTpHJ+Yiuw2O48fuboohMB1o3lLLP+zBCdAx3HV7CvHFqyjcPdradS
+         73VpjkDVzPiZWghJbPQpiVanGTFxeVbZtX8Bz46UeeJapKEUraDOyg3yxYmKGjxrKOAv
+         L5RqpiNegCwNDDkw4OwcTuXsBmoeRnjb1UWotHyhY1K9K3/1AS3Lx/3oOw6dBY1Voc7+
+         dGV/Y7D/cRLF8BVewGFH75/rMwtkJyl2ZJDfXjQ3v0lZJHmQOpp5vAQvlyAPx5wmqRXa
+         1ULQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rq/bruH0y324h0+Scsa7nvlNsNIzOfct7HYufQDe8Ld3cv9aGBR10UyGF3xs69HM501Ch+WWk0jT4I=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz/AyNBIul6lG7N6YKyfFGHuew0RY87NP0+P0c0eD56+QfYf+rq
+	u1CTtUcac35PWAP+6o8Gq6QzM0Fd6rbsfKn7oxHdMJYbNfe9uYC/4sDqc2nLIWhPtE0=
+X-Gm-Gg: AR+sD12CqpxUTTb79tOEKLS0Xoon/lDQsWVPptg44zRSRtvlCHS3r6cnQs7Z+hcD6Np
+	U9wJoBuKghI3/5Wvt18jpZfrJIMGOmGLzxl6vviB7mvxoPGWh7o0vM7Vs9KO3ysREhqYCjTpeht
+	oi9yHcbhdPBh/RpIMY/GamuEto2qcYnXukPsRRp5oqfvCSRKMtdOqHRjTatw8YYkyBmn3gTeocQ
+	N7rRmA90osnYUuFXdVgY9oeXKsAv2kj9wAsGQo4aO8b78luSMDsGJL5QjypnheWjLARZu8PZAQe
+	9eH7dLrliBrb4z2AvkzedbmxOdIat7fN+DFr6r+9WrnmFC5risoI3FT9Fp7X9P4DD7iO7GPwp3p
+	GuXHP0qUqWyWzVx6nbV3UV48DsV+XqxRfDImLmqN/vAOK45yxacqDb7DjGicAvKwTYa99njexOj
+	BR2rpSzOrRMo9sEOa0h5JJ33qlWyjZAL8Ah4u8TVeCm1Vwbp6m5R47NU9pm4P4OL0=
+X-Received: by 2002:a17:90a:e7c8:b0:37f:a913:1554 with SMTP id 98e67ed59e1d1-3931f5b9ec6mr4934140a91.16.1786655206294;
+        Thu, 13 Aug 2026 14:06:46 -0700 (PDT)
+Received: from [127.0.0.2] ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31ebf732526sm9841832eec.19.2026.08.13.14.06.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Aug 2026 14:06:45 -0700 (PDT)
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Date: Thu, 13 Aug 2026 14:06:40 -0700
+Subject: [PATCH] i2c: xiic: restore runtime PM teardown in remove to fix
+ clk WARN flood
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/5] Congatec Board Controller: Add storage devices
- support
-To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
- Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
- stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
-References: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
-Content-Language: en-US
-From: Thomas Richard <thomas.richard@bootlin.com>
-In-Reply-To: <20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Last-TLS-Session-Version: TLSv1.3
+Message-Id: <20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXNwQrCMAyA4VcZORtoK4j4KuKhTaNGWDuSbg7G3
+ t2qx+/y/xsYq7DBZdhAeRGTWjr8YQB6xvJglNwNwYWTO/sjSiBcRQiVrVVl1Lk0GRmnERtHzfV
+ dMGcXk88pkAvQU5PyXdbf5nr72+b0YmrfNuz7BzsuC02IAAAA
+X-Change-ID: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786655204; l=1608;
+ i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
+ bh=+Iyoqht06orAWWu+u7sHJGc4N1C/gzIr5LzUDuiY8Bc=;
+ b=aZPjAYgXpSdHMLsS5PSsc0LoM9SiqlcTXDl56EtQPLQhYYNTWWCUoXuF4aTG3wyNCHQg0xcQ/
+ UbKAg7bvJgxBmyzrDURg6yFE93cZkVoIsmJ3HkhI3eAvhqCeGMUFeD6
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-On 8/11/26 6:15 PM, Thomas Richard (congatec GmbH) wrote:
-> Second iteration and nothing fancy, I just fixed a typo in CGBC BIOS EEPROM
-> label, and added a patch to make cgbc_devs (MFD cells) const in MFD driver.
-Please ignore this version. Following the discussion with Lee on
-hard-coding the cell ID, I'm finally preparing a new version of this
-series which switches to PLATFORM_DEVID_AUTO before to add the virtual
-bus and virtual storage devices support.
+The devres conversion dropped the remove-time runtime PM trailer
+(pm_runtime_disable + pm_runtime_set_suspended +
+pm_runtime_dont_use_autosuspend). devm_pm_runtime_enable's release
+action then calls pm_runtime_dont_use_autosuspend() while runtime PM
+is still enabled, triggering an immediate runtime suspend: the suspend
+callback clk_disable()s the clock that the devm_clk_get_enabled()
+release is about to clk_disable_unprepare(), and every device teardown
+WARNs in clk_core_disable() ("clkN already disabled").
 
-Also IMO having the i2c_board_info struct in the I2C bus driver is a bit
-odd. The I2C devices topology on the virtual bus can be different,
-depending the Board Controller. I think this complexity shall be handled
-on MFD side.
+Restore the trailer: with runtime PM disabled and the state forced to
+suspended before devres runs, the suspend callback cannot fire and the
+clock enable count stays balanced.
 
-At the end I should have a more generic I2C bus driver, and
-platform_data will be used to pass all parameters (including I2C devices
-to register on the I2C bus) to the I2C bus driver.
+Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
+---
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+---
+ drivers/i2c/busses/i2c-xiic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Best Regards,
-Thomas
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 3e7735e1dae0..89636ca36915 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -1545,6 +1545,9 @@ static void xiic_i2c_remove(struct platform_device *pdev)
+ 		xiic_deinit(i2c);
+ 
+ 	pm_runtime_put_sync(dev);
++	pm_runtime_disable(dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_dont_use_autosuspend(dev);
+ }
+ 
+ static const struct dev_pm_ops xiic_dev_pm_ops = {
+
+---
+base-commit: d58772d8520c7ef247c4b95c9bd76d3a25da9ff5
+change-id: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
+
+Best regards,
+--  
+Abdurrahman Hussain <abdurrahman@nexthop.ai>
+
