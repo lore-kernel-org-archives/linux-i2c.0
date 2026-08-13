@@ -1,143 +1,78 @@
-Received: from ixit.cz (ixit.cz [84.42.129.46])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A57B432D0F5;
-	Thu, 13 Aug 2026 09:20:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89EE243BDA3;
+	Thu, 13 Aug 2026 09:56:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786612831; cv=none; b=pc9cq6Q0YmGs1plpSl7cb4qXT2mwP9BPVpA+O1vLLYIu/fRkkZppodZ5Wna29qPOKamntEdYkgzdmBuM1xwAyYss1ZGObQmF/ZAp67enW6XPKKY3M6pAS1Emil3A8E3qdKfZcMfjfhQhGAhS5jBFKS5dvWzDIU/k2k1YnO9ytXs=
+	t=1786614993; cv=none; b=doPGlIpcQsakwdFCbY1Onu9ZZQc7NI8uodECCrhjj5gdvrXRTaNR5Lx6xU3UGAc6DoxagHpuJOZtLZ1zSkUbY+paPKgnusTPxc4oBZF17tcdCutBe324Y9utdTmUvMcO64UmpSnx7/5H7DiTMLmbGeaJbAt078ASo7/vtb+2cy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786612831; c=relaxed/simple;
-	bh=XSbxuFNDxlXVpQ/cS578M2yFcGMkc7DG8pgNdZPizcw=;
-	h=Content-Type:From:Mime-Version:Subject:Date:Message-Id:References:
-	 Cc:In-Reply-To:To; b=r6MS6xcjUZisslsbzqA12opEBkddOi83zt8xbCOO2KUxk8K1Alxq1JFmsyNhRMdRcyA75EwzAqKvpz/KlsemzRLbfzwH5DeylfJdWt4h1YA/n8rMvHY9+HA5aCb+9rjrx28+gQPrEuxVEBcVNTTmU+qx3xxGv+Kn0vkYzDf9V54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=LZXlAaqM; arc=none smtp.client-ip=84.42.129.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="LZXlAaqM"
-Received: from smtpclient.apple (85-70-170-181.rcd.o2.cz [85.70.170.181])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id BC3165340217;
-	Thu, 13 Aug 2026 11:20:21 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1786612821;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XSbxuFNDxlXVpQ/cS578M2yFcGMkc7DG8pgNdZPizcw=;
-	b=LZXlAaqMDuz1Eu1qoATS2mQYnT7CsZwlU8A/IXlgD06ajK8b+e6H1n9LYw4UJuCZm5U/K1
-	45EC+UwLTUEFW7hK5NTe7T8cn5/fV82S+8GeZjkxTS2flC4JayGWz1E96Y3dcIj8ur1J4R
-	hWWn2JaZ0EhUTvH7hyEn/4YiTGlPbJw=
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From: David Heidelberg <david@ixit.cz>
+	s=arc-20240116; t=1786614993; c=relaxed/simple;
+	bh=MiedI6KaLmuxYfgnsRyGNP5dSdjEge5bxfztrNW+85Y=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=BxFKoiDgcHUWu8PkBfh3L0LDUJ69gNPTt0Aymiw7/l6QCBzwUCtTOqWQBMASDDs8Dwo44y36NeteJjT0vpCIk15EEqqoBhlU/6BPoMJgQmi3WOEAiKpTl3mlojlAIzZs1KZC+NeuZeoM5+8k6ee3ui2cEue+aaiOgvrysAXqdmE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 3d8f5e9896fd11f1aa26b74ffac11d73-20260813
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:8a3528a7-2404-4a74-ab0b-fa0eb5884abb,IP:0,U
+	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:25
+X-CID-META: VersionHash:e7bac3a,CLOUDID:9d056551a45f0e2e2df13dc33220b1e2,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|136|850|865|898,TC:nil,Content:0|15|
+	50,EDM:5|-100,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,O
+	SI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 3d8f5e9896fd11f1aa26b74ffac11d73-20260813
+X-User: gonglinkai@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <gonglinkai@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1404435259; Thu, 13 Aug 2026 17:56:22 +0800
+From: Linkai Gong <gonglinkai@kylinos.cn>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@lysator.liu.se>
+Cc: Xiaoke Wang <xkernel.wang@foxmail.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Linkai Gong <gonglinkai@kylinos.cn>
+Subject: [PATCH] i2c: mux: demux-pinctrl: fix OF node leak on kstrdup failure
+Date: Thu, 13 Aug 2026 17:56:17 +0800
+Message-Id: <20260813095617.2246320-1-gonglinkai@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [PATCH 00/33] Add support for Qualcomm Snapdragon SM7150 SoC and Google Pixel 4a
-Date: Thu, 13 Aug 2026 11:20:11 +0200
-Message-Id: <7B026D92-3826-494D-B1A9-EF01D41B4461@ixit.cz>
-References: <b15b2687-0c2e-43b2-ac9e-78e04e77e065@mainlining.org>
-Cc: Jens Reidel <adrian@mainlining.org>,
- Danila Tikhonov <danila@jiaxyga.com>, Miro Mraz <mraz.miro@seznam.cz>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-phy@lists.infradead.org, linux-mmc@vger.kernel.org,
- netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, iommu@lists.linux.dev,
- linux-remoteproc@vger.kernel.org, dri-devel@lists.freedesktop.org,
- neil.armstrong@linaro.org, linux-hardening@vger.kernel.org,
- linux@mainlining.org, Connor Mitchell <c.dog29@hotmail.com>
-In-Reply-To: <b15b2687-0c2e-43b2-ac9e-78e04e77e065@mainlining.org>
-To: Danila Tikhonov <danila@mainlining.org>
-X-Mailer: iPhone Mail (23G71)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
+of_parse_phandle() takes a reference on the parent node. If a later
+devm_kstrdup() fails, err_rollback only releases nodes for indices
+0..i-1, so the current node is leaked.
 
-> On 12. 8. 2026, at 22:54, Danila Tikhonov <danila@mainlining.org> wrote:
->=20
-> =EF=BB=BFHi David,
->=20
-> Thank you for your comment.
->=20
->> On 12/08/2026 14:40, David Heidelberg wrote:
->>=20
->>=20
->>> On 23/04/2025 09:26, Neil Armstrong wrote:
->>> Hi,
->>>=20
->>> On 23/04/2025 00:07, Jens Reidel wrote:
->>>> Hi everyone,
->>>>=20
->>>> apologies for the mess this created. Danila's mail provider ratelimited=
- him halfway through sending the series and the attempt to re-try sending th=
-e second half an hour later ended up with a new message ID (I think due to n=
-ot using --in-reply-to).
->>>> He asked me to let you know that this will be resolved later and the wh=
-ole series will be re-sent once the problems are resolved.
->>>=20
->>> The b4 web submission is a great alternative when the mail provider is r=
-ate limited:
->>> https://b4.docs.kernel.org/en/latest/contributor/send.html#web-endpoint
->>>=20
->>=20
->> I see people interested in moving Pixel 4a forward, but it seems this was=
- never upstreamed? I looked at sm7150 repository [1] where I see FROMLIST, b=
-ut these patches never arrived to the list and this series is from 2025.
->>=20
->> Should we expect v2 (re)based on recent tree?
->>=20
->=20
-> I'd definitely like to get back to upstreaming SM7150 and the devices
-> based on it, but I don't think there's much value in continuing with
-> this particular series as-is. A lot has changed in the kernel over the
-> past year, which would require substantial changes throughout the series
-> and would effectively force the maintainers to review it from scratch
-> anyway.
+of_node_put() the current parent before rolling back.
 
-After longer period of time maintainers will have to do full review anyway. S=
-ure, the reviews needs to be addressed :)
-
->=20
-> I'd also like to split the series up to avoid targeting such a large
-> number of maintainers in a single submission.
-
-Yes, that=E2=80=99s exactly what=E2=80=99s needed (at least for the part pat=
-ches I saw).
-
-> Hopefully, I'll be able to
-> find some time to work on this in the near future.
-
-Where the most recent patchset can be found? Just in case someone wanted to p=
-ush some bits in meantime.
-
-Thanks
-David
-
->=20
->=20
->> Thanks
->> David
->>=20
->> [1] https://github.com/sm7150-mainline/linux/commit/7ea41523c678e94a7c048=
-936052b5b1b1b109cdd
->>=20
->>> Neil
->>>=20
->>>>=20
->>>> Best regards,
->>>> Jens
->>>=20
->>>=20
-> ---
-> Best regards,
-> Danila
+Fixes: 7c0195fa9a9e ("i2c: mux: demux-pinctrl: check the return value of devm_kstrdup()")
+Signed-off-by: Linkai Gong <gonglinkai@kylinos.cn>
+---
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 1 +
+ 1 file changed, 1 insertion(+)
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index f2a1f4744978..2403c0bf7c43 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -247,6 +247,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ 		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
+ 		if (!props[i].name || !props[i].value) {
+ 			err = -ENOMEM;
++			of_node_put(adap_np);
+ 			goto err_rollback;
+ 		}
+ 		props[i].length = 3;
+-- 
+2.25.1
