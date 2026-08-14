@@ -1,62 +1,64 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBD403C1D73
-	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 23:11:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C74AC3E7647
+	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 23:11:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786749066; cv=none; b=F3GN9Y/+skFAk4obF3baMvPR4y2p0mdtKdmcDcHQb6HZtQwcuwPT1+2bCSSzk3/UPIk7iLuwLGtglg7PH+oXosQGe/lj0zQwcG17UqxEl9iEHwva+nml4pYrRi3Ppx/dG7hC30fW5cqvh5qEVLPE15DpCsOCXlXXezAadAT3OLQ=
+	t=1786749070; cv=none; b=kkeLutX64jNAx4I2wTB8bbXPSgFsqr0P26R8QB36Atx3HliVxTM5eFysRIU/sBPyeazB2EcaV4z3PuIbgUJCXdM2pFGx+CKo5KTIrX4XQyUoEYBO+J604OjTJk36fooNbcmGfBIpwiueOJYEe/lDEy3qAWieAFS2ZQCCRhN76gM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786749066; c=relaxed/simple;
-	bh=wGdVXlAMvX7tE0cwCy+Em1rumWHMNHO70xxu6sxLlu0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E6qV1PyP+KcYIAH257Jkpm0gZNesRqyzv0Zy/8H4sLSeLJZOK67nCifAEVIp8P0h3ZN+9OpVVqie8gnCbbPieIoIiMONx0sQzZ72XY1FTJJTJYk8KrEYYm+qzXgEF3vbZc0L6X3skwDYag5atlfb0wSd3I9/ET3fSw0I/dcoORA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mdf/Zc5k; arc=none smtp.client-ip=209.85.214.182
+	s=arc-20240116; t=1786749070; c=relaxed/simple;
+	bh=44ug/C+wAEBpOTrhMYNtqAXfr0HoJRYwJfcphkPhMgQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Xgavv6uLLu8y+zyvUWjy799FPULY+YnzWvJ0+4B0Um53SpZEx6CHg88PiwVZZiUl6MpD3U2GWtGHTPzNzPqXQ7lqyvyI/UjuWpLZhiUPTPo+h2lfqvF8VktAk9g1yXaS63eZBMAzne59gkMJ48u4CBCE0OoIq2uhg/X3isNao28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OtdBbP5v; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mdf/Zc5k"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2ceb096e675so19160475ad.0
-        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 16:11:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OtdBbP5v"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2caea3f742bso26745765ad.0
+        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 16:11:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786749063; x=1787353863; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=gGvwPOiibGAV/zYgpHRwEPNgFrWcL2aKuRnGK18Zsbk=;
-        b=Mdf/Zc5knMvoA2RovLv8h6x11TqECpq8rhXXi8PjD5o08xws9gqi1Ma/CItVJiC5Ak
-         8mYNDYTqPOoFI6tgjY64xmQup6ymx20IfJxUJRCluENxnsXyqCDnUl5Mod96yHHLYid8
-         oZRsdmwb5+DuaHJtJO7tqUz+/72RqNbESCcPyG4shCmvxwD5VKi8AucBGFKv/TO+qSUt
-         jOXCI77U7OuT/dn8NlyIn95YhSBjfGlo+shgHd/rBJ5QIC71tdq2F7kBfMR311NTsU+r
-         2N7nCP5ZT4Xk1DK7C3CXny238HTyQijbOwJ4Hh2Y5zDTbh29zc4OokCQve7yoho0ZNBQ
-         9T7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786749063; x=1787353863;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1786749067; x=1787353867; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=gGvwPOiibGAV/zYgpHRwEPNgFrWcL2aKuRnGK18Zsbk=;
-        b=jmh0GCenKOavlIwbr0MnXvwadpFqclXcvK08MOCo4qaX6eHpqwG/hqMoGUJcBmRf5W
-         N207HtCsgLYzABz0F3Hhs5w0NAXRAOr0U+0tdt8IND7SmRZGrIaL++EVY+7wgMgttSeO
-         SeUcpGDCiZfNhjPNjscY+vSVAkufKB/GlD5Tnk8lEUGQS2KKKglAt/iUg+AXMrvOThte
-         aXe9i2b+jUDH2+c40/sDGvfxURpWhID/baUhieKFGHCu9NL3ZXNFlFudWZa4t2dU9TP6
-         49okQTUkW0havCrNBndK7CVZgBuyPNchbSlocfQNgpeEEv3f1fJij7Y4rTanXi7ArK7o
-         fqUA==
-X-Forwarded-Encrypted: i=1; AHgh+RpIUl6jyHu68slMhVc5dS3A3HgFyDVqG3cVAbC3ZORYH3GmeDK/KNlAVppj5zvOosxL5uKNBt0D3G8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYbbdR/gVBlt8x0HMO8EI7rC3CqG9sx6BcNm1LHmKznUvJZq/B
-	9Us5hqNaTIsQyZLp6+6zb8D+x2uYzmKV9wijHUJDlOWeS4IL+S9xUPoQ
-X-Gm-Gg: AR+sD12OGF7Hxa7IX9wtPWwRBzldoxMv87LdUuLrqXhxwD9UvFJO3MwV93DHW8nLQVD
-	aRjVoz4UUI7KNMyG4fVPQqFblc05YLWZiNMGeSLYC5E5Y16LLAP6aPoxuzPXs/Uy5DbRpfe8Kl2
-	EYWUZt5GBAiuaicIW/KqUo3ndTT9BjUVjIrTCfBDbXYMFe9ndqKrMVIF2qhQHOweqQzIMzOn2tV
-	qhFza9CjUINDciOyCP9sINJYgkKjErYDgBferbk0vFQJoF9XG1KKFPT/wfCDKREHujZp52Urj9F
-	zPCFCzA/qtb/KHp7KnzFQG2eOJwT8fJp/0QDnXGfzvgXr3eHrcDUgnNfy1UBfVxHAaqtygVZRt4
-	/EbwBxRZLd89ifRtutSEp5LN/lBlFGHtk3Owza0kIe9O3Ogso5LamnQiN4BVVAcnbm7cEDZwmGH
-	8lTY+/kYNJYW1RaIENcjTF9JXgPbF+3IB4bkwO7sEuwNEH0vPvpyGosmAx80Ogh9rRZEnJX5voU
-	HkO8Q==
-X-Received: by 2002:a05:6a21:1f88:b0:3cb:9bb0:27a2 with SMTP id adf61e73a8af0-3cc71e8382cmr11015578637.34.1786749062904;
-        Fri, 14 Aug 2026 16:11:02 -0700 (PDT)
+        bh=ouiR3ivZXFGLAlzqaEsoWP9s70nb+07A9Idd51+C0NY=;
+        b=OtdBbP5viyaFBCpnilni49s3Aj0WXt7Tp+O6YA/Ikvy4gu75n4gYFy4bhvtCZDoKcK
+         n9CdNMfmOFulC9OGH+/1KboBbpcnMVMeQZwlrvenu03irjqLTLsNYJRicwpAzG44I9s+
+         kCN1SCpGwZa7BGmOE/R5bSEpXZl3bkmjJiAph/KqPldCeoLvXNStgbP0VBq5u4gqraCx
+         6itlDlOUEbZba/Ii7tMh8rojtVo4ozvhLxCpq3cwS18+VqM0AV9ToLhjoXLS9E08uA8s
+         8mjbL19t33u3dEbM7XKi6v3nzRm3+6YMZI0QlfXxY0LKt/m0k4999pSXvpiU1gyebjui
+         zLrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786749067; x=1787353867;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ouiR3ivZXFGLAlzqaEsoWP9s70nb+07A9Idd51+C0NY=;
+        b=SEJXIhhe1n1GexRj+hT2r+kivsaH16IKyc+tM4bvrLwSr5e+HgBuOVLzN5tFREnde+
+         qaNCkzJEvqAloqKZOcFOKAuZRgIn90ix8IfcAvQfEDQt+zcadKrZn9/m5+amkEO+6tDQ
+         4ogNZ9kiSWGjnq5BEmkvBVqXGNj5BC4E6SYnmICjPj4m8YBIJBkSs8+X8RdTK6CxRv6r
+         1I20NSl1EatFqfRJ209q/8Gf5ej89b983k8znzuFjolxnabMSWEFP/Boio888G2Am+zw
+         clXCY24K4mL5HEkh2cXrBqz/MDnfAjxhdih48D/hLnYoTL0LZ8dVKvaNp9YLT20PFXVd
+         Wj5A==
+X-Forwarded-Encrypted: i=1; AHgh+RqdCa56KW4zGyeLfbMpwtT7uMriujIiMM8ROEc3rMyq8Z17sezvARtbBMu0D1/ZlGRooJ8Kr98edOY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yys3PUOcryRzuJIma2SFszN1B6RUr54QyMtbXY54JOHNSBtsMQR
+	DrqjFdIhqwnwD6YBNMPfEDwH0LiA+BqakSSMolUmppx9tUfKUhngyBUA
+X-Gm-Gg: AR+sD13vGc0yvhBczBpNDxlICI8Z3QHQD2M7430uI3bfyNymvftYlU417pJdeLjm3Al
+	I3S2sh1aR0S2Yqx7+Rk2dTrx4VQhqlbAkhq+YjNvWWxIuMexUe19Jhizv3S+c2mJhRWlE/+g1lo
+	vY6e5PQgqVBA2UBKWmG3ELZlrJdYw84A9c54TYocsCUnWGLxz7CxjP+gzLuEp8iJMe7XRJw548/
+	ZMM9pNWlmp7Q8zOakK7m51bKkcRHWw7KLoZicsY0T8if7cI0BS9fcEYDO3kc86pUzErFd1yWgMU
+	4MC2RxNiOsaI/iEr/CqZZwOO8ar/DImWjMm6mk8+urNaz+tbcZgOAH2KoRN7wYLeExstUo76vxc
+	Lywdsiq/YzugCzEOi0pwOMBz1wRLuI7SQNXK+0ni9amUKye0dRKX0UE+rlsDwv1DpKbRCBkz+md
+	6z+uteGkBERIEWv/gSP6PDymMOzO7s+DoZsiaOHCYR+QAFlCNZnfAdKin07wIXFUZ2apiuevWUi
+	lsmCKmxxwFJNrEQCw==
+X-Received: by 2002:a05:6372:a743:b0:3cc:8f53:26c0 with SMTP id adf61e73a8af0-3cc8f532b1bmr417457637.17.1786749067016;
+        Fri, 14 Aug 2026 16:11:07 -0700 (PDT)
 Received: from Mac.localdomain ([12.162.234.74])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320d61e1568sm8563607eec.11.2026.08.14.16.10.58
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320d61e1568sm8563607eec.11.2026.08.14.16.11.03
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 14 Aug 2026 16:11:02 -0700 (PDT)
+        Fri, 14 Aug 2026 16:11:06 -0700 (PDT)
 From: Ahmad Byagowi <ahmadexp@gmail.com>
 To: netdev@vger.kernel.org
 Cc: Lee Jones <lee@kernel.org>,
@@ -81,10 +83,12 @@ Cc: Lee Jones <lee@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-hardening@vger.kernel.org
-Subject: [PATCH net-next v5 0/7] ptp: ocp: Add R4006 and V9 I2C peripheral support
-Date: Fri, 14 Aug 2026 16:10:48 -0700
-Message-ID: <cover.1786746757.git.ahmadexp@gmail.com>
+Subject: [PATCH net-next v5 1/7] dt-bindings: leds: Add IS32FL3207 controller
+Date: Fri, 14 Aug 2026 16:10:49 -0700
+Message-ID: <d5df0bb5c312478279f0d2fd5ec6305e41add5ae.1786747084.git.ahmadexp@gmail.com>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <cover.1786746757.git.ahmadexp@gmail.com>
+References: <cover.1786746757.git.ahmadexp@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -93,91 +97,329 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add the generic LED and I2C-mux support needed to describe peripherals
-behind the FPGA I2C controller, then use it to instantiate the R4006 and
-Time Card V9 board topologies from software nodes.
+The IS32FL3207 is an 18-channel constant-current LED controller with
+per-output PWM and current scaling.
 
-Patches 1 and 2 add the binding and LED-class driver for the Lumissil
-IS32FL3207. The driver supports individual and multicolor LEDs, enforces
-per-output current limits, and keeps the controller shut down until every
-channel has been configured.
+Describe I2C addressing, power and shutdown controls, RISET, and
+individual or multicolor output groupings. Require board current limits
+for each output and document their relationship to the RISET-derived full
+scale.
 
-Patch 3 propagates software-node channel descriptions to adapters created
-by i2c-mux. It preserves an ACPI primary firmware node, makes I2C adapter
-lookup recognize the attached secondary node, and keeps that node alive
-through child-client teardown.
+Allow dash-suffixed multicolor group names when a group begins at channel
+16 or 17, which cannot be represented by the common schema unit-address
+form.
 
-Patch 4 tracks the fixed-width board ID and serial number independently.
-Profile selection can therefore proceed when the board ID is valid even
-if the separate serial EEPROM is absent.
+Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
+---
+ .../bindings/leds/issi,is32fl3207.yaml        | 281 ++++++++++++++++++
+ MAINTAINERS                                   |   6 +
+ 2 files changed, 287 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
 
-Patch 5 adds the reusable profile-driven topology and recovery lifecycle.
-It stops topology work and removes the mux before the root I2C controller
-unbinds, preventing new child creation after adapter teardown has begun.
+diff --git a/Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml b/Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
+new file mode 100644
+index 000000000000..2e53aa1e202d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
+@@ -0,0 +1,281 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/leds/issi,is32fl3207.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Lumissil IS32FL3207 18-channel LED controller
++
++maintainers:
++  - Ahmad Byagowi <ahmadexp@gmail.com>
++
++description: |
++  The IS32FL3207 is an I2C LED controller with 18 individually controlled
++  constant-current outputs. Each output has 8-bit current scaling. PWM
++  brightness control uses the controller's default 8-bit, 62 kHz mode.
++  Outputs may be exposed as individual LEDs or grouped as multicolor LEDs.
++
++  The data sheet is available at:
++    https://www.lumissil.com/assets/pdf/core/IS32FL3207_DS.pdf
++
++properties:
++  compatible:
++    const: issi,is32fl3207
++
++  reg:
++    enum: [0x34, 0x35, 0x36, 0x37]
++
++  vcc-supply:
++    description: Regulator providing power to the VCC pin.
++
++  enable-gpios:
++    maxItems: 1
++    description: GPIO connected to SDB, asserted to enable the controller.
++
++  issi,riset-ohms:
++    minimum: 2000
++    maximum: 76500000
++    description: |
++      Resistance in ohms of the external RISET resistor. The resistor sets the
++      full-scale output current according to IOUT(MAX) = 76.5 / RISET amperes.
++      Each LED's led-max-microamp value selects a board-safe peak current no
++      greater than this full scale, using the per-output scaling register.
++
++  "#address-cells":
++    const: 1
++
++  "#size-cells":
++    const: 0
++
++patternProperties:
++  "^led@[0-9a-f]+$":
++    type: object
++    $ref: common.yaml#
++    unevaluatedProperties: false
++
++    properties:
++      reg:
++        minimum: 0
++        maximum: 17
++        description: |
++          Zero-based LED output number. Values 0 through 17 correspond to
++          OUT1 through OUT18.
++
++      led-max-microamp:
++        minimum: 1
++        maximum: 38250
++        description: |
++          Board-safe peak current for this output. The value must not exceed
++          the full-scale current derived from issi,riset-ohms.
++
++      color:
++        oneOf:
++          - minimum: 0
++            maximum: 7
++          - minimum: 10
++            maximum: 14
++
++      max-brightness:
++        minimum: 1
++        maximum: 255
++
++      default-state:
++        description:
++          The driver performs a software reset and clears the PWM state during
++          initialization, so an existing state cannot be preserved.
++        enum: ["on", "off"]
++
++      default-brightness:
++        maximum: 255
++        description: |
++          Brightness used when default-state is "on". This value must not
++          exceed max-brightness when max-brightness is specified.
++
++    anyOf:
++      - required:
++          - function
++      - required:
++          - color
++
++    required:
++      - reg
++      - led-max-microamp
++
++  "^multi-led(@[0-9a-f]|-[0-9]+)?$":
++    type: object
++    $ref: leds-class-multicolor.yaml#
++    unevaluatedProperties: false
++
++    properties:
++      reg:
++        minimum: 0
++        maximum: 15
++        description: |
++          Optional zero-based lowest-numbered output used by a group named
++          multi-led@N. Values 0 through 15 correspond to OUT1 through OUT16.
++          For a multi-led-N group without reg, the driver derives the lowest
++          output from its component nodes. This form permits groups beginning
++          at channels 16 or 17 while following the common multicolor node-name
++          schema.
++
++      "#address-cells":
++        const: 1
++
++      "#size-cells":
++        const: 0
++
++      max-brightness:
++        minimum: 1
++        maximum: 255
++
++      default-state:
++        description:
++          The driver performs a software reset and clears the PWM state during
++          initialization, so an existing state cannot be preserved.
++        enum: ["on", "off"]
++
++      default-brightness:
++        maximum: 255
++        description: |
++          Brightness used when default-state is "on". This value must not
++          exceed max-brightness when max-brightness is specified.
++
++    patternProperties:
++      "^led@[0-9a-f]+$":
++        type: object
++        $ref: common.yaml#
++        unevaluatedProperties: false
++
++        properties:
++          reg:
++            minimum: 0
++            maximum: 17
++            description: |
++              Zero-based LED output number. Values 0 through 17 correspond to
++              OUT1 through OUT18.
++
++          led-max-microamp:
++            minimum: 1
++            maximum: 38250
++            description: |
++              Board-safe peak current for this output. The value must not
++              exceed the full-scale current derived from issi,riset-ohms.
++
++          color:
++            oneOf:
++              - minimum: 0
++                maximum: 7
++              - minimum: 10
++                maximum: 14
++
++          max-brightness: false
++
++          default-state: false
++
++          default-brightness: false
++
++          retain-state-shutdown: false
++
++        required:
++          - reg
++          - color
++          - led-max-microamp
++
++    anyOf:
++      - required: [led@0]
++      - required: [led@1]
++      - required: [led@2]
++      - required: [led@3]
++      - required: [led@4]
++      - required: [led@5]
++      - required: [led@6]
++      - required: [led@7]
++      - required: [led@8]
++      - required: [led@9]
++      - required: [led@a]
++      - required: [led@b]
++      - required: [led@c]
++      - required: [led@d]
++      - required: [led@e]
++      - required: [led@f]
++      - required: [led@10]
++      - required: [led@11]
++
++    required:
++      - "#address-cells"
++      - "#size-cells"
++
++required:
++  - compatible
++  - reg
++  - issi,riset-ohms
++  - "#address-cells"
++  - "#size-cells"
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/leds/common.h>
++
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        led-controller@34 {
++            compatible = "issi,is32fl3207";
++            reg = <0x34>;
++            #address-cells = <1>;
++            enable-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
++            #size-cells = <0>;
++            vcc-supply = <&led_3v3>;
++            issi,riset-ohms = <4700>;
++
++            multi-led@0 {
++                reg = <0>;
++                #address-cells = <1>;
++                color = <LED_COLOR_ID_RGB>;
++                function = LED_FUNCTION_STATUS;
++                #size-cells = <0>;
++
++                led@0 {
++                    reg = <0>;
++                    color = <LED_COLOR_ID_RED>;
++                    led-max-microamp = <8100>;
++                };
++
++                led@1 {
++                    reg = <1>;
++                    color = <LED_COLOR_ID_GREEN>;
++                    led-max-microamp = <8100>;
++                };
++
++                led@2 {
++                    reg = <2>;
++                    color = <LED_COLOR_ID_BLUE>;
++                    led-max-microamp = <8100>;
++                };
++            };
++
++            multi-led-1 {
++                #address-cells = <1>;
++                color = <LED_COLOR_ID_MULTI>;
++                function = LED_FUNCTION_INDICATOR;
++                #size-cells = <0>;
++
++                led@10 {
++                    reg = <16>;
++                    color = <LED_COLOR_ID_AMBER>;
++                    led-max-microamp = <8100>;
++                };
++
++                led@11 {
++                    reg = <17>;
++                    color = <LED_COLOR_ID_WHITE>;
++                    led-max-microamp = <8100>;
++                };
++            };
++        };
++    };
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 991460050da7..448e7b7be8df 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13827,6 +13827,12 @@ S:	Maintained
+ F:	Documentation/filesystems/isofs.rst
+ F:	fs/isofs/
+ 
++ISSI IS32FL3207 LED DRIVER
++M:	Ahmad Byagowi <ahmadexp@gmail.com>
++L:	linux-leds@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
++
+ IT87 HARDWARE MONITORING DRIVER
+ M:	Jean Delvare <jdelvare@suse.com>
+ L:	linux-hwmon@vger.kernel.org
 
-Patch 6 adds the R4006 temperature, humidity, pressure, GNSS LED, and four
-SMA LED groups. The BNO08x channel remains empty because no upstream driver
-binds that device. Production R4006 IDs may carry a revision suffix.
-
-Patch 7 adds the V9 BME280, BNO055, two GNSS LEDs, and four SMA LEDs. It
-uses the exact fixed-width ID "TIMECARD-V9" because earlier revisions
-expose the same detectable I2C devices with different LED routing.
-
-The prerequisite patches touch DT bindings, LED, and I2C code. Reviews or
-acks from those maintainers are requested so the complete dependency series
-can be carried through net-next.
-
-Hardware and build validation:
-  - Exercised the R4006 LED routing on hardware.
-  - Checked the V9 controller address, 4.7 kohm RISET, sequential RGB
-    routing, and second GNSS LED against the V9 schematic.
-  - Ran dt_binding_check for issi,is32fl3207.yaml.
-  - Built i2c-core-base.o, i2c-mux.o, leds-is32fl3207.o, and ptp_ocp.o
-    with W=1 for x86-64 and arm64 using defconfig and allmodconfig.
-  - Ran strict checkpatch with an 80-column limit on all seven patches.
-  - Applied the generated mailbox to the stated base and compared the
-    resulting tree with the source branch.
-
-Changes since v4:
-  - Split EEPROM readiness, generic topology lifecycle, R4006, and V9 into
-    separate patches.
-  - Track board-ID and serial-number readiness independently and publish
-    each field only after a successful EEPROM read.
-  - Replace the atomic retry counter with worker-serialized state, bounded
-    logging, and synchronized root-controller teardown.
-  - Support multicolor groups whose final components use outputs 16 and 17,
-    and document current limits relative to the RISET-derived full scale.
-  - Serialize multicolor calculation, PWM updates, and controller shutdown.
-  - Match secondary software nodes while preserving an ACPI primary, and
-    balance software-node ownership on failure and teardown paths.
-  - Clarify that the BNO08x and LM75B at address 0x4a occupy different mux
-    channels.
-  - Rebase onto current net-next.
-
-v4:
-https://lore.kernel.org/r/cover.1786543681.git.ahmadexp@gmail.com/
-
-Review of v4 patch 4:
-https://lore.kernel.org/r/62242142-0d27-425c-88d6-db65e80bbcea@linux.dev/
-
-Ahmad Byagowi (7):
-  dt-bindings: leds: Add IS32FL3207 controller
-  leds: is32fl3207: Add controller driver
-  i2c: mux: Propagate software nodes to channel adapters
-  ptp: ocp: Track EEPROM fields independently
-  ptp: ocp: Add profile-driven I2C topology support
-  ptp: ocp: Add R4006 I2C peripheral topology
-  ptp: ocp: Add Time Card V9 I2C peripheral topology
-
- .../bindings/leds/issi,is32fl3207.yaml        |  281 +++++
- MAINTAINERS                                   |    7 +
- drivers/i2c/i2c-core-base.c                   |   24 +-
- drivers/i2c/i2c-mux.c                         |   77 +-
- drivers/leds/rgb/Kconfig                      |   11 +
- drivers/leds/rgb/Makefile                     |    1 +
- drivers/leds/rgb/leds-is32fl3207.c            |  736 ++++++++++++
- drivers/ptp/ptp_ocp.c                         | 1025 +++++++++++++++--
- 8 files changed, 2083 insertions(+), 79 deletions(-)
-base-commit: e6a5d573d24cd375e09d24f136523cb3cc85c9d3
 -- 
 2.50.1 (Apple Git-155)
