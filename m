@@ -1,43 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3885637F01A;
-	Fri, 14 Aug 2026 21:19:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3E713ECBE4;
+	Fri, 14 Aug 2026 21:47:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786742396; cv=none; b=NwZBpMJKkaBVlqk3JJe+S+GDcBkd1kAMu/r2oJN1Ty1hSOCtxGWZifBpTrx7SiYOeiMCU/9jZP1Mq7fH9GHgJwP47W+JIPIzouYnDmdQ6ah1u+a0hq6q/MnaL0rF80vZ+W+edKJvVlODlOrxD11onU4YvhA67q3GmIeWHh0s2Wk=
+	t=1786744061; cv=none; b=pNEVkVxf0/WXcyWdiERHRXRjFfyfSo/XsTgdTof2/XFzL9z1ae3TQc/qCZ4MloahSzyv7E8Gigz3PCaK3UF9qUMDSQCjxyADIHvtKMxV8GNCOtcrxJdb8rsqim2z2aMjlU1NnbyR74ohUo1uez0zsAstSA8GV7eRV3yQ/oJ6Rh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786742396; c=relaxed/simple;
-	bh=iRAWwpqyHCsCEBig8Ggg6vWc3y0LM0HV+hjBv8vbQ6c=;
+	s=arc-20240116; t=1786744061; c=relaxed/simple;
+	bh=d+T4qGmkwrrvLcrN4CAfrsnYybD3LQRwGl+zVUanOQU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WEjt6LjebMWE9hSxYyBw4NiWZx+Ls0/uTgrqt/wMWqMd6D+kyu1RPjIyv/lXYjjdhkrTcJOyy9avt9TMva3otd2bg0x6dfGS9NM/pUVlpi8ZWqlsMWOYXZqeYMBYbUQ1P/uO/hh6dAQ+CXbPZxYpN8PZXu41SU7QbJR+lTWf8HA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kW4i02dh; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=ATmD5wrgbgfIv2ATjdqPSY2bRhinoX9v9Qw5axk1m1dGGVWKySypoGzUq3P3RpzkxTXLglop4MyHouuO5I1Epht/x8JCDcGpSPemxl5PWWyygI4gwy+/F3HoqCAWmIckWW9TaG2N3yrPxCNI+oG0tt+FMEENiYMA7inY+63fStg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fIA0HyLJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kW4i02dh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01611F000E9;
-	Fri, 14 Aug 2026 21:19:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fIA0HyLJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04031F000E9;
+	Fri, 14 Aug 2026 21:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786742394;
-	bh=8xyewwSgf7Y2TJ9EZNTnjEdF4u56f4myYdpmZfysO44=;
+	s=k20260515; t=1786744060;
+	bh=2qNebYmttxSqJhOl9ARdT0d6arM2F5VGJb73bWlx1eI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=kW4i02dhygVEUm0S604lBmWnhC78bEyEKtqnBskM2MZivHq955nsK8V0A/DHWyrS1
-	 QxvDvQ9M6IPJb6JUx8ZtivmL3sfoBa1lsvGRphsHup3/7Wzi1nLpLGmrpv6olBXtnF
-	 xQDjFfHgjDfyWy66vQfDxLKPnF4a9PATxaMMNZ4jQBP4lJZSiMYWWDHyXkip9hpCV5
-	 W9pstcBcB0DUHyPc7q6rmoxkQnT5daaUG++eItaw83mnZFYc0gWukzx+oJGQB8QPZm
-	 +LHpAmCYCcjIHX5DVBH1DoKBSwdil2j1sFG25fgfkB0vP5Qv5phV1Jn3d6RzCqmTrh
-	 flW9RzjEUAmvQ==
-Date: Fri, 14 Aug 2026 23:19:51 +0200
+	b=fIA0HyLJxd1HNDAEL+c+mHqJkCX/3A7sclQcu4qzx9J4dFpGYmeJhBcZBEajBUoBp
+	 s6IrP0Wfb7g64yCgANqYZyamBi7mLAJNx+FzT2vnz0MJ92xcb6S0r0KLXOVvvn+LtA
+	 aQjxCqYPYA/tSEB7M7zbxupCpYEnzOCHIlnpwkq3VKx0BLfslo0utW0G3kE/ER2pd9
+	 WaY+pMlLwTP4lUT+gsMVgM85UQU9mupcFrf1PVexGB9yvjEi6s0HCQRLfBNXL19Q42
+	 7sJTJAiRnbNAOoxSx8mwDynY8yrHeHF1479MoMfXcZQ4I+W2yXVLmvx4Euyr/S7pYp
+	 fuamc3vyxaYJg==
+Date: Fri, 14 Aug 2026 23:47:37 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
-	andriy.shevchenko@intel.com, mario.limonciello@amd.com, brgl@bgdev.pl, 
-	basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org, 
-	chaitanya.kumar.borah@intel.com, linux@leemhuis.info, regressions@leemhuis.info, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Revert "i2c: designware: defer probe if child GpioInt
- controllers are not bound"
-Message-ID: <an-GZpgfiPJj2JsV@zenone.zhora.eu>
-References: <20260814100719.9548-1-hardikprakash.official@gmail.com>
+To: Ruoyu Wang <ruoyuw560@gmail.com>
+Cc: linux-i2c@vger.kernel.org, peter@korsgaard.com, andrew@lunn.ch, 
+	jcmvbkbc@gmail.com, wsa@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: ocores: Disable clock on failed resume
+Message-ID: <an-MW3uW-o5tPpiT@zenone.zhora.eu>
+References: <20260813153155.3953577-1-ruoyuw560@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -46,33 +42,25 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260814100719.9548-1-hardikprakash.official@gmail.com>
+In-Reply-To: <20260813153155.3953577-1-ruoyuw560@gmail.com>
 
-Hi Hardik,
+Hi Ruoyu,
 
-On Fri, Aug 14, 2026 at 03:37:19PM +0530, Hardik Prakash wrote:
-> This reverts commit 0a4bb2abc3e56d7be6e69b050c88ba52c87e22bf.
+On Thu, Aug 13, 2026 at 11:31:55PM +0800, Ruoyu Wang wrote:
+> ocores_i2c_resume() enables the controller clock before reinitializing
+> the hardware. If the clock rate changed while the device was suspended,
+> ocores_init() may reject the resulting prescaler. The callback then
+> returns an error with the clock still enabled, while the controller
+> itself remains disabled.
 > 
-> The reverted commit causes a regression on ThinkPad T14s Gen 4 (AMD):
-> the touchpad's I2C controller fails with lost arbitration errors,
-> because it delays i2c-designware's probe by roughly 500ms, which
-> shifts the touchpad's first HID descriptor fetch into a window where
-> the platform's embedded controller is still acting as a secondary I2C
-> bus master. Debug tracing confirms the GpioInt dependency check itself
-> behaves correctly (it defers appropriately and confirms the GPIO
-> controller is bound); the arbitration failure happens roughly a
-> second after the check passes, when i2c_hid_acpi's own probe attempts
-> its first transaction.
+> Disable and unprepare the clock when ocores_init() fails so the failed
+> resume path balances the successful clk_prepare_enable() call.
 > 
-> The original fix is still needed for the Lenovo Yoga 7 14AGP11
-> touchscreen race the commit addressed, but a corrected version will
-> be resubmitted once the EC bus-mastering interaction is understood
-> and handled properly, rather than reintroducing a different
-> regression on more widely-used ThinkPad hardware in the meantime.
+> This issue was found by a static analysis checker and confirmed by manual
+> source review.
 > 
-> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
-> Closes: https://lore.kernel.org/all/b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info/
-> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+> Fixes: e961a094afe0 ("i2c: ocores: add common clock support")
+> Signed-off-by: Ruoyu Wang <ruoyuw560@gmail.com>
 
 merged to i2c/i2c-2.
 
