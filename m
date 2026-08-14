@@ -1,272 +1,129 @@
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.102])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 366A63E7BC4;
-	Fri, 14 Aug 2026 10:50:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.63.102
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABCE54756CF
+	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 13:40:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786704639; cv=none; b=hGseMoO1vgm84zCS6mWZd9eYczGenl61Xup5F8bj7Nsy91dNkqDOLT2hlBQnjalDBiheud7qrEPNYS3v3AONjPS242VBBH4GIZK5uif8UychPjM36Nz/cYhebZiGu8hZaHTKolHnF0Arom7sxJpu9XruRGYUaPRstp/K4X1aTvQ=
+	t=1786714842; cv=none; b=qhnZCFpANiHtm7mnOM35PmPXntx52LSmq6Jw8rFU8bpSlt+9GuHph0Jm/hLoBnU/3UKpWYG6boIuCr3ZWOEw7Hp4i0v6kwDlDD6MmY0dv1oweuWiDxbY2URcDxMt4RPoN/b4upn0nq5CJ+2H+Zyqfj8ZHWJ5ixtPW6n5ch19dIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786704639; c=relaxed/simple;
-	bh=2Slq7BfV2veArz26Xz+0G16CbKrTuLeus7G2djTzJ8Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V5B97FjdC2qaI44wSpRUwNdHDQIX2AQkvAuueg9LT2R1syF/NiyaR1MY36yhGRIIEKD3mc+AFj8AbQmywUQLwLvO4ssx+jNK1VcyglvU0j5S7Yk43tWEfixYOkSMIjTfFU4BJRdqASQhnkqzGY1Reo6CmiPsM5+topA8QjCc6MA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=O1wawpXj; arc=none smtp.client-ip=188.68.63.102
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	s=arc-20240116; t=1786714842; c=relaxed/simple;
+	bh=ZFcWIVAF5GwsG/s4LdZRYp+ubN6mNHhGokZn49msOb0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UV/Tfw29U1dF8aA3YydPAOrrY3d+eQ8x9gp+k/+1KMD15OKxKY9MMUSz3Tf67xtJcmYbfpobUxvIIkpRzGr9CxQlh3JnjEChjDiTRhs+hgEqnz87LUSjVONOMiE/5oD7YOS4aeEpJbub9uFtVyiXM1VKdLV/Kimd6p7IJS1S1j8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iLpgpsDm; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="O1wawpXj"
-Received: from mors-relay-2502.netcup.net (localhost [127.0.0.1])
-	by mors-relay-2502.netcup.net (Postfix) with ESMTPS id 4hLzWs166Qz6D4s;
-	Fri, 14 Aug 2026 12:50:01 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
-	s=key2; t=1786704601;
-	bh=2Slq7BfV2veArz26Xz+0G16CbKrTuLeus7G2djTzJ8Y=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=O1wawpXjLPBIqgXQD6T+0puVRJ447eteenkDXuOEKyz4QucLjg5RmxZDSeZoAStJ1
-	 krZJD5+71vnucX+YaTRqJlfqpkgbdbR+DR0iYa4PP2B2VCSLIi1/pDG4lzinzzpSqR
-	 fmtHCyC2Nk0gg1pDTWAPnyS5+/8ImfUu4G63z2/TMt/9OwTMYCh+VJFtR44VPuXVD5
-	 Cx70G7xbsl5V7hzko16xbWvKtfP0LVs/wJ8QBN6t03JQRNYrxCMJL5ApRcxm8FcMVK
-	 by3W8yc6zhcY2HS0xElG6vUX4OHllYa694FgLoUteDBBCUClGJRQ0SPX4nZBPijbub
-	 WQTOpADC3IVcA==
-Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay-2502.netcup.net (Postfix) with ESMTPS id 4hLzWs0MFtz4yR7;
-	Fri, 14 Aug 2026 12:50:01 +0200 (CEST)
-Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4hLzWr3Hrwz8svk;
-	Fri, 14 Aug 2026 12:50:00 +0200 (CEST)
-Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
-	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 374535FABB;
-	Fri, 14 Aug 2026 12:49:55 +0200 (CEST)
-Authentication-Results: mxe9fb;
-        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=linux@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
-Received-SPF: pass (mxe9fb: connection is authenticated)
-Message-ID: <ba1fe2d7-ac65-4665-82cc-43800fa9ed12@leemhuis.info>
-Date: Fri, 14 Aug 2026 12:49:54 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iLpgpsDm"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2cf27856f9cso9943295ad.2
+        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 06:40:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786714840; x=1787319640; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=OUSt8iKsvLES1DoWZPe2NRZJAWICuOCKAgFaBxq4B1Q=;
+        b=iLpgpsDmmHH/0UEm0F6qf9XUEO2XnvWLU2/Wxi315LxaQGFtbQ/tQXBr6hDmkZRcBh
+         uz1MDe2zo24xk2wVx3CNnPkwLJP0uS2uWdK4ep0AbjVClkfIr+pRNccAIV1sb7E57yET
+         85K7gI8uWiVuOd43YYD4cHx7AOTQztkJ6UY8+KN7LqTnoenm7/Ccad7pjycS0wgD/HJ2
+         7D95e0KqHDkR5NYn74fl2NRpqyMw7UUeWupgZFZRypdpm4ub/ZGHQ+Wi+U57vzXEDzuI
+         giXEdFbVPJyvCVo0N3i6fNRA2fK9jNA4IUMc7oX0GyWf+v5Jsavn+sGCk7ur9ivhQ0uX
+         yMjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786714840; x=1787319640;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=OUSt8iKsvLES1DoWZPe2NRZJAWICuOCKAgFaBxq4B1Q=;
+        b=nkZ/WMTinDEeMeL1QWJYierdyVuG6cwCbz8LT7WQ993fxoTuLzo5r5erNV3EYS1J+V
+         RAelk5hDSJmVAnZK1Ns6+1A1IThsNxHaJvpNuqwJbS9eNUoYYj6Y4Iy6bLExPSvUtEre
+         s4uMgmTck8Rf4p325jlhbUVfEAwiJGfyahMuKjEfy+C2qomdUvRXVdO43P2FI9L3Nntg
+         AXPkCpYZHRqhp6RZJs4/UoKtaTwk1DUBxUXyOgKlFb6WYoLJtJBmbvKli7+v5PKJEXef
+         E/PG2LW3i8rYc3Ry+BR56Gwe5c9Nj5iNVlr30tvYvJQtkdd3UlFcro7Ppole92uWDDoE
+         qqaA==
+X-Gm-Message-State: AOJu0Yw3zM0A/WXsUGrZNR32RSkYUJImG0NbAniEJEPKeA21a4iI460X
+	EiWxnHq37xXLXFwPpzK8tsDeUIdq6dpg5FNRaV6RvEo/BAg3xXAwvDLz
+X-Gm-Gg: AR+sD12ymwWMpPZpb4uqaWfEaJepEn3b1AanveWOwMIbRapgjYHNGI/TQPb2ADGMaNW
+	ACmpFZUIKGpx867yZVuVks02HfyTuDU4SjAAXrm7KRoI59ePI/2jY6gqgzlRKAvWTmAUpuE7pHM
+	umpXKmATnYY4uCq8GrEIRXh4tqMQie7l6VSeX71TcGVvbdUsgU4Y34FrLl1jKHbapOCM3iVHJ2P
+	f1zOosUsn5gu/Ggxdvjdeb4NLfwegUcRMRGfkU6E+loqc+t1WvnrWm+L96o3CifFXenuEIEck7H
+	y6+1CXoe4OFX7MzYM00nDGk6yeXvbLcE7+GUfLa+m4Y34plkr92OL943i5xNKuEtDMcXFt+uwBS
+	TsSCqY49OdqAhBj3t2m3djrQu6VO3HfEgNzTqfRPH7F6u4stHaK//wBHhYFUA4dtra1emMKmSxB
+	WG2bkxJPe7mt885wc2J8vYPDW8ohJp7q7sCAyG2u+Ze1R1XhXplf569IllaQq68Z2d+A+ik2/f1
+	t27wIPA
+X-Received: by 2002:a17:902:da92:b0:2cf:9f0b:b562 with SMTP id d9443c01a7336-2d3b0cf922amr67711065ad.22.1786714839447;
+        Fri, 14 Aug 2026 06:40:39 -0700 (PDT)
+Received: from haichao.tail057a43.ts.net ([2001:da8:e000:1206:e9af:7c0e:be31:2c3f])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d3aeb2a085sm9837125ad.42.2026.08.14.06.40.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2026 06:40:39 -0700 (PDT)
+From: Ruoyu Wang <ruoyuw560@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Marek Vasut <marex@denx.de>,
+	Wolfram Sang <wsa@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Ruoyu Wang <ruoyuw560@gmail.com>
+Subject: [PATCH] i2c: mxs: fix DMA channel leak on probe error
+Date: Fri, 14 Aug 2026 21:40:33 +0800
+Message-ID: <20260814134033.1386874-1-ruoyuw560@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Revert "i2c: designware: defer probe if child GpioInt
- controllers are not bound"
-To: andi.shyti@kernel.org, linux-i2c@vger.kernel.org
-Cc: linux-gpio@vger.kernel.org, wsa@kernel.org,
- Hardik Prakash <hardikprakash.official@gmail.com>,
- andriy.shevchenko@intel.com, mario.limonciello@amd.com, brgl@bgdev.pl,
- basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org,
- chaitanya.kumar.borah@intel.com, regressions@leemhuis.info,
- linux-kernel@vger.kernel.org
-References: <20260814100719.9548-1-hardikprakash.official@gmail.com>
-From: Thorsten Leemhuis <linux@leemhuis.info>
-Content-Language: de-DE, en-US
-Autocrypt: addr=linux@leemhuis.info; keydata=
- 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 MEK4
-In-Reply-To: <20260814100719.9548-1-hardikprakash.official@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-PPP-Message-ID: <178670459582.447294.14979340147217821489@mxe9fb.netcup.net>
-X-Rspamd-Server: rspamd-worker-8404
-X-Rspamd-Queue-Id: 374535FABB
-X-NC-CID: 6vKNQ0l+MznL72/D+nmJQIMFHcZHuW9jUKibdKJ2tN/jiF5yQyY=
+Content-Transfer-Encoding: 8bit
 
-On 8/14/26 12:07, Hardik Prakash wrote:
-> This reverts commit 0a4bb2abc3e56d7be6e69b050c88ba52c87e22bf.
+dma_request_chan() grants the driver exclusive use of the channel until
+dma_release_channel() is called. If controller reset or I2C adapter
+registration fails after the request, mxs_i2c_probe() returns without
+releasing it. The failed probe does not invoke mxs_i2c_remove(), so the
+channel remains allocated and can prevent a later probe from acquiring
+it.
 
-@Andi Shyti, would be great if you could pick this up and send it to
-Linus for 7.2 (aka soon) or ask him to apply this from here. But from a
-quick search on lore it looks like you are busy, on vacation, or
-something. No worries, but therefore I might ask Linus to pull this
-directly tomorrow to ensure this makes it into 7.2, as mentioned
-yesterday already here:
-https://lore.kernel.org/all/9095d7c8-92fe-4163-98f8-a53bbcefd6cb@leemhuis.info/
+Release the DMA channel on both post-request error paths. Keep the
+adapter-registration unwind ordered after the existing controller reset.
 
-> The reverted commit causes a regression on ThinkPad T14s Gen 4 (AMD):
-> the touchpad's I2C controller fails with lost arbitration errors,
-> because it delays i2c-designware's probe by roughly 500ms, which
-> shifts the touchpad's first HID descriptor fetch into a window where
-> the platform's embedded controller is still acting as a secondary I2C
-> bus master. Debug tracing confirms the GpioInt dependency check itself
-> behaves correctly (it defers appropriately and confirms the GPIO
-> controller is bound); the arbitration failure happens roughly a
-> second after the check passes, when i2c_hid_acpi's own probe attempts
-> its first transaction.
-> 
-> The original fix is still needed for the Lenovo Yoga 7 14AGP11
-> touchscreen race the commit addressed, but a corrected version will
-> be resubmitted once the EC bus-mastering interaction is understood
-> and handled properly, rather than reintroducing a different
-> regression on more widely-used ThinkPad hardware in the meantime.
-> 
-> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+This issue was found by a static analysis checker and confirmed by
+manual source review.
 
-Tested-by: Thorsten Leemhuis <linux@leemhuis.info>
+Fixes: 62885f59a261 ("MXS: Implement DMA support into mxs-i2c")
+Signed-off-by: Ruoyu Wang <ruoyuw560@gmail.com>
+---
+ drivers/i2c/busses/i2c-mxs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Ciao, Thorsten
-
-> Closes: https://lore.kernel.org/all/b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info/
-> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 80 ---------------------
->  1 file changed, 80 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index c8a203fff4d1..6d6e81242f74 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -8,14 +8,12 @@
->   * Copyright (C) 2007 MontaVista Software Inc.
->   * Copyright (C) 2009 Provigent Ltd.
->   */
-> -#include <linux/acpi.h>
->  #include <linux/clk-provider.h>
->  #include <linux/clk.h>
->  #include <linux/delay.h>
->  #include <linux/dmi.h>
->  #include <linux/err.h>
->  #include <linux/errno.h>
-> -#include <linux/gpio/driver.h>
->  #include <linux/i2c.h>
->  #include <linux/interrupt.h>
->  #include <linux/io.h>
-> @@ -132,80 +130,6 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
->  	return 0;
->  }
->  
-> -#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
-> -/*
-> - * Check whether an ACPI GpioInt resource's referenced GPIO controller
-> - * has finished probing. Resources with no named controller (resource
-> - * source string) are skipped, since they can't be resolved to a
-> - * struct device.
-> - */
-> -static int check_gpioint_resource(struct acpi_resource *ares, void *data)
-> -{
-> -	struct acpi_resource_gpio *agpio;
-> -	struct acpi_device *gpio_adev;
-> -	struct device *gpio_dev;
-> -	acpi_handle handle;
-> -	acpi_status status;
-> -
-> -	if (!acpi_gpio_get_irq_resource(ares, &agpio))
-> -		return 1; /* not a GpioInt resource, skip */
-> -
-> -	if (!agpio->resource_source.string_length)
-> -		return 1; /* no named controller, skip */
-> -
-> -	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
-> -	if (ACPI_FAILURE(status))
-> -		return 1;
-> -
-> -	gpio_adev = acpi_fetch_acpi_dev(handle);
-> -	if (!gpio_adev)
-> -		return 1;
-> -
-> -	struct gpio_device *gdev __free(gpio_device_put) =
-> -		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
-> -	if (!gdev)
-> -		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
-> -
-> -	gpio_dev = gpio_device_to_device(gdev)->parent;
-> -
-> -	guard(device)(gpio_dev);
-> -	if (!device_is_bound(gpio_dev))
-> -		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
-> -
-> -	return 1; /* bound, skip adding to resource list, continue walk */
-> -}
-> -
-> -static int check_child_gpioint(struct acpi_device *adev, void *data)
-> -{
-> -	LIST_HEAD(res_list);
-> -	int ret;
-> -
-> -	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
-> -	if (ret < 0)
-> -		return ret;
-> -
-> -	acpi_dev_free_resource_list(&res_list);
-> -
-> -	return 0;
-> -}
-> -
-> -static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> -{
-> -	struct acpi_device *adev;
-> -
-> -	adev = ACPI_COMPANION(dev);
-> -	if (!adev)
-> -		return 0;
-> -
-> -	return acpi_dev_for_each_child(adev, check_child_gpioint, NULL);
-> -}
-> -#else
-> -static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> -{
-> -	return 0;
-> -}
-> -#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
-> -
->  static int dw_i2c_plat_probe(struct platform_device *pdev)
->  {
->  	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
-> @@ -214,10 +138,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->  	struct dw_i2c_dev *dev;
->  	int irq, ret;
->  
-> -	ret = i2c_dw_check_gpio_dependencies(device);
-> -	if (ret)
-> -		return ret;
-> -
->  	irq = platform_get_irq_optional(pdev, 0);
->  	if (irq == -ENXIO)
->  		flags |= ACCESS_POLLING;
-> 
-> base-commit: 3d6d817622b0a9721e3cc404df3469171582be13
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 4e07babea9c3f..a5c8b44ec8142 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -849,8 +849,10 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 
+ 	/* Do reset to enforce correct startup after pinmuxing */
+ 	err = mxs_i2c_reset(i2c);
+-	if (err)
++	if (err) {
++		dma_release_channel(i2c->dmach);
+ 		return err;
++	}
+ 
+ 	adap = &i2c->adapter;
+ 	strscpy(adap->name, "MXS I2C adapter", sizeof(adap->name));
+@@ -865,6 +867,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		writel(MXS_I2C_CTRL0_SFTRST,
+ 				i2c->regs + MXS_I2C_CTRL0_SET);
++		dma_release_channel(i2c->dmach);
+ 		return err;
+ 	}
+ 
+-- 
+2.51.0
 
