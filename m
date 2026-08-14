@@ -1,111 +1,146 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73FBB492525
-	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 17:57:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3104D3ABD8D
+	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 18:04:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786730233; cv=none; b=uqRsp5Nw82TuuzAP3eFo4mTXbrIBJo3+x43qpyndw34I7BjyUNRKKWAUpFOwCWjvxUJxha2hQSRryWhxIVhC+wE7hxt0uKg4QFgA4pVpiZDRV59TwwRNQ18P8rBaL56+U2pdjjCug2e9Bg25k5lZ8n+qK+XTLoMrSd0Yndti1sI=
+	t=1786730691; cv=none; b=MpGdP5vlw7E3MIPF4UxpdmtBy0DZgowVcqhuOWqgBHW+gB0EKY2ehzFGuMA0AonrLmH674lnzSFOqgUYrkwIvYplT0QaHPK6JtTGRh3F1Ok0JPP8IOA4Xzx/qB0WdzwA2nlBR1wJWExhEhcCUM3j5ugYGQxwnmjcYVKNnbknYJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786730233; c=relaxed/simple;
-	bh=CCsfE2oeXgk17KlO6HGMktCK5aeGy+7VHisTD9GROeU=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=o4AcefC7z7wYl5S1rcjzHz9yTjNHkB9nRguD9IMBRpbWTkBsw71JpCclwttZXyRb/anWkHsulNKT0Cb8orbqIdrzsekib9ccQrHedXGg2gum6FJunltCChW+l2F3tSUpTFLu7rTTwnMq5uw/6/I4cEujUucWKSqjeHB8XKWCmmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=OGnOanLr; arc=none smtp.client-ip=209.85.216.48
+	s=arc-20240116; t=1786730691; c=relaxed/simple;
+	bh=GnYmCwQgQCpd5MzyBxd1AugHi3QfIrsoUxrijxoLXTI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=PAfIugYjzQI9I06MKbNDGyCNSfrEN33+LkwHgeMCv6gAKIsbznWGsDS1JABjQBClLZoM+hQH7BhNHA7U7IHs8VNrfiFCGhMEYAMDdwoYvlLh5BLTbHlz5v1boHS9szCUP7QV7GWum5mJnb0226jA8yykRCNvso96VWVBjXRLuUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=QjZ3ueL+; arc=none smtp.client-ip=209.85.128.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="OGnOanLr"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-38dc69c74b8so1463300a91.0
-        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 10:57:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="QjZ3ueL+"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-80bb41f7f3cso12355827b3.2
+        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 11:04:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1786730231; x=1787335031; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=CCsfE2oeXgk17KlO6HGMktCK5aeGy+7VHisTD9GROeU=;
-        b=OGnOanLrdRC/BUjMOgzkuGCJ38Dcv5or6o6a41dcMDPULxaW73vBUi0NwkUszCJVvz
-         uAzsK96adSI5woV/rUrIAo6TnBIT+7OzQnlA7jAbYE7WzI0iUBwy1ii5/OKT51yN24e/
-         4BPFBw6VEkLqiqS1pN/aqVZyIfFGOgb7WKCEyXRgxbz8Sri+IJQIHwjEDupLQPxqEmGK
-         vg1DWH4+00bnekM/J5HVG7osP/KxvBrnFidpOf0QCck2MEDZof5d6lcFkWIUCPccVKit
-         fJUDk8+muLyOhpWFQ2e++/y4yndVBGILtrF7Kg5nOP8w86DiSVgJZoNbJ3IUT2UiVHGa
-         rQRw==
+        d=nexthop.ai; s=google; t=1786730689; x=1787335489; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=mI5zeet+gBSiudx0x2vL4qWV0S+lI4JZhzArM16nmM0=;
+        b=QjZ3ueL+Lv4O2X670VYceU7SqJP10mblyrOFVvYi5nHpgxLfUnKZ2gbL9NOOCHnPAN
+         doIDhNdDOT2MX653yoVkdo+d5be1Lt0xgBMAkmUNY8YpQ7OHkEQLpNqmi3JrNM1g5A28
+         Cz8vPPir2pU/iChCmVlQDBrMQQ1w/USKt9SlJ79U8krwKh7uHKjZWr0Uzu9AgLfHjJkb
+         FVPIoklAZyzltVlDWJU7vdvOE4YO5O52VZvsXgoNahqo0RZTxTkyYs8V0AxQiQh4z6PY
+         HAPmuhtJR/MY2polrFu0IoB4B+L8hez60Ltssh/k8xQpMGoiOsd4ZXfFuXRKv5fdmpBg
+         uX1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786730231; x=1787335031;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CCsfE2oeXgk17KlO6HGMktCK5aeGy+7VHisTD9GROeU=;
-        b=DhUH/yxhwvzERHUaCYo/gFfEU82wFFDiXD/YzdhvE1ILmf9GARwj9jh6h89tQ04x99
-         U2ZHPtlytv9WaLT48cW9jFRZ8m2zJdk6txgQ5cdB/kvlP1s2pgc5eOMwR1aXTkeJgQ5r
-         xi3A6T23uoHd3Rij/WxEpIBR8Gv1APiQNMMem/vjxXqEDc8erJ2Pb1KMTpLQhUcC6t1V
-         HU0Dnn8LPoaz+oj+DC44sqZ0zqAiOKQCAoGBMu47IuBoel+y6B/wUGm3GYI9s4QAOHO1
-         pdhn4bNpcpjPmst+xvkqjVxVy7vKEaLGh2Q4eocOEqmfKhZp97HgnSUSLr7jPqd8ZE79
-         2mRQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpFv6EbCbbPtuxX3uGsQLV2AWYdN5TTUKKjW1u5DsyiwVicAHOof6UIUIDVBmppoqQhVKeUweU+J+0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwCu9JWpDzQQi2BOLmzN6xM7riZ9owTsnGmgfpQmahAjlpK2WhI
-	BNZB36Gb4XMHDt+YNtBbBdFbAoTVTygCdUJeeXJ4V5qT9XTvdMFtGaeaL2GtgnH9bu8=
-X-Gm-Gg: AR+sD136AzNgrlHu87H9PLgJNO7Z2RpVWOKU9yjPqnnSWGsZssVlALRn/lZJ63Mm/HC
-	3EpbSYqsxPdCOAdXAiPX6DR+z6c3M8gnT0QxpXxW0kzlaQnmLevK+FZPNaF1GPYMKqJyH+tPj3Y
-	jQlQxEoSWSclFwvNOTZlrKOBkSs0B2DhzPkgOKByiuYGvOcwQuGR9r1BqTbZ37si75Zh6vbxcj3
-	5hW6fyMDXrQjG8sSc7QxWP0plVbmPUlS9OS5yArBQW+eSg3zGU34ZpjoufHB9P03AipC8zWWYEa
-	Wdw2+CfPgU3fSxQN4Cn9xvSFrx6ZkfEE4OyxjeEtQ8LNfOroPlIl4tKRyzdzwi8p4HGYswEEKZ5
-	xeZNuyXTAcjn5HqVqoKmedSPS6T/WUHBcFWQZ79BUuYnr+3jVIMHmkXI2qB70jAGWlVV8SnJhcK
-	Qj7fxVRpuK1uez83PQPwynAqP0hFn/krxmujUTaufOYXpVcLVIX9B0zO5coGz19J5CEF+0IQ8=
-X-Received: by 2002:a17:90b:528f:b0:381:cef1:11ac with SMTP id 98e67ed59e1d1-3933e5d202amr8549727a91.10.1786730230603;
-        Fri, 14 Aug 2026 10:57:10 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320d5bdc5c4sm6924004eec.5.2026.08.14.10.57.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Aug 2026 10:57:09 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786730689; x=1787335489;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=mI5zeet+gBSiudx0x2vL4qWV0S+lI4JZhzArM16nmM0=;
+        b=e5J9xa2QYPvmlU4Ufkm59E3g60Wo4T/BWTNO/Zaha7ARnEMP9LQr2SlCd/NhAbY0rx
+         tae2MiOSgve37SE7K+ohA+ocfHe+4mrY+5FxyyT0AmGU9OUFzirbtkHlTrrsFPVlA5vG
+         GzfH+c5/Tduh6GlM+06+zx2/5lrr309rbGm/eNcCUEgOIcXhTdEgHjwrawbsI+8f4heR
+         ANUkEeBi8lq+uZ5fOcnHuZ8nzOMbYevs1MeXsMTuqROMz/FDSQJBed029WUMulRZsa3l
+         PchUypsDSFA76yQv/bE9ztp8XPGUu7Eeqc6X6ja47F1nDnitJqAl7w8Z5whoMpJ8Yg8f
+         k4ug==
+X-Forwarded-Encrypted: i=1; AHgh+RqBdf8O5P1JNzuNRUtgrGcNrmWBGj3VTZ9SS5t74UCvPvXvhSSABi5q10Gu5p6IhzfZ3TJq90FVXhM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw9RyZv0dedtEUUtGDa+4StkCQhRT9bV+Yp1hYm5ydnE7+N1Qps
+	GseUniqsttQ9Iq5TjLQXBcrTTsApEDL9Ko1+GAaPMjLWSvyPwNPax31VDGcWlEL8QV8=
+X-Gm-Gg: AR+sD10x5hOcUeI4A3lYEDK6ovzZtbS9e8xWEtgtfC3jUyOxU0iOiQHIszxaTznKyo4
+	4b0YokDoSUpbPgmbU3yyiqUKL0jHcLQE5CPygk6NEgDus3XB/yjHI+ud6n9m0VHfYMlCsUhDTTx
+	rYfN5Q71i4PhxxT8Lz/qtDufYPAYGxBnD5Gks5ORsBnEzrmoXrSJjgrZLvwn/ps0DiU/fiFr9Cl
+	WIE0W9JW/qYD15NX1gQQv+s0lpO1zmu6PK5o1kV0JbXBpK18PelSQaIAb61MQx28UttDuh5RXew
+	8Q9CJJn50iXMnRg2ArI1xpGaUlJKYns+ysGj32NNqwnYT2hhspHFH5gYM8IOPDfonDVbL/TmHiQ
+	MSJ5ko0ATqsN6rQzxm5Wmy5gCkS580y4Hw5/V8JOfwUEwKcUnXkQdODB3KyVQlrJI5/5Fepbh3N
+	gS0LX131A3zsoHZ/aiZwEgOqBKQiLS/z191miWmreUZl7nzI4hBhBdpvccmCouNj5MRV8kI11CL
+	tw=
+X-Received: by 2002:a05:690c:c3bb:b0:812:be92:6ea6 with SMTP id 00721157ae682-837124e6359mr23590307b3.28.1786730688893;
+        Fri, 14 Aug 2026 11:04:48 -0700 (PDT)
+Received: from [127.0.0.2] ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-836c38a6f52sm16030937b3.48.2026.08.14.11.04.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2026 11:04:47 -0700 (PDT)
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Date: Fri, 14 Aug 2026 11:04:45 -0700
+Subject: [PATCH v2] i2c: xiic: restore runtime PM teardown in remove to fix
+ clk WARN flood
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 14 Aug 2026 10:57:08 -0700
-Message-Id: <DKOV07N5ZCM9.1ZUFFUNICUUFG@nexthop.ai>
-Cc: "Michal Simek" <michal.simek@amd.com>, "Andi Shyti"
- <andi.shyti@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
- <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c: xiic: restore runtime PM teardown in remove to fix
- clk WARN flood
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Andy Shevchenko" <andriy.shevchenko@intel.com>, "Abdurrahman Hussain"
- <abdurrahman@nexthop.ai>
-X-Mailer: aerc 0.21.0
-References: <20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai> <an7gLYzltJgjIUNQ@ashevche-desk.local>
-In-Reply-To: <an7gLYzltJgjIUNQ@ashevche-desk.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260814-i2c-xiic-restore-runtime-pm-teardown-v2-1-7ae5d0c30ff2@nexthop.ai>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/5WOTQ6CMBBGr2K6dkw7JqCuvIdh0Z9BxoSWtAUxh
+ LtL8QQuX/LlvW8RiSJTErfDIiJNnDj4DfB4ELbT/knAbmOBEit5UWdgtDAzW4iUcogEcfSZe4K
+ hh0w6uvD24JzURjmDVqLYVEOkluc982h+nEbzIpuLuyw6LrbP/mNSZfdnclKgQFLtWoOyqq/y7
+ mnOXRhOmkWzrusXmG0wgesAAAA=
+X-Change-ID: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786730686; l=2172;
+ i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
+ bh=GnYmCwQgQCpd5MzyBxd1AugHi3QfIrsoUxrijxoLXTI=;
+ b=l9OeeV4dVLTJ+bgHuE/r1D5jfYkVCkfb0Y+shzLfB/PdbNOK6DSZD+rDjM1otPTZRlFd8ZyJK
+ UgJGjl2kcC4AleJYd1OTjPXd1CBglegsNByDqcLLtn3wh+XDB+FTlaL
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-On Fri Aug 14, 2026 at 2:30 AM PDT, Andy Shevchenko wrote:
-> On Thu, Aug 13, 2026 at 02:06:40PM -0700, Abdurrahman Hussain wrote:
->> The devres conversion dropped the remove-time runtime PM trailer
->> (pm_runtime_disable + pm_runtime_set_suspended +
->> pm_runtime_dont_use_autosuspend). devm_pm_runtime_enable's release
->> action then calls pm_runtime_dont_use_autosuspend() while runtime PM
->> is still enabled, triggering an immediate runtime suspend: the suspend
->> callback clk_disable()s the clock that the devm_clk_get_enabled()
->> release is about to clk_disable_unprepare(), and every device teardown
->> WARNs in clk_core_disable() ("clkN already disabled").
->>=20
->> Restore the trailer: with runtime PM disabled and the state forced to
->> suspended before devres runs, the suspend callback cannot fire and the
->> clock enable count stays balanced.
->>=20
->> Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
->> ---
->
-> ^^^ Something went wrong. The SoB must be part of the official commit mes=
-sage.
-> Putting it under the cutter '---' line makes it disappear.
+The devres conversion dropped the remove-time runtime PM trailer
+(pm_runtime_disable + pm_runtime_set_suspended +
+pm_runtime_dont_use_autosuspend). devm_pm_runtime_enable's release
+action then calls pm_runtime_dont_use_autosuspend() while runtime PM
+is still enabled, triggering an immediate runtime suspend: the suspend
+callback clk_disable()s the clock that the devm_clk_get_enabled()
+release is about to clk_disable_unprepare(), and every device teardown
+WARNs in clk_core_disable() ("clkN already disabled").
 
-My bad,
+Restore the trailer: with runtime PM disabled and the state forced to
+suspended before devres runs, the suspend callback cannot fire and the
+clock enable count stays balanced.
 
-Let me fix it and send v2
+Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+---
+Changes in v2:
+- Move the Signed-off-by into the commit message proper; v1 had it below
+  the '---' cutter line where it would be dropped on apply (Andy).
+- Link to v1: https://patch.msgid.link/20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai
 
-Thanks,
-Abdurrahman
+To: Michal Simek <michal.simek@amd.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-xiic.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 3e7735e1dae0..89636ca36915 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -1545,6 +1545,9 @@ static void xiic_i2c_remove(struct platform_device *pdev)
+ 		xiic_deinit(i2c);
+ 
+ 	pm_runtime_put_sync(dev);
++	pm_runtime_disable(dev);
++	pm_runtime_set_suspended(dev);
++	pm_runtime_dont_use_autosuspend(dev);
+ }
+ 
+ static const struct dev_pm_ops xiic_dev_pm_ops = {
+
+---
+base-commit: d58772d8520c7ef247c4b95c9bd76d3a25da9ff5
+change-id: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
+
+Best regards,
+--  
+Abdurrahman Hussain <abdurrahman@nexthop.ai>
+
