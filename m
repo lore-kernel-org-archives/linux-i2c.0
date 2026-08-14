@@ -1,92 +1,229 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFFE33A00C;
-	Fri, 14 Aug 2026 09:30:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8761D43CE65
+	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 10:07:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786699828; cv=none; b=PmDSFIiR0fB3OkPl93FjT2m1Fj/ccQWLpF8o4XGBThVuuzu8l6sdb9uXnulCPhJqfKEJDj/geHBbLs1yoTUEhu3vGXk/3ToLTnNaseCByGqg9E8kw2e5W0Q/TLdyE6YT5DXyINoFSPwW9gQKOAtUJ5dV9AbPeJ9MetbdtwJ5u7g=
+	t=1786702073; cv=none; b=H2piTrAOMcMpjlvKhGfLLi2vsp9oQa+r3kqMoTAeXEZrzbPqOilThUT9vMg+9/LMDXjMd4BJdlFyFk7ba+Cu0zDTwLbzfq54H7T56PVYdoBeOxr4KFdx57vgptJ7J2JwvBSolHKsaIezGB+9ws3snQnGzjjW2YBLe9UAQvjDCJ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786699828; c=relaxed/simple;
-	bh=Pmxz/X63qocUfI4qWYyUiBkC++1SDPoWGpV0SJppfAo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dTmlGsvBqujGnPHSeajmAvkWJFPcmVB+OQR3OYV+44fhroiuKddQ1DaSQStCcAuQ/3UaN5sATOiUWQm0gDf4LwR+zoug4u9Dph2NWqw/3Iv5KmtwNtwe7GUq//32+AV/ZnfCPJZLtTQHoUM5awMvJFL2yPE5fERw09nm7Hshhn4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NrRW+91P; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1786702073; c=relaxed/simple;
+	bh=fHvEGpLk2MRNJYnz+NoIq8PHpNOU4Mz9S3vE9ZvlegQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qCIhtSHVuAkIopM47hZGzOYP05B/QViZHY61Z4KF/UhbGoHA8hR78NpSyBYc4Z22YfraqTQxH4C2oqQeKw4YXQug6wOVPf4TD3pRoHxzQtMAriN5BSzFrcf+IrUYHhyDJ4mE4wETAk5FMGhI4xWaPQeRgQ6yvDNs57PRI7G43qE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ezhUJP/D; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NrRW+91P"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786699827; x=1818235827;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Pmxz/X63qocUfI4qWYyUiBkC++1SDPoWGpV0SJppfAo=;
-  b=NrRW+91P8+nW44b7jf4pgbwDqCzlRZTqRocDdjW0LPQdeV9MVb9EhWAu
-   aarhaL2H7kO0rNdV6uRvhIXw0tOQcXsOXZ7y4WnabCoZgSD23Wu48nRKZ
-   0AuvNriNugFzXMsU7VupvoExnudtF/hF1vGbv/go99vmx1iqbFu8he88O
-   Zk5byKQmZulcaku/gVoeyw7T/J4m1vspE0JGOXrUld/PifTJHeDqkGXUe
-   YcRWNVktdagPrcEz9I6zo4e3JZJP+6iP25y8neoS1M2Y0D86ThFJuZ8Yc
-   bHB9Bx+UbZH3bNSZV2MOaEjVgzznXcCXLmjBLlrhIiU1G5k3yzZLsUNnA
-   w==;
-X-CSE-ConnectionGUID: f0VY8rNbQ9m8WAJ1jUJbDQ==
-X-CSE-MsgGUID: B76bxPrKRmWWRRYeQeWysQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11874"; a="97870024"
-X-IronPort-AV: E=Sophos;i="6.25,222,1779174000"; 
-   d="scan'208";a="97870024"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2026 02:30:26 -0700
-X-CSE-ConnectionGUID: 6u2kxSleTwC5SyizR6B1iQ==
-X-CSE-MsgGUID: ehOKJ2Q2QiCg6HZHAlpHgg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,222,1779174000"; 
-   d="scan'208";a="287657898"
-Received: from mkosciow-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.134])
-  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2026 02:30:24 -0700
-Date: Fri, 14 Aug 2026 12:30:21 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: xiic: restore runtime PM teardown in remove to fix
- clk WARN flood
-Message-ID: <an7gLYzltJgjIUNQ@ashevche-desk.local>
-References: <20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ezhUJP/D"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2ce87c7e3bbso10832875ad.1
+        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 03:07:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786702063; x=1787306863; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=17GpjZ9iDTHmCeh6FQtMXZ5sjTZjc7sv++Y5IXPlka4=;
+        b=ezhUJP/D09wATb11dOOsFk/Gd6yI0E5nWUi3r982OE5oaPSa9VTT5tstZW2oV5HI2U
+         fyPHOx/anOZGdpbz9RE92meoZOTo14DqPkfNDNQaJVA66VJXKhHZxOV5HH9CuFwKM+8K
+         08s83z+sFWrEY9gvhUKERaeWVL9vV83+iZu9/JnFlD8KJso7wLQaiRn2TyONtKzXdFMX
+         /G3dVFKpz2K+JlOY6KK6mJcVAeKXBG82/XpezyLFRrb5wXDm6dqVLuBR9JUDJKjKmF7N
+         pHs7yYvjcWagsf1HBHNaebQROJMf3EqQFs5+TmglwqYY55fS+MgEQHht2+Skly0Rr948
+         r8UQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786702063; x=1787306863;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=17GpjZ9iDTHmCeh6FQtMXZ5sjTZjc7sv++Y5IXPlka4=;
+        b=rFGJh+/NL+Ouu4NIdv/Me0ejSLL0ZQn9vs3Blz9mqPB8lNQQ/0eLEgWDvcJpfDJ9UH
+         4Rbv53fbWN0M/eDaz5dPZjrqTgVhfF1NuslzIU6tKoa0d8snWCXiLfG+EUp3m5YHjhvf
+         qYL7gTgyAnEZnPLt3GtukbYMIgElhiBiSZfs+l0+eNTYU4QBOnZ3j9PZDOd48bWnt/RN
+         DSamamNAjvdWuqgmcxe45IHIkc+yHw2zboB2qyLNPOUd86I6QN++sf6KxTKvdta9pPru
+         qw55Ovq8ZTpZjqZB4PBjV789dU1089Y9UjDZC23yA+yhqJyWjvmBPLRfN9o6GYL9rSnG
+         vpXg==
+X-Gm-Message-State: AOJu0Yyo+S6fyGUSw7umbRIKB9BaXHHaHcCD5TzHdcTUFIRGeC7yn6XI
+	O4LJ2VwTm2tIvmutK/UDb4hNShNlOKOrCp3BaDxET7BbsCr26cHaeMS7p6F8fYHU
+X-Gm-Gg: AR+sD12hfpD4yIJjwbB1aWpJKyE4gwjvdKV7IJVNJ/zvMIDz5YZsm6UtwzAUGah/tkf
+	vAEVY1eskkhv5arZ5koFdwVJzmn+3bGdJpNShlDkoao8nsVVRAt47ptY95MMGD7BosyUbauO0rw
+	gomFzPFlyOnSWtPhvBCsAg5HGRaAFWVsVxSH21uXvYfKqj5qVOiUG5jlhLgjNgyM0rnJhcLKG6F
+	5IbMOZAX6UBNtRMjiFdcgGZM/mQgfGWLWozSGcPYdjU5/WWL8le5oZdAHjSbb6DDOUTbFQGney2
+	SbpqXpKJmU44DGO0do0SEG5ZT18XqNkY4BIkgViUHYbBNueUVz71YGEvK0YLJCMA8Ptj51F4yfe
+	Mdvv96IzOUpzwgTixUFLOl807+4sJ7u1ddfguTtnnqDKiejR/nY5mW5BgeZ0xYUvrv98xSLNvi3
+	vgat7uLoBNCSQSyNCcOzb7sbzgMqcuhvwcrSlgzuK29lu3Buyah05yHosddwrjQ2andhW1IHdvz
+	Ib1wacGK9uVLAOSZrxQDj9+BOCJfp1rHjR4Ts0Ew4h0KJLMC6nBIpx5+y2Tc3rgajmt5yfx9YEn
+	3etz23tkzrUaUbml+honC7P3YleA+SXyyYA5BG5NhBE2dKXE
+X-Received: by 2002:a05:6a20:4388:b0:3c1:fbf:1e2e with SMTP id adf61e73a8af0-3cc71abd254mr5461785637.10.1786702062996;
+        Fri, 14 Aug 2026 03:07:42 -0700 (PDT)
+Received: from hardik-yoga.oryx-cobra.ts.net ([2401:4900:1c63:eba:8431:2d12:e0ed:5dd0])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320d60ecdd0sm3323961eec.9.2026.08.14.03.07.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Aug 2026 03:07:42 -0700 (PDT)
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org,
+	wsa@kernel.org,
+	andriy.shevchenko@intel.com,
+	mario.limonciello@amd.com,
+	brgl@bgdev.pl,
+	basavaraj.natikar@amd.com,
+	linusw@kernel.org,
+	nathan@kernel.org,
+	chaitanya.kumar.borah@intel.com,
+	andi.shyti@kernel.org,
+	linux@leemhuis.info,
+	regressions@leemhuis.info,
+	linux-kernel@vger.kernel.org,
+	Hardik Prakash <hardikprakash.official@gmail.com>
+Subject: [PATCH] Revert "i2c: designware: defer probe if child GpioInt controllers are not bound"
+Date: Fri, 14 Aug 2026 15:37:19 +0530
+Message-ID: <20260814100719.9548-1-hardikprakash.official@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 13, 2026 at 02:06:40PM -0700, Abdurrahman Hussain wrote:
-> The devres conversion dropped the remove-time runtime PM trailer
-> (pm_runtime_disable + pm_runtime_set_suspended +
-> pm_runtime_dont_use_autosuspend). devm_pm_runtime_enable's release
-> action then calls pm_runtime_dont_use_autosuspend() while runtime PM
-> is still enabled, triggering an immediate runtime suspend: the suspend
-> callback clk_disable()s the clock that the devm_clk_get_enabled()
-> release is about to clk_disable_unprepare(), and every device teardown
-> WARNs in clk_core_disable() ("clkN already disabled").
-> 
-> Restore the trailer: with runtime PM disabled and the state forced to
-> suspended before devres runs, the suspend callback cannot fire and the
-> clock enable count stays balanced.
-> 
-> Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
-> ---
+This reverts commit 0a4bb2abc3e56d7be6e69b050c88ba52c87e22bf.
 
-^^^ Something went wrong. The SoB must be part of the official commit message.
-Putting it under the cutter '---' line makes it disappear.
+The reverted commit causes a regression on ThinkPad T14s Gen 4 (AMD):
+the touchpad's I2C controller fails with lost arbitration errors,
+because it delays i2c-designware's probe by roughly 500ms, which
+shifts the touchpad's first HID descriptor fetch into a window where
+the platform's embedded controller is still acting as a secondary I2C
+bus master. Debug tracing confirms the GpioInt dependency check itself
+behaves correctly (it defers appropriately and confirms the GPIO
+controller is bound); the arbitration failure happens roughly a
+second after the check passes, when i2c_hid_acpi's own probe attempts
+its first transaction.
 
+The original fix is still needed for the Lenovo Yoga 7 14AGP11
+touchscreen race the commit addressed, but a corrected version will
+be resubmitted once the EC bus-mastering interaction is understood
+and handled properly, rather than reintroducing a different
+regression on more widely-used ThinkPad hardware in the meantime.
+
+Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+Closes: https://lore.kernel.org/all/b4a4eadb-282f-464c-843a-19d415a34d0c@leemhuis.info/
+Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 80 ---------------------
+ 1 file changed, 80 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index c8a203fff4d1..6d6e81242f74 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -8,14 +8,12 @@
+  * Copyright (C) 2007 MontaVista Software Inc.
+  * Copyright (C) 2009 Provigent Ltd.
+  */
+-#include <linux/acpi.h>
+ #include <linux/clk-provider.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/dmi.h>
+ #include <linux/err.h>
+ #include <linux/errno.h>
+-#include <linux/gpio/driver.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+@@ -132,80 +130,6 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 	return 0;
+ }
+ 
+-#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
+-/*
+- * Check whether an ACPI GpioInt resource's referenced GPIO controller
+- * has finished probing. Resources with no named controller (resource
+- * source string) are skipped, since they can't be resolved to a
+- * struct device.
+- */
+-static int check_gpioint_resource(struct acpi_resource *ares, void *data)
+-{
+-	struct acpi_resource_gpio *agpio;
+-	struct acpi_device *gpio_adev;
+-	struct device *gpio_dev;
+-	acpi_handle handle;
+-	acpi_status status;
+-
+-	if (!acpi_gpio_get_irq_resource(ares, &agpio))
+-		return 1; /* not a GpioInt resource, skip */
+-
+-	if (!agpio->resource_source.string_length)
+-		return 1; /* no named controller, skip */
+-
+-	status = acpi_get_handle(NULL, agpio->resource_source.string_ptr, &handle);
+-	if (ACPI_FAILURE(status))
+-		return 1;
+-
+-	gpio_adev = acpi_fetch_acpi_dev(handle);
+-	if (!gpio_adev)
+-		return 1;
+-
+-	struct gpio_device *gdev __free(gpio_device_put) =
+-		gpio_device_find_by_fwnode(acpi_fwnode_handle(gpio_adev));
+-	if (!gdev)
+-		return -EPROBE_DEFER; /* controller not registered yet: abort walk */
+-
+-	gpio_dev = gpio_device_to_device(gdev)->parent;
+-
+-	guard(device)(gpio_dev);
+-	if (!device_is_bound(gpio_dev))
+-		return -EPROBE_DEFER; /* controller not bound yet: abort walk */
+-
+-	return 1; /* bound, skip adding to resource list, continue walk */
+-}
+-
+-static int check_child_gpioint(struct acpi_device *adev, void *data)
+-{
+-	LIST_HEAD(res_list);
+-	int ret;
+-
+-	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, NULL);
+-	if (ret < 0)
+-		return ret;
+-
+-	acpi_dev_free_resource_list(&res_list);
+-
+-	return 0;
+-}
+-
+-static int i2c_dw_check_gpio_dependencies(struct device *dev)
+-{
+-	struct acpi_device *adev;
+-
+-	adev = ACPI_COMPANION(dev);
+-	if (!adev)
+-		return 0;
+-
+-	return acpi_dev_for_each_child(adev, check_child_gpioint, NULL);
+-}
+-#else
+-static int i2c_dw_check_gpio_dependencies(struct device *dev)
+-{
+-	return 0;
+-}
+-#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
+-
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
+ 	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
+@@ -214,10 +138,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev;
+ 	int irq, ret;
+ 
+-	ret = i2c_dw_check_gpio_dependencies(device);
+-	if (ret)
+-		return ret;
+-
+ 	irq = platform_get_irq_optional(pdev, 0);
+ 	if (irq == -ENXIO)
+ 		flags |= ACCESS_POLLING;
+
+base-commit: 3d6d817622b0a9721e3cc404df3469171582be13
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.55.0
 
