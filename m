@@ -1,230 +1,199 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C06163F326C
-	for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 23:11:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3805025B091;
+	Sat, 15 Aug 2026 10:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786749099; cv=none; b=MDPgOb8G/7ldiLKVsDoqevQqFPLBdatb6B6dIpD+INeBq0LVNOLLOn6Nwk+yIZnkeIGePNbIhWMP2pSY+9FXItFDhTqS2vGhKQDAeIeWUlWsNgH5LuweetSG49NlxNKpYC9ROPoL0ks7a24qaf2ecIffNmy8bP8A2sFj9yhYoFg=
+	t=1786790294; cv=none; b=FCR3bFrytUIjDEpS1qzkHTOiuoqB5Ai8aISQRCNPjv337n0vwwHqINZ0LjmDTZUmVLWMEypO0eBfsquwGXyGNDHcTiX5TPrNw+uZktq+m0XgulCTmAJ5+FeVEAW61tr6p60kGlWGZ6qGiI5ewU2b/AcI26v5ussX015RMZnI0RI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786749099; c=relaxed/simple;
-	bh=YlvvGTa9EnahPCY2nskii4xpnenwqPbUOJnmp8L6yUU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bDLxKXP02yyCXyhG+5aWKkof861pIq59mbYFfwTXJS068kK8IEvgH3dCOcyKcfCp2A5PznzVEGPSmey0XjepFz5G+AOv6j+vSEHW+VsFVUjWA79+DrCWhMqpv2Ll033AR1tHTjeSsbe8OZy56qaUo9Vyu6373PdxPAQgyIZqo+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k/uhdm/q; arc=none smtp.client-ip=209.85.215.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786790294; c=relaxed/simple;
+	bh=E+L214Y6531LNyH/ib+DxxKNdsa3Ox7TaCTqEib+wYQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=I6wjm328jPTC/+U519Qkkgj5edG8K5mUYySwS/L3wfVl8bZzN6qToqnx5g94am/Hnnt97yDE4Wqib550adNAVgBaNr9n+M3ewscgQ1pX7NCsLLcgU6T6aenHUpeyI0ep74LzbfFkEXJcbbvqz0O3lmIaDL4rNYnEUwfCd4PViVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TZouXbPm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k/uhdm/q"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-ca7bea5e5b3so1201760a12.1
-        for <linux-i2c@vger.kernel.org>; Fri, 14 Aug 2026 16:11:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786749096; x=1787353896; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=03zKDu7qMZtz3mj6zlwpsyLOBqCiVsWKdbf7HTBPFNI=;
-        b=k/uhdm/qUK9inlscuCWlPyDjQCcfwr8MFrK+9AUFaNM1WbgP9BEX3liTpexR3BJAxF
-         atAcrdZbiorzu4cVtI19Ryahz8Mc8tL5ukrXJXypW8I+ByBXNZrO8GO2jt5Jrk8JxYcs
-         Ow1WN1JuQWn81rVeNqqxA1lYxvoKEeuiFdff+LNvQsQ6CQncUQJN1nrCP37MNbPtTdsP
-         dxTRyk0t3hhMfwG3AmRoa1dA9w5AbZBQNWL9Ld6fGo98hX6v3gzVTsh39m8YxV6lr19m
-         PaEwDauXUKCxOvqaVXPpvL3v5FQKVuN3bxdGCogEJvC94pIMuT9PEH0ZUiI+MRkehcj1
-         AvJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786749096; x=1787353896;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=03zKDu7qMZtz3mj6zlwpsyLOBqCiVsWKdbf7HTBPFNI=;
-        b=IU5ZEQ9fABsUEmNq1+BMMqHmYSDoKNXWlBPD4i2ZHN4TggkY/1lfxTXFbsdTAmg0nK
-         v/aA8hMcRY5+vLfyLFf5MAZzeT5fWlRslIFihhK+lV6RNH78Rb0f4UHHOcmhK/k/EPyf
-         luYsOTl3Nf6A80qkIHkftlImoM8oP90m8laYTFlP4n+7nYQile1oT8djCm2282olNRld
-         1K+jtiVrdjXcGzcph+VNMiwuivYC6sgNBS9VLflQKl7Po0fzPqhd6tdmwiPHkuTBK/Dd
-         8JrNywINVD0njX6Kf2elq9t3IoZ2JTTBkBDkrus3IBtnlHlAGZ6eVOoBMV4jxHAVhIvS
-         ivIQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpdOG0xvS7iRkGkVw9w3ctY6I0Q9HUJsrjEgVNBZGRnNgAhCmwKcPGlVYrQhGxwqFQRtHbXUs2qXc0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVti+62rR8u36qbQllMUzmuQXK4cDu9xrJP/KrPhxAP5z6k7LN
-	zLrEG7Rk2ECYq6J7oHBENiQtt94I4XM+GvGLqTY2N5xejBpFXgmIl+5/
-X-Gm-Gg: AR+sD10yarkGfvQrLuuAwZq2uHrgdhDdUoNtSidG+pqvGLUpMS4b6PL8WWzccuLyqZI
-	0UDZvjFD+P1gxSUF0AXNY7eBRDiCJe4yMv0C+/EFwH3Z384j82sEW8ZxIoqCJ4V1g0dNBKRTyvg
-	jPvrMF0kencQ26EL43AkRgF7kkuzfOcZWDf+Q0IAewa55BIPIru+7nnyPBgTsnOWwrnvfKk1ydG
-	ytMvfVP4h8cpevzDGnC9F303mk1dVhxwlK2YstVTzYeH03oL8HnJJTZNB8LlLtI9hulj3re4ssj
-	cP3Mp+Elg5UnPwH4Vqeaj+tuTKY+ePJ5v0EDUbTYm4z+8iaveP4gtkznzXZjLfShD6BW72X6ONC
-	hzarWC3WjFZvYOIgTnl0L3RPqvk0ZkTl+eJk/H1wj3/OQOXArPHrs2JYr07JDE/L2ESKYN460+z
-	zvMDuxUYBHwlOXssjsoUuTnRXpXvTDkzay3DX4TZXx9yYl6fn9ZSASUAAvdy/RcCrDPk3/X0Lhu
-	SSZYQ==
-X-Received: by 2002:a05:6a20:3ca3:b0:3c3:b226:f165 with SMTP id adf61e73a8af0-3cc71fb5d5bmr11525983637.35.1786749095785;
-        Fri, 14 Aug 2026 16:11:35 -0700 (PDT)
-Received: from Mac.localdomain ([12.162.234.74])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-320d61e1568sm8563607eec.11.2026.08.14.16.11.31
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 14 Aug 2026 16:11:35 -0700 (PDT)
-From: Ahmad Byagowi <ahmadexp@gmail.com>
-To: netdev@vger.kernel.org
-Cc: Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Peter Rosin <peda@lysator.liu.se>,
-	Nam Tran <trannamatk@gmail.com>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>,
-	Richard Cochran <richardcochran@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Kees Cook <kees@kernel.org>,
-	"Gustavo A . R . Silva" <gustavoars@kernel.org>,
-	linux-leds@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-hardening@vger.kernel.org
-Subject: [PATCH net-next v5 7/7] ptp: ocp: Add Time Card V9 I2C peripheral topology
-Date: Fri, 14 Aug 2026 16:10:55 -0700
-Message-ID: <1b0ad989c6290a400bd642f9fb2d26d965bc02c8.1786747084.git.ahmadexp@gmail.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <cover.1786746757.git.ahmadexp@gmail.com>
-References: <cover.1786746757.git.ahmadexp@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TZouXbPm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E00C1F000E9;
+	Sat, 15 Aug 2026 10:38:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786790292;
+	bh=m7PwOt+EZEa9A8ruDUrtwIK2F40BynaFLzwg4FliVLY=;
+	h=Date:From:To:Cc:Subject;
+	b=TZouXbPmeOBqRAj47tAjN37B3T1Uj48Ghz0H3Ip096Lk9hnj7lt23VoDEnTWDqGXW
+	 UqFZFhqhRgGrTRvobMB0KKhPtgeI22zlkSlpzbee/ZbzbfiiN7+KeLUChDlf28XHAl
+	 BjYu9eyB8JNDa11CPV7AE2u0/bJgy6fGgladoTxgoUxJr4xaEG97xZhMeWJMEr/zFg
+	 tRyKirWolX8wMaA3nx9v3d3OJiLpw5SJPPGNTR8hPEC/mJvQTFNqZxg8wIlAmKGtEP
+	 uIMuOYIQwVX6ZCdQn6/I1j2MsE/CGu47I+NSwK4LfOWxFB+ewhzHLO/hZoOYEm10tw
+	 AoupMXnqKsu1w==
+Date: Sat, 15 Aug 2026 12:38:09 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Subject: [GIT PULL] i2c for v7.3, part 1
+Message-ID: <aoBAaw7d1A6-a5PJ@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Time Card V9 boards use the same mux infrastructure with a BME280,
-a BNO055, and an IS32FL3207 at a different address.
+Hi Linus,
 
-Describe six RGB groups. The first two expose the GNSS1 and GNSS2
-status LEDs on outputs 0 through 5; the remaining four expose the SMA
-indicator LEDs on outputs 6 through 17.
+here is the first part of the I2C pull request for v7.3. I expect
+to send a second part next Saturday, as a few patches still have
+dependencies and a few others are left over.
 
-Select the profile only when the fixed-width board ID exactly matches
-TIMECARD-V9 with zero or erased-byte padding. Older revisions share the
-detectable I2C devices but not the V9 LED wiring.
+The main changes are support for shared SCL lines in i2c-gpio,
+a larger qcom-geni update covering tracing and transfer recovery
+and support for R-Car Gen5.
 
-Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
----
- drivers/ptp/ptp_ocp.c | 87 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 87 insertions(+)
+The rest is mostly smaller driver, core and DT binding updates.
 
-diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
-index 5ae50ad83bda..5100278f164d 100644
---- a/drivers/ptp/ptp_ocp.c
-+++ b/drivers/ptp/ptp_ocp.c
-@@ -643,6 +643,73 @@ static const struct ptp_ocp_i2c_profile ptp_ocp_r4006_profile = {
- 	.led_max_microamp = 8150,
- };
- 
-+static const struct ptp_ocp_i2c_device ptp_ocp_v9_sensors[] = {
-+	{ "pressure@76", "bosch,bme280", "bme280", 1, 0x76 },
-+	{ "imu@29", "bosch,bno055", "bno055", 1, 0x29 },
-+};
-+
-+static const struct ptp_ocp_led ptp_ocp_v9_leds[] = {
-+	{
-+		.node_name = "multi-led@0",
-+		.function = LED_FUNCTION_STATUS,
-+		.function_enumerator = 1,
-+		.has_function_enumerator = true,
-+		.channel = { 0, 1, 2 },
-+	},
-+	{
-+		.node_name = "multi-led@3",
-+		.function = LED_FUNCTION_STATUS,
-+		.function_enumerator = 2,
-+		.has_function_enumerator = true,
-+		.channel = { 3, 4, 5 },
-+	},
-+	{
-+		.node_name = "multi-led@6",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 1,
-+		.has_function_enumerator = true,
-+		.channel = { 6, 7, 8 },
-+	},
-+	{
-+		.node_name = "multi-led@9",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 2,
-+		.has_function_enumerator = true,
-+		.channel = { 9, 10, 11 },
-+	},
-+	{
-+		.node_name = "multi-led@c",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 3,
-+		.has_function_enumerator = true,
-+		.channel = { 12, 13, 14 },
-+	},
-+	{
-+		.node_name = "multi-led@f",
-+		.function = LED_FUNCTION_INDICATOR,
-+		.function_enumerator = 4,
-+		.has_function_enumerator = true,
-+		.channel = { 15, 16, 17 },
-+	},
-+};
-+
-+static_assert(ARRAY_SIZE(ptp_ocp_v9_sensors) <=
-+	      OCP_I2C_MAX_SENSOR_COUNT);
-+static_assert(ARRAY_SIZE(ptp_ocp_v9_leds) <= OCP_I2C_MAX_LED_COUNT);
-+
-+static const struct ptp_ocp_i2c_profile ptp_ocp_v9_profile = {
-+	.name = "v9",
-+	.sensors = ptp_ocp_v9_sensors,
-+	.sensor_count = ARRAY_SIZE(ptp_ocp_v9_sensors),
-+	.leds = ptp_ocp_v9_leds,
-+	.led_count = ARRAY_SIZE(ptp_ocp_v9_leds),
-+	.led_node_name = "led-controller@37",
-+	.led_mux_channel = 1,
-+	.led_address = 0x37,
-+	.led_riset_ohms = 4700,
-+	.led_max_microamp = 8100,
-+};
-+
- #define bp_assign_entry(bp, res, val) ({				\
- 	uintptr_t addr = (uintptr_t)(bp) + (res)->bp_offset;		\
- 	*(typeof(val) *)addr = val;					\
-@@ -2243,6 +2310,22 @@ ptp_ocp_i2c_supported(struct ptp_ocp *bp)
- 		bp->pdev->device == PCI_DEVICE_ID_CELESTICA_TIMECARD);
- }
- 
-+static bool
-+ptp_ocp_board_id_matches(const u8 *board_id, const char *id)
-+{
-+	size_t len = strlen(id);
-+	unsigned int i;
-+
-+	if (len > OCP_BOARD_ID_LEN || memcmp(board_id, id, len))
-+		return false;
-+
-+	for (i = len; i < OCP_BOARD_ID_LEN; i++)
-+		if (board_id[i] != 0 && board_id[i] != 0xff)
-+			return false;
-+
-+	return true;
-+}
-+
- static const struct ptp_ocp_i2c_profile *
- ptp_ocp_i2c_select_profile(struct ptp_ocp *bp)
- {
-@@ -2254,6 +2337,10 @@ ptp_ocp_i2c_select_profile(struct ptp_ocp *bp)
- 	if (!memcmp(bp->board_id, "R4006", 5))
- 		return &ptp_ocp_r4006_profile;
- 
-+	/* Older revisions share V9's I2C devices but not its LED wiring. */
-+	if (ptp_ocp_board_id_matches(bp->board_id, "TIMECARD-V9"))
-+		return &ptp_ocp_v9_profile;
-+
- 	return NULL;
- }
- 
--- 
-2.50.1 (Apple Git-155)
+Thanks,
+Andi
 
+The following changes since commit dc59e4fea9d83f03bad6bddf3fa2e52491777482:
+
+  Linux 7.2-rc1 (2026-06-28 12:01:31 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-7.3-part1
+
+for you to fetch changes up to 18ca2ce160ffff977f28456039f2475a3b500bc0:
+
+  i2c: core: support recovery for single-ended GPIOs (2026-07-29 23:38:13 +0200)
+
+----------------------------------------------------------------
+i2c for v7.3
+
+Core and helpers:
+- support bus recovery with single-ended GPIOs
+- acpi: clean up resource handling
+- acpi: force ELAN1300 to 100 kHz
+- algo-bit: allow consumers to skip the optional bus test
+
+Drivers:
+- use generic bus frequency definitions in nomadik,
+  octeon-core, microchip-corei2c, k1, davinci and pnx
+- i2c-gpio: support multiple buses sharing the same SCL line
+- qup: propagate clock enable failures
+- spacemit: configure SCL timing and clean up clock handling
+- amd-asf: guard against oversized firmware length
+
+qcom-geni:
+- add tracepoints for bus setup, interrupts and errors
+- use dedicated completion events for abort and reset
+- distinguish address and data NACK handling
+- cancel transfers before falling back to abort
+- simplify runtime PM and resource management
+- refactor resource and serial engine initialization
+
+DT bindings:
+- convert Altera bindings to DT schema
+- convert Axxia bindings to DT schema
+
+New support:
+- R-Car Gen5 and R-Car X5H
+- Axiado AX3005
+- Qualcomm Nord SA8797P
+- Qualcomm SA8255p
+
+----------------------------------------------------------------
+Abhijeeth Babu (1):
+      i2c: acpi: Force ELAN1300 touchpads to 100 kHz
+
+Andy Shevchenko (7):
+      i2c: acpi: Free resource list at appropriate time
+      i2c: pnx: Use generic definitions for bus frequencies
+      i2c: davinci: Use generic definitions for bus frequencies
+      i2c: k1: Use generic definitions for bus frequencies
+      i2c: microchip-corei2c: Use generic definitions for bus frequencies
+      i2c: octeon-core: Use generic definitions for bus frequencies
+      i2c: nomadik: Use generic definitions for bus frequencies
+
+Chaitanya Sabnis (2):
+      dt-bindings: i2c: convert axxia i2c to dt-schema
+      dt-bindings: i2c: convert altera i2c to dt-schema
+
+Jie Li (1):
+      i2c: core: support recovery for single-ended GPIOs
+
+Markus Stockhausen (2):
+      i2c: algo: bit: Allow to skip bit test
+      i2c: i2c-gpio: Enhance driver for buses with shared SCL
+
+Minh Le (1):
+      dt-bindings: i2c: rcar-i2c: Document R-Car X5H support
+
+Mukesh Kumar Savaliya (1):
+      i2c: qcom-geni: Use devm_pm_runtime_enable() for PM management
+
+Paritosh Potukuchi (1):
+      i2c: amd-asf: Validate firmware-reported length
+
+Pengpeng Hou (1):
+      i2c: qup: Propagate clock enable failures
+
+Praveen Talari (11):
+      dt-bindings: i2c: Describe SA8255p
+      i2c: qcom-geni: Isolate serial engine setup
+      i2c: qcom-geni: Move resource initialization to separate function
+      i2c: qcom-geni: Use resources helper APIs in runtime PM functions
+      i2c: qcom-geni: Store of_device_id data in driver private struct
+      i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
+      i2c: qcom-geni: use cancel command before abort on transfer timeout
+      i2c: qcom-geni: use dedicated completions for abort and reset events
+      i2c: qcom-geni: distinguish address-phase and data-phase NACK
+      i2c: qcom-geni: trace: Add trace events for Qualcomm GENI I2C
+      i2c: qcom-geni: Add trace events for Qualcomm GENI I2C driver
+
+Shawn Guo (1):
+      dt-bindings: i2c: qcom,sa8255p-geni-i2c: Add compatible for Nord SA8797P
+
+Swark Yang (1):
+      dt-bindings: i2c: cdns: add Axiado AX3005 I2C variant
+
+Troy Mitchell (2):
+      i2c: spacemit: configure ILCR/IWCR for accurate SCL frequency
+      i2c: spacemit: drop warning when clock-frequency property is absent
+
+Wolfram Sang (1):
+      i2c: rcar: add R-Car Gen5 support
+
+ Documentation/devicetree/bindings/i2c/altr,softip-i2c-v1.0.yaml  |  62 +++++++++++++++++++
+ Documentation/devicetree/bindings/i2c/cdns,i2c-r1p10.yaml        |  10 +++-
+ Documentation/devicetree/bindings/i2c/i2c-altera.txt             |  39 ------------
+ Documentation/devicetree/bindings/i2c/i2c-axxia.txt              |  30 ----------
+ Documentation/devicetree/bindings/i2c/lsi,api2c.yaml             |  52 ++++++++++++++++
+ Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml |  68 +++++++++++++++++++++
+ Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml      |   6 ++
+ drivers/i2c/algos/i2c-algo-bit.c                                 |   2 +-
+ drivers/i2c/busses/Kconfig                                       |   2 +-
+ drivers/i2c/busses/i2c-amd-asf-plat.c                            |   4 ++
+ drivers/i2c/busses/i2c-davinci.c                                 |   4 +-
+ drivers/i2c/busses/i2c-gpio.c                                    | 223 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ drivers/i2c/busses/i2c-k1.c                                      | 183 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ drivers/i2c/busses/i2c-microchip-corei2c.c                       |   4 +-
+ drivers/i2c/busses/i2c-nomadik.c                                 |   4 +-
+ drivers/i2c/busses/i2c-octeon-core.h                             |   2 +-
+ drivers/i2c/busses/i2c-pnx.c                                     |   3 +-
+ drivers/i2c/busses/i2c-qcom-geni.c                               | 456 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---------------------------------------------------------------
+ drivers/i2c/busses/i2c-qup.c                                     |  31 +++++++---
+ drivers/i2c/busses/i2c-rcar.c                                    |  22 +++++--
+ drivers/i2c/i2c-core-acpi.c                                      |   6 +-
+ drivers/i2c/i2c-core-base.c                                      |   3 +-
+ include/linux/i2c-algo-bit.h                                     |   1 +
+ include/trace/events/qcom_geni_i2c.h                             |  82 +++++++++++++++++++++++++
+ 24 files changed, 963 insertions(+), 336 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/altr,softip-i2c-v1.0.yaml
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-axxia.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/lsi,api2c.yaml
+ create mode 100644 Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+ create mode 100644 include/trace/events/qcom_geni_i2c.h
