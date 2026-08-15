@@ -1,62 +1,64 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50AE6371CFF
-	for <linux-i2c@vger.kernel.org>; Sat, 15 Aug 2026 18:12:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19FD642C51D
+	for <linux-i2c@vger.kernel.org>; Sat, 15 Aug 2026 18:12:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786817551; cv=none; b=QWM80+d5RfUiCN8qb8PU/FL2agXbr+KQDopk9CMIh44e9Qpse5mQ8avsC4evDtRxNVImBCvtto+PaBmff045ZFeFgXr6o/yVSljqzFopkkLqsgw5peoy7x07N29HOICF3hZUpR90msr7cB5UpMKuH+w6zBRaYn0uvBP8AgDmzQ4=
+	t=1786817575; cv=none; b=g36OHOQyTcCPfx0KjiOsrLB5iJdZ3eAzkh1qm93WeBUb2YZDQNQtDG5kZHlEfrlIJIAWQwoJd/YqriZ1I+TQ5T7PTYLgdPrq0W7kaQGJjqp9tx9ffm+nJq51D/vydHfo8PISd62e84zUlpPoTN8ViQYHY9ZYvVfrifh3/vU+jZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786817551; c=relaxed/simple;
-	bh=0lPA8fpgk92Xyi4hgB6/GLpBaTVSWp7tfnnMHrTba/s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fDaeTUcmsp6uzbB24aqi47ivay3n6/c/7p/L159bJeoqFavMAbLvYijcPB7flzLxRtSJG4rteQfew/euJ7I9kYGI38hpKauFWggsdetfqQv4hFg9BMj20dux7VYBYbV54PHJpn3nAop81GsXEAB2C4EuhX+nRRJ3+cnOnlPCKTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qSdRmCOt; arc=none smtp.client-ip=209.85.216.45
+	s=arc-20240116; t=1786817575; c=relaxed/simple;
+	bh=g/8fGhqkCV7RQstwEmzMAoWTNxRnB/a8B7+vfAI/r7I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=R3+zjE//4WyP+zGSHroYCLG/EcVdwlLgdL1Ckephya9BTYu+K1R4dqm9+b0eT3ceILazrX4RJkK5rQ3aU/aowjtZIpvOD6cVNy07LPRYDpeaX4l9fua2ptnquPVeR+27UIMqJ6N4U/dox9GzKYVysB0tGj2e+GpTd3aKg43av5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QOlgOvj+; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qSdRmCOt"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-38dcbade417so2149800a91.1
-        for <linux-i2c@vger.kernel.org>; Sat, 15 Aug 2026 11:12:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QOlgOvj+"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2cc61541f8cso38948235ad.0
+        for <linux-i2c@vger.kernel.org>; Sat, 15 Aug 2026 11:12:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786817549; x=1787422349; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xW2LYIDQQYDFwK3J1a0pZQU3BluSHf7AesdfpfaEO4A=;
-        b=qSdRmCOtbiFiBoTz7aW17qWt8nvfyWqyrx+DOkUxTn3C3BIM3101Zo60mPp5Sbhp5x
-         +zPrdqLX74uiePJWnXoAKl9GzbkPdCgQx/qy1DM+nnfaGK8dsmpPV2Z2y0QCpZ3wdXPi
-         BdN20Mu9intyoRARGlVNvJIhxA9A1n5lJryEGHSLORaDdU0Q6XX/BnUvXwDHRAlthYut
-         eB4RvkULBqPejCsw+WUJKGUqllnNy6A/AgPPyRWof4Uq87fzU8MybnnRTu9VgIFeAyDx
-         rI67ZdTKKEXdrDy2f9PYaFV1bJRpiDZbi4RntBKFLyyfqoWoAFzsyhMat9Y1JMsqKDpG
-         S/Sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786817549; x=1787422349;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1786817568; x=1787422368; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xW2LYIDQQYDFwK3J1a0pZQU3BluSHf7AesdfpfaEO4A=;
-        b=P3qaSzdxg4yhjS2ZGWOQJb/1sxVdHRL3LRqX0nlMVZEojW4s0133wrXq7bQ20AQSbm
-         dwvNomGYCVg15u15l09PZqWq3qhkDhk15zGLEDTrpOMMvYJlon5hMrmt55vp/PCLTF80
-         gHyhNGvgGBJfBAoU/tEczYeRf+DkmFbZKEdL3c9u71DgVxcoZ2XtNa0ASYCct1zfspOS
-         Wbw6fcTP4IgnTgaYATjrYTkcT6AD/P0EtnRJPaM5kD8pozQzZgo0+G/D948GD9pGG9Ll
-         fAIGjl+WrLmRs8VWZMdiIrUBPOEV1pdt8oppa6sFCl7b/tWson7g8sNrir+0cnNTO7j1
-         pLOg==
-X-Forwarded-Encrypted: i=1; AHgh+RrRA6A/JdyDkOjtF8Ktci4ug7Zn23uBPbO7uFh74kXer9g52VJqwUgIYhbWUDIqx4AUc/OHe/uWnSU=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzt3WF53rUgg9+pS8aqBbHFWQQVc8VSnrp2JEgjcPc7AN3H+d5Q
-	IgHQRNTL9uECvxH4HQAbfxUooC3M4ewpoo/Y6s4MJB5R4Jvy+Jko5Tn9
-X-Gm-Gg: AR+sD11R1FjQHfxroiWtNXuCqbDg+l/UIsyfrRLpQ+cXLOv01sfczJiOOIxcnzdkNQV
-	oZSi5qac/hXt/TtTd0z6XAG2QvPi9OwsbsDGZpFRzQ3rU77Y8fyhaU7XoCmp7cl/0gZ1W/YzerU
-	CGVQ44Lzw+7SvF3I2ArKUZ5VMnScwNyiQJ4uCC44BjIiqfo8Das//V6KmobU/Y1ot9dBDnuLHnH
-	lVUmMloEJNvNxnhGTVBPYw7XW7COJUl2WYtBMNG0Wez21Y66oWu/33/3LivxCpb583aKgjimS/R
-	Z2TxKBAocuMT71ctFFXBVYCE9PQHrCYARiDdayXoPyhfjP9kASXxysAWJOEmVWhcBthG7qMwDBU
-	SVHN7Py+jo9c5i/GpYbiHGGZQJOoMIDs5dso3hwXt5o5H2DJxGLLVAtMhe+U8P6J+hK5DTEugzS
-	IUdECoboZfxHuSRg+whCvgiXKP/F5vZGGSvQ2HR2J5OL3WDbWOiNmL1JtHFoWxYKGI2iVKl7cfH
-	w3vWg7vKDbaRweTQK7WOMnVEdU=
-X-Received: by 2002:a17:90b:4ec6:b0:38d:e658:5959 with SMTP id 98e67ed59e1d1-3933b80052cmr15988255a91.5.1786817549396;
-        Sat, 15 Aug 2026 11:12:29 -0700 (PDT)
+        bh=Uq/zXomRaUtmPVU0X/7Fe7/2pJ+viXdEE1hutqkzih4=;
+        b=QOlgOvj+whoo5+ZxgIL1l86V/C6PeXlWEPKfaD/ynydtTue1vPvXIjwkmm3KYi5pg1
+         Kf74xnr4RE7DVn2kgCk1M4802tAMKT5PhikJdUv9iLSP2Waf5zF4NAhuest46wqmtsta
+         ZbLaGIgYuqMzuoOtnrejqYNb7SBkBsNywvo3VdImF6o4vEltAnyzVbZgfjSA9NiN6+mw
+         wZCu+Fe+UmWxGPeOzcvzfd4vt8ZrT/8lzrhyodezjMwfpDej1U5vVrZeKdcwUjU+Ygaz
+         N1NQ5g296iyrWSCFEMb5qSzDnoKsve8Qzw9X7SKXSRaGOLvk1hmkGVOaiPdPpo/z0vpk
+         3g1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786817568; x=1787422368;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Uq/zXomRaUtmPVU0X/7Fe7/2pJ+viXdEE1hutqkzih4=;
+        b=ThqHHNMcd+G8hrqPU0+Tsz/no71ZJvn9kvKsStSBmyHCPJHxSCXX+GQPMoqPF9bBJh
+         L5amjDMquNZ620MheMkYLfFohxvF+FhuNR6S+8J9miEML8CcT+/J10NRVhEiVf275WJu
+         aFPnFzQnheKUl0vZe4f1FT6CZAEyn89u/umAAGb+BBPSSegyGum/5yX8B1YBJYRnEXaV
+         OnnofGH1w65tmohrwqSyKVBefK1w9dYrd/I8fNOK2jScHhXJrDiEAI2l8SDR8gQuJ4dy
+         5ZbgkK3IB/zui2QNV1mtIPi2XjcGr1rN4g1HXOJGkkqzOuvFWhABvh8H6P8BadvaPOnx
+         c44Q==
+X-Forwarded-Encrypted: i=1; AHgh+RpXYm7UNA1RxNt4mfz+Tjn0Z9UHasfsvsk1ifWI5NIFV0iYJntdlGMTl2AtjzBD/uRN56EYBHQQPtg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw5wCSqtjMq7pQ4tUuLX5seyqyFIpXow0kMBo17xGza4FzeVAiV
+	NezrzOMrnvjl4ScoqIjdiV74tGhg363WkA2mZ4on7aiIkzz/vycD0orX
+X-Gm-Gg: AR+sD12YMOG/mf5j9Uw8q4SY3A6HOErH7hz0POKLYjNE8DffYQvVIsRYcgR7sfF25e6
+	2ce0kKgLgBQzJQPcHLJ/gugFzV7XmBLz3zbXKxSKWfbiOSXce1GK7KbYi0AFtlW7jZq2BydDkOf
+	HYhgTLd9vlUmjlCZLvDQDU9tHds4GHGucMKU5HTOmPXhtrFbdEUdDzU5fmb7lLurEbvd5e5n0or
+	ZmXap70fSAO/FpaDJUyYyKlkmVh1iKshhs9I6v/cVsnwdBd4HfrgfPeqOJPUga0bGFimMTC3BON
+	zfAAcWHL3W+oEAWPwIKDQJF9SQ1fStcork5WGfumyQnN3z3kioJTx4O1Z6Z6bVJr0JDgU+EiYtd
+	XVrTKBDFjVRLBMM3N4Dg5jw1BFQzLs1+ceoMGUrFmT9JOHyLGSEZR0Mzwf0fvSAanKqoIOLaR0w
+	Ow68u0ucp9pY0oLC458iIIZOcWKDstHIBIWGNwLvhvFuRD9YehFlL7XKp5yV6QGsZxp1iU5uqEI
+	jBRLOzfenz9dwyINpuS8yPxqYg=
+X-Received: by 2002:a17:90b:1b43:b0:38e:9ca8:e99 with SMTP id 98e67ed59e1d1-3933af8b5d7mr10385225a91.5.1786817568272;
+        Sat, 15 Aug 2026 11:12:48 -0700 (PDT)
 Received: from localhost.localdomain ([240a:4280:4800:6ace:25e8:2607:e94d:caaf])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-394eb7539d3sm7304254a91.15.2026.08.15.11.12.22
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-394eb7539d3sm7304254a91.15.2026.08.15.11.12.39
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 15 Aug 2026 11:12:28 -0700 (PDT)
+        Sat, 15 Aug 2026 11:12:46 -0700 (PDT)
 From: Liu Zhenlong <dragonliu2018@gmail.com>
 To: andi.shyti@kernel.org,
 	chris.packham@alliedtelesis.co.nz,
@@ -77,11 +79,13 @@ Cc: mpe@ellerman.id.uk,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Liu Zhenlong <dragonliu2018@gmail.com>,
-	stable@vger.kernel.org.
-Subject: [PATCH 0/5] i2c: fix device_node refcount leaks in 5 bus drivers
-Date: Sun, 16 Aug 2026 02:11:59 +0800
-Message-ID: <20260815181204.2321-1-dragonliu2018@gmail.com>
+	stable@vger.kernel.org
+Subject: [PATCH 1/5] i2c: mpc: fix device_node refcount leak in fsl_i2c_probe()/fsl_i2c_remove()
+Date: Sun, 16 Aug 2026 02:12:00 +0800
+Message-ID: <20260815181204.2321-2-dragonliu2018@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260815181204.2321-1-dragonliu2018@gmail.com>
+References: <20260815181204.2321-1-dragonliu2018@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -90,58 +94,65 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series fixes device_node refcount leaks in 5 i2c bus drivers that
-share the same bug pattern:
-
-  adap->dev.of_node = of_node_get(pdev->dev.of_node);
-
-Each driver calls of_node_get() to take an extra reference on the
+fsl_i2c_probe() calls of_node_get() to take an extra reference on the
 platform device's of_node when assigning it to the adapter device, but
-none of them drop it in the probe error paths nor in the remove()
-callback.
+neither the probe error path nor fsl_i2c_remove() drops it.
 
-device_release() does not call of_node_put(), and
-i2c_adapter_dev_release() only completes a struct, so the extra
-reference is never released, leaking the device_node on every probe
-failure and every adapter removal.
+device_release() does not call of_node_put() and i2c_adapter_dev_release()
+only completes a struct, so the extra reference is never released, leaking
+the device_node on every probe failure and every adapter removal.
 
-Additionally, in the remove() callbacks, i2c_del_adapter() clears
-adap->dev with memset() at the end (commit bd4bc3dbded9 ("i2c: Clear
-i2c_adapter.dev on adapter removal")), which zeroes adap->dev.of_node
-before of_node_put() runs, turning it into a no-op.  The fix caches the
-pointer before calling i2c_del_adapter(), the same approach used in
-i2c-mux (i2c_mux_del_adapters) and mtd (commit 56570bdad5e3 ("mtd: core:
-Fix refcount error in del_mtd_device()")).
+Add the matching of_node_put() to both paths.
 
-A related fix for the i2c-qcom-cci driver has already been submitted
-separately:
+In the probe error path, i2c_add_numbered_adapter() failure does not run
+i2c_del_adapter(), so of_node_put(i2c->adap.dev.of_node) is safe.
 
-  https://lore.kernel.org/linux-i2c/20260815140931.53297-1-dragonliu2018@gmail.com/
+In fsl_i2c_remove(), i2c_del_adapter() clears adap->dev with memset() at
+the end (commit bd4bc3dbded9 ("i2c: Clear i2c_adapter.dev on adapter
+removal")), which zeroes adap->dev.of_node before of_node_put() runs,
+turning it into a no-op.  Cache the pointer before calling
+i2c_del_adapter(), the same approach used in i2c-mux
+(i2c_mux_del_adapters) and mtd (commit 56570bdad5e3 ("mtd: core: Fix
+refcount error in del_mtd_device()")).
 
-These 5 drivers are the remaining i2c bus drivers that use of_node_get()
-on the adapter device; all other drivers either assign of_node directly
-(without taking an extra reference) or don't use Device Tree at all.
-
-Each patch has its own Fixes: tag pointing to the commit that introduced
-of_node_get() in the respective driver, and requests stable backport via
-Cc: stable@vger.kernel.org.
-
-Compile-tested with gcc on arm64 defconfig using COMPILE_TEST; no
+Compile-tested with gcc-powerpc-linux-gnu on pmac32 defconfig; no
 hardware available for runtime testing.
 
-Liu Zhenlong (5):
-  i2c: mpc: fix device_node refcount leak in fsl_i2c_probe()/fsl_i2c_remove()
-  i2c: cpm: fix device_node refcount leak in cpm_i2c_probe()/cpm_i2c_remove()
-  i2c: ibm_iic: fix device_node refcount leak in iic_probe()/iic_remove()
-  i2c: opal: fix device_node refcount leak in i2c_opal_probe/remove()
-  i2c: pnx: fix device_node refcount leak in i2c_pnx_probe()/i2c_pnx_remove()
+Fixes: 9fd049927ccb ("of/i2c: Generalize OF support")
+Cc: stable@vger.kernel.org
+Assisted-by: Claude:claude-opus-5
+Signed-off-by: Liu Zhenlong <dragonliu2018@gmail.com>
+---
+ drivers/i2c/busses/i2c-mpc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
- drivers/i2c/busses/i2c-cpm.c     |  3 +++
- drivers/i2c/busses/i2c-ibm_iic.c |  4 ++++
- drivers/i2c/busses/i2c-mpc.c     |  6 +++++-
- drivers/i2c/busses/i2c-opal.c    |  6 +++++-
- drivers/i2c/busses/i2c-pnx.c     | 15 ++++++++++++---
- 5 files changed, 29 insertions(+), 5 deletions(-)
-
---
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index a21fa45bd64c..8182f7dc3d0f 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -867,8 +867,10 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 
+ 	result = i2c_add_numbered_adapter(&i2c->adap);
+-	if (result)
++	if (result) {
++		of_node_put(i2c->adap.dev.of_node);
+ 		return result;
++	}
+ 
+ 	return 0;
+ };
+@@ -876,8 +878,10 @@ static int fsl_i2c_probe(struct platform_device *op)
+ static void fsl_i2c_remove(struct platform_device *op)
+ {
+ 	struct mpc_i2c *i2c = platform_get_drvdata(op);
++	struct device_node *node = i2c->adap.dev.of_node;
+ 
+ 	i2c_del_adapter(&i2c->adap);
++	of_node_put(node);
+ };
+ 
+ static int __maybe_unused mpc_i2c_suspend(struct device *dev)
+-- 
 2.55.0
+
