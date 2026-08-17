@@ -1,22 +1,22 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 681A53C3F79;
-	Mon, 17 Aug 2026 09:04:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6D1883C5DCD;
+	Mon, 17 Aug 2026 09:10:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786957453; cv=none; b=nQD2vC4c15Tj/beVpUiQhtcijnXlhkzgQNbOt12a1KrYevqb8CGpLYZiM0MMkHulUB7/w2+wGdIAP7KQIW4GMHgI7WUjOHp6RxgXHUo6MeGNMPxGOc+1rGRLbGwfLQzleP3bd6AjxY46qoNYyxqIfOsCBn31YAJFSsJ0wUgriY4=
+	t=1786957821; cv=none; b=tQj/shNakJ/f17NQd8OYcuRUJO1sZnG7iOHN7tJJG2YDOoUnf4oOUkOCJGisMYaaIuwin7dnZx6NnuoSN5hqACJ1mIyrx//ov+2r0sNEj52N9XpuPFqP9wvr2CGcDPsdmnwuFRe88p3GMsa0pIYeIg/MHyVhlZhCrzXLICOOpM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786957453; c=relaxed/simple;
+	s=arc-20240116; t=1786957821; c=relaxed/simple;
 	bh=/IMgB3/UFMGoS3Vaqy1X0xxwG0KSL7shNh4K3vC7JHk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=BJfIudDIUfWzrNFdiGsMk1CQqSabQEQ40bFNeAkSZ4++GEoaXn3oXlekMp76wB2Gyixx/38gwp2qOsuWaNMpdKtvM4mygCsIuoqQRkzKRgcIV5wMrtSei3hfMuMxtBSCIooBlCXoCyoOsxfbKNgcNbN8lJ1nz3nATtGGkY5WJsA=
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=AaEx4vCqrftIFp4/zsC9FTTi0Gi+oXDLYn7WldLP6A8FxiWKa679V0FBOxnG6hdMAX8oNSxyAht+csD/lZokl0EM3DYM+7fpqo3niapbfiAIkJxOnqwqCtGaiSG48kE6HHp5jHJ3p9KFbnMfiyzcW12xSLdMNyrnVAVfI78WvLo=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8Ax29GIzoJq5tIBAA--.5567S3;
-	Mon, 17 Aug 2026 17:04:08 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8AxS_D5z4JqotMBAA--.5506S3;
+	Mon, 17 Aug 2026 17:10:17 +0800 (CST)
 Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJBx6c2GzoJqWMIHAA--.7126S2;
-	Mon, 17 Aug 2026 17:04:06 +0800 (CST)
+	by front1 (Coremail) with SMTP id qMiowJAxW873z4JqP8QHAA--.7094S2;
+	Mon, 17 Aug 2026 17:10:15 +0800 (CST)
 From: Hongliang Wang <wanghongliang@loongson.cn>
 To: Hongliang Wang <wanghongliang@loongson.cn>,
 	Binbin Zhou <zhoubinbin@loongson.cn>,
@@ -29,8 +29,8 @@ Cc: linux-i2c@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	loongarch@lists.linux.dev
 Subject: [PATCH v10 0/2] i2c: ls2x: Add clock- related properties and parsing
-Date: Mon, 17 Aug 2026 17:01:10 +0800
-Message-Id: <20260817090112.27151-1-wanghongliang@loongson.cn>
+Date: Mon, 17 Aug 2026 17:07:19 +0800
+Message-Id: <20260817090721.30582-1-wanghongliang@loongson.cn>
 X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -40,23 +40,23 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=y
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJBx6c2GzoJqWMIHAA--.7126S2
+X-CM-TRANSID:qMiowJAxW873z4JqP8QHAA--.7094S2
 X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
 X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
 	ZEXasCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29K
-	BjDU0xBIdaVrnRJUUU9vb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26c
+	BjDU0xBIdaVrnRJUUUBGb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26c
 	xKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vE
 	j48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxV
-	AFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E
+	AFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E
 	14v26r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wASzI0E04IjxsIE14AKx2xKxw
 	AqjxCEc2xF0cIa020Ex4CE44I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8I
-	cVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjc
+	cVAFwI0_JF0_Jw1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjc
 	xG0xvY0x0EwIxGrwAKzVC20s0267AEwI8IwI0ExsIj0wCF04k20xvY0x0EwIxGrwCFx2Iq
-	xVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r
-	1j6r18MI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AK
-	xVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7
-	xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_
-	GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zwZ7UUUUU==
+	xVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r
+	18MI8I3I0E7480Y4vE14v26r1j6r18MI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vI
+	r41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr
+	1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvE
+	x4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07j83kZUUUUU=
 
 Hi all:
 
