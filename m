@@ -1,148 +1,165 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54F263C2BB0;
-	Mon, 17 Aug 2026 08:40:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 681A53C3F79;
+	Mon, 17 Aug 2026 09:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786956035; cv=none; b=uFK7IzPEOBq9HT1zrhKdtXYOo5aALPolBOCVfrUPp3T6k4nqnl4VD0eF37zGgpBMNLG04zbDvOnGUFZyvVH06voMY9IqrxV44EFHmqsyW4Do5uPWanjunQJfc9xb5D6VDM01MYhGbjBakP/tP/ItabluzqIOok1m0izE+OwSY4I=
+	t=1786957453; cv=none; b=nQD2vC4c15Tj/beVpUiQhtcijnXlhkzgQNbOt12a1KrYevqb8CGpLYZiM0MMkHulUB7/w2+wGdIAP7KQIW4GMHgI7WUjOHp6RxgXHUo6MeGNMPxGOc+1rGRLbGwfLQzleP3bd6AjxY46qoNYyxqIfOsCBn31YAJFSsJ0wUgriY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786956035; c=relaxed/simple;
-	bh=yojrIk1uDZt5HRJZ9Kp6bd5+2IwrCV07VWwK59vUibs=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G11gXHMbdNeIRJYH91jywq6Ah3gJpoceFM/mbNPDAwZWmKi7igqCfUO66AuhD4cWLAO6eAfSYrnY2noczeaV3fJRmEjPR1mLSGJPF/fDcLuAkZj63GEG9maZMq+L4JWD7XtZUHQus2XcXByGRoc5LSX/YmzusdpEwB95ufE4Mus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=KMC46MF7; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="KMC46MF7"
-Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67GNRFjd1364775;
-	Mon, 17 Aug 2026 01:40:30 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=N
-	cUxkoLT+pGtSPrN6FnA4xzBepbYwjGvRg+DkpSsfA0=; b=KMC46MF72ujs+O5ih
-	k9tLwIVoNqQjy60vuB+4GRSEgLh9OfxNp4MCb2pr5go6Nh5j24WcZXzumUFnYDun
-	1I1GPV2VrlPR/sW0HgTEjG2bpRXtIeng3p51vzyExcixxz2XXW+pDi0p5D/sqRa1
-	RJ28AAwPmZwx+6yVd7AVdJr2M9XvYvl/0xgwec0LPG/JkYK/onfirTrUbaa/UUat
-	u0C4xte33tIrReqpR0s43x+2S/TgYc7YVdbntDNr51AlP25iwXEs3kcn8n3EMcT1
-	9rermJ6GlRYPAiHFfjxABEtifFG/M4mfqav8TfGnmoW+0Bg0aBfQHX2EcLfpyfce
-	0V7wQ==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4g38v8hsfv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Aug 2026 01:40:29 -0700 (PDT)
-Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Mon, 17 Aug 2026 01:40:28 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
- (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Mon, 17 Aug 2026 01:40:28 -0700
-Received: from marvell-Dell-Pro-Tower-Plus-QBT1250.. (unknown [10.28.34.91])
-	by maili.marvell.com (Postfix) with ESMTP id 862473F7040;
-	Mon, 17 Aug 2026 01:40:26 -0700 (PDT)
-From: Umesh Kumar <ukumar@marvell.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andi Shyti
-	<andi.shyti@kernel.org>
-CC: Mika Westerberg <mika.westerberg@linux.intel.com>, <bbhushan2@marvell.com>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Umesh Kumar <ukumar@marvell.com>
-Subject: [PATCH v4] i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
-Date: Mon, 17 Aug 2026 14:10:23 +0530
-Message-ID: <20260817084023.176584-1-ukumar@marvell.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260804041842.3205356-1-ukumar@marvell.com>
-References: <20260804041842.3205356-1-ukumar@marvell.com>
+	s=arc-20240116; t=1786957453; c=relaxed/simple;
+	bh=/IMgB3/UFMGoS3Vaqy1X0xxwG0KSL7shNh4K3vC7JHk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=BJfIudDIUfWzrNFdiGsMk1CQqSabQEQ40bFNeAkSZ4++GEoaXn3oXlekMp76wB2Gyixx/38gwp2qOsuWaNMpdKtvM4mygCsIuoqQRkzKRgcIV5wMrtSei3hfMuMxtBSCIooBlCXoCyoOsxfbKNgcNbN8lJ1nz3nATtGGkY5WJsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8Ax29GIzoJq5tIBAA--.5567S3;
+	Mon, 17 Aug 2026 17:04:08 +0800 (CST)
+Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
+	by front1 (Coremail) with SMTP id qMiowJBx6c2GzoJqWMIHAA--.7126S2;
+	Mon, 17 Aug 2026 17:04:06 +0800 (CST)
+From: Hongliang Wang <wanghongliang@loongson.cn>
+To: Hongliang Wang <wanghongliang@loongson.cn>,
+	Binbin Zhou <zhoubinbin@loongson.cn>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	loongarch@lists.linux.dev
+Subject: [PATCH v10 0/2] i2c: ls2x: Add clock- related properties and parsing
+Date: Mon, 17 Aug 2026 17:01:10 +0800
+Message-Id: <20260817090112.27151-1-wanghongliang@loongson.cn>
+X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=y
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-GUID: C0skv5F5CjcPC6_QorZbcYSxyBgz-sDe
-X-Authority-Analysis: v=2.4 cv=ZpHd7d7G c=1 sm=1 tr=0 ts=6a82c8fd cx=c_pps
- a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
- a=qit2iCtTFQkLgVSMPQTB:22 a=M5GUcnROAAAA:8 a=QyXUC8HyAAAA:8
- a=T6lopHUakFnDhHt3QoIA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE3MDA2NCBTYWx0ZWRfXwI5F/MmsJUZV
- DcDnx3gmyU+rdviIcRF+AQC+nbPqyyxmj0Gqj55cdbvS8+h+oDPyrSkuzoipbIghcq+ogSKxwf4
- T+uWjVf85wx3JrffEbxoq85RvtfnrEerT/FSpQoYimdTp6/RegFHLTHvmzLyhZpozKjlLLExqGJ
- vvK6eLd80QeIe0XZV+TgSCTnS4k6aQEJI9O37W5WAVkKvmS5taDAMAnnSEndUhoz57QUyGeZpZ1
- vtHMQgAnf4SHwTlK91CGXeTrq3rgzSi2VetdxTM9if/O+L5C/49n2KQZbd740l+k1xrHzl/pmAq
- pRQewSsWd7l93+S6/1W3NUwNs4nL4Dsdbw62IPlXtRVzv6YcDie5vVPu+Y7tBq7RwyhzLoAX1ml
- CGrJloOYNJ8GqacHu5mC7UPsT9LefWo4YTB+uiOsyz7l4V93cRHyN2w7ZNJk4s6dAlqlHMqDXsn
- t8wkThVjj8Zfuif+C8g==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE3MDA2NCBTYWx0ZWRfX3TyIPPDrztYy
- jqu/whtFKaKOzZeJ176TlRnC9Goml5asJhaBx8y0hTvnoiesm2rULE4KACt0Nb25+nceKULBpfR
- ZIupcaVh6G9lYxFhdf76+PwumNFUCT4=
-X-Proofpoint-ORIG-GUID: C0skv5F5CjcPC6_QorZbcYSxyBgz-sDe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-16_06,2026-08-12_01,2025-10-01_01
+X-CM-TRANSID:qMiowJBx6c2GzoJqWMIHAA--.7126S2
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29K
+	BjDU0xBIdaVrnRJUUU9vb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26c
+	xKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vE
+	j48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxV
+	AFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E
+	14v26r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wASzI0E04IjxsIE14AKx2xKxw
+	AqjxCEc2xF0cIa020Ex4CE44I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8I
+	cVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjc
+	xG0xvY0x0EwIxGrwAKzVC20s0267AEwI8IwI0ExsIj0wCF04k20xvY0x0EwIxGrwCFx2Iq
+	xVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r
+	1j6r18MI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AK
+	xVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7
+	xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_
+	GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zwZ7UUUUU==
 
-DesignWare controllers synthesised with the Multiple SAR feature (e.g.
-Marvell CN20K) gate the primary slave address behind IC_ENABLE.SAR_EN
-(bit 19). Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
-feature),when this bit is set the core acknowledges the address matching
-IC_SAR;otherwise the address is NACKed. The slave enable path writes only
-IC_ENABLE.ENABLE (bit 0), so on such controllers the target never ACKs
-its address and a remote master cannot reach it.
+Hi all:
 
-Set SAR_EN together with ENABLE when entering slave mode. The bit is
-reserved (and ignored) on single-SAR controllers, so existing users are
-unaffected.
+This patch set adds clock related properties and parsing in dts and acpi.
 
-Signed-off-by: Umesh Kumar <ukumar@marvell.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
+======
+V10:
+Patch (2/2):
+- Replace '/' operator with div64_u64() to avoid __udivdi3 linker error on
+  32‑bit architectures with CONFIG_COMPILE_TEST.
 
-Changes in v4:
- - Added DataBook version (v2.03a) to commit message and code comment.
- - Removed duplicate comment from core.h; kept only in the .c file.
+Link to V9:
+https://lore.kernel.org/all/20260810074927.25284-1-wanghongliang@loongson.cn/
 
- drivers/i2c/busses/i2c-designware-common.c | 10 +++++++++-
- drivers/i2c/busses/i2c-designware-core.h   |  1 +
- 2 files changed, 10 insertions(+), 1 deletion(-)
+V9:
+Patch (2/2):
+- Rewrite the commit description
+- Use 64-bit arithmetic to avoid integer overflow during the clock calculation
+- Add checks to reject zero clock rates and ensure valid clock inputs
+- Modify the comment for clocks and clock-div properties
+- Add Tested-by tag from Xi Ruoyao, thanks
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 4dc57fd56170..880b9a74b3ff 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -374,7 +374,15 @@ static void i2c_dw_configure_mode(struct dw_i2c_dev *dev, int mode)
- 		regmap_write(dev->map, DW_IC_CON, dev->slave_cfg);
- 		regmap_write(dev->map, DW_IC_SAR, dev->slave->addr);
- 		regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_SLAVE_MASK);
--		__i2c_dw_enable(dev);
-+		/*
-+		 * Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
-+		 * feature), controllers synthesised with multiple SARs only
-+		 * acknowledge traffic to IC_SAR when IC_ENABLE.SAR_EN is set;
-+		 * a plain enable is not enough. The bit is reserved (ignored) on
-+		 * single-SAR controllers.
-+		 */
-+		regmap_write(dev->map, DW_IC_ENABLE,
-+			     DW_IC_ENABLE_ENABLE | DW_IC_ENABLE_SAR_EN);
- 		break;
- 	default:
- 		WARN(1, "Invalid mode %d\n", mode);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9d8d104cc391..1390c8862a68 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -125,6 +125,7 @@
- 
- #define DW_IC_ENABLE_ENABLE			BIT(0)
- #define DW_IC_ENABLE_ABORT			BIT(1)
-+#define DW_IC_ENABLE_SAR_EN			BIT(19)
- 
- #define DW_IC_STATUS_ACTIVITY			BIT(0)
- #define DW_IC_STATUS_TFE			BIT(2)
+Link to V8:
+https://lore.kernel.org/all/20260721122604.12717-1-wanghongliang@loongson.cn/
+
+V8:
+Patch (2/2):
+Fix the potential issues from Sashiko AI review:
+ - Add error checking for the pointer returned by devm_clk_get_optional_enabled();
+ - Add zero-value checking for the match data to provide default div.
+
+Link to V7:
+https://lore.kernel.org/all/20260707035104.3092-1-wanghongliang@loongson.cn/
+
+V7:
+Patch (2/2):
+Fix the potential issues from Sashiko AI review:
+ - Move the clock property parsing process to probe function to solve the issue
+   of calling `devm_clk_get_optional_enabled()` dynamically causes unbounded memory
+   leaks and unbalanced clock enable counts.
+ - Add non-zero checking to priv->div.
+
+Link to V6:
+https://lore.kernel.org/all/20260608024533.32419-1-wanghongliang@loongson.cn/
+
+V6:
+- Add Reviewed-by tag from Huacai, thanks. 
+Patch (1/2):
+ - Remove CC stable. 
+
+Link to V5:
+https://lore.kernel.org/all/20260604015848.18643-1-wanghongliang@loongson.cn/ 
+
+V5:
+Patch (1/2):
+ - Adjust the position of #include <dt-bindings/clock/loongson,ls2k-clk.h>;
+ - Add CC stable; 
+ - Fix Signed-off-by.
+Patch (2/2):
+ - Replace 2K0500/2K1000/2K2000 with LS2K0500/2K1000/2K2000;
+ - Replace 7A1000/7A2000 with LS7A1000/7A2000;
+ - Replace if (clk && !IS_ERR(clk)) with if(!IS_ERR_OR_NULL(clk));
+ - Add document that clocks and clock-div are only ACPI properties in ACPI;
+ - Remove unsigned int cast in code (unsigned long)device_get_match_data(dev);
+ - Add CC stable; 
+ - Fix Signed-off-by.
+
+Link to V4:
+https://lore.kernel.org/all/20260526031021.32662-1-wanghongliang@loongson.cn/
+
+V4:
+- Add Acked-by tag from Conor Dooley, thanks.
+Patch (2/2):
+ - Adjust the position of #include <linux/clk.h>;
+ - Remove struct ls2x_i2c_chip_data and use macro to describe div;
+ - Use div instead of factor in ls2x_i2c_adjust_bus_speed;
+ - Reverse the "if & else" code logic in ls2x_i2c_adjust_bus_speed;
+
+Link to V2:
+The PATCH v3 is incomplete, v4 is the replacement of v3, so the previous patch link is v2.
+
+[PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+https://lore.kernel.org/all/20260507081010.12810-1-wanghongliang@loongson.cn/
+[PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+https://lore.kernel.org/all/20260507081010.12810-2-wanghongliang@loongson.cn/
+
+V2:
+[PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+- Remove the custom properties clock-input and clock-div, use clock framework;
+[PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+- Use clock framework to obtain the i2c reference clock in dts.
+
+Link to V1:
+https://lore.kernel.org/all/20260325011852.19079-1-wanghongliang@loongson.cn/
+
+Hongliang Wang (2):
+  dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+  i2c: ls2x: Add clocks property parsing and adjust bus speed
+
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       |  3 ++
+ drivers/i2c/busses/i2c-ls2x.c                 | 44 +++++++++++++++++--
+ 2 files changed, 44 insertions(+), 3 deletions(-)
+
 -- 
-2.43.0
+2.47.2
 
