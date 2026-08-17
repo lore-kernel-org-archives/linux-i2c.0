@@ -1,182 +1,156 @@
-Received: from AM0PR02CU008.outbound.protection.outlook.com (mail-westeuropeazon11013018.outbound.protection.outlook.com [52.101.72.18])
+Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DCEC449992;
-	Mon, 17 Aug 2026 15:57:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.72.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786982266; cv=fail; b=c7CorlS8lWqv23LykDF8mdL7TsC/AtpB/6zaZD4gxXZ1VtUHLwzt37XK08GqRZGJhIX16+gXv6owlOVP/lIxvLKWpUZM7cvEoADsZKgRIqIUnenUAWfm/OkPJWGJ/sFh6tkrXhmMsixURHmBK32fGFstPdp8T07k5vcOQ+giG4s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786982266; c=relaxed/simple;
-	bh=pWqLsSmSpTVICTwD4xwstaO/CNzA0EpZhjVJFP8bth8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=lsFs35ENYDehLSeFruW7QVlnxM7Tv3AzFIwUMa87DJ2eff/lSY1C/71l5Kyis8MaZudvyq5l9gCfc3t6KpvuRfd/Satz1s2Qs0eZErJz5pbWyAoPNlNBittYXSe52NF/hRjzg+QLJmImyUSgGDm4F0b9GprIw5LD4z0IQjnw5SQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=vdPByGpm; arc=fail smtp.client-ip=52.101.72.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0399446040;
+	Mon, 17 Aug 2026 16:21:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786983713; cv=none; b=BP3xhGxJrR0jwgwadH9gyeRWhDLHboZw9pidCCnRN4iJHD2u4blSj7Uw7Lg56iOUoJTiMj11lhuUSQQwWEF4onbzdCc0sKnUwraSwlZtjrtgLGJMVtxiAdSNnebe5GBI+HSYutDeyek5gNadSR8WSWAl8kkZ48WFZC4d72XrNt8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786983713; c=relaxed/simple;
+	bh=yaxfFhUClog3uDKVozaiUGHKRRL8HPjNZbutCz8L9bs=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AhrdZKU5f9hH9hssoKxahY5CS30J6xaYNoOY5iO/u2f/YCDZh8E6v8esqAeiFtF5KT4XxERULX5UqDqsj1Cbf7tGIt+DgtiFUEbms/yGI6RCHxEy6f93kW5AL5Il1Sx1FXARE3pVNRZo7LadWbgHMl3GS+L0KSXJlaD4jAgM3rs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=jC2lGRAw; arc=none smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="vdPByGpm"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=lHBR5DvEILoC4FEXa7Ll6Z+kTW4IyBeec1bB3ZVnxUh+HB8IkB6zKl2V03k8lIz4d08ph9Nhk3bHSNGISMaiN6gJ451Lu935A7RnxHZXDMZOs+ivOi3fg/7UIP+mHNy40EbuNCh/nu7iFX2/fLEWI+ak4DBWFeGpj/kBUUw2jcKkxAc9W/AdIV1dT0CZb/+UsINNNw8s77RzdrBgowAQ+JxYYlxTfEZO6Tjeh1HGnV+qaRUL6O5gqzpLbOFOfi9T4PAjFc2IWRsFErU9B+jrkeH/dNHwxgfD1x8e6ZusempXBmRymG8YjrjzdQeFRk21C186dAiJEubr21Eza6WiNg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Wt+Ubt1y8v8Oe1fn2Z+vG909GwXyfrZHPBcYZe4pdTE=;
- b=pE9c5Al3AIwaSkEU5vT7rIZPEvuWK27xIpFjPR/jJhEjcLbSDWrxxRv7zCqMN4MrLtppN7yeFjJsuGEoZANsaVce0YQbOf9emnB9PAmaymXYKf9GNTnEQUD4a82EstMxSzX+81v1bUEqtYYM8+3ZIbAa7Jiu5Fn7txUwwn9EuboORJVwDkZdkJji6F4RgXN+aj+f2AFFMbQvm+mWL91fpuONiMMwIZm2VAsJH7XrCPy1S0MIjWiv2SKNJxL+XmYzfyHYmYcwF90Zl94i4jXSbugc+qMZdp2nM1A3wiMt/OTCwAeRuF0zDjbBuzma/HcLrgIJ13aXlJGR1Vt23YvaRQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Wt+Ubt1y8v8Oe1fn2Z+vG909GwXyfrZHPBcYZe4pdTE=;
- b=vdPByGpmX7VDCXCfdgIAXs6Dgm0bdnbsbcA/Lm+mEbOamyfKwnNRddPDlT9CDMYMsVOQpi0nO3h4/ol2zSGEMMvDQd0bxu6k19D44bSECNmGSUXqWqTF1tz6SFDUoE3ZeHZ5pxi3rdrCOrw0JRtuJpVzTAJtRN3NlF57uBzorv1SH6/GRiXc9Eb/7fFNt+6FD/ZCVPlCAxYaKnifG6QrT6ze1HQY8YLdV9zkaYe/zlf80qiVSmeGVtwFDIFb3bHN3mu97UCuOLCaTmdhS6C9uEIfq5g7LFxb4lLqwjFPkQcfHFgWWUuswe33/5Tpm+WK10LjjZEHcNxpndGvCnC/jw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
- by PA4PR04MB8047.eurprd04.prod.outlook.com (2603:10a6:102:cf::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.315.17; Mon, 17 Aug
- 2026 15:57:42 +0000
-Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
- ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
- ([fe80::2146:83a2:5329:b7c%7]) with mapi id 15.21.0315.016; Mon, 17 Aug 2026
- 15:57:42 +0000
-Date: Mon, 17 Aug 2026 10:57:32 -0500
-From: Frank Li <Frank.li@oss.nxp.com>
-To: Ruoyu Wang <ruoyuw560@gmail.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Marek Vasut <marex@denx.de>,
-	Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: mxs: fix DMA channel leak on probe error
-Message-ID: <aoMvbNkUFZR8hzr5@SMW015318>
-References: <20260815151720.3757460-1-ruoyuw560@gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260815151720.3757460-1-ruoyuw560@gmail.com>
-X-ClientProxiedBy: SA1P222CA0140.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:806:3c2::23) To GV2PR04MB11799.eurprd04.prod.outlook.com
- (2603:10a6:150:2cf::9)
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="jC2lGRAw"
+Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HFaDvJ2981265;
+	Mon, 17 Aug 2026 09:21:48 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=h
+	o+LD5h8XeNxuG9tM0x3yDfwTG0Gu+QIfzuJAu7YuLk=; b=jC2lGRAwjd49zqfY/
+	4qf07yvgXGr9m1bB7Ndri0nxwx4p7eR4UP9bun30OxFTJrx3d3D66nnTbeLvOXc9
+	zexEUIfWzNs41Qy9ZbTcCMojbDopDYlEMcobc+nBL1uwz3mikVNLs0k8wwgxN2QO
+	/GaW2uNleimPW7NAf8WmGjRnnJ92MqxwQF0tguOjD27Rw98iht6InpWjNLmqSkyp
+	/ALKLUBkQI1oZMwk8t0pxmw/j8ytPZrmfI5ekwwYQg3gg2QQOR/UKEVP0yketGxf
+	7GVvVRVWWGnFP69v705K7sKp+6lMcNnup9k1RAujFqG1aiMaLox2iYj0f7F3v80E
+	RaOQw==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4g3cc62wkj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 17 Aug 2026 09:21:48 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Mon, 17 Aug 2026 09:21:47 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Mon, 17 Aug 2026 09:21:47 -0700
+Received: from marvell-Dell-Pro-Tower-Plus-QBT1250.. (unknown [10.28.34.91])
+	by maili.marvell.com (Postfix) with ESMTP id 818E13F7040;
+	Mon, 17 Aug 2026 09:21:44 -0700 (PDT)
+From: Umesh Kumar <ukumar@marvell.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andi Shyti
+	<andi.shyti@kernel.org>
+CC: Mika Westerberg <mika.westerberg@linux.intel.com>, <bbhushan2@marvell.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Umesh Kumar <ukumar@marvell.com>
+Subject: [PATCH v5] i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
+Date: Mon, 17 Aug 2026 21:51:41 +0530
+Message-ID: <20260817162141.300658-1-ukumar@marvell.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260804041842.3205356-1-ukumar@marvell.com>
+References: <20260804041842.3205356-1-ukumar@marvell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|PA4PR04MB8047:EE_
-X-MS-Office365-Filtering-Correlation-Id: bd0aa72d-433b-4787-2603-08defc784533
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|7416014|376014|19092799006|366016|10067099003|11063799006|56012099006|5023799004|6133799003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	ccVk56eFAohWP1W0hXOUVFfTgxVE2Re3EvOQ1MDYNrXsUQReRIYb1eRMErXcUgG/wLCrLTDNTwUwOuf7C8oWCSjOzODfv9/EG3fop3lkaZIDNdWIgsZ2AJjM1fXN9DXiRDn5lkdyj2PNwpgHNDinmG1b5+B9LeAXj46dr6MjIaPmgrbW9A5fFVhqbgaEelG4tEqaG2A/w8yo0lTvWTrpDggjDUcw4QRJsRgjczfyG77LQ5yC/XMWwY8ASL9UBh49C5sUlEhDmlThQNKs/AOL0DuMuS7iIF1G94RObEqUZ/OYFWIm7wp5Y4eW9yjZnBSZyWWAG24RYzOmNQb5e9CO+fh8L5ucIyIqVFB9y5mXeR/dMoCt4aA+K8ocyZ8WrQEWmnM0bqfqa+95VLIDuKKjyhBir1AcD7Hs7m147DcwyLih6TlfyeSZ5jvGADa2ubM0krhuKSHSmGzbgIpUpMIYEeJDxyouz+d2C8AFr7lCgGpfa0CUfI+R8jYRueJ8IOftB6bMSxW91vOwq9GytU+Ohf2OQBA3tNnG/j3drRsKxt/LDttXpoxoUO7s+DzxMl6GV0NfmR2yD7NZgrGy/7bhJFnz4iexPff3neaaHPdZixEXOw3NMb4ujqdTiyZer8TuJyuPDRDPyPnNoIRQqe8OG0D7Ho1W30O+PvOAvu5SfCI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(7416014)(376014)(19092799006)(366016)(10067099003)(11063799006)(56012099006)(5023799004)(6133799003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?+uQ64O2Uo8Q0K6aSIjW5X0aI8mmum+TZk9NzvbRkP7ht+5nLLlciIRKvsTRo?=
- =?us-ascii?Q?Z/1rDCe+l54o6uXE22RiW1RyIAlukQRvIxhJx99107wpPCblrC/HLw4kEbL0?=
- =?us-ascii?Q?zTAa+BfSWKnkLwUXlUCRCe74yP4O4iVQrUsF559ccoN4fevOlvGAz8E4z/X3?=
- =?us-ascii?Q?4nifpkxCZnP/3r06w4NyVR3LXC1xf6i3AcKweUabhfdVddxr5n7l+Cwe5SBR?=
- =?us-ascii?Q?+/scZC++bzwlA561SGA/zNbapicKEjj/xaS2uqXL6O9PDXHsv8pimP+add2R?=
- =?us-ascii?Q?zZy/LeIh4WkRnkR3hrKXhiVPMYoQP1qxvT82szenKrzEvr4ERWWcxLn0PXfy?=
- =?us-ascii?Q?fCNMOPrAbDjnvl0KBZxI+hb1ceDOKeYbUg5TBTdtb8UTRpVRrGt6K6bfOVWK?=
- =?us-ascii?Q?OMnjxHKWbUaBSC8+EBt+5Uen6Gjcc/RXXNfzX/FOB+nz6V75p0rZ7VB7FJvs?=
- =?us-ascii?Q?kmHI9wbjPVHbMdnUqFYxmj37Yg4+m6gNef4dgsR1iLCCzLg4LsJmcdXfke7A?=
- =?us-ascii?Q?Vo6qHCKACymfU7yC9xDgN+q+mAtLn74paSSBks3KwRncfcHpgObKWSKEArHZ?=
- =?us-ascii?Q?gwFq9qsqa3WuC3O230Z7GXZR7H99VqpS4f4V9uXYcbJ1G8QbHLqqDT8xFz2F?=
- =?us-ascii?Q?AgO2HXs2zhUQ+KMaYBxx4pcsXd/aBR2AtMrZRR1dobd/a+nAx6rD0wbSv/4H?=
- =?us-ascii?Q?pUmLCbIs2+GTZcithf2dvEISZ4z+rFr3vIeCWWmva94ccb+D+nOD9t2IU6U+?=
- =?us-ascii?Q?aHKz+ONMfVEC6R/vpIa15QHTNMjufkhL+0Vubmdb/M/sTE5fJmSH2RQ9/+uy?=
- =?us-ascii?Q?erjo2srtQ+JS6JzfxQtGxhbY1F9La0vjAjuG2IbqHLFkyB+KUujlrHGXuFJw?=
- =?us-ascii?Q?UfcngXurSs1PrejLKoY3eEB9VhiEcjIyv3O87EULQvL2uVqepLVY8YLRzzVn?=
- =?us-ascii?Q?8GubeQwxwZ/HPz+ggTghra8NsZd/M7SDr97HNbdxJYyTf77TXTLI3RFoI6c5?=
- =?us-ascii?Q?iaBjoSLoxoRHV8smcaPPw/jaH6D4JWdD13kk50wKSHeQOIqLZWpGmAu7AanJ?=
- =?us-ascii?Q?XmKrbnMyWMQIXCUSl7+Tsyz/WF8A4hZJZ1+pPS0aRMvuIjCyEvlhd9wyj4Ov?=
- =?us-ascii?Q?mLTgNmUGl6/VMABhmTyiPCdN4UqZPskFCI8zM7pSRb+ECxihEYfwspjypr3l?=
- =?us-ascii?Q?FBbdyRD+0N5UdEkD3sW2Sz+iZL1Z20e59Y5qEVm5XMi8/yo5z+Gb0r+X6y20?=
- =?us-ascii?Q?KbNwXFN5HwUQCelQBsjhdKAx7cGLTs3+wsVmZpN9yY+JTej9W1bMZFimUTKD?=
- =?us-ascii?Q?vlMm8PKE/aVAJIrNnfnlHKGzDK4/Yd/E+MitFmKEPjitQ+3oaP6pRes58hSC?=
- =?us-ascii?Q?dLJS3feH7EU62NTSzpgKbYXgx7cjLN/d4qeYUxtQRg7rU1V2C0ut0lPSQOd/?=
- =?us-ascii?Q?KJWPaK9azCaa2DUpmII+58lhyBP+kNGUFA2DZTWN7GIV8aBt7YibmZ3nZmcg?=
- =?us-ascii?Q?kScHgMtGfoHpqYHK+KF/6NmABOpUDgjb5L3+sE+ICoXqVx0YipVimtRsKgh+?=
- =?us-ascii?Q?l83nJkBH399SxuVQPFdFdWMfRKRL4jIvdWesan87vvUTF7jxJQXsa0q4X3qP?=
- =?us-ascii?Q?jQ+R4Whijrw4iLf8zXu0Gif2It8hVk1hmh4Jw+HmxpkQTGx2vsB2CkKeyCRu?=
- =?us-ascii?Q?dReG6MXmzfD3Pnat5WEv42WTFWiZlGmyEXtLtWH3gnQTxaleJkWGTRU460ud?=
- =?us-ascii?Q?BSe+f2alznDme37AGXu5BAb6QkILvN5fDhbtdXBIErK93P1OJotH?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bd0aa72d-433b-4787-2603-08defc784533
-X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Aug 2026 15:57:42.3304
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Sqld+y2E+b1Vt4Bn9N+QeVBaOlrXUzElT67vb87sbKR3VSY8b8NwUUxRsW2Ah5mXBcVm0MWBNKAivQ2T4BWsjXK0KKtj6nj1XWHT0mAlbSN8hBSaFBFIQ/+7ANeCRMan
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR04MB8047
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: OGGfjo6r9YdY5lbRfXUaQoY-bQQ8KBbW
+X-Proofpoint-ORIG-GUID: OGGfjo6r9YdY5lbRfXUaQoY-bQQ8KBbW
+X-Authority-Analysis: v=2.4 cv=NNLlPU6g c=1 sm=1 tr=0 ts=6a83351c cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
+ a=TtqV-g6YmW1Jfm2GSLaY:22 a=VwQbUJbxAAAA:8 a=M5GUcnROAAAA:8 a=QyXUC8HyAAAA:8
+ a=T6lopHUakFnDhHt3QoIA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE3MDEyNSBTYWx0ZWRfX7qM1OUOi62+q
+ iRI5Khs57cbSNyyYWoDzt9cQCmzFQCpyIu/EpP//MsT0a7Ja+8eKu+gDEICQ4wzc9iXIHMOTQvz
+ ZWV3W67AvoWM3gy94hHX17LOgZBMV6HGiePFSNbSDHv5/RS2t+LyeGbY07pjTl3DqvSbAKlFe7g
+ LQ0dYRF46jnwGPZHHsnnwPF/Ew9u5m9pAPR4XIMF6TXGf1YTQMM/NXYey9VR1knynCTjMTwaExK
+ jBAr92ztwqynurbCP0HqNWMNw98vsg+7x58OixKhC2fqFrTTWmOhg0oMG9iuHSBJQxYPGP0zUCi
+ Xk5wQ293q3pe7gmAcuuPUozcjBLOyDQ2u5Aee5fJh4wc9FLSyEhleJ0hWWE4UiZhgfQ1JxLex83
+ yNQdfwxrlHWxnTIXWmoiWxyNCp25OUMbX21UIJzuhX+zAlXiaKLaUzcurwmDBYq9TjfO1EmjTQ2
+ Vp6ZWARZ2FA/0QoGK9g==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE3MDEyNSBTYWx0ZWRfX+jspnMnlLMHX
+ z++TjQuHUXwcKmOZ71yxywgpQguyOqT7pT1rxyTg9lt0PKt974PuQAxjgO917KpMnrcDjpiqeIb
+ xrjOv7nrUhidjkmZLEj/E1Xfj/mCH00=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-17_02,2026-08-12_01,2025-10-01_01
 
-On Sat, Aug 15, 2026 at 11:17:20PM +0800, Ruoyu Wang wrote:
-> mxs_i2c_probe() requests an exclusive DMA channel before resetting the
-> controller and registering the I2C adapter. If either later operation
-> fails, probe returns without releasing the channel because the remove
-> callback is not invoked after a failed probe.
->
-> Use devm_dma_request_chan() so the device core releases the channel on
-> probe failure and driver detach. Remove the manual release from the
-> remove callback because the channel is now device-managed.
->
-> This issue was found by a static analysis checker and confirmed by
-> manual source review.
->
-> Fixes: 62885f59a261 ("MXS: Implement DMA support into mxs-i2c")
-> Assisted-by: unnamed:claude-opus-4.8 typestate
-> Signed-off-by: Ruoyu Wang <ruoyuw560@gmail.com>
->
-> ---
+DesignWare controllers synthesised with the Multiple SAR feature (e.g.
+Marvell CN20K) gate the primary slave address behind IC_ENABLE.SAR_EN
+(bit 19). Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
+feature), when this bit is set the core acknowledges the address matching
+IC_SAR; otherwise the address is NACKed. The slave enable path writes only
+IC_ENABLE.ENABLE (bit 0), so on such controllers the target never ACKs
+its address and a remote master cannot reach it.
 
-Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Set SAR_EN together with ENABLE when entering slave mode. The bit is
+reserved (and ignored) on single-SAR controllers, so existing users are
+unaffected.
 
-> Changes in v2:
-> - Use devm_dma_request_chan() instead of explicit error unwinding.
-> - Remove the now-redundant manual release in remove().
-> - Add the Assisted-by tag.
->
-> v1: https://lore.kernel.org/r/20260814134033.1386874-1-ruoyuw560@gmail.com/
-> ---
->  drivers/i2c/busses/i2c-mxs.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index 4e07babea9c3f4..eee4fdcd9df31a 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -839,7 +839,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
->  	}
->
->  	/* Setup the DMA */
-> -	i2c->dmach = dma_request_chan(dev, "rx-tx");
-> +	i2c->dmach = devm_dma_request_chan(dev, "rx-tx");
->  	if (IS_ERR(i2c->dmach)) {
->  		return dev_err_probe(dev, PTR_ERR(i2c->dmach),
->  				     "Failed to request dma\n");
-> @@ -877,9 +877,6 @@ static void mxs_i2c_remove(struct platform_device *pdev)
->
->  	i2c_del_adapter(&i2c->adapter);
->
-> -	if (i2c->dmach)
-> -		dma_release_channel(i2c->dmach);
-> -
->  	writel(MXS_I2C_CTRL0_SFTRST, i2c->regs + MXS_I2C_CTRL0_SET);
->  }
->
-> --
-> 2.51.0
->
->
+Signed-off-by: Umesh Kumar <ukumar@marvell.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+
+Changes in v5:
+ - Fixed missing spaces in commit message (Andy Shevchenko).
+Changes in v4:
+ - Added DataBook version (v2.03a) to commit message and code comment.
+ - Removed duplicate comment from core.h; kept only in the .c file.
+ - Added changelog.
+Changes in v3:
+ - Referenced the Synopsys DW_apb_i2c DataBook (Andy Shevchenko).
+Changes in v2:
+ - Dropped RFC tag; added Mika's Acked-by.
+v1 (RFC): https://lore.kernel.org/linux-i2c/20260804041842.3205356-1-ukumar@marvell.com/
+
+ drivers/i2c/busses/i2c-designware-common.c | 10 +++++++++-
+ drivers/i2c/busses/i2c-designware-core.h   |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 4dc57fd56170..880b9a74b3ff 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -374,7 +374,15 @@ static void i2c_dw_configure_mode(struct dw_i2c_dev *dev, int mode)
+ 		regmap_write(dev->map, DW_IC_CON, dev->slave_cfg);
+ 		regmap_write(dev->map, DW_IC_SAR, dev->slave->addr);
+ 		regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_SLAVE_MASK);
+-		__i2c_dw_enable(dev);
++		/*
++		 * Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
++		 * feature), controllers synthesised with multiple SARs only
++		 * acknowledge traffic to IC_SAR when IC_ENABLE.SAR_EN is set;
++		 * a plain enable is not enough. The bit is reserved (ignored) on
++		 * single-SAR controllers.
++		 */
++		regmap_write(dev->map, DW_IC_ENABLE,
++			     DW_IC_ENABLE_ENABLE | DW_IC_ENABLE_SAR_EN);
+ 		break;
+ 	default:
+ 		WARN(1, "Invalid mode %d\n", mode);
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9d8d104cc391..1390c8862a68 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -125,6 +125,7 @@
+ 
+ #define DW_IC_ENABLE_ENABLE			BIT(0)
+ #define DW_IC_ENABLE_ABORT			BIT(1)
++#define DW_IC_ENABLE_SAR_EN			BIT(19)
+ 
+ #define DW_IC_STATUS_ACTIVITY			BIT(0)
+ #define DW_IC_STATUS_TFE			BIT(2)
+-- 
+2.43.0
+
