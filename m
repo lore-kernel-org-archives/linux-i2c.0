@@ -1,189 +1,154 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C54CC48425A
-	for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 17:58:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787075894; cv=none; b=TcGhVfbpREyDbqpah+yh031zFzWBpCj5XShsRU+EqdvYzy73vy6AygfaSqxtUviTKbMX8TQZz32ZzdmDxeNJ8fuu17Vep0RZGHW7fsQsEmvM1/rO2gr2s8E6f/pjBQkh40owoDbKB59OU1KaIAjLkrjO19YCA+eTlF9tMBSRtck=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787075894; c=relaxed/simple;
-	bh=PteXAD1DPggMcw8dT/xS22YuwTISejXEqBeq+NyzCoM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lEnxcDNwoAIxiIDyJXGwrRuIysm/XboDpJ4Ey8srPT3vkJ3QXDc72Ea1ex4pZfEiEqHenF+2rr+UA/US742ppHr2Zzjxd3aeva5VqesMZkT83+ooudemT8XWCUQMXelEl6nkqc7DDqBpjzAofCr6/e9DMFU+SeOEUphhIRwmKfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PmUmLlRg; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B554854E3
+	for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 18:12:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787076772; cv=pass; b=inWBfRoh6AZWhYFFMivrXhEJZcV/+Z+zZcmi3YbxJTZdJVVAj7sRrHF8ImyS92gpfFcu4AANpGaTRnIaqEQb/pDUxTChlSXGnRDcpP0CAvyYpvudijQhQV33PVnafpCGkBBAZX6M/w2zRSdUv3wyAL1TIjasaSaMcFHpPKYvWas=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787076772; c=relaxed/simple;
+	bh=B+nSapg+VaNPr8DnhnnL7hC/4rF/jenHxFH+cPq0Tb8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BkfeqcBkr6mx89+TWQ8iE3xeamLkYHsR9GYGVg/o3Oul4n4L7TDcugk+f5KsgHHQrLIArOkl7oGZBN+/jUuCa04DhbePWhKIgJqUiqrwqI8GQ/2YM3kYonJ6KAgk4joRTyEfagImMewg59pTAcGN99gZsDaNXVgnHOY0SWZI7Bc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cI9EFXIq; arc=pass smtp.client-ip=209.85.167.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PmUmLlRg"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2d5cad1a6baso902915ad.3
-        for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 10:58:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cI9EFXIq"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5b015b2d792so191039e87.3
+        for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 11:12:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787076769; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ijS+Ajyp1gV7YIhO/VwMXAZ1pLYKrOu81hTARNXRdOHqCfsiMPBwhhtFS8Cp8XakTS
+         BRse3Gw16Y4ifecYI0qUwm4APnq3d1xerCPBXu1SMFv/2yhuZoMl6Ixtbc1i2WZh8Lyi
+         w2MLsteKOy4WHEEav6V3x6V3/yhz/i7DBa2rGIqJNjT1qLduEQmN/R1dTKdIIu9n1of8
+         kJvIQ0iT/XcuV2OSeJ/1t9ofqiitFZKnPL1rgxm9kfQ3rK7Lep7OoTR+28q7cXqsvsYK
+         80qH4761jdyy0uj3lyrusqSc6V3a7fKSNrUxI7jCZiGwZ4UEhxRulTsogv9DuisrAhBE
+         zYlA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=B+nSapg+VaNPr8DnhnnL7hC/4rF/jenHxFH+cPq0Tb8=;
+        fh=bKESGahqKlnMwHy5kxRNJE/5r51V3weO2V/kqD/49GI=;
+        b=k2FI45WkkQobL1MlCG0hXrzHfr4vBIqqED4v0VakqwIis4TZi2uDbmbUC9Nzbtw3wm
+         Qm3+52lIE/FF552BZ0eGBp/NVsAiMuVrC/T+cMRKkxW3u32GDNTtF3dAXRo7/yEL44f4
+         dpmLaoz2tzwtXnB+K4JOcwmmDHYiLnIJ8qQrBPbpHRaGxIlFUSVvDXvB0xhsEaKuHBZ2
+         7DZa3q9FaK52y9kf7imzW1XSn1LqLzWg1ebzC01SZuImTMcPsLWpGRCbCKlSNosS3Jg1
+         kLWBAm7pzSrdB9ogrOQgy4Y60O9CRtPr8pH2NMwkGHiM3XYsbGBEXtNdi1rrgDd6h1Jm
+         N1dA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787075892; x=1787680692; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OVwPxM1zwUuisKDv++BvBZsLlEbaJx1tUb1t0BisU8Y=;
-        b=PmUmLlRgrMph6z6p9pYvFXEd3ULNL50PI0qWEnDIn9tFCOi7Sx9wGh9iBvhEVGm1E+
-         Y4/LofSomCbm/St59kMy3GoYfvUjDDIlvLKUTuOn9GxUW1m2GFd4K98ko64aMPpzwEPw
-         8lIF7zGTeqDTL+aTtYCyV3LLswH7ps6RPpmJwcPr3rzBdnm5jbYR+YXJ+rrNQW57ZbH5
-         /d83208+aKZoKucfZTF270FF/FJbWtynkGcsDMcFKqazS04QcHxM2TAmSl9wcEFVrfpv
-         azvexelKerHh/67vfLa5PxCdKgH/c1KpreXyd+KIU96C6A272WuRcXQPpt368snsrDjF
-         1spA==
+        d=gmail.com; s=20251104; t=1787076769; x=1787681569; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=B+nSapg+VaNPr8DnhnnL7hC/4rF/jenHxFH+cPq0Tb8=;
+        b=cI9EFXIqLZtxOwbcPy1n/SwOyM97CkaCGCO32tIyKapOrco9zYL8GSxSqEz+0pdZGl
+         eRdXau6DWUtlljJX5siu+Qa4bBcPCG2x78BsZc/yP3+b9T8627tXDp96yST3gpI5hvZj
+         caDeUzz8f5mECkDvRl3hldBuC/OB7cRpdQoNHql5Kr6EiWVncMXq8di57OMtoeMBexNt
+         YG9n/9LxlrQKTaFLS4JgSd+h3XKqo0PrpL9w6SClRm4TrP3HGB+bmyC5bInfa9fMZ/vg
+         J8c1uHVEz2GO5NlDvOb6H4HpGMNfjXOhzQLinkPd0kTG5qQOn23C2UQ7MuzDFev2+ayU
+         hdOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787075892; x=1787680692;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OVwPxM1zwUuisKDv++BvBZsLlEbaJx1tUb1t0BisU8Y=;
-        b=gxZAo9bJ7nVdtKtmRkwA1vN/WOSEeaEXeynSU2CP2GZ4Y/1tlDxvtXzNU1zSELP1ZB
-         esiX3UEI47ddLzhzdDO++5rPKNGIUYm4rjXk91E05eV6jm3075CiRk43hzO+L/bAwmOP
-         6UG7Ho6bvDQl4dpDatU1Da2nVwL37d3KlP7dMBtHM6AnuB2yGOi+ROVWdaZsMlKh7zOD
-         qNPNhUMmMY5DKr38K6zZCa7h7jMamgkEzwL7gYXeZIqY0YKgL3nRZmD5UlAyRICEGquy
-         Nmv1rqz5NR3kGrXPX7diBncixfXa+h29zHN6spUkOydBlxtcC6J2AEDPtobTm5RzbFBj
-         efPw==
-X-Gm-Message-State: AOJu0YzSBtUsd/1+1hOnXTEHPKrQenkhmMWiKk9aPDLXQ+r/TxKvuy7E
-	/qm5ORNwcmMFrUx+YscdvyeBiJ04rGpPGMXMmmMCsyXm2l5K1kVXAx0FdfXO6ovE0SZr4Q==
-X-Gm-Gg: AR+sD10ume8ecGOzsAAhSMFdhAFiz07YUL0xO/POcV7Vcv9fqMoS20Ma+Hhgr+MjL3F
-	DBGC+oW7hwxOK+x/rorm7a9jTnrVv/406z/CTrEuI5KX5AzRZysCSRqFwJPXXBQvVRq6ZqQl7lp
-	BMEVctafdU4IjjkfH1uMnyKT0R/MpMEWETvnOgRvdQ7ScclZEU1kjOtr+JEUM01RbfAcDZ+WK7C
-	1n2rP/tbejXDflxUzm5KNI//Xd1u5Pml0nYJeyacaFwzN9FIBfLWLG7HvP0kVY/U4im2Og4W2MP
-	wnfZ3bM/OpZYsjWWD7xg5AdCcyGRWVVL6X3DxAyXZDhHviuXyOJ44KmayXakXT0m6EU/PKn8M9g
-	yi7jiHzGq6bsqXJRDsNGzecg+jRwM44Q/NxtP/1Gq5mAbwanond13NF/VJHyPBXFaajGfE43ZBH
-	P4lU7nulTYn70s6eq8RbwgwG7uUqslmIxrwHsKAC2nf9IRgc515DEd4lhFvOujEELCw2QiUC4pS
-	nfUt6ViC3LPd6VcvaigIPMCHGQ=
-X-Received: by 2002:a17:903:388b:b0:2d0:401c:2ebb with SMTP id d9443c01a7336-2d5c4ee9c5dmr151317545ad.4.1787075891614;
-        Tue, 18 Aug 2026 10:58:11 -0700 (PDT)
-Received: from localhost.localdomain ([240a:4282:4801:1b98:2558:3176:8229:fc85])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d5c1e8dc12sm17420645ad.56.2026.08.18.10.58.05
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 18 Aug 2026 10:58:10 -0700 (PDT)
-From: Liu Zhenlong <dragonliu2018@gmail.com>
-To: linux-i2c@vger.kernel.org
-Cc: konrad.dybcio@oss.qualcomm.com,
-	stable@vger.kernel.org,
-	Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] i2c: qcom-cci: fix device_node refcount leak in cci_probe()/cci_remove()
-Date: Wed, 19 Aug 2026 01:57:50 +0800
-Message-ID: <20260818175750.4205-1-dragonliu2018@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260815140931.53297-1-dragonliu2018@gmail.com>
-References: <20260815140931.53297-1-dragonliu2018@gmail.com>
+        d=1e100.net; s=20251104; t=1787076769; x=1787681569;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=B+nSapg+VaNPr8DnhnnL7hC/4rF/jenHxFH+cPq0Tb8=;
+        b=GOnDFt+4xBiJHl+xqM3tIZYuEK9Z1FrB5ymMYqt6jO0rIlh/2ofeds7t1N/GuwEzgZ
+         4sRiutIqDDMxRls2SANdLMe/x5sqm9YWIOk0CyeOD+vC0mM/ycUoCJF2uETd7E3K7uJl
+         hQWOQ/ldPRW3fDgTHYKFcpY92uLmgeNbdUIB5fB9zXe0yX8pkk5GB4LrKyafTTRblpnv
+         V+hgpaRXzo7TD6uwiCjbT0EfjiqmV0+e0WUApGigyEsinVftJbj02tgiXRZmRepdwafm
+         RxB6xylBwOc9LzpCKdxHNyQnGZDATSwlwnL+l85vzXff+MASSdrSsawEnFdsYrFtltKR
+         0nOA==
+X-Forwarded-Encrypted: i=1; AHgh+RpOC73ejpxQ3wGTMQBSk5/pO7s2xMTSaFti90CPobbtrWOjX1/jt3BjlTUyjzvKqSj3Am+mUf79u5c=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yya/LWp5vhlWGsEgPUFt5ozHaFGRNXD9SM+HhAIY8FmE5/RLp98
+	qIauyDmrXIt2ii/WdFLll4oG6DO4QzY2ada4eq6SzYOH7/3QxigIcyuO435EWFxxy+SJGa+Xj6p
+	NB3oO95SKit0CN9AVcrHhs7cHVlHJ8gI=
+X-Gm-Gg: AR+sD10pAPp5Id5T6BwYGD+YBS1b3xaBxNG7bEpVO0SP/xKOlzsXUa+VJ+COdbUXXlS
+	XBsWk3B1bDsnATRwMIW8SOQ5kkV2laoLjqVrKEb16qlSrnSXjTSmCnOEAO+ZidXcCzKTQtYxnDq
+	TGMibgzm5FhnlxpOnNd2o4D6pb1E9gVVF/PwH4A0nrrB0kOt+quNoAxF0f1LCljQiMHkZL5N4pB
+	C1vp+sJIi/WeI0AdmJ/gO6sUuj5F1h2kEmhjkqSKTFsKGRIGfrE9LbzzsWqOP1epSGn1VufWc9H
+	fxyLQxsruCg3699tLzqXXxKITuDJGMtjJzJrfIBkHx6YSYlNGzcqNRd5tqANkAd//5MeIJPLgi+
+	+InVnzuW0yK/E+aGq5vg5xXRAbw==
+X-Received: by 2002:a05:6512:10d6:b0:5b1:5ab5:ea09 with SMTP id
+ 2adb3069b0e04-5b477c6091emr111830e87.0.1787076768577; Tue, 18 Aug 2026
+ 11:12:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <cover.1786746757.git.ahmadexp@gmail.com> <20260818095654.5357db1d@kernel.org>
+In-Reply-To: <20260818095654.5357db1d@kernel.org>
+From: Ahmad Byagowi <ahmadexp@gmail.com>
+Date: Tue, 18 Aug 2026 11:12:35 -0700
+X-Gm-Features: AcwNN1VFdbc7wToCDqu6OVpR2tD_blBihPQ30U0mvdmP813mFMsjtyFeEMH6kL0
+Message-ID: <CAOQiBWM57ZBafMcj9MaegHBuM21313O5PqAAGXdHfvmHxHp48g@mail.gmail.com>
+Subject: Re: [PATCH net-next v5 0/7] ptp: ocp: Add R4006 and V9 I2C peripheral support
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Peter Rosin <peda@lysator.liu.se>, 
+	Nam Tran <trannamatk@gmail.com>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
+	Richard Cochran <richardcochran@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Kees Cook <kees@kernel.org>, 
+	"Gustavo A . R . Silva" <gustavoars@kernel.org>, linux-leds@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The of_node_put() matching of_node_get() runs after i2c_del_adapter(),
-whose trailing memset() zeroes adap->dev and thus adap->dev.of_node,
-making the put a no-op and leaking the node on every adapter removal
-and error cleanup.
+Hi Jakub,
 
-Use a devm action: the pointer is captured at registration, out of
-reach of that memset(), and devres runs the put once on probe failure
-and detach, replacing the three manual of_node_put() calls.  The
-setup loop uses the scoped iterator form so the child node is released
-automatically if devm_add_action_or_reset() fails mid-loop.
+These RGB LEDs have been part of the Time Card hardware since the
+original design, beside the four SMA connectors and the GNSS inputs.
+We never had the opportunity to add Linux driver support, so they have
+remained unused under Linux.
 
-Suggested-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Fixes: 02a4a69667a2 ("i2c: qcom-cci: don't put a device tree node before i2c_add_adapter()")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: Liu Zhenlong <dragonliu2018@gmail.com>
----
-Changes in v2:
-- Rework the fix to use a devm action (cci_put_of_node) instead of
-  caching the pointer before i2c_del_adapter(), per Konrad Dybcio.
-  The pointer is captured at registration, out of reach of the
-  memset() in i2c_del_adapter(); the three manual of_node_put() calls
-  are removed.
-- Use for_each_available_child_of_node_scoped() so the child
-  reference is released if devm_add_action_or_reset() fails mid-loop.
+There is recurring confusion about which logical SMA number
+corresponds to which physical connector and how each connector is
+configured. The LEDs address a similar operational need to ethtool -p:
+they help an operator correlate a logical interface with the physical
+connector. Their colors can also represent the SMA input/output
+configuration and timing status, together with GNSS fix or lock
+status.
 
- drivers/i2c/busses/i2c-qcom-cci.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+This series exposes the LEDs through the standard LED class, avoiding
+board-specific raw I2C commands. The generic LED controller driver
+provides the standard interface, while the board-specific status
+policy remains outside that driver. The second GNSS LED supports the
+card variant with a second receiver.
 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index bdeda3979c48..d3528c7d15bd 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -497,10 +497,14 @@ static const struct dev_pm_ops qcom_cci_pm = {
- 	SET_RUNTIME_PM_OPS(cci_suspend_runtime, cci_resume_runtime, NULL)
- };
- 
-+static void cci_put_of_node(void *data)
-+{
-+	of_node_put(data);
-+}
-+
- static int cci_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
--	struct device_node *child;
- 	struct resource *r;
- 	struct cci *cci;
- 	int ret, i;
-@@ -516,7 +520,7 @@ static int cci_probe(struct platform_device *pdev)
- 	if (!cci->data)
- 		return -ENOENT;
- 
--	for_each_available_child_of_node(dev->of_node, child) {
-+	for_each_available_child_of_node_scoped(dev->of_node, child) {
- 		struct cci_master *master;
- 		u32 idx;
- 
-@@ -537,6 +541,9 @@ static int cci_probe(struct platform_device *pdev)
- 		master->adap.algo = &cci_algo;
- 		master->adap.dev.parent = dev;
- 		master->adap.dev.of_node = of_node_get(child);
-+		ret = devm_add_action_or_reset(dev, cci_put_of_node, child);
-+		if (ret)
-+			return ret;
- 		master->master = idx;
- 		master->cci = cci;
- 
-@@ -604,10 +611,8 @@ static int cci_probe(struct platform_device *pdev)
- 			continue;
- 
- 		ret = i2c_add_adapter(&cci->master[i].adap);
--		if (ret < 0) {
--			of_node_put(cci->master[i].adap.dev.of_node);
-+		if (ret < 0)
- 			goto error_i2c;
--		}
- 	}
- 
- 	return 0;
-@@ -617,10 +622,8 @@ static int cci_probe(struct platform_device *pdev)
- 	pm_runtime_dont_use_autosuspend(dev);
- 
- 	for (--i ; i >= 0; i--) {
--		if (cci->master[i].cci) {
-+		if (cci->master[i].cci)
- 			i2c_del_adapter(&cci->master[i].adap);
--			of_node_put(cci->master[i].adap.dev.of_node);
--		}
- 	}
- disable_clocks:
- 	cci_disable_clocks(cci);
-@@ -636,7 +639,6 @@ static void cci_remove(struct platform_device *pdev)
- 	for (i = 0; i < cci->data->num_masters; i++) {
- 		if (cci->master[i].cci) {
- 			i2c_del_adapter(&cci->master[i].adap);
--			of_node_put(cci->master[i].adap.dev.of_node);
- 			cci_halt(cci, i);
- 		}
- 	}
--- 
-2.55.0
+I should have stated this existing hardware and end-user use case
+explicitly in the cover letter. I will add it to the next revision.
 
+On Tue, Aug 18, 2026 at 9:56=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> wr=
+ote:
+>
+> On Fri, 14 Aug 2026 16:10:48 -0700 Ahmad Byagowi wrote:
+> > Add the generic LED and I2C-mux support needed to describe peripherals
+> > behind the FPGA I2C controller, then use it to instantiate the R4006 an=
+d
+> > Time Card V9 board topologies from software nodes.
+>
+> Ahmad, could you explain why? What are you going to do with these LEDs
+> as a end user?
+>
+> The influx of the LLM generated patches has a hugely negative impact on
+> the community.
+
+
+
+--=20
+73
+With best wishes / Mit herzlichsten Gr=C3=BC=C3=9Fen
+Ahmad Byagowi, Ph.D., Dr. Techn., P.Eng.
+Phone: +1 (650) 924 6653
+
+ Please consider the environment before printing this e-mail.
