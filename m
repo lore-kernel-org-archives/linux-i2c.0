@@ -1,88 +1,82 @@
-Received: from out203-205-221-242.mail.qq.com (out203-205-221-242.mail.qq.com [203.205.221.242])
+Received: from out203-205-221-190.mail.qq.com (out203-205-221-190.mail.qq.com [203.205.221.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2E6029E10B;
-	Tue, 18 Aug 2026 13:12:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.242
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD4647607E;
+	Tue, 18 Aug 2026 13:15:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787058726; cv=none; b=XcUPXtAcTD0Pk5FMp8XOzf2Dsy3JPn0k6aVykfsTLYgpNhkncwMWkxEOtNUsqXkYSoIPbw3F4BU/XkGqHgtixHqFZmU0DRasv9gE/eCbLq0mACHwo4HsOzGZRcUDrprdwUujYEbT/xceXP5AcHv9raIdHwloKDPnduvCZd6ZWX8=
+	t=1787058908; cv=none; b=LKFUa8vQiLWPc5Ji03JHPhiuiDg0e2cQhPH+ZShetSHMS1ex2NyoD63yhAB1IcOupMQtAD1WYF/F4nrmvOW9cI5GEtmMSLNQftpM2TEsUb8zDnnLPGxfyfg69JY4IeB/2RbxJC1JOPkHwIPYTTFxCNxnyRM7D0RouowmC0dsSNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787058726; c=relaxed/simple;
-	bh=uRONrne686OX/cJsaUhShmVzBciuAAPBA5LjELtZo+M=;
-	h=Message-ID:From:Subject:To:Cc:Date; b=RqNYLpQ1QvV4CaE3pbU0Nue59JwYCWahg2H2hBvePXE0VCmbjPaTp455Y4ndJDNa/P42YekGJeHckHLwD0m7BthvUjSnlV4DaVp0dEIfT0HPBAY1VXk/AZj3thMeZdxVfN2+F5ZbHmyDhLPyJGFMKXtQAFW3BsVrIcjJtMGshcA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=ti8G52xA; arc=none smtp.client-ip=203.205.221.242
+	s=arc-20240116; t=1787058908; c=relaxed/simple;
+	bh=AEHMkPshZIEpyNIsuIqz0TqCKmK5s/d4bPa5NED0LHY=;
+	h=Message-ID:From:Subject:To:Date; b=VFGluQDinE5b3tU687zwHsfqLi7S7zmVAlso0K4BnzHdfQ6E71b9jHsz2MJYQmlcCps6R7UgaFjOX24q66b7N4xWNeB+iZsv0d5LCQg9c7RVvbRLDABxyPlV6Pl4rOkdRvOwSsqiBsZGIJ13PwepsHUme/s9VjUdk2gP1lXboCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=ZlFXXQVM; arc=none smtp.client-ip=203.205.221.190
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="ti8G52xA"
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="ZlFXXQVM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1787058720; bh=c2fIO+Uh5lMfJ0TQG1bXbVsEM8un3Gt2zARsM5wCiBw=;
-	h=From:Subject:To:Cc:Date;
-	b=ti8G52xAXRbFVyXyz7uNPB666UClNNWdX+IJr8Bnd8/MTpTwjRyW/4PNJpC5veWjz
-	 Vn/ZsiiEkiPhj2AU/Sif+zUHeOO0lN6LBtOj01hWkJ923+rqBw587n0sTb2g56crRN
-	 uJQgeFa0VxEE6RJMKZ5sckkwUr35fr5Hao4ryWQE=
+	t=1787058903; bh=u6AguuAWLbSwsm7gvplSJIU4u9KycYlA20U5mWWflWg=;
+	h=From:Subject:To:Date;
+	b=ZlFXXQVMXx1yzK+ENYHhUnfrJB56nzrQ6Poco21QAEHWAyzVfRFxHKhOn+UT6gIvL
+	 7Bib9O4xANJNm13b3MzjQdswmxqQNTpPSHynnPAtnKu9nsh37PNDEDTyB0xKnZMv6m
+	 blOy7oT7jIwLkDMjV6tgUGpc3mPyODUQpmJFLnfI=
 Received: from [127.0.1.1] ([5.195.0.150])
 	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
 	id 1721C6D8; Tue, 18 Aug 2026 21:05:50 +0800
-X-QQ-mid: xmsmtpt1787058627t25s38j6k
-Message-ID: <tencent_692077742B9CE600137EC92B0FEA258A8C09@qq.com>
-X-QQ-XMAILINFO: N/WmRbclY25G3eqbtrbTrgpSgA9Ra87BwxRtPtbh3cRgEgFB8YusHM55t4oyMC
-	 83ljhbN1E/dVTyneR0eJWsOVMC1HugibIBYUvhn8gSZ48kQIpRpathDCLt+x71cxbDhACG65heRU
-	 X+nbWBDc6Fg3oaFr7hIElV8ZYe0SHg5zpsKlu9YK0N2TvZMbEiF312g6HLcb3ujABwetTsae2NcC
-	 BEecL0hUgmmjdIQZel5Nyn1Jp+A6YSNJHDLhRtMioa2WEm2iV5PXCGmGZ9dXbpUAuEUkgDD3xHf6
-	 HU+CJ8StlkmE0312wqER7kRjDp9pQMPPB4sYIU/rC9DEh4Agnzd2vtXKHb4ZK2XluMTxwqRwO4UD
-	 t4c0nnqG9tScB+k1L/lV5j6GpyI7M5gRzhUjpfg936bb0yb8OE7te63RYNu7TSk/7GHTyHPQg9TL
-	 tTw8yFPt8BPu0s48UvfCje0yhUBqbmjC+5OLCDvQX2Gs6iGigvqbeTaSro6jTMKMEKr2D+VtzVvx
-	 x1NR5xl4rve+UwhVPW+jHTDKNdzk8CMbmROlU1StxouM9gzki0MJ1qhAzmxraNIYvrXhCb8+wiJ8
-	 N0Uiou7iEGHDiSdSj5DfzWNNVDrNd2RkY2CcB7IZiu7vwitqGXUk6H89KKcHorrJLkIbyETV1kAQ
-	 kB/7NobQlK92MFK0mg/2VIKfnBOdEs0WJ+lKfqjFxtLBx3gVPExNBmqqqb5i3Lom0ub45eVHaELX
-	 JunnYFyzmE9uKu1ZMo4g5eciiskBwmO1Ax7ucyS7R6t+XHDXcsvddEDw/sylP5mxelGpq9To0w05
-	 MqYOGKDoHgCY2qbR/0QkXHonG39QA5zED05sEFaat+BhTRuC+27U7yb8agKAHb6QTyZyXJ7s44V1
-	 2UEygr2Eivdb+ZCp9+AQk83uTkNpiQxPwGsJqbryQ4VWTqMItOzIG5jjtCyAFqG2001EPSfijJR6
-	 Rsq3jR5newlaa2vHXlUoKxv4/KsTsYorgMNr8E7NxUGWZPlSLPCLYnKbXgbceHd6VANdtuI0sP87
-	 SNHE/y5f4DjsSDesAZXJwSYAxRDjvwyokHeRvnNoA+/0qa8IIDZfSLULl/hZnabNX0YoJD5w==
-X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
+X-QQ-mid: xmsmtpt1787058811t67kjk469
+Message-ID: <tencent_A4A9EBA18AE8212574B59C8001217FC12A09@qq.com>
+X-QQ-XMAILINFO: NZYNQwNkdR3O2tQUjyqyuCnpmKQEGBhlLKmnENn4xstocLyw8UTsacv3j0HdvZ
+	 eOSttdJ5eQOe/BgEQll9Tw4MmoYI/lQQU/WA4tdFx3Gs+j+1Nz2jon2B3R5pFCVZ/oPNPOAtkxQP
+	 Ktyd+JKCmIyASULazaiSyqG79Cve+EfVNTzEnZwk8V0TuX0NATGfhm0gg2yHQNbIL0qmHYqdZqAb
+	 oCN4jp8AAeZpBxMyYwKv3I/bGxxJsRC97kOQQC45QAr6p0Neottnm/TToVUrCBZSEnxRVD4sDsDf
+	 ReD9cOxGySGcUWxsgd8L9gKRpxAd06KGZOjJG8FJpEYTDVMui1LtMuXqijcL2g6A9jGpiqKefrBM
+	 1JfJTJX7UuORcSYTqzpzSIPCzMS1fiTPY4RLHd+K6nP5TqqtOmEEcQPyNNZELBuGt/NHmObwWBBO
+	 cTDld/mViSp7mJ0x1F7ue5fIKzR86Z+EzdJ/H5J0Z3Iyeu+x05jazjx2tIBNsfi4WM0PY7sFHE79
+	 Sedn93OX0nBaF2Sp3OugBMDkaPOJ56QXogpLc09HcYcisIxGxHKEpGkobsGUefZxDXw+W5Pxf0LW
+	 tqQl0l57szPBv02x61jbK1CRqcaC7M/4c9/3v3S8+czoAGUpt/jHoA6O2TLifo2HYnyLg7JRkpVD
+	 7O/SXHloPds8ALNUZ5+d/4iMZbDU1rsjnEsu9YYYE0aiixdx7fZNWtZxJunpTVdBLf1Ei2cRREJJ
+	 4Xi4NdlMap3eijRMkl8Z/1IPnR6CnpXhJDl61fZ3OA+LE4mynGb7luKvpEqUfBPNe/O06QKfhOTC
+	 umPxgpndFchXlJtqBdXzb37/F2OHU1qN4BxghrXZ6Iulm/R3KNZp7wvf6Jh/WSpepgAILJoVpta7
+	 3LhfO3K4R/PX6foxDcyVnCGT9bSLHUAOYlEmoeSc2hrWOQ8d1UNNJvBOsCBN3Vpa/atUN95ztq92
+	 qyjiXmDsOAiGwokEsxUe7JHHyn8iYF8jxBbh8XhfSVfnNwCjToA9C+p2GitPztSejl+UgoaNYGjI
+	 3NkVce2qdAfYRaHMRHgNy7ye/Mhk7V8yBdjVGadA==
+X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
 From: Jiawen Liu <1298662399@qq.com>
-Subject: [PATCH] i2c: i2c-s3c2410: fix runtime PM cleanup
-To: Krzysztof Kozlowski <krzk@kernel.org>,
- Peter Griffin <peter.griffin@linaro.org>, Andi Shyti <andi.shyti@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Alim Akhtar <alim.akhtar@samsung.com>
-Date: Tue, 18 Aug 2026 17:11:57 +0400
-X-OQ-MSGID: <178705871733.291840.2722309413893899384@qq.com>
+Subject: [PATCH] i2c: i2c-rzv2m: fix runtime PM cleanup
+To: Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+ Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+ linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Tue, 18 Aug 2026 17:15:01 +0400
+X-OQ-MSGID: <178705890139.291840.17601296554208016978@qq.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-Keep clock enabled until adapter teardown.
+Update rzv2m_i2c_probe() for the confirmed driver lifecycle defect.
 
-The remove path disables the controller clock before unregistering the
-I2C adapter, so adapter teardown can run after the hardware clock has
-already been turned off.
-
-Move I2C teardown before clock release (pm_runtime_disable,
-clk_unprepare) in s3c24xx_i2c_remove.
+Keep the change limited to the concrete operation shown in the final
+patch.
 
 Signed-off-by: jiawen <1298662399@qq.com>
 ---
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1136,11 +1136,9 @@
- {
- 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+diff --git a/drivers/i2c/busses/i2c-rzv2m.c b/drivers/i2c/busses/i2c-rzv2m.c
+--- a/drivers/i2c/busses/i2c-rzv2m.c
++++ b/drivers/i2c/busses/i2c-rzv2m.c
+@@ -461,7 +461,12 @@
  
-+	i2c_del_adapter(&i2c->adap);
-+	pm_runtime_disable(&pdev->dev);
- 	clk_unprepare(i2c->clk);
--
--	pm_runtime_disable(&pdev->dev);
--
--	i2c_del_adapter(&i2c->adap);
- }
+ 	pm_runtime_enable(dev);
  
- static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+-	pm_runtime_get_sync(dev);
++	ret = pm_runtime_get_sync(dev);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
++	}
++
+ 	rzv2m_i2c_init(priv);
+ 	pm_runtime_put(dev);
+ 
 
