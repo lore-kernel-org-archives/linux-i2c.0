@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1EF947F76E;
-	Tue, 18 Aug 2026 16:57:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C7247F783;
+	Tue, 18 Aug 2026 16:57:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787072236; cv=none; b=Hb3kbVxkNz0L36WZlDE1OMELHWoOFyLHlySS0CqgqgOSVH/yDM80mbvaAUq0YZCTjW6STDg37FTWoNb4rUS1WNyztTVoSCobEnzCXVm5TpgSCy5I8lcW/jRNIBThUVpGckCnL4dUe0EFuWIMReB67jynB9T7Cb8txHaUupqjqEI=
+	t=1787072242; cv=none; b=C9o/ed2FcG+8mqo5OuT8pUss/cJDFQZRk8Q+yfIRV4+Uy3sQekAHkt0A41gDb2dCmaUeNB9jRtbsTXtsgCVeyfAeY1/fRrj3A76G+QJG0WUfqLVdqb0hAK0eU1Njw7rmFUZXjhxUbktpAJMQoAOXAaMfqjJsWVKSZgjzUZewpdg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787072236; c=relaxed/simple;
-	bh=tCA+IrOgl0TI0ASn4UW/HUYcwjwtOaKJEMUXJNs+gRs=;
+	s=arc-20240116; t=1787072242; c=relaxed/simple;
+	bh=svZyUctIoOIg1QcrZ/s96xW9GPjTdiqwHf4SUw42ly8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fyKMCwCTgwkRTYlPzw6OaNdEYcOiWrlIhJxwWEeoo24YncLimgZeA49Q7Sg6TeJLfSeWfN3GPJm+EPEENRy8ACzwoZv3d/W0t6wvb5qp5zJ+QTIVbnUc18ljaZwl8+xx1U4+tTVuGs7QMNEFqL9auS4R5JCC7ePVjsGTI55QiMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oBqu//zs; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=S/RXmhPJ17gAZFyGzRCFaQL3/8WIHiWM7p/7ZFD01HKlJ6SVdLOezVPjIghlg3yjLnSCS9016EyIahxhwzzD8Xz1WE1v70akfSDkrg/gPm398CJ5aLuH0o/mXbTfBZzyzbFsgoIhyGBQMHuh4IwHWyiIVLMqN3TYxPnHa8DnktI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iDKK1pzk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oBqu//zs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30651F000E9;
-	Tue, 18 Aug 2026 16:57:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iDKK1pzk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7616B1F00A3D;
+	Tue, 18 Aug 2026 16:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787072233;
-	bh=v2D91J1cQscmpB+R6hsDS6baUe0r+dwI9DEe+zgXKa8=;
+	s=k20260515; t=1787072237;
+	bh=omnQHGT9zzXPdJCCD8VhV9crlI+LaUc1U4BjvWKsfwE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=oBqu//zsvb2bwqV0EHsgoz6jrhGPJBxeXTv3Xdmp5zsXseBKD+tYoOJdvlGh3vSS4
-	 kkex1uX3Nt/Zgp74SbQLDjodt6fl+VY1QA4LFdoJkZNr25LDE5XNku4QPWhovfHecs
-	 MVmhCL+uoiC/vZmJKZs5rCJckBPkNTP6XIEpAgBe9yPuiGlt1Xzsmonwk8m9VBTokt
-	 3nm3X3wZFmO6GDn09WJCEpT2D5JrqG89hhNl0wabWXa0oxqNKtggdaglqj/VFx+W60
-	 m9YfYeL0oDwWrdGmVdWRTWGabWg/BsTvkUNyJmQsyy5P8f7PdfpkCR21gPTXxrdbMJ
-	 5E+NN52khT4hw==
+	b=iDKK1pzk3ftEILQe5NNe6MT86nk5HIWg31Fg3CzeUnYE1d+wm0KZbhNWtW08xBMhp
+	 FVsa2ydd9pg3jP1lvRe6QjTvYILArJ3IHGIGnZSz8XBKrivIa/24+WX6jT0eOT/lbe
+	 RICGK5QjgN+DN465beRfvjRNb9IoYbSNcNE0gZ/IwatOsUm8Yft+p3EQVIEsI+BD1P
+	 s9jaXvuDUX8X47bW3hxteWxUiCpPDDbmiKwkWw6d3nAOb9bTHVY6kxfFgtgBvo+nKg
+	 g8Q9m+4THx8bpmvybVngsuVxM3UMqVfnZBdHIDaZe9Kdl9QLdJ5s2cLlGMe81xKlZ0
+	 rjp+YODDrh3PQ==
 From: Jakub Kicinski <kuba@kernel.org>
 To: ahmadexp@gmail.com
 Cc: Jakub Kicinski <kuba@kernel.org>,
@@ -51,12 +51,12 @@ Cc: Jakub Kicinski <kuba@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-hardening@vger.kernel.org
-Subject: Re: [PATCH net-next v5 1/7] dt-bindings: leds: Add IS32FL3207 controller
-Date: Tue, 18 Aug 2026 09:57:10 -0700
-Message-ID: <20260818165710.4008324-1-kuba@kernel.org>
+Subject: Re: [PATCH net-next v5 3/7] i2c: mux: Propagate software nodes to channel adapters
+Date: Tue, 18 Aug 2026 09:57:15 -0700
+Message-ID: <20260818165715.4008405-1-kuba@kernel.org>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <d5df0bb5c312478279f0d2fd5ec6305e41add5ae.1786747084.git.ahmadexp@gmail.com>
-References: <d5df0bb5c312478279f0d2fd5ec6305e41add5ae.1786747084.git.ahmadexp@gmail.com>
+In-Reply-To: <a758b93f394ecfd4dfa65517782530d4a8c45e39.1786747084.git.ahmadexp@gmail.com>
+References: <a758b93f394ecfd4dfa65517782530d4a8c45e39.1786747084.git.ahmadexp@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -68,103 +68,140 @@ Content-Transfer-Encoding: 8bit
 This is an AI-generated review of your patch. The human sending this
 email has considered the AI review valid, or at least plausible.
 ---
-dt-bindings: leds: Add IS32FL3207 controller
+i2c: mux: Propagate software nodes to channel adapters
 
-This adds a binding for the Lumissil IS32FL3207 18-channel constant-current
-LED controller, describing I2C addressing, VCC supply, the SDB enable GPIO,
-the RISET resistor and per-output current limits.  Outputs may be described
-either as individual led@N nodes or grouped into multicolor nodes, where the
-group node name may use either a unit address or a dash suffix.
+This attaches the matching software-node child of the mux device to each
+i2c-mux channel adapter, tracks whether the mux owns that attachment for
+cleanup, and extends the I2C firmware-node adapter lookup so it also
+matches a device's secondary fwnode.
 
-> diff --git a/Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml b/Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
-> new file mode 100644
-> index 0000000000000..2e53aa1e202dd
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/leds/issi,is32fl3207.yaml
-> @@ -0,0 +1,281 @@
-
-[ ... ]
-
-> +  "^multi-led(@[0-9a-f]|-[0-9]+)?$":
-> +    type: object
-> +    $ref: leds-class-multicolor.yaml#
-> +    unevaluatedProperties: false
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 3ec04787a7373..f39575ee02444 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -1876,12 +1876,22 @@ int devm_i2c_add_adapter(struct device *dev, struct i2c_adapter *adapter)
+>  }
+>  EXPORT_SYMBOL_GPL(devm_i2c_add_adapter);
+>  
+> -static int i2c_dev_or_parent_fwnode_match(struct device *dev, const void *data)
+> +static bool i2c_device_match_fwnode(struct device *dev, const void *data)
+>  {
+> +	struct fwnode_handle *fwnode = dev_fwnode(dev);
 > +
-> +    properties:
-> +      reg:
-> +        minimum: 0
-> +        maximum: 15
-> +        description: |
-> +          Optional zero-based lowest-numbered output used by a group named
-> +          multi-led@N. Values 0 through 15 correspond to OUT1 through OUT16.
-> +          For a multi-led-N group without reg, the driver derives the lowest
-> +          output from its component nodes. This form permits groups beginning
-> +          at channels 16 or 17 while following the common multicolor node-name
-> +          schema.
+>  	if (device_match_fwnode(dev, data))
+> +		return true;
+> +
+> +	return !IS_ERR_OR_NULL(fwnode) && fwnode->secondary == data;
+> +}
 
-[Severity: Low]
+[Severity: Medium]
+Is the new fwnode->secondary dereference safe here?  The old code only used
+device_match_fwnode(), which compares pointers and never dereferences the
+fwnode.
 
-The single pattern here matches multi-led, multi-led@<hex> and
-multi-led-<dec>, and reg is declared unconditionally optional and
-unconditionally allowed for all three forms.
+i2c_dev_or_parent_fwnode_match() runs as a bus_find_device() match callback
+from i2c_find_adapter_by_fwnode()/i2c_get_adapter_by_fwnode(), so it is
+invoked for every device on i2c_bus_type, including clients, with no
+device_lock held and nothing pinning dev->fwnode.
 
-Since there is no allOf/if-then keyed on $nodename, can the schema still
-distinguish the two node-name forms?  Two shapes appear to validate that the
-description says should not exist:
+Meanwhile i2c_unregister_device() detaches and frees the software node
+while the client is still in the bus klist:
 
-    multi-led@5 {           /* unit address, but no reg */
-        #address-cells = <1>;
-        #size-cells = <0>;
-        led@0 { ... };
-    };
+drivers/i2c/i2c-core-base.c:i2c_unregister_device() {
+	...
+	device_remove_software_node(&client->dev);
+	device_unregister(&client->dev);
+}
 
-    multi-led-1 {           /* no unit address, but has reg */
-        reg = <5>;
-        #address-cells = <1>;
-        #size-cells = <0>;
-        led@10 { ... };
-    };
+For a client created with info->swnode and no primary fwnode,
+dev->fwnode == &swnode->fwnode, and device_remove_software_node() drops the
+last reference:
 
-dtc's unit_address_vs_reg check rejects both ("node has a unit name, but no
-reg or ranges property" and "node has a reg or ranges property, but no unit
-name"), but that check is off for normal dtb builds:
+drivers/base/swnode.c:device_remove_software_node() {
+	...
+	set_secondary_fwnode(dev, NULL);
+	swnode_put(swnode);
+}
 
-scripts/Makefile.dtbs:
-    # Disable noisy checks by default
-    ifeq ($(findstring 1,$(KBUILD_EXTRA_WARN)),)
-    DTC_FLAGS += -Wno-unit_address_vs_reg \
-    ...
+Can a lookup then observe fwnode = dev_fwnode(dev) before the free and read
+fwnode->secondary after it?  The writers are unsynchronized too:
 
-so for a board dts built without W=1 the schema is the only thing left to
-catch it.
+drivers/base/core.c:set_secondary_fwnode() {
+	if (fwnode_is_primary(dev->fwnode))
+		dev->fwnode->secondary = fwnode;
+	else
+		dev->fwnode = fwnode;
+}
 
-For the first shape there is also nothing that ties the unit address to the
-channels actually used, because is32fl3207_register_multicolor() only compares
-reg against the derived first channel when reg is present:
+There is no lock common to the reader and the writer and no WRITE_ONCE, so
+this also looks like a plain data race that could make the lookup return an
+adapter whose software node has already been detached.
 
-    if (has_group_reg && group_reg != first_channel)
-        return dev_err_probe(...);
+Also, does the extra dereference help in that case at all?  A software node
+installed in the primary slot always has secondary == ERR_PTR(-ENODEV), so
+it can never match through fwnode->secondary; only the window seems new.
 
-Would a node named multi-led@5 that in fact drives channels 0..2 be silently
-accepted, making the unit address meaningless?
-
-Would something like this express the intent instead:
-
-    allOf:
-      - if:
-          properties:
-            $nodename:
-              pattern: '^multi-led@'
-        then:
-          required:
-            - reg
-        else:
-          properties:
-            reg: false
-
-or alternatively splitting the two node-name forms into separate
-patternProperties entries?
+> @@ -1891,8 +1901,9 @@ static int i2c_dev_or_parent_fwnode_match(struct device *dev, const void *data)
 
 [ ... ]
--- 
-pw-bot: cr
+
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> index 681a201c239ba..3bca123907b3d 100644
+> --- a/drivers/i2c/i2c-mux.c
+> +++ b/drivers/i2c/i2c-mux.c
+
+[ ... ]
+
+> @@ -364,6 +417,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+>  
+>  		priv->adap.dev.of_node = child;
+>  		of_node_put(mux_node);
+> +	} else {
+> +		channel_node = i2c_mux_get_channel_swnode(muxc, chan_id);
+>  	}
+>  
+>  	/*
+
+[ ... ]
+
+> @@ -408,6 +473,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+>  	return 0;
+>  
+>  err_free_priv:
+> +	if (priv->swnode)
+> +		device_remove_software_node(&priv->adap.dev);
+>  	kfree(priv);
+>  	return ret;
+>  }
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but since err_free_priv is being
+extended here, should it also drop the DT channel node reference?
+
+In the DT branch of i2c_mux_add_adapter(), priv->adap.dev.of_node holds a
+reference obtained either from the for_each_child_of_node() early break, or
+from of_node_get(dev_node)/of_node_get(mux_node).  When
+i2c_add_adapter()/i2c_add_numbered_adapter() fails, control reaches
+err_free_priv, which only does kfree(priv).
+
+That the mux owns that reference is visible in the success-path teardown,
+which saves np = adap->dev.of_node and puts it after i2c_del_adapter():
+
+> @@ -429,7 +496,13 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
+>  		sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
+> +		/*
+> +		 * Keep the software node through child removal. The adapter
+> +		 * device is cleared on deletion, so release the software-node
+> +		 * attachment reference via the saved handle afterwards.
+> +		 */
+>  		i2c_del_adapter(adap);
+> +		fwnode_handle_put(priv->swnode);
+>  		of_node_put(np);
+>  		kfree(priv);
+>  	}
+
+Neither i2c_register_adapter()'s error labels nor the driver core drops a
+device's of_node reference when device_add() fails, so does the failure path
+leak that struct device_node reference?  Would adding
+of_node_put(priv->adap.dev.of_node) at err_free_priv be appropriate while
+this label is being touched?
