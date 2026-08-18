@@ -1,41 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7008C30DD10;
-	Tue, 18 Aug 2026 14:52:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 852D22E9730;
+	Tue, 18 Aug 2026 14:58:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787064771; cv=none; b=VFj1YkXNvgLEA2O4oIYg4ETI/kSFLVKJ5Wydkr1Ae0lgbZgLKzlLmGwfMtaqZY/hzUUsVU0qOLsAU4oBX72sdQGbShIYG+c1dCmfDNaKcyVi8VaOOT9GHGiAJAS0yHzqzeL2LIRkA0e0f89i7aj9fXCEpMNJ38UjdoJtdhiimGM=
+	t=1787065097; cv=none; b=dX4uB38XihtvENtLb6kDZNfflQeUtvajHFG/tmLrBLeGDqzREV93OHBkeJ4pCr1osaWnu7Q+Rc57gdlSvCuAb0GEWlv0jf5lKV+9ZrwYJn7tlgl0sJ0/bWqg31BwI+1YA8CW15CGCZhCJ3ii6+Rwq4JZA3Rd0pjSuVvjv9otzyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787064771; c=relaxed/simple;
-	bh=eu+QOVzA3GWwnasseZPGMU5ztMjisaoYYZisaqfYf2A=;
+	s=arc-20240116; t=1787065097; c=relaxed/simple;
+	bh=nvgkm13RG37IehAJ7CrMCFg1oQ31UxfCE3y9DKjj1mg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EWsPaRhT3DtQR6HStYvT1kjCC0NN2Eh/x83bLL6th28qv7ajIORID0KBQf+9ezE07CGjmA2QZrqoowZLzxT1SMEZryqNOW/+nu9FxdGKBD4Wo0IhAtv5m4ttG+i2squOU3QQiZJ2eOADUl3dReESwXHdTjrE5SYlklweX2OtLvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b0SfcLM6; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=ExfismoGtu9v8YPMhPN9d8IL01FeGctCAcLet/Y76X6MI+l+5FkcbvkRCrZfYuAzXkpA64j5B/bBbdZrm/ZER+6kkfMmuLQv+IQRRG73UcIRvuvsoM6+/I17CF0Z3DhR6hzKXKxnXpHSpmldPiVDF1su/NhI6h74ZPeFbx3TZoI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gxm/qsLK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b0SfcLM6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AD11F000E9;
-	Tue, 18 Aug 2026 14:52:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gxm/qsLK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95E6D1F000E9;
+	Tue, 18 Aug 2026 14:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787064770;
-	bh=rfOry45ulwe7v6KhpB1GY36EGtm0Agssnch6yIRMUe4=;
+	s=k20260515; t=1787065096;
+	bh=UAkcgdEMwmE9sdUoY4qewo8s31VVAONo66F8/bIGiz8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=b0SfcLM6JEf6E/47tSLKjlfUE6vghA2jIi0YE4aBIWmYEOi+XJaKj2Gy5zITLhDNl
-	 bwOY3xmAj2j7iE1R/U3RGb0anQjroUiL6EO2F8srtMum4HmUhbOpfVpHV1+A1bvjSQ
-	 FsRfhRcC282dWj7xyp2nPI5S1UEhWtl6rm9nSm2ROmsh+WMRHyiwtrHhUQ/GJ0M/Xz
-	 BiJhu++JLTWJv2I+Xx1SHX/XzvtFLbMb7tMBvUEmp68nZfcjrRHc+T/H83VyzT6qeS
-	 lMGPO8MkEHeW6IQ5VN24qLkgqu44YjuY8hPXP8QwgUxfjShQGGxFE+BEQWjlacLejK
-	 9Ez04mzrj+/OA==
-Date: Tue, 18 Aug 2026 16:52:46 +0200
+	b=gxm/qsLK/jepvvBrLNu7hBTqsLfuIpD3GgIpFs5cidsKSl9iPBEXZog8OZYQsXY4/
+	 HwnDymvczFtUEK1rgDO8omopD4PnogHS32yDGzgtzSOT5E4Eq9OXELNvGCthAKexy2
+	 vdaYJLYqFO6jDEKAXxejuNgqFeLGZFhPMzagzItcGeteDH38JflsP3t7t/y4WzfmXg
+	 1zDgjpbseESHdmjKdhpXbLO3FyWh5H5mPgPTwdXK5XH+pXg5cE+bhUrNT/W0VgawSs
+	 3P7Tfekl7c0Ca6LSTRFrDC54h6AjAwd23jzOKfipgpb0tbc243/16jyJXwLImmtflH
+	 DMYWhOXQDK8Iw==
+Date: Tue, 18 Aug 2026 16:58:13 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Jiawen Liu <1298662399@qq.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, 
-	Peter Griffin <peter.griffin@linaro.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Alim Akhtar <alim.akhtar@samsung.com>
-Subject: Re: [PATCH] i2c: i2c-s3c2410: fix runtime PM cleanup
-Message-ID: <aoRq_1DgSUrmR_i_@zenone.zhora.eu>
-References: <tencent_692077742B9CE600137EC92B0FEA258A8C09@qq.com>
+To: zhaohaiyang1 <yewentian395@gmail.com>
+Cc: Florian Fainelli <florian.fainelli@broadcom.com>, 
+	bcm-kernel-feedback-list@broadcom.com, Ray Jui <rjui@broadcom.com>, 
+	Scott Branden <sbranden@broadcom.com>, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	zhaohaiyang1 <zhaohaiyang1@xiaomi.com>
+Subject: Re: [PATCH] i2c: bcm2835: add missing braces to for loop in
+ bcm2835_i2c_xfer
+Message-ID: <aoRysYp25Ni4jMaL@zenone.zhora.eu>
+References: <20260817130234.372628-1-yewentian395@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,69 +46,50 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <tencent_692077742B9CE600137EC92B0FEA258A8C09@qq.com>
+In-Reply-To: <20260817130234.372628-1-yewentian395@gmail.com>
 
-Hi Jiawen,
+Hi,
 
-On Tue, Aug 18, 2026 at 05:11:57PM +0400, Jiawen Liu wrote:
-> Keep clock enabled until adapter teardown.
+On Mon, Aug 17, 2026 at 09:02:34PM +0800, zhaohaiyang1 wrote:
+> From: zhaohaiyang1 <zhaohaiyang1@xiaomi.com>
 > 
-> The remove path disables the controller clock before unregistering the
-> I2C adapter, so adapter teardown can run after the hardware clock has
-> already been turned off.
-> 
-> Move I2C teardown before clock release (pm_runtime_disable,
-> clk_unprepare) in s3c24xx_i2c_remove.
+> Add curly braces around the multi-statement body of the for loop
+> that checks for unsupported read messages. This fixes a coding
+> style issue where the compound statement lacked explicit braces.
 
-This last paragraph is actually useless. Perhaps you can write:
+it's not a multi statement body, if you look very carefully from
+closer, there is only one single solitary 'if' statement.
 
-"
-The remove path disables the controller clock before
-unregistering the I2C adapter, so adapter teardown can run after
-the hardware clock has been turned off.
+> Signed-off-by: zhaohaiyang1 <zhaohaiyang1@xiaomi.com>
 
-Fix the ordering in s3c24xx_i2c_remove() by calling
-i2c_del_adapter() before pm_runtime_disable(), keeping the clock
-enabled until adapter teardown is complete.
-"
-
-This way we also mention that the ordering between PM runtime and
-i2c_del_adapter() has also changed.
-
-Does it work for you?
-
-> Signed-off-by: jiawen <1298662399@qq.com>
-
-Please, next time write your full name, not "jiawen", but "Jiawen
-Liu".
-
-Besides this can also be considered as a fix and needs to add:
-
-Fixes: 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA deadlock by keeping clock prepared")
-Cc: <stable@vger.kernel.org> # v3.19+
-
-No need to resend, unless there are other reviews. Please just
-let me know whether the changs I am suggesting work for you.
+Please next time use your real name here.
 
 Thanks,
 Andi
 
 > ---
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -1136,11 +1136,9 @@
->  {
->  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+>  drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+> index 8554e790f8e3..76d017cf1582 100644
+> --- a/drivers/i2c/busses/i2c-bcm2835.c
+> +++ b/drivers/i2c/busses/i2c-bcm2835.c
+> @@ -349,12 +349,13 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+>  	unsigned long time_left;
+>  	int i;
 >  
-> +	i2c_del_adapter(&i2c->adap);
-> +	pm_runtime_disable(&pdev->dev);
->  	clk_unprepare(i2c->clk);
-> -
-> -	pm_runtime_disable(&pdev->dev);
-> -
-> -	i2c_del_adapter(&i2c->adap);
->  }
+> -	for (i = 0; i < (num - 1); i++)
+> +	for (i = 0; i < (num - 1); i++) {
+>  		if (msgs[i].flags & I2C_M_RD) {
+>  			dev_warn_once(i2c_dev->dev,
+>  				      "only one read message supported, has to be last\n");
+>  			return -EOPNOTSUPP;
+>  		}
+> +	}
 >  
->  static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+>  	i2c_dev->curr_msg = msgs;
+>  	i2c_dev->num_msgs = num;
+> -- 
+> 2.43.0
 > 
