@@ -1,98 +1,161 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED8E18FC97
-	for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 14:29:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C66257827;
+	Tue, 18 Aug 2026 14:43:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787063342; cv=none; b=FmRPph/dIVAU7ZuEAPzE5OB1rhIgdTTuDg7gZfrjlKxgirnh9McqIWZoLO+ix/mAzB2G05pAhPjdcM6Ys4xKHC2jgQ8nsTIJ0Dz0wCfZqHRRQx+Ssm+iie36p+JB2lghEi8WjYswdsNPjFHAiuW14UcLnpWrg3kjzToi5ykxvME=
+	t=1787064197; cv=none; b=Oivpq3U1tKeaSX9Cxot2gmOhcz5c/BELh4+Z3+TzHAvpm9X/b9dob7D7gxLQ5B+27tvukzc88oVGskFt6Dqw6gdzEbOlKWjtwDRk5cjffSr0niBLTJgEC2P4JSkZadbovXBNH7EOQMQKH/aAiFR9byZwSYmtYHrx3mvqxSEed4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787063342; c=relaxed/simple;
-	bh=mie0nTDpXVpzdLJv114Gdf8KQXJnlkj43PK47MND8r8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nANu2uX3kXb+zqT9QWQWJn+ft27HaSNs8giNIFUcdBIJShKPgjCckaaXolPIsRVKIkNWdIN8E3wWBKUHVbb6wBX90AmgvobP25hgqeCT23Fn2onGsrsjaz1Q+ikB02CWFyu0+GHKerhgQP+gA9Eyl9+6HvSOL+Sns0JH60aCjI0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6a38098734bso6819560a12.1
-        for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 07:29:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787063339; x=1787668139;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Thf+EPoHrsWTegx4PKx5P1+Bl2bUkRvVPDASspkr+Vc=;
-        b=NbPHqm7uMqExLY5+75XXRFkuJjotgWRMA/6SPPqNosCfc4q7rOiPWsIFNiP4q1HLqg
-         N9iS2yr562w7Q5GHSqZzoZWBNvYcO1saGfz24zIzhFT/9R8ENuub3rRfnGYQP7rdhrSQ
-         PaoiioHSYYe4q0gSFJUXKTTab766kh+D5BROQOHDUa9yVQqEcV+VXfTyELfNco49F4uP
-         t6TLcavydTTM9PXWMGNi5KAB7cirGJN8DgBOy+EzJcdneIc5Du45nqg9cNkJB1HJtj4b
-         PU1/U2ZfAwmtPcR/vV4/kGo1ZPO7p4vVGYc5VU2XxmJZheIzm5WckjzcrO0AOkSKHcE2
-         /P4w==
-X-Forwarded-Encrypted: i=1; AHgh+RqYq67hOwORzpFqQAHxXacxNVr4G/BSfpOAlODkmdk1gio2SPUNkXU0yPKtENZZZQfwZzso6df13Bk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzUiE+WLUisUqDQ/L8QwVXnfghdEKxFwcPRQAZb1vhWB9NV7yf3
-	4v8oqIAu8YfDOaznNJ7rPFjpJop2mPMsAlzTIDnxn7pmOJdz0BihvGtxsnhHcSDvMdQ=
-X-Gm-Gg: AR+sD128rGNuGbLDXhzCkG24+yAZLzdCU/GbZTJCS0qZBFJz+mx6PlNHOLCQ1JjZpMv
-	AktXypx6RMIB3Ik94ISvoU13SGrfvIHxg9L8mR5lTApXybaBpjhAkEVsMzvA+O2K4BAF6riiOX4
-	QWrOBlBZ6TJxKhwbxBu9rltMeXlECVcJfgMzzfKz3INRe4kW+7XivyFq1wbXzBDHwMqf4uO0X4O
-	C0AkjnkYc2/ylj1aj/8eyscVcT1BdpbFR13tg+L4EA4pp701d4c9s3WPAfMcLbHBhoYCcAIhY0I
-	V1KK5bwB+cYIwaXssY07NyFqcFnAM73GyHgQokCgnrkngkDorNhANJgXmwEGHrtrmC3gK7T2Ae2
-	CL75tpaRyTdphGMVh6eXucVWd7C69hwNvruRfyF/GtU90Jk/bLfe6rs05BCNuhCmHLIWqU52YrJ
-	U7B04J80A/1bxXyGkl5UeniYjjvIg7/nlUUFthXzmyIb8/Rr7lhUbE1VBKiZHMVtyZPQ743bClU
-	AiRH+8dwhBaTIxyhPjTvcxmgA==
-X-Received: by 2002:a17:907:d08e:b0:c1c:2c32:1163 with SMTP id a640c23a62f3a-c2188ac8fddmr506237266b.25.1787063338781;
-        Tue, 18 Aug 2026 07:28:58 -0700 (PDT)
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com. [209.85.208.47])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c217fe7b854sm206690666b.4.2026.08.18.07.28.57
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Aug 2026 07:28:57 -0700 (PDT)
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6a17211b9ecso10258968a12.2
-        for <linux-i2c@vger.kernel.org>; Tue, 18 Aug 2026 07:28:57 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rr+GsiOvxcooS0FeXdFOXdB+qPeDJhut/rO2oR9D1tE1ByxVS5HmdgURWp126vCHIqM7VEx34Z2Qeg=@vger.kernel.org
-X-Received: by 2002:a05:6402:e85:b0:6a3:edb6:2228 with SMTP id
- 4fb4d7f45d1cf-6a3edb6285cmr3102580a12.17.1787063337203; Tue, 18 Aug 2026
- 07:28:57 -0700 (PDT)
+	s=arc-20240116; t=1787064197; c=relaxed/simple;
+	bh=ZKCahBDrEbjKlh1nLwxqFHURJc7ZiKY50+FFFCDAqpY=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=DfU6SfIDimOTG+RHlhtrIVKMY5FuEH3R6hbPhtr1CCejMli+pu4LWQm7cHINSlUbPxgNwtQID/RsEfPxcNbV3IVc5X8Xqg7OAieF0RWGrgft6wAD72hqLsL+fcoXtNh33o5FGxIJkZXlaHNZsx9gLxMWmuZJBr2HKcP/yPlh8ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=SyhddAyM; arc=none smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="SyhddAyM"
+Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3lE11196826;
+	Tue, 18 Aug 2026 07:43:13 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=I
+	OOyKvXjNjxVuztluSz2VuyWnqGHoUit3AkqeISrZ+8=; b=SyhddAyM8BG4nqMJ1
+	lyfCFsdbs4V4D6D3GMN9Dp15AYK/hyqiI7wielxMo5Q+TpuPfKXi2cjk+Rbk4kW4
+	uUnsMSrRUqp+PiQC6S7J9hSyzw0XyO/F4Meh73NLzYyJXESnGuVpz/GtqpJJr7A8
+	1REBPlphQL2nlkAoC6CWj48IvuqX2HyKUTOHdHbE/Jyf5biimbZlGLC8Np63YzTy
+	pSdpRoWH0lumF29JGJ583DG1KnRDIrebf+taWExO5FZe0ko/HTqGyYJiNXRHDBRa
+	5KmNjJFJNL/LEqfAC7MWx/Iyp/09TcpLodYgWfWFsD/M2SOTQ3f7AMrxmvnCKOmc
+	8nr9Q==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4g4kk0h0ry-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Aug 2026 07:43:13 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Tue, 18 Aug 2026 07:43:12 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Tue, 18 Aug 2026 07:43:12 -0700
+Received: from marvell-Dell-Pro-Tower-Plus-QBT1250.. (unknown [10.28.34.91])
+	by maili.marvell.com (Postfix) with ESMTP id BDB3F3F7050;
+	Tue, 18 Aug 2026 07:43:09 -0700 (PDT)
+From: Umesh Kumar <ukumar@marvell.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andi Shyti
+	<andi.shyti@kernel.org>
+CC: Mika Westerberg <mika.westerberg@linux.intel.com>, <bbhushan2@marvell.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Umesh Kumar <ukumar@marvell.com>
+Subject: [PATCH v6] i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
+Date: Tue, 18 Aug 2026 20:13:06 +0530
+Message-ID: <20260818144306.357243-1-ukumar@marvell.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260804041842.3205356-1-ukumar@marvell.com>
+References: <20260804041842.3205356-1-ukumar@marvell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <tencent_A4A9EBA18AE8212574B59C8001217FC12A09@qq.com>
-In-Reply-To: <tencent_A4A9EBA18AE8212574B59C8001217FC12A09@qq.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 18 Aug 2026 16:28:44 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUSpmZuDPDzfCzvKbts+=a=savqD_mpf82TS6XyZkZu=g@mail.gmail.com>
-X-Gm-Features: AcwNN1VFrPk04Bohn1UQSujmmF4EIHRApBL1V6XFH-gGP58HhymsZ-nEzcsLZu8
-Message-ID: <CAMuHMdUSpmZuDPDzfCzvKbts+=a=savqD_mpf82TS6XyZkZu=g@mail.gmail.com>
-Subject: Re: [PATCH] i2c: i2c-rzv2m: fix runtime PM cleanup
-To: Jiawen Liu <1298662399@qq.com>
-Cc: Fabrizio Castro <fabrizio.castro.jz@renesas.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Authority-Analysis: v=2.4 cv=T/G8ifKQ c=1 sm=1 tr=0 ts=6a846f81 cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
+ a=TtqV-g6YmW1Jfm2GSLaY:22 a=VwQbUJbxAAAA:8 a=M5GUcnROAAAA:8 a=QyXUC8HyAAAA:8
+ a=T6lopHUakFnDhHt3QoIA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-ORIG-GUID: pnL_--y-5MSdYheEe7eYwnt5QwX4luIK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwOCBTYWx0ZWRfXw6RuPBuMyzVk
+ PZIeoTvSQ3MhF/l8lPgMM5VqqBhZYI0NEzt00uL5dvVIsLrebj1ET7vJFdJu6qKSCF3iwsC6ApK
+ nKc7NckLi4xcbxA/tkueeZqbWtbFT4EbTfsrqAfwgIKmcM+eFtqg4lqZ0G4kjhq6BponyX6xL+d
+ u44aY3GhdmBQ5yg3FqZlC8jSnq/DYe5h1f5TvvtMwUCtB0Iaey4wet7Nnt9sSUE77Q7oEZWx0Cu
+ SMhMfdBXt8Tc9TVRABr+F1L5D019ivteIEoYRS4PsJfHdtPIKXWajal7be3ACUcZ0J4T7jWCX7K
+ CBh0Pdq9UV0dusZ1qEUciR7aA2PG952igyVlB8o6WGtirihRGygTQEGkZdYOpfIfrNGvN7iZ9i9
+ fHLvzkH4Jq+ivbymUo6/Kq8ibhUIZEoHqat8LBmuNyR3ish2z8UWmVluxuYHqcamw2iP6yTqqDu
+ dHIzhz425KZ3CrrkihA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwOCBTYWx0ZWRfX0dn4nLii9xOv
+ Q6FGKGSOxBYG8sX+l50ipEH2sOyREPAp8kto4PxJXiGC/vxsW1U9d7BQ87IxSVA4jOXbrRGX0gk
+ nFBeBH8YLlPnvt5E8VNL7tYXp4XIdI8=
+X-Proofpoint-GUID: pnL_--y-5MSdYheEe7eYwnt5QwX4luIK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
 
-Hi Jiawen,
+DesignWare controllers synthesised with the Multiple SAR feature (e.g.
+Marvell CN20K) gate the primary slave address behind IC_ENABLE.SAR_EN
+(bit 19). Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
+feature), when this bit is set the core acknowledges the address matching
+IC_SAR; otherwise the address is NACKed. The slave enable path writes only
+IC_ENABLE.ENABLE (bit 0), so on such controllers the target never ACKs
+its address and a remote master cannot reach it.
 
-Thanks for your patch!
+Set SAR_EN together with ENABLE when entering slave mode. The bit is
+reserved (and ignored) on single-SAR controllers, so existing users are
+unaffected.
 
-On Tue, 18 Aug 2026 at 15:21, Jiawen Liu <1298662399@qq.com> wrote:
-> Update rzv2m_i2c_probe() for the confirmed driver lifecycle defect.
->
-> Keep the change limited to the concrete operation shown in the final
-> patch.
+Signed-off-by: Umesh Kumar <ukumar@marvell.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+Changes in v6:
+ - Added Andy's Reviewed-by (missed in v5).
 
-Please write a better patch description.
+Changes in v5:
+ - Fixed missing spaces in commit message.
 
-> Signed-off-by: jiawen <1298662399@qq.com>
+Changes in v4:
+ - Added DataBook version (v2.03a); removed duplicate comment from core.h.
 
-Gr{oetje,eeting}s,
+Changes in v3:
+ - Referenced the Synopsys DW_apb_i2c DataBook (Andy Shevchenko).
 
-                        Geert
+Changes in v2:
+ - Dropped RFC tag; added Mika's Acked-by.
 
+v1 (RFC): https://lore.kernel.org/linux-i2c/20260804041842.3205356-1-ukumar@marvell.com/
+
+ drivers/i2c/busses/i2c-designware-common.c | 10 +++++++++-
+ drivers/i2c/busses/i2c-designware-core.h   |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 4dc57fd56170..880b9a74b3ff 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -374,7 +374,15 @@ static void i2c_dw_configure_mode(struct dw_i2c_dev *dev, int mode)
+ 		regmap_write(dev->map, DW_IC_CON, dev->slave_cfg);
+ 		regmap_write(dev->map, DW_IC_SAR, dev->slave->addr);
+ 		regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_SLAVE_MASK);
+-		__i2c_dw_enable(dev);
++		/*
++		 * Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
++		 * feature), controllers synthesised with multiple SARs only
++		 * acknowledge traffic to IC_SAR when IC_ENABLE.SAR_EN is set;
++		 * a plain enable is not enough. The bit is reserved (ignored) on
++		 * single-SAR controllers.
++		 */
++		regmap_write(dev->map, DW_IC_ENABLE,
++			     DW_IC_ENABLE_ENABLE | DW_IC_ENABLE_SAR_EN);
+ 		break;
+ 	default:
+ 		WARN(1, "Invalid mode %d\n", mode);
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9d8d104cc391..1390c8862a68 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -125,6 +125,7 @@
+ 
+ #define DW_IC_ENABLE_ENABLE			BIT(0)
+ #define DW_IC_ENABLE_ABORT			BIT(1)
++#define DW_IC_ENABLE_SAR_EN			BIT(19)
+ 
+ #define DW_IC_STATUS_ACTIVITY			BIT(0)
+ #define DW_IC_STATUS_TFE			BIT(2)
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.43.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
