@@ -1,93 +1,137 @@
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E3BD48A2D1
-	for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 16:27:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DF6648876E
+	for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 16:46:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787156876; cv=none; b=ssL3Uo5xOIQIZX8Hl5sJ/EUw2BMXXdZSmcutVGu32UuoD4V6z+ce0Pi+yaGGoxx4i/hgHSaVJ27Al2E7bONPkkYFgZUysnp2i/Nqh/hQCi0b02REZ6jQI9IHifos11Hor32tsPEWABYwWINQKZ83IkMLKgGqrdsDpVmiMGSAecg=
+	t=1787157966; cv=none; b=RaVffu4IsomKCPWi92dCkbb7Lk50pdzukwmS1HzhmUk++w4JzVozHYq3nEa4xhxb6PMVX6GgTnn9j0rOpo9gdgUXGJzsmgnYC61Cz7SegfBLg/xJTwEwyAzsAowmD9uKLLgGCVLVeAVkP0Y8PDog3uIUMAnb0MtfZXgD2hb8sYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787156876; c=relaxed/simple;
-	bh=OIBEI+0fMCxI7Yswc19lvMAmd7xOGLTNwGEmrNKGrbQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=actCN/JcSgb5Xs/Qn78aDIb0M0PrrsEcdmprexhleo8XpKTKWykdvE/pjvdN5vLCdtE7W/vkkNu6occJxIrTIG3wgPmGgiTc1UTVwnBmqny4QlE/J8stlAhGpoBP82RPM3WvUltNlL7ZfDEHe/qNVuhU4RTZG32FP5Kxuu1KOIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=El5IutHp; arc=none smtp.client-ip=209.85.208.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1787157966; c=relaxed/simple;
+	bh=PDhxOqT/y5939ng/CB3Fbzc40lOB6wazyR26umXP14I=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=l38Vj0Y7jEXc83gvKHR2FUQ6Y1jFftGep8XApJJk5nySSBEehNj0Hu8ESqAAiBtNOaKYlcCeflJOvslDPdbTiMUunirNdtF4YE60ZCKBMG1zJdd0yeey/f3JNIHpqw6GUuxYXJbdQ0YMGHJArqqHg9Af3n1UKTo2bCh/P97UlJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=e603eVw8; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="El5IutHp"
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6a386a34603so175987a12.1
-        for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 09:27:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="e603eVw8"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-38ea87caafeso1131598a91.3
+        for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 09:46:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1787156869; x=1787761669; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xB5cV/IpUwGGn95R+d7ZWsJZCR4HYoIRYae+bPf2q1A=;
-        b=El5IutHp2TZ0WVk48r7JpuJZbTZITDhZaw8r9toiQRKvCo5YjaZi16pG2pUxTTedqP
-         EltwgZZ5yHBJBZQ8d03igzvD8es5t0UKnzn9PvDiTkls6t8ALhxi2rCv+V5b+wZEN5Fz
-         vtkO9Oa/TncroV7hCAMlL+acirHOSrl/TG2uM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787156869; x=1787761669;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+        d=nexthop.ai; s=google; t=1787157964; x=1787762764; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=xB5cV/IpUwGGn95R+d7ZWsJZCR4HYoIRYae+bPf2q1A=;
-        b=L7V+sV96YDfCB6ZpC2epIIUIeaLACpJYKAL0YCq7XwnJlT4Sn+83lOgdRh9OeDKsJL
-         fvaMmRa25MvKFlaXG9b8J8Bov/iadxFu+8ejNsXx+GeA6GciDB6ZvBG03ly3DxuxKvek
-         JoiKOOO3Ma1tv5ZN0GqwD3fzIll8P33Q5Bfqxfi39dxB8RmFEz28ZnChgDyUfBCtIL/E
-         akCfsFa+Og8e8lKxh8XTYlboX5zh6t5dWl/m6O+4mGQaXsqjT5L/HRMTWrZefawxKiLL
-         jMkWylambc9asxpF2VQdTdx0+HDZeg37nG+8vwqCA15GUC7YqDAWw9BoH/XHB57qAkr3
-         0hTw==
-X-Forwarded-Encrypted: i=1; AHgh+RphKZ9fQJLPHxuGHsFYBwnzFmPMTy307ZF7RrPwAhFijk47MC6SbayMTA7DUbq5z0SeGgefaYYHRBA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwqNUEGVWpTO144O70is3kzWGNtcBZy7rzB3H9aTVqx6b+Vzp9n
-	alXAnSSdBS+elZxUDBfExTfXU2Jd6j/1sdPEmV+BZIhXSAPNu83lPaPnz6McjXAjOeJd9D2kMSY
-	2aqg7Mik=
-X-Gm-Gg: AR+sD13q8qrzRJn/kmglXxpRRvPjRVqTmfSjS0LnOAJKnHr88LbwovXjWnGEFpCw/36
-	aczPstbgJnx/FHHHW4qc8igd39DJV+X9X5DdE1lWj3VwiUv5NVZI3EN8l3YDLIy78ejwUIay+1h
-	fk8R+JCGsiJVCOtP+D599g8uPrOKzPXh+z36WNBSHOlqwQoLelfxp7ahF/emnGPuilu1FXVGOpC
-	IVjqf2+2J2GlkIeIcmlh/yGEriIANyoOiRm86zfre91KtF+MHb+UDfb3dqCCAgMPhev7XLF7rUk
-	qFLOPj/hTy+0mSFaWyYA5dxTQTAKGSESDKNG+1RkaJKfxlAphlcF/kjEuvzpViwGEwcLLIY4+GM
-	oNQ6g292mvEhW5Xft5u5Tr1OnYlEv4IT1FndYZB1zMXKHR8xTrWDeNc3LdZ5EqHxtImHrRNwRNP
-	QLtVy82DSeuJWukAjNLgrmau2C4NhyMP4tRlrCr3semj1hyYnuBNz05zAtxG7beI4u/icwjbzZq
-	Fq7wlbhU+W1Y+tEeLN780xaF00O2lU87XvyMKwhaAOYaJ+5SKIzZw==
-X-Received: by 2002:a05:6402:4609:b0:6a1:1742:ac22 with SMTP id 4fb4d7f45d1cf-6a4112442b3mr328160a12.2.1787156868704;
-        Wed, 19 Aug 2026 09:27:48 -0700 (PDT)
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com. [209.85.208.45])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a3ff0c315dsm1117211a12.9.2026.08.19.09.27.48
-        for <linux-i2c@vger.kernel.org>
+        bh=j2QFmIqsPMjSEaMKX7xQH3oClX6HCcn2Fx3TkiBSFCE=;
+        b=e603eVw8XQAXUE4Ewqs5rjmaBCTRQAJFyDHGWTpI7TAsvNcKKNsIozEpPOIBlqzOHH
+         MaHao3MTSFPuwoYm48UBbQ2EDIODfsF8lhEncGD8uC/jumfeJUMl9f8a3JmZzMflheF1
+         wSdhFpmW2HSTQxEixxOCCR5BMNzqa2TrZbm45Yq8vx7CVC7lqXILmJpcN9HYImAtSK0e
+         SdAh1Y+ZYEdaXPlFPUvlOIUEp/knPprHQdnCqpUepTInvHad6ttLZcGo7p+bWH1zRa/T
+         pLVZ5ncIeb2LZXJZDT6IoO+nhHZXmi4EChGfF0DOfRUi0VPdPpoEVTZCVnGY8XZYRqs9
+         bYZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787157964; x=1787762764;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=j2QFmIqsPMjSEaMKX7xQH3oClX6HCcn2Fx3TkiBSFCE=;
+        b=cf9Z5odFJYATKKBiYIprNUjT4B0nZREchCWaPinmgLSqmWVquX9H9MoOrii0mAQHNt
+         IxMrej3Hv4wSMbc3bio06o0JoQpa8PyyZpntbFb8VjbkwmdxaOUCdpr6M+HzKP3DJh2Q
+         HQCBU7YM5FKBJB46uGBKDSZyWj9DZ3V+UueiAYhvzhoHrJ84SRnAqYdKFiax1RTc8yvm
+         zh6yL5uw3rXJX1ylzAhhzaUBfl/a8q10wN3bB2fTEj0KjPOhQ+hYQ1HRFRZgYbCUwfnc
+         brv38EluwSbqrAbNcvuzuK8txoP0IsNhXK0uuZHZn5jH6hbKO4G4G3NNpTC8rjuTOguc
+         mJzA==
+X-Forwarded-Encrypted: i=1; AHgh+RpX0i8rVnGhRYQOm3tlxZqd0p0bw+Kkt0hnKBCpF/8J/ApM+9MuLtaSLtXYgftd4wgKgeCQMXFkh/w=@vger.kernel.org
+X-Gm-Message-State: AFuF++nf9WZCm++ZUWZTiwiOhAX4fT0WdZn2GDn7DprhGPMtefpUS1Mo
+	Oyj2OpZ2Dpo0KTp9ZDtSfTjECynudCOjmV3jdxqc9JtpfZnJJzxLm1NCEL6L9sSP6yo=
+X-Gm-Gg: AR+sD13y/e6QYZHkkgTHXeRG2gi87ybj+qplI8adhZjjvWe1yy3KRga/Fw24maIdUE/
+	r64H/E62iKkRE/4BlIEjrISZo+jwGp9/dw9XFQIkO/jAZArTr1cS6P0VF4VSgWMr3VVb7X9pMKN
+	gi10UuKXP3gX+3hxbp5kDwdMY3clHGnx4ey72ZRGVvIOc4rxDnkr5bXgDMq5RWokakjYbfX9eMW
+	AYVjTTSu/QRemsO8hpiUQ26dWkWDm4bHkhS/eBr6PL9Dpi5r1o/gNEj1NFsVl+O2hheDQ7qMTg5
+	KwyKdh4E2QsSLvE2N8Q1igCZUBXVNrh/eHdyRlIME+gCtIJl/251qr7a9BbNlKw+JKozCuBl4AN
+	CE7Wn1vcB0Ez9aW9J+HQUdHs5KyLlVvUxViGNy8R8+Oy1DnRsdL03/BOe0ZQ1aVoKqECzBdYr6L
+	EkNooglnlDxXbaU/D1g2nemrN5IMgrVDza9um1H2OdXqrBN/40q/dKIcfQ4xvF
+X-Received: by 2002:a17:90b:4a4b:b0:38f:240d:b857 with SMTP id 98e67ed59e1d1-39580a4d03cmr10751457a91.2.1787157964497;
+        Wed, 19 Aug 2026 09:46:04 -0700 (PDT)
+Received: from localhost ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3957f7c962csm3180844a91.0.2026.08.19.09.46.02
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Aug 2026 09:27:48 -0700 (PDT)
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6a156627e22so109162a12.1
-        for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 09:27:48 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RqdxvQynb9kTIrvGbeUNKQ1/la2T3twOfFHWjgaf3T957Xgg+M4ooY08IwPqzVpJHFUJnZpG4aA0I4=@vger.kernel.org
-X-Received: by 2002:a17:907:a0cd:b0:c08:580e:899a with SMTP id
- a640c23a62f3a-c244d74f75emr17501066b.10.1787156867854; Wed, 19 Aug 2026
- 09:27:47 -0700 (PDT)
+        Wed, 19 Aug 2026 09:46:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <aoBAaw7d1A6-a5PJ@zenone.zhora.eu>
-In-Reply-To: <aoBAaw7d1A6-a5PJ@zenone.zhora.eu>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Wed, 19 Aug 2026 09:27:30 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wjmXanEnJZ9C-r8SFPSU-8Jpsnz7YDJfduZCkF-CG0BZA@mail.gmail.com>
-X-Gm-Features: AcwNN1XYG2fvzzoZcQqLVn-EiBzfWy0bZfNb75LglQ6jfN-rQ599B7V3VjIAR9Y
-Message-ID: <CAHk-=wjmXanEnJZ9C-r8SFPSU-8Jpsnz7YDJfduZCkF-CG0BZA@mail.gmail.com>
-Subject: Re: [GIT PULL] i2c for v7.3, part 1
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 19 Aug 2026 09:46:01 -0700
+Message-Id: <DKT2MHJFPM96.3Q0I52V3283ER@nexthop.ai>
+Cc: "Michal Simek" <michal.simek@amd.com>, "Andi Shyti"
+ <andi.shyti@kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+ <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] i2c: xiic: restore non-managed runtime PM to fix clk
+ WARN flood
+From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
+To: "Andy Shevchenko" <andriy.shevchenko@intel.com>, "Abdurrahman Hussain"
+ <abdurrahman@nexthop.ai>
+X-Mailer: aerc 0.21.0
+References: <20260818-i2c-xiic-restore-runtime-pm-teardown-v3-1-5fd315b078e1@nexthop.ai> <aoVRETUfgS4FwMnq@ashevche-desk.local> <aoVRpS7EmL3YYBWH@ashevche-desk.local>
+In-Reply-To: <aoVRpS7EmL3YYBWH@ashevche-desk.local>
 
-On Sat, 15 Aug 2026 at 03:38, Andi Shyti <andi.shyti@kernel.org> wrote:
+On Tue Aug 18, 2026 at 11:48 PM PDT, Andy Shevchenko wrote:
+> On Wed, Aug 19, 2026 at 09:45:41AM +0300, Andy Shevchenko wrote:
+>> On Tue, Aug 18, 2026 at 08:35:10AM -0700, Abdurrahman Hussain wrote:
 >
-> The main changes are support for shared SCL lines in i2c-gpio,
+> ...
+>
+>> >  	pm_runtime_set_autosuspend_delay(dev, XIIC_PM_TIMEOUT);
+>> >  	pm_runtime_use_autosuspend(dev);
+>> > -	ret =3D devm_pm_runtime_set_active_enabled(dev);
+>> > -	if (ret)
+>> > -		return ret;
+>> > +	/*
+>> > +	 * Enable runtime PM by hand: devm_pm_runtime_set_active_enabled()
+>> > +	 * tears down in an order that races the devm-enabled clock release =
+and
+>> > +	 * makes clk_core_disable() WARN (see xiic_i2c_remove()).
+>> > +	 */
+>> > +	pm_runtime_set_active(dev);
+>> > +	pm_runtime_enable(dev);
+>> > =20
+>> >  	/* SCL frequency configuration */
+>> >  	i2c->input_clk =3D clk_get_rate(i2c->clk);
+>>=20
+>> >  	ret =3D devm_request_threaded_irq(dev, irq, NULL, xiic_process,
+>> >  					IRQF_ONESHOT, pdev->name, i2c);
+>> >  	if (ret)
+>> > -		return ret;
+>> > +		goto err_pm_disable;
+>>=20
+>> This might be problematic now. You need to unwind the IRQ request in non=
+-devm
+>> manner as well. Scenario is that IRQ comes exactly after PM is disabled
+>> in the error path. Is it a problem today? What about tomorrow (assuming =
+some
+>> new chips / code is added)?
+>
+> (To be clear: I'm talking about next call(s) that may fail, like xiic_rei=
+nit()
+>  later in the probe.)
+>
+>> The rule of thumb is that, no devm_*() call should be followed by a goto=
+.
 
-Christ, that's a horrible hack. The hardware designers that did that
-should be put in a padded room together with a hungry crocodile and a
-webcam. That is _not_ how you should do i2c.
+Makes sense. I haven't hit it on our hardware yet, but I understand the
+concern: once the probe unwinds runtime PM by hand via goto, the
+devm-registered handler stays live across that teardown (and across any
+future failing step added after it). I'll switch to
+request_threaded_irq()/free_irq() and free it explicitly in the probe
+error path and in remove() for v4.
 
-            Linus
+Thanks for careful review!
+
+Best regards,
+Abdurrahman
