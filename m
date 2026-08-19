@@ -1,1195 +1,160 @@
-Received: from omta-ad1-fd1-2101-ap-sydney-1.aib29aea255.vm.email.ap-sydney-1.oci.oraclecloud.com (aib29aea255.vm.email.ap-sydney-1.oci.oraclecloud.com [192.29.151.255])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D54763033DE
-	for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 13:39:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.29.151.255
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AA07477280
+	for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 14:21:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787146783; cv=none; b=N742MoZDT08ScH0keM4wOXS+phuFrozLpamcCLRcb4LMx1D5eFVvf6olQNBCh80OfN+zU8rUBZbQtJp85iYOZ40c0Si5kA/7TafGGFBMoZcFJ09KxNsOXeeLm/neIBM4K1xAFtGUp1vm0kFQXxpxWaODvMCnQosk+Z5uY8Q3EGg=
+	t=1787149269; cv=none; b=n/Pby2cdUiD6L4OP/vRXaHR6lV4dxGOyBNcyN5u3EWwtL9Wr4sUobi6TcLfLwC/yqq5ru3uhUm/YCSEYPicGn03Vq8KRidXnvx8ghrta9fYjKlUT4RwgfjJGXKNmhqYQk80IkwWQRjhgiCak9/CjqEigy8GY8HE6Ddrs/61AaaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787146783; c=relaxed/simple;
-	bh=j+1TsXJmwlyCowO4pphvAgprDRXqjOJ/cgoltf9GGqE=;
-	h=From:Date:Subject:MIME-version:Content-type:Message-id:To:Cc; b=aZ31L+OA9n6Hu1rdVxS8DE/mccSGP2UvFR/acULjshwrT1EdRFAR8Xvl/MR+QRRNMhuzT4mh8C1Qy492+eJYfZhnqSSDbuoDpEjw0jwX/n8nTb+L56dgxB+hadOgS73hheDcTJeMix0Au4UYzSOTVGaM8MKxsIldQr3o7oBrFDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stevetech.au; spf=pass smtp.mailfrom=syd1.rp.oracleemaildelivery.com; dkim=pass (2048-bit key) header.d=stevetech.au header.i=@stevetech.au header.b=NS1rKIkf; dkim=pass (2048-bit key) header.d=syd1.rp.oracleemaildelivery.com header.i=@syd1.rp.oracleemaildelivery.com header.b=TWdivcDx; arc=none smtp.client-ip=192.29.151.255
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stevetech.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=syd1.rp.oracleemaildelivery.com
+	s=arc-20240116; t=1787149269; c=relaxed/simple;
+	bh=3wpjqBnRA24pZMh5UqHMI9YWMbaUGaQndBFFvIiKqPo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qo5Nk07ltBQU34c0NFa0MpL1QMt+3fHu4voY6bCJFpXK6QxMJbqk+q8Exh1Ln8q2hlD7Il+bqwCtLYSNF7cNQw3RKCjY+cTfxIGkcXlywEe92LPVHiHftG/yUFu1qZACx3RqU/llYoiIqW5vbvy0/LI/Qs3N0YVYXEyLlvg11rg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Q600KRx4; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=brqysGQ7; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=stevetech.au header.i=@stevetech.au header.b="NS1rKIkf";
-	dkim=pass (2048-bit key) header.d=syd1.rp.oracleemaildelivery.com header.i=@syd1.rp.oracleemaildelivery.com header.b="TWdivcDx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=oracle-2026;
- d=stevetech.au;
- h=Date:To:From:Subject:Message-Id:MIME-Version:Sender:List-Unsubscribe:List-Unsubscribe-Post;
- bh=3r4a6sOrCxkjNvfk9BXT70W52BYOcuVM72VGT1o1Qbg=;
- b=NS1rKIkf3WridCwkQ3TFn3SxNes4fes/fEbUbi/T2RAuyifOnOaOflvc/0ZDJyXPWBvVynJ9h4Ve
-   Y6JNB1hpOThahguqu14lZvnj2gDZIJnogGvkm7dqApw+h4gcVkkMm+ZTE4+28JeZsf49k/Ko8aiJ
-   9E2S/0KKuy8PevJ5QvR7XQGqh/iCUOGnRR+Hko31sIB7xGL0qpMUIQviZkDGh3Ps5LKhPmdEg5My
-   dWrYjU5++sv4B3PoGEbRqvt8Ac2l3PbB88lCyg3ppYRdPGda5KQWPiX18C7qPPwWnWQmB65irQ09
-   8amlrHL9d/tgdhwN22ZJI60WgBkL0w1yW8hgyw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=prod-syd-20200122;
- d=syd1.rp.oracleemaildelivery.com;
- h=Date:To:From:Subject:Message-Id:MIME-Version:Sender:List-Unsubscribe:List-Unsubscribe-Post;
- bh=3r4a6sOrCxkjNvfk9BXT70W52BYOcuVM72VGT1o1Qbg=;
- b=TWdivcDxYIbAuOJlbJb4Kj5SivxdsgLBMj7rVsOwtg694B6Lnyd6970hpwi5ZzNwOKRXIoPM6ylh
-   Tq7tFw5/qvdP0VJ8cuRb+ZUJ7qLknfGZjR6f/+tNE1S6SxK40sryYpyT+zeKFwIDkCp/Pqs1K3SR
-   xle+vKbcNEAw5eXzwP5K7oX3K9f3kaL6lzJIFmnUN/CYSYgYlqP/EadUWiznuta7SXrZPEMEhHsw
-   1MNyy5FqPgqkuiL9/4PBVe7w/Pns4B8+CA4IaL9y8LRCTBRI5OmTtxo5yoh/n73FjVtvvD3FBD/C
-   d4TNvESJzenkDsntilPL7s9r5PLbOElGcVENCg==
-Received: by omta-ad1-fd1-2101-ap-sydney-1.mnat.vcndpsyd.oraclevcn.com
- (Oracle Communications Messaging Server 8.1.0.1.20260722 64bit (built Jul 22
- 2026))
- with ESMTPS id <0TK020QITR9ZIK10@omta-ad1-fd1-2101-ap-sydney-1.mnat.vcndpsyd.oraclevcn.com> for
- linux-i2c@vger.kernel.org; Wed, 19 Aug 2026 13:39:35 +0000 (GMT)
-List-Unsubscribe-Post: List-Unsubscribe=One-Click
-From: Stephen Horvath <linux@stevetech.au>
-Date: Wed, 19 Aug 2026 23:37:45 +1000
-Subject: [PATCH RFC] hwmon: Add Support for PMIC5000 Power Management ICs
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Q600KRx4";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="brqysGQ7"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JD0GCL693600
+	for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 14:21:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	JajUSq6h8dMddtGWdZA9x0Ah38NN9UEulnuJ7TV2YjM=; b=Q600KRx4CNkIWZey
+	kKZvltujHlHliCA9mtvm819toAqbx4q8Po+yNbHyL9aJZvsc1m6RdxILuN6QPYk7
+	9Hi59+VfExOzRC9ti4glhcDBM+RSaoaRgkH6wOJ5CIgm3PYIQUJa7iFsGlg9VTev
+	54s4lGJ6/z1P9l87gwtZZa+dgEC7b46wTwM7oYdHwoBGB5+iVxe/8XFDc09aCY1+
+	824z61jrPsJBMjbPUhymr4DmfMFER2hPy2teiaHk32oApxiIzEQPP3+QAck7hwwD
+	TdMQiqrojvE01zBApw6ca2qnAzMBTwz85z2nhyk76P+QS2AecwUV2WuLsQzf1LgZ
+	HlWV+A==
+Received: from mail-vk1-f199.google.com (mail-vk1-f199.google.com [209.85.221.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g4yfmbmqf-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 14:21:07 +0000 (GMT)
+Received: by mail-vk1-f199.google.com with SMTP id 71dfb90a1353d-5bfc08e95ebso42532e0c.1
+        for <linux-i2c@vger.kernel.org>; Wed, 19 Aug 2026 07:21:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1787149266; x=1787754066; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JajUSq6h8dMddtGWdZA9x0Ah38NN9UEulnuJ7TV2YjM=;
+        b=brqysGQ7YLaiukjUK7GkQQ2OiEGAu2gcKpmPADGLiqePnw2TklAZx44+wqUeiNJ99C
+         jB+wWj73BRXLXGU+hocGZU0rzyMN3T6Yw1EFqaJ/jRo9ZKfTyaUVfRyV3sfPaKDIwNYs
+         r0131fXcCd3HffOTY4FGHUEVbe2LBjqHC8LF6x+oTB6S/eIyG3adgnC99ovo5JV1k6Kv
+         x7ZmbpuKVryxOb/j7W71aV/l+yhso3PXZjMXTMTELLbKoluvAqYZNH4jfs26/taocxOs
+         4gN4uMrqjHkt6wlM5otinHFfTc4BVBKBE7gikUZseZAAAefSndaigKoJhEpKk4aAGvp4
+         5sLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787149266; x=1787754066;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=JajUSq6h8dMddtGWdZA9x0Ah38NN9UEulnuJ7TV2YjM=;
+        b=Y9dcuLvKm3qNjzTWIh2D8irRjNmRnLy9YpG326nFVtuYUKhElYJywDMfsDBYDHv/Dv
+         rMTYdOb2PzZlsVTHn14DnHIZfiuRBzigtwTxX4VZ/B3XOXETZDYP6neu4JHGM9XDmAci
+         o2eQ6b1iVo0jchJ/C+npsRXERq8DZKTMU/bbciEr8zYu4I5WQJRPZYH/0ks0mbjrqDOF
+         BqZnAax/3H1uIbvz8e1rRbe+cARchLiiKRF2I1jjVwCOvBzIR68VR8PgilAoJFDLlRkW
+         JUW4V8/iCH9gCyFSuRybQjgjZZjaB8OEDkrs+KJfblzQI+hLfYex9rpb0uJjKlSrKNGV
+         EjoA==
+X-Gm-Message-State: AOJu0Yy8CI17adq2HnLWjtT/Fv0M65+nZ3Eb5hVqfEHdHIsajR2cbn/p
+	h/CCyR9yYvo97rM71Y+IDYEQOjKUY8cAHXVJX+spyk0U5zNV3gyV6Vr5Ak1kyD9NM5jiugyY2RT
+	06S50hzBIWsKXCLL5se0deghqyQJO+Yd3/L/ewJ7kMi6xBeWQbcmdQn4zGTrSiX4=
+X-Gm-Gg: AR+sD12L2T5UPPXngBmUtnO7SliYD/vRYutVqopq55FsDlNvENDhsQGNcuMPKvLzzLl
+	5Dc3/uDioOp5aZFZ6hib2RLRA9E9t86Su264za+be4LdcWt9xuNSD25CRB85eu8GFBkJLerVg4d
+	r2Nm5XFvLl1fcD0KaTsrtl6zK8gBARAW3SBAkWADu8ekbV7OKYLRjGb4U2jbd3b+aubgzLROSYM
+	6mmgz3vXvk6eoIUY+rAAL5wT6wYObJ8YPaLwMd4MN7lky/YX1LLNeszMOhbSdIz8CeH3Wrmv6YA
+	e50ZR8ZLKEYnaJspT/h+GBuwBkoAt6m3wFi5WbbYoqK4YjLdnxmQ+8fZi30X+3tdENQ7A+mJ8lf
+	5lIClHiJgm2e5yWoG93kSCqNh
+X-Received: by 2002:a05:6122:6d11:b0:5be:146a:7b09 with SMTP id 71dfb90a1353d-5c5e3be6046mr778032e0c.1.1787149266210;
+        Wed, 19 Aug 2026 07:21:06 -0700 (PDT)
+X-Received: by 2002:a05:6122:6d11:b0:5be:146a:7b09 with SMTP id 71dfb90a1353d-5c5e3be6046mr778008e0c.1.1787149265812;
+        Wed, 19 Aug 2026 07:21:05 -0700 (PDT)
+Received: from [192.168.120.193] ([178.235.128.140])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a189e436desm5677241fa.42.2026.08.19.07.21.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 19 Aug 2026 07:21:04 -0700 (PDT)
+Message-ID: <1c2ea441-662b-4dec-bfe3-febe2b1a70e4@oss.qualcomm.com>
+Date: Wed, 19 Aug 2026 16:21:03 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-version: 1.0
-Content-type: text/plain; charset="utf-8"
-Content-transfer-encoding: 8bit
-Message-id: <20260819-pmic5000-v1-1-e5e0ddcf0863@stevetech.au>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-hwmon@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- Stephen Horvath <s.horvath@outlook.com.au>,
- Stephen Horvath <linux@stevetech.au>
-X-Mailer: b4 0.16.0
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDC0NL3YLczGRTAwMDXWMLE4M0i0TLxJRUQyWg8oKi1LTMCrBR0UpBbs5
- KsRDB4tKkrNTkEpAhSrW1AK3dwYtxAAAA
-X-Change-ID: 20260819-pmic5000-3840f8a9ade1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=30790; i=linux@stevetech.au;
- s=2026-05-03; h=from:subject:message-id;
- bh=j+1TsXJmwlyCowO4pphvAgprDRXqjOJ/cgoltf9GGqE=;
- b=owGbwMvMwCW2fE02S+6FuT8YT6slMWS1bhI7YJIjl3pCO+C2YZ+up7HwpTThffFcMVl7mFkiz
- kzOd0zoKGVhEONikBVTZFEy9Z3jqpWlMmtabhPMHFYmkCEMXJwCMBHPOob/sSopTCJKbvnr7XgZ
- v924bXfNQMg87l33tTs8kerOakapjAxHv4krMGpuq1mhkPH0h+Oeab87yh4aGT7bFN1z8+3p9BQ
- eAA==
-X-Developer-Key: i=linux@stevetech.au; a=openpgp;
- fpr=22354D9C452A6A249A966D82A7AC6B046DD09DF8
-Reporting-Meta:
- AAFv9eGetKZCHOwMKPA6KSDW+rAyMMiKHzAt3HHcbBPyEftgXS2zpcRanG2Zaq/c
- 9HfO/+DXaRmQVQ9U7BN+h1Vs8o91yFrE2luSW1WOc4jVWAd91KeoFn6WzQJn38tG
- IZsAi1YCAMnVMSZvB2lizh8NHs+dUKpBrZm+9yeRz1GQY+Ne8myvpFAcSWLDYK31
- RYHw/SZxqH9XZrgo3rjr+pp6200o8GgaiGNseIrncoajwX8TSYuFkqWzGcMtno/z
- HRVTjftZhIU051drMXICMLGN4UjkhBRMfcMFchgK4gF7I2NKVOxGcwuhZ0n/9eIT
- PBXRCA4NnKPFc2wfL6e/4RJC2F8xQIOupGcaN2V9C6MixIAXzT4bq//IftcTs675
- Y0SDZzzZoiWCBAemnwI17RpcGZ4M4yCoDYgPFprKKUV/xvKRJwFUQStn50Nj
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] i2c: qcom-cci: fix device_node refcount leak in
+ cci_probe()/cci_remove()
+To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Liu Zhenlong <dragonliu2018@gmail.com>
+Cc: linux-i2c@vger.kernel.org
+References: <db94c578-2bfb-4297-9955-fba690ecfe39@linaro.org>
+ <20260819030354.49170-1-dragonliu2018@gmail.com>
+ <52580314-6c4f-46ef-97a2-39ee6ac4098a@linaro.org>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <52580314-6c4f-46ef-97a2-39ee6ac4098a@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: rLSsNBnl6oHhBptK0njrWkcLvkFEohkO
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDExMSBTYWx0ZWRfXzt7OtVO8M5lK
+ E62spU3jN0B3FVCnTe1EEo6sY257r7reozJKXcSGmSnbVnfQpSJo4YujV4xlYRmh93VW1xKD5n/
+ l4l1eDCagkGz3B/Z5p5zGyeKgU6YQdY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDExMSBTYWx0ZWRfXyR5b52kdASNE
+ Q4KbCBow3TWo6dpzT6VmtxccnlScbrHNeIX+ZhJAZjAMT+AUiMgtXHR/CH8Mq1ny7Zed6700g+p
+ KXiWxyLCxwwwdCC2tTDn60TxIzJhN5yUi4FHs5sTXLX4Zor+zcIQs6ltZuz9X1NkL/7hrjxzVQ1
+ ZVO1Zhq8Pat2W0gE9FXWmmg2LF190gEk9DPUcz0fTU4UPoQ/Wf2oRVxeJLsP6NDVA6SRqqCH752
+ Xf0pOHCExmEZmsB8L4tGUD0rBn5IasHCbs5HXcHwGbfKtW5+cE2uQup8sbKcfXv+yEt2gT5XolX
+ TUFnWpLHXFrA+WlCgnP2OMdnlhOIbm8oHN7mFJnZXoKIrzwUhMsge+okWrZDjOF34G2wsH4wfRz
+ 6JgckJL043xa4WG5HKJ+YUsREwCIfhp8ABFpXRjx9b3NcEsDLdIo7g58cKK1OvtDn082glDZAVF
+ UYBL2sYbVnujrGUf2Rg==
+X-Authority-Analysis: v=2.4 cv=aNrAb79m c=1 sm=1 tr=0 ts=6a85bbd3 cx=c_pps
+ a=+D9SDfe9YZWTjADjLiQY5g==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=3WHJM1ZQz_JShphwDgj5:22
+ a=EUspDBNiAAAA:8 a=yjWCthIfb_-DAcdN15kA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=vmgOmaN-Xu0dpDh8OwbV:22
+X-Proofpoint-GUID: rLSsNBnl6oHhBptK0njrWkcLvkFEohkO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-19_03,2026-08-19_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0
+ malwarescore=0 suspectscore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190111
 
-Add support for sensors present on PMIC5000 (JEDEC JESD301) compliant
-power management ICs. These chips are commonly found on DDR5 memory
-modules.
+On 8/19/26 9:02 AM, Vladimir Zapolskiy wrote:
+> On 8/19/26 06:03, Liu Zhenlong wrote:
+>> Hi Vladimir,
+>>
+>> Thanks for the review and the Reviewed-by!
+>>
+>> On the cast: I considered (void (*)(void *))of_node_put, but kept the
+>> small wrapper.  Casting to an incompatible function pointer type and
+>> calling through it is technically undefined, 
+> 
+> Exactly, according to my reading of C99 section 6.7.5.3, paragraph 15,
+> I believe it is a cast to a compatible function, as I've said earlier.
+> 
+>> and tegra_dc_of_node_put()
+>> in drivers/gpu/drm/tegra/rgb.c uses the same one-line wrapper around
+>> of_node_put(), so I followed that existing pattern.  Happy to switch
+>> to the cast if you'd still prefer it.
+>>
+> 
+> I would not insist on the suggested change, as for me both versions
+> have incomparable advantages.
 
-Tested against PMIC5100 chips, but only features present in the
-PMIC5000 (JESD301-1) specification have been implemented.
+Just seeing (void (*)(void*))foo scares me
 
-Signed-off-by: Stephen Horvath <linux@stevetech.au>
----
-Hi maintainers, I wrote this over the past couple days and I'm looking
-for feedback.
+So for the current iteration
 
-Here's a few concerns I have:
-- I'm not too experienced with kernel development.
-- I don't think there's a good way to auto-detect PMIC5000 chips 
-	standalone, would it be reasonable to instantiate it from
-	spd5118?
-- I'm unsure what to do with temperatures below 85°C, I'd rather not
-	return 85 as that would make it seem hotter than it is, but
-	returning -EOPNOTSUPP seems wrong.
-- Toggling between current and power seems like it's a bit of a hack,
-	is that okay, or should I just pick one and drop the other?
-- Does this belong in HWMON, or should it be part of the regulator
-	subsystem?
----
- .../devicetree/bindings/trivial-devices.yaml       |   2 +
- Documentation/hwmon/index.rst                      |   1 +
- Documentation/hwmon/pmic5000.rst                   | 103 +++
- drivers/hwmon/Kconfig                              |  12 +
- drivers/hwmon/Makefile                             |   1 +
- drivers/hwmon/pmic5000.c                           | 896 +++++++++++++++++++++
- 6 files changed, 1015 insertions(+)
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 
-diff --git a/Documentation/devicetree/bindings/trivial-devices.yaml b/Documentation/devicetree/bindings/trivial-devices.yaml
-index 2de8eb09cb7d..86e76be7d41b 100644
---- a/Documentation/devicetree/bindings/trivial-devices.yaml
-+++ b/Documentation/devicetree/bindings/trivial-devices.yaml
-@@ -194,6 +194,8 @@ properties:
-           - isil,isl29030
-             # Intersil ISL76682 Ambient Light Sensor
-           - isil,isl76682
-+            # JEDEC JESD301 (PMIC5000) Power Management IC
-+          - jedec,pmic5000
-             # JEDEC JESD300 (SPD5118) Hub and Serial Presence Detect
-           - jedec,spd5118
-             # Kandou KB9002 PCIe 5.0 retimer
-diff --git a/Documentation/hwmon/index.rst b/Documentation/hwmon/index.rst
-index d979e6d6e9f2..4bb518d1927c 100644
---- a/Documentation/hwmon/index.rst
-+++ b/Documentation/hwmon/index.rst
-@@ -226,6 +226,7 @@ Hardware Monitoring Kernel Drivers
-    peci-cputemp
-    peci-dimmtemp
-    pmbus
-+   pmic5000
-    powerz
-    powr1220
-    prom21-xhci
-diff --git a/Documentation/hwmon/pmic5000.rst b/Documentation/hwmon/pmic5000.rst
-new file mode 100644
-index 000000000000..e7d864088ba5
---- /dev/null
-+++ b/Documentation/hwmon/pmic5000.rst
-@@ -0,0 +1,103 @@
-+.. SPDX-License-Identifier: GPL-2.0-or-later
-+
-+Kernel driver pmic5000
-+=====================
-+
-+Supported chips:
-+
-+  * PMIC5000 (JEDEC JESD301) compliant power management chips
-+
-+    JEDEC standard download:
-+	https://www.jedec.org/standards-documents/docs/jesd301-1a03
-+	(account required)
-+
-+
-+    Prefix: 'pmic5000'
-+
-+Author:
-+	Stephen Horvath <linux@stevetech.au>
-+
-+
-+Description
-+-----------
-+
-+This driver implements support for PMIC5000 (JEDEC JESD301) compliant power
-+management chips, which are used on many DDR5 memory modules.
-+
-+The driver does not auto-detect PMIC5000 compliant chips, and must be
-+instantiated manually or via device tree. The address of these chips are
-+usually between (inclusive) 0x48 and 0x4F.
-+
-+
-+Hardware monitoring sysfs entries
-+---------------------------------
-+
-+======================= ==================================
-+in0_enable		Whether SWA is enabled (RO)
-+in0_input		SWA Voltage (RO)
-+in0_min			Minimum SWA Voltage (RO)
-+in0_max			Maximum SWA Voltage (RO)
-+in0_min_alarm		SWA Voltage low alarm
-+in0_max_alarm		SWA Voltage high alarm
-+
-+in1_enable		Whether SWB is enabled (RO)
-+in1_input		SWB Voltage (RO)
-+in1_min			Minimum SWB Voltage (RO)
-+in1_max			Maximum SWB Voltage (RO)
-+in1_min_alarm		SWB Voltage low alarm
-+in1_max_alarm		SWB Voltage high alarm
-+
-+in2_enable		Whether SWC is enabled (RO)
-+in2_input		SWC Voltage (RO)
-+in2_min			Minimum SWC Voltage (RO)
-+in2_max			Maximum SWC Voltage (RO)
-+in2_min_alarm		SWC Voltage low alarm
-+in2_max_alarm		SWC Voltage high alarm
-+
-+in3_enable		Whether SWD is enabled (RO)
-+in3_input		SWD Voltage (RO)
-+in3_min			Minimum SWD Voltage (RO)
-+in3_max			Maximum SWD Voltage (RO)
-+in3_min_alarm		SWD Voltage low alarm
-+in3_max_alarm		SWD Voltage high alarm
-+
-+in5_input		VIN_Bulk Voltage (RO)
-+in5_max			Maximum VIN_Bulk Voltage (RO)
-+in5_max_alarm		VIN_Bulk Voltage high alarm
-+
-+in6_input		VIN_Mgmt Voltage (RO)
-+in6_max			Maximum VIN_Mgmt Voltage (RO)
-+in6_max_alarm		VIN_Mgmt Voltage high alarm
-+
-+in7_input		VBias Voltage (RO)
-+in8_input		VOUT_1.8V Voltage (RO)
-+in9_input		VOUT_1.0V Voltage (RO)
-+
-+temp1_input		Temperature (RO)
-+temp1_max		Maximum temperature (RO)
-+temp1_max_alarm		Temperature high alarm
-+
-+power1_input 		SWA Wattage (RO)
-+power2_input 		SWB Wattage (RO)
-+power3_input 		SWC Wattage (RO)
-+power4_input 		SWD Wattage (RO)
-+
-+curr1_input		SWA Current (RO)
-+curr1_max		Maximum SWA Current (RO)
-+curr1_max_alarm		SWA Current high alarm
-+
-+curr2_input		SWB Current (RO)
-+curr2_max		Maximum SWB Current (RO)
-+curr2_max_alarm		SWB Current high alarm
-+
-+curr3_input		SWC Current (RO)
-+curr3_max		Maximum SWC Current (RO)
-+curr3_max_alarm		SWC Current high alarm
-+
-+curr4_input		SWD Current (RO)
-+curr4_max		Maximum SWD Current (RO)
-+curr4_max_alarm		SWD Current high alarm
-+
-+update_interval		Update interval in milliseconds (RW), Allowed values: 1, 2, 4, 8
-+
-+======================= ==================================
-diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index 81a9a1d40eec..5ed5f9499c43 100644
---- a/drivers/hwmon/Kconfig
-+++ b/drivers/hwmon/Kconfig
-@@ -950,6 +950,18 @@ config SENSORS_JC42
- 	  This driver can also be built as a module. If so, the module
- 	  will be called jc42.
- 
-+config SENSORS_PMIC5000
-+	tristate "PMIC5000 Compliant Sensors"
-+	depends on I2C
-+	select REGMAP_I2C
-+	help
-+	  If you say yes here you get support for PMIC5000 (JEDEC JESD301)
-+	  compliant sensors. Such sensors are found on DDR5 memory
-+	  modules.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called pmic5000.
-+
- config SENSORS_POLARFIRE_SOC_TVS
- 	tristate "PolarFire SoC (MPFS) temperature and voltage sensor"
- 	depends on POLARFIRE_SOC_SYSCONS || COMPILE_TEST
-diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index 0cad7e21634c..ac519123796f 100644
---- a/drivers/hwmon/Makefile
-+++ b/drivers/hwmon/Makefile
-@@ -199,6 +199,7 @@ obj-$(CONFIG_SENSORS_NZXT_SMART2) += nzxt-smart2.o
- obj-$(CONFIG_SENSORS_PC87360)	+= pc87360.o
- obj-$(CONFIG_SENSORS_PC87427)	+= pc87427.o
- obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
-+obj-$(CONFIG_SENSORS_PMIC5000)	+= pmic5000.o
- obj-$(CONFIG_SENSORS_POLARFIRE_SOC_TVS)  += tvs-mpfs.o
- obj-$(CONFIG_SENSORS_POWERZ)	+= powerz.o
- obj-$(CONFIG_SENSORS_POWR1220)  += powr1220.o
-diff --git a/drivers/hwmon/pmic5000.c b/drivers/hwmon/pmic5000.c
-new file mode 100644
-index 000000000000..d3f3126dd9c8
---- /dev/null
-+++ b/drivers/hwmon/pmic5000.c
-@@ -0,0 +1,896 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Driver for Jedec PMIC5000 compliant sensors
-+ *
-+ * Copyright (c) 2026 Stephen Horvath
-+ *
-+ * Inspired by spd5118.c.
-+ *
-+ * PMIC5000 compliant sensors are typically used on DDR5 memory modules.
-+ */
-+
-+#include <linux/bitops.h>
-+#include <linux/bits.h>
-+#include <linux/err.h>
-+#include <linux/hwmon.h>
-+#include <linux/i2c.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/pm.h>
-+#include <linux/regmap.h>
-+#include <linux/units.h>
-+
-+/* PMIC5000 registers. */
-+// clang-format off
-+#define PMIC5000_REG_OVER_VOLT_IN	0x08
-+#define PMIC5000_REG_OVER_CURRENT	0x09
-+	#define PMIC5000_HIGH_TEMP		BIT(7)
-+#define PMIC5000_REG_OVER_VOLTAGE	0x0A
-+#define PMIC5000_REG_UNDER_VOLTAGE	0x0B
-+#define PMIC5000_REG_SWA_POWER		0x0C
-+#define PMIC5000_REG_SWB_POWER		0x0D
-+#define PMIC5000_REG_SWC_POWER		0x0E
-+#define PMIC5000_REG_SWD_POWER		0x0F
-+#define PMIC5000_REG_OUTPUT_SELECT	0x1A
-+	#define PMIC5000_OUTPUT_SELECT		BIT(1)
-+#define PMIC5000_REG_THRES_AND_SEL	0x1B
-+	#define PMIC5000_VIN_MGMT_THRESH	BIT(5)
-+	#define PMIC5000_CURR_OR_PWR		BIT(6)
-+	#define PMIC5000_VIN_BULK_THRESH	BIT(7)
-+#define PMIC5000_REG_SWA_CURR_WARN	0x1C
-+#define PMIC5000_REG_SWB_CURR_WARN	0x1D
-+#define PMIC5000_REG_SWC_CURR_WARN	0x1E
-+#define PMIC5000_REG_SWD_CURR_WARN	0x1F
-+#define PMIC5000_REG_SWA_VOLT_SET	0x21
-+#define PMIC5000_REG_SWA_THRESH		0x22
-+#define PMIC5000_REG_SWB_VOLT_SET	0x23
-+#define PMIC5000_REG_SWB_THRESH		0x24
-+#define PMIC5000_REG_SWC_VOLT_SET	0x25
-+#define PMIC5000_REG_SWC_THRESH		0x26
-+#define PMIC5000_REG_SWD_VOLT_SET	0x27
-+#define PMIC5000_REG_SWD_THRESH		0x28
-+#define PMIC5000_REG_SW_VOLT_RANGE	0x2B
-+	#define PMIC5000_SWD_RANGE		BIT(0)
-+	#define PMIC5000_SWC_RANGE		BIT(3)
-+	#define PMIC5000_SWB_RANGE		BIT(4)
-+	#define PMIC5000_SWA_RANGE		BIT(5)
-+#define PMIC5000_REG_REGULATOR_CONTROL	0x2F
-+	#define PMIC5000_SWD_CONTROL		BIT(3)
-+	#define PMIC5000_SWC_CONTROL		BIT(4)
-+	#define PMIC5000_SWB_CONTROL		BIT(5)
-+	#define PMIC5000_SWA_CONTROL		BIT(6)
-+#define PMIC5000_REG_ADC_CONFIG		0x30
-+	#define PMIC5000_ADC_SELECT_MASK	GENMASK(6, 3)
-+	#define PMIC5000_ADC_ENABLE		BIT(7)
-+#define PMIC5000_REG_ADC_VOLTAGE	0x31
-+#define PMIC5000_REG_TEMPERATURE	0x33
-+#define PMIC5000_REG_REVISION		0x3B
-+#define PMIC5000_REG_VENDOR		0x3C
-+
-+
-+/* 125 mA multiplier */
-+#define PMIC5000_CURR_UNIT		125
-+/* 125 mW multiplier */
-+#define PMIC5000_POWER_UNIT		(125 * MILLIWATT_PER_WATT)
-+/* mV multipliers */
-+#define PMIC5000_VOLT_UNIT		15
-+#define PMIC5000_VINBULK_UNIT		70
-+#define PMIC5000_VBIAS_UNIT		25
-+// clang-format on
-+
-+struct pmic5000_data {
-+	struct regmap *regmap;
-+	struct mutex mode_lock;
-+	struct mutex adc_lock;
-+};
-+
-+static const char *const pmic5000_power_labels[] = { "SWA", "SWB", "SWC",
-+						     "SWD" };
-+
-+static const char *const pmic5000_voltage_labels[] = {
-+	"SWA",	    "SWB",	"SWC",	 "SWD",	      NULL,
-+	"VIN_Bulk", "VIN_Mgmt", "VBias", "VOUT_1.8V", "VOUT_1.0V"
-+};
-+
-+/* hwmon */
-+
-+static int pmic5000_check_regulator_enabled(struct regmap *regmap, int channel)
-+{
-+	u32 regval;
-+	int err;
-+
-+	err = regmap_read(regmap, PMIC5000_REG_REGULATOR_CONTROL, &regval);
-+	if (err)
-+		return err;
-+	switch (channel) {
-+	case 0:
-+		return !!(regval & PMIC5000_SWA_CONTROL);
-+	case 1:
-+		return !!(regval & PMIC5000_SWB_CONTROL);
-+	case 2:
-+		return !!(regval & PMIC5000_SWC_CONTROL);
-+	case 3:
-+		return !!(regval & PMIC5000_SWD_CONTROL);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static int pmic5000_read_temp(struct regmap *regmap, u32 attr, int channel,
-+			      long *val)
-+{
-+	int err;
-+	u32 regval;
-+
-+	if (channel != 0)
-+		return -EOPNOTSUPP;
-+
-+	switch (attr) {
-+	case hwmon_temp_input: {
-+		err = regmap_read(regmap, PMIC5000_REG_TEMPERATURE, &regval);
-+		if (err)
-+			return err;
-+		regval >>= 5;
-+		/* Below 85°C */
-+		if (regval == 0)
-+			return -EOPNOTSUPP;
-+		/* 0b001 = 85°C, 0b010 = 95°C, etc. */
-+		*val = (75 + regval * 10) * MILLIDEGREE_PER_DEGREE;
-+		return 0;
-+	}
-+	case hwmon_temp_max: {
-+		err = regmap_read(regmap, PMIC5000_REG_THRES_AND_SEL, &regval);
-+		if (err)
-+			return err;
-+		regval &= 0x07;
-+		/* Reserved */
-+		if (regval == 0 || regval == 0x7)
-+			return -EOPNOTSUPP;
-+		*val = (75 + regval * 10) * MILLIDEGREE_PER_DEGREE;
-+		return 0;
-+	}
-+	case hwmon_temp_max_alarm: {
-+		err = regmap_read(regmap, PMIC5000_REG_OVER_CURRENT, &regval);
-+		if (err)
-+			return err;
-+		*val = !!(regval & PMIC5000_HIGH_TEMP);
-+		return 0;
-+	}
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static int pmic5000_read_curr(struct pmic5000_data *data, u32 attr, int channel,
-+			      long *val)
-+{
-+	struct regmap *regmap = data->regmap;
-+	int reg, err;
-+	int shift = 0;
-+	u32 regval;
-+
-+	if (attr == hwmon_curr_input) {
-+		mutex_lock(&data->mode_lock);
-+		/* Select power measurements */
-+		err = regmap_update_bits(regmap, PMIC5000_REG_THRES_AND_SEL,
-+					 PMIC5000_CURR_OR_PWR, 0);
-+		if (err)
-+			goto error;
-+
-+		switch (channel) {
-+		case 0:
-+			reg = PMIC5000_REG_SWA_POWER;
-+			break;
-+		case 1:
-+			reg = PMIC5000_REG_SWB_POWER;
-+			break;
-+		case 2:
-+			reg = PMIC5000_REG_SWC_POWER;
-+			break;
-+		case 3:
-+			reg = PMIC5000_REG_SWD_POWER;
-+			break;
-+		default:
-+			err = -EOPNOTSUPP;
-+			goto error;
-+		}
-+	} else if (attr == hwmon_curr_max) {
-+		shift = 2;
-+		switch (channel) {
-+		case 0:
-+			reg = PMIC5000_REG_SWA_CURR_WARN;
-+			break;
-+		case 1:
-+			reg = PMIC5000_REG_SWB_CURR_WARN;
-+			break;
-+		case 2:
-+			reg = PMIC5000_REG_SWC_CURR_WARN;
-+			break;
-+		case 3:
-+			reg = PMIC5000_REG_SWD_CURR_WARN;
-+			break;
-+		default:
-+			return -EOPNOTSUPP;
-+		}
-+	} else if (attr == hwmon_curr_max_alarm && channel >= 0 &&
-+		   channel <= 3) {
-+		err = regmap_read(regmap, PMIC5000_REG_OVER_CURRENT, &regval);
-+		if (err)
-+			return err;
-+		*val = regval >> (3 - channel) & 0x01;
-+		return 0;
-+	} else {
-+		return -EOPNOTSUPP;
-+	}
-+
-+	err = regmap_read(regmap, reg, &regval);
-+	if (err)
-+		goto error;
-+
-+	if (attr == hwmon_curr_input)
-+		mutex_unlock(&data->mode_lock);
-+
-+	*val = regval * PMIC5000_CURR_UNIT >> shift;
-+	return 0;
-+
-+error:
-+	if (attr == hwmon_curr_input)
-+		mutex_unlock(&data->mode_lock);
-+	return err;
-+}
-+
-+static int pmic5000_read_power(struct pmic5000_data *data, u32 attr,
-+			       int channel, long *val)
-+{
-+	struct regmap *regmap = data->regmap;
-+	int reg, err;
-+	u32 regval;
-+
-+	if (attr != hwmon_power_input)
-+		return -EOPNOTSUPP;
-+
-+	mutex_lock(&data->mode_lock);
-+	/* Select power measurements */
-+	err = regmap_update_bits(regmap, PMIC5000_REG_THRES_AND_SEL,
-+				 PMIC5000_CURR_OR_PWR, PMIC5000_CURR_OR_PWR);
-+	if (err)
-+		goto error;
-+
-+	switch (channel) {
-+	case 0:
-+		reg = PMIC5000_REG_SWA_POWER;
-+		break;
-+	case 1:
-+		reg = PMIC5000_REG_SWB_POWER;
-+		break;
-+	case 2:
-+		reg = PMIC5000_REG_SWC_POWER;
-+		break;
-+	case 3:
-+		reg = PMIC5000_REG_SWD_POWER;
-+		break;
-+	default:
-+		err = -EOPNOTSUPP;
-+		goto error;
-+	}
-+
-+	err = regmap_read(regmap, reg, &regval);
-+	if (err)
-+		goto error;
-+
-+	mutex_unlock(&data->mode_lock);
-+
-+	*val = regval * PMIC5000_POWER_UNIT;
-+	return 0;
-+
-+error:
-+	mutex_unlock(&data->mode_lock);
-+	return err;
-+}
-+
-+static int pmic5000_read_volt_thresholds(struct regmap *regmap, u32 attr,
-+					 int channel, long *val)
-+{
-+	int err;
-+	u32 set_reg, thresh_reg, range_bit;
-+	u32 set_regval, thresh_regval, range_regval;
-+	u32 volt_set;
-+	int base_volts[2];
-+
-+	switch (channel) {
-+	case 0:
-+		set_reg = PMIC5000_REG_SWA_VOLT_SET;
-+		thresh_reg = PMIC5000_REG_SWA_THRESH;
-+		range_bit = PMIC5000_SWA_RANGE;
-+		base_volts[0] = 800;
-+		base_volts[1] = 600;
-+		break;
-+	case 1:
-+		set_reg = PMIC5000_REG_SWB_VOLT_SET;
-+		thresh_reg = PMIC5000_REG_SWB_THRESH;
-+		range_bit = PMIC5000_SWB_RANGE;
-+		base_volts[0] = 800;
-+		base_volts[1] = 600;
-+		break;
-+	case 2:
-+		set_reg = PMIC5000_REG_SWC_VOLT_SET;
-+		thresh_reg = PMIC5000_REG_SWC_THRESH;
-+		range_bit = PMIC5000_SWC_RANGE;
-+		base_volts[0] = 800;
-+		base_volts[1] = 600;
-+		break;
-+	case 3:
-+		set_reg = PMIC5000_REG_SWD_VOLT_SET;
-+		thresh_reg = PMIC5000_REG_SWD_THRESH;
-+		range_bit = PMIC5000_SWD_RANGE;
-+		base_volts[0] = 1500;
-+		base_volts[1] = 2200;
-+		break;
-+	case 5:
-+	case 6: {
-+		err = regmap_read(regmap, PMIC5000_REG_THRES_AND_SEL,
-+				  &thresh_regval);
-+		if (err)
-+			return err;
-+		if (channel == 5) {
-+			if (thresh_regval & PMIC5000_VIN_BULK_THRESH)
-+				*val = 14500;
-+			else
-+				*val = 16000;
-+			return 0;
-+		} else {
-+			if (thresh_regval & PMIC5000_VIN_MGMT_THRESH)
-+				*val = 3800;
-+			else
-+				*val = 3700;
-+			return 0;
-+		}
-+	}
-+
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	err = regmap_read(regmap, set_reg, &set_regval);
-+	if (err)
-+		return err;
-+	err = regmap_read(regmap, thresh_reg, &thresh_regval);
-+	if (err)
-+		return err;
-+	err = regmap_read(regmap, PMIC5000_REG_SW_VOLT_RANGE, &range_regval);
-+	if (err)
-+		return err;
-+
-+	volt_set = range_regval & range_bit ? base_volts[1] : base_volts[0];
-+	volt_set += (set_regval >> 1) * 5;
-+
-+	switch (attr) {
-+	case hwmon_in_min:
-+		/* 10%, 12.5%, Reserved, Reserved */
-+		const int min_permilles[4] = { 100, 125, PERMILLE, PERMILLE };
-+		*val = volt_set - (min_permilles[(thresh_regval >> 2) & 0x03] *
-+				   volt_set / PERMILLE);
-+		return 0;
-+	case hwmon_in_max:
-+		/* 7.5%, 10%, 12.5%, Reserved */
-+		const int max_permilles[4] = { 75, 100, 125, PERMILLE };
-+		*val = volt_set + (max_permilles[(thresh_regval >> 4) & 0x03] *
-+				   volt_set / PERMILLE);
-+		return 0;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static int pmic5000_read_adc_alarms(struct regmap *regmap, u32 attr,
-+				    int channel, long *val)
-+{
-+	int err;
-+	u32 regval;
-+
-+	if (channel >= 0 && channel <= 3) {
-+		switch (attr) {
-+		case hwmon_in_min_alarm: {
-+			err = regmap_read(regmap, PMIC5000_REG_UNDER_VOLTAGE,
-+					  &regval);
-+			if (err)
-+				return err;
-+			*val = regval >> (3 - channel) & 0x01;
-+			return 0;
-+		}
-+		case hwmon_in_max_alarm: {
-+			err = regmap_read(regmap, PMIC5000_REG_OVER_VOLTAGE,
-+					  &regval);
-+			if (err)
-+				return err;
-+			*val = regval >> (7 - channel) & 0x01;
-+			return 0;
-+		}
-+		}
-+	} else if (channel == 5 || channel == 6) {
-+		switch (attr) {
-+		case hwmon_in_max_alarm: {
-+			err = regmap_read(regmap, PMIC5000_REG_OVER_VOLT_IN,
-+					  &regval);
-+			if (err)
-+				return err;
-+			*val = regval >> (channel - 4) & 0x01;
-+			return 0;
-+		}
-+		}
-+	}
-+
-+	return -EOPNOTSUPP;
-+}
-+
-+static int pmic5000_read_adc(struct pmic5000_data *data, u32 attr, int channel,
-+			     long *val)
-+{
-+	struct regmap *regmap = data->regmap;
-+	int err, mult;
-+	u32 regval;
-+
-+	switch (attr) {
-+	case hwmon_in_enable:
-+		err = pmic5000_check_regulator_enabled(regmap, channel);
-+		if (err < 0)
-+			return err;
-+		*val = err;
-+		return 0;
-+	case hwmon_in_input:
-+		break;
-+	case hwmon_in_min:
-+	case hwmon_in_max:
-+		return pmic5000_read_volt_thresholds(regmap, attr, channel,
-+						     val);
-+	case hwmon_in_min_alarm:
-+	case hwmon_in_max_alarm:
-+		return pmic5000_read_adc_alarms(regmap, attr, channel, val);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	/* Channel 4 is reserved */
-+	if (channel < 0 || channel > 9 || channel == 4)
-+		return -EOPNOTSUPP;
-+
-+	switch (channel) {
-+	case 5:
-+		mult = PMIC5000_VINBULK_UNIT;
-+		break;
-+	case 7:
-+		mult = PMIC5000_VBIAS_UNIT;
-+		break;
-+	default:
-+		mult = PMIC5000_VOLT_UNIT;
-+		break;
-+	}
-+
-+	mutex_lock(&data->adc_lock);
-+
-+	err = regmap_update_bits(regmap, PMIC5000_REG_ADC_CONFIG,
-+				 PMIC5000_ADC_SELECT_MASK, channel << 3);
-+	if (err)
-+		goto error;
-+
-+	/*
-+	 * The host shall wait minimum of 9 ms delay after the input selection
-+	 * for ADC readout and the actual readout
-+	 *
-+	 * msleep may sleep for up to 20ms, which is fine.
-+	 */
-+	msleep(9);
-+
-+	err = regmap_read(regmap, PMIC5000_REG_ADC_VOLTAGE, &regval);
-+	if (err)
-+		goto error;
-+
-+	mutex_unlock(&data->adc_lock);
-+
-+	*val = regval * mult;
-+	return 0;
-+
-+error:
-+	mutex_unlock(&data->adc_lock);
-+	return err;
-+}
-+
-+static int pmic5000_read_interval(struct regmap *regmap, u32 attr, long *val)
-+{
-+	unsigned int regval;
-+	int err;
-+
-+	if (attr != hwmon_chip_update_interval)
-+		return -EOPNOTSUPP;
-+
-+	err = regmap_read(regmap, PMIC5000_REG_ADC_CONFIG, &regval);
-+	if (err < 0)
-+		return err;
-+	*val = 1 << (regval & 0x03);
-+	return 0;
-+}
-+
-+static int pmic5000_read(struct device *dev, enum hwmon_sensor_types type,
-+			 u32 attr, int channel, long *val)
-+{
-+	struct pmic5000_data *data = dev_get_drvdata(dev);
-+	struct regmap *regmap = data->regmap;
-+
-+	switch (type) {
-+	case hwmon_chip:
-+		return pmic5000_read_interval(regmap, attr, val);
-+	case hwmon_temp:
-+		return pmic5000_read_temp(regmap, attr, channel, val);
-+	case hwmon_in:
-+		return pmic5000_read_adc(data, attr, channel, val);
-+	case hwmon_curr:
-+		return pmic5000_read_curr(data, attr, channel, val);
-+	case hwmon_power:
-+		return pmic5000_read_power(data, attr, channel, val);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static int pmic5000_read_string(struct device *dev,
-+				enum hwmon_sensor_types type, u32 attr,
-+				int channel, const char **str)
-+{
-+	if (type == hwmon_curr && attr == hwmon_curr_label) {
-+		if (channel < 0 || channel > 3)
-+			return -EOPNOTSUPP;
-+		*str = pmic5000_power_labels[channel];
-+	} else if (type == hwmon_power && attr == hwmon_power_label) {
-+		if (channel < 0 || channel > 3)
-+			return -EOPNOTSUPP;
-+		*str = pmic5000_power_labels[channel];
-+	} else if (type == hwmon_in && attr == hwmon_in_label) {
-+		if (channel < 0 || channel > 9 || channel == 4)
-+			return -EOPNOTSUPP;
-+		*str = pmic5000_voltage_labels[channel];
-+	} else {
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return 0;
-+}
-+
-+static int pmic5000_write_interval(struct pmic5000_data *data, long val)
-+{
-+	struct regmap *regmap = data->regmap;
-+	u32 regval;
-+	int err;
-+
-+	switch (val) {
-+	case 1:
-+		regval = 0;
-+		break;
-+	case 2:
-+		regval = 1;
-+		break;
-+	case 4:
-+		regval = 2;
-+		break;
-+	case 8:
-+		regval = 3;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&data->adc_lock);
-+	err = regmap_update_bits(regmap, PMIC5000_REG_ADC_CONFIG, 0x03, regval);
-+	mutex_unlock(&data->adc_lock);
-+	return err;
-+}
-+
-+static int pmic5000_write(struct device *dev, enum hwmon_sensor_types type,
-+			  u32 attr, int channel, long val)
-+{
-+	struct pmic5000_data *data = dev_get_drvdata(dev);
-+
-+	switch (type) {
-+	case hwmon_chip:
-+		return pmic5000_write_interval(data, val);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static umode_t pmic5000_is_visible(const void *data,
-+				   enum hwmon_sensor_types type, u32 attr,
-+				   int channel)
-+{
-+	int ret;
-+	struct pmic5000_data *pmic_data = (struct pmic5000_data *)data;
-+	struct regmap *regmap = pmic_data->regmap;
-+
-+	switch (type) {
-+	case hwmon_chip:
-+		if (attr == hwmon_chip_update_interval)
-+			return 0644;
-+		break;
-+	case hwmon_temp:
-+		return 0444;
-+	case hwmon_in:
-+		if (channel == 4)
-+			return 0;
-+		if (channel >= 0 && channel <= 3 && (attr != hwmon_in_enable)) {
-+			ret = pmic5000_check_regulator_enabled(regmap, channel);
-+			if (!ret || ret < 0)
-+				return 0;
-+		}
-+		return 0444;
-+	case hwmon_power:
-+		if (channel >= 0 && channel <= 3) {
-+			ret = pmic5000_check_regulator_enabled(regmap, channel);
-+			if (!ret || ret < 0)
-+				return 0;
-+		}
-+		return 0444;
-+	case hwmon_curr:
-+		if (channel >= 0 && channel <= 3) {
-+			ret = pmic5000_check_regulator_enabled(regmap, channel);
-+			if (!ret || ret < 0)
-+				return 0;
-+		}
-+		return 0444;
-+	default:
-+		break;
-+	}
-+	return 0444;
-+}
-+
-+/*
-+ * Bank and vendor id are 8-bit fields with seven data bits and odd parity.
-+ * Vendor IDs 0 and 0x7f are invalid.
-+ * See Jedec standard JEP106BJ for details and a list of assigned vendor IDs.
-+ */
-+static bool pmic5000_vendor_valid(u8 bank, u8 id)
-+{
-+	if (parity8(bank) == 0 || parity8(id) == 0)
-+		return false;
-+
-+	id &= 0x7f;
-+	return id && id != 0x7f;
-+}
-+
-+static const struct hwmon_channel_info *pmic5000_info[] = {
-+	HWMON_CHANNEL_INFO(chip, HWMON_C_UPDATE_INTERVAL),
-+	HWMON_CHANNEL_INFO(temp,
-+			   HWMON_T_INPUT | HWMON_T_MAX | HWMON_T_MAX_ALARM),
-+	HWMON_CHANNEL_INFO(
-+		in,
-+		HWMON_I_ENABLE | HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX |
-+			HWMON_I_MIN_ALARM | HWMON_I_MAX_ALARM | HWMON_I_LABEL,
-+		HWMON_I_ENABLE | HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX |
-+			HWMON_I_MIN_ALARM | HWMON_I_MAX_ALARM | HWMON_I_LABEL,
-+		HWMON_I_ENABLE | HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX |
-+			HWMON_I_MIN_ALARM | HWMON_I_MAX_ALARM | HWMON_I_LABEL,
-+		HWMON_I_ENABLE | HWMON_I_INPUT | HWMON_I_MIN | HWMON_I_MAX |
-+			HWMON_I_MIN_ALARM | HWMON_I_MAX_ALARM | HWMON_I_LABEL,
-+		HWMON_I_INPUT,
-+		HWMON_I_INPUT | HWMON_I_MAX | HWMON_I_MAX_ALARM | HWMON_I_LABEL,
-+		HWMON_I_INPUT | HWMON_I_MAX | HWMON_I_MAX_ALARM | HWMON_I_LABEL,
-+		HWMON_I_INPUT | HWMON_I_LABEL, HWMON_I_INPUT | HWMON_I_LABEL,
-+		HWMON_I_INPUT | HWMON_I_LABEL),
-+	HWMON_CHANNEL_INFO(
-+		curr,
-+		HWMON_C_INPUT | HWMON_C_MAX | HWMON_C_MAX_ALARM | HWMON_C_LABEL,
-+		HWMON_C_INPUT | HWMON_C_MAX | HWMON_C_MAX_ALARM | HWMON_C_LABEL,
-+		HWMON_C_INPUT | HWMON_C_MAX | HWMON_C_MAX_ALARM | HWMON_C_LABEL,
-+		HWMON_C_INPUT | HWMON_C_MAX | HWMON_C_MAX_ALARM |
-+			HWMON_C_LABEL),
-+	HWMON_CHANNEL_INFO(power, HWMON_P_INPUT | HWMON_P_LABEL,
-+			   HWMON_P_INPUT | HWMON_P_LABEL,
-+			   HWMON_P_INPUT | HWMON_P_LABEL,
-+			   HWMON_P_INPUT | HWMON_P_LABEL),
-+	NULL
-+};
-+
-+static const struct hwmon_ops pmic5000_hwmon_ops = {
-+	.is_visible = pmic5000_is_visible,
-+	.read = pmic5000_read,
-+	.read_string = pmic5000_read_string,
-+	.write = pmic5000_write,
-+};
-+
-+static const struct hwmon_chip_info pmic5000_chip_info = {
-+	.ops = &pmic5000_hwmon_ops,
-+	.info = pmic5000_info,
-+};
-+
-+/* regmap */
-+
-+static bool pmic5000_writeable_reg(struct device *dev, unsigned int reg)
-+{
-+	switch (reg) {
-+	case PMIC5000_REG_OUTPUT_SELECT:
-+	case PMIC5000_REG_THRES_AND_SEL:
-+	case PMIC5000_REG_ADC_CONFIG:
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
-+static bool pmic5000_volatile_reg(struct device *dev, unsigned int reg)
-+{
-+	switch (reg) {
-+	case PMIC5000_REG_OVER_VOLT_IN:
-+	case PMIC5000_REG_OVER_CURRENT:
-+	case PMIC5000_REG_OVER_VOLTAGE:
-+	case PMIC5000_REG_UNDER_VOLTAGE:
-+	case PMIC5000_REG_SWA_POWER:
-+	case PMIC5000_REG_SWB_POWER:
-+	case PMIC5000_REG_SWC_POWER:
-+	case PMIC5000_REG_SWD_POWER:
-+	case PMIC5000_REG_ADC_VOLTAGE:
-+	case PMIC5000_REG_TEMPERATURE:
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
-+static const struct regmap_config pmic5000_regmap8_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = 0x3f,
-+	.writeable_reg = pmic5000_writeable_reg,
-+	.volatile_reg = pmic5000_volatile_reg,
-+	.cache_type = REGCACHE_MAPLE,
-+};
-+
-+static int pmic5000_suspend(struct device *dev)
-+{
-+	struct pmic5000_data *data = dev_get_drvdata(dev);
-+	struct regmap *regmap = data->regmap;
-+	u32 regval;
-+	int err;
-+
-+	/*
-+	 * Make sure the configuration register in the regmap cache is current
-+	 * before bypassing it.
-+	 */
-+	err = regmap_read(regmap, PMIC5000_REG_ADC_CONFIG, &regval);
-+	if (err < 0)
-+		return err;
-+
-+	regcache_cache_bypass(regmap, true);
-+	regmap_update_bits(regmap, PMIC5000_REG_ADC_CONFIG, PMIC5000_ADC_ENABLE,
-+			   0);
-+	regcache_cache_bypass(regmap, false);
-+
-+	regcache_cache_only(regmap, true);
-+	regcache_mark_dirty(regmap);
-+
-+	return 0;
-+}
-+
-+static int pmic5000_resume(struct device *dev)
-+{
-+	struct pmic5000_data *data = dev_get_drvdata(dev);
-+	struct regmap *regmap = data->regmap;
-+
-+	regcache_cache_only(regmap, false);
-+	return regcache_sync(regmap);
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(pmic5000_pm_ops, pmic5000_suspend,
-+				pmic5000_resume);
-+
-+static int pmic5000_common_probe(struct device *dev, struct regmap *regmap)
-+{
-+	unsigned int revision, vendor, bank;
-+	struct pmic5000_data *data;
-+	struct device *hwmon_dev;
-+	int err;
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	err = regmap_read(regmap, PMIC5000_REG_REVISION, &revision);
-+	if (err)
-+		return err;
-+
-+	err = regmap_read(regmap, PMIC5000_REG_VENDOR, &bank);
-+	if (err)
-+		return err;
-+	err = regmap_read(regmap, PMIC5000_REG_VENDOR + 1, &vendor);
-+	if (err)
-+		return err;
-+	if (!pmic5000_vendor_valid(bank, vendor))
-+		return -ENODEV;
-+
-+	data->regmap = regmap;
-+	mutex_init(&data->mode_lock);
-+	mutex_init(&data->adc_lock);
-+	dev_set_drvdata(dev, data);
-+
-+	hwmon_dev = devm_hwmon_device_register_with_info(
-+		dev, "pmic5000", data, &pmic5000_chip_info, NULL);
-+	if (IS_ERR(hwmon_dev))
-+		return PTR_ERR(hwmon_dev);
-+
-+	dev_info(dev, "DDR5 PMIC sensor: vendor 0x%02x:0x%02x revision %d.%d\n",
-+		 bank & 0x7f, vendor, ((revision >> 4) & 0x03) + 1,
-+		 ((revision >> 1) & 0x07) + 1);
-+
-+	/* Enable individual measurements and enable ADC */
-+	err = regmap_update_bits(regmap, PMIC5000_REG_OUTPUT_SELECT,
-+				 PMIC5000_OUTPUT_SELECT,
-+				 PMIC5000_OUTPUT_SELECT);
-+	if (err)
-+		return err;
-+	err = regmap_update_bits(regmap, PMIC5000_REG_ADC_CONFIG,
-+				 PMIC5000_ADC_ENABLE, PMIC5000_ADC_ENABLE);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
-+/* I2C */
-+
-+static int pmic5000_i2c_init(struct i2c_client *client)
-+{
-+	struct i2c_adapter *adapter = client->adapter;
-+
-+	/*
-+	 * Register accesses are 8-bit, so require byte-data transactions only.
-+	 * Requiring WORD_DATA here rejects otherwise valid adapters.
-+	 */
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
-+static int pmic5000_i2c_probe(struct i2c_client *client)
-+{
-+	struct device *dev = &client->dev;
-+	struct regmap *regmap;
-+	int err;
-+
-+	err = pmic5000_i2c_init(client);
-+	if (err)
-+		return dev_err_probe(dev, err, "I2C capability check failed\n");
-+
-+	regmap = devm_regmap_init_i2c(client, &pmic5000_regmap8_config);
-+	if (IS_ERR(regmap))
-+		return dev_err_probe(dev, PTR_ERR(regmap),
-+				     "regmap init failed\n");
-+
-+	return pmic5000_common_probe(dev, regmap);
-+}
-+
-+static const struct i2c_device_id pmic5000_i2c_id[] = { { .name = "pmic5000" },
-+							{} };
-+MODULE_DEVICE_TABLE(i2c, pmic5000_i2c_id);
-+
-+static const struct of_device_id pmic5000_of_ids[] = {
-+	{
-+		.compatible = "jedec,pmic5000",
-+	},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, pmic5000_of_ids);
-+
-+static struct i2c_driver pmic5000_i2c_driver = {
-+	.class		= I2C_CLASS_HWMON,
-+	.driver = {
-+		.name	= "pmic5000",
-+		.of_match_table = pmic5000_of_ids,
-+		.pm = pm_sleep_ptr(&pmic5000_pm_ops),
-+	},
-+	.probe		= pmic5000_i2c_probe,
-+	.id_table	= pmic5000_i2c_id,
-+};
-+
-+module_i2c_driver(pmic5000_i2c_driver);
-+
-+MODULE_AUTHOR("Stephen Horvath <linux@stevetech.au>");
-+MODULE_DESCRIPTION("PMIC5000 driver");
-+MODULE_LICENSE("GPL");
-
----
-base-commit: 75f2c0b3690702c90863c2e138cb5520670845ea
-change-id: 20260819-pmic5000-3840f8a9ade1
-
-Best regards,
---  
-Stephen Horvath <linux@stevetech.au>
-
+Konrad
