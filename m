@@ -1,611 +1,213 @@
-Received: from mta-64-227.siemens.flowmailer.net (mta-64-227.siemens.flowmailer.net [185.136.64.227])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EEC04248C6
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 11:19:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.64.227
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787224792; cv=none; b=Tzt/QAsqenEiuAsPJ1NXgDOY+C9wSD1sNj8Z/YtkFzjn5qQvpkuSKPERLOHin8qYO11+Z/B3EGO+oVcHcfMdwBOQRzJ4ol2Kjgk8u96ly7SM2a7eNZWtmDNWV5U/G8E5iyBuJimzwZlo7arnfhQIVWHfo1iXQkfPuo/uAd4qnuA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787224792; c=relaxed/simple;
-	bh=tsrrtMOaSmCvbJsJMwjlzIxVnXxX6FNEauxzI0cICTo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AVxBD9H/PhOwLmcCVKx6F2zkAQ0l3xzCdFUDqVtAOj0kjTLxFDDC3m/DgwhNpg1UHObkNd55bEamafhr4cKdUhoS/rXmN7baTfltFbu0T048XzKb48SCieF0Ac2y34hGbvYnkoTZRT/ANeloffG/WhmspbwMobyVklUQStM8fk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=benedikt.niedermayr@siemens.com header.b=US+CCXlB; arc=none smtp.client-ip=185.136.64.227
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1090743BDBB
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 11:48:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787226487; cv=pass; b=K20qCkdejknruWrTVnr0idTVNgvcoNCH8/+jSG83FbhfAmqkc+1ZjKZ6lxOUcMy+DW7FKUKLSHp8sPQTvZNa/5adEOUu7ZmuELJulU55RGv1/u+0/d1ujAm1gn9Yaz5XwEChdmgSunUzORbVS0wjr7v6XpamhEVC5LG3Ajeyb5A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787226487; c=relaxed/simple;
+	bh=N3XcxuvKeFv0jrHZq7jORW96HDTgTe/U58U3ymleexw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kC5mhXJiPpPK2pkTY308hwFCHWUrPE/6KEMdBOEB+1PawsGbIXsdDxoKSmG0pIY/xX9u1K51n6AtgHB9L3s8hQgDsDNlRXbyPI3ik00Lufq4GsPwCK/KZuL1NX0FH54H20ZN+1SN4yuGCgbpo9KDPFH8I/RmI872dD8IOnVmVEQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=h18HZxoa; arc=pass smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=siemens.com header.i=benedikt.niedermayr@siemens.com header.b="US+CCXlB"
-Received: by mta-64-227.siemens.flowmailer.net with ESMTPSA id 20260820111941412ca88cf9000207a0
-        for <linux-i2c@vger.kernel.org>;
-        Thu, 20 Aug 2026 13:19:41 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
- d=siemens.com; i=benedikt.niedermayr@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
- bh=3TlzmawEqaM4vsTW6GrDeKaRBMUhGjEnShrRYYj9y44=;
- b=US+CCXlB0BUemhwSAGPAJFkqIlL31jcnEKohd4X+HeYL5hDxBOxrlJGoN6Lh8E8vSGiXM8
- 9R4OVGlfYAJChyBm7eIQ/FJbFZRMBjPolsL6koh1p2Bi08jQIF4VsWJefDMCOvKh9hcIWeVM
- nGcGb0hKXLh2PI1p2x2NIfh52Tz3EJ4Bxiy0qABAtqK0sGFnjX5l/YBt/a1gNnXM4ntGF8gQ
- vZ/l5G8ZA0oVxwObstX/W3NJzDMglKEblZdt87frq4GiCXhGhb3bRqYK3qndZKz4w7fq/Ych
- r4VWiGUfJfgb5l6o9wE1Dmruije7jWiZgaKmen/rNTK3TpVqZVJ0cAJg==;
-From: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
-To: andi.shyti@kernel.org,
-	hansg@kernel.org,
-	ilpo.jarvinen@linux.intel.com
-Cc: baocheng.su@siemens.com,
-	tobias.schaffner@siemens.com,
-	linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org
-Subject: [PATCH 1/2] i2c: i2c-nct6126: add support for NCT6126D Super I/O
-Date: Thu, 20 Aug 2026 13:19:39 +0200
-Message-ID: <20260820111940.2434594-2-benedikt.niedermayr@siemens.com>
-In-Reply-To: <20260820111940.2434594-1-benedikt.niedermayr@siemens.com>
-References: <20260820111940.2434594-1-benedikt.niedermayr@siemens.com>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="h18HZxoa"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c197eaaab00so391253866b.0
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 04:48:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787226482; cv=none;
+        d=google.com; s=arc-20260327;
+        b=N+M396368UCkyG6pog7nApbMwE7PomsVCLulfn+THDY92ZGPODsIRWHlnwuGMyGwdp
+         hz6bmRbkf3ElwY0sVEio7J2v0mQ1pI3aZcZJDxVBmN6ILhuLPdNxAFXzOShSW3HQjl4q
+         l5Cya+xNP9PxlPCND3mai9xpg04FOBS31dddrriWt50Sgma4IL0oekWh2fy2erkHb+Gd
+         YsvoJ8uqQKVnI8HjDpc7lJnw0cCa9dF2mJCsnmLG9/DECdqRh5exQU2yQV3jyUsyy+D3
+         2PBRuT7q8hLWQsYF8SlbHOypMVvomd1fkKXr8y9Gl8ewImo0he2XWhynS2IgP3bUybj3
+         tx/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=M4ykTKD26brTAJUSy1BqDUBmv6bxfPzSIe8lWvsCYHQ=;
+        fh=q+FLwBFJz6A8kXvuJ8xsU0qnw5cjSUzkML5MosrXAqE=;
+        b=GtJIhGWzMotiBvzv0fS9iZp6Dg2o1nl2luDesip3KiyX2t0a6u/ekMCYNgPMRd2Mz2
+         wQ92JXiUvL44N0Ja4s8MfoCSdGr5HS2hkVUANSDo8ZUXqQT4KsqlTL1NY1vhjX7Ipuzx
+         Y6j1fee/rJrCnOv2vxBzX4HVkQBUpq4rir2R7f2ldy/jZWboEI1NGZWW1bOvIQo6K/U2
+         Sit/bnX00/FFFzRSo2LovP9lAGLI4nOGg5iVmsr0ij8uVFDIF2VryzsX8iA7p1MzhCih
+         Gdwcrc1szdQPJySeibTG6j09FJgJRx+x13nik9Zl/qXoG9IbPgDf0A7mlWnfE++SyZ2l
+         S09w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1787226482; x=1787831282; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=M4ykTKD26brTAJUSy1BqDUBmv6bxfPzSIe8lWvsCYHQ=;
+        b=h18HZxoabvn9m/ScdqEyw2LXvAVg3a8Ks6k+ikg3eexYdUFCrjL54D29ghc9LxQC69
+         x9Ih6lttJ/t432qM1uJYNSoVDUi5ARvRmIYuJceIXLw6Vh6PzGybvqvjvr2KFqWwYwak
+         J9s7mTgxn3cyEBGN8r+9ztQuC8DUpUagH4QZQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787226482; x=1787831282;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=M4ykTKD26brTAJUSy1BqDUBmv6bxfPzSIe8lWvsCYHQ=;
+        b=VZwBnpZE1LEJPXsmhXww6CZAAlVwWe8tgcO46zS/ydD53AiW34ojR8e496S5QLjVDo
+         5UXmXgUU/GwKw4XOlS7v38RlELdTzpVxmHZa5/aIOvc0YLucG4vZQpAw1KiGwp5ppTQX
+         AopruB6Rc3DkFe/BYFU9k6oMXsd2QfODUZ+L70i69AzjdsZyvqbN3gUEkDrawyoS6ErY
+         6FNmt8VkJ6nYTfMRiWGoLGtysNfE7zslFQ52fmOgXmA0wizfADQWWJx2rmam+cSQx4yE
+         ThUYKHUndrZAy9t3V6ZuGSHObswuxQU0UcEJxl0iJ3SpqKtKw6Cv6Zbyg/aeRUR+/Gfd
+         Zwgg==
+X-Forwarded-Encrypted: i=1; AHgh+Rpoh2v9EyCIhwloKDSB/7uzRVjR79SJYLxvBOwI1327IdOlSji/IUi7sZtkmQ+MCEyylFYoNot0hcg=@vger.kernel.org
+X-Gm-Message-State: AFuF++mtJlaulZcpLO/pH4En5do5BegRAcWzCdL7mHRTuOPhSZpKYnRz
+	bi1dp9YUMcT3tOgjibzBjm8Dv1G8VPXO2X/lx4NteWvpwYHF/Cy6aqwq6PGlart27Om0AJlNDGz
+	fW+VJNG9F847Vz5/f2Zcb3Ltrl5ir7du99Tebhkh/
+X-Gm-Gg: AR+sD13CNN5zBT+C4bUT0HgeS4aJ8QhTIlyu3q6Vh1z41xgnscEFiDpq0sNoGEu+Vzm
+	w8g6P4f09B4oIK6JMXZfS2QAm1cS2byQ7cGPWIdn18GgXyCXCYlUSPG7Af9idADClRB4V/E0C8m
+	eLsMGXW8E9jzj7gOXc6kYCahjz1N59PZ9S4K4XCKzxqCyvACM5wTNa1mq0g83Vf5rWDiw3JeQ7v
+	gcnN/IxjKdQrXGGIiHaKwPjz8a1xCOf0cpCjypetxxZYvtbW0kKzDuQjU08HqvNIhq9ZUeJIiMo
+	C/0TFa/IFjzFL/dEAyuQM2lMy9/nodbWjhBHyprnt1I=
+X-Received: by 2002:a17:907:c08c:b0:c21:96e8:578d with SMTP id
+ a640c23a62f3a-c242e22d1e9mr985944566b.15.1787226482262; Thu, 20 Aug 2026
+ 04:48:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Flowmailer-Platform: Siemens
-Feedback-ID: 519:519-1323861:519-21489:flowmailer
+References: <20260810121121.210040-1-vlad@zlab.su>
+In-Reply-To: <20260810121121.210040-1-vlad@zlab.su>
+From: Simon Glass <sjg@chromium.org>
+Date: Thu, 20 Aug 2026 05:47:49 -0600
+X-Gm-Features: AcwNN1XeIHyrOI_JtbOBD7QmUWCfs6jOmGCxaoJ2CvViBz-nzt4BaJLUZj-8m5s
+Message-ID: <CAFLszTiGPVD1UvGcdE64H1To3OWjOYTd9BNV+jHM0=_dEkMsDQ@mail.gmail.com>
+Subject: Re: [PATCH 00/25] ARM: rockchip: Add peripheral support for RV1106
+To: Vladislav Leonov <vlad@zlab.su>
+Cc: linux-rockchip@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-clk@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Aurelien Jarno <aurelien@aurel32.net>, Brian Masney <bmasney@redhat.com>, 
+	Conor Dooley <conor+dt@kernel.org>, Daniel Golle <daniel@makrotopia.org>, 
+	"David S. Miller" <davem@davemloft.net>, David Wu <david.wu@rock-chips.com>, 
+	Eric Dumazet <edumazet@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Heiko Stuebner <heiko@sntech.de>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	Jakub Kicinski <kuba@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Mark Brown <broonie@kernel.org>, 
+	Maxime Chevallier <maxime.chevallier@bootlin.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Michael Turquette <mturquette@baylibre.com>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Nicolas Frattaroli <nicolas.frattaroli@collabora.com>, Olivia Mackall <olivia@selenic.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Rob Herring <robh@kernel.org>, Stephen Boyd <sboyd@kernel.org>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
+	Vinod Koul <vkoul@kernel.org>, linux-crypto@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-phy@lists.infradead.org, linux-pwm@vger.kernel.org, 
+	linux-spi@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-This adds support for an i2c master driver for the NCT6126D Super I/O
-chips SMBUs controller. The NCT6126D exposes an SMBus master controller
-inside Logical Device B (the Hardware Monitor / SB-TSI block).
+Hi Vladislav,
 
-The I/O base address is discovered dynamically and is expected to be
-programmed by the BIOS into LD B CR62h (MSB) and CR63h (LSB).
+On Mon, 10 Aug 2026 at 06:15, Vladislav Leonov <vlad@zlab.su> wrote:
+>
+> Basic support for the Rockchip RV1106/RV1103 SoCs currently under review.
+> This series builds on top of that and enables the peripherals needed to
+> bring up a board beyond a serial console:
+>
+>  - CRU reset controller support (dt-bindings + clk driver), needed
+>    by most of the other peripherals below.
+>  - Ethernet (GMAC) via dwmac-rk.
+>  - USB2 PHY and USB3-OTG (DWC3).
+>  - I2C (rk3x).
+>  - DMA (PL330) + support DMA for the UART nodes.
+>  - SPI, including a new SCLK_IN_SPI1 clock gate.
+>  - RNG.
+>  - SDMMC1.
+>  - A dts-only quirk (arm,cpu-registers-not-fw-configured) needed on
+>    the ARM timer node when booting without a secure firmware that
+>    pre-configures the CPU timer registers.
+>  - PWM.
+>
+> Each new dt-binding is added ahead of the driver and dts nodes that
+> depend on it, so the series bisects cleanly.
+>
+> This series depends on:
+>  - "Add support for the Rockchip RV1106 and RV1103" (v3)
+>    https://lore.kernel.org/all/20260729133609.3465563-1-sjg@chromium.org
+>
+>  - "pinctrl: Add support for the Rockchip RV1106" (v3)
+>    https://lore.kernel.org/all/20260729132736.3807082-1-sjg@chromium.org
+>
+> Testing: boot-tested on custom RV1106 board, with every peripheral
+> touched by this series: reset/CRU, Ethernet, USB2 PHY/USB3 DWC3,
+> I2C, DMA+UART, SPI, RNG, SDMMC1 and PWM - exercised and confirmed working.
+>
+>
+> Vladislav Leonov (25):
+>   dt-bindings: reset: Add RV1106 CRU reset definitions
+>   clk: rockchip: Add reset controller support for RV1106
+>   ARM: dts: rockchip: Add reset bindings to RV1106
+>   dt-bindings: net: rockchip-dwmac: add RV1106 compatible
+>   net: ethernet: stmicro: stmmac: dwmac-rk: Add RV1106 support
+>   ARM: dts: rockchip: Add Ethernet GMAC node for RV1106
+>   dt-bindings: phy: rockchip,inno-usb2phy: Add RV1106 compatible
+>   phy: rockchip: inno-usb2: Add support for RV1106
+>   dt-bindings: usb: rockchip,dwc3: add RV1106 SoC support
+>   ARM: dts: rockchip: Add USB2 PHY and USB3-OTG (DWC3) nodes for RV1106
+>   dt-bindings: i2c: rk3x: Add RV1106 compatible
+>   ARM: dts: rockchip: Add I2C nodes for RV1106
+>   ARM: dts: rockchip: Add DMAC node for RV1106
+>   ARM: dts: rockchip: Add DMA support to UART nodes
+>   dt-bindings: clock: rockchip: Add SCLK_IN_SPI1 for RV1106
+>   clk: rockchip: Add SCLK_IN_SPI1 gate for RV1106
+>   dt-bindings: spi: rockchip: Add RV1106 compatible
+>   spi: rockchip: Add support for RV1106
+>   ARM: dts: rockchip: Add SPI nodes for RV1106
+>   dt-bindings: rng: rockchip: Add RV1106 compatible
+>   ARM: dts: rockchip: Add RNG node for RV1106
+>   ARM: dts: rockchip: Add SDMMC1 node for RV1106
+>   ARM: dts: rockchip: add arm,cpu-registers-not-fw-configured to RV1106
+>     timer node
+>   dt-bindings: pwm: rockchip: Add RV1106 compatible
+>   ARM: dts: rockchip: Add PWM nodes for RV1106
+>
+>  .../devicetree/bindings/i2c/i2c-rk3x.yaml     |   1 +
+>  .../bindings/net/rockchip-dwmac.yaml          |   2 +
+>  .../bindings/phy/rockchip,inno-usb2phy.yaml   |   9 +-
+>  .../devicetree/bindings/pwm/pwm-rockchip.yaml |   8 +
+>  .../bindings/rng/rockchip,rk3588-rng.yaml     |  11 +-
+>  .../devicetree/bindings/spi/spi-rockchip.yaml |   5 +
+>  .../bindings/usb/rockchip,dwc3.yaml           |  35 +-
+>  arch/arm/boot/dts/rockchip/rv1106.dtsi        | 426 ++++++++++++++++++
+>  drivers/clk/rockchip/Makefile                 |   2 +-
+>  drivers/clk/rockchip/clk-rv1106.c             |   4 +
+>  drivers/clk/rockchip/clk.h                    |   1 +
+>  drivers/clk/rockchip/rst-rv1106.c             | 340 ++++++++++++++
+>  .../net/ethernet/stmicro/stmmac/dwmac-rk.c    |  55 +++
+>  drivers/phy/rockchip/phy-rockchip-inno-usb2.c |  76 ++++
+>  drivers/spi/spi-rockchip.c                    |   1 +
+>  .../dt-bindings/clock/rockchip,rv1106-cru.h   |   2 +
+>  .../dt-bindings/reset/rockchip,rv1106-cru.h   | 305 +++++++++++++
+>  17 files changed, 1272 insertions(+), 11 deletions(-)
+>  create mode 100644 drivers/clk/rockchip/rst-rv1106.c
+>  create mode 100644 include/dt-bindings/reset/rockchip,rv1106-cru.h
+>
+> ---
+> base-commit: ac414f5eda0814030636177593400acdacfe5e1e
+> branch: rv1106
+>
+> --
+> 2.47.3
+>
 
-TODO: Explain handling of the CR30h register.
+Just to note that I applied this series and tried it on my Luckfox
+Pico Mini B (also RV1103 but more basic) and it boots fine. I enabled
+the RNG node and the driver seems to work (i.e. the CRU is good).
 
-The SMBus master controller shares the same CR30h register with the
-Hardware Monitor (logical device B), which is currently used by the
-nct6775 driver. The nct6775 driver force overrides the CR30h register
-to 0x01, if not already set by the bios.
-This driver in turn is more defensive and will not probe the chip if the
-CR30h register is not set to 0x01.
+For the series:
+Tested-by: Simon Glass <sjg@chromium.org>  # Luckfox Pico Mini B (RV1103)
 
-Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
----
- MAINTAINERS                      |   5 +
- drivers/i2c/busses/Kconfig       |  11 +
- drivers/i2c/busses/Makefile      |   1 +
- drivers/i2c/busses/i2c-nct6126.c | 473 +++++++++++++++++++++++++++++++
- 4 files changed, 490 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-nct6126.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8014b9f8253e..760d7a088629 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19315,6 +19315,11 @@ F:	drivers/nubus/
- F:	include/linux/nubus.h
- F:	include/uapi/linux/nubus.h
- 
-+NUVOTON NCT6126D I2C/SMBUS DRIVER
-+M:	Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
-+S:	Maintained
-+F:	drivers/i2c/busses/i2c-nct6126.c
-+
- NUVOTON NCT6694 MFD DRIVER
- M:	Ming Yu <tmyu0@nuvoton.com>
- S:	Supported
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d35456994280..9dd265abdfbc 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -258,6 +258,17 @@ config I2C_NFORCE2
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-nforce2.
- 
-+config I2C_NCT6126
-+	tristate "Nuvoton NCT6126D SMBus master"
-+	depends on X86 && HAS_IOPORT
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  SMBus master controller embedded in the Nuvoton NCT6126D Super-I/O
-+	  chip (Logical Device B).
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-nct6126.
-+
- config I2C_NVIDIA_GPU
- 	tristate "NVIDIA GPU I2C controller"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 3755c54b3d82..69042afb1f04 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
- obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
- obj-$(CONFIG_I2C_ISMT)		+= i2c-ismt.o
- obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
-+obj-$(CONFIG_I2C_NCT6126)	+= i2c-nct6126.o
- obj-$(CONFIG_I2C_NVIDIA_GPU)	+= i2c-nvidia-gpu.o
- obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
- obj-$(CONFIG_I2C_SIS5595)	+= i2c-sis5595.o
-diff --git a/drivers/i2c/busses/i2c-nct6126.c b/drivers/i2c/busses/i2c-nct6126.c
-new file mode 100644
-index 000000000000..ce71883744e8
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-nct6126.c
-@@ -0,0 +1,473 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * i2c-nct6126 - i2c adapter driver for the Nuvoton NCT6126D Super-I/O chip.
-+ *
-+ * The NCT6126D exposes an SMBus master controller inside Logical Device B
-+ * (the Hardware Monitor / SB-TSI block). Its I/O base address is programmed
-+ * by BIOS into LD B CR62h (MSB) and CR63h (LSB).
-+ *
-+ * Inspired by nct6775-platform.c and gpio-f7188x.c.
-+ *
-+ * Copyright (c) Siemens AG, 2026
-+ *
-+ * Author: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
-+ */
-+
-+#define DRVNAME "i2c-nct6126"
-+#define pr_fmt(fmt) DRVNAME ": " fmt
-+
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/string.h>
-+
-+/*
-+ * Super-I/O configuration space
-+ */
-+#define SIO_LDSEL		0x07	/* Logical Device Select */
-+#define SIO_DEVID		0x20	/* CR20/CR21: 16-bit chip ID */
-+#define SIO_UNLOCK_KEY		0x87	/* Enter extended function mode */
-+#define SIO_LOCK_KEY		0xAA	/* Exit extended function mode */
-+
-+/* Accepted chip IDs */
-+#define SIO_NCT6126D_A_ID	0xD283	/* NCT6126D, A version */
-+#define SIO_NCT6126D_B_ID	0xD284	/* NCT6126D, B version */
-+
-+/* Logical Device B: Hardware Monitor + SB-TSI / SMBus master */
-+#define SIO_LD_HM_SMBUS		0x0B
-+#define SIO_LDB_ENABLE		0x30	/* bit0: block active (CR30) */
-+#define SIO_LDB_SMBUS_BASE	0x62	/* CR62 = MSB, CR63 = LSB */
-+
-+/* SMBus base address constraints */
-+#define SMBUS_BASE_MIN		0x100
-+#define SMBUS_BASE_MAX		0xFFE
-+
-+/*
-+ * SMBus controller register offsets (base + offset)
-+ * All registers are accessed directly at smbus_base + offset.
-+ */
-+#define NCT6126D_SMWRSIZE	0x01
-+#define NCT6126D_SMCMD		0x02
-+#define NCT6126D_SMIDX		0x03
-+#define NCT6126D_SMCTL		0x04
-+#define NCT6126D_SMADDR		0x05
-+#define NCT6126D_ERROR_STS	0x09
-+#define NCT6126D_SMCTL3		0x0e
-+#define NCT6126D_SMBUS_REGION_SIZE	0x20
-+
-+/* Bit definitions */
-+#define NCT6126D_FIFO_NULL		BIT(0)
-+#define NCT6126D_FIFO_FULL		BIT(1)
-+#define NCT6126D_ERR_NACK		BIT(1)
-+#define NCT6126D_ERR_BER		BIT(2)
-+#define NCT6126D_ERR_TIMEOUT		BIT(4)
-+#define NCT6126D_ERR_ADNACK		BIT(5)
-+#define NCT6126D_RST			BIT(6)
-+#define NCT6126D_MANUAL_MODE		BIT(7)
-+#define NCT6126D_ACTIVE_MANUAL_MODE	BIT(2)
-+
-+/* SMBus command codes */
-+#define NCT6126_CMD_READ_BYTE	0
-+#define NCT6126_CMD_WRITE_BYTE	8
-+
-+/* Timing / retry limits */
-+#define SMBUS_RW_LOOP_MAX	5
-+#define SMBUS_FIFO_WAIT_US	100
-+#define SMBUS_FIFO_MAX_CLEAR_TIME	0xff
-+
-+/*
-+ * Super-I/O functions.
-+ */
-+static inline int nct_superio_inb(int base, int reg)
-+{
-+	outb(reg, base);
-+	return inb(base + 1);
-+}
-+
-+static int nct_superio_inw(int base, int reg)
-+{
-+	int val;
-+
-+	outb(reg++, base);
-+	val = inb(base + 1) << 8;
-+	outb(reg, base);
-+	val |= inb(base + 1);
-+
-+	return val;
-+}
-+
-+static inline int nct_superio_enter(int base)
-+{
-+	if (!request_muxed_region(base, 2, DRVNAME)) {
-+		pr_err("SIO config port %#x already in use\n", base);
-+		return -EBUSY;
-+	}
-+
-+	/* Datasheet 7.1.1: key must be written twice */
-+	outb(SIO_UNLOCK_KEY, base);
-+	outb(SIO_UNLOCK_KEY, base);
-+
-+	return 0;
-+}
-+
-+static inline void nct_superio_select(int base, int ld)
-+{
-+	outb(SIO_LDSEL, base);
-+	outb(ld, base + 1);
-+}
-+
-+static inline void nct_superio_exit(int base)
-+{
-+	outb(SIO_LOCK_KEY, base);
-+	release_region(base, 2);
-+}
-+
-+struct nct6126_sio {
-+	int           addr;       /* SIO config port: 0x2e or 0x4e */
-+	unsigned long smbus_base; /* from LD B CR62/CR63 */
-+};
-+
-+struct nct6126_smbus {
-+	unsigned long    port_addr;
-+	struct i2c_adapter adap;
-+};
-+
-+static int __init nct6126_find(int addr, struct nct6126_sio *sio)
-+{
-+	int err;
-+	u16 devid;
-+	u8  enable, msb, lsb;
-+	unsigned long base;
-+
-+	err = nct_superio_enter(addr);
-+	if (err)
-+		return err;
-+
-+	/* Verify chip identity */
-+	devid = nct_superio_inw(addr, SIO_DEVID);
-+	if (devid != SIO_NCT6126D_A_ID && devid != SIO_NCT6126D_B_ID) {
-+		err = -ENODEV;
-+		goto out;
-+	}
-+
-+	/* Select Logical Device B (HM + SB-TSI/SMBus master) */
-+	nct_superio_select(addr, SIO_LD_HM_SMBUS);
-+
-+	/*
-+	 * Check CR30 bit 0: if clear, the block is not decoding its I/O
-+	 * range on the LPC bus.  Every inb() at the SMBus window would
-+	 * return 0xFF.  We do NOT write this bit: nct6775 owns CR30 and
-+	 * maintains it across suspend/resume.
-+	 */
-+	enable = nct_superio_inb(addr, SIO_LDB_ENABLE);
-+	if (!(enable & BIT(0))) {
-+		pr_info("LD B inactive (CR30 bit0=0): BIOS has not enabled the HM/SMBus block\n");
-+		err = -ENODEV;
-+		goto out;
-+	}
-+
-+	/*
-+	 * Read the SMBus master base address programmed by BIOS.
-+	 * Datasheet 19.7.1, 23.11: LD B CR62h (MSB) / CR63h (LSB).
-+	 * BIOS must program this.
-+	 */
-+	msb  = nct_superio_inb(addr, SIO_LDB_SMBUS_BASE);
-+	lsb  = nct_superio_inb(addr, SIO_LDB_SMBUS_BASE + 1);
-+	base = ((unsigned long)msb << 8) | lsb;
-+
-+	if (base < SMBUS_BASE_MIN || base > SMBUS_BASE_MAX || (base & 1)) {
-+		pr_err("invalid SMBus base %#lx in LD B CR62/63\n", base);
-+		err = -ENXIO;
-+		goto out;
-+	}
-+
-+	sio->addr = addr;
-+	sio->smbus_base = base;
-+	err = 0;
-+
-+	pr_info("Found nct6126d at %#x, SMBus base %#lx\n", addr, base);
-+
-+out:
-+	nct_superio_exit(addr);
-+	return err;
-+}
-+
-+/*
-+ * SMBus
-+ */
-+static int nct_smbus_err_check(u8 err_code)
-+{
-+	if (err_code & NCT6126D_ERR_ADNACK)
-+		return -ENXIO;
-+	if (err_code & NCT6126D_ERR_TIMEOUT)
-+		return -ETIMEDOUT;
-+	if (err_code & (NCT6126D_ERR_BER | NCT6126D_ERR_NACK))
-+		return -EXDEV;
-+	return 0;
-+}
-+
-+static void nct6126_smbus_init_config(struct nct6126_smbus *priv,
-+				      u8 slave_addr, u8 slave_reg)
-+{
-+	u8 val;
-+
-+	/* Reset SMBus controller */
-+	val = inb(priv->port_addr + NCT6126D_SMCTL);
-+	val |= NCT6126D_RST;
-+	outb(val, priv->port_addr + NCT6126D_SMCTL);
-+	outb(0,   priv->port_addr + NCT6126D_SMCTL);
-+
-+	/* 7-bit slave address; hardware expects it left-shifted by 1 */
-+	outb(slave_addr << 1, priv->port_addr + NCT6126D_SMADDR);
-+	outb(slave_reg,       priv->port_addr + NCT6126D_SMIDX);
-+}
-+
-+static int nct6126_smbus_enable_manual_mode(struct nct6126_smbus *priv)
-+{
-+	u8 val;
-+
-+	val = inb(priv->port_addr + NCT6126D_SMCTL);
-+	val |= NCT6126D_MANUAL_MODE;
-+	outb(val, priv->port_addr + NCT6126D_SMCTL);
-+
-+	val = inb(priv->port_addr + NCT6126D_SMCTL3);
-+	val |= NCT6126D_ACTIVE_MANUAL_MODE;
-+	outb(val, priv->port_addr + NCT6126D_SMCTL3);
-+
-+	/*
-+	 * Wait ~200 us for the slave to respond, then read the error
-+	 * status.  Per Nuvoton FAE: error must be checked after manual
-+	 * mode is activated due to the one-shot enable behaviour.
-+	 */
-+	usleep_range(200, 300);
-+	val = inb(priv->port_addr + NCT6126D_ERROR_STS);
-+
-+	return nct_smbus_err_check(val);
-+}
-+
-+static int nct6126_smbus_write8(struct nct6126_smbus *priv,
-+				u8 slave_addr, u8 slave_reg, u8 *data)
-+{
-+	int loop_cnt;
-+	int err;
-+
-+	if (!request_muxed_region(priv->port_addr,
-+				  NCT6126D_SMBUS_REGION_SIZE, DRVNAME))
-+		return -EBUSY;
-+
-+	nct6126_smbus_init_config(priv, slave_addr, slave_reg);
-+
-+	outb(1,                      priv->port_addr + NCT6126D_SMWRSIZE);
-+	outb(NCT6126_CMD_WRITE_BYTE, priv->port_addr + NCT6126D_SMCMD);
-+
-+	loop_cnt = SMBUS_RW_LOOP_MAX;
-+	while ((inb(priv->port_addr + NCT6126D_SMCTL3) & NCT6126D_FIFO_FULL) &&
-+	       --loop_cnt)
-+		usleep_range(SMBUS_FIFO_WAIT_US, SMBUS_FIFO_WAIT_US * 2);
-+
-+	if (loop_cnt == 0) {
-+		err = -ETIMEDOUT;
-+		goto out;
-+	}
-+
-+	outb(*data, priv->port_addr);
-+	err = nct6126_smbus_enable_manual_mode(priv);
-+
-+out:
-+	release_region(priv->port_addr, NCT6126D_SMBUS_REGION_SIZE);
-+	return err;
-+}
-+
-+static int nct6126_smbus_read8(struct nct6126_smbus *priv,
-+			       u8 slave_addr, u8 slave_reg, u8 *data)
-+{
-+	int loop_cnt;
-+	int err;
-+
-+	if (!request_muxed_region(priv->port_addr,
-+				  NCT6126D_SMBUS_REGION_SIZE, DRVNAME))
-+		return -EBUSY;
-+
-+	nct6126_smbus_init_config(priv, slave_addr, slave_reg);
-+
-+	outb(0, priv->port_addr + NCT6126D_SMWRSIZE);
-+	outb(NCT6126_CMD_READ_BYTE, priv->port_addr + NCT6126D_SMCMD);
-+
-+	err = nct6126_smbus_enable_manual_mode(priv);
-+	if (err)
-+		goto out;
-+
-+	loop_cnt = SMBUS_RW_LOOP_MAX;
-+	while ((inb(priv->port_addr + NCT6126D_SMCTL3) & NCT6126D_FIFO_NULL) &&
-+	       --loop_cnt)
-+		usleep_range(SMBUS_FIFO_WAIT_US, SMBUS_FIFO_WAIT_US * 2);
-+
-+	if (loop_cnt == 0) {
-+		err = -ETIMEDOUT;
-+		goto out;
-+	}
-+
-+	*data = inb(priv->port_addr);
-+
-+	/* Drain any residual FIFO entries */
-+	loop_cnt = SMBUS_FIFO_MAX_CLEAR_TIME;
-+	while (!(inb(priv->port_addr + NCT6126D_SMCTL3) & NCT6126D_FIFO_NULL) &&
-+	       --loop_cnt)
-+		inb(priv->port_addr);
-+
-+	err = (loop_cnt == 0) ? -ETIMEDOUT : 0;
-+
-+out:
-+	release_region(priv->port_addr, NCT6126D_SMBUS_REGION_SIZE);
-+	return err;
-+}
-+
-+/*
-+ * i2c_algorithm
-+ */
-+static int nct6126_smbus_xfer(struct i2c_adapter *adap, u16 addr, u16 flags,
-+			      char read_write, u8 cmd, int size,
-+			      union i2c_smbus_data *data)
-+{
-+	struct nct6126_smbus *priv = i2c_get_adapdata(adap);
-+
-+	if (!priv)
-+		return -ENODEV;
-+
-+	if (read_write == I2C_SMBUS_READ)
-+		return nct6126_smbus_read8(priv, addr, cmd, &data->byte);
-+	else
-+		return nct6126_smbus_write8(priv, addr, cmd, &data->byte);
-+}
-+
-+static u32 nct6126_functionality(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BYTE_DATA;
-+}
-+
-+static const struct i2c_algorithm nct6126_algo = {
-+	.smbus_xfer    = nct6126_smbus_xfer,
-+	.functionality = nct6126_functionality,
-+};
-+
-+static int nct6126_smbus_probe(struct platform_device *pdev)
-+{
-+	struct nct6126_sio   *sio = dev_get_platdata(&pdev->dev);
-+	struct nct6126_smbus *priv;
-+	struct i2c_adapter   *adap;
-+	int err;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->port_addr = sio->smbus_base;
-+
-+	adap              = &priv->adap;
-+	adap->owner       = THIS_MODULE;
-+	adap->class       = I2C_CLASS_HWMON;
-+	adap->algo        = &nct6126_algo;
-+	adap->dev.parent  = &pdev->dev;
-+	adap->nr          = -1;
-+	strscpy(adap->name, DRVNAME, sizeof(adap->name));
-+	i2c_set_adapdata(adap, priv);
-+
-+	err = i2c_add_adapter(adap);
-+	if (err) {
-+		dev_err(&pdev->dev, "failed to add i2c adapter: %d\n", err);
-+		return err;
-+	}
-+
-+	platform_set_drvdata(pdev, priv);
-+	return 0;
-+}
-+
-+static void nct6126_smbus_remove(struct platform_device *pdev)
-+{
-+	struct nct6126_smbus *priv = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&priv->adap);
-+}
-+
-+static struct platform_driver nct6126_smbus_driver = {
-+	.driver = {
-+		.name = DRVNAME,
-+	},
-+	.probe  = nct6126_smbus_probe,
-+	.remove = nct6126_smbus_remove,
-+};
-+
-+#define MAX_PDEVS 1
-+static struct platform_device *nct6126_pdevs[MAX_PDEVS];
-+static int nct6126_pdevs_cnt;
-+
-+static int __init nct6126_device_add(const struct nct6126_sio *sio)
-+{
-+	struct platform_device *pdev;
-+	int err;
-+
-+	pdev = platform_device_alloc(DRVNAME, 0);
-+	if (!pdev)
-+		return -ENOMEM;
-+
-+	err = platform_device_add_data(pdev, sio, sizeof(*sio));
-+	if (err) {
-+		pr_err("platform data allocation failed\n");
-+		goto err_put;
-+	}
-+
-+	err = platform_device_add(pdev);
-+	if (err) {
-+		pr_err("platform device registration failed\n");
-+		goto err_put;
-+	}
-+
-+	nct6126_pdevs[nct6126_pdevs_cnt++] = pdev;
-+	return 0;
-+
-+err_put:
-+	platform_device_put(pdev);
-+	return err;
-+}
-+
-+static int __init nct6126_smbus_init(void)
-+{
-+	struct nct6126_sio sio;
-+	int err;
-+
-+	if (nct6126_find(0x2e, &sio) && nct6126_find(0x4e, &sio))
-+		return -ENODEV;
-+
-+	err = platform_driver_register(&nct6126_smbus_driver);
-+	if (err)
-+		return err;
-+
-+	err = nct6126_device_add(&sio);
-+	if (err)
-+		goto err_unreg_driver;
-+
-+	return 0;
-+
-+err_unreg_driver:
-+	platform_driver_unregister(&nct6126_smbus_driver);
-+	return err;
-+}
-+
-+static void __exit nct6126_smbus_exit(void)
-+{
-+	while (nct6126_pdevs_cnt > 0)
-+		platform_device_unregister(nct6126_pdevs[--nct6126_pdevs_cnt]);
-+
-+	platform_driver_unregister(&nct6126_smbus_driver);
-+}
-+
-+module_init(nct6126_smbus_init);
-+module_exit(nct6126_smbus_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Benedikt Niedermayr <benedikt.niedermayr@siemens.com>");
-+MODULE_DESCRIPTION("SMBus master driver for Nuvoton NCT6126D Super-I/O");
--- 
-2.43.0
-
+Regards,
+Simon
