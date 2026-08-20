@@ -1,280 +1,128 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C60423CAE93
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 12:25:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE22033F58C;
+	Thu, 20 Aug 2026 14:01:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787228717; cv=none; b=CT4C48lp5AxoNt7avWT4FEAZx5vqUSlaGr/LGNx23XfJtGvE9PhhzXDJHZZCyLptn30SXQZY+Fkfs2yrZxDLLhsHoieQpYZ9qBEMuCoHPiCm3XXYIbWEz3Xdu2GLsej73WE2jQWPp7tSManZeH2MaAc7re/mjAjPn/5SnlUhcqM=
+	t=1787234475; cv=none; b=iPWviKmyxAJxABfVEmWZXJoKSSoos+TmDvhSahFDLqHyzUETkqNFNdeYZ8kaC1j1Q3kTk8Vrbu4IteVLAjhTcpqFs1341RNsIH4ruqbHY4V46AhQBi6p0kBehaeJ+SrY0k02ILQiV5RrpgvlDEPnyzLzJBvOlHUqdVpCkfI76Ec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787228717; c=relaxed/simple;
-	bh=dmkm/yOT+VGwmCEIl36qnFbW0buHfut/9COHetD6ULw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=YQDulFyFvFKUNH/RIYBgGCbQYcRWwavxyfKWG4Ztw5BdfMvop8kqmZkRSw08G445LYtE6KHrH8XbMJOrAD0O+Uc09+bJQi+os9OJwdPZn53ri7s6mZ9L55FnhU6maUcB+H1hTRvm3QEvw2BfJmBK/HOvYIq7tt5mUiXs1IWMaFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=MLPYLIj6; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1787234475; c=relaxed/simple;
+	bh=ZhZeyH4cUmZhBq/Kcn46arGUb7S0rQCn7/FG/Rzgp1I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jjavx8IWvOTTSc1KTUDUKE9TrXgRRCB0RS8qKB/to2dDtuzoyLkWYKTwGILgYrznlFspKuhHa7IjCf0gcJ8rcsiNwuZao1oxaR+T1qIyqgZZ4x35s0jwmRpAyW1CurA98GD4br3h4NB/DtU4FHBeljubm0xWKcBg41HmFL2xHQE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HVQTPXQi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="MLPYLIj6"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2d0407aedd6so19772135ad.0
-        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 05:25:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1787228714; x=1787833514; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=OyXdngKokkNNzIHrBbg7P8oeDiJFCinDSiokluhjKGY=;
-        b=MLPYLIj6ZpaVZZJ1QuSdxzosg9d45jI1QkfPwsCs+Ec0wXNpBUEm7ULjyPO1gaZrPn
-         r1ceLQ0cOqhL7LF2Zo+uj4hg1CWuYzMmMx8yvhyGWM8PJT7bf233BbzQyZ1py8P5IsP/
-         lph2mWYX5QRTpolklc4ispMH12Ba0lpGvv9l9lPtT/dHcIcERlDcUKL0izxilwbNMl47
-         R1amxStrm3iKJ03JOAgNpM8kB92ejxCJBVR/AFh23AdHwHUV1byWLUfJfiLX2Lkh8PQK
-         ogq+zj+GX2iz8rtAIK73AeNjTPpTfIGewRoyDPMmDF95rY36BkJG5PNn34Hjs0Oy+iZe
-         X9tQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787228714; x=1787833514;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=OyXdngKokkNNzIHrBbg7P8oeDiJFCinDSiokluhjKGY=;
-        b=eU08hZCVc5jwyJlot6Nme7vYWbcSsixhc5Nx2lW8lEa3WmszKyshpiinG0hJwFXwRm
-         Irw1A/4kIm5BmfOUBpu/1is++kf/P/2F8BF7eV9cFU38GjPJZ7s5GmYc6CWrkmpXkkQ4
-         8ennmnw3VhdmEWIHkCK3t6NWtztUErCfXSS/L7YNIuMSldIxbSVcbi7RnKOlLi4gXkI5
-         +t4A2wO5qXZwwDJgfzQuAw7qAzfC89s34mO6nejRg2JMKG2uKOZUKCBdNaeV2aUvhLac
-         TQIm9f5QhRMGa3QV/0tcvscu6DOGpK3M4+Pq+TKJ7OGPHTl9qb7UvhAGhLjSfZVYYg7V
-         FIwA==
-X-Forwarded-Encrypted: i=1; AHgh+RpjIwIBhrAJA3u2yB/JFQZ09VQXgePxjPtaFeXBEND8I8jZkxQtk0itvlzFkcSI9pmBiG7HqwNsxSU=@vger.kernel.org
-X-Gm-Message-State: AFuF++lfX8l02WqLBboFKurGvBm1ffo3cRYEZAYDmsnm6TjOYpYi7+K2
-	OVxyMczjiLSdP9ggXDtZh35DJq65cI93O9zoViNzjeYCUrH5OqDGwiTeUJrTlSN1fwU=
-X-Gm-Gg: AR+sD11BqflZ1IiPGrmeUnEVpvcfCBg1t9f7XH0QnPcBV4ygHmiH7EHaP/q5hac3uq1
-	Shk2B8sa78WJE9fap83xlF1L+MbYcIOfyOZrND3C3EZpRQ78kD5eWwZNHaEP9+q9ZkLyFY+cq5w
-	2IMXZBpODz45uCzvHsnpVCgqJxGxvKOonWm/Ptk87TNBI6N54ebcqm+4ZHuOpTBbjztFhuOm+zn
-	jLkZ4h1lAQ8SbtjwN+3xtPv8wVW+mXXbs9DeOxeHDdzNmpC9XG1Do9HG08tPBkPbViOKWpqkdWk
-	08Px5ncdzZGCIWEHZvqzbhSEhOIuS8BCHlTIyLXDBUklT4u7X6lmkYisQMp+gZVF8CwlzF3V+qu
-	NH/tlNVmsisXaJ8SE3Bde7Y0dnbD8KcpdaLt58aQ2LId4ijPIsfZHZDZGZGuqt56uGOwA5X9tgf
-	tTFxy14GHEOy5Hy1BrrpKM8nB2g8JNZ7UAV/JAotWLxcSIS7HiL2WHaROL7jLV5RE=
-X-Received: by 2002:a17:903:120f:b0:2c9:c991:3bf0 with SMTP id d9443c01a7336-2d5fd62101bmr202658635ad.8.1787228714188;
-        Thu, 20 Aug 2026 05:25:14 -0700 (PDT)
-Received: from [127.0.0.2] ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d62e3a231fsm6182765ad.63.2026.08.20.05.25.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 05:25:12 -0700 (PDT)
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Date: Thu, 20 Aug 2026 05:25:07 -0700
-Subject: [PATCH v5] i2c: xiic: restore non-managed runtime PM to fix clk
- WARN flood
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HVQTPXQi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 518BE1F000E9;
+	Thu, 20 Aug 2026 14:01:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787234474;
+	bh=kWq4BIqw/keC1n7yxwLNrJo/GuCBdDJ+y3txl8w8/dY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=HVQTPXQio2Z0c/yKmgY8DAl9NuVxVomgB7bbv9LtDsd+9q7FRMmrolqUGk8uBft9D
+	 fBx4jFjYVJULmfLoR6vUkkRkJzqZ6Za1R6tXhIF1rmsqc0flw8OFKC0YC9rfvrt4Ti
+	 QYBRXlaI52N48vFG9q4GMUlrxksRL+Tb7R+HAxdi9/zx08UrmNfXCGyDcM7Ae/nOE/
+	 l3Mdy5oCPyuiL8OxcZs+ddu6Blx5QU0GUWq7gFKfcUsUUy8IJdqsV5LNsfaxID384u
+	 vozkuP82pp8ZyubUr/yjwQbacyu8170O7L+r3X6gU+rK7wXRRun+UlJC/rX+krZ1QH
+	 N6L5Vzmj9AdrQ==
+Message-ID: <327de6a8-6c67-4328-83a2-bfea332aba7c@kernel.org>
+Date: Thu, 20 Aug 2026 16:01:07 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] i2c: qcom-cci: fix autosuspend cleanup
+To: Guangshuo Li <lgs201920130244@gmail.com>,
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
+ <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Todor Tomov <todor.too@gmail.com>, Wolfram Sang <wsa@kernel.org>,
+ Vinod Koul <vkoul@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+References: <20260812094425.3515179-1-lgs201920130244@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20260812094425.3515179-1-lgs201920130244@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508@nexthop.ai>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/5XOOW7DMBQE0KsYrMOAmxamyj0CF1w+ox/AkkDSi
- gxDdw/pNArcKOUAgzdzJwkiQiJvpzuJsGDCaSyheTkRN5jxEyj6kolgomU9lxSFoyuioxFSniL
- QeB0zXoDOF5rBRD99j9R7Ziz3VjgmSKHmCAHXx8zH+Tenq/0Cl6tdGwNW7fb4sfDa++fkwimnD
- DofrGBtp9n7CGsepvnVIKmbi9ir6qAqitoZaDxzkoUgnlS5V/uDqixqE7zkjWVdD/xJVXtVH1R
- VUVutNVgllefuj7pt2w81WtEy7QEAAA==
-X-Change-ID: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1787228712; l=7470;
- i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
- bh=dmkm/yOT+VGwmCEIl36qnFbW0buHfut/9COHetD6ULw=;
- b=G1VAeO5pYDbOoFCVwcs89ktZblgSs9zHSq32LEA3fD+Y0v0/SJnqwGrQUpHnphgA+Rmc0r3h+
- rruLu4UA3PfDr5FN9GS+e8yb3hbChRa4/GcFu5igLKZ0/WiYpaP306y
-X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
- pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-The devres conversion replaced manual pm_runtime_enable()/disable() with
-devm_pm_runtime_set_active_enabled() and dropped the remove-time runtime
-PM teardown. The managed release tears runtime PM down in the wrong
-order: it calls pm_runtime_dont_use_autosuspend() before
-pm_runtime_disable(), i.e. while runtime PM is still enabled, and devres
-is LIFO so the devm_clk_get_enabled() release runs afterwards.
+On 12/08/2026 11:44, Guangshuo Li wrote:
+> cci_probe() calls pm_runtime_use_autosuspend(), but the remove path
+> does not call the matching pm_runtime_dont_use_autosuspend() before
+> disabling runtime PM.
+> 
+> If the autosuspend delay is set to a negative value while autosuspend
+> is enabled, the runtime PM core increments usage_count to prevent
+> runtime suspend. Without undoing the autosuspend setting during
+> teardown, this reference is not dropped and usage_count remains
+> unbalanced.
+> 
+> Use devm_pm_runtime_set_active_enabled() to manage the runtime PM
+> state. Its managed cleanup disables autosuspend and runtime PM and
+> restores the suspended state on probe failure and driver removal.
+> Remove the now redundant manual runtime PM cleanup.
+> 
+> This issue was found by manual code inspection.
+> 
+> Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 
-At remove(), pm_runtime_put_sync() leaves the device active with the
-autosuspend timer armed. Clearing use_autosuspend then makes rpm_idle()
-suspend immediately, and xiic_i2c_runtime_suspend() clk_disable()s the
-clock. The later devm_clk_get_enabled() release clk_disable_unprepare()s
-the already-disabled clock, so clk_core_disable() WARNs ("clkN already
-disabled") on every teardown.
+You sent vast amount of patches, all separate, making it very difficult
+to track and respond in efficient way. Do not do that.
 
-Drop the managed helper and restore the non-managed runtime PM setup and
-teardown, so runtime PM is enabled once in probe and disabled once in
-remove and the clock enable count stays balanced.
+Group your work per subsystem.
 
-Order the remove teardown so runtime PM is disabled before the usage
-count is dropped: pm_runtime_disable() followed by pm_runtime_put_noidle()
-instead of pm_runtime_put_sync(). Dropping the count first with autosuspend
-still enabled arms the autosuspend timer, and a preemption before
-pm_runtime_disable() lets it expire, suspend the device and clk_disable()
-the clock, which the devm release then disables again - the same WARN.
-
-Restore the non-managed IRQ request as well. The probe error paths now
-unwind runtime PM by hand via goto, and a devm-registered handler is only
-freed later during devres unwind, so it would stay live across the manual
-teardown (and across any future failing step added after it). Request the
-IRQ with request_threaded_irq() and free it explicitly in the probe error
-path and in remove. The probe error path also clears use_autosuspend, to
-match the teardown in remove().
-
-Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
-Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
----
-Changes in v5:
-- remove(): disable runtime PM before dropping the usage count
-  (pm_runtime_disable() + pm_runtime_put_noidle() instead of
-  pm_runtime_put_sync()), so the armed autosuspend timer can no longer
-  race pm_runtime_disable() and re-trigger the clk double-disable.
-- probe error path: also call pm_runtime_dont_use_autosuspend() so it
-  mirrors the teardown in remove().
-- Link to v4: https://patch.msgid.link/20260819-i2c-xiic-restore-runtime-pm-teardown-v4-1-6999eb434d1c@nexthop.ai
-
-Changes in v4:
-- Request the IRQ non-managed (request_threaded_irq/free_irq) and free it
-  in the probe error path and in remove(), instead of a devm handler that
-  would only be released during devres unwind and so stay live across the
-  manual runtime PM teardown in the goto error paths (Andy).
-- Link to v3: https://patch.msgid.link/20260818-i2c-xiic-restore-runtime-pm-teardown-v3-1-5fd315b078e1@nexthop.ai
-
-Changes in v3:
-- Drop the managed devm_pm_runtime_set_active_enabled() helper entirely
-  and restore the non-managed runtime PM setup (pm_runtime_set_active +
-  pm_runtime_enable, with probe error unwinding) and teardown
-  (pm_runtime_disable + set_suspended + dont_use_autosuspend), so the
-  disable depth stays balanced rather than being disabled twice (Andi).
-- Link to v2: https://patch.msgid.link/20260814-i2c-xiic-restore-runtime-pm-teardown-v2-1-7ae5d0c30ff2@nexthop.ai
-
-Changes in v2:
-- Move the Signed-off-by into the commit message proper (Andy).
-- Link to v1: https://patch.msgid.link/20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai
-
-To: Michal Simek <michal.simek@amd.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/i2c/busses/i2c-xiic.c | 46 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 36 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 3e7735e1dae0..ece6d4f2cc6d 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -92,6 +92,7 @@ struct xiic_i2c {
- 	int rx_pos;
- 	enum xiic_endian endianness;
- 	struct clk *clk;
-+	int irq;
- 	enum xilinx_i2c_state state;
- 	bool singlemaster;
- 	bool dynamic;
-@@ -1475,9 +1476,13 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	pm_runtime_set_autosuspend_delay(dev, XIIC_PM_TIMEOUT);
- 	pm_runtime_use_autosuspend(dev);
--	ret = devm_pm_runtime_set_active_enabled(dev);
--	if (ret)
--		return ret;
-+	/*
-+	 * Enable runtime PM by hand: devm_pm_runtime_set_active_enabled()
-+	 * tears down in an order that races the devm-enabled clock release and
-+	 * makes clk_core_disable() WARN (see xiic_i2c_remove()).
-+	 */
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
- 
- 	/* SCL frequency configuration */
- 	i2c->input_clk = clk_get_rate(i2c->clk);
-@@ -1486,10 +1491,15 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (ret || i2c->i2c_clk > I2C_MAX_FAST_MODE_PLUS_FREQ)
- 		i2c->i2c_clk = 0;
- 
--	ret = devm_request_threaded_irq(dev, irq, NULL, xiic_process,
--					IRQF_ONESHOT, pdev->name, i2c);
-+	/*
-+	 * Request the IRQ non-managed: later probe steps unwind manually via
-+	 * goto, so a devm handler could still be live after that teardown runs.
-+	 */
-+	i2c->irq = irq;
-+	ret = request_threaded_irq(irq, NULL, xiic_process, IRQF_ONESHOT,
-+				   pdev->name, i2c);
- 	if (ret)
--		return ret;
-+		goto err_pm_disable;
- 
- 	i2c->singlemaster = device_property_read_bool(dev, "single-master");
- 
-@@ -1506,14 +1516,16 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 		i2c->endianness = BIG;
- 
- 	ret = xiic_reinit(i2c);
--	if (ret)
--		return dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
-+	if (ret) {
-+		dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
-+		goto err_free_irq;
-+	}
- 
- 	/* add i2c adapter to i2c tree */
- 	ret = i2c_add_numbered_adapter(&i2c->adap);
- 	if (ret) {
- 		xiic_deinit(i2c);
--		return ret;
-+		goto err_free_irq;
- 	}
- 
- 	if (pdata) {
-@@ -1526,6 +1538,15 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 		res, irq, i2c->i2c_clk);
- 
- 	return 0;
-+
-+err_free_irq:
-+	free_irq(irq, i2c);
-+err_pm_disable:
-+	pm_runtime_disable(dev);
-+	pm_runtime_set_suspended(dev);
-+	pm_runtime_dont_use_autosuspend(dev);
-+
-+	return ret;
- }
- 
- static void xiic_i2c_remove(struct platform_device *pdev)
-@@ -1537,6 +1558,8 @@ static void xiic_i2c_remove(struct platform_device *pdev)
- 	/* remove adapter & data */
- 	i2c_del_adapter(&i2c->adap);
- 
-+	free_irq(i2c->irq, i2c);
-+
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0)
- 		dev_warn(dev, "Failed to activate device for removal (%pe)\n",
-@@ -1544,7 +1567,10 @@ static void xiic_i2c_remove(struct platform_device *pdev)
- 	else
- 		xiic_deinit(i2c);
- 
--	pm_runtime_put_sync(dev);
-+	pm_runtime_disable(dev);
-+	pm_runtime_put_noidle(dev);
-+	pm_runtime_set_suspended(dev);
-+	pm_runtime_dont_use_autosuspend(dev);
- }
- 
- static const struct dev_pm_ops xiic_dev_pm_ops = {
-
----
-base-commit: d58772d8520c7ef247c4b95c9bd76d3a25da9ff5
-change-id: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
+You were asked to clarify and respond to incorrect fixes statement. I do
+not see how you clarified and responded at all.
 
 Best regards,
---  
-Abdurrahman Hussain <abdurrahman@nexthop.ai>
-
+Krzysztof
