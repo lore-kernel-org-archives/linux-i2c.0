@@ -1,75 +1,47 @@
-Received: from mail-pz2-f1.google.com (mail-pz2-f1.google.com [74.125.228.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mta-65-225.siemens.flowmailer.net (mta-65-225.siemens.flowmailer.net [185.136.65.225])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C99A93B6BFA
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 09:15:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDD7423EA1
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 11:19:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787217337; cv=none; b=akDSdDon9J59v1HDrJreNlCq23V3pc8+FPxlDLS/O01s5nrygel+dEM2EK8JNHr1RZTbkBHz61e4TeMrJZMRTGtGC/XRH8jb7ytL1Qx6qx3MBvoTlZfgdfNwwCctd0EVU8L+4kpkCsl96GMqrwe0czyplqqJD7LKqjvBLj/K3m0=
+	t=1787224792; cv=none; b=oheEWVHEHdIwMvvCK+ihngGl0pueDvIh5OSsg9BnkdaLPEqX0SxEwYEaCOnn8iizkjLFBrUBRnKH1JTfBFevUItsB+0M86ErzaP5//jTcoAiQiQfLOMWgCAbvoAqSfYR447FPo1FJo7oUx4XShRPDr+EJGU1BSMcMqFFd21mJdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787217337; c=relaxed/simple;
-	bh=N5oUkVAnlldkOMa+HOB/L+pX+Q9E6BJX1NqPm9wbE5Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h4RltkgqH15bpeRarsFss0RsgaMUTtme9gv6dCekUvLnyaxn3BlSejgj3ScLd0XsYcZxVRyXoWmmHWnKCvnIRkRJVW3Vuy2spwDVt+lu4sZKLGtEz7YyB/xB4h8vWG+AZvg0Su2rZK0nFlZk/lmnrp+RcuY5MZ2G7fKn6dUEc0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tCIwgciL; arc=none smtp.client-ip=74.125.228.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787224792; c=relaxed/simple;
+	bh=cRBiTAX8sUcFRk5xwhqKvWV37dgGuNWlRNcie5a2MCU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=WapndJuuy/WwtXOUxr09wkle0XkI9LuEMGwcAX8pmCBupZCuvuj/LHjASzh3IOvm+m3UDPPABH6oRtFMOpbQLnZGSA/TwfurCDP29rlbusvl8pQIkzyX4oYRmwi3v5x3/r7R2aWwANUrPCjKK8zKLdL1vXqOeirIHqQFA5My52A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=benedikt.niedermayr@siemens.com header.b=H2d3Qhp1; arc=none smtp.client-ip=185.136.65.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tCIwgciL"
-Received: by mail-pz2-f1.google.com with SMTP id 41be03b00d2f7-cbb818e57c9so905457a12.0
-        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 02:15:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787217332; x=1787822132; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Y1kOOBqdadqKd7sMsBzk2riCQDzvapQr8MFQipboziI=;
-        b=tCIwgciLz57yp5RUCg36NiLf8Vd9qYdo+xhbfD12wyLrejpOcwdqceXtYlW7NNX3st
-         8UthJKoTt3ilhyAug9wWTsQk5EziKsuSEDnCLvUQtlZeAElJ/b6Om3pehFLQvZBa5jMx
-         iVNjl/nsAzy6JYawAADKRAZrXj+pGHBZUHgoJXwvDKBI/oOE9yVVTJjw1xF8OnGk1qZK
-         QO8mQ13Vw5hCHZ1TFNBVsiswfm7s1PILoOeP2un6uXnMxLjUtDpYu7Lky59pHby1ZgWM
-         ibWDUi5C1mc6mTpILKcsmhnv6ZPcN/+EK3vI6mxq5dxPZYGh/9vB6xdx5gATCrIyA6Rl
-         v04g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787217332; x=1787822132;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Y1kOOBqdadqKd7sMsBzk2riCQDzvapQr8MFQipboziI=;
-        b=k1lRj9ot4Xf9yenWb7JSpQwRsWyhksUUSaNbuIYfvEtAVSpCANTzDEN0WRtt5YFRwc
-         61q6twhRMhj29WbQxDrXcKgj71AOKC+xpMuedptYBnhTzfwp57uN5Y5YaXlz1s4To/RK
-         cjr2A4JUmKnEElfhVzGkSZotSz4v9jZ1IJkEktUbJvflmqauhrxSU8g53dTh/+tRPOJg
-         ShWp/Ys73VlkVpetFq5hmL7fVuTwL130OhGrznSo0BpbxFoaYtJUgGYk3+G1tNFXBMb7
-         ktHXqN57/1CTaO4cpBs9/VphSOIe+1vrvyqwE0gfiqyCuRfOhYP5lhzv+Mu8MaMiZlHH
-         0tSA==
-X-Forwarded-Encrypted: i=1; AHgh+RpY84uMHhwYS0lH1pAqbfM8TZF7XRoCxKEZbW0FsZC18IYQztewgctnd/wzs6oLkSUBhAuCC2cUyUM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxtLvsSY8/nxwRmrBds4E/OzCr4ldjSwu31q9FcuHyQTqRoOypC
-	8DSZfwN/sTSKyOl60x9H+CQOEHedSRQd35AZEjyrYeoF1IQgAa7QSFE=
-X-Gm-Gg: AR+sD13lOKIZlUhcbRTkCddovGKfCbm9AQD/vuAaRhjlLV1e2eH0ZtSjXqamhvrj2Ux
-	Nk4bDEQRaO9F3Nx9kF9s/01y2law+Y0mVbDrpQ5QQ053pu8X20H3cJE7yBwkQzsrl6hWhEKVvAo
-	uxiCnLVUO+MUb4tiA5A2+4jInahN7IPuOl/9jsATSWY1D50YKEFqe6OnIz1lwBcySkkkWWITNlj
-	nkXzgCdmuuuzRPhvALNx2P2kCxhNaMFtEjLGW96nJmkZZN3KFhJ1Wb/rerSQAFtXMkDYYol8Ukl
-	sJs/v8wIohosi/7qYZK9rsXFWPODt3VpBVWetMCp3i8J9NOEojKNnXzOJ4/F5+nJCcahgnTICE3
-	WcUefczGSzCfSkweHNKxTZc4x1eL2ktDkzhl0f7shk2BsG6Tyo7tqZGUF3H6MpFkvH76M/zTMai
-	oZkEuGUJTpCEsnNJMrNcPHKDuptJEPniMuxwrHrL8XwjYfDZFe6zgkTYHyVCu30pC+PlX0Bg7UM
-	w==
-X-Received: by 2002:a05:6a00:2305:b0:84f:dc19:b77d with SMTP id d2e1a72fcca58-851d3953250mr18184469b3a.12.1787217332306;
-        Thu, 20 Aug 2026 02:15:32 -0700 (PDT)
-Received: from DL2XHKPB4.dl.net ([103.63.104.162])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-851d3617434sm1431016b3a.29.2026.08.20.02.15.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 02:15:31 -0700 (PDT)
-From: Triet Hoang <triet.hoang.dev@gmail.com>
-To: andi.shyti@kernel.org
-Cc: chris.packham@alliedtelesis.co.nz,
-	heiko@sntech.de,
-	linux-i2c@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=benedikt.niedermayr@siemens.com header.b="H2d3Qhp1"
+Received: by mta-65-225.siemens.flowmailer.net with ESMTPSA id 202608201119414c8cd6fd150002078e
+        for <linux-i2c@vger.kernel.org>;
+        Thu, 20 Aug 2026 13:19:41 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
+ d=siemens.com; i=benedikt.niedermayr@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=qgiJK1A/bzYz7KUdCuSnEMBXjiHNUiMcAAe7ng8RjSA=;
+ b=H2d3Qhp1Uuv17v3PzbWy1Fdd/fWY8p89ld8A/WO60LYgvilMGyjjrbeoh9r/+LLcCvzBR5
+ MczyCdgLcr+19eGJbFGclc3OaMTLGmUNYrxqgvzNRK70Xe5iwo9XTfryaqRT9sUWMQq5NHIF
+ +/ztYiqFhwbQsLEdtPryYv7vNwlp8kt5Et/ggFkUeuZqm0bK+eJWlanoHAOuRWpmB1x3iucl
+ 7/S+so/AOQSLZgGOZbR5pPmRMv0b/EkYWaOxy9sS8KMkyXYJEmI52mgeIFPcDiVw2Bm6/unt
+ Au/7235RXTdxWPlcWizwQIWDcY1N1RB4ckqudqBzkvGkrzsXjPsmAOwg==;
+From: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+To: andi.shyti@kernel.org,
+	hansg@kernel.org,
+	ilpo.jarvinen@linux.intel.com
+Cc: baocheng.su@siemens.com,
+	tobias.schaffner@siemens.com,
 	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	Triet Hoang <triet.hoang.dev@gmail.com>
-Subject: [PATCH] i2c: busses: Convert to DEFINE_SIMPLE_DEV_PM_OPS()
-Date: Thu, 20 Aug 2026 16:15:27 +0700
-Message-ID: <20260820091527.2118302-1-triet.hoang.dev@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	linux-i2c@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org
+Subject: [PATCH 2/2] platform/x86/siemens: simatic-ipc: add fan monitoring support for BX-59A
+Date: Thu, 20 Aug 2026 13:19:40 +0200
+Message-ID: <20260820111940.2434594-3-benedikt.niedermayr@siemens.com>
+In-Reply-To: <20260820111940.2434594-1-benedikt.niedermayr@siemens.com>
+References: <20260820111940.2434594-1-benedikt.niedermayr@siemens.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -77,131 +49,73 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-1323861:519-21489:flowmailer
 
-Convert the deprecated SIMPLE_DEV_PM_OPS
-to DEFINE_SIMPLE_DEV_PM_OPS and pm_sleep_ptr().
+Some fans on the BX59-A are connected to the ADT7475 fan controller
+which is connected to the NCT6126D Super I/O chip's SMBus interface
+(supported by the i2c-nct6126 driver).
 
-This lets us drop the __maybe_unused annotations from its suspend and
-resume callbacks, and reduces kernel size in case CONFIG_PM or
-CONFIG_PM_SLEEP is disabled.
+Other fans on the BX59-A are connected to the NCT6126Ds hwmon interface
+which is controlled by the nct6775 driver.
 
-Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
+This patch enables the required drivers.
+
+Signed-off-by: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
 ---
- drivers/i2c/busses/i2c-eg20t.c | 8 ++++----
- drivers/i2c/busses/i2c-mpc.c   | 8 ++++----
- drivers/i2c/busses/i2c-rk3x.c  | 6 +++---
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/platform/x86/siemens/simatic-ipc.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 8c67ab4f2aad..405229cf8f1d 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -829,7 +829,7 @@ static void pch_i2c_remove(struct pci_dev *pdev)
- 	kfree(adap_info);
- }
+diff --git a/drivers/platform/x86/siemens/simatic-ipc.c b/drivers/platform/x86/siemens/simatic-ipc.c
+index 7039874d8f11..132a899c8752 100644
+--- a/drivers/platform/x86/siemens/simatic-ipc.c
++++ b/drivers/platform/x86/siemens/simatic-ipc.c
+@@ -33,7 +33,7 @@ static const struct dmi_system_id simatic_ipc_whitelist[] = {
  
--static int __maybe_unused pch_i2c_suspend(struct device *dev)
-+static int pch_i2c_suspend(struct device *dev)
- {
- 	int i;
- 	struct pci_dev *pdev = to_pci_dev(dev);
-@@ -857,7 +857,7 @@ static int __maybe_unused pch_i2c_suspend(struct device *dev)
- 	return 0;
- }
+ static struct simatic_ipc_platform platform_data;
  
--static int __maybe_unused pch_i2c_resume(struct device *dev)
-+static int pch_i2c_resume(struct device *dev)
- {
- 	int i;
- 	struct adapter_info *adap_info = dev_get_drvdata(dev);
-@@ -870,14 +870,14 @@ static int __maybe_unused pch_i2c_resume(struct device *dev)
- 	return 0;
- }
+-#define SIMATIC_IPC_MAX_EXTRA_MODULES 2
++#define SIMATIC_IPC_MAX_EXTRA_MODULES 5
  
--static SIMPLE_DEV_PM_OPS(pch_i2c_pm_ops, pch_i2c_suspend, pch_i2c_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(pch_i2c_pm_ops, pch_i2c_suspend, pch_i2c_resume);
- 
- static struct pci_driver pch_pcidriver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = pch_pcidev_id,
- 	.probe = pch_i2c_probe,
- 	.remove = pch_i2c_remove,
--	.driver.pm = &pch_i2c_pm_ops,
-+	.driver.pm = pm_sleep_ptr(&pch_i2c_pm_ops),
+ static struct {
+ 	u32 station_id;
+@@ -53,10 +53,10 @@ static struct {
+ 		{ "emc1403", NULL }},
+ 	{SIMATIC_IPC_IPC227G,
+ 		SIMATIC_IPC_DEVICE_227G, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_227G,
+-		{ "nct6775", "w83627hf_wdt" }},
++		{ "nct6775", "w83627hf_wdt", NULL }},
+ 	{SIMATIC_IPC_IPC277G,
+ 		SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_227G,
+-		{ "nct6775", "w83627hf_wdt" }},
++		{ "nct6775", "w83627hf_wdt", NULL }},
+ 	{SIMATIC_IPC_IPC277E,
+ 		SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_227E, SIMATIC_IPC_DEVICE_227E,
+ 		{ "emc1403", NULL }},
+@@ -71,19 +71,19 @@ static struct {
+ 		{ "emc1403", NULL }},
+ 	{SIMATIC_IPC_IPCBX_39A,
+ 		SIMATIC_IPC_DEVICE_227G, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_BX_39A,
+-		{ "nct6775", "w83627hf_wdt" }},
++		{ "nct6775", "w83627hf_wdt", NULL }},
+ 	{SIMATIC_IPC_IPCPX_39A,
+ 		SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_BX_39A,
+-		{ "nct6775", "w83627hf_wdt" }},
++		{ "nct6775", "w83627hf_wdt", NULL }},
+ 	{SIMATIC_IPC_IPCBX_21A,
+ 		SIMATIC_IPC_DEVICE_BX_21A, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_BX_21A,
+ 		{ "emc1403", NULL }},
+ 	{SIMATIC_IPC_IPCBX_56A,
+ 		SIMATIC_IPC_DEVICE_BX_59A, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_BX_59A,
+-		{ "emc1403", "w83627hf_wdt" }},
++		{ "emc1403", "w83627hf_wdt", NULL }},
+ 	{SIMATIC_IPC_IPCBX_59A,
+ 		SIMATIC_IPC_DEVICE_BX_59A, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_BX_59A,
+-		{ "emc1403", "w83627hf_wdt" }},
++		{ "i2c-nct6126", "nct6775", "adt7475", "emc1403", "w83627hf_wdt"  }},
  };
  
- module_pci_driver(pch_pcidriver);
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index a21fa45bd64c..fc7bc0ddbeee 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -880,7 +880,7 @@ static void fsl_i2c_remove(struct platform_device *op)
- 	i2c_del_adapter(&i2c->adap);
- };
- 
--static int __maybe_unused mpc_i2c_suspend(struct device *dev)
-+static int mpc_i2c_suspend(struct device *dev)
- {
- 	struct mpc_i2c *i2c = dev_get_drvdata(dev);
- 
-@@ -890,7 +890,7 @@ static int __maybe_unused mpc_i2c_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused mpc_i2c_resume(struct device *dev)
-+static int mpc_i2c_resume(struct device *dev)
- {
- 	struct mpc_i2c *i2c = dev_get_drvdata(dev);
- 
-@@ -899,7 +899,7 @@ static int __maybe_unused mpc_i2c_resume(struct device *dev)
- 
- 	return 0;
- }
--static SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
- 
- static const struct mpc_i2c_data mpc_i2c_data_512x = {
- 	.setup = mpc_i2c_setup_512x,
-@@ -942,7 +942,7 @@ static struct platform_driver mpc_i2c_driver = {
- 	.driver = {
- 		.name = "mpc-i2c",
- 		.of_match_table = mpc_i2c_of_match,
--		.pm = &mpc_i2c_pm_ops,
-+		.pm = pm_sleep_ptr(&mpc_i2c_pm_ops),
- 	},
- };
- 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index fcede9f6ed54..878bf42c4d73 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -1145,7 +1145,7 @@ static int rk3x_i2c_xfer_polling(struct i2c_adapter *adap,
- 	return rk3x_i2c_xfer_common(adap, msgs, num, true);
- }
- 
--static __maybe_unused int rk3x_i2c_resume(struct device *dev)
-+static int rk3x_i2c_resume(struct device *dev)
- {
- 	struct rk3x_i2c *i2c = dev_get_drvdata(dev);
- 
-@@ -1394,7 +1394,7 @@ static void rk3x_i2c_remove(struct platform_device *pdev)
- 	clk_unprepare(i2c->clk);
- }
- 
--static SIMPLE_DEV_PM_OPS(rk3x_i2c_pm_ops, NULL, rk3x_i2c_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(rk3x_i2c_pm_ops, NULL, rk3x_i2c_resume);
- 
- static struct platform_driver rk3x_i2c_driver = {
- 	.probe   = rk3x_i2c_probe,
-@@ -1402,7 +1402,7 @@ static struct platform_driver rk3x_i2c_driver = {
- 	.driver  = {
- 		.name  = "rk3x-i2c",
- 		.of_match_table = rk3x_i2c_match,
--		.pm = &rk3x_i2c_pm_ops,
-+		.pm = pm_sleep_ptr(&rk3x_i2c_pm_ops),
- 	},
- };
- 
+ static int register_platform_devices(u32 station_id)
 -- 
-2.53.0
+2.43.0
 
