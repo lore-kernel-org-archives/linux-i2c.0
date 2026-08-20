@@ -1,271 +1,222 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFF063D75DE;
-	Thu, 20 Aug 2026 17:16:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 810B4481A98
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 17:41:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787246211; cv=none; b=CEPovBdOjbG8koAWF4ZY2uyJXMuM7FAbwyGV1LIGHPxawlQKD8CJIvrH55fX0bDGMCsq+GNWYSDW7JQ9jxUw5QDxVouH43CuYyoNogW/6fQaafrolJqInmwAGF+6G6HQ53WcUCTBVjLdRR1hAZDCuyFso4ovZwXzybTr7lgFDOA=
+	t=1787247671; cv=none; b=n4hG4kaxRTs8Rp497rLqXke8aUXRHEn8wTTn+FcCjq56Ma6GEd1H+9iVxCBCwA2zYtNf06mQ6vx1CTsXyqd5BZM5lrm4bpT70F8SYumjLDzIMtshcE8M9sXQtqfPwDX7CVz2LYPC2vYjOP2p+wInEBtnyxgzYOc89ISeryXjJzE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787246211; c=relaxed/simple;
-	bh=+1bmV0emnRfGbzkVZrr6Xn06idLHg9fjaOWVq9QhNXQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ogd/B2gR4vdW6ah6SfTkhNRuawNGul2+8LnaqYsboRa10WZE9SU82iBd+L2G2rxMhVNijTswAe0KdGuTtdwqkcAC9zTm9vJftPrWjpgkLEAPdeiBukhmviUK+2fnaBjpA0vVNHljH2Vkui6fiazSzskMRoP+K8jYz6IUVmTTgbQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GwQUAEOK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787247671; c=relaxed/simple;
+	bh=lTNPzVr6aEGfj5ESPPhRasa2ZHq56ejhJWmSkgBxpYs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o2LZ4JQrLtKXgov9+wZ+E/v3c2c3XUGa1IY+efRDtBnUcvksbgWCiV4yS1cEhJLGAv+gyEUaF1Fz3aaJQaO2VkaGylH/t5rwnph+1zQ+ef+4ySqpulRMj3WFolWJfBQjZmu8ufuKkJyK4OLTxwTJeB3Ji0hkghR28AHxBPx4FQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eSjq2vPC; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GwQUAEOK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B621F000E9;
-	Thu, 20 Aug 2026 17:16:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787246209;
-	bh=MV24uR/6Cop6a5mbcnfeD+N904Fg68fULCFuxI3hmvk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=GwQUAEOK7DSZyJoaIvNGzb7eXUjL+lBRclXa6f9EKhUzThVZICr0l1lhMLlnlyDML
-	 DGJo2yCn2P0h4yuZXBCTbvh3s0XySxJ7tUIToVru4vMLT+U8yiXNaUVLSKH6kh1twx
-	 i4Ui/0D5qTKyEHIV/zWJdMsg1VkSI2JCgOlVxdwdROIV7kipuNr7yESf6rDQb3y5aF
-	 xeay2R7Vs0pTkaW9UlzQ+CTuNLuu1o5oxCJTXppmAizyRzgD8vTUbOVdhdmPtG9NLo
-	 c7JOdZnGN5lNnVYIVr/lgJbmqVc2OkwC5qEddnCpB365CZgp1Ys95WqI5uYaoY/UCZ
-	 vqJymbhwXeWAg==
-Message-ID: <359ea967-9b97-4584-88e6-bddb4044de2e@kernel.org>
-Date: Thu, 20 Aug 2026 19:16:05 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eSjq2vPC"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2d032846c95so1815095ad.1
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 10:41:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787247669; x=1787852469; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=O7KMdDzbIC1QroGeo8Cy4bum1ArkV9EBPN0TLsbF4kI=;
+        b=eSjq2vPCh7JeQFj/2h9Y5SfYgSTF0bMW7mLfekZIQ5nS4Yl91TDuP4gzgZLOTIh/G9
+         Ts7BNi3KmIJ/1h5cQxHoxnUlGsiOhPn5e7HzOu0F/9o53m10yLOnny17xd0wDEeX5LH5
+         1PbvoW4izj2NjdWghxNzibpRMI3kTzMtZxeG3cs2sTCmscBBXH4V5VJJaefJUoJAd6g3
+         u32nLNz02U7mAROXwKUJmRA856XdD+c4bVX7BCeYQEShoH/yFn0Je4CDBuCsoVAmi6Gl
+         9nGEaynRxuS7nGZp3GFCKPnJKhLq7JI/3sCAR27QeYc7FRhWj4neJd5Ndk97oThu1pEM
+         ydsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787247669; x=1787852469;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=O7KMdDzbIC1QroGeo8Cy4bum1ArkV9EBPN0TLsbF4kI=;
+        b=V+JDMZgOPisYuMDiefRK/O46E/Ctx4igcoV2rr5OI7nOrA8tLvrEhxQF8XWMnBuSNO
+         HyVyvfNU+1fpnUEtXVkV4QdYPWQ1MKgmCNbuAqOGVPZACREFhP56Q6+1N5yTx3Uku8dA
+         XoJ9zftyP5S/8+1NIeMvNlZVFKDBWwc2yhyPcRxhkjvYqPkHC+Fhltg8Tbkg4TT9FoYB
+         opN1jmT7qUdi4Ip0+SkHIZqn0pdA6+NPtc+nAUOnWXY3nY+RT8FmahDNvFavbG5IGvcn
+         zHVMGYIWqZqvYltRChuLJyLADn7m3jIUT5/rZoDg3ROYGrGMIGTWBzXdW58PHWbiQ+28
+         Xrnw==
+X-Forwarded-Encrypted: i=1; AHgh+RrGs4zuiU3Zxe8QtANYpTCvYyqGLaCkxVxYR0E7XY6dyFxoVfxrayfMcWjvjb4s0eWbKNBxvezfW3I=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzsboPrd+cen1T/8bWWbyvAPYkeJSygvox0MN2Hx3KSYXEwk7j6
+	BSj318GeEyggHGURfc0lGeppDY9ePi+TeQ7bqFFzz2gTEYui8PN0MvaG
+X-Gm-Gg: AR+sD13huunMx2u025QkRZBZDWb3bHYf3maG/3bO2HczobLFzzImPT1nkvE4HwLKoh1
+	tb066qKSdTp9cogqFY5wVa+DXesNW7jlyDVn2HvBqXlEBd6pRpahZUAJrpoPLxdyoRCayy/q+jB
+	sMRUM+9QnT9dY67/k7FYW4XvA4w35AD6e0YaV5J58/BAOUJ4vIZyDxH0//71bKuXFPwrZ1pBind
+	zhfg5KzhDh45cDzQLdcpTgfjKNinne30gC8RiCrt/mT7kwdA1IPxMF6YeFxSqVS6U4RS1/8+wnk
+	cj+tGi5Uh3MwlF6boNy84D/7k6c416x0VqZifXm4KcyaWWvTzFUPwLQ9z+dBpHXqAQNANWNFdnY
+	uYyDpV38VcnLRvDsoqSu/g/zUFEIxtYqOAQM7pcc1VpJwffEHbEoInHWhGgaSfAW4ys2gYVLNWO
+	/Ov5GhzSvgMW4E6xVJWmDXPl4Hha8ngNJNfVcwf66hkvpjFQfA3LXJ6NM5cM8U3aLutDd+s+RI8
+	VpgXSPttdXu6sK/BD9aiMLSgRNs+KiJ7hROHAdHytEmUHOa+e/ruw==
+X-Received: by 2002:a05:6a20:43ac:b0:3b4:8f18:33a with SMTP id adf61e73a8af0-3cd2fd8e233mr264870637.1.1787247668691;
+        Thu, 20 Aug 2026 10:41:08 -0700 (PDT)
+Received: from Mac.net ([12.162.234.74])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327d6168e5bsm7943356eec.1.2026.08.20.10.41.07
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 20 Aug 2026 10:41:07 -0700 (PDT)
+From: Ahmad Byagowi <ahmadexp@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Peter Rosin <peda@lysator.liu.se>,
+	Jakub Kicinski <kuba@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v6] i2c: mux: Propagate software nodes to channel adapters
+Date: Thu, 20 Aug 2026 10:41:06 -0700
+Message-ID: <eb4a8ab1eedd8a01ca34c6a7e0685639d0498423.1787247467.git.ahmadexp@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v19 00/40] DEPT(DEPendency Tracker)
-To: Byungchul Park <byungchul@sk.com>, linux-kernel@vger.kernel.org
-Cc: max.byungchul.park@gmail.com, kernel_team@skhynix.com,
- torvalds@linux-foundation.org, damien.lemoal@opensource.wdc.com,
- linux-ide@vger.kernel.org, adilger.kernel@dilger.ca,
- linux-ext4@vger.kernel.org, mingo@redhat.com, peterz@infradead.org,
- will@kernel.org, tglx@linutronix.de, rostedt@goodmis.org,
- joel@joelfernandes.org, sashal@kernel.org, daniel.vetter@ffwll.ch,
- duyuyang@gmail.com, johannes.berg@intel.com, tj@kernel.org, tytso@mit.edu,
- willy@infradead.org, david@fromorbit.com, amir73il@gmail.com,
- gregkh@linuxfoundation.org, kernel-team@lge.com, linux-mm@kvack.org,
- akpm@linux-foundation.org, mhocko@kernel.org, minchan@kernel.org,
- hannes@cmpxchg.org, vdavydov.dev@gmail.com, sj@kernel.org,
- jglisse@redhat.com, dennis@kernel.org, cl@linux.com, penberg@kernel.org,
- rientjes@google.com, vbabka@suse.cz, ngupta@vflare.org,
- linux-block@vger.kernel.org, josef@toxicpanda.com,
- linux-fsdevel@vger.kernel.org, jack@suse.cz, jlayton@kernel.org,
- dan.j.williams@intel.com, hch@infradead.org, djwong@kernel.org,
- dri-devel@lists.freedesktop.org, rodrigosiqueiramelo@gmail.com,
- melissa.srw@gmail.com, hamohammed.sa@gmail.com, harry.yoo@oracle.com,
- chris.p.wilson@intel.com, gwan-gyeong.mun@intel.com, boqun.feng@gmail.com,
- longman@redhat.com, yunseong.kim@ericsson.com, ysk@kzalloc.com,
- yeoreum.yun@arm.com, netdev@vger.kernel.org, matthew.brost@intel.com,
- her0gyugyu@gmail.com, corbet@lwn.net, catalin.marinas@arm.com, bp@alien8.de,
- x86@kernel.org, hpa@zytor.com, luto@kernel.org, sumit.semwal@linaro.org,
- gustavo@padovan.org, christian.koenig@amd.com, andi.shyti@kernel.org,
- arnd@arndb.de, lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com,
- rppt@kernel.org, surenb@google.com, mcgrof@kernel.org, petr.pavlu@suse.com,
- da.gomez@kernel.org, samitolvanen@google.com, paulmck@kernel.org,
- frederic@kernel.org, neeraj.upadhyay@kernel.org, joelagnelf@nvidia.com,
- josh@joshtriplett.org, urezki@gmail.com, mathieu.desnoyers@efficios.com,
- jiangshanlai@gmail.com, qiang.zhang@linux.dev, juri.lelli@redhat.com,
- vincent.guittot@linaro.org, dietmar.eggemann@arm.com, bsegall@google.com,
- mgorman@suse.de, vschneid@redhat.com, chuck.lever@oracle.com,
- neil@brown.name, okorniev@redhat.com, Dai.Ngo@oracle.com, tom@talpey.com,
- trondmy@kernel.org, anna@kernel.org, kees@kernel.org, bigeasy@linutronix.de,
- clrkwllms@kernel.org, mark.rutland@arm.com, ada.coupriediaz@arm.com,
- kristina.martsenko@arm.com, wangkefeng.wang@huawei.com, broonie@kernel.org,
- kevin.brodsky@arm.com, dwmw@amazon.co.uk, shakeel.butt@linux.dev,
- ast@kernel.org, ziy@nvidia.com, yuzhao@google.com,
- baolin.wang@linux.alibaba.com, usamaarif642@gmail.com,
- joel.granados@kernel.org, richard.weiyang@gmail.com,
- geert+renesas@glider.be, tim.c.chen@linux.intel.com, linux@treblig.org,
- alexander.shishkin@linux.intel.com, lillian@star-ark.net,
- chenhuacai@kernel.org, francesco@valla.it, guoweikang.kernel@gmail.com,
- link@vivo.com, jpoimboe@kernel.org, masahiroy@kernel.org,
- brauner@kernel.org, thomas.weissschuh@linutronix.de, oleg@redhat.com,
- mjguzik@gmail.com, andrii@kernel.org, wangfushuai@baidu.com,
- linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
- linux-i2c@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-modules@vger.kernel.org, rcu@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-rt-devel@lists.linux.dev,
- 2407018371@qq.com, dakr@kernel.org, miguel.ojeda.sandonis@gmail.com,
- neilb@ownmail.net, bagasdotme@gmail.com, wsa+renesas@sang-engineering.com,
- dave.hansen@intel.com, geert@linux-m68k.org, ojeda@kernel.org,
- alex.gaynor@gmail.com, gary@garyguo.net, bjorn3_gh@protonmail.com,
- lossin@kernel.org, a.hindborg@kernel.org, aliceryhl@google.com,
- tmgross@umich.edu, rust-for-linux@vger.kernel.org
-References: <20260706061928.66713-1-byungchul@sk.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260706061928.66713-1-byungchul@sk.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 7/6/26 08:18, Byungchul Park wrote:
-> Hi Linus and folks,
+Device Tree channel nodes are associated with the adapters created by
+i2c-mux, but equivalent software-node descriptions are not.
 
-Hi,
+When the mux device has a primary software node, find the child whose
+reg value matches the channel and use it as the new adapter firmware node.
+Keep the node reference through child-client removal and release it after
+adapter deletion.
 
-I think there was plenty of feedback from locking maintainers in the past. One
-question and a comment below.
+Also balance the Device Tree channel-node reference when adapter
+registration fails.
 
-> 
-> DEPT(DEPendency Tracker) is a runtime deadlock detection framework that
-> sees what lockdep cannot.
-> 
-> I'm thrilled to share that DEPT has moved beyond theory and is now
-> catching real deadlocks in the wild:
-> 
->    https://lore.kernel.org/lkml/6383cde5-cf4b-facf-6e07-1378a485657d@I-love.SAKURA.ne.jp/
->    https://lore.kernel.org/lkml/1674268856-31807-1-git-send-email-byungchul.park@lge.com/
->    https://lore.kernel.org/all/b6e00e77-4a8c-4e05-ab79-266bf05fcc2d@igalia.com/
-> 
-> I've added comprehensive documentation explaining DEPT's design and usage.
-> Getting started is as simple as enabling CONFIG_DEPT and watching dmesg.
-> 
-> THE PROBLEM LOCKDEP CANNOT SOLVE
-> --------------------------------
-> 
-> Lockdep has been our trusted deadlock detector for two decades, but it
-> has a fundamental blind spot: it tracks lock acquisition order, not the
-> actual waits and events that cause deadlocks. This means lockdep misses:
-> 
->   * Deadlocks involving folio locks (not released within the context)
->   * Cross-context synchronization like wait_for_completion()/complete()
->   * DMA fence waits, RCU waits, and general waitqueue patterns
->   * Any synchronization primitive outside the classic lock/unlock model
-> 
-> Consider this real deadlock pattern that lockdep cannot detect:
-> 
->    context X              context Y              context Z
-> 
->                           mutex_lock A
->    folio_lock B
->                           folio_lock B <- DEADLOCK
->                                                  mutex_lock A <- DEADLOCK
->                                                  folio_unlock B
->                           folio_unlock B
->                           mutex_unlock A
->                                                  mutex_unlock A
+Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
+---
+Changes since v5:
+  - Send the I2C prerequisite as a standalone patch for the I2C tree.
+  - Limit propagation to mux devices with a primary software node.
+  - Avoid secondary-fwnode access and changes to generic adapter lookup.
+  - Follow the i2c-atr reference-lifetime pattern for channel nodes.
+  - Balance the Device Tree channel reference on adapter-add failure.
+  - Rebase onto the I2C i2c-next branch.
 
-But that really just boils down to folio lock being implemented as a PG_lock +
-some advanced wait mechanism. And we must do that because of lack of bits in
-struct page.
+v5: https://lore.kernel.org/r/cover.1786746757.git.ahmadexp@gmail.com/
+---
+ drivers/i2c/i2c-mux.c | 61 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 59 insertions(+), 2 deletions(-)
 
-Willy mentioned in a previous version [1]: "I don't think it makes sense to
-track lock state in the page (nor folio).  Partly because there's just so many
-of them, but also because the locking rules don't really apply to individual
-folios so much as they do to the mappings (or anon_vmas) that contain folios."
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 681a201c239ba..76fa89dc6a222 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -25,6 +25,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/property.h>
+ #include <linux/slab.h>
+ #include <linux/sysfs.h>
+ 
+@@ -33,6 +34,7 @@ struct i2c_mux_priv {
+ 	struct i2c_adapter adap;
+ 	struct i2c_algorithm algo;
+ 	struct i2c_mux_core *muxc;
++	struct fwnode_handle *swnode;
+ 	u32 chan_id;
+ };
+ 
+@@ -264,6 +266,49 @@ static const struct i2c_lock_operations i2c_parent_lock_ops = {
+ 	.unlock_bus =  i2c_parent_unlock_bus,
+ };
+ 
++static struct fwnode_handle *
++i2c_mux_get_channel_swnode(struct i2c_mux_core *muxc, u32 chan_id)
++{
++	struct fwnode_handle *dev_node = dev_fwnode(muxc->dev);
++	struct fwnode_handle *mux_node, *child = NULL;
++	u32 reg;
++
++	if (!is_software_node(dev_node))
++		return NULL;
++
++	if (muxc->arbitrator)
++		mux_node = fwnode_get_named_child_node(dev_node, "i2c-arb");
++	else if (muxc->gate)
++		mux_node = fwnode_get_named_child_node(dev_node, "i2c-gate");
++	else
++		mux_node = fwnode_get_named_child_node(dev_node, "i2c-mux");
++
++	if (mux_node) {
++		/* A "reg" property indicates an old-style firmware entry. */
++		if (!fwnode_property_read_u32(mux_node, "reg", &reg)) {
++			fwnode_handle_put(mux_node);
++			mux_node = NULL;
++		}
++	}
++
++	if (!mux_node)
++		mux_node = fwnode_handle_get(dev_node);
++	else if (muxc->arbitrator || muxc->gate)
++		child = fwnode_handle_get(mux_node);
++
++	if (!child) {
++		fwnode_for_each_child_node(mux_node, child) {
++			if (fwnode_property_read_u32(child, "reg", &reg))
++				continue;
++			if (chan_id == reg)
++				break;
++		}
++	}
++
++	fwnode_handle_put(mux_node);
++	return child;
++}
++
+ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 			u32 force_nr, u32 chan_id)
+ {
+@@ -324,8 +369,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 		priv->adap.lock_ops = &i2c_parent_lock_ops;
+ 
+ 	/*
+-	 * Try to populate the mux adapter's of_node, expands to
+-	 * nothing if !CONFIG_OF.
++	 * Associate the mux adapter with its DT or software-node channel.
++	 * DT support expands to nothing if !CONFIG_OF.
+ 	 */
+ 	if (muxc->dev->of_node) {
+ 		struct device_node *dev_node = muxc->dev->of_node;
+@@ -364,6 +409,10 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 
+ 		priv->adap.dev.of_node = child;
+ 		of_node_put(mux_node);
++	} else {
++		priv->swnode = i2c_mux_get_channel_swnode(muxc, chan_id);
++		if (priv->swnode)
++			device_set_node(&priv->adap.dev, priv->swnode);
+ 	}
+ 
+ 	/*
+@@ -408,6 +457,8 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	return 0;
+ 
+ err_free_priv:
++	fwnode_handle_put(priv->swnode);
++	of_node_put(priv->adap.dev.of_node);
+ 	kfree(priv);
+ 	return ret;
+ }
+@@ -429,7 +480,13 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
+ 		sysfs_remove_link(&muxc->dev->kobj, symlink_name);
+ 
+ 		sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
++		/*
++		 * Keep the software node through child removal. The adapter
++		 * device is cleared on deletion, so release the saved reference
++		 * afterwards.
++		 */
+ 		i2c_del_adapter(adap);
++		fwnode_handle_put(priv->swnode);
+ 		of_node_put(np);
+ 		kfree(priv);
+ 	}
 
-Given that lockdep is a debug feature, and we will at some point allocate struct
-folio separately, I assume we could just squeeze a "struct lockdep_map" in there
-in such debug configs and the world would not collapse.
-
-Doing that today (one "struct lockdep_map" in each "struct page") wouldn't work
-as mm_zero_struct_page() would not expect such large "struct page". But
-conceptually, for a debug kernel with a special CONFIG_LOCKDEP_PAGE_LOCK, maybe
-that would already be ok and we could just do that (and optimize it as we
-allocate folios separately).
-
-Not that it's ideal, but for a debug feature to at least check PG_lock, probably
-an easier way to achieve it than some completely new infrastructure.
-
-Now, Willy said "locking rules don't really apply to individual folios", I
-wonder if that could just help to also let lockdep check PG_lock with less
-metadata? (didn't fully wrap my head around the implications)
-
-[1]
-https://lore.kernel.org/all/aR3WHf9QZ_dizNun@casper.infradead.org/?utm_source=chatgpt.com
-
-
-It's your guiding example, that's why I mention it. You do mention other wait
-cases here, I don't know anything about them, but for folios it's really just
-"we used a single bit so far" AFAIKs.
-
-[...]
-
-> 
-> Q. Why not build DEPT into lockdep?
-> 
-> A. Lockdep is stable, battle-tested code. I chose separation because
->    while DEPT borrows BFS and hashing ideas, the wait/event model
->    requires rebuilding from scratch. Lockdep was designed for lock
->    acquisition order — retrofitting it would risk its stability.
-
-Why can't this just be some configurable extension to lockdep
-(CONFIG_LOCKDEP_XYZ) until the feature is stable and can unconditionally be
-enabled along with it?
-
-I don't quite buy the "would risk its stability" argument. A lot of stuff we do
-"risks stability", every day :)
-
-Is there another good reason (incompatible with X, dangerous with Y, cinfusing
-Z) why this really must be a separate thing?
-
-> 
-> Q. Will DEPT replace lockdep?
-> 
-> A. No. Lockdep validates correct lock usage — that's not going away.
->    DEPT supersedes only the dependency-checking logic when mature.
-
-It's quite unfortunate that we'd end up with another similar-but-different
-mechanism, that will just end up confusing people.
-
-
-But I am not a locking maintainer. I think there was plenty of discussion in the
-past, so I might just be raising points that were already discussed in the past,
-but I really just read some random pieces of earlier discussions. (ideally
-previous discussions would be summarized here)
-
-Long story short: we are now in v19 and I think there was pushback in the past.
-Did the opinion of locking maintainers change, or is there a way forward to
-integrate this in a way that would make locking maintainers accept this?
-
+base-commit: b0e590bb83a9e40dc1e77a2c82d7f3e670fb74b3
 -- 
-Cheers,
-
-David
+2.50.1 (Apple Git-155)
