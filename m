@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE22033F58C;
-	Thu, 20 Aug 2026 14:01:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4747A36729C;
+	Thu, 20 Aug 2026 14:48:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787234475; cv=none; b=iPWviKmyxAJxABfVEmWZXJoKSSoos+TmDvhSahFDLqHyzUETkqNFNdeYZ8kaC1j1Q3kTk8Vrbu4IteVLAjhTcpqFs1341RNsIH4ruqbHY4V46AhQBi6p0kBehaeJ+SrY0k02ILQiV5RrpgvlDEPnyzLzJBvOlHUqdVpCkfI76Ec=
+	t=1787237309; cv=none; b=diJ5i9y6VnyshAmgRyqMMEZ6PBA4kcyzw8LFWxgVWjd60sdSEPMExSZKhQ4ovhJOZBR+3xcWd6dcGFeFUzNzcIF1LZj3ZYRzjkBsUjo2VZ/KopuPDxBWGkUGQ5X2xB+CfFWnSBTHbcu/UCCY9gEyY+hNkRK5pqpghwKpw7JEmqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787234475; c=relaxed/simple;
-	bh=ZhZeyH4cUmZhBq/Kcn46arGUb7S0rQCn7/FG/Rzgp1I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jjavx8IWvOTTSc1KTUDUKE9TrXgRRCB0RS8qKB/to2dDtuzoyLkWYKTwGILgYrznlFspKuhHa7IjCf0gcJ8rcsiNwuZao1oxaR+T1qIyqgZZ4x35s0jwmRpAyW1CurA98GD4br3h4NB/DtU4FHBeljubm0xWKcBg41HmFL2xHQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HVQTPXQi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787237309; c=relaxed/simple;
+	bh=zIhc7q+11dmnra4JbZDh4dhbMBpKe4fhqfIWI1NVwTI=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=tzBKfWNiIiPfDH8a/5t0riBsxKGECU2Irf0gF/h8VjWNv1W+a7Otha9aJkUvTQSgQ4DvOviOdUP/lm2dPF58oOIN5OCT6LW0f3a+2o9snkuLZsnNzxb/4AS8dEby5XzwyOzBSCqFhu5yoGTYRBXgi5vx/lI444Gkz3TK0VZ52Mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NhFkQAVO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HVQTPXQi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 518BE1F000E9;
-	Thu, 20 Aug 2026 14:01:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NhFkQAVO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD37E1F000E9;
+	Thu, 20 Aug 2026 14:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787234474;
-	bh=kWq4BIqw/keC1n7yxwLNrJo/GuCBdDJ+y3txl8w8/dY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=HVQTPXQio2Z0c/yKmgY8DAl9NuVxVomgB7bbv9LtDsd+9q7FRMmrolqUGk8uBft9D
-	 fBx4jFjYVJULmfLoR6vUkkRkJzqZ6Za1R6tXhIF1rmsqc0flw8OFKC0YC9rfvrt4Ti
-	 QYBRXlaI52N48vFG9q4GMUlrxksRL+Tb7R+HAxdi9/zx08UrmNfXCGyDcM7Ae/nOE/
-	 l3Mdy5oCPyuiL8OxcZs+ddu6Blx5QU0GUWq7gFKfcUsUUy8IJdqsV5LNsfaxID384u
-	 vozkuP82pp8ZyubUr/yjwQbacyu8170O7L+r3X6gU+rK7wXRRun+UlJC/rX+krZ1QH
-	 N6L5Vzmj9AdrQ==
-Message-ID: <327de6a8-6c67-4328-83a2-bfea332aba7c@kernel.org>
-Date: Thu, 20 Aug 2026 16:01:07 +0200
+	s=k20260515; t=1787237302;
+	bh=w34XO/hToMoqL4weZXrhuc3TgzStrWWy3ndR3Zl9Yi0=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=NhFkQAVOxyWCuowVUdK/kt7Px4w4F5dpcZlgA8CMXQdfJWNwe1OtG+/KfH7ZCZBbF
+	 /ZLnjP3dCnL7V1rjimjBaVoadLHIYUnVtTMltXU1UJsw8vkVoDDbVuKtxIJewBBdyX
+	 cpCF8sQKAXtpSCmn03C1tQk3M5E9fhgDgOhQauWEIN2CqLKPdA2g8Lv54iIpf2BK/I
+	 9a/2G0gKYwBVS4FY/6gHT/zxXxRUJ6dgouvTxTMOjW7+b8G9J0ft/CfC03Rcr2FKE+
+	 v+NwmLDY9JZJBVqBTTzcQcechI25+2GMzPPQwhvcZvIHF5RB3mmjL/I7ixritSQFfX
+	 L2kRU1E5GZO2g==
+Message-ID: <c2434012-7bcb-42fc-b520-8fbc71db196f@kernel.org>
+Date: Thu, 20 Aug 2026 16:48:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,17 +35,13 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: qcom-cci: fix autosuspend cleanup
-To: Guangshuo Li <lgs201920130244@gmail.com>,
- Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
- <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Todor Tomov <todor.too@gmail.com>, Wolfram Sang <wsa@kernel.org>,
- Vinod Koul <vkoul@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-References: <20260812094425.3515179-1-lgs201920130244@gmail.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH] i2c: nvidia-gpu: fix autosuspend cleanup
+To: Guangshuo Li <lgs201920130244@gmail.com>, Ajay Gupta <ajayg@nvidia.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+References: <20260812092322.3423217-1-lgs201920130244@gmail.com>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
  xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
@@ -90,14 +86,13 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <20260812094425.3515179-1-lgs201920130244@gmail.com>
+In-Reply-To: <20260812092322.3423217-1-lgs201920130244@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 12/08/2026 11:44, Guangshuo Li wrote:
-> cci_probe() calls pm_runtime_use_autosuspend(), but the remove path
-> does not call the matching pm_runtime_dont_use_autosuspend() before
-> disabling runtime PM.
+On 12/08/2026 11:23, Guangshuo Li wrote:
+> gpu_i2c_probe() calls pm_runtime_use_autosuspend(), but the remove
+> path does not call the matching pm_runtime_dont_use_autosuspend().
 > 
 > If the autosuspend delay is set to a negative value while autosuspend
 > is enabled, the runtime PM core increments usage_count to prevent
@@ -105,14 +100,12 @@ On 12/08/2026 11:44, Guangshuo Li wrote:
 > teardown, this reference is not dropped and usage_count remains
 > unbalanced.
 > 
-> Use devm_pm_runtime_set_active_enabled() to manage the runtime PM
-> state. Its managed cleanup disables autosuspend and runtime PM and
-> restores the suspended state on probe failure and driver removal.
-> Remove the now redundant manual runtime PM cleanup.
+> Call pm_runtime_dont_use_autosuspend() during driver removal to
+> properly undo the autosuspend setting.
 > 
 > This issue was found by manual code inspection.
 > 
-> Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
+> Fixes: d4a4f927e4dd ("i2c: nvidia-gpu: add runtime pm support")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 
