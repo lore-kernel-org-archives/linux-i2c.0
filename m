@@ -1,430 +1,146 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 205BE37C927
-	for <linux-i2c@vger.kernel.org>; Fri, 21 Aug 2026 03:35:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 759C22C3251
+	for <linux-i2c@vger.kernel.org>; Fri, 21 Aug 2026 03:52:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787283352; cv=none; b=cnVAamemy/GtCjJxWTtxlDe59yaG39OSNQTAqQpMc3t39USvH7Cv2jLmpDjdMBM2fY0vgwvcK/yAm6o97yFIle2kp+Nv+zCVyz4FO32n2OzRuUzL2cSUrjIAyE0sX/oLUQ/OlzrkO+beVm2XF44iOW/k6V+s4Grct52pf8Bz0r0=
+	t=1787284343; cv=none; b=n9mDF0p/MJQrslu5fSKigap5IpTXqGXY9lOkGZ7LvrYjDC4uRd9gqm9m7IgbKeV1XEyvgbwreQcmzrGeNPcId9k7cu8CvFgzMoMmCYWnDIkqq26gN83cnW597bxlhque+D41GptH4vCbyFlEitMZdxGu4mbzt8hTLJ3dMyE2rKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787283352; c=relaxed/simple;
-	bh=wyfBHj1kfbB/Xu2NXnAjxXZqzOU15ldhxzy5vRJ/5ZI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=oImQ6+6kxpcllkdbYhT0BqFM38khyzf2+0MlC7XLR/F7pWrtk5rflYNbRt18KsI/uvQ7MmpG45Mu8DVwr7GYTIKgzRKKN1zm91iTGsIirV5ZPmtewD8e4uXYLwjuthPKGhF0D+lVyY42okNSUv7Y/qbcXUPdG6iTmr9OVKOFleI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KjCM5G+m; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	s=arc-20240116; t=1787284343; c=relaxed/simple;
+	bh=H7cx3dxLR5ZkSrjHPDYzzT5hHYj0NJRb9zQhF2jRXMM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=H5aw3M8bSj2w7At5+KM01u7NdPLwuHDcjaUTJKOYMyk/eqVfRI888mx/JLgWmBbFgj2RamfHNJF4HqADMqAhtndQ+sIz6oOPV03yFq0sYDy5gnsb7WFFIqcTpYWpcdBwEAYPFRqMFr14PVRrcJSfZWAGwXPfmoMu2KElgDEGTjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GXk/6Pil; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KjCM5G+m"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-84862b0d5f8so345751b3a.3
-        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 20:35:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GXk/6Pil"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cbb7926836eso420539a12.3
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 20:52:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787283345; x=1787888145; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=zVGJq/cPYPrGdMaDb09iv6l5Ams0yt9+9ZCGjPPurrE=;
-        b=KjCM5G+mmxqDQUq/U/h+wdGBFwjwTIZVyrbhnqicPSnz4yfoiiv8feUEd+Qonaf6aB
-         7TIaiTZwqwNrPlbz1uc+Nwuivr72EmWOzJG+i634yBDw8bqkl9EmVYQ/MEDtYq0+TlkH
-         XFe9T7Xr071kVZIUbXUGkL4qBJ+G20vUwHXrTss3suxJ7kgd64kwEWNAeeSbPcH6mFrH
-         K2ZPKUE0aKtQDKh/j3QuxLPLwHDNSMQPTxJE/0MsqKtfDMwe27bwWEpazmiq+PxrKLtg
-         fEKnjE9IKtgHk+BaAzfjrHsH/9ms0eOVHD7cTHO5S5pjkQgd3wce2D40VG8x9l3An3HZ
-         gN4g==
+        d=gmail.com; s=20251104; t=1787284342; x=1787889142; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bdUpRbJOePqwuGtI7k86e6iXxcPA/KBD5j3OTF6Xnr0=;
+        b=GXk/6PilwyR7gpb93GlGIvFfWrG3341YE0CdjAJO3VFfYLlgmEKBZP0wj3hUbcKIR1
+         xJ6xENHscy7/npwM5AfSmIJbQFnlV/e3t6Ks6xbIXhvcNA9BCOK40UpiVgrd1L/Gc/F8
+         FPZ2aVhprxfmA5Rgl/DeCFOhapDa96tY2oH89hd3ItqZUXev7zkBsSVTQMrawgZcYSTM
+         qjtTlhF4CcMkS6tNqukn8bIvfOCkEQrLYA5enE+wPYnm+QBhldonewbTCU6ZHKEO+Tlj
+         ZRl/+JTkUZk0DqtD6GvB5GGOpDHNBzmY1WCQrMEeB0cRnllwZQtpXwyrrHblRo/k1KCt
+         5ZRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787283345; x=1787888145;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=zVGJq/cPYPrGdMaDb09iv6l5Ams0yt9+9ZCGjPPurrE=;
-        b=jfTF7PT4SFVWFtwk7XTJ3hLfacdrqlbFG5FriwQC9hC+2oh6FxCtQsuTQxlHMDVdDu
-         bsF6wTq265OJ+y9Bsqak8k72V314RayGVtgO2nKZ5cx+4IksNDmeNV45sf21yQZIQT+G
-         9AVWGbIJqb7q5G89LU+hPE7TqbYZMpUjj03wp3oVBrD1kS9b+2QIHNRd5QXaHqAw1gK8
-         6pSnvN2pnzVSGet5yLIt9YPN7vKOA6xS/tzht7qR3m9WG5O8R8p6jvEYsxPApFeL2voy
-         EOSTH3nW5hKhQ6lP2FmaZa71fxtzijLO+YNUWF1YHGNM7C4bKPEYx1Vkucx4OZiZlflk
-         1I8g==
-X-Forwarded-Encrypted: i=1; AHgh+RqfNkZadW7Dcu0mDeWSICr+OXOU/w5HuwcfWZtYHD1d4ShbpsP0LgtFG6FoMsqU53PM7vdvBSrDeZ0=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8HQngHJu0v4UQcl8hvM5e+zvD7hKGsuSQ0Gx15I9qz1adl7pI
-	Qmks1N2oeYxy22NWbLN2Uj25R78YqOBLCgEu6bTozNQ+fuiY+CE9asV6
-X-Gm-Gg: AR+sD10xmHT6cq8Q5jJaOUvu9JTEqKGO5jadosTONrBStY4pGFk/6YoLnYroz9I9CyE
-	+77KHb0yWENf86PkUj4qI0vIdfdiWqRYmj8kJCzS4/ILk1+M0DFSEQJgOizseG5sBhjpaUBQOrW
-	xj84eMlfiSprJ3E4M7Mt29VFT/vO2/oc1yC4hxuoiypOuJWy3VT4jFObIU5N2dxSqvSJW7LDfNw
-	NpvVawhdzbIuG02Eb3lQaxKqQzX9vhKjF3THXhrY8sJDIHypB3am9pp8c5oKbS4nNdOZNpb1olo
-	za6UbVhFZRQt/ya73JI3kANTuR8kAkmI46Hb/Uxs1N9JzbsTavx8YOBQIggksEtmPeNJZJwe40k
-	SgUPTY7uum5i4Urpidspgnfzt4N6GmWnFSg9avVUzUGOqoRxFFfY2+xQ1undiCUkHU8PRUxDPVf
-	2+GOAzh/E4sDWpSfdzuuP8BoNMCZUA2LcH16BtxwaYu0C3jztuqG396dv3MiWwtZgqaSnUMjqbr
-	aaIV6G3OCL6nEmKdSCLoevAySkXeLM=
-X-Received: by 2002:a05:6a21:e584:b0:3cc:c7cf:5a44 with SMTP id adf61e73a8af0-3cd2fd4d78amr6863464637.2.1787283345094;
-        Thu, 20 Aug 2026 20:35:45 -0700 (PDT)
-Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc15891a04csm2204271a12.15.2026.08.20.20.35.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 20:35:44 -0700 (PDT)
-From: a0282524688@gmail.com
-To: lee@kernel.org,
-	Ming Yu <tmyu0@nuvoton.com>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-	Ming Yu <a0282524688@gmail.com>,
-	linux-i2c@vger.kernel.org,
-	mfd@lists.linux.dev
-Subject: [PATCH v7 09/10] mfd: nct6694: Introduce regmap-based transport abstraction
-Date: Fri, 21 Aug 2026 11:35:04 +0800
-Message-Id: <20260821033505.4017901-10-a0282524688@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260821033505.4017901-1-a0282524688@gmail.com>
-References: <20260821033505.4017901-1-a0282524688@gmail.com>
+        d=1e100.net; s=20251104; t=1787284342; x=1787889142;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=bdUpRbJOePqwuGtI7k86e6iXxcPA/KBD5j3OTF6Xnr0=;
+        b=IVx9n9gaoy6b7+Cv94pbmYNsKeopy8R20H92vRppGbr2+t0jU0aGhh39jGbB10N6xz
+         9EI+SUrNNCNYh12h3nE4z3z39DOnDs6HQ3mrK+HX/pPangYoMSjzmJQjoO/NSlwjZ3dS
+         GxynGHHnser83WdYYu6GyQpuHHtqwcjzNx6VubuHf/wBtfzMGgAlzEb+ggyUtQwrIrdC
+         J9H8e3wLEe3QgVfEM+4tAiXWADz7EwK31JwL35ZjtobV7jTx7H0DwdSmo7dxrnpIuICg
+         DE/g+6jZTMlZml2OKyfM1ytt6Azb4IknPeDaDL9QY8gEXMsGxYgsgmU4HrZXicJY/aVY
+         aEnA==
+X-Forwarded-Encrypted: i=1; AHgh+Rr4o8pGgGBZwyE8Atl3zBWo+71AWWZHbBf/p8KW+Hvxnef7Oah9tKIOlWMshT+Q3y719/3oXPusYCw=@vger.kernel.org
+X-Gm-Message-State: AFuF++nL0YYsIJHfSMqzzUIb2EQw/tEimElbHyo05VVXNEQjBQrzh++d
+	H1nr/HZjXxR6V4xnPon9zAzlPJjEtaRYKGFmsmefSbzBrYmc3Hf51w2K
+X-Gm-Gg: AR+sD13RtNAnzL0kurrRJpkG0qweI/sVEHEUGqu4k9co64G9b+loV/KBkQY+1rBriyr
+	tzrG472avzU9oCbvCqtsablDwCCCTzflK+3MYsryVGmM+b+OqTHk/f0xyW9shmaS8XDb/wBerHY
+	sl6bKlS1qjCarEUYFl3+Sfb5xbAeEn8a37OO20TmjoxSUU+9uPV65YxtjbT6w9O7zjXvTbnbLwb
+	8Ct30r5HRrZ38gyBHgQi3/lqL0vprYieGuWZoFeHpwYwLkAamKhVZ1o7zXQQHv17/hHrK9/J+0G
+	o6wi/c2hqVYOPbGLBBvlbhu4F47zOFpXoroHu3vfAId1PTtAbHjwRtMMON+6vyAsYYV3nnXg2dQ
+	VrjTHr+KndSUKD/ZxS3x38hdxlVfsc2Ur7e6EeKm3e/7zI9B1nV3P71JlYKrooLzDU7NFjHXeLT
+	MdywdnC64Xte1HjfuMqI9NvvLeRnQxgFOsoWlNv+w8p2t05mpiFfazLNtlBI0fKKs1mlTuzguVS
+	Brh/JDxO4Qxz9ztYTZtnkI8ixkgnCJ/hxjAVw==
+X-Received: by 2002:a05:6a00:2191:b0:842:5b66:3c7f with SMTP id d2e1a72fcca58-851f96af150mr4980697b3a.0.1787284341813;
+        Thu, 20 Aug 2026 20:52:21 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-851d3668b06sm2269920b3a.47.2026.08.20.20.52.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Aug 2026 20:52:20 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <4efefd25-9115-44ac-ad03-6dc1ea0fb2a9@roeck-us.net>
+Date: Thu, 20 Aug 2026 20:52:19 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC] hwmon: Add Support for PMIC5000 Power Management ICs
+To: Stephen Horvath <linux@stevetech.au>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-hwmon@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Stephen Horvath <s.horvath@outlook.com.au>
+References: <20260819-pmic5000-v1-1-e5e0ddcf0863@stevetech.au>
+ <6b8bf838-011f-46b9-a2a8-379de9cceddf@roeck-us.net>
+ <7fac8b19-af18-4365-94d6-a6bd18076abb@stevetech.au>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <7fac8b19-af18-4365-94d6-a6bd18076abb@stevetech.au>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Ming Yu <a0282524688@gmail.com>
+On 8/20/26 20:27, Stephen Horvath wrote:
+...
 
-Sub-device drivers call into the USB transport directly, so a second
-transport cannot be added without touching all of them.
+>>> +static const struct of_device_id pmic5000_of_ids[] = {
+>>> +	{
+>>> +		.compatible = "jedec,pmic5000",
+>>
+>> jedec,pmic5000 is not documented.
+> 
+> Is there some centralised database for device tree identifiers, or does
+> it just need to be added to trivial-devices.yaml or something?
 
-Wrap the transport behind a regmap bus and let the sub-device drivers
-reach the firmware only through nct6694_{read,write}_msg(). The command
-header maps onto the regmap bulk accessors by packing the host control
-byte, the module id and the 16-bit offset into a single 32-bit register.
+You'll need a separate patch adding the property to trivial-devices.yaml.
 
-Add nct6694_write_read_msg() for the commands that transmit a request
-and read the reply back within the same firmware message, and use it for
-the I2C deliver command.
-
-Signed-off-by: Ming Yu <a0282524688@gmail.com>
----
-Changes in v7:
-- Made the USB transport helpers static and gave nct6694_usb_write_msg()
-  separate @tx/@rx buffers, so a SET command only copies the firmware
-  reply back when the caller asks for it.
-- Documented in the shared header why nct6694_write_read_msg() is
-  expressed as a read of a SET register.
-
-Changes in v6:
-- New patch. Replaces the v5 function-pointer abstraction with a
-  regmap_bus based transport: the firmware command header is packed into
-  a single 32-bit regmap register and sub-device drivers use the regmap
-  bulk accessors. Adds nct6694_write_read_msg() for request/response
-  commands and drops the per-transport access_lock (regmap already
-  serialises bus accesses).
-
- drivers/i2c/busses/i2c-nct6694.c |   2 +-
- drivers/mfd/Kconfig              |   1 +
- drivers/mfd/nct6694-usb.c        | 106 +++++++++++++++++++------------
- include/linux/mfd/nct6694.h      |  62 ++++++++++++++----
- 4 files changed, 120 insertions(+), 51 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
-index ef3329f34246..7e32dab6e759 100644
---- a/drivers/i2c/busses/i2c-nct6694.c
-+++ b/drivers/i2c/busses/i2c-nct6694.c
-@@ -77,7 +77,7 @@ static int nct6694_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int
- 		deliver->addr = i2c_8bit_addr_from_msg(msg_temp);
- 		if (msg_temp->flags & I2C_M_RD) {
- 			deliver->r_cnt = msg_temp->len;
--			ret = nct6694_write_msg(data->nct6694, &cmd_hd, deliver);
-+			ret = nct6694_write_read_msg(data->nct6694, &cmd_hd, deliver);
- 			if (ret < 0)
- 				return ret;
- 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 5506a0adf3ec..742fc26e6ff7 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -1166,6 +1166,7 @@ config MFD_MENF21BMC
- config MFD_NCT6694
- 	tristate
- 	select MFD_CORE
-+	select REGMAP
- 	help
- 	  Core MFD support for the Nuvoton NCT6694 peripheral expander.
- 	  This provides the common APIs and shared structures used by all
-diff --git a/drivers/mfd/nct6694-usb.c b/drivers/mfd/nct6694-usb.c
-index cc3e7b7b3a0d..979ae1125d16 100644
---- a/drivers/mfd/nct6694-usb.c
-+++ b/drivers/mfd/nct6694-usb.c
-@@ -9,6 +9,7 @@
-  * CAN, WDT, HWMON and RTC management.
-  */
- 
-+#include <linux/bitfield.h>
- #include <linux/bits.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
-@@ -17,7 +18,9 @@
- #include <linux/mfd/core.h>
- #include <linux/mfd/nct6694.h>
- #include <linux/module.h>
-+#include <linux/regmap.h>
- #include <linux/slab.h>
-+#include <linux/unaligned.h>
- #include <linux/usb.h>
- 
- #define NCT6694_VENDOR_ID	0x0416
-@@ -34,7 +37,6 @@ union __packed nct6694_usb_msg {
- };
- 
- struct nct6694_usb_data {
--	struct mutex access_lock;
- 	struct urb *int_in_urb;
- 	struct usb_device *udev;
- 	union nct6694_usb_msg *usb_msg;
-@@ -102,21 +104,9 @@ static int nct6694_usb_err_handling(struct nct6694 *nct6694, unsigned char err_s
- 	return -EIO;
- }
- 
--/**
-- * nct6694_usb_read_msg() - Read message from NCT6694 device
-- * @nct6694: NCT6694 device pointer
-- * @cmd_hd: command header structure
-- * @buf: buffer to store the response data
-- *
-- * Sends a command to the NCT6694 device and reads the response.
-- * The command header is specified in @cmd_hd, and the response
-- * data is stored in @buf.
-- *
-- * Return: Negative value on error or 0 on success.
-- */
--int nct6694_usb_read_msg(struct nct6694 *nct6694,
--			 const struct nct6694_cmd_header *cmd_hd,
--			 void *buf)
-+static int nct6694_usb_read_msg(struct nct6694 *nct6694,
-+				const struct nct6694_cmd_header *cmd_hd,
-+				void *buf)
- {
- 	struct nct6694_usb_data *udata = nct6694->priv;
- 	union nct6694_usb_msg *msg = udata->usb_msg;
-@@ -127,8 +117,6 @@ int nct6694_usb_read_msg(struct nct6694 *nct6694,
- 	if (len > NCT6694_MAX_PACKET_SIZE)
- 		return -EINVAL;
- 
--	guard(mutex)(&udata->access_lock);
--
- 	memcpy(&msg->cmd_header, cmd_hd, sizeof(*cmd_hd));
- 	msg->cmd_header.hctrl = NCT6694_HCTRL_GET;
- 
-@@ -160,22 +148,15 @@ int nct6694_usb_read_msg(struct nct6694 *nct6694,
- 
- 	return nct6694_usb_err_handling(nct6694, msg->response_header.sts);
- }
--EXPORT_SYMBOL_GPL(nct6694_usb_read_msg);
- 
--/**
-- * nct6694_usb_write_msg() - Write message to NCT6694 device
-- * @nct6694: NCT6694 device pointer
-- * @cmd_hd: command header structure
-- * @buf: buffer containing the data to be sent
-- *
-- * Sends a command to the NCT6694 device and writes the data
-- * from @buf. The command header is specified in @cmd_hd.
-- *
-- * Return: Negative value on error or 0 on success.
-+/*
-+ * @tx is const because regmap_bus->write() hands over the caller's buffer. The
-+ * firmware always answers a SET command with a payload of the same length;
-+ * callers that need it pass @rx, the others pass NULL.
-  */
--int nct6694_usb_write_msg(struct nct6694 *nct6694,
--			  const struct nct6694_cmd_header *cmd_hd,
--			  void *buf)
-+static int nct6694_usb_write_msg(struct nct6694 *nct6694,
-+				 const struct nct6694_cmd_header *cmd_hd,
-+				 const void *tx, void *rx)
- {
- 	struct nct6694_usb_data *udata = nct6694->priv;
- 	union nct6694_usb_msg *msg = udata->usb_msg;
-@@ -186,11 +167,9 @@ int nct6694_usb_write_msg(struct nct6694 *nct6694,
- 	if (len > NCT6694_MAX_PACKET_SIZE)
- 		return -EINVAL;
- 
--	guard(mutex)(&udata->access_lock);
--
- 	memcpy(&msg->cmd_header, cmd_hd, sizeof(*cmd_hd));
- 	msg->cmd_header.hctrl = NCT6694_HCTRL_SET;
--	memcpy(udata->xfer_buf, buf, len);
-+	memcpy(udata->xfer_buf, tx, len);
- 
- 	/* Send command packet to USB device */
- 	ret = usb_bulk_msg(udev, usb_sndbulkpipe(udev, NCT6694_BULK_OUT_EP), &msg->cmd_header,
-@@ -222,11 +201,57 @@ int nct6694_usb_write_msg(struct nct6694 *nct6694,
- 		return -EIO;
- 	}
- 
--	memcpy(buf, udata->xfer_buf, len);
-+	if (rx)
-+		memcpy(rx, udata->xfer_buf, len);
- 
- 	return nct6694_usb_err_handling(nct6694, msg->response_header.sts);
- }
--EXPORT_SYMBOL_GPL(nct6694_usb_write_msg);
-+
-+static int nct6694_usb_regmap_read(void *context, const void *reg_buf,
-+				   size_t reg_size, void *val_buf,
-+				   size_t val_size)
-+{
-+	struct nct6694 *nct6694 = context;
-+	u32 reg = get_unaligned_be32(reg_buf);
-+	const struct nct6694_cmd_header cmd_hd = {
-+		.mod = FIELD_GET(NCT6694_REG_MOD, reg),
-+		.offset = cpu_to_le16(FIELD_GET(NCT6694_REG_OFFSET, reg)),
-+		.len = cpu_to_le16(val_size),
-+	};
-+
-+	if (FIELD_GET(NCT6694_REG_HCTRL, reg) == NCT6694_HCTRL_SET)
-+		return nct6694_usb_write_msg(nct6694, &cmd_hd, val_buf, val_buf);
-+
-+	return nct6694_usb_read_msg(nct6694, &cmd_hd, val_buf);
-+}
-+
-+static int nct6694_usb_regmap_write(void *context, const void *data,
-+				    size_t count)
-+{
-+	struct nct6694 *nct6694 = context;
-+	u32 reg = get_unaligned_be32(data);
-+	size_t len = count - sizeof(reg);
-+	const struct nct6694_cmd_header cmd_hd = {
-+		.mod = FIELD_GET(NCT6694_REG_MOD, reg),
-+		.offset = cpu_to_le16(FIELD_GET(NCT6694_REG_OFFSET, reg)),
-+		.len = cpu_to_le16(len),
-+	};
-+
-+	return nct6694_usb_write_msg(nct6694, &cmd_hd, data + sizeof(reg), NULL);
-+}
-+
-+static const struct regmap_bus nct6694_usb_regmap_bus = {
-+	.read = nct6694_usb_regmap_read,
-+	.write = nct6694_usb_regmap_write,
-+};
-+
-+static const struct regmap_config nct6694_usb_regmap_config = {
-+	.reg_bits = 32,
-+	.val_bits = 8,
-+	.reg_stride = 1,
-+	.max_raw_read = NCT6694_MAX_PACKET_SIZE,
-+	.max_raw_write = NCT6694_MAX_PACKET_SIZE,
-+};
- 
- static void nct6694_usb_int_callback(struct urb *urb)
- {
-@@ -300,9 +325,12 @@ static int nct6694_usb_probe(struct usb_interface *iface,
- 	nct6694->dev = dev;
- 	nct6694->priv = udata;
- 
--	ret = devm_mutex_init(dev, &udata->access_lock);
--	if (ret)
-+	nct6694->regmap = devm_regmap_init(dev, &nct6694_usb_regmap_bus, nct6694,
-+					   &nct6694_usb_regmap_config);
-+	if (IS_ERR(nct6694->regmap)) {
-+		ret = PTR_ERR(nct6694->regmap);
- 		goto err_urb;
-+	}
- 
- 	ret = usb_find_int_in_endpoint(iface->cur_altsetting, &int_endpoint);
- 	if (ret)
-diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
-index cb311e58a437..aef0f9bd914c 100644
---- a/include/linux/mfd/nct6694.h
-+++ b/include/linux/mfd/nct6694.h
-@@ -9,7 +9,9 @@
- #ifndef __MFD_NCT6694_H
- #define __MFD_NCT6694_H
- 
-+#include <linux/bitfield.h>
- #include <linux/idr.h>
-+#include <linux/regmap.h>
- #include <linux/spinlock.h>
- #include <linux/types.h>
- 
-@@ -90,6 +92,7 @@ struct __packed nct6694_response_header {
- 
- struct nct6694 {
- 	struct device *dev;
-+	struct regmap *regmap;
- 	struct ida gpio_ida;
- 	struct ida i2c_ida;
- 	struct ida canfd_ida;
-@@ -100,29 +103,66 @@ struct nct6694 {
- 	void *priv;
- };
- 
--int nct6694_core_probe(struct device *dev, struct nct6694 *nct6694,
--		       const struct mfd_cell *cells, int n_cells);
--void nct6694_core_remove(struct nct6694 *nct6694);
-+/*
-+ * Firmware messages are addressed by a module id and a 16-bit offset (a
-+ * command/selector pair). Pack them together with the host control byte into a
-+ * single 32-bit regmap register, so that sub-device drivers can issue commands
-+ * through the regmap bulk accessors while each transport driver only has to
-+ * implement a regmap bus.
-+ *
-+ *   bits [31:24]  host control (NCT6694_HCTRL_GET / NCT6694_HCTRL_SET)
-+ *   bits [23:16]  module id
-+ *   bits [15:0]   offset (low byte = command, high byte = selector)
-+ */
-+#define NCT6694_REG_HCTRL	GENMASK(31, 24)
-+#define NCT6694_REG_MOD		GENMASK(23, 16)
-+#define NCT6694_REG_OFFSET	GENMASK(15, 0)
- 
--int nct6694_usb_read_msg(struct nct6694 *nct6694,
--			 const struct nct6694_cmd_header *cmd_hd,
--			 void *buf);
--int nct6694_usb_write_msg(struct nct6694 *nct6694,
--			  const struct nct6694_cmd_header *cmd_hd,
--			  void *buf);
-+static inline u32 nct6694_cmd_to_reg(const struct nct6694_cmd_header *cmd_hd,
-+				     u8 hctrl)
-+{
-+	return FIELD_PREP(NCT6694_REG_HCTRL, hctrl) |
-+	       FIELD_PREP(NCT6694_REG_MOD, cmd_hd->mod) |
-+	       FIELD_PREP(NCT6694_REG_OFFSET, le16_to_cpu(cmd_hd->offset));
-+}
- 
- static inline int nct6694_read_msg(struct nct6694 *nct6694,
- 				   const struct nct6694_cmd_header *cmd_hd,
- 				   void *buf)
- {
--	return nct6694_usb_read_msg(nct6694, cmd_hd, buf);
-+	return regmap_bulk_read(nct6694->regmap,
-+				nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_GET),
-+				buf, le16_to_cpu(cmd_hd->len));
- }
- 
- static inline int nct6694_write_msg(struct nct6694 *nct6694,
- 				    const struct nct6694_cmd_header *cmd_hd,
- 				    void *buf)
- {
--	return nct6694_usb_write_msg(nct6694, cmd_hd, buf);
-+	return regmap_bulk_write(nct6694->regmap,
-+				 nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_SET),
-+				 buf, le16_to_cpu(cmd_hd->len));
- }
- 
-+/*
-+ * A few commands, such as the I2C deliver, transmit a request and read the
-+ * reply back within the same firmware message. regmap has no accessor for such
-+ * an exchange, so express it as a read of a SET register: @buf carries the
-+ * request on entry and holds the reply on return. This relies on the transport
-+ * bus being handed @buf directly, which holds as long as the regmap is left
-+ * uncached and byte sized.
-+ */
-+static inline int nct6694_write_read_msg(struct nct6694 *nct6694,
-+					 const struct nct6694_cmd_header *cmd_hd,
-+					 void *buf)
-+{
-+	return regmap_bulk_read(nct6694->regmap,
-+				nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_SET),
-+				buf, le16_to_cpu(cmd_hd->len));
-+}
-+
-+int nct6694_core_probe(struct device *dev, struct nct6694 *nct6694,
-+		       const struct mfd_cell *cells, int n_cells);
-+void nct6694_core_remove(struct nct6694 *nct6694);
-+
- #endif
--- 
-2.34.1
+Guenter
 
