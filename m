@@ -1,117 +1,95 @@
-Received: from submarine.notk.org (submarine.notk.org [62.210.214.84])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EFC8463B95;
-	Fri, 21 Aug 2026 09:08:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.210.214.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B312F7EF2;
+	Fri, 21 Aug 2026 09:22:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787303297; cv=none; b=CTLI/HNEd2nP0lQuKrOjQx3tGJNZzbJUsc4U50Qnp4+CSO4zzWrJaLDqHKHIklvUOpBXqvhrxIJAwofEoBgIWtPFvlgOEged6FlhK6/cLn1iaAfMJxQVc5mlB7kPWc1og6w8hZPO/30SfMeyh3tTpbdg6zCPqgzocL3G2FFGLvM=
+	t=1787304176; cv=none; b=DgqmEcMh+jOdkCyutt+otD5z1htOWsupqg4Vzce3PNZC9m4DWaDEj/30wH3aDfTXa+nHx9DQkvdNbgYZAQhMmcMMI9zCepRtWY6W40y2P5ewwCNkMhyKKZCvwersi+KlG/M7Icq0H8DZqYJXPyRdumv8AWCBrTgB4GwKNVGSak8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787303297; c=relaxed/simple;
-	bh=oOuoI9+wnuoEdfiAh87q5nMwG08Hxu44X07/rH2VMRQ=;
+	s=arc-20240116; t=1787304176; c=relaxed/simple;
+	bh=hz4RftnwsP8DS/dubnUJ8xEvfI6277x+E63P446Bi18=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RFhSQTVOy3hBZRVUK0aOjvwYpGMC5v+/fxkr6Uol6tHgWkgPKjmTbJWXOqqvPowX2u0kdr4TzT4Er/b1fiFDyxs7c/85wRdb4U8Q2L6x5HdufVQ+TjrNU4lV2TUX7yFqq/uH39rfqMJbhm//5xo0/5lwb5CZ1K6dbB9pFI4G2f4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org; spf=pass smtp.mailfrom=codewreck.org; dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b=M2jn6TbV; arc=none smtp.client-ip=62.210.214.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codewreck.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codewreck.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=WxywY2bBCxbx2hzLte5o/oxTN5d/LdlOrcUXK+Sxws1ACNPTWhZBGSe14tKEsfvi5P1fHy4C3QLcAcS2AxmA5zqT6/LLM/XAhVy12F/qF2EaFb9Zz74hcrcdO2J68cTeLUbWMDMDrc8ztWI5coB4UFVOYUdlHeRlFinofjRKf3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LIwhA0GX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.b="M2jn6TbV"
-Received: from gaia.codewreck.org (localhost [127.0.0.1])
-	by submarine.notk.org (Postfix) with ESMTPS id 8F07A14C2D6;
-	Fri, 21 Aug 2026 11:07:52 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org;
-	s=2; t=1787303277;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=aGEJQB9358mwZctsDDONapSyTxRcKMMADgC4+MXroNA=;
-	b=M2jn6TbVDXHVkr/DG2auw74KFiKThPfC0XasZSWIF0/2H3vkffPYarZ0Z189yUSvAFBHf/
-	QbLJi8iGq8/DbVwhhl3Z+c5DH2i0qrzOvtU7quhd+lgDZveIW05P/3uIoPAptls8dYDr5E
-	oOqeQZU7+rq3031TM9LrHcMu2FRVn0CvkLU0PheUnT6lGAg/RscCEnLnNWAqzpZxFkv8i6
-	5ZstEmf9todvM8Gtz1f3DPH91+qfKMcPuALJTE2R6K3FFDITuuY7Uc+ft9D1qhN2Dv4z9V
-	u4S8i4qdypfe+OQdqztFxRKI9jUWypUnpz5o+4p92UwGFectm2NXZQS42rRXrw==
-Received: from localhost (gaia.codewreck.org [local])
-	by gaia.codewreck.org (OpenSMTPD) with ESMTPA id 622dfed3;
-	Fri, 21 Aug 2026 09:07:50 +0000 (UTC)
-Date: Fri, 21 Aug 2026 18:07:35 +0900
-From: Dominique Martinet <asmadeus@codewreck.org>
-To: Vincent Jardin <vjardin@free.fr>
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Wolfram Sang <wsa@kernel.org>,
-	Kaushal Butala <kaushalkernelmailinglist@gmail.com>,
-	Shawn Guo <shawn.guo@freescale.com>,
-	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org, Carlos Song <carlos.song@nxp.com>,
-	Stefan Eichenberger <eichest@gmail.com>
-Subject: Re: [PATCH v3 0/2] i2c: imx: fix SMBus block-read of 0 locking the
- bus [stable backport question/offer]
-Message-ID: <aogVVwPlOmCqFsg_@codewreck.org>
-References: <20260713-for-upstream-i2c-lx2160-fix-v1-v3-0-073ac9e103a5@free.fr>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LIwhA0GX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E17111F000E9;
+	Fri, 21 Aug 2026 09:22:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787304167;
+	bh=gyHP7DtW0sshgDlPdPfV3Fb0wcri5Z4d+4N94kKmjCY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LIwhA0GXgyX89Xk8x/6GbYlNrVLg4puy0BDTdWaNFwyZcC3Szje8S3aIX/zcRG+n2
+	 2q3S5Y1rAqeV3Hc81Nt926VMWQywkcXH7RCxYIk7XGzkffbGx4AU/zU7qzknyaOD8M
+	 AQ2usFXEPzjHOWubN3lBwVhfEMjKPIhxGtyC/jggyBKXKRzsh25b1E8eIvF7y416ou
+	 JT7+G3rFYs5qOgF1SDeuh0TcrE1fTW7fMpzEe+5woRzM7RYBGSS3izU3+4Y4p6zVbS
+	 Z92/JatSynV1wqtWNB5VUgC7kYhOMn7sEK7rlzZhB4UrL1ZA/OxaoVPW4D3nyF57pw
+	 YzEiCCtMA2Qqg==
+Date: Fri, 21 Aug 2026 11:22:44 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Guangshuo Li <lgs201920130244@gmail.com>, 
+	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>, Nicolas Ferre <nicolas.ferre@microchip.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
+	Ludovic Desroches <ludovic.desroches@atmel.com>, Wenyou Yang <wenyou.yang@atmel.com>, 
+	Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] i2c: at91: fix autosuspend cleanup during teardown
+Message-ID: <aogYAmDqlgmnEd3X@zenone.zhora.eu>
+References: <20260808152654.2943371-1-lgs201920130244@gmail.com>
+ <144ef4b2-a200-4634-a4ec-539a0ba9a15c@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260713-for-upstream-i2c-lx2160-fix-v1-v3-0-073ac9e103a5@free.fr>
+In-Reply-To: <144ef4b2-a200-4634-a4ec-539a0ba9a15c@kernel.org>
 
-Vincent Jardin wrote on Mon, Jul 13, 2026 at 08:11:58PM +0200:
-> i2c-imx rejects an SMBus Block Read byte count of 0 (valid per SMBus 3.1
-> 6.5.7) as -EPROTO and returns without emitting a NACK + STOP, leaving the
-> target holding SDA so the bus stays stuck until a power cycle.
+On Thu, Aug 20, 2026 at 04:50:13PM +0200, Krzysztof Kozlowski wrote:
+> On 08/08/2026 17:26, Guangshuo Li wrote:
+> > at91_twi_probe() calls pm_runtime_use_autosuspend(), but neither the
+> > probe error path nor at91_twi_remove() calls the matching
+> > pm_runtime_dont_use_autosuspend() during teardown.
+> > 
+> > If the autosuspend delay is set to a negative value while autosuspend
+> > is enabled, the runtime PM core increments usage_count to prevent
+> > runtime suspend. Without calling pm_runtime_dont_use_autosuspend()
+> > during teardown, this reference is not dropped.
+> > 
+> > The documentation for pm_runtime_use_autosuspend() also notes that it
+> > is important to undo it with pm_runtime_dont_use_autosuspend() at
+> > driver exit time, unless runtime PM was initially enabled with
+> > devm_pm_runtime_enable().
+> > 
+> > Add the missing pm_runtime_dont_use_autosuspend() calls to the probe
+> > error and driver remove paths.
+> > 
+> > This issue was found by manual code inspection.
+> > 
+> > Fixes: d64a818859af ("i2c: at91: add support for runtime PM")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 > 
-> It was triggered by an MPQ8785 PMBus regulator on a LX2160A i2c
-> bus: when the kernel binds it using the pmbus/hwmon framework, the bus
-> locks up and it does never recovers. It was confirmed with a scope, with
-> and without the fix.
+> How many separate I2C, drm, crypto, hwrng etc patches you sent?
 > 
-> The same bug is occuring with two independently introduced spots, so the
-> fix is two patches with their respective Fixes: tags and backport ranges
+> You sent vast amount of patches, all separate, making it very difficult
+> to track and respond in efficient way. Do not do that.
 > 
->   1/2  atomic/polling path       Fixes: 8e8782c71595   v3.16+
->   2/2  IRQ-driven state machine  Fixes: 5f5c2d4579ca   v6.13+
+> Group your work per subsystem.
+> 
+> You were asked to clarify and respond to incorrect fixes statement. I do
+> not see how you clarified and responded at all.
 
-Silly question (half for stable people, half for i2c-imx maintainers),
-but the backport for commit cb2fc3785769 ("i2c: imx: fix locked bus on
-SMBus block-read of 0 (atomic)") to stable brought in b460b15b3cc2
-("i2c: imx: separate atomic, dma and non-dma use case") (also 6.13+) as
-a dep (all the way back to 5.10!);
-with that commit in, 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non
-dma mode") applies almost cleanly on 6.6/6.12[1]... So should we grab
-more easy fixes?
-In particular, I doubt I'll ever hit this SMBus 3.1 bug, but
-5f5c2d4579ca also was a real fix[2], so would it make sense to jump in
-and get both 5f5c2d4579ca and 07fd9385f0d8 ("i2c: imx: fix locked bus on
-SMBus block-read of 0 (IRQ)") for 6.6/6.12?
+Is this a kind of LLM command or what?
 
-[1] just a trivial context conflict in the struct there, but it starts
-being more iffy on 6.1 and earlier kernels
-[2] ... We actually ran into that bug on 5.10, our kludgy backport being
-the reason I noticed during today's 5.10.266-rc1 testing...
-
-
-Honestly, I wouldn't have considered backporting either as b460b15b3cc2
-("i2c: imx: separate atomic, dma and non-dma use case") looks too big to
-backport to me, so I definitely wouldn't have done it before, but that
-ship has sailed (it's in the 5.10 -rc right now, but it's been merged a
-couple of weeks ago in higher versions stables), so at this point I
-don't think it's worth reverting either and we might as well keep
-falling forward...
-
-
-
-tl;dr: If maintainers agree, I can send these two for a future 6.6/6.12:
-5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-07fd9385f0d8 ("i2c: imx: fix locked bus on SMBus block-read of 0 (IRQ)")
-
+I'm going to check only the patches that have been acked and/or
+reviewed (people have spent time for that), for the rest, please,
+follow Krzysztof's direction, put them all together (or ask your
+AI to do it) and resend.
 
 Thanks,
--- 
-Dominique Martinet | Asmadeus
+Andi
