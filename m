@@ -1,118 +1,213 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from omta-ad1-fd1-2101-ap-sydney-1.aib29aea255.vm.email.ap-sydney-1.oci.oraclecloud.com (aib29aea255.vm.email.ap-sydney-1.oci.oraclecloud.com [192.29.151.255])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A29C83B71AA
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 21:40:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDC7030568B
+	for <linux-i2c@vger.kernel.org>; Fri, 21 Aug 2026 03:27:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.29.151.255
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787262006; cv=none; b=RQkBHP3bGGtDc3NWGL4zQWOVVduDb72vJYb6R4KqCGkbnNANk+9cdwT4FQyxPdVWG3qkxBvs4WkdcrbOpPI23wR6uNldqWXqAfFLe4E6niZO1V9cx0UfxPAsvRWKYeLTVBhdJHI5+f3KtJvlI8DAV8y7LyNC/RTQAqCrwRWofQM=
+	t=1787282854; cv=none; b=Gs0hduebdtFICiWTZANZzFcdUQqwylQJWXwahjZfaEEsPf0dQNO7KLyVFKf8/C/OIMVAy/dJVZgiWtvs8/qekAEjoW8lIRjulLDPIOXW6PO5Vo7X09vPf747YJGlx00GF+fN0Gu/U1+6/gpjdKN/+/HCQC8FjJPBeBsW6//INqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787262006; c=relaxed/simple;
-	bh=Zl6wUP1R0MbhaQMe/CaSWH1CK7ZZnf3hPFFpHs1l1QY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=MietfjQF1FvCIFVzIMcJfmJWb6uBPTdw4uXrldxGNmc75FuSgK9VPHpd9p8seq0VYQJjDoFxQLIFYB9WcmeNMqulcVX4ysU7Zuj/7bAPdN4pVP8LzkJYKeC7iYCPAoHQoU5C1Yyo6S+7kzr8Ir/Lj0PQ4WlNowXkIZ183iENKrw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tFaY7si3; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787282854; c=relaxed/simple;
+	bh=h7Ve+n7gLalVN/hamq+9sOt/wIp9NFoxX09l0/unmsU=;
+	h=Message-id:Date:MIME-version:Subject:To:Cc:References:From:
+	 In-reply-to:Content-type; b=rSzi02hZdrBYOHaN3XTN6t4S+03TIZpaHpCM0BshfCoVxbuZFUhQ4PC1joCDkIuRYJlYBoEnMg2vFBt0mwe3t0b7hDgOcRfIMf9ooQafssTIASkWidRfxizzCphMYxmAQ3PYHItJkR6zosGZmORPyO5AcCmYH0b/RCNzoPxI8Ls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stevetech.au; spf=pass smtp.mailfrom=syd1.rp.oracleemaildelivery.com; dkim=pass (2048-bit key) header.d=stevetech.au header.i=@stevetech.au header.b=NX15t64h; dkim=pass (2048-bit key) header.d=syd1.rp.oracleemaildelivery.com header.i=@syd1.rp.oracleemaildelivery.com header.b=b8YYDUvp; arc=none smtp.client-ip=192.29.151.255
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stevetech.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=syd1.rp.oracleemaildelivery.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tFaY7si3"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-47c2b362ee2so345084f8f.1
-        for <linux-i2c@vger.kernel.org>; Thu, 20 Aug 2026 14:40:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787262002; x=1787866802; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=0/S/n7d60IPenCr0oCOquDxWa23qqnUlu/ruC4GGmms=;
-        b=tFaY7si3Bz6dgDEzxm7F4zLm/Qf7jV5LdV+qQn5Mi+sKWkKUTIJxQYbaZWqz9Nvbnm
-         xpXTAdB60OATbzub86TgzLjUvSzLwU7FVaH935jbwDZ3NKTliJDONWN1sp8aNqBxB57n
-         sOXNthGclLbKsKZ1/utSIITBeYMntZUtkbh7LNkvKgD7kb6mLuvQSAVkJE+MQ2+sFvkA
-         jNE4bIHmbTBbFbNg910ERlMWZCqzZ44N17PNvUDbrB59apTP00XZjSj52GgkiqVzhf08
-         eRnMfG3KdV6xOjktKuRZ6+ml8z9b18FxpZ4JHZXQ23sCx0d/VdLUekwjRhKrgozBFyE5
-         zt7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787262002; x=1787866802;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=0/S/n7d60IPenCr0oCOquDxWa23qqnUlu/ruC4GGmms=;
-        b=YUJty0zrgASsSWdyvKUXBzjsKHlLKMdnXkSrJS1u2PK6P2QWdePyhuR+7NFhaRYOyJ
-         41nyfBDYO77bCTd4gvVzq1GEIeaPfP2nd3MjIhmqFZ4ygAHjJEoiEbCmm7uauwATOxl8
-         zAEbJGvWV5Yf6p2+5UrcGPlyYffNytyoKm866Ca7KzjKTd1rWKRsROe/PVYkZOqQp4kl
-         /RBRBM3b/khAeYM+KBSFfbIuNpLzFmONU+uQuUsERBgMWx+6CGXPD8W8q5Usmy41TPFQ
-         UB0BKRCIMrquTD7RLBE/EIs6aChVGZj/x+f2D1GTlGr3C0k4XJUrbT9vOgaBNhRooXtn
-         Ep0A==
-X-Gm-Message-State: AFuF++lwtdWlEb6VnmgZcCRpH45AYz77HXCRqpgjExN88ZRSD/QyQ95u
-	VkOmKRV1FzlZlAlVpRfIbvJ1nnTwNVFafuboi/Lj+ihb8aCJRWP43xU2
-X-Gm-Gg: AR+sD10QiBDomPcmuacxITdQIGJNNiGe0fLjZDK2o9tb0KUi0Y6Ol/lkS2rZ5X3X/zl
-	rr+BTSPl5RZqKpuJ+dfso9Mtl/XLYTcsvxMgX2CAphCTwSJwvLlmhgzbJJmG6eaunvsMWhvGuhv
-	Dsx0zMPUxe0FtD/M2HkYrjQcljoygmtOenTdzyc3NPw2QYBOakXPUOnLNglRCwEFDUJpjE9iAs2
-	iMW04Sxcbk0RnBNHEbo1gddspNOsUKX87/8RdQy6ALNK3mBfeNbmrUsKWc1PExyWnJFCmvgsO2+
-	glZ17gYBrNiEwnFUfVm4jGqQbfrFKfjKK18mdpLUDI3JA2Cif+vY3ZgO40KMhlrZRrCgOC6Yvyy
-	Lgk+X6UY+iy1/iS+R1ZZA6V6s+ni/Nwy4AYN+zOWcXfCEycE0RG1lJNpcweyIxoSjECXtmARhoR
-	bOyElntrISKzdfpvdXL3aDQtbgCVP50LzAMfPgovWoMAl59S5Pl+/FWJs8CamDA2nAAXeXNQyMh
-	/VEhExHL9eCmfFU0Tz2CniufN2IuauBl5A5xgtAIxrVhWv15RGQoQc=
-X-Received: by 2002:a05:6000:461c:b0:47f:96e3:5309 with SMTP id ffacd0b85a97d-482c0b6331emr2836146f8f.9.1787262001657;
-        Thu, 20 Aug 2026 14:40:01 -0700 (PDT)
-Received: from localhost.localdomain (88-165-21-128.subs.proxad.net. [88.165.21.128])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-482b14d059bsm13245121f8f.36.2026.08.20.14.39.59
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 20 Aug 2026 14:40:01 -0700 (PDT)
-From: =?UTF-8?q?Benjamin=20Cab=C3=A9?= <kartben@gmail.com>
-To: Till Harbaum <till@harbaum.org>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: tiny-usb: add Zephyr Project VID/PID pair
-Date: Thu, 20 Aug 2026 23:39:46 +0200
-Message-ID: <20260820213958.41276-1-kartben@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=stevetech.au header.i=@stevetech.au header.b="NX15t64h";
+	dkim=pass (2048-bit key) header.d=syd1.rp.oracleemaildelivery.com header.i=@syd1.rp.oracleemaildelivery.com header.b="b8YYDUvp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=oracle-2026;
+ d=stevetech.au;
+ h=Date:To:From:Subject:Message-Id:MIME-Version:Sender:List-Unsubscribe:List-Unsubscribe-Post;
+ bh=L66ir+PivH58IHajuTfLolp/B5mG7kVirbvlAHl33II=;
+ b=NX15t64h3W8/L1cArDAg91IkG45vczO9vYmvx5tel1i7SbnUmXikZGUeSv9dFS3pbO0mqWFca0zN
+   /gc8ZebOn1APe0xi5efHNXjHsiq5yDUXiFsKPkVY+aXceBYhvPWlOl/CN0SjFJfdKzxGrbm85Ww7
+   6uipoi5LK1Y7F1au2Ue6VeOD9Xv4b9ii3EQYuEyCUW68wxDaXV5/AgNut5JEn5fQv9bqNJp2dI7F
+   edGcCOIVMnsShJMo+p64mdq91SHGtZUREg45QzEOQStctTrJacyApHXIl7ggnQR1E2IyYB87MVYV
+   G89LW9VquosOeycdUtsAt8jvDVFt5tspFXAnqQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=prod-syd-20200122;
+ d=syd1.rp.oracleemaildelivery.com;
+ h=Date:To:From:Subject:Message-Id:MIME-Version:Sender:List-Unsubscribe:List-Unsubscribe-Post;
+ bh=L66ir+PivH58IHajuTfLolp/B5mG7kVirbvlAHl33II=;
+ b=b8YYDUvpE4j/d3XaxXSEgEyYwNWZNrT9zHGkvMIG1M2aNpDaWGap0kkBVL5nhn7KSSKWqFkmy61g
+   Uy/VlmXomxEnrDG7fkV/0VggN2/1H4Cxj5pbz58omKrAdegLN94k+4fqoh3dGMgZBEB37Oxhvq0x
+   zwibO6+3nYi3ufNUUD+LHrXsVAFTVSdRch4FP5LPdYeBmyrQPE+9eUWRyZiZe/R7TUZr/iqFW4bS
+   eEJLcJ4TIJ4LxF4ER9gLntDGFjSjlynfUjCLn61ed1NsUJMRNA3qOJYyNZv5lFi/l3filgJI4nIQ
+   ymQlULUAoZ9jJ0Rfrxom1Nbrskhnbo+mb2TUhw==
+Received: by omta-ad1-fd1-2101-ap-sydney-1.mnat.vcndpsyd.oraclevcn.com
+ (Oracle Communications Messaging Server 8.1.0.1.20260722 64bit (built Jul 22
+ 2026))
+ with ESMTPS id <0TK31OT2NO9T9F70@omta-ad1-fd1-2101-ap-sydney-1.mnat.vcndpsyd.oraclevcn.com> for
+ linux-i2c@vger.kernel.org; Fri, 21 Aug 2026 03:27:29 +0000 (GMT)
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Message-id: <7fac8b19-af18-4365-94d6-a6bd18076abb@stevetech.au>
+Date: Fri, 21 Aug 2026 13:27:28 +1000
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+MIME-version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC] hwmon: Add Support for PMIC5000 Power Management ICs
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-hwmon@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Stephen Horvath <s.horvath@outlook.com.au>
+References: <20260819-pmic5000-v1-1-e5e0ddcf0863@stevetech.au>
+ <6b8bf838-011f-46b9-a2a8-379de9cceddf@roeck-us.net>
+From: Stephen Horvath <linux@stevetech.au>
+Content-language: en-AU, en-US, en-GB
+In-reply-to: <6b8bf838-011f-46b9-a2a8-379de9cceddf@roeck-us.net>
+Content-type: text/plain; charset=UTF-8
+Content-transfer-encoding: 7bit
+Reporting-Meta:
+ AAE0CRPkDXUCCkglQobUipg4J5mxfCGMKIbvqKb9veEutptuF/BYXQOZL+n+BC+g
+ 9F/l1G9fNqweZphNlPpZqUMlvd2LjJ6v1MwED2HPwBoBhWmbbPc05EI3Hk1i+YwU
+ aZB33T+T/76sCtZ73liDneTQU28WJWIjxJKHiQY9rQQJTjo2fjcxOG3KoTog9Or2
+ kWyxlBWLa/CxsLhC5M9N3aIqynWWdQ0rMYpvOMX7JlEbSnn0VUC43p4NpDsmkTZu
+ 9y0JeoMvETyzlaVE8eiiiL/gLJHrhNHxRIsBMXK7zm2Pz62xmCUGxHdBTlTkhkCu
+ xDvbXeSXsfYmiaiFPvt1k/da0qzusSxhmNbJw/FEIc+lEGcDBah9FteVLchy194X
+ Q7coqtth0E9UDMYtnmOu6m0J6XWusJI1SEEM3kRE5epyrzebbE45y/nN2wW8
 
-The Zephyr Project ships an i2c-tiny-usb sample with its USB device
-stack, which turns any supported board into a USB-to-I2C bridge. The
-sample implements the same vendor request protocol as the original
-i2c-tiny-usb firmware, exposing a single vendor-specific interface
-with no endpoints, so it can be driven by this driver as-is.
+Hi Guenter,
 
-Zephyr in-tree samples must use the project's own USB vendor ID
-(0x2fe3) rather than a donated or third-party one, and product ID
-0x0013 is reserved for this sample in the project's VID/PID list.
-Without an entry here, users have to bind the device by hand through
-the driver's dynamic ID sysfs attribute.
+Thanks for your review!
 
-Link: https://github.com/zephyrproject-rtos/zephyr/commit/281b5743d183
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: Benjamin Cabé <kartben@gmail.com>
----
- drivers/i2c/busses/i2c-tiny-usb.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+On 21/8/26 01:34, Guenter Roeck wrote:
+>> - Does this belong in HWMON, or should it be part of the regulator
+>> 	subsystem?
+> 
+> It depends on its functionality. Is this just for monitoring, or are the voltages
+> controllable ?
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 73355a56aabf..113af96728dd 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -157,11 +157,13 @@ static const struct i2c_algorithm usb_algorithm = {
- /*
-  * Initially the usb i2c interface uses a vid/pid pair donated by
-  * Future Technology Devices International Ltd., later a pair was
-- * bought from EZPrototypes
-+ * bought from EZPrototypes. The Zephyr Project reserved a pid from
-+ * its own vid for the i2c-tiny-usb sample of its USB device stack.
-  */
- static const struct usb_device_id i2c_tiny_usb_table[] = {
- 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
- 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
-+	{ USB_DEVICE(0x2fe3, 0x0013) },   /* Zephyr Project */
- 	{ }                               /* Terminating entry */
- };
- 
--- 
-2.55.0
+This driver is just for monitoring. They could be controllable, but I
+haven't implemented that as changing the voltage of active RAM modules
+doesn't seem safe (without retraining and so on).
 
+>> +in0_enable		Whether SWA is enabled (RO)
+> 
+> Does that enable the voltage or its monitoriong ? The enable attribute is
+> only to enable monitoring, not to enable the voltage. If this is a
+> controllable voltage, the driver should be a regulator driver, as Sashiko
+> suggested.
+
+It just queries whether that output is enabled. I'll remove it though as
+the disabled channels are hidden by is_visible anyway.
+
+>> +/* PMIC5000 registers. */
+>> +// clang-format off
+> 
+> No way. Are you serious ?
+
+clang-format would break the alignment of the #defines; and there's a
+few other drivers with "// clang-format" in them, so I assumed it would
+be okay (though none are hwmon). I'll remove it next revision.
+
+>> +
+>> +
+> 
+> Please run checkpatch --strict on your patches and fix what it reports.
+
+Will do!
+
+>> +struct pmic5000_data {
+>> +	struct regmap *regmap;
+>> +	struct mutex mode_lock;
+>> +	struct mutex adc_lock;
+> 
+> Explain why those are needed on top of the hwmon subsystem lock.
+
+I didn't know the subsystem lock existed, I'll remove them.
+
+>> +	if (channel != 0)
+>> +		return -EOPNOTSUPP;
+> 
+> Unnecessary check.
+
+Sure.
+
+> 
+> Unnecessary channel checks (at least if the is_visible function does its job
+> and the info data is correct).
+> 
+
+Okay.
+
+>> +	case 6: {
+> 
+> Why "{" ?
+
+No reason, I'll remove it. I had previously declared something there.
+
+>> +	if (channel >= 0 && channel <= 3) {
+> 
+> channel is always >= 0.
+I wasn't too sure, thanks for that!
+
+>> +	/*
+>> +	 * The host shall wait minimum of 9 ms delay after the input selection
+>> +	 * for ADC readout and the actual readout
+>> +	 *
+>> +	 * msleep may sleep for up to 20ms, which is fine.
+> 
+> No, it isn't fine.
+
+Fair enough, I'll change it to fsleep.
+
+> Also, why wait if the channel was not changed ?
+
+Good point.
+
+>> +	*val = 1 << (regval & 0x03);
+> 
+> 		BIT()
+
+Thanks!
+
+>> +static int pmic5000_write_interval(struct pmic5000_data *data, long val)
+>> +{
+>> +	struct regmap *regmap = data->regmap;
+>> +	u32 regval;
+>> +	int err;
+>> +
+>> +	switch (val) {
+>> +	case 1:
+>> +		regval = 0;
+>> +		break;
+>> +	case 2:
+>> +		regval = 1;
+>> +		break;
+>> +	case 4:
+>> +		regval = 2;
+>> +		break;
+>> +	case 8:
+>> +		regval = 3;
+>> +		break;
+>> +	default:
+>> +		return -EINVAL;
+>> +	}
+> 
+> find_closest() would be more appropriate here. We don't usually expect users to know valid
+> update intervals.
+
+Thanks!
+
+>> +static int pmic5000_common_probe(struct device *dev, struct regmap *regmap)
+> 
+> Why pmic5000_common_probe() ? There is only one caller.
+
+Good point, I'll move it.
+
+>> +static const struct of_device_id pmic5000_of_ids[] = {
+>> +	{
+>> +		.compatible = "jedec,pmic5000",
+> 
+> jedec,pmic5000 is not documented.
+
+Is there some centralised database for device tree identifiers, or does
+it just need to be added to trivial-devices.yaml or something?
+
+Thanks again for your review!
+Steve
