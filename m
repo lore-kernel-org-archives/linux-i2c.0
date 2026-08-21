@@ -1,99 +1,88 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252BF480953;
-	Fri, 21 Aug 2026 11:11:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B888741DEEB
+	for <linux-i2c@vger.kernel.org>; Fri, 21 Aug 2026 23:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787310696; cv=none; b=OM4cdFr+1sdXB7DZBkQS4Nym8GHTBm4T87O2BVjSLarJx4kFmm4zw75HpNwiT9up0zulwpLSJdNeI+WkQN9QPEHb1tsUjGzEnSeYSgE+Dvg3d/8ZBmQrUXkDf6+obDHyJ9BGjaV7zIoJqUx36ct5Hp0mOmPH7J205T5nW7a3mnU=
+	t=1787353340; cv=none; b=uYpYhNCF361i1FsW1PPzwDq1W/BU53vGYsM4U7ZGFpjXp+uypp6Q1qvWt7yi2l8Hjz6w0orkBGItwdnHT4IJToS0+Hg2taGmOcyLD91DO9hnAwkgzeOsyjkap0ti4OhEjF6SpM73gFwDIkbnBQKxmiajkRtRI28rwXzoYsvml9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787310696; c=relaxed/simple;
-	bh=G4qsN+t5UgXO9pKDlrGNxXYn6SnistljpZuq4z5UJsc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AVkD45c+zgjiCqVwnNd4o5760wu4al2x1JvW+jreNu1T5AieZt1WfuOPelMKovtw++P9WLRGSnDZcEAcKAp9zbeOC8kcAtFEcDWd3q2L6gOadtXcBk5W+BQHtYOV6Kxb7GxBni7jkm7blqR/AyJimqTRjzpTOFO9eYV+alXWiaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gsC3ufmj; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1787353340; c=relaxed/simple;
+	bh=fp3TlCp1FabIkUZtwArAO2IdqLKJamWvVF/B7Mw0CMI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EL285qbikeQs/QkZG2ctJQx2HOpydhwLx7Kj8GWfyWkP8dbP5ouNkd8robE0SIPplE+sI9uA8fkN476yLTfLUQCJ9hp4r9SnNqwAVaDnARse2dxBgmgbONYdBy8a6RHX+TkyTTLxCKIa+uPGuFarqx1cVybr3OvSITfj5O9s5TI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i+goMBXx; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gsC3ufmj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787310695; x=1818846695;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=G4qsN+t5UgXO9pKDlrGNxXYn6SnistljpZuq4z5UJsc=;
-  b=gsC3ufmjxgEsFe/CzgboKjJhVFHpUxlNUnsqoR3f+uqFxgTYwR3/V+Bz
-   1K/5X+9cXlKM3sD/fOLBzwETlsAkHJbHTTxxIznzKm+e59/9xtPdmfK/A
-   fpo9DYVGPd1qDgeK4CghxT60h1flm/sOPB38z4PXdHxCSNAtKUEiMV1uC
-   YjEEEyBjLPzXsWn2N8KmlUTaftEVlc0q+Wwj3kHhr+/Mqj9yRhJtaTCnz
-   7SVrKbDmLhyUU85wRMRT0gBZs29FVO2aeQ22C9lN/vflxgk/Fch0j2P5E
-   C0Jyjgxd21QmRlU7MC+9ZNinixytL5/UkLHLh7s9zPzvED3x3hIFyJrkZ
-   A==;
-X-CSE-ConnectionGUID: XHGae6VbTNOu1DLOnOgdWw==
-X-CSE-MsgGUID: T07R57PqTcKCIoL7dJSSrg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11881"; a="87776346"
-X-IronPort-AV: E=Sophos;i="6.25,235,1779174000"; 
-   d="scan'208";a="87776346"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Aug 2026 04:11:34 -0700
-X-CSE-ConnectionGUID: /pKJlKLZQBS+cJSz6ZSKFw==
-X-CSE-MsgGUID: I0Z0KE3kQI2pfkI7eWmRew==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,235,1779174000"; 
-   d="scan'208";a="289846566"
-Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
-  by fmviesa002.fm.intel.com with ESMTP; 21 Aug 2026 04:11:31 -0700
-Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wxN9k-00000000pmz-2UIv;
-	Fri, 21 Aug 2026 11:11:28 +0000
-Date: Fri, 21 Aug 2026 19:10:55 +0800
-From: kernel test robot <lkp@intel.com>
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>,
-	Michal Simek <monstr@monstr.eu>, Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Subject: Re: [PATCH v5] i2c: xiic: restore non-managed runtime PM to fix clk
- WARN flood
-Message-ID: <202608211944.Zpc0ks4e-lkp@intel.com>
-References: <20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i+goMBXx"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-38ea87caafeso1115690a91.3
+        for <linux-i2c@vger.kernel.org>; Fri, 21 Aug 2026 16:02:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787353339; x=1787958139; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Wex0vi23s42CwpDf+V/HgCg8jkqgcL69PBjyJ8XQK7c=;
+        b=i+goMBXxhAuBDIGlhc4ZznJJjtgXLJ5bX/QIbiLfbylkxMfXgXGKfUfLRXvatudCgB
+         e/P5T4Vu5jv8/t3eudjz8ev895yUHzhyI/rB3NG3k//zmkDeWtzjZHP49YWSLAFy6Ng8
+         hn9KQYO23Kk/UzG7GSANguv75zQ/pmCA7MLDUTg6l+rxTwVRwoJhgZClgzzYqyjVr2B4
+         m+ojb0JgvWJuCrwGmvGtKskVpq5vUkVeAPXHCVi3wB8G4bHKJuNPHX5ZzR3IlbtGE23L
+         yD7v60k2A8qkqps/YoquGCeUrkpFvsRxow47SSFOX9uDRzLT+jVH2vYh+ROlwhdZQ6+6
+         4U0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787353339; x=1787958139;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Wex0vi23s42CwpDf+V/HgCg8jkqgcL69PBjyJ8XQK7c=;
+        b=p5noD45hgp9caFOh07SYhbw7ZMjskq05HOzHmjrSyiBFPyAacqF0PAOjTnw5oFyroO
+         NCsE3guvH+cA5N75QWAzJJ2Tsxpp4bFMMVba5zEIEuJEVCjrX4f03m8P/YDOS8wYPmMD
+         zQDCL0SwgQDJs6iiEGGelj2NqTZ7vXZLf1zUY+UYhNocXBIojprtQWiNdYzEyWyxGIgF
+         3iKOYhXXgutuiegtPYQ/82aMK7Uc1n8vEA4uJvzoTUya6n39lhQiKF+Xp4J2J+XFyceJ
+         GajHfqYz83n9oFxQ8fcF1NCMwihZeRtIMuzWVex4YW/PFOr/izU/VTvGV+GWPJviNdp6
+         y32g==
+X-Gm-Message-State: AFuF++k9Dvj79rj1DVcfgvO6X7G/HO5Q8INupywobj/DhSF9hGAxM59f
+	F5BnX6iAq/wFEnCULa9CTNxJI+yI+EHk1sI2b9CiUnupDkPKSyg9AlHPUXTHyQ==
+X-Gm-Gg: AR+sD12vkobTGz3wsDzYJ3bj2+RVsvcQhdXAx7U3cgBeqHnZH26XwaEMC5BzkmXIgp9
+	WO7tjZoTAzMkNZp33NE+OR9Pw3tjk249Z9z/1vtpGDZ81lFUVGP8ikQ+0yKPEEaJncltj7DznOC
+	z8nPEyLB7PdZXrUKLtyTpl0WvGsFPEoyroItD2FNo5PJSeJ90nMUHuOjdWE21mNOXm1pR+F34WI
+	VL/Lh9PhKwxbJW3M9umWJRKa165e2bLmMAiEoEMq1ZLNEnjAwtzHucL+MNHHqhaz50MhMVcmJSE
+	lt1Sz2DeQPkL9lQ5EWy1lY6jRQt0C00RIVccXnyBadRwKGF5BI/UgmHSLyN1KRMUFvScxGttk9M
+	TBGls+deih1J9ZuUiWkDr5OodO9VusVw0ZmGPNIyVx6xEgHFQU5Y4GPmE0xl3i9lKro7cQQf5XL
+	1hO3cYcN5yN9ut+bEhE5FnGo4/1pZQCu1O4rnVd1a1ee8sgLaG3wjKW0KapIu+GUIvZ58D/UkHo
+	2VNWFkohX7Aqmc/KRH9/UeP1+q3EQbYr3R0Pk2Diu5GrF7ZUxuYSszVJZQ3fxwgXnMBs5VbxZc5
+	vioFlN1eYiFCw94sbcVJN1ozJQhMaJdPJ/GRPw==
+X-Received: by 2002:a17:90b:54d0:b0:381:25ce:bcc2 with SMTP id 98e67ed59e1d1-395c353ee4amr19171855a91.6.1787353339103;
+        Fri, 21 Aug 2026 16:02:19 -0700 (PDT)
+Received: from ryzen.lan ([2601:644:8000:7a86::e35])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-395e49d8b1csm552044a91.11.2026.08.21.16.02.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Aug 2026 16:02:18 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH 0/3] i2c: ibm_iic: use devm and get irq in probe
+Date: Fri, 21 Aug 2026 16:02:13 -0700
+Message-ID: <20260821230217.319418-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508@nexthop.ai>
+Content-Transfer-Encoding: 8bit
 
-Hi Abdurrahman,
+Simplifies probe slightly and handles potential -EPROBE_DEFER a bit better.
 
-kernel test robot noticed the following build warnings:
+Rosen Penev (3):
+  i2c: ibm_iic: ioremap with platform pointer
+  i2c: ibm_iic: get the irq early in probe
+  i2c: ibm_iic: use devm for main allocation
 
-[auto build test WARNING on d58772d8520c7ef247c4b95c9bd76d3a25da9ff5]
+ drivers/i2c/busses/i2c-ibm_iic.c | 44 ++++++++++++--------------------
+ 1 file changed, 17 insertions(+), 27 deletions(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Abdurrahman-Hussain/i2c-xiic-restore-non-managed-runtime-PM-to-fix-clk-WARN-flood/20260820-052507
-base:   d58772d8520c7ef247c4b95c9bd76d3a25da9ff5
-patch link:    https://lore.kernel.org/r/20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508%40nexthop.ai
-patch subject: [PATCH v5] i2c: xiic: restore non-managed runtime PM to fix clk WARN flood
-config: openrisc-randconfig-r072-20260821 (https://download.01.org/0day-ci/archive/20260821/202608211944.Zpc0ks4e-lkp@intel.com/config)
-compiler: or1k-linux-gcc (GCC) 13.4.0
-smatch: v0.5.0-9187-g5189e3fb
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260821/202608211944.Zpc0ks4e-lkp@intel.com/reproduce)
+-- 
+2.55.0
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608211944.Zpc0ks4e-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> Warning: drivers/i2c/busses/i2c-xiic.c:106 struct member 'irq' not described in 'xiic_i2c'
->> Warning: drivers/i2c/busses/i2c-xiic.c:106 struct member 'irq' not described in 'xiic_i2c'
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
