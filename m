@@ -1,42 +1,64 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26834394785;
-	Fri, 21 Aug 2026 10:42:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252BF480953;
+	Fri, 21 Aug 2026 11:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787308941; cv=none; b=jNNLPQ+wCi9KqrE2XvAPpTtm2gQ3Pkqp0lYLPO48qtKlxiQaCwW4ygKlIp5I1F6umOtOFTgMffHHLllLeGTD+PMKFPiil2owQpophKTpVKRbumC3VZIropUL2vQAtxKVbNpJEgoFrbQQsLqsLxpdr3FolGZVCLaoil2+fMCZ7DM=
+	t=1787310696; cv=none; b=OM4cdFr+1sdXB7DZBkQS4Nym8GHTBm4T87O2BVjSLarJx4kFmm4zw75HpNwiT9up0zulwpLSJdNeI+WkQN9QPEHb1tsUjGzEnSeYSgE+Dvg3d/8ZBmQrUXkDf6+obDHyJ9BGjaV7zIoJqUx36ct5Hp0mOmPH7J205T5nW7a3mnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787308941; c=relaxed/simple;
-	bh=GPEWFCAe8jABWoqqPSwt04wAt6/qFOkQHvs5cY7nNdo=;
+	s=arc-20240116; t=1787310696; c=relaxed/simple;
+	bh=G4qsN+t5UgXO9pKDlrGNxXYn6SnistljpZuq4z5UJsc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OCl9wxL3I5UKibRKEfx72ZEKFGHQtEai3Uar8PJNsh8a624Ud6GiEvIeQvmv3lNWCaaGIsvy8cVDgG0+Bh9zRpe6XPhYDhewc9y9NajMMZXDW5TkJpyvMCPrDYD/TXq/nX9++QEY7Zt2+xth6m6ifdIvu1iXPPXM51CL9xdbm3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CUSP9EIE; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=AVkD45c+zgjiCqVwnNd4o5760wu4al2x1JvW+jreNu1T5AieZt1WfuOPelMKovtw++P9WLRGSnDZcEAcKAp9zbeOC8kcAtFEcDWd3q2L6gOadtXcBk5W+BQHtYOV6Kxb7GxBni7jkm7blqR/AyJimqTRjzpTOFO9eYV+alXWiaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gsC3ufmj; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CUSP9EIE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60BBA1F000E9;
-	Fri, 21 Aug 2026 10:42:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787308934;
-	bh=GX9FyFmbJrKH4U9jR8X9bA/nC9XnQujMg5M2OVoplLk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=CUSP9EIEHGwIWb9aQ1TdnsRNod7xv/XY/5fh7Pi6nQnkgfBylwcPfxZy8+1PYtSKT
-	 1PFZ4nD/ixGkGHb8sSTTfG4h+H3n2KaZeVzcQPdxKlJga5GjVhjlULfUQJ20/dsAsT
-	 zMFsSE/EFhrvH2WbXtnoJ3L9+oXPg29JlbijE8SDa7Mq5Jt0jFKINfrhQx/mWaXCX6
-	 gVsGKsRdpVntMXWAKtmPEwxfO8gYx79K/S3yRVWcE2rwHOegsskSMF6ylPmmpo2pho
-	 kK4Cd4YF90NG8jvSQZDjqiZa6qYHEZFoPQQ68kccBuhOOYHkX8OArD+/9WY9F/UIBC
-	 GQebispCbUT9A==
-Date: Fri, 21 Aug 2026 12:42:10 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Guangshuo Li <lgs201920130244@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Ben Dooks <ben-linux@fluff.org>, 
-	Dirk Brandewie <dirk.brandewie@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: designware-pci: fix autosuspend cleanup during
- teardown
-Message-ID: <aogiXF11b7z16U2G@zenone.zhora.eu>
-References: <20260809073055.2980971-1-lgs201920130244@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gsC3ufmj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1787310695; x=1818846695;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=G4qsN+t5UgXO9pKDlrGNxXYn6SnistljpZuq4z5UJsc=;
+  b=gsC3ufmjxgEsFe/CzgboKjJhVFHpUxlNUnsqoR3f+uqFxgTYwR3/V+Bz
+   1K/5X+9cXlKM3sD/fOLBzwETlsAkHJbHTTxxIznzKm+e59/9xtPdmfK/A
+   fpo9DYVGPd1qDgeK4CghxT60h1flm/sOPB38z4PXdHxCSNAtKUEiMV1uC
+   YjEEEyBjLPzXsWn2N8KmlUTaftEVlc0q+Wwj3kHhr+/Mqj9yRhJtaTCnz
+   7SVrKbDmLhyUU85wRMRT0gBZs29FVO2aeQ22C9lN/vflxgk/Fch0j2P5E
+   C0Jyjgxd21QmRlU7MC+9ZNinixytL5/UkLHLh7s9zPzvED3x3hIFyJrkZ
+   A==;
+X-CSE-ConnectionGUID: XHGae6VbTNOu1DLOnOgdWw==
+X-CSE-MsgGUID: T07R57PqTcKCIoL7dJSSrg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11881"; a="87776346"
+X-IronPort-AV: E=Sophos;i="6.25,235,1779174000"; 
+   d="scan'208";a="87776346"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Aug 2026 04:11:34 -0700
+X-CSE-ConnectionGUID: /pKJlKLZQBS+cJSz6ZSKFw==
+X-CSE-MsgGUID: I0Z0KE3kQI2pfkI7eWmRew==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,235,1779174000"; 
+   d="scan'208";a="289846566"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by fmviesa002.fm.intel.com with ESMTP; 21 Aug 2026 04:11:31 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wxN9k-00000000pmz-2UIv;
+	Fri, 21 Aug 2026 11:11:28 +0000
+Date: Fri, 21 Aug 2026 19:10:55 +0800
+From: kernel test robot <lkp@intel.com>
+To: Abdurrahman Hussain <abdurrahman@nexthop.ai>,
+	Michal Simek <monstr@monstr.eu>, Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Subject: Re: [PATCH v5] i2c: xiic: restore non-managed runtime PM to fix clk
+ WARN flood
+Message-ID: <202608211944.Zpc0ks4e-lkp@intel.com>
+References: <20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,73 +67,33 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260809073055.2980971-1-lgs201920130244@gmail.com>
+In-Reply-To: <20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508@nexthop.ai>
 
-Hi Guangshuo,
+Hi Abdurrahman,
 
-On Sun, Aug 09, 2026 at 03:30:55PM +0800, Guangshuo Li wrote:
-> i2c_dw_pci_probe() calls pm_runtime_use_autosuspend(), but
-> i2c_dw_pci_remove() does not call the matching
-> pm_runtime_dont_use_autosuspend() during teardown.
-> 
-> If the autosuspend delay is set to a negative value while autosuspend
-> is enabled, the runtime PM core increments usage_count to prevent
-> runtime suspend. Without calling pm_runtime_dont_use_autosuspend()
-> during teardown, this reference is not dropped.
-> 
-> The documentation for pm_runtime_use_autosuspend() also notes that it
-> is important to undo it with pm_runtime_dont_use_autosuspend() at
-> driver exit time, unless runtime PM was initially enabled with
-> devm_pm_runtime_enable().
-> 
-> Add the missing pm_runtime_dont_use_autosuspend() call to the driver
-> remove path.
-> 
-> This issue was found by manual code inspection.
-> 
-> Fixes: 18dbdda89f5c ("i2c-designware: Add runtime power management support")
+kernel test robot noticed the following build warnings:
 
-This Fixes: is wrong because there was no autosuspend here. Maybe
-you are referring to:
+[auto build test WARNING on d58772d8520c7ef247c4b95c9bd76d3a25da9ff5]
 
-Fixes: 43452335224b ("i2c-designware: switch to use runtime PM autosuspend")
-Cc: <stable@vger.kernel.org> # v3.10+
+url:    https://github.com/intel-lab-lkp/linux/commits/Abdurrahman-Hussain/i2c-xiic-restore-non-managed-runtime-PM-to-fix-clk-WARN-flood/20260820-052507
+base:   d58772d8520c7ef247c4b95c9bd76d3a25da9ff5
+patch link:    https://lore.kernel.org/r/20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508%40nexthop.ai
+patch subject: [PATCH v5] i2c: xiic: restore non-managed runtime PM to fix clk WARN flood
+config: openrisc-randconfig-r072-20260821 (https://download.01.org/0day-ci/archive/20260821/202608211944.Zpc0ks4e-lkp@intel.com/config)
+compiler: or1k-linux-gcc (GCC) 13.4.0
+smatch: v0.5.0-9187-g5189e3fb
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260821/202608211944.Zpc0ks4e-lkp@intel.com/reproduce)
 
-?
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608211944.Zpc0ks4e-lkp@intel.com/
 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-designware-pcidrv.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index 468287922363..f1f4955f9a3f 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -300,6 +300,7 @@ static void i2c_dw_pci_remove(struct pci_dev *pdev)
->  
->  	i2c_dw_disable(dev);
->  
-> +	pm_runtime_dont_use_autosuspend(device);
+All warnings (new ones prefixed by >>):
 
-If I haven't missed anything, pm_runtime_dont_use_autosuspend()
-can drop the reference and trigger a suspend, which then calls
-i2c_dw_runtime_suspend() and eventually i2c_dw_disable() for the
-second time.
+>> Warning: drivers/i2c/busses/i2c-xiic.c:106 struct member 'irq' not described in 'xiic_i2c'
+>> Warning: drivers/i2c/busses/i2c-xiic.c:106 struct member 'irq' not described in 'xiic_i2c'
 
-If this is correct, pm_runtime_dont_use_autosuspend() should be
-moved towards the end, followed by i2c_dw_disable(), which would
-then need to become the final cleanup step.
-
-Intel folks need to verify the order anyway.
-
-Thanks,
-Andi
-
->  	pm_runtime_forbid(device);
->  	pm_runtime_get_noresume(device);
->  
-> -- 
-> 2.43.0
-> 
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
