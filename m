@@ -1,90 +1,74 @@
-Received: from mta0.migadu.com (out-221.mta0.migadu.com [91.218.175.221])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFA3F3BE643
-	for <linux-i2c@vger.kernel.org>; Sat, 22 Aug 2026 11:38:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.221
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DC3125771;
+	Sat, 22 Aug 2026 12:24:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787398739; cv=none; b=APexMjW/AtiBOCCgDIN207UJ94RBacv6w6pzyJQh0CSHmWeUWBPG5tjjfLuVecUtuWHEhf9OjB8HTbygnL1eed9Miu0Fk1gRPR7j+45hWo2LocXGM/91oiS3zPPN/NtgeR20t7rfB5AbJbDJG6jgRQMgUn2M/t94c2ngnl322mU=
+	t=1787401495; cv=none; b=DvItMiinEeJFjZBSYUD3SbkbaPyhdJGYtBQvVlNzK72V7J8z4DSKP4pJmQyefGLHfXPBooyAn+lmarDBe95xxHEVb/2iRZEs4JxHyYnDv+IfM+6t078qh7zD4EKTkq+7SGDKOOBvNgeo0Fnl0XKbN5BRn1U+cfehJ0j0En/G0Es=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787398739; c=relaxed/simple;
-	bh=6vraq3QEPbFs95hq4rBaV2iqWPM/Nu7KXs4yvsug4GY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=YpdIfDPBK4nl9dflCcs8YFNypDEhr8RqX+zSZlEEfZjxEYhKO4NrlCYXD8Vau7sammK8dRiCHd/k9Uvl9baUA+ku6L6duT+y5tRZa9gP0tMCRhnsNY0iwjJDiKUlP6am0kqBR85vXmLC5XZOlfCvbBSrHcsEPNNx8ECgsCA4f/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uh3oHt4u; arc=none smtp.client-ip=91.218.175.221
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1787401495; c=relaxed/simple;
+	bh=AXf+u6yWYEyarvR0W5gm0K0yFy/tngJo1J0u/oOLvPw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eYpMXGgZ0vfGg9YjbS/8ZkGckVcVoiwCsETzAepwJVmCiM8QKX1qxGA3eSpYAgFEsqYJ8BfZUpOt6W2rlVM/ZlQ0spSApbYhrDXkkWaN23fMlc2/a6qvT7iD+QZ1g4R45vr3d+tHKDanZwr6OOu7pzzXmySzlG6+kiaBiPyP1qE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E22hb4iw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uh3oHt4u"
-X-Envelope-To: linux-i2c@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=6vraq3QEPbFs95hq4rBaV2iqWPM/Nu7KXs4yvsug4GY=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1787398732; v=1; x=1788003532;
- b=uh3oHt4uWxS6t9BtYkfhMPzxH+KYU6GNkT1uVPkAPtBczSjycrBjls264jNsifX0ZB6SCKZw
- egpVF0r7q0YPnnPWn2tUN4MLD1L2g2dN5rTF2TPD9+5Sp1+kxdQZC9dwo3xUrNSvezfHg3Mg2WZ
- npbet5Dre8FtKGQFvQp31KvM=
-X-Envelope-To: linux-i2c@vger.kernel.org
-Received: from Vasilio. (90.193.199.60)
-	by smtp.migadu.com with ESMTPS id cbf5556634461e63;
-	Sat, 22 Aug 2026 11:38:51 +0000
-X-Mizu-Trace-ID: cbf5556634461e63
-X-Migadu-Flow: FLOW_OUT
-From: Igor Korotin <igor.korotin@linux.dev>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- rust-for-linux@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>,
- Miguel Ojeda <ojeda@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E22hb4iw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BB1C1F00A3A;
+	Sat, 22 Aug 2026 12:24:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787401493;
+	bh=pesUoZmqXlgW3G/LaVBq7JeB8v0G43omy8GYR73IFPo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=E22hb4iwb6lhFy5QcX3CU4OD+s9fcdXvP5layT8rDSKmOIrMH8YTdXLJYOF9q8Zxg
+	 kqmgjHxC+geQaOOdArETZru6kNZfn6X5k4N6lxl+8yRp0B52QEj8yM9avQQIngi/kr
+	 h6FnaCJLDwsXoRGLQIBT5taPaxyxFtkCce/oJJONKwnSFRNRVSlafpWSrpKDl4q6M7
+	 VMcBdCAlkcKmFl7ff4URUFOMu8eVIPm0wRwMVPtmqX8It4Ib5B/Dhxqw7Z1Gec/fSH
+	 e0ZWlCBhE43lqrhK/qOWgpVYdtmlqzTwjNUsH6F4Lay380O233TZP93Xfq0jybQnpK
+	 NE4RaPYarbVhw==
+Date: Sat, 22 Aug 2026 14:24:50 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Igor Korotin <igor.korotin@linux.dev>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	rust-for-linux@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>, 
+	Miguel Ojeda <ojeda@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 Subject: Re: [GIT PULL] rust-i2c-next for 7.3
-Date: Sat, 22 Aug 2026 12:38:47 +0100
-Message-ID: <178739872719.9834.5401695033021882071@linux.dev>
-In-Reply-To: <aodUPU8RGR1ZJlQm@zenone.zhora.eu>
+Message-ID: <aomUXhYE0M37I-hI@zenone.zhora.eu>
 References: <178717488339.2840.16053648973983973210@linux.dev>
  <aodUPU8RGR1ZJlQm@zenone.zhora.eu>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+ <178739872719.9834.5401695033021882071@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <178739872719.9834.5401695033021882071@linux.dev>
 
-Hi Andi,
+Hi Igor,
 
-No problem, rebased on i2c/i2c. Updated pull below.
+> No problem, rebased on i2c/i2c. Updated pull below.
 
-Thanks
-Igor
+Thank you!
 
-The following changes since commit 7a79b02dd1b09c235c3cf6075bccca2160d1b826:
+> Thanks
+> Igor
+> 
+> The following changes since commit 7a79b02dd1b09c235c3cf6075bccca2160d1b826:
+> 
+>   i2c: rcar: fix reset handling for Gen5 (2026-08-19 22:07:13 +0200)
+> 
+> are available in the Git repository at:
+> 
+>   https://github.com/ikrtn/linux.git tags/rust-i2c-for-7.3
+> 
+> for you to fetch changes up to b5fa55ad007059547c9139d4c4872e158ae255f2:
+> 
+>   i2c: rust: mark I2cAdapter methods as inline (2026-08-22 12:22:27 +0100)
 
-  i2c: rcar: fix reset handling for Gen5 (2026-08-19 22:07:13 +0200)
+merged to i2c/i2c.
 
-are available in the Git repository at:
-
-  https://github.com/ikrtn/linux.git tags/rust-i2c-for-7.3
-
-for you to fetch changes up to b5fa55ad007059547c9139d4c4872e158ae255f2:
-
-  i2c: rust: mark I2cAdapter methods as inline (2026-08-22 12:22:27 +0100)
-
-----------------------------------------------------------------
-i2c: rust: mark I2cAdapter methods as inline
-
-A single cleanup for the Rust I2C abstractions, targeting 7.3.
-
-`I2cAdapter::get`, `inc_ref`, and `dec_ref` are trivial wrappers around
-`i2c_get_adapter`/`i2c_put_adapter` and were showing up as their own
-symbols in the build. Mark them `#[inline]` so they get folded into
-their callers instead.
-
-Signed-off-by: Igor Korotin <igor.korotin@linux.dev>
-
-----------------------------------------------------------------
-Nicolás Antinori (1):
-      i2c: rust: mark I2cAdapter methods as inline
-
- rust/kernel/i2c.rs | 3 +++
- 1 file changed, 3 insertions(+)
+Thanks,
+Andi
