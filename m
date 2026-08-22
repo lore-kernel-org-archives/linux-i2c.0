@@ -1,227 +1,127 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B3B43932FF
-	for <linux-i2c@vger.kernel.org>; Sat, 22 Aug 2026 21:40:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787434862; cv=none; b=Xc54MZQRenwYXlY/ZuWfGgPbRKhLCSA8ho8jDuaZAM2GJN/yya/T15KeXQot8HFsx722sSV0byW+/CEQBt1Kk9ftBLNayKRWxuMtWNiM15eLk0jFX1boZ2IMzwEU1Rwr02hHBxmNIExvYWdeDV+u1x093GISCyqnMV05ZDEDOc4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787434862; c=relaxed/simple;
-	bh=IP4K+y+s3kto6i7CgO79hJGPSKvInsmESILBbssd/80=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OuyO0WuOyVTWkFS/Ox7IK61JEDrMFkZK9xl7xBHs9czTyqR8wEsX/dfkn0KFdn5GLB7DljfkdMin3phO/0PZIlSZcXqGGz7l1AzchSyB2Qrf4jZ5oRrja+NYNJhuzqJ9pOCSvfwNUYPGiUe2IWlce9FhCJXSY5fbGmyFluWYrp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cqXClZv/; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D2EA26AC5
+	for <linux-i2c@vger.kernel.org>; Sat, 22 Aug 2026 23:16:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787440618; cv=pass; b=FVagwSGjHHa/9oSeWGxp7WpcgTzOVTUr/cC71Rl+sqnOW8K0fx5aMelyYCJY2bGiFAikwjDqVsEBX63IhqpttMbztJ7xvUSCwYqk8/B7WMTxUYLC4g3ZWgNFtBjqGdgRIsKSkDvIU1QEH78ZisxegLWfFZ52C9FbagY/IGH26JQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787440618; c=relaxed/simple;
+	bh=zgLqb1lTxUJbGT6oFnyXxQM5ptly/RW2Zd+DDyDVvQA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jFCfVush65xJEoZqd6hRtq5/8KCbMXilFZJVYhjNCNfn7H0L0qMCB/nxZ16Q7yQ94Y+qXewnd4yBt7S5+dzRUF7SxLIPvq1Uctem9laDvTBEIUyCGBzJzJpDN+wqjiWGlwlV/FV7S5Kn6e+6PglcfYpFxo6REYbMC7Ic37/L5n4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aVKwC5Ya; arc=pass smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cqXClZv/"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c20fb91ed0fso319427566b.3
-        for <linux-i2c@vger.kernel.org>; Sat, 22 Aug 2026 14:40:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aVKwC5Ya"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-84e04df8c46so2878049b3a.2
+        for <linux-i2c@vger.kernel.org>; Sat, 22 Aug 2026 16:16:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787440617; cv=none;
+        d=google.com; s=arc-20260327;
+        b=W6IGzo7r4w4exdWTW1ID6eUKrGWEKR0oP2pAp3ALcaIy0ciWOBn04O00NP4yWt+Mpk
+         Qd0c1DTAXIvDHqG8C4tT3spSyGEOBiquoQS8rBjlTttzfxORitZe98rghyVLYbWwGfJa
+         IxowjE4FsF0kTQ0iUwL55lO/rZ68wn/zaemCMUQSkJEP3mZhC5RI9iQGiheaip8lxmT2
+         ONTlt8V9yfBX3U7O17cyfqSxqbfS/i2Fi8fEoq+nB9yKyPE8BAyA0KO3O6JNoW1zylpu
+         HIYcUyMeiJUtxwcs1XFrjTCCRtgK4nlUm1/jccqMoY9NdPuPhFw3gZpNwFKUQkg/qCIa
+         PA4g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=zgLqb1lTxUJbGT6oFnyXxQM5ptly/RW2Zd+DDyDVvQA=;
+        fh=kZfwQuDEkwl+DUy5pfIbtFFglBuKH3Rsil7qKnkjFiY=;
+        b=d7VI5kf6vcVM4ADGZ33FdL38pWTYKdhuBnlKAn7do5ADDW9PT9Xt/uPiA2dSHeBfbz
+         OcsWVYr9as38GUTPgSDmhDkJkcpgv3JtZEoSkN82lkLNjQiKxh5CrmscIZjRnAs42U44
+         Gyt53Bwe+F4O56bw8Gv1IkKGH7FbcROv9UAwF6PkG1ouyYuIM9L36ep/fQK1AVfGtxui
+         RG7ELfIAF7QaSYIYkd8GwuQsJ++vPHxeHncnNgEhXlJJevhr3wblW9bjLmZzzKHZhbtc
+         Gn6oD3OdGDRrbs/6HrdVTYkqAxo/nWQ5ha+EzUij+/F7Fx+DXP/M1FwnfyBgu9FhM7Xg
+         qlLg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787434851; x=1788039651; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=9qg1KAy+mSZMSfDHaheDRm1TaMRLDEaVjJ1MAUbT2Qc=;
-        b=cqXClZv/ypz/2NVes789SP1HBhY9X2xtbc8gJtx1/loMaYEw0LSp9TPmfxv9M4HpSk
-         7qccz38FKSnguvHAK8iYZjfmRNeaFusUkPy+WlwSGnJ9reP5OMB19axjSLTL8NTN8+mx
-         6MWYNMN0W6BO8Z076+eey8BtgYOnXaiGXxBJbeZyDzLa/wkEd8seoO7tBcB93L4qP9cU
-         96yzQUh4bxxJbXePDizj8duPiNdKTxDGXCjhfP6d8Gh1E5hJ7JBCEQJZ2oo0/Rfcw8AN
-         885hs+IaKQZ3vcuRk4fIKQEAQkfGRI69PfWlniLd8XvIOI+SAiCIcrlF14c8ylRwGCAC
-         0sbQ==
+        d=gmail.com; s=20251104; t=1787440617; x=1788045417; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=zgLqb1lTxUJbGT6oFnyXxQM5ptly/RW2Zd+DDyDVvQA=;
+        b=aVKwC5YaByUFg/gxa4+DyR4LI6QarlMl/r3TOYRajpVLijf/Dv1HztEM4JAdEc2c6W
+         LQQ4I2znVp9rXHK59AZziKqNoUFW/nsMZByshxKnBWcmnkBfUz/aO9MzvxtCd2/44MQc
+         RvjF4emDnFy6uqQbxqM7lez85B3U6MR95JPrxGEfSHvB51BcOpz8r3BJGL14PLwkPVpZ
+         K6mGq43aeBSTs2aZvLBLAGTFnXRBxT3rSapyrtktqBXWpYRaHu3ZBqN1hcy2jtKoiC3y
+         zklsWaS5FT/4L8LFQmvLK1DDyR1DImrGN2a/+WpD28UfxYxiSidpjVoHVjF+W4e1HLxS
+         Hyeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787434851; x=1788039651;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=9qg1KAy+mSZMSfDHaheDRm1TaMRLDEaVjJ1MAUbT2Qc=;
-        b=o4X42o9TpbW2uKricNRf/OFNz8YKrv5utCF2HfwhQjLMbqQUsRm08ReXZ3euXfA2Rl
-         4XmMVhJCxNxU8cVjHmwVGD+tCV2L2fWnulVcD0OHO3lmm8OjKRSGUtLRh0Ib0GKkpCc+
-         XnI7m5Sc7WW7mDsnJ5+JGrMB2qzJ65LhSfBZv3ZgmuYA0aPi6BPlB8PTG8V8C6Q29x/P
-         EiRQKZmM1gGNqDgUkr0SrD3F1WFv4oG0a07LSiq1Afg6ETpcbWlg2xeFfM+gC2VuumlC
-         Y+84MrxB36Db53PElM026pvGhh05nAaIoxdBgEIHFgWBMW9aDmrFQhcjJWcwI0nkdKva
-         If6A==
-X-Forwarded-Encrypted: i=1; AHgh+RoSZRKdePIBMjzuXYezD8GH4pjjUpDOvY3frlr0bIJQ02CMspwZ5JreW0Fkd/vK3c+1KEzpY3X/b4k=@vger.kernel.org
-X-Gm-Message-State: AFuF++mitUbJLJ3MdiygIKJCS0W+KFm7TdKcJOapXHeI2h5uD4yKsLmh
-	rEWi4CTx2wy8MFjNv1SYp7K0S8xaImMuXPFqx/X0F5xYEk4tr0D+l7Hh
-X-Gm-Gg: AR+sD127A7XWPL2x6t8ciNj9BYSPoiAk6Xd4e+FHvBUqL+AjNf8nSi1JZX4CryzbW99
-	RP4jcCFzsNGYi7YHo2L5ssFhY5U06Urmhc2AOVMKS+ENYzZX694DQP+lLEoBsS7ax8p8jgc4tCx
-	q8zM8TgKaw/TybDOUPbbdMbZ2w1rYl5/7kQMLpNlnu/FYy4IUWam6djDQo/cTpYq9AoZRFDp933
-	FmCuwgpptyyPSouVGuhTa0CFStt3GU/cyK0ds6iMR0zjG8sWaIk0EpfHVIafX2VCG1Hk2+AKbkI
-	QUiJNAHRkzjvmRVxeT710XxMK0ADApvS/f68H/JKwYSgow5MDwNXBhX29DAAF6Lmer5PKKmomXJ
-	CD1BvBvIr534Ea9RqHYRn1aSlywyMkqlkBfyGw9g2oHNYc5+djHZISpgHgDoye/AasBqkgMWgpU
-	Vpoh1RviZGu6WFRXl2BFxcoIRIQLBhNr96hFMmrWjNIRviSIeFS5+a24VDzik=
-X-Received: by 2002:a17:907:e1c6:20b0:c20:d90b:2ccf with SMTP id a640c23a62f3a-c246a306b53mr1173876266b.7.1787434851479;
-        Sat, 22 Aug 2026 14:40:51 -0700 (PDT)
-Received: from m2.. ([37.142.151.124])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-c24966f99basm466778466b.37.2026.08.22.14.40.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 14:40:51 -0700 (PDT)
-From: Michael Zaidman <michael.zaidman@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Germain Hebert <germain.hebert@ca.abb.com>,
-	Rio Liu <rio@r26.me>,
-	Bruno Giacomazzi <brunoceg1@gmail.com>,
-	Christina Quast <contact@christina-quast.de>,
-	linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH 13/13] HID: ft260: i2c: abort in-flight transfers with STOP before reset
-Date: Sun, 23 Aug 2026 00:39:41 +0300
-Message-ID: <20260822213941.98882-14-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260822213941.98882-1-michael.zaidman@gmail.com>
-References: <20260822213941.98882-1-michael.zaidman@gmail.com>
+        d=1e100.net; s=20251104; t=1787440617; x=1788045417;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zgLqb1lTxUJbGT6oFnyXxQM5ptly/RW2Zd+DDyDVvQA=;
+        b=D+200djVWrcajMuS/jOInhZeSR5mMG6MXV0xmKR6yO3RQEvGsynpzwHH8qdvbOS3RZ
+         oCjSx4USyMntQoPSCjNags7CS1m5V/PwqHLaZeeL+EwQDwN3HFDBT9HIivSGG9sl12NS
+         /VMhK12zGhVgQWs4m3PG/Aft6++5cz4ZkY23ROjGuJzR2ZPaxUZ99RtfoERIkLgiYlvX
+         DoTAk0ydxqtLE/2tlMLjVqstzaNJ1d1BqZpeK91akOe7Ml7SDI0TeKGcnBf/zg7xdiyY
+         Qj7otMSo8jIL+/EJFDg6eO8ETcGm/zWmKT5YhL9m8NA6wZW2jQngl2PKQsuk81Hrpgec
+         ucaA==
+X-Forwarded-Encrypted: i=1; AHgh+Rp7agYN3KBjmpWKXCaOytJaC/c+qDHywf1s7pRzMUKBfEX2E3icUasjCtLGEKpZDv5hPSpRkj5NQR8=@vger.kernel.org
+X-Gm-Message-State: AFuF++kxnt7SbzRfpGU7+07TXVEQNtV3ndNTff77XjnZQLEOyzr8a5Dl
+	0Yh+GmH3HTb705ysjCz8Aa/XBu1yRT7zTBKoLdLvrtdX5zbhGf0SM3gzDJn+0gk4Fmuz8fBd0Oq
+	RrMXo4xo6ryUhBfmRilMhGkySJjtGF6E=
+X-Gm-Gg: AR+sD10Inehbsz/Na9Rb4lm2CkxvY7rggoBziJ2kmZ3/btbF3tfr1J/Y3/64RTtERcg
+	jhSGfvLh650WKKZ3Ap/0Tri8UmCqk/vkyNyzZuECNm+frFHc4Rs9yBznglqCetb68gCE0k8/hwv
+	72F1CB0PN8+D/tKn/GuuFwCuAxdBwGYquxQx5raW7AjoXmd0yGPPlkGtw9PRi87oWUxkvSpxXx/
+	fHLLx+xf0FpK+WwQWPymLioLE7JRT4sFgtAsl6FukKXDDaVmzl2YLKmirtYLSQcUaprw/ipuDRv
+	csA4s+IUeabW31aLUVqoBHabD/oS1YYjRyHrXKwRVsQLwqxvnDNtJJR5ls6kJVJu63OdIftyoeX
+	Z4Kf82oQyLg==
+X-Received: by 2002:a05:6a20:7293:b0:3cc:3d08:da39 with SMTP id
+ adf61e73a8af0-3cd2f9e3e47mr29078630637.0.1787440616607; Sat, 22 Aug 2026
+ 16:16:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260822062621.769921-1-rafad900@gmail.com> <20260822085155.1409-1-hdanton@sina.com>
+ <CALp66yH7QzvGmo+N7BWykYjoaGT-yAezwRv0Pc_ir6qDRTsKvw@mail.gmail.com>
+ <CALp66yFrutQ2h8SNyBZn04+LMPMnSEtWxW_Dr0vzfoHvEahSsQ@mail.gmail.com> <CALp66yHBUOH6R55KXP9kS4-XYZiOF6xb3CC6jcVjiUJ5mGQCKg@mail.gmail.com>
+In-Reply-To: <CALp66yHBUOH6R55KXP9kS4-XYZiOF6xb3CC6jcVjiUJ5mGQCKg@mail.gmail.com>
+From: =?UTF-8?Q?Rafael_Alejandro_D=C3=ADaz_Cruz?= <rafad900@gmail.com>
+Date: Sat, 22 Aug 2026 16:16:43 -0700
+X-Gm-Features: AcwNN1Wv1AT71vykQR_j3f33P_fL1VfoUhIReM3drx-3UBXDm84uGkicYdxHH4U
+Message-ID: <CALp66yHXAF8M2YmFi_czHWOU_EgsEEog__Ga13m_=TZmL0ctsA@mail.gmail.com>
+Subject: Re: [PATCH i2c-fixes v1] i2c: core: Fix use-after-free during i2c
+ device removal
+To: Hillf Danton <hdanton@sina.com>
+Cc: syzbot+227dbc9afd022922d624@syzkaller.appspotmail.com, 
+	Andi Shyti <andi.shyti@kernel.org>, syzkaller-bugs@googlegroups.com, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-A transfer that ends without STOP leaves the FT260 I2C controller
-with BUS_BUSY set. I2C reset (AN_394 section 4.4.15) restarts the
-master but, with the driver still bound, status stays 0x60
-(CTRL_IDLE | BUS_BUSY) even when SCL and SDA are pulled up. The
-next START then fails with 0x72 (arbitration lost + error) and
-further resets do not recover; only a USB replug did.
+#syz test
 
-Add ft260_i2c_abort(): a STOP-only write (flag 0x04, zero payload)
-then FT260_SET_I2C_RESET. Use it wherever the host tears down an
-open transaction:
-
-  - read wait timeout
-  - read status check failure after the HID report arrived
-  - write status poll failure after the report was sent
-  - SMBus block read with an invalid count (count phase has no STOP)
-
-Leave ft260_i2c_reset() alone for HID output failure (the request
-may never have reached the controller), sysfs i2c_reset, and probe.
-
-Tested on a UMFT260EV1A with a 24LC512 at 0x51. Five 1 ms read
-timeouts each followed by STOP+reset left bus_status 0x20; raising
-the timeout to 25 ms on the same loaded module then read 16 bytes
-successfully.
-
-This matters more with the 25/75 ms completion timeout from
-"HID: ft260: i2c: reduce driver module loading time", which makes
-read timeouts more likely than mainline's 5000 ms wait.
-
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
----
- drivers/hid/hid-ft260.c | 43 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 36 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 9ae688f6208f..a35a1af2d7e5 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -538,6 +538,33 @@ static int ft260_i2c_reset(struct hid_device *hdev)
- 	return ret;
- }
- 
-+static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
-+				   size_t len);
-+
-+/*
-+ * STOP with no START and no payload. Used by ft260_i2c_abort() when
-+ * tearing down an in-flight transfer: I2C reset alone can leave
-+ * BUS_BUSY set even when SCL/SDA are idle, and the next START then
-+ * fails with arbitration lost.
-+ */
-+static int ft260_i2c_stop(struct hid_device *hdev, u8 addr)
-+{
-+	u8 buf[4] = {
-+		FT260_I2C_REPORT_MIN,
-+		addr,
-+		FT260_FLAG_STOP,
-+		0,
-+	};
-+
-+	return ft260_hid_output_report(hdev, buf, sizeof(buf));
-+}
-+
-+static int ft260_i2c_abort(struct hid_device *hdev, u8 addr)
-+{
-+	ft260_i2c_stop(hdev, addr);
-+	return ft260_i2c_reset(hdev);
-+}
-+
- static int ft260_xfer_status(struct ft260_device *dev, u8 bus_busy)
- {
- 	struct hid_device *hdev = dev->hdev;
-@@ -607,7 +634,8 @@ static int ft260_hid_output_report(struct hid_device *hdev, u8 *data,
- }
- 
- static int ft260_hid_output_report_check_status(struct ft260_device *dev,
--						u8 *data, int len, u8 bus_busy)
-+						u8 *data, int len, u8 addr,
-+						u8 bus_busy)
- {
- 	int ret, usec, try = 100;
- 	struct hid_device *hdev = dev->hdev;
-@@ -636,7 +664,7 @@ static int ft260_hid_output_report_check_status(struct ft260_device *dev,
- 	if (ret == 0)
- 		return 0;
- 
--	ft260_i2c_reset(hdev);
-+	ft260_i2c_abort(hdev, addr);
- 	return -EIO;
- }
- 
-@@ -675,7 +703,8 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 			  rep->flag, data[0]);
- 
- 		ret = ft260_hid_output_report_check_status(dev, (u8 *)rep,
--							   wr_len + 4, bus_busy);
-+							   wr_len + 4, addr,
-+							   bus_busy);
- 		if (ret < 0) {
- 			ft260_dbg("%s: failed with %d\n", __func__, ret);
- 			return ret;
-@@ -716,7 +745,7 @@ static int ft260_smbus_write(struct ft260_device *dev, u8 addr, u8 cmd,
- 	ft260_dbg("rep %#02x addr %#02x cmd %#02x datlen %d replen %d\n",
- 		  rep->report, addr, cmd, rep->length, len);
- 
--	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len,
-+	ret = ft260_hid_output_report_check_status(dev, (u8 *)rep, len, addr,
- 						   (flag & FT260_FLAG_STOP) ?
- 						   FT260_I2C_STATUS_BUS_BUSY : 0);
- 	if (ret < 0)
-@@ -784,7 +813,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 		timeout_jiffies = msecs_to_jiffies(timeout);
- 		if (!wait_for_completion_timeout(&dev->wait, timeout_jiffies)) {
- 			ret = -ETIMEDOUT;
--			ft260_i2c_reset(hdev);
-+			ft260_i2c_abort(hdev, addr);
- 			goto ft260_i2c_read_exit;
- 		}
- 
-@@ -798,7 +827,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 		ret = ft260_xfer_status(dev, bus_busy);
- 		if (ret < 0) {
- 			ret = -EIO;
--			ft260_i2c_reset(hdev);
-+			ft260_i2c_abort(hdev, addr);
- 			goto ft260_i2c_read_exit;
- 		}
- 
-@@ -982,7 +1011,7 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
- 				hid_warn(hdev,
- 					 "smbus block read: invalid count %u from slave 0x%02x\n",
- 					 count, addr);
--				ft260_i2c_reset(hdev);
-+				ft260_i2c_abort(hdev, addr);
- 				ret = -EPROTO;
- 				goto smbus_exit;
- 			}
--- 
-2.43.0
-
+On Sat, Aug 22, 2026 at 12:37=E2=80=AFPM Rafael Alejandro D=C3=ADaz Cruz
+<rafad900@gmail.com> wrote:
+>
+> #syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.g=
+it
+> 48a5a7ab8d6ab7090564339e039c421f315de912
+>
+>
+> On Sat, Aug 22, 2026 at 11:26=E2=80=AFAM Rafael Alejandro D=C3=ADaz Cruz
+> <rafad900@gmail.com> wrote:
+> >
+> > #syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux=
+.git 48a5a7ab8d6ab7090564339e039c421f315de912
+> >
+> > On Sat, Aug 22, 2026 at 11:13=E2=80=AFAM Rafael Alejandro D=C3=ADaz Cru=
+z <rafad900@gmail.com> wrote:
+> >>
+> >> I see syzkaller failed to test the patch due to some VKMS/DRM
+> >> issue. It's unrelated to my patch.
+> >>
+> >> I have tested on my own local x86 QEMU instance with proper
+> >> .config and C reproducer. The error does not persist after my
+> >> patch.
