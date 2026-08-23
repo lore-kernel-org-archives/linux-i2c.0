@@ -1,78 +1,80 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E08FB38E8C6
-	for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 11:56:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274DA3D3488
+	for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 12:33:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787486189; cv=none; b=V2+uy/0e5w2fkQI4j0xDuQtdeIbet8IbdVIZXlHkTdD4DrDQjZ63IEXvh6sQxvfHUP8I7uUXw+4Or5GcDPB1/dEHNr+4Ir3GfH/EwVyOXcE0yJLra4xPu2uLE1MtV12G7P3cPCkkfiRYgTciuFLKyB1qPyH2wBYfk+33mdSSTok=
+	t=1787488403; cv=none; b=n6L6eRZUTFe83aB+8GG3iG3o4zVvpRIzEXQI4jJGC/Jv61cVRYV8sTwn1g9LwXZHuk0z6tySn/u+s6ETg0B1QFIFCmQnAtZfxUsBQZ593zQ0ZrFmBmd89vUX9mlbW7H+243puSDXP8KJqc4OEj45K2sYzVJOuFJq+VDrAcNw7OM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787486189; c=relaxed/simple;
-	bh=9i4CmNtGZj76Ske03T0miA59Y+t25yQlxECHaxFUx+I=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=Jr/oYCh80W+gNxrtzu5taqvYoeTLTT3Iw9gABNbW/vMNbaaErP7aC67APQmZdhvOxm/V//XAZ922sizunSk1eEsec4m0DT8ZewrFLtrB9FcV6b5//iT7JLss+GzFjIUFI2Se5xO3+h++eK+YjDfmaar5ikZ0Uk9c+6FG+TKsNmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=arG7UsA1; arc=none smtp.client-ip=209.85.214.179
+	s=arc-20240116; t=1787488403; c=relaxed/simple;
+	bh=eFAek2fTRzS73NfCoH4RA0rIRDbPRNXEUtq0xg+7oQU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nq6NuD1VdY/XXwYA4S6X2At8l43FN2pWB8JlZ47qJZ6X/k3ZQ2t97Cq5ltSmDcSftfe8bGZNRax+8/JUJ+5twoDssuvrQ4Cs8TNs/5KpOzLJe3vlQR13bHrMaPNlUJcEni3OPCj9JuJ7sroR8rTKi+exLC09/7nkGxFqrcDtHdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TeTMD2ta; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="arG7UsA1"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cfbbdfa60bso19039635ad.3
-        for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 04:56:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TeTMD2ta"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c9eefcf9175so2656548a12.3
+        for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 05:33:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787486187; x=1788090987; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:subject:from:cc:to
-         :content-language:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=hMXLNsCEJBPVUF9Rtef7lSjv0r0TZUbgwcu2Y8b1UgU=;
-        b=arG7UsA1cyfjgIozJntiYtaRKgHAyTJo3S29H44n5IK8aX+wAF4GPZtHbJ73KcnhmE
-         6L4i/kgGnSjWxMhcj5p7DgfLmjEL9EkMumHI3nGr37rdQbM0I7TpZykT57NW1NgcwoDy
-         QM4qambx1ysZ5CLIxU+WifHTRxLeh5RCHW6Rjmaf+aE9bPABnQ73nd16ue1efVzCspFT
-         IZTmqzr6BghEckVHqcMw9Ie09hlHLZxSk7RplciA6EsMigHuuXsa6+ralFN7p4EDPVfc
-         ALTZiTWnww3iuwcNNvyiyvSeGijbqVNhuiQUss38Tw7SPjR35QDzfo/H9inwCYQFaX5p
-         7lcA==
+        d=gmail.com; s=20251104; t=1787488401; x=1788093201; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3c/+w0gY/yiLxrAX3Ag3KOv3d/87sKGQ7Sm7A1q70M0=;
+        b=TeTMD2taCpTw2tSrAZBuy90DHEA3NxLI/BHi4kVj5sEs0Q62CdMYCuIZ3Wo3PW+HiI
+         MJPaTXhgV3SZIJ6sy5Re4g8vnZReXP/RBA73Ycx6b8GHy+hmkuYblowFDdMKuI6eFELc
+         hLam8TpB04+31oWPavHJzr033KeJuG0YyoSgoncEmLFLisuNOwThfQQ4FgwSIcTCpOP1
+         PqFlg9iVGuaXJ6lZr3/kxGq/Kql/1pBm/fGI+rZV6olfVHzUSsE9GnITKMB54EIbFiwL
+         hXqMyefjj3omaLPBGIcDn8CD/+KQ24nmE3hUsPkKurIoE3JmJCo0VPcMXlfT979fNaZ7
+         XI8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787486187; x=1788090987;
-        h=content-transfer-encoding:content-type:subject:from:cc:to
-         :content-language:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hMXLNsCEJBPVUF9Rtef7lSjv0r0TZUbgwcu2Y8b1UgU=;
-        b=pA5lg/P/hXKAeWhQ6e0q+xlRHXCGdhRJa+/pY2up2UuEfNpcVn0x4rIBTL2NflG90+
-         kd4pd7zR0kyjaWFAlPgFa3+GAsuZqwKDgSFD28u0P6D+e3Vgr+8ODRqjgli3kE6lLPEC
-         JUT+VtNR79FqpFVNqfWJvlinaGQOsp4fR99JbQ7u2tm0dVndz4rRmkQENllJxcbeAZHZ
-         k6mWLzmyDl4PsMcRH8FzR8/kf5ZQEj8lj23cCCi1umrvTt9vmVL0T3poQJFKhXrLcLl/
-         WrG6avthcVrVkc0od6Np+aL96nRF1Gb7GALTKQtEJ76C805vYEWhjcx6C+zWPSkSOicu
-         eKtA==
-X-Gm-Message-State: AFuF++lpPNllUtjX6i2oLdXNXyCUb53282PzwCyfMZtBFk75d+awAprW
-	Nm3KAzqiWbrNFnL//zuBOtswjQfYL82LjRLIZOS7YCtVJlPD5Q/VFPo9
-X-Gm-Gg: AR+sD10naCCPEbLcGEYN1t6/nDzXL0vVjv5544eedn5EnD88RkDcFhI/D+Rrg30aIzv
-	TYOzVMFABUXA30AnDnG8Rx43l3q4g1YgnN1QxH6l/ofOfx63A8/30TZugLEZjd52UilDFyzrXsM
-	ISpst50s6dzoh0z/lN9cxJ/KdWZm4OgJkwG4XsW95mky9mTH2q0akzk1+a4Fm9CGwgnWDsYpS+E
-	vKPpttoQ+nIQjn4oLb8xFy59PT9C4Z/FntWxigTSGjBpBZaT3occzhyPmBZPc5x2RGc9Y9dS3r4
-	SequZkT2D+l2Mk74N+RAamgEsWCjzD4g20BVSb7JrDdQP4G/SKbTs9Vbu7IjwF/mSWGXaSAouGk
-	+F3IU6WRb6F2pKhpGTtbl/lqOq9aojQz9wee7VCwEu2XleVisSjQLhMdrrLp4K5kY3h7IklrvNT
-	IEypp9VwrunwlAf1jz2G4ch/CxD5K2hxYy7uXINjCtlpVkhkfvwrs6cloEbfUNsK+j0RE=
-X-Received: by 2002:a17:903:1a30:b0:2d3:160b:c01f with SMTP id d9443c01a7336-2d64adce8e3mr358562255ad.6.1787486187179;
-        Sun, 23 Aug 2026 04:56:27 -0700 (PDT)
-Received: from [198.18.0.1] ([117.182.103.123])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d6768957bcsm9258405ad.43.2026.08.23.04.56.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 23 Aug 2026 04:56:26 -0700 (PDT)
-Message-ID: <63cb7f6e-27ab-43d8-adb5-d2f4acd57674@gmail.com>
-Date: Sun, 23 Aug 2026 19:56:22 +0800
+        d=1e100.net; s=20251104; t=1787488401; x=1788093201;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=3c/+w0gY/yiLxrAX3Ag3KOv3d/87sKGQ7Sm7A1q70M0=;
+        b=qWtUDWza6sO6Zg6TefI8RZihZCqhUNsX/KwVc9L5aX8Nn5LW1bVdQaNUz0/4oS7ZtF
+         2Crkf/a8Ntgn0iRal3kPv2J51eyUzJZu/JLA9cTYStRP7Ex9NaudG9b+vJ+QiyOh5k8p
+         JmZzKIglqNP/OOEitX8vewOzceEoqs8Gd+n3U2w5/d2drlQl7q005Cfj9FulK4VCRR7F
+         N8BrtmWesjbGNFdtPaScjqoWbtSunf1/tsDviyK1pPp/vM+MzjD0L+MrAvJd6azV5+NY
+         ix0QiyL1e4d85WXIwwFN5A6e5OcyTU+m8odpf7bIjmqYIDvWE9TJsMiqYZorlyYvATFg
+         6nIg==
+X-Gm-Message-State: AFuF++mu41P5PuZBRSmFlQX8/EQbxr555Ybz4L+3hOBVyEYPMQ0MLlAk
+	uIF96+st+chHlBvF5K9wW121iNzViD2xOIhzARQvuXrc49nGoWaqyiSa
+X-Gm-Gg: AR+sD10pXcE1vvSlHbF0NQ5yEBA0EKmg4Xefdhu+Mct7NN1qyi/3OTnFor6Gw7Gj33f
+	B1GZxfXhQYXlpqmEifdL+EOHvUcl1BXHHgtTT0YjQOnztbF0BhXOFhBw7zacxw7OYofbMpm3Dvr
+	Z+fApvNNgdRTs3bHNcA0j8F3yRvbl2KnA03mdL/PHxL0iAULfgB3FWetUuDgZU/9wA+6BvvfgZ3
+	ixOjgt2dpRIuVu0dXTqWSqy8HEpYlsnv9S51yYxavzpCX/2Vhf9xI6mkIGYASl47UEx7Z/XLpHk
+	DAGqlJprbR02XmCaL9y0AiBdUwtTxidb/SGgUQ7EZZWgmV3QnbyPMCodavvKnGTOyBHq9KQo6c4
+	+CP5vb062Reratk79PB2PGKDh/iWCKPCTE2NAwVihDL+Lcn2z3Qrm0NrV3X7NOP9BtR+lex7YoX
+	55+6I1NS2MbolQVGSoUdcrWNL6+7mkx8LE+CZ2GV2/WgSXmj71QN+TdB/AyWU98/X1694=
+X-Received: by 2002:a05:6300:220c:b0:3b2:8685:1473 with SMTP id adf61e73a8af0-3cd2fdd9b4cmr38342943637.7.1787488401490;
+        Sun, 23 Aug 2026 05:33:21 -0700 (PDT)
+Received: from InspironBook ([117.182.103.123])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc199e4b1e1sm261058a12.21.2026.08.23.05.33.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 23 Aug 2026 05:33:21 -0700 (PDT)
+From: xiaoyueyoqwq <xiaoyueyoqwq@gmail.com>
+To: andi.shyti@kernel.org,
+	westeri@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] i2c: acpi: Add DELL0A86 to i2c_acpi_force_100khz_device_ids
+Date: Sun, 23 Aug 2026 20:33:10 +0800
+Message-ID: <20260823123310.188189-1-xiaoyueyoqwq@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <63cb7f6e-27ab-43d8-adb5-d2f4acd57674@gmail.com>
+References: <63cb7f6e-27ab-43d8-adb5-d2f4acd57674@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: andi.shyti@kernel.org, westeri@kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org,
- linux-kernel@vger.kernel.org
-From: xiaoyueyoqwq <xiaoyueyoqwq@gmail.com>
-Subject: [PATCH] i2c: acpi: Add DELL0A86 to i2c_acpi_force_100khz_device_ids
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 The ELAN 04F3:3185 touchpad exposed as DELL0A86 on the Dell Inspiron
@@ -89,28 +91,28 @@ With the quirk applied, the kernel reports that the firmware requested
 400 kHz and that the bus is forced to 100 kHz. The problem did not recur
 during extended heavy use, including an S4 hibernate/resume cycle.
 
-Assisted-by: Codex:GPT-5.6-Sol
-Assisted-by: ChatGPT:GPT-5.6-Sol
+Assisted-by: Codex:ChatGPT-5.6-Sol
 Assisted-by: OpenCode:Ox Alpha (x-preview-f-free)
 Signed-off-by: xiaoyueyoqwq <xiaoyueyoqwq@gmail.com>
 ---
-  drivers/i2c/i2c-core-acpi.c | 1 +
-  1 file changed, 1 insertion(+)
+Changes in v2:
+- Resend as non-flowed plain text; Thunderbird mangled whitespace in v1.
+- No code changes.
+
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
 index 8f3bdd5..3af0e05 100644
 --- a/drivers/i2c/i2c-core-acpi.c
 +++ b/drivers/i2c/i2c-core-acpi.c
-@@ -371,6 +371,7 @@ static const struct acpi_device_id 
-i2c_acpi_force_100khz_device_ids[] = {
-       * the device works without issues on Windows at what is expected 
-to be
-       * a 400KHz frequency. The root cause of the issue is not known.
-       */
-+    { "DELL0A86", 0 },
-      { "DLL0945", 0 },
-      { "ELAN0678", 0 },
-      { "ELAN06FA", 0 },
+@@ -371,6 +371,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+ 	 * the device works without issues on Windows at what is expected to be
+ 	 * a 400KHz frequency. The root cause of the issue is not known.
+ 	 */
++	{ "DELL0A86", 0 },
+ 	{ "DLL0945", 0 },
+ 	{ "ELAN0678", 0 },
+ 	{ "ELAN06FA", 0 },
 -- 
 2.53.0
-
