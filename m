@@ -1,65 +1,65 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5181429ACCD
-	for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 16:34:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C9413126C0
+	for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 16:34:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787502883; cv=none; b=aIFHTH42Zi7qRVEcw26SgAy6g89Tryll60GWE3xxXR4EL2xSzV0dMd5QAcFUf2awg7RySSnWPy/3dHEAY+VoIl+0YEn8009cOdm1sKdsfO0HQ5Yh2Fm75en/gWcL6zDBL+Jafu13JIGzZAQEAUrbekMdCe8DgLXdEnaLG1lp30k=
+	t=1787502885; cv=none; b=qbhEMxzr37IOj/nGp2ZQKT6xjwpJ7p04JDMWk/XFjf67kWpdI66O7nbSCv7J3BhdBRfByxMCcP2sYq0JLwewvZxDe7C1fD57gujgUGn5rZuXDy5DJpMf4AHAZxCWaw273vIsVooDObzxniRRc1ofNBlPvlZQSlQjdn21CMZOMQA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787502883; c=relaxed/simple;
-	bh=02ybAsaiwsvWoQcNLX0GyaEbVxLKweh93ot9JkZWSS8=;
+	s=arc-20240116; t=1787502885; c=relaxed/simple;
+	bh=EJfCCTqbNqMzi71//u8ytAzKCePxjJyYif64TVPjsjw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FB3SJxHau29RBNoob8whK38EZamGw1izPg6kMJ9fnphSu/zp5d5wST2Sxqr8SPjOangnaNOMhplD+ZN8Y+pwV2PqmIARMI2PkWTZ/6lA76CVfdYAkT8xN/vDsQ0zv67sZ0Rh2KtozX31nGOyPkv+i6tEWRicG4mn7+OVO7w07EQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bxh28NaE; arc=none smtp.client-ip=209.85.216.54
+	 MIME-Version; b=GhLPeZ1WSyIvIsbOxRGTnoMrAassoLZgnrqyVyY3mgPs9hZRvd2dUHbJI3J0yUWcpDydemDLsgFnkOeANNKFSlAoJrVpx3V6l739gu+KYyJvqqIqDC50l2Q995NIU6A1tcCV21MHoDCu1s/ntDpEySFbcCKc+XA8bh1r+afriDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ljlU2ird; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bxh28NaE"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-38e7109321dso1725940a91.3
-        for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 09:34:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ljlU2ird"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-84874b52eabso3546718b3a.0
+        for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 09:34:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787502882; x=1788107682; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787502883; x=1788107683; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=8sTClNBlu3puMMXbF+SQ5upo6RgBShUKol0pOMHxtJA=;
-        b=Bxh28NaE3pZmwYRPHlFnO0NJjlRoBW6i7MJTKXjWYJeZg7H5rItuAXsbWfUjtlEwLL
-         l7M5JnVUwdlj7U+4zfIeqOD3Cr+x0f3Q5yzGxa2kitvN/BHlvZNpSPcjQ9Wo89fV2z0V
-         9BlAeL5GgGoRv0puyS3IZ6dHhiiLod53PErWCiEdCkwXfkW3oqN9xuz2E6IPOVHhlQFn
-         X3BCVEuSF53EDE78fqvtIPR9zjuEvofvhrKS/emlHAJc+p6qViczQFWbbyXbE6JqdEwS
-         FwKswdnXW8g9zZaClVu2x1dUwXnm5UTWlhdKuXjHloyTnXxIJy8x3SCuUFdAptIBtXFk
-         toPw==
+        bh=TSuRlPLvqVhvoFr/a6EcJQdMGwGvdr0Nq8RIhTw4Mzs=;
+        b=ljlU2irdobs7Z9q9OYTc3DUhrumb+MjXY+9SO/sQbsCM/piWuUKPVNwAEyOE8HP0GR
+         9jAS5997RxBS7ORxKTmFOHTvrMT0Fb4CRheGAX3UEWGT4cNmuMHXaTTvzFrB7cKh6M6E
+         +CG1sVuLePjDCnswVNTmCzoIBvyjjWU8IEY6Y/rpiX9vG2r28fg1Vu61gQCR8J++aBmC
+         IubKcvSPfmMzJ786b7aPuAdyjhuaQ4L0+fs+3Hznu00YPmNXcGxRfTf+RCF9QsaqdiVN
+         gWuoDzmSZqgjMPsRPotmtFDUFzRJOl/x4HlQnmAwhyzl1tg29tdxxTUQTLP/+0TyqWxG
+         O9lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787502882; x=1788107682;
+        d=1e100.net; s=20251104; t=1787502883; x=1788107683;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=8sTClNBlu3puMMXbF+SQ5upo6RgBShUKol0pOMHxtJA=;
-        b=p27Uk+F3a6n9ugr4DD2n1zyXCOl5rfnWpatIG2Y8RFd97gUbXcJbpY+jaSyRdvk0sj
-         JFMMvfB/7MEN7TOKt4bBBdX09gTOkzqseoilG4nizeWwQtMEgXEa89B67GstCfI05+EJ
-         ngS+wTzK7ksvZk/lgMCDwr8xYBZ1DWRX9vRBlqZwitimy6uvCueKY36k3bpTg54LxpBP
-         jmLXJUYzmC0mVWKAFkF1PgmiWmi3BioLpX+w7wRBj0fwMe/puNrs1iBaMXzjJHH3S7S2
-         qdLOvFIoDPa/av/ecdmmuWMnaTmvsex1nIql+hQMW26Uwqlsd/JxgyvcHfuruAzhVl80
-         /d+Q==
-X-Forwarded-Encrypted: i=1; AHgh+RoJ20b1YhZpm4bms+wUclhLPXZ/cYA1Z+sH3U9QTuakeNne3Fw9vn2b58hzszZekSd7wYfOyzJVtLs=@vger.kernel.org
-X-Gm-Message-State: AFuF++nUGE6lHTdpz40r21sBVLoB5QtbEzhmTg3H7mDP2S6nhqhyEwJU
-	yA4uwwQs6FsHQQvEG2Gm8LKWLHAWYfMH47JxaqkGKG3qQBh8C8p3G8nB
-X-Gm-Gg: AR+sD13cSswDId4pZL2et54ya3K84yukPWTKmIoXiCXY8g1fApPCJtyuaYc5T6ugW7/
-	3MCroVkGRi9Od4vN26GxPuri/VV652d29n/ea4mPPLQSsOyYlqxemU0NH3HFlLGg6iUZdrja77b
-	TZrYceu/laRMShk8xgiM20yylou83xUgPc99l8loFAZLfPO36b4AR4R69iBbZKqkesOnuD/8hA4
-	HcdQw2YMQC9oUNIU9+x3LYHnmXXMe/r8Zlw4/oCB/VWLbiUWvmZdt7PENTEldSKNyl4Qq29xpdY
-	yJfk27dIEhNCOZ6ZYnxnRBukw2jiYUj6BZkzZXtjEGjapmqei+lPKAtOi+L026mL9+GmmJ22vCA
-	/DatM44X7Wk6Y9pCgJ0gBH5g1sSO7oTAHszFX1UEHN7/er2427DAnO8aRMH8l7BSg1JrS9ZLE0Z
-	ESgz56hD09nhwWVU4GKATEKgcpgqVpVAgRRR4T98bwljF9i81KMP7jRMuY9lpagICoQr1z589OG
-	5voxQKyACMYXjsMbh1fjyA+kSuU+9QemsjR+8P6SckRpzj4pRHO+/X36tgFXHYVDs2fQdeXcCF/
-	cTws9pQGGHYumK0qg5Tw
-X-Received: by 2002:a17:90b:1b0b:b0:37f:e1b6:4c7d with SMTP id 98e67ed59e1d1-395c35ac458mr32281415a91.6.1787502881613;
-        Sun, 23 Aug 2026 09:34:41 -0700 (PDT)
+        bh=TSuRlPLvqVhvoFr/a6EcJQdMGwGvdr0Nq8RIhTw4Mzs=;
+        b=OsZVJRhHr59+QOkUKmTh+0hqPtnnVhfJgipdYc3U19ondePc/jPPZnWj1KQQhREJSn
+         tyuI9eui1eB0ZKd/S75VeQrHjFH5cbNToaxZg8Tn7RT/6D6hG2naAehrWKDxtX1bJziS
+         OZUqDAjSzbi8v/RTF7/auT/STInA3CYRN76nMljxl3Mk8VuzKYtltP4/2OeMB/KXvaGM
+         MTwXLAHb6TLsViWezoQtWJjVWJ1kAYQhNmihh9gddjP5RCURopbLVB2KlOOPswJw/O2I
+         7k5R0EzEwWXbCVAXRT5TflUOLLa2qTY9XtqVJWEiUJ4FzDgq2TN+2GY+Qu6B8JaKwj50
+         Uy9g==
+X-Forwarded-Encrypted: i=1; AHgh+RpStZTG02BYYrND22571fWjXFOC7SYVoiLjaqxrEKgu6v0JWQHgKZBTgcYatj1lUWKNB0EFQDoFLRg=@vger.kernel.org
+X-Gm-Message-State: AFuF++k/t1UOV7+e490jsDgxfuur391BIFKVrDY9XvxTDOnVB71v5++W
+	GM8JiheYa5xXPdsiLR/YnngeunAqEBqvvFPp7e2JFBfTAIf+PZF93gu0
+X-Gm-Gg: AR+sD116HLxrc+hKbHNn5ndyVXMoxJ6A/f/VY2n9v4R7KnM6g6jX5i1YXo7xBA0EOyz
+	0r6W9wRAUmeq13XFvgDXkB+lUD4yUR+pUxKjMb0gT7O2deLmjZGKVBLG/TpzWntOesx/w1JkJtU
+	AP+HCjpBZU+5oPdgY/FPFSOlylWlFgPIOO2hVN8Z7igWpTvXMLjgDhTHZ3HRkFTTEtiogEtSioK
+	oQ6PCiO5cyJBLfkUg57Mu3OOS2aN2BDQ4NKetJfkdXMqXTQsU0ksFuxrecdIU40Fhybzig6bo48
+	sb44+vnq+HNXtHxkJXZGi/grSCXBuhWJtoxaGKP7etAi14SH6525hVTT5HAHlwN19TtKxdjJi1U
+	KdhfeXMvqUAhDKfekPEZVosS4RYAo2zw0i/Sr5c+YFOreXrX5D2XDa1VKx2k9B8j09S07d8AVJj
+	IuuETgxaPaY3EC3bs9BKbtaHhCe/hdbfWYLn6MpuCdYJ4Oc63/YxvMTl7c7C7pDcdnX/EyeHdIU
+	z8NUWifEuDrFv5FOJTgWZ99KhpXtux/Ox/hYQ2rc4KC+wptOTEg+WSnVpc0fQjUDKZKfKDPLlff
+	/F3tUcFFTPRxlQ7ql4bsyUouE8HGjVU=
+X-Received: by 2002:a05:6a20:ac43:b0:3c3:935a:af2c with SMTP id adf61e73a8af0-3cd2fd03751mr41714282637.3.1787502882736;
+        Sun, 23 Aug 2026 09:34:42 -0700 (PDT)
 Received: from Mac.net (198-27-228-154.fiber.dynamic.sonic.net. [198.27.228.154])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141860ef75esm17084319c88.7.2026.08.23.09.34.40
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-141860ef75esm17084319c88.7.2026.08.23.09.34.41
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 23 Aug 2026 09:34:41 -0700 (PDT)
+        Sun, 23 Aug 2026 09:34:42 -0700 (PDT)
 From: Ahmad Byagowi <ahmadexp@gmail.com>
 To: Andi Shyti <andi.shyti@kernel.org>
 Cc: Peter Rosin <peda@lysator.liu.se>,
@@ -67,9 +67,9 @@ Cc: Peter Rosin <peda@lysator.liu.se>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Ahmad Byagowi <ahmadexp@gmail.com>
-Subject: [PATCH v7 1/3] i2c: mux: Fix channel node leak on adapter add failure
-Date: Sun, 23 Aug 2026 09:34:36 -0700
-Message-ID: <b3e46bbee781b3cb4029aca9a71316cc5e36dc17.1787502619.git.ahmadexp@gmail.com>
+Subject: [PATCH v7 2/3] i2c: mux: Factor out channel node lookup
+Date: Sun, 23 Aug 2026 09:34:37 -0700
+Message-ID: <ab51db7f1d0ca80b0aab631c3215594b6fa33e33.1787502619.git.ahmadexp@gmail.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <cover.1787502619.git.ahmadexp@gmail.com>
 References: <cover.1787502619.git.ahmadexp@gmail.com>
@@ -81,30 +81,118 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-i2c_mux_add_adapter() takes a reference to the Device Tree channel node
-before registering the new adapter. If adapter registration fails, the
-error path frees the private data without dropping that reference.
+Move the existing Device Tree channel-node lookup into a helper in
+preparation for using generic firmware-node operations.
 
-Release the channel node before freeing the private data.
+This is a pure refactoring with no functional change.
 
-Fixes: bc45449b1444 ("i2c/of: Automatically populate i2c mux busses from device tree data.")
 Signed-off-by: Ahmad Byagowi <ahmadexp@gmail.com>
 ---
- drivers/i2c/i2c-mux.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/i2c-mux.c | 84 +++++++++++++++++++++++--------------------
+ 1 file changed, 46 insertions(+), 38 deletions(-)
 
 diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 681a201c239b..68a4c34b5987 100644
+index 68a4c34b5987..a8b94b97a725 100644
 --- a/drivers/i2c/i2c-mux.c
 +++ b/drivers/i2c/i2c-mux.c
-@@ -408,6 +408,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 	return 0;
+@@ -264,6 +264,51 @@ static const struct i2c_lock_operations i2c_parent_lock_ops = {
+ 	.unlock_bus =  i2c_parent_unlock_bus,
+ };
  
- err_free_priv:
-+	of_node_put(priv->adap.dev.of_node);
- 	kfree(priv);
- 	return ret;
- }
++static struct device_node *
++i2c_mux_get_channel_node(struct i2c_mux_core *muxc, u32 chan_id)
++{
++	struct device_node *dev_node = muxc->dev->of_node;
++	struct device_node *mux_node, *child = NULL;
++	u32 reg;
++	int ret;
++
++	if (!dev_node)
++		return NULL;
++
++	if (muxc->arbitrator)
++		mux_node = of_get_child_by_name(dev_node, "i2c-arb");
++	else if (muxc->gate)
++		mux_node = of_get_child_by_name(dev_node, "i2c-gate");
++	else
++		mux_node = of_get_child_by_name(dev_node, "i2c-mux");
++
++	if (mux_node) {
++		/* A "reg" property indicates an old-style DT entry */
++		if (!of_property_read_u32(mux_node, "reg", &reg)) {
++			of_node_put(mux_node);
++			mux_node = NULL;
++		}
++	}
++
++	if (!mux_node)
++		mux_node = of_node_get(dev_node);
++	else if (muxc->arbitrator || muxc->gate)
++		child = of_node_get(mux_node);
++
++	if (!child) {
++		for_each_child_of_node(mux_node, child) {
++			ret = of_property_read_u32(child, "reg", &reg);
++			if (ret)
++				continue;
++			if (chan_id == reg)
++				break;
++		}
++	}
++
++	of_node_put(mux_node);
++	return child;
++}
++
+ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 			u32 force_nr, u32 chan_id)
+ {
+@@ -327,44 +372,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	 * Try to populate the mux adapter's of_node, expands to
+ 	 * nothing if !CONFIG_OF.
+ 	 */
+-	if (muxc->dev->of_node) {
+-		struct device_node *dev_node = muxc->dev->of_node;
+-		struct device_node *mux_node, *child = NULL;
+-		u32 reg;
+-
+-		if (muxc->arbitrator)
+-			mux_node = of_get_child_by_name(dev_node, "i2c-arb");
+-		else if (muxc->gate)
+-			mux_node = of_get_child_by_name(dev_node, "i2c-gate");
+-		else
+-			mux_node = of_get_child_by_name(dev_node, "i2c-mux");
+-
+-		if (mux_node) {
+-			/* A "reg" property indicates an old-style DT entry */
+-			if (!of_property_read_u32(mux_node, "reg", &reg)) {
+-				of_node_put(mux_node);
+-				mux_node = NULL;
+-			}
+-		}
+-
+-		if (!mux_node)
+-			mux_node = of_node_get(dev_node);
+-		else if (muxc->arbitrator || muxc->gate)
+-			child = of_node_get(mux_node);
+-
+-		if (!child) {
+-			for_each_child_of_node(mux_node, child) {
+-				ret = of_property_read_u32(child, "reg", &reg);
+-				if (ret)
+-					continue;
+-				if (chan_id == reg)
+-					break;
+-			}
+-		}
+-
+-		priv->adap.dev.of_node = child;
+-		of_node_put(mux_node);
+-	}
++	priv->adap.dev.of_node = i2c_mux_get_channel_node(muxc, chan_id);
+ 
+ 	/*
+ 	 * Associate the mux channel with an ACPI node.
 -- 
 2.50.1 (Apple Git-155)
 
