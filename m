@@ -1,430 +1,167 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C93153E5A01;
-	Mon, 24 Aug 2026 06:15:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC6A37A847
+	for <linux-i2c@vger.kernel.org>; Mon, 24 Aug 2026 06:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787552111; cv=none; b=NIBsvs61RFH4yWfjZbBv1QjRNoR+znAC1rQfiJBCmEMRbsvOQddE0JH2OdgT91susZeHfMrvKQIVzUIeoY4VtdpS08gDgs4uY5ZHWfUglAEbl8PsN3vmc4KxKHOQNFdmaO5drwRYEHqBCA3KLK7J9bPhXsb1ifKC4RDG+Xgzh8o=
+	t=1787552399; cv=none; b=JufKPow0zpYI50fYol2rNNp0nqj0D6tUVXoBHR9vxrlD4y/0+anI+9V1xBDcI7HdAVOayVqdSqKGzi4iUNe4WNnvvI0PMQNKzB6HAR+CtoX0FvC+CKgq+pSdYSnH5U03EdjzgYFL/zVwsLfTsEL7To7FxmQtAs1N4SPNkgF+nEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787552111; c=relaxed/simple;
-	bh=X5m53fEjiCLQUHwbyO6HUdCjFfSdafZX1sAdv/zfC/M=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=dmrulb9hb9qDdQiHqtSuDI3ffxmZN0e1BYZt2aYwjfaUUUNLlx+a/7fIzKGshq8IxUITVz6SFIGW9SKHlYJgRYzPiYtG/eUc3JbkdWs8AqK8Vb8wV0AIj+gY/Eh/KuB4rTOQ/scEm0bJKADJMz3JBfliemlgc9ajRs4RgCYMAtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pG1BOiGk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1787552399; c=relaxed/simple;
+	bh=zhci3GeC4y3P5A9XMBDTzxBHiu9XQ7vIFjySCKubQng=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UBwV+e3DGtiRQcOeaqP9zEJ3ouSyxwzdsckvlhEM+1/vNoQZKkvXlF7FPQ0o90Fwr1WmScN6CACC1Q6LdVZ3wRGpvnhO2Fv4tOQHxhxRstaomb8xaNCjMwwHbPWeTJXBjoCdtZDYzRE4oeGtMa1kpZpB5nSK3v6MkY5FgMxEUuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ovXEU5fq; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=K1Csvwle; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pG1BOiGk"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 80A93C4AF15;
-	Mon, 24 Aug 2026 06:15:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1787552111;
-	bh=X5m53fEjiCLQUHwbyO6HUdCjFfSdafZX1sAdv/zfC/M=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=pG1BOiGkqkdHlRvvF9FpLdWT8t0rM1iHdg6/2tNfs/3bbYoBuIVgwAn+BDQe5rmJI
-	 Q6BxWf+Xyqwj75XnIKRZZUda/AbvOU9G6a8Ev/JNkhfvnrabQ6Eq4yeGgfwOWCiHpt
-	 ToDtKcZBz5GWkMwAgbeRr/0Byx1P8viX4n8F03J/FKqbZ6hmTXBBGWxz8aTAVQKbb/
-	 uQwcsZol/ct6w/w556uovCzqkXapHNWh/AuRgU945yySQ8s6jjGxoZzt4rNl328M5+
-	 lBJ0gHnWXutmdjc4bdWAtHNcCORfnRNJC6OyJep01nhgt2ri0uuomyrkZgcj+p6z2W
-	 mjPNhfrYWwl5A==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6911EC61CE2;
-	Mon, 24 Aug 2026 06:15:11 +0000 (UTC)
-From: Jia Wang via B4 Relay <devnull+wangjia.ultrarisc.com@kernel.org>
-Date: Mon, 24 Aug 2026 13:54:25 +0800
-Subject: [PATCH 12/12] riscv: dts: ultrarisc: Add Milk-V Titan board device
- tree
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ovXEU5fq";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="K1Csvwle"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67O5RTO91577437
+	for <linux-i2c@vger.kernel.org>; Mon, 24 Aug 2026 06:19:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	oPNyJXSmM754bjM4+PUtlpBzKwKkj7QX9fCPtPpbqNo=; b=ovXEU5fqBkRByt+e
+	t4drYvpoSdvP6KAbR709xhfrW2/3FAJDVfaHrFb4fZv2oVpOxqndyjjRbAqXvusK
+	e9bgFAdtjY1UQeFXhF8+zT/iifPh/649FalyqzOsgxX2u0vWLDX0B0lkBmEq9sd+
+	KpFePwjy2FpO8IFzxyhy2qucoxTrnUEE6XY7FOF5mrjz7sElVk8AbuBonRAvt3/7
+	2f6Dxb17ORygVAZ13KWmNuWFAU+YlAdTNiz2mZf8bcHmJ0wMk2MFgMALV0kOogHU
+	KERRIoNsmtbQbPUV6wEka6/4Miw/wnqaWKU6NenUl0soyKXwaQHRN4V2DGf4sSCn
+	kv+Y6g==
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g74hcwfsa-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 24 Aug 2026 06:19:57 +0000 (GMT)
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-cab048cdb3eso4118574a12.0
+        for <linux-i2c@vger.kernel.org>; Sun, 23 Aug 2026 23:19:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1787552397; x=1788157197; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=oPNyJXSmM754bjM4+PUtlpBzKwKkj7QX9fCPtPpbqNo=;
+        b=K1CsvwleezijSx8KC4WFypb2yaeXuiHI6Iamo5wnETWwHYmCfxVbqaoTVQ/+yaZtQ/
+         penmQ9XvnR37oYDqmJkfv3qZtEilMtw5eueXDWI0w2CcapZLGEoVWjoz4EGvPdrN9fAz
+         mKSk+KF4DhmTI+dmciUEb5M8RolRX6ewz3Wmj8Ul1eyj++9iGD/3+A7XrhaxKx2ItjIy
+         1IGRQ6VG51JcLmQD7jUxaYryhYf3w4zQGP3e/5TLK6Z0bqPaQ1PSBxJ/PnJkTQ4ZUSxy
+         23MFx8pdQGZqPVWKL/8sl5uotvK95++GX8nswh/seGb0noJE3mAepqa3UIrjhyIt1gV4
+         ipQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787552397; x=1788157197;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=oPNyJXSmM754bjM4+PUtlpBzKwKkj7QX9fCPtPpbqNo=;
+        b=qXt8CsaZ/YatfFP+2ABbj0wo+gq2NbndZfUxsoFluuMmZnkyQicanC/FhRaeW15cSc
+         Bd0oKwP/dKL9/5SA7BSZrhmargsw5hMS/x5bowFvLQ1fU+CT4l+c5qq50VUaEpMOsdvs
+         zYUpb6lZouw1dQIF+cg7w3AaaGMZyV96QeS/BfZVpm0iYK4FVAPjtfY4ipfas2WqWihq
+         Il8XRQFpw7j/U/9nZLMOaL91eQxuMQQTtiR04XaK0x6yLjncFjLHyZ0VfaXTRKSIwtYH
+         u0/fAYTXLLYUn8/tUkdrxWp1grkE6Ke6IMUdfhhy8IGsE8bH3p1Kr6rWTAp+u16ftphy
+         7w6A==
+X-Forwarded-Encrypted: i=1; AHgh+Rp6c0u+z+S1aOj6UWJPiyi4ROLChq5j31D1RPHCOtIiW1wKg+iYRGzvpF7OeLtz6AVcTa46CwFlaeU=@vger.kernel.org
+X-Gm-Message-State: AFuF++mymKX5fqqD/3phxQ03x1xSDq82keo5fimbxvMC+PWkQEx2u47A
+	lRC0x9UZ1IEbXa29R30m1cYyRRnV206gbS/WSe68iyh5csiRoUN4qF2nXMl/pZknNszD0BMGU47
+	p9PGAIamRRueq28Bst1RUdRI7XLyE/3OtyXdSdEtHBpmegtXlYAjSuswooypz/Xo=
+X-Gm-Gg: AR+sD13o4AE5M+S4EI2/79xMhOY8R/gRZ9Fbqq+Q55M22jzlV8YtWxXzJp+P0S8vxeq
+	xzLZ7i+mVKS0Y/Yva2kZnHcNP+tPTLeZUqmti0+Dw3JhN0hJDGw3dC1qyE/eSua2vnP9GKLGCcT
+	fgvAx5mO4BcpFKlQPxhGVPqL+ymg9BXJheAiCGOVepecuFul9u0zpnfSvr/ZF/J/olWXbQ8Q4+1
+	q0q0SCnR5ByPIy/A0Y0PS10E+aO75o1hV1BN+yOa9ByvHOP7MbKU7thjsx8Nn8vvNgpzvfIC1/X
+	c0Et9/kpo72WIywgr62Hysw0ZlTrsoiKZXzl+tJ/vLhXUgyCDGWMJIV2yreeXJ/nWFMWl0LTE01
+	HN/ys9IbjIyEkHIT7lT3luMaowGj9HhVig7U=
+X-Received: by 2002:a05:6a20:3d94:b0:3b3:26aa:5455 with SMTP id adf61e73a8af0-3cd300f9e23mr43811492637.13.1787552396814;
+        Sun, 23 Aug 2026 23:19:56 -0700 (PDT)
+X-Received: by 2002:a05:6a20:3d94:b0:3b3:26aa:5455 with SMTP id adf61e73a8af0-3cd300f9e23mr43810425637.13.1787552389918;
+        Sun, 23 Aug 2026 23:19:49 -0700 (PDT)
+Received: from [10.217.218.158] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc199e72326sm682881a12.32.2026.08.23.23.19.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 23 Aug 2026 23:19:49 -0700 (PDT)
+Message-ID: <29719c5f-757d-426e-94ca-c221f45c00cf@oss.qualcomm.com>
+Date: Mon, 24 Aug 2026 11:49:44 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 1/2] i2c: core: Add i2c_update_timeout() helper for
+ dynamic transfer timeouts
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Cc: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260813-master-v7-0-3f9010cf9229@oss.qualcomm.com>
+ <20260813-master-v7-1-3f9010cf9229@oss.qualcomm.com>
+Content-Language: en-US
+From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+In-Reply-To: <20260813-master-v7-1-3f9010cf9229@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260824-ultrarisc-dts-v1-12-61ab7aebe9e5@ultrarisc.com>
-References: <20260824-ultrarisc-dts-v1-0-61ab7aebe9e5@ultrarisc.com>
-In-Reply-To: <20260824-ultrarisc-dts-v1-0-61ab7aebe9e5@ultrarisc.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
- Alexandre Ghiti <alex@ghiti.fr>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, 
- Samuel Holland <samuel.holland@sifive.com>, 
- Anup Patel <anup@brainfault.org>, Mark Brown <broonie@kernel.org>, 
- Andi Shyti <andi.shyti@kernel.org>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Giuseppe Cavallaro <peppe.cavallaro@st.com>, 
- Jose Abreu <joabreu@synopsys.com>, 
- Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>, 
- Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>, 
- Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>, 
- devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, 
- linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org, 
- linux-i2c@vger.kernel.org, netdev@vger.kernel.org, 
- dmaengine@vger.kernel.org, Jia Wang <wangjia@ultrarisc.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1787552108; l=7355;
- i=wangjia@ultrarisc.com; s=20260515; h=from:subject:message-id;
- bh=zBhtRfmKKWpJufh5JQfrWxerGCRdaDPbp3rtX+6ZO1c=;
- b=3jzES90pfxMiJBYWUQ6MSAJXJiiH4BhSUaV6y79VZz5pBaLoIzpUeePKM0sYg7t1D9FUKxt0+
- iVoJ+mii09BB7enwkirZz2y1AzNIJIH1c1zy6xwP5iEgeJTyo+k19RX
-X-Developer-Key: i=wangjia@ultrarisc.com; a=ed25519;
- pk=wGVm18siRScehKOkOz0WKxgxDy7IezHEszhnN4/TUCY=
-X-Endpoint-Received: by B4 Relay for wangjia@ultrarisc.com/20260515 with
- auth_id=779
-X-Original-From: Jia Wang <wangjia@ultrarisc.com>
-Reply-To: wangjia@ultrarisc.com
+X-Proofpoint-ORIG-GUID: t3ICnOMIkoqNtGhjPLNELCvPGEHxjEiO
+X-Authority-Analysis: v=2.4 cv=U7iiy+ru c=1 sm=1 tr=0 ts=6a8be28d cx=c_pps
+ a=Qgeoaf8Lrialg5Z894R3/Q==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
+ a=KUGX3CDIF-uJIBJLYKwA:9 a=QEXdDO2ut3YA:10 a=x9snwWr2DeNwDh03kgHS:22
+X-Proofpoint-GUID: t3ICnOMIkoqNtGhjPLNELCvPGEHxjEiO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDA1NCBTYWx0ZWRfX5ZmIxOnCtdhB
+ mUQRR9qTcTM27sfpX/BXnBzDBBb0Y9tu+zKQtnaq0vEEL7NYHpTBQKy7EpzLh2j2VPVqDJ7qfzK
+ oH5l34s716nHJVsjfms3ttpz0/ovfYe4e5uNyQzFXqMuHevCMTLgj8C3qR6fqIs/LCyEUDnwkEN
+ rlpazsTnSCwz+WJirzWrMwROdobWlamvZyuVfzPCJRRXUcf9gzcIWQI/NbAL+qfCh9yCMVe1ANs
+ NT7QwbfvVc4rdZt2P1RJCYdcNc1zSzBGCQmvcDTL8a8fgWRzACvxTzeVOGHMug7o61ofMqwllTA
+ bTYrCC5Rpt0PXbJRGfAifThfwgq7MUdvOcDwSz8pOHo+1+6OLq394WWIwjqVS+z0i1jih8IXQHJ
+ Qm/deFMSE08mkpV3KmX4xE8iqrvI6oSbBVbu49RyQ52yNpOK4FfItosK47Q8DmUHJ01M0w+WhJU
+ lfqXOeSq1xLyEOedz1g==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDA1NCBTYWx0ZWRfX7LbQbk5b08e9
+ 4zdpwiA1Uj8SRsVUPPNl0M43gFdutZba7jhDGkXtcs/Qk7accL0nwSlIc9op05lTgwFRKk9zn4I
+ FwOmZFt6HLiyP08cHnSNlXGyhT5JzWU=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-24_02,2026-08-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 adultscore=0 priorityscore=1501 bulkscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 suspectscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608240054
 
-From: Jia Wang <wangjia@ultrarisc.com>
 
-Milk-V Titan is an ITX motherboard based on the UltraRISC DP1000 SoC.
 
-Link: https://milkv.io/docs/titan/overview
-Signed-off-by: Jia Wang <wangjia@ultrarisc.com>
----
- arch/riscv/boot/dts/ultrarisc/Makefile             |   1 +
- .../dts/ultrarisc/dp1000-milkv-titan-pinctrl.dtsi  | 108 +++++++++++
- .../boot/dts/ultrarisc/dp1000-milkv-titan.dts      | 203 +++++++++++++++++++++
- 3 files changed, 312 insertions(+)
+On 8/13/2026 11:15 AM, Aniket Randive wrote:
+[...]
 
-diff --git a/arch/riscv/boot/dts/ultrarisc/Makefile b/arch/riscv/boot/dts/ultrarisc/Makefile
-index 454d849a6ce4..dfd15c064d07 100644
---- a/arch/riscv/boot/dts/ultrarisc/Makefile
-+++ b/arch/riscv/boot/dts/ultrarisc/Makefile
-@@ -1,2 +1,3 @@
- # SPDX-License-Identifier: GPL-2.0
-+dtb-$(CONFIG_ARCH_ULTRARISC) += dp1000-milkv-titan.dtb
- dtb-$(CONFIG_ARCH_ULTRARISC) += dp1000-shenrongda-m0.dtb
-diff --git a/arch/riscv/boot/dts/ultrarisc/dp1000-milkv-titan-pinctrl.dtsi b/arch/riscv/boot/dts/ultrarisc/dp1000-milkv-titan-pinctrl.dtsi
-new file mode 100644
-index 000000000000..7a812e40a249
---- /dev/null
-+++ b/arch/riscv/boot/dts/ultrarisc/dp1000-milkv-titan-pinctrl.dtsi
-@@ -0,0 +1,108 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright(C) 2026 UltraRISC Technology (Shanghai) Co., Ltd.
-+ */
-+
-+#include "dp1000.dtsi"
-+#include "dp1000-pinctrl.h"
-+
-+&pinctrl {
-+	i2c0_pins: i2c0-pins {
-+		pins = <PA12 PA13>;
-+		function = "i2c";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	i2c1_pins: i2c1-pins {
-+		pins = <PB6 PB7>;
-+		function = "i2c";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	i2c2_pins: i2c2-pins {
-+		pins = <PC0 PC1>;
-+		function = "i2c";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	i2c3_pins: i2c3-pins {
-+		pins = <PC2 PC3>;
-+		function = "i2c";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	io_pins: io-pins {
-+		pins = <PA10 PA15 PB0 PB1 PB2 PD6 PD7>;
-+		function = "gpio";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	gpio_keys_pins: gpio-keys-pins {
-+		pins = <PA4 PA11 PA14>;
-+		function = "gpio";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	mux_dcdc_i2c_pins: mux-dcdc-i2c-pins {
-+		pins = <PA5>;
-+		function = "gpio";
-+	};
-+
-+	mux_i2c3_pins: mux-i2c3-pins {
-+		pins = <PA6>;
-+		function = "gpio";
-+	};
-+
-+	mux_uart0_pins: mux-uart0-pins {
-+		pins = <PA7>;
-+		function = "gpio";
-+	};
-+
-+	spi0_pins: spi0-pins {
-+		pins = <PD0 PD1 PD2 PD3 PD4 PD5>;
-+		function = "spi";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	spi1_pins: spi1-pins {
-+		pins = <PA0 PA1 PA2 PA3>;
-+		function = "spi";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	uart0_pins: uart0-pins {
-+		pins = <PA8 PA9>;
-+		function = "uart";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	uart1_pins: uart1-pins {
-+		pins = <PB4 PB5>;
-+		function = "uart";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	uart2_pins: uart2-pins {
-+		pins = <PC4 PC5>;
-+		function = "uart";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+
-+	uart3_pins: uart3-pins {
-+		pins = <PC6 PC7>;
-+		function = "uart";
-+		bias-pull-up;
-+		drive-strength = <33>;
-+	};
-+};
-diff --git a/arch/riscv/boot/dts/ultrarisc/dp1000-milkv-titan.dts b/arch/riscv/boot/dts/ultrarisc/dp1000-milkv-titan.dts
-new file mode 100644
-index 000000000000..f1a0efee3d74
---- /dev/null
-+++ b/arch/riscv/boot/dts/ultrarisc/dp1000-milkv-titan.dts
-@@ -0,0 +1,203 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright(C) 2026 UltraRISC Technology (Shanghai) Co., Ltd.
-+ */
-+
-+#include "dp1000-milkv-titan-pinctrl.dtsi"
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
-+#include <dt-bindings/input/gpio-keys.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
-+#include <dt-bindings/leds/common.h>
-+
-+/ {
-+	model = "Milk-V Titan";
-+	compatible = "milkv,titan", "ultrarisc,dp1000";
-+
-+	aliases {
-+		serial0 = &uart0;
-+		serial1 = &uart1;
-+		serial2 = &uart2;
-+		serial3 = &uart3;
-+	};
-+
-+	chosen {
-+		stdout-path = "serial0:115200n8";
-+	};
-+
-+	gpio-keys {
-+		compatible = "gpio-keys";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&gpio_keys_pins>;
-+
-+		key-wakeup-0 {
-+			label = "Wake-Up";
-+			gpios = <&gpio_a 14 GPIO_ACTIVE_LOW>;
-+			linux,code = <KEY_WAKEUP>;
-+			linux,input-type = <EV_KEY>;
-+			debounce-interval = <10>;
-+			wakeup-source;
-+			wakeup-event-action = <EV_ACT_ASSERTED>;
-+		};
-+
-+		key-wakeup-1 {
-+			label = "Power";
-+			gpios = <&gpio_a 11 GPIO_ACTIVE_LOW>;
-+			linux,code = <KEY_POWER>;
-+			linux,input-type = <EV_KEY>;
-+			debounce-interval = <10>;
-+			wakeup-source;
-+			wakeup-event-action = <EV_ACT_ASSERTED>;
-+		};
-+
-+		key-wakeup-2 {
-+			label = "Wake-Up-by-USB";
-+			interrupts-extended = <&gpio_a 4 IRQ_TYPE_EDGE_FALLING>;
-+			linux,code = <KEY_WAKEUP>;
-+			linux,input-type = <EV_KEY>;
-+			debounce-interval = <10>;
-+			wakeup-source;
-+		};
-+	};
-+};
-+
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins>;
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins>;
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins>;
-+
-+	rtc@68 {
-+		compatible = "st,m41t11";
-+		reg = <0x68>;
-+	};
-+};
-+
-+&i2c3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c3_pins>;
-+};
-+
-+&spi0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&spi0_pins>;
-+};
-+
-+&spi1 {
-+	num-cs = <1>;
-+
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&spi1_pins>;
-+};
-+
-+&uart0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart0_pins>;
-+};
-+
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins>;
-+};
-+
-+&uart2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart2_pins>;
-+};
-+
-+&uart3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart3_pins>;
-+};
-+
-+&pcie_x16 {
-+	status = "okay";
-+};
-+
-+&pcie_x4a {
-+	status = "okay";
-+};
-+
-+&pcie_x4b {
-+	status = "okay";
-+};
-+
-+&gpio {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&io_pins &mux_dcdc_i2c_pins &mux_i2c3_pins &mux_uart0_pins>;
-+};
-+
-+&gpio_a {
-+	dcdc-i2c-mux-hog {
-+		gpio-hog;
-+		gpios = <5 GPIO_ACTIVE_HIGH>;
-+		output-low;
-+		line-name = "dcdc-i2c-mux";
-+	};
-+
-+	i2c3-mux-hog {
-+		gpio-hog;
-+		gpios = <6 GPIO_ACTIVE_HIGH>;
-+		output-low;
-+		line-name = "i2c3-mux";
-+	};
-+
-+	uart0-mux-hog {
-+		gpio-hog;
-+		gpios = <7 GPIO_ACTIVE_HIGH>;
-+		output-high;
-+		line-name = "uart0-mux";
-+	};
-+};
-+
-+&ethernet {
-+	phy-handle = <&phy0>;
-+	/*
-+	 * RTL8211F: board timing uses PHY strap delays; keep plain "rgmii".
-+	 * Enabling PHY internal delays via "rgmii-id" breaks Ethernet traffic.
-+	 */
-+	phy-mode = "rgmii";
-+
-+	status = "okay";
-+
-+	mdio {
-+		compatible = "snps,dwmac-mdio";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		phy0: phy@0 {
-+			reg = <0>;
-+
-+			leds {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				led@1 {
-+					label = "eth-link";
-+					reg = <1>;
-+					color = <LED_COLOR_ID_YELLOW>;
-+					function = LED_FUNCTION_INDICATOR;
-+					default-state = "keep";
-+					linux,default-trigger = "netdev";
-+				};
-+
-+				led@2 {
-+					label = "eth-activity";
-+					reg = <2>;
-+					color = <LED_COLOR_ID_GREEN>;
-+					function = LED_FUNCTION_ACTIVITY;
-+					default-state = "keep";
-+					linux,default-trigger = "netdev";
-+				};
-+			};
-+		};
-+	};
-+};
+> +void i2c_update_timeout(struct i2c_adapter *adap, u32 bus_freq_hz,
+> +			size_t len, unsigned int safety_coeff,
+> +			unsigned int min_usec)
+> +{
+> +	u64 bit_usec = mul_u64_u32_div(len * 9, USEC_PER_SEC, bus_freq_hz);
+let's validate bus_freq_hz to prevent from 0 value in case of any 
+abnormal caller.
 
--- 
-2.34.1
+> +	u64 total_usec = bit_usec * safety_coeff + min_usec;
+> +	unsigned long jiffies_val;
+> +
+> +	/* Userspace-configured timeout always takes precedence. */
+> +	if (adap->user_timeout > 0) {
+> +		adap->timeout = adap->user_timeout;
+> +		return;
+> +	}
+> +
+> +	jiffies_val = usecs_to_jiffies((unsigned int)min_t(u64, total_usec, UINT_MAX));
+> +	/* adap->timeout is int; guard against signed overflow. */
+> +	adap->timeout = (int)min_t(unsigned long, jiffies_val, INT_MAX);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_update_timeout);
+> +#endif /* CONFIG_I2C_DYNAMIC_TIMEOUT */
+> +
 
+[...]
 
