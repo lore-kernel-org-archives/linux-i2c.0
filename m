@@ -1,118 +1,176 @@
-Received: from carlos102.mail.rambler.ru (carlos102.mail.rambler.ru [81.19.78.5])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE3EE7082D
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 00:39:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.78.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82F0925A640;
+	Tue, 25 Aug 2026 02:40:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787618364; cv=none; b=GFiaXvuOxX+pjIRoPyqmKSQCN3RZQDJwj/TouZuvBAjNBWdQO3NghxpUA/S8E4w7GsI+vkm2a2Mhxi4g+KDt34c2QGGOIQCJLnhlcqRPhPiEs3xarxUwgVlSgjaQH9UANXvahJXvXOAFDdUkLnnLcu9L+OwIhrnfQZkhIHXXQVk=
+	t=1787625641; cv=none; b=Xm6mkBjRJ6tuuHOTva0Lqw+k1HWKjkRaZSkos067FCuNl1ZofVFhQbQAdIKREzhqvPZv65Rn7rU1cZRIF2+vYzb309xXXfFiw9cZ2bU17NZo6mAXnCEnu5O0NzzXUfYLk77WDuEddqB6r8IxR+brS3lNhPGIiicXxXXvKWcbWFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787618364; c=relaxed/simple;
-	bh=0y6g+1l84lt3GnU1+SQGQKMo0gfb5JJ6WAm+4kPmBUo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:Cc:
-	 In-Reply-To:Content-Type; b=atcjlYDLG8hMAdfMaKDVuFIbAV3hxJF8RRbtU8BFfmqe3LBO+5k/jD0yedyx0jYz89H2R2pCoJLVs36bZ1g870O6VRQdCgt5wTPhIbPNETT8ymMejVs+l7Pf5K7XBKHD/iVyT3G5BHNOo52Tpdvsv97Im1LpwG5gRtmdyQR8Cm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru; spf=pass smtp.mailfrom=ro.ru; arc=none smtp.client-ip=81.19.78.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ro.ru
-Received: from localhost (localhost [127.0.0.1])
-	(Authenticated sender: alma0@ro.ru)
-	by carlos102.mail.rambler.ru (Postfix) with ESMTPA id A0C2A32F4287;
-	Tue, 25 Aug 2026 03:31:47 +0300 (MSK)
-Message-ID: <9ed6f717-a04c-425f-945e-7fe8fe3b5d7d@ro.ru>
-Date: Tue, 25 Aug 2026 02:31:45 +0200
+	s=arc-20240116; t=1787625641; c=relaxed/simple;
+	bh=grmr8ShzbmokeeZM8GJP7va3jRxjvHZ4u/qI8TrYDQ0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=r0GvZ4K+sWj+29sHFYdaDzrHKzkBQB/Hwvl+qDGQA2gA5zfwWU+Vq2VmlLsVB/g1b+JKSQITlE80D1sdjAyOmHi+SeG5lUIbzMw7LcRskG6WvPSvYlBdOzTBYdA+/lpE3zLpahIkiwtviCBx1ZwyQefUSuZ+VyWj+UmtE9+fO5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=hzGqzCFd; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hzGqzCFd"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=cMhE1zLIBEfW8ce0tgca2Z8WQ504QioXQyvOVgDlw9s=; b=hzGqzCFd/Zil7siDD7txgS0PkI
+	0btYf2KcGF4Jt5LTpvtm3rcvqgdEJSmZrUdBF9aqMpMYUh9Wx2DIzUj8xdR3ux2f0ydIJjgu6/GP/
+	GCGCI2Cu8TlWQosSPGxvlQtgSVvTwAmUUZIpR/2u1oLk4ZJts6jT8AMgHc7WKf4EmDelDxaZNwldB
+	bwuBAzBiHPtS2yBO9dgBLMH1854Fm9Yq579Rygv7X8gtmLlRanmAfRNHAJH+8I1bkHkoV2E7aBA/w
+	Rmforme87QTE7Bp3x5xKUtL/ppwt4PjCQFG+iz4NzVNJh7Q9S88tpLt+noBixClVZE+hH5oiywcdZ
+	NRPAIH+Q==;
+Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wyh57-00000008BRG-20Ss;
+	Tue, 25 Aug 2026 02:40:09 +0000
+Date: Tue, 25 Aug 2026 03:40:09 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: NeilBrown <neil@brown.name>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+	Byungchul Park <byungchul@sk.com>, linux-kernel@vger.kernel.org,
+	max.byungchul.park@gmail.com, kernel_team@skhynix.com,
+	torvalds@linux-foundation.org, linux-ide@vger.kernel.org,
+	adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org,
+	mingo@redhat.com, peterz@infradead.org, will@kernel.org,
+	tglx@linutronix.de, rostedt@goodmis.org, joel@joelfernandes.org,
+	sashal@kernel.org, daniel.vetter@ffwll.ch, duyuyang@gmail.com,
+	johannes.berg@intel.com, tj@kernel.org, tytso@mit.edu,
+	david@fromorbit.com, amir73il@gmail.com, gregkh@linuxfoundation.org,
+	kernel-team@lge.com, linux-mm@kvack.org, akpm@linux-foundation.org,
+	mhocko@kernel.org, minchan@kernel.org, hannes@cmpxchg.org,
+	vdavydov.dev@gmail.com, sj@kernel.org, jglisse@redhat.com,
+	dennis@kernel.org, cl@linux.com, penberg@kernel.org,
+	rientjes@google.com, vbabka@suse.cz, ngupta@vflare.org,
+	linux-block@vger.kernel.org, josef@toxicpanda.com,
+	linux-fsdevel@vger.kernel.org, jack@suse.cz, jlayton@kernel.org,
+	hch@infradead.org, djwong@kernel.org,
+	dri-devel@lists.freedesktop.org, rodrigosiqueiramelo@gmail.com,
+	melissa.srw@gmail.com, hamohammed.sa@gmail.com,
+	harry.yoo@oracle.com, chris.p.wilson@intel.com,
+	gwan-gyeong.mun@intel.com, boqun.feng@gmail.com, longman@redhat.com,
+	yunseong.kim@ericsson.com, ysk@kzalloc.com, yeoreum.yun@arm.com,
+	netdev@vger.kernel.org, matthew.brost@intel.com,
+	her0gyugyu@gmail.com, corbet@lwn.net, catalin.marinas@arm.com,
+	bp@alien8.de, x86@kernel.org, hpa@zytor.com, luto@kernel.org,
+	sumit.semwal@linaro.org, gustavo@padovan.org,
+	christian.koenig@amd.com, andi.shyti@kernel.org, arnd@arndb.de,
+	lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com,
+	rppt@kernel.org, surenb@google.com, mcgrof@kernel.org,
+	petr.pavlu@suse.com, da.gomez@kernel.org, samitolvanen@google.com,
+	paulmck@kernel.org, frederic@kernel.org, neeraj.upadhyay@kernel.org,
+	joelagnelf@nvidia.com, josh@joshtriplett.org, urezki@gmail.com,
+	mathieu.desnoyers@efficios.com, jiangshanlai@gmail.com,
+	qiang.zhang@linux.dev, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+	bsegall@google.com, mgorman@suse.de, vschneid@redhat.com,
+	chuck.lever@oracle.com, okorniev@redhat.com, Dai.Ngo@oracle.com,
+	tom@talpey.com, trondmy@kernel.org, anna@kernel.org,
+	kees@kernel.org, bigeasy@linutronix.de, clrkwllms@kernel.org,
+	mark.rutland@arm.com, ada.coupriediaz@arm.com,
+	kristina.martsenko@arm.com, wangkefeng.wang@huawei.com,
+	broonie@kernel.org, kevin.brodsky@arm.com, dwmw@amazon.co.uk,
+	shakeel.butt@linux.dev, ast@kernel.org, ziy@nvidia.com,
+	yuzhao@google.com, baolin.wang@linux.alibaba.com,
+	usamaarif642@gmail.com, joel.granados@kernel.org,
+	richard.weiyang@gmail.com, geert+renesas@glider.be,
+	tim.c.chen@linux.intel.com, linux@treblig.org,
+	alexander.shishkin@linux.intel.com, lillian@star-ark.net,
+	chenhuacai@kernel.org, francesco@valla.it,
+	guoweikang.kernel@gmail.com, link@vivo.com, jpoimboe@kernel.org,
+	masahiroy@kernel.org, brauner@kernel.org,
+	thomas.weissschuh@linutronix.de, oleg@redhat.com, mjguzik@gmail.com,
+	andrii@kernel.org, wangfushuai@baidu.com, linux-doc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org,
+	linaro-mm-sig@lists.linaro.org, linux-i2c@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-modules@vger.kernel.org,
+	rcu@vger.kernel.org, linux-nfs@vger.kernel.org,
+	linux-rt-devel@lists.linux.dev, 2407018371@qq.com, dakr@kernel.org,
+	miguel.ojeda.sandonis@gmail.com, bagasdotme@gmail.com,
+	wsa+renesas@sang-engineering.com, dave.hansen@intel.com,
+	geert@linux-m68k.org, ojeda@kernel.org, alex.gaynor@gmail.com,
+	gary@garyguo.net, bjorn3_gh@protonmail.com, lossin@kernel.org,
+	a.hindborg@kernel.org, aliceryhl@google.com, tmgross@umich.edu,
+	rust-for-linux@vger.kernel.org
+Subject: Re: [PATCH v19 00/40] DEPT(DEPendency Tracker)
+Message-ID: <ao0AieB7zg5FKD39@casper.infradead.org>
+References: <20260706061928.66713-1-byungchul@sk.com>
+ <359ea967-9b97-4584-88e6-bddb4044de2e@kernel.org>
+ <20260821042143.GA40890@system.software.com>
+ <825134a8-ceae-430c-b2fc-d1d0c7240f39@kernel.org>
+ <178730572084.2852630.7732425311008244683@noble.neil.brown.name>
+ <3d58eb3c-7a9d-4183-907b-46172664631c@kernel.org>
+ <178761465493.3510150.12380729360578969391@noble.neil.brown.name>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: =?UTF-8?Q?ee1004=3A_DDR4_SPD_cannot_be_read=2C_decode-dimms_fails?=
- =?UTF-8?B?LCDigJxGYWlsZWQgdG8gc2VsZWN0IHBhZ2UgMCAoLTYp4oCd?=
-To: 1110749@bugs.debian.org
-References: <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
- <handler.1110749.B.1754853823932687.ack@bugs.debian.org>
-From: Al Ma <AlMa0@ro.ru>
-Content-Language: en-US
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
-In-Reply-To: <handler.1110749.B.1754853823932687.ack@bugs.debian.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <178761465493.3510150.12380729360578969391@noble.neil.brown.name>
 
-Control: found 1110749 6.12.101
-Control: retitle 1110749 ee1004: DDR4 SPD cannot be read, decode-dimms fails, “Failed to select page 0 (-6)”
-Control: X-Debbugs-CC: linux-i2c@vger.kernel.org, jdelvare@suse.de
-thanks
+On Tue, Aug 25, 2026 at 09:37:34AM +1000, NeilBrown wrote:
+> > For readahead, I think that queues / lru are not involved. We submit the I/O,
+> > and once the I/O is done, we unlock the folio from interrupt context.
+> 
+> "submit the I/O" means "attach the page to a "struct bio" (or similar)
+> and attach the struct bio to a transmit queue for the device (or
+> similar).  So there really is a queue.
+> 
+> > 
+> > end_buffer_async_read() / iomap_finish_folio_read() end up calling
+> > folio_end_read(), where we do the magic
+> > 
+> > 	folio_wake_bit(folio, PG_locked);
+> 
+> Exactly where the lock ownership should be reclaimed is not immediately
+> clear to me.  bio_endio() might be early enough but there are probably
+> better points.
+> 
+> A small difficulty here is that a bio has multiple folios and they are
+> all locked.  I cannot see that lockdep has a concept of holding an
+> arbitrarily large set of related locks.
+> We could just tell lockdep 
+>   "I have some folios locked" 
+> or maybe enhance lockdep to allow
+>   "I have N folios locked"
+> or even
+>   "I have N folios in address-space A with the highest offset being O".
+> 
+> This would allow lockdep to check the validity of locking another folio
+> - only allowed if the address space is the same and the offset is larger
+> than the previous largest.
 
+It's more complex than that; see my other emails on the subject.
 
-Now tested with two equal 32 GB RDIMMs Samsung M393A4K40CB2-CVF installed in DIMM_A1 and DIMM_C1 on ASUS WS C422 PRO/SE with BIOS 4801 with kernel 6.12.101+deb13-amd64. The SPD EEPROM is detected and the ee1004 driver is bound to it, but the driver's attempt to select page 0 fails with -ENXIO. Consequently, the driver's sysfs eeprom attribute cannot be read, and decode-dimms fails. Here is the excerpt from boot time:
+I think we need the ability for lockdep to call a function which says "I
+hold this lock, is that lock OK to acquire".  But the devil is in the
+details.
 
-[    8.550652] ipmi_si: Trying ACPI-specified kcs state machine at i/o address 0xca2, slave address 0x20, irq 0
-[    8.596883] input: PC Speaker as /devices/platform/pcspkr/input/input5
-[    8.608418] ee1004 0-0056: Failed to select page 0 (-6)
-[    8.608532] ee1004 0-0056: 512 byte EE1004-compliant SPD EEPROM, read-only
-[    8.774836] videodev: Linux video capture interface: v2.00
+> > 
+> > It's interesting, that for writeback we never unlock the folio on the I/O path,
+> > but instead have the dedicated page flag to tell us when writeback is complete.
+> 
+> PG_locked and PG_writeback are two different lock-bits with two
+> different meanings.
+> When a folio is PG_locked the content is invalid and shouldn't be accessed.
+> When a folio is in PG_writeback its data is not safe even though
+> PG_dirty has been cleared (if I remember correctly).
+> 
+> So these are two separate, though related, lock bits that would both
+> need to be tracked.  lockdep would detect how they are related.
 
-# decode-dimms
-Cannot read /sys/bus/i2c/drivers/ee1004/0-0056/eeprom at /usr/bin/decode-dimms line 2455.
+Some history ... before we had PG_writeback, we held PG_locked
+throughout the writeback process.  People argued convincingly that it
+was fine to map a page into a process's address space (which requires
+PG_locked) while it was being written back.  And so PG_locked was
+split.  Now we take PG_locked at the beginning of the writeback process
+and downgrade to PG_writeback at some point.
 
-The SPD device is instantiated at 0x56:
-
-# dmesg | grep "i2c"| head -1
-[    3.138736] i2c i2c-0: Successfully instantiated SPD at 0x56
-
-
-The device at 0x56 is claimed by ee1004 (“UU” below):
-
-# i2cdetect -y 0
-      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:                         08 -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- UU UU -- -- -- -- -- -- -- --
-40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
-50: -- -- -- -- -- -- UU -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- --
-
-Direct access to the page-selection addresses 0x36/0x37 fails:
-
-# i2cget -f -y 0 0x36
-Error: Read failed
-# i2cget -f -y 0 0x37
-Error: Read failed
-
-i2cdump returns 0xff for every byte, although the device is claimed by ee1004:
-
-# i2cdump -f -y 0 0x56
-No size specified (using byte-data access)
-      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-10: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-20: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-30: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-40: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-50: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-60: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-70: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-90: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-a0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-b0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-c0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-d0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-e0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-f0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff    ................
-
-
-Could this be related to the way ee1004 attempts to select the SPD page on this particular I2C adapter/controller? In particular, “Failed to select page 0 (-6)” appears to occur before the actual SPD contents can be read.
-
-The SMBus adapter is as follows:
-
-# readlink -f /sys/bus/i2c/devices/i2c-0
-/sys/devices/pci0000:00/0000:00:1f.4/i2c-0
-# lspci -nn -s 00:1f.4
-00:1f.4 SMBus [0c05]: Intel Corporation 200 Series/Z370 Chipset Family SMBus Controller [8086:a2a3]
-
-Gratefully,
-Alma
