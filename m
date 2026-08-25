@@ -1,87 +1,87 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB47D483BC5
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:34:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29AA4332EC1
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 17:20:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787664867; cv=none; b=n4abtECdtWBnp+DL+a9Pa3mcuC1PtL6BzgnOmAQO1VODtb8jWs9xf9AEW+WmQoiRxy95TRMIAZzhuK1pq4OnVlLn3R7NsMMUFkQeUVz0DdsEptHJFHjAg5ZglxwtnDvMWhF7fQgEGG82Jc/q1tkY/H+EF+aM3gksEoTolGflDac=
+	t=1787678429; cv=none; b=frDy394zMJGKUrBV6ayjkzPxVaafCoVwLRZBDv/X1sRan8sFdBWdTfThYdS0vxHC2acPOCOLYtF8cxTh1ZwhaQemuOKG+HBkuLVD21q+4kiZfeWQSOPmeBfLj17qT2R8jMP+3vn9FbBhoZErrBC2o7DbhkUsPrtko9cr7e2WAkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787664867; c=relaxed/simple;
-	bh=bLAQYO2fVtjrZJZjogehxs4N3O4/AoaOHSJblctpWIU=;
+	s=arc-20240116; t=1787678429; c=relaxed/simple;
+	bh=76Qfs4fzFRJFWgUkz2WuCwo5cMQXqNI3Rd1HhYdAMn0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IfbkkdDsSB2GWm7JCoA8NOo55gqJ0IXIUPGhmmY5wkfbMKy/ijWt8ZZGHWdx1WrOhK5ex0C1NjHvceTg09Zq0xkZw8ojoTX7/6aXKtEBdb4xOYoTW4I4r/4QFpaFuRJgIDD5t5LBAI5lJzLrOC34dCpTZBYIoRaerT/ZS8KFdAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Fnffekqe; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=fsCtb6M0; arc=none smtp.client-ip=205.220.168.131
+	 In-Reply-To:Content-Type; b=iaCosx47Oju1t8nixi88jk4BVcQN5pjtENUgcdNcoBd7l1uS4z3jWekzVacuf5W+TDv9yk7WJ2vsJzJwsuqpL9/hzY24o1e+ntC6ofgCGM21rdpggRkj26YZdaQIaT44pnp+Ef8D11RHvxGlB+Zn6MDG2ItWY5b3HFrJALLGPFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=IVLueRP7; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=NSoihNFr; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Fnffekqe";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="fsCtb6M0"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67PAv4cV1258460
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:34:25 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="IVLueRP7";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="NSoihNFr"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67PHFwLG1417996
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 17:20:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	TaVfdGUEZ4eLonecVULryIdNy5Y/IszLAAF0qOUkWYs=; b=FnffekqeV8VFB+Ck
-	19eFxD/ZL3SeOCpShcRv2c3Ha5sn3Offs2Oow35eByVWEaXH7foOXc9kBf8VrffX
-	EhmcvQ4WsT7din/nntI5p8KYtNKnnxQxsQOQuiHv1MMlbHD6kMsfOBvHjpbAqtyZ
-	ZYuJ99fzWV64B4SG2tZWxFNHn6JJtoN5rFLoX1GjAm5MbqL81OeJ5WU8+2eBLFDE
-	/Yy/VwhB68O8TI9YcA3R8jtrnG8guEr7MyRkap8Wr32Xo8+oQgK5644aD+IMhvDT
-	vvV7iaBydDKFowLV8EYzd/ErMlUsQIz8ZorUIfyzVVW58FowK4KwSLKn1Sh+e80F
-	bNUdYg==
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com [209.85.210.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g98hp0wt6-1
+	CV9FIhO/83ahE0BC2NxprFmP61XTEJfAfGCrazEmKfk=; b=IVLueRP752bURIc4
+	U6EYF4Z5BXBYMRTjy7ZlEufrvEvcYjD9Wou3TTZUioa0Sfpz1sVWOeb6ZH5ksOFQ
+	Y0p8+rnG7Q2zpp0es4JAZsRjOW6GLYJYEatFEfsPlp9ZCrVQiVGYBHwF9XqaGyEA
+	OYOP2GZV9iE1MMeCA2JLMkjwSH165VUuQAjaQpD+NUN9/1IiHK1j2vCaZ4LQY1mR
+	e2nF54zHTUYVYnuftIQqTwdiZV/3sHgAOnCpVxk6EsEKCKiNgNlNiqtfKD1ibuun
+	tB7jP76mZr95pAXB71s3NMNqkAEUM/+0C7K8cQk8qsiI0EDKTtxqnUjuvbJQxTPJ
+	cyaA2A==
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g9f9ur0wg-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:34:25 +0000 (GMT)
-Received: by mail-ot1-f69.google.com with SMTP id 46e09a7af769-7eb60cfd476so9713737a34.3
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 06:34:24 -0700 (PDT)
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 17:20:26 +0000 (GMT)
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2cf7dd9fd91so1087575ad.1
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 10:20:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1787664864; x=1788269664; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1787678426; x=1788283226; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=TaVfdGUEZ4eLonecVULryIdNy5Y/IszLAAF0qOUkWYs=;
-        b=fsCtb6M0SPeSoWTNKHAJ4U2W2WAzB43ii4Pbi1caVwXav9K5gfVykb9Ctq5ivGoBg+
-         J/nboOSQegFUTf6zSybpBBeU4N2vJGfp0wm0FvRliVnGVwg0iS9pHhkAU43AG324yYT9
-         CU2d1gmYBWnhwrLtFepLFV0dn+hDzfvZX6l5zkPzjWMYbOnXZUGRtL46m5NulXKjpvmU
-         7/y3bbrM54cRImhCPM1NqANsKbc1BefqtnlIkm8sIQNxPB52ggRljxMl1ma5CWAi5A9e
-         6OXlTR5PONbUHx0MzSLSfiVu75urEK591lfJEa20oSlBusSmzsqhcB7FAPMxAimJNhEv
-         JnmA==
+        bh=CV9FIhO/83ahE0BC2NxprFmP61XTEJfAfGCrazEmKfk=;
+        b=NSoihNFrtxi6btSS2fAMc1WHWuxl/ceOpPMNe52paJA+9Atgi3hyjyLxrGjSPCAcX6
+         LBSuIom8kcvFrD6KfBDwQ1ALoGSpUwf4oYTivfV1Bw2Jdy3SnmTyrBHbMiFhDsekrI/c
+         5Xr+tEVtmE7RKCfkL57hN1rtBgLnjPxocC0G5i2JO/xT2Vsstl5LzfEs/vI0jmgZ2f7S
+         I+imTrKMT/S/w0WykP0zcSGHda4mHJPLH1Z6KGZI8iM+7jJOhxDNNifkkPaP4eLdlsyQ
+         AAoBlaRE41wvcDSTY0WPy88k7bB6cifWxYIx2JvR+QOXGOPtcTUb9ml4D92YLyjeUA6l
+         P8UA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787664864; x=1788269664;
+        d=1e100.net; s=20251104; t=1787678426; x=1788283226;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=TaVfdGUEZ4eLonecVULryIdNy5Y/IszLAAF0qOUkWYs=;
-        b=CGtGSAFnW5Y+VUkYLqI+7WreElti6O9nNArIQVyLISyn+FewxNYTSMftCr5dDcjD7h
-         5mS990ehvQeErQ7jR0pu5sRfs5KoM9Rt7Kzg7uTcZZdWCai2hxX8EQEga6k3ZVeKsLDR
-         uzHz7ZROaxX5vM8QVzME5EcPGYhD8pTlI0MJbjDvF+pTIQrgrUGC8MWWX0aj7b7Qh8f8
-         aSfik4xUHm7zDJF4uuHtNyYTSobC0Oue2fIPlQG70bahSBAEKhy0kmaX88g+gTED4Ag0
-         CkUyJ+nBnMvKEtgTJBoE8SjBxKKCw2mz2MgJds8BLb3JlKMgWq8wa1KvAg6iV2ZtEllm
-         QD1Q==
-X-Forwarded-Encrypted: i=1; AHgh+RpU1S+ldehglFK05nbSzF53/C0vGRbx7g8zN0GyxU3NBZNrRfKtwvXVdvakg75V4pyQexBCF0f4RfA=@vger.kernel.org
-X-Gm-Message-State: AFuF++n7I8nTqO7Kb4+Q+O6h87sI6fz+sKzEpuLH/TnLLDIrlyklV1jw
-	ge94Ebs6WONduAhg/CG1FlQC/fJNrCU9cWSWC/M1pdCEtoEceuTMVPsDAM2l/DxBxD1n3Wh2jaM
-	BHZsog/GCsY3R/qXl7wxOffJaMVcK4IdsrZNo3dF7WZnb85wFraPHPJkWYWblkKE=
-X-Gm-Gg: AR+sD10Sz4UbH0QB4MCWcDROCn6EwapfALmsgT6skSXNYpILkMz+c0QhIHm2pQ+Nkcr
-	kgHIt3e9cl3xaakU9qcoE8LSnGTAsfYSSDElROwMwJqtD770dl5ZBXjxDNh6u37ULaVpvSva9z6
-	s3qqVFBg8WXMRoawUQzGkxhS8HId3kqK716SuXZklhNmCPUSkuIOiSVhbTY/QIuOI3D8MowBf6d
-	k5D6ca+1eEAEKPH3+H9ans/dzYa8EFC8qMnDc8+hDUZXB8rH/2L4dUO3SPSwnM8Pdr7pSo6v/iE
-	Twzapds1qOlUuYwFyHMz1gCg/mG4D04qHvR7br9o1v4gcux4cBMOLWDjahwYA1oc1w7YhuVD9Tb
-	qZ7FAYvPAMpkXrOfdxru0JTakOuRU1ids
-X-Received: by 2002:a05:6830:4116:b0:7f3:a8ac:45fe with SMTP id 46e09a7af769-7f461510b2fmr33747269a34.11.1787664864253;
-        Tue, 25 Aug 2026 06:34:24 -0700 (PDT)
-X-Received: by 2002:a05:6830:4116:b0:7f3:a8ac:45fe with SMTP id 46e09a7af769-7f461510b2fmr33747175a34.11.1787664863701;
-        Tue, 25 Aug 2026 06:34:23 -0700 (PDT)
-Received: from [192.168.0.7] ([49.204.109.155])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f48fc866b5sm7180397a34.23.2026.08.25.06.34.16
+        bh=CV9FIhO/83ahE0BC2NxprFmP61XTEJfAfGCrazEmKfk=;
+        b=kebfvfk1XuokmtciDXPBeOPywomxq63T6YKBqV5VVtk38xBj2hRFhRlbPkxa2hKUit
+         a5UUCjuqxYM9mEPe0aeHnMMditqIerxlIzalp4XcB1WDjpih80KxSJfFke7LqerZxZrQ
+         wtP0H2V3V6LxkPbk306he6KE2dfVkeqqdnNcBMZy2J07cR/dF9HsLLTiQUsFOp89fSyK
+         S7QShT+W7VGSG25lhZmRRk0FNni8a0aLbRz5f3RVHDJnlu4XYP5PmqBFd3ZOC792321L
+         O9a2npNHpnG5lffquwKJSjNDt3J7hE2SJO81bU98n/8VQpuJgptS/XF7f0N8bmXRdx4b
+         lP1w==
+X-Forwarded-Encrypted: i=1; AHgh+RqfTul2dEhsdf2tA6zQtz+beU0MoUaaw0Gp9uO6hbmTmlYEXKK00sljmIc2V69POn/t5aUtEDdru7I=@vger.kernel.org
+X-Gm-Message-State: AFuF++nq8bY2QFjjvWgkwWcPaVc2XTQLr9N6+3M+Pk6bnt1GMiHOL1xi
+	oKrtcvcyOV5ibW6MYvOrllzwt8YXMCnRoNMZPVfMwGi1aOYJRz3tD5nLiI3u59GEgeWd2H3is3/
+	2rsDeQjZJKvPVdIg5+NNP01HmhD0d55xwGSiSqD0iVcZY1zV6wgEAHxKzbUaL7a5rG0Q/h+Y=
+X-Gm-Gg: AR+sD134LIytZgKBoKFB2v4ep0g/yjZZdQnOAGj4DackSRjqMd7CqC4vhHrLTann1zE
+	J+x2iG+AimUKMX7/MpqSnezclLUadu53KNi+gK3HfnYOQuyJdrb2WbsNvDaRN2FWmIllObS5riJ
+	yYiiKhlwqxPWnIroK5S3xazT3+FwS16pL1YzTvpWKHdIulsrfHbppwxpz4wS8ShMm4S344Xx54r
+	FpuPZV8r8EFps8cmV0e0yNz0J/v7q6TAzltGId5PbJhUeHj5a9OZZDAvAIf6qbjrtKJw7PZIZSj
+	1xjKvMfkgUZ+v2hA704/UAq2pNWMGR5Pm+3HEukzI+OcJD81DZLgXRiAiyT7Zy5FfnJf0ru5Snt
+	FaDcfLDYbxeBpDN6OTxwvx9uy/j7Lb8XP
+X-Received: by 2002:a05:6a21:3398:b0:3bf:9b61:f7ae with SMTP id adf61e73a8af0-3cd9122fcd0mr14279020637.14.1787678425829;
+        Tue, 25 Aug 2026 10:20:25 -0700 (PDT)
+X-Received: by 2002:a05:6a21:3398:b0:3bf:9b61:f7ae with SMTP id adf61e73a8af0-3cd9122fcd0mr14278929637.14.1787678425187;
+        Tue, 25 Aug 2026 10:20:25 -0700 (PDT)
+Received: from [192.168.0.7] ([49.204.110.145])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3283d769d81sm428872eec.13.2026.08.25.10.20.21
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Aug 2026 06:34:23 -0700 (PDT)
-Message-ID: <57b9cb3c-6fcc-4f61-b372-97de8058ffac@oss.qualcomm.com>
-Date: Tue, 25 Aug 2026 19:04:14 +0530
+        Tue, 25 Aug 2026 10:20:24 -0700 (PDT)
+Message-ID: <fa199e71-537e-4bce-a0d8-ef59fe871bf6@oss.qualcomm.com>
+Date: Tue, 25 Aug 2026 22:50:19 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -89,181 +89,167 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 6/7] i2c: qcom-geni: Use common GENI resource
- initialization helper
-To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
+Subject: Re: [PATCH v2 2/2] i2c: qcom-geni: add I2C frequency table for 32 MHz
+ firmware-based SEs
+To: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>,
+        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
         Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-References: <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-0-61171ab1cdce@oss.qualcomm.com>
- <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-6-61171ab1cdce@oss.qualcomm.com>
- <2329d1dc-9907-4338-8bb6-2a32e3e261ee@oss.qualcomm.com>
+        Andi Shyti <andi.shyti@kernel.org>,
+        Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>
+Cc: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>,
+        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260812-ipq5424_i2c_scl_updates-v2-0-e09cd39d01d7@oss.qualcomm.com>
+ <20260812-ipq5424_i2c_scl_updates-v2-2-e09cd39d01d7@oss.qualcomm.com>
 Content-Language: en-US
 From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-In-Reply-To: <2329d1dc-9907-4338-8bb6-2a32e3e261ee@oss.qualcomm.com>
+In-Reply-To: <20260812-ipq5424_i2c_scl_updates-v2-2-e09cd39d01d7@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: sAjlz5znX2q__M_NFx6hgs_YflbmXxgs
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDExNSBTYWx0ZWRfX/8SBbUvJmmdm
- EhArcCIQzghXuTShYT3a2Sv6OKkSSkNL+vj6hb5TWKVav6OALLx4POi2L0pilOVzY/ER6sjf3Dq
- cQZw8w2xiiliDo/2lEegwUj0iyaPuvtQUs/0r85BQ3n12FaQMU0OAWzsCrcIiUy62+EUxO51FrT
- 2rbORvtObZmQArMlXbkm8ACtnwbHG2XB6uFPOFtScNu5qGWkwyQbfYR2TaxJnk50VMQNCTONvq8
- 3xLiRKA+NVBUKppv/nXMNaQZrXPt0jqjtr5/RHgzuI6oy2KdfIpnO7+Y4OO0i71XhRa3SQqC8FA
- iTmb/ahxJjFfdRpvFaUsHyTPiktKFeixaUKJd9mVYSawsCO3M72Y67dL8Fxfa4yIKCKvca4KpZm
- NgY7P2JwAhaucrXzH1BL5iauxlZti58giYKcMgJxPL3xcYYLoiSG5kPaYrR/y9ng2YJuN8ceLT8
- FyyWex+u0xaHDFYuRgw==
-X-Authority-Analysis: v=2.4 cv=B7CJFutM c=1 sm=1 tr=0 ts=6a8d99e1 cx=c_pps
- a=z9lCQkyTxNhZyzAvolXo/A==:117 a=V2Vt80KW7rYiXl8IeOG9JA==:17
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-GUID: qFwcBOd20hVAVtmMyj9R5tqwUPkNF2O4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDE0NiBTYWx0ZWRfX1pPOn9SyU0Ui
+ E09G3ercFujS9IG3K33ugXm/VgyvTGxA4DyjndyJxNZfees/hfPgdS/zeP5f72hUL8lKPa0kOQ6
+ eXBepI9OeBEUPwmKvxQet665wW59+pRaUd0GZL3OIGOUIAHV2zxxDyHhwVWXAzi9Xid3Ofm3aRL
+ jjT3Yf1CXKKLaT3wNk/70r+DKM9cnlJaIbYHabz5M9UvHXNW/XV3SS7V4jZ85qTpofwjwWwopm9
+ vaRt8OYzWA2jVrokofhvCWzO7TNTALfI9913I3sfrP3IKaT2+130Tyd9KKFf3KBC9LBpRk2NY5L
+ OFjGyV205naCL8B2o2FyoQowxVX7OuBWJp2b7fmlxmpOgpH1mH/JJWRor/2ii6QeooxNyzxDQS+
+ KRaGgc66KRXw4Z+dmGbwz7uhJMLYfiLGnVFrWpNfwvCFgNXA/9JbuQYdZx1iovE11aTGXK9iJa4
+ 5MBMis8gBGOSCSXQAvw==
+X-Authority-Analysis: v=2.4 cv=acNRWxot c=1 sm=1 tr=0 ts=6a8dceda cx=c_pps
+ a=JL+w9abYAAE89/QcEU+0QA==:117 a=T2iwtsF3Qoe1cvxaLfjbZQ==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=atO44hwG55kBqV7UmNcA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=EyFUmsFV_t8cxB2kMr4A:22
-X-Proofpoint-GUID: sAjlz5znX2q__M_NFx6hgs_YflbmXxgs
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDExNSBTYWx0ZWRfX99k0y/Aaq+gk
- Ht8RygBPphdwkc8l3zNvzdFsBMNf5oO5YnyyJuJCcV6j8p9n2nou3hk49ZnVdEpze00DUF7PTvj
- /W5A0M5Dlv2uIF+uHFoCSmc9S2Rpxr0=
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=Z82qHJ9NIKfZ-gyr7UoA:9 a=QEXdDO2ut3YA:10
+ a=324X-CrmTo6CU4MGRt3R:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDE0NiBTYWx0ZWRfXxpNovHCtJQMi
+ jJB+61a+T5zQIIn+bccjCyK2h/0LfCWZOBF7jayHcgnI4xoHaUo5NzgBEN8FmMU/lFQNAxcrkU2
+ bbykphTtrGtgxJ0tPB0vS+FPik6qGR4=
+X-Proofpoint-ORIG-GUID: qFwcBOd20hVAVtmMyj9R5tqwUPkNF2O4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-25_03,2026-08-24_01,2025-10-01_01
+ definitions=2026-08-25_04,2026-08-24_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 phishscore=0 lowpriorityscore=0
- malwarescore=0 adultscore=0 bulkscore=0 impostorscore=0 suspectscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608250115
+ suspectscore=0 bulkscore=0 clxscore=1015 phishscore=0 impostorscore=0
+ malwarescore=0 priorityscore=1501 spamscore=0 adultscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608250146
 
-Hi Mukesh
+Hi Kathiravan,
 
-On 24-08-2026 18:42, Mukesh Savaliya wrote:
+On 12-08-2026 14:00, Kathiravan Thirumoorthy wrote:
+> On IPQ5424, the I2C controller can operate on both RTL-hardened SEs
+> and firmware-based SEs. As documented in commit 506bb2ab0075
+> ("i2c: qcom-geni: Support systems with 32MHz serial engine clock"),
+> in IPQ5424 SEs use a 32 MHz source clock.
 >
+> The existing frequency table does not provide the required SCL timing
+> parameters for firmware-based SEs. Add a dedicated frequency table
+> using the SCL counter values recommended by the hardware design team
+> and select it for firmware-based SEs to achieve the target bus
+> frequencies.
 >
-> On 8/5/2026 1:27 AM, Praveen Talari wrote:
+> Move geni_i2c_clk_map_idx() from geni_i2c_resources_init() to
+> geni_i2c_init() to ensure SE_HW_PARAM_2 is accessed only after the
+> required clocks have been enabled.
 >
-> [...]
+> Signed-off-by: Kathiravan Thirumoorthy <kathiravan.thirumoorthy@oss.qualcomm.com>
+> ---
+>   drivers/i2c/busses/i2c-qcom-geni.c | 25 ++++++++++++++++++-------
+>   include/linux/soc/qcom/geni-se.h   |  1 +
+>   2 files changed, 19 insertions(+), 7 deletions(-)
 >
->> @@ -228,10 +228,13 @@ static int qcom_geni_i2c_conf(struct geni_se 
->> *se, unsigned long freq)
->>       val |= itr->t_low_cnt << LOW_COUNTER_SHFT;
->>       val |= itr->t_cycle_cnt;
->>       writel_relaxed(val, gi2c->se.base + SE_I2C_SCL_COUNTERS);
->> +
->>       trace_geni_i2c_bus_setup(gi2c->se.dev, gi2c->clk_freq_out,
->>                    itr->clk_div, itr->t_high_cnt,
->>                    itr->t_low_cnt, itr->t_cycle_cnt);
->> -    return 0;
->> +
->
-> This looks wrong to me.
-> First accessed registers and then we are setting ICC vote ? we should 
-> enable resources first.
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 00013b41a6f5..15835f10b062 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -187,19 +187,28 @@ static const struct geni_i2c_clk_fld geni_i2c_clk_map_19p2mhz[] = {
+>   };
+>   
+>   /* source_clock = 32 MHz */
+> -static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz[] = {
+> +static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz_minicore[] = {
+>   	{ I2C_MAX_STANDARD_MODE_FREQ, 12, 9, 10, 26 },
+>   	{ I2C_MAX_FAST_MODE_FREQ, 4, 3, 9, 19 },
+>   	{ I2C_MAX_FAST_MODE_PLUS_FREQ, 2, 3, 5, 15 },
+>   	{}
+>   };
+>   
+> +static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz_fwcore[] = {
+> +	{ I2C_MAX_STANDARD_MODE_FREQ, 12, 9, 10, 25 },
+> +	{ I2C_MAX_FAST_MODE_FREQ, 4, 3, 9, 18 },
+> +	{ I2C_MAX_FAST_MODE_PLUS_FREQ, 1, 6, 15, 29 },
+> +	{}
+> +};
+> +
+>   static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
+>   {
+>   	const struct geni_i2c_clk_fld *itr;
+> +	bool is_minicore = FIELD_GET(GEN_USE_MINICORES,
+> +				     readl_relaxed(gi2c->se.base + SE_HW_PARAM_2));
+>   
+>   	if (clk_get_rate(gi2c->se.clk) == 32 * HZ_PER_MHZ)
+> -		itr = geni_i2c_clk_map_32mhz;
+> +		itr = is_minicore ? geni_i2c_clk_map_32mhz_minicore : geni_i2c_clk_map_32mhz_fwcore;
+The source selection remains unchanged when using 32 MHz:
+writel_relaxed(0, gi2c->se.base + SE_GENI_CLK_SEL);
 
-At this point the hardware resources are already enabled and  the ICC 
-call only updates
+However, what about the voltage requirements associated with the higher 
+frequency?
 
-the interconnect bandwidth vote. Therefore there is no dependency 
-requiring the
+Are they automatically managed by the underlying provider, or is 
+additional handling needed in the driver?
 
-ICC vote to be issued before these register accesses.
+Reference of konrad change for CCI I2C driver for 37.5MHz with voltage 
+requirement.
 
->
->> +    return geni_icc_set_bw_ab(&gi2c->se, GENI_DEFAULT_BW, 
->> GENI_DEFAULT_BW,
->> +                  Bps_to_icc(gi2c->clk_freq_out));
->>   }
->>     static void geni_i2c_err_misc(struct geni_i2c_dev *gi2c)
->> @@ -1100,24 +1103,6 @@ static int geni_i2c_init(struct geni_i2c_dev 
->> *gi2c)
->>       return ret;
->>   }
->>   -static int geni_i2c_resources_init(struct geni_se *se)
->> -{
->> -    struct geni_i2c_dev *gi2c = dev_get_drvdata(se->dev);
->> -    int ret;
->> -
->> -    ret = geni_se_resources_init(&gi2c->se);
->> -    if (ret)
->> -        return ret;
->> -
->> -    ret = geni_i2c_clk_map_idx(gi2c);
->> -    if (ret)
->> -        return dev_err_probe(gi2c->se.dev, ret, "Invalid clk 
->> frequency %d Hz\n",
->> -                     gi2c->clk_freq_out);
->> -
->> -    return geni_icc_set_bw_ab(&gi2c->se, GENI_DEFAULT_BW, 
->> GENI_DEFAULT_BW,
->> -                  Bps_to_icc(gi2c->clk_freq_out));
->> -}
->> -
->>   static int geni_i2c_probe(struct platform_device *pdev)
->>   {
->>       struct geni_i2c_dev *gi2c;
->> @@ -1188,6 +1173,11 @@ static int geni_i2c_probe(struct 
->> platform_device *pdev)
->>       if (ret < 0)
->>           return ret;
->>   +    ret = geni_i2c_clk_map_idx(gi2c);
->> +    if (ret)
->> +        return dev_err_probe(gi2c->se.dev, ret, "Invalid clk 
->> frequency %d Hz\n",
->> +                     gi2c->clk_freq_out);
->> +
->
-> why not move to geni_i2c_init() ?
->
-> Check recent patch @ i2c: qcom-geni: add I2C frequency table for 32 
-> MHz firmware-based SEs.
-Okay let me review it and update.
->
->
-> Let's agree to move there, to avoid issue.
->
->>       ret = i2c_add_adapter(&gi2c->adap);
->>       if (ret)
->>           return dev_err_probe(dev, ret, "Error adding i2c adapter\n");
->> @@ -1281,7 +1271,7 @@ static const struct dev_pm_ops geni_i2c_pm_ops = {
->>   };
->>     static const struct geni_i2c_desc geni_i2c = {
->> -    .resources_init = geni_i2c_resources_init,
->> +    .resources_init = geni_se_resources_init,
->
-> why to add common driver function to i2c ? and also spi, uart ?
+https://lore.kernel.org/linux-arm-msm/20250904-topic-cci_updates-v1-4-d38559692703@oss.qualcomm.com/
 
 
-The goal was to provide a common helper that avoids duplicating
+Thanks,
 
-the same logic across multiple consumer drivers. As a side note,
+Praveen Talari
 
-this refactoring was done based on Konrad's earlier suggestion to
-
-consolidate the functionality into a generic implementation.
-
-> Can we not call that function from within i2c specific hookup function 
-> ? i think design wise should keep i2c as local function.
->
-> Also driver specific anything can be managed in local function.
->
->>       .set_rate = qcom_geni_i2c_conf,
->>       .power_on = geni_se_resources_activate,
->>       .power_off = geni_se_resources_deactivate,
->> @@ -1290,7 +1280,7 @@ static const struct geni_i2c_desc geni_i2c = {
->>   static const struct geni_i2c_desc i2c_master_hub = {
->>       .no_dma_support = true,
->>       .tx_fifo_depth = 16,
->> -    .resources_init = geni_i2c_resources_init,
->> +    .resources_init = geni_se_resources_init,
->>       .set_rate = qcom_geni_i2c_conf,
->>       .power_on = geni_se_resources_activate,
->>       .power_off = geni_se_resources_deactivate,
->>
+>   	else
+>   		itr = geni_i2c_clk_map_19p2mhz;
+>   
+> @@ -1046,6 +1055,13 @@ static int geni_i2c_init(struct geni_i2c_dev *gi2c)
+>   		return ret;
+>   	}
+>   
+> +	ret = geni_i2c_clk_map_idx(gi2c);
+> +	if (ret) {
+> +		return dev_err_probe(gi2c->se.dev, ret, "Invalid clk frequency %d Hz\n",
+> +				     gi2c->clk_freq_out);
+> +		goto err;
+> +	}
+> +
+>   	proto = geni_se_read_proto(&gi2c->se);
+>   	if (proto == GENI_SE_INVALID_PROTO) {
+>   		ret = geni_load_se_firmware(&gi2c->se, GENI_SE_I2C);
+> @@ -1109,11 +1125,6 @@ static int geni_i2c_resources_init(struct geni_se *se)
+>   	if (ret)
+>   		return ret;
+>   
+> -	ret = geni_i2c_clk_map_idx(gi2c);
+> -	if (ret)
+> -		return dev_err_probe(gi2c->se.dev, ret, "Invalid clk frequency %d Hz\n",
+> -				     gi2c->clk_freq_out);
+> -
+>   	return geni_icc_set_bw_ab(&gi2c->se, GENI_DEFAULT_BW, GENI_DEFAULT_BW,
+>   				  Bps_to_icc(gi2c->clk_freq_out));
+>   }
+> diff --git a/include/linux/soc/qcom/geni-se.h b/include/linux/soc/qcom/geni-se.h
+> index 29a53bbc0dd4..7e8c0bb6d674 100644
+> --- a/include/linux/soc/qcom/geni-se.h
+> +++ b/include/linux/soc/qcom/geni-se.h
+> @@ -331,6 +331,7 @@ struct geni_se {
+>   #define RX_FIFO_DEPTH_SHFT		16
+>   
+>   /* SE_HW_PARAM_2 fields */
+> +#define GEN_USE_MINICORES		BIT(12)
+>   #define PROG_RAM_DEPTH_MSK		GENMASK(10, 0)
+>   
+>   #define HW_VER_MAJOR_MASK		GENMASK(31, 28)
 >
