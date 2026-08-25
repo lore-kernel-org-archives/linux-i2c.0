@@ -1,180 +1,198 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D897E3A5422
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 04:01:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D81B21A23A6
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 04:33:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787630463; cv=none; b=rt9rMtCYkNsEEFFThRrNRVF3Qe67R2RRgeqNXP03n6jcFnaKl1+3i+lvEIReSmc0XBtItumu5b/hGnTc82IKfEmrkCCSrq5oNgkYtQWWREBHL7YngbC26dE//Ua5Yd1zKJ0KoTU51VeoukWBVw8C6tJ98U0ydQqIIOQsRIRdfrE=
+	t=1787632412; cv=none; b=URuXUvBgxI4yL+rYPY2QS5iR/3fxPwC8bKdLC2YCKmOCYoBR2gSrrIpQ1VtOJ3s5V9XYT+EH+yPYB8dAHt9x8AVef7VmdgGBcsA7dOP7WPhCubo924w1hkh3zGC5YHHWglFPvuE7ZFaSwZRjypkIUiid6o01SAX2RaD8EuyMwqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787630463; c=relaxed/simple;
-	bh=YWl90OOdVCd9KNVgHHy4ovXFe+CNKeFkWuTjHDRfD6g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Y532P2vI+B4ktU47WKmBqIRzBpoUJiTjwucLmdyn7jc8BHOad66OM+AVMd6MIvuLjCi1Rfk67B5T6sSII5aWegNsD4X5d2gZ9a8J5v53tdEufdsjESnw3APsimUitz8RVmyUYR5PlDJSQ5watnTVUYBEAnnocP3kaqB7seD7LX8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=CIKC2iN1; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=YUzmf28P; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1787632412; c=relaxed/simple;
+	bh=naC7PasILh7V9am2ebalC0RbUKLTLStW+MGCGU/CcoE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Oeb+jpmGGf9pnNcKd+T3HwskOFy0sxJfuM6xEPFojp7Pe5rGSeHWdhjatdqWrWg2I5aSPQR8QbmNWOcPiURV6bUBRxZXlM6GjYsowRKmVkgPbvpxRdLMLib7YUVgRgnmL4oJj4jEg9YVrgCeO0s7CtU+bCXFivvGiM4Wg9hpIg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Y7/B5QMb; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="CIKC2iN1";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="YUzmf28P"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67P2R1qx404219
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 04:01:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	C+XQZtMktBy7ekGjf4/plKpxlv6MDb59qUzxqeoByG0=; b=CIKC2iN1ZReAWWl4
-	16vuxGWUUJO4xlufvERdBG5vjw/2gSxGqmXPC3TO7qRE01rxoNS3b0E6F0UWkQ2K
-	QckfiY4rR5jXrMqy40XdPryMBVmLBSUaL1UuSGjLWV3KIy/uz/xZtAAgmhlzp45M
-	HK6JULyoHkGuMBOxSZabRJxkrGFdjLMMe7TdnLRgD8zBLP2vm4w7v9ancNLyWVLl
-	TgxoTUwWMI3dGtzARP2pFInlrRH+smkBhuxm1CGTOAzZXx0kht45IKSJhqTpbV9S
-	zVl47i3TaNETzacmw0QpARosk1k2JHFISAAOM+BmBeD6LzEjWK1uqsXsKcydMsBX
-	GhzTgg==
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g8y5jgsga-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 04:01:00 +0000 (GMT)
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-84f0d3ab2f4so3186456b3a.1
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Aug 2026 21:01:00 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Y7/B5QMb"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38dfe910e9dso4905549a91.3
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Aug 2026 21:33:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1787630459; x=1788235259; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=C+XQZtMktBy7ekGjf4/plKpxlv6MDb59qUzxqeoByG0=;
-        b=YUzmf28PbofztZn+3f0/ELIvx+6cCQcsbwmPEYaPiz6h5VT2Phr665iE0ArPYqKHDO
-         w//j1xbT+toYiugC6yEmrZnLVaH4nuRFwAZfmsRlCXYS9hvcgKbszOMK9ZJVUVHWRC84
-         QX2nMEX2AMu3R1JKs9aID9ijNMgFuFvuEn4mdNMfp1i7b70HRdzGSzUdzjkeK5FhPCEL
-         V9ZBWgGESSVU9tUSgGrsUhy6SoSXtGSNdnKENqhOofkuXYRs52fvi4Dv/zx86nyWAKl9
-         S4AsylhRJD8CNh68wLzhEO+hA7loJskQEe5HcGZfTltlXhYb3k8Hiuwp2nWhj4P0vX2P
-         l7dQ==
+        d=chromium.org; s=google; t=1787632410; x=1788237210; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hJaZXX8cNoxV0uNCu7A5Ojv5p0WSmZqW9OZzrJevJb8=;
+        b=Y7/B5QMb+bCNmBRydiHDAb0sTpa1MQeSmvK9vTYEJL9T+vmFeszFsm2P6YpK5bLwxA
+         +Qsl6cXxJP6rNA5DBC361ITOjnWz6K59fH+gtkOf5u154BkIDnljl1yEQxUVL5hddrRq
+         lgM+KFcHWuLXdUGm/1TG4b++LO/416pGprfrQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787630459; x=1788235259;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1787632410; x=1788237210;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=C+XQZtMktBy7ekGjf4/plKpxlv6MDb59qUzxqeoByG0=;
-        b=f9KBlQyseRjfeM9z26uF93J8xZjZOiIqqA6+8hVqVPQk/njydLQ5g2LyXIm7XmXmLT
-         PXpewwQ6XIuJBtEVv3pvCMg1e0jLSWmUkw6mOxOTHOzXKNlQSVs9WqlBgdmwRyTiVeeX
-         a6lk7y+7MWgDXwyM/zgiaNy1ep+Wry7RpmUx24P8G6tYVUgx7J00Uvza0JPp2hV8HIDK
-         PWP0SK+tq+bpKKDzvYhTGArjzqDStxxgnLs4rJD6A1UHmcneRExIhXdXk9j/94ooYegg
-         HSVkT8OjCt4uoBe+xg1aHmhoFS3fOiJa+ypfKSQvzSu6wBxRbH0bR/CNM/cjFW4T/75O
-         ZsAQ==
-X-Forwarded-Encrypted: i=1; AHgh+RohEqJzoFgKjN/xr9N2r5efs7qeXaG+Z0ecSjezmoNb4EVKduIycEsFRi2CRdm5XPkpj/oFwd3ImYk=@vger.kernel.org
-X-Gm-Message-State: AFuF++lD74YwcVq8FTDn7CoMD532QY7UyYMVWTy2r5ddIZmLjv/dLjvy
-	ukcsmqASd5kgYCTZLI14Co5KkDASqrm36sdsWSM7RfgfyjpLwDv8lCP8JWyohHvT+U0CSk+p4xm
-	CWylBZ5b9+W5j8Y2kRcTJawghWh1FNYjmG2lj/xRVTZJAppObtX0koObgEanFA18=
-X-Gm-Gg: AR+sD13ydCn19lzU87oTOR4EYE6yuDxZmgoIUT88tNOrTj+hkWboA1gYZipgZNhdtKQ
-	zPkLcb1imQyPZBmS7GOZYLjDvleDI0VVLsavb4Z1HcYDhk4bULVZdMEZarz23Su38+GzyTsW61a
-	tJxrXmAWBwj4XV4KCP07P5bxxE8gVG+xqNgnACKkmDt8Gyai7NBscrUlGAG3/JAg68JyfUhXSuc
-	84iI4+At70YnDbHkVFL+QpCamLrWh9YDwsaQR2LnQZeGSlmOfBCU7fB9EBZJakUqd4HAruDkth0
-	2qgq/7q+ub5Og5t0vYF6wUQfLKGx4Ybd1l57HeAW9lMS6F7pSBSNDqzRL4zIZXvQyg6FbRVZ37q
-	mxXWM/bmFyY0uLNawn9pI2nLfpLe5zm0=
-X-Received: by 2002:a05:6a00:4c13:b0:851:8bde:7873 with SMTP id d2e1a72fcca58-8520b98be69mr40252203b3a.8.1787630459251;
-        Mon, 24 Aug 2026 21:00:59 -0700 (PDT)
-X-Received: by 2002:a05:6a00:4c13:b0:851:8bde:7873 with SMTP id d2e1a72fcca58-8520b98be69mr40252038b3a.8.1787630458620;
-        Mon, 24 Aug 2026 21:00:58 -0700 (PDT)
-Received: from [10.218.14.97] ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8520f1638aesm2534359b3a.57.2026.08.24.21.00.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Aug 2026 21:00:58 -0700 (PDT)
-Message-ID: <17735f83-fd07-4fad-97a3-727cfbeabbcb@oss.qualcomm.com>
-Date: Tue, 25 Aug 2026 09:30:50 +0530
+        bh=hJaZXX8cNoxV0uNCu7A5Ojv5p0WSmZqW9OZzrJevJb8=;
+        b=FySFbqRIFJcsVgvXnpdmS12e0RqzPJpOMrkjjflUiiyxwpoxUrcvoZd0qmmB+Vwd2k
+         fjc9lNxDykztiU9adXgdg4o9wnbA1sZxYBUmEV9sgPvLYpUnHfGicwzANVvKvZtUWXR4
+         WOBLRpkIZt6hNVYcjmhOO6wMSq4oEUTBnFVTYEMQAT1anOK2XBopQRuApNwqqVf2NQ5v
+         kE4jnm03flQLdZX92QqjKwvRkDOwkEX4Q9i+hlCznIg7Cus19tsTdnDNHLlTGZdO2Bjq
+         feTWmteAH5ZxIuSLgxEWiNjTAhz7gHZ9BR1r+7t57s/o6KQuS0e5iPNWBkUy7aq5rDXM
+         01cA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro+eotj7Ih5/tBfNb7OOCTdgx7JLHV7uYd5iAJjhmPADccUnkMaTEZx7u6mWQmkeKRBErj5g0Bo7+Y=@vger.kernel.org
+X-Gm-Message-State: AFuF++kkLs5SsZ6Rlm+BRfdBzAPEUe41f5Q5HEbaGQU4LWPgrjM/03wO
+	tsIOz6FLltMvCPcAZBf2bI+4rO0iE/DT0GtSqBK7gA6UWxLQvMfvXCVQelQelU9YSg==
+X-Gm-Gg: AR+sD1232SVLv87ojNrc3f6hGpTVjINiamfLJKAY052gsDoQW/QWJf1dDfUtYppwc8b
+	Pshnfxgvooj/Ax9tZ2BtZ3EDZ6IrKF+PvdykwdZRnGRPhzN9cQNh1/bm06760dHP2fQeFrZxlBC
+	NIZlW5urWprMI4jHASP/1Y52r291i1Z97mk1N4EiTefRlh30lbw07YbtSHvsCuCQXbQ3Kw+3oVx
+	j+DC/rQ15wJQ3AGcdoZWjC61wBEwRgJ5Fq48xHBsN0vMjkSrXw6lJWNzD5vXrJNfL6w9n9lKDm7
+	6e4A/74VfEp4duZscIS6Fk44wpVxqAztfBIfYz8jm3Q75jweDzOg7AQOMTqG56hXUWbQ6e4mLv/
+	63HUjoaa2nUf6wsXofsWE6bNeO3aRtfOz3gwh0L4S3e/x2YqZwApHVi7rYoNDvFDqYfJUNmSIcn
+	H0wVpfH7jXOLSxpfZLo/OfJhWvQ8eQJ947LZbyazKYZbA83+4UvQi5HI8Jw0n4ZfShLGR55yjhh
+	aGYUGRwImuDrhoXfFFTjK9VN3Jnxmfiq4/HMNYoNH2k4D0=
+X-Received: by 2002:a17:90b:1b04:b0:38d:dfd1:7c1 with SMTP id 98e67ed59e1d1-395c33406e0mr52907259a91.2.1787632409907;
+        Mon, 24 Aug 2026 21:33:29 -0700 (PDT)
+Received: from wenst-7875.tpe.corp.google.com ([2a00:79e0:201d:8:a442:9780:24da:cb4e])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-396458212absm2187823a91.0.2026.08.24.21.33.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2026 21:33:29 -0700 (PDT)
+From: Chen-Yu Tsai <wenst@chromium.org>
+To: Mark Brown <broonie@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Chen-Yu Tsai <wenst@chromium.org>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	linux-mediatek@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v5 0/7] arm64: mediatek: Chromebook trackpad supply fixes
+Date: Tue, 25 Aug 2026 12:16:18 +0800
+Message-ID: <20260825041628.988369-1-wenst@chromium.org>
+X-Mailer: git-send-email 2.55.0.860.g4b6b3295ed-goog
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/7] serial: qcom-geni: Use geni_se_set_rate() for source
- clock configuration
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        Sudeep Holla <sudeep.holla@kernel.org>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: mukesh.savaliya@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
-        arm-scmi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org
-References: <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-0-61171ab1cdce@oss.qualcomm.com>
- <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-4-61171ab1cdce@oss.qualcomm.com>
- <4e0d636a-7975-4711-8070-6f71957b754e@oss.qualcomm.com>
-Content-Language: en-US
-From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-In-Reply-To: <4e0d636a-7975-4711-8070-6f71957b754e@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=O5QJeh9W c=1 sm=1 tr=0 ts=6a8d137c cx=c_pps
- a=mDZGXZTwRPZaeRUbqKGCBw==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
- a=gztmCChag-4to_nYmxUA:9 a=QEXdDO2ut3YA:10 a=zc0IvFSfCIW2DFIPzwfm:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDAzMSBTYWx0ZWRfX4Lh6tdkBdWTB
- Vwi2nDwc4ysLgmv9C76fiOsPYdtPbflLUmEZlzpFoBRNdZgbdIkrbWwuqHhHbNK+CTjrH6CH/hk
- hmD4kShx+kmvG16JLsuzdSUm36OOia55r7KvYt6P5M7oqnvsLBAfuOV0QM1fS2HvZf+xIPMX86j
- CheY3CXHRwzl6WbLGVIxrJAo2arknib5D5/ySYF284y9Ee3Anaq0MoQ9Ea5yTrGcopTacOfG8X/
- Gfi4cA1fOriylUWlhhAwEKrjBTj4pAc/5CRzjdM/fKQjgb/iMfjKqXATiOQxWzpnqkSVKd71cAN
- OAm+8JsxL4lhleEPf1lF2DLosQ2v/WYpfCKh4j/1SXOslTs7Nih33NjgOHEafi9jKvvERoGFIru
- cJuhNjANJrNsx//a3eIQ8RWO4NC/ndWa8TPa62v0BlUt2BZCZsieNkNSxWRE76KH1zUg9fbHTEM
- eEiq+jewxJHMqGLVUtw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDAzMSBTYWx0ZWRfX6QLvIs+DJKix
- qjgrX4reZyAo99jz1CnOxiarmdXvv3iKBTUrRCm1OYQSdmPfCfH7Fg1zZFIrs34dl05S/TOkCAB
- Ly3zyNTHE0zRG+oCKsI9jzRYkcjSFSs=
-X-Proofpoint-GUID: cUv5ovT6g-DxXEENJ325Erb3kNsrHIC7
-X-Proofpoint-ORIG-GUID: cUv5ovT6g-DxXEENJ325Erb3kNsrHIC7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-25_01,2026-08-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 lowpriorityscore=0 spamscore=0 adultscore=0 bulkscore=0
- suspectscore=0 priorityscore=1501 malwarescore=0 clxscore=1015
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608250031
+Content-Transfer-Encoding: 8bit
 
-HI Konrad,
+Hi everyone,
 
-On 24-08-2026 20:35, Konrad Dybcio wrote:
-> On 8/4/26 9:57 PM, Praveen Talari wrote:
->> The driver calls dev_pm_opp_set_rate() directly on uport->dev to apply
->> the computed source clock frequency, and dispatches baud rate handling
->> through a per-variant dev_data->set_rate() callback that either
->> recalculates the clock divider (Linux clock managed path) or selects
->> a performance level via geni_se_set_perf_level() (SA8255P firmware
->> managed path).
-> [...]
->
->> +	geni_se_set_rate(&port->se, 0);
-> This ends up calling dev_pm_opp_set_rate(0) [i see this is an existing
-> bug in geni_se_resources_deactivate()], which removes the power vote,
-> but does nothing to the clock (neither set_rate nor disable_unprepare),
-> which will crash the platform
->
-> Both of these calls (new and existing) should be removed. Clocks will
-> be disabled by geni_se_clks_off() in geni_se_resources_deactivate().
->
-> Then, we should do dev_pm_set_opp(se->dev, NULL) *after* they are off
-> to remove any trailing OPP resources (i.e. icc votes defined in the OPP
-> table in our case)
-So, if I understand correctly, the expected sequence is:
+This is v5 of my Chromebook trackpad supply fixes and optimization
+series.
 
-1. Disable the clocks.
+Changes since v4:
+- Made regulator core try to set last_on timestamp for regulators that
+  were left on by reset default or firmware, but not enabled in kernel
+- Dropped two patches that were merged
+- Link to v4:
+  https://lore.kernel.org/all/20260811122011.3539250-1-wenst@chromium.org/
 
-2. Remove the OPP/performance resources.
+Changes since v3:
+- Added __private modified to regulator_bulk_data.wait_us field and
+  switched to ACCESS_PRIVATE accessor for the field (Andy)
+- Moved wait outside regulator lock scope (Sashiko)
+- Moved "remaining" value assignment closer to conditional (Andy)
+- Fixed variable unit name in regulator_enable_and_wait() prototype
+  (Andy, Sashiko)
+- Added commit message section showing average delay needed for I2C
+  prober (patch 6) (Andy)
+- Link to v3:
+  https://lore.kernel.org/all/20260721075226.2347933-1-wenst@chromium.org/
+
+Changes since v2:
+- Added new regulator "enable and wait" functions that wait until at
+  least the given amount of time has passed since the regulator was
+  last enabled.
+- Converted patches to use the new functions
+- New header inclusion cleanup patch for elan_i2c driver
+
+This series fixes the trackpad descriptions on some MediaTek-based
+Chromebooks: either the trackpad's supply was set as always-on to
+workaround missing delays in the driver, or the delay and supply
+are missing from the trackpad's device node.
+
+v1 was just the first patch [1]. It has since grown to cover multiple
+drivers and devices.
 
 
-Thanks,
+Patch 1 adds new "enable and wait" functions for single and bulk
+regulator enable.
 
-Praveen Talari
+Patch 2 adds the correct enable delay after enabling the supply regulator
+for the Elan trackpad to initialize. This uses the new "enable and wait"
+regulator enable function.
 
->
-> Konrad
+Patch 3 applies the same logic of skipping the power on delay to the
+i2c-hid-of driver.
+
+Patch 4 applies the same logic of skipping the power on delay to the
+i2c OF component prober library.
+
+Patch 5 adds a delay between when the device node found is enabled and
+when regulator_disable() is called. This gives an asynchronously probing
+driver some time to increment the enable count of their regulator
+reference, thus keeping the device operational and allowing the driver
+to skip the initialization delay.
+
+Patch 6 removes the "always-on" setting from the trackpad supply for
+Elm / Hana and adds the correct delay to the second source trackpad.
+This corrects the hardware description.
+
+Patch 7 adds the supply and power on delay properties to the Synaptics
+trackpad on the Spherion device. Combined with previous driver changes
+this should cause no actual functional changes or delays.
+
+
+Please take a look. Patches 2, 3, and 4 have build time dependencies
+on patch 1. I suggest placing patch 1 on a separate immutable branch
+or tag for the other maintainers to pull in. The three patches all have
+different maintainers. Or if it's not too late, Mark could take patch
+1 for v7.3-rc1 and the rest can go in later.
+
+The DT changes must go in after all the driver changes land, especially
+patch 2 that adds delays to the Elan trackpad driver. Otherwise the user
+could potentially end up with a non-functional trackpad on the device.
+
+
+Thanks
+ChenYu
+
+[1] https://lore.kernel.org/all/20241001093815.2481899-1-wenst@chromium.org/
+
+Chen-Yu Tsai (7):
+  regulator: core: Add "enable and wait" functions
+  Input: elan_i2c - Wait for initialization after enabling regulator
+    supply
+  HID: i2c-hid-of: skip post-power-on delay if powered on sufficiently
+    long
+  i2c: of-prober: skip post-power-on delay if powered on sufficiently
+    long
+  i2c: of-prober: Defer regulator_disable() on successful probe in
+    simple helper
+  arm64: dts: mediatek: mt8173-elm-hana: Unmark trackpad supply as
+    always-on
+  arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics
+    trackpad's supply
+
+ .../boot/dts/mediatek/mt8173-elm-hana.dtsi    |   8 +-
+ arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi  |   1 -
+ .../mediatek/mt8192-asurada-spherion-r0.dts   |   2 +
+ drivers/hid/i2c-hid/i2c-hid-of.c              |   9 +-
+ drivers/i2c/i2c-core-of-prober.c              |  25 ++--
+ drivers/input/mouse/elan_i2c_core.c           |   7 +-
+ drivers/regulator/core.c                      | 117 +++++++++++++++---
+ include/linux/regulator/consumer.h            |  21 +++-
+ include/linux/regulator/driver.h              |   2 +
+ 9 files changed, 149 insertions(+), 43 deletions(-)
+
+-- 
+2.55.0.860.g4b6b3295ed-goog
+
