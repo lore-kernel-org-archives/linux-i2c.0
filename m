@@ -1,93 +1,269 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F7D546983C
-	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:26:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB47D483BC5
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:34:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787664414; cv=none; b=UD8r2P7R0VmDM4rtT+JCfk8W3CZYsRc/itTwusnXAZ6nbqtTwNpBW1WJcOV0WNwRC/ENBLrXBSLecc0COpO/mSw7jwWl5p85kO2VxV2spdZ+apCGu7Rut4y1ZETg7/iGnQxf6+AFtUC/IRVpeaSRto67CfiI4ypSmEfFsw/3iFs=
+	t=1787664867; cv=none; b=n4abtECdtWBnp+DL+a9Pa3mcuC1PtL6BzgnOmAQO1VODtb8jWs9xf9AEW+WmQoiRxy95TRMIAZzhuK1pq4OnVlLn3R7NsMMUFkQeUVz0DdsEptHJFHjAg5ZglxwtnDvMWhF7fQgEGG82Jc/q1tkY/H+EF+aM3gksEoTolGflDac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787664414; c=relaxed/simple;
-	bh=9/3kMz7oD10d8hH/1927Zsh3839HLOBI3rMLP1VBgYs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iTS9g2FIERkNXmAr/A5DRDyz0wyZ4hUJw+a4pwCGpKtCay2SC4/8Kr1GLztvo0n7TgWB9RsKGDnGNIchOtorktphcZAxh57yRDKUmjH1Yf5m6j1UxMz8EbKN9vtJkQAKi+sIyetdQyEFAZUUVmLWz7Pvr9Xkd+W7HhoywQK+zb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-c16794450aeso703419366b.2
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 06:26:46 -0700 (PDT)
+	s=arc-20240116; t=1787664867; c=relaxed/simple;
+	bh=bLAQYO2fVtjrZJZjogehxs4N3O4/AoaOHSJblctpWIU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IfbkkdDsSB2GWm7JCoA8NOo55gqJ0IXIUPGhmmY5wkfbMKy/ijWt8ZZGHWdx1WrOhK5ex0C1NjHvceTg09Zq0xkZw8ojoTX7/6aXKtEBdb4xOYoTW4I4r/4QFpaFuRJgIDD5t5LBAI5lJzLrOC34dCpTZBYIoRaerT/ZS8KFdAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Fnffekqe; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=fsCtb6M0; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Fnffekqe";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="fsCtb6M0"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67PAv4cV1258460
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:34:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	TaVfdGUEZ4eLonecVULryIdNy5Y/IszLAAF0qOUkWYs=; b=FnffekqeV8VFB+Ck
+	19eFxD/ZL3SeOCpShcRv2c3Ha5sn3Offs2Oow35eByVWEaXH7foOXc9kBf8VrffX
+	EhmcvQ4WsT7din/nntI5p8KYtNKnnxQxsQOQuiHv1MMlbHD6kMsfOBvHjpbAqtyZ
+	ZYuJ99fzWV64B4SG2tZWxFNHn6JJtoN5rFLoX1GjAm5MbqL81OeJ5WU8+2eBLFDE
+	/Yy/VwhB68O8TI9YcA3R8jtrnG8guEr7MyRkap8Wr32Xo8+oQgK5644aD+IMhvDT
+	vvV7iaBydDKFowLV8EYzd/ErMlUsQIz8ZorUIfyzVVW58FowK4KwSLKn1Sh+e80F
+	bNUdYg==
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com [209.85.210.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g98hp0wt6-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 13:34:25 +0000 (GMT)
+Received: by mail-ot1-f69.google.com with SMTP id 46e09a7af769-7eb60cfd476so9713737a34.3
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 06:34:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1787664864; x=1788269664; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=TaVfdGUEZ4eLonecVULryIdNy5Y/IszLAAF0qOUkWYs=;
+        b=fsCtb6M0SPeSoWTNKHAJ4U2W2WAzB43ii4Pbi1caVwXav9K5gfVykb9Ctq5ivGoBg+
+         J/nboOSQegFUTf6zSybpBBeU4N2vJGfp0wm0FvRliVnGVwg0iS9pHhkAU43AG324yYT9
+         CU2d1gmYBWnhwrLtFepLFV0dn+hDzfvZX6l5zkPzjWMYbOnXZUGRtL46m5NulXKjpvmU
+         7/y3bbrM54cRImhCPM1NqANsKbc1BefqtnlIkm8sIQNxPB52ggRljxMl1ma5CWAi5A9e
+         6OXlTR5PONbUHx0MzSLSfiVu75urEK591lfJEa20oSlBusSmzsqhcB7FAPMxAimJNhEv
+         JnmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787664403; x=1788269203;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=nkaEb+Y8kcpcVv/97rIlADSPio9zFKmAgHXudGugDJw=;
-        b=GuAOR3A5ofbkWh3hJrn21QLzk5tCnwOVCy2WWK3BSlFIMH800ZHLWmL0ZsuMG+cOS1
-         e9pvVE1aD3FhutVsJd2MvyyV/2AaqUHVRgGn7wGXjRdF8RbIGuKrFQRhfezWpN1bMjHy
-         cJACi6prijGCjFgwsDYPsFPsk/0X533rKfSM8M0xlhtaTQC8BByP26ExtkIZtNAxuskm
-         vQS3EoOnfjg2PM7q5i5hDQpT9bj9UINQs6dhWSoGePqtHydNaVtAp7u0+B29ueLZtiLt
-         rVhA1+N7c5OU91a+R1+Z4vhXCPRJoeCgu2Gvv32w8jGWPYOJWZ/w5SqHm2s7UVmXIQEC
-         lDNA==
-X-Forwarded-Encrypted: i=1; AHgh+RpuGdebCRHElX0EHcMGGKot/3tYdX70T52Rm8phqzPyioELNZZiDdoAoh9VyEguQjxuV5o9k8fGNdg=@vger.kernel.org
-X-Gm-Message-State: AFuF++lq9+DTOoNz7v2KAWknBFADJNVUiwL6/INs2gEBko590kdfHXSI
-	hDLe4FhXz4iKvlpaUVwIvpcT1En1/Agn51zgi3tgy77g8++5NuDOjj1eikI3EALShgs=
-X-Gm-Gg: AR+sD11lbzQP0aubqzQiCUfrcz7aoaddUGDlaCGrR8zYiYlf4ZybLYFPIx1DRjr8470
-	wC2y7j77ZCi1Ihy72ESfwNMTN+RJxU7Ord7DmnYMuvQzEhI2hhqZQ4CpbkjhlmNyRa8toRuJiX6
-	k7gusS+8W/Hmv4rkpSI4eKHXXTMW+wlC1xK7MGB3EgEFamDI1ETvtro2KcZLjaWpJTMOyR9w5sR
-	Y71Ae+ddjivmFdrwi2RHxhmMDmTjDjNuFsnwLeUl3IRboKGaE2XRuR6pSyi6O58E6Ub8uivYeri
-	vgVeWOgKlbWOHjaBsP6YBeylX9mrV7Z3q00l7n0la5dfxwVPIbKRHXyB7IS4Y0ChQ//+tY7X8CU
-	ho+Y/hpp5KtIPx+CMNvLLGonicTJZF5lDBSr0xFTOBWJTifTXrqrxBKA8VjFwagNBb6N7OHUEd9
-	MZoYZkr6c/w49Efo+J7PDDBOfMH/5mgciFm2HSaFEfhQCTjqaseNcpyQxXPXlc44VgC2iCdcJTm
-	9N6oYVGOIRzVvjKZclQxcKDIg==
-X-Received: by 2002:a17:907:9603:b0:c07:43ed:1b3e with SMTP id a640c23a62f3a-c2469f9a365mr3933083266b.0.1787664403258;
-        Tue, 25 Aug 2026 06:26:43 -0700 (PDT)
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com. [209.85.208.53])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c249606a8edsm1772891966b.6.2026.08.25.06.26.42
-        for <linux-i2c@vger.kernel.org>
+        d=1e100.net; s=20251104; t=1787664864; x=1788269664;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=TaVfdGUEZ4eLonecVULryIdNy5Y/IszLAAF0qOUkWYs=;
+        b=CGtGSAFnW5Y+VUkYLqI+7WreElti6O9nNArIQVyLISyn+FewxNYTSMftCr5dDcjD7h
+         5mS990ehvQeErQ7jR0pu5sRfs5KoM9Rt7Kzg7uTcZZdWCai2hxX8EQEga6k3ZVeKsLDR
+         uzHz7ZROaxX5vM8QVzME5EcPGYhD8pTlI0MJbjDvF+pTIQrgrUGC8MWWX0aj7b7Qh8f8
+         aSfik4xUHm7zDJF4uuHtNyYTSobC0Oue2fIPlQG70bahSBAEKhy0kmaX88g+gTED4Ag0
+         CkUyJ+nBnMvKEtgTJBoE8SjBxKKCw2mz2MgJds8BLb3JlKMgWq8wa1KvAg6iV2ZtEllm
+         QD1Q==
+X-Forwarded-Encrypted: i=1; AHgh+RpU1S+ldehglFK05nbSzF53/C0vGRbx7g8zN0GyxU3NBZNrRfKtwvXVdvakg75V4pyQexBCF0f4RfA=@vger.kernel.org
+X-Gm-Message-State: AFuF++n7I8nTqO7Kb4+Q+O6h87sI6fz+sKzEpuLH/TnLLDIrlyklV1jw
+	ge94Ebs6WONduAhg/CG1FlQC/fJNrCU9cWSWC/M1pdCEtoEceuTMVPsDAM2l/DxBxD1n3Wh2jaM
+	BHZsog/GCsY3R/qXl7wxOffJaMVcK4IdsrZNo3dF7WZnb85wFraPHPJkWYWblkKE=
+X-Gm-Gg: AR+sD10Sz4UbH0QB4MCWcDROCn6EwapfALmsgT6skSXNYpILkMz+c0QhIHm2pQ+Nkcr
+	kgHIt3e9cl3xaakU9qcoE8LSnGTAsfYSSDElROwMwJqtD770dl5ZBXjxDNh6u37ULaVpvSva9z6
+	s3qqVFBg8WXMRoawUQzGkxhS8HId3kqK716SuXZklhNmCPUSkuIOiSVhbTY/QIuOI3D8MowBf6d
+	k5D6ca+1eEAEKPH3+H9ans/dzYa8EFC8qMnDc8+hDUZXB8rH/2L4dUO3SPSwnM8Pdr7pSo6v/iE
+	Twzapds1qOlUuYwFyHMz1gCg/mG4D04qHvR7br9o1v4gcux4cBMOLWDjahwYA1oc1w7YhuVD9Tb
+	qZ7FAYvPAMpkXrOfdxru0JTakOuRU1ids
+X-Received: by 2002:a05:6830:4116:b0:7f3:a8ac:45fe with SMTP id 46e09a7af769-7f461510b2fmr33747269a34.11.1787664864253;
+        Tue, 25 Aug 2026 06:34:24 -0700 (PDT)
+X-Received: by 2002:a05:6830:4116:b0:7f3:a8ac:45fe with SMTP id 46e09a7af769-7f461510b2fmr33747175a34.11.1787664863701;
+        Tue, 25 Aug 2026 06:34:23 -0700 (PDT)
+Received: from [192.168.0.7] ([49.204.109.155])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f48fc866b5sm7180397a34.23.2026.08.25.06.34.16
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Aug 2026 06:26:42 -0700 (PDT)
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a374bea882so8764390a12.1
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Aug 2026 06:26:42 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+Rr+8J0pGOluanpeJlz0vkpLE4C7xbac7fIqLV7GbAANVwsdfKzq9rpr9U+BGCNRd647fT3TJZjdenQ=@vger.kernel.org
-X-Received: by 2002:a05:6402:3647:b0:6a5:7aad:e75c with SMTP id
- 4fb4d7f45d1cf-6a57aade7fdmr24471444a12.6.1787664402461; Tue, 25 Aug 2026
- 06:26:42 -0700 (PDT)
+        Tue, 25 Aug 2026 06:34:23 -0700 (PDT)
+Message-ID: <57b9cb3c-6fcc-4f61-b372-97de8058ffac@oss.qualcomm.com>
+Date: Tue, 25 Aug 2026 19:04:14 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260520131206.932050-1-claudiu.beznea@kernel.org> <20260520131206.932050-5-claudiu.beznea@kernel.org>
-In-Reply-To: <20260520131206.932050-5-claudiu.beznea@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 25 Aug 2026 15:26:28 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdX6i-ywN4TZS2TcOV9C5w2m+eB2_jXOn+qijM9MJjo8Nw@mail.gmail.com>
-X-Gm-Features: AcwNN1X0RJ_J31vKT2WoIR2711Efguy7FqLWJRN03sI7-8E6CO9lNuf4fndEPi8
-Message-ID: <CAMuHMdX6i-ywN4TZS2TcOV9C5w2m+eB2_jXOn+qijM9MJjo8Nw@mail.gmail.com>
-Subject: Re: [PATCH 4/4] i2c: riic: Drop empty line
-To: Claudiu Beznea <claudiu.beznea@kernel.org>
-Cc: chris.brandt@renesas.com, andi.shyti@kernel.org, wsa@sang-engineering.com, 
-	claudiu.beznea@tuxon.dev, linux-renesas-soc@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 6/7] i2c: qcom-geni: Use common GENI resource
+ initialization helper
+To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc: chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+References: <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-0-61171ab1cdce@oss.qualcomm.com>
+ <20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-6-61171ab1cdce@oss.qualcomm.com>
+ <2329d1dc-9907-4338-8bb6-2a32e3e261ee@oss.qualcomm.com>
+Content-Language: en-US
+From: Praveen Talari <praveen.talari@oss.qualcomm.com>
+In-Reply-To: <2329d1dc-9907-4338-8bb6-2a32e3e261ee@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: sAjlz5znX2q__M_NFx6hgs_YflbmXxgs
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDExNSBTYWx0ZWRfX/8SBbUvJmmdm
+ EhArcCIQzghXuTShYT3a2Sv6OKkSSkNL+vj6hb5TWKVav6OALLx4POi2L0pilOVzY/ER6sjf3Dq
+ cQZw8w2xiiliDo/2lEegwUj0iyaPuvtQUs/0r85BQ3n12FaQMU0OAWzsCrcIiUy62+EUxO51FrT
+ 2rbORvtObZmQArMlXbkm8ACtnwbHG2XB6uFPOFtScNu5qGWkwyQbfYR2TaxJnk50VMQNCTONvq8
+ 3xLiRKA+NVBUKppv/nXMNaQZrXPt0jqjtr5/RHgzuI6oy2KdfIpnO7+Y4OO0i71XhRa3SQqC8FA
+ iTmb/ahxJjFfdRpvFaUsHyTPiktKFeixaUKJd9mVYSawsCO3M72Y67dL8Fxfa4yIKCKvca4KpZm
+ NgY7P2JwAhaucrXzH1BL5iauxlZti58giYKcMgJxPL3xcYYLoiSG5kPaYrR/y9ng2YJuN8ceLT8
+ FyyWex+u0xaHDFYuRgw==
+X-Authority-Analysis: v=2.4 cv=B7CJFutM c=1 sm=1 tr=0 ts=6a8d99e1 cx=c_pps
+ a=z9lCQkyTxNhZyzAvolXo/A==:117 a=V2Vt80KW7rYiXl8IeOG9JA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
+ a=atO44hwG55kBqV7UmNcA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=EyFUmsFV_t8cxB2kMr4A:22
+X-Proofpoint-GUID: sAjlz5znX2q__M_NFx6hgs_YflbmXxgs
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDExNSBTYWx0ZWRfX99k0y/Aaq+gk
+ Ht8RygBPphdwkc8l3zNvzdFsBMNf5oO5YnyyJuJCcV6j8p9n2nou3hk49ZnVdEpze00DUF7PTvj
+ /W5A0M5Dlv2uIF+uHFoCSmc9S2Rpxr0=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-25_03,2026-08-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 phishscore=0 lowpriorityscore=0
+ malwarescore=0 adultscore=0 bulkscore=0 impostorscore=0 suspectscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608250115
 
-On Wed, 20 May 2026 at 15:15, Claudiu Beznea <claudiu.beznea@kernel.org> wrote:
-> From: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
+Hi Mukesh
+
+On 24-08-2026 18:42, Mukesh Savaliya wrote:
 >
-> Drop empty line to follow the coding style.
 >
-> Signed-off-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
+> On 8/5/2026 1:27 AM, Praveen Talari wrote:
+>
+> [...]
+>
+>> @@ -228,10 +228,13 @@ static int qcom_geni_i2c_conf(struct geni_se 
+>> *se, unsigned long freq)
+>>       val |= itr->t_low_cnt << LOW_COUNTER_SHFT;
+>>       val |= itr->t_cycle_cnt;
+>>       writel_relaxed(val, gi2c->se.base + SE_I2C_SCL_COUNTERS);
+>> +
+>>       trace_geni_i2c_bus_setup(gi2c->se.dev, gi2c->clk_freq_out,
+>>                    itr->clk_div, itr->t_high_cnt,
+>>                    itr->t_low_cnt, itr->t_cycle_cnt);
+>> -    return 0;
+>> +
+>
+> This looks wrong to me.
+> First accessed registers and then we are setting ICC vote ? we should 
+> enable resources first.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+At this point the hardware resources are already enabled and  the ICC 
+call only updates
 
-Gr{oetje,eeting}s,
+the interconnect bandwidth vote. Therefore there is no dependency 
+requiring the
 
-                        Geert
+ICC vote to be issued before these register accesses.
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>
+>> +    return geni_icc_set_bw_ab(&gi2c->se, GENI_DEFAULT_BW, 
+>> GENI_DEFAULT_BW,
+>> +                  Bps_to_icc(gi2c->clk_freq_out));
+>>   }
+>>     static void geni_i2c_err_misc(struct geni_i2c_dev *gi2c)
+>> @@ -1100,24 +1103,6 @@ static int geni_i2c_init(struct geni_i2c_dev 
+>> *gi2c)
+>>       return ret;
+>>   }
+>>   -static int geni_i2c_resources_init(struct geni_se *se)
+>> -{
+>> -    struct geni_i2c_dev *gi2c = dev_get_drvdata(se->dev);
+>> -    int ret;
+>> -
+>> -    ret = geni_se_resources_init(&gi2c->se);
+>> -    if (ret)
+>> -        return ret;
+>> -
+>> -    ret = geni_i2c_clk_map_idx(gi2c);
+>> -    if (ret)
+>> -        return dev_err_probe(gi2c->se.dev, ret, "Invalid clk 
+>> frequency %d Hz\n",
+>> -                     gi2c->clk_freq_out);
+>> -
+>> -    return geni_icc_set_bw_ab(&gi2c->se, GENI_DEFAULT_BW, 
+>> GENI_DEFAULT_BW,
+>> -                  Bps_to_icc(gi2c->clk_freq_out));
+>> -}
+>> -
+>>   static int geni_i2c_probe(struct platform_device *pdev)
+>>   {
+>>       struct geni_i2c_dev *gi2c;
+>> @@ -1188,6 +1173,11 @@ static int geni_i2c_probe(struct 
+>> platform_device *pdev)
+>>       if (ret < 0)
+>>           return ret;
+>>   +    ret = geni_i2c_clk_map_idx(gi2c);
+>> +    if (ret)
+>> +        return dev_err_probe(gi2c->se.dev, ret, "Invalid clk 
+>> frequency %d Hz\n",
+>> +                     gi2c->clk_freq_out);
+>> +
+>
+> why not move to geni_i2c_init() ?
+>
+> Check recent patch @ i2c: qcom-geni: add I2C frequency table for 32 
+> MHz firmware-based SEs.
+Okay let me review it and update.
+>
+>
+> Let's agree to move there, to avoid issue.
+>
+>>       ret = i2c_add_adapter(&gi2c->adap);
+>>       if (ret)
+>>           return dev_err_probe(dev, ret, "Error adding i2c adapter\n");
+>> @@ -1281,7 +1271,7 @@ static const struct dev_pm_ops geni_i2c_pm_ops = {
+>>   };
+>>     static const struct geni_i2c_desc geni_i2c = {
+>> -    .resources_init = geni_i2c_resources_init,
+>> +    .resources_init = geni_se_resources_init,
+>
+> why to add common driver function to i2c ? and also spi, uart ?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
+The goal was to provide a common helper that avoids duplicating
+
+the same logic across multiple consumer drivers. As a side note,
+
+this refactoring was done based on Konrad's earlier suggestion to
+
+consolidate the functionality into a generic implementation.
+
+> Can we not call that function from within i2c specific hookup function 
+> ? i think design wise should keep i2c as local function.
+>
+> Also driver specific anything can be managed in local function.
+>
+>>       .set_rate = qcom_geni_i2c_conf,
+>>       .power_on = geni_se_resources_activate,
+>>       .power_off = geni_se_resources_deactivate,
+>> @@ -1290,7 +1280,7 @@ static const struct geni_i2c_desc geni_i2c = {
+>>   static const struct geni_i2c_desc i2c_master_hub = {
+>>       .no_dma_support = true,
+>>       .tx_fifo_depth = 16,
+>> -    .resources_init = geni_i2c_resources_init,
+>> +    .resources_init = geni_se_resources_init,
+>>       .set_rate = qcom_geni_i2c_conf,
+>>       .power_on = geni_se_resources_activate,
+>>       .power_off = geni_se_resources_deactivate,
+>>
+>
