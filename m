@@ -1,190 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 265D943CE6F;
-	Wed, 26 Aug 2026 13:57:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 189BA3D811E;
+	Wed, 26 Aug 2026 14:05:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787752633; cv=none; b=vDknwred2wdlfAgUW8o2i4BHCcdANL5G4+YrpZ3y+fowReh7jYbH5AnntMY4V2Ha0wKE0Y8M8oQZK5eku56ovM6caMbded88vH9B+j7JoiaEdERhTsx0UkTxmXnIHQ9rhvwLvvhUZl//t9dEb12WrU9xp6og9fTybc7RZ1E2wNE=
+	t=1787753138; cv=none; b=L+dZu4V5aJCrnT8X2tpM8hay49H4coT1KXCPj9JMkIht1XN3fh+W+Q8ep982Qidcr/i3Qz5Cq2n6GDdcfBhgjTzawhP3fPaLC2QIov1bNqCKBKoHRHEtI+/NfLSCsaKnU70OWKt+AxFV0YScOLUYe5U8e6T19WfxRFa7/OWeTXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787752633; c=relaxed/simple;
-	bh=NcRPV43rVKX/2XfHEHMdDAXWGtg+e5JV86w+pOf6Kf8=;
+	s=arc-20240116; t=1787753138; c=relaxed/simple;
+	bh=zp4ZxFvHpCyZaEKvO6J2cBCPxykmOIHLHvOYN+zVeBI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MLHTGxJHzgDCcSHkxRwoq0YK1Pjz1hio8mrnv+CwYJifkyuk+qJIT/OzqWiIRtbNBuEJSPemHbZNCIxdNWqF9WSo1+50dKn15MSDZQ6s+G5RIBQbZ97Mz9+op1C2jXYOcmsk4qj2Pq+0lJTFb39JL+yrLXY73EmLXEwhnnTz1/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fQZYM1s9; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fi+YnbY9dgreLY2vKlA3WnJcaDy8kb25C9teIll/lfkuzjjnYQFttrWipZJrVQKVj1zWYpOFU2Qr5CJWBCo1j63cXf5eNLiIMA/tWjD4jSOnOGLrlOQ3tAf31JyyHX0FRDho0BJLaimgz87osEvL5n9mQ9S2IR4pNadEkyqgWSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=koAwKrYh; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fQZYM1s9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195591F00A3A;
-	Wed, 26 Aug 2026 13:57:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787752631;
-	bh=Ng6UyxcJG17QHhsyPARDfyJal85V14/IeVc1pjyLAZ8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fQZYM1s9E4o7LMUGYuCBa0bLUCOAx+T5jP1cW776JNFJ7AvOmWPO/tHPrCCYqqYwG
-	 aozam6RXj2zmMKYpi8FLXOcIAg2YMWekRGVNuEBYdMCmvf995jrxdTZaGEvIN6XEaU
-	 dFkpXczvXpDsmrYQWSznX+i8iNYEQL2T8wU8gnQ3spoZYhRvH3uvzUehIeo3T6xMFi
-	 VtGx1Rdgk/MNGP7Ssr+HYgTNvQQh00Fr2K/Myy5NDRD9ugaFvg+GQyG0MsoNwsbgVG
-	 2o4VbyM8IUNRXGQs4J+dUa9V5SW+bcZ7KP2SCYQmSWQd69MfaC035yaH9mv8Uz5rtM
-	 KNV1kloDK7Oew==
-Date: Wed, 26 Aug 2026 15:57:07 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
-Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] i2c: qcom-target: Add driver for Qualcomm I2C
- target controller
-Message-ID: <ao7vB8cDufnJZKAI@zenone.zhora.eu>
-References: <20260813-i2c-qcom-slave-v3-0-1d3742e2ad47@oss.qualcomm.com>
- <20260813-i2c-qcom-slave-v3-2-1d3742e2ad47@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="koAwKrYh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1787753133; x=1819289133;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=zp4ZxFvHpCyZaEKvO6J2cBCPxykmOIHLHvOYN+zVeBI=;
+  b=koAwKrYhqfF0YaxYagDwRiKK4MDFVKRASD4n059W7VcuKU21rcP9kru9
+   B7+xTBV+YRAtYC32isq/4dM2b9Nyd20oFB6P/fLUeyTMwE2QzQXAD1rC9
+   cY09AMMCy0bS+w0XTW+bKODmpAOyGlQ39fh2gJDYJ1AamILHPeTiLpegH
+   zYJTXHCy04LXUlpZNeDCtiZOSm0uWvRqE9ReVdrN4CTzf2J0RyIyByiCN
+   OjVumKkc179fGghMb1+iwJpB9WW+wTdV9Hfym0GJ3RpVynjPtVxYIuDiE
+   I3/YMliPF2XrlfQAMi5kER0BxEnDswgzEt5NvR4pOhwY/nEgaDBbKZvcw
+   w==;
+X-CSE-ConnectionGUID: pV8XyPOHSEG5CPqTvJWjFg==
+X-CSE-MsgGUID: 57fNYr+KR/urc1pyaRUf3Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11886"; a="88362974"
+X-IronPort-AV: E=Sophos;i="6.25,244,1779174000"; 
+   d="scan'208";a="88362974"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2026 07:05:31 -0700
+X-CSE-ConnectionGUID: MfkaBtSDSpmzcaUT3yBSlg==
+X-CSE-MsgGUID: ntLGhDOUTCuyxLKkJe4VcA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,244,1779174000"; 
+   d="scan'208";a="271090744"
+Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.235])
+  by ORVIESA003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2026 07:05:12 -0700
+Date: Wed, 26 Aug 2026 17:05:09 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Mike Leach <mike.leach@arm.com>,
+	James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andrzej Hajda <andrzej.hajda@intel.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+	Jonas Karlman <jonas@kwiboo.se>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Michal Simek <michal.simek@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Mirela Rabulea <mirela.rabulea@nxp.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
+	Xiaowei Song <songxiaowei@hisilicon.com>,
+	Binghui Wang <wangbinghui@hisilicon.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Dvorkin Dmitry <dvorkin@tibbo.com>, Wells Lu <wellslutw@gmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
+	=?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
+	Mark Brown <broonie@kernel.org>, Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Ryan Chen <ryan_chen@aspeedtech.com>,
+	Billy Tsai <billy_tsai@aspeedtech.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+	Boris Brezillon <bbrezillon@kernel.org>, info@mocean-labs.com,
+	Olof Johansson <olof@lixom.net>,
+	Shree Ramamoorthy <s-ramamoorthy@ti.com>,
+	coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	imx@lists.linux.dev, linux-media@vger.kernel.org,
+	mfd@lists.linux.dev, linux-pci@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
+	openbmc@lists.ozlabs.org, linux-spi@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Drop redundant white-space around values in
+ <>
+Message-ID: <ao7ylZTVJFeUJ5h3@ashevche-desk.local>
+References: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260813-i2c-qcom-slave-v3-2-1d3742e2ad47@oss.qualcomm.com>
+In-Reply-To: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Viken,
+On Wed, Aug 26, 2026 at 12:20:45PM +0200, Krzysztof Kozlowski wrote:
+> Correct a few white-space issues around <>, which will be flagged by
+> dt-check-style.  No functional changes.
 
-just a quick look here.
+Don't know which file triggers my name to appear in Cc, but the change
+I like, and indeed it makes style better to read and consistent.
 
-...
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 
-> +static void qcom_i2c_target_hw_reset(struct qcom_i2c_target *target)
-> +{
-> +	/* Clear error bits before SW_RESET; the reset may not be instantaneous */
-> +	writel(BIT(ERR_CONDITION) | BIT(CLOCK_LOW_TIMEOUT),
-> +	       target->base + I2C_S_IRQ_CLR);
-> +	writel(SW_RESET, target->base + I2C_S_SW_RESET_REG);
-> +	/*
-> +	 * I2C_S_SW_RESET_REG is write-only so completion cannot be polled.
-> +	 * Use a conservative delay to allow the reset to finish before
-> +	 * reconfiguring the controller.
-> +	 */
-> +	usleep_range(10, 20);
+-- 
+With Best Regards,
+Andy Shevchenko
 
-This is also called in atomic context from the irq handler.
-Please avoid using usleep_range(), perhaps you can put this in a
-thread.
 
-> +	qcom_i2c_target_hw_init(target);
-> +	writel(target->slave->addr, target->base + I2C_S_DEVICE_ADDR);
-> +	writel(I2C_S_CORE_EN, target->base + I2C_S_CONFIG);
-> +}
-> +
-> +static irqreturn_t qcom_i2c_target_handle_error(struct qcom_i2c_target *target,
-> +						u32 irq_stat)
-> +{
-> +	u8 val = 0;
-> +
-> +	if (irq_stat & BIT(ERR_CONDITION))
-> +		dev_err(target->dev, "Error condition: unexpected Start/Stop bits\n");
-> +	else
-> +		dev_err(target->dev, "Clock low timeout\n");
-> +	qcom_i2c_target_dump_regs(target);
-> +	qcom_i2c_target_hw_reset(target);
-> +	i2c_slave_event(target->slave, I2C_SLAVE_STOP, &val);
-> +	target->status = 0;
-> +	return IRQ_HANDLED;
-> +}
-
-...
-
-> +static irqreturn_t qcom_i2c_target_irq(int irq, void *dev)
-> +{
-> +	struct qcom_i2c_target *target = dev;
-> +	u32 irq_stat, rx_bits;
-> +
-> +	/*
-> +	 * Dispatch priority (highest first):
-> +	 *   ERR_CONDITION / CLOCK_LOW_TIMEOUT  — hardware error, triggers SW reset
-> +	 *   STOP_DETECTED                      — end of transaction, clears all state
-> +	 *   RESTART_DETECTED                   — repeated start, resets state before
-> +	 *                                        any data phase in the same snapshot
-> +	 *   STRCH_RD                           — read-phase data supply
-> +	 *   RX_FIFO_FULL / RX_DATA_AVAIL /
-> +	 *   STRCH_WR                           — write-phase Rx, coalesced into one drain
-> +	 */
-> +	irq_stat = readl_relaxed(target->base + I2C_S_IRQ_STATUS);
-> +	if (!irq_stat)
-> +		return IRQ_NONE;
-> +
-> +	dev_dbg(target->dev, "IRQ status: 0x%x\n", irq_stat);
-> +
-> +	/*
-> +	 * Load target->slave once. Both reg_slave() and unreg_slave() disable
-> +	 * the IRQ before writing the pointer, so it cannot change while this
-> +	 * handler runs. Sub-handlers may dereference target->slave directly.
-> +	 *
-> +	 * The core is enabled only in reg_slave() and disabled in unreg_slave(),
-> +	 * so no bus activity is expected here. Clear and discard any stale IRQ.
-> +	 */
-> +	if (!READ_ONCE(target->slave)) {
-> +		writel(irq_stat, target->base + I2C_S_IRQ_CLR);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	if (irq_stat & (BIT(ERR_CONDITION) | BIT(CLOCK_LOW_TIMEOUT)))
-> +		return qcom_i2c_target_handle_error(target, irq_stat);
-> +
-> +	if (irq_stat & BIT(STOP_DETECTED))
-> +		return qcom_i2c_target_handle_stop(target, irq_stat);
-
-...
-
-> +	target->xo_clk = devm_clk_get(dev, "xo");
-> +	if (IS_ERR(target->xo_clk))
-> +		return dev_err_probe(dev, PTR_ERR(target->xo_clk),
-> +				     "failed to get XO clock\n");
-> +
-> +	target->ahb_clk = devm_clk_get(dev, "ahb");
-> +	if (IS_ERR(target->ahb_clk))
-> +		return dev_err_probe(dev, PTR_ERR(target->ahb_clk),
-> +				     "failed to get AHB clock\n");
-> +
-> +	ret = clk_prepare_enable(target->xo_clk);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to enable XO clock\n");
-> +
-> +	ret = clk_prepare_enable(target->ahb_clk);
-> +	if (ret) {
-> +		clk_disable_unprepare(target->xo_clk);
-> +		return dev_err_probe(dev, ret, "failed to enable AHB clock\n");
-> +	}
-
-The problem is that these clocks are not disabled in the returns
-below.
-
-Thanks,
-Andi
-
-> +
-> +	target->irq = platform_get_irq(pdev, 0);
-> +	if (target->irq < 0)
-> +		return target->irq;
-> +
-> +	ret = qcom_i2c_target_icc_init(target);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = devm_request_irq(dev, target->irq, qcom_i2c_target_irq, 0,
-> +			       dev_name(dev), target);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "request_irq failed for IRQ %d\n",
-> +				     target->irq);
-> +
-> +	qcom_i2c_target_hw_init(target);
-> +
-> +	platform_set_drvdata(pdev, target);
-> +
-> +	ret = qcom_i2c_target_adap_init(target);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "i2c_add_adapter failed\n");
-> +
-> +	return 0;
-> +}
