@@ -1,41 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625B3361DA7;
-	Wed, 26 Aug 2026 14:09:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D627C296BD2;
+	Wed, 26 Aug 2026 14:51:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787753352; cv=none; b=PYEOwPUAL9qvF3sU6OpLXHSC8a7+SjYUE2NZXpJM9XbPfwnq9cqmyRDj2YfJpEyAb206rUizmVgUvweJoPgQtaMGpF3JrOD5LZ06J5L4uMYDi0+B+P8W0joVzTPSTKRI1ObS7DMQQbBD9+EZD179bAHhmINYzBKSMvD6PLkDgjk=
+	t=1787755909; cv=none; b=X4WnCLnUtFWSH0EsCwE+sLLUWW8SEJuhxEcKuhCXsUd31doreyZr3ye6ticZKkm54BVPHEr2omuqYdV/mRRtCIrSgCfhDw85ukEjW+Dcj2RVlwYtuWnUAnb2KNn87AsNJMuTGQeqAVDltj+NAUkQmHfT7DCNf36u7MFnKP6yah4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787753352; c=relaxed/simple;
-	bh=qd/k45PDOeaWIMY7RY7wAaBtaQcu3Q+5gYHbfIRt0AM=;
+	s=arc-20240116; t=1787755909; c=relaxed/simple;
+	bh=tOodu0VszRohRtMpFFB6dYKNtMAf7OMx0ItWyxqnr/k=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OKOAcpcsi5A3E744uwoIu9c+t8ZEjwZlmSLcGUZEw3q3rkL7x/anjWyp40epHfVLVa5iczyvwntW3hMhS1n5VeI0SgnDM1ryZ0VmIb7Xvf94PlbVCdXGgIX+db+JrlwiRXjkgX9FFTjnrqHEJM5dSRfEOo9G2F6DolJZP6BxWNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lCejeG0v; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y240Sqs+FDLC+nWvMGMXJAVRt3rgXH1Yi95w8zFuhTNxobROkUFkB39eJxpyBBMpZDRHaNinuf+LE3czbRGnQWts+Up5L7JkSpuVxnYfDKHTM19932/9BlnHPb3JC8s31JTlx6Uk4EDc8pOb8HWMOHEECdUQ/vMi9idzf7c8pDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=YXQ1DnZP; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lCejeG0v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBD81F000E9;
-	Wed, 26 Aug 2026 14:09:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787753349;
-	bh=TNBvO+ky0/3VWJnTsxbu78ogNLbMq/8VlOuUXVeNmoc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=lCejeG0vCtFknqu4WX0iSTUrFlrVK2jfDvpCHnR9lMB4LXEg1eq6ylerAkO8BiKDs
-	 C9bgbPHtQq166hmFzaEwE+ziBevHgmdnvYK96Y5uBC6gGIQsnpYXSq1hDUSsNcRabY
-	 BNXtRy01rbxODxp07uDiOVBVpLS3MZUQmvh/RbxXZvfn0QKoOwNyRHz9t5Q1CLR8m/
-	 W6mtgsRkCvCYgYWDIQWMlRTV7j7AObZg9qox5M5uuenaK/ezA1Kjufquki4p6cd/aX
-	 8m8GnZ60d14RrDpxPA/A13+mB1dZPkjhn8USGisHyJkoC3ZT+db7ojyREIDYhJNkkv
-	 sQ09IFTmcllMA==
-Date: Wed, 26 Aug 2026 16:09:05 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: YuXin Xiao <xiaoyueyoqwq@gmail.com>
-Cc: westeri@kernel.org, linux-i2c@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] i2c: acpi: Add DELL0A86 to
- i2c_acpi_force_100khz_device_ids
-Message-ID: <ao7yggBh5-MiEIDm@zenone.zhora.eu>
-References: <20260824111814.75242-1-xiaoyueyoqwq@gmail.com>
- <20260824181559.146133-1-xiaoyueyoqwq@gmail.com>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="YXQ1DnZP"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 15C231756;
+	Wed, 26 Aug 2026 07:51:43 -0700 (PDT)
+Received: from localhost (unknown [10.2.196.114])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 73BBD3F7D8;
+	Wed, 26 Aug 2026 07:51:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1787755906; bh=tOodu0VszRohRtMpFFB6dYKNtMAf7OMx0ItWyxqnr/k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=YXQ1DnZPOLhXEtKbwELsDp94I7KPv6NJqCCc+P/ZvoSWmJ8KCcKahNh7+sQWL3CXe
+	 Epva2iw+zUipeNYduk/uateqT+WdNJ2g8p5ZxLII6bzY6QQhqe7ssRQ+Ghq+nqNteW
+	 f98Yr+78VjADUvqwt45aWv7UK+TBbIxawOLDtO68=
+Date: Wed, 26 Aug 2026 15:51:44 +0100
+From: Leo Yan <leo.yan@arm.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Mike Leach <mike.leach@arm.com>,
+	James Clark <james.clark@linaro.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andrzej Hajda <andrzej.hajda@intel.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+	Jonas Karlman <jonas@kwiboo.se>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Michal Simek <michal.simek@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Mirela Rabulea <mirela.rabulea@nxp.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
+	Xiaowei Song <songxiaowei@hisilicon.com>,
+	Binghui Wang <wangbinghui@hisilicon.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Dvorkin Dmitry <dvorkin@tibbo.com>, Wells Lu <wellslutw@gmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
+	=?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
+	Mark Brown <broonie@kernel.org>, Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Ryan Chen <ryan_chen@aspeedtech.com>,
+	Billy Tsai <billy_tsai@aspeedtech.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+	Boris Brezillon <bbrezillon@kernel.org>, info@mocean-labs.com,
+	Olof Johansson <olof@lixom.net>,
+	Shree Ramamoorthy <s-ramamoorthy@ti.com>,
+	coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+	imx@lists.linux.dev, linux-media@vger.kernel.org,
+	mfd@lists.linux.dev, linux-pci@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
+	openbmc@lists.ozlabs.org, linux-spi@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Drop redundant white-space around values in
+ <>
+Message-ID: <20260826145144.GH8904@e132581.arm.com>
+References: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,69 +98,24 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260824181559.146133-1-xiaoyueyoqwq@gmail.com>
+In-Reply-To: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
 
-Hi YuXin,
+On Wed, Aug 26, 2026 at 12:20:45PM +0200, Krzysztof Kozlowski wrote:
 
-Please, next time don't send successive versions as in reply-to.
+[...]
 
-On Tue, Aug 25, 2026 at 02:15:59AM +0800, YuXin Xiao wrote:
-> The ELAN 04F3:3185 touchpad exposed as DELL0A86 on the Dell Inspiron
-> 13 5310 intermittently exhibits excessive smoothing when the I2C bus
-> runs at 400 kHz. During an affected period pointer movement becomes
-> severely sluggish and sticky for tens of seconds.
-> 
-> The ACPI firmware configures the touchpad bus for 400 kHz. Add DELL0A86
-> to i2c_acpi_force_100khz_device_ids so that the bus runs at 100 kHz, as
-> is already done for other touchpads exhibiting the same excessive
-> smoothing problem.
-> 
-> With the quirk applied, the kernel reports that the firmware requested
-> 400 kHz and that the bus is forced to 100 kHz. The problem did not recur
-> during extended heavy use, including an S4 hibernate/resume cycle.
-> 
-> An independent 2021 report from another Dell Inspiron 13 5310 user
-> describes the same intermittent sticky behavior and identifies the same
-> DELL0A86 / 04F3:3185 touchpad.
-> 
-> Link: https://www.reddit.com/r/linuxquestions/comments/nsso5b/help_needed_with_sticky_touchpad_spoiling_brand/
-> 
-> Assisted-by: Codex:ChatGPT-5.6-Sol
-> Assisted-by: OpenCode:Ox Alpha (x-preview-f-free)
-> 
+> --- a/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
+> +++ b/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
+> @@ -308,7 +308,7 @@ examples:
+>              arm,trig-in-sigs = <0 1>;
+>              arm,trig-in-types = <PE_DBGTRIGGER
+>                                   PE_PMUIRQ>;
+> -            arm,trig-out-sigs = <0 1 2 >;
+> +            arm,trig-out-sigs = <0 1 2>;
+>              arm,trig-out-types = <PE_EDBGREQ
+>                                    PE_DBGRESTART
+>                                    PE_CTIIRQ>;
 
-Please don't leave a blank line in between tags.
+For this CoreSight change:
 
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: YuXin Xiao <xiaoyueyoqwq@gmail.com>
-> ---
-> Changes in v4:
-> - Add an independent public report for the same model, device, and symptom.
-> - No code changes.
-
-Please, don't omit the rest of the changelog. I want to see v2,
-v3 and v4.
-
-Anyway, I merged your patch in i2c/i2c.
-
-Thanks,
-Andi
-
->  drivers/i2c/i2c-core-acpi.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index 8f3bdd5..3af0e05 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -371,6 +371,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
->  	 * the device works without issues on Windows at what is expected to be
->  	 * a 400KHz frequency. The root cause of the issue is not known.
->  	 */
-> +	{ "DELL0A86", 0 },
->  	{ "DLL0945", 0 },
->  	{ "ELAN0678", 0 },
->  	{ "ELAN06FA", 0 },
-> -- 
-> 2.53.0
-> 
+Reviewed-by: Leo Yan <leo.yan@arm.com>
