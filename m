@@ -1,62 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107611DD0EF;
-	Wed, 26 Aug 2026 00:26:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A77226CFE;
+	Wed, 26 Aug 2026 00:51:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787704001; cv=none; b=sVqKIhrqvf4kqprL18e4kaRVSAkfEsIk4lDtcbP9oxi2Hl6U9uadgzKxPrEXeXCQyBb0gcmXbt8SCYfrsl3mwXcNXoWbHf6sNGG5JkyA17mjoEm3rvfmrCLyp8PJGaipOgNHzKaHJjWZ0IouYRrZZVZa+9XVG+fPsnE7NWS/spI=
+	t=1787705504; cv=none; b=mtpQqhUdzGAgpWrfE4BVASph3xyXiQSmQDxxzo8506QRLQAjBXfy/CzIn3TozrDj/AYlCVuVHhWVEGfPEw+yX7tG5WhYMCjycf8N/SMnB2UTj6n5xg+Oim7niHCq4bK1noU3h3f3ZzrBUOXbSnCad9nG3Znj5RKHOcTHceSA4rg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787704001; c=relaxed/simple;
-	bh=ShqDjoWcq+I6QJKftXtNyFZBp+J2PeVZrGP/36klpY8=;
+	s=arc-20240116; t=1787705504; c=relaxed/simple;
+	bh=Lnvcwtt4VL/PjF+tdZJ2KyFOjf5LxlXZSg66H9OeyqU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GGRmC6PxtFztqrre1sIiM59jQ5vyVuEx5D4yUzyf7PoHjRGGEvoOwkU8HKNhqxCf9HzwY5hkjP+8A1UHtmYdIf25pEu9CX3mPaAZjA99AZfsKyifFfriSI43vPJXopBmKuRy1n7gXPrH8kHZVuSfFP164kQsn7kd+glHWLB+tS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hmlPqTY8; arc=none smtp.client-ip=198.175.65.12
+	 Content-Type:Content-Disposition:In-Reply-To; b=trjPGCDuIbJhO3UFCIJ6QNTprVjTVyO2kuH68PhnuflRR+JhUdHeXUIobkgwfvn6q5GP8Fg/yDygxiyaL23zZFKSbxiJXirFG5BXxiSt1epLttckCalJlL3NQ/T0ULN/CXM1CzuSBJbhUVQyQ7YccyW5cEawoI6CzOvi3hRxgIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=G09unpLR; arc=none smtp.client-ip=198.175.65.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hmlPqTY8"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="G09unpLR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787704000; x=1819240000;
+  t=1787705501; x=1819241501;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=ShqDjoWcq+I6QJKftXtNyFZBp+J2PeVZrGP/36klpY8=;
-  b=hmlPqTY8wlSMTQejeg8wJWM5TTFN4DmUftpCxmCT+3TS5ICD5HF1Onfm
-   f9IKIksYuwwreImqV+wU/NOtozuGuuF6Jo+Nq7SiW702PA1XmuGM697Zy
-   JlZ5Q+wjB+IEwGplHDShn6DUpcevgNQNIreAoZdarSQ5ZfJZFk5umHi/G
-   lvPe7OMH9GlPVD0tTVpOOpkOIAwfJFORhEa+bzRYkJvZQCaDQc403jxI+
-   /AKoa4rb99s+CLtL355gLFt9RHUdxC/aCcdVkHoaOgAXXkGcNaIfuIu2k
-   1Mp0A9Ebljrn+K1o1T/pnD6cX7YDlMv1x97LbSum9uVMUoXpK1+ehxKar
-   Q==;
-X-CSE-ConnectionGUID: MrgZ9PBRRC+islbmBkvhoQ==
-X-CSE-MsgGUID: U6JvhKE2ThGiIFZ8UK+7ow==
-X-IronPort-AV: E=McAfee;i="6800,10657,11886"; a="99704143"
+  bh=Lnvcwtt4VL/PjF+tdZJ2KyFOjf5LxlXZSg66H9OeyqU=;
+  b=G09unpLR1SfeAj4coa7MtH5/kZhNCRN7dUvMkzJDkk4i3gAClVnlLlEm
+   cvAuiiKTbiOkfSLvYVapjLmhX28RRb92jsdPFbrRqK+qYXfnugehz3pw3
+   wZARBWQlVzu4kZXgj0156ZGdLC1y+KAi3W/1BfvPC4Mqjk0OybKcqcLek
+   NV8x9mXISWkw5EOwsifzYVu/05njYiMiiuTdsRzXd+fqonoolPAuFYboA
+   h2fhXmRROvpvqNPUH5ATNFwWU1Jxsacuu7YQqJgYutegF3TZtT2tiBTHQ
+   PUcIf/0Z5DgynEVUe7vN7POeApMeEUggrc3Ddp2z77r1rP2r74Et6xXhR
+   w==;
+X-CSE-ConnectionGUID: +Egx0/DbSgW0gqscaniGdw==
+X-CSE-MsgGUID: 4b8P6QUpRFykkXZKpNE1kg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11886"; a="88208533"
 X-IronPort-AV: E=Sophos;i="6.25,243,1779174000"; 
-   d="scan'208";a="99704143"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Aug 2026 17:26:40 -0700
-X-CSE-ConnectionGUID: ZKXGshlLQG6FRcNyJvTLWg==
-X-CSE-MsgGUID: eM+SggEGRpSxBfq3RV50iw==
+   d="scan'208";a="88208533"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Aug 2026 17:51:41 -0700
+X-CSE-ConnectionGUID: hdyhc5/ZSrCCHkeiCu3oSw==
+X-CSE-MsgGUID: wv4mrPrNQP2GWRxTINRgew==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,243,1779174000"; 
-   d="scan'208";a="264815669"
+   d="scan'208";a="263685980"
 Received: from lkp-server01.sh.intel.com (HELO 3532383e6126) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 25 Aug 2026 17:26:37 -0700
+  by fmviesa010.fm.intel.com with ESMTP; 25 Aug 2026 17:51:38 -0700
 Received: from kbuild by 3532383e6126 with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1wz1TO-000000006dz-28ka;
-	Wed, 26 Aug 2026 00:26:34 +0000
-Date: Wed, 26 Aug 2026 08:26:17 +0800
+	id 1wz1rb-000000006fT-25Po;
+	Wed, 26 Aug 2026 00:51:35 +0000
+Date: Wed, 26 Aug 2026 08:51:16 +0800
 From: kernel test robot <lkp@intel.com>
 To: Bowen Yu <yubowen8@huawei.com>, linuxarm@huawei.com,
 	liudingyuan@h-partners.com, andi.shyti@kernel.org,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	zhanjie9@hisilicon.com, prime.zeng@hisilicon.com,
-	wanghuiqiang@huawei.com, xuwei5@huawei.com, yubowen8@huawei.com
+Cc: oe-kbuild-all@lists.linux.dev, zhanjie9@hisilicon.com,
+	prime.zeng@hisilicon.com, wanghuiqiang@huawei.com,
+	xuwei5@huawei.com, yubowen8@huawei.com
 Subject: Re: [PATCH] i2c: hisi: Add I2C bus recovery support
-Message-ID: <202608260816.YagBXzlX-lkp@intel.com>
+Message-ID: <202608260844.RKBd2Emp-lkp@intel.com>
 References: <20260825033125.1893253-1-yubowen8@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -70,10 +70,10 @@ In-Reply-To: <20260825033125.1893253-1-yubowen8@huawei.com>
 
 Hi Bowen,
 
-kernel test robot noticed the following build errors:
+kernel test robot noticed the following build warnings:
 
-[auto build test ERROR on andi-shyti/i2c/i2c-host]
-[also build test ERROR on linus/master v7.2 next-20260824]
+[auto build test WARNING on andi-shyti/i2c/i2c-host]
+[also build test WARNING on linus/master v7.2 next-20260824]
 [If your patch is applied to the wrong git tree, kindly drop us a note.
 And when submitting patch, we suggest to use '--base' as documented in
 https://git-scm.com/docs/git-format-patch#_base_tree_information]
@@ -82,28 +82,44 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Bowen-Yu/i2c-hisi-Add-I2C
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
 patch link:    https://lore.kernel.org/r/20260825033125.1893253-1-yubowen8%40huawei.com
 patch subject: [PATCH] i2c: hisi: Add I2C bus recovery support
-config: arm-randconfig-003-20260826 (https://download.01.org/0day-ci/archive/20260826/202608260816.YagBXzlX-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 771bdfdab2d66a4eb85b8ea7673cfa30152718b1)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260826/202608260816.YagBXzlX-lkp@intel.com/reproduce)
+config: sparc64-randconfig-001-20260826 (https://download.01.org/0day-ci/archive/20260826/202608260844.RKBd2Emp-lkp@intel.com/config)
+compiler: sparc64-linux-gcc (GCC) 13.4.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260826/202608260844.RKBd2Emp-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608260816.YagBXzlX-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608260844.RKBd2Emp-lkp@intel.com/
 
-All errors (new ones prefixed by >>):
+All warnings (new ones prefixed by >>):
 
->> drivers/i2c/busses/i2c-hisi.c:236:27: error: call to undeclared function 'acpi_has_method'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   drivers/i2c/busses/i2c-hisi.c: In function 'hisi_i2c_unprepare_recovery':
+   drivers/i2c/busses/i2c-hisi.c:236:34: error: implicit declaration of function 'acpi_has_method'; did you mean 'acpi_has_watchdog'? [-Werror=implicit-function-declaration]
      236 |         if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
-         |                                  ^
-   drivers/i2c/busses/i2c-hisi.c:236:27: note: did you mean 'acpi_has_watchdog'?
-   include/linux/acpi.h:1528:20: note: 'acpi_has_watchdog' declared here
-    1528 | static inline bool acpi_has_watchdog(void) { return false; }
-         |                    ^
-   1 error generated.
+         |                                  ^~~~~~~~~~~~~~~
+         |                                  acpi_has_watchdog
+   In file included from include/linux/device.h:15,
+                    from include/linux/acpi.h:15,
+                    from drivers/i2c/busses/i2c-hisi.c:8:
+>> drivers/i2c/busses/i2c-hisi.c:241:44: warning: '%s' directive argument is null [-Wformat-overflow=]
+     241 |                         dev_err(ctlr->dev, "_RST method failed: %s\n",
+         |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                              ^~~
+   include/linux/dev_printk.h:154:56: note: in expansion of macro 'dev_fmt'
+     154 |         dev_printk_index_wrap(_dev_err, KERN_ERR, dev, dev_fmt(fmt), ##__VA_ARGS__)
+         |                                                        ^~~~~~~
+   drivers/i2c/busses/i2c-hisi.c:241:25: note: in expansion of macro 'dev_err'
+     241 |                         dev_err(ctlr->dev, "_RST method failed: %s\n",
+         |                         ^~~~~~~
+   drivers/i2c/busses/i2c-hisi.c:241:65: note: format string is defined here
+     241 |                         dev_err(ctlr->dev, "_RST method failed: %s\n",
+         |                                                                 ^~
+   cc1: some warnings being treated as errors
 
 
-vim +/acpi_has_method +236 drivers/i2c/busses/i2c-hisi.c
+vim +241 drivers/i2c/busses/i2c-hisi.c
 
    221	
    222	static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
@@ -120,12 +136,12 @@ vim +/acpi_has_method +236 drivers/i2c/busses/i2c-hisi.c
    233		 * reset of I2C controller in order to help on I2C controller recover from
    234		 * the abnormal state after bus recovery process.
    235		 */
- > 236		if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
+   236		if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
    237			acpi_status status;
    238	
    239			status = acpi_evaluate_object(ctlr->acpi_handle, "_RST", NULL, NULL);
    240			if (ACPI_FAILURE(status))
-   241				dev_err(ctlr->dev, "_RST method failed: %s\n",
+ > 241				dev_err(ctlr->dev, "_RST method failed: %s\n",
    242					acpi_format_exception(status));
    243		}
    244	
