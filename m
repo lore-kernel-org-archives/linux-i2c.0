@@ -1,141 +1,91 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B039392C2A
-	for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 10:20:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BE413C0623
+	for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 10:31:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787739660; cv=none; b=JBIQyV0Ye/+zPB6vmjoyPv9XM9U1vHSKPm0IRlx4JOmBJsuL/JcgA6oPixyiLqaA5FbehMEcvjndpmVT2RN2guF1bG638h40ja04cIDv/CmsnL2CQbSxJqwcIW3C2kzHk6nLdNFEHGvgScjti8v+D2VzI831tmYj/R9Zo330mSo=
+	t=1787740287; cv=none; b=O/GgH11zShnbAWHdiIp0dox9hOj72HFmv0J/0GAljvFy55oXfsgJQtb8pxVIN4iiKhR1PLUzEbdzLcYBStaLSN/oDcioPtM6nN7U8DDIb0Hzw8jquwhOc1GAMEL/WGIS9NtXMnUvY+JGwbxfxfR2QSTBPznSiV6PBgotWDU4wno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787739660; c=relaxed/simple;
-	bh=VLXTtn7XT08IxyQgaQsGpfBTB1h569tUbQVdJRALfyY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hO+Xy2zIHvgTj/5C0IJQgQzrJ8nBPCGEj3cqmLz8HUr+SbEKp/BXZjPQ7odAr8gsueiaLV+hYAUTagtP7Om4Uis62YLl1xXG+t8luQCUBLVOkKoHmM6R6OxR3xacRt4RrPdLaztZdey3uKFFWio5mrHwxeKUy8GDYo1cegnJy1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=cb84t/UA; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Tdg993Ds; arc=none smtp.client-ip=205.220.180.131
+	s=arc-20240116; t=1787740287; c=relaxed/simple;
+	bh=2OYBYuITn3psg6Z1HtkzObrYTcYJqG6jhXiaM9WxoEE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I2RL3bgUdK35RXc4BH7D50KKHYfld5drqNvr4xHC82ZEK1dMpbuEreQpcAQ+Mcm9svHn733DEsJcL2Z/xW6lWTA2rt8AK5fSYAhETlSICV20uTKHnBmQ6uRm5bkXOQOgvPBJqFgVy547OwvzYEXjg146XECKjR1oRDHX1iIchVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=VOt/TWOf; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=ARptbYhB; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="cb84t/UA";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Tdg993Ds"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QAGps9107561
-	for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 10:20:56 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="VOt/TWOf";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="ARptbYhB"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QAH1fP518137
+	for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 10:31:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=YakeRluq/TNMj1t5ic4SgQCt7VzKx0u/UOd
-	PF2Mf+BI=; b=cb84t/UAELiftGy6ayC1tw56zz7+Tg7s6QadDwG/GTglJlsi+kM
-	YCvULGysKZQsNNpT6ksaDw9RWuw/zX+40IovC1LApUv3mI8YEYuqO13wmqpcVvds
-	jMJ1rI9Ay3l28Qjo5X9AApx3nDT8N71MwUd/zEzj5bqxI5o44P0ADYFuT4x4nhha
-	3tn3kZke2Og2aUcRtAjEeSDSLgVPkjeA/QIRlIsUDhXz4ruJOSzuZDwaniXZWP57
-	LM2x6nkT74HINmQecpzCmOOOPrxpa5AJoBpX5dKq26gAK608yMGa9oa/WhDfc7TY
-	1wXjRCN5FV+G1zO6jsPb5dqu3DdjzUow4kg==
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g9s9g9ax8-1
+	:subject:to; s=qcppdkim1; bh=1G5/5gYVXEXCPKHHHcZdLaqGYg9k7UTUSZA
+	0KKz4mo0=; b=VOt/TWOfyobZ56aTJLApPpTPwkJ5qjPBQRsCRDuCZDx7SgsXdc7
+	/ke8ZTUPJ/xdv0cYF9Jhw3zrwbT1k3Nz+RlhI0wVG7TRDyWWMqtCCuohJw20+iCW
+	z77kJtx0TYXtNpiahz3HX1LWu50czvXggxwla6eRkSEfmXJ74tI30hYg+BgQoIF/
+	wvVluIQsUxmeKQBjsEax7iC/H3sutYNFhLM2n0IyLvDoVdmojYdLYhR47mEOmd+D
+	j+Uq1FGvG78S9Mc2MtD4VQsShb09aoumshlWuh1ftP2Yc90d0wzCYugIuYUQ25G8
+	tu+1Qukht53SuhoLRLSeXq7KmHKpiTwrIXA==
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g9x2n03g9-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 10:20:56 +0000 (GMT)
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-92efd2ca21aso126439285a.0
-        for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 03:20:55 -0700 (PDT)
+	for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 10:31:23 +0000 (GMT)
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-5174a23afcbso11031081cf.3
+        for <linux-i2c@vger.kernel.org>; Wed, 26 Aug 2026 03:31:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1787739655; x=1788344455; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1787740283; x=1788345083; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YakeRluq/TNMj1t5ic4SgQCt7VzKx0u/UOdPF2Mf+BI=;
-        b=Tdg993Ds0p8W0nh2RMT9Wxhd/bs4UhEjlHpOu39o+vunBsBsFSfcz+Yw77Tpqk/jv/
-         noRxVWvR1ndGhp9oUCmO6DuEYCoNHyOtEhvu9YPJveKJSJ5mTzfGNZKACHIItgHs6PIB
-         4blB6MkeAUTHD68SF+4PwBaAaiIBcVSAcqd6Eu3aPAJffPW4/DZX4z4e77+nB3I8/mSp
-         gAFlr56HBtaR3uhzyh9EkBKBW4uAi+50nlqLq8lIdANBTW+i69uTr6P8riRVPrmSIDRG
-         WXWKpvdVS2lkRD5kgjCTu4UjA8PAehQUH4gUEhjdJ1w2AcK+2uan4ptCl4wUCIU3jbc5
-         ZnBw==
+        bh=1G5/5gYVXEXCPKHHHcZdLaqGYg9k7UTUSZA0KKz4mo0=;
+        b=ARptbYhBiZU7B7PnEXPplm1poMqw3a7UlsPdDN6rmjEg1hagSEz30niXP2P1Wu1wpi
+         mZTn9XldiHb0l4JTkRwHSrP8iVTmjUS9rsKe9+BMGmSoU0+uczF2R0GbT8xXRM1Li7aw
+         Rorlil5mZW44jmdKyj7ZIpTziYrG8bCKi1R4oEJvJsz2+fZ3CSiBoB0l7BNf4DNr5GEd
+         kkkpuiUxm4MNHUcQIgMmaQPYC1i5MQ6aYFahPRCXXb0zSeglxlhnEYlTB/O9/fVBhRIt
+         SbCe+8uC/xn5UtN/eHwZTp2ipOxks+NsY+ICvkxpYqQVRju9rj0vf4QGLUh2RbsNkxXG
+         9ZLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787739655; x=1788344455;
+        d=1e100.net; s=20251104; t=1787740283; x=1788345083;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=YakeRluq/TNMj1t5ic4SgQCt7VzKx0u/UOdPF2Mf+BI=;
-        b=p1rxOJykutxyUilrBETTYqPD5tYsXjXglpyQFPlbI1PDRfCBnLMnCo39zjD5Ryqoeg
-         TyjVvMvHMJYUCeri0AeJawOn1/5cZ/22W3EYFE8xhjP+VI0ouOG8CgrIKv9AVb7rWtXF
-         rVQGvdPFdMquPOXKcCkSN32j7cBOQ1cuLicu9lkYpc9klchIfMVc5WGw8jIw0QtyA+4o
-         HXeDvwN4Ngka//7/dEHttTFzFtQWCjRXyZsqOmtQvKPmxtd5YqJb1z8vv2/Nb9O648GC
-         hPh9QPx3Qx1zuRezY0IOdwCNcKyxaIiNMKkMudtZukC0ZVCoqi04y8zqtLI9s+wx4hnJ
-         zssg==
-X-Forwarded-Encrypted: i=1; AHgh+RrqcqyqBoyGciedbbuCxIQVgBZ9wAxrA5TB842xS/BwA7Q27WmYQi3gdf+X9PUHKUWWUNLcM2Y56zs=@vger.kernel.org
-X-Gm-Message-State: AFuF++l8moGpppnU8X9YdYydJYaPsAcCGO2eCV/X2EoTNRTRMsyW7G6x
-	WXhdm4wS6kApyEJf648/7+rp7EFs2ReVTje6wXRP6tyvVAwEeP/trc2+lAaDpUZQLcG5lHc2URH
-	YZvJY3esZT0YyLE8mzy58U0ZIVlipG8wOL8/C8zapa3kNpXa76PWTjFgJrNsKdZo=
-X-Gm-Gg: AR+sD12JXkSZehNyxw9bbsJwF+fPLqGyz4FfEJJHEU9SAAvwjy3Q+KItt/0TfbuO3DK
-	YzkVLOdEY0agavpvvdaQELhpOOoVlFJ8dPWas+TZx0v/mtp1xxMNajJzPpS+UnyTbosS+Dzo3O0
-	K7rnCpn7jJTs4isYdTZQeyhsA9ifV0kyfbGwZQ1Al1OvQCcyQjtWY6uU4R/i2TyVYRA+g5/svZi
-	0jW5f/zaQP5Yg7+1/EXOc820sycdNHKgY7yr9cjAooaJ6yxPYNpRMVpG2kbJ+CI0qZqMGdf8WI6
-	oD90Mjah18IOK8/QsMzELpbGnssGWeW8gpdcv+TZ6bKY/kDYWDoL0R0Os0JFWsSWjA+i8ixJzHP
-	FMqkf4sVkG6LUULE=
-X-Received: by 2002:a05:622a:4c15:b0:52c:cc14:ff63 with SMTP id d75a77b69052e-52e4239c2d5mr53841281cf.37.1787739655344;
-        Wed, 26 Aug 2026 03:20:55 -0700 (PDT)
-X-Received: by 2002:a05:622a:4c15:b0:52c:cc14:ff63 with SMTP id d75a77b69052e-52e4239c2d5mr53840311cf.37.1787739654609;
-        Wed, 26 Aug 2026 03:20:54 -0700 (PDT)
+        bh=1G5/5gYVXEXCPKHHHcZdLaqGYg9k7UTUSZA0KKz4mo0=;
+        b=rKt7/Na6kHeOJ18UlCrC3Osd0c6IFStxWdV88a0uVQH2FHQgHYLRhdddbOKuFKQqNY
+         rDyDtJ5ZdjTSpAuf6ZRo0gESgD7bJNILiMjsSHX/awXVwAk9zXSH280UR75GxaZ9ifaM
+         PGgrvpE2F9Mt0fGCyFNCAaEI5O6ieew1ue/Z4F+R0YuwMu3FwGzqhDfklSDFjYpfKWpp
+         +oFS772lHf81kfAcMA8DjxlBgKfaFS246QVSHuSQHcSBzmSkUyk1zbVaZ8EyUrnzj25R
+         GEoxrOm770CxzjStU96GjH6jIVgkvoDWiMvNpHH0jJSfE9vInpSrL8cUuNDZrKonae/E
+         H03Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rq51ni5mkvDuLaN7f/ovWq49qnqNDOIlXai14iVdv/2bNSWA1K+nJUSpq27vhSFCI6eIoOzJNZiQeU=@vger.kernel.org
+X-Gm-Message-State: AFuF++n4qm9JJ0lgTMf8DElR2lRhSRF+xH8J/z3K0aohvipu60Yoe/YI
+	k14YUeJURRf644TK/4PFLzCZqszTI8iK7YaGQkutf1ZIKhig3aSHD7bU7HXlkISi82KrOf/ws3y
+	l4/OG4qFJO4Svyw6/LlvtcdH2JZhj55MutNTtCwfTjuuP9v8MU0v0AbxP0j/h62o=
+X-Gm-Gg: AR+sD12hGt5Ne8NCYrkXFDZLosYIRz96BeGNZcs6ljsI1GVaTe8h+rfq56glX7MwQrI
+	17jhFaVbqUbI6esIrVBqp0bcslV26Gdn70EPBheAGV6jBlLf39c7BFPJW6eCjMXKtLfyKdJAvnt
+	2pbaNgHD1Lc5nLzheEw+xMgwLFBKQM6fR/cgkfe0lPuPyMqWZowcZhPtX0c7g8ZFCfDhc3b9H2W
+	dMTD/jiyUdUEwQDfuxp6wdubCVIpag/88itY2PUmtHUJh5ZcPJNf/RfG103kUALoOCWhvYfi1QM
+	JBl4EF4F8XEv3S8X4Pnk04fwjMX4w77OQqEsQgPnsgXS/3xkE/bnEQ+WqwLwoZ26kZRcp3dt/pm
+	Ah9rGAj8XwUJsrN8=
+X-Received: by 2002:a05:622a:1194:b0:51b:cdc2:fb99 with SMTP id d75a77b69052e-52e423221cbmr49163961cf.24.1787740282717;
+        Wed, 26 Aug 2026 03:31:22 -0700 (PDT)
+X-Received: by 2002:a05:622a:1194:b0:51b:cdc2:fb99 with SMTP id d75a77b69052e-52e423221cbmr49163321cf.24.1787740282195;
+        Wed, 26 Aug 2026 03:31:22 -0700 (PDT)
 Received: from quoll ([178.197.219.214])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a5deaa8473sm4566479a12.21.2026.08.26.03.20.49
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c250a88ac46sm468967166b.29.2026.08.26.03.31.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Aug 2026 03:20:52 -0700 (PDT)
+        Wed, 26 Aug 2026 03:31:20 -0700 (PDT)
 From: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-To: Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@arm.com>,
-        James Clark <james.clark@linaro.org>, Leo Yan <leo.yan@arm.com>,
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
         Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
         Conor Dooley <conor+dt@kernel.org>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Robert Foss <rfoss@kernel.org>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Michal Simek <michal.simek@amd.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        David Lechner <dlechner@baylibre.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Andy Shevchenko <andy@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>, Lee Jones <lee@kernel.org>,
-        Xiaowei Song <songxiaowei@hisilicon.com>,
-        Binghui Wang <wangbinghui@hisilicon.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Dvorkin Dmitry <dvorkin@tibbo.com>, Wells Lu <wellslutw@gmail.com>,
-        Linus Walleij <linusw@kernel.org>,
-        Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Mark Brown <broonie@kernel.org>, Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@codeconstruct.com.au>,
-        Ryan Chen <ryan_chen@aspeedtech.com>,
-        Billy Tsai <billy_tsai@aspeedtech.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-        Boris Brezillon <bbrezillon@kernel.org>, info@mocean-labs.com,
-        Olof Johansson <olof@lixom.net>,
-        Shree Ramamoorthy <s-ramamoorthy@ti.com>, coresight@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, imx@lists.linux.dev,
-        linux-media@vger.kernel.org, mfd@lists.linux.dev,
-        linux-pci@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
-        linux-spi@vger.kernel.org, linux-pm@vger.kernel.org
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: [PATCH] dt-bindings: Drop redundant white-space around values in <>
-Date: Wed, 26 Aug 2026 12:20:45 +0200
-Message-ID: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
+Subject: [PATCH] dt-bindings: i2c: xlnx,xps-iic-2.00.a: Drop bouncing mocean-labs.com
+Date: Wed, 26 Aug 2026 12:30:43 +0200
+Message-ID: <20260826103042.147735-2-krzysztof.kozlowski@oss.qualcomm.com>
 X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -143,282 +93,71 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=11056; i=krzysztof.kozlowski@oss.qualcomm.com;
- h=from:subject; bh=VLXTtn7XT08IxyQgaQsGpfBTB1h569tUbQVdJRALfyY=;
- b=owEBbQKS/ZANAwAKAcE3ZuaGi4PXAcsmYgBqjr38uizHhFsyaUfbShh6aV91h2LuTgXLla7J1
- iRWfu/7MTyJAjMEAAEKAB0WIQTd0mIoPREbIztuuKjBN2bmhouD1wUCao69/AAKCRDBN2bmhouD
- 1//ND/9VUySGE4BflnGzefwaWJXA4iuKBkmzGwLMqN7eUXpUbSoX8iLtPrxbX+9yUzLueGyH4Xo
- epcJibxndgTnzbc2klHFJapQc2tGlzVR5FvpC1La3tDHMiqxYLIpJfOwKJZ6fK+WbzJvh4jzKLL
- dhhU1tZ2bbiPbsDE1crODu4QizlzaJK5VCmopeUHNgfmXG11v15zISMWX7nXpFJRKVbM9bLv7ii
- zN2ymvdCyRS34rWLOfhEzlse4MsoWGETeqq4mqsY+qoJn1bxtHIHskysOWKvS85nA4uP7oiXuTr
- 6ZdbAxuTjE2nfdS0Fc4cHCue1oAJ2743qN6ZLilYDjsCWUFbWQLCnisqa1h2+Ax+R47myq/12aF
- dwX8qT6VQpVIBzSum/GvJ5i2NUuOasfdTEArp+7j9pDh2QNcJZ3W0Y0tGloGYcrFQ45NNWEKzdr
- FX0P6H+TNG/r09/AVrcy+5vX3n+rXdzubmZ5EWtDNdSigLS3Zt6NCZp7DTbhUBunhAHrJChToIb
- /pCy2QEk2nreFUlIcqtnzF+7VdbnzcFJMytpjCAAPhuacDmnEsfObOM7tuHZn8gzbdA7iurAmiF
- M0WmAj98vqqauR0HjMqzgpaoc9BO/aVy9sVx8UBgGD71N977fkSk9PqCIqWt1QeIggzlZWg30M0 R1M+6g3LfXeMZjA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=909; i=krzysztof.kozlowski@oss.qualcomm.com;
+ h=from:subject; bh=2OYBYuITn3psg6Z1HtkzObrYTcYJqG6jhXiaM9WxoEE=;
+ b=owEBbQKS/ZANAwAKAcE3ZuaGi4PXAcsmYgBqjsBS70xtCJ33tyNoF8tp1JvgWm9eIpjfeILnp
+ NS8EYq0S9aJAjMEAAEKAB0WIQTd0mIoPREbIztuuKjBN2bmhouD1wUCao7AUgAKCRDBN2bmhouD
+ 1+O5EACSTM2gnMIwQuOlA0YIdHhC5/Z+dk6m2aO1ApbctozEXP9FbIgmhVfdd2ekGf2+wYnzzI+
+ D5lrYd3yf41lg7C+fAugiwx6ogmMgtt9niUXMaJq38OZgpmc/cW8bNK9Ppg3PTFRLa1JWauAOhT
+ IZQaZDibVkaOyiGdUFI0cpwEm/n9BX2+5d37Z87JAkLa+OtUzWYEshw2NX86BRyP7wrcEuIOKCP
+ WCQf9s14tzGaC2PVYcfpU5QqxHc9xVzJGISaGCX31fjMTDeKR9woimFPAVsT5dfLHJ3FJg5HTWk
+ /Pp4rfRjDwtSfcVsOO1cPldW7PAayZZEqmzUp9mam/qMVnYzJ8H84bCNUSBCNJJZ8JRPcUficaQ
+ QJpzUCvnFpehthymqfblKLwZjebNZhkyxBDr/uHMCuFgQi7i15hXZh0Z2HhZESgNz7+nhbgxai+
+ YfRmCEwwVdomGTEh7KEKgawd3oNmiFoBY9KUDlXyBXDzQLkQ5zlt+F7Nl8lLfmFw5Sb6RS9EVQn
+ RP1DkRnvv6IBP9r3abpaJJ/rcjpSKOqE69Ok+F+dDDb0fae8WQmmyYsFAZm59R+RkaEFZSmQa8u
+ Iex/9Uy95SDFvxY7KgKbfqucJq9th1iov9jK/eDJVw/uZdi/My7BR2wuTWy7RBzAVBKt2/4hT8L OnC7XGeV7BisYpA==
 X-Developer-Key: i=krzysztof.kozlowski@oss.qualcomm.com; a=openpgp; fpr=9BD07E0E0C51F8D59677B7541B93437D3B41629B
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: EKPvtfilAuCH71DD8Y1SMhNVjQspbndC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDA4NSBTYWx0ZWRfX1O1mXtjAecg1
- pagqaUdNY59DpRt48AnVruiOXutKbVSd3szK20Whvko4HtM6vpyNJI4KfXL6RixOGhDK0/J6n2b
- zZe1cz8Xem5Vx0weuX9D//1XQ4I146H3cenaQT19sRhGzjdMy3LDKXlmtwNhQk6wgHa0c8FD6B7
- VWRlHdE3az03cUBOHm+mPXATQTTSc7Sz9iAIRxWtLHj3mqGm6939tKpXNQRcs2Kk4ZORAkBCqGs
- NmGX3QcjuiR04AL8AwwfX1WZ0BGb21dznyVubhhkUi2P4KR9wk8qspqb7/V8NjZtXa9DhcL30up
- fed7F3h9QyuyTzDh8ygig8vcqAPYZcO4wlFwa2hGtN1avHz4/ik9OGsejeniRt3m9xyaBmt35Vu
- mlyNEkho3TyyXPrRA/gw2KZ38XBpwos2Yqi0OyT7te4gUYWEMldo0ZpdRbXtjUhXY47zrv9z5Jy
- MIuOe6FaZ36QpBt19tw==
-X-Authority-Analysis: v=2.4 cv=Xfq5Co55 c=1 sm=1 tr=0 ts=6a8ebe08 cx=c_pps
- a=hnmNkyzTK/kJ09Xio7VxxA==:117 a=+bKQE0WJfmhK2875HamI0Q==:17
+X-Proofpoint-ORIG-GUID: 80rsr2FoICh3qkWkgrZkrabuDEXwBHVi
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDA4NyBTYWx0ZWRfX0OROIDjVZDFD
+ QEIUdnhXa51rz9WgvGMiRmbbNVWxnlUQ+dNSK3jKTp/w60W0k9Z6Ag5PeyyCO7jzH/lslUfUOYD
+ /1gUrIPFYYmarC66QuzX9Znyis8qaSU=
+X-Proofpoint-GUID: 80rsr2FoICh3qkWkgrZkrabuDEXwBHVi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDA4NyBTYWx0ZWRfX+M1f6NHi0wHw
+ LUhWYXsTZ6jOgG+8YEHc8D3nod5xPY3SFaBD4HSGqQi/mthDy1deNmgfLh5ayTOuIXePrXkCSJb
+ Vce+VSu3bFDvVvMgPmka72ug0u8RywrNOFF8p14z2dJ6GcmUZhCk9ff33UjrZe/jYrJ5T2cYzxK
+ YWj4oUsa4xY8xgK8F6IHCOyKPEARQ/LKeElr0AfPJGEadu6q8NBVKfzS+K+NMrAFt/0Vg4dH7Oa
+ oV1rTCHe1GaT0tiATTrhpK8Jr86hGSJqliITa5qxMGsttYpoTnwqucJjV/ye6K5zQF780+2Txwn
+ lGwSjSsam/dDphlajzh/6tm1YZ+2tWMD+U8Fx4S93HM8mMTpj7pf9C+O5dWeMqyd6JXhVkV8Y67
+ 8ikRFGM/LL3WOdFbmU/JbxyzEogO0e6YUCuQUZNj5ILvscJhi8C++e+nPKDZU7wynyF8EA5pxaR
+ vRdsptt8AWn4qbGm7wg==
+X-Authority-Analysis: v=2.4 cv=PPQ/P/qC c=1 sm=1 tr=0 ts=6a8ec07b cx=c_pps
+ a=JbAStetqSzwMeJznSMzCyw==:117 a=+bKQE0WJfmhK2875HamI0Q==:17 a=ByJN7JjbAAAA:8
  a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22 a=EUspDBNiAAAA:8
- a=aRM99mu1m__PA3yi2SkA:9 a=PEH46H7Ffwr30OY-TuGO:22 a=bUPTxTJnKXFcjW2UzhXP:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDA4NSBTYWx0ZWRfX/DM6o4AGTIMX
- 3jAMnNofj4/O96jQHsgnr57I82NrSKzqPvmE7ib6REoD2ynuTi6uzdulwhrPaEcMiOBmmv1mN9U
- r7Ebp5Z044NflucwyKd2Tm2XD8FkJTU=
-X-Proofpoint-ORIG-GUID: EKPvtfilAuCH71DD8Y1SMhNVjQspbndC
+ a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22 a=gEfo2CItAAAA:8
+ a=EUspDBNiAAAA:8 a=zd2uoN0lAAAA:8 a=3T8SOkedFoCXeTbM18YA:9
+ a=uxP6HrT_eTzRwkO_Te1X:22 a=ruIbMKh5GUt7Tw4v482g:22 a=sptkURWiP4Gy88Gu7hUp:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-26_03,2026-08-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 priorityscore=1501
- bulkscore=0 clxscore=1015 malwarescore=0 adultscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608260085
+ bulkscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
+ clxscore=1015 suspectscore=0 impostorscore=0 spamscore=0 adultscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608260087
 
-Correct a few white-space issues around <>, which will be flagged by
-dt-check-style.  No functional changes.
+Address info@mocean-labs.com bounces permanently (reason: 550 Host
+unknown), so switch the maintainer to Michal Simek.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-
 ---
+ Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Rob, Can you take it directly?
----
- .../bindings/arm/arm,coresight-cti.yaml       |  2 +-
- .../bindings/display/bridge/sil,sii9022.yaml  |  2 +-
- .../bindings/i2c/xlnx,xps-iic-2.00.a.yaml     |  4 ++--
- .../bindings/iio/light/upisemi,us5182.yaml    |  2 +-
- .../bindings/input/matrix-keymap.yaml         |  3 +--
- .../devicetree/bindings/input/ti,tca8418.yaml | 21 +++++++++----------
- .../bindings/media/nxp,imx8-jpeg.yaml         |  4 ++--
- .../devicetree/bindings/mfd/ti,tps65910.yaml  |  2 +-
- .../bindings/pci/hisilicon,kirin-pcie.yaml    |  4 ++--
- .../pinctrl/sunplus,sp7021-pinctrl.yaml       |  2 +-
- .../bindings/spi/aspeed,ast2600-fmc.yaml      |  6 +++---
- .../bindings/thermal/thermal-idle.yaml        |  2 +-
- 12 files changed, 26 insertions(+), 28 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml b/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
-index 949444aba1f8..f4101f94241a 100644
---- a/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
-+++ b/Documentation/devicetree/bindings/arm/arm,coresight-cti.yaml
-@@ -308,7 +308,7 @@ examples:
-             arm,trig-in-sigs = <0 1>;
-             arm,trig-in-types = <PE_DBGTRIGGER
-                                  PE_PMUIRQ>;
--            arm,trig-out-sigs = <0 1 2 >;
-+            arm,trig-out-sigs = <0 1 2>;
-             arm,trig-out-types = <PE_EDBGREQ
-                                   PE_DBGRESTART
-                                   PE_CTIIRQ>;
-diff --git a/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml b/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml
-index 17ea06719b56..b869552596f4 100644
---- a/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml
-+++ b/Documentation/devicetree/bindings/display/bridge/sil,sii9022.yaml
-@@ -128,7 +128,7 @@ examples:
-             cvcc12-supply = <&v1v2_hdmi>;
- 
-             #sound-dai-cells = <0>;
--            sil,i2s-data-lanes = < 0 1 2 >;
-+            sil,i2s-data-lanes = <0 1 2>;
-             clocks = <&mclk>;
-             clock-names = "mclk";
- 
 diff --git a/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml b/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
-index 658ae92fa86d..edd561d9733a 100644
+index edd561d9733a..57caebe7af35 100644
 --- a/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
 +++ b/Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
-@@ -52,8 +52,8 @@ examples:
-     axi_iic_0: i2c@40800000 {
-       compatible = "xlnx,xps-iic-2.00.a";
-       clocks = <&clkc 15>;
--      interrupts = < 1 2 >;
--      reg = < 0x40800000 0x10000 >;
-+      interrupts = <1 2>;
-+      reg = <0x40800000 0x10000>;
+@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ title: Xilinx IIC controller
  
-       #size-cells = <0>;
-       #address-cells = <1>;
-diff --git a/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml b/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml
-index dd78abe0ec8d..979d7e782290 100644
---- a/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml
-+++ b/Documentation/devicetree/bindings/iio/light/upisemi,us5182.yaml
-@@ -69,7 +69,7 @@ examples:
-         light-sensor@39 {
-             compatible = "upisemi,usd5182";
-             reg = <0x39>;
--            upisemi,glass-coef = < 1000 >;
-+            upisemi,glass-coef = <1000>;
-             upisemi,dark-ths = /bits/ 16 <170 200 512 512 800 2000 4000 8000>;
-             upisemi,upper-dark-gain = /bits/ 8 <0x00>;
-             upisemi,lower-dark-gain = /bits/ 8 <0x16>;
-diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.yaml b/Documentation/devicetree/bindings/input/matrix-keymap.yaml
-index ce910e4ac823..bef8f9813535 100644
---- a/Documentation/devicetree/bindings/input/matrix-keymap.yaml
-+++ b/Documentation/devicetree/bindings/input/matrix-keymap.yaml
-@@ -41,8 +41,7 @@ examples:
-   - |
-     keypad {
-         /* ... */
--        linux,keymap = < 0x00030012
--                         0x0102003a >;
-+        linux,keymap = <0x00030012 0x0102003a>;
-         keypad,num-rows = <2>;
-         keypad,num-columns = <8>;
-     };
-diff --git a/Documentation/devicetree/bindings/input/ti,tca8418.yaml b/Documentation/devicetree/bindings/input/ti,tca8418.yaml
-index 624a1830d0b0..a8897c5c4d9d 100644
---- a/Documentation/devicetree/bindings/input/ti,tca8418.yaml
-+++ b/Documentation/devicetree/bindings/input/ti,tca8418.yaml
-@@ -46,16 +46,15 @@ examples:
-             interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
-             keypad,num-rows = <4>;
-             keypad,num-columns = <4>;
--            linux,keymap = < MATRIX_KEY(0x00, 0x01, BTN_0)
--                             MATRIX_KEY(0x00, 0x00, BTN_1)
--                             MATRIX_KEY(0x01, 0x01, BTN_2)
--                             MATRIX_KEY(0x01, 0x00, BTN_3)
--                             MATRIX_KEY(0x02, 0x00, BTN_4)
--                             MATRIX_KEY(0x00, 0x03, BTN_5)
--                             MATRIX_KEY(0x00, 0x02, BTN_6)
--                             MATRIX_KEY(0x01, 0x03, BTN_7)
--                             MATRIX_KEY(0x01, 0x02, BTN_8)
--                             MATRIX_KEY(0x02, 0x02, BTN_9)
--            >;
-+            linux,keymap = <MATRIX_KEY(0x00, 0x01, BTN_0)
-+                            MATRIX_KEY(0x00, 0x00, BTN_1)
-+                            MATRIX_KEY(0x01, 0x01, BTN_2)
-+                            MATRIX_KEY(0x01, 0x00, BTN_3)
-+                            MATRIX_KEY(0x02, 0x00, BTN_4)
-+                            MATRIX_KEY(0x00, 0x03, BTN_5)
-+                            MATRIX_KEY(0x00, 0x02, BTN_6)
-+                            MATRIX_KEY(0x01, 0x03, BTN_7)
-+                            MATRIX_KEY(0x01, 0x02, BTN_8)
-+                            MATRIX_KEY(0x02, 0x02, BTN_9)>;
-         };
-     };
-diff --git a/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml b/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml
-index 6ba668aa633d..4727dd7040a8 100644
---- a/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml
-+++ b/Documentation/devicetree/bindings/media/nxp,imx8-jpeg.yaml
-@@ -95,7 +95,7 @@ examples:
+ maintainers:
+-  - info@mocean-labs.com
++  - Michal Simek <michal.simek@amd.com>
  
-     jpegdec: jpegdec@58400000 {
-         compatible = "nxp,imx8qxp-jpgdec";
--        reg = <0x58400000 0x00050000 >;
-+        reg = <0x58400000 0x00050000>;
-         clocks = <&img_jpeg_dec_lpcg IMX_LPCG_CLK_0>,
-                  <&img_jpeg_dec_lpcg IMX_LPCG_CLK_4>;
-         interrupts = <GIC_SPI 309 IRQ_TYPE_LEVEL_HIGH>,
-@@ -111,7 +111,7 @@ examples:
- 
-     jpegenc: jpegenc@58450000 {
-         compatible = "nxp,imx8qm-jpgenc", "nxp,imx8qxp-jpgenc";
--        reg = <0x58450000 0x00050000 >;
-+        reg = <0x58450000 0x00050000>;
-         clocks = <&img_jpeg_enc_lpcg IMX_LPCG_CLK_0>,
-                  <&img_jpeg__lpcg IMX_LPCG_CLK_4>;
-         interrupts = <GIC_SPI 305 IRQ_TYPE_LEVEL_HIGH>,
-diff --git a/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml b/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml
-index f1a76f88fc0c..f285e8cb29fb 100644
---- a/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml
-+++ b/Documentation/devicetree/bindings/mfd/ti,tps65910.yaml
-@@ -208,7 +208,7 @@ examples:
-             compatible = "ti,tps65910";
-             reg = <0x2d>;
-             interrupt-parent = <&intc>;
--            interrupts = < 0 118 0x04 >;
-+            interrupts = <0 118 0x04>;
- 
-             #gpio-cells = <2>;
-             gpio-controller;
-diff --git a/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml b/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml
-index e863519f3161..b6801057e31e 100644
---- a/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml
-+++ b/Documentation/devicetree/bindings/pci/hisilicon,kirin-pcie.yaml
-@@ -160,7 +160,7 @@ examples:
-               reg = <0x2800 0 0 0 0>;
-               compatible = "pciclass,0604";
-               device_type = "pci";
--              reset-gpios = <&gpio27 4 0 >;
-+              reset-gpios = <&gpio27 4 0>;
-               #address-cells = <3>;
-               #size-cells = <2>;
-               ranges;
-@@ -170,7 +170,7 @@ examples:
-               reg = <0x03800 0 0 0 0>;
-               compatible = "pciclass,0604";
-               device_type = "pci";
--              reset-gpios = <&gpio25 2 0 >;
-+              reset-gpios = <&gpio25 2 0>;
-               #address-cells = <3>;
-               #size-cells = <2>;
-               ranges;
-diff --git a/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml
-index 94b868c7ceb1..0084350ec579 100644
---- a/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/sunplus,sp7021-pinctrl.yaml
-@@ -339,7 +339,7 @@ examples:
-         sdcard-pins {
-             function = "SD_CARD";
-             groups = "SD_CARD";
--            sunplus,pins = < SPPCTL_IOPAD(91, SPPCTL_PCTL_G_GPIO, 0, 0) >;
-+            sunplus,pins = <SPPCTL_IOPAD(91, SPPCTL_PCTL_G_GPIO, 0, 0)>;
-         };
- 
-         hdmi_A_tx1-pins {
-diff --git a/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml b/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml
-index 80e542624cc6..ad830aebb798 100644
---- a/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml
-+++ b/Documentation/devicetree/bindings/spi/aspeed,ast2600-fmc.yaml
-@@ -62,21 +62,21 @@ examples:
-         interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
- 
-         flash@0 {
--            reg = < 0 >;
-+            reg = <0>;
-             compatible = "jedec,spi-nor";
-             spi-max-frequency = <50000000>;
-             spi-rx-bus-width = <2>;
-         };
- 
-         flash@1 {
--            reg = < 1 >;
-+            reg = <1>;
-             compatible = "jedec,spi-nor";
-             spi-max-frequency = <50000000>;
-             spi-rx-bus-width = <2>;
-         };
- 
-         flash@2 {
--            reg = < 2 >;
-+            reg = <2>;
-             compatible = "jedec,spi-nor";
-             spi-max-frequency = <50000000>;
-             spi-rx-bus-width = <2>;
-diff --git a/Documentation/devicetree/bindings/thermal/thermal-idle.yaml b/Documentation/devicetree/bindings/thermal/thermal-idle.yaml
-index 1b77d542a7b8..6b4b16580adf 100644
---- a/Documentation/devicetree/bindings/thermal/thermal-idle.yaml
-+++ b/Documentation/devicetree/bindings/thermal/thermal-idle.yaml
-@@ -137,7 +137,7 @@ examples:
-                 cooling-maps {
-                     map0 {
-                         trip = <&cpu_alert1>;
--                        cooling-device = <&cpu_b0_therm 0 15 >,
-+                        cooling-device = <&cpu_b0_therm 0 15>,
-                                          <&cpu_b1_therm 0 15>;
-                     };
- 
+ allOf:
+   - $ref: /schemas/i2c/i2c-controller.yaml#
 -- 
 2.53.0
 
