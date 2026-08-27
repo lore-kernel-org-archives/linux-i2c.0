@@ -1,129 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sg-2-3.ptr.blmpb.com (sg-2-3.ptr.blmpb.com [71.18.227.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F89147604A;
-	Thu, 27 Aug 2026 14:14:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1ED3C3F48
+	for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 15:43:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=71.18.227.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787840072; cv=none; b=Ys9kQTjJV4UR5bn61Tb0U1XALc+2BU2LaWzn3uHUEOBNCP+Cc+J6EvIq0nwf3n7IjkentsUuVdOBbyJBpi2bN5FF1cqm6jiZFJ5DvnHjv7M2dl3rqPRdalr0bgX4vbIDXIv0pFTTu0A9OeJ4KyfEQGkdfZsCMWfaaVT1G4txubQ=
+	t=1787845400; cv=none; b=nWT3RarQA97LroWE6xhsT/xCQ4OkcfFJfMpDmJn4k4gVj9CYxhvFgNirO6ZQZ17DxniEd81VLYLYK9cgLcn+uRsM4eoMKQoMo6tuye/rcsfySjkdKEsS4J0bP1+re1DtpORQlgeLCl1TJo4KBJ0aWvSDvFdxSzBeA6Am2WXOoac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787840072; c=relaxed/simple;
-	bh=yfm0l6U2JD7vyXzu8CeyNZgRDWe8o3K63SYpJUx897M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j9wczCrrsS8DgU0VVEccJAIxQEicVja2P5r90YvbzJWLDtl/iSXe1sfl28xriFHEI2Ffw1WoKfnejy3If/aDkeaeTiJO04WEsEjspKGAU6lnkH+z9Mf2xxpoqB0Zry+LejWMVFF8DBmYLALQqx6B38segnREEfp77hr5zERGzjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H/mf54W+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787845400; c=relaxed/simple;
+	bh=/oqgHYDPvMDVagPO7AKnMT/fGfUZ6coiSZBJygQnBzM=;
+	h=Date:Mime-Version:Subject:Content-Type:To:From:Cc:Message-Id; b=ISGpr28cIE/saFKdO0eAatyj5AAfCR1V/lzQi0nSaFyMWlQhg5GLNUFpG4zzaxujGwV5wc95zRvU+JPL9+EpUGMYPIpK45+yOhuWvwiIjkooXSoZAuDg7Psqeh9PzbcOvvtHdWZ2egld3/vm+yn4QJsmwI80RQonOd2x5A4pgbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc; spf=pass smtp.mailfrom=cherr.cc; dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b=V00chBgz; arc=none smtp.client-ip=71.18.227.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H/mf54W+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E6D41F00A3F;
-	Thu, 27 Aug 2026 14:14:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787840067;
-	bh=iPd05vfVGTTXMu8o+Kz/ydj1//S090ZmEizU6uZMvXQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=H/mf54W+MN//hu47JmgAU9exTPmvl0LBHB5ZzKhGEwexbRuvTYIkxj4GXgA835qnR
-	 9UEt8YKMOrQNOLAFi3nx7pgRQfY25zqX+764+u84p08c1ffcviu+w56HZl/bCUCG0L
-	 ihHFnT+8mC7h+ynswLMu1pkSIvecp+7uEK09sDoYo898fL5w+AT7uAHCJEisDnTdGu
-	 nqenwjGFq5F6mhrGpgDFQqyTszGxV2iYC0cv81MuAExmXpeZ0TN/UNxfU3/4Szp6vv
-	 o+MTXUDPIFfzalBFoZ+PepIPsLWVL0VjVaXlf2cPUDNh52Tp26khuu1cNEKxWPj+FD
-	 a0defbS1Qxr8A==
-Date: Thu, 27 Aug 2026 09:14:26 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Cc: Billy Tsai <billy_tsai@aspeedtech.com>, Mark Brown <broonie@kernel.org>,
-	imx@lists.linux.dev, mfd@lists.linux.dev,
-	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
-	Lee Jones <lee@kernel.org>, linux-kernel@vger.kernel.org,
-	Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Linus Walleij <linusw@kernel.org>, linux-pm@vger.kernel.org,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	linux-aspeed@lists.ozlabs.org, Wells Lu <wellslutw@gmail.com>,
-	Andrzej Hajda <andrzej.hajda@intel.com>, linux-pci@vger.kernel.org,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Conor Dooley <conor+dt@kernel.org>, Simona Vetter <simona@ffwll.ch>,
-	Lukasz Luba <lukasz.luba@arm.com>,
-	Dvorkin Dmitry <dvorkin@tibbo.com>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	linux-spi@vger.kernel.org,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	=?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	dri-devel@lists.freedesktop.org,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	linux-iio@vger.kernel.org, Robert Foss <rfoss@kernel.org>,
-	Joel Stanley <joel@jms.id.au>, Olof Johansson <olof@lixom.net>,
-	coresight@lists.linaro.org, linux-input@vger.kernel.org,
-	linux-media@vger.kernel.org, Leo Yan <leo.yan@arm.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	Boris Brezillon <bbrezillon@kernel.org>,
-	Maxime Ripard <mripard@kernel.org>,
-	Shree Ramamoorthy <s-ramamoorthy@ti.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Fabio Estevam <festevam@gmail.com>, Mike Leach <mike.leach@arm.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Binghui Wang <wangbinghui@hisilicon.com>,
-	Zhang Rui <rui.zhang@intel.com>,
-	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Mirela Rabulea <mirela.rabulea@nxp.com>,
-	David Airlie <airlied@gmail.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Ryan Chen <ryan_chen@aspeedtech.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-i2c@vger.kernel.org, David Lechner <dlechner@baylibre.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Michal Simek <michal.simek@amd.com>, openbmc@lists.ozlabs.org,
-	James Clark <james.clark@linaro.org>,
-	Jonas Karlman <jonas@kwiboo.se>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>, devicetree@vger.kernel.org,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Xiaowei Song <songxiaowei@hisilicon.com>, info@mocean-labs.com
-Subject: Re: [PATCH] dt-bindings: Drop redundant white-space around values in
- <>
-Message-ID: <178784006582.3145716.1041886875556731621.robh@kernel.org>
-References: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=cherr.cc header.i=@cherr.cc header.b="V00chBgz"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=feishu2604220257; d=cherr.cc; t=1787845391; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=Bh0KpptlHo4EabAVwVEP+7z/2v5dfwz3z0l/dDVT/I0=;
+ b=V00chBgzzYgCqNjsuHPKFjsaKDb0LkzBjsxut47JqxA7+5W4pM0BccR2F2R7vQes0TTFpB
+ CqsGB8gZYtZG+s6NxpTU9ZmZgDVVrYWPC/nmikjbHWJdGVzsm8GmCSaQTPhUpQQ2wntGhb
+ lC8z9JgzYZrDvEA/PA+1hqfz3syOhXPy19RLct8Go+Q+MGt1GTJVX5k1Z+2NSwciBV4wHB
+ DyOUkyR6J2fz6xSV1BkC1cNjkQuxBMO2tJ6StH4Bu3/x9/vJkye70qdlRUjYsoOTS8zCCj
+ GPBhaAbl57rJBKTSBN5cujFZ/cDy16J+ritY4XpZDlhHLIIE+TjR3THmtvlw1A==
+Date: Thu, 27 Aug 2026 23:43:00 +0800
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260826102044.142986-2-krzysztof.kozlowski@oss.qualcomm.com>
+Mime-Version: 1.0
+X-Change-Id: 20260827-i2c-dma-channel-leak-b58522243736
+Subject: [PATCH 0/3] i2c: fix DMA channel leaks on probe error and remove
+Content-Type: text/plain; charset=UTF-8
+Received: from [192.168.9.107] ([111.42.148.163]) by smtp.feishu.cn with ESMTPS; Thu, 27 Aug 2026 23:43:09 +0800
+Content-Transfer-Encoding: 7bit
+To: "Codrin Ciubotariu" <codrin.ciubotariu@microchip.com>, 
+	"Andi Shyti" <andi.shyti@kernel.org>, 
+	"Nicolas Ferre" <nicolas.ferre@microchip.com>, 
+	"Alexandre Belloni" <alexandre.belloni@bootlin.com>, 
+	"Claudiu Beznea" <claudiu.beznea@tuxon.dev>, 
+	"Wolfram Sang" <wsa@kernel.org>, 
+	"Ludovic Desroches" <ludovic.desroches@atmel.com>, 
+	"Oleksij Rempel" <o.rempel@pengutronix.de>, 
+	"Pengutronix Kernel Team" <kernel@pengutronix.de>, 
+	"Frank Li" <Frank.Li@nxp.com>, "Sascha Hauer" <s.hauer@pengutronix.de>, 
+	"Fabio Estevam" <festevam@gmail.com>, 
+	"Yao Yuan" <yao.yuan@freescale.com>, 
+	"Mukesh Kumar Savaliya" <mukesh.savaliya@oss.qualcomm.com>, 
+	"Viken Dadhaniya" <viken.dadhaniya@oss.qualcomm.com>, 
+	"Bjorn Andersson" <andersson@kernel.org>, 
+	"Vinod Koul" <vkoul@kernel.org>, 
+	"Konrad Dybcio" <konrad.dybcio@oss.qualcomm.com>, 
+	"Praveen Talari" <praveen.talari@oss.qualcomm.com>
+From: "Shengzhuo Wei" <me@cherr.cc>
+X-Original-From: Shengzhuo Wei <me@cherr.cc>
+X-Lms-Return-Path: <lba+26a905b0e+0576c5+vger.kernel.org+me@cherr.cc>
+X-B4-Tracking: v=1; b=H4sIAAVbkGoC/yXMQQ6CMBCF4auQWTMJTi0Qr0JctGXUAayko8ak4 e4WXX55eX8G5SSscKoyJH6LyiMWHOoKws3FK6OMxUANtU1PHQoFHO8O9zXyggu7Gb3tLREdTWd aKNc18UU+v+xw/ltffuLw3FuwbV9sRvTUeAAAAA==
+Cc: <linux-i2c@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>, 
+	<linux-kernel@vger.kernel.org>, <imx@lists.linux.dev>, 
+	<linux-arm-msm@vger.kernel.org>, <stable@vger.kernel.org>, 
+	"Shengzhuo Wei" <me@cherr.cc>
+Message-Id: <20260827-i2c-dma-channel-leak-v1-0-271d4adc03a0@cherr.cc>
+X-Mailer: b4 0.16.0
 
+Three I2C bus drivers request exclusive DMA channels before
+registering their adapter, but none of them releases the channels on
+the probe error path (the remove callback is not invoked after a
+failed probe), and the at91 driver never releases them on remove
+either. Same class as 777979e62711 ("i2c: mxs: fix DMA channel leak on
+probe error"), which used devm_dma_request_chan() for mxs; here the
+drivers own non-devm state, so the fixes release the channels
+explicitly on the error paths.
 
-On Wed, 26 Aug 2026 12:20:45 +0200, Krzysztof Kozlowski wrote:
-> Correct a few white-space issues around <>, which will be flagged by
-> dt-check-style.  No functional changes.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> 
-> ---
-> 
-> Rob, Can you take it directly?
-> ---
->  .../bindings/arm/arm,coresight-cti.yaml       |  2 +-
->  .../bindings/display/bridge/sil,sii9022.yaml  |  2 +-
->  .../bindings/i2c/xlnx,xps-iic-2.00.a.yaml     |  4 ++--
->  .../bindings/iio/light/upisemi,us5182.yaml    |  2 +-
->  .../bindings/input/matrix-keymap.yaml         |  3 +--
->  .../devicetree/bindings/input/ti,tca8418.yaml | 21 +++++++++----------
->  .../bindings/media/nxp,imx8-jpeg.yaml         |  4 ++--
->  .../devicetree/bindings/mfd/ti,tps65910.yaml  |  2 +-
->  .../bindings/pci/hisilicon,kirin-pcie.yaml    |  4 ++--
->  .../pinctrl/sunplus,sp7021-pinctrl.yaml       |  2 +-
->  .../bindings/spi/aspeed,ast2600-fmc.yaml      |  6 +++---
->  .../bindings/thermal/thermal-idle.yaml        |  2 +-
->  12 files changed, 26 insertions(+), 28 deletions(-)
-> 
+The three drivers are otherwise unrelated; the series exists only
+because the bug shape and the fix shape are identical.
 
-Applied, thanks!
+---
+Shengzhuo Wei (3):
+      i2c: at91: release DMA channels on remove and probe error
+      i2c: imx: release DMA channels on probe error
+      i2c: qcom-geni: release DMA channels on probe error
 
+ drivers/i2c/busses/i2c-at91-core.c   |  3 +++
+ drivers/i2c/busses/i2c-at91-master.c | 12 +++++++++++-
+ drivers/i2c/busses/i2c-at91.h        |  1 +
+ drivers/i2c/busses/i2c-imx.c         |  2 ++
+ drivers/i2c/busses/i2c-qcom-geni.c   |  4 +++-
+ 5 files changed, 20 insertions(+), 2 deletions(-)
+---
+base-commit: 45c13f3f9e3bb15fd89ff2864c6f627a3b4b4229
+change-id: 20260827-i2c-dma-channel-leak-b58522243736
+
+Best regards,
+--  
+Shengzhuo Wei <me@cherr.cc>
