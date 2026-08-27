@@ -1,194 +1,148 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E593252917
-	for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 07:46:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B5AE3A5452
+	for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 07:59:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787816763; cv=none; b=fHRffv9fEk33B+lFHcpKhZnn9oHtHVXWLxbnC8eHFws2v7RqDlk9djHI9ElP3rvkGMmvSgQTtGKAdDpHaWUNe1AqbqzLOn3WZnGkXAeCvReI87AsrG7I8nEyEgxPh6D6x6QYDK1FB23q8UbPjI4SM6NAohbqvaGyC9QBM8ufmwU=
+	t=1787817577; cv=none; b=ih2Xan2yEfoBdx2fe5H/ILzVVXmqzQWGIjcfxDK3KrvOPPqbEHaYRMSAiSjZcwWkZynIS3XiSfA+OkT1hq5LXwxqr11JUqKtGTsDZ1fso4WmaE2FDp2sCY8modudwbeKWx0rJJBbytgnZdobnmRgOFOXy6PY4isyGhXG8rs+15k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787816763; c=relaxed/simple;
-	bh=Pjvhgu2/AEvgKnflUCPPraKj9JOKej2+U3fUV/BsjuU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qnz5D33UMxnLQe025v92By5j/GkKTcZRLqL6NZh25VQ+f4m5OXtL548g5QA/XeR8++h+3Fn8uly+kPQCdFPVrOtsEY1TS0s921T7php0vpNlZUgzDoDiIR6fvNSXlDcRYyF5Y87OuEEpTviv1fB23raNUil8MKZ0EuInkvveQjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AuoXgVEZ; arc=none smtp.client-ip=209.85.215.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	s=arc-20240116; t=1787817577; c=relaxed/simple;
+	bh=AhF4RXSyKUiCoAAAkiY5QzzA273/YmWbFz5K0WcWd3Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KEzOT8BIlVQ+25b0+yp0nZNEnvRTfam3FYgJW14hEpO6Ow8kpgtTmZS3O63UbK6M48AAWLR2gxi3NAidMyjZqg0E53HB35D+9tYiI2ulApVwwJhB5I5u9+vx7RfRwOS6zQRFc/gaGwLbMOyl2wZ+KvPwe9fp+NqZCNBSujlL3Ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AuoXgVEZ"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-cbe827e3cb4so534557a12.3
-        for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 00:46:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787816760; x=1788421560; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LbRs574snZvpW2X/HQOkQ+OUsJHTgB/OYJACP1nJVIU=;
-        b=AuoXgVEZ/M55/kMohZOzkYGfpVdnkPFazAbo8t81J18OKUbh8/Nen8HKdeG2eiXGAw
-         4o9Y/XgnP5453MfFoJPiooJAz0vNfFaj1ckf/T16RJX7AHsSscDGPC0L88X2NyOkSM4L
-         uo65/QBTzYXeAktzxbOAeZ5PsljFikrDhK3yHfo5h07c17snqEUAwNnXmHhj/32tTrRf
-         qQx/s/We5Fmn7WLUrAlYxnDSfz4XmWy9VI5ELG1NMpbp6cds+xwyxhSp+ZFZuI9fx2jR
-         p6/TMqnh1Hjy4Db0/dPYnwknAIszOoZXJ9F1qjsk1BgmyjOztmt8eiLGPqd7iyZUmcEF
-         GHKQ==
+Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-783d429d0cfso839577137.3
+        for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 00:59:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787816760; x=1788421560;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=LbRs574snZvpW2X/HQOkQ+OUsJHTgB/OYJACP1nJVIU=;
-        b=Wx7CrJJuy+agYVSFiD8wRjuZxQVj7+QkvmTP6VCM+Y4tdon/ca/DUZpVdg2A6m0KCe
-         LH5gn0zAsyWhcM/7yCHGDi5j7CSjqqZzArCG422zGthHI+Io+Q/XcdMWb9YoRsvpQnRw
-         2rq1KVIOuNV2ety8+b/TmWcypKPga58iJPoXZL3lBxc2K4XsVxIdGkTihtx3GtO7BBjx
-         92HC18d/8IjOJAsTgRcxK5DyXsTrCIYP4TQ0roIn6U4GPq1qcY3LcfCBKejMWPYyI85v
-         uaxuxzsF2S3OhMHYEe9SKyl54KMZEfCFUc0UG7w7tKcHUTA2KGtGCyFBQRzrzFGbgnEj
-         1Mdg==
-X-Forwarded-Encrypted: i=1; AHgh+Rqb9n3kzsjDv3x3H9EZ/lS8iyTaFRH/k3ucVWgHd947BPs6FkmFFRfZ933ZwOmOOqN8dd0cpdrp5mo=@vger.kernel.org
-X-Gm-Message-State: AFuF++kSDZiBMvrcIR3KMPCi5NOq03sZsR+O3YSh8GoAmRyfmZCvCEgT
-	1L2u/5K8seZ2tp+Xq+/0NtO6XgfY5NeMTFLzalDKU39S4AiqF3N/iwQ2
-X-Gm-Gg: AR+sD136oR3OH5oXIk4wJsQOtHP5eLO/9b2Hia7pVRRpx63/PDtu/znzpOl6UtTtFCk
-	lUKYk8hyOB9g11BOn9O78A6GFDtywcIu5vDzM0VpiU3X/wft+nmaUDGLbhfjSDnRXs5Ij2nLOno
-	wPYVrtdHnHihN7vEyX8QfUs21+v8rnAfu8koLrRBaasq7swcaZSrpD36NKxjSyx2ICnoJ2ZeTQt
-	+EvsmkqpJRi0bDQuD9gDJKs2y6PFkhZyH6PRBzMJQf8DNRwdzZ2BpJrDH/+yz2r5QyjJMfd0WFL
-	RARjPnmWfDd1twaG1Qqgg+Lc/WRkCifgaUvhHxapaA37l7HsutqHfbKiLGjgC+ZPPrjcv+2hDCa
-	vSPjoATv2mZ6iIbp9W1Qr3I3ylkxSJ6vmFj9EPq0uOeinO+TiPvCLKBXxA3y5zc/5lY0NFptJ9U
-	An7RbKQ9BiYGbVa3MyhtuPvER6ve09vwJ8N0T3pgqTEb5mFII5dpEOMZIHHbKgwg==
-X-Received: by 2002:a05:6a00:8d0:b0:84e:2722:5d9e with SMTP id d2e1a72fcca58-85371cb27e1mr24732639b3a.1.1787816760362;
-        Thu, 27 Aug 2026 00:46:00 -0700 (PDT)
-Received: from [198.18.0.1] ([23.26.139.2])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8535cd7c162sm1680320b3a.33.2026.08.27.00.45.57
+        d=1e100.net; s=20251104; t=1787817574; x=1788422374;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=veOq8nn5oPUxcnaWxlmevqsZxizj+SHbK8Mk08fVSFc=;
+        b=QaDVW0pTV03uJCLSVlMMD+gBpa/ZhYR1UCMsCdIiP93a5L53/wMNiAjaVBFLl1G8eE
+         nRVCKiEOV0GFxs6H2CKIKuXVqUMev4cEZJpYvy7Y24IxLox4I+8Z/SGYs0IS+6lgOK7R
+         H4Ci6IXl18FHi/cPfY8w31KE5hog9XWyUIkbh5vfWGU8LOM+ScOb8gspF1diVhjcJIFz
+         zJbXIv6KXTFmEGEZ4j8jbogIp966NU9qWWLi3GHZpQVuu8t1u+Waw2OEuQTFakORIJmB
+         FEtoM+bz8Lpp+tRT4TJuGDutDToEQX747YoLjv8MapcVRcXvjPkyMOZZZBjVUAb4WCzm
+         xAyQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqykK9sgakp0NZkXqMMgEAK24kLl/dMNXKtLQNJO6t5tkYPj2Tf99AR1vMJowX4HEJD+NKrP0dc3dM=@vger.kernel.org
+X-Gm-Message-State: AFuF++laXE1ShwKNmfAXsGRmDVbfMjLGF0uOQUzxSvIXsQNLu+SjpjHG
+	Gyi2f1qIfXsKNsj9ZCmuPOLQgY1M1b0q9znHgfedRl5qm4S5jrzATvU2qf0w3cgc
+X-Gm-Gg: AR+sD11f3UCPyblZYKcgFN+wDvN3Euqq2BkpVsDmSk+yyAQG3aLGpeFNoICswD3WpjX
+	ARFXwTIkcwSb2Y1J8NQP406sxz/+RvGsdRm4B985yIYBscQbhz1B1CRdRl4Ikxzty1GzpohIg37
+	oxW7tYQH5aukcmTCr71tMlGDiyWKxp5jRdpwqmklN4oU9c/trhboGr0L3Uo/8s2+6fJck7sZlKB
+	vRTyE0tQjv8+IHhuoq8mG63+gMTOJf3WbMw7+hHC7A5S5vusenvQ6CAnekb4lJ8XulqocI7tJXD
+	GlD1XQKWh1IViTwIESMCkrdFpuvMY09XwS8ikjzESYszK94iaF+Y0Ee+TdEIqWyYZeX/7jzeB9s
+	FhkGMa79N0EnAD+PfTQ9j27/p4BiA4XPzyoGkYCAhqigAX06rijAbpeDKxQvSBxZB3ASfjKYjER
+	PjLBsCK0CKT9fG2v/FQSQO82uFslEgHcyaCFfABblZGRx+LhmEpt8NpwWSQASHyd3Z5UowiCkEL
+	Tp3zQVERrP8cWEaaLSXGFrdAQ==
+X-Received: by 2002:a05:6102:868a:10b0:784:a169:1958 with SMTP id ada2fe7eead31-784a16969eemr510690137.7.1787817574367;
+        Thu, 27 Aug 2026 00:59:34 -0700 (PDT)
+Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com. [209.85.222.46])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-97cbe311309sm3974473241.9.2026.08.27.00.59.33
+        for <linux-i2c@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Aug 2026 00:45:59 -0700 (PDT)
-Message-ID: <11e2734c-2856-4fc2-8209-7410571dbbbf@gmail.com>
-Date: Thu, 27 Aug 2026 15:46:00 +0800
+        Thu, 27 Aug 2026 00:59:33 -0700 (PDT)
+Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-97bf90f4b41so989313241.2
+        for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 00:59:33 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RqdwH6STvWJw/LBl9NSkuZD1ZkhWHLDroqZiwjTrTW1hjJHlpARPAQLLYAiUHXxvZgJE8V0y68GNRk=@vger.kernel.org
+X-Received: by 2002:a05:6102:162b:b0:778:459:f215 with SMTP id
+ ada2fe7eead31-782bf9a8e38mr5448748137.3.1787817573651; Thu, 27 Aug 2026
+ 00:59:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] i2c: acpi: Add DELL0A86 to
- i2c_acpi_force_100khz_device_ids
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: andi.shyti@kernel.org, westeri@kernel.org, linux-i2c@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <63cb7f6e-27ab-43d8-adb5-d2f4acd57674@gmail.com>
- <20260823123310.188189-1-xiaoyueyoqwq@gmail.com>
- <20260824102221.GE893316@black.igk.intel.com>
- <ao_Xu-43lnM6I7Pn@ashevche-desk.local>
-Content-Language: en-US
-From: xiaoyueyoqwq <xiaoyueyoqwq@gmail.com>
-In-Reply-To: <ao_Xu-43lnM6I7Pn@ashevche-desk.local>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20260826083524.6056-2-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20260826083524.6056-2-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 27 Aug 2026 09:59:22 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdXj04QoxituCF3wRcyzN7qZrVBn7-ukNkKDd0OfhB8zOQ@mail.gmail.com>
+X-Gm-Features: AcwNN1WaiSSDv-J3T2K0-5_UW8SuowFlCQq_EI49heAklJYMtVZ13OyYfT4lCnw
+Message-ID: <CAMuHMdXj04QoxituCF3wRcyzN7qZrVBn7-ukNkKDd0OfhB8zOQ@mail.gmail.com>
+Subject: Re: [PATCH v2] dt-bindings: i2c: renesas,rcar-i2c: allow 6 DMA channels
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Andy,
+Hi Wolfram,
 
-Sure. The relevant DSDT excerpt is below.
-
-    Scope (_SB.PC00.I2C1)
-    {
-        ...
-
-        Device (TPD0)
-        {
-            Name (SBFB, ResourceTemplate ()
-            {
-                I2cSerialBusV2 (0x002C, ControllerInitiated, 0x00061A80,
-                    AddressingMode7Bit, "\\_SB.PC00.I2C1",
-                    0x00, ResourceConsumer, _Y55, Exclusive,
-                    )
-            })
-
-            CreateWordField (SBFB, \_SB.PC00.I2C1.TPD0._Y55._ADR, BADR)
-            CreateDWordField (SBFB, \_SB.PC00.I2C1.TPD0._Y55._SPE, SPED)
-
-            Method (_INI, 0, NotSerialized)
-            {
-                ...
-
-                HID2 = TPDH
-                BADR = TPDB
-                If ((TPDS == Zero))
-                {
-                    SPED = 0x000186A0
-                }
-
-                If ((TPDS == One))
-                {
-                    SPED = 0x00061A80
-                }
-
-                If ((TPDS == 0x02))
-                {
-                    SPED = 0x000F4240
-                }
-            }
-
-            Name (ITPN, "DELL0A86")
-            Method (_HID, 0, NotSerialized)
-            {
-                Return (ITPN)
-            }
-
-            ...
-
-            Method (_CRS, 0, NotSerialized)
-            {
-                ...
-
-                If ((TPDM == Zero))
-                {
-                    Return (ConcatenateResTemplate (I2CM (I2CX, BADR, SPED), SBFG))
-                }
-
-                Return (ConcatenateResTemplate (I2CM (I2CX, BADR, SPED), SBFI))
-            }
-        }
-    }
-
-The speed values are 100 kHz, 400 kHz and 1 MHz respectively. On this
-machine Linux receives 400 kHz from ACPI, which is also confirmed by the
-kernel log when the quirk is applied:
-
-    DSDT uses known not-working I2C bus speed 400000, forcing it to 100000
-
-And for now my PC touchpad has continued to work normally since applying the quirk, and the issue has still not recurred. :)
-
-Thanks,
-YuXin
-
-在 2026/8/27 14:22, Andy Shevchenko 写道:
-> On Mon, Aug 24, 2026 at 12:22:21PM +0200, Mika Westerberg wrote:
->> +Andy
->>
->> On Sun, Aug 23, 2026 at 08:33:10PM +0800, xiaoyueyoqwq wrote:
->>> The ELAN 04F3:3185 touchpad exposed as DELL0A86 on the Dell Inspiron
->>> 13 5310 intermittently exhibits excessive smoothing when the I2C bus
->>> runs at 400 kHz. During an affected period pointer movement becomes
->>> severely sluggish and sticky for tens of seconds.
-> Just for the confirmation (no need to include in the commit message) can
-> you share the DSDT excerpt of the device in question?
+On Wed, 26 Aug 2026 at 10:35, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> R-Car Gen5 can make use of it.
 >
-> (acpidump -o tables.dat; acpixtract tables.dat; iasl -d dsdt.dat; # open dsdt.dsl)
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Thanks for your patch!
+
+> --- a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
+> @@ -83,14 +83,14 @@ properties:
 >
->>> The ACPI firmware configures the touchpad bus for 400 kHz. Add DELL0A86
->>> to i2c_acpi_force_100khz_device_ids so that the bus runs at 100 kHz, as
->>> is already done for other touchpads exhibiting the same excessive
->>> smoothing problem.
->>>
->>> With the quirk applied, the kernel reports that the firmware requested
->>> 400 kHz and that the bus is forced to 100 kHz. The problem did not recur
->>> during extended heavy use, including an S4 hibernate/resume cycle.
-> ...
+>    dmas:
+>      minItems: 2
+> -    maxItems: 4
+> +    maxItems: 6
+
+Shouldn't this be 8, as there are 4 SYS-DMAC instances, and I couldn't
+find a limitation w.r.t. I2C and specific SYS-DMAC instances?
+
+>      description:
+>        Must contain a list of pairs of references to DMA specifiers, one for
+>        transmission, and one for reception.
 >
->>> +	{ "DELL0A86", 0 },
->>>  	{ "DLL0945", 0 },
->>>  	{ "ELAN0678", 0 },
->>>  	{ "ELAN06FA", 0 },
-> At some point this should be switched to C99 initialisers and dropped unused
-> driver_data.
+>    dma-names:
+>      minItems: 2
+> -    maxItems: 4
+> +    maxItems: 6
+>      items:
+>        enum:
+>          - tx
+> @@ -137,6 +137,20 @@ allOf:
+>          dmas: false
+>          dma-names: false
 >
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            enum:
+> +              - renesas,rcar-gen3-i2c
+> +              - renesas,rcar-gen4-i2c
+> +    then:
+> +      properties:
+> +        dmas:
+> +          maxItems: 4
+> +        dma-names:
+> +          maxItems: 4
+> +
+
+I wouldn't bother adding further restrictions, as these are not related
+to the actual I2C block, but to on-SoC wiring.  DMARQ is just a single
+signal going from the I2C block to one or more DMAC instances.
+The number also differs among I2C instances on an SoC.
+
+BTW, all I2C instances on R-Car V3U have one DMA pair ;-)
+
+>    - if:
+>        properties:
+>          compatible:
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
