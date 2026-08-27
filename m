@@ -1,148 +1,181 @@
-Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B5AE3A5452
-	for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 07:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
+Received: from ultrarisc.com (unknown [218.76.62.146])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 64A133DB64B;
+	Thu, 27 Aug 2026 08:17:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=218.76.62.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787817577; cv=none; b=ih2Xan2yEfoBdx2fe5H/ILzVVXmqzQWGIjcfxDK3KrvOPPqbEHaYRMSAiSjZcwWkZynIS3XiSfA+OkT1hq5LXwxqr11JUqKtGTsDZ1fso4WmaE2FDp2sCY8modudwbeKWx0rJJBbytgnZdobnmRgOFOXy6PY4isyGhXG8rs+15k=
+	t=1787818683; cv=none; b=mU7HbzohjpyAgNfK+kwTWx3ai8SWmBosnAMXd/tfrt75K0aycHDf0eRLxDqhBlF28uUt6EVUpRS5IRXGtVD9bCeL9WJ8uAWiKyJPDp8U/rsKEHuyeDMRb4CWTwTMaqPLGPnP8xQZfxsI9lHpQ6itZIKWc3ZU3Oan2eIlxTOgCzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787817577; c=relaxed/simple;
-	bh=AhF4RXSyKUiCoAAAkiY5QzzA273/YmWbFz5K0WcWd3Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KEzOT8BIlVQ+25b0+yp0nZNEnvRTfam3FYgJW14hEpO6Ow8kpgtTmZS3O63UbK6M48AAWLR2gxi3NAidMyjZqg0E53HB35D+9tYiI2ulApVwwJhB5I5u9+vx7RfRwOS6zQRFc/gaGwLbMOyl2wZ+KvPwe9fp+NqZCNBSujlL3Ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-783d429d0cfso839577137.3
-        for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 00:59:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787817574; x=1788422374;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=veOq8nn5oPUxcnaWxlmevqsZxizj+SHbK8Mk08fVSFc=;
-        b=QaDVW0pTV03uJCLSVlMMD+gBpa/ZhYR1UCMsCdIiP93a5L53/wMNiAjaVBFLl1G8eE
-         nRVCKiEOV0GFxs6H2CKIKuXVqUMev4cEZJpYvy7Y24IxLox4I+8Z/SGYs0IS+6lgOK7R
-         H4Ci6IXl18FHi/cPfY8w31KE5hog9XWyUIkbh5vfWGU8LOM+ScOb8gspF1diVhjcJIFz
-         zJbXIv6KXTFmEGEZ4j8jbogIp966NU9qWWLi3GHZpQVuu8t1u+Waw2OEuQTFakORIJmB
-         FEtoM+bz8Lpp+tRT4TJuGDutDToEQX747YoLjv8MapcVRcXvjPkyMOZZZBjVUAb4WCzm
-         xAyQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqykK9sgakp0NZkXqMMgEAK24kLl/dMNXKtLQNJO6t5tkYPj2Tf99AR1vMJowX4HEJD+NKrP0dc3dM=@vger.kernel.org
-X-Gm-Message-State: AFuF++laXE1ShwKNmfAXsGRmDVbfMjLGF0uOQUzxSvIXsQNLu+SjpjHG
-	Gyi2f1qIfXsKNsj9ZCmuPOLQgY1M1b0q9znHgfedRl5qm4S5jrzATvU2qf0w3cgc
-X-Gm-Gg: AR+sD11f3UCPyblZYKcgFN+wDvN3Euqq2BkpVsDmSk+yyAQG3aLGpeFNoICswD3WpjX
-	ARFXwTIkcwSb2Y1J8NQP406sxz/+RvGsdRm4B985yIYBscQbhz1B1CRdRl4Ikxzty1GzpohIg37
-	oxW7tYQH5aukcmTCr71tMlGDiyWKxp5jRdpwqmklN4oU9c/trhboGr0L3Uo/8s2+6fJck7sZlKB
-	vRTyE0tQjv8+IHhuoq8mG63+gMTOJf3WbMw7+hHC7A5S5vusenvQ6CAnekb4lJ8XulqocI7tJXD
-	GlD1XQKWh1IViTwIESMCkrdFpuvMY09XwS8ikjzESYszK94iaF+Y0Ee+TdEIqWyYZeX/7jzeB9s
-	FhkGMa79N0EnAD+PfTQ9j27/p4BiA4XPzyoGkYCAhqigAX06rijAbpeDKxQvSBxZB3ASfjKYjER
-	PjLBsCK0CKT9fG2v/FQSQO82uFslEgHcyaCFfABblZGRx+LhmEpt8NpwWSQASHyd3Z5UowiCkEL
-	Tp3zQVERrP8cWEaaLSXGFrdAQ==
-X-Received: by 2002:a05:6102:868a:10b0:784:a169:1958 with SMTP id ada2fe7eead31-784a16969eemr510690137.7.1787817574367;
-        Thu, 27 Aug 2026 00:59:34 -0700 (PDT)
-Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com. [209.85.222.46])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-97cbe311309sm3974473241.9.2026.08.27.00.59.33
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Aug 2026 00:59:33 -0700 (PDT)
-Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-97bf90f4b41so989313241.2
-        for <linux-i2c@vger.kernel.org>; Thu, 27 Aug 2026 00:59:33 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RqdwH6STvWJw/LBl9NSkuZD1ZkhWHLDroqZiwjTrTW1hjJHlpARPAQLLYAiUHXxvZgJE8V0y68GNRk=@vger.kernel.org
-X-Received: by 2002:a05:6102:162b:b0:778:459:f215 with SMTP id
- ada2fe7eead31-782bf9a8e38mr5448748137.3.1787817573651; Thu, 27 Aug 2026
- 00:59:33 -0700 (PDT)
+	s=arc-20240116; t=1787818683; c=relaxed/simple;
+	bh=5BaBaUpgbE7yZAPVZNeV57kX7ae+OLSMniMswhoEkkw=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=NUjJqaotUxOj+UOsX0Ohl9yiG4WIqFp06ZVpspInUM5KueqMsX0dK/gjdoxeKmTEARR78C5lTiaof0UdO7fREn4Snr/HdzLnBdsQbNrMrcAbP1RVONJzVu4LH7waCN1dLkGyURPkGlwkZ5nIL50JqOl7S7q9FwwbY/sYpE6vTpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ultrarisc.com; spf=none smtp.mailfrom=ultrarisc.com; dkim=pass (1024-bit key) header.d=ultrarisc.com header.i=@ultrarisc.com header.b=qFsXo8DW; arc=none smtp.client-ip=218.76.62.146
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ultrarisc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ultrarisc.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=ultrarisc.com header.i=@ultrarisc.com header.b="qFsXo8DW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=ultrarisc.com; s=dkim; h=Received:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Subject:From:To:Cc:In-Reply-To:
+	References:Date:Message-Id; bh=qJn7wJbUMWgChHPDDyLMAt32tsdxeqxOd
+	//ZEjwgzPE=; b=qFsXo8DW3ymaL/dtk0EINHI7KkhHPMs9yCPEQqLlrzcMnVVGe
+	c8QTLOmFyHsjEE1LI8F98ftxeTEGWBoA7YoeRYGyXCkXRT1qx/Gk3PwzAXH6MBoq
+	9Ex+LFy66KozxrJg3/r6cCwkZioTmcAoriIgH85uCPgxKCzC2rWy6/M9HU=
+Received: from [127.0.0.1] (unknown [192.168.100.1])
+	by localhost.localdomain (Coremail) with SMTP id AQAAfwB3V86Z8o9qyloBAA--.426S2;
+	Thu, 27 Aug 2026 16:17:29 +0800 (CST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260826083524.6056-2-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20260826083524.6056-2-wsa+renesas@sang-engineering.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 27 Aug 2026 09:59:22 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXj04QoxituCF3wRcyzN7qZrVBn7-ukNkKDd0OfhB8zOQ@mail.gmail.com>
-X-Gm-Features: AcwNN1WaiSSDv-J3T2K0-5_UW8SuowFlCQq_EI49heAklJYMtVZ13OyYfT4lCnw
-Message-ID: <CAMuHMdXj04QoxituCF3wRcyzN7qZrVBn7-ukNkKDd0OfhB8zOQ@mail.gmail.com>
-Subject: Re: [PATCH v2] dt-bindings: i2c: renesas,rcar-i2c: allow 6 DMA channels
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 08/12] dt-bindings: net: snps,dwmac: Add compatible for
+ UltraRISC DP1000 SoC
+From: Jia Wang <wangjia@ultrarisc.com>
+To: Jia Wang <wangjia@ultrarisc.com>
+Cc: Conor Dooley <conor@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, 
+ Samuel Holland <samuel.holland@sifive.com>, 
+ Anup Patel <anup@brainfault.org>, Mark Brown <broonie@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ Mika Westerberg <mika.westerberg@linux.intel.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+ Giuseppe Cavallaro <peppe.cavallaro@st.com>, 
+ Jose Abreu <joabreu@synopsys.com>, 
+ Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>, 
+ Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, 
+ Paul Walmsley <paul.walmsley@sifive.com>, 
+ Palmer Dabbelt <palmer@sifive.com>, devicetree@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ netdev@vger.kernel.org, dmaengine@vger.kernel.org
+In-Reply-To: <178765275795.744215.4911904858473260204.b4-reply@b4>
+References: <20260824-ultrarisc-dts-v1-0-61ab7aebe9e5@ultrarisc.com>
+ <20260824-ultrarisc-dts-v1-8-61ab7aebe9e5@ultrarisc.com>
+ <20260824-bride-food-052b313e4b76@spud>
+ <20260824-blimp-spirited-01365897db24@spud>
+ <178765275795.744215.4911904858473260204.b4-reply@b4>
+Date: Thu, 27 Aug 2026 16:17:16 +0800
+Message-Id: <178781863615.2006105.6267469136684218126.b4-reply@b4>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787818636; l=2733;
+ i=wangjia@ultrarisc.com; s=20260515; h=from:subject:message-id;
+ bh=5BaBaUpgbE7yZAPVZNeV57kX7ae+OLSMniMswhoEkkw=;
+ b=yY3yRewGFr8detGpKXWyntfFHN5tgfDhLwzMiCHKFuFC9QP8BaO4Ra35Xa9Z5GUaqytZylF/o
+ TBafhCLJFs0CdSTIHPO0SFPDgpPeTVPXfGX+6IafSoBj78xUPCINNMC
+X-Developer-Key: i=wangjia@ultrarisc.com; a=ed25519;
+ pk=wGVm18siRScehKOkOz0WKxgxDy7IezHEszhnN4/TUCY=
+X-CM-TRANSID:AQAAfwB3V86Z8o9qyloBAA--.426S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWF4DWrykZF13Zr4fWr4rXwb_yoW5Jw13pF
+	yrAFWjkF47Jr13Jw1kt3WxGF1jvr4SkrW8Xr4rtr1UKF90gFnYqrsrKw15W3Z5Zr4rGFy2
+	vrWUuw13J3WjvaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBEb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+	A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xII
+	jxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4
+	A2jsIEc7CjxVAFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC
+	0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Gr0_Cr
+	1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IE
+	rcIFxwACI402YVCY1x02628vn2kIc2xKxwCY1x0262kKe7AKxVWrXVW3AwCY02Avz4vE-s
+	yl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWU
+	JVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x
+	0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8
+	JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIx
+	AIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0pKiifUUUUUU
+	=
+X-CM-SenderInfo: pzdqwylld63zxwud2x1vfou0bp/1tbiAQAMEWqPrHsAIQAAsP
 
-Hi Wolfram,
+On 2026-08-25 18:12 +0800, Jia Wang wrote:
+> On 2026-08-24 18:13 +0100, Conor Dooley wrote:
+> > On Mon, Aug 24, 2026 at 06:09:48PM +0100, Conor Dooley wrote:
+> > > On Mon, Aug 24, 2026 at 01:54:21PM +0800, Jia Wang via B4 Relay wrote:
+> > > > From: Jia Wang <wangjia@ultrarisc.com>
+> > > > 
+> > > > Add the SoC-specific compatible string for the UltraRISC DP1000 GMAC
+> > > > controller to the DesignWare MAC binding.
+> > > > 
+> > > > Signed-off-by: Jia Wang <wangjia@ultrarisc.com>
+> > > 
+> > > The dts may not be right, but I am also a bit concerned here.
+> > > 
+> > > This binding permits 100s of combinations of properties, of which only
+> > > a very limited set can be correct for your device. Just adding the
+> > > compatible permits all of this variation.
+> > > 
+> > > Please add some restrictions.
+> > 
+> > In fact, it's particularly bad here because you don't even restrict
+> > which fallback compatibles are used, so there's no guidance on what
+> > version of the IP is even in use!
+> > 
+> 
+> I have rechecked the DTS against the hardware. The controller uses a
+> DesignWare GMAC IP from the 5.20 series, with "snps,dwmac-5.20" as its
+> version-specific fallback.
+> 
+> In the next version, I will restrict the fallback compatibles and add
+> DP1000-specific constraints for its hardware resources.
+> 
 
-On Wed, 26 Aug 2026 at 10:35, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> R-Car Gen5 can make use of it.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Following the discussion in patch 11, I will drop this patch from v2. I
+will first submit the dedicated DP1000 GMAC binding and DWMAC glue driver
+as a separate series, and then send v2 of this DTS series with that
+dependency recorded.
 
-Thanks for your patch!
+> > > 
+> > > pw-bot: changes-requested
+> > > 
+> > > Thanks,
+> > > Conor.
+> > >
+> 
+> Best regards,
+> Jia Wang
+>  
 
-> --- a/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/renesas,rcar-i2c.yaml
-> @@ -83,14 +83,14 @@ properties:
->
->    dmas:
->      minItems: 2
-> -    maxItems: 4
-> +    maxItems: 6
+Best regards,
+Jia Wang
 
-Shouldn't this be 8, as there are 4 SYS-DMAC instances, and I couldn't
-find a limitation w.r.t. I2C and specific SYS-DMAC instances?
+> > > > ---
+> > > >  Documentation/devicetree/bindings/net/snps,dwmac.yaml | 1 +
+> > > >  1 file changed, 1 insertion(+)
+> > > > 
+> > > > diff --git a/Documentation/devicetree/bindings/net/snps,dwmac.yaml b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+> > > > index 2449311c6d28..2ed4564ae99d 100644
+> > > > --- a/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+> > > > +++ b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+> > > > @@ -119,6 +119,7 @@ properties:
+> > > >          - starfive,jh7110-dwmac
+> > > >          - tesla,fsd-ethqos
+> > > >          - thead,th1520-gmac
+> > > > +        - ultrarisc,dp1000-gmac
+> > > >  
+> > > >    reg:
+> > > >      minItems: 1
+> > > > 
+> > > > -- 
+> > > > 2.34.1
+> > > > 
+> > > > 
+> > > > 
+> > > > _______________________________________________
+> > > > linux-riscv mailing list
+> > > > linux-riscv@lists.infradead.org
+> > > > http://lists.infradead.org/mailman/listinfo/linux-riscv
+> > 
+> > 
+> 
+> 
+> 
 
->      description:
->        Must contain a list of pairs of references to DMA specifiers, one for
->        transmission, and one for reception.
->
->    dma-names:
->      minItems: 2
-> -    maxItems: 4
-> +    maxItems: 6
->      items:
->        enum:
->          - tx
-> @@ -137,6 +137,20 @@ allOf:
->          dmas: false
->          dma-names: false
->
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          contains:
-> +            enum:
-> +              - renesas,rcar-gen3-i2c
-> +              - renesas,rcar-gen4-i2c
-> +    then:
-> +      properties:
-> +        dmas:
-> +          maxItems: 4
-> +        dma-names:
-> +          maxItems: 4
-> +
 
-I wouldn't bother adding further restrictions, as these are not related
-to the actual I2C block, but to on-SoC wiring.  DMARQ is just a single
-signal going from the I2C block to one or more DMAC instances.
-The number also differs among I2C instances on an SoC.
-
-BTW, all I2C instances on R-Car V3U have one DMA pair ;-)
-
->    - if:
->        properties:
->          compatible:
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
