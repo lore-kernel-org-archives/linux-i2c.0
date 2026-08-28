@@ -1,71 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1103C2B95;
-	Thu, 27 Aug 2026 23:57:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A0B4632;
+	Fri, 28 Aug 2026 00:02:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787875067; cv=none; b=ZvoYFJNgOk91PAa9eREYPAm5VQd3Y4cFb+gyQnzu4gNexExUvIXdF/HQgtS8OCMvU/OEh8B5xwyqM9DcnWYk5k+hqyDd79VtF0e62ra4FP3lp1oqODTnHS6D8+0yq/kSzPgd3cFxXPqQGkhubi5ldMO8iY9OENUggIM6tQBTcNU=
+	t=1787875330; cv=none; b=i4gqsy5rq0Z3mxca8X7XTY0FD/xV45lJDR/og9Cv/C52e15N2OlJJG5a1oaOxDYvK0ZTSEhk15kkRjF8LpvP0fp1Be6iIQx3ts5NyE6QerEXHmCp/rkrIulG2ZFKJyoDipA8ESszohsIv4eTr8fHs/vLwaPFkTBUovPzH7n2sNs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787875067; c=relaxed/simple;
-	bh=AeXBOWxzTaJfYER35sQedV/BBWNAZINVKknSLEFgUEU=;
+	s=arc-20240116; t=1787875330; c=relaxed/simple;
+	bh=Q2EApNucrjQCycJCwTJJ7KSLBvRHP+dkVje3vtRbMEM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q8E9c/OEyD3RkTALrGLR7uB6DtedGmJD9xarDvYAV0QnpGiNeIKvKgrWYX36rFIhEcI5wUXdpBzvDW5COrJthQe8BCG6OiOy3DPPbwxmQv0L4T8Oc2cbM5S4bmU8GDrX6Hqz1DzsIttsG+4XEDHBpZKWm7TYvFJTVmIYvgCv45E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UK/WQdyf; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=gRzX4RCteaFLLeJxBaIS9veo1p7lS/yoC+sNRNl/POxtmBvfEkoWctFY9HQp9scGT0kt1Y0ZMD5QdEbGdKnBujuww0xCoGdijOZ/35q/BYfr9zS+lxTf/zyaJQ4JZ+YVJNLyTFMVF+TZuVo8z3sm7pR6Gg7XFRyj0LVCl0FWzd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TD9oxJZ1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UK/WQdyf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 818F41F000E9;
-	Thu, 27 Aug 2026 23:57:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TD9oxJZ1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDD71F000E9;
+	Fri, 28 Aug 2026 00:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787875065;
-	bh=AeXBOWxzTaJfYER35sQedV/BBWNAZINVKknSLEFgUEU=;
+	s=k20260515; t=1787875328;
+	bh=uP8PzH06X2d2GtT40EhpNuEEHZf3jPKOe/5hko2G++g=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UK/WQdyfU+4JSZ+kiY2Jm+/Aonw2uuT2D7a29KnjbRdRW3G/Vx7wLGq6lChtcq/Rj
-	 VV5YgATlCSSWcBeFT7Tp892635fhpcfRsjaEQT9R1hN2Qn1SuRboU9jaorsCx8d1zz
-	 THTyfyuW4PymOVUsmjpwQjh+hpTeG+xUre92fZBG9LN7WR7fhYFuhyO/zeJefoSbP4
-	 Itus9CdzgvqM9DFmw5fgFKYnJHW0f6fvzpto2y7h1iyVQBGfrWcxcfpSaAzeK0zGxU
-	 dEPffqVzkug54Jf+EIVfa3vX8JO1hpRZHjtV621PHQgX2/NQ/XIpbfLdN7Ehe0iLW/
-	 uVRQ1tN7avyug==
-Date: Fri, 28 Aug 2026 01:57:42 +0200
+	b=TD9oxJZ10Esj3gThEM9WUy0RExJWT2wSJfW91pFCsJGYmVeq6H8oT50OIgQgeHoyR
+	 GTxR1TX3uVFIyip+MHPzYWFZQ8c/aoU40KMaCKa5OSa5IKwdKwmoSO/PwGFCcbym6Y
+	 Fv+m7HpbI+pP4k2YQtRFJceaJgk1EMpAtLEBBp1dHMEKatMqc9La5h/ZlH41j7yiX3
+	 vny/SMuUZbIdyI17YhNdWkRA/19i8RomJdqomh9pkKG7YbW/HtK1pL6Reoot1Vh9Jr
+	 KGh6zyUFqsFiS3X8ZKn+aMkcQKcFdv+UVeHQ62//3jadLasBiG9F7PCJ7ZQ2YKoCt2
+	 GufWwQh0hbThQ==
+Date: Fri, 28 Aug 2026 02:02:06 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Alex Tran <alex.tran@oss.qualcomm.com>
+To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
 Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: busses: i2c-qcom-geni: Use resume and get pm
- runtime interface
-Message-ID: <apDOtUKlsgKl71tv@zenone.zhora.eu>
-References: <20260826-i2c-qcom-geni-pm-runtime-resume-get-v1-1-25ee55d1f0c8@oss.qualcomm.com>
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] i2c: qcom-target: Add driver for Qualcomm I2C
+ target controller
+Message-ID: <apDPu_uJBTT9GPmZ@zenone.zhora.eu>
+References: <20260813-i2c-qcom-slave-v3-0-1d3742e2ad47@oss.qualcomm.com>
+ <20260813-i2c-qcom-slave-v3-2-1d3742e2ad47@oss.qualcomm.com>
+ <ao7vB8cDufnJZKAI@zenone.zhora.eu>
+ <5c6b120d-f791-424b-a41a-6c82de73000f@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20260826-i2c-qcom-geni-pm-runtime-resume-get-v1-1-25ee55d1f0c8@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5c6b120d-f791-424b-a41a-6c82de73000f@oss.qualcomm.com>
 
-Hi Alex,
+Hi Viken,
 
-I reworded a bit the title to:
+On Thu, Aug 27, 2026 at 06:44:21PM +0530, Viken Dadhaniya wrote:
+> On 8/26/2026 7:27 PM, Andi Shyti wrote:
+> > ...
+> > 
+> >> +static void qcom_i2c_target_hw_reset(struct qcom_i2c_target *target)
+> >> +{
+> >> +	/* Clear error bits before SW_RESET; the reset may not be instantaneous */
+> >> +	writel(BIT(ERR_CONDITION) | BIT(CLOCK_LOW_TIMEOUT),
+> >> +	       target->base + I2C_S_IRQ_CLR);
+> >> +	writel(SW_RESET, target->base + I2C_S_SW_RESET_REG);
+> >> +	/*
+> >> +	 * I2C_S_SW_RESET_REG is write-only so completion cannot be polled.
+> >> +	 * Use a conservative delay to allow the reset to finish before
+> >> +	 * reconfiguring the controller.
+> >> +	 */
+> >> +	usleep_range(10, 20);
+> > 
+> > This is also called in atomic context from the irq handler.
+> > Please avoid using usleep_range(), perhaps you can put this in a
+> > thread.
+> > 
+> 
+> Thanks for the review. The delay is only 20 µs, so we were
+> thinking of replacing usleep_range() with udelay() instead of
+> converting to a threaded IRQ, to avoid the added complexity on
+> all the normal fast paths.
 
-i2c: busses: Use pm_runtime_resume_and_get()
-
-It's more understandable.
-
-On Wed, Aug 26, 2026 at 10:19:26AM -0700, Alex Tran wrote:
-> Utilize the provided pm_runtime_resume_and_get api
-> to increase the usage count and call the rpm resume
-> callback. Upon failure, the function takes care of
-> calling pm_runtime_put_noidle. Remove the explicit
-> call to put no idle.
-
-I added here Mukesh' suggestion.
-
-> Signed-off-by: Alex Tran <alex.tran@oss.qualcomm.com>
-
-Merged to i2c/i2c.
+perhaps before sleeping you could check the context you are
+executing (with an explaining comment).
 
 Thanks,
 Andi
