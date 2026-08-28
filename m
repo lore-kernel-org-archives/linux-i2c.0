@@ -1,110 +1,71 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D50037F755;
-	Fri, 28 Aug 2026 17:09:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E387239281F;
+	Fri, 28 Aug 2026 17:09:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787936949; cv=none; b=CIne7OAFQMe7NAOeAvG0oBquR/RRWpiSB/TBu10xrzrn727q6BvggUSI0hHFkHYyC6Os6be07S90k3ZVydd2zU55eBlxpS6v8cCryar7DtsIe9TaGu/81Dm+tBSBVRav8RLSRbaVJZRn3hsM/QGCmW7Rxtm5gsu4ZSPAORYpF3g=
+	t=1787936995; cv=none; b=BU8brh6A5MQYYG696Teik3usr7/nJD2frWFKZrW1XYHzma9t4xT30S+K3z9qy+yaXmQfN+6os4qIOekKAMqjB/teFbbWrlZ6Y9Uqy5i4CWgINXlquECrHwTKS+xJHZeLZraEh2HnEPAWh00wlDoB0RZkea8LEpEIyawr10Pvm5A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787936949; c=relaxed/simple;
-	bh=ZPPVJx+rjhjdeQNkwIhkAC1XkBqfOo7fnWfZ6wkhniA=;
+	s=arc-20240116; t=1787936995; c=relaxed/simple;
+	bh=pVPQSnQG9PjzlkGq7RWlB7oabPvWWZJVJ6yWCDm04Uw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M0mgod8vbs97MKgYVMBAZGlENe78DzsIHurXKWbajPTLLCRjf8P659F7pRkrADR+1NIAM0IUOXARiY4fIGzCqIZ8lVgC2yTAX6x9B2TOx9nU6T01dgct/Xo1udVfy+fWdZgtnaERWx4AoAM1wGx1FAwp0cuhw+BpYskwCjjuWrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k53IRseC; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=AMKyLnvCduAsxXhH5Qv8S30802xPc4nbR2wKtzglfDtGszPm8CZR6eavFMRUBC7LJ75r6kdaz2kKmK8bO9p26x/7u2VHzJD5YW1h+V29kHUA8+rmlOG8ejw3auNx2z6la3lMg5/Jc7XsqgS21vVCJMLDoMkLiZgBECOT6+ogSY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gVHF+8c3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k53IRseC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF081F000E9;
-	Fri, 28 Aug 2026 17:09:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gVHF+8c3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE7A1F000E9;
+	Fri, 28 Aug 2026 17:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787936947;
-	bh=VfZpoKWHrwxWbdJxanGsvlN6gvN6ixXx5/O2N/Zzwfc=;
+	s=k20260515; t=1787936993;
+	bh=6Aw0cBMrpNirPI3cH25b5UaKv4Edjd11Y8c0yDuaRsk=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=k53IRseCXTW2U3uxW+gry8+/Cu3jmqzgHtf+cqYaA7z/PAr7OjKBvZdkzU09koUVQ
-	 kEFNrMYeVVXxZ0yaBkXLScVvNKhcGWq6vFzuU8ETWQHCL7QsxcnMy4WejZYS1jRMrY
-	 ambVjp9E5P5AzOXLXV7KK3QhaGlcM7mzpg17rnjA78/pdyx4659BHBTj4wh3lUdHQ4
-	 menR5v5hTYWNqnKiWLbvOG6zq3IJsYa4T3bEt/rKFPNEt5gqEwziCQFx+qS9fsapKW
-	 Du/rTV6QaixTNdkuh8Qo+ZK9m1M7Th6GZ3w6TCMhv45Qz07w3uJd7KhdO7E0t/TCe1
-	 o1ykrInSOHeRA==
-Date: Fri, 28 Aug 2026 19:09:03 +0200
+	b=gVHF+8c3sWofXUjXDg3Swg2NrNtF5kSqtIsRtWc3pI9AcXqoTmi7FjG3iPymd/Jse
+	 3/TpdKG151zc6NmyQKolVZWhQmNxJwN7UjA9idO9M2eoea6udOACKc7VnXYw+cRS1R
+	 zYCvtti28Ojgoh/yfpSRhZcaSyPrbRCuo+EUEQ3MJ1G1Q+N9bPkOpHizcnIkDKpja7
+	 N2laplViVLeKPIoFoJ43N9PpgeGbyq8E0jHLBeE2RnuYcPKesBt5i7a+119JKZ/ypP
+	 +bClyg4c8rQIc7+APpp+GTgoQ+1tjzq4D7yOk3H8ljCAc/u3X2GbMIXAUXy2lGUzSs
+	 6oatHF3ioFwxw==
+Date: Fri, 28 Aug 2026 19:09:50 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Triet Hoang <triet.hoang.dev@gmail.com>
-Cc: bence98@sch.bme.hu, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+To: Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>
+Cc: Triet Hoang <triet.hoang.dev@gmail.com>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Markus Elfring <Markus.Elfring@web.de>, 
+	kernel-janitors@vger.kernel.org
 Subject: Re: [PATCH v2] i2c: cp2615: handle allocation failure
-Message-ID: <apG_qiYtTQvt9s-y@zenone.zhora.eu>
+Message-ID: <apHAu8HnMD14c_Au@zenone.zhora.eu>
 References: <20260816161751.24840-1-triet.hoang.dev@gmail.com>
  <20260818111703.19604-1-triet.hoang.dev@gmail.com>
+ <05df77ed-855c-4897-857e-0bc2439666d4@sch.bme.hu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20260818111703.19604-1-triet.hoang.dev@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <05df77ed-855c-4897-857e-0bc2439666d4@sch.bme.hu>
 
-Hi Triet,
-
-thank you for your patch.
-
-On Tue, Aug 18, 2026 at 11:17:01AM +0000, Triet Hoang wrote:
-> Check the result of kzalloc_obj() and return -ENOMEM
-> when the allocation fails instead of passing a NULL pointer
-> to the message initialization helpers, which would return -EINVAL.
+On Fri, Aug 28, 2026 at 02:08:19PM +0200, Bence Csókás wrote:
+> On 8/18/26 13:17, Triet Hoang wrote:
+> > Check the result of kzalloc_obj() and return -ENOMEM
+> > when the allocation fails instead of passing a NULL pointer
+> > to the message initialization helpers, which would return -EINVAL.
+> > 
+> > Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
+> Just change the -EINVAL to -ENOMEM. This is something which has been
+> discussed before [1] as a potential to-do.
 > 
-> Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
-> ---
-> Changes in v2:
-> - Clarify the commit message to describe the actual behavior change.
-> - Fix coding style regression
-
-Next time please don't send your v2 as in reply to v1. It
-confuses me.
-
-> ---
->  drivers/i2c/busses/i2c-cp2615.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+> [1] https://lore.kernel.org/lkml/CACCVKEFXOKhXmF3rcmKQ8-aMFZJLZOf+imsuBYKAQsWptrJG6Q@mail.gmail.com/
 > 
-> diff --git a/drivers/i2c/busses/i2c-cp2615.c b/drivers/i2c/busses/i2c-cp2615.c
-> index 951de6249834..c1275fcad636 100644
-> --- a/drivers/i2c/busses/i2c-cp2615.c
-> +++ b/drivers/i2c/busses/i2c-cp2615.c
-> @@ -128,6 +128,9 @@ cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer *i2c_w)
->  	struct usb_device *usbdev = interface_to_usbdev(usbif);
->  	int res = cp2615_init_i2c_msg(msg, i2c_w);
->  
-> +	if (!msg)
-> +		return -ENOMEM;
-> +
+> On 8/19/26 08:28, Markus Elfring wrote:
+> > * How do you think about to increase the application of scope-based
+> resource management?
+> 
+> I second this, this old code could use some RAII modernization.
 
-Your patch looks good, but, as you are at it, can I ask you here
-a little effort? Personally I don't like and I find unreadable
-the form:
+is there a managed version for kzalloc_obj()?
 
-	struct cp2615_iop_msg *msg = kzalloc_obj(*msg);
-	...
-
-	if (!msg)
-		return -ENOMEM.
-
-Important assignments, like kzalloc_*(), shouldn't be made during
-declaration. I prefer the form:
-
-	
-	struct cp2615_iop_msg *msg;
-	...
-
-	msg = kzalloc_obj(*msg);
-	if (!msg)
-		return -ENOMEM.
-
-Works for you? Do you mind updating in v3?
-
-Thanks,
 Andi
-
->  	if (!res)
->  		res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT),
->  				   msg, ntohs(msg->length), NULL, 0);
