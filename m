@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330521990A7;
-	Fri, 28 Aug 2026 00:56:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77E9515746F;
+	Fri, 28 Aug 2026 01:05:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787878579; cv=none; b=i9P1r4dsik0M80M3gdVzEB3sRTdNGPFEcUNnrE1Isj3j7NEPrYB658dmScb0F8DKPAsmvugmJgKEVhZjdXdSPwblupGeXygHwMbKc6/5lQccTNSsXPw25eizJDTMrMwGNTPgtPx2voDwcBFjIkLMqrbQCoEymX6dY4fnZXmKWMI=
+	t=1787879121; cv=none; b=lxJtJ3EDHIDSknSdEU8GblmHsdWOnIkpCmdLJmoVV3GZ3NifiSLVeNmLb8Yo8BAla3nM/ZhYdMUVM7r4h1ZRdvOB3Vu5pLM7p6huVXj3H4ugBwlK8fFWOANpTwzFoaoURATmbid1P2XtRefH1CCFsO9maK1S1RA0UwQI4gZJiIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787878579; c=relaxed/simple;
-	bh=yvPeGpWHCbKwTZF/cuBsW0J2qtW6g9A2DtckzYmO4S4=;
+	s=arc-20240116; t=1787879121; c=relaxed/simple;
+	bh=izG4RbeNTWnSPAd5dHWREw8Q42wnVbXhP43VHaXPPF8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lLoTXSOVvmjTTG47IUcUkGvqJ4FYgyO8qlzecs+69HIeXiT40emEyNSuSiR22OufzrWxUNeQ73jIxPZL5xSyawilP/K/3/HkbaT7YVKrpw+53eeJQ8j4/y44TyN5/p4QdF0OTUb/LzcSVL5rRzIDxJluDBLZ3O0h1+UWsQIWPv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ma5x5bYK; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=ArVdxYvbbmVxS3sBqNVminNpfcBPVf4ento4yiN3RQ01tTUbEGBlwgj9SBXPLdWPxsxBJxchqD3KqibPAEUS/QtHUm7RNTuX/8cC6+ntrs2JdZhMwwJ/SxGlKr1M8/sn9RZZuaeCI2B7MIiE+09g7dYCzO8Ug2UgWjpHOWPjpCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aMgM+lk7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ma5x5bYK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ABC91F000E9;
-	Fri, 28 Aug 2026 00:56:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aMgM+lk7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F2C1F000E9;
+	Fri, 28 Aug 2026 01:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787878577;
-	bh=EKWVIMLjuqiZHTIRgJpFJCAMP4yhuBa8RStZMoMCJvY=;
+	s=k20260515; t=1787879120;
+	bh=6U5ExAOwpuC9HkpTj1w+MoxH5Zx9pOSlze71yGpb08M=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Ma5x5bYKNbUbVoQsSNtkqRSCDgvzI0KIplOOmZKIdS4JeBRkaR+qU1eLueQd12c9t
-	 +4A67GawOdELSWMcaD75YAIBGP8h+Brc2VKIpHVdAO4sZhxayEZHA+P+vIszzYaGw6
-	 MyhMqu1iDr/SPeFRTbXQj3zVjufmcBBq0vDGLpBo1ZRbftlOLGKiXVoOUPB9EvEKhH
-	 Z66aksnNI9GR9Y1OUJZxGqPXCVLS18uUersdt2RLVbT/Z4EXX5vm+XJea3rc5FsbB7
-	 xm90uszTUaq/lCXL/RZvGROiUvSTVwPNm59DVl0fZrK7C4m7wKcCjy+GM/WVRZUA3d
-	 O1Fj8MV9HA/tQ==
-Date: Fri, 28 Aug 2026 02:56:15 +0200
+	b=aMgM+lk7XLVXONkznjgO7m5hNyJIKapRLi1xZUitLCCHqPSXV7dQl5j3JIq5kde3u
+	 GrcuKOg9TLqnGiFhSzalDeu47dIfEgqM0eqQyLVur0QTcaNvdUQfhNZB219+SZJcVa
+	 3C/EXIpJFgGXhKLrCtnd0uzqXTREumhh27MvTPViIPjrIXXdhIBcRWSm3v5Yt3w1L4
+	 FXRDV++HiHEloECuDOBJUIZEgTkWyzxpVL4kLdlrWcKROTJ6RYzvsYk0I6/sa0Qebt
+	 gnzKQ9LxufAsjl5dG34QS0R+HGi9DV0MYwK6m/Zkqvy3CljLC6apm0vD2xw/RBidbj
+	 Z3seq24nBwrUQ==
+Date: Fri, 28 Aug 2026 03:05:17 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Guangshuo Li <lgs201920130244@gmail.com>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Robert Foss <rfoss@kernel.org>, Todor Tomov <todor.too@gmail.com>, Wolfram Sang <wsa@kernel.org>, 
-	Vinod Koul <vkoul@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
-	linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: qcom-cci: fix autosuspend cleanup
-Message-ID: <apDcMmn6GB46gXfU@zenone.zhora.eu>
-References: <20260812094425.3515179-1-lgs201920130244@gmail.com>
+To: carlos.song@oss.nxp.com
+Cc: aisheng.dong@nxp.com, Frank.Li@nxp.com, s.hauer@pengutronix.de, 
+	kernel@pengutronix.de, festevam@gmail.com, carlos.song@nxp.com, 
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: imx-lpi2c: avoid accessing target registers on
+ master-only controllers
+Message-ID: <apDetAiapLq-VVRb@zenone.zhora.eu>
+References: <20260803032705.2250373-1-carlos.song@oss.nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,35 +45,41 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260812094425.3515179-1-lgs201920130244@gmail.com>
+In-Reply-To: <20260803032705.2250373-1-carlos.song@oss.nxp.com>
 
-Guangshuo,
+Hi Carlos,
 
-On Wed, Aug 12, 2026 at 05:44:25PM +0800, Guangshuo Li wrote:
-> cci_probe() calls pm_runtime_use_autosuspend(), but the remove path
-> does not call the matching pm_runtime_dont_use_autosuspend() before
-> disabling runtime PM.
+On Mon, Aug 03, 2026 at 11:27:05AM +0800, carlos.song@oss.nxp.com wrote:
+> From: Carlos Song <carlos.song@nxp.com>
 > 
-> If the autosuspend delay is set to a negative value while autosuspend
-> is enabled, the runtime PM core increments usage_count to prevent
-> runtime suspend. Without undoing the autosuspend setting during
-> teardown, this reference is not dropped and usage_count remains
-> unbalanced.
+> Not all LPI2C controller instances implement the Target block.
+> Since commit 90311787f483 ("i2c: imx-lpi2c: reset controller in
+> probe stage"), the driver unconditionally resets both the Master
+> and Target blocks during probe.
 > 
-> Use devm_pm_runtime_set_active_enabled() to manage the runtime PM
-> state. Its managed cleanup disables autosuspend and runtime PM and
-> restores the suspended state on probe failure and driver removal.
-> Remove the now redundant manual runtime PM cleanup.
+> On controllers that do not support target mode, accessing the
+> Target registers triggers an asynchronous SError and prevents the
+> driver from probing successfully. For example on i.MX8QM:
 > 
-> This issue was found by manual code inspection.
+>   SError Interrupt on CPU2, code 0x00000000bf000002 -- SError
+>   Hardware name: Freescale i.MX8QM MEK (DT)
+>   pc : lpi2c_imx_probe+0x280/0x594
+>   lr : lpi2c_imx_probe+0x224/0x594
+>   Kernel panic - not syncing: Asynchronous SError Interrupt
 > 
-> Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
+> The VERID register is implemented in the Master block and can be
+> safely accessed on all controller variants. Its FEATURE field
+> indicates whether target mode is supported.
+> 
+> Read VERID during probe and use it to determine whether the
+> Target block is present. Only access Target registers when target
+> mode is supported and reject target registration requests with
+> -EOPNOTSUPP otherwise.
+> 
+> Fixes: 90311787f483 ("i2c: imx-lpi2c: reset controller in probe stage")
+> Signed-off-by: Carlos Song <carlos.song@nxp.com>
 
-Although Krzysztof's comment is very valid, I can't ignore the
-reviews that have already been done. I pushed this patch to
-i2c/i2c-fixes.
+pushed to i2c/i2c-fixes.
 
 Thanks,
 Andi
