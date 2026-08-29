@@ -1,57 +1,61 @@
-Received: from out162-62-57-64.mail.qq.com (out162-62-57-64.mail.qq.com [162.62.57.64])
+Received: from out162-62-57-210.mail.qq.com (out162-62-57-210.mail.qq.com [162.62.57.210])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 507052E6CB8;
-	Sat, 29 Aug 2026 14:22:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C89F3976A0;
+	Sat, 29 Aug 2026 14:22:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788013354; cv=none; b=nvTKGkCU34wO5/4RkR+0O/5SuWSerTOeWQya/fM0YtpLX7WILBa4KI02ladaQ75/BMdQ4B3aMg8eb8SVsh+6uucFiyveyG0p3OSP8evAnWI+rdKLjRdpB2+V1LKRPK4/Xq2TmVIgqmP/QsXFJUfJb3a1/5RgHe0dT93QDY39FsU=
+	t=1788013368; cv=none; b=RDO+RqWY68jX6TN5o1VlawlzexVQx9TIR3rQWHZ1OGWiBClBfNQ6FPpAF9ZpeAz1whq8XY6Famf80w4o44kIwdJjHEkc5fciPe0YhaOs0s+XME64g5IIRRp8K/I8ud5QIKCs6fX7QKYg1mHvutWYKtU0KBiPLPirbB8ADH8pnKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788013354; c=relaxed/simple;
-	bh=kfLo9xopLkotzBk/sMZzgWP/0uT9bPa/ds3NhpIxaQc=;
-	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=YGH53XJFK16BTY+Nxvl9CGaEaqbvocX55XD5B7/eMXJ6VKlXrTK43FxGOhvZcsvhf4jKrstCVGCypCBgnJWimo6qppaRsyZrzy8hpFxJKrUta8suBbO+nXRNhRyJpHTnmG6+v3C9LHMncuPUV8OoBVh9/mjZuyrT7OF1GVwGqRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=orcOEPHH; arc=none smtp.client-ip=162.62.57.64
+	s=arc-20240116; t=1788013368; c=relaxed/simple;
+	bh=eUH24XL3kXGSsh1qex2KxF4rPrPjz7TsITT9Zr3pdVk=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=HJv3CQhVp/YdD/EAM7ZellS7CW2tqOF2qtMoNO7CH/MUE45RLR/zpcsgGg0MO5sO1w1ojCfWXhBsmK2RQYqIA5TkwkvXcql58zt+vWlGnXZF2AyfHaTvlcSpvBjaNRa2xNnzr9u9iJTJGzcspeqq67pY7NAWdkNenBrPuoGI09Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=XTemuDCf; arc=none smtp.client-ip=162.62.57.210
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="orcOEPHH"
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="XTemuDCf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1788013339;
-	bh=RkJq1e9fQg4XVMb0XBeDfL6lo/lXf7u1ACzmwdvOUzw=;
-	h=From:To:Cc:Subject:Date;
-	b=orcOEPHH2MgXWOGot4xRwl0fsBeVXZ2xDsdymwhV6e8lbaT7+de9ER8ZCRfEgKbCT
-	 fIPP9Y7iS7NWrk56WNeWSc1bEA1z+gl8BWBRbAsKRnrgOaTRMfStJj3/s7JhXmNHXy
-	 AoE4Sn9eLiIljco9zpDcyjdgAb3tNxjRG8gzG9aY=
+	s=s201512; t=1788013353;
+	bh=uYj84NhaPDAXnupwTsU9+MQjHNukFHUbiUCsF3C8eWA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=XTemuDCfbTRvoGhjP2pSZCKAeE8Q4LALgEhM8EIcgGtXIFDV8y2CfdYb+tkQ8BRVx
+	 1y46qh8cByau01fAn2RNMsb2QHxTvp6uEcYQ6QA8awOTDZdsLhU2R8Wk2vVLnLGBRS
+	 0Pn4fozlpSJpCMiyxT0uWnvidjBmIEDbp0/jtzDM=
 Received: from LAPTOP-TKBJAGN4.localdomain ([2408:8256:2d02:da31:a433:ae59:7369:ddb4])
 	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
 	id 57B20AC8; Sat, 29 Aug 2026 22:21:59 +0800
-X-QQ-mid: xmsmtpt1788013319tvsbvv2c8
-Message-ID: <tencent_7C427B4AC09AA718A8B2E56BAEEC908CE305@qq.com>
-X-QQ-XMAILINFO: NR2AmdDOCZJo4DgL4qiwP14GpP+gjVpx53cWpSTRYyrBieGB1bveR9J31SDWmB
-	 vK8PDGBwsO87ycxcZDeDyxihf4S5I6UKZnVYbJQiX+CMwHlFRWACqTEypvZ8dNqNRX+iE4xuMYqI
-	 4XwUG6J0mhWgqTqz6xGKhAM3zl77+gnsFftlCiZ4aE67PrDhuvIk0boDNAb0Qtf2/NUVq+j3L1QH
-	 uyHrEH3ySKpxVzVheOMAFqJFK4hBmQeeB6qcv4Aw/Il0M/vroeghSsiOd0y4ZyHSzH/OqYRnsAvR
-	 Z3F9yFK44sjbUNfR3ftsDBIVaEewGSJMWl9qjuE5/XVUUnukXO5n/lfpZlUGnQTI+viBpu3M53Fv
-	 wZ+SHk1dc2rzFbt+SKWYIREpkKQQ8kNti5NPQ4KJoodum9Yq/FrbPGDnRKFZXmc8rlNzYUcSZZ6H
-	 1hqZuf2vp7rl2vsxERUSmpY/3AtTWuq1Nwu+qGxtJZ/20d9PNRcH5PvCHDfWNe3AkKoo1aib12bN
-	 4etzAYB3WBaNZbxvEwDbwdCk1QK+N9VRhWDTRswFbZXkswy3KBd4e65kPQFEiirw/EqGRGXUmvp7
-	 pBk/Z2O2LTGM+JeehzjIRNvIOnZaQ5Z/OCEXIU28y7CO5Ef/IbYokMYxs2G+8MNsxv0P2jqnFs9l
-	 tbapXhzHvFuLcR4EWoa185MJwIaWXMcqIbxOek+v8wyoN8jmSIjW9qZz5zaW12YTiOrfh481BTL/
-	 2jr+74XSRoRQ8LQcUBd+a0I9HuoVn1tCL+TF3xznOzU53pRjJXmvC/D/2RiPYJZ3QmUljQfzEQ0I
-	 6I+9CXVW3qx6cQyVhMTI9aKEgZ68wyiMKR82+HKP0uxatqiuGhnj+HU84y6HrA4GeZlmyd9p5FfW
-	 tepzCxv33tNm7/kwK6GIyuNz1AagF9DIfA5QNy2mlN2eFeP0Pad6FosuuCTk0Q8Zb7uD57BHonLA
-	 0KtR9zKGHezvTT0fOeXvIhiXC1xaOsE1s3Fqq145iAzv5QzfKHu8f3VTPssCC9coq9K9ktF0HapJ
-	 vx+kTbreGLP9R6FZgDXz1NGxful1e0Zt1X4gn09TumzUfBzJuCtQxzvNRTaSLZXBIy0rmZLA==
-X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
+X-QQ-mid: xmsmtpt1788013338trzeggnjv
+Message-ID: <tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09@qq.com>
+X-QQ-XMAILINFO: OYTBn1rNHH7tToiJ3K4w4Y3qO98LLhKkxkirT+ZbZwUEKf4CB0WGqIV1U8v+p6
+	 XsMXCmHyijb0yht1y10z3/MjEiSwgHbS5PO7d9wxlQhR2K0o/JEYZbWqRf5TlnDQ60l69YSppwWN
+	 x9/2gVVIAFn+VECay0hNgx0lUXqtc/9j9E7o8Exy2RQTC2OX4kerv/g0GzfBdj/v5ctqvkxIrCqm
+	 ELaHsOu8YlqArlTPws9Vd8XkTLHbCf2n2YabYFEAEdaCHIwzaTCFHN5IqS/wLTUzMIBVR55+SvpI
+	 l0aQ/KUWtwsS2s4WHT1VhDI/RT2KZhGEIE1AbmHZqImK6aXgR+rPaABBFeriRvovq0WcOFaW/3pV
+	 /vn33/Bize3OkunbX1XMD9Krz2nKJBGlh/AhP6/oX+eUTg7W0e/vlOyGv+QEhNv0WGB87ULK9DBw
+	 6BjN5G1HPOPLjZM3TVgaW4IKEg+R0TnzHRgVrbw6Z0QsGkWAdw8Ge6WJnYf80psxXrYV9WiByu7t
+	 FZk4KOgCjJI8FX/Acw7Ui+pXYeGkORcv0/4V3taKHdJSUbHcewlS+U7JrdB+GP9ycaD09atQW4as
+	 rb53Mw2S8YAL17RmGCuKM8VNuEAGG3ZfGsIKels8SpFQY/BGQOawx7ECQshZkgWGFOgB0IsD8oBl
+	 aVDZ2xEreciP0Rn5AxI2flPC4GFfPwA5bexbyo0swCJhOya3exvaMlrYhtr6Vkv40q1PnQ8ral+e
+	 suJU3qRJwOA5jBwaM6jMknaZL3Ez8tQsuXF93nt2OCbMDD7STZey8opP6u9BV5f+mMPpRrEGW3SR
+	 7iKpB3QRgabZwVKUHjmXgRTmTS71gfJqYoR0yLZdD8FFTMhiei5sAFzoWzYjgC+txsxYWtEVJfPa
+	 T1oTfy4LWSoVima5V99LXav67mF2n1vGjMufKiQioB3n8stJfvBPqzXrsirHLezJm0CU01NZtbAW
+	 tCX2NNLti1Q+q0TqdIoGD+OTZKMiIeC8UBNxahuEmVz28I0kxT+Os6mYeqdobyEiOwZSm8sGTx+M
+	 uz3ACTvcUzHf+9qI6Hf2nCcXZ9DDZ1RQVMUEM52bC5DjmOlBLTDo1crwbVlaeLPT23H0Er+wCeiM
+	 FPv/6HNSe2lUGzCoAZenSU3JmzSw==
+X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
 From: Haobin Jiang <lemonoutput@foxmail.com>
 To: andi.shyti@kernel.org
 Cc: linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Haobin Jiang <lemonoutput@foxmail.com>
-Subject: [PATCH 0/1] i2c: imx: honour I2C_M_IGNORE_NAK for write messages
-Date: Sat, 29 Aug 2026 22:21:47 +0800
-X-OQ-MSGID: <20260829142148.10536-1-lemonoutput@foxmail.com>
+Subject: [PATCH 1/1] i2c: imx: honour I2C_M_IGNORE_NAK for write messages
+Date: Sat, 29 Aug 2026 22:21:48 +0800
+X-OQ-MSGID: <20260829142148.10536-2-lemonoutput@foxmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260829142148.10536-1-lemonoutput@foxmail.com>
+References: <20260829142148.10536-1-lemonoutput@foxmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -60,45 +64,142 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Andi,
+The i.MX controller has no hardware "ignore NAK" enable bit and checks
+each byte in software after transmitting it: i2c_imx_acked() on the
+atomic and DMA paths, i2c_imx_isr_acked() on the non-DMA ISR path.  Any
+NAK is treated as a fatal error and aborts the transfer with -ENXIO.
 
-This patch teaches the i.MX host driver to honour the standard
-I2C_M_IGNORE_NAK flag on writes, and advertises I2C_FUNC_PROTOCOL_MANGLING
-so the core will actually accept it.
+There are legitimate use cases where a target NAKs a write on purpose,
+and when it does, the transfer needs to continue rather than abort.  The
+standard way to express this is the I2C_M_IGNORE_NAK flag, which the
+core honours through i2c_transfer_buffer_flags() only when the adapter
+advertises I2C_FUNC_PROTOCOL_MANGLING.  The i.MX driver never advertised
+it, so callers using the flag are rejected by the core before any byte
+is sent.  One such caller is the in-tree crypto driver atmel-i2c.c,
+whose wake sequence for the ATECC508A/608A requires exactly this: the
+still-asleep device NAKs every byte of the wake token, and the write
+must complete anyway.
 
-Today the driver has no hardware "ignore NAK" bit and treats every NAK as
-a fatal -ENXIO across all of its write paths. There are legitimate cases
-where a target NAKs a write on purpose and the transfer must still
-complete; the standard way to say so is I2C_M_IGNORE_NAK. One concrete
-in-tree example is the ATECC508A/608A wake sequence in
-drivers/crypto/atmel-i2c.c, where the still-asleep device NAKs every byte
-of the wake token. I mention it only as motivation: the change itself is
-driver-agnostic and simply exposes the standard flag the core already
-defines.
+Advertise I2C_FUNC_PROTOCOL_MANGLING and honour I2C_M_IGNORE_NAK on the
+write path by passing it through to both ACK checks.  With the flag set a
+NAK no longer aborts the transfer and the byte loop continues so the
+remaining bytes are still transmitted.  The read path always passes
+false, and every transfer without the flag keeps the previous behaviour
+bit-for-bit unchanged.
 
-I did look into the earlier work in this area before writing it. A 2011
-mangling patch bundled NOSTART/REV_DIR_ADDR/IGNORE_NAK together and did
-not honour the flag on the address byte, and a 2013 retry-on-NAK patch
-retried at the controller layer, which is the wrong layer. This patch
-deliberately avoids both: it implements only the standard flag, leaves
-the NAK-vs-retry decision to the device driver, and changes nothing for
-transfers that do not set the flag.
+No retry is introduced: the meaning of a NAK is device-specific [1], so
+it stays a device-driver decision.  I2C_M_IGNORE_NAK is only honoured
+when the device driver explicitly sets it, which is exactly how the flag
+is meant to be used.
 
-I would appreciate any feedback, and I am happy to adjust the commit
-message or split the change if you would prefer it structured
-differently.
-
-Kind regards,
-Haobin Jiang
-
-Haobin Jiang (1):
-  i2c: imx: honour I2C_M_IGNORE_NAK for write messages
-
+Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1467900229-5262-1-git-send-email-tharvey@gateworks.com/ # [1]
+Link: https://lore.kernel.org/linux-i2c/4D46D571.5010907@armadeus.com/ # [2]
+Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1378857490-30968-1-git-send-email-luka@openwrt.org/ # [3]
+Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
+---
  drivers/i2c/busses/i2c-imx.c | 27 ++++++++++++++++++---------
  1 file changed, 18 insertions(+), 9 deletions(-)
 
-
-base-commit: 04e9bf1648f846976b543e91c1838a712433772a
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 28313d0fad37..737c19688ecc 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 	return 0;
+ }
+ 
+-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
++static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
+ {
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
++
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+ 		return -ENXIO;  /* No ACK */
+ 	}
+@@ -968,11 +971,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
+ 	return ret;
+ }
+ 
+-static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
++static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
++				    bool ignore_nak)
+ {
+ 	i2c_imx->isr_result = 0;
+ 
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
++
+ 		i2c_imx->state = IMX_I2C_STATE_FAILED;
+ 		i2c_imx->isr_result = -ENXIO;
+ 		wake_up(&i2c_imx->queue);
+@@ -985,7 +992,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
+ {
+ 	int result;
+ 
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 
+@@ -1002,7 +1009,8 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+ 	int result;
+ 	unsigned int temp;
+ 
+-	result = i2c_imx_isr_acked(i2c_imx);
++	/* Read path always checks NAK; I2C_M_IGNORE_NAK is write-only. */
++	result = i2c_imx_isr_acked(i2c_imx, false);
+ 	if (result)
+ 		return result;
+ 
+@@ -1213,7 +1221,7 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+ 	if (result)
+ 		return result;
+ 
+-	return i2c_imx_acked(i2c_imx);
++	return i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ }
+ 
+ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+@@ -1227,7 +1235,8 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+ 	result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+ 	if (result)
+ 		return result;
+-	result = i2c_imx_acked(i2c_imx);
++	/* Read address NAK must always be reported; I2C_M_IGNORE_NAK is write-only. */
++	result = i2c_imx_acked(i2c_imx, false);
+ 	if (result)
+ 		return result;
+ 
+@@ -1358,7 +1367,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 	result = i2c_imx_trx_complete(i2c_imx, true);
+ 	if (result)
+ 		return result;
+-	result = i2c_imx_acked(i2c_imx);
++	result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
+@@ -1372,7 +1381,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, true);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1697,7 +1706,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+-		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
++		| I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_PROTOCOL_MANGLING;
+ }
+ 
+ static const struct i2c_algorithm i2c_imx_algo = {
 -- 
 2.34.1
 
