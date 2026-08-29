@@ -1,72 +1,57 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-57-64.mail.qq.com (out162-62-57-64.mail.qq.com [162.62.57.64])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F22652D63E5
-	for <linux-i2c@vger.kernel.org>; Sat, 29 Aug 2026 04:22:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 507052E6CB8;
+	Sat, 29 Aug 2026 14:22:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787977359; cv=none; b=GKg9Br5H1Dw5cyhy+3fY+Zb/BqAsCT/bUEjnY70tR2lUgyL1XOyV0GWsEGMYR6Z5UG6dFoKLhaPW2UWRn0cGruSOWRucEBAWAjyPqeagKRHjuvToMZcgiUlff/nQmLvKFAbqsNXrOZR5BQKpmU0/fuMeHEo81z1k2+5rJ0M/cH4=
+	t=1788013354; cv=none; b=nvTKGkCU34wO5/4RkR+0O/5SuWSerTOeWQya/fM0YtpLX7WILBa4KI02ladaQ75/BMdQ4B3aMg8eb8SVsh+6uucFiyveyG0p3OSP8evAnWI+rdKLjRdpB2+V1LKRPK4/Xq2TmVIgqmP/QsXFJUfJb3a1/5RgHe0dT93QDY39FsU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787977359; c=relaxed/simple;
-	bh=AwOUkUcDpHDo5ZDzj3i/viDVju6Fox7LlmZcp7Ebp+k=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hok3PFuJOpk6273UCdw/KJhVF9sLYNu7UhifCKuLAH/apH6ZsmBhgPfEpJobxGBUii9Au6FDjOGRPTT8W71kGuZvXlVwKfqFxpGjSkD9KMNG91urCZ9SmdUJvwDri3DhMCZ6uinpwrxUvix/z1qneELuwfBR2/v7+V0TRrF9mw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G8M6Z849; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788013354; c=relaxed/simple;
+	bh=kfLo9xopLkotzBk/sMZzgWP/0uT9bPa/ds3NhpIxaQc=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=YGH53XJFK16BTY+Nxvl9CGaEaqbvocX55XD5B7/eMXJ6VKlXrTK43FxGOhvZcsvhf4jKrstCVGCypCBgnJWimo6qppaRsyZrzy8hpFxJKrUta8suBbO+nXRNhRyJpHTnmG6+v3C9LHMncuPUV8OoBVh9/mjZuyrT7OF1GVwGqRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=orcOEPHH; arc=none smtp.client-ip=162.62.57.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G8M6Z849"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2d8f265cbe6so1246565ad.0
-        for <linux-i2c@vger.kernel.org>; Fri, 28 Aug 2026 21:22:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787977357; x=1788582157; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=iVZiLDeRwsupettcPIKD0pcIzIKNg0UVhzocRgCkSCA=;
-        b=G8M6Z849XbvSWm0PmxKra7oVe4tWoR0vHtl7DHi2HlPE3e3uFPbPNb4X4M3e1tqUKV
-         cfTHkGd6wm984qbguQJENlb+CeRJ43TiIkNpLOcBnkxPJsTWq5LZu2oA+BL0EfSlwZzS
-         2blx+TNxwqusvGBBZU24lNOncnfesF/nu0HlYLl9WoSPmWdBfycvwpFxgRAvODBXOW7u
-         dek0VNW3fbcQ1lK/jra/XSvkdQpmiVX5HiSEll16efjdu5RI9maLRvkcfisRjXyROttM
-         iFUmppr7Z6mnfs0giQEWbY289yC7zrxty5Th7sQEhJRh04cd00i++NQeTxgnuxCUj0YH
-         NXDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787977357; x=1788582157;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=iVZiLDeRwsupettcPIKD0pcIzIKNg0UVhzocRgCkSCA=;
-        b=eAKc/aNk83VA2M84UrhJy6Xx1eXCl9s4/aTfJpUkdNDH3Z75/iS3+dUmzHY+FIAmZZ
-         iUwRQCmOQlTD2yNkiZyOWaKZsmr3mY6UtonGIYoUgBwrpuVqfukeUracqhC+pyopB79K
-         y8Wt7EkxiHUlKUkto+2fm8XWZ02KMz5K9Zt8/5hIr/EJk+s0lchrYw/qC43Es1w5wSGF
-         slmuz2sqb2rEwuQR71qkgWU74Zz1C9K7CU9qruJqE8Z44Ybgsq4F/D9aIDfXjon/Hsus
-         t3CYGIJ18+TXFI5tJxiuBPpLSzUR64j0SiKxII6qX6OcSwdTa2tI+SaDUw2uJxYYw7KD
-         hsjw==
-X-Forwarded-Encrypted: i=1; AKwUvBwY1/b+4AWhpZlTl3QpEs6Lqx0LBcKZhbQ2WM9PdiFM0r98vW7MUrgXJt8hb+qsVTNbOaiHLuaS4ak=@vger.kernel.org
-X-Gm-Message-State: AFuF++m3R6Nb9W1TH/KIbh61p3DPykXm1BKBrSkRcPZauzb9ZFCeXC63
-	xMCYRnm0Tq7aKVYz57+ClRJkqRUzMKoOsEcoQ923peHdqUhwJg1/RZr57pJKz44/Vg==
-X-Gm-Gg: AYBFou0Mg3i8+gM7E1BLL7ugh+dBBfJhaCk6cbJ0GCwkuvTJCJKLIFUK/YK6FjNZwgH
-	Pban3ZtzL/CvUAh0GUMLiZzM4onaON7oV99aZulLOVRED6dW+WUorn1xADnPQcrr4fkIDU33gv6
-	rTIHjvydC7wWEfjbGUkyiN5OglWgK0m+5vsdXiF0Q978Bw6slu64KgGj5DAZ1ZBzfDgXqCKlnSn
-	tRNbhErLIQvsvn2sekvKoM6Vf3NmtaBxfUJ3wICk7Cb4ZJjTfCeqvsVOV/MN1+QaF6f1DYf0/KO
-	2CVguPuL5dZ19T18OCo/idmKX5k/5QCPdWHY29LMVeK+/TjCP4D0dLoIHfgL9fXlCnR0Wsmggv7
-	0QI237vIqvlEg/fzH1Rzy1cqfdoMfCV3ae1QqkqDcZnMiU5x7rHEinhTV9aEMNoo10hqlP5Zwtz
-	p7H5dNvGouxIp7qqc8m80NmAP00em5w3/5kWJkoWsRgwi4hq3vUJgET6wcgmS9ZSYPB0oOcX0i/
-	Q==
-X-Received: by 2002:a17:903:1a30:b0:2d8:d4ce:9f32 with SMTP id d9443c01a7336-2d8d4cea3demr62880705ad.16.1787977357271;
-        Fri, 28 Aug 2026 21:22:37 -0700 (PDT)
-Received: from DL2XHKPB4.dl.net ([113.185.106.34])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d7598b98cbsm11139845ad.76.2026.08.28.21.22.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Aug 2026 21:22:36 -0700 (PDT)
-From: Triet Hoang <triet.hoang.dev@gmail.com>
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="orcOEPHH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1788013339;
+	bh=RkJq1e9fQg4XVMb0XBeDfL6lo/lXf7u1ACzmwdvOUzw=;
+	h=From:To:Cc:Subject:Date;
+	b=orcOEPHH2MgXWOGot4xRwl0fsBeVXZ2xDsdymwhV6e8lbaT7+de9ER8ZCRfEgKbCT
+	 fIPP9Y7iS7NWrk56WNeWSc1bEA1z+gl8BWBRbAsKRnrgOaTRMfStJj3/s7JhXmNHXy
+	 AoE4Sn9eLiIljco9zpDcyjdgAb3tNxjRG8gzG9aY=
+Received: from LAPTOP-TKBJAGN4.localdomain ([2408:8256:2d02:da31:a433:ae59:7369:ddb4])
+	by newxmesmtplogicsvrszc56-0.qq.com (NewEsmtp) with SMTP
+	id 57B20AC8; Sat, 29 Aug 2026 22:21:59 +0800
+X-QQ-mid: xmsmtpt1788013319tvsbvv2c8
+Message-ID: <tencent_7C427B4AC09AA718A8B2E56BAEEC908CE305@qq.com>
+X-QQ-XMAILINFO: NR2AmdDOCZJo4DgL4qiwP14GpP+gjVpx53cWpSTRYyrBieGB1bveR9J31SDWmB
+	 vK8PDGBwsO87ycxcZDeDyxihf4S5I6UKZnVYbJQiX+CMwHlFRWACqTEypvZ8dNqNRX+iE4xuMYqI
+	 4XwUG6J0mhWgqTqz6xGKhAM3zl77+gnsFftlCiZ4aE67PrDhuvIk0boDNAb0Qtf2/NUVq+j3L1QH
+	 uyHrEH3ySKpxVzVheOMAFqJFK4hBmQeeB6qcv4Aw/Il0M/vroeghSsiOd0y4ZyHSzH/OqYRnsAvR
+	 Z3F9yFK44sjbUNfR3ftsDBIVaEewGSJMWl9qjuE5/XVUUnukXO5n/lfpZlUGnQTI+viBpu3M53Fv
+	 wZ+SHk1dc2rzFbt+SKWYIREpkKQQ8kNti5NPQ4KJoodum9Yq/FrbPGDnRKFZXmc8rlNzYUcSZZ6H
+	 1hqZuf2vp7rl2vsxERUSmpY/3AtTWuq1Nwu+qGxtJZ/20d9PNRcH5PvCHDfWNe3AkKoo1aib12bN
+	 4etzAYB3WBaNZbxvEwDbwdCk1QK+N9VRhWDTRswFbZXkswy3KBd4e65kPQFEiirw/EqGRGXUmvp7
+	 pBk/Z2O2LTGM+JeehzjIRNvIOnZaQ5Z/OCEXIU28y7CO5Ef/IbYokMYxs2G+8MNsxv0P2jqnFs9l
+	 tbapXhzHvFuLcR4EWoa185MJwIaWXMcqIbxOek+v8wyoN8jmSIjW9qZz5zaW12YTiOrfh481BTL/
+	 2jr+74XSRoRQ8LQcUBd+a0I9HuoVn1tCL+TF3xznOzU53pRjJXmvC/D/2RiPYJZ3QmUljQfzEQ0I
+	 6I+9CXVW3qx6cQyVhMTI9aKEgZ68wyiMKR82+HKP0uxatqiuGhnj+HU84y6HrA4GeZlmyd9p5FfW
+	 tepzCxv33tNm7/kwK6GIyuNz1AagF9DIfA5QNy2mlN2eFeP0Pad6FosuuCTk0Q8Zb7uD57BHonLA
+	 0KtR9zKGHezvTT0fOeXvIhiXC1xaOsE1s3Fqq145iAzv5QzfKHu8f3VTPssCC9coq9K9ktF0HapJ
+	 vx+kTbreGLP9R6FZgDXz1NGxful1e0Zt1X4gn09TumzUfBzJuCtQxzvNRTaSLZXBIy0rmZLA==
+X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
+From: Haobin Jiang <lemonoutput@foxmail.com>
 To: andi.shyti@kernel.org
-Cc: bence98@sch.bme.hu,
-	linux-i2c@vger.kernel.org,
+Cc: linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Triet Hoang <triet.hoang.dev@gmail.com>
-Subject: [PATCH v3] i2c: cp2615: handle allocation failure
-Date: Sat, 29 Aug 2026 11:22:07 +0700
-Message-ID: <20260829042207.27323-1-triet.hoang.dev@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	Haobin Jiang <lemonoutput@foxmail.com>
+Subject: [PATCH 0/1] i2c: imx: honour I2C_M_IGNORE_NAK for write messages
+Date: Sat, 29 Aug 2026 22:21:47 +0800
+X-OQ-MSGID: <20260829142148.10536-1-lemonoutput@foxmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -75,73 +60,45 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Check the result of kzalloc_obj() and return -ENOMEM
-when the allocation fails instead of passing a NULL pointer
-to the message initialization helpers, which would return -EINVAL.
+Hi Andi,
 
-Also separate kzalloc_obj() calls from variable declarations.
+This patch teaches the i.MX host driver to honour the standard
+I2C_M_IGNORE_NAK flag on writes, and advertises I2C_FUNC_PROTOCOL_MANGLING
+so the core will actually accept it.
 
-Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
----
-Changes in v2:
-- Clarify the commit message to describe the actual behavior change.
-- Fix coding style regression
-Changes in v3:
-- Separate kzalloc_obj() calls from variable declarations.
----
- drivers/i2c/busses/i2c-cp2615.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+Today the driver has no hardware "ignore NAK" bit and treats every NAK as
+a fatal -ENXIO across all of its write paths. There are legitimate cases
+where a target NAKs a write on purpose and the transfer must still
+complete; the standard way to say so is I2C_M_IGNORE_NAK. One concrete
+in-tree example is the ATECC508A/608A wake sequence in
+drivers/crypto/atmel-i2c.c, where the still-asleep device NAKs every byte
+of the wake token. I mention it only as motivation: the change itself is
+driver-agnostic and simply exposes the standard flag the core already
+defines.
 
-diff --git a/drivers/i2c/busses/i2c-cp2615.c b/drivers/i2c/busses/i2c-cp2615.c
-index 951de6249834..62192e919744 100644
---- a/drivers/i2c/busses/i2c-cp2615.c
-+++ b/drivers/i2c/busses/i2c-cp2615.c
-@@ -124,10 +124,15 @@ static int cp2615_check_status(enum cp2615_i2c_status status)
- static int
- cp2615_i2c_send(struct usb_interface *usbif, struct cp2615_i2c_transfer *i2c_w)
- {
--	struct cp2615_iop_msg *msg = kzalloc_obj(*msg);
- 	struct usb_device *usbdev = interface_to_usbdev(usbif);
--	int res = cp2615_init_i2c_msg(msg, i2c_w);
-+	struct cp2615_iop_msg *msg;
-+	int res;
-+
-+	msg = kzalloc_obj(*msg);
-+	if (!msg)
-+		return -ENOMEM;
- 
-+	res = cp2615_init_i2c_msg(msg, i2c_w);
- 	if (!res)
- 		res = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, IOP_EP_OUT),
- 				   msg, ntohs(msg->length), NULL, 0);
-@@ -171,11 +176,16 @@ cp2615_i2c_recv(struct usb_interface *usbif, unsigned char tag, void *buf)
- /* Checks if the IOP is functional by querying the part's ID */
- static int cp2615_check_iop(struct usb_interface *usbif)
- {
--	struct cp2615_iop_msg *msg = kzalloc_obj(*msg);
--	struct cp2615_iop_accessory_info *info = (struct cp2615_iop_accessory_info *)&msg->data;
- 	struct usb_device *usbdev = interface_to_usbdev(usbif);
--	int res = cp2615_init_iop_msg(msg, iop_GetAccessoryInfo, NULL, 0);
-+	struct cp2615_iop_msg *msg;
-+	struct cp2615_iop_accessory_info *info;
-+	int res;
-+
-+	msg = kzalloc_obj(*msg);
-+	if (!msg)
-+		return -ENOMEM;
- 
-+	res = cp2615_init_iop_msg(msg, iop_GetAccessoryInfo, NULL, 0);
- 	if (res)
- 		goto out;
- 
-@@ -194,6 +204,7 @@ static int cp2615_check_iop(struct usb_interface *usbif)
- 		goto out;
- 	}
- 
-+	info = (struct cp2615_iop_accessory_info *)&msg->data;
- 	switch (ntohs(info->part_id)) {
- 	case PART_ID_A01:
- 		dev_dbg(&usbif->dev, "Found A01 part. (WARNING: errata exists!)\n");
+I did look into the earlier work in this area before writing it. A 2011
+mangling patch bundled NOSTART/REV_DIR_ADDR/IGNORE_NAK together and did
+not honour the flag on the address byte, and a 2013 retry-on-NAK patch
+retried at the controller layer, which is the wrong layer. This patch
+deliberately avoids both: it implements only the standard flag, leaves
+the NAK-vs-retry decision to the device driver, and changes nothing for
+transfers that do not set the flag.
+
+I would appreciate any feedback, and I am happy to adjust the commit
+message or split the change if you would prefer it structured
+differently.
+
+Kind regards,
+Haobin Jiang
+
+Haobin Jiang (1):
+  i2c: imx: honour I2C_M_IGNORE_NAK for write messages
+
+ drivers/i2c/busses/i2c-imx.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+
+base-commit: 04e9bf1648f846976b543e91c1838a712433772a
 -- 
-2.53.0
+2.34.1
 
