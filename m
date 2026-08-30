@@ -1,107 +1,63 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from carlos3.mail.rambler.ru (carlos3.mail.rambler.ru [81.19.78.109])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E80D385D7F;
-	Sun, 30 Aug 2026 15:07:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30C363B14D1
+	for <linux-i2c@vger.kernel.org>; Sun, 30 Aug 2026 15:39:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.78.109
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788102447; cv=none; b=HItz4qxbYJstwFJrlfU36NK1Nhf6ZnboDa1HMEtj1Zn4PkuuJDuabjkrnm0/iu4gSwtkvIHajvD/IVxZI/ZLUsl1Q3dfnTm93jl+q0vlVxdqR/KzHP+ge33XHnof6uX3kfzP7j04DW3qncmJGr8UpASdjUaZpiGpo5kE1vUT0M8=
+	t=1788104366; cv=none; b=fEk3kp5ETq3OLGIlGv5sjPC4LYkVP6NDH/QfL0PLaKE/m/emMnvai8KYbHidQgTS6JWft/rFyxS0OrMxDxj/KpOGZteFS8LwVZPSpehXziA+nAPzYLJ1TkLfqMDWqj/+7Ix2x7XRuNjuAVvj8O8e7WlLRBe9NLLWpcd9pRMp+p0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788102447; c=relaxed/simple;
-	bh=+/JTs2j0yHRFkid8fzPD4BRlIX9cJAEhtv2HTTAEONw=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Gox1pEgX5dQO2h5B2OwRUGL1Hk8wTSUT6YE3lO6zGeiAMKhQQpVB4lCJkAk12iWzN4ZkZ5H1MGwGlASxJCqepAcHaPNa0Cn4K8cIZLq2NgMa9Pw9h/s8nh8UgtxlPnZWoOpcAkgx4mETmM6dWD+hlEWQbnRzmEa4TCOQHnwk/Nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I0AVGzpu; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I0AVGzpu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E2D1F000E9;
-	Sun, 30 Aug 2026 15:07:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788102445;
-	bh=kNU5UKcUoiTDgnQxbU0a5z1W5IhbhmieDlkzbQWUEyM=;
-	h=Date:From:To:Cc:Subject;
-	b=I0AVGzpuKAinFrlRfBZn2D9Uc5VyhL7ihBSBXPbgfHY2LJF9ImElXJIcueZYLVKQe
-	 IuMpoP9X4WWth96KkMxBxbomjbMMXsh5HXCzlpHhFRoCsNiV+NBM+dYj1+aWmnOEsA
-	 Zk68uPmZwtYD5OE0x21s9/YYg1WsKWxspI5F8DDeFB6plfCVz6kb702ddEJw8OKwgR
-	 FIQ1ekiKcgA4rsiLNknUlgrRNH68WfjegayOx8agb7HEjENrPcUostwYp+RIc03LeV
-	 Jt6nA1TTWP83oM/WFcAy+8zziOEVWuHmxjYoTPzFhShHlElh+EJDLPCAHMs4vE1W9e
-	 U/EYMvpg162nQ==
-Date: Sun, 30 Aug 2026 17:07:20 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c fixes for v7.3-rc1
-Message-ID: <apRF7F65GhuKEF1j@zenone.zhora.eu>
+	s=arc-20240116; t=1788104366; c=relaxed/simple;
+	bh=/eLp2D/9KqQGuvLpdmbyse0f3WS3oaaTB8NNSyshqd4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BtFP8qDqPxolZvXBw+WTHLVCKDr9CyLeuxzaCU6jcDbuDKINJVkBNcGa6G4QdhgleuPzI+op3UuQlRuN4/exdTYt3T33UTAiR12mRVf7T0DGng7zJ5LpTQzUhz8+4Wk+BxbwD9vS75RhtSp+Bv+73xTiCgbQNVyBQDg2//0Aa6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru; spf=pass smtp.mailfrom=ro.ru; arc=none smtp.client-ip=81.19.78.109
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ro.ru
+Received: from localhost (localhost [127.0.0.1])
+	(Authenticated sender: alma0@ro.ru)
+	by carlos3.mail.rambler.ru (Postfix) with ESMTPA id 66BC3CFDCF1;
+	Sun, 30 Aug 2026 18:35:58 +0300 (MSK)
+Message-ID: <812847a5-5630-4d26-8012-c816e6d1db32@ro.ru>
+Date: Sun, 30 Aug 2026 17:35:57 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: =?UTF-8?Q?Re=3A_ee1004=3A_DDR4_SPD_cannot_be_read=2C_decode-dimms_f?=
+ =?UTF-8?B?YWlscywg4oCcRmFpbGVkIHRvIHNlbGVjdCBwYWdlIDAgKC02KeKAnQ==?=
+To: Jean Delvare <jdelvare@suse.de>, 1110749@bugs.debian.org
+Cc: linux-i2c@vger.kernel.org
+References: <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
+ <handler.1110749.B.1754853823932687.ack@bugs.debian.org>
+ <9ed6f717-a04c-425f-945e-7fe8fe3b5d7d@ro.ru>
+ <ac700b24578663492aecd6d544bfc205b060c948.camel@suse.de>
+Content-Language: en-US
+From: Al Ma <AlMa0@ro.ru>
+In-Reply-To: <ac700b24578663492aecd6d544bfc205b060c948.camel@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Linus,
+> if you installed your memory modules following the recommended order
 
-here's the pull request for the new fixes cycle.
+According to page 1-5 of my motherboard manual, dated 2019-10-28, the slots DIMM_A1 and DIMM_C1 should be used when installing two modules (and indeed, they are used as per `dmidecode -t memory` and from what I recall).
 
-It contains fixes mainly for teardown and resource handling,
-runtime PM and hardware-specific controller issues.
+> Please try unloading the ee1004 driver, then running i2cdetect again.
 
-It's based on your latest I2C merge commit.
+Here we go:
 
-Thank you,
-Andi
+# modprobe -r ee1004 && i2cdetect -y 0 && modprobe ee1004
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- 56 -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
 
-The following changes since commit 47096fc3d064a07c0842f748b99ebf01be120f2b:
-
-  Merge tag 'i2c-7.3-part2' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux (2026-08-24 09:07:15 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.3-rc1
-
-for you to fetch changes up to b15b548d52b43ba8ac4652bc2c7244a8dd1e9622:
-
-  i2c: core: fix debugfs UAF on adapter removal (2026-08-28 03:12:01 +0200)
-
-----------------------------------------------------------------
-i2c-fixes for v7.3-rc1
-
-Fixes mainly for teardown and resource handling, runtime PM and
-hardware-specific controller issues.
-
-- core: fix debugfs use-after-free when removing the adapter
-- designware: apply interrupt mask quirk for HJMC3001
-- imx-lpi2c: avoid target accesses on master-only controllers
-- mux: release channel node when adapter registration fails
-- qcom-cci: fix autosuspend and runtime PM cleanup on removal
-- qcom-geni: fix timing parameters for 32 MHz clock
-
-----------------------------------------------------------------
-Ahmad Byagowi (1):
-      i2c: mux: Fix channel node leak on adapter add failure
-
-Carlos Song (1):
-      i2c: imx-lpi2c: avoid accessing target registers on master-only controllers
-
-Guangshuo Li (1):
-      i2c: qcom-cci: fix autosuspend cleanup
-
-Hongbo Yao (1):
-      i2c: designware: Enable interrupt mask workaround for HJMC3001
-
-Kathiravan Thirumoorthy (1):
-      i2c: qcom-geni: update frequency table to fix timing parameters
-
-Vasileios Almpanis (1):
-      i2c: core: fix debugfs UAF on adapter removal
-
- drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
- drivers/i2c/busses/i2c-imx-lpi2c.c          | 27 +++++++++++++++++++++++----
- drivers/i2c/busses/i2c-qcom-cci.c           | 11 ++++-------
- drivers/i2c/busses/i2c-qcom-geni.c          |  4 ++--
- drivers/i2c/i2c-core-base.c                 |  6 ++++++
- drivers/i2c/i2c-mux.c                       |  1 +
- 6 files changed, 37 insertions(+), 14 deletions(-)
+What next?
