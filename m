@@ -1,212 +1,197 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6C1E0352029;
-	Mon, 31 Aug 2026 01:59:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82F823C1F45;
+	Mon, 31 Aug 2026 07:13:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788141595; cv=none; b=TiCcLs6oiMxeg7L44C0TodnyTioIrujH/1yJtrIVQ3Vt1aJtQqpfv4cTnvYO2AP8ixY3PFHsO5EEu1Wv5edviAxBporzC7CF+C2aFX8ImfiXZLieoBqklqiHpzx2oCd2WtF+T0/f3IaJmOwaECEj3DFaTKLEvvSQ53qR8LsvdDE=
+	t=1788160421; cv=none; b=IiPz8hxdgStkuJyI30T5W7UqwD3AeZSsWVe4MY04N+3dV70V2EOZQxhzVn9aWAfSxmqaB29JRirz35hG+h241CoruIj3apwk9gk4tKqMrm9rdo4p6H6CghsC1+Ly0W4/XoVHTZQ5BD7CZsPH5neeULIsTk3cuIFIFuiCDkHWQWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788141595; c=relaxed/simple;
-	bh=YLNn7HqkoTkR8knmgxG7cQXJk24I0ehYyrEzmLJegSk=;
-	h=Subject:From:To:Cc:References:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=KaZWbC3+ANWBH0yWQ1087k6jlo61PQxuBOLgJlkuIL4G5HEFgcnkHFTD60PPM6iJcDGkz2SkT52ElncdA/3Y6s4tJ4jlWUi16fGIja6cww8zEXeXZNYvHGi3FK8+g4OPtaLIHIk6u4rYvFPsZzOp/3lrGI8j9Qt7oxhzUj8/KiQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8DxTNIX4JRqILwGAA--.18754S3;
-	Mon, 31 Aug 2026 09:59:51 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJBx6c0S4JRq+PMXAA--.19637S3;
-	Mon, 31 Aug 2026 09:59:48 +0800 (CST)
-Subject: Re: [PATCH v10 0/2] i2c: ls2x: Add clock- related properties and
- parsing
-From: Hongliang Wang <wanghongliang@loongson.cn>
-To: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- loongarch@lists.linux.dev
-References: <20260817090721.30582-1-wanghongliang@loongson.cn>
- <668c5145-da87-d318-2338-738b0035a671@loongson.cn>
-Message-ID: <1cdc2657-9924-336d-1f10-f01ca2183f1f@loongson.cn>
-Date: Mon, 31 Aug 2026 09:57:09 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1788160421; c=relaxed/simple;
+	bh=81zt51gCWR1tyk2rnkv5sTc2enngcXrsEszby0tfe/c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hMOfhekKbNmv5H7CZBmvuqU+hgzxyVxqw4BOAqZMxlbirphWtDbeZYKT/VCyXzuWJhlzYGlQiY9iumA2vvwVUX8SdzxBe4WvFRG49oANqBBLuRlGyWlADxhCbsVhNU9Z+QK561vUaRIRVjkbsx2mRsr8S/qclxk5qICAqOwob1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=WSV21sN/; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=WSV21sN/; arc=none smtp.client-ip=130.236.254.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="WSV21sN/";
+	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="WSV21sN/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
+	s=2026; t=1788160415;
+	bh=81zt51gCWR1tyk2rnkv5sTc2enngcXrsEszby0tfe/c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=WSV21sN/JivHfsTG2BSAGE1hJnM/xM8FgxUB1xYhKIcItXatsZwGwg3a9oFvdBNgB
+	 Yg16lFrZW1LkC6/bL1DiGgWyHOMR+9+21ATbmudj06sLhUcl2W8YuFeeNl8TM1Fqwm
+	 t6ViST4lHQqAezq8gpXRh9K2mBRbOzwdSsoxQJhifeWtgEVqpam2RSQwoIbK23p9zn
+	 cYx4t0yLYsbyVPmA1Opwc8Cua5CNrD4+aQ/fRHf555QbdkEKpGQ57CW6WGwrugNreo
+	 AnmK8eH9Cnd9/yfdXflScOExixeNPvzvdyl8z82PT4xvsikO/6K1MI6WOqBZr4xxMd
+	 CxvwRDre0Ldzw==
+Received: from mail.lysator.liu.se (localhost [127.0.0.1])
+	by mail.lysator.liu.se (Postfix) with ESMTP id 93285E4DC;
+	Mon, 31 Aug 2026 09:13:35 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
+	s=2026; t=1788160415;
+	bh=81zt51gCWR1tyk2rnkv5sTc2enngcXrsEszby0tfe/c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=WSV21sN/JivHfsTG2BSAGE1hJnM/xM8FgxUB1xYhKIcItXatsZwGwg3a9oFvdBNgB
+	 Yg16lFrZW1LkC6/bL1DiGgWyHOMR+9+21ATbmudj06sLhUcl2W8YuFeeNl8TM1Fqwm
+	 t6ViST4lHQqAezq8gpXRh9K2mBRbOzwdSsoxQJhifeWtgEVqpam2RSQwoIbK23p9zn
+	 cYx4t0yLYsbyVPmA1Opwc8Cua5CNrD4+aQ/fRHf555QbdkEKpGQ57CW6WGwrugNreo
+	 AnmK8eH9Cnd9/yfdXflScOExixeNPvzvdyl8z82PT4xvsikO/6K1MI6WOqBZr4xxMd
+	 CxvwRDre0Ldzw==
+Received: from gryt (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by mail.lysator.liu.se (Postfix) with ESMTPSA id 3736AE599;
+	Mon, 31 Aug 2026 09:13:35 +0200 (CEST)
+Date: Mon, 31 Aug 2026 09:13:34 +0200
+From: Peter Rosin <peda@lysator.liu.se>
+To: Ahmad Byagowi <ahmadexp@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v7 3/3] i2c: mux: Propagate software nodes to channel
+ adapters
+Message-ID: <apUpnqAQQfWaflS8@gryt>
+References: <cover.1787502619.git.ahmadexp@gmail.com>
+ <a4abcd31c3a6758e219f5edcdd4acd307e674f18.1787502619.git.ahmadexp@gmail.com>
+ <ao0tPhBvK1Er_Vs0@gryt>
+ <CAOQiBWNVvHpO7X8yWyZEa3-nV76YJfRbkzo+_4U-upEj4VNfow@mail.gmail.com>
+ <ao_VE0W-FohWqPPt@ashevche-desk.local>
+ <apO31ydKoiqWCEKo@gryt>
+ <CAOQiBWN5DgOcJ9Gg7s2GZmpQguJUh121Jn9yUzxxm=D530c8dA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <668c5145-da87-d318-2338-738b0035a671@loongson.cn>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:qMiowJBx6c0S4JRq+PMXAA--.19637S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxGrW3CFy8XF18XFWDZr1xtFc_yoWrKF15pF
-	Z8Cay5Gr1j9a48uw43t3yIvF9Yvwn8J3yDGr1xJa45ua12vr1vqF12gFn09FykZFs7Cayj
-	gr9rKFnF9F15CFcCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUv0b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
-	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AK
-	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
-	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
-	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
-	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
-	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
-	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zwZ7UU
-	UUU==
+In-Reply-To: <CAOQiBWN5DgOcJ9Gg7s2GZmpQguJUh121Jn9yUzxxm=D530c8dA@mail.gmail.com>
+X-Virus-Scanned: ClamAV using ClamSMTP
 
+Den Sat, Aug 29, 2026 at 10:10:40PM -0700, skrev Ahmad Byagowi:
+> Peter, thanks for clarifying.
+> 
+> The check is intentional. Without it, the generic traversal would also
+> inspect ACPI firmware nodes and could match _DSD child nodes carrying
+> a "reg" property, while the existing ACPI path below uses
+> acpi_preset_companion() to associate the adapter by channel address.
 
-On 2026/8/17 下午5:23, Hongliang Wang wrote:
-> Hi all,
->
-> Sorry for the duplicate 0/2 cover‑letter message in this thread.
-> Only the 09:07 UTC full V10 series (0/2, 1/2, 2/2) is the intended one,
-> please ignore the earlier 09:01 UTC standalone 0/2 cover‑letter.
->
-> The patches 1/2 and 2/2 are correct.
->
-> Thanks,
-> Hongliang Wang
->
->
-> On 2026/8/17 下午5:07, Hongliang Wang wrote:
->> Hi all:
->>
->> This patch set adds clock related properties and parsing in dts and 
->> acpi.
->>
->> ======
->> V10:
->> Patch (2/2):
->> - Replace '/' operator with div64_u64() to avoid __udivdi3 linker 
->> error on
->>    32‑bit architectures with CONFIG_COMPILE_TEST.
->>
->> Link to V9:
->> https://lore.kernel.org/all/20260810074927.25284-1-wanghongliang@loongson.cn/ 
->>
->>
->> V9:
->> Patch (2/2):
->> - Rewrite the commit description
->> - Use 64-bit arithmetic to avoid integer overflow during the clock 
->> calculation
->> - Add checks to reject zero clock rates and ensure valid clock inputs
->> - Modify the comment for clocks and clock-div properties
->> - Add Tested-by tag from Xi Ruoyao, thanks
->>
->> Link to V8:
->> https://lore.kernel.org/all/20260721122604.12717-1-wanghongliang@loongson.cn/ 
->>
->>
->> V8:
->> Patch (2/2):
->> Fix the potential issues from Sashiko AI review:
->>   - Add error checking for the pointer returned by 
->> devm_clk_get_optional_enabled();
->>   - Add zero-value checking for the match data to provide default div.
->>
->> Link to V7:
->> https://lore.kernel.org/all/20260707035104.3092-1-wanghongliang@loongson.cn/ 
->>
->>
->> V7:
->> Patch (2/2):
->> Fix the potential issues from Sashiko AI review:
->>   - Move the clock property parsing process to probe function to 
->> solve the issue
->>     of calling `devm_clk_get_optional_enabled()` dynamically causes 
->> unbounded memory
->>     leaks and unbalanced clock enable counts.
->>   - Add non-zero checking to priv->div.
->>
->> Link to V6:
->> https://lore.kernel.org/all/20260608024533.32419-1-wanghongliang@loongson.cn/ 
->>
->>
->> V6:
->> - Add Reviewed-by tag from Huacai, thanks.
->> Patch (1/2):
->>   - Remove CC stable.
->>
->> Link to V5:
->> https://lore.kernel.org/all/20260604015848.18643-1-wanghongliang@loongson.cn/ 
->>
->>
->> V5:
->> Patch (1/2):
->>   - Adjust the position of #include 
->> <dt-bindings/clock/loongson,ls2k-clk.h>;
->>   - Add CC stable;
->>   - Fix Signed-off-by.
->> Patch (2/2):
->>   - Replace 2K0500/2K1000/2K2000 with LS2K0500/2K1000/2K2000;
->>   - Replace 7A1000/7A2000 with LS7A1000/7A2000;
->>   - Replace if (clk && !IS_ERR(clk)) with if(!IS_ERR_OR_NULL(clk));
->>   - Add document that clocks and clock-div are only ACPI properties 
->> in ACPI;
->>   - Remove unsigned int cast in code (unsigned 
->> long)device_get_match_data(dev);
->>   - Add CC stable;
->>   - Fix Signed-off-by.
->>
->> Link to V4:
->> https://lore.kernel.org/all/20260526031021.32662-1-wanghongliang@loongson.cn/ 
->>
->>
->> V4:
->> - Add Acked-by tag from Conor Dooley, thanks.
->> Patch (2/2):
->>   - Adjust the position of #include <linux/clk.h>;
->>   - Remove struct ls2x_i2c_chip_data and use macro to describe div;
->>   - Use div instead of factor in ls2x_i2c_adjust_bus_speed;
->>   - Reverse the "if & else" code logic in ls2x_i2c_adjust_bus_speed;
->>
->> Link to V2:
->> The PATCH v3 is incomplete, v4 is the replacement of v3, so the 
->> previous patch link is v2.
->>
->> [PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency 
->> properties
->> https://lore.kernel.org/all/20260507081010.12810-1-wanghongliang@loongson.cn/ 
->>
->> [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
->> https://lore.kernel.org/all/20260507081010.12810-2-wanghongliang@loongson.cn/ 
->>
->>
->> V2:
->> [PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency 
->> properties
->> - Remove the custom properties clock-input and clock-div, use clock 
->> framework;
->> [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
->> - Use clock framework to obtain the i2c reference clock in dts.
->>
->> Link to V1:
->> https://lore.kernel.org/all/20260325011852.19079-1-wanghongliang@loongson.cn/ 
->>
->>
->> Hongliang Wang (2):
->>    dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
->>    i2c: ls2x: Add clocks property parsing and adjust bus speed
->>
->>   .../bindings/i2c/loongson,ls2x-i2c.yaml       |  3 ++
->>   drivers/i2c/busses/i2c-ls2x.c                 | 44 +++++++++++++++++--
->>   2 files changed, 44 insertions(+), 3 deletions(-)
->>
-Hi,
+Yes, I got that. The question is if the precaution is really needed.
+Are "reg" properties common in ACPI nodes?
 
-Gentle ping on the v10 patch series. Please let me know if there are any 
-further changes needed.
+> I have not established that changing the ACPI lookup behavior is safe,
+> and that change is not needed for software-node support. With the
+> check retained, OF and software nodes use the generic lookup, while
+> ACPI continues to use the existing acpi_preset_companion() path
+> exclusively.
 
-Best regards,
-Hongliang Wang
+Yes, I figured as much, which is why I directed the question at Andy.
 
+> That said, I will clarify this in the commit message for the next revision.
+
+I'd rather tweak the check to exclude ACPI (instead of including OF and
+SW) with a code comment about why ACPI is excluded. That is, if it can
+be determined that ACPI actually needs to be excluded. If it is hard to
+get an answer to that question, I'm inclined to just attempt to not
+exclude ACPI, and then be prepared to exclude ACPI in a follow-up if
+there is any fallout.
+
+Cheers,
+Peter
+
+> 
+> Regards,
+> Ahmad
+> 
+> 
+> On Sat, Aug 29, 2026 at 9:55 PM Peter Rosin <peda@lysator.liu.se> wrote:
+> >
+> > Den Thu, Aug 27, 2026 at 09:11:31AM +0300, skrev Andy Shevchenko:
+> > > On Wed, Aug 26, 2026 at 08:29:47AM -0700, Ahmad Byagowi wrote:
+> > > > Hi Peter, Andy,
+> > > >
+> > > > Yes, software-node handling is needed for the ptp_ocp use case.
+> > >
+> > > That driver is a mess. I'm surprised nobody told to the authors of
+> > > the respective changes to look at the auxiliary implementation.
+> > >
+> > > > ptp_ocp is a PCI driver. It creates its board-specific I2C topology at
+> > > > runtime with software nodes: the mux, its channel nodes, sensors, and LED
+> > > > controller. Firmware does not provide ACPI nodes for this topology.
+> > > >
+> > > > The existing acpi_preset_companion() path only associates a mux adapter
+> > > > with an existing ACPI child. It does not associate the adapter with one of
+> > > > these dynamically created software-node channel nodes. Without that
+> > > > association, i2c_get_adapter_by_fwnode() cannot find the channel adapter by
+> > > > the channel software node, so ptp_ocp cannot instantiate the downstream I2C
+> > > > devices on the correct channel.
+> > > >
+> > > > Does this address the concern, or would you prefer a different way to
+> > > > represent this dynamically created topology?
+> > >
+> > > Wouldn't it be possible to use some kind of DT overlay to have that?
+> >
+> > For me, the above is a bit unrelated to this patch series, which is
+> > about converting i2c-mux from of-only properties to device properties.
+> > That seems like a change that stands on its own.
+> >
+> > I probably wasn't clear enough with my original question, but what I
+> > wondered about was what regression risk that conversion might have
+> > for the ACPI case. Specifically, there might be ACPI properties that
+> > match what the code is now looking for. It seems unlikely that such
+> > properties are actually deployed, but I know next to nothing about
+> > ACPI...
+> >
+> > TL;DR
+> >
+> > My original question should have been: Is it safe to simply remove
+> > these lines from the patch:
+> > > +     if (!is_of_node(dev_node) && !is_software_node(dev_node))
+> > > +             return NULL;
+> > and let the code trawl all kinds of device properties?
+> >
+> > Sorry for the confusion...
+> >
+> > Cheers,
+> > Peter
+> >
+> > > > Thanks, Andi, for taking the first patch into i2c/i2c-fixes. I will drop it
+> > > > from the next revision and rebase the remaining two patches once this
+> > > > question is resolved.
+> > >
+> > > > On Mon, Aug 24, 2026 at 10:50 PM Peter Rosin <peda@lysator.liu.se> wrote:
+> > > > > Den Sun, Aug 23, 2026 at 09:34:38AM -0700, skrev Ahmad Byagowi:
+> > > > > > Device Tree channel nodes are associated with the adapters created by
+> > > > > > i2c-mux, but equivalent software-node descriptions are not.
+> > > > > >
+> > > > > > Use generic firmware-node operations for the existing channel lookup and
+> > > > > > accept either an OF node or a software node. Associate the returned node
+> > > > > > with the adapter so child I2C devices can be instantiated from
+> > > > > > software-node properties.
+> > > > > >
+> > > > > > Save the adapter firmware node before adapter deletion and release the
+> > > > > > reference afterwards, following the lifetime pattern in i2c-atr.
+> > >
+> > > --
+> > > With Best Regards,
+> > > Andy Shevchenko
+> > >
+> > >
+> 
+> 
+> 
+> -- 
+> 73
+> With best wishes / Mit herzlichsten Grüßen
+> Ahmad Byagowi, Ph.D., Dr. Techn., P.Eng.
+> Phone: +1 (650) 924 6653
+> 
+>  Please consider the environment before printing this e-mail.
