@@ -1,347 +1,212 @@
-Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 435E730EF89;
-	Sun, 30 Aug 2026 23:10:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6C1E0352029;
+	Mon, 31 Aug 2026 01:59:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788131422; cv=none; b=DlSpe2/hSBv2/iDsx5PUP/uHvyac5slQpDC8zxlLERIIP71lJv2dv+wWz1xm4MFl9e5d196ii8YwRIRQiqw3ZxtzLy70GPofdimYQ64Q0HukMBQRHsvANz5+mMgNfgeW8s2qjXE5hJkJZbJm3+9QmpCFdtiIbcm580J7SCOI1+w=
+	t=1788141595; cv=none; b=TiCcLs6oiMxeg7L44C0TodnyTioIrujH/1yJtrIVQ3Vt1aJtQqpfv4cTnvYO2AP8ixY3PFHsO5EEu1Wv5edviAxBporzC7CF+C2aFX8ImfiXZLieoBqklqiHpzx2oCd2WtF+T0/f3IaJmOwaECEj3DFaTKLEvvSQ53qR8LsvdDE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788131422; c=relaxed/simple;
-	bh=Ntb372e/rWIeBr1J4NjUE3vuIDUZz1AUEM6kRXEBLvA=;
-	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
-	 References:Date:Message-id; b=DNxN6ZRXTSRF6BSj5LSnd/NMQIHjoi8xch+9yUq/o0n2KyPhvW5M8k6q16VvuFcd+ifjHo6+ol92jEd2yWs+UJKRQAxbmWjw4YyyTLEY6Gjg2VykBeihmk/VuvU+n2LwW1+Qg5XLk7YufASniVqzEaQ8O4H6wJlp41yQpJ6hHGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=Qo6ieQvu; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=VPm/7Fhe; arc=none smtp.client-ip=202.12.124.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="Qo6ieQvu";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="VPm/7Fhe"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailflow.stl.internal (Postfix) with ESMTP id E9FB813001B0;
-	Sun, 30 Aug 2026 19:10:14 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-06.internal (MEProxy); Sun, 30 Aug 2026 19:10:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to; s=fm3; t=
-	1788131414; x=1788138614; bh=zEc5hZJIk8YRnx+J+eo4+Y3sVspDxogbjvE
-	EZwuJ7rQ=; b=Qo6ieQvuNCpEAFNGUhEaIGd1tM2qenglCvyZhQAtLYcKgEz5uZv
-	VBkmAHxWVjh7GITNYGQRuizAhYS66fu/QSC2e7UCmgPz4kXTk5AkzcfuRQnlVFRP
-	obCI4MlwXEShM2SHCHkmDlPo5XISgTzwCrpLP/3SjKxujKlWi9nqvG6db9p/iXJV
-	OpWFgdf4BeBSzTD8k+jOmUwdbzP/2FzRQ2JsA+NRYO/Wb8e+aEbOrBj5DJeqKV4F
-	mo0lR8bF74G8iO9YI3oa5e0UEi/LrPdRcv9f2BM5MbieoQLkdq9lj0/U9rjqixab
-	TWu+hSlLYlUN95axFhjHuP3dfSYVVt6XzGA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1788131414; x=
-	1788138614; bh=zEc5hZJIk8YRnx+J+eo4+Y3sVspDxogbjvEEZwuJ7rQ=; b=V
-	Pm/7FheSQWTuf0BTxlWwZtt+3pYz2nhduLw4e4y8za/QfTSzRWzNLT9xWYuPmAIc
-	u2iScyJLSttTa87WeCPnCZXn/Gl2gPZabiNI/TusdTrg2rxoLAc/VMFiqpkhoR6S
-	LQ0iKTcxz3hk+DwmEohzGehsn/5Wh1AzucxvOgw+WnDShRgf/uBTnxZEvQeejUv4
-	uiy25ACTvijKoXphHgt82oizR4gYVdqyJePgq/uKO/Q8l7aBEXKtFaecz0P2KuDW
-	NPFfEanh10Tr4PIAw9/Ttp6lzVA7Tw5SgfgV5/JqbWCARVUi3EaZbxN01GMjB+kI
-	lCRwskirVvl7AMPYTRbWw==
-X-ME-Sender: <xms:UbiUap_MtTSeFpMNORlr4wTWDVh0aA6ScnON58j3rpFyccMpDXHIBQ>
-    <xme:UbiUahH2TNeUk63s7BMkgYDKvmxeqjrvmkBoHgCp0p_iRIhMT_WV7fRvdL5DfgV9Z
-    xV8KqlrCQaK0hplET15otnZI5BE2coA-O7f7PR3q4bp8VG_>
-X-ME-Received: <xmr:UbiUagJhhsp10jRM39PBdQWH_D435G2njFRNXy8dKyREtIAZmuZC2LqatWjo_-5YIsgSO4CAuvUBwdlLl9RmrRBi5dPRqwg>
-X-ME-Proxy-Cause: dmFkZTFOIUHJLQqborIagOgmNN+pPcupbVotrH4sXk/9BxNtfHYUJG+jOdd9lP23wPqSUQ
-    AUFqozauDGsFj2Fcxtj3sABYHvl0ph+0UXejznX6q1Xr1Xg/U0V2IT+Tk94c9p2xCxdGcm
-    a9fTqsnIiGGjKyH3aovg7Hbw39SYODzd4xSmoty3roVPn9gC8PR9IGrItxoJJkl5Z9SeqL
-    qN1gQzMRLAf1DVi5pqAy+RVGbsxy3biNw6Ht0LFpwq7yHA4P1bo1DCXcT6AbluvZMKn1Ad
-    6oUtTqY8wpxkXvPNqdcZVzXrArQI+dyTirjeQU9xaq2PAci/BLvZmkKdn6HOgCF/wiNDR5
-    9ypjS27kIioFVXtCK3cYVV4EX87YiMJFRv1YmG81V/CBOpPEVGlHijee21VZbsDPuWUWT2
-    eIkpdBbOecXlENZwKR/2eekW+LLYVEGcUat3eiQbHa7r5NCiXFUSvoh9n0m66Cfn6MPY8F
-    nn+/UAVo+bSz0lZ0FMnWAjcbwosDDLMUFcjHtb2oWyUdokurmOw1uyWf9PuZC23xX1bhno
-    M6fmT9hcOCYeC8ptuK39TgThobX4Z06It4CZvTdsheRb100K9ulRUQKwJiTqPv3ZqMrr5g
-    wtS1gF+w0PemKcSEjYqBuy5LHyuHib4TgEnaucnWv4jXuwuB92nJE5Nsi6mg
-X-ME-Proxy: <xmx:UbiUah47CBbO19kbrhNmEsPxHAHgpefoYPnpR5z-_ohOrh1cCgC-Dg>
-    <xmx:UbiUalPzSFg1nYeOw2R5sG3wTQxx6Y0zUwyNG3X2kHwPHQNKUtVYuw>
-    <xmx:UbiUaprYVwmp1o7kh4B5Ol26B9junaQQXQMqO5xX3y2ZMifwxkjWAA>
-    <xmx:UbiUaseNryne3JEtbfGoTy-pA0krO1YyMhJ9fCu36NsZC9i9Dd6f2g>
-    <xmx:VriUatkHi2UuWhglcFHVNe1ttc7HDvYZlla8FaR0rvxatg4WTOf727px>
-Feedback-ID: i9d664b8f:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 30 Aug 2026 19:09:27 -0400 (EDT)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1788141595; c=relaxed/simple;
+	bh=YLNn7HqkoTkR8knmgxG7cQXJk24I0ehYyrEzmLJegSk=;
+	h=Subject:From:To:Cc:References:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=KaZWbC3+ANWBH0yWQ1087k6jlo61PQxuBOLgJlkuIL4G5HEFgcnkHFTD60PPM6iJcDGkz2SkT52ElncdA/3Y6s4tJ4jlWUi16fGIja6cww8zEXeXZNYvHGi3FK8+g4OPtaLIHIk6u4rYvFPsZzOp/3lrGI8j9Qt7oxhzUj8/KiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8DxTNIX4JRqILwGAA--.18754S3;
+	Mon, 31 Aug 2026 09:59:51 +0800 (CST)
+Received: from [10.20.42.101] (unknown [10.20.42.101])
+	by front1 (Coremail) with SMTP id qMiowJBx6c0S4JRq+PMXAA--.19637S3;
+	Mon, 31 Aug 2026 09:59:48 +0800 (CST)
+Subject: Re: [PATCH v10 0/2] i2c: ls2x: Add clock- related properties and
+ parsing
+From: Hongliang Wang <wanghongliang@loongson.cn>
+To: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ loongarch@lists.linux.dev
+References: <20260817090721.30582-1-wanghongliang@loongson.cn>
+ <668c5145-da87-d318-2338-738b0035a671@loongson.cn>
+Message-ID: <1cdc2657-9924-336d-1f10-f01ca2183f1f@loongson.cn>
+Date: Mon, 31 Aug 2026 09:57:09 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: NeilBrown <neilb@ownmail.net>
-To: "Byungchul Park" <byungchul@sk.com>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
- linux-kernel@vger.kernel.org, max.byungchul.park@gmail.com,
- kernel_team@skhynix.com, torvalds@linux-foundation.org,
- damien.lemoal@opensource.wdc.com, linux-ide@vger.kernel.org,
- adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org, mingo@redhat.com,
- peterz@infradead.org, will@kernel.org, tglx@linutronix.de,
- rostedt@goodmis.org, joel@joelfernandes.org, sashal@kernel.org,
- daniel.vetter@ffwll.ch, duyuyang@gmail.com, johannes.berg@intel.com,
- tj@kernel.org, tytso@mit.edu, willy@infradead.org, david@fromorbit.com,
- amir73il@gmail.com, gregkh@linuxfoundation.org, linux-mm@kvack.org,
- akpm@linux-foundation.org, mhocko@kernel.org, minchan@kernel.org,
- hannes@cmpxchg.org, vdavydov.dev@gmail.com, sj@kernel.org,
- jglisse@redhat.com, dennis@kernel.org, cl@linux.com, penberg@kernel.org,
- rientjes@google.com, vbabka@suse.cz, ngupta@vflare.org,
- linux-block@vger.kernel.org, josef@toxicpanda.com,
- linux-fsdevel@vger.kernel.org, jack@suse.cz, jlayton@kernel.org,
- dan.j.williams@intel.com, hch@infradead.org, djwong@kernel.org,
- dri-devel@lists.freedesktop.org, rodrigosiqueiramelo@gmail.com,
- melissa.srw@gmail.com, hamohammed.sa@gmail.com, chris.p.wilson@intel.com,
- gwan-gyeong.mun@intel.com, boqun.feng@gmail.com, longman@redhat.com,
- yunseong.kim@ericsson.com, ysk@kzalloc.com, yeoreum.yun@arm.com,
- netdev@vger.kernel.org, matthew.brost@intel.com, her0gyugyu@gmail.com,
- corbet@lwn.net, catalin.marinas@arm.com, bp@alien8.de, x86@kernel.org,
- hpa@zytor.com, luto@kernel.org, sumit.semwal@linaro.org,
- gustavo@padovan.org, christian.koenig@amd.com, andi.shyti@kernel.org,
- arnd@arndb.de,  Liam.Howlett@oracle.com, rppt@kernel.org,
- surenb@google.com, mcgrof@kernel.org, petr.pavlu@suse.com,
- da.gomez@kernel.org, samitolvanen@google.com, paulmck@kernel.org,
- frederic@kernel.org, neeraj.upadhyay@kernel.org, joelagnelf@nvidia.com,
- josh@joshtriplett.org, urezki@gmail.com, mathieu.desnoyers@efficios.com,
- jiangshanlai@gmail.com, qiang.zhang@linux.dev, juri.lelli@redhat.com,
- vincent.guittot@linaro.org, dietmar.eggemann@arm.com, bsegall@google.com,
- mgorman@suse.de, vschneid@redhat.com, chuck.lever@oracle.com,
- okorniev@redhat.com, Dai.Ngo@oracle.com, tom@talpey.com,
- trondmy@kernel.org, anna@kernel.org, kees@kernel.org,
- bigeasy@linutronix.de, clrkwllms@kernel.org, mark.rutland@arm.com,
- ada.coupriediaz@arm.com, kristina.martsenko@arm.com,
- wangkefeng.wang@huawei.com, broonie@kernel.org, kevin.brodsky@arm.com,
- dwmw@amazon.co.uk, shakeel.butt@linux.dev, ast@kernel.org,
- ziy@nvidia.com, yuzhao@google.com, baolin.wang@linux.alibaba.com,
- usamaarif642@gmail.com, joel.granados@kernel.org,
- richard.weiyang@gmail.com, geert+renesas@glider.be,
- tim.c.chen@linux.intel.com, linux@treblig.org,
- alexander.shishkin@linux.intel.com, lillian@star-ark.net,
- chenhuacai@kernel.org, francesco@valla.it, guoweikang.kernel@gmail.com,
- link@vivo.com, jpoimboe@kernel.org, masahiroy@kernel.org,
- brauner@kernel.org, thomas.weissschuh@linutronix.de, oleg@redhat.com,
- mjguzik@gmail.com, andrii@kernel.org, wangfushuai@baidu.com,
- linux-doc@vger.kernel.org, linux-media@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-modules@vger.kernel.org, rcu@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-rt-devel@lists.linux.dev,
- 2407018371@qq.com, dakr@kernel.org, miguel.ojeda.sandonis@gmail.com,
- bagasdotme@gmail.com, wsa+renesas@sang-engineering.com,
- dave.hansen@intel.com, geert@linux-m68k.org, ojeda@kernel.org,
- alex.gaynor@gmail.com, gary@garyguo.net, bjorn3_gh@protonmail.com,
- lossin@kernel.org, a.hindborg@kernel.org, aliceryhl@google.com,
- tmgross@umich.edu, rust-for-linux@vger.kernel.org
-Subject: Re: [PATCH v19 00/40] DEPT(DEPendency Tracker)
-In-reply-to: <20260825130843.GB23086@system.software.com>
-References: <20260706061928.66713-1-byungchul@sk.com>
-  <359ea967-9b97-4584-88e6-bddb4044de2e@kernel.org>
-  <20260821042143.GA40890@system.software.com>
-  <825134a8-ceae-430c-b2fc-d1d0c7240f39@kernel.org>
-  <178730572084.2852630.7732425311008244683@noble.neil.brown.name>
-  <20260825130843.GB23086@system.software.com>
-Date: Mon, 31 Aug 2026 09:09:23 +1000
-Message-id: <178813136354.3510150.4730256876703029797@noble.neil.brown.name>
-Reply-To: NeilBrown <neil@brown.name>
-
-On Tue, 25 Aug 2026, Byungchul Park wrote:
-> On Fri, Aug 21, 2026 at 07:48:40PM +1000, NeilBrown wrote:
-> > On Fri, 21 Aug 2026, David Hildenbrand (Arm) wrote:
-> > > [...]
-> > >
-> > > > Exactly.  That's why we use classification e.g. lock class - DEPT also
-> > > > makes use of the concept.
-> > > >
-> > > > DEPT doesn't use a full map in each page but uses a minimum space for=
- a
-> > > > timestamp in each to track when each starts to wait so as to use the
-> > > > recorded timestamp when the event occurs e.g. folio_unlock().
-> > >
-> > > Thanks for that information!
-> > >
-> > > >
-> > > >> Given that lockdep is a debug feature, and we will at some point all=
-ocate struct
-> > > >> folio separately, I assume we could just squeeze a "struct lockdep_m=
-ap" in there
-> > > >> in such debug configs and the world would not collapse.
-> > > >
-> > > > That's a good news for lockdep.  (And even for DEPT :)
-> > >
-> > > He :) Where do you currently store the additional per-page information?
-> >=20
-> > lockdep doesn't need to store per-page information.  Possibly DEPT
-> > doesn't either.
->=20
-> Class can be stored in global map, but DEPT needs to keep a timestamp
-> in each page to track when a potential-wait e.g. folio_lock() has been
-> started and to refer to the information on its event e.g. folio_unlock().
-
-A timestamp?  What does that do?
-There is a lot of detail in your cover letter, but I think there is a
-lot missing too.  I would like to understand how DEPT works, but I don't
-want to dig too hard.  The document in patch 25/40 helps a bit, but it
-is still a bit vague.
-Where is the document which would explain at a level that would help me
-understand this timestamp?
-
->=20
-> > lockdep needs one lockdep_map for each lock class.  It would make sense
-> > for all folio locks to use the same global lockdep_map.
->=20
-> Exactly.  Only considering classes, you are right.
->=20
-> > Each specific lock is known to lockdep as a task which holds the lock, a
-> > lockdep_map which represents the class of locks, and subclass number
-> > which allows a given task to hold multiple locks of the same class
-> > providing it declare (e.g. with spin_lock_nested() etc).
->=20
-> Right, lockdep works that way.
->=20
-> > > >> Doing that today (one "struct lockdep_map" in each "struct page") wo=
-uldn't work
-> > > >> as mm_zero_struct_page() would not expect such large "struct page". =
-But
-> > > >> conceptually, for a debug kernel with a special CONFIG_LOCKDEP_PAGE_=
-LOCK, maybe
-> > > >> that would already be ok and we could just do that (and optimize it =
-as we
-> > > >> allocate folios separately).
-> > > >
-> > > > Sounds great.
-> > > >
-> > > >> Not that it's ideal, but for a debug feature to at least check PG_lo=
-ck, probably
-> > > >> an easier way to achieve it than some completely new infrastructure.
-> > > >
-> > > > I understand what you are going to tell.
-> > > >
-> > > > However, it's worth noting that lockdep tracks dependencies basically
-> > > > based on **lock acqusition orders** in the system.  To make it track
-> > > > even rwlock and general synchronization mechanism as well, lockdep has
-> > > > no choice but to get more complicated.
-> > >
-> > > Well, yes, sure :)
-> > >
-> > > >
-> > > > Focusing on only the dependency checking, the most parts of lockdep a=
-re
-> > > > for the tricky things, so the reusable parts are not that big.
-> > > >
-> > > >> Now, Willy said "locking rules don't really apply to individual foli=
-os", I
-> > > >> wonder if that could just help to also let lockdep check PG_lock wit=
-h less
-> > > >> metadata? (didn't fully wrap my head around the implications)
-> > > >
-> > > > That's what DEPT did and what brought external wgen introduced in DEP=
-T.
-> > > > I was considering the exactly same thing :)
-> > > >
-> > > > Again, lockdep that tracks lock acquisition orders can't do that.
-> > > >
-> > > >> [1]
-> > > >> https://lore.kernel.org/all/aR3WHf9QZ_dizNun@casper.infradead.org/?u=
-tm_source=3Dchatgpt.com
-> > > >>
-> > > >>
-> > > >> It's your guiding example, that's why I mention it. You do mention o=
-ther wait
-> > > >> cases here, I don't know anything about them, but for folios it's re=
-ally just
-> > > >> "we used a single bit so far" AFAIKs.
-> > > >
-> > > > It doesn't matter whether it's implemented using bit or not.  folio l=
-ock
-> > > > is quite special since it's allowed to be released other than the
-> > > > acquisition context that makes lockdep impossible to track them.
-> > >
-> > > Does that really make lockdep *impossible* to track them? IOW, there is=
- no way
-> > > to extend lockdep to support lock release in different context?
-> >=20
-> > Yes and no....
-> >=20
-> > lockdep has no knowledge of control flows moving across threads in the
-> > way that I assume DEPT does.  But it should be possible to tell it.
-> >=20
-> > If you have some code that takes a lock and then hands it off to
-> > another thread, at the hand-off point you call
-> >    lock_map_release(&the_lock_map)
-> >=20
-> > This says "no task owns this lock any more".
-> >=20
-> > maybe you put the folio which is locked on a queue or an lru or
-> > whatever.
-> >=20
-> > There is no way to say "that queue owns this lock".  Maybe that could
-> > usefully be added - assuming coherent semantics can be designed.
->=20
-> It's certainly useful to track who owns the lock, but the essence, when
-> it comes to deadlock detection, lies elsewhere.  DEPT is based on the
-> essence, that is, a deadlock comes from waits that are never awakened.
-
-I disagree.
-The "essence" of deadlock detection involves the interplay of ownership
-and waiting.
-In your cover letter "THE DEPT APPROACH" talks about [S] where and
-event context begins, and [E] where the even occurs.  This S-E section
-is exactly ownership.  During that time something "owns" the event.
-Maybe the terminology is different, but the concept is the same.
-
->=20
-> > Somewhere else some other task takes responsibility for that folio and
-> > the lock.  maybe it dequeues a page, or maybe an lru callback gives the
-> > locked page to some code.
-> > That code then calls
-> >    lock_map_acquire_try(&the_lock_map)
-> >=20
-> > This says "this task is now holding this lock" (or more accurately "now
-> > holding a lock of this class").
-> > Note the "_try" - that says that the task didn't have to wait for the
-> > lock, it just got it for free, which in fact it did.
-> >=20
-> > Now if that task takes some other lock, lockdep will see a dependency
-> > between the page lock and the new lock, and will accept or reject it as
-> > you would expect.
->=20
-> It's an interesting approach if your goal is to track the owenership,
-> but if the goal is for tracking dependencies.. well.. I'm not sure.
-
-I am sure.  Dependencies are between waiters and owners.
-
-A strong theme in your cover letter is the need to add comprehensive
-annotation for DEPT to work.
-My position is that most of what we need for LOCKDEP to be able to
-detect exactly the same things is appropriate annotation.
-We need to annotate when ownership is handed off to another thread, and
-when the other thread takes on ownership.
-
-So what does your scheme provide that is clearly better?  Is the
-annotation easier?  Is some of it automatic?  Does if give better error
-reports?=20
-
-I had a look through dept.rst and it seems that if a lock is released by
-a different thread than the one which took the lock, then DEPT can
-detect that and do something useful.  That might be interesting.
-But how does it know when it first took ownership of that lock?  Or you
-use your terminology: how does it know when that lock first entered the
-context in that thread?
-
-Maybe when you see an "unlock", you assume the lock has been owned since
-the last time the context didn't hold hold any locks.  Would that be
-right?=20
-Surely it wouldn't the too hard to teach lockdep about that.
-i.e.  when a lock, which is allowed to migrate across threads, is
-released though it wasn't held - insert this lock at the top of the
-current context and re-assess all the wait points.
-
-How do you decide that a lock that was taken is no longer part of the
-current context?
+In-Reply-To: <668c5145-da87-d318-2338-738b0035a671@loongson.cn>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-CM-TRANSID:qMiowJBx6c0S4JRq+PMXAA--.19637S3
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxGrW3CFy8XF18XFWDZr1xtFc_yoWrKF15pF
+	Z8Cay5Gr1j9a48uw43t3yIvF9Yvwn8J3yDGr1xJa45ua12vr1vqF12gFn09FykZFs7Cayj
+	gr9rKFnF9F15CFcCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUv0b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
+	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AK
+	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
+	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
+	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
+	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
+	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
+	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zwZ7UU
+	UUU==
 
 
-NeilBrown
+On 2026/8/17 下午5:23, Hongliang Wang wrote:
+> Hi all,
+>
+> Sorry for the duplicate 0/2 cover‑letter message in this thread.
+> Only the 09:07 UTC full V10 series (0/2, 1/2, 2/2) is the intended one,
+> please ignore the earlier 09:01 UTC standalone 0/2 cover‑letter.
+>
+> The patches 1/2 and 2/2 are correct.
+>
+> Thanks,
+> Hongliang Wang
+>
+>
+> On 2026/8/17 下午5:07, Hongliang Wang wrote:
+>> Hi all:
+>>
+>> This patch set adds clock related properties and parsing in dts and 
+>> acpi.
+>>
+>> ======
+>> V10:
+>> Patch (2/2):
+>> - Replace '/' operator with div64_u64() to avoid __udivdi3 linker 
+>> error on
+>>    32‑bit architectures with CONFIG_COMPILE_TEST.
+>>
+>> Link to V9:
+>> https://lore.kernel.org/all/20260810074927.25284-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V9:
+>> Patch (2/2):
+>> - Rewrite the commit description
+>> - Use 64-bit arithmetic to avoid integer overflow during the clock 
+>> calculation
+>> - Add checks to reject zero clock rates and ensure valid clock inputs
+>> - Modify the comment for clocks and clock-div properties
+>> - Add Tested-by tag from Xi Ruoyao, thanks
+>>
+>> Link to V8:
+>> https://lore.kernel.org/all/20260721122604.12717-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V8:
+>> Patch (2/2):
+>> Fix the potential issues from Sashiko AI review:
+>>   - Add error checking for the pointer returned by 
+>> devm_clk_get_optional_enabled();
+>>   - Add zero-value checking for the match data to provide default div.
+>>
+>> Link to V7:
+>> https://lore.kernel.org/all/20260707035104.3092-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V7:
+>> Patch (2/2):
+>> Fix the potential issues from Sashiko AI review:
+>>   - Move the clock property parsing process to probe function to 
+>> solve the issue
+>>     of calling `devm_clk_get_optional_enabled()` dynamically causes 
+>> unbounded memory
+>>     leaks and unbalanced clock enable counts.
+>>   - Add non-zero checking to priv->div.
+>>
+>> Link to V6:
+>> https://lore.kernel.org/all/20260608024533.32419-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V6:
+>> - Add Reviewed-by tag from Huacai, thanks.
+>> Patch (1/2):
+>>   - Remove CC stable.
+>>
+>> Link to V5:
+>> https://lore.kernel.org/all/20260604015848.18643-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V5:
+>> Patch (1/2):
+>>   - Adjust the position of #include 
+>> <dt-bindings/clock/loongson,ls2k-clk.h>;
+>>   - Add CC stable;
+>>   - Fix Signed-off-by.
+>> Patch (2/2):
+>>   - Replace 2K0500/2K1000/2K2000 with LS2K0500/2K1000/2K2000;
+>>   - Replace 7A1000/7A2000 with LS7A1000/7A2000;
+>>   - Replace if (clk && !IS_ERR(clk)) with if(!IS_ERR_OR_NULL(clk));
+>>   - Add document that clocks and clock-div are only ACPI properties 
+>> in ACPI;
+>>   - Remove unsigned int cast in code (unsigned 
+>> long)device_get_match_data(dev);
+>>   - Add CC stable;
+>>   - Fix Signed-off-by.
+>>
+>> Link to V4:
+>> https://lore.kernel.org/all/20260526031021.32662-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V4:
+>> - Add Acked-by tag from Conor Dooley, thanks.
+>> Patch (2/2):
+>>   - Adjust the position of #include <linux/clk.h>;
+>>   - Remove struct ls2x_i2c_chip_data and use macro to describe div;
+>>   - Use div instead of factor in ls2x_i2c_adjust_bus_speed;
+>>   - Reverse the "if & else" code logic in ls2x_i2c_adjust_bus_speed;
+>>
+>> Link to V2:
+>> The PATCH v3 is incomplete, v4 is the replacement of v3, so the 
+>> previous patch link is v2.
+>>
+>> [PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency 
+>> properties
+>> https://lore.kernel.org/all/20260507081010.12810-1-wanghongliang@loongson.cn/ 
+>>
+>> [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+>> https://lore.kernel.org/all/20260507081010.12810-2-wanghongliang@loongson.cn/ 
+>>
+>>
+>> V2:
+>> [PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency 
+>> properties
+>> - Remove the custom properties clock-input and clock-div, use clock 
+>> framework;
+>> [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+>> - Use clock framework to obtain the i2c reference clock in dts.
+>>
+>> Link to V1:
+>> https://lore.kernel.org/all/20260325011852.19079-1-wanghongliang@loongson.cn/ 
+>>
+>>
+>> Hongliang Wang (2):
+>>    dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+>>    i2c: ls2x: Add clocks property parsing and adjust bus speed
+>>
+>>   .../bindings/i2c/loongson,ls2x-i2c.yaml       |  3 ++
+>>   drivers/i2c/busses/i2c-ls2x.c                 | 44 +++++++++++++++++--
+>>   2 files changed, 44 insertions(+), 3 deletions(-)
+>>
+Hi,
+
+Gentle ping on the v10 patch series. Please let me know if there are any 
+further changes needed.
+
+Best regards,
+Hongliang Wang
+
