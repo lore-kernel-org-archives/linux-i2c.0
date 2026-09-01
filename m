@@ -1,282 +1,222 @@
-Received: from GVXPR05CU001.outbound.protection.outlook.com (mail-swedencentralazon11013027.outbound.protection.outlook.com [52.101.83.27])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F383A20DD51;
-	Tue,  1 Sep 2026 07:30:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.83.27
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788247841; cv=fail; b=GDZCt0fUtM+9rkvX+7YWSKJqXWPsURk1wWTUvsWZb18xGZZTvD5prD+Z3sICMcgczzzkW6TwVbLkjtszul8rBpOQNbUgkQW0BouYAzot0+0it0GyQatJmBiga32VXh88pDviGh9Loz3VWzjdq65lWz7hJsaDzgybIT0IWIUIrgQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788247841; c=relaxed/simple;
-	bh=a9FIGQjxljXpgSKB/hpUwu8cL57zl154ZDUF2jts3BQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=k/b+5cDnfKdr9ouRqvoISy8GoI5YVAqoAPA8F0EA0BU/WsnwW8eMjrhmx5OrWYm3mkpzo3W/xWrfOLTpSIRfYjnrzp5xBNygmN73gHbLPgohasKoJ11rfuGp9afBYDYWtujgXgEWYTXcwwm+kLnoSAttMAppwmnQJWBKJfdzCK4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=o8OS5Yf9; arc=fail smtp.client-ip=52.101.83.27
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCC463B71A7
+	for <linux-i2c@vger.kernel.org>; Tue,  1 Sep 2026 07:49:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788248993; cv=none; b=SNdPhosP1qlwn+bHuPybB6vTRvQCoaBAnmqRQFY89Upw6LPtQHJU3L8Rp266O/EReDxowiaMvQ/PHeOHmJGIxJ/RUWt/gfBz46Cu90COO8lPxLTtDQBMGNGBG3QMlOLSDFedQjC0AKElZDCYuqt5BbYLY7Ei22ueZAoNgbIus6I=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788248993; c=relaxed/simple;
+	bh=KvANuwyiv8DCexxCu/aQYT4W/sj7Sy7QAkbUJMUn/G8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lhq3A9IIVIh2CQiYNACa9324oDl4RRorqyJ9/vK4gnNjjMgu7qnyCTW4Xbg2DYTt7cGl5AduwiYEg5sItSJhIZL6E714V2l/cGrq6iGXQDOBluYrRq2XM60hzlUWVTk5m46ulKOsLymKYMLrcu8tII9n/fbL6G2svV85lB9LBWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oPq+QfGO; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="o8OS5Yf9"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=dMufI3XdhRwwglY1M7FVmxXuZNUYVfIuqPkRRst00r957wx8ZG0puwJrzlacc2oAgKaB3GlOmo/NjzTSwyLOg7NyHNoqFFdrUXRpZ0t89NiMts4/U1mvDX8sEURaXgA/1r2jTnA9JoMU4qA4EJce5gXFlVl7AxtVNtP6Jwpc8ZoH3FFapgPgXWz79F75sGzikY+cFjBj3b4J5wOnYsOm9y3+mTNcMwKzG7MDPnKxbHU+37alKPYG5bj7tOdhK7EqhXlNfNXEUghcjVldfVihUtmNflwhDb1DBieUuIdtaV0kmALrtx4Ov/vb+Rswj6KHFim36KbxeCtUiL0/QIK48w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rBMiIV5LLYBQUX5h1N7iAs8P2UO30k5ckud1/y1WbCo=;
- b=D3WSIVTraOZdMY+1CPa3372rgQqzpnkapVwDLsyrLvS99PppKSIADCTQ0UHAn5n4bliDhkpBa9ATL7K351t4RoL2qvxKjglKBCIcLFZGiWDolmSsYkQtOTO79EJc+hmhB9ZKMKjZiOZA42j6A/hT2Gp8GqrxhJrvJk5LCG5EDMeKY+zQijRBltssqdDOBOJpFUw+aAtgYAeZi7SsEpGS92k6OHEXGbsf8iFzKSacBgUZpR9BNz9c+jRZeU9GlwFkIugV8qBlHgSNpiXYym0koC+zQsbdljUwGRefJn6h98ao897a4wuq4tio6jlH4tp+hbfGn6C29SCX7gww9qMtUA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rBMiIV5LLYBQUX5h1N7iAs8P2UO30k5ckud1/y1WbCo=;
- b=o8OS5Yf9vQYGdcQS5HOR56Rx8uR1cqHQXFmw9fxvSIWmgZwxQT2KaFpTkV5xQtb7rzkF4RNj3MFESp7iJ6wAyNMDsCn8o0e3KLwhnLELj0lWyQTUq6tBXrIq0SeoELy3caRiarR5Ok4zKpC1rqV0vi3GGzwmZddanMUS57LsG2Xk4cIF2z1raFg6y1My045CCwLI6X+cBKZtVhxKvFO1c/gT1ahfvzJB+9SEZbrPl+e69wqKAYHO+eA9AepbhU4yx82yvLgdQwm9qODg4Ea7p9BV/bY9LPLC7upAsJv/NzqSGGHgTjVLUsakPmzLxGDMlockyKKzmD5CHCZOq7mTlQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
- by AS4PR04MB9364.eurprd04.prod.outlook.com (2603:10a6:20b:4e9::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Tue, 1 Sep
- 2026 07:30:33 +0000
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51%3]) with mapi id 15.21.0382.007; Tue, 1 Sep 2026
- 07:30:33 +0000
-Message-ID: <301567b9-464a-45b4-9bf7-eac426b9aaf8@oss.nxp.com>
-Date: Tue, 1 Sep 2026 15:30:26 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] i2c: imx: honour I2C_M_IGNORE_NAK for write messages
-To: Haobin Jiang <lemonoutput@foxmail.com>, andi.shyti@kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260829142148.10536-1-lemonoutput@foxmail.com>
- <tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09@qq.com>
-From: Carlos Song <carlos.song@oss.nxp.com>
-In-Reply-To: <tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09@qq.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SG2P153CA0009.APCP153.PROD.OUTLOOK.COM (2603:1096::19) To
- AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oPq+QfGO"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2ceab75934dso52636185ad.2
+        for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 00:49:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1788248991; x=1788853791; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KfyZyO9Nh/74YiXm8QLieiH5kTcxaWjtqwY5nnPQU9w=;
+        b=oPq+QfGOdyDbJdf5os2Nj4sZ/3ZBDyIdkiPel3QR71dbgyrj6tcxQ+P54I0vyKXUYb
+         0HVn8ic6w0fca55aAWATynIoH7VSJcokMTlyz/6ytVOuPGBCaElUU8ThTdeUVBce68Ow
+         j43fnWQZKyWa8/G8JDe8VsYGBUjPQX89IbGGg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788248991; x=1788853791;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=KfyZyO9Nh/74YiXm8QLieiH5kTcxaWjtqwY5nnPQU9w=;
+        b=DWI3jmMemYqfdag62/NPz984GgKUtnaX86azbcsI3aKYsFhvooC5EIcem9sPb8iXT4
+         Krp/NtbT3DNrdan2HHj6D2ZHBgD5wNtiJj8d0bjyBG9dzelEqaTn++Oo5u/38Ji3IZ59
+         3bRcH1fZF2XwGR5HbJpgu4G+ic4DTgc+9Vsqe5FrBuqR4zeGnJcLJ4M+Kzmsd005UB2W
+         tyVWcIp2ec5xZXE97haoh252Yi6lARC5I+6+zeWs7gasR46QZ6kxCJrJpL1l4AmCB5kv
+         /LT/SRnr5RKM0urWS1yRQdSk9YAkGki6fNTEHdR45dni/+FgEDsFmdThUXGOaBNLs5tB
+         jfmw==
+X-Forwarded-Encrypted: i=1; AKwUvBwb7e0AW6GE4SioW8da2N63mORtR26fPcKRSlgJF/DwI3hgJUyOhYp7+uiA/JVrnwrJiCrbFt2FJGA=@vger.kernel.org
+X-Gm-Message-State: AFuF++nNKAN0So5DIAbiFxofXLICh9HGB6je02205g6tiwKsWQC4nayt
+	sJ/39WJVXae6xdg/E1g95is1mZRdF/EhA0spYrKveYEX/T6z/GbLqLx6Hklm9J0vnA==
+X-Gm-Gg: AYBFou0tlYHcEXUMOVmTJNai07d2b4BnCQzlKubH2KdB3725hG+LE1VZ2UOiwcA2j/f
+	e/0C9oSEspB4UQUFSE0ngSXxW2l14bMg0VLLuIFup2omm6Zrp1kymWdzFgzosun+/Y2Pbd/eTfG
+	/upk1C1kI4gkCBy4DiDh9ywaU2wwyYa9i82aAZRPPKJGr4KydI1jUrIzq28cBBp4m7lZ/WBrXc+
+	q11mGnAmqblMvJkY/6Z7FxApnm2CV5tFEHUYibFUCWIG3127mTp9zyt118wlmlQp7WlnFw/5My9
+	EKEnbkiSbfKeNcnQHknt8c9hNydrlBRLd/iq07a9t36QxobQZpr5W9geldWeP5RSWEpMNR6Xoxk
+	BNvaykr6BoDcq9XHnjlNy3Z+m+rw7CKn8vaCXxdMN6DmBlJSTk4eX7xNqNH+HV9qiORZl3Rtbw6
+	+B+w4uSoCv21dw+cWdM/F9ZmguSWbAvmhuepWtn4Y4i/4C5U+c5wGeH6HmMqeepGb7gOIodtEfr
+	Hlv05/vcOI7A6i9u479X0x7HC4bH4q/DPgy36favZo3YQ==
+X-Received: by 2002:a17:902:fdaf:b0:2d8:d4d0:792b with SMTP id d9443c01a7336-2d8d4d079a6mr348893415ad.15.1788248989697;
+        Tue, 01 Sep 2026 00:49:49 -0700 (PDT)
+Received: from wenst-7875.tpe.corp.google.com ([2a00:79e0:201d:8:8cf:6df0:9c4e:f5e1])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d75988b699sm48142515ad.59.2026.09.01.00.49.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2026 00:49:48 -0700 (PDT)
+From: Chen-Yu Tsai <wenst@chromium.org>
+To: Mark Brown <broonie@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Chen-Yu Tsai <wenst@chromium.org>,
+	Benson Leung <bleung@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	linux-mediatek@lists.infradead.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	chrome-platform@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v6 0/8] arm64: mediatek: Chromebook trackpad supply fixes
+Date: Tue,  1 Sep 2026 15:49:18 +0800
+Message-ID: <20260901074930.764550-1-wenst@chromium.org>
+X-Mailer: git-send-email 2.55.0.897.gb25b4bd76c-goog
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|AS4PR04MB9364:EE_
-X-MS-Office365-Filtering-Correlation-Id: fd7484d8-d607-43b0-a062-08df07fae86f
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|23010399003|366016|19092799006|376014|56012099006|10067099003|11063799006|4143699003|3023799007|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	zUmyX+ArUfIKL+DntYSzfQnUPo8q7iO6cCb0rGjpIkxeFLPLgPuiUf5kXJTulMqG70YzMqhPlhKEOluHh6/bIiUJB33vCFbgQlLJvS+yaCNr1Q2AncSUgJpVYR7obB6XXyb7Am5B1TtJqTo0T6Euo5ZsVfcNtXqc/1QTLENg0IAkpy/o1GlhRmIfkeu2J+Dh/mwGd+D5MylI6insZr4k9eV64QS5mI9uFP8wrNPLxoRJHmnSI37Do539jcnR55VuycUIQ3HD+MlekvPbeWMQEzFPwpIbvGjo7flfF/+RGK2duUTDB1ZtKa8hMlxD3eudgzg4MTVK/MTtF2m98Np2wbwd06nrWHFqFouINlWEDklFGBHtCTr0c27bUOUivKO1AyeoSxF6NrFPn9M7I4DRSct3vSJnbKA6edVxx+yuulgXes2edfjGJ8Dvt7cgS/8LmTaN+nPj4IOdOtI/S3hAWc61GZFNgfQFWV+T0txCda8zLlyB2lq7zz9bzGtXfkx8xQlnSuOpD1ONjHuFJ73WY96pt1aftAhqsp4iIlOBcDbwUl+NUdUUPxDcBr8aYejcDieuZs5DPLB7ex7GD/lVDyT3pB5bEVB1la7IWO3Tzls=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(23010399003)(366016)(19092799006)(376014)(56012099006)(10067099003)(11063799006)(4143699003)(3023799007)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MWZ2d08xRExlRXFqWVl3K1MzbGp5c0hpQm9mZnVnQmJPWCtMajBtbHBHSXN6?=
- =?utf-8?B?YVVFRENiS3ZzSXl1bGxHWHlKQ3ZsWUtKZ3Zna2JVMWZHeGRLeWREazJJcVBN?=
- =?utf-8?B?aGVVZ3JPcG15Y2dMNVpLc09IZlQ0SUtoODlnZTk0UnQwZ2VoTTZIK3d5amg3?=
- =?utf-8?B?VUcxckxycklOMEtCWjZxNEkxSXBQU1NIbTdadHpXR1Mwd2RlUDcyOFY3Ui9p?=
- =?utf-8?B?Z1p4VUJFUHBmMmxXcUlBTmozdjNheEdYV2VuZW9Qc2d1cmN1c2NPaG0zTGhN?=
- =?utf-8?B?UGFtNTd5cjE5QmZJMExTaUV5Ky8zZ3RLeVNSMHYrZ2xDQkkvT1dCRmI0dExa?=
- =?utf-8?B?SEZaZ21RQStiT1Y3Q3JyNUlUcE1oSVBjWjlkTStZbEJ5Rm1KVjc4SnQ2R0R3?=
- =?utf-8?B?enpid0s1QnFJZWtqZEl1bUlONWpCY1FPV3Nsbk1naXJEckNuZ0JvZFVTSDRk?=
- =?utf-8?B?cjU3ZEE1Wm1kQVUrQjI1TEt4b25ZZTNrQWxUOUorUW4ydlRuUG5ITU1IaG93?=
- =?utf-8?B?Z2txK2xQNGxzbWlRekg4V3N5RW5CRlQ0Vkc4SGZPRjBrUnE0RlZ5TkNIRnFC?=
- =?utf-8?B?QmZPb1FVKzFMekJtM2lIL2lYS0IrQWZZeDVxME9MQ2RjMUF2Rk1YRStaZ0c0?=
- =?utf-8?B?dVc3bGpEMzl3amlNYzNlbG50RURORFNKYTY0VEU2SmxtaDNSMEFIbk9TZk5Y?=
- =?utf-8?B?L0FXcUk4NFVxLzVRZVF0TW9jNjN3SkhHOVpOMUk1ZEVTVEhOR0V4M0NTSHZD?=
- =?utf-8?B?eVpmSUZIRFdpOEdEWUJ0Zk11dGc5NnJMYXRGL25KbWxFOW9NMFlQdXJsbzBN?=
- =?utf-8?B?ZXRzRGZpVVFkeUpMc0xBQkdpdDlWTG5FSXRjRDc3MUErMUtQNWRxcWFGbE9a?=
- =?utf-8?B?OFIreU9XaENKNkI1WTV1K1djeHBLa2drK21JLzhFcVJuRjVJeTR0b1Npd0lI?=
- =?utf-8?B?K0pLUmJmVEJxd1p4bjZXeTM2SGROYmpTQkNZWWZvV281aHgyVEFwdXN4VjV0?=
- =?utf-8?B?S3Z6cUFobFJaSXl6TXRGeDdVOE9FRDNBMHpLcmJRVWkrdFVPNkpCa3NaN2JD?=
- =?utf-8?B?ZlQ1VnJQOGQxdXQxbE5pRzlJei9SdGR6MHN1bk9UMnlObVU5UTlZWG5rdHRw?=
- =?utf-8?B?WElsSkxidWpVeVVabGxYbFJoc0R3WUg3TWNyWDd1UU0zVmNEREpkYWJNVlhI?=
- =?utf-8?B?L3EwSmR4aGdsM2g2TzNyaXBIdGJ3N1MrYlA4YTBtOGtLQ1NoaVFUdDZ3M0lC?=
- =?utf-8?B?UTlUUHR2VzQzb1p4MHZ3NUtBTXpWSTRWRndEeWpQdHI0NXdGQ1l5NE9HTmJw?=
- =?utf-8?B?LzN4ZnZMTkNJdW9WcUpRNXJ6Y2ovUzJyU0tWUWs5S1QvOUErcGdNRFU3b0NQ?=
- =?utf-8?B?L0hWa2YwTklvTnNkWUZ4cDRnTzFpSzZSSXppamh1L1ZScnhaQ0s5Ly9hMGxR?=
- =?utf-8?B?N3dRVHRDNTUxOHE1U0VzaGJNb3hUeC9BQXFTd09SaHh1RndhQkRGdVNIS0lm?=
- =?utf-8?B?aFNyWFRPMmZFQ2cxdCtISzNiaDJYcUlEdjR3OXVsVWR5cW9Qd1ZJK2NleGhD?=
- =?utf-8?B?VlowamxKSGdPVWhsOXN1U2RTQ2MxbEhRZm1CM3luNExXOS8vL3VRNkZIa1Ni?=
- =?utf-8?B?a3BBK1BoczRkK2ZSSndJR2hvRlZaQWI2dmRJVlhMeUhXenR1cnpYTHFvTWRt?=
- =?utf-8?B?N2xVMmJzTDNvYUlHd1NCS0hneFJhSFBmZTBON1VkM1IxcEJGN3ZIdGJnd1Zy?=
- =?utf-8?B?SUcxWnRVaHB6cDBUcVNnQkE0V0R5dDhWNjhoQ0dtZmZCZGd3VjFZMnYwV292?=
- =?utf-8?B?NFRiaGIzTHdLVDNkZFdYaWhUbStTdy9KMVhMcGdnR0UvSkFjQ1lSN2U3N0Ur?=
- =?utf-8?B?amhXVkpobTN4TFJnZ1l6ek1IRndxaXpIVlpxSFRFQ2pGWW5DTVd4MWFCWVZx?=
- =?utf-8?B?YkpRSWdZOVptSDFSYkV6cE5ja2lrM2hpdkQxTGxOUlBBQW1wcWZyWmV1SUYz?=
- =?utf-8?B?QTl5eWtUbmF6NHpTTjFDN05yTGtwd3hFR0dRMGpZN1VvclN5alB5Rm1Va1NU?=
- =?utf-8?B?Y3VkNHpjMzRuMGdoK2tsWDIrWE1wc1ZDM09HVzBpbnhhL05pQWNUYmxKWWtX?=
- =?utf-8?B?Qnd4cy80Sy95eDVackU4ekdJdzdsWCtSNWdZZ3N1ZW0wYkNOVU1Ydk12NkZ4?=
- =?utf-8?B?YnVTYzNuaVppTVg5SENScWkxMzFXYWF0dTBrR0loN1JKNTlVUVhvYXBOOXFL?=
- =?utf-8?B?UUZ2bktWeDVpS3NiWE9ENm1JbUNCZXhuUlVScDI2Q05WdXVvMlEzWHp5bGJR?=
- =?utf-8?B?d3QrV3hnbm16VGZkOW1OZWYxV002UHFxNTU4UjJ0S3M4Q1QwVDY3QT09?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fd7484d8-d607-43b0-a062-08df07fae86f
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2026 07:30:33.7745
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: m16eeNd0ma9eyANwhsuuE0zrvmgLJ/FCJEu20xFOvxiEu+0tXnUXHthMerGDG3v3MInDhQTLm5SEfRh+LvLGdw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS4PR04MB9364
+Content-Transfer-Encoding: 8bit
 
-Hi, Haobin
+Hi everyone,
 
-Thank you for your fix.
+This is v6 of my Chromebook trackpad supply fixes and optimization
+series.
 
-1. Please use ./scripts/checkpatch.pl to get all maintrainer and 
-reviewer and send your patch to every one and cc all subsystem.
-2. Notice sashiko has reported some issue about this fix[1]. I reviewed 
-the comments, they looks real, so you can try to fix in V2.
+Changes since v5:
+- Patch 1 (regulator)
+  - Correctly assign wait_us to all bulk consumers (Sashiko)
+  - Check _regulator_is_enabled() > 0 to check for enabled regulators
+    (Sashiko)
+  - Lock regulator_dev on final _regulator_is_enabled() check in
+    regulator_register() (Sashiko)
+  - Make it clear that _regulator_is_enabled_recursive() assumes that
+    supplies have been resolved (local AI review)
+  - Consider supply's last_on timestamp for regulators that are already
+    enabled or have no .is_enabled() ops (local AI review)
+- Added noautosel tag for some patches
+- Added patch to pass component probe success or not to cleanup callback
+  (patch 5)
+- Only defer regulator disable if a device was found (patch 6)
+- Link to v5:
+  https://lore.kernel.org/all/20260825041628.988369-1-wenst@chromium.org/
 
-[1] 
-https://sashiko.dev/#/patchset/tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09%40qq.com
+Changes since v4:
+- Made regulator core try to set last_on timestamp for regulators that
+  were left on by reset default or firmware, but not enabled in kernel
+- Dropped two patches that were merged
+- Link to v4:
+  https://lore.kernel.org/all/20260811122011.3539250-1-wenst@chromium.org/
 
-Best Regards,
-Carlos Song
-> The i.MX controller has no hardware "ignore NAK" enable bit and checks
-> each byte in software after transmitting it: i2c_imx_acked() on the
-> atomic and DMA paths, i2c_imx_isr_acked() on the non-DMA ISR path.  Any
-> NAK is treated as a fatal error and aborts the transfer with -ENXIO.
->
-> There are legitimate use cases where a target NAKs a write on purpose,
-> and when it does, the transfer needs to continue rather than abort.  The
-> standard way to express this is the I2C_M_IGNORE_NAK flag, which the
-> core honours through i2c_transfer_buffer_flags() only when the adapter
-> advertises I2C_FUNC_PROTOCOL_MANGLING.  The i.MX driver never advertised
-> it, so callers using the flag are rejected by the core before any byte
-> is sent.  One such caller is the in-tree crypto driver atmel-i2c.c,
-> whose wake sequence for the ATECC508A/608A requires exactly this: the
-> still-asleep device NAKs every byte of the wake token, and the write
-> must complete anyway.
->
-> Advertise I2C_FUNC_PROTOCOL_MANGLING and honour I2C_M_IGNORE_NAK on the
-> write path by passing it through to both ACK checks.  With the flag set a
-> NAK no longer aborts the transfer and the byte loop continues so the
-> remaining bytes are still transmitted.  The read path always passes
-> false, and every transfer without the flag keeps the previous behaviour
-> bit-for-bit unchanged.
->
-> No retry is introduced: the meaning of a NAK is device-specific [1], so
-> it stays a device-driver decision.  I2C_M_IGNORE_NAK is only honoured
-> when the device driver explicitly sets it, which is exactly how the flag
-> is meant to be used.
->
-> Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1467900229-5262-1-git-send-email-tharvey@gateworks.com/ # [1]
-> Link: https://lore.kernel.org/linux-i2c/4D46D571.5010907@armadeus.com/ # [2]
-> Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1378857490-30968-1-git-send-email-luka@openwrt.org/ # [3]
-> Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
-> ---
->   drivers/i2c/busses/i2c-imx.c | 27 ++++++++++++++++++---------
->   1 file changed, 18 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 28313d0fad37..737c19688ecc 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
->          return 0;
->   }
->
-> -static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
-> +static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
->   {
->          if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
-> +               if (ignore_nak)
-> +                       return 0;
-> +
->                  dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
->                  return -ENXIO;  /* No ACK */
->          }
-> @@ -968,11 +971,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
->          return ret;
->   }
->
-> -static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
-> +static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
-> +                                   bool ignore_nak)
->   {
->          i2c_imx->isr_result = 0;
->
->          if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
-> +               if (ignore_nak)
-> +                       return 0;
-> +
->                  i2c_imx->state = IMX_I2C_STATE_FAILED;
->                  i2c_imx->isr_result = -ENXIO;
->                  wake_up(&i2c_imx->queue);
-> @@ -985,7 +992,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
->   {
->          int result;
->
-> -       result = i2c_imx_isr_acked(i2c_imx);
-> +       result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
->          if (result)
->                  return result;
->
-> @@ -1002,7 +1009,8 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
->          int result;
->          unsigned int temp;
->
-> -       result = i2c_imx_isr_acked(i2c_imx);
-> +       /* Read path always checks NAK; I2C_M_IGNORE_NAK is write-only. */
-> +       result = i2c_imx_isr_acked(i2c_imx, false);
->          if (result)
->                  return result;
->
-> @@ -1213,7 +1221,7 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
->          if (result)
->                  return result;
->
-> -       return i2c_imx_acked(i2c_imx);
-> +       return i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
->   }
->
->   static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
-> @@ -1227,7 +1235,8 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
->          result = i2c_imx_trx_complete(i2c_imx, !use_dma);
->          if (result)
->                  return result;
-> -       result = i2c_imx_acked(i2c_imx);
-> +       /* Read address NAK must always be reported; I2C_M_IGNORE_NAK is write-only. */
-> +       result = i2c_imx_acked(i2c_imx, false);
->          if (result)
->                  return result;
->
-> @@ -1358,7 +1367,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
->          result = i2c_imx_trx_complete(i2c_imx, true);
->          if (result)
->                  return result;
-> -       result = i2c_imx_acked(i2c_imx);
-> +       result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
->          if (result)
->                  return result;
->          dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
-> @@ -1372,7 +1381,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
->                  result = i2c_imx_trx_complete(i2c_imx, true);
->                  if (result)
->                          return result;
-> -               result = i2c_imx_acked(i2c_imx);
-> +               result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
->                  if (result)
->                          return result;
->          }
-> @@ -1697,7 +1706,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
->   static u32 i2c_imx_func(struct i2c_adapter *adapter)
->   {
->          return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-> -               | I2C_FUNC_SMBUS_READ_BLOCK_DATA;
-> +               | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_PROTOCOL_MANGLING;
->   }
->
->   static const struct i2c_algorithm i2c_imx_algo = {
-> --
-> 2.34.1
+Changes since v3:
+- Added __private modified to regulator_bulk_data.wait_us field and
+  switched to ACCESS_PRIVATE accessor for the field (Andy)
+- Moved wait outside regulator lock scope (Sashiko)
+- Moved "remaining" value assignment closer to conditional (Andy)
+- Fixed variable unit name in regulator_enable_and_wait() prototype
+  (Andy, Sashiko)
+- Added commit message section showing average delay needed for I2C
+  prober (patch 6) (Andy)
+- Link to v3:
+  https://lore.kernel.org/all/20260721075226.2347933-1-wenst@chromium.org/
+
+Changes since v2:
+- Added new regulator "enable and wait" functions that wait until at
+  least the given amount of time has passed since the regulator was
+  last enabled.
+- Converted patches to use the new functions
+- New header inclusion cleanup patch for elan_i2c driver
+
+This series fixes the trackpad descriptions on some MediaTek-based
+Chromebooks: either the trackpad's supply was set as always-on to
+workaround missing delays in the driver, or the delay and supply
+are missing from the trackpad's device node.
+
+v1 was just the first patch [1]. It has since grown to cover multiple
+drivers and devices.
+
+
+Patch 1 adds new "enable and wait" functions for single and bulk
+regulator enable.
+
+Patch 2 adds the correct enable delay after enabling the supply regulator
+for the Elan trackpad to initialize. This uses the new "enable and wait"
+regulator enable function.
+
+Patch 3 applies the same logic of skipping the power on delay to the
+i2c-hid-of driver.
+
+Patch 4 applies the same logic of skipping the power on delay to the
+i2c OF component prober library.
+
+Patch 5 makes the I2C component prober let the cleanup callback know
+whether a component was found and enabled. Needed for the next patch
+to only delay calling regulator_disable() if a component was enabled.
+
+Patch 6 adds a delay between when the device node found is enabled and
+when regulator_disable() is called. This gives an asynchronously probing
+driver some time to increment the enable count of their regulator
+reference, thus keeping the device operational and allowing the driver
+to skip the initialization delay.
+
+Patch 7 removes the "always-on" setting from the trackpad supply for
+Elm / Hana and adds the correct delay to the second source trackpad.
+This corrects the hardware description. Should not be backported without
+the other driver patches.
+
+Patch 8 adds the supply and power on delay properties to the Synaptics
+trackpad on the Spherion device. Combined with previous driver changes
+this should cause no actual functional changes or delays.
+
+
+Please take a look. Patches 2, 3, and 4 have build time dependencies
+on patch 1. I suggest placing patch 1 on a separate immutable branch
+or tag for the other maintainers to pull in. The three patches all have
+different maintainers.
+
+The DT changes must go in after all the driver changes land, especially
+patch 2 that adds delays to the Elan trackpad driver. Otherwise the user
+could potentially end up with a non-functional trackpad on the device.
+
+
+Thanks
+ChenYu
+
+[1] https://lore.kernel.org/all/20241001093815.2481899-1-wenst@chromium.org/
+
+Chen-Yu Tsai (8):
+  regulator: core: Add "enable and wait" functions
+  Input: elan_i2c - Wait for initialization after enabling regulator
+    supply
+  HID: i2c-hid-of: skip post-power-on delay if powered on sufficiently
+    long
+  i2c: of-prober: skip post-power-on delay if powered on sufficiently
+    long
+  i2c: of-prober: Let cleanup op know if a device was found
+  i2c: of-prober: Defer regulator_disable() on successful probe in
+    simple helper
+  arm64: dts: mediatek: mt8173-elm-hana: Unmark trackpad supply as
+    always-on
+  arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics
+    trackpad's supply
+
+ .../boot/dts/mediatek/mt8173-elm-hana.dtsi    |   8 +-
+ arch/arm64/boot/dts/mediatek/mt8173-elm.dtsi  |   1 -
+ .../mediatek/mt8192-asurada-spherion-r0.dts   |   2 +
+ drivers/hid/i2c-hid/i2c-hid-of.c              |   9 +-
+ drivers/i2c/i2c-core-of-prober.c              |  34 +++--
+ drivers/input/mouse/elan_i2c_core.c           |   7 +-
+ drivers/regulator/core.c                      | 129 ++++++++++++++++--
+ include/linux/i2c-of-prober.h                 |   7 +-
+ include/linux/regulator/consumer.h            |  21 ++-
+ include/linux/regulator/driver.h              |   2 +
+ 10 files changed, 172 insertions(+), 48 deletions(-)
+
+-- 
+2.55.0.897.gb25b4bd76c-goog
+
