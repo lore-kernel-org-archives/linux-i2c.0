@@ -1,128 +1,281 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from canpmsgout11.his.huawei.com (canpmsgout11.his.huawei.com [113.46.200.226])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B91DB3246E8;
-	Tue,  1 Sep 2026 01:14:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3869532C8B;
+	Tue,  1 Sep 2026 06:31:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.226
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788225269; cv=none; b=MlloYTz3d2nrSgUOLQiG8cia8P9sBmOipxina1wiMKhvPzkzBoHNOB/lonyVrW3/RSxbhzZ7OFIHGcE2Z0wgbJrTQjg6KYFZQTpAWPRoBzIM4k3ftQWUco0VRT6PBAGsqjbs9PlgJj9X+XG1kAiGFzoSVDABeztuL/IR3aZE1ew=
+	t=1788244291; cv=none; b=sQK0MiPt1kxNNDTEowvaIIIu4jlI84QumKFLj31hh8cJj0YtGyUwVnv2KqOkA8EIWZzHPu30IN1Y4cI+YMEtoHHY2tPtlTtRNxOudg/8MV1xSSBjyqvX02zoxKT7wH/aO1UQnaZURdPORgdimg5EPIWb/MxOTds8cadA/YsvVd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788225269; c=relaxed/simple;
-	bh=/4ZrUkLqJAvESICKjzIdoCM6XgatbEzSBP25ZzLHJTE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hqeu4q50WbMDO/lbCPG5CD5j12E/9lHRLak+Xp9e5FoOwpIPy7AzWUi6xgzu+kgrPPqCJWQfYQDQ7kUyCgQlHWqJzBN8D+j2C1Z+h0WBUC5MkyT4K1gigX87SFyAuCElIqZt9mjh1txYEXEozVjQU15oxZ3a0956P1GyDUsqZJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hkgZ4AZR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788244291; c=relaxed/simple;
+	bh=MbCpqrAz9XVHws8GZnwRcGYkEdaC4NWF2HPckEU1dzU=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=W3ib5/usgwImInSvde34XMzg90VdeqNPlx3cwrwvKkpARWSpDmVaikSRc7IQz04Wq/bgyrC7NVOptqvUDWCgk+T1oVWTtWIIG9MiT4Mjhm88BaP93WZWyc0I6MeXK/SC24EDDpaMG5B/tTphgQ2XBp7DDXj9iMLZKQhgiRGVJhk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=pIQ1j/EY; arc=none smtp.client-ip=113.46.200.226
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hkgZ4AZR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB7C1F000E9;
-	Tue,  1 Sep 2026 01:14:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788225266;
-	bh=zotEN213Rc8xR+NuDKzpDkGMQKwazNvNPLziMG6ggbo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=hkgZ4AZRBqBlv63hN21mgfLdqvV+3wLTA13XRbKGJQskycp7yQC+GhdXe7NNTX1Nv
-	 1sfJGhxI+g5/ocMLPewgvEOzUrajd2YHRqJKnqZhcqY9RGekHGIefCjDCijwkDTVAp
-	 U46RhUo5uNIdGDcDrONeIt5XFIFHst3a4olNUnvj2YQ378xw7XwhsI5BqrQ8bJbG2f
-	 VNiMcchnD3hsrHAJo0ODR5/bQ6qeQh5UxAvlglXm7asNYta/lCzDfHIzTUUyqfqiZO
-	 ChaT7OOVUrZHmE6D+WgHSTfzPPbLvia2pDXcodwm/TTUkyZ035v/BWOmmNFVMMbh7j
-	 TEQFvKZFBz3Vw==
-Date: Tue, 1 Sep 2026 02:14:20 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Cc: lars@metafoo.de, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
- rust-for-linux@vger.kernel.org, andi.shyti@kernel.org,
- wsa+renesas@sang-engineering.com, ojeda@kernel.org, dakr@kernel.org,
- igor.korotin@linux.dev, branstj@gmail.com, brucer42@gmail.com
-Subject: Re: [RFC PATCH v5 2/3] rust: add minimal IIO subsystem abstractions
-Message-ID: <20260901021420.144a64d3@jic23-huawei>
-In-Reply-To: <CAO26r3RLnX4HXrKDF6akmG722Q2CvDU-uJ40Yfuu_wwJdGgA9g@mail.gmail.com>
-References: <20260822062725.60519-1-muchamadcoirulanwar@gmail.com>
-	<20260822062725.60519-3-muchamadcoirulanwar@gmail.com>
-	<20260824010726.2849f3d8@jic23-huawei>
-	<CAO26r3RLnX4HXrKDF6akmG722Q2CvDU-uJ40Yfuu_wwJdGgA9g@mail.gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="pIQ1j/EY"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=c2wrXt1wZ0+107C+PGgbRwAJCxhyuAZsKjw2kaA5z2w=;
+	b=pIQ1j/EY+Wu41N+Hx0MDqfATI7sgaoJBin8TrS3SPQSBB5H6bkBYkMnPz1xm0miF0xifMUfXh
+	MlzcbPvuLCUOJdy5RGOiwgcOJYWu22qmIdPAVlIKY14Rtsu4jtw+t8JtrpmNvqhUjQfucZEmsZ4
+	/6vV/xuqkxzxZ7qGmsyXdOQ=
+Received: from mail.maildlp.com (unknown [172.19.163.127])
+	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4hYwhT1KqdzKm5m;
+	Tue,  1 Sep 2026 14:20:25 +0800 (CST)
+Received: from kwepemo100017.china.huawei.com (unknown [7.202.195.215])
+	by mail.maildlp.com (Postfix) with ESMTPS id 28646402AB;
+	Tue,  1 Sep 2026 14:31:18 +0800 (CST)
+Received: from localhost.localdomain (10.50.163.32) by
+ kwepemo100017.china.huawei.com (7.202.195.215) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.36; Tue, 1 Sep 2026 14:31:17 +0800
+From: Bowen Yu <yubowen8@huawei.com>
+To: <linuxarm@huawei.com>, <liudingyuan@h-partners.com>,
+	<andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <zhanjie9@hisilicon.com>, <prime.zeng@hisilicon.com>,
+	<wanghuiqiang@huawei.com>, <xuwei5@huawei.com>, <yubowen8@huawei.com>,
+	<zhangpengjie2@huawei.com>
+Subject: [PATCH v2] i2c: hisi: Add I2C bus recovery support
+Date: Tue, 1 Sep 2026 14:31:16 +0800
+Message-ID: <20260901063116.3438094-1-yubowen8@huawei.com>
+X-Mailer: git-send-email 2.33.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemo100017.china.huawei.com (7.202.195.215)
 
-On Fri, 28 Aug 2026 13:53:11 +0700
-Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com> wrote:
+When the I2C bus is stuck due to a slave device holding SDA low
+(e.g. during an incomplete transfer), the master has no way to recover
+the bus through normal operation. Add bus recovery support using the
+subctrl register to manually toggle SCL and generate clock pulses to
+release the bus.
 
-> Hi Jonathan,
-> 
-> On Mon, 24 Aug 2026 at 07:07, Jonathan Cameron <jic23@kernel.org> wrote:
-> > This looks fine to me subject to a few little things - see inline.
-> >
-> > However I didn't take the time to decode every line of rust today so there were bits
-> > I simply didn't understand yet.  So for this to be able to move forward I'm going
-> > to need reviews from rust experts!  
-> 
-> Thanks for the review. I'll add an explicit review request to Danilo
-> and Igor in the v6 cover
-> letter.
-> 
-> Brandon Saint-John has been CC'd since v2 and reviewed the series at
-> v3. If he has time to look at it again, a Reviewed-by from him on the
-> Rust abstractions would be welcome.
+The recovery is performed via a second register resource (sctrl_base)
+that provides direct control over SCL/SDA lines through mux and
+output-enable bits. After recovery, the I2C controller is reset through
+the ACPI _RST method and reconfigured.
 
-Sounds good.
+Recovery is only registered when the subctrl resource is provided in
+the firmware description, keeping backward compatibility with existing
+platforms.
 
-> > > +
-> > > +/// C-compatible trampoline for the `iio_info.read_raw` callback.
-> > > +///
-> > > +/// # Safety
-> > > +///
-> > > +/// This function is only called by the IIO core via the `read_raw` function
-> > > +/// pointer in `iio_info`. The IIO core guarantees:
-> > > +/// - `indio_dev` is a valid `iio_dev` allocated by `iio_device_alloc`.
-> > > +/// - `chan` points to a valid channel spec from the device's channel array.
-> > > +/// - `val` is a valid non-null pointer to a writable `int`.
-> > > +/// - `val2` is a valid non-null pointer to a writable `int`. The IIO core
-> > > +///   always passes stack-allocated storage for both, regardless of whether
-> > > +///   the driver uses `val2` (e.g. `IIO_VAL_INT` only writes `val`; `val2`  
-> >
-> > That val2 is always a valid pointer smells a bit like the c interface leaking
-> > into the rust.  I'm not necessarily against that being a constraint we take
-> > on but I'm not sure how we document that. Probably add something to the C docs.
-> > Any C driver relying on this today is probably buggy for other reasons.  
-> 
-> As you suggested, I'll add a note to the C-side iio_info.read_raw
-> documentation in include/linux/iio/iio.h. The IIO core always passes
-> stack-allocated storage for both val and val2 regardless of which
-> IIO_VAL_* type the driver returns, so the assumption holds, it just
-> isn't written down anywhere. I'll also note it in the SAFETY block of
-> read_raw_callback.
+Signed-off-by: Bowen Yu <yubowen8@huawei.com>
+---
+v1 -> v2:
+	-Guard all ACPI-specific calls and the recovery_init body with
+	#ifdef CONFIG_ACPI.
+---
+ drivers/i2c/busses/i2c-hisi.c | 147 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 147 insertions(+)
 
-Perfect. Thanks.  There are a lot of little things like this that we
-don't document well on the C side of things.  Big advantage of your
-work is it'll help us clean some of that up.
+diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+index ba5c9579ae19..ac69a2645d0b 100644
+--- a/drivers/i2c/busses/i2c-hisi.c
++++ b/drivers/i2c/busses/i2c-hisi.c
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2021 HiSilicon Technologies Co., Ltd.
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/bits.h>
+ #include <linux/bitfield.h>
+ #include <linux/clk.h>
+@@ -62,6 +63,8 @@
+ #define HISI_I2C_INT_CLR		0x0048
+ #define HISI_I2C_INT_MASK		0x004C
+ #define HISI_I2C_TRANS_STATE		0x0050
++#define   HISI_I2C_TRANS_STATE_SDA_LEVEL	BIT(5)
++#define   HISI_I2C_TRANS_STATE_SCL_LEVEL	BIT(6)
+ #define HISI_I2C_TRANS_ERR		0x0054
+ #define HISI_I2C_VERSION		0x0058
+ 
+@@ -86,9 +89,26 @@
+ #define NSEC_TO_CYCLES(ns, clk_rate_khz) \
+ 	DIV_ROUND_UP_ULL((clk_rate_khz) * (ns), NSEC_PER_MSEC)
+ 
++/*
++ * SUBCTRL SC_I2C_CTRL register
++ * Set HISI_I2C_CTRL_DAT_CFG_EN and HISI_I2C_CTRL_SCL_CFG_EN to control
++ * I2C pin behavior by subctrl controller; use HISI_I2C_CTRL_DAT_OE and
++ * HISI_I2C_CTRL_CLK_OE to control input or output; use HISI_I2C_CTRL_SDA_OUT
++ * and HISI_I2C_CTRL_SCL_OUT to control output value.
++ */
++#define HISI_I2C_CTRL_DAT_CFG_EN BIT(5)
++#define HISI_I2C_CTRL_SCL_CFG_EN BIT(4)
++#define HISI_I2C_CTRL_DAT_OE BIT(3)
++#define HISI_I2C_CTRL_CLK_OE BIT(2)
++#define HISI_I2C_CTRL_SDA_OUT BIT(1)
++#define HISI_I2C_CTRL_SCL_OUT BIT(0)
++
++#define HISI_I2C_RECOVERY_REG_SIZE 4
++
+ struct hisi_i2c_controller {
+ 	struct i2c_adapter adapter;
+ 	void __iomem *iobase;
++	void __iomem *sctrl_addr;
+ 	struct device *dev;
+ 	struct clk *clk;
+ 	int irq;
+@@ -108,8 +128,14 @@ struct hisi_i2c_controller {
+ 	struct i2c_timings t;
+ 	u32 clk_rate_khz;
+ 	u32 spk_len;
++
++	/* Bus recovery */
++	struct i2c_bus_recovery_info rinfo;
++	acpi_handle acpi_handle;
+ };
+ 
++static void hisi_i2c_configure_bus(struct hisi_i2c_controller *ctlr);
++
+ static void hisi_i2c_enable_int(struct hisi_i2c_controller *ctlr, u32 mask)
+ {
+ 	writel_relaxed(mask, ctlr->iobase + HISI_I2C_INT_MASK);
+@@ -151,6 +177,123 @@ static void hisi_i2c_handle_errors(struct hisi_i2c_controller *ctlr)
+ 	}
+ }
+ 
++static int hisi_i2c_recovery_get_scl(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
++
++	return !!(reg & HISI_I2C_TRANS_STATE_SCL_LEVEL);
++}
++
++static int hisi_i2c_recovery_get_sda(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
++
++	return !!(reg & HISI_I2C_TRANS_STATE_SDA_LEVEL);
++}
++
++static void hisi_i2c_recovery_set_scl(struct i2c_adapter *adap, int val)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg;
++
++	reg = readl(ctlr->sctrl_addr);
++	if (val)
++		reg |= HISI_I2C_CTRL_SCL_OUT;
++	else
++		reg &= ~HISI_I2C_CTRL_SCL_OUT;
++	writel(reg, ctlr->sctrl_addr);
++}
++
++static void hisi_i2c_prepare_recovery(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg;
++
++	reg = readl(ctlr->sctrl_addr);
++	reg |= HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN |
++		   HISI_I2C_CTRL_CLK_OE | HISI_I2C_CTRL_SCL_OUT;
++	reg &= ~HISI_I2C_CTRL_DAT_OE;
++	writel(reg, ctlr->sctrl_addr);
++}
++
++static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg;
++
++	reg = readl(ctlr->sctrl_addr);
++	reg &= ~(HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN);
++	writel(reg, ctlr->sctrl_addr);
++
++	/*
++	 * Invokes the specific ACPI method "_RST" to trigger a soft reset
++	 * of the I2C controller to help the I2C controller recover from
++	 * the abnormal state after the bus recovery process.
++	 */
++#ifdef CONFIG_ACPI
++	if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
++		acpi_status status;
++
++		status = acpi_evaluate_object(ctlr->acpi_handle, "_RST", NULL, NULL);
++		if (ACPI_FAILURE(status))
++			dev_err(ctlr->dev, "_RST method failed: %s\n",
++				acpi_format_exception(status));
++	}
++#endif
++	hisi_i2c_configure_bus(ctlr);
++}
++
++static int hisi_i2c_get_bus_recovery_res(struct hisi_i2c_controller *ctlr,
++					 struct platform_device *pdev)
++{
++	struct resource *res0;
++
++	res0 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++
++	if (!res0 || resource_size(res0) != HISI_I2C_RECOVERY_REG_SIZE)
++		return -ENODEV;
++
++	ctlr->sctrl_addr = devm_ioremap_resource(&pdev->dev, res0);
++	if (IS_ERR(ctlr->sctrl_addr)) {
++		ctlr->sctrl_addr = NULL;
++		return -ENOMEM;
++	}
++
++	return 0;
++}
++
++#ifdef CONFIG_ACPI
++static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr)
++{
++	struct platform_device *pdev = to_platform_device(ctlr->dev);
++	struct i2c_adapter *adapter = &ctlr->adapter;
++	int ret;
++
++	if (acpi_disabled)
++		return -ENODEV;
++
++	ret = hisi_i2c_get_bus_recovery_res(ctlr, pdev);
++	if (ret)
++		return ret;
++
++	ctlr->rinfo = (struct i2c_bus_recovery_info){
++		.get_scl = hisi_i2c_recovery_get_scl,
++		.get_sda = hisi_i2c_recovery_get_sda,
++		.set_scl = hisi_i2c_recovery_set_scl,
++		.prepare_recovery = hisi_i2c_prepare_recovery,
++		.unprepare_recovery = hisi_i2c_unprepare_recovery,
++		.recover_bus = i2c_generic_scl_recovery,
++	};
++	adapter->bus_recovery_info = &ctlr->rinfo;
++	ctlr->acpi_handle = ACPI_HANDLE(ctlr->dev);
++	return 0;
++}
++#else
++static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr) { return -ENODEV; }
++#endif /* CONFIG_ACPI */
++
+ static int hisi_i2c_start_xfer(struct hisi_i2c_controller *ctlr)
+ {
+ 	struct i2c_msg *msg = ctlr->msgs;
+@@ -504,6 +647,10 @@ static int hisi_i2c_probe(struct platform_device *pdev)
+ 	adapter->dev.parent = dev;
+ 	i2c_set_adapdata(adapter, ctlr);
+ 
++	ret = hisi_i2c_recovery_init(ctlr);
++	if (ret)
++		dev_info(ctlr->dev, "I2C bus recovery not available\n");
++
+ 	ret = devm_i2c_add_adapter(dev, adapter);
+ 	if (ret)
+ 		return ret;
+-- 
+2.33.0
 
-> 
-> 
-> > > +        Ok(IioVal::Fractional(v, v2)) => {
-> > > +            // SAFETY: both `val` and `val2` are valid per the Safety contract.
-> > > +            unsafe {
-> > > +                *val = v;
-> > > +                *val2 = v2.get();  
-> >
-> > Why get in some places and not others?  May well be a gap in my really limited
-> > rust knowledge.  
-> 
-> This came up in v3 and I answered it then but forgot to add the comment
-> as I said I would. IioVal::Fractional holds a NonZeroI32 denominator to
-> prevent division-by-zero in iio_format_value(). NonZeroI32 is a newtype
-> wrapper over i32, so .get() is needed to extract the inner i32. The
-> other variants hold plain i32 and don't need it. I'll add an inline
-> comment in v6.
-
-Ah.  This is my lack of rust knowledge (and forgetfulness).  I'd avoid
-putting too many comments in for the benefit of folk like me who are
-still failing to find the time to learn rust :(  
-
-Jonathan
