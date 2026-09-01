@@ -1,100 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 584783624B8;
-	Mon, 31 Aug 2026 21:27:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07AE83806D6;
+	Tue,  1 Sep 2026 01:11:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788211643; cv=none; b=UJZLAysjn3yEsu8xROSZZlDFHYc+2LS6axtYWqCc3gxLdWXZFysknThzD3lMWhpC/SGabTu5hPS9olNd+zQRHgOly/YY3pdFz0S8Q3S01Gp/nOAKAOyh2QxoFMCzHURTWjfI1tcZf3R2MIQCtiX9PtiHEaYhqeNNz5fO8p9HwTE=
+	t=1788225063; cv=none; b=pjcQl5MbewP4Tw+jCtUEHvO/Q0RWn+u6obIUkeeWt5HFe6a2xK8LlRJfitIVkc3R2e8qdeOo3u7AOCSSV43GBMEEbWLZNeW8GCVrxLrSmL13ECnCokavIhS1wGqRzb3+RikUgzoFN31y2far+s6Z3GoGnvKJDxNYpn95C3ANi0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788211643; c=relaxed/simple;
-	bh=UWkAB/0UN0jAczMe5AfSqL0s1dlXiU0QWMONLCr0qvE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wum9iAuT0peKd7s2ZWJek6/SWOIfwF7iZYkQIS3mJxXHNrwRnJ96wG0Hpi6ONMWV+aUx9o3iIVhsLjeGedMTLJLzvD0MVa2fkhubyITcqndS+vvVXaSeR/Frg31ehbI2vX7PtTbLRlpgvHdP3O/v79O6RdCxj6UhqNJDGIZxAQ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B5Wg3vRF; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788225063; c=relaxed/simple;
+	bh=0ziwbXVvDByMOxnROMdlOL2td3Po88GNdFEjUfLDp6U=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jyXR1NvZnlBxmS2qno1WyU3sP9TT07Tz7S9NRLUi2hJ5IM9RosCvc28OxcTbyV6wlf1Tqv99WdBduShA5YHNEbbGC4UMaEWIAo6A89WoudRMZ67/hgHMwtbHbaCm6fyvbBNSZvtDpqqPdjmZZKNSRd/orHnaKWT0JrQ5n31/P/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DKGnZ6/S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B5Wg3vRF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A7B1F000E9;
-	Mon, 31 Aug 2026 21:27:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DKGnZ6/S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B09751F00A3D;
+	Tue,  1 Sep 2026 01:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788211641;
-	bh=UWkAB/0UN0jAczMe5AfSqL0s1dlXiU0QWMONLCr0qvE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=B5Wg3vRFGUo/ZoMi0Kd9Mepopts3nZTxI9uo7amXP04TaiWeNf9eDNLC4CyNIlO01
-	 Jr883+5+GPQ9HhKM/TaroYUonHwy4Ok6GcinzJznQEeLkRlpewaXwfivVhiTW9U/Mq
-	 Il76JpGMDjl37kEOvVRN0uBpp46GqKnx0zAAv93tUSeGcpKlaOJcugX0zpJ+QhlElM
-	 s6p4S3wckoXM0VPhh5+tfCAOSuoiZ8OafEGWcbxg9EEzN6dlrTfGsboCwxX86argFz
-	 HRMTWQNva1hq2bjmlEl4q16uN5PGThW/1wMTTPnyrBZIRtQiZOHB3+lvU8kkfSVjwM
-	 qfiyp9r3K7J2w==
-Date: Mon, 31 Aug 2026 22:27:13 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Jia Wang <wangjia@ultrarisc.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Anup Patel <anup@brainfault.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-	Jose Abreu <joabreu@synopsys.com>,
-	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-	Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>,
-	devicetree@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org,
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
-	dmaengine@vger.kernel.org
-Subject: Re: [PATCH 06/12] spi: dt-bindings: snps,dw-apb-ssi: Add compatible
- for UltraRISC DP1000 SoC
-Message-ID: <9bd5a17a-43a8-4e3b-bd12-ddde9265c2f0@sirena.org.uk>
-References: <20260824-ultrarisc-dts-v1-0-61ab7aebe9e5@ultrarisc.com>
- <20260824-ultrarisc-dts-v1-6-61ab7aebe9e5@ultrarisc.com>
+	s=k20260515; t=1788225059;
+	bh=Mox303Pdpou1cUvaJnui7WP6S+jeLI/A2ZYo0woZKgw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=DKGnZ6/SI4kCSEs4CMAy6vatVhx6DWp5i3DIoI+SKaSqn9JJ6PqUYroySB33TOUkQ
+	 7eleCtEW1LcRzK2L3PwnZw+gddbb/yOt/fsjiDtVbSUcLxAc1xULZZOEOv1j2bf76G
+	 AhMl+6tB0CpPcnvLnjTR2KdUL9MKddXRA2YZZM+akbrqvfJBHXd0TBIQn5QBmf9Gyd
+	 r6k+wL4W/vFzvGXNMBF/tSkfZ+NdItdDGNN+yXwRcU2h1i5PhmTpqgSn9qR/7l69ja
+	 ERZefz1kpRf+/qzVaE5XoiDvIFuFnFuImr9leJH9/AQVHbj0ZXWITKA0QZ3VexpdzW
+	 iXiYuQeK4hKig==
+Date: Tue, 1 Sep 2026 02:10:54 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>, lars@metafoo.de,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-i2c@vger.kernel.org, rust-for-linux@vger.kernel.org,
+ andi.shyti@kernel.org, wsa+renesas@sang-engineering.com, ojeda@kernel.org,
+ dakr@kernel.org, igor.korotin@linux.dev, branstj@gmail.com,
+ brucer42@gmail.com
+Subject: Re: [RFC PATCH v5 1/3] i2c: rust: implement SMBus access via
+ IoBackend and FallibleIoCapable
+Message-ID: <20260901021054.057aab97@jic23-huawei>
+In-Reply-To: <CAO26r3QwUZ1QeO3PYNPoYQrbKpzfhttYAi0kNNB+QumAN=vZkQ@mail.gmail.com>
+References: <20260822062725.60519-1-muchamadcoirulanwar@gmail.com>
+	<20260822062725.60519-2-muchamadcoirulanwar@gmail.com>
+	<20260824004103.54eb2f7b@jic23-huawei>
+	<CAO26r3QwUZ1QeO3PYNPoYQrbKpzfhttYAi0kNNB+QumAN=vZkQ@mail.gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="q+7g5Wbpwns/c8Jq"
-Content-Disposition: inline
-In-Reply-To: <20260824-ultrarisc-dts-v1-6-61ab7aebe9e5@ultrarisc.com>
-X-Cookie: Chocolate chip.
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
+=20
+> > > +impl I2cClient<device::Bound> {
+> > > +    /// Returns an I/O handle for SMBus register access on this I2C =
+client.
+> > > +    ///
+> > > +    /// The returned handle provides fallible read/write methods for=
+ the
+> > > +    /// 256-byte SMBus command address space (0x00=E2=80=930xFF). Th=
+is is the SMBus
+> > > +    /// command byte range, NOT the 7-bit device address, which is h=
+andled
+> > > +    /// by the I2C core at the adapter level. =20
+> >
+> > That rather feels like you are correcting my confusion in the earlier v=
+ersion!
+> > I'd assume people are more awake than me and skip the NOT part ;) =20
+>=20
+> Sorry for the tone. I didn't mean to correct you. I'll drop that line.
 
---q+7g5Wbpwns/c8Jq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+No problem. It wasn't the tone (which was fine!) - just the excess detail.
 
-On Mon, Aug 24, 2026 at 01:54:19PM +0800, Jia Wang wrote:
-> Add the SoC-specific compatible string and use the generic one as fallback
-> for the UltraRISC DP1000 SPI controller.
+So dropping it works for me!
 
-This doesn't apply against current code, please check and resend.
+Jonathan
 
---q+7g5Wbpwns/c8Jq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmqV8bAACgkQJNaLcl1U
-h9DI8wf/eSvMfTYF0nSWOpBbx64lahzK6gdu0QfgliH0pyXLXPkDKM/MJk8BN5Mn
-h1/EIUG8xEEzzOTWbycIU1gyEVN1BSPELOL8mSJJg+5YS4SCKHjPLUvzHJUb+Tiv
-I41ubInBfOHEb15rEuP04UQovZYMvLCr/Grw4crXMM/hZW5RjdT48QhaltrjdbNT
-UOhg1ybDz4UzhD9ys7VACQ+U/cjjhbNezZZR4PaUST3pbURHoE9WFpohUbBhK5xT
-esoGPKe+DYO0LkRQ+SGGTekeE0q5hhwDGNp5F2rqqoz/8jUv5/iFlNsmUGvJQQAR
-0/8l/S9EqYMPbSKL1NQDqYdfFKPZQQ==
-=u+gt
------END PGP SIGNATURE-----
-
---q+7g5Wbpwns/c8Jq--
