@@ -1,215 +1,130 @@
-Received: from TY3P286CU002.outbound.protection.outlook.com (mail-japaneastazon11010005.outbound.protection.outlook.com [52.101.229.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E8A347AF63;
-	Tue,  1 Sep 2026 10:40:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.229.5
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788259218; cv=fail; b=Nspu0zAtXBeY9O7VvSYmys1+/TvmeL5yaPky2tNgcdh9vKjF55GaI6sN33onOrjWmNeb1Isr1FPCSJpM5mDNj00wThBBEsXDgPfkF/Jo2Opjwf0FGrPm6DGiRbS6KjT88aLixNiLwtCcDO2C0LB3N5UKtKq9zTa+srrCXgGFyoY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788259218; c=relaxed/simple;
-	bh=PYrgB27nHG47qDCrt407EGfzcdCYOMdeJN8Y6KjwzNw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=l5O4TgIJeh3wd9/iC/7tI7YdvqxH704S4sWaNpY7d2Pjp/oH0JT4Lk8m5r77kq0/pjjVNIAfRHEtGKFDvp5DofClmluHreq0eYmnFKeSergHNGEcXBCGG+/fzcXOWvrye1suszZf4yZWYRoCUOvLXNNMoPIYLBNGgWyvBWh+2tw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=renesas.com; spf=pass smtp.mailfrom=renesas.com; dkim=pass (1024-bit key) header.d=renesas.com header.i=@renesas.com header.b=IiqY+5nH; arc=fail smtp.client-ip=52.101.229.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=renesas.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=renesas.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77F0733C192;
+	Tue,  1 Sep 2026 14:02:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788271379; cv=none; b=nX8eVYba4J+a+eVijXHTAoGEiApyrHmwTEoFhzQ049ouvUfgTRONFJw2Bpxmn3SefItsnc8ygXOAUBZb6O9n7d0a/gKcVTaIMff5d7blumG2PjN7+HjYzO2189m6+JBcMRn/yLb6JtA7fkRmcufzfiFSa2r1hSpaekcF7SEhjAk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788271379; c=relaxed/simple;
+	bh=hWUJTaZkCXIjQprvWTtogTZt6wej3aAuj55Iw5RSm/c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lnuWbE4T43rm0b5ZQop7iLdTnRqdj8D0FWDWhVusNNWemZRu65Av7ml1eQICTb3YbCSrYO5xrTLFnlZOxk7I7u6VB8tSMXGMNXL//IpLQLRt9LZJc1ND/y2p+vevSD5oSJ2p7S9Ap/PpmVYsug/cEF3I36dBBHVxhPB77/EW5iA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EPtcXMbX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=renesas.com header.i=@renesas.com header.b="IiqY+5nH"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fS+8L5+Cf6AxfIyWIN/nLon5tgg9Q4mb3Ky74uM2LKTYIKhfXIdeBmXYKMIJc5vpwpFekfJWIgjrDMIzP/wYzJGjECdKHURpWMuVR81Y/lRKSXq0/fUMQ8cA9hm8ibv4DBT0J8xoKPxUko3uoZUPqC4CYLeY6lYH6Z2fvbQNIGST9Bke7RRYIdvzRtVcrmv/kq87lL+dssKo2LYXMVS2Jiz3rbP5WsHWlWTzx5hJ7163o4anf7RiQ3qIFRA+ntnun7yDmOsMOl2dG5952Yh/fnOwWZ1SJttDgWL1/m9GJ593W6mYaIVNQaC/eulpJKx7QDwVmix84GYtlrVRv11eDA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WVIaqheCLRNxrl2Vpb623NK2uyYfjazLDOATHqq5+/M=;
- b=c0nms/uo8CinS8BrcJNZKN5BL18FTTfjBu/4PlJ1RKCpBmYo3ODAnCGD8WhFHLo+JF1IgvpgVjVNaOk7PyV7p6qPaddBC4P7P9rJRPvbtMDbIPReVIkTT9Tom8c22dz//QO1vWugJ5tldAPTtWXcsW54uBCh7PscbCT2CnKnhYmvpZ5+ciM/8km+enSr9iMLuhWpWrjzB7suEJhv+/Vwo340WZoHdPCO5tSu0KyNPEY9SD5A/SMCPCsoO5E88pQ8wUc1RUz+O8Jp9l7fB3R0nMmhPmEx1XiEbRpftiCCwrgujMHVsbldQt77Ph+S4eKNdpX+TFce0VUlRskQEIukbA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WVIaqheCLRNxrl2Vpb623NK2uyYfjazLDOATHqq5+/M=;
- b=IiqY+5nHR6FVDzD6rSd8Bp10ClLhbUn9ajABcqhe5h3bOjNz8l45zlkPY4zUIKGXSs6E9C7qgHUbF2wfc3FQyvXLl1AhxqiVSGWiQA7Psj6F1CeaXo1Xpy0z4TLk1LVAQj6esKA8J9SraEpMGFOIg1uaqcQ4wzTkfukPr27pSRM=
-Received: from TYCPR01MB12093.jpnprd01.prod.outlook.com (2603:1096:400:448::7)
- by OS7PR01MB11582.jpnprd01.prod.outlook.com (2603:1096:604:243::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.10; Tue, 1 Sep
- 2026 10:40:11 +0000
-Received: from TYCPR01MB12093.jpnprd01.prod.outlook.com
- ([fe80::3468:d7ea:e817:1e6c]) by TYCPR01MB12093.jpnprd01.prod.outlook.com
- ([fe80::3468:d7ea:e817:1e6c%4]) with mapi id 15.21.0360.008; Tue, 1 Sep 2026
- 10:40:11 +0000
-From: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-To: Pengpeng Hou <pengpeng@iscas.ac.cn>
-CC: Andi Shyti <andi.shyti@kernel.org>, Philipp Zabel
-	<p.zabel@pengutronix.de>, "linux-i2c@vger.kernel.org"
-	<linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org"
-	<linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] i2c: rzv2m: fail probe on reset and runtime-PM errors
-Thread-Topic: [PATCH] i2c: rzv2m: fail probe on reset and runtime-PM errors
-Thread-Index: AQHdOIjcsCvbNqEeD0a/MEJ4Apv73ba5g7uA
-Date: Tue, 1 Sep 2026 10:40:11 +0000
-Message-ID:
- <TYCPR01MB12093CE7BCF79C0226A971ECAC2A82@TYCPR01MB12093.jpnprd01.prod.outlook.com>
-References: <20260830140709.28745-1-pengpeng@iscas.ac.cn>
-In-Reply-To: <20260830140709.28745-1-pengpeng@iscas.ac.cn>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=renesas.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TYCPR01MB12093:EE_|OS7PR01MB11582:EE_
-x-ms-office365-filtering-correlation-id: d7b62aab-daab-442d-27cb-08df0815665f
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|1800799024|366016|23010399003|376014|10067099003|22082099003|18002099003|56012099006|11063799006|5023799004|38070700021;
-x-microsoft-antispam-message-info:
- 7Gaj96yJslstWLptNDFb9MLL4Mwoco1MerL7yW7Bpx00T3VqAeqDEGc0rgItQOuKjE45GS5QOlwRS/UeFrCGnxFukk4bJMkafkmipOTXkJmlPr1spWVY6BhZBrFOsX+NtxTszztsnZFor+q4iaRaqBl+Hs8AgNeaS4ZVLStFrgpST8JN1Mj2NCcYoDuOCPOnvuYOBtFbJAl1R2jHAfqhXKMQffX5jp8lraMf0CTerQi2+5xyjtAgtRlMLIDDB0A+ivTJD5fLTlLXDoSdwuNnDtUBPun8cObuD0eAq/bjdZ4k8473g16fkbLjSh/CUkG4Ta4e2zfTXJ2Ji+Pawql4sTd8F+ahfJyuwbZXuDXXllCzKGcl66TBJA37UBTQ7C/jA/sc3hN005J64JAdoj3qwaBrzvU8txqgJFYbwb67KYXaXLi8zkeFho61xug0ohie6P6Yp4aN7JmT0LHQWetRCMB9zFkxjtcidl2jmhUrja6xa4wSlh/voWvog7+MXjWhtnlASsFACxW7vgNMc5CVZ0v5c/6gRiI3AAeGtvLzr+xDZ3P59U9fOrf9hOTGgbf5c/ZLeeJz0CIrsNI6tU2ztLxKUxwAimNJyRYpXvKykOHTagbRfd/4HIg91hWAjLNZVXWuwsSCXk+1QJaQRAW2UjolaMQNPxT/BNx6LMurpDtUBiEdIzrxfgYSe3Qb/6qT2fFYYaYMxKoeGqMwgE92Q8xMPrwkVTHx2xsstUN6OnI=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYCPR01MB12093.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(376014)(10067099003)(22082099003)(18002099003)(56012099006)(11063799006)(5023799004)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?qZw1lYOeoTdN2StQrtWBlHKEZQQMkMOA13HUGIjcj1og4lQIFdk7EOcnhSeJ?=
- =?us-ascii?Q?ZdqZXZepStrUr6OMp44capaj8IjYsPkP/E7Sz7bZacBbz6jdS8plTkA2X18+?=
- =?us-ascii?Q?fbhYXG4gbUJNzK6MVGXJ0hCpHp0fouPNyQ9OGBal3ji6Kzk7limuBnb5zPch?=
- =?us-ascii?Q?tX5lpGQF8l5mToKvRgiUAzioRUjEprCBTEzRUaqUcSCCNkR+iyFOj4XXqilI?=
- =?us-ascii?Q?8QRURylzAKeAT0ZLzF2DtPmNp6PQ7WXvyem8WmXgpq2ggoxshEkYYA4EjmMb?=
- =?us-ascii?Q?29xYCkybB9zv3Cuhs3Pz7yxeXBWi5SNQTlPlgMOt6RxzxMM/rcI1zFzcRHu4?=
- =?us-ascii?Q?6+Gjj+qRpCuK3n1dqi38AesdxAz2mKBVOXYH/o/K3i0Y4tJhur2DFFXpXVnL?=
- =?us-ascii?Q?wwCVZkrQYuV4S1GsFINmcRUeYnedCbkpwrIZ7x1wcPQYWWhxP4sLQl2yJVrF?=
- =?us-ascii?Q?kkA1IirrHgj6C1VlY+VoD2eA1w0wQ+eM5MVNL2lwJQy9rHSittfIRk2ZOqxM?=
- =?us-ascii?Q?/KvOXgh8YG5ijj31Uy/hrC6yIqyxzzrHTzHW02Z6LFvP1lyV7NxggVXvj+88?=
- =?us-ascii?Q?69pQCLeZSMpbU35+x+/y7l6Q+NqA7SppC8rqbigppba+3jMnPQOyx11H+C5Q?=
- =?us-ascii?Q?l27/6hiMil+FzST8sCO5XgwkFzaexAcq/yRJWTU1KwoMoz8vxDVZVUdyatIL?=
- =?us-ascii?Q?gSILEOGs4o0liukrH/XpUCphb3Qa0Zkb5jIj/1QPWiHczkHrJNOjVT+GiiAK?=
- =?us-ascii?Q?Y1lA8oAxivkN0Mg0+3fy/ecwRklwUPbF5b78KEe1Se936HtgtW/RRIW6LII2?=
- =?us-ascii?Q?Cd2jRix4OBP/Y9wV1ysR61DU5OwCQV9cq8io/4suWXGujILiTZK7jLi5Wq9r?=
- =?us-ascii?Q?nxZz8eLWPXnRd45r+jlv6cYAG6onVb+eoJuGynIwCmdd47nT7cSqjyGxGab1?=
- =?us-ascii?Q?dHC4AP9CniIZPQ8pZG4VPNQ541ptcF304TzwrMr9dhZ4mk2muPgMc4R6VVPX?=
- =?us-ascii?Q?CnNE62ADhk7OZLJoGv0MFgCYteC70wRnHAK/Vq5eYHJ3w2yn+opnKXvxyhFy?=
- =?us-ascii?Q?8OdTiyBNKNAgimZDl2ylzg0dBJtifF3KGtqVNGoZHX/UKse70cgiif1sdQaE?=
- =?us-ascii?Q?QYWWLz9QD2SxXfzuHw4gnN2Hli4SFo5mFtJ03nLkopxfdf4ywGgQZGhCGXJg?=
- =?us-ascii?Q?/fqnQeDXGmoIdNL1Ig1MfCYsc3pDbwR0kODnEQ3ZNJlpoyxfjo8clzhSjVki?=
- =?us-ascii?Q?o4L+ftTPXjd7/Uy61lo4hk7Q4MNadwVVamXAJzozDvIdOqoQnO0Q9nC/MkXf?=
- =?us-ascii?Q?kzVFdKBxM8pX3YtbLCVeoea6EOdkrhlhwyEQmMfo13NmSuB6Cer8Ur3UXIHz?=
- =?us-ascii?Q?917d8D3/fYoj/sBkxZhjjgu21Cm/a+dp8j+nL2bPXVPEgTdn/uE0gAOYgVly?=
- =?us-ascii?Q?gFFAVsgv06R2ON1wmB5XRCFFwpiirrPt8/awbFbLZbbDaZN7i4GQ+0RI+/S8?=
- =?us-ascii?Q?e569Sa8uCsBl/z1CqpMtaX6Laa0QjgE6vdY4tRJ8zw5XwekvGO0wSIRocSk9?=
- =?us-ascii?Q?sRUnNvpw1blzUGYPjvGdaKhydVkQ+wRYqbs9nL/q90/YgNJPbkCbktkHyxZf?=
- =?us-ascii?Q?BP2USBYWxCcOUena52Q3WodCaQQ8iGVvKfppQX5mRsa40ozmYLvlTCrk4HRX?=
- =?us-ascii?Q?heePm1cbNwQDNuYzuOSDmZz1UWygfi2sQupwL55HFAO1o+6KsrVWS6Pzd6zE?=
- =?us-ascii?Q?mFZoipxeKtWJArNvVI0+BHHJB3OkJwQ=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EPtcXMbX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D9E1F00A3D;
+	Tue,  1 Sep 2026 14:02:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788271378;
+	bh=lkZhtGJry6jaZ3PtQ5+ne71QEsfKiPG+5TwJ1CPt2WI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=EPtcXMbXjNCGpT++gWFCoJVKRXqcm61WqqCTVEcJ9zQly3/OaAV9stMwAM/mMfKBV
+	 8rgOIQso64094Wp7W7aYTjJWnb2XaTWw1Um1441cJOcyHZdCG4+7uIifUAuMh3U7kv
+	 6Hqn2uIASlx5F/32e2Iesd76y2D56sfxYw5PJTWszZQYVdlBeQTVz7Q62SmFc/7o9f
+	 I6GLeC1igW80atW8n6CCXqGw2ViY9KQCjsQ4+NWFGUlvD7K/D+KXG16pEd1lZunGib
+	 jVDst3diXaUAgaeu9Y5Uhpfrc545X40/ilA9kv/7kLRivfBm7di4WMrZG83He3qxAl
+	 oOKL/jojRuAlQ==
+Date: Tue, 1 Sep 2026 16:02:53 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Michael Zaidman <michael.zaidman@gmail.com>
+Cc: lee@kernel.org, linusw@kernel.org, jikos@kernel.org, brgl@kernel.org, 
+	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C
+ fixes
+Message-ID: <apaLLD4ZXhNV-Dph@beelink>
+References: <20260827205116.GJ2943942@google.com>
+ <20260827222550.24634-1-michael.zaidman@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TYCPR01MB12093.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d7b62aab-daab-442d-27cb-08df0815665f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Sep 2026 10:40:11.4500
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: OYeU/joNY0C2qWbopduVxqLlvirdA/2y458VD+6hf9X8Z4o3kF5/drODb/wnILUFa6RlPvEnLoy/V1bQGlr5iq4cZ/hm1R7XM7PpApXFLD4=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: OS7PR01MB11582
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260827222550.24634-1-michael.zaidman@gmail.com>
 
-Hi Pengpeng,
+On Aug 28 2026, Michael Zaidman wrote:
+> On Thu, 27 Aug 2026 at 21:51 +0100, Lee Jones wrote:
+> > That's precisely what MFD is.  It's one chip, usually with a shared and
+> > overlapping register spaces, that conducts multiple functions.  This is
+> > no different to any other single-chip device or SoC.
+> >
+> > Shoving everything into a single driver isn't how things are done in
+> > Linux.  This should be divided up into the associated sub-systems where
+> > each part can be reviewed and looked after by the appropriate SMEs.
+> 
+> Understood, and I am not going to argue MFD scope with you. But this
+> is not specific to my series, so I would rather not decide it here on
+> my own.
+> 
+> drivers/hid already registers other subsystems' devices from a
+> hid_driver: hid-cp2112 adds an i2c_adapter and a gpiochip, hid-mcp2221
+> adds an i2c_adapter, a gpiochip and an IIO device, and hid-ft260 has
+> hosted the I2C adapter since v5.13, commit 6a82582d9fa4 ("HID: ft260:
+> add usb hid to i2c host bridge driver").
+> 
+> So the split you are asking for is not a change to this series. It
+> means moving code that has been in drivers/hid since v5.13 into an MFD
+> parent with cells, and the same reasoning would apply to cp2112 and
+> mcp2221. I am willing to discuss that as its own conversion, but it
+> needs the HID maintainers to agree on the direction first, and I do
+> not think the UART and GPIO support should wait behind it.
 
-Thanks for your patch.
+I don't think Lee or Linus ever asked you to do any conversion of
+existing drivers. Just show the example on how things should be done :)
 
-> From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-> Sent: 30 August 2026 15:07
-> To: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-> Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>; Andi Shyti <andi.shyti@kernel.or=
-g>; Philipp Zabel
-> <p.zabel@pengutronix.de>; linux-i2c@vger.kernel.org; linux-renesas-soc@vg=
-er.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: [PATCH] i2c: rzv2m: fail probe on reset and runtime-PM errors
->=20
-> Probe ignores reset deassertion and runtime-PM activation failures before
-> initializing the controller and registering an I2C adapter.
->=20
-> Propagate both required activation errors and disable runtime PM if its
-> initial resume fails.
->=20
-> Fixes: e0ca796a151b ("i2c: Add Renesas RZ/V2M controller")
-> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+If moving to MFD gives real benefits, these other drivers can be done
+later.
 
-Did you use an AI tool to generate this patch?
+> 
+> It would also spread the driver over four trees, so a fix touching the
+> shared chip state becomes a cross-tree series with coordinated merges
+> between four maintainers - a cost the single driver does not have.
+> 
+> Jiri, Benjamin - this is your call. Do you want FT260 functionality to
+> keep growing inside hid-ft260, as cp2112 and mcp2221 do today, or do
+> you want a drivers/hid to MFD conversion for this class of USB HID
+> bridge chips?
 
-Do you need the `Assisted-by` tag here?
+TBH, I'm not a big fan of having multiple subsystems children into HID.
+Mostly because I can't review the best practive in each of them. However,
+for quite a long time, HID was mostly for input devices, and input is a
+different subsystem.
 
-> ---
->  drivers/i2c/busses/i2c-rzv2m.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-rzv2m.c b/drivers/i2c/busses/i2c-rzv2=
-m.c
-> index 206a99e722a37..81e0101b61946 100644
-> --- a/drivers/i2c/busses/i2c-rzv2m.c
-> +++ b/drivers/i2c/busses/i2c-rzv2m.c
-> @@ -433,7 +433,9 @@ static int rzv2m_i2c_probe(struct platform_device *pd=
-ev)
->  	 * The reset also affects other HW that is not under the control
->  	 * of Linux. Therefore, all we can do is deassert the reset.
->  	 */
-> -	reset_control_deassert(rstc);
-> +	ret =3D reset_control_deassert(rstc);
-> +	if (ret)
-> +		return ret;
+That being said, there are 2 types of HID devices:
+- ones with defined standard usages (keyboards, mice, touchscreen,
+	battery, etc) and using MFD for those would certainly be overthinking
+- others use raw HID device with a custom protocol (cp2112, mcp2221,
+	ft260), these could be MFD candidates
 
-While the change is sound, the RZ/V2M has a strange SW arrangement.
-Half the system is managed by firmware code running on a dedicated core,
-the other half of the system is managed by Linux running on its own core.
+And of course, we have the exception with the standardly defined sensors
+through hid-sensor-hub.c which goes through MFD :)
 
-Some resources are shared between the 2 halves, and the line that separates
-the two is sometimes blurry. This patch should be tested against the firmwa=
-re
-code to make sure it's not preventing the I2C controller driver from starti=
-ng
-probing.
+TL;DR: I'm not opposed to a MFD conversion of hid-ft260.c, nor I'm not
+formally pushing towards it. I think we need to take the pragmatic
+approach and see if the benefits for it are worth it.
 
-I don't have access to the firmware code at the moment, therefore I am incl=
-ined
-to say that perhaps we shouldn't consider it until somebody is able to prop=
-erly
-test it, as I suspect that the return value of reset_control_deassert() was=
- not
-tested for a reason.
+From the description on how the ft260 works and the intrications between
+all functions, this seems like a lot of pain to maintain a single core
+MFD chip, but not having to maintain I2C, UART, GPIO is appealing.
+
+The question about the cross tree merging is something that can't really
+be discussed without having seen the code. Assuming you can split all
+the drivers into their own subsystem + MFD HID parent, we could very
+well merge the newly additions independently, assuming the MFD HID
+parent API is stable enough. The only cross subsystem we need to take
+care of today is the existing functionality, but that can be sorted out
+by splitting the i2c_adapter part into its own file, and then let the
+I2C maintainer move the file into their tree later.
+
+It is maybe a lot to ask, but Michael, can you demo the MFD split on
+one/two functionality so we can check which approach is the best?
+Ideally 2 features that would be intricating well enough to demonstrate
+how hard/easy it would be.
 
 Cheers,
-Fab
-
->=20
->  	irq =3D platform_get_irq(pdev, 0);
->  	if (irq < 0)
-> @@ -461,7 +463,11 @@ static int rzv2m_i2c_probe(struct platform_device *p=
-dev)
->=20
->  	pm_runtime_enable(dev);
->=20
-> -	pm_runtime_get_sync(dev);
-> +	ret =3D pm_runtime_resume_and_get(dev);
-> +	if (ret < 0) {
-> +		pm_runtime_disable(dev);
-> +		return ret;
-> +	}
->  	rzv2m_i2c_init(priv);
->  	pm_runtime_put(dev);
->=20
-> base-commit: 08dbfad3f5040f5bdb6c529da20d6d4e81fefd72
-> --
-> 2.50.1
-
+Benjamin
