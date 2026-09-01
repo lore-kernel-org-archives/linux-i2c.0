@@ -1,120 +1,183 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 431B030ACEE
-	for <linux-i2c@vger.kernel.org>; Tue,  1 Sep 2026 15:24:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A94A5437467;
+	Tue,  1 Sep 2026 15:27:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788276241; cv=none; b=WPeTHQNTQ3sT+5A3qvZsQwPs4PDK8yhy6divKDH/N9gQRo6eJCpfUncHuQFx6nYWIy9D2dTJqWZDxp8Wrwq9rHWUOjq0TMViN6betnAerYakWgMLtZa2lTPLXD62GZkMlcBRhBIDEs798iOK20lEIraGIba4ocX0Yt9Krum8mEo=
+	t=1788276466; cv=none; b=cPVNmFVFdzsyLxNxPur04knANvZu1AAk/UYvYkhvVgjt9Y6Wxj/1o508WDo7NZoztWyMsDpaeUhJSmg5RwLF4/X9MTS2ymc4losWKXULlhhRccTr27gfOnjPi+0bDjkOeTT+p0HprcGYmHOPJX9ychOeUrNb+Kln/tfA/Ld0VmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788276241; c=relaxed/simple;
-	bh=R3J7SqC7fHCmGp67WqxxTHHLBefiBq7BVcaPvaEvpd0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MAKQ+TT4Zh4KI/ENe/sItBe0BNJZxjeefpJ9C6LAsVYMKQxyF9Upth0cFfrgGnHNzdbbp1zGrnAQKq6F/ALN8p5+wrzHGodqKmWSehP7UAIuhe1+4tgi4xGyGrH2X9KSAELCzA9e3drX5np//nKA+EFB2qr0MPICVlcnPGDL3kk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wjs2XlEl; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788276466; c=relaxed/simple;
+	bh=2AWx8HKER7uGm+zdhugXljfTITHeteg9tSHOy+1FAWE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=DCumlUMHr8Dm8whoSMZpond88zmu5sVWxmJRaXWjg1vCWXgJqdOh1X9cVbGOdAo0X+23bxsBwcrgL2Ae+NIwNYrEjvBoJ77y+FO2ue26boaJamGPsbF3Z3U009GKrfJe5FKbY3axXNmnACCt0oZr6IjNkp6GrEs9VKsKyt6mT1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RYIX90yE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wjs2XlEl"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2d560775ca2so36533245ad.1
-        for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 08:24:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788276239; x=1788881039; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VDQ/gaRAZ3HKhb9H+2sGnvihrzB7ojkgVvH0+sfX66k=;
-        b=Wjs2XlEleyQ1tFn6ujSzoBcwG5HWpkW11gnX7sqcwCNHoSFUPeYBDQjWGpVfFaSj7k
-         0JApffFBqFb1LN1NdiBC98/xIx9zeRV36Y4k0p5/Z6q9UXQQQngYweXFn1+T28+HkTa1
-         3xgB2ccIIiWP5hyFl8K8xqNV7Sc/l8n1UUPUV5v9TKEDmos1WWZ/Gp0KN5U8aqFiF20+
-         OmHxDUe4oDoMJu83Yg1cjE0jBYsC9F+CaYnRYliuiI2o+BIRmUk5Jn46HgAe1w103ejz
-         eKOSBFMwwZVYxEnAkD93XEQ7Lv2Vk+PBwS9XEzhEAavKOohUt34xtB8FEMFQo2+Cm4AI
-         ciCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788276239; x=1788881039;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=VDQ/gaRAZ3HKhb9H+2sGnvihrzB7ojkgVvH0+sfX66k=;
-        b=NJfKYzMigx4DOzKjFI780XolasofKk55JlDO6XjXVlvbAvouKMSLhk4UPtbbQWISUU
-         4C+my+SrzX3DsgQfpT+KThOL20bhYKCE6F6raDrD4tKbpB8rwX45RlVY4C/pFM2sBpd7
-         uWc0AZn9GcUBpKCxkZ4XLtHmAGauBQWzK0eVrTxgFTBmbEbYUCIOwuboT49ZoZLRtDhF
-         EGW5lfDq00rPha/MkyJnHbDC05nbo03ly2AIp9G4FC/zGIUfD1oAuKRrTFQHwvXb0LVk
-         u8D8A5fDeGIm0/SsvZulU0biAMyu39Jn5AhB7ResACqCW0EOH1VEICiJVdBdCES9ghr5
-         eC4w==
-X-Gm-Message-State: AFuF++lKG6kjr2KysHiPgygFvp+7Gx40qTCM9VeFuk55oNh6dwqjvMsa
-	0irtliqxTVPq7scxlrao9zcBAmhLEHqBIEeNy/cvHK/vs2gb0SiTHC1af89SnQ==
-X-Gm-Gg: AYBFou2RMQsO6T/LBNomOhTIlLdZHOf9BOm6UCT+rU0QOBn/yzOQwV2vobMMhg7jW/+
-	UqsK2vx+RinwDuTZ2E42eIgQVSj5tY6gd2ErWH8woEGHtKY1tJYH5Ru6aBDIWQURpbRzOODRERk
-	G8eWRuvrexmwDfdmTECYcln1NJ4fyo1fRVjCSMr62HGwC7zyzbL2zLyYRmEibODUa2GSGfP6lQS
-	ypq4HQcSTkKASsre8ry/l/8luO0lq0ILQiCgkuHOQ4PxACSC3CfCUDrUsNen2RNhdaX5RpIxSCB
-	FxAiax+OXW81r+Ca08DMF0fBwT8bOzUboH7Io2XOz5L5pt8fnSAccYC1Hczk49p0B4ii1Tf6oXl
-	GUCfMFvr7nS4NJOnwonY2nlPJIaLrn+Qic86YYGWE/g6p73WtFuUMHkHtUjHzPangCVg3nHeEVP
-	ebW7K6jm8b49U00LM6cnf845KuRudR6t+GzC1nxisU/yqbRMEjp9mTis/72zCj0wQ8L302mlpqu
-	voe8kqt
-X-Received: by 2002:a17:902:f549:b0:2d3:6fac:d67c with SMTP id d9443c01a7336-2d74dde1b5cmr436910015ad.10.1788276239275;
-        Tue, 01 Sep 2026 08:23:59 -0700 (PDT)
-Received: from thangnn-ASUS.. ([2405:4802:21dc:72d0:b0da:acd8:9bc9:d346])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dadd386eefsm736365ad.28.2026.09.01.08.23.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 08:23:58 -0700 (PDT)
-From: ThangNN99 <ngocthang2710.1999@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: core: fix slab-use-after-free in i2c_adapter_depth()
-Date: Tue,  1 Sep 2026 22:23:53 +0700
-Message-ID: <20260901152353.104578-1-ngocthang2710.1999@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RYIX90yE"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7084DC2BCFB;
+	Tue,  1 Sep 2026 15:27:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1788276466;
+	bh=2AWx8HKER7uGm+zdhugXljfTITHeteg9tSHOy+1FAWE=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=RYIX90yE3Jb/UiYeCn1xFoe86ermHfYla1uArOCnRkh+0Bq8HstQGtSI8xNp2w1vH
+	 tCWwIEK4Pmsy8+hvn9xsDLAfkYZPH/plVrxhRVx2I0L6+e59zdu/n2ZkeFyEc2SwTW
+	 CSF+U1SDo9tukKnJrrDS8wxxHqthFwmZZcAGrBxQ+HeRVaUaWaa463MXZ2MvK7yjLY
+	 K65cBnrAC85Tldeob+zUY3XQuErHbNhqYuT7OMcblFn1IzEmwnL6iMOqbTZFZ7HjDi
+	 iCp6xXjjfe8mfAg8uUlSBo7OIiybUpnN+8ELEIllERmgQiSzKyXQqQcN8rRITbjshN
+	 1a0DbNZfO9KNQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B52DC624D3;
+	Tue,  1 Sep 2026 15:27:46 +0000 (UTC)
+From: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
+Subject: [PATCH v10 0/6] Add VIM4 MCU/FAN support
+Date: Tue, 01 Sep 2026 17:25:51 +0200
+Message-Id: <20260901-add-mcu-fan-khadas-vim4-v10-0-aecdb9955a30@aliel.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XRzWrDMAwH8FcpPs/D8mfc095j7CA78mrWpluSh
+ o7Sd5+THhIC6XyTQD8J/2+sozZTx/a7G2tpyF0+N6UA8bJj8YDNJ/FclwaTQlqhheRY1/wULzx
+ hw78OWGPHh3zSHCPEQMao6AMr098tpXyd6PePR93Sz6Vs6B9NFrAjHs+nU+73u4auPZ+WOAVsH
+ Djkrj+3v9NpA0wT/x4xABdcBpAUNEYXxBseMx1fUzuRg1wyapuRhXHCKBuk1MrjilELBtw2owq
+ DFl0yTgSAsGL0gpGwzejCaO0ANMoqyXrFmCWjtxkzXpNiQgfGBalWjJ0ZA3absYWJ5flgIWlrV
+ oybGfvsi11hjNcBK/TW1NWKqWbGPQu8GgPXOhGRB1R2xfiZqYTZZvwYuKmTqxyI4GnB3O/3P7Q
+ qTg8nAwAA
+X-Change-ID: 20260402-add-mcu-fan-khadas-vim4-ac1cbe553c9b
+To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
+ Beniamino Galvani <b.galvani@gmail.com>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>
+Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
+ mfd@lists.linux.dev, Ronald Claveau <linux-kernel-dev@aliel.fr>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5250;
+ i=linux-kernel-dev@aliel.fr; h=from:subject:message-id;
+ bh=2AWx8HKER7uGm+zdhugXljfTITHeteg9tSHOy+1FAWE=;
+ b=owGbwMvMwCWm1SvKXP3cUInxtFoSQ9a0d89mujPVrNln/r/htZLAZduTyhsm6msrCqi6uHS7n
+ jm8dKddRykLgxgXg6yYIkv/XMsT7y4fPfN1j3oKzBxWJpAhDFycAjCR3UKMDPvldwr2/09TOyQR
+ 1BEz/Zze6+13G8xuMSZOKmydFuip5MLI8Pl2v2mENvuSbd0cS0tm/VBm/t5Q82Mb26KpVleWGt7
+ 5zA0A
+X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openpgp;
+ fpr=DFD863F61375BF917F0012173953305EF1D0EC3E
+X-Endpoint-Received: by B4 Relay for linux-kernel-dev@aliel.fr/default with
+ auth_id=744
+X-Original-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+Reply-To: linux-kernel-dev@aliel.fr
 
-i2c_adapter_depth() walks adapter->dev.parent assuming every
-ancestor in the chain stays alive as long as the adapter does. That
-is only true while each ancestor stays registered: device_add()
-pins dev->parent, but device_del() unpins it regardless of whether
-the child device's own memory is still kept alive by someone else.
+The Khadas VIM4 board features a different MCU variant compared to
+previous VIM boards.
+While it shares the same I2C-based communication model,
+it differs in some ways:
 
-This breaks for a USB-backed i2c adapter (e.g. radio-usb-si4713)
-parented to its usb_device. If the host controller is unbound while
-a userspace fd for the adapter is still open, the adapter's own
-reference keeps the leaf usb_device alive, but that usb_device's
-device_del() has already dropped its pin on its own parent (the
-root hub), which then gets freed. A later i2c_transfer() walks into
-that freed root hub and KASAN reports a use-after-free read.
+  - A distinct register map with its own volatile/writeable register set
+  - A fan control with 0–100 levels instead of the 0–3 levels previously
+  - A fan power supply gated through a regulator
 
-Fix it by stopping the walk as soon as we reach a device that is no
-longer registered, instead of trusting the rest of the chain.
+This series adds support for this new variant by:
 
-Reported-by: syzbot+450abcfc7906fe1a1e16@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=450abcfc7906fe1a1e16
-Signed-off-by: ThangNN99 <ngocthang2710.1999@gmail.com>
+  1. Refactoring the khadas-mcu MFD driver to use per-variant data
+     structures (regmap config, cells, fan platform data),
+     and adding the khadas,vim4-mcu compatible string.
+
+  2. Extending the fan thermal driver to retrieve the fan register
+     and maximum level from platform_data,
+     and to optionally manage a power regulator for the fan supply.
+
+  3. Adding the corresponding DTS node for the VIM4, wiring the MCU to
+     the I2C AO_A bus and exposing it as a thermal cooling device.
+
+Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
 ---
- drivers/i2c/i2c-core-base.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Changes in v10:
+- PATCH 1: makes KHADAS_MCU_GENERIC explicitly non-zero to remove the ambiguity with
+           of_device_get_match_data() returning NULL/0 on a failed match. Reported by Sashiko.
+- PATCH 4: devres for the regulator and cooling device are now attached to the child device (not the parent),
+           closing a leak/use-after-free window. Also adds proper regulator teardown on unbind,
+           fixes a level-vs-index mixup in shutdown/suspend, and disables the regulator if resume fails.
+- Link to v9: https://lore.kernel.org/r/20260805-add-mcu-fan-khadas-vim4-v9-0-75df78710b9e@aliel.fr
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index fb25704219c7..8c64a27eef5f 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1240,7 +1240,12 @@ unsigned int i2c_adapter_depth(struct i2c_adapter *adapter)
- 	unsigned int depth = 0;
- 	struct device *parent;
- 
--	for (parent = adapter->dev.parent; parent; parent = parent->parent)
-+	/* An unregistered device may already be freed; stop there. */
-+	if (!device_is_registered(&adapter->dev))
-+		return depth;
-+
-+	for (parent = adapter->dev.parent; parent && device_is_registered(parent);
-+	     parent = parent->parent)
- 		if (parent->type == &i2c_adapter_type)
- 			depth++;
- 
+Changes in v9:
+- Rebased on next-20260731 (patches 1/8, 2/8 and 6/8 already applied, dropped from this series).
+- PATCH 1: Add levels table and nlevels in khadas_mcu_fan_pdata struct.
+- PATCH 2: Use MFD_CELL_* macros instead of open-coding mfd_cell.
+- PATCH 3: Provide levels table and nlevels to platform data.
+           Check match_data before the switch.
+- PATCH 4: Use levels[] and nlevels from platform data. VIM4 levels is (0, 30, 40, 55, 75, 100).
+- Link to v8: https://lore.kernel.org/r/20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr
+
+Changes in v8:
+- PATCH 4: Define constant for fan max level, remove extra space for unnecessary alignment.
+           Thanks to Lee's review.
+- Link to v7: https://lore.kernel.org/r/20260603-add-mcu-fan-khadas-vim4-v7-0-594ba8a965d8@aliel.fr
+
+Changes in v7:
+- PATCH 3-4: Simplify the per-variant handling by using local variables in khadas_mcu_probe()
+             instead of introducing a dedicated data structure. Thanks to Lee's review.
+- Link to v6: https://lore.kernel.org/r/20260516-add-mcu-fan-khadas-vim4-v6-0-cccc9b61f465@aliel.fr
+
+Changes in v6:
+- PATCH 4: Address Lee's review comments:
+  - Use an enum to discriminate between MCU types instead of passing
+    MFD data through the DT match table
+  - Fix error code from -EINVAL to -ENODEV when no MCU type is matched
+  - Make khadas_mcu_fan_cells and khadas_mcu_cells const
+  - Use dev_err_probe() for regmap initialization error
+  - Document fan speed levels for max_level
+- Link to v5: https://lore.kernel.org/r/20260424-add-mcu-fan-khadas-vim4-v5-0-afcfa7157b23@aliel.fr
+
+Changes in v5:
+- PATCH 5: Replace devm_regulator_get_optional() with devm_regulator_get()
+           to simplify error handling and remove NULL checks, also
+           ordering as reverse christmas according to Neil's feedback.
+- Link to v4: https://lore.kernel.org/r/20260421-add-mcu-fan-khadas-vim4-v4-0-447114a28f2d@aliel.fr
+
+Changes in v4:
+- PATCH 1: limit fan-supply property by compatible according to Conor's feedback.
+- Link to v3: https://lore.kernel.org/r/20260417-add-mcu-fan-khadas-vim4-v3-0-a6a7f570b11b@aliel.fr
+
+Changes in v3:
+- PATCH 1: adding comment on vim4 compatible saying it is not discoverable,
+           thanks to Rob's and Neil's feedback.
+- Link to v2: https://lore.kernel.org/r/20260403-add-mcu-fan-khadas-vim4-v2-0-70536b22439a@aliel.fr
+
+Changes in v2:
+- PATCH 5: Add regulator_disable on suspend thanks to Neil's feedback.
+- Link to v1: https://lore.kernel.org/r/20260402-add-mcu-fan-khadas-vim4-v1-0-2b12eb4ac7b0@aliel.fr
+
+---
+Ronald Claveau (6):
+      mfd: khadas-mcu: Add per-variant configuration infrastructure and VIM4 support
+      mfd: khadas-mcu: Use MFD_CELL_* macros for cell declarations
+      mfd: khadas-mcu: Add support for VIM4 MCU variant
+      thermal: khadas-mcu-fan: Add fan config from platform data Add regulator support
+      arm64: dts: amlogic: t7: Add i2c controller node
+      arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU fan node
+
+ .../dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts  |  13 +++
+ arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi        |  10 ++
+ drivers/mfd/khadas-mcu.c                           | 126 ++++++++++++++++++---
+ drivers/thermal/khadas_mcu_fan.c                   |  94 +++++++++++----
+ include/linux/mfd/khadas-mcu.h                     |  24 ++++
+ 5 files changed, 227 insertions(+), 40 deletions(-)
+---
+base-commit: 9dba66b6217aacb924d997de3866e7e4c0dcf952
+change-id: 20260402-add-mcu-fan-khadas-vim4-ac1cbe553c9b
+
+Best regards,
 -- 
-2.43.0
+Ronald Claveau <linux-kernel-dev@aliel.fr>
 
-base-commit: 786262be6048deab760f68c8acc2c85607165894
+
