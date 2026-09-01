@@ -1,126 +1,292 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DB4447141A
-	for <linux-i2c@vger.kernel.org>; Tue,  1 Sep 2026 07:50:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788249021; cv=none; b=HDFVIF238wU6GviQ1QqwypX0R2FRG6pjHS6LkQ4/E2fEpi0YL1wZn7j37k0PkDdrEb7/R5KXB8hExlDOiBh2Y4DGcraM7arOP6rDZhsp/U7JY4sPjl6JTBUCshEm/Mz1+XmVQ5AdyfnnYrsjkVNqUxk3n1eguOCPXVxfA0FzODw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788249021; c=relaxed/simple;
-	bh=/rbvHcyLFzkOkhdGFkadotpTkB6WTk/HoLFqLifD8i0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=s4Mkz0ezK/zM33ne470BgnxvmVPuEGrRRnFJDEmgbQw5HTISOIid9p0hx9dIH5c4Ygrm9tw5D662l0YRkSycn7DcUGILPZwQ7ZRuPgNWVnYWK92KUpa7CZtSlFedXVH53rXtZbDOt11FkPcNdmedPxwcRUux5O84yn79KnIinu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=WqypnplQ; arc=none smtp.client-ip=209.85.214.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E72438A720
+	for <linux-i2c@vger.kernel.org>; Tue,  1 Sep 2026 08:45:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788252343; cv=pass; b=Ew5Pa/WFGMZaVmCjorcDDs9Jf1ZfhLCQr4XEZTdT8JTRIayc/K3y8HASaDKUzmOaMgZuPVjm8JOdPTE/0PaINFbs2I1Jw5BPN/RsB/qYfxQ5pK07GZC7cQ9UntyPyRatak1CRYiga5j5fDxp8M1T72csMcNPwYE4EqSWPdRhoXE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788252343; c=relaxed/simple;
+	bh=WGDd4qoUlJF6pNHRVdcMK8CvfS72uR+x1nJNYfTxDc4=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=o7nGtiEXTnx8q9gs/H2LtxDcuJtwd32w0D/O1/osWSQ/v44ehsU7If3/ZDOpIel27Li0aYVDopIm9wGqqt2WtC0HXIAo/MM5ebXwbPJPL91nHxZdrmLgPXzmEYzqvQv76ke5F5Wcp1cd+elLFTlE/m0CLctjwwWQxvOQ7wfzTqc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hdvJlhDc; arc=pass smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="WqypnplQ"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2d71ae3455aso8934785ad.1
-        for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 00:50:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hdvJlhDc"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c259e5c22ffso325995866b.1
+        for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 01:45:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788252338; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Y/3qGqZJwqkZrASOkjTCiDpefJ90G5RI/smDqnQinajPKf18FcGaCKj830i+2U8ndT
+         OZObsDHB45HG+W7V5azWpb0KB3MMGBrtzOQbIkpGAeU+VWo/YhLCTn5XG8GvvN3mz4il
+         44nooFMUtfLj82+2wGInMnWRDvRxIonJHt+KJAp+gnfk5b0kocHmqc75sHJWkbTA+dxv
+         TDbmA7eoZwAH25j2nx0mG8dVZDkardVQFzKTmSYVmQygPkKyc6ivGe93z/fC7q1cNUfn
+         MjcKPgqz36/S/r+JDyiYZ67s+l/3eCkcK2nFcIV/RXcwhab9XBsPWydOntonxYp4rCeF
+         fIXw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=WGDd4qoUlJF6pNHRVdcMK8CvfS72uR+x1nJNYfTxDc4=;
+        fh=HbIOOXqSpnIeevxsORu91WIiyRJtq6zvT0t+txII174=;
+        b=gzwQ+uXi7JMlyaAKhMuLmxRXEvbKctaujuHtGiKKs8c6zTnLIffQSJgGOpLdcvznaV
+         K3kn62coTcda8ay6Uj8QWWY5roXguO3zM3Y7sQe4Qstqzk2ycVxNlMkUpqOC7W3uczPc
+         J4dvzH4aWGhrQt9Rf6HyYf/5uMHQgnlajZ19dBgkC59ht+Vv5Su0RG8PSHtSzZV/SFPK
+         Kp/XJtZEFdZSMhupZ2eElBhqZJPUglKNHaKF7uvMaf9dGzPxcC4k2RyymO3oBZJptcai
+         /OJ6Tq6avYoUpcFkt/PwPuEL1ULhms9Z6HuyoQN7TfOvDRuVT0Er5PzIZsFz+SSSknja
+         YVTw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1788249019; x=1788853819; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=3ehsC4fkcGYgZxU5YfTTtJEKH9Dtw/4IjhfNmBesfrM=;
-        b=WqypnplQyVWsYZqIG85/APXZrVaLZMa5u3WqpFXEkkKjbClBhfvPLbN1GRxNgMzLMO
-         AZdP9/+Yto4wK5TR3mQmZ/qxx1OHofL+O6uy5a7Y4qsPVk2XIxg9E1snvDjtAHy9/BoB
-         yiRZne9aNo9S0PiBiWJ4DxUk9yuw+sqaUbSXw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788249019; x=1788853819;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=gmail.com; s=20251104; t=1788252338; x=1788857138; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=3ehsC4fkcGYgZxU5YfTTtJEKH9Dtw/4IjhfNmBesfrM=;
-        b=B4Upx0BOmLIG6gqNgO+eOtJO1BC+UL5LNwWp/3d0WLgkRHWIs4bIqr79KO8eoHll6V
-         86Cr4Af8KutjXRODYO1jv8mztOlQ9iIPXG+nh1r5zfczd5e/o6djRwB6HKO3zqzeY9/S
-         ZF0rnZqWUmY8lS/K68XkoQizs9KNb7lW3eeN8RaETQFYT7NbD3OB8zpkLAseCq1b6M1B
-         rBHeYl06kAd+B8nA/TR8181zucgFrSj/VF4Os4/WVN/+U02kEEFbivITl1rp36Ish3RR
-         Zycm/7VuDni2nMbfi+rXG4msgL/lNlcEWKJCAxIZOa3EJwMP3PnERQj1erIEeOssHwYc
-         s1+g==
-X-Forwarded-Encrypted: i=1; AHgh+RoEQuA5oQml44Yb5QSb+cWtbbycKnkr/WCB1WM/arc+bDrrAa27h+qXe9HH8QI9e5mlGIhL7o5jY0M=@vger.kernel.org
-X-Gm-Message-State: AFuF++mIB+dCaj8lG4DNBqrVyjB7WAxZJ7nN2HzOk26wPz/DxjJCHQQF
-	RAF43GeZ+Ma1ayLR8gQ1GwCGIZE1k2ic8ZcFmQM1eTCzr7Vr4yh5EkWbgRgTrr5SQA==
-X-Gm-Gg: AYBFou3HT+Wj+KZjyd/owx1R+63DTg4CF0urk/R+fOFFRFMwXFB02ZXa5L94+upfhRS
-	SQEvicM0lVK1MUO1k8A+/jDDRXNkmN61PMaX7i4upYRBehT4dygPPr3oUF3xw+19k1NemsaFNvV
-	+AXNrb8ukvAjAjnjf6WmGkHuc5EcL1cs58i8yq2lubeL9u4xbLqTgwvAoBgjEn5MzrX5PpFAk63
-	nFChBinno4Ct0LJbGlimLyDFN6jQrd8I5Xn96RdLQVC/0KHNSFtphWAs2HIkC1fmeIFugUZ2IGX
-	AgJdtX3kmosExzbLhuJePEVzN3ngGwYIfGJPvbtv9q9j/2Jitxd0d6Hx8zouWvK6byfVlpAMRw0
-	6xx9lVJ5bbHYlNOYEA5B4h2czTeq6bv8woPj+WMiYwTBKUolmLKdQRHcltLvzGDWANN1tcjKnjM
-	FXXRHaYYvnccMXrE1w9jZIAaIA9ZlbzFrercqaYy2R1VKnv3HZKjQTECCiQye3/JTlCHT45CAVp
-	gl3Lc5miClXeK2Im69rSb6wnbwSLsNjIHtG3gk2fyhUTlw=
-X-Received: by 2002:a17:902:f791:b0:2d9:1dee:43db with SMTP id d9443c01a7336-2d91dee456dmr196089085ad.15.1788249019467;
-        Tue, 01 Sep 2026 00:50:19 -0700 (PDT)
-Received: from wenst-7875.tpe.corp.google.com ([2a00:79e0:201d:8:8cf:6df0:9c4e:f5e1])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d75988b699sm48142515ad.59.2026.09.01.00.50.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 00:50:19 -0700 (PDT)
-From: Chen-Yu Tsai <wenst@chromium.org>
-To: Mark Brown <broonie@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Chen-Yu Tsai <wenst@chromium.org>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	linux-mediatek@lists.infradead.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev,
-	linux-input@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable+noautosel@kernel.org
-Subject: [PATCH v6 8/8] arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics trackpad's supply
-Date: Tue,  1 Sep 2026 15:49:26 +0800
-Message-ID: <20260901074930.764550-9-wenst@chromium.org>
-X-Mailer: git-send-email 2.55.0.897.gb25b4bd76c-goog
-In-Reply-To: <20260901074930.764550-1-wenst@chromium.org>
-References: <20260901074930.764550-1-wenst@chromium.org>
+        bh=WGDd4qoUlJF6pNHRVdcMK8CvfS72uR+x1nJNYfTxDc4=;
+        b=hdvJlhDcC2iX5CCLf+Yl+m+cEQYPQmDS0RKpsGCzuvGWyOROkiNaYJGL0QCp0NGHkc
+         qLm/itDrWDnR1NvwcmIfs4qUtHGyh2FI9T7HJr9QBLvj2023ldrLmPfE98rvcqgsNALs
+         4qgim5lV55woWowJGdAYokMk3XIzYN7yHLdZJlZhepu0CDeqDwgbRIkmSx9u9MbnYaCp
+         5kc3nRf58qE5hH/7TfSop7fOx97r5mKjapbIF451uDZk3u7XnDK+XCP+TxmQk+0c/TIL
+         n5NfUnFexHIgSvGqJniw8FYEgQAUhq5075lfx3e8C8+LA1F94AtDMmYgfAMnLCp7Y09L
+         JcaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788252338; x=1788857138;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=WGDd4qoUlJF6pNHRVdcMK8CvfS72uR+x1nJNYfTxDc4=;
+        b=W1FwYA/+t5JZKhF27DF+vqPDQxJLddUN7jz5IAtv6/VgZ/oN9pGJWcDtIW88R/e5VR
+         p/YcFThAsNYK46AvHW7MwryU3tfLIxkTGhu8I9ua8Q91IWtaRAAYuvrNtXYIdyBa1k8w
+         KaAHO7NZavUlbwl4E5zB21pTNRZjjPnwU914xdYG2EblSViLItdcR0Wzpr44IBC+aOpj
+         +7XFGPVu2TwseOxJnCpeU9iP8HMVesW6/8qi7YkZJYlNY5wZpwxM9rdQuQCNAqQ+XcAi
+         e5VHbHRcFcMgzGx2sQsn1XDntHnpQdLjRQq74l2ooRaWgXqJubbP52dMYwwEywVvb+3S
+         6zZg==
+X-Forwarded-Encrypted: i=1; AHgh+RqUKhAeeeI57BKqnTXzdeZRuLaXMgHqKsKPIeBETZpahslyoSGDXprIKksil/UhP/Kh5I4guZHUnxw=@vger.kernel.org
+X-Gm-Message-State: AFuF++kxNAewo3wdBAzxId2fBGD1ndyBhHwqPnCZXiVPgm6PHyhfR4hG
+	Bsn+okZ/CAokuuqsfid2+eLwqqeGIR9wZg6f19iV5mj+koszGq0ruC/VKb2jWTU9hHb/GgTY9+5
+	sonLwmm3+lXYNg7Y5Qi5sZoJsiJgn6Gg=
+X-Gm-Gg: AR+sD11ori6Yi7KBUbX8pXKdfzAlXuKN8O2zG7r/I9kH18cg2qbHnINjy0tPQJqh/rA
+	Zn5/iAZk7nlqZTZ5WBmbWtWQsYOPdEO0Yq3CAkzYIeJgPbk+4oJvoPmPENmE/jhicx4TmVRyr9A
+	TXxvNQIyvO0bUwo2YI/ospDrXxnKpNp33lkqe7KVbl79nPwD7fENMjwAwbrYPs1U5QxomuGNdec
+	xEJg+rdMJaRTSIkK1jy1kspYT4XBz3fV+w3QyrfeV28shi+n4BuZKmKqtCBE9x/8vOGHGIcvMGM
+	bQlsdq6HFptembuxYyFJ2K7KeERz87Rbl0q0EMfKUkoE6DD/KumA5fKZ5AYPnFY171qep2tXx7U
+	UaTsYLLG2VD7l4slrOxXiiWMK79mR091yJKsXUF8O7pyhKzGLuF2jABViz6GQSNgx0jc2
+X-Received: by 2002:a17:907:c48c:b0:c24:4128:c19f with SMTP id
+ a640c23a62f3a-c2557165b0emr1917585366b.11.1788252337448; Tue, 01 Sep 2026
+ 01:45:37 -0700 (PDT)
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Tue, 1 Sep 2026 03:45:35 -0500
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Tue, 1 Sep 2026 03:45:35 -0500
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: William Luther Zambo <wlz.litiaina@gmail.com>
+Date: Tue, 1 Sep 2026 03:45:35 -0500
+X-Gm-Features: AcwNN1X_tONmeLxfRUzmNghIYUu4b9O5AA6c4ZA6RiQjPbgwDRDb9Kar9OxWv2E
+Message-ID: <CAFw-f_1BYzUnXf=eD2sVe7RrJrtzwDrMrbmmPZvGKvYB53EUJQ@mail.gmail.com>
+Subject: ThinkPad L14 Gen 1 AMD: Synaptics LEN0411 cannot use RMI4/SMBus and
+ falls back to slow SynPS/2
+To: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The Synaptics trackpad, like the Elan trackpad option, is fed from the
-system 3.3V power rail. Add it to the trackpad device node.
+Hello,
 
-Also add the correct post-power-on delay, even though in practice it is
-not required. The Synaptics trackpad requires 100ms after power-on (or
-deasserting the reset, whichever comes later) to fully initialize. The
-power is always on and the reset pin is not routed out, so the
-implementation could try skipping the delay.
+I would like to report a Synaptics InterTouch/RMI4 issue on a
+Lenovo ThinkPad L14 Gen 1 AMD.
 
-Cc: <stable+noautosel@kernel.org> # Without driver changes only lengthens probe time
-Fixes: 925ebc0cd55c ("arm64: dts: mt8192-asurada-spherion: Add Synaptics trackpad support")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
----
-I think this shouldn't be backported, as backporting it without the
-driver enhancements just delays the trackpad probing with no real
-gains.
----
- arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts | 2 ++
- 1 file changed, 2 insertions(+)
+The touchpad advertises InterTouch capability, and LEN0411 is already
+included in the Linux Synaptics SMBus allowlist, but the RMI4/SMBus
+companion cannot initialize on this machine. Linux consequently falls
+back to SynPS/2.
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts b/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts
-index 68caf4c58cfe..8adbfc307fca 100644
---- a/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts
-@@ -94,6 +94,8 @@ trackpad@2c {
- 		hid-descr-addr = <0x20>;
- 		interrupts-extended = <&pio 15 IRQ_TYPE_LEVEL_LOW>;
- 		wakeup-source;
-+		vdd-supply = <&pp3300_u>;
-+		post-power-on-delay-ms = <100>;
- 		status = "fail-needs-probe";
- 	};
- };
--- 
-2.55.0.897.gb25b4bd76c-goog
+This is particularly noticeable during two-finger scrolling, where the
+effective event rate is roughly 40 Hz and scrolling feels significantly
+less responsive than when the same class of Synaptics hardware operates
+through RMI4/SMBus.
 
+System
+------
+
+Machine:
+Lenovo ThinkPad L14 Gen 1 AMD
+
+Distribution:
+Debian 13 (Trixie)
+
+Kernel:
+6.12.107+deb13-amd64
+
+Touchpad:
+PNP ID: LEN0411
+Synaptics firmware: 10.32
+model: 1
+id: 0x1e2a1
+board id: 3471
+fw id: 2909640
+
+SMBus controller:
+Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller
+PCI ID: 1022:790b
+revision: 51
+driver: piix4_smbus / i2c_piix4
+
+Relevant boot log
+-----------------
+
+piix4_smbus 0000:00:14.0: SMBus Host Controller at 0xb00, revision 0
+piix4_smbus 0000:00:14.0: Using register 0x02 for SMBus port selection
+piix4_smbus 0000:00:14.0: Auxiliary SMBus Host Controller at 0xb20
+
+psmouse serio1: synaptics: queried max coordinates: x [..5678], y [..4694]
+psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1162..]
+psmouse serio1: synaptics: Trying to set up SMBus access
+psmouse serio1: synaptics: SMbus companion is not ready yet
+
+psmouse serio1: synaptics: Touchpad model: 1, fw: 10.32,
+id: 0x1e2a1,
+caps: 0xf014a3/0x940300/0x12e800/0x500000,
+board id: 3471,
+fw id: 2909640
+
+input: SynPS/2 Synaptics TouchPad
+
+Forcing InterTouch
+------------------
+
+I tested:
+
+psmouse.synaptics_intertouch=1
+
+as an actual kernel command-line option at boot.
+
+The parameter is successfully applied, and Linux attempts SMBus access,
+but the result remains:
+
+synaptics: Trying to set up SMBus access
+synaptics: SMbus companion is not ready yet
+input: SynPS/2 Synaptics TouchPad
+
+Therefore this does not appear to be an InterTouch allowlist or kernel
+parameter issue.
+
+SMBus capabilities
+------------------
+
+The AMD PIIX4 adapters expose SMBus operations but no Host Notify:
+
+Functionalities implemented by /dev/i2c-2:
+SMBus Quick Command yes
+SMBus Send Byte yes
+SMBus Receive Byte yes
+SMBus Write Byte yes
+SMBus Read Byte yes
+SMBus Write Word yes
+SMBus Read Word yes
+SMBus Block Write yes
+SMBus Block Read yes
+SMBus Host Notify no
+
+The auxiliary bus used here is:
+
+/sys/bus/i2c/devices/i2c-2/name:
+SMBus PIIX4 adapter port 1 at 0b20
+
+Firmware/ACPI information
+-------------------------
+
+The Lenovo DSDT explicitly exposes an SMBus device at 0x0b20 with IRQ 7:
+
+Device (SMB1)
+{
+Name (_HID, "SMB0001")
+
+Name (_CRS, ResourceTemplate ()
+{
+IO (Decode16,
+0x0B20,
+0x0B20,
+0x20,
+0x20
+)
+
+IRQ (Level, ActiveLow, Shared, )
+{7}
+})
+
+Method (_STA, 0, NotSerialized)
+{
+Return (0x0F)
+}
+}
+
+However, IRQ 7 is not claimed by the SMBus driver in /proc/interrupts.
+
+Observed input behavior
+-----------------------
+
+libinput identifies the devices as:
+
+SynPS/2 Synaptics TouchPad
+TPPS/2 Elan TrackPoint
+
+Two-finger touchpad motion produces usable reports at approximately
+40 Hz, which makes scrolling visibly/jarringly less smooth.
+
+Single-finger pointing is better, but both the touchpad and TrackPoint
+feel noticeably worse than ThinkPads where Synaptics RMI4/SMBus works.
+
+Comparison with another ThinkPad
+--------------------------------
+
+For comparison, a ThinkPad T480 running Linux successfully initializes
+its Synaptics touchpad through Intel i801 SMBus:
+
+i801_smbus ... SMBus using PCI interrupt
+synaptics: Trying to set up SMBus access
+rmi4_smbus 0-002c: registering SMbus-connected sensor
+rmi4_f01 ... found RMI device
+input: Synaptics TM3276-022
+
+The input quality on that system is significantly better.
+
+Existing related work
+---------------------
+
+LEN0411 was added to the Synaptics InterTouch SMBus list upstream, but
+the original L14 Gen 1 logs associated with that patch already showed:
+
+Trying to set up SMBus access
+SMbus companion is not ready yet
+
+and continued to instantiate SynPS/2.
+
+There are also closely related reports from AMD ThinkPad P14s/T14
+machines with board ID 3471 where RMI4/SMBus cannot be used successfully.
+
+This appears to point below psmouse itself, possibly toward missing
+SMBus Host Notify/interrupt support for this AMD FCH controller in
+i2c_piix4.
+
+Questions
+---------
+
+1. Is the lack of I2C_FUNC_SMBUS_HOST_NOTIFY in i2c_piix4 the expected
+reason the Synaptics RMI companion cannot initialize here?
+
+2. Is support for Host Notify on AMD FCH 1022:790b feasible using the
+SMB0001 ACPI resource (0x0b20 / IRQ 7)?
+
+3. Is there existing work toward supporting this controller, or another
+supported transport that should be used for LEN0411?
+
+4. I am willing to test proposed patches on this machine.
+
+I can provide the complete DSDT, dmesg, kernel configuration, libinput
+output, evtest traces, lspci output, and SMBus capability information if
+useful.
+
+Thanks.
