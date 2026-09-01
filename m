@@ -1,219 +1,282 @@
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012051.outbound.protection.outlook.com [52.101.53.51])
+Received: from GVXPR05CU001.outbound.protection.outlook.com (mail-swedencentralazon11013027.outbound.protection.outlook.com [52.101.83.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5625D369D59;
-	Tue,  1 Sep 2026 07:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F383A20DD51;
+	Tue,  1 Sep 2026 07:30:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.83.27
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788246525; cv=fail; b=H9JStikvpN+8YdWuRN4in651K8ghYqDrpiZfICasvfgpkRHuhcTsrcj8wCaHpfvyTxYwJb6sAK6L55hnCyj3mVwvrNTrEa7F75Nd+Qtb54em8ZTXw024a6bflAGhE36DsizTgZDvMPxg6Tm9OtyEJ5O74ViNloKoaPgM1eiWhXg=
+	t=1788247841; cv=fail; b=GDZCt0fUtM+9rkvX+7YWSKJqXWPsURk1wWTUvsWZb18xGZZTvD5prD+Z3sICMcgczzzkW6TwVbLkjtszul8rBpOQNbUgkQW0BouYAzot0+0it0GyQatJmBiga32VXh88pDviGh9Loz3VWzjdq65lWz7hJsaDzgybIT0IWIUIrgQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788246525; c=relaxed/simple;
-	bh=QVm9KhCY5j9oLd+JM8fuUkIih9v2oT0mn6fn2HAtLz0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Nj+/le6Tg31rxO+2axe8S2u+sxXNpJ5VwRKQFLEXn3YbQYi5Y+8FOQ2ZC6UikdGx+bQJ8Kft6VaIFUQPxWBEzaehCC66o/QazusAGYIcE2ewRkYU2FLp3q9tzR8qWLfmM+Enfd+sl9HdU1HuCxqZFq6W0Z+0Ukr9r4Ire7CpVtw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=OqdYeeLZ; arc=fail smtp.client-ip=52.101.53.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1788247841; c=relaxed/simple;
+	bh=a9FIGQjxljXpgSKB/hpUwu8cL57zl154ZDUF2jts3BQ=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=k/b+5cDnfKdr9ouRqvoISy8GoI5YVAqoAPA8F0EA0BU/WsnwW8eMjrhmx5OrWYm3mkpzo3W/xWrfOLTpSIRfYjnrzp5xBNygmN73gHbLPgohasKoJ11rfuGp9afBYDYWtujgXgEWYTXcwwm+kLnoSAttMAppwmnQJWBKJfdzCK4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=o8OS5Yf9; arc=fail smtp.client-ip=52.101.83.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="OqdYeeLZ"
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="o8OS5Yf9"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=vTVCpbs0YCvJ1sy3byQQcB+RTC5/a3h55lbTIn+IfuNJtyiwfi2eDp+OwhoWK/jDnODS/Ssz9wGGZyR20TbHlFDLqYVIFkgb23Q35W4lap1Ed+l/SNAgflsWV3aZLfz/14G1/inLLg3zgKB73lrgLJSpBsXqyitE+cOB/h8u2YpX99ZkREWY1XxDMJ3v/eFiBYnU1fwNETKfV3oLymD7NYQfRQ+RrJ9bYTUMow1cDE+mOlsCW90C9Ia3cWlyIMpBhmW4z7Dfd18yaAfExN3aaMY6P0/869OHe86NSfI+Jc+PTkMW4lqx3wyyURioQFEu4FyEt7ijJGLJXSGQLvsi3Q==
+ b=dMufI3XdhRwwglY1M7FVmxXuZNUYVfIuqPkRRst00r957wx8ZG0puwJrzlacc2oAgKaB3GlOmo/NjzTSwyLOg7NyHNoqFFdrUXRpZ0t89NiMts4/U1mvDX8sEURaXgA/1r2jTnA9JoMU4qA4EJce5gXFlVl7AxtVNtP6Jwpc8ZoH3FFapgPgXWz79F75sGzikY+cFjBj3b4J5wOnYsOm9y3+mTNcMwKzG7MDPnKxbHU+37alKPYG5bj7tOdhK7EqhXlNfNXEUghcjVldfVihUtmNflwhDb1DBieUuIdtaV0kmALrtx4Ov/vb+Rswj6KHFim36KbxeCtUiL0/QIK48w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=s188PMhWfRoR23ZbdD0FLyTnc7RoFaHvQ5IhETadVds=;
- b=nBZUKviKbGFSIoBefWesugUysjuC264SmohPpBtsQd27wNVqeKBjvZFOGyzwkpbuf9Zsy0mYUn9erSbtaReMbUDZ2ymNbOIoVU2Nn6EXqZL3OESXJLMyweIGUp8vcZ5ZDdWANTzTmHd53lTOPiQyuy2yc8jasNFxwSopROeRonf8FnUQT//h2IhTEhE2P0MlBcOMHMxvW2dTmuaIhUrFMpvT5q5krk+H4/CiufHCrHHALK6oGffMu40HoYbYM7bFuq50ES5Dr7NQWPG2ZqN8Ua+G6FKqyCiqu0/WerfA7FD9gZovmP7sHbnCy8fna/JHdRC8gpFfQ+gqYAcjbWWemg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ bh=rBMiIV5LLYBQUX5h1N7iAs8P2UO30k5ckud1/y1WbCo=;
+ b=D3WSIVTraOZdMY+1CPa3372rgQqzpnkapVwDLsyrLvS99PppKSIADCTQ0UHAn5n4bliDhkpBa9ATL7K351t4RoL2qvxKjglKBCIcLFZGiWDolmSsYkQtOTO79EJc+hmhB9ZKMKjZiOZA42j6A/hT2Gp8GqrxhJrvJk5LCG5EDMeKY+zQijRBltssqdDOBOJpFUw+aAtgYAeZi7SsEpGS92k6OHEXGbsf8iFzKSacBgUZpR9BNz9c+jRZeU9GlwFkIugV8qBlHgSNpiXYym0koC+zQsbdljUwGRefJn6h98ao897a4wuq4tio6jlH4tp+hbfGn6C29SCX7gww9qMtUA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=s188PMhWfRoR23ZbdD0FLyTnc7RoFaHvQ5IhETadVds=;
- b=OqdYeeLZtviB7PcX/DXC9/KB6MmNNFr6+buELXt/0u2y+sSkSB8QiTLwNfH8OvtNWug6X4KtUrhowE1pO9/0NX9s6W8zYBXaWfe5SX2Nt5Q0ry0U+AVE5faMpkRO8JXu2zhCWCEe+gV6dMFwMRMUUndQwngT18miQx1A94g/ZYw=
-Received: from DS3P221CA0007.NAMP221.PROD.OUTLOOK.COM (2603:10b6:8:45e::10) by
- SN7PR12MB7251.namprd12.prod.outlook.com (2603:10b6:806:2ab::15) with
+ bh=rBMiIV5LLYBQUX5h1N7iAs8P2UO30k5ckud1/y1WbCo=;
+ b=o8OS5Yf9vQYGdcQS5HOR56Rx8uR1cqHQXFmw9fxvSIWmgZwxQT2KaFpTkV5xQtb7rzkF4RNj3MFESp7iJ6wAyNMDsCn8o0e3KLwhnLELj0lWyQTUq6tBXrIq0SeoELy3caRiarR5Ok4zKpC1rqV0vi3GGzwmZddanMUS57LsG2Xk4cIF2z1raFg6y1My045CCwLI6X+cBKZtVhxKvFO1c/gT1ahfvzJB+9SEZbrPl+e69wqKAYHO+eA9AepbhU4yx82yvLgdQwm9qODg4Ea7p9BV/bY9LPLC7upAsJv/NzqSGGHgTjVLUsakPmzLxGDMlockyKKzmD5CHCZOq7mTlQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
+ by AS4PR04MB9364.eurprd04.prod.outlook.com (2603:10a6:20b:4e9::22) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Tue, 1 Sep
- 2026 07:08:33 +0000
-Received: from CY4PEPF0000FCBE.namprd03.prod.outlook.com
- (2603:10b6:8:45e:cafe::5b) by DS3P221CA0007.outlook.office365.com
- (2603:10b6:8:45e::10) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.382.10 via Frontend Transport; Tue, 1
- Sep 2026 07:08:32 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- CY4PEPF0000FCBE.mail.protection.outlook.com (10.167.242.100) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.382.8 via Frontend Transport; Tue, 1 Sep 2026 07:08:32 +0000
-Received: from satlexmb10.amd.com (10.181.42.219) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Tue, 1 Sep
- 2026 02:08:32 -0500
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb10.amd.com
- (10.181.42.219) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Tue, 1 Sep
- 2026 02:08:31 -0500
-Received: from xhdharinit40.xilinx.com (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.46 via Frontend
- Transport; Tue, 1 Sep 2026 02:08:29 -0500
-From: Vasantha Likitha T <vasanthalikitha.tandra@amd.com>
-To: <linux-i2c@vger.kernel.org>
-CC: <michal.simek@amd.com>, <andi.shyti@kernel.org>,
-	<linux-kernel@vger.kernel.org>, <git@amd.com>, Shubhrajyoti Datta
-	<shubhrajyoti.datta@amd.com>, Vasantha Likitha T
-	<vasanthalikitha.tandra@amd.com>
-Subject: [PATCH] i2c: xiic: Rework dynamic-mode RX FIFO drain in xiic_read_rx
-Date: Tue, 1 Sep 2026 12:38:26 +0530
-Message-ID: <20260901070826.1755154-1-vasanthalikitha.tandra@amd.com>
-X-Mailer: git-send-email 2.43.0
+ 2026 07:30:33 +0000
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51%3]) with mapi id 15.21.0382.007; Tue, 1 Sep 2026
+ 07:30:33 +0000
+Message-ID: <301567b9-464a-45b4-9bf7-eac426b9aaf8@oss.nxp.com>
+Date: Tue, 1 Sep 2026 15:30:26 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] i2c: imx: honour I2C_M_IGNORE_NAK for write messages
+To: Haobin Jiang <lemonoutput@foxmail.com>, andi.shyti@kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260829142148.10536-1-lemonoutput@foxmail.com>
+ <tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09@qq.com>
+From: Carlos Song <carlos.song@oss.nxp.com>
+In-Reply-To: <tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09@qq.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SG2P153CA0009.APCP153.PROD.OUTLOOK.COM (2603:1096::19) To
+ AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
+X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000FCBE:EE_|SN7PR12MB7251:EE_
-X-MS-Office365-Filtering-Correlation-Id: 261ca125-b324-445e-5acd-08df07f7d56a
+X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|AS4PR04MB9364:EE_
+X-MS-Office365-Filtering-Correlation-Id: fd7484d8-d607-43b0-a062-08df07fae86f
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700016|1800799024|23010399003|376014|18002099003|56012099006|6133799003|11063799006|10067099003;
+	BCL:0;ARA:13230040|1800799024|23010399003|366016|19092799006|376014|56012099006|10067099003|11063799006|4143699003|3023799007|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	NwDvcTRwPCOG36TGlw0SXojRk+j79kgbqWVTUeuNBiIzoQIJUsnWbXPYmguyR4mMCfGeVo63WArFC539+Xz2BJHrNSGU/AxeFH4YvqoploYLQ5PT3IX11owFZXltzp5X62X7K/mkq6EIJW2RphF4iHDn+fAQ/wJZQmcDFTlm56n44b1A9lATyRVK+rymOkVMCUIdu6hzXPz+LxDrPi7wzAr/jUhIEVRfZG46usHDk/t5JTKgm6TdP7XkUubsRPIKNl4ehyJaQUlNYcp8W3+DRfuamT+Ne6/paTkgE1lcUMcQ5hgaxmEtBj13GaeIC2nc2T/xF2PQG9Wi1p9ywFud7EXTOGWGn6wNrBN7B1wAjN2EyXLFbDk3cUYRxUCSHoIrfgC2orkH636vS+WmrobO+k0/H7/xjQcsYXrGuED5X/1phU18Ibvs3f5qMZMq1qROmXEWpDO06XgaCOuzwhZ6VwAcr1t7HfSVfAT/IJWFEb/+nYanPHgiEV2ZQpiFeo7Xu8Ael54B8pwtrO9iO5tkvLDxANae87jzzPkTPKOmhFGmDcFYQDGgi91fRtxySc9+KFns2fI7X/RmqAgnyh3FmB5Oyzg6ZrrrgrLRGC9TWzjHTddAlbeXJD7JVoGygWjYe1mc8yE2KqHvDzYdtas/gBRvABKQEPCmKeQq1nLvQIx39PUwldPQE8J3MaEyySJS4y/OHkd/86nt9+lMxsGvvw==
+	zUmyX+ArUfIKL+DntYSzfQnUPo8q7iO6cCb0rGjpIkxeFLPLgPuiUf5kXJTulMqG70YzMqhPlhKEOluHh6/bIiUJB33vCFbgQlLJvS+yaCNr1Q2AncSUgJpVYR7obB6XXyb7Am5B1TtJqTo0T6Euo5ZsVfcNtXqc/1QTLENg0IAkpy/o1GlhRmIfkeu2J+Dh/mwGd+D5MylI6insZr4k9eV64QS5mI9uFP8wrNPLxoRJHmnSI37Do539jcnR55VuycUIQ3HD+MlekvPbeWMQEzFPwpIbvGjo7flfF/+RGK2duUTDB1ZtKa8hMlxD3eudgzg4MTVK/MTtF2m98Np2wbwd06nrWHFqFouINlWEDklFGBHtCTr0c27bUOUivKO1AyeoSxF6NrFPn9M7I4DRSct3vSJnbKA6edVxx+yuulgXes2edfjGJ8Dvt7cgS/8LmTaN+nPj4IOdOtI/S3hAWc61GZFNgfQFWV+T0txCda8zLlyB2lq7zz9bzGtXfkx8xQlnSuOpD1ONjHuFJ73WY96pt1aftAhqsp4iIlOBcDbwUl+NUdUUPxDcBr8aYejcDieuZs5DPLB7ex7GD/lVDyT3pB5bEVB1la7IWO3Tzls=
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(1800799024)(23010399003)(376014)(18002099003)(56012099006)(6133799003)(11063799006)(10067099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(23010399003)(366016)(19092799006)(376014)(56012099006)(10067099003)(11063799006)(4143699003)(3023799007)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	fNM2l8vHu5M/gqwmzQgqJfu6L66dSoWgrZbrt7V0TOLK2koKPkRSwuPW4iCkctmdVCxUNqAFD5Z10iLJHccrvFAk8vkgRGwq8S3aUexyWzHfIokebw+cDi1PDLZ7gdAMsRWv6FEPE7ICocuCMtYP3mUE3E9ENZRdtBpJFs5HxjL8tImfQvqt3PwCvVOVeZX0Cyoz44CBFapxXiwKSDNp350gDuFZlkKru0T5d7rTeGxFG8I5d4EkWsKR7bNbMPnbhFY1ZMqgY0uBP4V5yi6MHcMXyUeNT/HadFQG8YEEevCcXKsfQVdRd4sIwfiNB+sq/GL+lNMJU3Cw0PNb5TuDZt1P6qCQxTRpAmsU1CNcOKIfBJIagxI60cAGe+E84XiEUF68uWdFXSDmW8hb4XX2d38I091/lL5SjE4AN6MsH9sW3Pyt6+5qdHhfOhlWQ6XW
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2026 07:08:32.7850
+	=?utf-8?B?MWZ2d08xRExlRXFqWVl3K1MzbGp5c0hpQm9mZnVnQmJPWCtMajBtbHBHSXN6?=
+ =?utf-8?B?YVVFRENiS3ZzSXl1bGxHWHlKQ3ZsWUtKZ3Zna2JVMWZHeGRLeWREazJJcVBN?=
+ =?utf-8?B?aGVVZ3JPcG15Y2dMNVpLc09IZlQ0SUtoODlnZTk0UnQwZ2VoTTZIK3d5amg3?=
+ =?utf-8?B?VUcxckxycklOMEtCWjZxNEkxSXBQU1NIbTdadHpXR1Mwd2RlUDcyOFY3Ui9p?=
+ =?utf-8?B?Z1p4VUJFUHBmMmxXcUlBTmozdjNheEdYV2VuZW9Qc2d1cmN1c2NPaG0zTGhN?=
+ =?utf-8?B?UGFtNTd5cjE5QmZJMExTaUV5Ky8zZ3RLeVNSMHYrZ2xDQkkvT1dCRmI0dExa?=
+ =?utf-8?B?SEZaZ21RQStiT1Y3Q3JyNUlUcE1oSVBjWjlkTStZbEJ5Rm1KVjc4SnQ2R0R3?=
+ =?utf-8?B?enpid0s1QnFJZWtqZEl1bUlONWpCY1FPV3Nsbk1naXJEckNuZ0JvZFVTSDRk?=
+ =?utf-8?B?cjU3ZEE1Wm1kQVUrQjI1TEt4b25ZZTNrQWxUOUorUW4ydlRuUG5ITU1IaG93?=
+ =?utf-8?B?Z2txK2xQNGxzbWlRekg4V3N5RW5CRlQ0Vkc4SGZPRjBrUnE0RlZ5TkNIRnFC?=
+ =?utf-8?B?QmZPb1FVKzFMekJtM2lIL2lYS0IrQWZZeDVxME9MQ2RjMUF2Rk1YRStaZ0c0?=
+ =?utf-8?B?dVc3bGpEMzl3amlNYzNlbG50RURORFNKYTY0VEU2SmxtaDNSMEFIbk9TZk5Y?=
+ =?utf-8?B?L0FXcUk4NFVxLzVRZVF0TW9jNjN3SkhHOVpOMUk1ZEVTVEhOR0V4M0NTSHZD?=
+ =?utf-8?B?eVpmSUZIRFdpOEdEWUJ0Zk11dGc5NnJMYXRGL25KbWxFOW9NMFlQdXJsbzBN?=
+ =?utf-8?B?ZXRzRGZpVVFkeUpMc0xBQkdpdDlWTG5FSXRjRDc3MUErMUtQNWRxcWFGbE9a?=
+ =?utf-8?B?OFIreU9XaENKNkI1WTV1K1djeHBLa2drK21JLzhFcVJuRjVJeTR0b1Npd0lI?=
+ =?utf-8?B?K0pLUmJmVEJxd1p4bjZXeTM2SGROYmpTQkNZWWZvV281aHgyVEFwdXN4VjV0?=
+ =?utf-8?B?S3Z6cUFobFJaSXl6TXRGeDdVOE9FRDNBMHpLcmJRVWkrdFVPNkpCa3NaN2JD?=
+ =?utf-8?B?ZlQ1VnJQOGQxdXQxbE5pRzlJei9SdGR6MHN1bk9UMnlObVU5UTlZWG5rdHRw?=
+ =?utf-8?B?WElsSkxidWpVeVVabGxYbFJoc0R3WUg3TWNyWDd1UU0zVmNEREpkYWJNVlhI?=
+ =?utf-8?B?L3EwSmR4aGdsM2g2TzNyaXBIdGJ3N1MrYlA4YTBtOGtLQ1NoaVFUdDZ3M0lC?=
+ =?utf-8?B?UTlUUHR2VzQzb1p4MHZ3NUtBTXpWSTRWRndEeWpQdHI0NXdGQ1l5NE9HTmJw?=
+ =?utf-8?B?LzN4ZnZMTkNJdW9WcUpRNXJ6Y2ovUzJyU0tWUWs5S1QvOUErcGdNRFU3b0NQ?=
+ =?utf-8?B?L0hWa2YwTklvTnNkWUZ4cDRnTzFpSzZSSXppamh1L1ZScnhaQ0s5Ly9hMGxR?=
+ =?utf-8?B?N3dRVHRDNTUxOHE1U0VzaGJNb3hUeC9BQXFTd09SaHh1RndhQkRGdVNIS0lm?=
+ =?utf-8?B?aFNyWFRPMmZFQ2cxdCtISzNiaDJYcUlEdjR3OXVsVWR5cW9Qd1ZJK2NleGhD?=
+ =?utf-8?B?VlowamxKSGdPVWhsOXN1U2RTQ2MxbEhRZm1CM3luNExXOS8vL3VRNkZIa1Ni?=
+ =?utf-8?B?a3BBK1BoczRkK2ZSSndJR2hvRlZaQWI2dmRJVlhMeUhXenR1cnpYTHFvTWRt?=
+ =?utf-8?B?N2xVMmJzTDNvYUlHd1NCS0hneFJhSFBmZTBON1VkM1IxcEJGN3ZIdGJnd1Zy?=
+ =?utf-8?B?SUcxWnRVaHB6cDBUcVNnQkE0V0R5dDhWNjhoQ0dtZmZCZGd3VjFZMnYwV292?=
+ =?utf-8?B?NFRiaGIzTHdLVDNkZFdYaWhUbStTdy9KMVhMcGdnR0UvSkFjQ1lSN2U3N0Ur?=
+ =?utf-8?B?amhXVkpobTN4TFJnZ1l6ek1IRndxaXpIVlpxSFRFQ2pGWW5DTVd4MWFCWVZx?=
+ =?utf-8?B?YkpRSWdZOVptSDFSYkV6cE5ja2lrM2hpdkQxTGxOUlBBQW1wcWZyWmV1SUYz?=
+ =?utf-8?B?QTl5eWtUbmF6NHpTTjFDN05yTGtwd3hFR0dRMGpZN1VvclN5alB5Rm1Va1NU?=
+ =?utf-8?B?Y3VkNHpjMzRuMGdoK2tsWDIrWE1wc1ZDM09HVzBpbnhhL05pQWNUYmxKWWtX?=
+ =?utf-8?B?Qnd4cy80Sy95eDVackU4ekdJdzdsWCtSNWdZZ3N1ZW0wYkNOVU1Ydk12NkZ4?=
+ =?utf-8?B?YnVTYzNuaVppTVg5SENScWkxMzFXYWF0dTBrR0loN1JKNTlVUVhvYXBOOXFL?=
+ =?utf-8?B?UUZ2bktWeDVpS3NiWE9ENm1JbUNCZXhuUlVScDI2Q05WdXVvMlEzWHp5bGJR?=
+ =?utf-8?B?d3QrV3hnbm16VGZkOW1OZWYxV002UHFxNTU4UjJ0S3M4Q1QwVDY3QT09?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fd7484d8-d607-43b0-a062-08df07fae86f
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2026 07:30:33.7745
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 261ca125-b324-445e-5acd-08df07f7d56a
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CY4PEPF0000FCBE.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7251
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: m16eeNd0ma9eyANwhsuuE0zrvmgLJ/FCJEu20xFOvxiEu+0tXnUXHthMerGDG3v3MInDhQTLm5SEfRh+LvLGdw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS4PR04MB9364
 
-From: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
+Hi, Haobin
 
-Programming the RFD (RX FIFO depth) threshold at runtime causes a
-spurious SCL clock pulse which results in the STOP condition being
-missed.
+Thank you for your fix.
 
-Fix this by programming RFD once, when the receive transfer starts, and
-handling the final-byte sequencing in software: select how many bytes to
-drain from the RX FIFO on each RX_FULL interrupt instead of
-reprogramming RFD after every read.
+1. Please use ./scripts/checkpatch.pl to get all maintrainer and 
+reviewer and send your patch to every one and cc all subsystem.
+2. Notice sashiko has reported some issue about this fix[1]. I reviewed 
+the comments, they looks real, so you can try to fix in V2.
 
-RX_FULL is then always raised at the same threshold.  When fewer bytes
-remain outstanding than the FIFO holds, drain only those and leave the
-rest behind, so the retained bytes plus those still to arrive restore
-occupancy to the threshold; otherwise drain the FIFO completely.  This
-relies on RFO accounting for every byte received, or the threshold is
-never reached again and the transfer stalls until the xiic_xfer()
-timeout.
+[1] 
+https://sashiko.dev/#/patchset/tencent_0D2E46A782AC418BC52A1BBF04CA1AC98E09%40qq.com
 
-Fixes: acea4e4458b4 ("i2c: xiic: Add standard mode support for > 255 byte")
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
-Co-developed-by: Vasantha Likitha T <vasanthalikitha.tandra@amd.com>
-Signed-off-by: Vasantha Likitha T <vasanthalikitha.tandra@amd.com>
----
- drivers/i2c/busses/i2c-xiic.c | 53 +++++++++++++++++++++++++++--------
- 1 file changed, 41 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 28015d77599d..81b163152953 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -580,6 +580,7 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
- {
- 	u8 bytes_in_fifo, cr = 0, bytes_to_read = 0;
- 	u32 bytes_rem = 0;
-+	u32 rx_space;
- 	int i;
- 
- 	bytes_in_fifo = xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET) + 1;
-@@ -591,12 +592,49 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
- 			xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
- 			xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
- 
--	if (bytes_in_fifo > xiic_rx_space(i2c))
--		bytes_in_fifo = xiic_rx_space(i2c);
-+	rx_space = xiic_rx_space(i2c);
-+
-+	/* Do not read more bytes than are still expected for this message */
-+	if (bytes_in_fifo > rx_space)
-+		bytes_in_fifo = rx_space;
- 
- 	bytes_to_read = bytes_in_fifo;
- 
--	if (!i2c->dynamic) {
-+	if (i2c->dynamic) {
-+		/*
-+		 * RFD is programmed by xiic_start_recv() and left untouched
-+		 * here: reprogramming it mid-transfer emits a spurious SCL
-+		 * pulse, causing the STOP condition to be missed.
-+		 *
-+		 * RX_FULL is therefore always raised at the same threshold.
-+		 * When fewer bytes remain outstanding than are held in the
-+		 * FIFO, drain only those; the retained bytes plus the final
-+		 * incoming bytes restore occupancy to the threshold and raise
-+		 * RX_FULL once more. This relies on RFO accounting for every
-+		 * byte the controller has received; otherwise the threshold is
-+		 * never reached again and the transfer stalls until the
-+		 * xiic_xfer() timeout.
-+		 */
-+		bytes_rem = rx_space - bytes_in_fifo;
-+
-+		if (!bytes_rem) {
-+			/* Every remaining byte is already in the FIFO */
-+			bytes_to_read = bytes_in_fifo;
-+		} else if (bytes_rem < bytes_in_fifo) {
-+			/*
-+			 * Drain only the outstanding bytes and leave the
-+			 * rest behind, so that they and the bytes still to
-+			 * arrive restore occupancy to the threshold.
-+			 */
-+			bytes_to_read = bytes_rem;
-+		} else {
-+			/*
-+			 * At least as many bytes outstanding as are in the
-+			 * FIFO, so it can be drained completely.
-+			 */
-+			bytes_to_read = bytes_in_fifo;
-+		}
-+	} else {
- 		bytes_rem = xiic_rx_space(i2c) - bytes_in_fifo;
- 
- 		/* Set msg length if smbus_block_read */
-@@ -637,15 +675,6 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
- 		i2c->rx_msg->buf[i2c->rx_pos++] =
- 			xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
- 	}
--
--	if (i2c->dynamic) {
--		u8 bytes;
--
--		/* Receive remaining bytes if less than fifo depth */
--		bytes = min_t(u8, xiic_rx_space(i2c), IIC_RX_FIFO_DEPTH);
--		bytes--;
--		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, bytes);
--	}
- }
- 
- static bool xiic_error_check(struct xiic_i2c *i2c)
--- 
-2.43.0
-
+Best Regards,
+Carlos Song
+> The i.MX controller has no hardware "ignore NAK" enable bit and checks
+> each byte in software after transmitting it: i2c_imx_acked() on the
+> atomic and DMA paths, i2c_imx_isr_acked() on the non-DMA ISR path.  Any
+> NAK is treated as a fatal error and aborts the transfer with -ENXIO.
+>
+> There are legitimate use cases where a target NAKs a write on purpose,
+> and when it does, the transfer needs to continue rather than abort.  The
+> standard way to express this is the I2C_M_IGNORE_NAK flag, which the
+> core honours through i2c_transfer_buffer_flags() only when the adapter
+> advertises I2C_FUNC_PROTOCOL_MANGLING.  The i.MX driver never advertised
+> it, so callers using the flag are rejected by the core before any byte
+> is sent.  One such caller is the in-tree crypto driver atmel-i2c.c,
+> whose wake sequence for the ATECC508A/608A requires exactly this: the
+> still-asleep device NAKs every byte of the wake token, and the write
+> must complete anyway.
+>
+> Advertise I2C_FUNC_PROTOCOL_MANGLING and honour I2C_M_IGNORE_NAK on the
+> write path by passing it through to both ACK checks.  With the flag set a
+> NAK no longer aborts the transfer and the byte loop continues so the
+> remaining bytes are still transmitted.  The read path always passes
+> false, and every transfer without the flag keeps the previous behaviour
+> bit-for-bit unchanged.
+>
+> No retry is introduced: the meaning of a NAK is device-specific [1], so
+> it stays a device-driver decision.  I2C_M_IGNORE_NAK is only honoured
+> when the device driver explicitly sets it, which is exactly how the flag
+> is meant to be used.
+>
+> Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1467900229-5262-1-git-send-email-tharvey@gateworks.com/ # [1]
+> Link: https://lore.kernel.org/linux-i2c/4D46D571.5010907@armadeus.com/ # [2]
+> Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1378857490-30968-1-git-send-email-luka@openwrt.org/ # [3]
+> Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
+> ---
+>   drivers/i2c/busses/i2c-imx.c | 27 ++++++++++++++++++---------
+>   1 file changed, 18 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 28313d0fad37..737c19688ecc 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+>          return 0;
+>   }
+>
+> -static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+> +static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
+>   {
+>          if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+> +               if (ignore_nak)
+> +                       return 0;
+> +
+>                  dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+>                  return -ENXIO;  /* No ACK */
+>          }
+> @@ -968,11 +971,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
+>          return ret;
+>   }
+>
+> -static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
+> +static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
+> +                                   bool ignore_nak)
+>   {
+>          i2c_imx->isr_result = 0;
+>
+>          if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+> +               if (ignore_nak)
+> +                       return 0;
+> +
+>                  i2c_imx->state = IMX_I2C_STATE_FAILED;
+>                  i2c_imx->isr_result = -ENXIO;
+>                  wake_up(&i2c_imx->queue);
+> @@ -985,7 +992,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
+>   {
+>          int result;
+>
+> -       result = i2c_imx_isr_acked(i2c_imx);
+> +       result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+>          if (result)
+>                  return result;
+>
+> @@ -1002,7 +1009,8 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+>          int result;
+>          unsigned int temp;
+>
+> -       result = i2c_imx_isr_acked(i2c_imx);
+> +       /* Read path always checks NAK; I2C_M_IGNORE_NAK is write-only. */
+> +       result = i2c_imx_isr_acked(i2c_imx, false);
+>          if (result)
+>                  return result;
+>
+> @@ -1213,7 +1221,7 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+>          if (result)
+>                  return result;
+>
+> -       return i2c_imx_acked(i2c_imx);
+> +       return i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+>   }
+>
+>   static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+> @@ -1227,7 +1235,8 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+>          result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+>          if (result)
+>                  return result;
+> -       result = i2c_imx_acked(i2c_imx);
+> +       /* Read address NAK must always be reported; I2C_M_IGNORE_NAK is write-only. */
+> +       result = i2c_imx_acked(i2c_imx, false);
+>          if (result)
+>                  return result;
+>
+> @@ -1358,7 +1367,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+>          result = i2c_imx_trx_complete(i2c_imx, true);
+>          if (result)
+>                  return result;
+> -       result = i2c_imx_acked(i2c_imx);
+> +       result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+>          if (result)
+>                  return result;
+>          dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
+> @@ -1372,7 +1381,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+>                  result = i2c_imx_trx_complete(i2c_imx, true);
+>                  if (result)
+>                          return result;
+> -               result = i2c_imx_acked(i2c_imx);
+> +               result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+>                  if (result)
+>                          return result;
+>          }
+> @@ -1697,7 +1706,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+>   static u32 i2c_imx_func(struct i2c_adapter *adapter)
+>   {
+>          return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+> -               | I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+> +               | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_PROTOCOL_MANGLING;
+>   }
+>
+>   static const struct i2c_algorithm i2c_imx_algo = {
+> --
+> 2.34.1
