@@ -1,267 +1,440 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11011009.outbound.protection.outlook.com [52.101.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE658481A9E
-	for <linux-i2c@vger.kernel.org>; Tue,  1 Sep 2026 16:48:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788281337; cv=none; b=SfFhU8/YQLiwRzXLFpHDOxfgfbBDlZpbYAXkOKGUCFovwgLfa/CAeqdCIiduS1khf5UF5HzqarEMzaUcqJ/Vl697vMt1HGUdDXK0a72/H11XNjDpYcd7faWkCOLNVZboxRZWyPo00t7ECYupeVAbznCPN8mT8OJ6zDksfSrSR+4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788281337; c=relaxed/simple;
-	bh=CfzWqf5o+3N92HLjtir92933+kWR07XnaDw5BK9jsWQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=h0Pb38I2G7TrZJO6QbxGQRTaprbSmc6iJ8oItRcDHb9hNgTB0SvvLQR18b3mHjyByjM/ORGq8A9qOopttmUdoNEpJ/dQjLufRwWNlCd9Hsu4bDkW9AuAOE1MQ5QJ6w+Cq7s3naNWggDLDrrZPR8xV8ZBSfYuP93JGmBo/EwqG6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=gLNqsggg; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=hI+IV1JF; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AE9140EBA6;
+	Tue,  1 Sep 2026 18:25:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.9
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788287159; cv=fail; b=Apl7t9jQzqmuvj2NLf8VdWSkRgP2ayYQjBl75ivBjDj8GcCStNmsvaIcDtTj83zZEcVDRBbwb0CJqHpz/1yCc77uKf5s1FhzapiJvPdhOJgcVKucw3LLSk3Ls/dFy3VaW8NujWa44XChWYOd8XwAtqlZEtYB0KGCFd8nySipegU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788287159; c=relaxed/simple;
+	bh=PZl3UegIjcYJTDmHS//NdlmPNeV1mDB0zCBrPBuCrYE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=LqvhXY+wXrIdcsXw3ZCKa8ODQN8uo+XCDaK8YJnLp/hIbtYZ8kPSYSKo5z6v/F1DwPAmTjCZz0yN5koAaPg7CbG6+xWb+UD/ievNWV0jEtHr5vAC3b2M43xMZQGEi2rcgY5GWZE/ocnQCAz1fIL/oXLNsBmUf/mbq7ThysqBRBY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=pN9gCg9u; arc=fail smtp.client-ip=52.101.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="gLNqsggg";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="hI+IV1JF"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681G4qSs2531631
-	for <linux-i2c@vger.kernel.org>; Tue, 1 Sep 2026 16:48:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	b62TM3b+R7LBBBMdiFoxJotUo5iPVNG6UJ+rLi3xZbw=; b=gLNqsgggpn1u3v7B
-	ihUObr1bhMSg+9eNo6gGT6JwdQ7VCl51Iw1tDlfT4vRHHDM0zHCPu7D0NAMXY0zW
-	AAwHroDHKm4owfTqo/eS9u+jDHHeLbm3JKcUK52z+XGnbU9RvFqJ+1KwRR2L6qJk
-	JVLFPl1EYWSvB0Ua4ajiC5qSdyS0Qg1A3IHBC2SWo8BSj87hAUb7ZPFrDWH/qiP3
-	OCjG5jrZyzgig4exr5ZLAcflW30O/0utbZfTJY3ql5AOlbKCGyvJQ+X+aeyedqW2
-	IulmWho7SXtAee0CvZgQClTNGFS6P8W7Q6rG9pVLPhmpYQp1fQj5rLHqH7AmI4kd
-	rX2J3Q==
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ge1wp8a3k-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 16:48:53 +0000 (GMT)
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cc1c18c775eso1460842a12.0
-        for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 09:48:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1788281333; x=1788886133; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=b62TM3b+R7LBBBMdiFoxJotUo5iPVNG6UJ+rLi3xZbw=;
-        b=hI+IV1JFvx2lYKZoDbus3DhNXE0sLMcx/UCUUFDRUWewDOIWaXI7vsMNt2CvH5OyQG
-         dBOLa7aNImfryyC6I/Y2Acy/HZzMBKx+x633xuo+ZTdPTnjexp4i1c/N0w9krP5x65+I
-         YJH5M0R//cQkfQHy9GH+uuwwdIi0D98FD8/FVIqdW3lFnlm9274YYBojKXRQCdkBQ2cj
-         EMXUAkFfW5DFcEcA872tGJYEH5ldLwFfgo9O8bJe6U4rIcBlVIxtJwtoObft0oK6IYYi
-         KwxgdcIo/FS1CInRv9J5RbeZYbKyWo0kl9vwoLqhNsqwczjebAiUK6DsvOeno/pKs65N
-         BBXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788281333; x=1788886133;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=b62TM3b+R7LBBBMdiFoxJotUo5iPVNG6UJ+rLi3xZbw=;
-        b=H6dVYZXgtVCHTfx6lQoP2CS4S4/W5HGQ+RyseQSlxax5ToPskp280lQsHvFnFx7pVt
-         ieP8M+u838o5fhse2GftbmQpRaSmhTMO8bh48oyUZeSJ14tYd5XIViqMjLl3qyJdhLM/
-         ia88vwh7E1ivEUDWcmPbaCVfhKzFTY/MUKawFbuCjCl0m9sri33iC6cIqyDE9trW2v6n
-         Osb1vsndTv9inYesmif5iAyqltqIVHzjebCU0gXpH+0P1ik6BTyDNxOi/VMklsdE2JCM
-         q4/pho5UbQZuLNWBiAgo8pdsl4h/Fm4zhh4jhs6BlFyW+smExngj8rTr1V7SCBecY02U
-         XRtw==
-X-Forwarded-Encrypted: i=1; AKwUvBy0soRER5ITBwQKsxyjKMRK7KD0D9uzw02ShBwP5XP2QgElO522fJk0UgugrPr7k02kw84ONT7DXsk=@vger.kernel.org
-X-Gm-Message-State: AFuF++mI+m4zuyUNWjC0jVuzpAXcCUY2F9XoOCmZ7GuG/se9YMuGZmH6
-	D6gV6fAYIuwj8R3QUVX2YMOVtU4v8rDMOd3jbFUsS5cfzkGeSDIBl37n0vp0yhsASt7DlYqtNQB
-	gCkykuL2eC+mDAcf0PRrxbMb5cOi2o45wumv3DqL7blsiU1CzKYTBTABZ+sjsXrA=
-X-Gm-Gg: AYBFou0WHw3xLZwYKWHa+6188QC6T/xX8YVpa1PVZ9lKgww7WyLoJunX8IRTvhY5epN
-	uV8cdIoc3sEX0mUUfML/jANWThTIvMIuZpFHje7C4/w9Kk+5Nh369xeRuklTwRDAldZJtv17pj2
-	FzsuqY/KnvBA6KnBhsIU/H+z7PwLWRn+2k6naRqiSv4SPh614NBTuWo24utB2JLE+JDuS2o9WVj
-	b4TJ5255ZnM2d3UfRJfLhzQm86vKN1YrT7fPddoOvcwvbZ4cbGS7HdmxE+VSQJpSt+Sj0al0/g+
-	+ydirh2fmexa49rfVmaqUGL3cxOmPOt0N3PN1lTUiLtBjBtwHvw8NRCGEz3vOuM6NNohPkCONIJ
-	R19ZxEwn2zcu2M14vclgXijnyBbf+U1De
-X-Received: by 2002:a17:90b:2247:b0:37f:a913:1554 with SMTP id 98e67ed59e1d1-3990f890861mr6902058a91.16.1788281333031;
-        Tue, 01 Sep 2026 09:48:53 -0700 (PDT)
-X-Received: by 2002:a17:90b:2247:b0:37f:a913:1554 with SMTP id 98e67ed59e1d1-3990f890861mr6901973a91.16.1788281332349;
-        Tue, 01 Sep 2026 09:48:52 -0700 (PDT)
-Received: from [192.168.0.5] ([49.204.111.114])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-328713b944bsm41662284eec.27.2026.09.01.09.48.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Sep 2026 09:48:51 -0700 (PDT)
-Message-ID: <177884a8-902f-49be-8fcb-b2bec3ec7d6c@oss.qualcomm.com>
-Date: Tue, 1 Sep 2026 22:18:44 +0530
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="pN9gCg9u"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=NGUsVPWlHRM8ghIA82NdNTSuDu9txgqkZauGCifdMnDIFuUCFnuI6uPee8KnCgw6LDRgD+R3+6O+9mb/cr2yGUjEAszNVXgIN6jG6rSs5fcF4Ludu2YWei08MKa0e7RrNZt13qHZXsvH1QFgzEl7dXwcvneQz2kJs4MoMHMJ+Y/oKqr70j2qIBEMSz3ilPu9d8PRc6Dq81BXbhNSlxUOkR+6w+ta7HuKBGvqImg6l+IcPKaxGjDLJ6OmLPGbwRz9u/N10Sm97a68iyrJTXrV0YwWQZ7sS3W67ksbbfkKuic7dILnQR+LU13M1KR5VWWnMZQ4zvMuA3fSh4BU93RgIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=W+1HQI3c5Aied2bzdpiTNL83LBh05Krk+Vi2Jcl8mzw=;
+ b=D4fGJXvKF00OuMde9WTzT4pMaGHQuTaI80Sh2YSuFyA7Z9114JA9Og2gk37KgR800LPWIcn+BQANDYP6kmBh9AUcxnKsRB7AVTk2TJCSjdbmdjJ7YLs6LFFbl51Rd6eAf/hA76SvqpgwLNZpSkQxyIg3ClsgHdZpnYZjBoDEkT9VpUeJ75hWG4MLst0y5jJGRTILLVrnYmIooyHP91ReaGoVcgDUCNON97Ax1ck0A5B06psgMikHdURN8dDEWkmpSDdqKBwGbjeCxQ/eW+kMLhptuV0Kl1zQs8nS4b4OMF45MdhZijD+8+O06x40phc6E01EhoPyV5THqlYfrXbu6A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=W+1HQI3c5Aied2bzdpiTNL83LBh05Krk+Vi2Jcl8mzw=;
+ b=pN9gCg9u1a3hs+eUMYjrH2MiLoq2IoT49bLGKAUsAqzoxCkFQWIKdQLr0UHvS5WTx/sBIkqmgQwXdIjXRph8EeMFXPMjLg1GWiUqmIdc7O1+FUJq3NB8AOP049WebTVWmgMbbYSFlxH5ETGh3TlFcaMIs0cMErDY5j5FVrSuKJBD1+xoSMIPJbkn1Xl3Gn3dra7plPYg+mUiRiPTzCoPWoql0GFTywYqxc0VOpjLl9hqPlPcDxhxpQLY1E57vkgvTCfqYV9IBYKFivIv0e9GT4e+DBUnUgLJyZH48+SDhDexkOWIIkZ3OJ2bL/RdDebN1RnWjV9Qfj62rdt5q1YXbw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
+ by DU2PR04MB8616.eurprd04.prod.outlook.com (2603:10a6:10:2db::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Tue, 1 Sep
+ 2026 18:25:52 +0000
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c%7]) with mapi id 15.21.0360.008; Tue, 1 Sep 2026
+ 18:25:51 +0000
+Date: Tue, 1 Sep 2026 14:25:43 -0400
+From: Frank Li <Frank.li@oss.nxp.com>
+To: Vincent Jardin <vjardin@free.fr>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+Message-ID: <apcYp0Zc7CrJMiOh@lizhi-Precision-Tower-5810>
+References: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
+X-ClientProxiedBy: CY8PR11CA0014.namprd11.prod.outlook.com
+ (2603:10b6:930:48::8) To GV2PR04MB11799.eurprd04.prod.outlook.com
+ (2603:10a6:150:2cf::9)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/9] soc: qcom: geni: Derive SE clock configuration
- from OPP table on SA8255P
-To: Ulf Hansson <ulf.hansson@oss.qualcomm.com>
-Cc: konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>, mukesh.savaliya@oss.qualcomm.com,
-        chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Abel Vesa <abel.vesa@oss.qualcomm.com>
-References: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-0-091697dbeb02@oss.qualcomm.com>
- <CAPx+jO9fcvBsxe9yx9oK=0EXmpNwub5ba0a-TGk1WRFaRGsqpA@mail.gmail.com>
-Content-Language: en-US
-From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-In-Reply-To: <CAPx+jO9fcvBsxe9yx9oK=0EXmpNwub5ba0a-TGk1WRFaRGsqpA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=F8JnsKhN c=1 sm=1 tr=0 ts=6a9701f5 cx=c_pps
- a=Oh5Dbbf/trHjhBongsHeRQ==:117 a=Z/g59IqO3Gki/5UUpFMnLg==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=bC-a23v3AAAA:8 a=EUspDBNiAAAA:8 a=1OWG-U-0pMjJ1F8qq_YA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=_Vgx9l1VpLgwpw_dHYaR:22 a=FO4_E8m0qiDe52t0p3_H:22
-X-Proofpoint-GUID: 12CYc7nytTwfBKrV9Cuz0QWjLZkTvugA
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDE0OCBTYWx0ZWRfX49etL3dFUw4C
- T7IRlcTks2hoYSR10j1rp4OUJn2qXnDQo7XM4aVHUINL4b+W2L0sqdoufLVgiJ0BcSsFbd7SzKP
- h2PiPeGt20RCDC/DfnXPuWkDgFmCOvc=
-X-Proofpoint-ORIG-GUID: 12CYc7nytTwfBKrV9Cuz0QWjLZkTvugA
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDE0OCBTYWx0ZWRfX1CPS1+NaBpc4
- xLY44XCi7KdRfZBoksfBzw+0YJIOwcHm0RoDqz3o6YKZFLesiF5EdB0xPYeudUVhEyJujYbtuEI
- mTjpp5W3mc2hx4CSJs0BLsyoTIXlqpOuJA2RZfKysqlyUqp3n23YS02NjeTVpuZk7fLaS8+QGSr
- Qvo98dSCbppeFbotYA0VFv3EZGEAcLsnq2EHrdaHRc4UQPZEvDIEH9TE8fSA5ou66zmmOlVGPls
- fbj6ccJES7EUsoPjnpQ1OkryHMH5k3pMwDe2UL9NvxNfqdV07QUGfiUq4b1zatMQIo2B68AHCZ1
- uVDxvbkaYkt1pNLr1VqKOywI6Db4TbBhZgrJdt0IGNUsXJNCkO9xguW0D358SN0saDJK0jmElXr
- ntLeljIpkAS0Ikhw2cwyDZhXX38BfOJQa4aoVdA8xYaUD7FbKd6hAW3PLLjRqDXpPOTWaARxgnN
- oTWNHGFg3xrDuSYQ6Ig==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-01_04,2026-09-01_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0 impostorscore=0
- adultscore=0 malwarescore=0 suspectscore=0 clxscore=1015 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609010148
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|DU2PR04MB8616:EE_
+X-MS-Office365-Filtering-Correlation-Id: e932939a-3ec2-4f3b-fb70-08df085673d2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|19092799006|7416014|376014|23010399003|1800799024|366016|3023799007|5023799004|10067099003|11063799006|18002099003|22082099003|56012099006|15866825006|41080700001;
+X-Microsoft-Antispam-Message-Info:
+	r8bx5fV3ghtFsUs+NzHAKG5B4I+YCF3w0LNIsxUnPs10LapaWI1jZLX6J/Eb1Lyn7g+1gKS6/A5O8q9Sn0vXiCA4t+F69IyVsh37G/cOgIWwFhbDIDZhIKWQ/YzXhmRQvEQpBr1VKlFrlHzjFqc5Tn6XQRv7B1uFlem9mDr5AZ32GL2z7UeSDtahHr8A0Hy7fiZhCUOs3irV7qVdQqWsZwk3E5B3xoOhDuJ8OvvRs2pD6Prm43Z5l4lRdv90EUQYOBSjP3VEDKkkdgxNj0vo3gZQvHtv8euJwNl9u06IGfW4IGj0SPUv/x3xrB1O2VJT/JArmB6KZs49aHguwR8R5AduEkYRImMwQkydNojKHuhKzbIsc2D680Q/oGjJr6o4sr5WmvLF8YktSzwK0lVWZ6CV3Cvc6UH4CvXYQWyzYCM/XswG1/21naa8SYFNYA0zNlyCZscsxyU1Uo19NSp/qTB4PmCZXzA0jbVautkmy2mOuAH4WGqjRiY0pD9bstm3QZ1/FlIYnjTyGa5W8TSDMoe+pxm3UzLbJbQL1BGpdo+br7ze3ZJ6vM4NMq4EFnW3F22ZAsPJF3YD7Tc3P8diqFNyMndYe1MS5YGmvzJV5Knr5jgmqWj5zAbMB3wPHbnL8JIZK3GuaIKtFt+hVhpmu3eWbMgHrfIrN+hJh+2n+jsQpvRUefvZKTu2KS3TuD6ZsKYDyIRF9l5u+5ZlXKPTZAyKJZYwAjj+5pLURoE3YKlT6J25puqjccz1qCxvy8Tz
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(19092799006)(7416014)(376014)(23010399003)(1800799024)(366016)(3023799007)(5023799004)(10067099003)(11063799006)(18002099003)(22082099003)(56012099006)(15866825006)(41080700001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?lB6PLQChKvQ2v6lErDDNV7t0BfMiQwDsobsNGYn4ciqH2g95H0lYniEbUdA7?=
+ =?us-ascii?Q?UzlDz91SyHwLFBc8AOuF3sxTogihzVhDpwV4qnSHIktsO+gyhzRzu6FK6JTn?=
+ =?us-ascii?Q?+hlueu6DDjJQlYBDDPUvBGIcVIzrBpNJyqmzZwlGdOlNimZb2UBHKbnHaZ7R?=
+ =?us-ascii?Q?O61ht0MA5oEjlzYw3s7uxwLDQ2NgU9qCDd4LbljESYewsYlplGqvZKSvcGAt?=
+ =?us-ascii?Q?wAGIVJKkHqyWrdJK5F13j8A9mVB8MNqwEq0BdpsC+HADnIVz46kbKmZ70SJQ?=
+ =?us-ascii?Q?57ovqL2u4BVaDZuzDQGU8Pdu6gE7B9SINh2urFHhcgXga+bqZL52a3KD+3ab?=
+ =?us-ascii?Q?Fw+54b18X2JI6oTVb+/ycVIav1vIj7ZtiWE6MtXklOyjk64gqux7O6gvgd1g?=
+ =?us-ascii?Q?Z39S6LdBijCALEzRvPlcxXxBpZoNzuC37NdjK5+7pFpBbddyH6nXjvSBE2vb?=
+ =?us-ascii?Q?LGjG2pdsNF4Y3Npqzh0FUBeDKVy2+Tzus5AJ/EsWLyc8fvwnqkmNA9fi6sTM?=
+ =?us-ascii?Q?aWN92AdHyG3F7VnuuZilmv2cXLx+xFmZBVTZX3239qeCHm/l4M88VtVbMldG?=
+ =?us-ascii?Q?uQhHGcnDu6+McDd6SFwY5CW978biq+pkAbvkpo7Z/zyr3CohSLxfZ6v+/CL/?=
+ =?us-ascii?Q?O0t3rG1HgVcglehdvmqH6rhoGk3ZVVxVAyy0XPVtdtMlLnXPONLcqkwiQPBq?=
+ =?us-ascii?Q?V24YH1hOYbqhYFMq15fVbUNCrMmec5rl7R6s/Qa+o+w+/VeMTelcJ3KMN+hj?=
+ =?us-ascii?Q?Ly3ayB68Hlp0ZBA/fId4KtOkSmWQK0yUKryulW6aTe1CqDjOwM9z7PIMRvg6?=
+ =?us-ascii?Q?OR2cgCf7oOYKWm+RUD5XIA0URRrMVQE3SZt7QcrYZWV93BePH/i63Ie60Kgf?=
+ =?us-ascii?Q?BXXGRQQI4FmryaKiR4kE6wkipWYBg458JlfExD1hnkPSIcd6Ut+OhZykMY9o?=
+ =?us-ascii?Q?IlGYYhM0f0XfZ4VWBkIxDICTg5keiFg/wKPj2O2Xi04TAXS6q1EtqgH9iDug?=
+ =?us-ascii?Q?gwVALIzzGeON0S5jCT5sqMiTH25OV39GkwZgJ9EGbm9hx8nySYspMlmf3O88?=
+ =?us-ascii?Q?zyRYbxzl8Oiu1V+rWDE/ZGYkCJD9cBTwsNeYdFOk4V77JHzuJsukS3ShuTru?=
+ =?us-ascii?Q?eVIUsjAKEk1pyeiP8WwkqUR2F52npLxLLklnjDHVkkxGL5kwmUI5LGDccjbD?=
+ =?us-ascii?Q?2peXovhmRzloHEoTfmagW33wgz0KQyAhi7IoSMvyUsasazF+YDoso8DtRcTs?=
+ =?us-ascii?Q?Nw6FeG7eiSyIr6sE5rdBT9skYIXQ/dshmyJky7zoh8bga8aae/+oSS75p+bU?=
+ =?us-ascii?Q?yqduQ6SjgtIe6fLLCOW24SJ/+JttNnA/ZnAOmlDLYIIAH4QSYU2q/TcRQRqa?=
+ =?us-ascii?Q?lo4lXeVypO9VH4M7OxPvgA6AP9+uGVxK7k6U4P2jhaXrMOc2vNIuJMOJJ3Pz?=
+ =?us-ascii?Q?IFVVI79bhsE5eKTxUUm7x9wV3W5kVey7DgSKdBJS8YXLMlM7WflIuqQFOxtq?=
+ =?us-ascii?Q?P8LFisPJqQ6L4mcJkixhqnyut0HNR0/VDs66oJFtJB8DqlPGvuoaKkuC9u2Q?=
+ =?us-ascii?Q?Bj3WfqTfIAkdC95mIzzuNyIWEpuTu+YSo8+NNsrg4A0C5UihF/V92Y4FY+9/?=
+ =?us-ascii?Q?HHTKvGzMYXHmysutjgS6qmMezzuaTpy/tZjfwX1k1vdEjgEll7HeBTmO3nKG?=
+ =?us-ascii?Q?eqUWLMDJ38BUdYK/8xL92zzH7nfWSDFxjlmGjMpd3xPHRJIjpVte0/XsV31o?=
+ =?us-ascii?Q?xDgK7dKck2GvogMeFcnm1y1vQSr3Mk3Saft4ZB3yhfl/dTy6XeM/?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e932939a-3ec2-4f3b-fb70-08df085673d2
+X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2026 18:25:51.6846
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: y57/Q5vyUw3BjH7xmVgovIiK4ewose7n6gj/X8I5r0s5oviTfGiHFFJYQ3QNpUuRgJER3BSmX6BpvgSEc6hz2gwvQH1xV3ibIhiva59GlYWUVxVwyj4Yy0VKM5WoSAWQ
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU2PR04MB8616
 
-Hi Ulf,
+On Wed, Aug 12, 2026 at 09:16:05PM +0200, Vincent Jardin wrote:
+> The Realtek RTL8366SE SMI read frame per:
+>
+>   S Addr Rd [A] reg[7:0] [A] reg[15:8] [A] [data[7:0]] A [data[15:8]] NA P
+>
+> Linux support it using I2C_M_REV_DIR_ADDR on a write message
+> that inverts the transmitted R/W bit, and I2C_M_NOSTART on the following
+> read message that continues the frame without re-addressing.
+>
+> This NXP i2c-imx is missing such support, so on an LX2160A the Realtek switch
+> could not be used.
+>
+> Signed-off-by: Vincent Jardin <vjardin@free.fr>
+> ---
 
-On 01-09-2026 20:22, Ulf Hansson wrote:
-> On Thu, Aug 27, 2026 at 7:59 PM Praveen Talari
-> <praveen.talari@oss.qualcomm.com> wrote:
->> On firmware-managed platforms such as SA8255P, there is no Linux clock
->> handler available to determine the appropriate SE source clock, source
->> clock index, and divider values for a requested protocol frequency.
->> However, these parameters are required when programming GSI TREs, where
->> the hardware expects an explicit clock source selection and divider
->> configuration for the serial engine.
->>
->> In contrast, platforms using Linux-managed clocks derive these
->> parameters through geni_se_clk_freq_match() using the source clock
->> information stored in clk_perf_tbl. Since the firmware-managed path
->> lacks equivalent clock information, protocol drivers cannot reuse the
->> existing frequency matching logic and instead rely on a direct mapping
->> between protocol-requested frequencies and performance levels. This
->> creates a separate clock configuration flow and prevents
->> firmware-managed platforms from deriving the actual SE clock parameters
->> required for GSI TRE programming.
-> Hmm, this sounds like moving backwards when it comes to keeping
-> drivers as portable as possible.
->
-> I understand geni_se_clk_freq_match() has been around for a while, but
-> fortunately its use seems limited to only a few qcom specific drivers.
->
-> Rather than continue down this path, would it not be possible to find
-> a more generic solution for "geni_se_clk_freq_match()"? Can we replace
-> it with a common clock/OPP API? In this way, we would not need to
-> sprinkle drivers with calls to platform specific  code.
-I agree that protocol drivers should not need to know whether GENI resources
-are managed through the clock framework or a firmware-provided 
-performance domain.
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
 
-The intent of this series is actually to move in that direction rather than
-introduce a separate flow. Today firmware-managed platforms cannot use
-geni_se_clk_freq_match() because clk_perf_tbl is only populated when a 
-Linux clock
-is present. This series derives the same clock-performance 
-information(clk_perf_tbl) from the OPP
-table and populates clk_perf_tbl during geni_se_domain_attach(), 
-allowing both
-resource-management models to reuse the existing 
-geni_se_clk_freq_match() infrastructure.
-
-Likewise, geni_se_set_rate() hides whether the underlying implementation 
-uses
-dev_pm_opp_set_rate() on a perf-domain device or a regular clock-backed 
-device,
-so protocol drivers no longer need platform-specific callbacks. The goal 
-is to
-converge both paths behind common GENI helpers rather than maintain separate
-clock-selection mechanisms.
+> Follow the logics from i2c-algo-bit and i2c-s3c2410 (addr ^= 1).
 >
->> To address this limitation, the performance-domain OPP table is treated
->> as the representation of SE-supported source clock frequencies. During
->> geni_se_domain_attach(), the OPP entries are used to populate
->> clk_perf_tbl and related clock performance data, allowing
->> firmware-managed platforms to leverage the same clock frequency matching
->> infrastructure used by Linux-managed platforms.
->>
->> With this change, protocol drivers can use geni_se_clk_freq_match() to
->> select the closest supported source clock frequency for a requested
->> protocol rate, derive the corresponding source clock index and divider
->> values required for GSI TRE programming, and apply the matched clock
->> through the OPP framework. This removes the dependency on direct
->> protocol-frequency-to-performance-level mappings and provides a common
->> clock selection and configuration mechanism across both firmware-managed
->> and Linux-managed GENI deployments.
-> Rather than adding yet another platform specific method, would it be
-> possible to extend the generic OPP library with the pieces that are
-> missing to make this work in a generic way?
-I agree with the goal of using generic infrastructure. However, 
-geni_se_clk_freq_match()
-derives GENI-specific parameters such as the source clock, clock index, 
-and divider values
-required for GSI TRE programming, which are not represented by the 
-generic OPP interface today.
-
-This series does not introduce a new clock selection path; it reuses the 
-existing
-geni_se_clk_freq_match() flow on firmware-managed platforms by populating
-clk_perf_tbl from OPP data.
+> Documentation/i2c/i2c-protocol.rst says I2C_M_NOSTART "may also be used
+> between direction changes by some rare devices"; the RTL8366SE is one of
+> such device !
 >
->> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
-> Kind regards
-> Uffe
+> - The NOSTART read turns the bus around without waiting for a completion,
+>   because the controller stretches SCL after the previous byte and the
+>   frame is therefore still open. That is what lets i2c_imx_read() enter
+>   the state the ISR would otherwise have moved to.
 >
->> ---
->> Changes in v2:
->> - Add new patch to remove OPP rate reset from resource deactivation
->> - Add new patch to vote source frequency via OPP for I2C
->> - Compress the SPI, I2C and serial commit messages per review feedback
->> - Drop a stray blank line before trace_geni_i2c_bus_setup() in the
->>    I2C resource-initialization helper commit.
->> - Link to v1: https://patch.msgid.link/20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-v1-0-61171ab1cdce@oss.qualcomm.com
->>
->> ---
->> Praveen Talari (9):
->>        pmdomain: arm: Fix -EINVAL from scmi_pd_set_perf_state() on state 0
->>        soc: qcom: geni-se: Populate clk_perf_tbl with SE source clock frequencies from perf OPP table
->>        soc: qcom: geni-se: Add helper to set SE clock rate via OPP
->>        soc: qcom: geni-se: Remove OPP rate reset from resource deactivation
->>        serial: qcom-geni: Use geni_se_set_rate() for source clock configuration
->>        spi: qcom-geni: Use geni_se_set_rate() for setting source clock frequency
->>        i2c: qcom-geni: Vote for SE clock rate using OPP
->>        i2c: qcom-geni: Use common GENI resource initialization helper
->>        i2c: qcom-geni: Use geni_se_set_rate() for setting source clock frequency
->>
->>   drivers/i2c/busses/i2c-qcom-geni.c      | 72 +++++++++++++++++----------------
->>   drivers/pmdomain/arm/scmi_perf_domain.c |  2 +-
->>   drivers/soc/qcom/qcom-geni-se.c         | 62 +++++++++++++++++++++++++---
->>   drivers/spi/spi-geni-qcom.c             | 24 +++++------
->>   drivers/tty/serial/qcom_geni_serial.c   | 26 ++++++------
->>   include/linux/soc/qcom/geni-se.h        |  2 +
->>   6 files changed, 122 insertions(+), 66 deletions(-)
->> ---
->> base-commit: 0f6da28aab51b16762ed82e8fdeaa5042da45b08
->> change-id: 20260805-derive_clk_perf_tbl_from_perf_domain_opp_table-2f29ad32226a
->>
->> Best regards,
->> --
->> Praveen Talari <praveen.talari@oss.qualcomm.com>
->>
+> - I2C_FUNC_PROTOCOL_MANGLING also covers I2C_M_IGNORE_NAK,
+>   I2C_M_NO_RD_ACK and I2C_M_STOP, which this driver does not implement.
+>   They are rejected with -EOPNOTSUPP rather than advertised and silently
+>   ignored. I2C_M_NOSTART on the first message is rejected as well.
+> ---
+> Changes in v2:
+> - message validation with i2c_imx_check_msgs() (Carlos Song)
+>   No functional change
+> - Link to v1: https://lore.kernel.org/r/20260807-for-upstream-i2c-imx-lx2160-reverse-v1-1-f276ce8cb660@free.fr
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 153 ++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 113 insertions(+), 40 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 9477d814fde9..7dc9c43673ee 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1000,16 +1000,10 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
+>  	return 1;
+>  }
+>
+> -static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+> +static inline void i2c_imx_setup_read(struct imx_i2c_struct *i2c_imx)
+>  {
+> -	int result;
+>  	unsigned int temp;
+>
+> -	result = i2c_imx_isr_acked(i2c_imx);
+> -	if (result)
+> -		return result;
+> -
+> -	/* setup bus to read data */
+>  	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+>  	temp &= ~I2CR_MTX;
+>  	if ((i2c_imx->msg->len - 1) || (i2c_imx->msg->flags & I2C_M_RECV_LEN))
+> @@ -1017,6 +1011,18 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+>
+>  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+>  	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
+> +}
+> +
+> +static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	int result;
+> +
+> +	result = i2c_imx_isr_acked(i2c_imx);
+> +	if (result)
+> +		return result;
+> +
+> +	/* setup bus to read data */
+> +	i2c_imx_setup_read(i2c_imx);
+>
+>  	return 0;
+>  }
+> @@ -1172,6 +1178,16 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+>  	return i2c_imx_master_isr(i2c_imx, status);
+>  }
+>
+> +static u8 i2c_imx_addr_byte(struct i2c_msg *msg)
+> +{
+> +	u8 addr = i2c_8bit_addr_from_msg(msg);
+> +
+> +	if (msg->flags & I2C_M_REV_DIR_ADDR)
+> +		addr ^= 1;
+> +
+> +	return addr;
+> +}
+> +
+>  static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+>  					struct i2c_msg *msgs)
+>  {
+> @@ -1200,7 +1216,7 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+>  	 * Write slave address.
+>  	 * The first byte must be transmitted by the CPU.
+>  	 */
+> -	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
+> +	imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
+>  	time_left = wait_for_completion_timeout(
+>  				&i2c_imx->dma->cmd_complete,
+>  				msecs_to_jiffies(DMA_TIMEOUT));
+> @@ -1242,14 +1258,20 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+>  	int result;
+>  	unsigned int temp = 0;
+>
+> -	/* write slave address */
+> -	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
+> -	result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+> -	if (result)
+> -		return result;
+> -	result = i2c_imx_acked(i2c_imx);
+> -	if (result)
+> -		return result;
+> +	/*
+> +	 * I2C_M_NOSTART continues a frame that is already open, so there is
+> +	 * no address phase: go straight to turning the bus around.
+> +	 */
+> +	if (!(msgs->flags & I2C_M_NOSTART)) {
+> +		/* write slave address */
+> +		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
+> +		result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+> +		if (result)
+> +			return result;
+> +		result = i2c_imx_acked(i2c_imx);
+> +		if (result)
+> +			return result;
+> +	}
+>
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s> setup bus\n", __func__);
+>
+> @@ -1371,16 +1393,18 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+>  	int i, result;
+>
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
+> -		__func__, i2c_8bit_addr_from_msg(msgs));
+> +		__func__, i2c_imx_addr_byte(msgs));
+>
+> -	/* write slave address */
+> -	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
+> -	result = i2c_imx_trx_complete(i2c_imx, true);
+> -	if (result)
+> -		return result;
+> -	result = i2c_imx_acked(i2c_imx);
+> -	if (result)
+> -		return result;
+> +	if (!(msgs->flags & I2C_M_NOSTART)) {
+> +		/* write slave address */
+> +		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
+> +		result = i2c_imx_trx_complete(i2c_imx, true);
+> +		if (result)
+> +			return result;
+> +		result = i2c_imx_acked(i2c_imx);
+> +		if (result)
+> +			return result;
+> +	}
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
+>
+>  	/* write data */
+> @@ -1402,7 +1426,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+>  static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+>  {
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
+> -		__func__, i2c_8bit_addr_from_msg(msgs));
+> +		__func__, i2c_imx_addr_byte(msgs));
+>
+>  	i2c_imx->state = IMX_I2C_STATE_WRITE;
+>  	i2c_imx->msg = msgs;
+> @@ -1411,8 +1435,16 @@ static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+>  	/*
+>  	 * By writing the device address we start the state machine in the ISR.
+>  	 * The ISR will report when it is done or when it fails.
+> +	 *
+> +	 * I2C_M_NOSTART continues a frame that is already open and so has no
+> +	 * address byte: push the first data byte instead. That raises the same
+> +	 * interrupt and the ISR carries on from the second byte.
+>  	 */
+> -	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
+> +	if (msgs->flags & I2C_M_NOSTART)
+> +		imx_i2c_write_reg(msgs->buf[i2c_imx->msg_buf_idx++], i2c_imx,
+> +				  IMX_I2C_I2DR);
+> +	else
+> +		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
+>  	wait_event_timeout(i2c_imx->queue,
+>  			   i2c_imx->state == IMX_I2C_STATE_DONE ||
+>  			   i2c_imx->state == IMX_I2C_STATE_FAILED,
+> @@ -1529,22 +1561,29 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+>
+>  	dev_dbg(&i2c_imx->adapter.dev,
+>  		"<%s> write slave address: addr=0x%x\n",
+> -		__func__, i2c_8bit_addr_from_msg(msgs));
+> +		__func__, i2c_imx_addr_byte(msgs));
+>
+>  	i2c_imx->is_lastmsg = is_lastmsg;
+>
+> -	if (block_data)
+> -		i2c_imx->state = IMX_I2C_STATE_READ_BLOCK_DATA;
+> -	else
+> -		i2c_imx->state = IMX_I2C_STATE_READ;
+>  	i2c_imx->msg = msgs;
+>  	i2c_imx->msg_buf_idx = 0;
+>
+> -	/*
+> -	 * By writing the device address we start the state machine in the ISR.
+> -	 * The ISR will report when it is done or when it fails.
+> -	 */
+> -	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
+> +	if (msgs->flags & I2C_M_NOSTART) {
+> +		i2c_imx->state = block_data ? IMX_I2C_STATE_READ_BLOCK_DATA_LEN
+> +					    : IMX_I2C_STATE_READ_CONTINUE;
+> +		i2c_imx_setup_read(i2c_imx);
+> +	} else {
+> +		if (block_data)
+> +			i2c_imx->state = IMX_I2C_STATE_READ_BLOCK_DATA;
+> +		else
+> +			i2c_imx->state = IMX_I2C_STATE_READ;
+> +
+> +		/*
+> +		 * By writing the device address we start the state machine in the ISR.
+> +		 * The ISR will report when it is done or when it fails.
+> +		 */
+> +		imx_i2c_write_reg(i2c_imx_addr_byte(msgs), i2c_imx, IMX_I2C_I2DR);
+> +	}
+>  	wait_event_timeout(i2c_imx->queue,
+>  			   i2c_imx->state == IMX_I2C_STATE_DONE ||
+>  			   i2c_imx->state == IMX_I2C_STATE_FAILED,
+> @@ -1574,6 +1613,33 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+>  	return ret;
+>  }
+>
+> +#define I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS \
+> +	(I2C_M_IGNORE_NAK | I2C_M_NO_RD_ACK | I2C_M_STOP)
+> +
+> +static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < num; i++) {
+> +		/* Reject rather than silently transfer */
+> +		if (msgs[i].flags & I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS)
+> +			return -EOPNOTSUPP;
+> +
+> +		if (msgs[i].flags & I2C_M_NOSTART) {
+> +			/*
+> +			 * NOSTART continues an already open frame. The first
+> +			 * message has nothing to continue from,
+> +			 * a 0 length continuation leaves the controller with
+> +			 * no byte to clock.
+> +			 */
+> +			if (i == 0 || msgs[i].len == 0)
+> +				return -EOPNOTSUPP;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+>  			       struct i2c_msg *msgs, int num, bool atomic)
+>  {
+> @@ -1583,6 +1649,10 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+>  	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+>  	int use_dma = 0;
+>
+> +	result = i2c_imx_check_msgs(msgs, num);
+> +	if (result)
+> +		return result;
+> +
+>  	/* Start I2C transfer */
+>  	result = i2c_imx_start(i2c_imx, atomic);
+>  	if (result) {
+> @@ -1604,7 +1674,7 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+>  		if (i == num - 1)
+>  			is_lastmsg = true;
+>
+> -		if (i) {
+> +		if (i && !(msgs[i].flags & I2C_M_NOSTART)) {
+>  			dev_dbg(&i2c_imx->adapter.dev,
+>  				"<%s> repeated start\n", __func__);
+>  			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> @@ -1636,7 +1706,8 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+>  #endif
+>
+>  		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
+> -			msgs[i].flags & I2C_M_DMA_SAFE;
+> +			msgs[i].flags & I2C_M_DMA_SAFE &&
+> +			!(msgs[i].flags & I2C_M_NOSTART);
+>  		if (msgs[i].flags & I2C_M_RD) {
+>  			int block_data = msgs->flags & I2C_M_RECV_LEN;
+>
+> @@ -1730,7 +1801,9 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+>  static u32 i2c_imx_func(struct i2c_adapter *adapter)
+>  {
+>  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+> -		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+> +		| I2C_FUNC_SMBUS_READ_BLOCK_DATA
+> +		| I2C_FUNC_NOSTART
+> +		| I2C_FUNC_PROTOCOL_MANGLING;
+>  }
+>
+>  static const struct i2c_algorithm i2c_imx_algo = {
+>
+> ---
+> base-commit: 3d6d817622b0a9721e3cc404df3469171582be13
+> change-id: 20260807-for-upstream-i2c-imx-lx2160-reverse-7a94b9561188
+>
+> Best regards,
+> --
+> Vincent Jardin <vjardin@free.fr>
+>
