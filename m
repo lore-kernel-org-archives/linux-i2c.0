@@ -1,70 +1,74 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906DA3EDE7C
-	for <linux-i2c@vger.kernel.org>; Wed,  2 Sep 2026 21:25:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7DFB3C345F
+	for <linux-i2c@vger.kernel.org>; Wed,  2 Sep 2026 21:25:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788384307; cv=none; b=mNid+77apFeWC1HjXzmD+wJGlRtBv0EEN7BhUV96wrXCcXuqZ1xV0nApTfRitDF7t5GjFnhy7D1mNscb9ISrcyXaT+zWrZBQyrchKWUV6EvYy+I/duYRuqMH6YIynBSjuVMhFnjWrvB5332JZaHu8STurnDTcLIytW8tADenju0=
+	t=1788384311; cv=none; b=plRNoXieFe11TDYBmj+3v8AG/fJ6iY16e3fxEVowN2XTVmc5TLLa7OiPLaKfBlURLyDFxCumtFS63Ok6NTZlEvPzQlWcm4XSF8zxs1CowWV1EXASLDU6tC9U7vP/o1oPSF5Uuxlexyuvim5GK1fjq6CPbkMBZopYypaznb9aslE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788384307; c=relaxed/simple;
-	bh=TC6K4z7ck8SSx5BuirQQfQ7OTQjsbasn05mpdHufobA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Egt728rCkmGtu+Pt85+ZnYq/nPwQ65h5XiLxzz5PvZ8hTc3EYFBn9cJKCperM+ITCiNMIgz6QX5MOYfdYiYq3eQYKT2OSXFPu6QwJNiz3ZnXYqv6IicnnNzdMHQ68lCuHYmfvFbejPqqrE0AOnf/wwKTYhJ/1WvOgUEs9D+k1Y4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O/XoD/QN; arc=none smtp.client-ip=209.85.210.170
+	s=arc-20240116; t=1788384311; c=relaxed/simple;
+	bh=LHhpRWV64svn2PO2cWWQEY87EXmjPNDpiKNVs+iud0M=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=NT9atd55hB0hp3mERtQGV0lnkI4hUYsSG8fkQgJ2qNuBWe+TP7UyMMC337ek6UjtSDyi17ZewEqBCqT2EBDbGfNKwVytCJRKezet+SmHDUMSX647QLqsUc5RKWz6RN5Z+55WXYAc881+h0BzKA53yHPfKcxi8V8zKRfqkk07+ME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l+sA/duF; arc=none smtp.client-ip=209.85.210.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O/XoD/QN"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-8558c0b26a8so1301277b3a.3
-        for <linux-i2c@vger.kernel.org>; Wed, 02 Sep 2026 14:25:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l+sA/duF"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-84eb992a881so1458392b3a.2
+        for <linux-i2c@vger.kernel.org>; Wed, 02 Sep 2026 14:25:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788384299; x=1788989099; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=J5D1dk8TTzni4YmYfyjK0gzjxKAFCRBFSbYWu7aGl84=;
-        b=O/XoD/QNgJwKDgH9GWtt6yf2dlOWchDpgl3FXS/MUqrZv1FLh48/suVWfzsQo0x26l
-         ozEraiYlB2kX2+XVmUf/vRCR+kJvauRMTUviEvYr1zh2ZCRUgtVapOGJRQxX7k9s1bGD
-         bjMMhkVQxbw80NVoQZGKa6N7iAI+ydH6Log/1aZuUTiVftCSN9l34Rw1R9cNxvPfRvX+
-         RqHCfRz3gZvHHQ6hhUuMQ0EhllK3xgvw6D8K7E//n8N9WjIqeiYgmBsfEgqG24Xl9Hjb
-         9/aYFTJLZe/+WHpTwahWOkfZlirrm1WTlsXBVK69L8UkjmfXCognEiP2gF1BMPJeblxp
-         nasA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788384299; x=1788989099;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1788384303; x=1788989103; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=J5D1dk8TTzni4YmYfyjK0gzjxKAFCRBFSbYWu7aGl84=;
-        b=lq790Y6oFDIhW71Y59Yh3KrALfpjGhf0jQdMilJoRag6fxS1/2faX5uGHa95Kaw+rr
-         OIuhvVssYrnmAt88jub1V45IRyqCrgQrbzuRxykoGHm0GgG0DF/YEkCEHLYaZQSHCi0D
-         Avil6o9Wgq9VwIt/oQmlJxGaQrSPIZJvz1iJinIWwgeVtVKAECvx+4Q53bPFuBRNiCq7
-         C6PgAAw1W5PhlpK4xJQKCCOJifHfFwjRQoVK07O5Bs3cZxkj8GTbQlr4mk4b8xaF9IFA
-         8/GtLmgIGOcGqwMPILMLZffDJhMUxu+UnT9qadyxqI+gJ0d4exM5k6ENwLdEpPBd0Fbv
-         8T9A==
-X-Gm-Message-State: AFuF++nPfcCOPlAyrn436KtXFUVtq4Xb7NEyheY+KJ+9E60keXBkxesS
-	Ub2U6eF0DkZE/v/xsD5XheHDR1DRfP7WDlaSp5WYkB1L/K9/YFvzKACpEJGpBQ==
-X-Gm-Gg: AYBFou0wEbzgHFiVEnpxKvt89SlSgjADYmQTQc700Q+b27uCsGTNMjmj/jG4GPeG8/w
-	6QHDFIVjL7DaTtFJhnMG+9Kj0+Bnj4CAnSPRW3Vladrda7DbHcwg8+Sl0TZRT9lRImrLPnelo9S
-	NZ5PPQrtTpE6ZImrPT4tqsU7kPsPDvGH4bKrfInvcJJCsU5xPWT7J8GltkMmD2O+yQnsfVXCSVd
-	uHU8Bi79SnGhj44g2+gE+gs4vN9OWH/P88T6jwQwVs187R+NklZa1Fy42rPKj70I281pZjCaSNd
-	WSNxrBzsaB7xLbfjTpNB2kV+SVEn5WfKesYXAkOBmBPfi4xo+GTlhiBwAnNzGa3yZWXF5/CFEqN
-	V6uR/5Fk1q/IKGcGZLRrqGZAGrEIzVf6KBmQ7l4nljVLPpm/NztU2qKAAGReWoSpxhIv0v+XDhy
-	0gCF8Sb7idtTmN6paMf2Kfppoje5OwAjSJg68BM8jxTbfcnk6n0pEJV4Blvut/qq7BIClsbXnqM
-	6/PF72wHMF6KHCkkiIecxrr1/MwCrc3iTkOhEV5gCj8biG/lz60hYIimdIdZ3AwrHvzMfKd5RJ6
-	euM8IwUmEUFaI55k5TFNRZyvbFwCT1GIK1Z1OQ==
-X-Received: by 2002:a05:6a21:1644:b0:3d0:c5c0:d9b3 with SMTP id adf61e73a8af0-3d9ae3baf35mr13245780637.18.1788384298968;
-        Wed, 02 Sep 2026 14:24:58 -0700 (PDT)
+        bh=+/0STUVLZsyjAhQiRBiOnwe+jugMD4ztFWpPC89Ywfo=;
+        b=l+sA/duF0T2zjwzPyElfx3MCquLfsCm0EzAlixgBgUDMzim60RT+4LCxp1Rfcjih2l
+         A99b6dwyDMljOctKwGv9mZVApFXD6E1IxHMvALyFnbUU9NGJEx9cJ1ZkREkL04htSFxM
+         9yvL8enAD7uKi2zvGKE0Psvd7LcgIxcA3KWNkcRwkQkDzuIzi1mJNNFR0yGui/DMVvuL
+         tDznS40ksF41Q6/9mdlJ7jZzCCWNC+MZIFCY2TV/FtCSxfhYx6bh396YbdEB4YVhpo1D
+         1oAJq90YUsfE99AhQX2IjGkl62sl4fH6zlLIQNOJIklHf3zNuTN4rlx5wzxuy+9scqrI
+         5Rqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788384303; x=1788989103;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+/0STUVLZsyjAhQiRBiOnwe+jugMD4ztFWpPC89Ywfo=;
+        b=GH1znKa2GqI1xQ1bSG4NhaRcH2pvLH9cochfv7Bf33kIBM9F1T/dkgu6L25AezMTPZ
+         1u7GGpWT+h1fVJ2jklT31EK1NlM32nhxEoT0yB81YnUQ2M6GXrD9xCmIeatT0AOhhSfj
+         lnXAxHGNpNFzn7/DrANi9pvow/AONKlYCTu8+/5HNUKD2gn6JgdQWuXqAxDNHz2G1fPD
+         uhydfRjt6XLXuq4CREE0b1FmFDv4FUdu39sU0+rN9s+hMIG4v/Q8WsdQIssOTP3BKKqI
+         smWOatJRnSavDZzztmOuvWcduG4dy73iT2krjiDtXzmsBCxi31x2nOMvlMz4Vh1VlO1W
+         IkPQ==
+X-Gm-Message-State: AFuF++mvon1bx9Iw8xKUOfukqzSplS5k98NNP6lajMdkuF9QpQDbhy/X
+	pxo9W7xrZ0gUQGez7vecqivYdQob95Jg4YiEseJ1ejQD4sR7w9n/+kv5t+ybvA==
+X-Gm-Gg: AYBFou2BKf1Wi9iybli3CzXMFCX3ctd3xi58E+IkZOMmrwC+XNzwJptsJzT0xmV4t4j
+	/IvYqVSEOmM/tgZDc/wsZ/cRY9jgJfy/9p7tQ/DRSSz47h0TBvkVICTZKBewNdhrv/0yAiM5/y4
+	4Xdl6yRxHsMFZl1lF4279PK2iThtxM8qv+GAJ5G5XH+Y0UmA0FMEA8paABzjswoDDF1Gb06DMi4
+	VDH2R4et5iP9PZWz8XZEudQ9thD9xWZolLe62u+Tu8dpx91MM2DElhV8P3Dbg7ws5bDMyNIdjLc
+	Jol6jGvHLVf4cEPK0bY40EuoFTgbanPyUGVsK/DIInAMfdUZvXt9JtLrQtyWbqMksNKaBFkiLRG
+	tpUxa5jWomEpGdvODqnqYQFqc4OeAlkloKDNlnjf+nL9bitFHgR7H7rJ1a3ohRNsy19TOkvwYOF
+	uInyeth+7LWDy26ix/vDE5QRM8SUJKrWLsZWui1EgakQKsmCH3SK5PdEE+/fgApYKU8X59ZpsAt
+	SZ9NgWYSjTxHMDpR9bTVU13qM73TC/sb0PD/o0phorqOWgbic+4VnXbUrfyjvDIExvo8zy+Kx4d
+	Qnd8/U/6eMWN9FST3QlMRuCZcascYw7TA0BhPQ==
+X-Received: by 2002:a05:6a00:ad0b:b0:857:4dea:e1dd with SMTP id d2e1a72fcca58-85ed3c7d7b6mr11974426b3a.14.1788384302556;
+        Wed, 02 Sep 2026 14:25:02 -0700 (PDT)
 Received: from ryzen.lan ([2601:644:8000:7a86::e34])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc43d40c55fsm90890a12.19.2026.09.02.14.24.56
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc43d40c55fsm90890a12.19.2026.09.02.14.25.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 14:24:57 -0700 (PDT)
+        Wed, 02 Sep 2026 14:25:01 -0700 (PDT)
 From: Rosen Penev <rosenp@gmail.com>
 To: linux-i2c@vger.kernel.org
 Cc: Andi Shyti <andi.shyti@kernel.org>,
 	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCHv2 0/3] use devm and get irq in probe
-Date: Wed,  2 Sep 2026 14:24:53 -0700
-Message-ID: <20260902212456.289608-1-rosenp@gmail.com>
+Subject: [PATCHv2 2/3] i2c: ibm_iic: get the irq early in probe
+Date: Wed,  2 Sep 2026 14:24:55 -0700
+Message-ID: <20260902212456.289608-3-rosenp@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260902212456.289608-1-rosenp@gmail.com>
+References: <20260902212456.289608-1-rosenp@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -73,18 +77,99 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Simplifies probe slightly and handles potential -EPROBE_DEFER a bit better.
+Use platform_get_irq() which can return -EPROBE_DEFER, unlike
+irq_of_map_and_parse().
 
-v2: reword descriptions slightly. Handle iic_force_poll before getting the irq.
+Check for iic_force_poll before doing so to avoid pointless work.
 
-Rosen Penev (3):
-  i2c: ibm_iic: ioremap with platform pointer
-  i2c: ibm_iic: get the irq early in probe
-  i2c: ibm_iic: use devm for main allocation
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/i2c/busses/i2c-ibm_iic.c | 43 ++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 19 deletions(-)
 
- drivers/i2c/busses/i2c-ibm_iic.c | 65 +++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 34 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 20421ebe73ab..8af666442952 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -648,31 +648,22 @@ static inline u8 iic_clckdiv(unsigned int opb)
+ }
+ 
+ static int iic_request_irq(struct platform_device *ofdev,
+-				     struct ibm_iic_private *dev)
++			   struct ibm_iic_private *dev)
+ {
+-	struct device_node *np = ofdev->dev.of_node;
+-	int irq;
+-
+-	if (iic_force_poll)
+-		return 0;
+-
+-	irq = irq_of_parse_and_map(np, 0);
+-	if (!irq) {
+-		dev_err(&ofdev->dev, "irq_of_parse_and_map failed\n");
+-		return 0;
+-	}
++	int ret;
+ 
+ 	/* Disable interrupts until we finish initialization, assumes
+ 	 *  level-sensitive IRQ setup...
+ 	 */
+ 	iic_interrupt_mode(dev, 0);
+-	if (request_irq(irq, iic_handler, 0, "IBM IIC", dev)) {
+-		dev_err(&ofdev->dev, "request_irq %d failed\n", irq);
++	ret = request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)
++	if (ret) {
++		dev_err(&ofdev->dev, "request_irq %d failed\n", dev->irq);
+ 		/* Fallback to the polling mode */
+-		return 0;
++		return ret;
+ 	}
+ 
+-	return irq;
++	return ret;
+ }
+ 
+ /*
+@@ -685,12 +676,23 @@ static int iic_probe(struct platform_device *ofdev)
+ 	struct i2c_adapter *adap;
+ 	void __iomem *vaddr;
+ 	const u32 *freq;
++	int irq;
+ 	int ret;
+ 
+ 	vaddr = devm_platform_ioremap_resource(ofdev, 0);
+ 	if (IS_ERR(vaddr))
+ 		return PTR_ERR(vaddr);
+ 
++	if (iic_force_poll) {
++		irq = 0;
++	} else {
++		irq = platform_get_irq(ofdev, 0);
++		if (irq == -EPROBE_DEFER)
++			return irq;
++		if (irq < 0)
++			dev_warn(&ofdev->dev, "using polling mode\n");
++	}
++
+ 	dev = kzalloc_obj(*dev);
+ 	if (!dev)
+ 		return -ENOMEM;
+@@ -701,9 +703,12 @@ static int iic_probe(struct platform_device *ofdev)
+ 
+ 	init_waitqueue_head(&dev->wq);
+ 
+-	dev->irq = iic_request_irq(ofdev, dev);
+-	if (!dev->irq)
+-		dev_warn(&ofdev->dev, "using polling mode\n");
++	dev->irq = irq;
++	if (dev->irq > 0) {
++		ret = iic_request_irq(ofdev, dev, irq);
++		if (ret)
++			dev->irq = 0;
++	}
+ 
+ 	/* Board specific settings */
+ 	if (iic_force_fast || of_get_property(np, "fast-mode", NULL))
 -- 
 2.55.0
 
