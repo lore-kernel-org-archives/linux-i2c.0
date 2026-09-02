@@ -1,126 +1,88 @@
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4001C75F9
-	for <linux-i2c@vger.kernel.org>; Wed,  2 Sep 2026 05:05:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788325546; cv=pass; b=g4uAXvTE9qFzskWefz7GY7Y4I7k/oPsEFpLrC1z0naqVwNPPr8IT3qUhCWQw5l8mc2NMyjBm1MO3O4BoL7gwmGhf5qy5O79odlZFYQtNuVPLHZAiGmT1cYs+luJm51K09iYl/RNQ98/3cpX25eeR9wWWPv1jxosrcYQhBJM52JM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788325546; c=relaxed/simple;
-	bh=NLHqvXto+f3RYXsUmTwIi3mwg7y/IwmK5K15JRyNzIc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MxkznuxY5whRykH9xgJLwWP/+oMrDJgv7eXX6a7spL6dnvwSQ/ou6t6giSWb89Wui2X4rhr9Ds38PSuXmXqkF5WElx+njtliWkANBd0t4nYaTupOF2GgDbypok+pMpTR9tG/bzQgDUSz9rkCq3Fzk32YUX98Er1Dyil4iTdSX8M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l+3L2msJ; arc=pass smtp.client-ip=209.85.208.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 535F5411FB5;
+	Wed,  2 Sep 2026 09:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788340715; cv=none; b=q/5In4O0KFwE3PDBA258fh2qp5JE0c5y8GiwWeZXR66v1EBr5pHFAobDsWf3sOUxEEo5dlW5yKp0ix8Dlx8RAIZxaXShuMNwjCNb4Oe5Zq9hkHdunnbfEUYcp51NpPQfx+Xc0YhZz9d0Vu5qMncBMYoE5KgJv0qr9drz2NfUFCU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788340715; c=relaxed/simple;
+	bh=33MebzVKqJWV4gRY3VPk4dvyct8bgsS4+zYSk7at1to=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=GJdnefTVGfv1FZxFFyljXcsApXoFSwEnHepfArh114Q3Co5mTytlUoyss7I46s4duxtuAFxrDeEjuIkQ6EfLUaxrL0Kg3bVGnqCjL6goL3uQs6QUAfduXxJkuUrOzv9iavEnBBIN4bgko4iDBIssPQAE8qlENgdDT6QullTqubQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=F7egXK90; arc=none smtp.client-ip=210.202.87.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l+3L2msJ"
-Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-3a1981228f8so5900401fa.1
-        for <linux-i2c@vger.kernel.org>; Tue, 01 Sep 2026 22:05:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788325543; cv=none;
-        d=google.com; s=arc-20260327;
-        b=mWG4sQxlr23tYwqp2mRw/NsKvPV59ApHVyPQmBREKWUv1bil6m6Fj4f0EAw8PtuulC
-         pmoc0cHlplfefImogzYlNk1OWEZxG3VBir1TKyHc2e60gEf7HpUtMwFXT75tQny2j348
-         qrqdTX+rz5atnlqcE2XsQTZWb9UDPdFLOws3PH+pRuLvITGy0uhuyhDcfKuMVSInO3Eo
-         UQo9cptaA7QBtpzTtpi3gQoZeKtG7OKThKF+ugP6krUHkCHABujtOc1nM3E6qCf/fyNz
-         1DRFr10DXNGmflLQptDYztU0rbK8KG9UcgFqgXK4aa4GlzmfCyDg9HRIt3F1bGD9gnem
-         xYdg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=7nkXBkEBfR4l2iwoI8t7QwAJBhpGhm5orDlZN2BZ1Zc=;
-        fh=1jn3ZD3Zmd91cEiJMaOWUKRisYYC0cxah/WVRlhKPqU=;
-        b=JQK2eoWTuBnYnL2ADfLF2r15Kek37B/V/m27pvmWDZ63DCibtKd3kyPowaolJ47PYm
-         3aZvoE3JsQy0//Kgr51bse3oMkzysZ0i/cJ8RKtKxl2NDeXaCEtayAAU5KKyfzx2B6M6
-         8DidIGofmfIXP0qC/eKGQw0nbtWYEBWwsWuigT6BZOj+0X/wVSJKk4ZrGWzChezWp5L4
-         PO1hLjgqhbu1PeNpzCncksFqvvl1E9JgIuGjm/Z7TTRyjj5YsIoJmWWk3vwau1OZP7Md
-         TlJ7ja4tnvjyu3+Nph4ExoMbrMbjjg08hCNR157GPZUrDOTDNTGwfTgsgUulaRm3qv8M
-         k3pg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788325543; x=1788930343; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=7nkXBkEBfR4l2iwoI8t7QwAJBhpGhm5orDlZN2BZ1Zc=;
-        b=l+3L2msJAclDMylMVngKESVYDuDdURyx2Mz0xwSZRwUENOISs+SVYaKdmAj6a0vj/Q
-         U3LuYg6FXLS0q95etYUfeekJlW+VYIllaTiWRFZU0Cpiu1b5dJi/yvoKH6nGD1+tAMIZ
-         uUN4w4fU0n9u/PBHoTpvdwqOdpEk7AWyrNdc2KnjejONHMRwaWgwNG3TpHE7KRFYNZuW
-         Fw7BZoaB1Ft7Qrn2Nw185WB4mIKLu5oab5NzaskwOlreLKesmeOz+JNWD3fZ7dHv/cfN
-         /+Ux+ats7H3/JrMgzHuwqbilYa9m7LjF9qdjWB25m3q12RwFHmWwLWxvuskoxe/BUuaA
-         T0mw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788325543; x=1788930343;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=7nkXBkEBfR4l2iwoI8t7QwAJBhpGhm5orDlZN2BZ1Zc=;
-        b=crYu3+KRw0LsMJFMGMFoTJ4bhtRHZPgicyn6HM+VwQoglUdOsf03DyO9zvEIosKVow
-         11q+RrR3n5de5ByRglHQFEVBUda+LrBfx8l5HA7BGILGZryJzcWbM8c2UVHFyEuAkdDb
-         xtAEmcDKv4kZMI8Zx99c/DsBsXGpAa9gN7E5ApEDyoPD9dTZYJFOUGAXuh9iDzDp1uVO
-         THl62oBUDvcxfR5omoWPVsMVpZHAYpjL/2XiQNXpRDPAgf+0VR1cKupe9/lt74cXwHtD
-         TMISQNFJ0VCP3DTnSRzhSKR7fNqyleoosklgjgzjTj8nZH5AROIJ2U+qORCs6/n4pTNF
-         +A7Q==
-X-Forwarded-Encrypted: i=1; AKwUvByVeIy9SzdfSJQgS7dkPpyx5L1H+3muFpUtSzROEaGzXb9e09uIxVXXTeP36WoD8xBwTWJy1qaPlIM=@vger.kernel.org
-X-Gm-Message-State: AFuF++kZEIO44pi2kTYQJHHCoT/24Z7IQVpPh23TpGGL5tCFmVtMeQaw
-	v+miIJudJiFN8MuqFbwvsG7x6rqaRqKDHEJfKOeBgF+db9edlYpoD/prF1+2Sz9j0J13zGJyjoT
-	1cZJtEdeMDm90gFeDfAKIhcWqHWLM7+s=
-X-Gm-Gg: AYBFou3SIn+qgHxCaQAL/v7+PXJm0BrLWtYeTdNx4rkDGKw8jvrdGWsz4a0Ogg63L4X
-	0bxifpcT7Dfm8n+wY61n0GgGTpxZO1/V90s2W8OZKzaJRV0zVPpdFETvx2BsjQrwbAvf3UcURbP
-	gBv0d4ACX7C+Xxg7i1/+6qUlBFGF3RPFM1Q9OOI+GAsNpd+PIeOK6nYpo5V3o5LwD3Gd5TnuBF/
-	d9SnDE3sGPhKKQtnhlSnrBPu5h3KFfh30VCQRSZTuGJDjrNKyGBAGGkUk/IGohVMvwn05UVdMCZ
-	SpJKsSzFdhYiq8Jb3NPl/IwOq8yTxNpTomC3bGsHr7IlZpU=
-X-Received: by 2002:a05:651c:a211:20b0:3a3:2a41:c0c4 with SMTP id
- 38308e7fff4ca-3a34ffdf928mr3036391fa.14.1788325542808; Tue, 01 Sep 2026
- 22:05:42 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="F7egXK90"
+X-UUID: 8a969a9ca6ae11f18b9d37ce969ed3ec-20260902
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
+	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=kFhCpgOj6eX6WaR499VMn8FK0lxHT777PZbWGzMR24s=;
+	b=F7egXK90wWyDRosNNsq4ycgEefVBSfTTkWwl47iev70Cn0AWjf2NhJIrnCSRtWZRQUpQgFTLKdedxcmSHtFbwin2z7C6EJgWXs/bRAblywj0xSF6Pfj9JeUcZ+VGGfj+TkDHkd8wjH8CBfaqAmaBayvGyYA5FuhBxuqshf0BrG0=;
+X-UUID: 8a969a9ca6ae11f18b9d37ce969ed3ec-20260902
+Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
+	(envelope-from <sp_isw1_at@novatek.com.tw>)
+	(Generic MTA)
+	with ESMTP id 1974544510; Wed, 02 Sep 2026 17:13:20 +0800
+Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.20.160])
+	by spmgt1 (Postfix) with ESMTP id 6FB931A1E1C;
+	Wed,  2 Sep 2026 17:13:20 +0800 (CST)
+Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
+	id 01DCDC600DD; Wed,  2 Sep 2026 17:13:19 +0800 (CST)
+From: nina_kuo@novatek.com.tw
+To: andi.shyti@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: ben_huang@novatek.com.tw,
+	toby_chui@novatek.com.tw,
+	shihpei_hsu@novatek.com.tw
+Subject: [PATCH v8 3/3] MAINTAINERS: Add entry for Novatek NT72676 I2C controller driver
+Date: Wed,  2 Sep 2026 17:13:18 +0800
+Message-Id: <20260902091318.208074-4-nina_kuo@novatek.com.tw>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <20260902091318.208074-1-nina_kuo@novatek.com.tw>
+References: <20260902091318.208074-1-nina_kuo@novatek.com.tw>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260822062725.60519-1-muchamadcoirulanwar@gmail.com>
- <20260822062725.60519-3-muchamadcoirulanwar@gmail.com> <20260824010726.2849f3d8@jic23-huawei>
- <CAO26r3RLnX4HXrKDF6akmG722Q2CvDU-uJ40Yfuu_wwJdGgA9g@mail.gmail.com> <20260901021420.144a64d3@jic23-huawei>
-In-Reply-To: <20260901021420.144a64d3@jic23-huawei>
-From: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Date: Wed, 2 Sep 2026 12:05:31 +0700
-X-Gm-Features: AcwNN1VwSx9iXjAYtJBmAc-tUFlWH0dfDFzrjPh6nAYPikoQ80HU5nlzzOFlAv0
-Message-ID: <CAO26r3S4t0GCAep7J1suedPZZA85=vCzrWXA4wR=Lox7wceVDw@mail.gmail.com>
-Subject: Re: [RFC PATCH v5 2/3] rust: add minimal IIO subsystem abstractions
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: lars@metafoo.de, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, rust-for-linux@vger.kernel.org, 
-	andi.shyti@kernel.org, wsa+renesas@sang-engineering.com, ojeda@kernel.org, 
-	dakr@kernel.org, igor.korotin@linux.dev, branstj@gmail.com, 
-	brucer42@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Tue, 1 Sept 2026 at 08:14, Jonathan Cameron <jic23@kernel.org> wrote:
+From: Ben Huang <Ben_Huang@novatek.com.tw>
 
-> > > > +        Ok(IioVal::Fractional(v, v2)) => {
-> > > > +            // SAFETY: both `val` and `val2` are valid per the Safety contract.
-> > > > +            unsafe {
-> > > > +                *val = v;
-> > > > +                *val2 = v2.get();
-> > >
-> > > Why get in some places and not others?  May well be a gap in my really limited
-> > > rust knowledge.
-> >
-> > This came up in v3 and I answered it then but forgot to add the comment
-> > as I said I would. IioVal::Fractional holds a NonZeroI32 denominator to
-> > prevent division-by-zero in iio_format_value(). NonZeroI32 is a newtype
-> > wrapper over i32, so .get() is needed to extract the inner i32. The
-> > other variants hold plain i32 and don't need it. I'll add an inline
-> > comment in v6.
->
-> Ah.  This is my lack of rust knowledge (and forgetfulness).  I'd avoid
-> putting too many comments in for the benefit of folk like me who are
-> still failing to find the time to learn rust :(
+Add a maintainer entry for Novatek NT72676 I2C controller driver.
 
-Fair enough, I won't add the extra comment in v6 then, I'll leave it as is.
+Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
+Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Thanks
-Coirul
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4dfc1fb14ef7..3f83ddf5b113 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19438,6 +19438,13 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/nolibc/linux-nolibc.git
+ F:	tools/include/nolibc/
+ F:	tools/testing/selftests/nolibc/
+ 
++NOVATEK NT72676 I2C CONTROLLER DRIVER
++M:	Ben Huang <ben_huang@novatek.com.tw>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
++F:	drivers/i2c/busses/i2c-nt72676.c
++
+ NOVATEK NVT-TS I2C TOUCHSCREEN DRIVER
+ M:	Hans de Goede <hansg@kernel.org>
+ L:	linux-input@vger.kernel.org
+-- 
+2.40.1
+
