@@ -1,209 +1,192 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D947F4772AA;
-	Wed,  2 Sep 2026 11:42:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F1134968F0;
+	Wed,  2 Sep 2026 12:52:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788349337; cv=none; b=Sm1RIyRBL103rbwgZInqjPleuq4j1cc8a4PyVJv3mYiYW6sY/NLOl11syUbQjZVSmQiJdh7fJhrpSCpdFwwyez4crx24/cbHeFVlgi20s2gck1xt/3BsZjxn9MzNbD3dH3HHzxBJ7Mr5jqI5fdMohPB0ChZCuHc6pdEhmUTQXKc=
+	t=1788353537; cv=none; b=peViuwopNScrxweXBn9GxDI54uwP6mPwiYiXXvhWZcgVCr9+dMW/1fiW7aBWFunpfPae8SupQZfOL+H1ONGd6oLWWcHyZo2mlNJkRCY/Z2InrgjV69aDrFWFh7K46ylwWxaHfr3iU9z9GSTaPanZr0jkW0gt5re9HNItRuZ89UY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788349337; c=relaxed/simple;
-	bh=AKUnfdhcTKHUJXot2dXdtcpFnmAAQLkTtfgBy/UsLGQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sFdz/IPySMVO1UVkVcXxou+BtZGka1/NOvmmc/VJF9zNqnoeZ3ZA41aUNI9O2Ezjxc+YpUUxK+CmrofDYnRnuhDJEzoSudPEYeKfuhHpsdZSJP5Rjl5ioG3A0mAZ1yLZpD3W27X5Srqymr0cOhP++9rC8+eC2cs9hmqKOPKMMw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=L3udpVzc; arc=none smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1788353537; c=relaxed/simple;
+	bh=3U+Pkz6+oDicvNgDi+v7MEvMt0z2EC/nlxN4WJYgGF8=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Lck+uG3/qw7xJXGerKm35mQyTPnOwCEvsbsiw940akxsxu/ZZOhTcBginnhlhCY7+t3Pv4reX5Pi1WVLqxycYRWsowLU013s6cPvLNl38SuB87Rj14vPKsXgYs2JMUGzMpOX034fPDfZSHPLs7RPSoi/HUS1UfK4jWtpvVn2PJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JzfLmjAt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="L3udpVzc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1788349333; x=1819885333;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=AKUnfdhcTKHUJXot2dXdtcpFnmAAQLkTtfgBy/UsLGQ=;
-  b=L3udpVzc8kUiW9buVNsDWDXx6ZjNrvzdDZv2sYgGehAXjK6tOu6qygpb
-   8PdYhmANl7kx58zfkmeHoV+7cd1zY4Ipqjy3ph4isUjRbIVjYsOScjx99
-   CRdFbKV7IRK9DaJLrejmh9WamKcDROR14QnWrXEbT8cTtzvtKB8pE0MU1
-   kDscZgEPaDXPm9zMmVZ6l8XJ2jJevlR+6u2gTtrJzQ+OR4vkWe+Ui95Wk
-   ibnqbHGG0OLzpmIi0V8fZ8eWaYy5TLsnhQMP+jkbm/izKkUs8CbduXDKv
-   2139EJuiFebhkCbCUk7eISkoynnheoW67LAztO/fARiWtzOsfMiPNUDu7
-   w==;
-X-CSE-ConnectionGUID: ZknQff7/SgikOblBqkGFmw==
-X-CSE-MsgGUID: l9q+ONUsQu26FHIwEI1DEg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11893"; a="88562027"
-X-IronPort-AV: E=Sophos;i="6.25,257,1779174000"; 
-   d="scan'208";a="88562027"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2026 04:42:09 -0700
-X-CSE-ConnectionGUID: kmkujtPYRVmiDJ3O91nOow==
-X-CSE-MsgGUID: 3S70Y/nwTLGcaoS1NGpj7w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,257,1779174000"; 
-   d="scan'208";a="268840869"
-Received: from lkp-server01.sh.intel.com (HELO bfac249b2189) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 02 Sep 2026 04:42:06 -0700
-Received: from kbuild by bfac249b2189 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1x1jLv-000000002XK-31kx;
-	Wed, 02 Sep 2026 11:42:03 +0000
-Date: Wed, 2 Sep 2026 19:41:07 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bowen Yu <yubowen8@huawei.com>, linuxarm@huawei.com,
-	liudingyuan@h-partners.com, andi.shyti@kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, zhanjie9@hisilicon.com,
-	prime.zeng@hisilicon.com, wanghuiqiang@huawei.com,
-	xuwei5@huawei.com, yubowen8@huawei.com, zhangpengjie2@huawei.com
-Subject: Re: [PATCH v2] i2c: hisi: Add I2C bus recovery support
-Message-ID: <202609021937.s2FqKDO3-lkp@intel.com>
-References: <20260901063116.3438094-1-yubowen8@huawei.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JzfLmjAt"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id ED577C2BCF7;
+	Wed,  2 Sep 2026 12:52:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1788353537;
+	bh=3U+Pkz6+oDicvNgDi+v7MEvMt0z2EC/nlxN4WJYgGF8=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=JzfLmjAt9N5z5SGQSLwd5NqVXQqWUp4L0U3+0jFDqFsUaHTP9Ep79RaNPx5dF73rc
+	 LTEsWoNUTEGxEEiVo0SYkDIxsoq6W1h8OZKNTsqLYATZz2W/7vPBSSHDYXIH35Gatl
+	 NMNKPUNCrTXzAsvJCGke3o1EowQRPWeetE8r4EmmOZkKtnyuAPfwDMHjROYHvwK0Tg
+	 fZ2zXwyDDpRjHaEX/5JKvSf8l1QYvf7ZX1+mvJgZG9hAp2frIL11AuQtFNs23ak/43
+	 UK/rRpn/OnClaOTHeUCUCOKF0SUFwCl+cWlzPaZTuvsNWQJaEbJ9I9bqex6n1xlNDa
+	 gYsbJrL2g/bJQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5534C624D3;
+	Wed,  2 Sep 2026 12:52:16 +0000 (UTC)
+From: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
+Subject: [PATCH v11 0/6] Add VIM4 MCU/FAN support
+Date: Wed, 02 Sep 2026 14:51:04 +0200
+Message-Id: <20260902-add-mcu-fan-khadas-vim4-v11-0-5f1610d83bf0@aliel.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260901063116.3438094-1-yubowen8@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4XSzWrDMAwA4FcpPs/D8m/c095j7CD/rWZtuiVp6
+ Ch99znpIcGQzjcJ9ElIvpE+djn2ZL+7kS6Ouc/ntgQALzviD9h+RppDSRDOuGaScYoh0JO/0IQ
+ t/TpgwJ6O+SQpevAuKiW8daRUf3cx5etMv3884i7+XEqH4ZEkDvtI/fl0ysN+18brQOcmRgCZC
+ g65H87d7zzaCHPFv0OMQBnlDnh0Er1x7A2POR5fUzeTI18zYpvhhTFMCe04l8JixYgVA2abEYV
+ BjSYpwxyAqxi5YjhsM7IwUhoAibxJPFSMWjNym1HTNMknNKCM46Ji9MIo0NuMLowvzzoNSWpVM
+ WZh9LMVm8IoKx02aLUKTcU0C2OeHbyZDi5lijFaQKErxi5Mw9Q2Y6eDq5BMY4A5GysG2OJY9uR
+ UwKYlRx+ctUqhWH/A+/3+ByxBB0lwAwAA
+X-Change-ID: 20260402-add-mcu-fan-khadas-vim4-ac1cbe553c9b
+To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
+ Beniamino Galvani <b.galvani@gmail.com>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>
+Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
+ mfd@lists.linux.dev, Ronald Claveau <linux-kernel-dev@aliel.fr>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5707;
+ i=linux-kernel-dev@aliel.fr; h=from:subject:message-id;
+ bh=3U+Pkz6+oDicvNgDi+v7MEvMt0z2EC/nlxN4WJYgGF8=;
+ b=owGbwMvMwCWm1SvKXP3cUInxtFoSQ9YM6btVa40kvUoeOup33rl9tU5da/tE74LYM4dv5Hfwh
+ 99yL/veUcrCIMbFICumyNI/1/LEu8tHz3zdo54CM4eVCWQIAxenAEzkyReGP1xZikLngipK3hrf
+ bFdIvJXst9ijc8rJOH6uV1Wbpf+k+DEyHMziPlqU2q5edad57TbRUw9MuQ8aLe5cxGx1rqz8hkM
+ 4EwA=
+X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openpgp;
+ fpr=DFD863F61375BF917F0012173953305EF1D0EC3E
+X-Endpoint-Received: by B4 Relay for linux-kernel-dev@aliel.fr/default with
+ auth_id=744
+X-Original-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+Reply-To: linux-kernel-dev@aliel.fr
 
-Hi Bowen,
+The Khadas VIM4 board features a different MCU variant compared to
+previous VIM boards.
+While it shares the same I2C-based communication model,
+it differs in some ways:
 
-kernel test robot noticed the following build warnings:
+  - A distinct register map with its own volatile/writeable register set
+  - A fan control with 0–100 levels instead of the 0–3 levels previously
+  - A fan power supply gated through a regulator
 
-[auto build test WARNING on andi-shyti/i2c/i2c-host]
-[also build test WARNING on linus/master v7.3-rc1 next-20260901]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+This series adds support for this new variant by:
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bowen-Yu/i2c-hisi-Add-I2C-bus-recovery-support/20260901-143116
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
-patch link:    https://lore.kernel.org/r/20260901063116.3438094-1-yubowen8%40huawei.com
-patch subject: [PATCH v2] i2c: hisi: Add I2C bus recovery support
-config: csky-randconfig-r064-20260902 (https://download.01.org/0day-ci/archive/20260902/202609021937.s2FqKDO3-lkp@intel.com/config)
-compiler: csky-linux-gcc (GCC) 13.4.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260902/202609021937.s2FqKDO3-lkp@intel.com/reproduce)
+  1. Refactoring the khadas-mcu MFD driver to use per-variant data
+     structures (regmap config, cells, fan platform data),
+     and adding the khadas,vim4-mcu compatible string.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202609021937.s2FqKDO3-lkp@intel.com/
+  2. Extending the fan thermal driver to retrieve the fan register
+     and maximum level from platform_data,
+     and to optionally manage a power regulator for the fan supply.
 
-All warnings (new ones prefixed by >>):
+  3. Adding the corresponding DTS node for the VIM4, wiring the MCU to
+     the I2C AO_A bus and exposing it as a thermal cooling device.
 
->> drivers/i2c/busses/i2c-hisi.c:249:12: warning: 'hisi_i2c_get_bus_recovery_res' defined but not used [-Wunused-function]
-     249 | static int hisi_i2c_get_bus_recovery_res(struct hisi_i2c_controller *ctlr,
-         |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/i2c/busses/i2c-hisi.c:222:13: warning: 'hisi_i2c_unprepare_recovery' defined but not used [-Wunused-function]
-     222 | static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/i2c/busses/i2c-hisi.c:210:13: warning: 'hisi_i2c_prepare_recovery' defined but not used [-Wunused-function]
-     210 | static void hisi_i2c_prepare_recovery(struct i2c_adapter *adap)
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/i2c/busses/i2c-hisi.c:197:13: warning: 'hisi_i2c_recovery_set_scl' defined but not used [-Wunused-function]
-     197 | static void hisi_i2c_recovery_set_scl(struct i2c_adapter *adap, int val)
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/i2c/busses/i2c-hisi.c:189:12: warning: 'hisi_i2c_recovery_get_sda' defined but not used [-Wunused-function]
-     189 | static int hisi_i2c_recovery_get_sda(struct i2c_adapter *adap)
-         |            ^~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/i2c/busses/i2c-hisi.c:181:12: warning: 'hisi_i2c_recovery_get_scl' defined but not used [-Wunused-function]
-     181 | static int hisi_i2c_recovery_get_scl(struct i2c_adapter *adap)
-         |            ^~~~~~~~~~~~~~~~~~~~~~~~~
+As the thermal patch depends on MFD, it should go through MFD tree.
+
+Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+---
+Changes in v11:
+- PATCH 4: Use of_node_get to avoid reference count underflow.
+           Check pdata for NULL pointer on probe.
+           Manage rollback for regulator_disable failure on suspend.
+           Remove regulator disable on resume failure, managed by devm reset.
+- Link to v10: https://lore.kernel.org/r/20260901-add-mcu-fan-khadas-vim4-v10-0-aecdb9955a30@aliel.fr
+
+Changes in v10:
+- PATCH 1: makes KHADAS_MCU_GENERIC explicitly non-zero to remove the ambiguity with
+           of_device_get_match_data() returning NULL/0 on a failed match. Reported by Sashiko.
+- PATCH 4: devres for the regulator and cooling device are now attached to the child device (not the parent),
+           closing a leak/use-after-free window. Also adds proper regulator teardown on unbind,
+           fixes a level-vs-index mixup in shutdown/suspend, and disables the regulator if resume fails.
+- Link to v9: https://lore.kernel.org/r/20260805-add-mcu-fan-khadas-vim4-v9-0-75df78710b9e@aliel.fr
+
+Changes in v9:
+- Rebased on next-20260731 (patches 1/8, 2/8 and 6/8 already applied, dropped from this series).
+- PATCH 1: Add levels table and nlevels in khadas_mcu_fan_pdata struct.
+- PATCH 2: Use MFD_CELL_* macros instead of open-coding mfd_cell.
+- PATCH 3: Provide levels table and nlevels to platform data.
+           Check match_data before the switch.
+- PATCH 4: Use levels[] and nlevels from platform data. VIM4 levels is (0, 30, 40, 55, 75, 100).
+- Link to v8: https://lore.kernel.org/r/20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr
+
+Changes in v8:
+- PATCH 4: Define constant for fan max level, remove extra space for unnecessary alignment.
+           Thanks to Lee's review.
+- Link to v7: https://lore.kernel.org/r/20260603-add-mcu-fan-khadas-vim4-v7-0-594ba8a965d8@aliel.fr
+
+Changes in v7:
+- PATCH 3-4: Simplify the per-variant handling by using local variables in khadas_mcu_probe()
+             instead of introducing a dedicated data structure. Thanks to Lee's review.
+- Link to v6: https://lore.kernel.org/r/20260516-add-mcu-fan-khadas-vim4-v6-0-cccc9b61f465@aliel.fr
+
+Changes in v6:
+- PATCH 4: Address Lee's review comments:
+  - Use an enum to discriminate between MCU types instead of passing
+    MFD data through the DT match table
+  - Fix error code from -EINVAL to -ENODEV when no MCU type is matched
+  - Make khadas_mcu_fan_cells and khadas_mcu_cells const
+  - Use dev_err_probe() for regmap initialization error
+  - Document fan speed levels for max_level
+- Link to v5: https://lore.kernel.org/r/20260424-add-mcu-fan-khadas-vim4-v5-0-afcfa7157b23@aliel.fr
+
+Changes in v5:
+- PATCH 5: Replace devm_regulator_get_optional() with devm_regulator_get()
+           to simplify error handling and remove NULL checks, also
+           ordering as reverse christmas according to Neil's feedback.
+- Link to v4: https://lore.kernel.org/r/20260421-add-mcu-fan-khadas-vim4-v4-0-447114a28f2d@aliel.fr
+
+Changes in v4:
+- PATCH 1: limit fan-supply property by compatible according to Conor's feedback.
+- Link to v3: https://lore.kernel.org/r/20260417-add-mcu-fan-khadas-vim4-v3-0-a6a7f570b11b@aliel.fr
+
+Changes in v3:
+- PATCH 1: adding comment on vim4 compatible saying it is not discoverable,
+           thanks to Rob's and Neil's feedback.
+- Link to v2: https://lore.kernel.org/r/20260403-add-mcu-fan-khadas-vim4-v2-0-70536b22439a@aliel.fr
+
+Changes in v2:
+- PATCH 5: Add regulator_disable on suspend thanks to Neil's feedback.
+- Link to v1: https://lore.kernel.org/r/20260402-add-mcu-fan-khadas-vim4-v1-0-2b12eb4ac7b0@aliel.fr
+
+---
+Ronald Claveau (6):
+      mfd: khadas-mcu: Add per-variant configuration infrastructure and VIM4 support
+      mfd: khadas-mcu: Use MFD_CELL_* macros for cell declarations
+      mfd: khadas-mcu: Add support for VIM4 MCU variant
+      thermal: khadas-mcu-fan: Add fan config from platform data Add regulator support
+      arm64: dts: amlogic: t7: Add i2c controller node
+      arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU fan node
+
+ .../dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts  |  13 +++
+ arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi        |  10 ++
+ drivers/mfd/khadas-mcu.c                           | 126 ++++++++++++++++++---
+ drivers/thermal/khadas_mcu_fan.c                   |  90 +++++++++++----
+ include/linux/mfd/khadas-mcu.h                     |  24 ++++
+ 5 files changed, 225 insertions(+), 38 deletions(-)
+---
+base-commit: 9dba66b6217aacb924d997de3866e7e4c0dcf952
+change-id: 20260402-add-mcu-fan-khadas-vim4-ac1cbe553c9b
+
+Best regards,
+-- 
+Ronald Claveau <linux-kernel-dev@aliel.fr>
 
 
-vim +/hisi_i2c_get_bus_recovery_res +249 drivers/i2c/busses/i2c-hisi.c
-
-   180	
- > 181	static int hisi_i2c_recovery_get_scl(struct i2c_adapter *adap)
-   182	{
-   183		struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-   184		u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
-   185	
-   186		return !!(reg & HISI_I2C_TRANS_STATE_SCL_LEVEL);
-   187	}
-   188	
- > 189	static int hisi_i2c_recovery_get_sda(struct i2c_adapter *adap)
-   190	{
-   191		struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-   192		u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
-   193	
-   194		return !!(reg & HISI_I2C_TRANS_STATE_SDA_LEVEL);
-   195	}
-   196	
- > 197	static void hisi_i2c_recovery_set_scl(struct i2c_adapter *adap, int val)
-   198	{
-   199		struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-   200		u32 reg;
-   201	
-   202		reg = readl(ctlr->sctrl_addr);
-   203		if (val)
-   204			reg |= HISI_I2C_CTRL_SCL_OUT;
-   205		else
-   206			reg &= ~HISI_I2C_CTRL_SCL_OUT;
-   207		writel(reg, ctlr->sctrl_addr);
-   208	}
-   209	
- > 210	static void hisi_i2c_prepare_recovery(struct i2c_adapter *adap)
-   211	{
-   212		struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-   213		u32 reg;
-   214	
-   215		reg = readl(ctlr->sctrl_addr);
-   216		reg |= HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN |
-   217			   HISI_I2C_CTRL_CLK_OE | HISI_I2C_CTRL_SCL_OUT;
-   218		reg &= ~HISI_I2C_CTRL_DAT_OE;
-   219		writel(reg, ctlr->sctrl_addr);
-   220	}
-   221	
- > 222	static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
-   223	{
-   224		struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-   225		u32 reg;
-   226	
-   227		reg = readl(ctlr->sctrl_addr);
-   228		reg &= ~(HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN);
-   229		writel(reg, ctlr->sctrl_addr);
-   230	
-   231		/*
-   232		 * Invokes the specific ACPI method "_RST" to trigger a soft reset
-   233		 * of the I2C controller to help the I2C controller recover from
-   234		 * the abnormal state after the bus recovery process.
-   235		 */
-   236	#ifdef CONFIG_ACPI
-   237		if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
-   238			acpi_status status;
-   239	
-   240			status = acpi_evaluate_object(ctlr->acpi_handle, "_RST", NULL, NULL);
-   241			if (ACPI_FAILURE(status))
-   242				dev_err(ctlr->dev, "_RST method failed: %s\n",
-   243					acpi_format_exception(status));
-   244		}
-   245	#endif
-   246		hisi_i2c_configure_bus(ctlr);
-   247	}
-   248	
- > 249	static int hisi_i2c_get_bus_recovery_res(struct hisi_i2c_controller *ctlr,
-   250						 struct platform_device *pdev)
-   251	{
-   252		struct resource *res0;
-   253	
-   254		res0 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-   255	
-   256		if (!res0 || resource_size(res0) != HISI_I2C_RECOVERY_REG_SIZE)
-   257			return -ENODEV;
-   258	
-   259		ctlr->sctrl_addr = devm_ioremap_resource(&pdev->dev, res0);
-   260		if (IS_ERR(ctlr->sctrl_addr)) {
-   261			ctlr->sctrl_addr = NULL;
-   262			return -ENOMEM;
-   263		}
-   264	
-   265		return 0;
-   266	}
-   267	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
