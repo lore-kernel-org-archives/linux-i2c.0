@@ -1,396 +1,294 @@
-Received: from esa4.hc555-34.eu.iphmx.com (esa4.hc555-34.eu.iphmx.com [207.54.77.171])
+Received: from out203-205-221-242.mail.qq.com (out203-205-221-242.mail.qq.com [203.205.221.242])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7117B394EB7;
-	Thu,  3 Sep 2026 05:40:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.54.77.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57A043E4C96;
+	Thu,  3 Sep 2026 06:29:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.242
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788414011; cv=none; b=QNdyMu+i61PzmHfo9Soamk0mzulWMbxs7vfLE/WfYoUjC/GhKqB6c4ik2Jn0E57NCBeL8GqhWjmd8yOx0qqOfNUJCAd0Wyz9IzHVclq8Nv+s/nvbnYl3XsDCpsBcfF0IA27zmBKd7LDipkDEdbhyA2hV4IafIuw9bMQEmGXc97Y=
+	t=1788416981; cv=none; b=LunKjtYEB7/wKiGgg4yuHouDUOPB2sYZdpaaNPRqWJcs1YpYOGLMDl4FHauGCEa5MyNK6Jz62pUu/0ys7oMJnbaqNmgPjbQ2XsvsfdN3KirHqjb1Tnqq2MYEbBVY/R1jZJWGA+rVrB1psSXCq4KbzwHscGNdBnZ7ZMiTvDzVPp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788414011; c=relaxed/simple;
-	bh=tXlRbGYQCwCA4tGfxwjozAwepNU3isVDrniH+0t54+o=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=U7J6Pbm5hP/RL+fQ+62uzupuILQPbk6pFRkFqla5LNls6WzK5VpM1248xs0vdQYejv11WcKVywk6AD6TN3I6X6lSvFTt4WNCpF05tY78uU76/yBmrzetFDk4J3cWpPwUlT22pZxviZgpbqQSUrfloUUcX3r3QyyiIF/RClvWaFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com; spf=pass smtp.mailfrom=mobileye.com; dkim=fail (0-bit key) header.d=mobileye.com header.i=@mobileye.com header.b=s/KtWBUH reason="key not found in DNS"; arc=none smtp.client-ip=207.54.77.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
+	s=arc-20240116; t=1788416981; c=relaxed/simple;
+	bh=ee4ofXZqSNwy9f90hRIbdTrXM36N0JGgkb1HtRIRj6I=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=F62as6UiHV6BShhRKAq7a/3biT7PUlYAl0pxN5uiyTqBMFMzY9CXvMnT08Wp5gq2l+9kGXVxhzj5Q361CFNvgKwc8Nqh6JFrs91IlDZ9kVOhll9xAGLtwBfVcfLZTWQ9UtlE5LXYHXUa2vRiOO3hhKTElC9pFo/6r3TNcY97+1A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=YnYqaIej; arc=none smtp.client-ip=203.205.221.242
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=mobileye.com header.i=@mobileye.com header.b="s/KtWBUH"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1788414009; x=1819950009;
-  h=from:date:subject:mime-version:content-transfer-encoding:
-   message-id:references:in-reply-to:to:cc;
-  bh=tXlRbGYQCwCA4tGfxwjozAwepNU3isVDrniH+0t54+o=;
-  b=s/KtWBUH/zNi4v+hu0BnpUGx5yKhC9IZQhcqotZEsQNxVRNQL7Mee/bh
-   nFRsD/YKRzI0B9mswzb+7LJOsv43aaBsF8T/wUeHrhLP6We63DLeQZ14I
-   HgGWz+rfm7gnzYDV4hNSS05cmWWTf6lRyZIeEjj6d88OAc5llGWi1M5LY
-   fmgEe9MP9g7mACwGtDsA2N9NdKaApmPAF2YhyFQG8qNolDtoTFpY5eEpp
-   BGqhDkbi2HWghp+X6NUrWK3lZr6sesrqqsSXZ+yf85+PFff3thtmEJC8d
-   F2ZFw+F6vLRf1r+BUs8ePrVcUIASoGov4FxjDa4su+3EL4dDep1sH47Lc
-   g==;
-X-CSE-ConnectionGUID: LeSvuKNkTvCHYJTaVILy1w==
-X-CSE-MsgGUID: x46MnQXlRn+HJ/pnMlD2PQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from unknown (HELO ces04_data.me-crop.lan) ([146.255.191.134])
-  by esa4.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2026 08:38:50 +0300
-X-CSE-ConnectionGUID: Uo2BT8XQTdyTw2Hv0XhF0w==
-X-CSE-MsgGUID: SzSF1Hd3QDCPUsxPczmgbw==
-Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
-  by ces04_data.me-crop.lan with SMTP; 03 Sep 2026 08:45:25 +0300
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 03 Sep 2026 08:38:48 +0300
-From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Date: Thu, 03 Sep 2026 08:38:19 +0300
-Subject: [PATCH v2 12/12] i2c: designware: add support for I2C_XFER_V2 -
- detailed fault reporting
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="YnYqaIej"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1788416967;
+	bh=iXWuAHhao+JQKfP/uWUlIG0PaXD5vB/r6zkEtM44/P8=;
+	h=From:To:Cc:Subject:Date;
+	b=YnYqaIejaJV2K4OXcvWMJyUBmRfqlCJ75981k8B0sEWyruvKOoAGQDgF+inZONHX4
+	 ZJ3+OHRp/+Vgp8o5ELp/XnVpEA6HAy8bbi56pJR2jp1VYkXkuqINBYnqh0sspbUXuk
+	 iG+OUfJvqzNt9JEAyd4XZANigyyGDCdsGbJQJOpE=
+Received: from LAPTOP-TKBJAGN4.localdomain ([2408:8256:2d01:e2b1:6136:e6c:8ed6:40aa])
+	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
+	id 7531182B; Thu, 03 Sep 2026 14:29:19 +0800
+X-QQ-mid: xmsmtpt1788416959th7icnmcj
+Message-ID: <tencent_E6A52FBBB25132C90B8E296FEB96E2C8CA07@qq.com>
+X-QQ-XMAILINFO: N6IfSeM/PG+tdFPro0Mxsj7JJPO19r/CGZbFDiWlPqiRTwHSIuI8IwAoIZ6yLx
+	 shYWmAjecjCTMXxsdmfz4aTo1VuqOgUVm78jzLOa0yIZd0sbfNRSiA8+m/Fh/1MFBPzjGrtDqCyL
+	 48gNIGMnb5GvWOdTmjg5I4BdpjjBYsaVTKPXNhlCDO0MhYcv78MoHoniMk6KX3cVqxPOKBmII+Qd
+	 yh9ecYWJq6NKwHokAw/5Z4Evk96VjaSmVyS8oL9oFp46xgjoY2Sjw3hsodmUHtFc7mARlEWTJ0gH
+	 bvwj3/w08zAtGWBUoI2NfdzZFnYLbpcoLGFNWzXHc2X0+uUAwUIc/+4t5Z3PnoTnVtJJbskfld2i
+	 yZm/KJ+BU95DxJxMzO7k1e6+OWHmnw1xM8LgWBq2u2BuIWb6gSc9fFZosCrMi1bDiYttPGkGvbfi
+	 zxUMAMNZKIg2pzEyEbwNnZnSgD7iFbqZa8vK64L1mA6eXwdKJ2/e3IzczuEMUUolDPN1xk7bEP32
+	 m4YTIJysKcGYeZugxgskKUMajuYfsd295bcgWjl3nsC4tFBckhRFIv7xzC9SLIjP4uWpApHs2uuE
+	 yulofoC5hHkgQO9i5NGDdxdnle+TASM5KEx6mTx7TJmSYNCKYCa6ZUtbjDtxjnECLrah4C9N9Y+G
+	 itcL9eiOY+J3iHFDlznWYoQ2VIemhROBxQFUMJ/uaBPqB6j9szHEaCw4z1Pnaj9e8GT8L8KGscUT
+	 XMdrqtc+LgdoLRRCg06l9kRX4bmyg12bZTvIos4ntPcoyxKVydcKlUotkn/9EkXcy9nqkYVVU49i
+	 vwdzu42NNrLg5ELdXw50/pkpjuxJ34GOoN9cOjW9JlgYaKHSj+PUgAOzJdZBf9BhtTDSfyBRFX5e
+	 Q4SxUOxt/oiPKdZVikagAp7PnPeJ0zYKcvPVuRMMtYffVTgX/6rY1vwkNHz6BWFU/xyAmkLJd+Vb
+	 aRdBO2eKM1UXXP9PczvwmLdgi/i3FY9DUE6OyE4c919lpf5GBkV6tkPiI10NnVRr7IDuJLUYG925
+	 /r1XN2crsQ1EBXjbo1B1BxSDnPTllHfnV6OL603dPtUc1JbSlhw2stq1aw4chp6BAfKgT6brcoFt
+	 fjLHDeLQnMImnvMGFm3I1uVX54pNOork/3sy4ns3Zgy3vrnYFKhmlLWMPL1d191deI/pB/Bu6IgG
+	 WQox6RSzpRHw6nrySr5vLO4CJREOFtGPfHjbz+3xb8ANTE2Q==
+X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
+From: Haobin Jiang <lemonoutput@foxmail.com>
+To: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>
+Cc: linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	kernel@pengutronix.de,
+	Haobin Jiang <lemonoutput@foxmail.com>
+Subject: [PATCH v2] i2c: imx: honour I2C_M_IGNORE_NAK
+Date: Thu,  3 Sep 2026 14:29:15 +0800
+X-OQ-MSGID: <20260903062915.7875-1-lemonoutput@foxmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260903-i2c-fault-reporting-v2-12-fedeb91792e6@mobileye.com>
-References: <20260903-i2c-fault-reporting-v2-0-fedeb91792e6@mobileye.com>
-In-Reply-To: <20260903-i2c-fault-reporting-v2-0-fedeb91792e6@mobileye.com>
-To: Andi Shyti <andi.shyti@kernel.org>, 
- Steven Rostedt <rostedt@goodmis.org>, 
- Masami Hiramatsu <mhiramat@kernel.org>, 
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
- Linus Walleij <linusw@kernel.org>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-trace-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, 
- Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-X-Mailer: b4 0.14.2
+Content-Transfer-Encoding: 8bit
 
-I2C_XFER_V2 is a new API that allows I2C clients to get the detailed
-report in case of transmission failure. Previously, the only information
-returned by I2C bus controller was the error code; there was no way to
-find out how many messages or bytes in a certain message have been sent
-or received until the fault condition occurred, or to receive the data
-read before the fault.
+The i.MX controller has no hardware "ignore NAK" enable bit and checks
+each byte in software after transmitting it: i2c_imx_acked() on the
+atomic paths, i2c_imx_isr_acked() on the ISR path.  Any NAK is
+therefore treated as a fatal error and aborts the transfer with -ENXIO.
 
-This patch introduces support for this feature in i2c-designware driver.
-For AMD_NAVI_GPU model that has its own `xfer` callback function, this
-feature is currently not implemented.
+There are legitimate cases where a target NAKs on purpose and the
+transfer must continue anyway.  The standard way to express this is
+I2C_M_IGNORE_NAK, which the core passes through to the bus driver
+unchanged: i2c_transfer_buffer_flags() performs no validation of the
+message flags, and the i.MX driver has never advertised
+I2C_FUNC_PROTOCOL_MANGLING.  Today such a transfer transmits bytes
+until the first NAK and then fails with -ENXIO, silently dropping the
+flag.  One in-tree caller that hits this on i.MX buses is the wake
+sequence of the Atmel crypto drivers (drivers/crypto/atmel-i2c.c, used
+by atmel-ecc.c for the ATECC508A/608A): the sleeping device NAKs the
+wake token and the write must complete anyway; the ATECC508A is wired
+to an i.MX I2C controller e.g. on the Gateworks GW5904.
 
-The driver uses FLUSH_CNT field of ABORT_SOURCE register to detect
-how many command/data bytes written to FIFO were not actually sent.
+Advertise I2C_FUNC_PROTOCOL_MANGLING and honour I2C_M_IGNORE_NAK at
+every software ACK check: on the PIO write paths, which check the ACK
+of the address and of every data byte, and on the PIO read paths, which
+check the target's ACK of the address byte, mirroring i2c-img-scb.
+With the flag set a NAK no longer aborts the transfer and the byte loop
+continues so the remaining bytes are still transmitted.  Every transfer
+without the flag keeps the previous behaviour unchanged.
 
-Also, if the detailed fault report is required, the driver checks
-status after each read/write from/to FIFO. If ABORT flag is set, the
-driver cannot detect what happened first - FIFO read/write or
-communication abort, so it assumes that abort happened first, otherwise
-it either falsely reports one extra byte sent or returns the byte read
-from FIFO flushed after abort as a valid read byte. So, in unfortunate
-conditions, the fault report may be too pessimistic by one byte.
+A NAK'd byte does not generate a further DMA request, so a DMA write to
+a deliberately-NAKing target would stall until DMA_TIMEOUT instead of
+completing.  Force the PIO path for every message carrying
+I2C_M_IGNORE_NAK, again mirroring i2c-img-scb, which implements the
+flag in atomic mode only.  The DMA write path therefore never sees the
+flag, but it passes the flag through at the final ACK check like the
+other paths.
 
-This check increases amount of time spent in interrupt handler, so if
-client doesn't need detailed fault report, this check should be avoided.
-Because of this, both `xfer` and `xfer_v2` callbacks are implemented in
-struct i2c_algorithm: the former does not generate detailed fault
-report, while the latter does.
+I2C_FUNC_PROTOCOL_MANGLING is a blanket capability bit, so advertising
+it while implementing only I2C_M_IGNORE_NAK would silently ignore the
+other mangling flags.  Reject I2C_M_NO_RD_ACK and I2C_M_REV_DIR_ADDR in
+xfer_common() instead; no in-tree user of these flags transfers through
+i2c-imx.  I2C_M_NO_RD_ACK is not implementable at all on this
+controller: it always clocks the ninth acknowledge bit and I2CR[TXAK]
+only selects ACK versus NAK.  I2C_M_STOP is deliberately not rejected:
+the controller already terminates every transfer with a STOP and
+separates messages with repeated STARTs, so leaving the flag unhandled
+changes nothing on the bus, while rejecting it would break the ov2659
+camera on imx6qdl-ds: I2C_CLIENT_SCCB is I2C_M_STOP | I2C_M_IGNORE_NAK
+and the driver stamps client->flags on every message, including the
+chip-ID reads done at probe time.
 
-Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+No retry is introduced: the meaning of a NAK is device-specific [1], so
+it stays a device-driver decision.  I2C_M_IGNORE_NAK is only honoured
+when the device driver explicitly sets it, which is exactly how the
+flag is meant to be used.
+
+Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1467900229-5262-1-git-send-email-tharvey@gateworks.com/ # [1]
+Link: https://lore.kernel.org/linux-i2c/4D46D571.5010907@armadeus.com/ # [2]
+Link: https://patchwork.ozlabs.org/project/linux-i2c/patch/1378857490-30968-1-git-send-email-luka@openwrt.org/ # [3]
+Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
+
 ---
- drivers/i2c/busses/i2c-designware-common.c |   1 +
- drivers/i2c/busses/i2c-designware-core.h   |  10 +++
- drivers/i2c/busses/i2c-designware-master.c | 139 +++++++++++++++++++++++++++--
- 3 files changed, 145 insertions(+), 5 deletions(-)
+v1 -> v2:
+	- Honour I2C_M_IGNORE_NAK on the read path as well, at the checks
+	  of the target's ACK of the address byte (i2c_imx_isr_read(),
+	  i2c_imx_prepare_read()), mirroring i2c-img-scb, instead of
+	  silently dropping the flag there.  Read requests carrying the
+	  flag cannot be rejected, because in-tree SCCB sensors such as
+	  ov2659 set I2C_CLIENT_SCCB, i.e. I2C_M_STOP |
+	  I2C_M_IGNORE_NAK, on their read messages too.
+	- Force the PIO path for every message with I2C_M_IGNORE_NAK: a
+	  NAK'd byte does not generate a further DMA request, so a DMA
+	  write to a deliberately-NAKing target would stall until
+	  DMA_TIMEOUT (mirrors i2c-img-scb).  i2c_imx_dma_write() can
+	  therefore never see the flag, though it still passes it
+	  through at the final ACK check like the other paths.
+	- Reject I2C_M_NO_RD_ACK and I2C_M_REV_DIR_ADDR in
+	  xfer_common() instead of advertising blanket support and
+	  silently ignoring them.  I2C_M_STOP is not rejected: the
+	  controller already emits a STOP after the final message and
+	  repeated STARTs between messages, and rejecting it would break
+	  the ov2659 camera on imx6qdl-ds.
+	- Correct the description of the status quo: the core does not
+	  reject I2C_M_IGNORE_NAK; i2c_transfer_buffer_flags() passes the
+	  message flags through unchanged, so the current driver sends
+	  bytes until the first NAK and then fails with -ENXIO.
+---
+ drivers/i2c/busses/i2c-imx.c | 44 ++++++++++++++++++++++++++++--------
+ 1 file changed, 35 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 4274bf809b3f4bff90139d186447256b01317951..42fc5989c917686a89802d7ef027a6d89aea6213 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -879,6 +879,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 28313d0fad37..5b22a497a791 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 	return 0;
+ }
  
- static const struct i2c_algorithm i2c_dw_algo = {
- 	.xfer = i2c_dw_xfer,
-+	.xfer_v2 = i2c_dw_xfer_v2,
- 	.functionality = i2c_dw_func,
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	.reg_slave = i2c_dw_reg_slave,
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9f3492717e18fe104d307cfc65293ae4b41251f0..108fc1d1132c0aa91723de83198204a0dde42484 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -117,6 +117,8 @@
- 						 DW_IC_TX_ABRT_10ADDR2_NOACK | \
- 						 DW_IC_TX_ABRT_GCALL_NOACK)
- 
-+#define DW_IC_TX_ABRT_SOURCE_FLUSH_CNT_MASK	GENMASK(31, 23)
-+
- struct clk;
- struct device;
- struct reset_control;
-@@ -180,6 +182,9 @@ struct reset_control;
-  *	to generate the high period and low period of SCL line.
-  * @emptyfifo_hold_master: true if the controller acting as master holds
-  *	the clock when the Tx FIFO is empty instead of emitting a stop.
-+ * @need_precise_report: true if client needs precise fault report
-+ * @bytes_written: number of bytes written to FIFO. Used only for precise
-+	fault report.
-  *
-  * HCNT and LCNT parameters can be used if the platform knows more accurate
-  * values than the one computed based only on the input clock frequency.
-@@ -239,6 +244,8 @@ struct dw_i2c_dev {
- 	u32			bus_capacitance_pF;
- 	bool			clk_freq_optimized;
- 	bool			emptyfifo_hold_master;
-+	bool			need_precise_report;
-+	u32			bytes_written;
- };
- 
- #define ACCESS_INTR_MASK			BIT(0)
-@@ -318,6 +325,9 @@ extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
- int i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num);
- int amd_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs, int num_msgs);
- 
-+int i2c_dw_xfer_v2(struct i2c_adapter *adap, struct i2c_msg *msgs, int num,
-+		   struct i2c_transfer_report *report);
-+
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- extern void i2c_dw_configure_slave(struct dw_i2c_dev *dev);
- irqreturn_t i2c_dw_isr_slave(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index f029aa1eadbf83d304fc73b038e92f258e2148a1..bc23c3fdaaf2e0629e02016aef428cc9f8bffda2 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -11,6 +11,7 @@
- 
- #define DEFAULT_SYMBOL_NAMESPACE	"I2C_DW"
- 
-+#include <linux/bitfield.h>
- #include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
-@@ -33,6 +34,16 @@
- #define AMD_TIMEOUT_MAX_US	250
- #define AMD_MASTERCFG_MASK	GENMASK(15, 0)
- 
-+static int i2c_dw_fault_report(struct dw_i2c_dev *dev, struct i2c_transfer_report *report);
-+
-+static inline bool i2c_dw_check_abort_flag(struct dw_i2c_dev *dev)
-+{
-+	u32 stat;
-+
-+	regmap_read(dev->map, DW_IC_RAW_INTR_STAT, &stat);
-+	return (!!(stat & DW_IC_INTR_TX_ABRT));
-+}
-+
- static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
+-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
++static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
  {
- 	unsigned int comp_param1;
-@@ -198,6 +209,8 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 
- 	i2c_dw_set_mode(dev, DW_IC_MASTER);
- 
-+	dev->rx_buf_len = 0;
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
 +
- 	/* If the slave address is ten bit address, enable 10BITADDR */
- 	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN) {
- 		ic_con = DW_IC_CON_10BITADDR_MASTER;
-@@ -451,6 +464,21 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 					     cmd | *buf++);
- 			}
- 			tx_limit--; buf_len--;
-+
-+			/* If precise fault reporting is required, check if the transfer
-+			 * is aborted after writing each byte.
-+			 * Otherwise, if it is aborted during filling FIFO, there is no way
-+			 * to know how many bytes was written to FIFO after transfer abort
-+			 * and thus are not counted in FLUSH_CNT.
-+			 * If we are checking abort flag after each byte, we can lose only 1 byte.
-+			 */
-+			if (dev->need_precise_report) {
-+				if (i2c_dw_check_abort_flag(dev)) {
-+					dev_warn_ratelimited(dev->dev, "Transfer aborted during FIFO writing. Report may be imprecise.");
-+					break;
-+				}
-+				dev->bytes_written++;
-+			}
- 		}
- 
- 		dev->tx_buf = buf;
-@@ -542,6 +570,13 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 
- 		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
- 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
-+			if (dev->need_precise_report) {
-+				if (i2c_dw_check_abort_flag(dev)) {
-+					dev_warn_ratelimited(dev->dev, "Transfer aborted during FIFO reading. Data byte may be lost");
-+					/* It is unknown if the read byte is valid. Drop it. */
-+					break;
-+				}
-+			}
- 			tmp &= DW_IC_DATA_CMD_DAT;
- 			/* Ensure length byte is a valid value */
- 			if (flags & I2C_M_RECV_LEN) {
-@@ -568,8 +603,10 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 			dev->rx_buf_len = len;
- 			dev->rx_buf = buf;
- 			return;
--		} else
-+		} else {
- 			dev->status &= ~STATUS_READ_IN_PROGRESS;
-+			dev->rx_buf_len = 0;
-+		}
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+ 		return -ENXIO;  /* No ACK */
  	}
+@@ -968,11 +971,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
+ 	return ret;
  }
  
-@@ -765,6 +802,7 @@ __i2c_dw_xfer_one_part(struct dw_i2c_dev *dev, struct i2c_msg *msgs, size_t num)
- 	dev->status = 0;
- 	dev->abort_source = 0;
- 	dev->rx_outstanding = 0;
-+	dev->bytes_written = 0;
- 
- 	ret = i2c_dw_wait_bus_not_busy(dev);
- 	if (ret < 0)
-@@ -868,12 +906,25 @@ i2c_dw_msg_is_valid(struct dw_i2c_dev *dev, const struct i2c_msg *msgs, size_t i
- }
- 
- static int
--i2c_dw_xfer_common(struct dw_i2c_dev *dev, struct i2c_msg msgs[], int num)
-+i2c_dw_xfer_common_v2(struct dw_i2c_dev *dev, struct i2c_msg *msgs, int num,
-+		      struct i2c_transfer_report *report)
+-static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
++static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
++				    bool ignore_nak)
  {
- 	struct i2c_msg *msgs_part;
--	size_t cnt;
-+	int msgs_in_prev_parts = 0;
-+	size_t cnt = 0;
- 	int ret;
+ 	i2c_imx->isr_result = 0;
  
-+	if (!report) {
-+		dev->need_precise_report = false;
-+	} else {
-+		dev->need_precise_report = true;
-+		report->msgs_cplt = -EOPNOTSUPP;
-+		report->bytes_cplt = -EOPNOTSUPP;
-+		report->fault_msg_idx = -EOPNOTSUPP;
-+	}
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
 +
-+	dev->msg_read_idx = 0;
-+
- 	dev_dbg(dev->dev, "msgs: %d\n", num);
+ 		i2c_imx->state = IMX_I2C_STATE_FAILED;
+ 		i2c_imx->isr_result = -ENXIO;
+ 		wake_up(&i2c_imx->queue);
+@@ -985,7 +992,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
+ {
+ 	int result;
  
- 	PM_RUNTIME_ACQUIRE_AUTOSUSPEND(dev->dev, pm);
-@@ -889,6 +940,8 @@ i2c_dw_xfer_common(struct dw_i2c_dev *dev, struct i2c_msg msgs[], int num)
- 	 * we do one transaction for each part up to the STOP.
- 	 */
- 	for (msgs_part = msgs; msgs_part < msgs + num; msgs_part += cnt) {
-+		/* Count previously transferred messages*/
-+		msgs_in_prev_parts += cnt;
- 		/*
- 		 * Count the messages in a transaction, up to a STOP or
- 		 * the end of the msgs. The last if below guarantees that
-@@ -897,6 +950,15 @@ i2c_dw_xfer_common(struct dw_i2c_dev *dev, struct i2c_msg msgs[], int num)
- 		 */
- 		for (cnt = 1; ; cnt++) {
- 			if (!i2c_dw_msg_is_valid(dev, msgs_part, cnt - 1)) {
-+				if (report) {
-+					report->fault_msg_idx = msgs_in_prev_parts + cnt - 1;
-+					report->msgs_cplt = msgs_in_prev_parts;
-+					report->bytes_cplt = 0;
-+					/* Reset report pointer to avoid
-+					 * calling i2c_dw_fault_report later
-+					 */
-+					report = NULL;
-+				}
- 				ret = -EOPNOTSUPP;
- 				break;
- 			}
-@@ -918,16 +980,83 @@ i2c_dw_xfer_common(struct dw_i2c_dev *dev, struct i2c_msg msgs[], int num)
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
  
- 	i2c_dw_release_lock(dev);
+@@ -1002,7 +1009,7 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+ 	int result;
+ 	unsigned int temp;
  
--	if (ret < 0)
-+	if (ret < 0) {
-+		if (report) {
-+			i2c_dw_fault_report(dev, report);
-+			report->msgs_cplt += msgs_in_prev_parts;
-+			report->fault_msg_idx += msgs_in_prev_parts;
-+		}
- 		return ret;
-+	}
-+	if (report) {
-+		report->msgs_cplt = num;
-+		report->fault_msg_idx = num;
-+		report->bytes_cplt = 0;
-+	}
-+
- 	return num;
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 
+@@ -1213,7 +1220,8 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+ 	if (result)
+ 		return result;
+ 
+-	return i2c_imx_acked(i2c_imx);
++	/* I2C_M_IGNORE_NAK messages always take the PIO path. */
++	return i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
  }
  
-+int i2c_dw_xfer_v2(struct i2c_adapter *adap, struct i2c_msg *msgs, int num,
-+		   struct i2c_transfer_report *report)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+
-+	return i2c_dw_xfer_common_v2(dev, msgs, num, report);
-+}
-+
- int i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- {
- 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+@@ -1227,7 +1235,7 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+ 	result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+ 	if (result)
+ 		return result;
+-	result = i2c_imx_acked(i2c_imx);
++	result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
  
--	return i2c_dw_xfer_common(dev, msgs, num);
-+	return i2c_dw_xfer_common_v2(dev, msgs, num, NULL);
-+}
+@@ -1358,7 +1366,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 	result = i2c_imx_trx_complete(i2c_imx, true);
+ 	if (result)
+ 		return result;
+-	result = i2c_imx_acked(i2c_imx);
++	result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
+@@ -1372,7 +1380,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, true);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1549,6 +1557,16 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+ 	bool is_lastmsg = false;
+ 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+ 	int use_dma = 0;
++	u16 mangling = I2C_M_NO_RD_ACK | I2C_M_REV_DIR_ADDR;
 +
-+static int i2c_dw_fault_report(struct dw_i2c_dev *dev, struct i2c_transfer_report *report)
-+{
-+	int idx;
-+	int n_flushed = FIELD_GET(DW_IC_TX_ABRT_SOURCE_FLUSH_CNT_MASK, dev->abort_source);
-+
-+	report->msgs_cplt = -1;
-+
-+	if (n_flushed <= dev->bytes_written)
-+		dev->bytes_written -= n_flushed;
-+	else
-+		dev->bytes_written = 0;
-+
-+	/* The last byte that the transmission was interrupted on is not counted as "flushed".
-+	 * We should not reported it as transferred successfully, so decrement the counter.
++	/*
++	 * Only I2C_M_IGNORE_NAK is implemented; reject the unsupported
++	 * mangling flags.  I2C_M_STOP is the controller's native
++	 * behaviour and must not be rejected.
 +	 */
-+	if (dev->bytes_written)
-+		dev->bytes_written--;
++	for (i = 0; i < num; i++)
++		if (msgs[i].flags & mangling)
++			return -EOPNOTSUPP;
+ 
+ 	/* Start I2C transfer */
+ 	result = i2c_imx_start(i2c_imx, atomic);
+@@ -1604,6 +1622,14 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+ 
+ 		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
+ 			msgs[i].flags & I2C_M_DMA_SAFE;
 +
-+	for (idx = 0; idx < dev->msg_write_idx; idx++) {
-+		if (dev->msgs[idx].len <= dev->bytes_written)
-+			dev->bytes_written -= dev->msgs[idx].len;
-+		else
-+			break;
-+	}
-+
-+	report->fault_msg_idx = idx;
-+	for (int i = dev->msg_read_idx; i <= idx && i < dev->msgs_num; i++) {
-+		if (dev->msgs[i].flags & I2C_M_RD) {
-+			report->msgs_cplt = i;
-+			if (!(dev->rx_buf_len))
-+				report->bytes_cplt = 0;
-+			else
-+				report->bytes_cplt = dev->rx_buf - dev->msgs[i].buf;
-+			if ((i < idx) || (report->bytes_cplt < dev->bytes_written))
-+				dev_warn_ratelimited(dev->dev, "Read data lost due to FIFO flush");
-+			break;
-+		}
-+	}
-+
-+	if (report->msgs_cplt < 0) {
-+		report->msgs_cplt = idx;
-+		report->bytes_cplt = dev->bytes_written;
-+	}
-+
-+	return idx;
++		/*
++		 * I2C_M_IGNORE_NAK is honoured on the PIO paths only; a
++		 * NAK'd byte does not generate a further DMA request
++		 * (mirrors i2c-img-scb).
++		 */
++		if (msgs[i].flags & I2C_M_IGNORE_NAK)
++			use_dma = false;
+ 		if (msgs[i].flags & I2C_M_RD) {
+ 			int block_data = msgs->flags & I2C_M_RECV_LEN;
+ 
+@@ -1697,7 +1723,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+-		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
++		| I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_PROTOCOL_MANGLING;
  }
  
- void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+ static const struct i2c_algorithm i2c_imx_algo = {
 
+base-commit: 04e9bf1648f846976b543e91c1838a712433772a
 -- 
-2.43.0
+2.34.1
 
