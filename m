@@ -1,119 +1,111 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from esa2.hc555-34.eu.iphmx.com (esa2.hc555-34.eu.iphmx.com [23.90.104.147])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B1733EA979
-	for <linux-i2c@vger.kernel.org>; Wed,  2 Sep 2026 21:25:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7B753446CE;
+	Thu,  3 Sep 2026 05:38:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.90.104.147
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788384315; cv=none; b=oqB2aeHS6u66XT3UOTDzJqDv2oQjdzSefMZssHwC6d8MOXHoqDw4faHYSJ4of1a9a/5n/DEN2LtSEhXiK0ESSN73HaDKYLaeIeOrfnS+opFdgHlh345w3pNEXiT+0xQrBw/wqmg+D3vp69LbIIfyGcsgNTRFbbKaGvjs3hbCvIw=
+	t=1788413933; cv=none; b=ALCUEAzI1CUF8zxAw6SRaKQ1a7W2GdE50jFF1NSWgQ/lLqGqWOb+FQV5D52Fujd+h30i8mTZPSETLQjVRJ7M29OcDZxKdXyDQx788JI86X5b2HyGbs3IsdsWW74yU9CjaQEJWeGXUYx0jwAu2lt+1FyVwCXM5jwI+TPAX95pVjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788384315; c=relaxed/simple;
-	bh=t7gejd7pyTIJ2I7S4voK9PUjbWOEyRbCiGgVq4K0UpI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=de0Ken49hDuvEAJV4SsL+17CgpjlWumkkPHxG1mgCFWguVrDQ/gEEtk4EJ/D4ti0+rOJDfvPx9GRmKoRsdi4JyltLyi8WTtDYQ6eQ/Xn0xk3SUpTIPXXWRAfet/Qm/DHiynNnDAllDD8WfEISzHgcFdoQlBHWCjrKWWuDQdnAkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OWt99sef; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788413933; c=relaxed/simple;
+	bh=nlZNbwIyTEpADUlhze0eaVgSfFmoT/5b05U10+WjG/M=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=UOU6eq5JL9FMbEu4jNCKQef50bvvGXMEQTNN2FpX8FGlvfJCr/tnDsoCfopQu09JAYQwyAPEXgjivpAi4Quw9gKkiKnygjoBkc9z5bJMZnbp13sWNl9YXHVirjpfvobFJirUgI93IwN49tcdAeVarvcB5zhhoI1c1IFqetFaf50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com; spf=pass smtp.mailfrom=mobileye.com; dkim=fail (0-bit key) header.d=mobileye.com header.i=@mobileye.com header.b=PngKJ1Vv reason="key not found in DNS"; arc=none smtp.client-ip=23.90.104.147
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OWt99sef"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-cbb8b54fcf8so1899038a12.0
-        for <linux-i2c@vger.kernel.org>; Wed, 02 Sep 2026 14:25:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788384304; x=1788989104; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=v79KdHEjlvBLg7mwEWFWAGAPOJe9EFP/OK1uhnL10sw=;
-        b=OWt99sefuErqJBN/8NdmxiZyZXwzf2B8MxeKNWLAk6q0LjFV7itcUKcS82kYsBNstq
-         pbWk+PgWN3xMVh+5jz3g8vfL1nCxZoBBRL/1TX7KduFHVRKAidejWVVf/nFo7jq3KgKQ
-         Zs6z/9HdFYIl6x4HOx6KNh5xR0l1ssmA/mSpKEMMbFr6TT8nCpDdZ6M8GuPa9nWnQaBd
-         cqY8pPqK0WU4UUpXRrLKO96VzCSK1ofVcTiyQg77EmiuHVZ26nwMDieYCJfIIVGfEZ+1
-         JypPGm/LvslT1GjNR5wThW7kH0jYzNJNT4CYfW41zef0u+7a2C90MSGNn6D1wBLhjowp
-         lCWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788384304; x=1788989104;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=v79KdHEjlvBLg7mwEWFWAGAPOJe9EFP/OK1uhnL10sw=;
-        b=GyN8i/XTFagWzAmWQUO+84Eemk3TOU1rzXg5iFLidWgBJO0g0BejvYcgE2HFye1v44
-         uLdnfh/syhXcz89NqKEV9oGpmzw8wl8vXS5/N7w4y5R/iHvS4XS2GLFWltIlG4rjOYmR
-         j0bDHz7xmDvdZMR8EYT3Zm3N9DycgYyD+Mmk+yjhNvTNeEHmfPR7eKKLNjlYflf3+4hp
-         d1+IJnTgBuV4oLnzOtjagsJs1qPX1Tg4/NpA6BkwBDuMxzIKL537+5/lWzGM6Uz3vIit
-         g8b27U0LPH6pAsrpDpYwZsiEaCEKZADNE92BZl97Ey+lo2ud6343CTMVhBolN8rCHBv7
-         u1DQ==
-X-Gm-Message-State: AFuF++nJcLU5xssmxl+NPmXNJkwhzo09mufuTuKjEKE6lqGFxKqgwn17
-	A4ULey6zlxyTIPX3Gf18RjvUZ4ElttGM2rbOda8A9ffxipZvkD4DmptU0PDsVw==
-X-Gm-Gg: AYBFou3UmE9Ujttd/Tlpck8l95HKEtUYiAC0p5gghtyQOkLqXEmYEz49pDzAJvq6e52
-	IkDhkrMzWQusQe3fiiMcLCDFZo/eqXQOkI30kiB1/klmfqV8ZeDmFzT9iOyvbEkikqB7QIuYCWn
-	ahS3L6x02xTrPxHelOtHtWe/A3jXJy6iRepQMTfkulT7qiJ7fLYzIt36daRZrJqqDNQemQxQIwV
-	eISLAWgDIUBriVSyIQbv/k8zz7XRM7o1Ls2CHAaxpVzj4aBuogM+NgI9QM4CwKcRao2/p4HP6Pp
-	vjyGCHthYthM45dgrAHsQZIt+qkrUPfx3cHo/WwrgLwMtFHKqaCwjVzI2sMIz0jZ/tJopBg9VmG
-	Gn2kSr70as6Go8UxUrkK2Z0kCv18fQYsszM3c9nV4VDtqon16L6ZGGWNYORe9Z27K5WgoULAoFR
-	wZAhsEOzdR/pe7nMJr07l3DCgQo+zzgNpDtd7/md+yERpLkROPYIu+WQvR65HLAkgB5UeV7H+5Y
-	YjveMXieHbYU9HeuMdG5ObfjOawD4FcF5OPdjs1cWiBMFNZRbn3ZT5g/qd2WzfB2BYsxbleweiF
-	UnZMgTqEyf/A1P1KGO+SqHfuN4fpuUc/CPGRww==
-X-Received: by 2002:a05:6a21:70c5:b0:3cc:ec12:a788 with SMTP id adf61e73a8af0-3d9acb3e96emr13064690637.4.1788384303970;
-        Wed, 02 Sep 2026 14:25:03 -0700 (PDT)
-Received: from ryzen.lan ([2601:644:8000:7a86::e34])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc43d40c55fsm90890a12.19.2026.09.02.14.25.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Sep 2026 14:25:03 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-i2c@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCHv2 3/3] i2c: ibm_iic: use devm for main allocation
-Date: Wed,  2 Sep 2026 14:24:56 -0700
-Message-ID: <20260902212456.289608-4-rosenp@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260902212456.289608-1-rosenp@gmail.com>
-References: <20260902212456.289608-1-rosenp@gmail.com>
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=mobileye.com header.i=@mobileye.com header.b="PngKJ1Vv"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
+  t=1788413929; x=1819949929;
+  h=from:date:subject:mime-version:content-transfer-encoding:
+   message-id:references:in-reply-to:to:cc;
+  bh=nlZNbwIyTEpADUlhze0eaVgSfFmoT/5b05U10+WjG/M=;
+  b=PngKJ1Vv61tC69Ymm2HzSHKL+qI/uFA7l7VZo7VvSFnRnwcpwy+8lpJ9
+   5zdGOHQJxe610zFdy7vvT8/abzyq938Ss7UVNTNtlU2U21ekxk8X5592p
+   pC17+JrYjTxob3fUABgGzZoywm8QQKCYP2Fm+Ar/QZ+EhjwQ+5likzACJ
+   8A7/2eCvG8OB/p9Zy6PO3un+zFqGJxGXLtJmz1s0PsDQwdNiiOoCk7CdN
+   hwBwxT+lmGVCZ+75Or0u+UW2R6xyjPm5TtmZvHMq8/sQt44j89nXpjaOf
+   nJW0/T+ztsQSrwod1gFIaKcsTfSTk0j06S1/A8H7JKuv0RtaFa5/CDz3U
+   g==;
+X-CSE-ConnectionGUID: WLsDcoMiRqeta1S+3AaaXA==
+X-CSE-MsgGUID: qPMyAe9NRcqGeLolwasNGw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from unknown (HELO ces03_data.me-corp.lan) ([146.255.191.134])
+  by esa2.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2026 08:38:42 +0300
+X-CSE-ConnectionGUID: abxc5S9CQ2SBHX1Nd2NPmw==
+X-CSE-MsgGUID: ZuKQV8clSlyTOQVNKYtjJA==
+Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.3])
+  by ces03_data.me-corp.lan with SMTP; 03 Sep 2026 08:45:09 +0300
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 03 Sep 2026 08:38:41 +0300
+From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Date: Thu, 03 Sep 2026 08:38:12 +0300
+Subject: [PATCH v2 05/12] i2c: nomadik: change print level for fault
+ messages to debug
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260903-i2c-fault-reporting-v2-5-fedeb91792e6@mobileye.com>
+References: <20260903-i2c-fault-reporting-v2-0-fedeb91792e6@mobileye.com>
+In-Reply-To: <20260903-i2c-fault-reporting-v2-0-fedeb91792e6@mobileye.com>
+To: Andi Shyti <andi.shyti@kernel.org>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Linus Walleij <linusw@kernel.org>, 
+ Mika Westerberg <mika.westerberg@linux.intel.com>, 
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-trace-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, 
+ Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+X-Mailer: b4 0.14.2
 
-Get rid of kfree in failure and remove paths.
+i2c-nomadik driver prints error message on every faulted message. This
+is not a good practice, because in I2C a fault not always is an error,
+sometimes it is the expected result. For example, scanning bus with
+`i2cdetects` prints over 100 messages in dmesg (two messages per each
+target address).
 
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
+To avoid excessive prints in the log, change the print level from err to
+debug.
+
+Reviewed-by: Linus Walleij <linusw@kernel.org>
+Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 ---
- drivers/i2c/busses/i2c-ibm_iic.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 8af666442952..d577bf47fa56 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -693,7 +693,7 @@ static int iic_probe(struct platform_device *ofdev)
- 			dev_warn(&ofdev->dev, "using polling mode\n");
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index a3cef4b66190a9e45898e25867a3ceefce5d3d0a..9c7658148bd45ecdaef1f998558315580233555d 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -627,7 +627,7 @@ static int write_i2c(struct nmk_i2c_dev *priv, u16 flags)
+ 
+ 	if (!xfer_done) {
+ 		/* Controller timed out */
+-		dev_err(&priv->adev->dev, "write to slave 0x%x timed out\n",
++		dev_dbg(&priv->adev->dev, "write to slave 0x%x timed out\n",
+ 			priv->cli.slave_adr);
+ 		status = -ETIMEDOUT;
  	}
- 
--	dev = kzalloc_obj(*dev);
-+	dev = devm_kzalloc(&ofdev->dev, sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return -ENOMEM;
- 
-@@ -755,7 +755,6 @@ static int iic_probe(struct platform_device *ofdev)
- 		free_irq(dev->irq, dev);
- 	}
- 
--	kfree(dev);
- 	return ret;
- }
- 
-@@ -772,8 +771,6 @@ static void iic_remove(struct platform_device *ofdev)
- 		iic_interrupt_mode(dev, 0);
- 		free_irq(dev->irq, dev);
- 	}
--
--	kfree(dev);
- }
- 
- static const struct of_device_id ibm_iic_match[] = {
+@@ -661,7 +661,7 @@ static int nmk_i2c_xfer_one(struct nmk_i2c_dev *priv, u16 flags)
+ 		i2c_sr = readl(priv->virtbase + I2C_SR);
+ 		if (FIELD_GET(I2C_SR_STATUS, i2c_sr) == I2C_ABORT) {
+ 			cause = FIELD_GET(I2C_SR_CAUSE, i2c_sr);
+-			dev_err(&priv->adev->dev, "%s\n",
++			dev_dbg(&priv->adev->dev, "%s\n",
+ 				cause >= ARRAY_SIZE(abort_causes) ?
+ 				"unknown reason" :
+ 				abort_causes[cause]);
+
 -- 
-2.55.0
+2.43.0
 
