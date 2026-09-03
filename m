@@ -1,69 +1,72 @@
-Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013036.outbound.protection.outlook.com [40.93.201.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFF44F055B;
-	Thu,  3 Sep 2026 16:47:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788454072; cv=none; b=jtzHnWiHurgCc8sq57iAKwsK0vuakBabyTIZMWzZGnYuiQvGj8+3Rzw77mFb3+kEuDinWHzVlxz2H/hgzpTJG6QJFeO0uoGRjI74tHiNNC+g4u/WFwFGfr92bzW/JZ1/TdDs2F7vkITPQIP7ZGvTO9VoF7UQXPGfbPzYFfHgl/k=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788454072; c=relaxed/simple;
-	bh=Q3Oj8C9xs7OwFXcRq/GkyZSIdSxyR3ySBcFgGRhzAoc=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=cYYn9FWuQ0VzlctWs4DgO3NBO3SdpC0C9VFhveitjzIjQ6R+Qv7g7M2lC/WCCJzvNCUCHgr8MYuj3ToDmw5xQdCzPUVDx/fnLPAWV31U8UvllgkxbRGe0yWyOUdeIreEZ+lZvoX64pxRy+AncJSZChHhGlNUeEHHLX9jvd1wDNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=SD6FLgKj; arc=none smtp.client-ip=162.62.57.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 352714FDE78;
+	Thu,  3 Sep 2026 19:20:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.36
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788463262; cv=fail; b=HLr5bc/Q+LjrBSFavcgLgP8LuuzI/KI8Q+OgcDe8bjOTTvDACeZWvfQdtPvYxeu3TN4Z7A3u8+0e/jF3TzvkPwj0mHweNSa/wmwaUIESiBIeZEqs8/Dr2b3OpXwxJVFKsQS/T67gL5afkkCt7F4otddiZzeiLUTHQvr72y3mC4I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788463262; c=relaxed/simple;
+	bh=N/W+cXX226yRQ6AAFy7qHlzmFmSSWLEGu9tatimo/mc=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jnxLjYp46I1rTmnyFYQtTNzY6Dd59+WUcpwP9nf2KgELQv6Gwj+LQU89Po7tovrdgEmVRJ4Eo3KcWt0JWEXi+VtnJsQhdClvPOZ2R+CaBRrAczQ2WNPI3HSwjRuv6i2de//p8ZWO8yK9fjrir5uQGR86sR8SfMKxwjj3W8Icb/w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ImtyZwwJ; arc=fail smtp.client-ip=40.93.201.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="SD6FLgKj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1788454057;
-	bh=Q3Oj8C9xs7OwFXcRq/GkyZSIdSxyR3ySBcFgGRhzAoc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=SD6FLgKjZpg7hBVajIRSjlIeyxNnrdbaAniY2MdOiH9XjdQGPBzH3l97XwmV1VXvi
-	 qSWmKP7pVsNbuWHFC5T1k1m/8ZyeGd1f2tRO+xN56BOp4eeI0ZacvHP83YyVdgvXZU
-	 n5ae9Jsl711day4PMifqv/l/f+ztHgx3g77eZUbU=
-Received: from LAPTOP-TKBJAGN4.localdomain ([2408:8256:2d01:e2b1:6136:e6c:8ed6:40aa])
-	by newxmesmtplogicsvrszc43-0.qq.com (NewEsmtp) with SMTP
-	id BDE212BE; Fri, 04 Sep 2026 00:47:30 +0800
-X-QQ-mid: xmsmtpt1788454050t17u7474c
-Message-ID: <tencent_578ACB00C8862E1EA60EAC378A712B69BE09@qq.com>
-X-QQ-XMAILINFO: Nxj8FBgDHLvaAaHkTKbSIgNvPfh8cGOvp34W9fJQbK2woihxsiz3NmCGd+4qRs
-	 cNZ58dn8flAQJit9kcgrCCVl3vX8RO6wA+6PBgHLoOCMhIGE/9CPIb9aQnhUyBYzGVO0GXU1dtV8
-	 lHCWCeis5QgvEwQKJEF1Z9pblTUSGojqiPzAgm7esIjUHiAd4ydLZHjTlMRaCcwKZu0T6wHjx1N+
-	 2MGOlqYx+WzUcvwIKWKmYefZvbHQpORQfYlB3Q1VCd7WKt7BkcQGIlK66EEGCJyjtCxe7rUSw78k
-	 Sun3zlRh0/XhbMwIqRMplGsJWdBwb8SYorBIHR9ffFlsei3LIz1syEuo/wIXjAZPygmLk3hNg2ZI
-	 pP2XMOsceMMYjS+RSGrK2Bs0gC9GKG+/E/N9ZmI1/o7SW/cR4ojp6cSVl/G46rda3xZ943IsR1rM
-	 Uhl87uZyRAraaIgQiFbWO22w6rQpc0TsevuCa6PR+/NACfPN0mT8rzbXzbYMjNAuDVcZJLjriVV4
-	 FPEjI45vgbgJQkgWEQ/lisD26HsxeWpD1LXQQW6lopLv6WcucNDYAHaFlv6SpeVxOh8k0YBLZ3gr
-	 4Nw3Ep3llkgqdxFy3HWAnBB7Dld/kp42XoSPCLsHZqThOstOqIN2lPxf4ivP+wMicVIssrMJAbiG
-	 8Aj5nNZVaCH786EcaRNp70wBgTc4llljPER3sVAqwpyNFLzndpNGRWV5d5An86echixihCRvMcCN
-	 XovNGyKesvSnT3bX83FkL4HklJZbVQ/pmt7awmfuiJrEQLyv1sQeP2MHcvz7s0zGzfpLp3NzQwam
-	 fqF4G8Y2OInVA8nXM29gxqK5qg8uEonMdaj/SZJDvb9YXBCPo8GA77nGkLDNpnSpLJp5eyYej7zK
-	 u12vdBxrYbFFYqBgX3weDyhew7rthdLE9nteduQo8UYF00lXx1H1jBZBlwUVdLFfRNwhn3PaPs+o
-	 5xVYsFHkjfKPyz48uloF6aapnhrr8eqgjr+PKgoB+Rd4J2sXLG16hFWJCA5ZYf4toPk+zulwzw73
-	 KgNzLHCJ5dmUuFVUALcu6nskT9/a1qQK9ZB8in9WE7Yk492OyzKK5mXZDsWHg00LcdqH+YrMv5yv
-	 f9yyzP9WmOOjJXOgJajEgRQmCCJpXHURiMt+sXkHIjlccBm7Gl3kCCgZLcbg==
-X-QQ-XMRINFO: MSVp+SPm3vtSI1QTLgDHQqIV1w2oNKDqfg==
-From: Haobin Jiang <lemonoutput@foxmail.com>
-To: carlos.song@oss.nxp.com
-Cc: Frank.Li@nxp.com,
-	andi.shyti@kernel.org,
-	festevam@gmail.com,
-	imx@lists.linux.dev,
-	kernel@pengutronix.de,
-	lemonoutput@foxmail.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	o.rempel@pengutronix.de,
-	s.hauer@pengutronix.de
-Subject: Re: [PATCH v2] i2c: imx: honour I2C_M_IGNORE_NAK
-Date: Fri,  4 Sep 2026 00:47:00 +0800
-X-OQ-MSGID: <20260903164700.3298-1-lemonoutput@foxmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ImtyZwwJ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Gy8oqLiP8znW7NVshee1SZc86hk1hJS7nuV88YNbiTOHv47W6twX8Hw/cznqR9eSyNeQgLtetkOhy4OP1bSUwy8/O9B/QoXOj+dJtCPtJpG3YJPTXY3aQ8TWx3U7SbotjqyrCtraP9+DeYBc4/x2jPhu2EmTcZtte9IF7jkWL0NOJtXbTIs8RpILZ1NXWjF4jurU0qGG2Nu5hycYv7dblnMxNAJKp8VOWFm8yRFr8ZED7y3awYb6VzWzbakwngo0ZhdONmtL+/xXNA7/YyV9utn+5AHb3yxXtBVKMMGW+Sbnbvi/S8wZbQjxn9EPPkx7qJuCqsjMgs6mVCH5A5usUg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bwHGk7TKfV8jRU3EpYGchM0ZfVD7zXzcI+VLdthb00M=;
+ b=ox4sZJ6uKOdHcFudXA/MnLgP+tDwCITk7rP+aoGhRvLvGOeubq0n4PaskGXyYkTCiMfn2XkHakH2N8kNYCcT69LICbYIoPzKKqK+Yuux65Mzkm1gJvSaYKH5CX3DLeqgFw+5E3mS+TI6B0atQkm6OcXGelkYT17MELhUSZBgdYlA+P9JHA8ffaboHTHrPO3KPwTwI7H9jtyh3aJYrHG0wKwhhHja+v+ABICI8mu9Nm4OQHtIuaz/5+RKisOzTCOyxzkGBKahzQUnDq38Pr0OVy/kj2myU+f243WVYT+D9S8cWU4SdSYPtHbgxs1rfyHtjr4cVB8VBfh1IFG+UTvK6A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bwHGk7TKfV8jRU3EpYGchM0ZfVD7zXzcI+VLdthb00M=;
+ b=ImtyZwwJJnk6LFj2ijLvia1Kc15TcRPWwsjJhjMbo1TtIfFMfJOobx8pQmDsVgPz0PzY1kmpZFUO7NjZbMarMbwQN/Brxmufb7of1H24rdadW9H9doBYFYWUpFftOWdDCMbLKH9Tvg67EjkIEoIsBFk/Dy+6cO5TZMGl4QkaGVa9i//16NE17pSwA6yfw7v0aEYd3hwubuQNuYHaSrA2foLCcSRixe5fJWi4eg0Yxk4wV3/ilimdKBcD4+qGarwxXNxy0Azi8MAZOoBPnDqrVDeEPeriT9Hx4Z7B2Xx4vp525Q9EcVJ+2a7Vl1712d7L6zPnMBLOaGc18V9JEkMEtQ==
+Received: from CH2PR10CA0007.namprd10.prod.outlook.com (2603:10b6:610:4c::17)
+ by DM6PR12MB4076.namprd12.prod.outlook.com (2603:10b6:5:213::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Thu, 3 Sep
+ 2026 19:20:47 +0000
+Received: from CH3PEPF0000000E.namprd04.prod.outlook.com
+ (2603:10b6:610:4c:cafe::6a) by CH2PR10CA0007.outlook.office365.com
+ (2603:10b6:610:4c::17) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.382.10 via Frontend Transport; Thu, 3
+ Sep 2026 19:20:46 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CH3PEPF0000000E.mail.protection.outlook.com (10.167.244.42) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.382.8 via Frontend Transport; Thu, 3 Sep 2026 19:20:46 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Thu, 3 Sep
+ 2026 12:20:16 -0700
+Received: from vdi.nvidia.com (10.126.231.37) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Thu, 3 Sep
+ 2026 12:20:15 -0700
+From: Chris Babroski <cbabroski@nvidia.com>
+To: <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <cbabroski@nvidia.com>, <davthompson@nvidia.com>
+Subject: [PATCH v1 0/3] i2c: mlxbf: Fix master GW corruption
+Date: Thu, 3 Sep 2026 15:19:58 -0400
+Message-ID: <20260903192001.114263-1-cbabroski@nvidia.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <51425573-3687-486e-876d-f94d57844894@oss.nxp.com>
-References: <51425573-3687-486e-876d-f94d57844894@oss.nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -71,69 +74,62 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PEPF0000000E:EE_|DM6PR12MB4076:EE_
+X-MS-Office365-Filtering-Correlation-Id: 75eafb68-6772-4303-231b-08df09f074ed
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|23010399003|36860700016|82310400026|1800799024|11063799006|10067099003|18002099003|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	cNF0/8eL4Ykbquy4bSnEAzAoQnB3ebwAX3EmOZkcAvtkqnxRH6E5nyj7r00/x1A+1KZEFf/T6rnIAC2BgIamdUwmilWvbCTlc7ZCYQFjnyqnn1CBBTzt3ba1CLTJgEeulkZ+mJxcW4/DvGnFVxyXeRg7V+auRQ8e5ye0+nWl8Z7wNZ84XOhFx7zqFgWbpmUjxz1JNf10siMfIzwUyYbJhhUSeprXB5HLLlSdh20feBpBGTPp+aab1cmWb1NrZj3RXcsUL0XXHbIcw2Kiw6Qvxn6HU0BF8pIkHOLWZsCT48yxzezq18vxECZkqrDQbTtkDUCilBSP9QbQIL2ViLDoHSalupKC5vZNP0iRxGykC+qs5egST4dhd0otpKuYCFr/7h1yxT7hcfJYrf1CefTWmeE2zNDF3C0WjB28LPoCDnRC7Ya8mYUsxvU4WSDpu4tEm1mlpECAIbl/EViK+6M3CB+VnI8ioDeWDBRJPyShkE/ORrlvNjR+aNT7wte330vn7RRlg72zkVOossiFlD3Sw+9BxWYyLBNLET2b6+NveGS2exzYBHukEQNcZoMWrV040akbWhV/snqwRnWOWE95zbPBm8h/Kum7C384crygXyC7ikfpLm8vdqteWI+f9dyapoLhXEgqRfxZlnRGXR3CZ5OopeTz820hw0ACRHiM5qXHzt4TZggygqfiYfJxaXvltkK9a+cSfMRpJYdM2pi81A==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(23010399003)(36860700016)(82310400026)(1800799024)(11063799006)(10067099003)(18002099003)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	a3gryaYL0aGVOreR/fNVJ9YunZG9geiER4iVo+NyqlX72zs0kYZnsj5fXIY8I46zXMXzvVbtO8oKq7ZHeG4HBlevzzIeLr5YvF8dGYnGXrY58jcq8Smsq+hlqJ5e0yWbQUL5ZxAPaOiyF9b1XAT4tOvIwN3GXyRLFw/Lp3i+g0KTxdQoE4utCyq3SmQH0pdmRXeSJAmsIid03E9vpDeNOscBV4BSJOfDv9b3yNE5Mxt/+tWOf9wmu/bkGiTwQuEl9JtdFJQzzG6X15MNthfkXxo6ukZ+Gf4nCf4wUIS2zGMxUHuN41psxNVTOwF5yVvBcfigzXbAYJGxnub+dZCVFyY1rPYKcDdabXqDeNGkVu6V6DZDVp5uCAG8AptvC3IiDMgVIPbmHnji5r9g4dEuqkF6DiqEf2qFgz9FH7xVKiFImaV3yYnMon58Ayqd7WFD
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2026 19:20:46.6784
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 75eafb68-6772-4303-231b-08df09f074ed
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH3PEPF0000000E.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4076
 
-Hi Carlos,
+This patch series fixes a bug that corrupts the slave address used in read
+phases and cleans up the code to prevent similar corruption scenarios from
+occurring in the future.
 
-Thanks for the review, and sorry for the confusion my v2 caused on
-several points. Let me answer your questions.
+When the MLXBF_I2C_F_SMBUS_BLOCK and/or MLXBF_I2C_F_SMBUS_PEC flags are set, the
+flag bitmask values are shifted and written to the master gateway control
+register instead of the single-bit flag values. This caused slave address
+corruption in read phases (unlike write phases which use the data_desc[0] slave
+address value).
 
-> Are you using AI to make this patch?
+Patch 1 fixes this corruption issue by converting the flags to booleans before
+setting their values in the control register.
 
-Yes, I did use an AI tool while preparing this patch, and I
-apologise for not stating that upfront. I will describe how it was
-used in the v3 changelog, as described in
-Documentation/process/generated-content.rst.
+Patch 2 converts register field accesses from explicit shifts to
+BIT()/GENMASK()/FIELD_PREP().
 
-> Have you meet one issue on one real platform? Can you share the
-> detail about your devices and platform?
+Patch 3 removes an unnecessary register write (dead code).
 
-Yes, an i.MX6ULL on an ALIENTEK i.MX6ULL mini board, with an
-ATECC608A at 0x60 on I2C1. I am writing an out-of-tree ECDSA driver
-for it that reuses the wake pattern of the upstream atmel-i2c
-helper (drivers/crypto/atmel-i2c.c): a wake token sent with
-I2C_M_IGNORE_NAK through i2c_transfer_buffer_flags(). On i2c-imx
-the transfer aborts with -ENXIO at the first, expected NAK because
-the flag is silently dropped, so my driver had to fall back to
-bit-banging SDA over GPIO to wake the chip. I will verify the bus
-behaviour on that board with a logic analyzer and include the
-results and captures with v3.
+Chris Babroski (3):
+  i2c: mlxbf: Fix master GW corruption from unmasked SMBus flags
+  i2c: mlxbf: Use GENMASK()/FIELD_PREP() for GW fields
+  i2c: mlxbf: Remove unused slave GW PEC handling
 
-> After meet NACK, can i2c-imx controller continue to write or read
-> data from FIFO, after NACK normally stop or repeat start, so I am
-> not sure the i2c-imx controller HW will work normally, do you test
-> this?
+ drivers/i2c/busses/i2c-mlxbf.c | 40 +++++++++++++++++-----------------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
 
-I will cover this with the tests attached to v3.
-
-> Always goto the PIO path with I2C_M_IGNORE_NAK flag, it is better
-> "return i2c_imx_acked(i2c_imx, false);"?
-
-Agreed, v3 will do that.
-
-> You don't really support the I2C_M_STOP in the code and
-> intentionally ignore I2C_M_STOP check to avoid breaking the
-> imx6qdl-ds,right? Do you work on this platform?
-
-No, I don't have an imx6qdl-ds. The ov2659/SCCB reasoning in the v2
-changelog came from reading the DT and driver code, not from
-hardware, and it will be removed from v3. I2C_M_STOP will stay
-rejected, as in patch [4].
-
-While checking the code I found that patch [4] rejects
-I2C_M_STOP, and in-tree ov2659 on imx6qdl-ds sets I2C_CLIENT_SCCB
-(I2C_M_IGNORE_NAK | I2C_M_STOP) on every message, including the
-chip-ID read at probe, so after [4] lands that probe might fail
-with -EOPNOTSUPP. This is only from reading the code and I might be
-wrong. Similarly, rejecting I2C_M_IGNORE_NAK might affect the
-ATECC508A wake token on imx6qdl-gw5904.
-
-> So can you please rebase your patch on patch[4]?
-
-Yes, v3 will be rebased on top of [4].
-
-I will also fix the sentence spacing in the changelog and comments
-as you asked.
-
-Regards,
-Haobin
+-- 
+2.34.1
 
