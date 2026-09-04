@@ -1,283 +1,218 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11011021.outbound.protection.outlook.com [52.101.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A973DD508
-	for <linux-i2c@vger.kernel.org>; Fri,  4 Sep 2026 07:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86A783DD873;
+	Fri,  4 Sep 2026 08:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.21
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788508616; cv=pass; b=jXERDtz7dbBPGrREc5RyCQw1ONw1kOpGls/N9lfXDir/fOlxIVTVeNVnk1EdQStdtZimPAEu1qe3HbnT/VqZwOL7kOVK+/1j9JIdOVSwItvaZWxKctdTD/Sg3lz0IgEq4PFXzNjUKY0hCft5vS6b5FOBNpG+bVpj0B9Msx1syww=
+	t=1788511226; cv=fail; b=U7kzLkGnttSTu9TMA8Dg4vXB/kA+B6gjym9t5XUFukPvErdCLzpYUheXSOQCgVGCWTrHGHI9oYt3bpTgxPa6eopV2sH9xvWTAJwWa+Z7AonX8OXx/q6GVitWeTnUbpRTmr7dzzd5K7uQeNxTxZkkKP8WnM0gimeruXVcc8tJReE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788508616; c=relaxed/simple;
-	bh=aRX+Nb7hSCvEAQ13DkJCkSxFgBFsa/ETVg/ALEwOfh4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iXZnbl9PO2V5WzA+pHgCCoyf9m2xTQl9qixD22EED9BRoiDg3mHa17S8m9cErkS2qT1dw0Ms2WNvHEJ4czLgM8hH5wdxeZL3j5mur0SguMZkViwJ0JQ8xv7oQeX4G15z6ZofhPnIyBupKeZwMs3VDz28ClFPJgiHNpCKQSpyX1k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=lyMe15eq; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=hHR/XFgg; arc=pass smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1788511226; c=relaxed/simple;
+	bh=8RlKJRX5049wq+MXcuGXd1/gSvNDSqsN+ls7s4oc8mc=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ZyVNaV2eQm+MuJdPtaoc39cBZQi+5d6/rYlUQz0wAUC3vcG8sygxN1D2oDvPoMckYdbnom110ruTBYCqYuw5+M5v/SSNTjCegUmOQhPKeyfn/RtdeAQTs/aawRlcqiK0JaWpoXI8LCZcA+jF8GbYnFjPTHy0d3fnKh3yXmO+yfY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=shhGinkk; arc=fail smtp.client-ip=52.101.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="lyMe15eq";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="hHR/XFgg"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6847mnld2351556
-	for <linux-i2c@vger.kernel.org>; Fri, 4 Sep 2026 07:56:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	AsK6CNkPzqL+25hJDO5/FxatvGOrEq2Iq+btxLgvqQY=; b=lyMe15eqUhFeLFRb
-	ZvQ0jwRyMlDf4mFoetfSpQzEYtL0ch88a/gfxsbX2JtIdepnq+rkvGYgQAIF6v9e
-	gmYcp/V4pNV7LwqvRF0oYLocep8S0xOkDji5fdOx9fOSaMk69L39GDys5WkISYZl
-	pejqQmGAmG78zYbDoAFL1nQFAkJaG6RaDB5fBDzjeTM89qI3wnMwkzcQZO30t8h2
-	bqbETwMMnF72JwJQEshfEVrj/KPRGa8Suz3/9z7Kji2cuAoL5x07XOL/lPFDQptt
-	GVKoUAwfrHe8rAgW4FXRSLVBVcBcJS/cwbn8P3M4+hXKcnpUA9dV3BU0D306rwo5
-	q/4KZw==
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gfp1fgsxk-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 04 Sep 2026 07:56:53 +0000 (GMT)
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cc21bc2923fso1149972a12.2
-        for <linux-i2c@vger.kernel.org>; Fri, 04 Sep 2026 00:56:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788508612; cv=none;
-        d=google.com; s=arc-20260327;
-        b=B6CSfltnBixJOGMP6TyLNT7aLS8QnITb199zD6E15Yva9wIBuU5BkH9A9F7VFM6kL8
-         n+ggSXqMBJehW43rKeagVVPRjqZUiwua2ekLz8uORa87jMb7YcE/c14RtAUP6+HB1G4N
-         ZmL5H60yQYV6jex4SYxSX/k5wyn1La/TO3QyTGZxRvU1ECvn/hkH1ixGsxsTPllGSp7y
-         WYukhqYXfPB/c7QimVGmG79TRUSuQWzYYVNIqJ320m2E/UqaNNoHck9CsHrY6YF8VW3L
-         2iS5koi0/2BQii3Vnq4pJiL44ChWGNWNTuirhyTmIBvRddPyJjV3KJBXseBDZua/pIF3
-         wgRw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=AsK6CNkPzqL+25hJDO5/FxatvGOrEq2Iq+btxLgvqQY=;
-        fh=La+sYMppZ8zVwEYoDhDRVZs8vfeDPwHsmrDhJYreXoU=;
-        b=N/4YdO84Lh76IJA6+N0KnPwa5X6x/R5MCjeOaUV5QxVytLfCkWOHEHEXar2uyGZXiK
-         PMeFXikxM4NUfp0fRXR6QEKPCuqXSdudFZsnrdh4Q2QjY+dPFAgh5/zSdBm84bi5ljVi
-         PiNyP2IxpOn4HPbGGi07y78qtacwZ/iR9EYJoGXPtNKE+zrpCI8z9Wp+4AR4k8L2NrKy
-         1wyGgouH6GiAFB8U1E5+fCd4TjD6fnSYUD4Ik4lK7pA8ditNAwCFDMGK/BZBFcG+2mqQ
-         BpSMh7Rc2hHlzkyfCGr48vs19j/q9Vc2xS1SozoQ4AMPEeFyGRKwyuF0s0Rh2FFKx2YX
-         +bPg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1788508612; x=1789113412; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=AsK6CNkPzqL+25hJDO5/FxatvGOrEq2Iq+btxLgvqQY=;
-        b=hHR/XFggVzTTLF5GKVJcaMbI2MbWz5JHpEHV0F2Ecjit4MJ5Tn0qfjJuNrUIT/DVjj
-         MkVFSs8xJxg4DuMwguBIJG+afLWox6rkfh4INMqZsVYwFulKdi/K06Im6d2K9oj2TDNf
-         SnfZE7a739zF1s8SsvKYSVga10a2nrPd8kFjIuB/ynOVFqqKUH30aStnkioFwjpUQel9
-         fxhSEs36JgV3oDH4qpt/JziKW3roIxTBF/EVNpU2Get2uiJk83bVwjl5eaZGknQMY/03
-         AaWXwErc4Lz1sfP7/zaR+dw15/u0tjXQ3LI8JogpUYWH31BvgEUYKTgD5V82VqZfdgSC
-         8OdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788508612; x=1789113412;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=AsK6CNkPzqL+25hJDO5/FxatvGOrEq2Iq+btxLgvqQY=;
-        b=DYlxGTaZmewSTl/xsvH9oj4Y5+eqzQl8VooOBn64q0wJd4CUiHqS1m7VqqHKZ3gyHT
-         8yYS6pliUSgyBZFyYaMd9E/M0i2YDWJib61emQ9eqiHMUfuByFHK9b0BdgnH06nVyMCJ
-         JZIrGGJ1vjwhYCehYB26JW4HF2D8KnWfUcMrpZkq/XcRM2qRxdHnNr2QaNidX4uN7nr8
-         zV4LKpMgGwf7yI+uD5X2vwOIbzuhbUzT974jhfKourEEexHY7CV2609rkbm7ykUucLwN
-         DUAGOGvImOLSdvMi9gFmh+WXZfRZI8a1XCMlb3964QtGkIdBu5EfJC/oWID9FWOMo61K
-         sIbw==
-X-Forwarded-Encrypted: i=1; AKwUvBznoX1vi6qufk/9dsIpDwTFBN+NGplLLoZ9pztm8nOESGbDqbjswacYVSFPtD7cvaRhQqY3l8uG60s=@vger.kernel.org
-X-Gm-Message-State: AFuF++k1TZCTWgAUajBcTYH8MzjzMlqpaiPZtGT7Ay6nvz2HXRO8jdB4
-	oms3r/xPTglacERlHnhLYsXow5bauzXlSS55QFBvNx4mJT01en2RvHkaAn70z1PD4gFKM4CmKKV
-	NQoseA2Bv1NQGULPmVhx+k1abUqUwR0yvMiM3PEARFIBqO2A9rSJDJLlbv7rrP0LdpFUY08fc8n
-	iBATt8QUZZadjRc4Ec/xq0UMs7qRyHk42dakpC0w==
-X-Gm-Gg: AYBFou0F9bNwJqk7XfZVGyCIqN2keNi3A6EO4cZtMUTBkdgM8YW3W5f67rMdb4SuZck
-	FbPoPH+C3vAXkzRfGEAibaH5BSCwSY534S7L0G9UCNeLAfazClRCNBs9r/EOmCHwonXBLPEnjA9
-	Mbti5jtIuwfRIs0yixmjed6e+0LRDVdCKnij2v8LooqnlNZ5o24FBM12omGA==
-X-Received: by 2002:a05:6a21:3989:b0:3d1:af47:5f80 with SMTP id adf61e73a8af0-3da39f77bd4mr6420633637.11.1788508612170;
-        Fri, 04 Sep 2026 00:56:52 -0700 (PDT)
-X-Received: by 2002:a05:6a21:3989:b0:3d1:af47:5f80 with SMTP id
- adf61e73a8af0-3da39f77bd4mr6420552637.11.1788508611689; Fri, 04 Sep 2026
- 00:56:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="shhGinkk"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ly1NFnXei/RnPvd8rhmnMArcEFS9FN5zLuowKU9L3H5Ch/x+xRHaLM/n5a703uJGzmwTx9TdB/o2ZYnxfR+N6KRgGr+q92GRW48Pb0RFf9W/U8aNYFPVYhu7BlcJy0nAZrojosqzk/r2MEYYtm8ccnOh8KkAUbPY3/1zRqr/NuSeSfdVU4uve1cRlEQ30PDd03aqj3v18UfUcfH0HXWAuXGNk4SNaD7nUGelIE93Vt1jKj0GLTmUP1PbfUbAAE2I6CZkBYjAfkMwk7rI8Ssq6pJMkJg2/96L5hplSxY1MQR2YTOgE2CY0MCAmwMZhmVjeHWuW5JsAEI85KvlLYzrsw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=DkYiYQEmsKUKMldVvgru1nQDZEkS5hGNscE+JYaTVU8=;
+ b=A+AUmrY8sP3PR7yLwZYx84psVbeu1It9nwj+RHv0uACuh85xOYYbtMhumfLIByNrpuIm9cmeHSWafcrN20SA/qOWLcQrqnNnyb7KQW2qbyCUnPtERNUjfe/oaw8klvuFgNbcjj7n0FElPBdfcoz8CrbhFaoSArTUua8yeJrkPYYSeksHppFJBz14uSPzaU77KMheEA1ZrX9q/Jv84HIGCuOlXcU7+7iyLwze6xm9Js/8mVOGnks7PCSVcOj1lD/0+kwgYtlIgfnn3wWS4XM5j/5kWQBqJZVkTma9O9PXz6h+hbSamsD2J8XJKT57VsJ3ntVTfJgk06pbrHj/nfG0xA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DkYiYQEmsKUKMldVvgru1nQDZEkS5hGNscE+JYaTVU8=;
+ b=shhGinkk6R8BFp62Gdb5xefinJt3yqWXZTrT+ssPNP4BFstagvzI6Fom5ClxqcE68M8o2zrcE0P6tJ/G5AopoM3Ae0IM5WSe2tE0SuJDaGOaI24QJm8uJ7CkEQ+C5xlEiXhFyAMS5eo/VLpXUhSoqdjMTRSuYiqv/sU8cnKood1BmrgkLURVUYcDLGIfBsQBvWlSG0EkohJwxviy09pab7JTChkS2460J2V5RXgP2arp6M5n8GKhRO++ccnsM4gTjn2siVIItLerf3RP5XZF8ZI7sdhVpucJghPIcQxnhrYUECyJKH0uRtlvAOI/NtZUfGQ8tqDeCQaGDXl3Ymra7A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
+ by PAXPR04MB9471.eurprd04.prod.outlook.com (2603:10a6:102:2b2::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Fri, 4 Sep
+ 2026 08:40:20 +0000
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51%3]) with mapi id 15.21.0382.007; Fri, 4 Sep 2026
+ 08:40:20 +0000
+Message-ID: <ed9e17f4-e43c-4851-a9c4-73f94c57a2d5@oss.nxp.com>
+Date: Fri, 4 Sep 2026 16:40:10 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] i2c: imx: honour I2C_M_IGNORE_NAK
+To: Haobin Jiang <lemonoutput@foxmail.com>, dillon.minfei@gmail.com
+Cc: Frank.Li@nxp.com, andi.shyti@kernel.org, festevam@gmail.com,
+ imx@lists.linux.dev, kernel@pengutronix.de,
+ linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org, o.rempel@pengutronix.de, s.hauer@pengutronix.de
+References: <51425573-3687-486e-876d-f94d57844894@oss.nxp.com>
+ <tencent_578ACB00C8862E1EA60EAC378A712B69BE09@qq.com>
+From: Carlos Song <carlos.song@oss.nxp.com>
+In-Reply-To: <tencent_578ACB00C8862E1EA60EAC378A712B69BE09@qq.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MA5P287CA0115.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:1d0::15) To AM0PR04MB6802.eurprd04.prod.outlook.com
+ (2603:10a6:208:184::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-0-091697dbeb02@oss.qualcomm.com>
- <CAPx+jO9fcvBsxe9yx9oK=0EXmpNwub5ba0a-TGk1WRFaRGsqpA@mail.gmail.com> <177884a8-902f-49be-8fcb-b2bec3ec7d6c@oss.qualcomm.com>
-In-Reply-To: <177884a8-902f-49be-8fcb-b2bec3ec7d6c@oss.qualcomm.com>
-From: Ulf Hansson <ulf.hansson@oss.qualcomm.com>
-Date: Fri, 4 Sep 2026 09:56:39 +0200
-X-Gm-Features: AcwNN1UllrxbRYClFejSTOv1mPezdKyC-qM3m7DiYE7HdwsmgFFrqN7aqxA-MZ8
-Message-ID: <CAPx+jO8bXn2F3cWz87Ozjrh00E+a_UWBrHeUViTEkTL87JHW9Q@mail.gmail.com>
-Subject: Re: [PATCH v2 0/9] soc: qcom: geni: Derive SE clock configuration
- from OPP table on SA8255P
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>
-Cc: konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>, mukesh.savaliya@oss.qualcomm.com,
-        chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-i2c@vger.kernel.org, Abel Vesa <abel.vesa@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Authority-Analysis: v=2.4 cv=F+xnsKhN c=1 sm=1 tr=0 ts=6a9a79c5 cx=c_pps
- a=rz3CxIlbcmazkYymdCej/Q==:117 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=yx91gb_oNiZeI1HMLzn7:22 a=EUspDBNiAAAA:8 a=D1j1bUi7ZpnfGdUu11IA:9
- a=QEXdDO2ut3YA:10 a=bFCP_H2QrGi7Okbo017w:22
-X-Proofpoint-ORIG-GUID: yPEhPLnmwyhD1uq9izxLv5VBqH2T2iOn
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA0MDA3MiBTYWx0ZWRfX8J7yZ8qwxGK7
- 1MntOo1+yG8P/r5YjpmM59PIZZUfM7S2uVFAhxazAww/3g8FXbcAFfb9IWCPIcOMVB3Yr/mDPxC
- uj2kOVgbqYa+gSlGWlJVaCsF3RFKVV8=
-X-Proofpoint-GUID: yPEhPLnmwyhD1uq9izxLv5VBqH2T2iOn
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA0MDA3MiBTYWx0ZWRfXwN5zI8Xe2jP+
- NNDxQN82PyY7JdBbsY4OCzGrEew/m1HTUNL4jScoBj+IPWQRAUUQPKmo1kjqOeMaPBNDyv0y1f3
- 2C8N97z8YPzlPMD8Q1wicycrrG5rztwAwhGi9yL7UZHvEcByUktkBGCGfRcK2bBZhd7/6ZMAja9
- edy0cMOWkJSHgnLOyHG/2zODH2AYsVYLD6pS6jJNBvasoHtet915zQisMMha7YLwLSL7EEg5bnY
- yyvwUNBsFYfLpoJM9Fb+rWWkTmaxCLC9+j7U3qNBk37Ss7XVibGtrLsaPlw8W10PTS9ukdRFiZp
- 85a+FoRou8L6TzI8bL/e5N7tZusVb44/tQL7uXz+V29zaJuXcV5copYz3edT06HidT6efVYeuCL
- Pi2aKeX1IK9ToiOrJTr9de7GaNYnzyCOUx4F6PMpWiMUP2rf7yeyq+y8OttunoQyXzy4K7uLb18
- SggGZMdsqz1/iuCRBIg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-04_02,2026-09-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 spamscore=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609040072
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|PAXPR04MB9471:EE_
+X-MS-Office365-Filtering-Correlation-Id: eb981f3b-4ff0-4385-ab41-08df0a602740
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|19092799006|366016|376014|1800799024|7416014|5023799004|10067099003|56012099006|4143699003|22082099003|18002099003|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	11Pah9QsBwvsTU5kITkhcwDEo4xb+1nlMbpdl1BxiU36qrZ6YSneoNXvUZi/CfP6iHv2Tc2titYsjrphxAjsZRq7udmdpauCsJ39HsOKtLy5lk896UN2gMM4YiY249zumgGxXoTjCrGO2nk8E+h/TJiWqo5rux+K7KBWvBhE00J2irjbN2c92kPXWYLhTPBhguLRsv4+gmvjKO9Lw7zn6NJ8ti82lTDDx4rmlAL/GScEoiHHpukF/TgxVPcdy370LgIyjgVRzYKpu9pCWCdzMigJ3+hfDKDXp5A9Ywi8cxIo92cqKtNKGkqB0X9ONhBdw1kW7Ef+X/jqVypbUv72Jjwb2jCJjvYZVqoDoMBdQ9Z8jXBdYiSjOy8AS2LCaosTP32oYrtTkmwXLEgEOwdqOdiIq0zsOwCKplZJ48jMAHV+6pdtyv2M5nn7GEdcFM9B9WOI+GiFTLBUUzRljKuAbv7Ry5AP1FkU8B39cZ9iApYTMyFYQ6+u/zQC+1aTewbwk89oe7CPRmVYv5UY2sTlwQxfQZgmJnaaYgnQEP+Hi38xcMc9A4hMfplocAn9xSCI5hyDzye5jxgLmCh7wi812+kxLzRZiaLWzwFbtO+EINx+lLY1lwOho0uxSCzfdusGeUXacYtrNB4cBYYCcMyE+gPyXaVmxf2cDIocieNKH0M=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(19092799006)(366016)(376014)(1800799024)(7416014)(5023799004)(10067099003)(56012099006)(4143699003)(22082099003)(18002099003)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?enNKRkdtQkh6OWd3TG5VMWI0Q2FCeTBMTEcvSi9vR0E2Vjdzd0NwNjVjUVM3?=
+ =?utf-8?B?d3FFQ1hIbjJ3ekZXQ05MVVZwQ0FNaTlPT0Y0ajRJTFhvY2Z4a3Q3UzkxZDMr?=
+ =?utf-8?B?cmpSM0puVmZvT3ExelB1cEoxWjNoYUNRTUxQZDAxZ21STGx3VEI4VVcyUTQ4?=
+ =?utf-8?B?S0IyT21aRmN1VmtDVWVRd2hmczRyOFB4bTFsS1FsbDNVYnNkVTl1MjZUNmFU?=
+ =?utf-8?B?d2k1RUREV1VEYWc5aEQ5bnR3NFk0ejV3VU1HbjBWWk9xNzhSMW4xekNlT3Zi?=
+ =?utf-8?B?Zk1EWnpaUnlyZVFKUkh5VjRDOW5kRE8yRnYrQ1R3ZWR3RmNOL3V5QlZSR1FQ?=
+ =?utf-8?B?a1YyLzkrWXJ4c1hIU3VkQjRTWlQ4VUtJaVRxaUlwVjByS3BQWDZxN3VDQ0lH?=
+ =?utf-8?B?S0oyYXZJWFJZZk9vQmxtY3VISjR5QWswTmNlcnhWVW4rMUQvcXlHRHMvcWJu?=
+ =?utf-8?B?ZEFjSk9OU0lwdlZXYkoxdDhUZG43V1JzOHhOQWhjYlZidERiTzZUa0ZLbWRX?=
+ =?utf-8?B?clNMZ1lGV2ROeC9wTTFHM3VyVFptekgwM1NvOXRJbEN5bUJpcC9XUTczQ1VY?=
+ =?utf-8?B?UUNNQnZoamhGWWZzRmY2UG56Sk0wMUFabnBFQTAvdWxtaE14bVM3eHRpbmF1?=
+ =?utf-8?B?NFZ2ekJHYzdTMGIrcXcwYWw4Q2FMcFhNQnVwblFiWmd4RWQ1QXRPMEFCSVox?=
+ =?utf-8?B?aFNnQ3hkVy9KWEpaL2hpU0ZML09EMTJVaU91aTREcWErTlpIOHg4MUg5Rjgz?=
+ =?utf-8?B?SzRsT25temJFVmF2bDNCb2MwckZyM0djM040SHg0aldVdUo3MitmUjU2Sm0y?=
+ =?utf-8?B?dWRtbEYxUHE5WERsYy95MXRzd2RUTjhHNTdvRkpHYlZyYUxrK3o0VUY3aUZn?=
+ =?utf-8?B?REEvd0tFaE5La3dST0UzdVpYVDYzSGlZcmdMa2dkZC9DRmwrSW5uVE1sQmtx?=
+ =?utf-8?B?bWhBSVhHaHNzUEg0TWk2b2ZpU0dQS0lwWWNleitsTU53OERrOThseWMwTVdo?=
+ =?utf-8?B?eittMWdJN3REbTM1UTBlOFo4dWVLT0pzTXZyUXBJUHg2Z1JBcGdJZ1pGSFdk?=
+ =?utf-8?B?TlUwVjNjS2cybnRrVnpFeU1MSnAzSUMxVGcyM3RlUjdMczhQZ25nZzcxcEc1?=
+ =?utf-8?B?Z2pRTEp4YzNUK2pzVUsrT0R4ZXljZXpHQnhZWUY4K3o4bWVkUUt0anUrRDN2?=
+ =?utf-8?B?Y1FPcjJQNVd0VTBvMmJQQWw0NEluQU9ybmo2RkRoRzl5Mm11Qnc4MGRhUDlp?=
+ =?utf-8?B?dlRpNERCU3pqUmRxbEJKMi9ROEZlYURRbk1WbWlMMXpxY1V6OWdiNGp2NVNB?=
+ =?utf-8?B?QmtSYitPU0sxc3lnWTkybE1Qa1R3SWN6WkJPZWlXVklPWmFwQ1dJekJyVHhr?=
+ =?utf-8?B?ZzV0STNXUG9TYjRTK2VTaUNCaGlkTFpCcVFQeUZ6SkJZcTQ1bEZIMlBPOXU4?=
+ =?utf-8?B?R1RxRHhjd3U5bzU3Wi90bFZ4WGdhMU1tSHBISkVlNms0NDVTRktSZWsxam00?=
+ =?utf-8?B?MHd2S0V2dWFuYXVaazFHZ2xOMGdjUC9uTnlNSzFYRGF5Uk00djJGUm5ma2tI?=
+ =?utf-8?B?cFp6emkzY2l0ZFhOYTVZenFaU3R6UzlQNjVicm9oT3pHb3BpZXozemhkTmJT?=
+ =?utf-8?B?dXVkZi8vV0ZHNXFaNW1XQmxlakx4eHU0czcvV2FORm1kK3d4aU1DM2JyTVph?=
+ =?utf-8?B?ekI5SEwyL2JrdGIzRWgwdWZWMjNKcWtpclFrZHhwN0dKdENqNUdHem5QbVpP?=
+ =?utf-8?B?MjRYMzd6eWlqRi9hU2dDT0hkRG5zVE1zcWFNY0NDTDArbGpGMXpaVkptMHNU?=
+ =?utf-8?B?NkErL3Z6WFJ1RDc1b2RFUmJ1aEkzNld6aG9FSW9sbkxvNXVROTBDUnVnRG1p?=
+ =?utf-8?B?eFVHcWpIcFkreWZkWVMvMWZtSVRERy9aVWtzUzZWcU1rRHhqRWhMNzJIM3Fl?=
+ =?utf-8?B?UGF6QTlRV2t5ai9NYmJuWnNLOGN0QmRmcEJLYUZ0RERWWHJoUk1ZZkxiOEpp?=
+ =?utf-8?B?aXlSQU5taWp3OWg1U2NLb21KdEZzdVNKczZrUThxVC9MdVA1Yi9nRUpLay9y?=
+ =?utf-8?B?NjdrZUpQYWZLemFvL3hBcHByZTk5TXZFTzlIbldIbElmR00waGFaK1lxUHZC?=
+ =?utf-8?B?Mms1REN5WXNKRWNEOUYxNTlwVXNJRnd5UlZoZjN6b0EyREVvU3F6ZHFCaGE1?=
+ =?utf-8?B?L25VZDJYS1JsajdpY3RKRUxxWUNtWGlqNS9IZFBKd29RekhoSU1GWXNWc3pQ?=
+ =?utf-8?B?eFZzVC82em5KN1cyKzI4b1ZyTUZiS01ubXAyUEo2Zk5BYStxYlNnSnUxY2d1?=
+ =?utf-8?B?MkpvdkVxTzJReFlQZHpkNTh6L2R6eFNPRlN6bnVMMU5kRTlDRG5odz09?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb981f3b-4ff0-4385-ab41-08df0a602740
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2026 08:40:20.5715
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UiygcwH1busHDhlCtC7uoYfarKEt26qz7YAH0rnH9xckWe+SJzX4S0oYbinyLEYrubiBQeRfAnrwhCFzyB/ICg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB9471
 
-On Tue, Sep 1, 2026 at 6:48=E2=80=AFPM Praveen Talari
-<praveen.talari@oss.qualcomm.com> wrote:
+> Hi Carlos,
 >
-> Hi Ulf,
+> Thanks for the review, and sorry for the confusion my v2 caused on
+> several points. Let me answer your questions.
 >
-> On 01-09-2026 20:22, Ulf Hansson wrote:
-> > On Thu, Aug 27, 2026 at 7:59=E2=80=AFPM Praveen Talari
-> > <praveen.talari@oss.qualcomm.com> wrote:
-> >> On firmware-managed platforms such as SA8255P, there is no Linux clock
-> >> handler available to determine the appropriate SE source clock, source
-> >> clock index, and divider values for a requested protocol frequency.
-> >> However, these parameters are required when programming GSI TREs, wher=
-e
-> >> the hardware expects an explicit clock source selection and divider
-> >> configuration for the serial engine.
-> >>
-> >> In contrast, platforms using Linux-managed clocks derive these
-> >> parameters through geni_se_clk_freq_match() using the source clock
-> >> information stored in clk_perf_tbl. Since the firmware-managed path
-> >> lacks equivalent clock information, protocol drivers cannot reuse the
-> >> existing frequency matching logic and instead rely on a direct mapping
-> >> between protocol-requested frequencies and performance levels. This
-> >> creates a separate clock configuration flow and prevents
-> >> firmware-managed platforms from deriving the actual SE clock parameter=
-s
-> >> required for GSI TRE programming.
-> > Hmm, this sounds like moving backwards when it comes to keeping
-> > drivers as portable as possible.
-> >
-> > I understand geni_se_clk_freq_match() has been around for a while, but
-> > fortunately its use seems limited to only a few qcom specific drivers.
-> >
-> > Rather than continue down this path, would it not be possible to find
-> > a more generic solution for "geni_se_clk_freq_match()"? Can we replace
-> > it with a common clock/OPP API? In this way, we would not need to
-> > sprinkle drivers with calls to platform specific  code.
-> I agree that protocol drivers should not need to know whether GENI resour=
-ces
-> are managed through the clock framework or a firmware-provided
-> performance domain.
+>> Are you using AI to make this patch?
+> Yes, I did use an AI tool while preparing this patch, and I
+> apologise for not stating that upfront. I will describe how it was
+> used in the v3 changelog, as described in
+> Documentation/process/generated-content.rst.
+
+Hi, haobin
+
+It's okay, don't worry about it.
+
+>> Have you meet one issue on one real platform? Can you share the
+>> detail about your devices and platform?
+> Yes, an i.MX6ULL on an ALIENTEK i.MX6ULL mini board, with an
+> ATECC608A at 0x60 on I2C1. I am writing an out-of-tree ECDSA driver
+> for it that reuses the wake pattern of the upstream atmel-i2c
+> helper (drivers/crypto/atmel-i2c.c): a wake token sent with
+> I2C_M_IGNORE_NAK through i2c_transfer_buffer_flags(). On i2c-imx
+> the transfer aborts with -ENXIO at the first, expected NAK because
+> the flag is silently dropped, so my driver had to fall back to
+> bit-banging SDA over GPIO to wake the chip. I will verify the bus
+> behaviour on that board with a logic analyzer and include the
+> results and captures with v3.
+
+In fact, you just need to support this I2C_M_IGNORE_NAK single flag.
+Happy to see this. If you can help provide some strong evidence, it will
+help a lot.
+
+>> After meet NACK, can i2c-imx controller continue to write or read
+>> data from FIFO, after NACK normally stop or repeat start, so I am
+>> not sure the i2c-imx controller HW will work normally, do you test
+>> this?
+> I will cover this with the tests attached to v3.
 >
-> The intent of this series is actually to move in that direction rather th=
-an
-> introduce a separate flow. Today firmware-managed platforms cannot use
-> geni_se_clk_freq_match() because clk_perf_tbl is only populated when a
-> Linux clock
-> is present. This series derives the same clock-performance
-> information(clk_perf_tbl) from the OPP
-> table and populates clk_perf_tbl during geni_se_domain_attach(),
-> allowing both
-> resource-management models to reuse the existing
-> geni_se_clk_freq_match() infrastructure.
-
-Right, the goal makes sense, but I am not sure the proposed solution
-is the way to get there.
-
-We really want to avoid having generic drivers like (spi, uart, i2c,
-etc) calling platform specific functions. This isn't just me, it's the
-general way for how we do things for drivers. Of course, we have
-exceptions, but I think you get my point.
-
-In this case, why isn't it possible to use the clock and OPP
-framework? Is there anything missing to make this work?
-
+>> Always goto the PIO path with I2C_M_IGNORE_NAK flag, it is better
+>> "return i2c_imx_acked(i2c_imx, false);"?
+> Agreed, v3 will do that.
 >
-> Likewise, geni_se_set_rate() hides whether the underlying implementation
-> uses
-> dev_pm_opp_set_rate() on a perf-domain device or a regular clock-backed
-> device,
-> so protocol drivers no longer need platform-specific callbacks. The goal
-> is to
-> converge both paths behind common GENI helpers rather than maintain separ=
-ate
-> clock-selection mechanisms.
-
-The OPP layer already has some capabilities for managing clocks. Can't
-we use devm_pm_opp_set_config() to prepare an OPP table with the
-relevant clk data for the devices, as a way to abstract things?
-
-> >
-> >> To address this limitation, the performance-domain OPP table is treate=
-d
-> >> as the representation of SE-supported source clock frequencies. During
-> >> geni_se_domain_attach(), the OPP entries are used to populate
-> >> clk_perf_tbl and related clock performance data, allowing
-> >> firmware-managed platforms to leverage the same clock frequency matchi=
-ng
-> >> infrastructure used by Linux-managed platforms.
-> >>
-> >> With this change, protocol drivers can use geni_se_clk_freq_match() to
-> >> select the closest supported source clock frequency for a requested
-> >> protocol rate, derive the corresponding source clock index and divider
-> >> values required for GSI TRE programming, and apply the matched clock
-> >> through the OPP framework. This removes the dependency on direct
-> >> protocol-frequency-to-performance-level mappings and provides a common
-> >> clock selection and configuration mechanism across both firmware-manag=
-ed
-> >> and Linux-managed GENI deployments.
-> > Rather than adding yet another platform specific method, would it be
-> > possible to extend the generic OPP library with the pieces that are
-> > missing to make this work in a generic way?
-> I agree with the goal of using generic infrastructure. However,
-> geni_se_clk_freq_match()
-> derives GENI-specific parameters such as the source clock, clock index,
-> and divider values
-> required for GSI TRE programming, which are not represented by the
-> generic OPP interface today.
+>> You don't really support the I2C_M_STOP in the code and
+>> intentionally ignore I2C_M_STOP check to avoid breaking the
+>> imx6qdl-ds,right? Do you work on this platform?
+> No, I don't have an imx6qdl-ds. The ov2659/SCCB reasoning in the v2
+> changelog came from reading the DT and driver code, not from
+> hardware, and it will be removed from v3. I2C_M_STOP will stay
+> rejected, as in patch [4].
 >
-> This series does not introduce a new clock selection path; it reuses the
-> existing
-> geni_se_clk_freq_match() flow on firmware-managed platforms by populating
-> clk_perf_tbl from OPP data.
+> While checking the code I found that patch [4] rejects
+> I2C_M_STOP, and in-tree ov2659 on imx6qdl-ds sets I2C_CLIENT_SCCB
+> (I2C_M_IGNORE_NAK | I2C_M_STOP) on every message, including the
+> chip-ID read at probe, so after [4] lands that probe might fail
+> with -EOPNOTSUPP. This is only from reading the code and I might be
+> wrong. Similarly, rejecting I2C_M_IGNORE_NAK might affect the
+> ATECC508A wake token on imx6qdl-gw5904.
 
-So geni_se_clk_freq_match() is used by two consumer drivers today,
-drivers/spi/spi-geni-qcom.c and drivers/tty/serial/qcom_geni_serial.c.
+This point actually concerns me as well. From my perspective, I agree 
+with the V2 approach of skipping the |I2C_M_STOP| check by default. When 
+adding new features, we should avoid breaking existing platforms. 
+Historically, |i2c-imx.c| did not validate these flags, so ov2659/SCCB 
+may have been running in a state that was not fully compliant with the 
+intended driver design, but nevertheless worked in practice. Rejecting 
+transfers with |I2C_M_STOP| could therefore break the existing 
+ov2659/SCCB use case on |imx6qdl-ds|. While the code would continue to 
+silently ignore |I2C_M_STOP| during multi-message transfers, this is not 
+a new behavior. In fact, allowing |I2C_M_STOP| to pass through is 
+intended to preserve existing behavior and maintain backward 
+compatibility. What is your view on this? Regards, Carlos
 
-Beyond the $subject series, there will be even more consumer drivers
-that call these platform specific functions. As I said above, I don't
-think this is moving things in the right direction.
+>> So can you please rebase your patch on patch[4]?
+> Yes, v3 will be rebased on top of [4].
+>
+> I will also fix the sentence spacing in the changelog and comments
+> as you asked.
+>
+> Regards,
+> Haobin
 
-If this can't be solved with generic frameworks (clocks and OPP),
-please clarify why so we can figure out a better way forward.
+-- 
+Best Regards,
+Carlos
 
-[...]
-
-Kind regards
-Uffe
