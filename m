@@ -1,62 +1,60 @@
-Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A21D61FCE;
-	Sat,  5 Sep 2026 05:46:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40EB030D3E0;
+	Sat,  5 Sep 2026 07:49:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788587212; cv=none; b=H7rLl+rW2R0gM+i4v/fumvvQOTmdTFAr+P1/EM9HcS8c92sEL5oBCvB1NFQ0LQQy9o5zUWOVwnBcyLGmBdxului8qfWVV07o00oEGaLkvYTHqwhIc4KZQj0kRhirsOd6IbfsH6QtyxkaUTksscWSMmr/0NNdcpxmL/9Ti56pGjw=
+	t=1788594542; cv=none; b=B8qMd5HoDevt+jd4/35cCvLhAu9lkJSXxdl+VzLGTp8df5+lSTVCPWoGAfUVr+ogRCmhGmlumGhhvJVzoOf7ZgqCxnWZ8rnAkjiKVHDD1WMhUL5/sVQJkC3OwJgClOwG6ABsljHle6KAu2jtfU2v38sTzqbiiR+U1+6eqqNfJmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788587212; c=relaxed/simple;
-	bh=vzirXV3YRTUsE9Pet37gIC9ZEJyZc/pn+LekQDQJDGY=;
+	s=arc-20240116; t=1788594542; c=relaxed/simple;
+	bh=egGzBShQ6WlzwWjn7JYd1KUqRp7nJX9LDdJwRCk2UF0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f8PW2H55/UIiulf2al+KPPb2PhIAro8MdbHkkDjKWd+GzO2cVU6Cg0ZpL7DZcF2EMcPrA5IwWSOb6b9TxjgV4pcIF5XcTecG2Hql8XdJsc/b/lLlQbTiyUQY6dUW0s3WQfYiqXzZw0+J0PJpq7bFv4G4oC7SM/etixMtmCcGXwg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=uee/Ekt5; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=uee/Ekt5; arc=none smtp.client-ip=130.236.254.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+	 Content-Type:Content-Disposition:In-Reply-To; b=CyPOUATBi9WZ11+K7Nm4m+F197nc2m8ReEcsw+SFcH0TAwpfPqXQ8KrKC/dxU+CFuaCtWpE+EheSISieRapILHXTAn2aQbUNiYYKOY0n6c22AnGqUmNAQpOh3VGcX6f04U6iSTwDNo30d8GiTS/IEPch9kuMM8O1boN80eCb9Sw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZLvhZ2qc; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="uee/Ekt5";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="uee/Ekt5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1788587198;
-	bh=vzirXV3YRTUsE9Pet37gIC9ZEJyZc/pn+LekQDQJDGY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uee/Ekt5am6ThNvkulDNjzTZ6dr5tEFuy2T0CaGKwanKxoid0Vo2HpguHyKcU8yy9
-	 Wr4QCAMKTT5bPKTHTKrM8w6BhLayipI4m/onE12HywF5s7D4DQ703Xc6VvSvv8AIY8
-	 mSSArDKG2LOW5yqlWweO3mfsswggxPbrtyKSBlCTw6eJ94bvqzwHl1zik3wYfuZg4M
-	 CmQ2DfqK1fqS09BRj+Z/H6Sr1B9NnW802wF8Pe39F1zLZkgr7kjzXhezjAMX66yWqo
-	 usiQymq2lHKYovasi+KBnIn0WotYbVwVdWUl4PaTaczllVT6Xzcxa3A1I1qs4ef7QK
-	 /qhfOCinj9ttw==
-Received: from mail.lysator.liu.se (localhost [127.0.0.1])
-	by mail.lysator.liu.se (Postfix) with ESMTP id A00523557;
-	Sat,  5 Sep 2026 07:46:38 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1788587198;
-	bh=vzirXV3YRTUsE9Pet37gIC9ZEJyZc/pn+LekQDQJDGY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uee/Ekt5am6ThNvkulDNjzTZ6dr5tEFuy2T0CaGKwanKxoid0Vo2HpguHyKcU8yy9
-	 Wr4QCAMKTT5bPKTHTKrM8w6BhLayipI4m/onE12HywF5s7D4DQ703Xc6VvSvv8AIY8
-	 mSSArDKG2LOW5yqlWweO3mfsswggxPbrtyKSBlCTw6eJ94bvqzwHl1zik3wYfuZg4M
-	 CmQ2DfqK1fqS09BRj+Z/H6Sr1B9NnW802wF8Pe39F1zLZkgr7kjzXhezjAMX66yWqo
-	 usiQymq2lHKYovasi+KBnIn0WotYbVwVdWUl4PaTaczllVT6Xzcxa3A1I1qs4ef7QK
-	 /qhfOCinj9ttw==
-Received: from gryt (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by mail.lysator.liu.se (Postfix) with ESMTPSA id 585E835D8;
-	Sat,  5 Sep 2026 07:46:38 +0200 (CEST)
-Date: Sat, 5 Sep 2026 07:46:36 +0200
-From: Peter Rosin <peda@lysator.liu.se>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZLvhZ2qc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1788594541; x=1820130541;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=egGzBShQ6WlzwWjn7JYd1KUqRp7nJX9LDdJwRCk2UF0=;
+  b=ZLvhZ2qcveKOhwZ3KQr0t4Es+jGijDjWviTbjHxJPACO5zzJZiuLD3YQ
+   +Z4nkkaE1lMTLgAh6yPNhZknZ+yOE9hKGtxh8QHbXXeFmC4EmriVMUB2U
+   QQ0B7+AosmjvxX0Pb+vYbqudmUBD12w1+kcPEqDvTlIrS8zrclRM6/Br2
+   bfafWHV4P+X8Odvyi413f96yHwXNN1iEHkr35ysKyZn51SpcIodys17xW
+   hFVrOvPOVCe7PSpTeN6bc6buCkMbboBf7Kq4zl3HY2Iu+pMxADKuN1FeI
+   XCA5H7I2MRj7vWa70QlBtS4/xiH9o9oyoXHhKrQt8sN0JKgIcG+mBmsJf
+   A==;
+X-CSE-ConnectionGUID: 1a9hdcaBQYOr8ERGOKSAZg==
+X-CSE-MsgGUID: 7GXWL+kLTj6k3l+fi5qHZg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11896"; a="91598516"
+X-IronPort-AV: E=Sophos;i="6.25,263,1779174000"; 
+   d="scan'208";a="91598516"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2026 00:49:00 -0700
+X-CSE-ConnectionGUID: P3J8wFb8QpqavtHvY+s9gw==
+X-CSE-MsgGUID: veq7M1oJTyGZNpcKzYhmPA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,263,1779174000"; 
+   d="scan'208";a="269741486"
+Received: from fpallare-mobl4.ger.corp.intel.com (HELO localhost) ([10.245.245.105])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2026 00:48:58 -0700
+Date: Sat, 5 Sep 2026 10:48:56 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Peter Rosin <peda@lysator.liu.se>
 Cc: Ahmad Byagowi <ahmadexp@gmail.com>, Andi Shyti <andi.shyti@kernel.org>,
 	Andy Shevchenko <andy@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v9 1/2] i2c: mux: Factor out channel node lookup
-Message-ID: <apusvKc2PnSShaoI@gryt>
+Message-ID: <apvJaBo4Zzz2GAMx@ashevche-desk.local>
 References: <cover.1788298883.git.ahmadexp@gmail.com>
  <89780f7db207c7fe7adbd45e1f38f0a041794c8f.1788298883.git.ahmadexp@gmail.com>
  <apnRfWVAiXj1fRXs@ashevche-desk.local>
+ <apusvKc2PnSShaoI@gryt>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -65,29 +63,31 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <apnRfWVAiXj1fRXs@ashevche-desk.local>
-X-Virus-Scanned: ClamAV using ClamSMTP
+In-Reply-To: <apusvKc2PnSShaoI@gryt>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Den Thu, Sep 03, 2026 at 10:58:53PM +0300, skrev Andy Shevchenko:
-> On Thu, Sep 03, 2026 at 12:40:55PM -0700, Ahmad Byagowi wrote:
-> > Move the existing Device Tree channel-node lookup into a helper in
-> > preparation for using generic firmware-node operations.
+On Sat, Sep 05, 2026 at 07:46:36AM +0200, Peter Rosin wrote:
+> Den Thu, Sep 03, 2026 at 10:58:53PM +0300, skrev Andy Shevchenko:
+> > On Thu, Sep 03, 2026 at 12:40:55PM -0700, Ahmad Byagowi wrote:
+
+...
+
+> > > +	struct device_node *dev_node;
+> > > +	struct device_node *mux_node, *child;
 > > 
-> > This is a pure refactoring with no functional change.
+> > Now all three can be defined in a single line.
 > 
-> ...
-> 
-> > +static struct device_node *
-> > +i2c_mux_get_channel_node(struct i2c_mux_core *muxc, u32 chan_id)
-> > +{
-> > +	struct device_node *dev_node;
-> > +	struct device_node *mux_node, *child;
-> 
-> Now all three can be defined in a single line.
+> They could, but three is a crowd. So, if you bother to send an update,
+> please use one declaration per line instead to make future diffs
+> clearer.
 
-They could, but three is a crowd. So, if you bother to send an update,
-please use one declaration per line instead to make future diffs
-clearer.
+True, but it can reduce churn between these two patches if placed on
+a single line. Whatever, it's a bikeshedding, so go with what Peter
+prefers (as he is a maintainer IIRC of this code).
 
-Cheers,
-Peter
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
