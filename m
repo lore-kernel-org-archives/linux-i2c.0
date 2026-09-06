@@ -1,105 +1,78 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F093587DE
-	for <linux-i2c@vger.kernel.org>; Sat,  5 Sep 2026 15:52:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788623574; cv=pass; b=PGwv2FiaHkyIYQE0/9zz2+FRlkr8Xm0QUogMHAXu8Zo7dzvHCSs285GVsPliPAKrVcLhF5gvnw8GqT8bHASDBicYrX6z0l03SOZFX9dDvEUFf9/gW+gTpnW27F7SJYwiKdskxSqt0/DfDbuXohX3xuD9TgOjRP1H38wYluhfGwY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788623574; c=relaxed/simple;
-	bh=Kv0M8qyBz8AiZgOwtl2kafCJPZCOeq5ea1CJHXP95kY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jm98xHLXj03DyDfn2t1sIfEULD77LrqWozq8lNxuF6QwaqEnpPfUiGZl3Cx5KDEQHjvKesC4w3X5oqafmTvT7/trjZI5z7r4HnUOdGRnRDTptM5vEyrMR+w9Vs6BsRXIgEihXYgQdHwyHtiRUJ3+WvLnSOLgmY8UctJYnsUxBzc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZwCWJ/Wk; arc=pass smtp.client-ip=209.85.167.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19374171BB;
+	Sun,  6 Sep 2026 07:33:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788679997; cv=none; b=KTXIjRVZFN/XOEqJNMTK1BeQCzPBUb53MgIbKy2JzNu+P46QklPu0Rsswr3PjAMKMLK4E8rUkjSTcVrPJPsr0riU/pPnTSbVsPen+tJ3nb3IWu47qL02AQmdDGif6NeI9WfZU1ZZXRm4h9tg32ExA4L8QCFoTsN3z6r1LlLzBVI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788679997; c=relaxed/simple;
+	bh=XKVVobAe0uixj3aaF5J47JXf1IU9hX+dFu3smmla0hs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Zg9c2AVhOtb00m2gZR7I6YDNQarMeSqIo46i4EPGNr3wrqfokaYi9LIJGLrn7GhAsfHrDyfFM1iIqAx3CIyuSfLGVVNAcpifre8eMxWpZo1dDk83uPZYI1NRcZnls6m/8UXwlQzcX/+arLhdKuQIQFAV2xnpKk7iWSImX+O2kr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=K0b7Fyp9; arc=none smtp.client-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZwCWJ/Wk"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5b28c91fba5so2608731e87.1
-        for <linux-i2c@vger.kernel.org>; Sat, 05 Sep 2026 08:52:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788623570; cv=none;
-        d=google.com; s=arc-20260327;
-        b=WoVy3BWwZv+xVAO3c3rujAgqSv6VfXMyt4IIGUNYU4yiFYqKchdK7AW6SMAzMSXQzh
-         LwkVamO6EKnogAOWUOpGhCS880sHAt/fIai2DhqeYrlBEsALlfzWW4t6MHLap/qSoeAz
-         cgh3Z5awyxZCL7FYFyKVl2sW4CDlmzGk6q4JKBXtCSZK4MXoQxv/OFw1pb0axfGTB15g
-         WZrPmFD+OoMv0o8+cGl1jsuhzCt5u6jPbzpj4FDFvsVzQND9902BMact0wCOldQnQpMn
-         5RlsZUM64+EkftLdrKLFDgiv1HY1Klve6TLo86J27U+QjunM7rt3PO6gB4pXmxZIE0bY
-         xj8g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=Kv0M8qyBz8AiZgOwtl2kafCJPZCOeq5ea1CJHXP95kY=;
-        fh=gUugE6bHKnQxeIQhU7Q9lFFQgAuZOAVYFAdSiW5zvdU=;
-        b=HfCUiTXcg96UbYhtuR4tpH/7eohv8ZT4hvuzgqP4tlYCC7XlZH8AmhZlFzmF4VDCeB
-         RAabOsS46v4VVs+E1jjPfw69uhcJHJ5MHgNEb3rslO48B40XkO72RurekPs6Thz/wt8Y
-         b5FgugHqsqfUbt47/zN9bHH++XVkhQW9fKgqrY4WAl4WqtGIrSHN8KjGo8b/Y3UR+sbe
-         ycmvEXLgVWh7R9Hzw++aY5SY+uLf1PqCpL/ECVQ3ExjGGsqvaXiqfRKx+yvUxoraCTBQ
-         CzO+nNfopIaIJboFLWeXX4uUCUrogQ5+ecHddO0xHokppmud5uAapph3bymnOl/IWayZ
-         WxZg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788623570; x=1789228370; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Kv0M8qyBz8AiZgOwtl2kafCJPZCOeq5ea1CJHXP95kY=;
-        b=ZwCWJ/Wkmk54JCJsv+brbbazhG2lzR69i2e645S6SoVdDNQ7EJYfbpc72aTvCqxxQv
-         SKoNK+p2qhFs9ZHuBFugLLyiB+4j9ZIyPvkr85DQeqNOQWQqzt2Er1hMLZ1SPxIqYEiQ
-         qT7n9PuG93YP0KrJQQaeU8GP7A4UKjkmyuULId+bCqh79K1vx9rKd8o4mGD3IbN7BSpk
-         zBJpVWopXSG3+tAkl92gWrkkpeaXENzaZrAMUqefdSdquRO6pWfHDB0GpyMAPCI7ZkWW
-         46RgmKesMedhqyD1Y7z2TQEzEOnyqQpGN9zeoxyoodbdWQoOIRYYkbmBthga1Ny5UrZX
-         lyRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788623570; x=1789228370;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Kv0M8qyBz8AiZgOwtl2kafCJPZCOeq5ea1CJHXP95kY=;
-        b=Y22LgmOi6VuKUM+tdjtrEHPI8GfDLLtu5kLKisj8if0BehV7r8gPWjjxn7IhAo5d6i
-         Opcl6/B1YYhIMPDcQ2eYt/3PLdnUZ4yerxvy3BpP2DaSCZGImAX75QMIPNPhwN/FDsAC
-         QxNfpBRzX+B287Dzfyvxe8299nYn8HSPKwz2mCF77cXuAfb2gXdw+eGUUD197Cr9B9HO
-         VG9avkE4+HZr8mW2BeDecHJ1Src+aiVRAaxnB0eYzVG6CDmdUO8YC2AS0VI8odMyF1D8
-         q1eklLFx7b/yrVXvmrKlwj+KOAHO/6TzuZkBElS0u2/i9QsTm0SfCjMM9txgye7pXkeU
-         6R/Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxRVxstAIijQ3sDS8KK6Xka1yedhoQ9U2wek1EEhE/jLYZcqo7p0FglTVWu3XNSrqdDPIDodb5+zdA=@vger.kernel.org
-X-Gm-Message-State: AFuF++lKC426URSbLzpY8LakQX/DH4Dq6MKF4fPwIASGueHS/CHRMdzh
-	z63oCKFW4OgKLIFWrKsqnb9HCkLfhCXMChsdcza2RjyKV1hacLqx/2e0IcOT8gcrSCEq8iu3Ylw
-	pHPRi+nPlH0ntnuwK1iOyigdGKz+2/90=
-X-Gm-Gg: AYBFou163f9+zUDdVD8+zXbPk3nODWbu1/Q5mbN44avRcWlwZGY4bVm7PTmnq6OAXfZ
-	QPljW9ujr+wN0JNrVbBpwhRo/i4sUC8OodFkLzlgRZ2ikDjtB25LQ7vrLeoEMJaAu34r67QxEOc
-	MKVUj1oLtvwVXIuZ0l81v7dILZweYvI+o78WRsx89DscaX9fwFgnQeETF79vpazJW7EMkFNgUEa
-	S+HOLcRb0RpwijMLQ635SbXVi5JQO19MYJphGMmlg/ZSlOv6+lHpZlltNOgqd1oePvJ8QAHPF7N
-	jDD/kcGb2mKGuSLuFZ6xkjqB3+GQFilaRhZTKq+reLGJgELHvp9v7PqBhoYG5KdlWPHD0VwvqGv
-	JKMs6AVnImS5dqUO6lKmnxEQv9LM=
-X-Received: by 2002:a05:6512:10c6:b0:5b3:12b1:be93 with SMTP id
- 2adb3069b0e04-5b6170dee63mr1554897e87.0.1788623570165; Sat, 05 Sep 2026
- 08:52:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="K0b7Fyp9"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=References:In-Reply-To:Subject:Cc:To:From:
+	Reply-To:Content-ID:Content-Description;
+	bh=HXwwW5MflXtebrops4jKjGoABUQ/YtxAfVoVUCVVlbY=; t=1788679996; x=1789889596; 
+	b=K0b7Fyp9NYvefi8usAM12edxCDt0RXt+N/ERD/wps60VdwPEqrl75N0NsUlG9IDK5CfpJu+39nz
+	Mn210ba2lhAPXyypfnCk1YXu8WkYETuMR8uxvebkKuSK6fZRu2S28ZBTlv6c5oOm9ru5AISshBHL9
+	eWFgau9+9ZWTtvin42V2LmtsftXWV2Mldo/uW4DvAfY2CsvYswGAqSvk0BFDZUK7ZAVqniLh7SSYb
+	AVbE6XO6H4v86hPtKElcxKVyDgo9MnewoeHqxtKkDtq2s7xtsX5z43SkdPzoCeA/aHcZHEnwCNHJR
+	UzVgx8EiHv2qzmJGkxGARJj/xrKDWpPT1asw==;
+Date: Sun, 6 Sep 2026 09:33:01 +0200
+From: Andreas Kemnade <andreas@kemnade.info>
+To: Andrew Davis <afd@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>, Kevin
+ Hilman <khilman@baylibre.com>, "Roger Quadros" <rogerq@kernel.org>, Andi
+ Shyti <andi.shyti@kernel.org>, <linux-omap@vger.kernel.org>,
+ <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/8] i2c: omap: Drop bit shift for I2C register
+ addresses
+Message-ID: <20260906093301.01fa544e@kemnade.info>
+In-Reply-To: <20260904131252.2126353-2-afd@ti.com>
+References: <20260904131252.2126353-1-afd@ti.com>
+	<20260904131252.2126353-2-afd@ti.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1788298883.git.ahmadexp@gmail.com> <89780f7db207c7fe7adbd45e1f38f0a041794c8f.1788298883.git.ahmadexp@gmail.com>
- <apnRfWVAiXj1fRXs@ashevche-desk.local> <apusvKc2PnSShaoI@gryt> <apvJaBo4Zzz2GAMx@ashevche-desk.local>
-In-Reply-To: <apvJaBo4Zzz2GAMx@ashevche-desk.local>
-From: Ahmad Byagowi <ahmadexp@gmail.com>
-Date: Sat, 5 Sep 2026 08:52:38 -0700
-X-Gm-Features: AcwNN1Uulc5j99vd1g8KKcjM_9c1_I_u87n5sCZVaRosxcsgyccAcFuaDvKiJZQ
-Message-ID: <CAOQiBWPf1qPcVqFGyw_L2zn46+Nkp8WZpkodM3sC1hpFgYnEHw@mail.gmail.com>
-Subject: Re: [PATCH v9 1/2] i2c: mux: Factor out channel node lookup
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: Peter Rosin <peda@lysator.liu.se>, Andi Shyti <andi.shyti@kernel.org>, 
-	Andy Shevchenko <andy@kernel.org>, Jakub Kicinski <kuba@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Peter, Andy,
+On Fri, 4 Sep 2026 08:12:45 -0500
+Andrew Davis <afd@ti.com> wrote:
 
-Thanks for clarifying. I'll use one declaration per line for dev_node,
-mux_node, and child in both patches in the next revision.
+> No remaining board device uses a shift other than 2, and no DT supported
+> platform ever did. We can drop this flag and use the pre-shifted register
+> addresses. This simplifies the register access.
+> 
+> Signed-off-by: Andrew Davis <afd@ti.com>
+> ---
+>  arch/arm/mach-omap1/i2c.c              |  4 ---
+>  drivers/i2c/busses/i2c-omap.c          | 50 +++++++++++---------------
+>  include/linux/platform_data/i2c-omap.h |  5 ---
+>  3 files changed, 21 insertions(+), 38 deletions(-)
+> 
+> diff --git a/arch/arm/mach-omap1/i2c.c b/arch/arm/mach-omap1/i2c.c
+> index 94d3e7883e027..bc7828a858941 100644
+> --- a/arch/arm/mach-omap1/i2c.c
+> +++ b/arch/arm/mach-omap1/i2c.c
+> @@ -61,10 +61,6 @@ int __init omap_i2c_add_bus(struct omap_i2c_bus_platform_data *pdata,
+>  		       OMAP_I2C_FLAG_16BIT_DATA_REG |
+>  		       OMAP_I2C_FLAG_ALWAYS_ARMXOR_CLK;
+>  
+> -	/* how the cpu bus is wired up differs for 7xx only */
+> -
+This could perhaps go into the commit message, but besides of that
+Reviewed-by: Andreas Kemnade <andreas@kemnade.info>
 
-Regards,
-Ahmad
