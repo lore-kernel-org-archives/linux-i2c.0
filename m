@@ -1,1011 +1,303 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C96734570CD;
-	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C07D5013B5
+	for <linux-i2c@vger.kernel.org>; Mon,  7 Sep 2026 16:14:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788775106; cv=none; b=qHlKUKiQdp0NDk4hVd20HbRKuXSEQ9GPzFuAPsIPWx2IEEQccA0gGVRUBHFxQUFnOadebqqzsQ20tK1raiLfcwjI0mgMX829r4S4+Lv/LoWYxAJaAs8inqgNlX38EW6/h1IrpZIRDjBmdIlVfHGg/59Je12zIxtrWaDFTZvX6l8=
+	t=1788797680; cv=none; b=jiVAG0NMukNZOHL1SFZ41C6hVK9PinRKlXaosIrnaNCJwIt+B0eS78M/MbZdYPgiJQVmSHR4AAsnsqGVwfm1qo7f91q7XQtc4bLdsL3Vkvp3dm9j0Yg/nLASQyKxfq2tQdi5kF6x2KeT7jQ8b8fIe3mQqrV5Yf5GqpK7USfMSv4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788775106; c=relaxed/simple;
-	bh=E6HuGj83Ch7dM0j86j1qrPj/r4hyV637V1ff3ztq+vo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Z3qpZGh1bmyLjYYgqPaHDjj9u5ijOCNLLqjAM2tESkd+Lvh+f8LzSYBenY7mXY/cmwckGc0Er7JdBuu5ceGltiD3t4yaM9Sht3r9z9mQdXqw7R+YWagHxwUM4RyDjHSlaXcTiZe/BbcHgnmL8/5GOFZsw47An3Sh1V82rMLvaaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fv2ZE803; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1788797680; c=relaxed/simple;
+	bh=bTou4s9WtnvnRB7zUTqm4C5hI/JGWuphRfVr860M70Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EoatU23mYnSB/jfIDwECT8yq/rRabc879gvUrvo2dCyCal4fnOnwzaggRu4UNGFAgPOV0EYOLtOX+vqMC0kafoKOfgksa/UNzjNEX3CyvCwNVFENh6szxDPCGySE9BjW9GB1s5kJ9SPSaTuaLA6M6GZrzHiQDCNrXOh8qnpMVLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=mRFhJ8RZ; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=YIdmjHiZ; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fv2ZE803"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 66C5CC4AF10;
-	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1788775106;
-	bh=E6HuGj83Ch7dM0j86j1qrPj/r4hyV637V1ff3ztq+vo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=fv2ZE803hYi0SpY24T4TUuvve41J4c1fDIzjNmHk8WN7IEoH+bdv17XkftX+Mjhso
-	 YzYnaxs0BjjtEN0RYGXbk131DjthzGA8weWE+tiDHp9NHimNWHXcfpizrDQDYJKnUm
-	 lSoXq+3eiY2C7td/nLbDkywigC+B7/LJqFpUEhb+VaVucJIzBOi7G5BVhfQQd22vPy
-	 uiuQza2DRKKXSHibaJi+fuNOMSn+ZJc4g0GkshvnFEtUaiGtWy2TciuYB7QVz1amSo
-	 CteQieMoqwGUq83T4xwjbUxrnk847DCk5fpZRpSvAMWl8fPMhUxLDI1Uw07oqpmfV3
-	 oLuR5Hn0ZhWgA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5020CC79F9F;
-	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
-From: Jia Wang via B4 Relay <devnull+wangjia.ultrarisc.com@kernel.org>
-Date: Mon, 07 Sep 2026 17:54:47 +0800
-Subject: [PATCH v2 08/10] riscv: dts: ultrarisc: Add initial device tree
- for UltraRISC DP1000
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="mRFhJ8RZ";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="YIdmjHiZ"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 687DdKMW3554708
+	for <linux-i2c@vger.kernel.org>; Mon, 7 Sep 2026 16:14:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	eRLhwLego0nM5nc5MW26QLSRighHf4TgXZ93ENod+Lg=; b=mRFhJ8RZbksD0XsD
+	svr9r60C2kNT3WBbe4uvif3P/oOfBsJtS88cHHH0EHhCoa810t6c/i6tp7+4rG45
+	JWMN9DJ4c9sI5x2/DhxcWU2eTUOhI2h4kbpGjIu/TcwETKA/6KSXNf/Mzot5VfIz
+	eQToWymhBsuWuC8jlRXLMVIqbSrKEmD2nGTImIuIM0OItzZU7jJfrIHFE6rYVCb8
+	/LhrhNXs+gL8oNjNtNpadJiLEkQDVa+igrbja3KV48AAH0enUVZUZg8IXhHuvIOP
+	b0Yb/vXK2mf5U8Zd8YZIA74i1+wTZw6Q/T7CEGdSbC32cDu6VnLVLzZjrkaEN1Tw
+	4kYQBg==
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ghsw21r2j-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 07 Sep 2026 16:14:37 +0000 (GMT)
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-39906175917so3954433a91.2
+        for <linux-i2c@vger.kernel.org>; Mon, 07 Sep 2026 09:14:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1788797677; x=1789402477; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=eRLhwLego0nM5nc5MW26QLSRighHf4TgXZ93ENod+Lg=;
+        b=YIdmjHiZFftGV1BgWvBgkBZHbXjaipaqsdQ6bXtbg0hLRHMyH+8r8yXeSeoN2PHV3g
+         C8m0T5Manl3h//WnHiTmhUvZwwvOGRk8+9RGCcJJt529t7t8HKb0oF9/ZImDiv8AcLx7
+         yP3hFVS16OHaKQZlz67rG20i+yhQYxV3Lw5+l10xn0KZq1KctABTR3Khu6KYexs6MPAA
+         k3rjMqaTUXJea8F2wswtzG5gUD8nt0vc4Snymf9ZL9O9iuOhscdMvhQZuAXxpr3gXDtN
+         m2zxuJ8AvKOnNyr7gx+9XMjKbJ9lDye0nuRcePKGOYZutlTtV3rEM7j7Dso5U3Nk4+0W
+         d88A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788797677; x=1789402477;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=eRLhwLego0nM5nc5MW26QLSRighHf4TgXZ93ENod+Lg=;
+        b=OcBQxmmc7TuGMSMwha+4ALKIAGXfa6OyEgzX87U+BwKS/kYilAuvTmsQup8BeXB05L
+         aO1qehEAHy6aA/1qM/fwGNbmO9Zp/Gfx3admbNRECXPKmVAAvdLViDUyNDUzo4hS8liG
+         nx4isu0qv6/B3wGTiyEJ9VeprVavtjJ0zxC8OUS1kL5fD45LaWt4xvycLBWBy7M930+3
+         apR6Zi6owxBB/rFoJsf7R2CmYHauPPL/CII0CyQd5TtOTT3CBjhWczWdv909k9twQtkd
+         OLXNl/NQDy+OySvItYgIweArxfPpUdvniZw2S9BUyKabze1VYgjF9tfpDQMGBAJYapVx
+         4EOA==
+X-Forwarded-Encrypted: i=1; AKwUvBxYTf49wgZpagq+A8ENC5mnIyu6jBcfDsbARWrBfCyZhm4ZiQeRhQaLF5+6RZuN4i8V1jzrbFVhpNQ=@vger.kernel.org
+X-Gm-Message-State: AFuF++khbzcd600WlYqx/ozIcRGPFuZ6uOFYDqc7TZYrAcaHw9BtJJgY
+	Rxt3pKmQ7Y3Ej3j8ONL4RD2FwZ7Fb9B2xWqU1ArI2Mldgu6gYhSo9F2bDoKopYj+c5goLN9Qi/Y
+	ypPutOOeai8OvS3G+x1W1CZbSxPzB5LeCgiYd0LDI9MR/61pF16c5VelQu12NOmM=
+X-Gm-Gg: AYBFou0cuE1B88vXrY+bERxQR/MzBIEObAoQOYyqYfQAtLpxOxjf2RjeWDETytiZKmv
+	SCkq4lGrvJnEF1uvcBaw4rDW0gZLE95ZpM4Rs39suEne7yEnDHclz7vAd00jtaCs6i1g8l94EAX
+	LXs/DU4JZte5F21z/I9VEJ8yF1+Ps6r/WeAusYlgOS9nvVcKNptxH4nQA+2u/leJ/rCkQmPV3Hf
+	Kss3xcwjFzFpZfOuFhJK+eVwZfv3S52jhNGJ74PL2JfnCG5YVolIdC3tg0QB882qlikRUJhqOsx
+	x+Mov09gVHs8km3drR+csF0D6j2+XeQYIVLeCETMLaid/MOBSsMC4WFEdkW/wNinfjfMjmJB6EW
+	KaPLrNye1uFpUpy7rDRPwSUCjYRJ1UfSTO8qeU7uWjiVP
+X-Received: by 2002:a17:90a:51e6:b0:39b:4877:ae90 with SMTP id 98e67ed59e1d1-39b4877aeb8mr13830379a91.22.1788797676636;
+        Mon, 07 Sep 2026 09:14:36 -0700 (PDT)
+X-Received: by 2002:a17:90a:51e6:b0:39b:4877:ae90 with SMTP id 98e67ed59e1d1-39b4877aeb8mr13830341a91.22.1788797676080;
+        Mon, 07 Sep 2026 09:14:36 -0700 (PDT)
+Received: from [192.168.1.66] ([103.172.5.17])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339bbf1feesm29345580eec.26.2026.09.07.09.14.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Sep 2026 09:14:35 -0700 (PDT)
+Message-ID: <649f44a6-740b-46b3-86f4-990878ea0968@oss.qualcomm.com>
+Date: Mon, 7 Sep 2026 21:44:30 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260907-ultrarisc-dts-v2-8-5eb4c97477c5@ultrarisc.com>
-References: <20260907-ultrarisc-dts-v2-0-5eb4c97477c5@ultrarisc.com>
-In-Reply-To: <20260907-ultrarisc-dts-v2-0-5eb4c97477c5@ultrarisc.com>
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
- Alexandre Ghiti <alex@ghiti.fr>, Jia Wang <wangjia@ultrarisc.com>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, 
- Samuel Holland <samuel.holland@sifive.com>, 
- Anup Patel <anup@brainfault.org>, Mark Brown <broonie@kernel.org>, 
- Andi Shyti <andi.shyti@kernel.org>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>, 
- Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Paul Walmsley <paul.walmsley@sifive.com>, 
- Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>, 
- linux-riscv@lists.infradead.org, linux-spi@vger.kernel.org, 
- linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788775103; l=27192;
- i=wangjia@ultrarisc.com; s=20260515; h=from:subject:message-id;
- bh=rSaajMdd1PQY2cVQ1U/Vma8Khz7Adv7oNYke5aZYi0w=;
- b=OX+lcyFSI7/PMgw7KM95r4u1xCbjxoVz4L7vIeYn/PQTvuX6Fm326nPRYMF/PLyK405Y/9YiX
- SHzP59mBQSSDekTZUvanir0JuqNSiy2MDSGrNsVUAa5BGT/Fc9kvoB3
-X-Developer-Key: i=wangjia@ultrarisc.com; a=ed25519;
- pk=wGVm18siRScehKOkOz0WKxgxDy7IezHEszhnN4/TUCY=
-X-Endpoint-Received: by B4 Relay for wangjia@ultrarisc.com/20260515 with
- auth_id=779
-X-Original-From: Jia Wang <wangjia@ultrarisc.com>
-Reply-To: wangjia@ultrarisc.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] i2c: qcom-geni: Add support for I2C High-Speed mode
+To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20260824-i2c-hs-v1-0-8dd94e5c6113@oss.qualcomm.com>
+ <20260824-i2c-hs-v1-2-8dd94e5c6113@oss.qualcomm.com>
+ <419902d5-cbb6-4d8f-acb6-d9640adb56d9@oss.qualcomm.com>
+Content-Language: en-US
+From: Jyothi Kumar Seerapu <jyothi.seerapu@oss.qualcomm.com>
+In-Reply-To: <419902d5-cbb6-4d8f-acb6-d9640adb56d9@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: cgjiFTmxFNnMtFLXIMbKkWv1stTlqVmb
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA3MDE4MCBTYWx0ZWRfXyCUfRtFFFBfz
+ zzn6eur+vhB77abmejgOiTb4ybBEoVL7igitRI44r4mnhMesTdQfndWUB3Scc5J6/qVCgMkkdpn
+ YdOqOhUxXpttubpjKI2Pgc49DQyBXLk=
+X-Authority-Analysis: v=2.4 cv=eKwjSnp1 c=1 sm=1 tr=0 ts=6a9ee2ed cx=c_pps
+ a=UNFcQwm+pnOIJct1K4W+Mw==:117 a=tPI8lZtLbYv5uT6OEmdSlg==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
+ a=oVe4sY28e3T6egSZGAoA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=uKXjsCUrEbL0IQVhDsJ9:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA3MDE4MCBTYWx0ZWRfX6+ha3ON8ioEr
+ 66xcXRJ9JuhFOHdekgpK5p/svb60ju+jlGDsF+TbBKSAFEeUMlF2r1yrm76R3JaXTEBMXQdNib6
+ h85e6NQ8yb/04X7hrNSOOrlT8zZY01mn0+JZLXdovilD9djsbiQVK7ssqLz1IvPT+c2sM6qMkp1
+ e5dU0z7XfeDVUFEl4ort3HP8jh1jLISkn8DLV2/8zD9Gr7OfWwTOEDQCzUnXzQaXqr/DCYsXW3B
+ NhxCSGFWBrwKpep1NqrlKqgL4aLujf50sDk0Wg0AvQf2ahHwogDgAtTciJwYTwSXkEIHPOoXsw3
+ NH8hoZYKERa5JQVuT1WLZM2f27rsl9YDBhhVxDYzBHWRRRTgkgsbjm85Zj9oQNsCwLmQ3FOBGcQ
+ n7/RdgJ0PNl1BVplhl4A9yaHnqwYSvFH2MYOzUivgRkNLftPHKoanoNOPnVUUaGHUzf3F881gNR
+ qFSrhfVtLKCia4nfOeg==
+X-Proofpoint-GUID: cgjiFTmxFNnMtFLXIMbKkWv1stTlqVmb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-07_04,2026-09-07_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 lowpriorityscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 clxscore=1015 adultscore=0 spamscore=0 phishscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2609070180
 
-From: Jia Wang <wangjia@ultrarisc.com>
 
-Add the base device tree for the UltraRISC DP1000 SoC. It describes
-eight CP100 CPU cores, their cache topology, and essential peripherals
-including CLINT, PLIC, the clock controller, pinctrl, GPIO, UART, SPI,
-I2C, PCIe, GMAC, and the DMA controller.
 
-Signed-off-by: Jia Wang <wangjia@ultrarisc.com>
----
- MAINTAINERS                               |   1 +
- arch/riscv/boot/dts/ultrarisc/dp1000.dtsi | 899 ++++++++++++++++++++++++++++++
- 2 files changed, 900 insertions(+)
+On 8/28/2026 1:12 AM, Mukesh Savaliya wrote:
+> 
+> 
+Hi Mukesh, Thanks for the review comments.> On 8/24/2026 4:55 PM, Jyothi 
+Kumar Seerapu wrote:
+> [...]>   struct geni_i2c_err_log {
+>> @@ -162,9 +180,14 @@ static const struct geni_i2c_err_log gi2c_log[] = {
+>>   struct geni_i2c_clk_fld {
+>>       u32    clk_freq_out;
+>>       u8    clk_div;
+>> -    u8    t_high_cnt;
+>> -    u8    t_low_cnt;
+>> -    u8    t_cycle_cnt;
+>> +    /*
+>> +     * In normal mode, these counter values fit within 8 bits.
+>> +     * In High-Speed mode, HS_TLOW_COUNT and HS_TCYCLE_COUNT are
+>> +     * 10-bit fields, so u16 is required.
+>> +     */
+> Now, normal mode doesn't matter once switched to 16 bit.
+> May be comment also doesn't matter once change is merged, you can add 
+> some information in commit log though. Will be taken as default size.> 
+Sure, will remove these comments in V2.+
+> u16    t_high_cnt;
+>> +    u16    t_low_cnt;
+>> +    u16    t_cycle_cnt;
+>>   };
+>>   /*
+>> @@ -194,10 +217,30 @@ static const struct geni_i2c_clk_fld 
+>> geni_i2c_clk_map_32mhz[] = {
+>>       {}
+>>   };
+>> +/* source_clock = 100 MHz */
+>> +static const struct geni_i2c_clk_fld geni_i2c_clk_map_100mhz[] = {
+>> +    { I2C_MAX_STANDARD_MODE_FREQ, 1, 449, 548, 998 },
+>> +    { I2C_MAX_FAST_MODE_FREQ, 1, 76, 167, 248 },
+>> +    { I2C_MAX_FAST_MODE_PLUS_FREQ, 1, 23, 59, 98 },
+>> +    {}
+>> +};
+>> +
+>>   static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
+>>   {
+>>       const struct geni_i2c_clk_fld *itr;
+>> +    /* Check if HS mode is requested */
+>> +    if (gi2c->clk_freq_out == I2C_HS_MODE_FREQ) {
+>> +        gi2c->is_hs_mode = true;
+>> +        /* For HS mode, source clock should be 100 MHz */
+>> +        itr = geni_i2c_clk_map_100mhz;
+>> +        /* For HS mode, start with 1MHz for master code */
+>> +        gi2c->clk_fld = &itr[2];
+>> +        return 0;
+>> +    }
+>> +
+> else part ?
+No, else is not required here, as the if condition for I2C HS mode case 
+returns from the function. For non-HS mode case the below  will execute.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index eb7a9caaa225..443d5398fb51 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -23643,6 +23643,7 @@ L:	linux-riscv@lists.infradead.org
- S:	Supported
- T:	git https://github.com/ultrarisc/linux.git
- F:	Documentation/devicetree/bindings/riscv/ultrarisc.yaml
-+F:	arch/riscv/boot/dts/ultrarisc/
- 
- RNBD BLOCK DRIVERS
- M:	Md. Haris Iqbal <haris.iqbal@ionos.com>
-diff --git a/arch/riscv/boot/dts/ultrarisc/dp1000.dtsi b/arch/riscv/boot/dts/ultrarisc/dp1000.dtsi
-new file mode 100644
-index 000000000000..5c51fddaeb2b
---- /dev/null
-+++ b/arch/riscv/boot/dts/ultrarisc/dp1000.dtsi
-@@ -0,0 +1,899 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright(C) 2026 UltraRISC Technology (Shanghai) Co., Ltd.
-+ */
-+
-+/dts-v1/;
-+
-+#include <dt-bindings/clock/ultrarisc,dp1000-clk.h>
-+
-+/ {
-+	compatible = "ultrarisc,dp1000";
-+	#address-cells = <2>;
-+	#size-cells = <2>;
-+
-+	cpus {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		timebase-frequency = <10000000>;
-+
-+		cpu0: cpu@0 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x0>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache0>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu0_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache0: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster0_l3>;
-+			};
-+		};
-+
-+		cpu1: cpu@1 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x1>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache1>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu1_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache1: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster0_l3>;
-+			};
-+		};
-+
-+		cpu2: cpu@2 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x2>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache2>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu2_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache2: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster0_l3>;
-+			};
-+		};
-+
-+		cpu3: cpu@3 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x3>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache3>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu3_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache3: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster0_l3>;
-+			};
-+		};
-+
-+		cpu4: cpu@10 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x10>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache4>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu4_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache4: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster1_l3>;
-+			};
-+		};
-+		cpu5: cpu@11 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x11>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache5>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu5_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache5: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster1_l3>;
-+			};
-+		};
-+		cpu6: cpu@12 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x12>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache6>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu6_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache6: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster1_l3>;
-+			};
-+		};
-+
-+		cpu7: cpu@13 {
-+			compatible = "ultrarisc,cp100", "riscv";
-+			reg = <0x13>;
-+			device_type = "cpu";
-+			riscv,isa-base = "rv64i";
-+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "b", "h",
-+					       "zba", "zbb", "zbc", "zbs", "zicntr",
-+					       "zicsr", "zifencei", "zihpm", "ziccif",
-+					       "ziccrse", "ziccamoa", "za64rs", "zicbom",
-+					       "zicbop", "zicboz", "zkt", "svade",
-+					       "ssccptr", "sstvecd", "sscounterenw",
-+					       "shcounterenw", "shtvala", "shvstvecd",
-+					       "shvsatpa", "svvptc";
-+			mmu-type = "riscv,sv48";
-+			clock-frequency = <2000000000>;
-+			/*
-+			 * L1 I-cache and D-cache:
-+			 * block-size 64B
-+			 * 4-way set associative, size 64KB
-+			 * per-core.
-+			 */
-+			d-cache-block-size = <64>;
-+			d-cache-sets = <256>;
-+			d-cache-size = <0x10000>;
-+			i-cache-block-size = <64>;
-+			i-cache-sets = <256>;
-+			i-cache-size = <0x10000>;
-+			next-level-cache = <&l2_cache7>;
-+			riscv,cbom-block-size = <64>;
-+			riscv,cbop-block-size = <64>;
-+			riscv,cboz-block-size = <64>;
-+
-+			cpu7_intc: interrupt-controller {
-+				compatible = "riscv,cpu-intc";
-+				interrupt-controller;
-+				#interrupt-cells = <1>;
-+			};
-+
-+			l2_cache7: l2-cache {
-+				/*
-+				 * L2 cache:
-+				 * cache-unified, block-size 64B
-+				 * 8-way set associative, size 512KB
-+				 * per-core.
-+				 */
-+				compatible = "cache";
-+				cache-block-size = <64>;
-+				cache-level = <2>;
-+				cache-size = <0x80000>;
-+				cache-sets = <1024>;
-+				cache-unified;
-+				next-level-cache = <&cluster1_l3>;
-+			};
-+		};
-+
-+		cpu-map {
-+			cluster0: cluster0 {
-+				core0 {
-+					cpu = <&cpu0>;
-+				};
-+
-+				core1 {
-+					cpu = <&cpu1>;
-+				};
-+
-+				core2 {
-+					cpu = <&cpu2>;
-+				};
-+
-+				core3 {
-+					cpu = <&cpu3>;
-+				};
-+			};
-+
-+			cluster1: cluster1 {
-+				core0 {
-+					cpu = <&cpu4>;
-+				};
-+
-+				core1 {
-+					cpu = <&cpu5>;
-+				};
-+
-+				core2 {
-+					cpu = <&cpu6>;
-+				};
-+
-+				core3 {
-+					cpu = <&cpu7>;
-+				};
-+			};
-+		};
-+
-+		cluster0_l3: l3-cache0 {
-+			/*
-+			 * L3 cache:
-+			 * cache-unified, block-size 64B
-+			 * 16-way set associative, size 4MB
-+			 * per-cluster.
-+			 */
-+			compatible = "cache";
-+			cache-block-size = <64>;
-+			cache-level = <3>;
-+			cache-size = <0x400000>;
-+			cache-sets = <0x1000>;
-+			cache-unified;
-+			next-level-cache = <&l4_cache>;
-+		};
-+
-+		cluster1_l3: l3-cache1 {
-+			/*
-+			 * L3 cache:
-+			 * cache-unified, block-size 64B
-+			 * 16-way set associative, size 4MB
-+			 * per-cluster.
-+			 */
-+			compatible = "cache";
-+			cache-block-size = <64>;
-+			cache-level = <3>;
-+			cache-size = <0x400000>;
-+			cache-sets = <0x1000>;
-+			cache-unified;
-+			next-level-cache = <&l4_cache>;
-+		};
-+	};
-+
-+	l4_cache: l4-cache {
-+		/*
-+		 * L4 cache:
-+		 * cache-unified, block-size 64B
-+		 * 16-way set associative, size 16MB
-+		 * shared by the SoC.
-+		 */
-+		compatible = "cache";
-+		cache-block-size = <64>;
-+		cache-level = <4>;
-+		cache-size = <0x1000000>;
-+		cache-sets = <0x4000>;
-+		cache-unified;
-+	};
-+
-+	osc_24m: clock-24m {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24000000>;
-+	};
-+
-+	soc {
-+		compatible = "simple-bus";
-+		ranges;
-+		#address-cells = <2>;
-+		#size-cells = <2>;
-+
-+		clint: clint@8000000 {
-+			compatible = "ultrarisc,dp1000-clint", "sifive,clint0";
-+			reg = <0x0 0x8000000 0x0 0x100000>;
-+			interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>,
-+					      <&cpu1_intc 3>, <&cpu1_intc 7>,
-+					      <&cpu2_intc 3>, <&cpu2_intc 7>,
-+					      <&cpu3_intc 3>, <&cpu3_intc 7>,
-+					      <&cpu4_intc 3>, <&cpu4_intc 7>,
-+					      <&cpu5_intc 3>, <&cpu5_intc 7>,
-+					      <&cpu6_intc 3>, <&cpu6_intc 7>,
-+					      <&cpu7_intc 3>, <&cpu7_intc 7>;
-+		};
-+
-+		plic: plic@9000000 {
-+			compatible = "ultrarisc,dp1000-plic", "ultrarisc,cp100-plic";
-+			reg = <0x0 0x9000000 0x0 0x4000000>;
-+			#interrupt-cells = <1>;
-+			#address-cells = <0>;
-+			interrupt-controller;
-+			interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>, <&cpu0_intc 10>,
-+					      <&cpu1_intc 11>, <&cpu1_intc 9>, <&cpu1_intc 10>,
-+					      <&cpu2_intc 11>, <&cpu2_intc 9>, <&cpu2_intc 10>,
-+					      <&cpu3_intc 11>, <&cpu3_intc 9>, <&cpu3_intc 10>,
-+					      <&cpu4_intc 11>, <&cpu4_intc 9>, <&cpu4_intc 10>,
-+					      <&cpu5_intc 11>, <&cpu5_intc 9>, <&cpu5_intc 10>,
-+					      <&cpu6_intc 11>, <&cpu6_intc 9>, <&cpu6_intc 10>,
-+					      <&cpu7_intc 11>, <&cpu7_intc 9>, <&cpu7_intc 10>;
-+			riscv,ndev = <160>;
-+		};
-+
-+		clkc: clock-controller@11080000 {
-+			compatible = "ultrarisc,dp1000-clk";
-+			reg = <0x0 0x11080000 0x0 0x1000>;
-+			clocks = <&osc_24m>;
-+			#clock-cells = <1>;
-+		};
-+
-+		pinctrl: pinctrl@11081000 {
-+			compatible = "ultrarisc,dp1000-pinctrl";
-+			reg = <0x0 0x11081000 0x0 0x1000>;
-+		};
-+
-+		gpio: gpio@20200000 {
-+			compatible = "snps,dw-apb-gpio";
-+			reg = <0x0 0x20200000 0x0 0x1000>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clock-names = "bus", "db";
-+			clocks = <&clkc DP1000_CLK_SUBSYS>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+
-+			gpio_a: gpio-port@0 {
-+				compatible = "snps,dw-apb-gpio-port";
-+				reg = <0>;
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+				snps,nr-gpios = <16>;
-+				interrupt-controller;
-+				#interrupt-cells = <2>;
-+				interrupt-parent = <&plic>;
-+				interrupts = <34>;
-+				gpio-ranges = <&pinctrl 0 0 16>;
-+			};
-+
-+			gpio_b: gpio-port@1 {
-+				compatible = "snps,dw-apb-gpio-port";
-+				reg = <1>;
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+				snps,nr-gpios = <8>;
-+				gpio-ranges = <&pinctrl 0 16 8>;
-+			};
-+
-+			gpio_c: gpio-port@2 {
-+				compatible = "snps,dw-apb-gpio-port";
-+				reg = <2>;
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+				snps,nr-gpios = <8>;
-+				gpio-ranges = <&pinctrl 0 24 8>;
-+			};
-+
-+			gpio_d: gpio-port@3 {
-+				compatible = "snps,dw-apb-gpio-port";
-+				reg = <3>;
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+				snps,nr-gpios = <8>;
-+				gpio-ranges = <&pinctrl 0 32 8>;
-+			};
-+		};
-+
-+		uart0: serial@20300000 {
-+			compatible = "ultrarisc,dp1000-uart", "snps,dw-apb-uart";
-+			reg = <0x0 0x20300000 0x0 0x10000>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <17>;
-+			clocks = <&clkc DP1000_CLK_UART0>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "baudclk", "apb_pclk";
-+			reg-io-width = <4>;
-+			reg-shift = <2>;
-+		};
-+
-+		uart1: serial@20310000 {
-+			compatible = "ultrarisc,dp1000-uart", "snps,dw-apb-uart";
-+			reg = <0x0 0x20310000 0x0 0x10000>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <18>;
-+			clocks = <&clkc DP1000_CLK_UART1>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "baudclk", "apb_pclk";
-+			reg-io-width = <4>;
-+			reg-shift = <2>;
-+		};
-+
-+		uart2: serial@20400000 {
-+			compatible = "ultrarisc,dp1000-uart", "snps,dw-apb-uart";
-+			reg = <0x0 0x20400000 0x0 0x10000>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <25>;
-+			clocks = <&clkc DP1000_CLK_UART2>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "baudclk", "apb_pclk";
-+			reg-io-width = <4>;
-+			reg-shift = <2>;
-+		};
-+
-+		uart3: serial@20410000 {
-+			compatible = "ultrarisc,dp1000-uart", "snps,dw-apb-uart";
-+			reg = <0x0 0x20410000 0x0 0x10000>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <26>;
-+			clocks = <&clkc DP1000_CLK_UART3>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "baudclk", "apb_pclk";
-+			reg-io-width = <4>;
-+			reg-shift = <2>;
-+		};
-+
-+		spi0: spi@20320000 {
-+			compatible = "ultrarisc,dp1000-spi", "snps,dw-apb-ssi";
-+			reg = <0x0 0x20320000 0x0 0x1000>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clocks = <&clkc DP1000_CLK_SPI0>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "ssi_clk", "pclk";
-+			interrupt-parent = <&plic>;
-+			interrupts = <19>;
-+			num-cs = <3>;
-+		};
-+
-+		spi1: spi@20420000 {
-+			compatible = "ultrarisc,dp1000-spi", "snps,dw-apb-ssi";
-+			reg = <0x0 0x20420000 0x0 0x1000>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clocks = <&clkc DP1000_CLK_SPI1>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "ssi_clk", "pclk";
-+			interrupt-parent = <&plic>;
-+			interrupts = <27>;
-+			num-cs = <4>;
-+		};
-+
-+		i2c0: i2c@20330000 {
-+			compatible = "ultrarisc,dp1000-i2c", "snps,designware-i2c";
-+			reg = <0x0 0x20330000 0x0 0x100>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clock-frequency = <400000>;
-+			clocks = <&clkc DP1000_CLK_I2C0>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "ref", "pclk";
-+			interrupt-parent = <&plic>;
-+			interrupts = <20>;
-+		};
-+
-+		i2c1: i2c@20340000 {
-+			compatible = "ultrarisc,dp1000-i2c", "snps,designware-i2c";
-+			reg = <0x0 0x20340000 0x0 0x100>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clock-frequency = <400000>;
-+			clocks = <&clkc DP1000_CLK_I2C1>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "ref", "pclk";
-+			interrupt-parent = <&plic>;
-+			interrupts = <21>;
-+		};
-+
-+		i2c2: i2c@20430000 {
-+			compatible = "ultrarisc,dp1000-i2c", "snps,designware-i2c";
-+			reg = <0x0 0x20430000 0x0 0x100>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clock-frequency = <400000>;
-+			clocks = <&clkc DP1000_CLK_I2C2>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "ref", "pclk";
-+			interrupt-parent = <&plic>;
-+			interrupts = <28>;
-+		};
-+
-+		i2c3: i2c@20440000 {
-+			compatible = "ultrarisc,dp1000-i2c", "snps,designware-i2c";
-+			reg = <0x0 0x20440000 0x0 0x100>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			clock-frequency = <400000>;
-+			clocks = <&clkc DP1000_CLK_I2C3>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "ref", "pclk";
-+			interrupt-parent = <&plic>;
-+			interrupts = <29>;
-+		};
-+
-+		pcie_x16: pcie@21000000 {
-+			compatible = "ultrarisc,dp1000-pcie";
-+			reg = <0x0 0x21000000 0x0 0x1000000>,
-+			      <0x0 0x4fff0000 0x0 0x10000>;
-+			reg-names = "dbi", "config";
-+			clocks = <&clkc DP1000_CLK_PCIEX16_CORE>,
-+				 <&clkc DP1000_CLK_PCIE_DBI>,
-+				 <&clkc DP1000_CLK_PCIE_AUX>;
-+			clock-names = "core", "dbi", "aux";
-+			ranges = <0x81000000 0x0 0x00000000 0x0 0x4fbf0000 0x0 0x00400000>,
-+				 <0x82000000 0x0 0x40000000 0x0 0x40000000 0x0 0x0fbf0000>,
-+				 <0xc3000000 0x40 0x00000000 0x40 0x00000000 0xd 0x00000000>;
-+			#address-cells = <3>;
-+			#size-cells = <2>;
-+			#interrupt-cells = <1>;
-+			device_type = "pci";
-+			dma-coherent;
-+			bus-range = <0x0 0xff>;
-+			num-lanes = <16>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <43>, <44>, <45>, <46>, <47>;
-+			interrupt-names = "msi", "inta", "intb", "intc", "intd";
-+			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
-+			interrupt-map = <0x0 0x0 0x0 0x1 &plic 44>,
-+					<0x0 0x0 0x0 0x2 &plic 45>,
-+					<0x0 0x0 0x0 0x3 &plic 46>,
-+					<0x0 0x0 0x0 0x4 &plic 47>;
-+
-+			status = "disabled";
-+		};
-+
-+		pcie_x4a: pcie@23000000 {
-+			compatible = "ultrarisc,dp1000-pcie";
-+			reg = <0x0 0x23000000 0x0 0x1000000>,
-+			      <0x0 0x6fff0000 0x0 0x10000>;
-+			reg-names = "dbi", "config";
-+			clocks = <&clkc DP1000_CLK_PCIEX4_CORE>,
-+				 <&clkc DP1000_CLK_PCIE_DBI>,
-+				 <&clkc DP1000_CLK_PCIE_AUX>;
-+			clock-names = "core", "dbi", "aux";
-+			ranges = <0x81000000 0x0 0x00000000 0x0 0x6fbf0000 0x0 0x00400000>,
-+				 <0x82000000 0x0 0x60000000 0x0 0x60000000 0x0 0x0fbf0000>,
-+				 <0xc3000000 0x80 0x00000000 0x80 0x00000000 0xd 0x00000000>;
-+			#address-cells = <3>;
-+			#size-cells = <2>;
-+			#interrupt-cells = <1>;
-+			device_type = "pci";
-+			dma-coherent;
-+			bus-range = <0x0 0xff>;
-+			num-lanes = <4>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <63>, <64>, <65>, <66>, <67>;
-+			interrupt-names = "msi", "inta", "intb", "intc", "intd";
-+			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
-+			interrupt-map = <0x0 0x0 0x0 0x1 &plic 64>,
-+					<0x0 0x0 0x0 0x2 &plic 65>,
-+					<0x0 0x0 0x0 0x3 &plic 66>,
-+					<0x0 0x0 0x0 0x4 &plic 67>;
-+
-+			status = "disabled";
-+		};
-+
-+		pcie_x4b: pcie@24000000 {
-+			compatible = "ultrarisc,dp1000-pcie";
-+			reg = <0x0 0x24000000 0x0 0x1000000>,
-+			      <0x0 0x7fff0000 0x0 0x10000>;
-+			reg-names = "dbi", "config";
-+			clocks = <&clkc DP1000_CLK_PCIEX4_CORE>,
-+				 <&clkc DP1000_CLK_PCIE_DBI>,
-+				 <&clkc DP1000_CLK_PCIE_AUX>;
-+			clock-names = "core", "dbi", "aux";
-+			ranges = <0x81000000 0x0 0x00000000 0x0 0x7fbf0000 0x0 0x00400000>,
-+				 <0x82000000 0x0 0x70000000 0x0 0x70000000 0x0 0x0fbf0000>,
-+				 <0xc3000000 0xc0 0x00000000 0xc0 0x00000000 0xd 0x00000000>;
-+			#address-cells = <3>;
-+			#size-cells = <2>;
-+			#interrupt-cells = <1>;
-+			device_type = "pci";
-+			dma-coherent;
-+			bus-range = <0x0 0xff>;
-+			num-lanes = <4>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <73>, <74>, <75>, <76>, <77>;
-+			interrupt-names = "msi", "inta", "intb", "intc", "intd";
-+			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
-+			interrupt-map = <0x0 0x0 0x0 0x1 &plic 74>,
-+					<0x0 0x0 0x0 0x2 &plic 75>,
-+					<0x0 0x0 0x0 0x3 &plic 76>,
-+					<0x0 0x0 0x0 0x4 &plic 77>;
-+
-+			status = "disabled";
-+		};
-+
-+		ethernet: ethernet@38000000 {
-+			compatible = "ultrarisc,dp1000-gmac", "snps,dwmac-5.20";
-+			reg = <0x0 0x38000000 0x0 0x1000000>;
-+			clocks = <&clkc DP1000_CLK_GMAC>;
-+			clock-names = "stmmaceth";
-+			interrupt-parent = <&plic>;
-+			interrupts = <84>;
-+			interrupt-names = "macirq";
-+			snps,txpbl = <8>;
-+			snps,rxpbl = <8>;
-+
-+			status = "disabled";
-+		};
-+
-+		dmac: dma-controller@39000000 {
-+			compatible = "ultrarisc,dp1000-axi-dma", "snps,axi-dma-1.01a";
-+			reg = <0x0 0x39000000 0x0 0x400>;
-+			clocks = <&clkc DP1000_CLK_SYSPLL_DIV2>,
-+				 <&clkc DP1000_CLK_SUBSYS>;
-+			clock-names = "core-clk", "cfgr-clk";
-+			#dma-cells = <1>;
-+			dma-channels = <8>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <152>, <153>, <154>, <155>,
-+				     <156>, <157>, <158>, <159>;
-+			snps,dma-masters = <1>;
-+			snps,data-width = <4>;
-+			snps,block-size = <512 512 512 512 512 512 512 512>;
-+			snps,priority = <0 1 2 3 4 5 6 7>;
-+			snps,axi-max-burst-len = <256>;
-+		};
-+	};
-+};
++    gi2c->is_hs_mode = false;
+>> +
+>>       if (clk_get_rate(gi2c->se.clk) == 32 * HZ_PER_MHZ)
+>>           itr = geni_i2c_clk_map_32mhz;
+>>       else
+>> @@ -219,7 +262,12 @@ static int qcom_geni_i2c_conf(struct geni_se *se, 
+>> unsigned long freq)
+>>       const struct geni_i2c_clk_fld *itr = gi2c->clk_fld;
+>>       u32 val;
+>> -    writel_relaxed(0, gi2c->se.base + SE_GENI_CLK_SEL);
+>> +    if (gi2c->is_hs_mode) {
+>> +        writel_relaxed(I2C_HS_TCYCLE_CNT, gi2c->se.base + 
+>> SE_I2C_HS_TCYCLE_REG);
+>> +        writel_relaxed(I2C_HS_TLOW_CNT, gi2c->se.base + 
+>> SE_I2C_HS_TLOW_REG);
+>> +    }
+>> +
+>> +    writel_relaxed(gi2c->dfs_index, gi2c->se.base + SE_GENI_CLK_SEL);
+>>       val = (itr->clk_div << CLK_DIV_SHFT) | SER_CLK_EN;
+>>       writel_relaxed(val, gi2c->se.base + GENI_SER_M_CLK_CFG);
+>> @@ -500,7 +548,11 @@ static int geni_i2c_rx_one_msg(struct 
+>> geni_i2c_dev *gi2c, struct i2c_msg *msg,
+>>           geni_se_select_mode(se, GENI_SE_FIFO);
+>>       writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
+>> -    geni_se_setup_m_cmd(se, I2C_READ, m_param);
+>> +
+>> +    if (gi2c->is_hs_mode) 
+> gi2c->is_hs_mode ? i2c->op = I2C_HS_READ : I2C_READ;
+> geni_se_setup_m_cmd(se, i2c->op, m_param);> +        
+> geni_se_setup_m_cmd(se, I2C_HS_READ, m_param);
+>> +    else
+>> +        geni_se_setup_m_cmd(se, I2C_READ, m_param);
+>>       if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
+>>           geni_se_select_mode(se, GENI_SE_FIFO);
+>> @@ -539,7 +591,11 @@ static int geni_i2c_tx_one_msg(struct 
+>> geni_i2c_dev *gi2c, struct i2c_msg *msg,
+>>           geni_se_select_mode(se, GENI_SE_FIFO);
+>>       writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
+>> -    geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
+>> +
+>> +    if (gi2c->is_hs_mode)
+>> +        geni_se_setup_m_cmd(se, I2C_HS_WRITE, m_param);
+>> +    else
+>> +        geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
+> same as above>
+Yes this can be set like below:
+geni_se_setup_m_cmd(se, gi2c->is_hs_mode ? I2C_HS_WRITE : I2C_WRITE, 
+m_param);
 
--- 
-2.34.1
-
+>>       if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
+>>           geni_se_select_mode(se, GENI_SE_FIFO);
+>> @@ -700,7 +756,7 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, 
+>> struct i2c_msg msgs[],
+>>           goto out;
+>>       }
+> 
+> [...]
+> 
+>> @@ -1046,6 +1122,39 @@ static int geni_i2c_init(struct geni_i2c_dev 
+>> *gi2c)
+>>           return ret;
+>>       }
+>> +    /*
+>> +     * For I2C High-Speed mode, first verify QUP HW version supports it
+>> +     * (requires QUPv3 core >= 4.3 per HPG), then configure 100 MHz 
+>> source clock.
+>> +     */
+> /* HS mode requires QUPv3 version >= 4.3 and source clock=100 MHz */
+Sure, will update in V2.>> +    if (gi2c->is_hs_mode) {
+>> +        u32 hw_ver = geni_se_get_qup_hw_version(&gi2c->se);
+>> +        u32 major = GENI_SE_VERSION_MAJOR(hw_ver);
+>> +        u32 minor = GENI_SE_VERSION_MINOR(hw_ver);
+>> +
+>> +        if (major < QUP_I2C_HS_MIN_MAJOR ||
+>> +            (major == QUP_I2C_HS_MIN_MAJOR && minor < 
+>> QUP_I2C_HS_MIN_MINOR)) {
+>> +            dev_err(gi2c->se.dev,
+>> +                "QUP HW v%u.%u does not support I2C HS mode (requires 
+>> >= %u.%u)\n",
+>> +                major, minor,
+>> +                QUP_I2C_HS_MIN_MAJOR, QUP_I2C_HS_MIN_MINOR);
+> then why it entered into is_hs_mode condition ?
+Need to check QUP version only for I2C HS mode requests, for other I2C 
+modes no need of QUP version check. > +            ret = -
+> EOPNOTSUPP;
+>> +            goto err;
+>> +        }
+>> +
+>> +        ret = geni_se_clk_freq_match(&gi2c->se, I2C_HS_SRC_CLK_FREQ,
+>> +                         &gi2c->dfs_index, &freq_out, false);
+>> +        if (ret) {
+>> +            dev_err(gi2c->se.dev, "Failed to get DFS index for HS 
+>> mode: %d\n", ret);
+>> +            goto err;
+>> +        }
+>> +
+>> +        ret = clk_set_rate(gi2c->se.clk, freq_out);
+>> +        if (ret) {
+>> +            dev_err(gi2c->se.dev, "Failed to set HS mode clock rate: 
+>> %d\n", ret);
+>> +            goto err;
+>> +        }
+>> +    }
+>> +
+>>       proto = geni_se_read_proto(&gi2c->se);
+>>       if (proto == GENI_SE_INVALID_PROTO) {
+>>           ret = geni_load_se_firmware(&gi2c->se, GENI_SE_I2C);
+>>
+> 
 
