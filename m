@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B4F455176;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89F78455177;
 	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788775106; cv=none; b=GC2XLcvKM+KIAaah38+JQUBnmjiNOdO8VdGUuojDP45lImmWM1q/Mlrp+VCQmKLRQVe390e29e5qTajp5Yyw8i7O6AI2gQDU/mLB+9zhe0DNYbPLtc2ny3a4aMqITewu0jnj5H6eevHQjuc5A+sO1uFTVlbbRP9237VUplgjgUU=
+	t=1788775106; cv=none; b=KzN11VZu6EnN2Fl6z2qvxyQHI6U9FgnJBd98czFNytN792AaJpbnXF8+iRSFIS9Rv5tV6Z3VrUbhQg2CkFxQidMsk12CNieaXo3zhgfgPmm1Tiex1KCJNLzlwnxMDeq4g1jlyw+AmjKn0+NuQTwR8/q0UHqgEycx45o8NEn295Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788775106; c=relaxed/simple;
-	bh=osJ1peGPbLMwCs9cQfspS5sCiI02TKIU/UTXsG1stLI=;
+	bh=6CZneFBn+qYzCyZ4soOnwEiAxpmztku5TRHKpXHT0OQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GmlQ8JQY964Jz0oyOBfwtRi/Hdf3iJiFcuvne4lJV43JBVqU8CyV2D6GpmkL74IRM6Zl82EwPR43MEFsQThI1ttbJzU9Dp95CvwNVWj0guF87y7GWFs3ObhZHQcSiAYxnBddqf4aQ/djDWbQQIE8CUwxLfGNVXY3rP/OiV19Hgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IBv5EzfR; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=DcfsY6cFZjqyPdKfqEH+H6B5E5Oq+1G2T5lrT07HHLnXbhLC07lJcOvKbdN9R7xsu7VI5MzXtYmKDIgLpz24eOkM0y0q+MWpqz0eM9JAccUL2wdyLV5D+HIcFuJDhk7kquzGPYGEGic2m57BpReQRox+SK7MM2vttzvs0yWTILM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A3kGGpHe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IBv5EzfR"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 1B371C2BD05;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A3kGGpHe"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2AA6CC4AF0D;
 	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1788775106;
-	bh=osJ1peGPbLMwCs9cQfspS5sCiI02TKIU/UTXsG1stLI=;
+	bh=6CZneFBn+qYzCyZ4soOnwEiAxpmztku5TRHKpXHT0OQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=IBv5EzfRtJ2tPJE+q6J/2aqN18z3MvgJJonLv09RekmAYzXwLVsMrQ44QWKwWfyE7
-	 fJNmBFwGG9fdasbThw0Bwlj+Y7Hl0uY9M047IGR5mozh02SqyqFwz+4o44s09ljgdq
-	 U3PUszsV6ltO65Z4Pt/N2fmp9FsBBjMGaeIYvvRpvkboSzv83rZi6MJFBbJI5Tt4NR
-	 nLMXZsVAJPGULlAO2UUcYZYZUggRoKQiBlsBSJAIxhKyGBIb/3VfN50zUZxoCeunCf
-	 cqAhSLTNzTBv30xKtNORW3i/pJ+C6eCvsNIeToOzV6oMmoH0YHKZnXKaswziUH8GEh
-	 Snwt0FNII1x4Q==
+	b=A3kGGpHeyQTsnep0/+XHzgYiulMqnkfmqjW+aBpkYo2V5if/QcqNx9xBBopOfo6bf
+	 NZH4onhDJUCQcdCQ8kZuqkT/b635VAlcoSjZtm6udjdPAJdUzC0lVP3os0IhDmi0/H
+	 5yuZ6xq6yGZOjMBGVzddbKXMzxOGkO8ddtV5fRGXehHDSC2TedEphhyZlniFLLy4YD
+	 LfxJxMq6Juvvgh6zoDqyiAVSMrUPPKuTEnQLadKY7YeMEbwvuaSxipXEZftr7DBkGJ
+	 QhDYRO0lPAd8djL0dCBp8A+k95bsX5umPX8yPq+BymdpUHIzNXYF6VKm1ZtXUaB9Ox
+	 ZCg0Hw3zDlcPg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03ECDC79FA7;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 164DBC79F99;
 	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
 From: Jia Wang via B4 Relay <devnull+wangjia.ultrarisc.com@kernel.org>
-Date: Mon, 07 Sep 2026 17:54:43 +0800
-Subject: [PATCH v2 04/10] dt-bindings: timer: Add UltraRISC DP1000 CLINT
+Date: Mon, 07 Sep 2026 17:54:44 +0800
+Subject: [PATCH v2 05/10] spi: dt-bindings: snps,dw-apb-ssi: Add compatible
+ for UltraRISC DP1000 SoC
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260907-ultrarisc-dts-v2-4-5eb4c97477c5@ultrarisc.com>
+Message-Id: <20260907-ultrarisc-dts-v2-5-5eb4c97477c5@ultrarisc.com>
 References: <20260907-ultrarisc-dts-v2-0-5eb4c97477c5@ultrarisc.com>
 In-Reply-To: <20260907-ultrarisc-dts-v2-0-5eb4c97477c5@ultrarisc.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -59,14 +60,13 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Paul Walmsley <paul.walmsley@sifive.com>, 
  Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>, 
  linux-riscv@lists.infradead.org, linux-spi@vger.kernel.org, 
- linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, 
- Conor Dooley <conor.dooley@microchip.com>
+ linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788775103; l=964;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788775103; l=1663;
  i=wangjia@ultrarisc.com; s=20260515; h=from:subject:message-id;
- bh=H5nCeqGhgsZIHGD5OQKUEdhmWR2MLVPLwQY1q4JBFrk=;
- b=qZtQO6xJbyoxFeLqeiG+vgTPNhUyPEuYbIwJnEzAzbJcXnokLi+XQS2BFd26iySduD/N/wyv/
- yYBn2YXqHC6Br7I/x7XTpSZr6fcB0ViDdeu7/ewOh278fFgD6mTrBWB
+ bh=MXexzfKaPsc1YI5omohzcuM1x6URdiZA7ZlibFWo5PY=;
+ b=jHfiWF3egeJiK4FJHG5XZJ1nRggFi5xxHcKkEwd489i11A9dsyBbH2WRxwI0hbTImifyHwAIs
+ albED9FdwPtDjWNaBmhG8DAPlQojzHWfV20BSgWMUNeSwi3TMJrs+A8
 X-Developer-Key: i=wangjia@ultrarisc.com; a=ed25519;
  pk=wGVm18siRScehKOkOz0WKxgxDy7IezHEszhnN4/TUCY=
 X-Endpoint-Received: by B4 Relay for wangjia@ultrarisc.com/20260515 with
@@ -76,26 +76,55 @@ Reply-To: wangjia@ultrarisc.com
 
 From: Jia Wang <wangjia@ultrarisc.com>
 
-Add compatible string for UltraRISC DP1000 CLINT.
+Add the SoC-specific compatible string and use the generic one as fallback
+for the UltraRISC DP1000 SPI controller.
+
+The DP1000 integrates two SPI controllers. SPI0 supports standard, dual
+and quad transfers with three native chip-select signals. SPI1 supports
+standard transfers with four native chip-select signals.
+
+Both controllers have one register range and separate reference and APB
+interface clocks.
 
 Signed-off-by: Jia Wang <wangjia@ultrarisc.com>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- Documentation/devicetree/bindings/timer/sifive,clint.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/spi/snps,dw-apb-ssi.yaml         | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/timer/sifive,clint.yaml b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
-index 3673836e14de..878f267d089b 100644
---- a/Documentation/devicetree/bindings/timer/sifive,clint.yaml
-+++ b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
-@@ -40,6 +40,7 @@ properties:
-               - starfive,jh8100-clint   # StarFive JH8100
-               - starfive,jhb100-clint   # StarFive JHB100
-               - tenstorrent,blackhole-clint # Tenstorrent Blackhole
-+              - ultrarisc,dp1000-clint  # UltraRISC DP1000
-           - const: sifive,clint0        # SiFive CLINT v0 IP block
-       - items:
-           - {}
+diff --git a/Documentation/devicetree/bindings/spi/snps,dw-apb-ssi.yaml b/Documentation/devicetree/bindings/spi/snps,dw-apb-ssi.yaml
+index 1e70c6804d5d..e8d6d5d858b6 100644
+--- a/Documentation/devicetree/bindings/spi/snps,dw-apb-ssi.yaml
++++ b/Documentation/devicetree/bindings/spi/snps,dw-apb-ssi.yaml
+@@ -44,6 +44,21 @@ allOf:
+     else:
+       properties:
+         starfive,sfc-filter-syscon: false
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: ultrarisc,dp1000-spi
++    then:
++      properties:
++        reg:
++          maxItems: 1
++        clocks:
++          minItems: 2
++        clock-names:
++          minItems: 2
++      required:
++        - clock-names
+ 
+ properties:
+   compatible:
+@@ -63,6 +78,7 @@ properties:
+               - mscc,jaguar2-spi
+               - sophgo,sg2042-spi
+               - thead,th1520-spi
++              - ultrarisc,dp1000-spi
+           - const: snps,dw-apb-ssi
+       - description: Vendor controllers compatible with v1.01a
+         items:
 
 -- 
 2.34.1
