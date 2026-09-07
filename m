@@ -1,129 +1,105 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21E744062B;
-	Mon,  7 Sep 2026 08:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 507EC4503EA;
+	Mon,  7 Sep 2026 09:58:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788770413; cv=none; b=DWndvngPQTOrrJ6W6scBP4MupADl/UBe3KJNFwjNZDDcBjKN6IDYtB59yp/7rXn/pZuHQFITvKgSzVOV5Bc6/u1rdkRC4La+6aCOGG8mklzrO4QwkyS29L0kalsdvFb+cnVi6YR1jXFfkTS5IKn6AAr69YI+rffoZV9yt2P76Qk=
+	t=1788775106; cv=none; b=lPMrPe7z5BNm6FFWIvFGc+MZk/sJrNZFqE/usDI2LZgWwg1XE+99vw+z2KmXMivCwD6Z679k9Pr1E6oZOlxjys9EJkv9sqMMlcNvZkH0yRqf+5FpjoKjILia93ti1GcRfKTyu+NAtUiMPqjMmTFKJccodhW5Pr9jTII/1YE1Tuk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788770413; c=relaxed/simple;
-	bh=EusWo5awvOA9Km2fX+0+LN45/nYa5GR9Yr8O5YEwCcY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SO8EyrVqqAfwH0RbjxxnLWB05DOF7EXqgisHX8i8WGWVREFjwhh6mPxaT0sRLOH8fuCjIJ5mQLNJz2jZyxBRBoGUUqDWLuaBWCGZaza2BtShnAywLHoeQQJ+AXvCNDR4zO8e0IZSLmJlvfDf3JgxHxsE4fk57CmySnazdvhTAw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Xb7XlH/f; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1788775106; c=relaxed/simple;
+	bh=jx8p4XoDCEmHkARz3LvR8mZjbN2RulpuK3cx8pTILlM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=e6dA37+OIsTbKX2u79aqLbEJk5Y6PLZdAdD1d29EaL5TGiUwQtGVky4OcKgJk+DRx7+wGMI7Py/gM6OrdvM9sQ7ySh2wfnVwaWXv42+5VgJhWuC3VLuGj3JqAek+FMUOZst2W+TjOvw0P3JPQ3QgBFIBJh4DhGEePieWRmbzJa4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CUO6ibPB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Xb7XlH/f"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1788770411; x=1820306411;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=EusWo5awvOA9Km2fX+0+LN45/nYa5GR9Yr8O5YEwCcY=;
-  b=Xb7XlH/fn8P90UCtd9cRCNzQjT0MfhhyVL/iPpe28FDqoAwyza+KFg0+
-   nd8+sXXWM5VC4z1WH1prSkBiLLIe3lzEqUyaHYl8O77gY+QLK5SlGeagW
-   Cb85ZYujdfuNtsmaDjBU27lawcyKFXckMIkI2QvrpXewFEGR/AI2vKJKW
-   gZMaCqRorkKs63EKTCMuRV4EQea1i6b/O6TML6Cn9FUQh7wopdXu4JZgh
-   W9hA2Q5aDc5hMd9PaOkS6Z7vDPc6fRulc/HULgm0bIylRW4GAA4S2MuUx
-   tZA5Zz9biU0Q1XbipGAgdg5E2sYDqvm5p31MQcJM3+HvnjNKzUZkd+NqN
-   w==;
-X-CSE-ConnectionGUID: Gl+PyPguRZ2Ie3RYRyhD5g==
-X-CSE-MsgGUID: lbyMSVRSQ4yVbLxDp5/zcA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11898"; a="89044645"
-X-IronPort-AV: E=Sophos;i="6.25,267,1779174000"; 
-   d="scan'208";a="89044645"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2026 01:40:10 -0700
-X-CSE-ConnectionGUID: k2wEgyw5RO6nWPQzUw+HHA==
-X-CSE-MsgGUID: Y9YfNTlbS2K7A2YO38D7KA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,267,1779174000"; 
-   d="scan'208";a="272584497"
-Received: from abityuts-desk1.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.245.230])
-  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2026 01:40:09 -0700
-Received: from kekkonen.localdomain (localhost [IPv6:::1])
-	by kekkonen.fi.intel.com (Postfix) with SMTP id E77FD11F944;
-	Mon, 07 Sep 2026 11:40:10 +0300 (EEST)
-Date: Mon, 7 Sep 2026 11:40:10 +0300
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-To: Felix Gu <ustc.gu@gmail.com>
-Cc: Lixu Zhang <lixu.zhang@intel.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: ljca: drop redundant explicit adapter deletion
-Message-ID: <ap54aks_RJrCsHlB@kekkonen.localdomain>
-References: <20260905-ljca-v1-1-9109616ff1c6@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CUO6ibPB"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DF860C2BCFA;
+	Mon,  7 Sep 2026 09:58:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1788775106;
+	bh=jx8p4XoDCEmHkARz3LvR8mZjbN2RulpuK3cx8pTILlM=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=CUO6ibPBnRIJ6br9N1+tglZAtiCQb54P+xFBHtVbEeHzlX7CCIYEohoJJxP2aCOVF
+	 rhWyA78DUPUPbC3nqZv25YVRlFygwkTF5HKV9hJ46PPgTlYc+wX3jRITtn2jRUTokB
+	 1jhxo/x3/bzHyxynHeE7NA8eVcKOlxGcyFxKjs5FxfIGtDybOkxLB+8UudHOr/P1fB
+	 kyUXoE5DfLyeAj5lNm6CyvJorHlvlCSZCEJN1JDlJ/iRsWMEsHA8Jseny5+0tIvPLv
+	 9jtDXPQlC7drisbr1plgBltwYk02ojwsytr/REnf07GLVb3xoxh4ObJiqqag8Cnap1
+	 LqrQlM99gmGKw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BECEDC79F89;
+	Mon,  7 Sep 2026 09:58:25 +0000 (UTC)
+From: Jia Wang via B4 Relay <devnull+wangjia.ultrarisc.com@kernel.org>
+Date: Mon, 07 Sep 2026 17:54:40 +0800
+Subject: [PATCH v2 01/10] dt-bindings: vendor-prefixes: Add shenrongda
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260905-ljca-v1-1-9109616ff1c6@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260907-ultrarisc-dts-v2-1-5eb4c97477c5@ultrarisc.com>
+References: <20260907-ultrarisc-dts-v2-0-5eb4c97477c5@ultrarisc.com>
+In-Reply-To: <20260907-ultrarisc-dts-v2-0-5eb4c97477c5@ultrarisc.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>, Jia Wang <wangjia@ultrarisc.com>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, 
+ Samuel Holland <samuel.holland@sifive.com>, 
+ Anup Patel <anup@brainfault.org>, Mark Brown <broonie@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ Mika Westerberg <mika.westerberg@linux.intel.com>, 
+ Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>, 
+ Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Paul Walmsley <paul.walmsley@sifive.com>, 
+ Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>, 
+ linux-riscv@lists.infradead.org, linux-spi@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788775103; l=887;
+ i=wangjia@ultrarisc.com; s=20260515; h=from:subject:message-id;
+ bh=e/Kow+cCHmWBpSOP+t1oxwgy4BH4snNIyYRmuufij+E=;
+ b=CR9ZckKOmzRgkynMxxjsH9rH+5MRkkuyyO5RWGoWCZBgJ9+mRHevzyy21zSGICPYhWEoToO9w
+ 2Kmphmkzo25Bfj0HIxEXWJH+ogZkWr5HtF7yOJTdXD+dM6ShhURhDZS
+X-Developer-Key: i=wangjia@ultrarisc.com; a=ed25519;
+ pk=wGVm18siRScehKOkOz0WKxgxDy7IezHEszhnN4/TUCY=
+X-Endpoint-Received: by B4 Relay for wangjia@ultrarisc.com/20260515 with
+ auth_id=779
+X-Original-From: Jia Wang <wangjia@ultrarisc.com>
+Reply-To: wangjia@ultrarisc.com
 
-On Sat, Sep 05, 2026 at 09:25:15PM +0800, Felix Gu wrote:
-> This driver uses devm_i2c_add_adapter(), so manual i2c_del_adapter()
-> in remove() is unnecessary.
-> 
-> Remove ljca_i2c_remove() along with the now unneeded
-> auxiliary_setdrvdata().
-> 
-> Signed-off-by: Felix Gu <ustc.gu@gmail.com>
+From: Jia Wang <wangjia@ultrarisc.com>
 
-Thanks!
+Add Shenzhen Rongda Computer Co., Ltd. to the vendor prefixes.
 
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Link: http://www.shenrongda.com/
+Signed-off-by: Jia Wang <wangjia@ultrarisc.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+---
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-I think you should also have:
-
-Fixes: bfd3824c8808 ("i2c: Add support for Intel LJCA USB I2C driver")
-Cc: stable@vger.kernel.org
-
-> ---
->  drivers/i2c/busses/i2c-ljca.c | 9 ---------
->  1 file changed, 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-ljca.c b/drivers/i2c/busses/i2c-ljca.c
-> index 93274f0c2d72..da3370968c8e 100644
-> --- a/drivers/i2c/busses/i2c-ljca.c
-> +++ b/drivers/i2c/busses/i2c-ljca.c
-> @@ -297,7 +297,6 @@ static int ljca_i2c_probe(struct auxiliary_device *auxdev,
->  	device_set_node(&ljca_i2c->adap.dev, dev_fwnode(&auxdev->dev));
->  
->  	i2c_set_adapdata(&ljca_i2c->adap, ljca_i2c);
-> -	auxiliary_set_drvdata(auxdev, ljca_i2c);
->  
->  	ret = ljca_i2c_init(ljca_i2c, ljca_i2c->i2c_info->id);
->  	if (ret)
-> @@ -315,13 +314,6 @@ static int ljca_i2c_probe(struct auxiliary_device *auxdev,
->  	return 0;
->  }
->  
-> -static void ljca_i2c_remove(struct auxiliary_device *auxdev)
-> -{
-> -	struct ljca_i2c_dev *ljca_i2c = auxiliary_get_drvdata(auxdev);
-> -
-> -	i2c_del_adapter(&ljca_i2c->adap);
-> -}
-> -
->  static const struct auxiliary_device_id ljca_i2c_id_table[] = {
->  	{ "usb_ljca.ljca-i2c", 0 },
->  	{ /* sentinel */ }
-> @@ -330,7 +322,6 @@ MODULE_DEVICE_TABLE(auxiliary, ljca_i2c_id_table);
->  
->  static struct auxiliary_driver ljca_i2c_driver = {
->  	.probe = ljca_i2c_probe,
-> -	.remove = ljca_i2c_remove,
->  	.id_table = ljca_i2c_id_table,
->  };
->  module_auxiliary_driver(ljca_i2c_driver);
-> 
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+index ba2002969373..e100f3993e57 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -1507,6 +1507,8 @@ patternProperties:
+     description: SGX Sensortech
+   "^sharp,.*":
+     description: Sharp Corporation
++  "^shenrongda,.*":
++    description: Shenzhen Rongda Computer Co., Ltd.
+   "^shift,.*":
+     description: SHIFT GmbH
+   "^shimafuji,.*":
 
 -- 
-Kind regards,
+2.34.1
 
-Sakari Ailus
+
