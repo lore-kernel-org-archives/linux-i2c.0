@@ -1,27 +1,28 @@
 Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E31653D0D3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3CB53D0D6;
 	Tue,  8 Sep 2026 12:42:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788871355; cv=none; b=JcfSs27/mPHWeUI6T7F+LUyNR0X8wLUSdC+JzIFg/8IpRVlf6xNMs2EdBxKxf4w2YXg7gtt4EhJE6zvSvTVEHDJGdDbjDvXwT/XS31iUJ3eESYS1Z/A+rIn+RWAishT5srCS5TsvQS3BvEpapFqDFBwLeu3+KINOyyOfMBknSyc=
+	t=1788871356; cv=none; b=ERXCQy98YRGqtniXqMJVfiPGtx2aXVmEOEo4VfNq5oiH47JlEYJdcH2QFInnm1G1O9XEugbF1pmtjUxBTLOAqdYlOsKAQm4AttrpwEmsmpiYLT49OVUAfWzpmJmbVI5VMjq2Sb22Gl+tafQIPYeVKXOwYIZK+aDtiItkgrrkdH8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788871355; c=relaxed/simple;
-	bh=6qCT5APCzY0OyYr0mc5qAIkaNGMtgovLSnJ/xkVonsg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=PEYOQsYdJVwMIdmCTaJ1NtfW6WzLn+cpGkeAaX+F2qLNf2yLTgAdMuqqwD+8X3BtX5kbaNEN5tg+iZv0jc2BgoF5YF+K9w18KUheWXr96vO5iVaa5j9t3sEc//yp4/Ozf5q3mG2vUTkioEhF1EpzqaFnYmhdWetSKn4iIVrK0Jw=
+	s=arc-20240116; t=1788871356; c=relaxed/simple;
+	bh=0pwV2+3b+xDhJWnyr0UBDOZ6+r7fwoAYhGQFbuWrIqc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=I0m5Z95xasDk5UGEO3REAscc6x2j+OpoGsPssSXwkYPmFzuAAJ4YJF3kVKDeyy5MrMwbUgktX2kk2rpjUho0tN+Xi8yAsGAItU+Dko4O4Tq2rrEhdWhRrWE8vgJ+xaB2O8lh0fBpvZD1/8+go2D1n+70yXZBCLAQAvN4lYxWV8U=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva020.nxp.com (localhost [127.0.0.1])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 3DAAC1A004A;
-	Tue,  8 Sep 2026 14:32:30 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 79F591A0038;
+	Tue,  8 Sep 2026 14:32:32 +0200 (CEST)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 03ACA1A0043;
-	Tue,  8 Sep 2026 14:32:30 +0200 (CEST)
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 43A721A002F;
+	Tue,  8 Sep 2026 14:32:32 +0200 (CEST)
 Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 60BAE18000B6;
-	Tue,  8 Sep 2026 20:32:27 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id AE9DB1800068;
+	Tue,  8 Sep 2026 20:32:29 +0800 (+08)
 From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 To: andi.shyti@kernel.org,
 	robh@kernel.org,
@@ -34,10 +35,12 @@ To: andi.shyti@kernel.org,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Subject: [PATCH 0/2] i2c: mux: Add NXP PCA9641 I2C bus master arbiter
-Date: Tue,  8 Sep 2026 18:01:44 +0530
-Message-Id: <20260908123146.1839854-1-shivprakash.gupta@nxp.com>
+Subject: [PATCH 1/2] dt-bindings: i2c: Add NXP PCA9641 I2C bus master arbiter
+Date: Tue,  8 Sep 2026 18:01:45 +0530
+Message-Id: <20260908123146.1839854-2-shivprakash.gupta@nxp.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260908123146.1839854-1-shivprakash.gupta@nxp.com>
+References: <20260908123146.1839854-1-shivprakash.gupta@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -47,33 +50,135 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-This series adds support for the NXP PCA9641 2-to-1 I2C bus master arbiter.
+Add device tree binding schema for the NXP PCA9641 2-to-1 I2C bus
+master arbiter.
 
-The PCA9641 allows two upstream I2C masters to share a single downstream
-slave bus using a hardware lock/grant arbitration protocol. It provides
-dedicated interrupt outputs (INT0/INT1) per upstream master and a 16-bit
-inter-master mailbox.
+The PCA9641 arbitrates between two upstream I2C masters competing for a
+single downstream slave bus using a lock/grant ownership model. The
+binding supports an optional 'interrupts' property for interrupt-assisted
+arbitration.
 
-The driver supports two arbitration modes:
-- Interrupt mode: uses INT0/INT1 GPIO interrupt, with automatic fallback
-  to polling when no IRQ is configured
-- Polling mode: used when no interrupt is configured
-
-Patch 1 adds the devicetree binding schema.
-Patch 2 adds the driver with Kconfig, Makefile, and MAINTAINERS entries.
-
-Shiv Prakash Gupta (2):
-  dt-bindings: i2c: Add NXP PCA9641 I2C bus master arbiter
-  i2c: mux: Add NXP PCA9641 I2C bus master arbiter driver
-
- .../devicetree/bindings/i2c/nxp,pca9641.yaml  | 109 +++++
- MAINTAINERS                                   |   7 +
- drivers/i2c/muxes/Kconfig                     |  15 +
- drivers/i2c/muxes/Makefile                    |   1 +
- drivers/i2c/muxes/i2c-mux-pca9641.c           | 395 ++++++++++++++++++
- 5 files changed, 527 insertions(+)
+Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+---
+ .../devicetree/bindings/i2c/nxp,pca9641.yaml  | 109 ++++++++++++++++++
+ 1 file changed, 109 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/nxp,pca9641.yaml
- create mode 100644 drivers/i2c/muxes/i2c-mux-pca9641.c
 
+diff --git a/Documentation/devicetree/bindings/i2c/nxp,pca9641.yaml b/Documentation/devicetree/bindings/i2c/nxp,pca9641.yaml
+new file mode 100644
+index 000000000000..649a3f6d1776
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/nxp,pca9641.yaml
+@@ -0,0 +1,109 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/nxp,pca9641.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCA9641 2-to-1 I2C bus master arbiter
++
++maintainers:
++  - Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
++
++description: |
++  The PCA9641 is a 2-to-1 I2C bus master arbiter that manages two upstream
++  I2C masters competing for a single downstream slave bus. It uses a
++  lock/grant ownership model: a master requests the downstream bus by setting
++  LOCK_REQ, waits for the arbiter to assert LOCK_GRANT, then explicitly
++  connects to the bus via BUS_CONNECT before issuing transactions.
++
++  Key features compared to the PCA9541:
++    - Lock/grant ownership model (LOCK_REQ + LOCK_GRANT bits in CONTR register)
++    - BUS_CONNECT bit must be set explicitly after receiving LOCK_GRANT
++    - Reserve Time register (RT): guarantees bus ownership for 1-255 ms
++    - INT0 and INT1 interrupt outputs (one per upstream master) and INT_IN
++      interrupt input that propagates downstream slave interrupts upstream
++    - 16-bit shared mailbox (MB_LO + MB_HI) for inter-master communication
++    - ID register (read-only, value 0x38) to distinguish from PCA9541
++    - Four address pins (AD0-AD3) allowing up to 112 unique I2C addresses
++
++properties:
++  compatible:
++    const: nxp,pca9641
++
++  reg:
++    maxItems: 1
++    description:
++      7-bit I2C slave address of the PCA9641 on the upstream bus. The address
++      is set by hardware pins AD0-AD3 at power-on or hardware reset.
++
++  interrupts:
++    maxItems: 1
++    description:
++      Optional interrupt from the INT0 or INT1 output pin. When provided the
++      driver uses interrupt-assisted arbitration (waits on LOCK_GRANT interrupt)
++      instead of polling the CONTR register. Either INT0 or INT1 can be
++      connected depending on which upstream master port is used.
++
++  i2c-arb:
++    type: object
++    $ref: /schemas/i2c/i2c-controller.yaml
++    unevaluatedProperties: false
++    description:
++      I2C bus node representing the downstream slave bus controlled by the
++      PCA9641. Downstream slave devices are declared as child nodes here.
++
++required:
++  - compatible
++  - reg
++  - i2c-arb
++
++additionalProperties: false
++
++examples:
++  - |
++    /* Minimal example: polling mode (no interrupt wiring) */
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        i2c-arbiter@74 {
++            compatible = "nxp,pca9641";
++            reg = <0x74>;
++
++            i2c-arb {
++                #address-cells = <1>;
++                #size-cells = <0>;
++
++                eeprom@50 {
++                    compatible = "atmel,24c32";
++                    reg = <0x50>;
++                };
++            };
++        };
++    };
++
++  - |
++    /* Interrupt mode: INT0 wired to SoC GPIO */
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        i2c-arbiter@70 {
++            compatible = "nxp,pca9641";
++            reg = <0x70>;
++            interrupt-parent = <&gpio1>;
++            interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
++
++            i2c-arb {
++                #address-cells = <1>;
++                #size-cells = <0>;
++
++                temperature-sensor@48 {
++                    compatible = "national,lm75";
++                    reg = <0x48>;
++                };
++            };
++        };
++    };
 -- 
 2.34.1
+
