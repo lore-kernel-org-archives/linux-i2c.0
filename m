@@ -1,103 +1,68 @@
-Received: from mx0a-0002e601.pphosted.com (mx0a-0002e601.pphosted.com [148.163.150.75])
+Received: from out203-205-221-164.mail.qq.com (out203-205-221-164.mail.qq.com [203.205.221.164])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46EC7549364;
-	Tue,  8 Sep 2026 15:44:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=148.163.150.75
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788882262; cv=fail; b=sZ4WxzsYDC0Jpaq2kwIP8LqEd5vaEkukZ3Jl1VlGwlA2Dq/F+04oBr/kyyTqBHDDlGXzaXPXd/x+9gg132m5JYPz0LYif8omIU32fzw/JYonJGMT/1tkYPBuZKUYfpbzogdLNW92K0h2p0LpwcinTZ5uzUlww/4WTKr00pi4al0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788882262; c=relaxed/simple;
-	bh=xmqptpWgefcxNr49jCsqpaWip9K9MjWlTfDc91EvJgc=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=B7yKpvmSd/rl43V+dG2RpdszWQRFYKnEVSQlk8AZszgu1Zv/J09X5reTZi1R91xeABhS1JXkmxYPWkaWYzyijQmTj3xN8AtQWWNjXf0CRSFcwvxwSEXMOlGOLPz4x1iCZw21A7a/aB+P9S3RJmDp4Ec5G8z3KCTSfzxPFNF/Mhs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b=PDgwPdUI; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=YoFeAnAb; arc=fail smtp.client-ip=148.163.150.75
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5964F56B874;
+	Tue,  8 Sep 2026 16:01:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.164
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788883324; cv=none; b=WOvRHofYzjCey2iOm/jD0K43vYQK+sq0Ar77KPOXRSJFAn4eY8gAAhYikW9ZEDR+RUVhT1s3D2IKpsd/1YQteHCgdzZIYZPi0PjhM88oKC8x4cVtG9jLl+2mEehmdvQMLLwFH192z1P8RiI7cdMo9edauYke7Sgj6snr8bBpmUM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788883324; c=relaxed/simple;
+	bh=PtBvshArS3P1b+I2XeuugmZi94aHWwfsom4fpF20Tj8=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=Noau7DQltlqO9YmJTo4h4d4UOOLjDY/Xysw83k+mAUC/lQcadbxviC+AOf08ERhV28hZbkVuN2PXHddzMxsJgq8HEfxrmADzU2cHtoHMxMKT94Ij6x7SZJCuVM/nxDSzq9aw8JGwWc0scLV0q2n8uEoWLUYhE4U+aXRo0Ss/H54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; spf=pass smtp.mailfrom=foxmail.com; dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b=cA9AP2BB; arc=none smtp.client-ip=203.205.221.164
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b="PDgwPdUI";
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="YoFeAnAb"
-Received: from pps.filterd (m0380145.ppops.net [127.0.0.1])
-	by m0380145.ppops.net (8.18.1.11/8.18.1.11) with ESMTP id 688Ek4dw2033099;
-	Tue, 8 Sep 2026 10:44:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=proofpoint-05-2026; bh=yWKiJkPgyISgf
-	pXAg8Zfe+oq7otO5OGE/xaNq9Z+l/s=; b=PDgwPdUIrszGVshk3aemYpm0TJGxp
-	EzgCWmxzgnV6t2d5biOvNA3w0bCiL073lPuhX04/3AS2AxtsYhJJHFh5uf4MMMbX
-	cPD5VW7GHGb5bvIDYmtAvRS2gUeocnWa/GpxvZh0SPnzjLSr4acWcT5GIvwarXQ2
-	PpNSwC5jzv4zEcNN1HwocJYNceg1XotVd5F324U1zcNK8IKLFfOnwW9HKU0QmfG7
-	0chcp3knmpes8vOACqIpiKaieO0hH2wGCwTkQCMM9e+UmZ+YE553+EwxVlkP8jYz
-	/cIsIQDx8Jvavnqre596ekKn8KrKf3jfnjBzVRx+d2+wr5SpEApcUcvCQ==
-Received: from dm1pr04cu001.outbound.protection.outlook.com (mail-centralusazon11010012.outbound.protection.outlook.com [52.101.61.12])
-	by m0380145.ppops.net (PPS) with ESMTPS id 4gjffmtbpw-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 08 Sep 2026 10:44:08 -0500 (CDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=XvenqGfAhGmqGQudPSH/nNbiiUeWzS2G7QtconQgOeKKLU+2awYtpSOBWF0wpFzchwYrcbA+2kuPB7fI40V70QkX5VuOf9rAc/0C9ZvPoqTsHVALybroHFA4fugmpMZnblGtHotU4pNQvW9YKv+4HwqOemEhJswQoFkHTkO/spzWtSY01LPa2bOov2IAlzTUfnYisaYdm0nV+wQ+6kAcN63UuoWd0NXZujITHqQQZTohaHSzicCrcXK2YWxOvuzeFZnTMf+bGBF9d+UURN8thuhh1gMBrfyzzB6xKKYCF5cjMDnPFOZmfbJmBD4JhpQ3dxBdVmU4I9Q/qUoVD9vbxQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yWKiJkPgyISgfpXAg8Zfe+oq7otO5OGE/xaNq9Z+l/s=;
- b=dTmrbskn+gg3QdSYZA1X9iQJEpw10FV9wj+wEJ+Pk58aBcxna0GKoXTly1/i4pmvdiI7I94uGi4yWAxaR+yCf8BdMtWciUPmp75aiUudJoNnErvrfqSNzSIuHL/45MdBOJQ1VVNv9+6HcjPTbqoBKK4V5d6Rt9M4X377G8KeJtv9JgvgZ+DGIh2B0EvonGxeR8R9esWqBYs4bAEbH/sjIyI5az7QhMw6I+rHq3lcAANri/nlarvw+TqXGbs0BkleBES90qbe2JwAcvGcNRNPcVjZMm7hgKT1X4MQP9zlOoIOqALcam7k71bddG1tYVGj/osIoQu08nx22UQ9G0ip9Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 198.47.21.194) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
- dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=ti.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yWKiJkPgyISgfpXAg8Zfe+oq7otO5OGE/xaNq9Z+l/s=;
- b=YoFeAnAb2A7wR6cDjTqUuwpb3sNbC/vXrxdpF4CLTtKFLCHtEvj3V5t8l2JV97hBs0v2GCFI0lAAZquEYzW0p+qMmPGrZU0I89jY9O4hAwDxImLDPeb0jPn1xwF77n2PGWxyUbjNabsLr3USrLa3L8L8cxWMpFsU0h1l4yVPzJg=
-Received: from CH0PR13CA0039.namprd13.prod.outlook.com (2603:10b6:610:b2::14)
- by BLAPR10MB4819.namprd10.prod.outlook.com (2603:10b6:208:307::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.7; Tue, 8 Sep 2026
- 15:43:06 +0000
-Received: from DS3PEPF0000C381.namprd04.prod.outlook.com
- (2603:10b6:610:b2:cafe::2a) by CH0PR13CA0039.outlook.office365.com
- (2603:10b6:610:b2::14) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.406.6 via Frontend Transport; Tue, 8
- Sep 2026 15:43:05 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 198.47.21.194)
- smtp.mailfrom=ti.com; dkim=none (message not signed) header.d=none;dmarc=pass
- action=none header.from=ti.com;
-Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
- 198.47.21.194 as permitted sender) receiver=protection.outlook.com;
- client-ip=198.47.21.194; helo=flwvzet200.ext.ti.com; pr=C
-Received: from flwvzet200.ext.ti.com (198.47.21.194) by
- DS3PEPF0000C381.mail.protection.outlook.com (10.167.23.11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.406.5 via Frontend Transport; Tue, 8 Sep 2026 15:43:04 +0000
-Received: from DFLE204.ent.ti.com (10.64.6.62) by flwvzet200.ext.ti.com
- (10.248.192.31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Tue, 8 Sep
- 2026 10:42:24 -0500
-Received: from DFLE202.ent.ti.com (10.64.6.60) by DFLE204.ent.ti.com
- (10.64.6.62) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Tue, 8 Sep
- 2026 10:42:24 -0500
-Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DFLE202.ent.ti.com
- (10.64.6.60) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45 via Frontend
- Transport; Tue, 8 Sep 2026 10:42:24 -0500
-Received: from ula0226330.dhcp.ti.com ([10.249.33.213])
-	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 688FgNWa3725209;
-	Tue, 8 Sep 2026 10:42:24 -0500
-From: Andrew Davis <afd@ti.com>
-To: Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
-        "Andreas
- Kemnade" <andreas@kemnade.info>,
-        Kevin Hilman <khilman@baylibre.com>,
-        "Roger
- Quadros" <rogerq@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>
-CC: <linux-omap@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Andrew Davis
-	<afd@ti.com>
-Subject: [PATCH v2 0/8] OMAP I2C driver cleanups
-Date: Tue, 8 Sep 2026 10:42:15 -0500
-Message-ID: <20260908154223.116074-1-afd@ti.com>
-X-Mailer: git-send-email 2.39.2
+	dkim=pass (1024-bit key) header.d=foxmail.com header.i=@foxmail.com header.b="cA9AP2BB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1788883316;
+	bh=6SwRQ6PA+jZ9sSnyk3mpNdGgMyUDicpbvYGA8+pGlt0=;
+	h=From:To:Cc:Subject:Date;
+	b=cA9AP2BBeBRMIcVSMX3/V27YTRhx8lemN8guv/6gHMhGv/tWCtej+81boyBwcVmPF
+	 zRQ/BPnOv5fqWqr0YRm7jHQkLOqxV0NBhxjO1qLlnU8qlWBpD3mxhUTqQOQEi56jh1
+	 5NIyt//U/LVn+nVpab65sL6NNJ2gzdMvmBoRJjgQ=
+Received: from LAPTOP-TKBJAGN4.localdomain ([2408:8256:2d01:e2b1:f9b4:79bb:79ab:d0e2])
+	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
+	id 6F854B2; Wed, 09 Sep 2026 00:01:47 +0800
+X-QQ-mid: xmsmtpt1788883307t0dys8503
+Message-ID: <tencent_342A87BFCECA70C9982E68A79AAD878B6909@qq.com>
+X-QQ-XMAILINFO: MXzpxT/vcbSg1A6KbdFVmG0bev7a//SwtdgMKyqlQmb1J15c/8b45jn6e/n++N
+	 oy/K9Oa3/ujrfqmzuGOkzW4Dg11LO1WiY1hXXp2bX0NS/w6SHVmNpUILzzB79Z8GHQ84fMNLCLG2
+	 g4dr0cNCC4oiFwrjAbSfN3Ul7HjyX3eub9w2tNO8+nOocLInxP/DzNhhZF9rszK1WkT1ESge5n2h
+	 B2BuN5cpP/bW8jUHyz5fEKkLtxQeUG4sIj/OR0qfilH9NUK1irs7Trj+xhM2ct9+ZVXoUUO8o1rF
+	 Z+ipMbGGrIiWlcma6nG8Bl1PGI4KoXyRBUhnhVota0Q3bk9dCesMDR7+Q4GOtFvUykodpi5akkc+
+	 1Ll2jZ4LfXuLPCnxPhK6yqh86w6DAXWSk9OrnfO7rtmKJI5f4J9JUdyLS3C9Jwz0s9CDHp2sXCCU
+	 6XLVL8VPN2Y6QUxJDlTzC4e3CDMLyJG/uypHfRq8z7bxDL4kjXcr7K8R4rzv3sgywMNkXXQs3l1U
+	 I/wH7iLbXA/6/57+rxzDeXhNDn7dCs1Q+DhhLrdLrJ9ldMh82Ygl/2QQw6LK18zuQminc1Lb5eC1
+	 SSsYC9h88UGM0BUZiq/6bBPzM6aZ8fKtNMruaMXQ1oevdkeZ8hkKmQHmBWmrNlFQDYkGHMer5o/M
+	 3z66tDN+rkRMgHnE0C+AcZYny39YP7QDg6h36BfvApNwVLADDUNPgf5ye3RDc9QKuOmgeIseuA9T
+	 uzc6i9pJDi2P464u4QprI4GxJWxTuSMkvXZGjrQiRyysEqzMvwFdpTBdNyYJcL5Sk4qbGakx3ryu
+	 NTh2YsITDkbVBIhyt3/jKl1qdNyQuJX3wgU2bkwYPTb4b2e9SNetT9Lph8PVPD6O1pfRSBR/v0PX
+	 0NfzpgPd4ak2TEqR6WqC++0pSQn26f1VNq4AvnkdY/yvcgzS+9idxcmdrdwHDO1GqRGEFT4EuJHZ
+	 22ANU/j4XxtkvOUUltPlRKPKFwPV3kphpKbKr93xmluKS8VjGgtreCEH5nXVJ+DKlaxvWxXuKzhs
+	 d3v/Qh5EbgGgAFUG17WewXjoueZUeT1K75FCy1IJrV9Lh0N81x/NP11/8wuXABUW4JKQ/gb0T2oo
+	 vFf4oUb1dH10NZdNa6MSz6sAjw54T4lrO6tJzV4m3H6AlETn8U+J9PoO6tmvsGA9xT0NM6mVnlqX
+	 mtXt/eVkTFVWfWqA==
+X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
+From: Haobin Jiang <lemonoutput@foxmail.com>
+To: carlos.song@oss.nxp.com,
+	dillon.minfei@gmail.com
+Cc: andi.shyti@kernel.org,
+	Frank.Li@nxp.com,
+	festevam@gmail.com,
+	imx@lists.linux.dev,
+	kernel@pengutronix.de,
+	linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	o.rempel@pengutronix.de,
+	s.hauer@pengutronix.de,
+	Haobin Jiang <lemonoutput@foxmail.com>
+Subject: [PATCH v3] i2c: imx: honour I2C_M_IGNORE_NAK
+Date: Wed,  9 Sep 2026 00:01:45 +0800
+X-OQ-MSGID: <20260908160145.180323-1-lemonoutput@foxmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -105,91 +70,175 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS3PEPF0000C381:EE_|BLAPR10MB4819:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4d4e9673-e060-4144-7fae-08df0dbfdf44
-X-LD-Processed: e5b49634-450b-4709-8abb-1e2b19b982b7,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700016|376014|23010399003|1800799024|18002099003|56012099006|10067099003;
-X-Microsoft-Antispam-Message-Info:
-	4rl0SQsuTPlQakJQJcg8GdZ/pXMkkI2oquzgVaEEAs0zRz5dd/u+t4Oj9PK4Eyt4sIUDhaNpSIg/D0WN4rl1+OOdG48eGNLujMEmwslfx8mZ5p4UpFIXJLN+C9ZIhPo1AOwZXiAtTSH5M1AfamABmAvxT5gkIB99zjYqzFHNQaDa768PjPsqRuXgk7uUTnQbMMKTU86R90+lQAcXwA05Ixc2vttMvbVVXerlGQmomRx+3JqSxGF1IFl3TnL8kiYmfjSj7a6kiPxHbpGJlJ5j0LmPdJnE3Q2zqblxZWu60eYF3oMV/u87PKgDgayhklI+yt7OJTzcL2Otoj2MmITtVw3k3ExpaMUQyLv7yYPJfz2H9EJybzVMO9mNatOZ3QRLHpqKVX2LJKNwTDwRW4FdstIxifRctJQHkCRd6ZgVfecmfGMWmHtZE3PcuHs0rmbQUVJH5PfE3P7glBgVpqszvYsNWAOad5UhaYu/wv/lve9k4bLTHYR4LMX17qibK5QsTsXCYLGRg1MlM+2wjNCDlJbsdL0goI6x56LqyT3yj2fZC0ssgYIa5itWz3iYkts+JDSLmv/kKVNFTK0Hd4VjbzStnnUXkVlP60Ci3wS9/qiLhcvyKV1Z6cr+JQLI6GxUx5Z6AL0u5cOHwTMFAw6Sp0LlKA3xByxB2gMMVrvUF2/6yWBqDn2NIsJdQtCf12qeHMORMtwQcFQixi1zanGyow==
-X-Forefront-Antispam-Report:
-	CIP:198.47.21.194;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:flwvzet200.ext.ti.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(376014)(23010399003)(1800799024)(18002099003)(56012099006)(10067099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	NcryBAFSZTR7rCgcsU1PfFGQ4oBYmMA2YhrcrJGppINtcuFnSb943eInm78kY0UNISMrOtDPAZEMWXhMwsJhdFPhgweebCXjXTsoArfUVSbrnkHdLkoiUQYftvPLRrosMbE1GQISnd4SK7ZoBX0ww6Riz4n31dKjv759walejSEKRCS9R+vDnMba9BSAAse71Mhel6F3KqATbjjWwswB4Y+Y+vQiThaGZKuJyAFSXsXrzWWRkgGz6571MVAaxsoXtylodB/RF6fjKK326fpb7qyRprSS3DD0aG3q159d8WL7fDsegflnbhDblJ1vEPQuM3BeC5owYWGxn3r5OgA3I7lH/VwpMemT5ZYgY5F026DLuGb063Ef1ZRkLOm1r+agI8rzYc6vh1iMvKFnKeAme3PLSJgfx1yWm7e8pksjxTgE2YswAxrF4w0emnqZfyYR
-X-Exchange-RoutingPolicyChecked:
-	0gjXEBVj7be6qOsw7NActn6egMVV9/vNEfS7WFcFy08NLtTFDQGsapEo5dKBJ96Ukw2Xe2z7rkL0A3FoRc+Q+5wP3Fl6N0Vc2GYSKw7r8bOv6/lwYnDorCa9xzpyNYi8sOKqNAbVVvGlSvvhv97hY2jEXY883ZNl2bdw/4+ZzHb4LicZD6pyE/dnmJ+daPODeYMdAfNbvmExL2fujhOKb3cVAwIpk1TTIP3/NzpSsbV7ExCk0DU84JXEd41pnmN1yHIEq3IQE+NeZ3Kevnc0Rsso4TDs57GW/kEoK2B7j7ExPb2tDBYTFmhFtFu3y5XKrnbGuZ7Fso/U/nMFaF0edA==
-X-OriginatorOrg: ti.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2026 15:43:04.3442
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4d4e9673-e060-4144-7fae-08df0dbfdf44
-X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.21.194];Helo=[flwvzet200.ext.ti.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS3PEPF0000C381.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB4819
-X-Authority-Analysis: v=2.4 cv=FewHAp+6 c=1 sm=1 tr=0 ts=6aa02d48 cx=c_pps
- a=Os0crU6ZVxYeJaTskmJGZw==:117 a=iwqwCZQqcuTv3JOpYdM7/Q==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=VdqzKS8jKosA:10 a=V5UXEbMT0ywA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=Z8NIEmU8O1QQgoT56wFK:22 a=gO1vWkAQAl3rybz1DQOp:22
- a=nnOhH74F2ekBJhm_1bsA:9
-X-Proofpoint-ORIG-GUID: ppyUnsJrMEr1iEwg307YohZpyeK1sVKf
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA4MDE3MCBTYWx0ZWRfXwrY0A9zYIcJ8
- nb/qeaqus7w+/YXGD3iRF3RfIyiVqcVjsL15JIvpiX4d1lG+Ypf/N7Plrd3TkQ+30sc3xJIjL7U
- GjPm+vEBZ/r42MQ4EDah2820YD7bUQNLsDT4mTRIxVMp7uUoR3QvAAAJ5tJeVGU/k2B5CabbqZF
- 9PQQjlYDddebN1k5c26lBaMsHone+NykSNtZGd2LMIuku02uZcKroPz49tFPcxyTrvr6G2LwMfY
- nwKcIFHSOgGUNtZS3jPAYbz46TdwtoDtrbr6AMkCb6ezYNGggnU4TM6thXY3KRifKlmD0KlmcHl
- 7rXnR5FXMsYakGiBmhKkKib/eNvNmiEbnfO2hino6B6JpsK6crSD1pOfrAfQLfxYn9NY1DHcmg+
- 2FkofeZtne/NcMPZ6kGky6ccXwPsahqyDGsB3FuiMWXkJlPVODShRkfAaCjBNQ/wXW8G4CczEy3
- azQh3LsawJ2MYqTq+mA==
-X-Proofpoint-GUID: ppyUnsJrMEr1iEwg307YohZpyeK1sVKf
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA4MDE3MCBTYWx0ZWRfXz8ZSSORJAvbX
- XRyrozoLnwumCfslf40AoyOGPlp9NuP9yv0/yqIJ81l/Ia+kvgCGnbVNQGPpHVkgbQDiRD+q89Y
- i/qTR6ss/FdEvcdczOm3a3pslvwNTGQ=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-08_03,2026-09-08_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 impostorscore=0 clxscore=1015 phishscore=0
- bulkscore=0 suspectscore=0 priorityscore=1501 malwarescore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609080170
 
-Hello all,
+I2C_M_IGNORE_NAK is removed from the flags rejected by
+i2c_imx_check_msgs(), so the flag is honoured as documented. I2C_M_STOP
+stays unhandled to preserve existing behaviour and backward
+compatibility. I2C_M_NO_RD_ACK stays rejected.
 
-Some hopefully simple cleanups and updates found while using this driver
-as reference when porting the same over to Zephyr. No functional changes.
+This change is meant to apply on top of the I2C_M_REV_DIR_ADDR and
+I2C_M_NOSTART series [1], which is not yet merged.
 
-Thanks,
-Andrew
+Tested on an ALIENTEK i.MX6ULL mini board (v6.6.44, equivalent
+backport) with a logic analyzer: with the flag, a 3-byte write to an
+unpopulated address clocks out every byte (each NAK'd) and returns 0;
+without the flag it aborts with -ENXIO after the address byte. A
+4-byte read with the flag completes and returns 0 as well. Waveforms
+and test logs: https://github.com/JHB11Hinson/i2c-imx-ignore-nak-test
 
-Changes for v2:
- - Seems bitfield.h is not indirectly included for all archs, include
-   it explicitly in patch [8/8]
- - Add Reviewed-by tags
+Note: part of the code was generated with the assistance
+of a generative AI tool (GLM 5.3) from the author's description of
+the problem, then reviewed and verified by the author.
 
-Andrew Davis (8):
-  i2c: omap: Drop bit shift for I2C register addresses
-  i2c: omap: Remove unused is_rdr and is_xdr variables
-  i2c: omap: Use devm_pm_runtime_enable() helper
-  i2c: omap: Combine event flags register definitions
-  i2c: omap: Use bool for flag values
-  i2c: omap: Make reset bit name match register name
-  i2c: omap: Switch to using BIT and GENMASK
-  i2c: omap: Add OMAP_I2C_BUF_{TX,RX}TRSH definitions
+Link: https://lore.kernel.org/linux-i2c/20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr/ # [1]
 
- arch/arm/mach-omap1/i2c.c              |   4 -
- drivers/i2c/busses/i2c-omap.c          | 255 +++++++++++--------------
- include/linux/platform_data/i2c-omap.h |   5 -
- 3 files changed, 113 insertions(+), 151 deletions(-)
+Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
+---
 
+v1 -> v2:
+	- Honour I2C_M_IGNORE_NAK on the read path as well, mirroring
+	  i2c-img-scb, instead of silently dropping the flag there.
+	- Force the PIO path for every message with I2C_M_IGNORE_NAK:
+	  a NAK'd byte does not generate a further DMA request, so a
+	  DMA write to a deliberately-NAKing target would stall until
+	  DMA_TIMEOUT.
+	- Reject I2C_M_NO_RD_ACK instead of advertising blanket support
+	  and silently ignoring it. I2C_M_STOP is not rejected: the
+	  controller already emits a STOP after the final message, and
+	  rejecting it would break the ov2659 camera on imx6qdl-ds.
+
+v2 -> v3:
+	- Rebase on top of the I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+	  series; the flag rejection moved to i2c_imx_check_msgs().
+	  I2C_M_IGNORE_NAK is now honoured and I2C_M_STOP stays
+	  unhandled, preserving the ov2659/SCCB use case and backward
+	  compatibility as agreed during review.
+	- Keep the DMA write path checking ACK with ignore_nak=false,
+	  as suggested during review; messages carrying
+	  I2C_M_IGNORE_NAK are forced onto the PIO path.
+	- Fix double spaces after periods in the changelog and comments.
+	- State the use of a generative AI tool in the changelog.
+	- Test on an ALIENTEK i.MX6ULL mini board (v6.6.44, equivalent
+	  backport); results linked in the commit message.
+
+ drivers/i2c/busses/i2c-imx.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index ab6794bf3ea5..9cd1fa0f4021 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 	return 0;
+ }
+ 
+-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
++static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
+ {
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
++
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+ 		return -ENXIO;  /* No ACK */
+ 	}
+@@ -968,11 +971,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
+ 	return ret;
+ }
+ 
+-static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
++static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
++				    bool ignore_nak)
+ {
+ 	i2c_imx->isr_result = 0;
+ 
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
++
+ 		i2c_imx->state = IMX_I2C_STATE_FAILED;
+ 		i2c_imx->isr_result = -ENXIO;
+ 		wake_up(&i2c_imx->queue);
+@@ -985,7 +992,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
+ {
+ 	int result;
+ 
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 
+@@ -1014,7 +1021,7 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+ {
+ 	int result;
+ 
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 
+@@ -1229,7 +1236,8 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+ 	if (result)
+ 		return result;
+ 
+-	return i2c_imx_acked(i2c_imx);
++	/* I2C_M_IGNORE_NAK messages never take the DMA path. */
++	return i2c_imx_acked(i2c_imx, false);
+ }
+ 
+ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+@@ -1248,7 +1256,7 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1381,7 +1389,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, true);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1396,7 +1404,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, true);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1580,8 +1588,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+ 	return ret;
+ }
+ 
++	/* I2C_M_STOP is the controller's native behaviour; don't reject it. */
+ #define I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS \
+-	(I2C_M_IGNORE_NAK | I2C_M_NO_RD_ACK | I2C_M_STOP)
++	I2C_M_NO_RD_ACK
+ 
+ static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
+ {
+@@ -1675,6 +1684,10 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+ 		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
+ 			msgs[i].flags & I2C_M_DMA_SAFE &&
+ 			!(msgs[i].flags & I2C_M_NOSTART);
++
++		/* A NAK'd byte may not generate a further DMA request. */
++		if (msgs[i].flags & I2C_M_IGNORE_NAK)
++			use_dma = false;
+ 		if (msgs[i].flags & I2C_M_RD) {
+ 			int block_data = msgs->flags & I2C_M_RECV_LEN;
+ 
+
+base-commit: 04e9bf1648f846976b543e91c1838a712433772a
+prerequisite-patch-id: 24876ef6d4dc440b8d8080e65d369b2b37709b0b
 -- 
-2.39.2
+2.34.1
 
