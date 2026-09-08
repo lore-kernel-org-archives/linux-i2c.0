@@ -1,533 +1,162 @@
-Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
+Received: from MRWPR03CU001.outbound.protection.outlook.com (mail-francesouthazon11011036.outbound.protection.outlook.com [40.107.130.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E23953D0D0;
-	Tue,  8 Sep 2026 12:42:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788871356; cv=none; b=R1ARIa355f4JLNpiamuWVf1EaSZ+WeIKZMhEsxM1SJsKhVMyvHjCDmMO1FTYklbDEZFREgtf+XbpSbaqrsXzl4A1ZvOZZChFtXgNdmFWIEZQFEQe7GtirOGZgg1bggigORbYPTCv7VtOLLB1rCmTMFuGV6CjIcSFvkDFmZDuYNw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788871356; c=relaxed/simple;
-	bh=mG6VMgXewG0BSEDj8aWtQhIGRmlfqNWnj5PMzCHkxCU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=s9HoSK9RDt05X1hZa33B9Vv15PtWLVveAaUbLaM19wfx0Qzxi01jCCq/YwtW5qW0erKdVP0Q9ZRnaIIK0xcfV3SvaFCEXoL3/v3kPnyjJU+2djJNLsVtDBoTJNjh+xZL38cD/HBv8WMXJXz/wNRQXGJ+Sqp1nOFUdl9gr9twIeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 1BF961A00B5;
-	Tue,  8 Sep 2026 14:32:35 +0200 (CEST)
-Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id BA5181A0044;
-	Tue,  8 Sep 2026 14:32:34 +0200 (CEST)
-Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id EF08818000B5;
-	Tue,  8 Sep 2026 20:32:31 +0800 (+08)
-From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-To: andi.shyti@kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	peda@lysator.liu.se,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: vikash.bansal@nxp.com,
-	priyanka.jain@nxp.com,
-	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Subject: [PATCH 2/2] i2c: mux: Add NXP PCA9641 I2C bus master arbiter driver
-Date: Tue,  8 Sep 2026 18:01:46 +0530
-Message-Id: <20260908123146.1839854-3-shivprakash.gupta@nxp.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260908123146.1839854-1-shivprakash.gupta@nxp.com>
-References: <20260908123146.1839854-1-shivprakash.gupta@nxp.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C6053FD46;
+	Tue,  8 Sep 2026 12:45:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.130.36
+ARC-Seal:i=3; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788871509; cv=fail; b=WpxshpKOsS6p7HFDv7itY5keL76anAW+gcxXF4SDWOv2g2qiE44hFBFipYp/ACehpOxGXGCmjGRphPfU83pdF+bZ9BStQZz5RPMlE+wQ4BpkLlxzBu3NiglfIrTzegqB2VdUe9Fjzdf8wttPh6bEGSw3N0/XDALIMMOAhV17fLY=
+ARC-Message-Signature:i=3; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788871509; c=relaxed/simple;
+	bh=yXZJitd7uTIxgPUMI9k0icr2nrVmtlA0ZYZScachyOI=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=esEuryDiPnwEBLK9VoKjyCmmtwq2haZ2wAWszCHd/tNwhiHp/bBaPNT74GpSswSPlZE5bHWGkk26XRYrYen5P8KsomyNDDo9elLqv3lOw9ES4E9IaUHRY+29IEqeqspmIf9UqG9mvAoD87UgWL4RhcALZfj6/tsaIMOI7ZKvnp0=
+ARC-Authentication-Results:i=3; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=lyGHr5Da; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=lyGHr5Da; arc=fail smtp.client-ip=40.107.130.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="lyGHr5Da";
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="lyGHr5Da"
+ARC-Seal: i=2; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=pass;
+ b=WIU0y2sTT8q83Xb1cmjF93rd3THFdB/HXzcy+9Z48HCDQGiHMgrx3qObCZiK8oDm7ZevzRYBbZ+5d7qvkJw5H6uq9laUHwzxPvqsE2yAivy/9y6C9zvDcAE2uOLC9JXMYyJCYF3xfgYxP//CDDp8e8Eb/pP84X8+n2bGTN9p57yLvDV9IObLureIoPjDZoDJIJXtI4N1xxfTj4Eln+SbJhaX/+h97xWUDmS6+wa9gZTRTayyK8NkDOziSqvWZ62SkNAxXDTttTvaTwLmhwM+lEFjOWmFPaXQNDcLVjFZGwi3Te/3kPGM8wied4VmVXjk9vUnaY+h04V8QEVYbollBg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yXZJitd7uTIxgPUMI9k0icr2nrVmtlA0ZYZScachyOI=;
+ b=ZKfZ+p1PtVJZQ7CvMULYyqfEbJF3Yjtdb3a/tnzf0p5Bk0EO655HjcFF+h94XlZH/xkKeE6/d6bx8T1CheCxDhBtxMwgqxJkeAtP2RSYbf9gecGcPkg7hR5xQOh2B0p3YkAeql4o+UcAvKxGA6KHGWOrTDSelznARC7ewplSHsxOM8qvwMrLL0NdkcMHE9EjhB6NuTMp6zMGzugwaBpBSVauL2Il9st4jqu1wQpNpC1FGJlllYXwQq5Lq99hYrGbG/UmWRFHyHtS4kfElfBSmV3eQd464trZMMTBvNZT8TyL/9bo6ER3a0QBC4TNgAHv/8V8uQs45KW1LgJsGIfU2g==
+ARC-Authentication-Results: i=2; mx.microsoft.com 1; spf=pass (sender ip is
+ 4.158.2.129) smtp.rcpttodomain=starfivetech.com smtp.mailfrom=arm.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=arm.com;
+ dkim=pass (signature was verified) header.d=arm.com; arc=pass (0 oda=1 ltdi=1
+ spf=[1,1,smtp.mailfrom=arm.com] dkim=[1,1,header.d=arm.com]
+ dmarc=[1,1,header.from=arm.com])
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arm.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yXZJitd7uTIxgPUMI9k0icr2nrVmtlA0ZYZScachyOI=;
+ b=lyGHr5DamWGRxHy0HHocjIw4YKlRAH4R0Nmhc8iY0YTOVjOQQVkcBIpEAtM9WGO0ow8/Jt4Rq1Friee3w2CLHFYRCociO7k9VAc235m0oht6gVrIAlI3hzj0jtvp8saFY0osPMzFFHJz3/blbxt2pyT8AjzEr5ULcNSZbMUnUhk=
+Received: from AS4P250CA0020.EURP250.PROD.OUTLOOK.COM (2603:10a6:20b:5e3::9)
+ by DU2PR08MB10160.eurprd08.prod.outlook.com (2603:10a6:10:496::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.6; Tue, 8 Sep 2026
+ 12:45:02 +0000
+Received: from CPH1EPF00000525.eurprd05.prod.outlook.com
+ (2603:10a6:20b:5e3:cafe::a1) by AS4P250CA0020.outlook.office365.com
+ (2603:10a6:20b:5e3::9) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.406.7 via Frontend Transport; Tue, 8
+ Sep 2026 12:45:02 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 4.158.2.129)
+ smtp.mailfrom=arm.com; dkim=pass (signature was verified)
+ header.d=arm.com;dmarc=pass action=none header.from=arm.com;
+Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
+ 4.158.2.129 as permitted sender) receiver=protection.outlook.com;
+ client-ip=4.158.2.129; helo=outbound-uk1.az.dlp.m.darktrace.com; pr=C
+Received: from outbound-uk1.az.dlp.m.darktrace.com (4.158.2.129) by
+ CPH1EPF00000525.mail.protection.outlook.com (10.167.241.136) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.21.406.5
+ via Frontend Transport; Tue, 8 Sep 2026 12:45:00 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rbBJ6vRezWM6RqeSTA8VlB8QacVWaTbBGkCveKvl5lX2ZpWeS/utmfc7vop1MDs3qjOtPR6EqlYO4vb+t4QDRlVfQVQpemkZHk/tcKpqgdC833E3zvJivq1pFlK8tWnWbTxhVPRIA6oNV4mWYo0FMqf6XPTbWkDWvrBtMKNZ1IMSbrbYzP/UXJra1bUHU/vCCdvZV1ifYxYvwjI/b33ajI1Ifb2t6WMUQ6msF+yVhEq860rgD3OCn1AAMNLy72JZERBvzDkqZM2alYlGMF+LPqKU26XonN2LIpbHtbtFqjU49P0ineJBGOccsGwUdJms/lQIcxggHsKbsnanWSQuiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yXZJitd7uTIxgPUMI9k0icr2nrVmtlA0ZYZScachyOI=;
+ b=UnuH8dCRtFbStl8Pm5w8eECxb4Ly1iSNa5mNKrHN//zMhHRs6m/qB2npeeftoYl2cFpErAJ3hLFB9A5CkxslMXNguYajbNRdieKytpEqnt0E02dXAAbBBrhaaEXCqyTYlWWrXtMaOT0rlL7GZVDTBbIMgkVW0Kj4FdxK+AA3Jk9dq3VMTDAEVNgTFoFiIT3j2qJsrMa/3UF9o01uxr6vvtXBQ1ni2gj+pgLhiBPaqjiyF1w6BDVMuN8ahCxyzUEHLAlKjv2Ntim3haFoD3XYA3sQk0Bo/4gCInhffVxS9Q2Vrqj3M2i017tiuYSICSpoNQPuRSUQhE7faniJSRjyJQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
+ header.d=arm.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arm.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yXZJitd7uTIxgPUMI9k0icr2nrVmtlA0ZYZScachyOI=;
+ b=lyGHr5DamWGRxHy0HHocjIw4YKlRAH4R0Nmhc8iY0YTOVjOQQVkcBIpEAtM9WGO0ow8/Jt4Rq1Friee3w2CLHFYRCociO7k9VAc235m0oht6gVrIAlI3hzj0jtvp8saFY0osPMzFFHJz3/blbxt2pyT8AjzEr5ULcNSZbMUnUhk=
+Received: from AMBPR08MB11569.eurprd08.prod.outlook.com
+ (2603:10a6:20b:6f1::18) by BR2PR08MB999862.eurprd08.prod.outlook.com
+ (2603:10a6:2c8:9::16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.7; Tue, 8 Sep 2026
+ 12:44:27 +0000
+Received: from AMBPR08MB11569.eurprd08.prod.outlook.com
+ ([fe80::5f1c:3cee:d582:fdd4]) by AMBPR08MB11569.eurprd08.prod.outlook.com
+ ([fe80::5f1c:3cee:d582:fdd4%5]) with mapi id 15.21.0406.005; Tue, 8 Sep 2026
+ 12:44:27 +0000
+From: Ritwick Sharma <Ritwick.Sharma@arm.com>
+To: "lianfeng.ouyang@starfivetech.com" <lianfeng.ouyang@starfivetech.com>
+CC: "andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+	"andriy.shevchenko@intel.com" <andriy.shevchenko@intel.com>,
+	"conor+dt@kernel.org" <conor+dt@kernel.org>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "krzk+dt@kernel.org" <krzk+dt@kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"mika.westerberg@intel.com" <mika.westerberg@intel.com>, "robh@kernel.org"
+	<robh@kernel.org>
+Subject: Re: [PATCH v2 0/3] i2c: Add Starfive JHB100 I2C master/slave support
+Thread-Topic: Re: [PATCH v2 0/3] i2c: Add Starfive JHB100 I2C master/slave
+ support
+Thread-Index: Ad0/ipf1+jw87FKjTrCUGaA5OTV97A==
+Date: Tue, 8 Sep 2026 12:44:27 +0000
+Message-ID:
+ <AMBPR08MB11569B5AB70EBB53C3165BB3198B12@AMBPR08MB11569.eurprd08.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Authentication-Results-Original: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=arm.com;
+x-ms-traffictypediagnostic:
+	AMBPR08MB11569:EE_|BR2PR08MB999862:EE_|CPH1EPF00000525:EE_|DU2PR08MB10160:EE_
+X-MS-Office365-Filtering-Correlation-Id: c1a70762-10fa-424b-bb09-08df0da6ff3f
+x-checkrecipientrouted: true
+nodisclaimer: true
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam-Untrusted:
+ BCL:0;ARA:13230040|376014|7416014|366016|23010399003|1800799024|38070700021|10067099003|11063799006|56012099006|18002099003;
+X-Microsoft-Antispam-Message-Info-Original:
+ kGC9yF4e164vnwoz/4NVZsFJr7stYhpi0KM8FTmKWydjt7gyKmQh1xv33AzRuwlCkiUNKMPzBFPTg2A5CEUoVmpqoWggaeAzsVZvFpvj4krOnHijEvVim0hLLTjUvmVyK1aN99N4qBYUFuChJhhGjklyEW1maXrZzN1sjDWi9f488Gtsh3qxe56LVLILhuRtsKGjBgpx0GYBt1LLezfZAeWNCu8Z37Rsv2V5K1fgHZ6dHAj1TQyaPol5EWjabBfDoz4i7AyKz3qAul2FKvyeQHE8aftv+Gje75V+4lpQrP53NPeiBki5T4fpFd3q5R1+PkQXyjRqlXEcXWIWYvQAJjexUBvi1cCV8rJj1ZyYXED6uU8acQbqM/f2Wac8MZUFuKevnDwCtBQ+SOk93dVayZfPIZv/8+scJbfYTLS/Z6fOoHYcXrCWI2zL3ZTgDIiVuWVDRdzbO2Abg/hZfmB0z0O/yTYHU1cZaDDZ7q7gIepI3Ng+S9lrvhFHyeX8ihWksUUzhU2dSjZmkN7qenYN91Few4lXdBv7Zu3r7FqkC/rC+a+0atk0FvmO1i6JjkhpOx++IxX80D7adR4O4C14OIC5pIgggM80BmvzqqGgSY9kMkyUKKApcySJq6jTPbOVNawFUk4MeumCa1sDvZT87hBSgYT9BSW0Gf4MAeUhtmE6iDkmbw/4UB+Fue/XF5sBPWXW55Bq6nUSzFslJ7BTb71Migi7wn2Qs687jHusRq4=
+X-Forefront-Antispam-Report-Untrusted:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AMBPR08MB11569.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(23010399003)(1800799024)(38070700021)(10067099003)(11063799006)(56012099006)(18002099003);DIR:OUT;SFP:1101;
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+X-Exchange-RoutingPolicyChecked:
+ lJHa8gN9nlrSM+ffMC5u/dcesyNjiOvy1M0ZVB20g06cfHFiysYA7N7zNowCmBvF/yQE7Hu2aVRcsaG3qaeo3KjcuKATheSwAGr0t2+dBvjQI06YSKTjBUA5X2vskiNJXrsL0kLGp7+7uSXD7991kLrPChrImtAYJIz5GlAJJjhWe+KRQDEBKG92BKNaejZcaAg4gGzvCo96snX+UjPCHdj1z97KTPtkrToZRiwWqYhij3kIgJe7dvppRSK+Wpp1/Q3iLrE/dSm8QZqtKtbnhikoNj9IIXeiRYOJVKMF7bdLdxtfY6ldY1rYQ6HsVTeNCc7x6lS0oAqsLxqk+J/7Pw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BR2PR08MB999862
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Transport-CrossTenantHeadersStripped:
+ CPH1EPF00000525.eurprd05.prod.outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id-Prvs:
+	608e85ec-c819-4e45-a18c-08df0da6eb7b
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|82310400026|36860700016|7416014|376014|14060799003|23010399003|35042699022|10067099003|11063799006|56012099006|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	tkr0/umZJbun09AFYgtRqvrrauME8xVfVkwWH3w3e+1hVInRKZHmMixLgWf5DYKyeabr07JTDtN3aNJNd1/STIhqM1nY65Thd2QxY5+jA6abj065GvAT+c5a8bVqFXIFmKu1NleBjHlP5z1TqLOhD0/3UpGDpKExu/Oa2LgqS+h6AUILWKy4Ud+1rMaqsRF2sRipoOUxoeLA8o5IJpbmhPILjxPcLOBYoPOzsQSjzJPAfFqrwnvCFTFRrldqL1Lkos86vFGURbAi54VBf5ylS339bJIA3/REo5msOfUIGh7WyOCck9c6SBBpFMCyM3M2TQkVkKZH6nWTF3HqejM6mT8CcAH2z8HNJtXgWZR4enh7QELDsH2Y2KuGCamz7XaESVt0Cyz9VaC0yYyIoALCfSai2o7R9u04fOW+TdkWokIrZIt8j20apW7bdMmrdseZ24MwBc+wAp8KHY7vesfgCZpju1IeAap0sqObdx/ebZ7wSCKOcCD6USSwFUOH8dekuT+ClgBNy4DydnGPJWUSkB/g4bVqT11hQ9ow3F8osWifvUMu/4jBOIORcyzXvvYQzokbhO2P7zDnrQU0inTrMPprqIdvssVcpaTMqsCKPa4Nbv7GNflcIlQjYlkz42xNT6RcNhWwfcZyfHotzK4Ox39i0Q7LkITVp3sm4qPLTTf/58nxvz7fkBu5QyUckYeUDgWzqqcz0XR0TmwyFfBeJA==
+X-Forefront-Antispam-Report:
+	CIP:4.158.2.129;CTRY:GB;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:outbound-uk1.az.dlp.m.darktrace.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700016)(7416014)(376014)(14060799003)(23010399003)(35042699022)(10067099003)(11063799006)(56012099006)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	9R3wZv80Hiy/xrqs16wsp96FOAuVU2BU143w6cEM4bInYyVqlmpXT/DWvtEUwjn5NKF7VSql9Vsg0dLddB4cnF7VOMEHeI85R4zMnoVlDVD+ZRl6eZ1B6XxWF7Il9QHC2RVBqf1GJo9/QEfl3pGGr+c4TLuUYjL6Yf4k0NXaD8Cebwi+8J7CLMZaLjDgUUWNMFU/gBIxpSjOTfHmVCv8N+S9G4GdbQi7Nl7619lV0dwGXcyAX7r7Ji38Q0JFaiVVgglaln41GfBePtYX/tIzqtXyeLJMfcRGZUwgCmRqbxpFDcp0uINQrRTYiDLlEDJEDYBUqIWQYOnjvhI5W/zyTRbic82j6COSfhoE3WYrbj7aUf0usThHpb4DaGvQ59DBsL+AQ1qkietQ/Lh/HjfcE91iLz+M7yYTC3MQv9T/ILhPaik7IQMExYP1IjsmHu35
+X-OriginatorOrg: arm.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2026 12:45:00.6672
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c1a70762-10fa-424b-bb09-08df0da6ff3f
+X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[4.158.2.129];Helo=[outbound-uk1.az.dlp.m.darktrace.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CPH1EPF00000525.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU2PR08MB10160
 
-Add a driver for the NXP PCA9641 2-to-1 I2C bus master arbiter.
+On Mon, Jun 08, 2026 at 09:48 AM, Lianfeng Ouyang wrote:
+> Thank you for your idea. I will modify my code in this direction.
 
-The PCA9641 allows two upstream I2C masters to share a single downstream
-slave bus using a lock/grant protocol: a master asserts LOCK_REQ, waits
-for LOCK_GRANT, sets BUS_CONNECT to open the switch, performs transactions,
-then clears LOCK_REQ to release the bus.
+Hi Lianfeng,
 
-The driver supports interrupt-assisted arbitration when INT0/INT1 is
-connected to a GPIO. A threaded IRQ handler signals a completion variable
-that select_chan() waits on, avoiding busy-polling. Polling mode is used
-when no interrupt is configured.
+I wanted to check if there has been any progress on this patch series,
+or if you have a timeline for posting a v3 with the proposed refactoring.
 
-Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
----
- MAINTAINERS                         |   7 +
- drivers/i2c/muxes/Kconfig           |  15 ++
- drivers/i2c/muxes/Makefile          |   1 +
- drivers/i2c/muxes/i2c-mux-pca9641.c | 395 ++++++++++++++++++++++++++++
- 4 files changed, 418 insertions(+)
- create mode 100644 drivers/i2c/muxes/i2c-mux-pca9641.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 6215fcb07770..2b02090edc9e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12250,6 +12250,13 @@ S:	Maintained
- F:	Documentation/i2c/busses/i2c-nvidia-gpu.rst
- F:	drivers/i2c/busses/i2c-nvidia-gpu.c
- 
-+NXP PCA9641 I2C BUS MASTER ARBITER DRIVER
-+M:	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/nxp,pca9641.yaml
-+F:	drivers/i2c/muxes/i2c-mux-pca9641.c
-+
- I2C MUXES
- M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-i2c@vger.kernel.org
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 6d2f66810cdc..0caff9592466 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -64,6 +64,21 @@ config I2C_MUX_PCA9541
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-pca9541.
- 
-+config I2C_MUX_PCA9641
-+	tristate "NXP PCA9641 I2C Master Arbiter"
-+	help
-+	  If you say yes here you get support for the NXP PCA9641
-+	  2-to-1 I2C bus master arbiter.
-+
-+	  The PCA9641 arbitrates between two upstream I2C masters competing
-+	  for a single downstream slave bus. It implements a lock/grant
-+	  ownership model with an optional reserve time window, hardware
-+	  interrupt outputs (INT0/INT1), and a 16-bit shared mailbox for
-+	  inter-master communication.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-mux-pca9641.
-+
- config I2C_MUX_PCA954x
- 	tristate "NXP PCA954x/PCA984x and Maxim MAX735x/MAX736x I2C Mux/switches"
- 	depends on GPIOLIB || COMPILE_TEST
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 4b24f49515a7..a50df4013224 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -12,6 +12,7 @@ obj-$(CONFIG_I2C_MUX_LTC4306)	+= i2c-mux-ltc4306.o
- obj-$(CONFIG_I2C_MUX_MLXCPLD)	+= i2c-mux-mlxcpld.o
- obj-$(CONFIG_I2C_MUX_MULE)	+= i2c-mux-mule.o
- obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
-+obj-$(CONFIG_I2C_MUX_PCA9641)	+= i2c-mux-pca9641.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
- obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
-diff --git a/drivers/i2c/muxes/i2c-mux-pca9641.c b/drivers/i2c/muxes/i2c-mux-pca9641.c
-new file mode 100644
-index 000000000000..c12aa88dcf56
---- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-pca9641.c
-@@ -0,0 +1,395 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * I2C multiplexer driver for PCA9641 2-to-1 I2C bus master arbiter
-+ *
-+ * Copyright (C) 2026 Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-+ *
-+ * Based on i2c-mux-pca9541.c by Guenter Roeck <linux@roeck-us.net>
-+ *
-+ * Datasheet: https://www.nxp.com/docs/en/data-sheet/PCA9641.pdf
-+ */
-+
-+#include <linux/bitops.h>
-+#include <linux/completion.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/interrupt.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+
-+/* Register addresses, selected via the 3 LSBs of the command code byte */
-+#define PCA9641_ID          0x00  /* Device ID register (R only, value 0x38) */
-+#define PCA9641_CONTR       0x01  /* Control register (R/W) */
-+#define PCA9641_STATUS      0x02  /* Status register (R/W) */
-+#define PCA9641_RT          0x03  /* Reserve Time register (R/W) */
-+#define PCA9641_INT_STATUS  0x04  /* Interrupt Status register (R/W, sticky) */
-+#define PCA9641_INT_MSK     0x05  /* Interrupt Mask register (R/W) */
-+#define PCA9641_MB_LO       0x06  /* Mailbox low byte (R/W) */
-+#define PCA9641_MB_HI       0x07  /* Mailbox high byte (R/W) */
-+
-+/* CONTR register (0x01) bit definitions */
-+#define PCA9641_CTL_LOCK_REQ        BIT(0)  /* Request downstream bus ownership */
-+#define PCA9641_CTL_LOCK_GRANT      BIT(1)  /* Downstream bus granted (R only) */
-+#define PCA9641_CTL_BUS_CONNECT     BIT(2)  /* Connect master to downstream bus */
-+#define PCA9641_CTL_BUS_INIT        BIT(3)  /* Trigger bus init/recovery (9 clocks) */
-+#define PCA9641_CTL_SMBUS_SWRST     BIT(4)  /* Assert SCL LOW 35 ms after soft reset */
-+#define PCA9641_CTL_IDLE_TIMER_DIS  BIT(5)  /* Disconnect after 100 ms bus idle */
-+#define PCA9641_CTL_SMBUS_DIS       BIT(6)  /* Disconnect on SMBus timeout detection */
-+#define PCA9641_CTL_PRIORITY        BIT(7)  /* Tie-break priority when both request */
-+
-+/* STATUS register (0x02) bit definitions (datasheet Section 8.3) */
-+#define PCA9641_STA_OTHER_LOCK      BIT(0)  /* Other master currently holds the lock (R only) */
-+#define PCA9641_STA_SCL_IO          BIT(6)  /* Manual SCL I/O (LOCK_GRANT=1, BUS_CONNECT=0) */
-+#define PCA9641_STA_SDA_IO          BIT(7)  /* Manual SDA I/O (LOCK_GRANT=1, BUS_CONNECT=0) */
-+
-+/* INT_STATUS register (0x04) bit definitions (sticky, clear by writing 1) */
-+#define PCA9641_INTS_INT_IN         BIT(0)  /* Interrupt received on INT_IN pin */
-+#define PCA9641_INTS_BUS_LOST       BIT(1)  /* This master involuntarily lost the bus */
-+#define PCA9641_INTS_LOCK_GRANT     BIT(2)  /* This master was granted the bus */
-+#define PCA9641_INTS_TEST_INT       BIT(3)  /* Self-test interrupt triggered */
-+#define PCA9641_INTS_MBOX_EMPTY     BIT(4)  /* Sent mailbox data was read by other master */
-+#define PCA9641_INTS_MBOX_FULL      BIT(5)  /* New mailbox data received from other master */
-+#define PCA9641_INTS_BUS_HUNG       BIT(6)  /* Bus hung condition detected */
-+
-+/* INT_MSK register (0x05) bit definitions (1 = masked/disabled, POR = 0x7F) */
-+#define PCA9641_MSK_INT_IN          BIT(0)
-+#define PCA9641_MSK_BUS_LOST        BIT(1)
-+#define PCA9641_MSK_LOCK_GRANT      BIT(2)
-+#define PCA9641_MSK_TEST_INT        BIT(3)
-+#define PCA9641_MSK_MBOX_EMPTY      BIT(4)
-+#define PCA9641_MSK_MBOX_FULL       BIT(5)
-+#define PCA9641_MSK_BUS_HUNG        BIT(6)
-+
-+/* POR value of INT_MSK: all interrupt sources masked */
-+#define PCA9641_INT_MSK_ALL         0x7Fu
-+
-+/*
-+ * Interrupt mask value that enables only LOCK_GRANT and BUS_LOST.
-+ * All other sources remain masked (bit = 1 means masked).
-+ */
-+#define PCA9641_INT_MSK_ARB \
-+	(PCA9641_INT_MSK_ALL & ~(PCA9641_MSK_LOCK_GRANT | PCA9641_MSK_BUS_LOST))
-+
-+/* Value in ID register that uniquely identifies PCA9641 (vs. PCA9541) */
-+#define PCA9641_ID_MAGIC            0x38u
-+
-+/* Arbitration retry delays (microseconds) */
-+#define PCA9641_DELAY_SHORT         50u
-+#define PCA9641_DELAY_LONG          1000u
-+
-+/**
-+ * struct pca9641 - per-device driver state
-+ * @client:          I2C client for the arbiter device
-+ * @select_timeout:  Current polling retry delay in microseconds
-+ * @irq:             Linux IRQ number for INT0/INT1 GPIO, or -1 if not used
-+ * @lock_grant_comp: Completion signaled from the IRQ handler on LOCK_GRANT
-+ */
-+struct pca9641 {
-+	struct i2c_client *client;
-+	unsigned long select_timeout;
-+	int irq;
-+	struct completion lock_grant_comp;
-+};
-+
-+static const struct i2c_device_id pca9641_id[] = {
-+	{ "pca9641" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, pca9641_id);
-+
-+static const struct of_device_id pca9641_of_match[] = {
-+	{ .compatible = "nxp,pca9641" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, pca9641_of_match);
-+
-+/*
-+ * Write to chip register. Don't use i2c_transfer()/i2c_smbus_xfer()
-+ * as they will try to lock the adapter a second time.
-+ */
-+static int pca9641_reg_write(struct i2c_client *client, u8 reg, u8 val)
-+{
-+	union i2c_smbus_data data = { .byte = val };
-+
-+	return __i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+				I2C_SMBUS_WRITE, reg,
-+				I2C_SMBUS_BYTE_DATA, &data);
-+}
-+
-+/*
-+ * Read from chip register. Don't use i2c_transfer()/i2c_smbus_xfer()
-+ * as they will try to lock adapter a second time.
-+ */
-+static int pca9641_reg_read(struct i2c_client *client, u8 reg)
-+{
-+	union i2c_smbus_data data;
-+	int ret;
-+
-+	ret = __i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+			       I2C_SMBUS_READ, reg,
-+			       I2C_SMBUS_BYTE_DATA, &data);
-+
-+	return ret ? ret : (int)data.byte;
-+}
-+
-+/* Release bus ownership. */
-+static void pca9641_release_bus(struct i2c_client *client)
-+{
-+	pca9641_reg_write(client, PCA9641_CONTR, 0x00);
-+}
-+
-+/*
-+ * Threaded IRQ handler for INT0/INT1. Signals the completion waited on by
-+ * pca9641_select_chan(). No I2C access here to avoid deadlock on the adapter
-+ * mutex held by select_chan().
-+ */
-+static irqreturn_t pca9641_irq_handler(int irq, void *dev_id)
-+{
-+	struct pca9641 *data = dev_id;
-+
-+	complete(&data->lock_grant_comp);
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Arbitration management. Asserts LOCK_REQ and checks LOCK_GRANT to acquire
-+ * the downstream bus. Returns 1 when acquired, 0 to retry, <0 on error.
-+ */
-+static int pca9641_arbitrate(struct i2c_client *client)
-+{
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+	struct pca9641 *data = i2c_mux_priv(muxc);
-+	int ctrl, status, ret;
-+
-+	ctrl = pca9641_reg_read(client, PCA9641_CONTR);
-+	if (ctrl < 0)
-+		return ctrl;
-+
-+	if (ctrl & PCA9641_CTL_LOCK_GRANT) {
-+		if (!(ctrl & PCA9641_CTL_BUS_CONNECT)) {
-+			ret = pca9641_reg_write(client, PCA9641_CONTR,
-+						(u8)(ctrl | PCA9641_CTL_BUS_CONNECT));
-+			if (ret < 0)
-+				return ret;
-+		}
-+		return 1;
-+	}
-+
-+	if (!(ctrl & PCA9641_CTL_LOCK_REQ)) {
-+		ret = pca9641_reg_write(client, PCA9641_CONTR,
-+					(u8)(ctrl | PCA9641_CTL_LOCK_REQ));
-+		if (ret < 0)
-+			return ret;
-+		data->select_timeout = PCA9641_DELAY_SHORT;
-+		return 0;
-+	}
-+
-+	status = pca9641_reg_read(client, PCA9641_STATUS);
-+	if (status < 0)
-+		return status;
-+
-+	data->select_timeout = (status & PCA9641_STA_OTHER_LOCK) ?
-+				PCA9641_DELAY_LONG : PCA9641_DELAY_SHORT;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Acquire the downstream bus before a transaction. Uses interrupt mode
-+ * if IRQ is available, polling otherwise.
-+ */
-+static int pca9641_select_chan(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct pca9641 *data = i2c_mux_priv(muxc);
-+	struct i2c_client *client = data->client;
-+	unsigned long timeout = jiffies + 2 * client->adapter->timeout;
-+	int ctrl, ret;
-+
-+	if (data->irq > 0) {
-+		reinit_completion(&data->lock_grant_comp);
-+
-+		ctrl = pca9641_reg_read(client, PCA9641_CONTR);
-+		if (ctrl < 0)
-+			return ctrl;
-+
-+		if (ctrl & PCA9641_CTL_LOCK_GRANT)
-+			goto set_bus_connect;
-+
-+		ret = pca9641_reg_write(client, PCA9641_CONTR,
-+					(u8)((ctrl & ~PCA9641_CTL_BUS_CONNECT) |
-+					     PCA9641_CTL_LOCK_REQ));
-+		if (ret < 0)
-+			return ret;
-+
-+		if (!wait_for_completion_timeout(&data->lock_grant_comp,
-+						 client->adapter->timeout)) {
-+			ctrl = pca9641_reg_read(client, PCA9641_CONTR);
-+			if (ctrl < 0)
-+				return ctrl;
-+			if (!(ctrl & PCA9641_CTL_LOCK_GRANT)) {
-+				dev_warn(&client->dev,
-+					 "Timed out waiting for bus grant\n");
-+				return -ETIMEDOUT;
-+			}
-+			goto set_bus_connect;
-+		}
-+
-+		ctrl = pca9641_reg_read(client, PCA9641_CONTR);
-+		if (ctrl < 0)
-+			return ctrl;
-+
-+		if (!(ctrl & PCA9641_CTL_LOCK_GRANT)) {
-+			dev_warn(&client->dev,
-+				 "Interrupt fired but LOCK_GRANT not set\n");
-+			return -ETIMEDOUT;
-+		}
-+
-+set_bus_connect:
-+		(void)pca9641_reg_write(client, PCA9641_INT_STATUS,
-+					PCA9641_INTS_LOCK_GRANT | PCA9641_INTS_BUS_LOST);
-+
-+		if (!(ctrl & PCA9641_CTL_BUS_CONNECT)) {
-+			ret = pca9641_reg_write(client, PCA9641_CONTR,
-+						(u8)(ctrl | PCA9641_CTL_BUS_CONNECT));
-+			if (ret < 0)
-+				return ret;
-+		}
-+		return 0;
-+	}
-+
-+	do {
-+		ret = pca9641_arbitrate(client);
-+		if (ret)
-+			return ret < 0 ? ret : 0;
-+
-+		if (data->select_timeout <= PCA9641_DELAY_SHORT)
-+			udelay(data->select_timeout);
-+		else
-+			msleep(data->select_timeout / 1000);
-+	} while (time_is_after_eq_jiffies(timeout));
-+
-+	dev_warn(&client->dev, "Failed to acquire I2C bus, timed out\n");
-+	return -ETIMEDOUT;
-+}
-+
-+/* Release the downstream bus after a transaction completes. */
-+static int pca9641_release_chan(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct pca9641 *data = i2c_mux_priv(muxc);
-+
-+	pca9641_release_bus(data->client);
-+	return 0;
-+}
-+
-+static int pca9641_probe(struct i2c_client *client)
-+{
-+	struct i2c_adapter *adap = client->adapter;
-+	struct i2c_mux_core *muxc;
-+	struct pca9641 *data;
-+	int id, ret;
-+
-+	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
-+		return -ENODEV;
-+
-+	id = i2c_smbus_read_byte_data(client, PCA9641_ID);
-+	if (id < 0) {
-+		dev_err(&client->dev, "Failed to read device ID: %d\n", id);
-+		return id;
-+	}
-+	if ((u8)id != PCA9641_ID_MAGIC) {
-+		dev_err(&client->dev,
-+			"Unexpected device ID 0x%02x (expected 0x%02x for PCA9641)\n",
-+			(u8)id, PCA9641_ID_MAGIC);
-+		return -ENODEV;
-+	}
-+
-+	/* Clear any stale bus ownership from a previous crash. */
-+	i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
-+	pca9641_release_bus(client);
-+	i2c_unlock_bus(adap, I2C_LOCK_SEGMENT);
-+
-+	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data),
-+			     I2C_MUX_ARBITRATOR,
-+			     pca9641_select_chan, pca9641_release_chan);
-+	if (!muxc)
-+		return -ENOMEM;
-+
-+	data = i2c_mux_priv(muxc);
-+	data->client = client;
-+	data->irq = -1;
-+	init_completion(&data->lock_grant_comp);
-+
-+	i2c_set_clientdata(client, muxc);
-+
-+	/* Optional interrupt mode; fall back to polling on failure. */
-+	if (client->irq > 0) {
-+		ret = i2c_smbus_write_byte_data(client, PCA9641_INT_MSK,
-+						PCA9641_INT_MSK_ARB);
-+		if (ret < 0) {
-+			dev_warn(&client->dev,
-+				 "Failed to set interrupt mask (%d); using polling\n",
-+				 ret);
-+			goto add_adapter;
-+		}
-+
-+		ret = devm_request_threaded_irq(&client->dev, client->irq,
-+						NULL, pca9641_irq_handler,
-+						IRQF_ONESHOT | IRQF_SHARED,
-+						dev_name(&client->dev), data);
-+		if (ret < 0) {
-+			dev_warn(&client->dev,
-+				 "Failed to request IRQ %d (%d); using polling\n",
-+				 client->irq, ret);
-+			i2c_smbus_write_byte_data(client, PCA9641_INT_MSK,
-+						  PCA9641_INT_MSK_ALL);
-+		} else {
-+			data->irq = client->irq;
-+			dev_dbg(&client->dev,
-+				"Interrupt mode enabled on IRQ %d\n",
-+				client->irq);
-+		}
-+	}
-+
-+add_adapter:
-+	ret = i2c_mux_add_adapter(muxc, 0, 0);
-+	if (ret)
-+		return ret;
-+
-+	dev_info(&client->dev,
-+		 "PCA9641 I2C master arbiter registered (I2C bus %s, %s mode)\n",
-+		 client->name,
-+		 data->irq > 0 ? "interrupt" : "polling");
-+
-+	return 0;
-+}
-+
-+static void pca9641_remove(struct i2c_client *client)
-+{
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+	struct pca9641 *data = i2c_mux_priv(muxc);
-+
-+	if (data->irq > 0)
-+		(void)i2c_smbus_write_byte_data(client, PCA9641_INT_MSK,
-+						PCA9641_INT_MSK_ALL);
-+
-+	i2c_mux_del_adapters(muxc);
-+}
-+
-+static struct i2c_driver pca9641_driver = {
-+	.driver = {
-+		.name		= "pca9641",
-+		.of_match_table	= pca9641_of_match,
-+	},
-+	.probe		= pca9641_probe,
-+	.remove		= pca9641_remove,
-+	.id_table	= pca9641_id,
-+};
-+
-+module_i2c_driver(pca9641_driver);
-+
-+MODULE_AUTHOR("Shiv Prakash Gupta <shivprakash.gupta@nxp.com>");
-+MODULE_DESCRIPTION("PCA9641 2-to-1 I2C bus master arbiter driver");
-+MODULE_LICENSE("GPL");
--- 
-2.34.1
-
+Thanks,
+Ritwick
