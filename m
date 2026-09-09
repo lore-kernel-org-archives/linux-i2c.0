@@ -1,278 +1,111 @@
-Received: from canpmsgout08.his.huawei.com (canpmsgout08.his.huawei.com [113.46.200.223])
+Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1E70283FE5;
-	Wed,  9 Sep 2026 02:40:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.223
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7A34361DBA;
+	Wed,  9 Sep 2026 05:25:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788921607; cv=none; b=dQAoY6+UUl/YUVh+MaP1xqWUlcEGEENyEgALygl/TaMPJOqNxrif20lBS6pknKHlRynhhiDEldODR/io24rPiwgnPbQrWE7X16SSg/rRfe/4DkLC6Ge9vG+Gmz1xwA/zY1zAWdyBNNfnWLoV1hB9BBrUM49ON6KKnYKNisXF5WI=
+	t=1788931555; cv=none; b=EyYi6fMYSlIfH5uxTzbDD6zNUj9Z7quHg/MZ1oeowmVU7F/WdXyhogWwjcvCjt1Lk8awtC8iNDCWc05E6h1ZTj7YLJJx0N9CYO2fZ3Ne1e6teDNlZtAHBvpwlrXDfaEs4OUoIIrz5NYkHmeleMbyCTAzSsqTRSLT65IszhfSoR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788921607; c=relaxed/simple;
-	bh=U1W1iAGyFVqEqqenpXfU2Evdnv8C6GE9aWa6+2wG4Hs=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YlP8vA0d4urLauNGqv9XtgpDGp7gNPE2UWHMXFv2ApV428MK+C5SHDnXb+NKQiRMn9UzdUVLRwDkPvBH6C6FE2er02fjkdxzSbt2EXFW3MiwwV27T5GIsK2FHdcKW4qVY3Zcg/7xA5TB+vKhUhtoWwczSp+ENtZkmm8NGwTBVUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=ocd2l2mG; arc=none smtp.client-ip=113.46.200.223
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1788931555; c=relaxed/simple;
+	bh=TBSjd0wHBttYMB73JiVfFTcNAzvAyF40gt/CVFr51bQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i4h47yNMHiKjDKnjZptAGtf+uGl+iOh7fa3xAmxAyfHf+60AQ7F/nzabQy2i5PEgOqpG/8fD3LFD+BEQooDi8GOz3tJuZb15nNgvrWtgkXwmVBC2nzOm1pQxIolssqLbuIA9JvYAgcrrdidgHSaSC1obKYurxSsW4MsgviRl/6c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=IE33cti3; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=IE33cti3; arc=none smtp.client-ip=130.236.254.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="ocd2l2mG"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=ofFS1SAZ+nMEI78DdTXpdGSPdjZc/HDA+UHRyJ6P8SE=;
-	b=ocd2l2mGUp8yjfJ1qJM+mz+jn1D2FGo4qtUSfVzAEI74aQuWrq6ryBnCybz6C1D9ksiVgJbpw
-	+AGJKC4LI4Bu63NFtQIPI7I/Oe2W5pvmYlrTY0997zCVhqdzUS9zkzIXXh+eskD+aNj4vhG+zXr
-	2JUxq2QGDn1Xi5SYB2mZj2E=
-Received: from mail.maildlp.com (unknown [172.19.163.127])
-	by canpmsgout08.his.huawei.com (SkyGuard) with ESMTPS id 4hfl9s1JJRzmV8g;
-	Wed,  9 Sep 2026 10:29:05 +0800 (CST)
-Received: from kwepemo100017.china.huawei.com (unknown [7.202.195.215])
-	by mail.maildlp.com (Postfix) with ESMTPS id 82CD6402AB;
-	Wed,  9 Sep 2026 10:39:59 +0800 (CST)
-Received: from localhost.localdomain (10.50.163.32) by
- kwepemo100017.china.huawei.com (7.202.195.215) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.36; Wed, 9 Sep 2026 10:39:58 +0800
-From: Bowen Yu <yubowen8@huawei.com>
-To: <linuxarm@huawei.com>, <liudingyuan@h-partners.com>,
-	<andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-CC: <zhanjie9@hisilicon.com>, <prime.zeng@hisilicon.com>,
-	<wanghuiqiang@huawei.com>, <xuwei5@huawei.com>, <yubowen8@huawei.com>,
-	<zhangpengjie2@huawei.com>
-Subject: [PATCH v3] i2c: hisi: Add I2C bus recovery support
-Date: Wed, 9 Sep 2026 10:39:58 +0800
-Message-ID: <20260909023958.4190890-1-yubowen8@huawei.com>
-X-Mailer: git-send-email 2.33.0
+	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="IE33cti3";
+	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="IE33cti3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
+	s=2026; t=1788931540;
+	bh=TBSjd0wHBttYMB73JiVfFTcNAzvAyF40gt/CVFr51bQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=IE33cti3TPZUSWoD9ir4u8uMBs5ntrvqHwpU94eORjuIRa6vN4MFFMqH8FGEytXlo
+	 9swva8XvWcrjKNImhEyeS/6lQGCB3o4EG+SFt73Kin6KtWcJpdtVWTP4KLCoREFeqF
+	 vG/fCoti0X0FVx6GGUoMQa8VWYup5chiRZpRvMhy0Ddkh6L+llkIr4jOGvWDdoer8n
+	 7FJkegfNVsS8oMGtItbFW+Hs1J1REWAv7oxC8zXCWhe7HSfmLeTe2eq+Q+G1wprqgi
+	 Tpg77084L6HBhTrxK4rghFsGF0UUGIL7lsDVfGjxVlmAuvsKvXaOFU25xcq/Cky2df
+	 n3n3yrdABlEuQ==
+Received: from mail.lysator.liu.se (localhost [127.0.0.1])
+	by mail.lysator.liu.se (Postfix) with ESMTP id 1E2F8134E5;
+	Wed,  9 Sep 2026 07:25:40 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
+	s=2026; t=1788931540;
+	bh=TBSjd0wHBttYMB73JiVfFTcNAzvAyF40gt/CVFr51bQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=IE33cti3TPZUSWoD9ir4u8uMBs5ntrvqHwpU94eORjuIRa6vN4MFFMqH8FGEytXlo
+	 9swva8XvWcrjKNImhEyeS/6lQGCB3o4EG+SFt73Kin6KtWcJpdtVWTP4KLCoREFeqF
+	 vG/fCoti0X0FVx6GGUoMQa8VWYup5chiRZpRvMhy0Ddkh6L+llkIr4jOGvWDdoer8n
+	 7FJkegfNVsS8oMGtItbFW+Hs1J1REWAv7oxC8zXCWhe7HSfmLeTe2eq+Q+G1wprqgi
+	 Tpg77084L6HBhTrxK4rghFsGF0UUGIL7lsDVfGjxVlmAuvsKvXaOFU25xcq/Cky2df
+	 n3n3yrdABlEuQ==
+Received: from gryt (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by mail.lysator.liu.se (Postfix) with ESMTPSA id ADD5B13531;
+	Wed,  9 Sep 2026 07:25:39 +0200 (CEST)
+Date: Wed, 9 Sep 2026 07:25:38 +0200
+From: Peter Rosin <peda@lysator.liu.se>
+To: Conor Dooley <conor@kernel.org>
+Cc: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>, andi.shyti@kernel.org,
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com
+Subject: Re: [PATCH 1/2] dt-bindings: i2c: Add NXP PCA9641 I2C bus master
+ arbiter
+Message-ID: <aqDt0uC7FNRmsv9S@gryt>
+References: <20260908123146.1839854-1-shivprakash.gupta@nxp.com>
+ <20260908123146.1839854-2-shivprakash.gupta@nxp.com>
+ <20260908-skirt-makeshift-2050f3bcbb22@spud>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- kwepemo100017.china.huawei.com (7.202.195.215)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260908-skirt-makeshift-2050f3bcbb22@spud>
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-When the I2C bus is stuck due to a slave device holding SDA low
-(e.g. during an incomplete transfer), the master has no way to recover
-the bus through normal operation. Add bus recovery support using the
-subctrl register to manually toggle SCL and generate clock pulses to
-release the bus.
+Den Tue, Sep 08, 2026 at 06:47:01PM +0100, skrev Conor Dooley:
+> On Tue, Sep 08, 2026 at 06:01:45PM +0530, Shiv Prakash Gupta wrote:
+> > Add device tree binding schema for the NXP PCA9641 2-to-1 I2C bus
+> > master arbiter.
+> > 
+> > The PCA9641 arbitrates between two upstream I2C masters competing for a
+> > single downstream slave bus using a lock/grant ownership model. The
+> > binding supports an optional 'interrupts' property for interrupt-assisted
+> > arbitration.
+> > 
+> > Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+> > ---
 
-The recovery is performed via a second register resource (sctrl_base)
-that provides direct control over SCL/SDA lines through mux and
-output-enable bits. After recovery, the I2C controller is reset through
-the ACPI _RST method and reconfigured.
+...
 
-Recovery is only registered when the subctrl resource is provided in
-the firmware description, keeping backward compatibility with existing
-platforms.
+> > +  i2c-arb:
+> > +    type: object
+> > +    $ref: /schemas/i2c/i2c-controller.yaml
+> > +    unevaluatedProperties: false
+> > +    description:
+> > +      I2C bus node representing the downstream slave bus controlled by the
+> > +      PCA9641. Downstream slave devices are declared as child nodes here.
+> 
+> Why does this node need to exist? Can't the i2c-arbiter node itself
+> contain the child devices?
 
-Signed-off-by: Bowen Yu <yubowen8@huawei.com>
----
-v2 -> v3:
-	-Fixed function defined but not used warnings in none ACPI Scenario
----
- drivers/i2c/busses/i2c-hisi.c | 145 ++++++++++++++++++++++++++++++++++
- 1 file changed, 145 insertions(+)
+For symmetry with the pre-existing I2C arbs, which all have the extra
+node for historical implementation reasons? I don't know if that's
+considered a valid reason? I prefer to have all arbs follow the same
+structure...
 
-diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
-index ba5c9579ae19..1c90a50a9138 100644
---- a/drivers/i2c/busses/i2c-hisi.c
-+++ b/drivers/i2c/busses/i2c-hisi.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2021 HiSilicon Technologies Co., Ltd.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/bits.h>
- #include <linux/bitfield.h>
- #include <linux/clk.h>
-@@ -62,6 +63,8 @@
- #define HISI_I2C_INT_CLR		0x0048
- #define HISI_I2C_INT_MASK		0x004C
- #define HISI_I2C_TRANS_STATE		0x0050
-+#define   HISI_I2C_TRANS_STATE_SDA_LEVEL	BIT(5)
-+#define   HISI_I2C_TRANS_STATE_SCL_LEVEL	BIT(6)
- #define HISI_I2C_TRANS_ERR		0x0054
- #define HISI_I2C_VERSION		0x0058
- 
-@@ -86,9 +89,26 @@
- #define NSEC_TO_CYCLES(ns, clk_rate_khz) \
- 	DIV_ROUND_UP_ULL((clk_rate_khz) * (ns), NSEC_PER_MSEC)
- 
-+/*
-+ * SUBCTRL SC_I2C_CTRL register
-+ * Set HISI_I2C_CTRL_DAT_CFG_EN and HISI_I2C_CTRL_SCL_CFG_EN to control
-+ * I2C pin behavior by subctrl controller; use HISI_I2C_CTRL_DAT_OE and
-+ * HISI_I2C_CTRL_CLK_OE to control input or output; use HISI_I2C_CTRL_SDA_OUT
-+ * and HISI_I2C_CTRL_SCL_OUT to control output value.
-+ */
-+#define HISI_I2C_CTRL_DAT_CFG_EN BIT(5)
-+#define HISI_I2C_CTRL_SCL_CFG_EN BIT(4)
-+#define HISI_I2C_CTRL_DAT_OE BIT(3)
-+#define HISI_I2C_CTRL_CLK_OE BIT(2)
-+#define HISI_I2C_CTRL_SDA_OUT BIT(1)
-+#define HISI_I2C_CTRL_SCL_OUT BIT(0)
-+
-+#define HISI_I2C_RECOVERY_REG_SIZE 4
-+
- struct hisi_i2c_controller {
- 	struct i2c_adapter adapter;
- 	void __iomem *iobase;
-+	void __iomem *sctrl_addr;
- 	struct device *dev;
- 	struct clk *clk;
- 	int irq;
-@@ -108,8 +128,14 @@ struct hisi_i2c_controller {
- 	struct i2c_timings t;
- 	u32 clk_rate_khz;
- 	u32 spk_len;
-+
-+	/* Bus recovery */
-+	struct i2c_bus_recovery_info rinfo;
-+	acpi_handle acpi_handle;
- };
- 
-+static void hisi_i2c_configure_bus(struct hisi_i2c_controller *ctlr);
-+
- static void hisi_i2c_enable_int(struct hisi_i2c_controller *ctlr, u32 mask)
- {
- 	writel_relaxed(mask, ctlr->iobase + HISI_I2C_INT_MASK);
-@@ -151,6 +177,121 @@ static void hisi_i2c_handle_errors(struct hisi_i2c_controller *ctlr)
- 	}
- }
- 
-+#ifdef CONFIG_ACPI
-+static int hisi_i2c_recovery_get_scl(struct i2c_adapter *adap)
-+{
-+	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-+	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
-+
-+	return !!(reg & HISI_I2C_TRANS_STATE_SCL_LEVEL);
-+}
-+
-+static int hisi_i2c_recovery_get_sda(struct i2c_adapter *adap)
-+{
-+	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-+	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
-+
-+	return !!(reg & HISI_I2C_TRANS_STATE_SDA_LEVEL);
-+}
-+
-+static void hisi_i2c_recovery_set_scl(struct i2c_adapter *adap, int val)
-+{
-+	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = readl(ctlr->sctrl_addr);
-+	if (val)
-+		reg |= HISI_I2C_CTRL_SCL_OUT;
-+	else
-+		reg &= ~HISI_I2C_CTRL_SCL_OUT;
-+	writel(reg, ctlr->sctrl_addr);
-+}
-+
-+static void hisi_i2c_prepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = readl(ctlr->sctrl_addr);
-+	reg |= HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN |
-+		   HISI_I2C_CTRL_CLK_OE | HISI_I2C_CTRL_SCL_OUT;
-+	reg &= ~HISI_I2C_CTRL_DAT_OE;
-+	writel(reg, ctlr->sctrl_addr);
-+}
-+
-+static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = readl(ctlr->sctrl_addr);
-+	reg &= ~(HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN);
-+	writel(reg, ctlr->sctrl_addr);
-+
-+	/*
-+	 * Invokes the specific ACPI method "_RST" to trigger a soft reset
-+	 * of the I2C controller to help the I2C controller recover from
-+	 * the abnormal state after the bus recovery process.
-+	 */
-+	if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
-+		acpi_status status;
-+
-+		status = acpi_evaluate_object(ctlr->acpi_handle, "_RST", NULL, NULL);
-+		if (ACPI_FAILURE(status))
-+			dev_err(ctlr->dev, "_RST method failed: %s\n",
-+				acpi_format_exception(status));
-+	}
-+	hisi_i2c_configure_bus(ctlr);
-+}
-+
-+static int hisi_i2c_get_bus_recovery_res(struct hisi_i2c_controller *ctlr,
-+					 struct platform_device *pdev)
-+{
-+	struct resource *res0;
-+
-+	res0 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+
-+	if (!res0 || resource_size(res0) != HISI_I2C_RECOVERY_REG_SIZE)
-+		return -ENODEV;
-+
-+	ctlr->sctrl_addr = devm_ioremap_resource(&pdev->dev, res0);
-+	if (IS_ERR(ctlr->sctrl_addr)) {
-+		ctlr->sctrl_addr = NULL;
-+		return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
-+static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr)
-+{
-+	struct platform_device *pdev = to_platform_device(ctlr->dev);
-+	struct i2c_adapter *adapter = &ctlr->adapter;
-+	int ret;
-+
-+	if (acpi_disabled)
-+		return -ENODEV;
-+
-+	ret = hisi_i2c_get_bus_recovery_res(ctlr, pdev);
-+	if (ret)
-+		return ret;
-+
-+	ctlr->rinfo = (struct i2c_bus_recovery_info){
-+		.get_scl = hisi_i2c_recovery_get_scl,
-+		.get_sda = hisi_i2c_recovery_get_sda,
-+		.set_scl = hisi_i2c_recovery_set_scl,
-+		.prepare_recovery = hisi_i2c_prepare_recovery,
-+		.unprepare_recovery = hisi_i2c_unprepare_recovery,
-+		.recover_bus = i2c_generic_scl_recovery,
-+	};
-+	adapter->bus_recovery_info = &ctlr->rinfo;
-+	ctlr->acpi_handle = ACPI_HANDLE(ctlr->dev);
-+	return 0;
-+}
-+#else
-+static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr) { return -ENODEV; }
-+#endif /* CONFIG_ACPI */
-+
- static int hisi_i2c_start_xfer(struct hisi_i2c_controller *ctlr)
- {
- 	struct i2c_msg *msg = ctlr->msgs;
-@@ -504,6 +645,10 @@ static int hisi_i2c_probe(struct platform_device *pdev)
- 	adapter->dev.parent = dev;
- 	i2c_set_adapdata(adapter, ctlr);
- 
-+	ret = hisi_i2c_recovery_init(ctlr);
-+	if (ret)
-+		dev_info(ctlr->dev, "I2C bus recovery not available\n");
-+
- 	ret = devm_i2c_add_adapter(dev, adapter);
- 	if (ret)
- 		return ret;
--- 
-2.33.0
+The "documentation" describing common I2C arbitration details went missing
+here:
 
+https://lore.kernel.org/all/20230731163833.319258-1-krzysztof.kozlowski@linaro.org/
+
+Cheers,
+Peter
