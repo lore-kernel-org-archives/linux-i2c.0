@@ -1,41 +1,42 @@
 Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52CCF408028
-	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 18:49:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA883EDAAE;
+	Fri, 11 Sep 2026 18:49:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789152549; cv=none; b=VuBQjEte7LM7Hdh9Ab/e/+4A0ZiY3RknNGjcXJbHzlLOnJcYssu906kS5h5uqEFmb2TRCvNBEdJ+yM4btK7uwiUGLq1pgLv9O59rRdm5PXBn/MtuQ9aUUyV9U57Yccj+pgIwMldfM+eh3XNyfywJVeW/xtTSb4HpQml8ZQNw/Fg=
+	t=1789152551; cv=none; b=tjk8IEsLhhIboLoYvWaMwid8PXftFQSc+RLl3O6P+mw5yv9IUj9IagUpUL0Gqb8H1gYlEbfjNinUkibMtyjUnZ60A1B6xxZtxfq3Ei7utAGLELH8GH7J0seCaiF/XfEx/7HR6xnksjadaQONrhbrQcz2RRP2w2VYnwnO+8VBa7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789152549; c=relaxed/simple;
-	bh=Sgjm6c6d2RS8g27uXIF3YjTzR8yRr+CmCatF6miYX8c=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=nZqRR4wvp/FX0CeDxrGu5fHorP8gRIK8NDozWV4iyjOztK3kEg2WMG5ON0QAwjYoDsOcxdqQE+53urtjaCk6dtnmNHAedvD4LHTKfuy0zG3K4qtGX1USCSSCr2ijl1i68HN+BlT3PkTp5ZEx4lkAD6jgINK2lVU0MSd8Ee9rH5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Hkcnjfwl; arc=none smtp.client-ip=185.171.202.116
+	s=arc-20240116; t=1789152551; c=relaxed/simple;
+	bh=GNNzSTLbgpHykj/Jyzbjs1Z5IOBldeOKxShjDx3id9g=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=MpmYeDsV5Jmf+PDlK2jXI+/v4BRSKKtBo6Rq0dgOjhWljb7JMSXUSvbJymxzyB5TuHdUXHrqQIzZaGR4yfvP4rhgIRiVToy1T1hNMMu0hq74+0EPxk5/HMZikQcLqg+E7uxQPZ42wf9NoENQclKH2UyGT8M7ps5ihAOJMn0DARU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=aoWfWH9p; arc=none smtp.client-ip=185.171.202.116
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Hkcnjfwl"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="aoWfWH9p"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id CB54AC63A0D;
+	by smtpout-04.galae.net (Postfix) with ESMTPS id EAE2CC63442;
 	Fri, 11 Sep 2026 18:49:45 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id F1F56601A3;
-	Fri, 11 Sep 2026 18:48:54 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id ACD3A11C7AFAD;
-	Fri, 11 Sep 2026 20:48:48 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id BEC7060737;
+	Fri, 11 Sep 2026 18:49:03 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1C3FD11C7AFAD;
+	Fri, 11 Sep 2026 20:49:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1789152530; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=3UbfaCqW7cpXjB90GJkoFEsrC9auI/qCe1ywASw2Pak=;
-	b=HkcnjfwlJSg/o4HBuy4D5123z4n92V8vKYOYmqXIGVrQUTziBQbQ1BxfT2CKjvoNyMFxEe
-	T3Zd218jGch6EE6VyhlY+xLToIhG/RTSaTiSdV8csJiMZsRZSv6AyMHC5hMyWguTeAT/PI
-	1H7faHik4n74klTbnP4uRsktwbO7VlT1d9nTIFvbEDxBO17yPMxkQHuzzMqOzVcBShMxS4
-	xy6NHxoyOe6csSIHwVgmBSntQDaak3JADoGiirhvUIEn1Ddl41XhH15hIrTB5aE08o9H/v
-	+LTtdVo49dBHB+9ApUeMGB0C0+FtKcsTPyFbabWZ7MqGCBgO+uJnMumJhBaQvA==
+	t=1789152542; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=FtWqilX0/XJZ8szdotwy1h9xODOL04sHT1uvbcJkTbc=;
+	b=aoWfWH9p/yAMQ04WVnv0gSjfaGEpfXyrRWq1me6fmM9g+f0lTvpH1S7zFRf8F65nHEzXzZ
+	yMRlr198ROXQ12VCeMBx93HR4QeZaVDYLb/+JzMvz1P96LUfI5hS++w5v/oKWM62doJEEH
+	sAKjEI1ETYw1ja98I6Omee2TdqIZ/6uYsgtpOfu29dYJ5XA/ZnTkcoR8HzmKA5JLqy0jnG
+	sClxgNHvioedRl9xmCx11UF/3PX/ocQK6tVBe4yekmB0NCQw/hzd+NWEbBiEEgVeP9a0z6
+	gv/Ac2CX5lQPtuhkNYwVSBYvSFJ/K9/FQs+L4ysOprMnATShSSxUbD3fqjYuqA==
 From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Subject: [PATCH v3 0/9] Congatec Board Controller: Add storage devices
- support
-Date: Fri, 11 Sep 2026 20:48:02 +0200
-Message-Id: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
+Date: Fri, 11 Sep 2026 20:48:10 +0200
+Subject: [PATCH v3 8/9] mfd: cgbc: Add virtual storage devices on the
+ virtual I2C bus
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,77 +45,218 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42Oyw6CMBBFf4V0bU0fQsGV/2FclDKFJkqxLY2G8
- O8WWKgrXd47uefMhDw4Ax4dswk5iMYb26fAdxlSnexbwKZJGTHCCiKowKqtFTZMYR+sk+nepJU
- Cj/04DNYFXHMAoUByzghKmMGBNo9Vcb5s2cF9TKbwLjuz4J7rG5Eu7WYsyeG3MVJMsIaGlzklh
- aDqVFsbrqbfK3tDCz6yDySlfyBZQnLQsqpKIKDzb+Q8zy+tUnK2OgEAAA==
-X-Change-ID: 20260717-cgbc-i2c-storage-devices-support-b3ee7cea3320
+Message-Id: <20260911-cgbc-i2c-storage-devices-support-v3-8-594b53fbc5ea@bootlin.com>
+References: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
+In-Reply-To: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
 Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
  linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>, 
- stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-For this v3, I deeply reworked the series.
+Add support for virtual storage devices exposed by the Board Controller
+on its virtual I2C bus. There are two device types: EEPROM for persistent
+storage and RAM for non-persistent storage:
+- Secure Data EEPROM  (64 bytes, RO): static and dynamic board info
+- BIOS EEPROM         (32 bytes, RW): reserved for BIOS applications
+- BC EEPROM           (32 bytes, RO): Board Controller operational params
+- User EEPROM         (32 bytes, RW): user applications
+- BIOS RAM            (32 bytes, RW): reserved for BIOS applications
+- BC RAM               (8 bytes, RO): Board Controller operational params
+- User RAM            (16 bytes, RW): user applications
 
-I2C buses are now defined in the MFD driver, and all I2C bus parameters are
-passed to the i2c-cgbc driver through platform data. The cell ID is no
-longer used as the (BC) bus ID; the bus ID is now stored in platform data,
-which allows switching the child devices to PLATFORM_DEVID_AUTO.
-
-I also declared the I2C buses, as well as the devices attached to them, in
-the MFD core. The MFD driver knows exactly which board it is running on.
-This will be useful when adding support for other I2C buses, so they can be
-limited based on the board. This also makes the i2c-cgbc driver more
-generic.
+Use the at24 driver with the 24c01 entry (the most generic one) for all
+virtual storage devices, customizing parameters via software_node
+properties (size, pagesize, read-only flag, label).
 
 Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 ---
-Changes in v3:
-- rebased on v7.3-rc2
-- use PLATFORM_DEVID_AUTO for child devices
-- move I2C bus and I2C device definition in the MFD driver
-- Link to v2: https://patch.msgid.link/20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com
+ drivers/mfd/cgbc-core.c                | 129 +++++++++++++++++++++++++++++++++
+ include/linux/platform_data/i2c-cgbc.h |   4 +
+ 2 files changed, 133 insertions(+)
 
-Changes in v2:
-- i2c: fix typo in CGBC BIOS EEPROM label.
-- mfd: make cgbc_devs const
-- Link to v1: https://patch.msgid.link/20260804-cgbc-i2c-storage-devices-support-v1-0-fed38510671c@bootlin.com
+diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
+index 90fa0e657385..097b7309a400 100644
+--- a/drivers/mfd/cgbc-core.c
++++ b/drivers/mfd/cgbc-core.c
+@@ -13,11 +13,13 @@
+ 
+ #include <linux/dmi.h>
+ #include <linux/iopoll.h>
++#include <linux/i2c.h>
+ #include <linux/mfd/cgbc.h>
+ #include <linux/mfd/core.h>
+ #include <linux/module.h>
+ #include <linux/platform_data/i2c-cgbc.h>
+ #include <linux/platform_device.h>
++#include <linux/property.h>
+ #include <linux/sysfs.h>
+ 
+ #define CGBC_IO_SESSION_BASE	0x0E20
+@@ -56,6 +58,131 @@
+ 
+ static struct platform_device *cgbc_pdev;
+ 
++static const struct property_entry cgbc_secure_data_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 64),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	PROPERTY_ENTRY_STRING("label", "cgbc-secure-data-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_secure_data_eeprom_node = {
++	.properties = cgbc_secure_data_eeprom_props,
++};
++
++static const struct property_entry cgbc_bc_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bc-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_bc_eeprom_node = {
++	.properties = cgbc_bc_eeprom_props,
++};
++
++static const struct property_entry cgbc_user_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-user-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_user_eeprom_node = {
++	.properties = cgbc_user_eeprom_props,
++};
++
++static const struct property_entry cgbc_bios_eeprom_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bios-eeprom"),
++	{ }
++};
++
++static const struct software_node cgbc_bios_eeprom_node = {
++	.properties = cgbc_bios_eeprom_props,
++};
++
++static const struct property_entry cgbc_bc_ram_props[] = {
++	PROPERTY_ENTRY_U32("size", 8),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bc-ram"),
++	{ }
++};
++
++static const struct software_node cgbc_bc_ram_node = {
++	.properties = cgbc_bc_ram_props,
++};
++
++static const struct property_entry cgbc_user_ram_props[] = {
++	PROPERTY_ENTRY_U32("size", 16),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-user-ram"),
++	{ }
++};
++
++static const struct software_node cgbc_user_ram_node = {
++	.properties = cgbc_user_ram_props,
++};
++
++static const struct property_entry cgbc_bios_ram_props[] = {
++	PROPERTY_ENTRY_U32("size", 32),
++	PROPERTY_ENTRY_U32("pagesize", 1),
++	PROPERTY_ENTRY_STRING("label", "cgbc-bios-ram"),
++	{ }
++};
++
++static const struct software_node cgbc_bios_ram_node = {
++	.properties = cgbc_bios_ram_props,
++};
++
++static const struct i2c_board_info cgbc_i2c_i2cv_board_info[] = {
++	{
++		.type = "24c01",
++		.addr = 0x40,
++		.dev_name = "cgbc-secure-data-eeprom",
++		.swnode = &cgbc_secure_data_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x48,
++		.dev_name = "cgbc-bc-eeprom",
++		.swnode = &cgbc_bc_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x50,
++		.dev_name = "cgbc-user-eeprom",
++		.swnode = &cgbc_user_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x58,
++		.dev_name = "cgbc-bios-eeprom",
++		.swnode = &cgbc_bios_eeprom_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x60,
++		.dev_name = "cgbc-bc-ram",
++		.swnode = &cgbc_bc_ram_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x68,
++		.dev_name = "cgbc-user-ram",
++		.swnode = &cgbc_user_ram_node,
++	},
++	{
++		.type = "24c01",
++		.addr = 0x70,
++		.dev_name = "cgbc-bios-ram",
++		.swnode = &cgbc_bios_ram_node,
++	}
++};
++
+ static const struct cgbc_i2c_platform_data cgbc_i2c_i2c0_pdata = {
+ 	.name = "cgbc-i2c0",
+ 	.cgbc_bus_id = 0,
+@@ -70,6 +197,8 @@ static const struct cgbc_i2c_platform_data cgbc_i2c_i2cv_pdata = {
+ 	.name  = "cgbc-i2cv",
+ 	.cgbc_bus_id = 3,
+ 	.fixed_freq = true,
++	.devices = cgbc_i2c_i2cv_board_info,
++	.nb_devices = ARRAY_SIZE(cgbc_i2c_i2cv_board_info),
+ };
+ 
+ static const struct mfd_cell cgbc_devs[] = {
+diff --git a/include/linux/platform_data/i2c-cgbc.h b/include/linux/platform_data/i2c-cgbc.h
+index 224926c12070..5f20503ce858 100644
+--- a/include/linux/platform_data/i2c-cgbc.h
++++ b/include/linux/platform_data/i2c-cgbc.h
+@@ -14,11 +14,15 @@
+  * @name:		I2C adapter name
+  * @cgbc_bus_id:	I2C bus ID (from Board Controller point of view)
+  * @fixed_freq:		I2C bus has a fixed frequency
++ * @nb_devices:		number of devices to add when the driver is probed
++ * @devices:		devices to add
+  */
+ struct cgbc_i2c_platform_data {
+ 	const char *name;
+ 	int cgbc_bus_id;
+ 	bool fixed_freq;
++	int nb_devices;
++	struct i2c_board_info const *devices;
+ };
+ 
+ #endif /* _LINUX_I2C_CGBC_H */
 
-To: Thomas Richard <thomas.richard@bootlin.com>
-To: Lee Jones <lee@kernel.org>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: Werner Gartner <Werner.Gartner@congatec.com>
-Cc: mfd@lists.linux.dev
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-
----
-Thomas Richard (congatec GmbH) (9):
-      mfd: cgbc: Fix use of negative error code as valid session handle
-      mfd: cgbc: Add I2C platform data
-      i2c: cgbc: Use plateform data to get bus ID and adapter name
-      mfd: cgbc: Use PLATFORM_DEVID_AUTO for child device registration
-      mfd: cgbc: Use real I2C bus names
-      i2c: cgbc: Add support for fixed frequency buses
-      mfd: cgbc: Add virtual I2C bus support
-      mfd: cgbc: Add virtual storage devices on the virtual I2C bus
-      i2c: cgbc: Register known I2C devices on the bus
-
- MAINTAINERS                            |   1 +
- drivers/i2c/busses/i2c-cgbc.c          | 109 ++++++++++---------
- drivers/mfd/cgbc-core.c                | 187 ++++++++++++++++++++++++++++++---
- include/linux/platform_data/i2c-cgbc.h |  28 +++++
- 4 files changed, 258 insertions(+), 67 deletions(-)
----
-base-commit: df2908090cda368b01ff43709f51890076c56157
-change-id: 20260717-cgbc-i2c-storage-devices-support-b3ee7cea3320
-
-Best regards,
---  
-Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+-- 
+2.53.0
 
