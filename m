@@ -1,188 +1,175 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493723AFAF1
-	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 11:56:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF48E4A482A
+	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 17:13:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789127763; cv=none; b=WlhqMZeDyXQltj4T8AI22byZuzQOQj5U7avNvbUokJqZaxK5uPbCGoMUBVPsBvofG6Ymv1auClehbweR7RfA61rf161TZLRehG/ArWmeJ2ZX+T0iV5cUVeQiuwUJvxmndp7tIbKd8BwQdAocBx2HEOMCky4dNEEVk4MKI59l20A=
+	t=1789146812; cv=none; b=Nei+PKHufKpXvlFOu1DJIfBb8cKjD5JDUvvdFPhE5Jz5x9E8TKYj2aU1dczIaFHQk2RSWtdmvOgagEn9V6CJ5xmJuY/9hRHTPYAp+S/uMuap37s3HmgSuH79+2KDQfp0DqCOr7XXHPUr44sq5iYq9mXPWhwchER9KmNPEFn79NE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789127763; c=relaxed/simple;
-	bh=H6PJGLOt4Lc3XTFDxIM1Hbc1rK+uVHCnkrFSBLtAuSs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=r6kJvTW1uQXU55QXQpEcdFdV4kLpxphGvqFkqoD/r/uT8SRBCS3X6f8Sv6jQLJ1dS3Ckz3UY68pSsu3GmuWDL1KUlXyOOirfKtg7KC8k9ETgkHVuQtMM2ihbMdcmzECuZaq64/U7DeyX4hzUHs1K1iugCDabB0a1uKUx/0rVSZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=qc3gy2bG; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7wnxeNtE; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=c9evp5C3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=jz00yDQC; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1789146812; c=relaxed/simple;
+	bh=GIg8Ee17H8uLahuwZG6QIu9IwUSfphXuVEckTgzzbiI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nGDWN0oMauvsMe9tbhugQp8HjWtbkIbic8keeIIqkTO8Iw/7QSes5c5/pFkWJkkcmqlcewnxQZZyBtKlKxnorPM9x6jTuRB11YwvOtUSGakk9WFp7vX+9BBpYwZ6MRlHABN4YP/0xGSPY6taxjsru6LRQMqvvBp+59qu5e2jqdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=MbMJ043Q; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=WsA2Dq90; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="qc3gy2bG";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7wnxeNtE";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="c9evp5C3";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="jz00yDQC"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 334C82199E;
-	Fri, 11 Sep 2026 11:55:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789127756; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LiXEmsCXwtNnqpryrHOVrdUxZGUyyp/DaPVryvWUBXY=;
-	b=qc3gy2bGgye96++Dn/Yipi/7u82mfzVaxGgqWpDRfO8NQxkTN6HYrvvPaGGku9lxIinvLI
-	NXrkA0KN5qmuRzCZso3t1dqxNhCVB9/wgdiNHSLYE/bHRS4RZa6xpxuJieWmoWsOWU6MRo
-	oXPshn8Oo5CoDd+LmHG3FwmlzVDTzFg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789127756;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LiXEmsCXwtNnqpryrHOVrdUxZGUyyp/DaPVryvWUBXY=;
-	b=7wnxeNtEguTnhmPujwFocEEVBtmenZcYJX38NU8KC1qi3jyibWJcZ48hl18UNYhLXwvySz
-	Sd4GmUDhjco3QSCw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=c9evp5C3;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=jz00yDQC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1789127752; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LiXEmsCXwtNnqpryrHOVrdUxZGUyyp/DaPVryvWUBXY=;
-	b=c9evp5C3VSCGUqNA7/FiO4MjKO00YfaLD5gaXaadkk9K4paBGzfzceePwP/8TNVSdg7bUf
-	axMluQ5Rv4Fkwj0XQmF3LThwzkTjbIdWlGTJMbvBLPJVjUyCREeoRV9prFQrV5ghQpFv9+
-	/rLDWTU5jCG85Z/8k3F03+oc4vPRTho=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1789127752;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LiXEmsCXwtNnqpryrHOVrdUxZGUyyp/DaPVryvWUBXY=;
-	b=jz00yDQCdLz4EwCwuH4xmmAEE2vVbncyylgb0v2jHr93qYWUd7YQnQdPQ/hqDqo5tEYKt9
-	29bTIpslTHs1xCCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D0AA9136ED;
-	Fri, 11 Sep 2026 11:55:51 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id iuTzMEfso2o7XAAAD6G6ig
-	(envelope-from <jdelvare@suse.de>); Fri, 11 Sep 2026 11:55:51 +0000
-Date: Fri, 11 Sep 2026 13:56:04 +0200
-From: Jean Delvare <jdelvare@suse.de>
-To: Al Ma <AlMa0@ro.ru>
-Cc: 1110749@bugs.debian.org, linux-i2c@vger.kernel.org
-Subject: Re: ee1004: DDR4 SPD cannot be read, decode-dimms fails,
- =?UTF-8?B?4oCcRmFpbGVk?= to select page 0 =?UTF-8?B?KC02KeKAnQ==?=
-Message-ID: <20260911135604.6c2451e7@endymion>
-In-Reply-To: <812847a5-5630-4d26-8012-c816e6d1db32@ro.ru>
-References: <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
-	<handler.1110749.B.1754853823932687.ack@bugs.debian.org>
-	<9ed6f717-a04c-425f-945e-7fe8fe3b5d7d@ro.ru>
-	<ac700b24578663492aecd6d544bfc205b060c948.camel@suse.de>
-	<812847a5-5630-4d26-8012-c816e6d1db32@ro.ru>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.50; x86_64-suse-linux-gnu)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="MbMJ043Q";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="WsA2Dq90"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68BEm0WK269302
+	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 17:13:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	GIg8Ee17H8uLahuwZG6QIu9IwUSfphXuVEckTgzzbiI=; b=MbMJ043Qh3693KxM
+	TC8kMQTkju8cjNkcgW0WulTHDisRDeS0zOWD/ntCNBIH//BMVQJLOwmHGnfrnVoQ
+	we6dQdxk2dewXcF7hvbcGVMtcQyzu+7IrU7yfFFkhxWA0BLxT4RBARs93uNpWFfh
+	psCq4Ciz7SXlC4Kr+yxAixZvt0u1AIbftjDKa5DNH2SU98Rg4Fie+fSyEIOIJZgb
+	3nxRV46XfAERrERiZVDNEDd0G8cygfq6HCYuON8opaV5PrqvXD4d+sykhXziHZBG
+	WqdZ3HZvPs5sCRC5KNok3cCunb/JVu5nUgZpOTrxivUvVl9vyeWKEIWYdqtnIIae
+	RJeFIw==
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com [209.85.210.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gmbd52xf8-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 17:13:30 +0000 (GMT)
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-86a43fc3527so2067682b3a.1
+        for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 10:13:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1789146809; x=1789751609; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=GIg8Ee17H8uLahuwZG6QIu9IwUSfphXuVEckTgzzbiI=;
+        b=WsA2Dq90HLFrqu66j4Q2H6a9nD7NPsx+o4m/8mN5hvJF932Mh0pc4kw7wVoXFniFOt
+         vS7s6OCUoeDtCg6/7KSUksEAu1dv9RBcs3uxL/UvPdhQDHs55lEM7Knczd6u5byiHH/V
+         VSqF1SVZqhAsoytWU4IuBMwWcnzWAlcGpZAEjIa3QFKL9J9zkWPSd5svchIO3XVqG7Ad
+         Eg0FWIs170vg8WNUqu+BOLPaF2w4PzDqBi8zyYny9OqZJY6bhwA9RMQAJd/KKZC4VIOg
+         diHrn40i7XV7gib/bdayQI9IFyKjMquJ66HaEgtIqBTv7qzFz4cZa8+sbY9aEB1eoShh
+         EhBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789146809; x=1789751609;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=GIg8Ee17H8uLahuwZG6QIu9IwUSfphXuVEckTgzzbiI=;
+        b=E1MlOyHYLuolf6rCGTfZTKExVGfZduIDitSM5zCItgkXGrwf3KeCNTsXoe/FfES6g1
+         305xkCjTuYohYUMDApZaAiEpQZY636Gd0RbE3WT0hGJdH2jFuzcVIDB/w/R3YKWCR+tp
+         kYLpvTkxN3iRz1ZVzPtwSOVSWEWKqUXS4l3Vz+CbzHVHAvqYdZL9D6TKLJrrfabcVRxe
+         gGgQmymzuSE3lIyJh3rk0aHW0H2TNj07sNeYvSlkV+N35z9Ib0OiOQ5AK4Fw+GDnHdbV
+         33cfAAzsnYpMdOHR/rVFDerbVYqvmc+iWhRMcUgrH2+PGhLsh47J2SwdNMlvtBExf4lQ
+         6XzQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwYyok+tXNHawh73mToyyuMuGgj4IghlIkocQtYuRPyQ5/6ZSEk6dinkjzdOl9vzk9IPgX8cDLAIXs=@vger.kernel.org
+X-Gm-Message-State: AFuF++n1vuEJc63WIKH/OXVcuqXbSgmb6I5LDbT3/V9RcuXEcfaqVZdD
+	sYpXgc2HNwAkDw8jkFENSZ8hRFSisaZ8MXpfBEuVwhJfmL7eCvR/I4gG6TvXQIyW19oM3a+bR8H
+	it9NiisnBtkH5aDbFRrykpS5x6rivJcYJMWEEB2ZNRNlZxgjVmE+18F8cUX7XkQg=
+X-Gm-Gg: AYBFou2TkbVE1jjUGkybxbbbhYQfFm6GDhMS2NdRMs6aIJCDgxOsX5Q2qT9s5u8SCKM
+	HdEn3wy1dPC15FRvf1YxO6ncW+gz77oIr6JsD2AWmpKW//MF2zvNH6xD9GjSjR/7IUFYIdSTTq4
+	A4vWsE6zJvikWkr6yDSC35c2k9wt2oYQ3oM9bipmjWe27wiMko8zRMKQILUHRdX4MZC2j5EOgw9
+	2zSTYOnTlp3EdAqfltAEdfbDeBjdXxAc5Oq2UGv2bak/SYELfJRq7PUJsxpHt6TA5M1gGNyq0Ew
+	AmWt9VBw7waxtYUcG8Ndc90K31DT2XlZlexlkddnMKfGTHAuO5SO7kdTcxHIcuqypDYhxs14D5w
+	rivXDhcleqBU5dUj82lBwJ9F9+TA+GyqM
+X-Received: by 2002:a05:6a00:1786:b0:84e:354:422b with SMTP id d2e1a72fcca58-86b6f55356fmr3892854b3a.2.1789146809342;
+        Fri, 11 Sep 2026 10:13:29 -0700 (PDT)
+X-Received: by 2002:a05:6a00:1786:b0:84e:354:422b with SMTP id d2e1a72fcca58-86b6f55356fmr3892808b3a.2.1789146808816;
+        Fri, 11 Sep 2026 10:13:28 -0700 (PDT)
+Received: from [192.168.0.6] ([49.204.105.169])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-86b291c1601sm1492832b3a.31.2026.09.11.10.13.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 11 Sep 2026 10:13:28 -0700 (PDT)
+Message-ID: <e43b8af4-011d-4896-b488-1a9c790718b6@oss.qualcomm.com>
+Date: Fri, 11 Sep 2026 22:43:20 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 4/9] soc: qcom: geni-se: Remove OPP rate reset from
+ resource deactivation
+To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+        Sudeep Holla <sudeep.holla@kernel.org>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc: mukesh.savaliya@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
+        arm-scmi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-0-091697dbeb02@oss.qualcomm.com>
+ <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-4-091697dbeb02@oss.qualcomm.com>
+ <813aae42-22bf-4029-8f04-54fc555a2a1c@oss.qualcomm.com>
+Content-Language: en-US
+From: Praveen Talari <praveen.talari@oss.qualcomm.com>
+In-Reply-To: <813aae42-22bf-4029-8f04-54fc555a2a1c@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 334C82199E
-X-Spamd-Result: default: False [-4.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[ro.ru];
-	FREEMAIL_TO(0.00)[ro.ru];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	HAS_ORG_HEADER(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCPT_COUNT_THREE(0.00)[3];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim]
-X-Spam-Flag: NO
-X-Spam-Score: -4.01
+X-Proofpoint-GUID: FJIs_fKHUlcckg9Bl06Tq1FcmJfnyLMo
+X-Proofpoint-ORIG-GUID: FJIs_fKHUlcckg9Bl06Tq1FcmJfnyLMo
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTExMDI0MCBTYWx0ZWRfX3hnOewIw5YFW
+ lCiDjOUMmY/m497+uAb1GGg8bbE4Njt5U5OdytaPGHqOjX5plIQeTNamtcp+x2BoZWqY3vmufKS
+ uSKgEqKUIqmS09bh9pVJoKIgF+FxSKk=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTExMDI0MCBTYWx0ZWRfX6rHNCZFA3SUL
+ Ox4PkzSjEuuoW82n4rDVtIYoTDcOW4VMM+PzKOFPdowy3Z1vtDpMAGvzyy362pyWYZRShIqTSD6
+ 5Rlbqs2JdWwJohZjs0bgcvZz818Z/XIOCYxV/NaP2vcWmqgVgFEKVC0eDZhf+Eitn4l0aOHvIcl
+ xBP2Lgw0ba3JVUZQ4w0HD9gDXcZDrc8w3oRkxJXuE8erx0Xp1kCsc5sbozGE7jqcZfHSqZVMxFz
+ EFQqHOUGRHRYZp3CVFvnH8uIw7Ape0aR3G0zI8kJbks3rvZp3dfBOaHuKAQ+nzsI635OvytMcxN
+ ShdOo1O31USfTPusryEA8St/ADix6iLv3xA20X19h+i3vLFALaV4dwln4QXnijs+P/gXczZIdgf
+ M+vvbpNCnuID0A2YFAIztMkmITI/csuEooNxruqlpcixRloXfzCu7fNLXOreG6VyMaY//OHZ1dI
+ P/YyXY78DnQ63T03Hzw==
+X-Authority-Analysis: v=2.4 cv=db0VTnXe c=1 sm=1 tr=0 ts=6aa436ba cx=c_pps
+ a=m5Vt/hrsBiPMCU0y4gIsQw==:117 a=KFINdI5Z0390/lZYonNNQw==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
+ a=Bcqig9hN0zFNc8VZEzUA:9 a=QEXdDO2ut3YA:10 a=IoOABgeZipijB_acs4fv:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-11_05,2026-09-11_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0
+ spamscore=0 impostorscore=0 priorityscore=1501 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609110240
 
-On Sun, 30 Aug 2026 17:35:57 +0200, Al Ma wrote:
-> > Please try unloading the ee1004 driver, then running i2cdetect again.  
-> 
-> Here we go:
-> 
-> # modprobe -r ee1004 && i2cdetect -y 0 && modprobe ee1004
->       0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:                         08 -- -- -- -- -- -- --
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
-> 50: -- -- -- -- -- -- 56 -- -- -- -- -- -- -- -- --
-> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 70: -- -- -- -- -- -- -- --
-> 
-> What next?
+Hi Konrad,
 
-This confirms my guess that the device at 0x56 is not an SPD EEPROM.
-Next steps would be as follows:
+Thank you for review.
 
-* Short term, you want to blacklist the ee1004 driver on your system.
-  It is not a good idea to load a driver which binds to the wrong
-  device.
+On 04-09-2026 14:19, Konrad Dybcio wrote:
+> On 8/27/26 7:59 PM, Praveen Talari wrote:
+>> Remove the dev_pm_opp_set_rate(se->dev, 0) call from
+>> geni_se_resources_deactivate().
+>>
+>> OPP resource management should be controlled by the consumer driver.
+> I believe the opposite was the original intent behind creating
+> these helpers..
+Previously, resetting the OPP rate to 0 was applicable
+only to Linux-managed resource control. With this series,
+dev_pm_opp_set_rate() is used for both Linux-managed and
+firmware managed resource control.
 
-* Still short term, we should look into the ee1004 auto-detection logic
-  and see it it can be made more reliable.
+Therefore, the reset should no longer be performed
+unconditionally in geni_se_resources_deactivate().
+Instead, the consumer driver can reset the rate when required,
+keeping the common resource deactivation path applicable to
+both configurations
 
-* Mid term, we may want to add a kernel option to disable automatic
-  probing of SPD EEPROMs. I seem to recall some proposals but it looks
-  like they never made it into the upstream kernel. I'm not sure if
-  this should be a system-wide switch (handled by the i2c core) or a
-  per-driver setting (e.g. a new flag in i2c-i801's disable_features
-  parameter).
+Thanks,
 
-* Still mid term, we probably want to blacklist SPD probing explicitly
-  for your motherboard (we'll need to know the contents of
-  /sys/devices/virtual/dmi/id/board_vendor and
-  /sys/devices/virtual/dmi/id/board_name on your system). Maybe this
-  can be implemented as an empty entry in mux_dmi_table (as in, we know
-  the board requires multiplexing, but we don't know yet to implement
-  it on that board).
+Praveen Talari
 
-* Long term, we need the hardware vendor to provide technical
-  information about the board so that we can implement SMBus
-  multiplexing support in the i2c-i801 driver (if that's really how
-  things are implemented on your board - that's only a guess from me at
-  this point). Asus provided information about their Z8 series long ago
-  and I was able to add support for it back then. It would be wonderful
-  if they could provide similar information about the WS C422 PRO/SE so
-  that a kernel developer can add support.
-
--- 
-Jean Delvare
-SUSE L3 Support
+>
+>> Additionally, clocks are already disabled by geni_se_clks_off(), making
+>> the OPP rate reset unnecessary during resource deactivation.
+> That is, on the other hand, a valid reason
+>
+> Konrad
