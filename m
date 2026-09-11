@@ -1,60 +1,66 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp6-g21.free.fr (smtp6-g21.free.fr [212.27.42.6])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 925BD3C1D70;
-	Fri, 11 Sep 2026 07:33:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E7524570FE;
+	Fri, 11 Sep 2026 08:35:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.6
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789112038; cv=none; b=ISZBC0CY+NXkwsjaHrjAR9f0LygZjkYfsfle8M76rYXh+P1tUTdn0aLt73thiKxpRWHz0nbzqA6JzKI7Rs5VD50KbfgBd9i7Z93Wjbe1u00e+0RqX21qGOBshIZaPc6KnEG8SV0mGEbWXAxuYy2OoOqeWgsSKTr29f/U+1itNcQ=
+	t=1789115740; cv=none; b=pxsyjATzGV2A6nn0IyK54ElDRrZY8RXlCIzlpLS4eoLt1UjNgks6n5jKgqPGu1mYk/yNKlkftiqHyBy44UmwpHOHTmKCNQFVjdB1tlYmL47/TxWUzNqtv1mgX3iGWXM7KcBCiITDpWBSnhGtcCjkbkDpWeIH84VIL4bpAOPOgNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789112038; c=relaxed/simple;
-	bh=wYxGW2biQlSU+fVO5rTSiQjPhwyBhi1wt+v8FMIEwBg=;
+	s=arc-20240116; t=1789115740; c=relaxed/simple;
+	bh=ig7/VBNGQp4N6xzwFvEIbedNVsU144MO3YycJQR+XF0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h55xam5nCN8PHSrqQzIEmv2I9ZwUA4cf2A7Ce/pgEAexvQPr7aYvpwPR/CAUoKBD2nbw/BvaGFFo9YPsWVu+I+CpkLNPzLKqw0jynDbeaJvnnDeLxSawx4qe1Xfc09hp5s3rzzOw8q7qtcEFAIIYaSGdidT9eXCESGuwYoj8TGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KYSuNLAu; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=fjy+qQFeCDHxdtzBHsUwfI6TrmjZ+JZb8YO9RL3wN1I8gv2ULAKW/ulWVboDkDSY4x4TjaIJStwjJTnJN7QFp+rY6ehRQRisnchpPKnXqXdX0iStlykOoBPV31JGYPG3GNk+dFbaI7nIATpbeeQVDfODCLK/CUg2P0j5cHCCm3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=sFuXVKC8; arc=none smtp.client-ip=212.27.42.6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KYSuNLAu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF6711F000FF;
-	Fri, 11 Sep 2026 07:33:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789112037;
-	bh=PGYcDbSWMJV/NrRnhhlid7hqAqaE59zJzzMDthrRUKs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=KYSuNLAuBpI9EdH6m8wWw5Avbp3bUk7wGFJL5+qut3SVIdxCvpHLgncPG++hqzt8u
-	 xj6YkqpjdUCFreSckLUmSYwqpkse4K6V6xU0PmEga9trtUMQUhEpBAODoNtIE3aKaC
-	 lPuaRLKeAvIhzn7y7gcXIKhpNZHNb0Y476U+GrXndZirpZrV0JImWPxCgn/60jXfvF
-	 K74jgIm2Mulq3NEHRYLQmsxlXDBpVtlO+7VexPolk8Bp1OP3Dm9/8JtJYqVmLhFtmG
-	 Hen5vzoKuymxzEl58JGSXnP8DT5mC4KTxFupSbseKGVlKpcRwBNdZce9IxfUJ7nikN
-	 6LcPqa2Gjd0SA==
-Date: Fri, 11 Sep 2026 09:33:53 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, 
-	Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v3] dt-bindings: i2c: renesas,rcar-i2c: allow 6 DMA
- channels
-Message-ID: <20260911-rare-screeching-earwig-c40abd@quoll>
-References: <20260909184200.3319-2-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="sFuXVKC8"
+Received: from L23803.iliad.fr (unknown [213.36.7.12])
+	(Authenticated sender: vjardin@free.fr)
+	by smtp6-g21.free.fr (Postfix) with ESMTPSA id BEFF278035B;
+	Fri, 11 Sep 2026 10:35:22 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+	s=smtp-20201208; t=1789115735;
+	bh=ig7/VBNGQp4N6xzwFvEIbedNVsU144MO3YycJQR+XF0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=sFuXVKC8gcz33vzI6iud7xnwtR8omZZp3V8ueO5FVefKCawC2bMckcOAoLHVCQxZu
+	 STDdrciSt+1dY1QtAdusNQpJNyBvQryjI9LKTC5evbNxVtkhUIpqyUqWZ/wL8ZnIeM
+	 nf+mnrjnpNmwUj9NTc2N2OZAVzqbf8r4LQsqjv36otaHyKNtcCGA8f+Fm8VuG1DZti
+	 u9QhWinvUoMUiUOS9zyIamIVNfsjEFYjvcIlGx70Yj5qZQ8sKonivOTeDRZ1YSxxqB
+	 xA7dRpu30XscryQaVmFIWPaIob8u1XjtkO1gJuXNrGNj3okA3X40HjHpZm7RY+HTVL
+	 mvdgNt5W0QmnQ==
+Date: Fri, 11 Sep 2026 10:35:20 +0200
+From: Vincent Jardin <vjardin@free.fr>
+To: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, Carlos Song <carlos.song@nxp.com>
+Subject: Re: [PATCH v2] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+Message-ID: <aqO9SMvI89rqoEGb@L23803.iliad.fr>
+References: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
+ <apcYp0Zc7CrJMiOh@lizhi-Precision-Tower-5810>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260909184200.3319-2-wsa+renesas@sang-engineering.com>
+In-Reply-To: <apcYp0Zc7CrJMiOh@lizhi-Precision-Tower-5810>
 
-On Wed, Sep 09, 2026 at 08:35:32PM +0200, Wolfram Sang wrote:
-> R-Car Gen5 can make use of it.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
+Hi Oleskij, Andi,
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+It is a "gentle" keepalive on this patch. It has been sent last month and
+it had been ack'd by NP (both Carlos and Frank).
 
-Best regards,
-Krzysztof
+Is there anything else you need from me to have is applied on i2c/i2c-next ?
 
+thank you,
+  Vincent
+
+> Reviewed-by: Frank Li <Frank.Li@nxp.com>
