@@ -1,202 +1,177 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3E1E493D37
-	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 17:42:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17FA43F328C
+	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 18:48:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789148561; cv=none; b=pjrnq4xf/nFTnYw0Wl8goDrIKXPi5FyPyT9N+UXwHrMSEuKtU9ab2XtiL+mG6Z8V/s0dNQDXKkD3XQng5Jo9b0QouIbUTtDxRFoG4iqviEVd6TxVg93dFa3RFHRSrT2G8oxYB/EZ6BlkQEwjJIEcCrzaayc3x2IN19NjAP9xoyI=
+	t=1789152541; cv=none; b=nqijrOx1MmOpflKJB/qFXD/q9A0Oi3IlmlsPkyLtIYHd+T9ezbpZrHpMcHosyzQWw7Ox5IhumS2IKuTphhzeKIQGBfgWlV0l5a0Sj+fOYfTuvd/zpUkcE6PIcHOn/qyMztVwI+W2rTgD/VgVPzhnbUhahtTO5xZLkVZnGNVb3T4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789148561; c=relaxed/simple;
-	bh=kFHvX+j5xnDFzShZOxxu4wH2RoChAV+8BEcmCcK9z/g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BM7s1xCTE7a3+phgbYNJleEZOyXBh5kUhu5lUesRHvXiKvgTjyzVDfo+3H+GycMXgb8u8JePAR4BGkYCdsoVMnpUnVxm2dCts6UQ8TNLRyq3djd/nb+y454qAr5OsUi+PtCmK+o539dp09si05QHaKfwUFMxd3t8q2PJLioiH9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=C0EXKfWz; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Pz8XyeQN; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1789152541; c=relaxed/simple;
+	bh=FJCibY2SED60UC7aA/RHHoDR3FiG1f9oWqf3gR4Jrf0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Jr3eirliUwWgqyR+mQNmXdFruPxKJk21XAhrVPA03twC2ow1NfMcenQgJZfkIELY5IXFr7fXNE3tFoPkitgyOfKM5cIVkBj2IwVxbVbqVIXqKoBudTq9afNJt269gs9tqVu1D2fMnjJ5fZ52Du+8wvDsB98mlxA7BpR6xxAC+bI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kx2j/Izp; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="C0EXKfWz";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Pz8XyeQN"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68BHWObg810126
-	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 17:42:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	P2TFrQqlwMVNl590WEvJJn/aZLgIQNxcVVRNL0lpuOI=; b=C0EXKfWzS5XqIXis
-	6Gb1tYFg4M1KyxffOLcLNKXvjcoAWvw3yp0yb0bHg860ixQOqMmr8cG5xhLRQY1Z
-	FZl8ALfgs7WNaZYBypXpwx+kB4RUoEUBki1SD5qjE2eRjDdUaKvbBAdfusTjMLsr
-	lQki3HL4VVM0qXdZmBSeXMcVvtMZHkx1fIvD3kpSy3kYW5rseeO/O7TK0KtumofM
-	JYFvw61fm+R+WWrjLQO+QUQmMSEg2/4oCoiz1TU4vxaw0WZ2oUpJBokNCee/Ikqp
-	Iw3mX7jYX9eBbdOhCDCg2rGSuteyJdJbKpeicqGCJDmmxynyDyH9JGoX0Kx7O3Il
-	WpwOmA==
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gmnv203su-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 17:42:38 +0000 (GMT)
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-86ab8302b54so1157460b3a.1
-        for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 10:42:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1789148557; x=1789753357; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=P2TFrQqlwMVNl590WEvJJn/aZLgIQNxcVVRNL0lpuOI=;
-        b=Pz8XyeQNkOjpyUFVbtMJojglAOBL6/oxuvbdF6okbwnVj9jhFYSjeuhw4rjjpntqLz
-         6DgSS1jjcuEAyb5X2bn/tn/KD0dNrHyohYXyPh9Z8BoPPMjzTpDRWC0RHKPT1xfhVDrA
-         KFDD68MtvfsKD+6XBjEkC5mTITNk2nRJnXLlxIesmwMWkl9S7VP4r1MHbFoEihW721hV
-         gamrC6jPNVNqqIqu0dme1JDlfkjA/94b3jIqOf7GO3DLmZU5ol7rq/xb8bIVmwk9achg
-         jt9D3KrJuB1vEk/vMDt1J90uWNvK9Rch7BS6VUlxWhnsgwYTiAwU6u3owJW7u2yk4W3y
-         qAUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789148557; x=1789753357;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=P2TFrQqlwMVNl590WEvJJn/aZLgIQNxcVVRNL0lpuOI=;
-        b=DHgO/oLcp0Q2IagP575O398n9MWsZ2MIvT1dczXWe6U0SY1rkG6MTs2EtqMuShpXyA
-         yJ5iU6zfAvS1eS68ajFwZJZKJ63cK03frX8EgrFAADiyH12YFijzLOdCHxUkjeIEkjLq
-         fJ1aEhHkwo4srYC+2CRPZGSZDhfIxVNkj+cGzMRCjoqHvE2mIvv6XJohqPDw7UnDroFD
-         Gz2GmrUJHboKBryBO2lu3TTkiTUfX4ksLy8Iy774c0xMyic/doS6wMDEDIqycZBMnB0C
-         ZBizvqGPYHtRE6S+rl9UEOgfNyTRftLUt17D+CLsl8ZIsbI7KosQ62uXPTcTKTyK5MJo
-         uBRg==
-X-Forwarded-Encrypted: i=1; AKwUvBxEtn/uK0PfAWJfM4iRDMRq/kp2pD0B6prfOfTqJO1vC2CO0Ue3xsX6c10bzHNDuQp5/OJmkKYwwv0=@vger.kernel.org
-X-Gm-Message-State: AFuF++n61kJdNQbqQNABxuLLcXXmh3zdFVGjP/zjloM8RqBMc0Ye9FFW
-	YO6shrntl1IP80Y+rHt9rlp+tEjFBKaDtMWZ+XXLly4wzQzoK9pQB8XXhzGm/5s0oyVx3g7Ss9n
-	r//wM60lCpL0DNR+3CNn8TKSCz4o7yZLpitJsPaVaOme49nl7e9mcXCUMSGmz6K0=
-X-Gm-Gg: AYBFou1IMUcOSw/FLYjAzt/xBdKZvOg95Yzyxzqr2s9Kc9XjzjKsrPOiYaZwRDbzNDc
-	7QeArO/0V3tvGRw4IQHfzijMmoCRqOdbvHFDw8E6B3PgIaS7YR9849Xcw9x185lgumZNvmzdzhL
-	tUV+O4WQjAC0BTcTDaBwCmgQ5dl4Rp/986D+nCBQROIMwKLmoM8m7zeCtS+RgngxZ7Bnb6iLRuE
-	2C9DZObcR6RTT3/697NSbkxkaFSINDM+zBkZfA6WrULDWDa7liOJ79COte3SiCthJZMimhBB8YX
-	rjDgnbjZSmmAGjOstU/EEtzY0ll0MXD5icwx5qyNJh9f45C2riJ1dBDPAaYtkYEEEdMS3P+CBHi
-	0Ih0IeFiMXHkgxqk28NcYiXPusKKe9+uU
-X-Received: by 2002:a05:6a00:4ac6:b0:84e:89a:b8ec with SMTP id d2e1a72fcca58-86b31ef6e46mr7785217b3a.11.1789148556930;
-        Fri, 11 Sep 2026 10:42:36 -0700 (PDT)
-X-Received: by 2002:a05:6a00:4ac6:b0:84e:89a:b8ec with SMTP id d2e1a72fcca58-86b31ef6e46mr7785156b3a.11.1789148556310;
-        Fri, 11 Sep 2026 10:42:36 -0700 (PDT)
-Received: from [192.168.0.6] ([49.204.105.169])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-86b286c49d2sm1515413b3a.10.2026.09.11.10.42.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 11 Sep 2026 10:42:35 -0700 (PDT)
-Message-ID: <e152a20a-c80e-488b-a875-404c916cccd8@oss.qualcomm.com>
-Date: Fri, 11 Sep 2026 23:12:28 +0530
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kx2j/Izp"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 97AE04E40238;
+	Fri, 11 Sep 2026 18:48:57 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 66B8B60649;
+	Fri, 11 Sep 2026 18:48:57 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D23B011C7AFB3;
+	Fri, 11 Sep 2026 20:48:55 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1789152536; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=c14SyQODhVDxLqVpTYDDs1C8FIYSas61YZ9h2+viO6U=;
+	b=kx2j/IzppZIaUFiicpKsivQ36NBNzzGdqOdnSzR2STMOhjH0FOYgJ0wu4a3YJyhV85A194
+	Sne7zq4uNhjMkpDVOxoWwmxpaUQtfnmpiE6EJmXz+RkxFC1M0Jl7/VGBTk/8oyFm1uqi9Z
+	uyLsFKKg3Is8/RIX4L2cbvu8e9S+n0eajWcN8SDaS/OmKSBP7inAun3HMvkWDyBQp3AMfY
+	+VZo6ykj7FeHSb+peOcYvy1f/esikKu8aFtqibv/e3pod3G5tPywwobD53yWJ3YrFWktDe
+	nq1XmI9GNfNqOuv491dQiE/xh7hwD5MMSS3yy+lGUT9NVYbR+IO6K+1z+9RW9g==
+From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+Date: Fri, 11 Sep 2026 20:48:04 +0200
+Subject: [PATCH v3 2/9] mfd: cgbc: Add I2C platform data
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/9] i2c: qcom-geni: Vote for SE clock rate using OPP
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        Sudeep Holla <sudeep.holla@kernel.org>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: mukesh.savaliya@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
-        arm-scmi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org
-References: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-0-091697dbeb02@oss.qualcomm.com>
- <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-7-091697dbeb02@oss.qualcomm.com>
- <fdfbd73f-8739-4845-ab18-c5f59898e192@oss.qualcomm.com>
-Content-Language: en-US
-From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-In-Reply-To: <fdfbd73f-8739-4845-ab18-c5f59898e192@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTExMDI0OCBTYWx0ZWRfX9tZmEKS4yxac
- 4x8i4fke1XMF2siQ2xlHnNWeRoUFO+yW2cIql1Mu9xMQF71sWdtyXgIqEB1ZUtq2KR9znlJk1iq
- 4dLeuqSLipW/GdjmbM6zvFlO89XZfr4=
-X-Proofpoint-GUID: cPGZYNragwesgDpedkmg8F_mPg9IySaK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTExMDI0OCBTYWx0ZWRfXxM7Kzix+7hoP
- ZT5M9u40+Ordr5wyvm7Bz6cSH+1AhmVTk8exBbNErWG3VBGVQX3cSPLn0nvKWPv5AKUVCW8HE00
- 75vu1iddGfQt+EzSqLJNUo3IyllCEvB55Z/9lK21QMukNFENfaRU+NtSQx81xQ9ck83WdeNQraJ
- BVngYBxZJ0Wh0pIKf4VxYwP8vT9RKM+kDPj7mSDscMAmxMNe6fd9gqZ9gwxYFGjAMaCx1RDbjwE
- g8xnpX990Y7nUfPJ/ThS4SG8768amJIth6NpLHZeNsNWrjsvQcVrKlf6Zebt/26XhNRFTkQXiJe
- v+3tMna8tNBP4vQrhj9BvXIKJ1ULHjSSrd13hYkRZMAPud75tO/D3hAlJpTFfR67sKB4cldC2Fr
- 8kHs/P2x11Me6iKS0bhX8qYObQaUmjTtYcsuiFnwqb2BoacNrdMNgn+aGXDr09+pgrkYPQQWNyT
- lu1rchs7m+Xxu837ZvA==
-X-Proofpoint-ORIG-GUID: cPGZYNragwesgDpedkmg8F_mPg9IySaK
-X-Authority-Analysis: v=2.4 cv=XvdvqlF9 c=1 sm=1 tr=0 ts=6aa43d8e cx=c_pps
- a=mDZGXZTwRPZaeRUbqKGCBw==:117 a=KFINdI5Z0390/lZYonNNQw==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
- a=EUspDBNiAAAA:8 a=NZ9nq7LxGt4YLS7AZqcA:9 a=QEXdDO2ut3YA:10
- a=zc0IvFSfCIW2DFIPzwfm:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-11_06,2026-09-11_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 bulkscore=0 priorityscore=1501 phishscore=0 suspectscore=0
- adultscore=0 malwarescore=0 clxscore=1015 spamscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609110248
+Message-Id: <20260911-cgbc-i2c-storage-devices-support-v3-2-594b53fbc5ea@bootlin.com>
+References: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
+In-Reply-To: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
+To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+X-Mailer: b4 0.16.0
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Konrad,
+Define I2C platform data for each I2C bus in the cgbc MFD driver. Platform
+data passes per-bus parameters to the I2C driver, rather than being defined
+inside the i2c-cgbc driver itself. This makes the i2c-cgbc driver more
+generic.
 
-On 04-09-2026 14:22, Konrad Dybcio wrote:
-> On 8/27/26 7:59 PM, Praveen Talari wrote:
->> The I2C driver currently assumes a fixed source clock selection and always
->> programs SE_GENI_CLK_SEL to 0, which is not sufficient when the controller
->> needs to switch between different source clocks.
->>
->> Add the source clock index and frequency to the I2C clock map entries and
->> use them while configuring the controller. Request the required
->> source clock rate through dev_pm_opp_set_rate() and program SE_GENI_CLK_SEL
->> with the matching source index.
->>
->> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
->> ---
-> [...]
->
->> +	dev_pm_opp_set_rate(dev, 0);
-> This and the below call are unnecessary, rate and enablement/disablement
-> of a clock are orthogonal operations
-Yes, you are correct.
+Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+---
+ MAINTAINERS                            |  1 +
+ drivers/mfd/cgbc-core.c                | 39 ++++++++++++++++++++++++++--------
+ include/linux/platform_data/i2c-cgbc.h | 22 +++++++++++++++++++
+ 3 files changed, 53 insertions(+), 9 deletions(-)
 
-However, in this case the rate change is primarily
-used to satisfy the voltage/performance requirements
-associated with the selected source clock frequency
-rather than the clock enable/disable state itself.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6215fcb07770..561f102c2541 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6621,6 +6621,7 @@ F:	drivers/mfd/cgbc-core.c
+ F:	drivers/video/backlight/cgbc_bl.c
+ F:	drivers/watchdog/cgbc_wdt.c
+ F:	include/linux/mfd/cgbc.h
++F:	include/linux/platform_data/i2c-cgbc.h
+ 
+ CONSOLE SUBSYSTEM
+ M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
+index 4a409234e66c..321fa3fff2ac 100644
+--- a/drivers/mfd/cgbc-core.c
++++ b/drivers/mfd/cgbc-core.c
+@@ -16,6 +16,7 @@
+ #include <linux/mfd/cgbc.h>
+ #include <linux/mfd/core.h>
+ #include <linux/module.h>
++#include <linux/platform_data/i2c-cgbc.h>
+ #include <linux/platform_device.h>
+ #include <linux/sysfs.h>
+ 
+@@ -55,6 +56,35 @@
+ 
+ static struct platform_device *cgbc_pdev;
+ 
++static const struct cgbc_i2c_platform_data cgbc_i2c_gp_pdata = {
++	.name = "Congatec General Purpose I2C adapter",
++	.cgbc_bus_id = 0,
++};
++
++static const struct cgbc_i2c_platform_data cgbc_i2c_pm_pdata = {
++	.name  = "Congatec Power Management I2C adapter",
++	.cgbc_bus_id = 4,
++};
++
++static const struct mfd_cell cgbc_devs[] = {
++	{ .name = "cgbc-backlight" },
++	{ .name = "cgbc-gpio" },
++	{ .name = "cgbc-hwmon" },
++	{
++		.name = "cgbc-i2c",
++		.id = 1,
++		.platform_data = &cgbc_i2c_gp_pdata,
++		.pdata_size = sizeof(cgbc_i2c_gp_pdata),
++	},
++	{
++		.name = "cgbc-i2c",
++		.id = 2,
++		.platform_data = &cgbc_i2c_pm_pdata,
++		.pdata_size = sizeof(cgbc_i2c_pm_pdata),
++	},
++	{ .name = "cgbc-wdt" },
++};
++
+ /* Wait the Board Controller is ready to receive some session commands */
+ static int cgbc_wait_device(struct cgbc_device_data *cgbc)
+ {
+@@ -235,15 +265,6 @@ int cgbc_command(struct cgbc_device_data *cgbc, void *cmd, unsigned int cmd_size
+ }
+ EXPORT_SYMBOL_GPL(cgbc_command);
+ 
+-static struct mfd_cell cgbc_devs[] = {
+-	{ .name = "cgbc-wdt"	},
+-	{ .name = "cgbc-gpio"	},
+-	{ .name = "cgbc-i2c", .id = 1 },
+-	{ .name = "cgbc-i2c", .id = 2 },
+-	{ .name = "cgbc-hwmon"	},
+-	{ .name = "cgbc-backlight" },
+-};
+-
+ static int cgbc_map(struct cgbc_device_data *cgbc)
+ {
+ 	struct device *dev = cgbc->dev;
+diff --git a/include/linux/platform_data/i2c-cgbc.h b/include/linux/platform_data/i2c-cgbc.h
+new file mode 100644
+index 000000000000..4465e8a7b40e
+--- /dev/null
++++ b/include/linux/platform_data/i2c-cgbc.h
+@@ -0,0 +1,22 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * i2c-cgbc interface to platform code
++ *
++ * Copyright (C) 2026 congatec GmbH
++ * Author: Thomas Richard <thomas.richard@bootlin.com>
++ */
++
++#ifndef _LINUX_I2C_CGBC_H
++#define _LINUX_I2C_CGBC_H
++
++/**
++ * struct cgbc_platform_data - Platform data of the CGBC I2C driver
++ * @name:		I2C adapter name
++ * @cgbc_bus_id:	I2C bus ID (from Board Controller point of view)
++ */
++struct cgbc_i2c_platform_data {
++	const char *name;
++	int cgbc_bus_id;
++};
++
++#endif /* _LINUX_I2C_CGBC_H */
 
-The runtime PM handling follows the same approach
-currently used by the SPI and UART GENI drivers, where
-the performance vote is restored during runtime resume
-and released during runtime suspend.
+-- 
+2.53.0
 
-Please let me know if I'm overlooking something here.
-
-
-Thanks,
-
-Praveen Talari
-
->
-> Konrad
->
->> +
->>   	return 0;
->>   }
->>   
->> @@ -1236,6 +1249,12 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
->>   	int ret = 0;
->>   	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
->>   
->> +	if (gi2c->clk_fld && gi2c->clk_fld->src_clk_freq) {
->> +		ret = dev_pm_opp_set_rate(dev, gi2c->clk_fld->src_clk_freq);
->> +		if (ret)
->> +			return ret;
->> +	}
->> +
->>   	if (gi2c->dev_data->power_on) {
->>   		ret = gi2c->dev_data->power_on(&gi2c->se);
->>   		if (ret)
->>
