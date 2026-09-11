@@ -1,42 +1,42 @@
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED0E36197F;
-	Fri, 11 Sep 2026 18:48:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F7013DAACE
+	for <linux-i2c@vger.kernel.org>; Fri, 11 Sep 2026 18:49:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789152541; cv=none; b=YKBEU23NTld3/mEgTWoLiFSoy7kINKwBOjTtSSeQMBWw2n5VV58izxuz6cgQrd2JRgAc9PSvJJ94MOp7bGfLJy2cDBN/xa5toiTSlXp9EB/lKSac61QYjmqBGh4KT7sT2rVdX9GMbqw6N9cZlehCrFGDRqY2sx8303JdHQOtHNE=
+	t=1789152543; cv=none; b=CJuHLZyLZNAnvrGrNVbzSTCpDHc36kui+sb3WdusE9QNM+pnuZRMtpSqMkaqdoRASvERrve79zhWa6mNV2tiAM324L4em+p5ZaVVlD0GReHG5z4cRaV1p/qqmEiAUBb9iGNvCj563fJZS8TmPyVK3YQbf1cjfNbK2EyYm00HNXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789152541; c=relaxed/simple;
-	bh=gb+fwROmnOkLdeNycb9l18F0EWuU7KY89ynmb/WqDF4=;
+	s=arc-20240116; t=1789152543; c=relaxed/simple;
+	bh=18qWW3RTW3gbNpD6yD1sScGuT7/roe5IdWoYPFCAUY8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AXpdw7YW+3+MYnlIzIYAfHbZr8fFxMuVXD2+F4z22iKceGUBgqObswZgKwkPjj59xkrbsy6+4HNeyken9qLt4aLNWYhiZTp+rhNsFoAYHlSThgzpCJJDzNr9x7gWcnqsrGLFbiTFhnqfpNHcp3g1tujJTZvkRkRaeIlKUkC0ODM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=J+7+GmB+; arc=none smtp.client-ip=185.246.85.4
+	 In-Reply-To:To:Cc; b=H5hE1yh+wOedElNlr0hBnKx4utBc2iSUQVJy7zoK5o86fIPvkSuovOz2Vypo6z+4Vm1IQJuEKH/itLP/tlzp0Pf/UuDItqN6FpL2dqBJy14+KBBLTrEWMz6cmMRRhbmf38QFMB8nExFr9tC4P1PAxCItMalHoMH+ZZQmgWBWvp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=hCYWr3eS; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="J+7+GmB+"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="hCYWr3eS"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 6D3524E4022B;
-	Fri, 11 Sep 2026 18:48:56 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 79C074E401F3;
+	Fri, 11 Sep 2026 18:48:59 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 41B6360580;
-	Fri, 11 Sep 2026 18:48:56 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7181711C7A9DC;
-	Fri, 11 Sep 2026 20:48:54 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 4F545606CC;
+	Fri, 11 Sep 2026 18:48:59 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EDC7F11C7AFAD;
+	Fri, 11 Sep 2026 20:48:57 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1789152535; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1789152538; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=HAyABBQS0V8BnfnIm9rFYNSgw2zlmJq/eAOs916odWA=;
-	b=J+7+GmB+338+VQHqECaqqirV9Yc/RPKRZFgjF3rRxzCFtFazoxouTUNTWXiTkisPryWLD8
-	mi4HxufURS5pCFu9zFRH5pZOmUmUCxmYf5cxJGeSfCULwr7RNohR9AynusGwhgS+1sCToA
-	7clPfr3GbPqXC4gkkFAomRe9FZw7rXADi2ZwANd3vgb/Rx+lnQ3awe//ssFYxFQveuCNW8
-	XBBAuOSQNQbH6gdJ1vJSqfDb8Rpj6feQK1JNyRflMfIZL8mnnSd1Yn/P09e8ROv7GxeDnf
-	AXfwnUQ6WlZQxJg8R74q161VgnXKLEBmEnhJijpg7QA0pSL/JNNE6LaG7URRAQ==
+	bh=MpKgVlL6pZuspcUVghBf8UNZYhdMFqssWfvyazmQE/U=;
+	b=hCYWr3eSsK4T81GNMJ+bCMZUMEcQfelUUqbljgxpTwnOEHcRV8K0IZum56Sz4L1C3Sg7H+
+	uppghw/xOoePbref0Kx4YeMDYxYvOwZRn5xS3PAn+KlZ6gHGTBzPbqaATOYzsRj2tRqnYf
+	u/cHPWVF9iU6UrbYRRQwdwFEoIdFh1f2W4bDIRhn9CFKkhJsrAAMkLHu8dxd/kW9+PmCnv
+	lmJI7+CcdpQYItjxBN4m+HSd5nNYgWljdm0A9EX/Y/2ZN4T8gXZeBIKksnC0K9VZ156F/x
+	CcI5X43x4gc7qF4yniAyPwDSh85ViV0pNLvYDHsssejqPsMbrO8A5DOjQTgayw==
 From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Date: Fri, 11 Sep 2026 20:48:03 +0200
-Subject: [PATCH v3 1/9] mfd: cgbc: Fix use of negative error code as valid
- session handle
+Date: Fri, 11 Sep 2026 20:48:06 +0200
+Subject: [PATCH v3 4/9] mfd: cgbc: Use PLATFORM_DEVID_AUTO for child device
+ registration
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,49 +45,56 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260911-cgbc-i2c-storage-devices-support-v3-1-594b53fbc5ea@bootlin.com>
+Message-Id: <20260911-cgbc-i2c-storage-devices-support-v3-4-594b53fbc5ea@bootlin.com>
 References: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
 In-Reply-To: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
 Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
  linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>, 
- stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-The cgbc_session_command() return value was directly cast to u8 and used
-as session handle without error checking. Casting a negative error to u8
-produces a valid-looking session handle. So check if return value is
-positive before to cast and use it.
+Since parameters are now passed to the i2c-cgbc driver via platform
+data, the I2C driver no longer depends on the platform device ID to probe
+the correct I2C buses. Drop the hardcoded cell ID in favor of
+PLATFORM_DEVID_AUTO.
 
-Cc: stable@vger.kernel.org
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://sashiko.dev/#/patchset/20260713-cgbc-core-fix-cgbc-remove-v1-1-79274ad62b3a%40bootlin.com?part=1
-Fixes: 6f1067cfbee7 ("mfd: Add Congatec Board Controller driver")
 Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 ---
- drivers/mfd/cgbc-core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/mfd/cgbc-core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
-index 2becaf797646..4a409234e66c 100644
+index 321fa3fff2ac..bb26b358da26 100644
 --- a/drivers/mfd/cgbc-core.c
 +++ b/drivers/mfd/cgbc-core.c
-@@ -103,7 +103,11 @@ static int cgbc_session_request(struct cgbc_device_data *cgbc)
+@@ -72,13 +72,11 @@ static const struct mfd_cell cgbc_devs[] = {
+ 	{ .name = "cgbc-hwmon" },
+ 	{
+ 		.name = "cgbc-i2c",
+-		.id = 1,
+ 		.platform_data = &cgbc_i2c_gp_pdata,
+ 		.pdata_size = sizeof(cgbc_i2c_gp_pdata),
+ 	},
+ 	{
+ 		.name = "cgbc-i2c",
+-		.id = 2,
+ 		.platform_data = &cgbc_i2c_pm_pdata,
+ 		.pdata_size = sizeof(cgbc_i2c_pm_pdata),
+ 	},
+@@ -350,8 +348,8 @@ static int cgbc_init_device(struct cgbc_device_data *cgbc)
  	if (ret)
- 		return dev_err_probe(cgbc->dev, ret, "device not found or not ready\n");
+ 		goto release_session;
  
--	cgbc->session = cgbc_session_command(cgbc, CGBC_SESSION_CMD_REQUEST);
-+	ret = cgbc_session_command(cgbc, CGBC_SESSION_CMD_REQUEST);
-+	if (ret < 0)
-+		return dev_err_probe(cgbc->dev, ret, "session handle request timed out\n");
-+
-+	cgbc->session = ret;
+-	ret = mfd_add_devices(cgbc->dev, -1, cgbc_devs, ARRAY_SIZE(cgbc_devs),
+-			      NULL, 0, NULL);
++	ret = mfd_add_devices(cgbc->dev, PLATFORM_DEVID_AUTO, cgbc_devs,
++			      ARRAY_SIZE(cgbc_devs), NULL, 0, NULL);
+ 	if (ret)
+ 		goto release_session;
  
- 	/* The Board Controller sent us a wrong session handle, we cannot communicate with it */
- 	if (cgbc->session < CGBC_SESSION_VALID_MIN || cgbc->session > CGBC_SESSION_VALID_MAX)
 
 -- 
 2.53.0
