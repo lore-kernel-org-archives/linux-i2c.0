@@ -1,88 +1,87 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FB3648095D
-	for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 13:05:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3043385A5
+	for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 13:05:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789218302; cv=none; b=FVMF28acwVJaE3IyvPLp9xESjHQWFQ+AVh4ZQcoehS0Yo+EWFjjvl5YJ669M5EVoFwzWicBHOtXIdJy7seb+ehtGaDFWWrqjZZHMsOISmT5mvY7wZEuZgc2c7dvnG5iY6xbjsZH0Y8grUN2pXIDctWS+XJRpcTw9uBLSpLgB2eg=
+	t=1789218308; cv=none; b=C9SP6TOihNNtnsml84sRUttIdBIeXt9teQMN/8uipZ8ILjiZArX6ieynLOEITtz+rK+nIDHK5E/j5tsDQ6cwqJ0vmNtk5GdDSbKzuslW61RCuqMkO/O9derjUDXVU0NqQPEoo7UMSEg5WzIzBt7jqNwWHDL6FynP8UmmR/hZbOM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789218302; c=relaxed/simple;
-	bh=wyw1WqsiNFGKoo42wz77AWZNLZL4lodVAHqdQSR+w2U=;
+	s=arc-20240116; t=1789218308; c=relaxed/simple;
+	bh=79Fr5OwJj3rXBZztb4Irukv1fBUVIxftWbDY0TgTFr0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IIfb9OTAiWOnvHeA81LJdtQ6tIM4OVc6aCoHeDnu7H6L2ESrhkAzBUUGRyXXZrJ3Z0DOugqmeNreyG8BIjyeEhY98Ff8ZIdHvQKCV1dDCiNmvvxKDm/5s5QwHVPOihl1fedWetHrIvt+1L5qd7GJdMGshqKNlPGKl9uAUFRIcPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=cCqEHrHI; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=AZVwVY9y; arc=none smtp.client-ip=205.220.168.131
+	 In-Reply-To:To:Cc; b=Skk0kUNC0H0lyr/PnM6H7FGiwgOtqA437IkuYAvPWLLyW1WtE4uBQGVDSsMzNod0Kw0hyUXJm1k/UohgoQ/AlcS/gAkE0igshqjM8tt4r6Bjwf2NTmdqzJSDbm/BLDtBNSETaBhUh7fdO3/l+BKIjYnMDarZg1UVjguPdTeAnGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=QPU1O1TR; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=EyInj4ni; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="cCqEHrHI";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="AZVwVY9y"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68CBdSsS2427209
-	for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 13:04:59 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="QPU1O1TR";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="EyInj4ni"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68CBdm9Z2780370
+	for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 13:05:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	SSh8gFqeHXIIjFJPAXzKIU1K8Q/Grp6yUgkciIM+fPo=; b=cCqEHrHIAuv458Zp
-	VvX/ApBPIa2MsTuaoXWNuCvbKC3XXaq+hVWdxAstTvglo0v82Ux0/LUZHQwQG8VT
-	Bajbxv7L9WnlgekMS+9nmnicLQlcrGLMbjPrJjRc+CBC+PalBS/IIoyXfbDtSnbZ
-	LsSD4NC02fm1lt11U1Qg/ic3yqRtk2SNIEPHDFZDkhuYWdY0N3Twqi9w8zSuCmtA
-	xq+lcSfu19mkie4pc6z8FYa2YL5QYNkyT12BzwGBwXrTlc/ppgqAeNPFBvWvCEci
-	NoPqDXSrXHD0XU0BFlrvD7snK0GFIJi7d9FQhCwYe9xV3YXT3ORFROEGEdy85Nd6
-	d7r/xA==
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gmygd0ywn-1
+	Q6iPIf53YQku72sisV18OVAO89sx7Fr8T67qn+OtB0Y=; b=QPU1O1TR8YP0bjnF
+	uPBp79wgrYkEvQaQrRoxZMAIFfpSbj7+PhoE4qz6kervXCdbVMTdvoqk0777R4RL
+	6xiwhxexcUZZOsFNnBAkRI/o+/svCV4yIWzetUBucSadAa6nCcsPPJt3fGnc/EZT
+	MxqvvqGRvQ94h1itW6KI8CbjpqGZGt9kRyO0ZYhLoPdpsIU/j73rIsh2jx3uqded
+	qWo4NmWJSbP3U2vtQEwRyjUvGFcUjSG2oMss4VXMPAkq4LTREti4Xnh3dWa3cW3O
+	8u7GgziP9DpkJJJHNvHVnmhVo5NASD5mRXfBmnPy/gnFy3jZ/6uv6/R99QLp+Xt1
+	smaqBA==
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gmy9d8ykb-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 13:04:59 +0000 (GMT)
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-cb6cf425e86so2246803a12.1
-        for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 06:04:59 -0700 (PDT)
+	for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 13:05:03 +0000 (GMT)
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-39b6416441eso3480387a91.1
+        for <linux-i2c@vger.kernel.org>; Sat, 12 Sep 2026 06:05:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1789218299; x=1789823099; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1789218303; x=1789823103; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=SSh8gFqeHXIIjFJPAXzKIU1K8Q/Grp6yUgkciIM+fPo=;
-        b=AZVwVY9yHMdXuVSStWu5la5cq4So5/t+WFlt1/M7Z3pBsc6vzSEgjz/IJTaia9VuJT
-         IRDk58gmiOoVTrv42n2INBRC170/1toUbl5g6Q5ynwSjjDoKX/ORYB2rIwAAXKMVb6h7
-         Y4suppALd8r8iazoSoIHL2VC5QzLfW1QHmKOvBswdNBdtt+YifFRKfnNJNkuqWapywaI
-         fEay2maQKiEq2RyohXVpTDSE8HXSoye7xZdO5blAAQWUmhRHlhE5m/Vp+U+DmoVI+PfR
-         MBc0+VmStuLq/KQwybTfU8ui3uVdjXbsuWoaF3P5WOqJSP1ymBURko26Fr+1h/LdBkH6
-         +xIQ==
+        bh=Q6iPIf53YQku72sisV18OVAO89sx7Fr8T67qn+OtB0Y=;
+        b=EyInj4niBMB8gc2wT6mDtdrAqiYGiWOhqRDOshXsWbkveLdWJJBwRyYSOX+QvJ/kEd
+         6fLg25CKQae4uneT97Dc5WgDaPdWJLhWOriIh0asqI2KPAVqpaGKMo4+jkK1V/niBng7
+         0nfJpSrxsSPDAScwz6uf6a/yz8DODbAgrvjXPbXahG69rXzgLlvoEMYbDwp5n5KaKTy5
+         bnVrzyG/4eGVkYxWTCvFucuelzFr/V918pw0gxf5fLs6RvMwAfKgl6R9zrQNy/sFROEo
+         xbf0jBPR0TyAu4Yaob2WEkSq5fChV4Uk6FbMZOpuw/3WazaQpAay/oKv3MA7UNi7R146
+         i9PQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789218299; x=1789823099;
+        d=1e100.net; s=20251104; t=1789218303; x=1789823103;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=SSh8gFqeHXIIjFJPAXzKIU1K8Q/Grp6yUgkciIM+fPo=;
-        b=SCcb4Ts+R1EO/ndF7ZmKqCLjtQEjr6cfvgHsqrx0VYle3w3drT1ZEmDILq6B1UBVTa
-         kRL+OeevkvTTU1jCIpXSW1FeWMd4QznM0dzUG9JKF8dRcymQm4jBun5A67hoOD7yjPIO
-         NsSU9CnietJsfbZgfY3nU/KoIp9DVrhbNHLxCusDgQS0tLmZi8BVjy4PXJNOiDnRQpLv
-         ZNMDJqfZyv1bHMebvdRj3L2kP1hUyp4TqWQkqhF4ZAkeA9+5tLkyewUD8xbCcZ4q6WT6
-         90gYpVjeWP5FiBvrHTPkAsPmgifaMYYTnLbh4PNJWTPlycVdWllFuH7vVv4jGZh527ic
-         O6ZA==
-X-Forwarded-Encrypted: i=1; AKwUvBxOyTHDJR4yS6P2FnhpEjlDO63NP1shUXpHMQl8+DoFXx1TXWz9dRck6O8+mz/7APqYuaMQ4bbN7lc=@vger.kernel.org
-X-Gm-Message-State: AFuF++lz6AmDGHuWxNuodFOT+NvOG1Bb7ZpralFWrqjPILrUxUyUneh/
-	5Y2Nj46GVMnQ/3amIopFdd+WE6HRdy9GV7+TcJNuY/YDyJ7dR7C4B12eBeQ6P9lAXDio/jfKF/R
-	UYRDN7wv+tnQsc0fbyZOBxBGUDdUZAvk9IRqi+1h2wLhUMpcaHO+/tqz5DepYo3cxzS3l4pI=
-X-Gm-Gg: AYBFou3GuzPsppPHbFtbWOHg43h51GHOBBdCTLEyD+8tl3LKPneq5Iqee2B0npslCEC
-	IW/RnUPXtC8VD5YOyBOxM2jz80Qex3bZArhXvsxXTHFwgggDF9+jsBL60oNJ+7hka663wZPd+zj
-	KDlDMDHQTInt1NoWTnvgwB1jZKkSzeVNA47vLBGfbfh84oWNXWK/XSvrUarB2ApA+YBwkuhCC39
-	wZsuoIbvuu4jDiZi0CFGzeArD0JEYnWrZjJSxPHR80WiK7IvjA9/Ex4OyIJ5/I9fZu+Z7R+/lbx
-	x6OJ7IrDyBQvCA6a4FJVlSMK+ECZM3uYZhMwM9MxkghPvL3vQ//frE2rS2p9IwXNBBIU1YgmyzX
-	MDMjvvyUG+DBf9Bs2F+72bsXWYhOOwBbA3oM=
-X-Received: by 2002:a17:90b:51c3:b0:398:9bd5:490d with SMTP id 98e67ed59e1d1-39dbc6ed4b1mr4957432a91.20.1789218298609;
-        Sat, 12 Sep 2026 06:04:58 -0700 (PDT)
-X-Received: by 2002:a17:90b:51c3:b0:398:9bd5:490d with SMTP id 98e67ed59e1d1-39dbc6ed4b1mr4957403a91.20.1789218298123;
-        Sat, 12 Sep 2026 06:04:58 -0700 (PDT)
+        bh=Q6iPIf53YQku72sisV18OVAO89sx7Fr8T67qn+OtB0Y=;
+        b=C7GsHUyf5j08udUBoeM+4yIglTILfl5HwpSTUNt/+8oJB5rP08+ZcyWxrjBPrRlGyo
+         CzYDJLZYEENDg5e7CikseaAqZZENPtPc6+It0F+0zQ7XdDqLjmzfAf4BC23HHoPl3MUY
+         EcOgeOuS+KQI0rCg+VzQMg0TWgSXlKJxRXzjEDP3wGLDpX2UFKHRaMUhwzLqIdGngvS8
+         TNhycHpoYWuvUMiv1NSJlojTa5GEhRmQ4cs3+27BFxx5c/PC6Dh7hQaLBm5S3+YDXruI
+         HlTGXFNDADgrPwoD8emm5gjlpECj1mn87w5GYse7Yv/A82/f2VU2Ddg3TaOUc3NRi+Vq
+         rTlw==
+X-Forwarded-Encrypted: i=1; AKwUvBw+eNHfrNOFCW71SJC5wCcFh+hkiro16kEsjxkH1u2PBNOfl1f6zDnSBTUUEHK2E7r7jg+ArZSIbSs=@vger.kernel.org
+X-Gm-Message-State: AFuF++ncScw148vSPzSGIlTfm2+tK5maHtcUK7wYgPjFs6c7UWVln36+
+	qSFk92E3F5T6bXc8W+empkoURKwwkFUbAzBCenp/00u98bbGt8mVu9uYc2LnVV9mPMkuistYnwy
+	6i0iWaEM5c1XWzlXaZ2xllrG9g46gsWl6SDkQAHM3S/4t3b/eICU57+PfSKHjILUyQwL1E0M=
+X-Gm-Gg: AYBFou3NJ1WxwgMmrwEwQp6ESkzJRQikTSZm12CoXJwYRvUWyF8KEkeTTV7LJWDhyDS
+	dTya+WPaZEQl6ZffA2DI7Y36fqxF8uSjEllgv1PmTX6IQX9fNDUrGedNgH0b/fGM+FCq31yC6FI
+	oPYnpTnqMv8xseufqITyzzUI8b4q1lPwG+pUptx54bZlzZXq6A8sKp1aPOD6apzdw8h5b2plNTV
+	3NvlqKKPiiUoIns9lrAZyWQaR5U65VMmCqg0Nq/5WeU4cmBDGQWIqupIaOmQLiH76LWh2VPFrxY
+	QYO0DOlQr1p7opQQnitDObAWYgbu3PeEcAALZSqqoD6ATUkOsmOCz6o6YohOoJHeoCR2tBbnbJa
+	E54PgUveIyTvQJTC3FAN6hjfE11Y3MDOqsx8=
+X-Received: by 2002:a17:90b:540d:b0:398:ba96:1afd with SMTP id 98e67ed59e1d1-39d9bee4822mr15258940a91.8.1789218302573;
+        Sat, 12 Sep 2026 06:05:02 -0700 (PDT)
+X-Received: by 2002:a17:90b:540d:b0:398:ba96:1afd with SMTP id 98e67ed59e1d1-39d9bee4822mr15258873a91.8.1789218302058;
+        Sat, 12 Sep 2026 06:05:02 -0700 (PDT)
 Received: from hu-jseerapu-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4f1e434sm13665036eec.22.2026.09.12.06.04.54
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4f1e434sm13665036eec.22.2026.09.12.06.04.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Sep 2026 06:04:57 -0700 (PDT)
+        Sat, 12 Sep 2026 06:05:01 -0700 (PDT)
 From: Jyothi Kumar Seerapu <jyothi.seerapu@oss.qualcomm.com>
-Date: Sat, 12 Sep 2026 18:34:22 +0530
-Subject: [PATCH v2 1/2] dmaengine: qcom-gpi: Add I2C High-Speed mode
- configuration support
+Date: Sat, 12 Sep 2026 18:34:23 +0530
+Subject: [PATCH v2 2/2] i2c: qcom-geni: Add support for I2C High-Speed mode
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -91,7 +90,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260912-i2c-hs-v2-1-b0901791e244@oss.qualcomm.com>
+Message-Id: <20260912-i2c-hs-v2-2-b0901791e244@oss.qualcomm.com>
 References: <20260912-i2c-hs-v2-0-b0901791e244@oss.qualcomm.com>
 In-Reply-To: <20260912-i2c-hs-v2-0-b0901791e244@oss.qualcomm.com>
 To: Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>,
@@ -102,248 +101,322 @@ Cc: linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         Jyothi Kumar Seerapu <jyothi.seerapu@oss.qualcomm.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789218290; l=6772;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789218290; l=9959;
  i=jyothi.seerapu@oss.qualcomm.com; h=from:subject:message-id;
- bh=wyw1WqsiNFGKoo42wz77AWZNLZL4lodVAHqdQSR+w2U=;
- b=QZsYJKPUtKBBZIOhyUlWeQfDtdu06FuOAoUiFNstXty+oOI7HrnlzcCsDQIgGODNCnGBS0lEk
- KoeMaYeBNu4BQ3gK83h1ZUQooRhNRhoZ+rnm3IDaPQXH1dSRq/2Q1Gi
+ bh=79Fr5OwJj3rXBZztb4Irukv1fBUVIxftWbDY0TgTFr0=;
+ b=5bH5F2JZ+Qn5sf6GDPcxFodFCLDd9mwLIxABbAtzWDu2oKoQD3I3LugWXwmUyrRbu7nbpAvqQ
+ BzYzMRToK2xBN+1+Vkc28GTwVdRjOZ2wty66Xv7iYjeZrkywNSr1zJb
 X-Developer-Key: i=jyothi.seerapu@oss.qualcomm.com; a=ed25519;
  pk=9vafyYsia0OnBKWSEwhmWe3hPVQfI2T1xOs5dPaFvEo=
-X-Authority-Analysis: v=2.4 cv=RY0FmFtv c=1 sm=1 tr=0 ts=6aa54dfb cx=c_pps
- a=oF/VQ+ItUULfLr/lQ2/icg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEyMDE4OSBTYWx0ZWRfX6EdOaNTTXqfy
+ FXKrEYN4Vhx6O2nImkFndFwiNHEA+EFWuBqHO0VsWzUZA2q1EhTLA+ZAWe91NO49Vup8ipTtwHG
+ WA4tLn0XM3Rm57hpCEcJ/a3tODalm06hQmRl+yuyNLHqsVHv0S/Mb+x90A5WXoF0XmU5wNE0g38
+ MB/DqGK56A+5bMnGUIzr73m3GfYg5ZWreywsdr3WM10PEfAaV1FwL5oYghiL/06iq/Pgo0z0usB
+ 0C58b0IME70zodGn7yILHqvtyNANYgxYMY6sku2psGU7PPzn6HNl9sOn5Yt8hD4ZkLPgyJ/iFLe
+ c17NrS5LpCxu9foTjD35zoZ0YX0eEHTN5cA471VO1Hz3aUanEdGyztDTmwOLeXKD7oUmODaiKfl
+ /TtMaGBKzYKVzEwfaz70yc6xr5tcSWvAdalp+X0odGdWyb4IcwwYG0rLRw36lpmLtrCoZ7JZb1L
+ qdR2SCNSiYpz6CRZcMQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEyMDE4OSBTYWx0ZWRfX2urs/wn+zJZb
+ ly1VjjGDzpEn/uKP4M64qNrWPYoLswzbEkq+kH8vq8xMePLbEJJPb4CV4hCLqdHwXKMisDo0OZj
+ eiZ4BE1BdaVy6412dLV5I2egBJDDNKI=
+X-Proofpoint-GUID: l0F1C0mVZl5vLgIKhQBfQvPNzglYwJnV
+X-Authority-Analysis: v=2.4 cv=OeUNnRTY c=1 sm=1 tr=0 ts=6aa54dff cx=c_pps
+ a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=EUspDBNiAAAA:8 a=8yvkWvxPp_QYhSqoyPwA:9 a=QEXdDO2ut3YA:10
- a=3WC7DwWrALyhR5TkjVHa:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEyMDE4OSBTYWx0ZWRfXzA/ocHrNjyHg
- CqlCqknT/OGZw/djvI8Tpc8NCI3ztbB/0MlvFKxUrP0xPDlSc1FgTIM4ODEIR/WsNUJaviZbiIg
- UYG4IKXtj2u5uf5SyZ2sv98zJHrm1fpDMYZHaut/hSHTn1by+0XFBUM/TpmmRW9LmkAgf8z/e8j
- L/C5q06j0tSTA1xp3HCWb0zS7WiGI6eERxV3EP1MK8U15qlrkv8OgGM7DP3oH6LsjTzzzj9NO2f
- sXQbENA+oKscwcy4+Rb7TScmhXRGpsww9n33G6zMJtnGPM57G7B8TO9DMhBk5V5Qzjcthuph/Qg
- xm25MfOjso5k5g5SP42VfaqGo2CVXESR5LYI4HK8eY1udBa3mSHQ4kpWaI5yIGsygj7g+ki+AOc
- CCekIOidEkayuo7yQ8B85Ld1+gKRGWqeVTBrrIoFIum7DTl2MeIZKEMWNlRYZDZISrrKavgxolJ
- Dii5rCRA9d7QkeihDHg==
-X-Proofpoint-ORIG-GUID: I7WGCJ_7GSGv2ZdIE7S5XYQloho8YWj2
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEyMDE4OSBTYWx0ZWRfXzbTZYgMvYAFA
- NDvR6x+A//Es8tJFnVfvQ9rkInMWuXkgmxj94hHKz+tHrJ6IaBZ8OyBYDs0smF09EGspri9GnYw
- PuxhUB2yAWnNbKpBFO2htE/GNl/R9hA=
-X-Proofpoint-GUID: I7WGCJ_7GSGv2ZdIE7S5XYQloho8YWj2
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
+ a=EUspDBNiAAAA:8 a=CVQZEhLW7cNm6rAVh1IA:9 a=QEXdDO2ut3YA:10
+ a=rl5im9kqc5Lf4LNbBjHf:22
+X-Proofpoint-ORIG-GUID: l0F1C0mVZl5vLgIKhQBfQvPNzglYwJnV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-12_04,2026-09-11_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 spamscore=0 suspectscore=0
- lowpriorityscore=0 impostorscore=0 phishscore=0 malwarescore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609120189
+ lowpriorityscore=0 malwarescore=0 phishscore=0 bulkscore=0 spamscore=0
+ priorityscore=1501 suspectscore=0 impostorscore=0 adultscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609120189
 
-Add support in the Qualcomm GPI (Generic Packet Interface) DMA engine
-for I2C High-Speed (HS) mode transfers
+Implement I2C High-Speed (HS) mode for the Qualcomm GENI I2C controller.
+Detect HS mode requests based on 3.4 MHz frequency and configure the
+hardware accordingly. When HS mode is active, set the source clock to
+100 MHz and program timing parameters (TCYCLE=28, TLOW=38).
 
-Introduce support for CONFIG1 Transfer Ring Element (TRE) to convey
-HS-specific timing parameters to the Qualcomm GPI DMA engine.
+For FIFO/SE-DMA transfers, use HS-specific opcodes I2C_HS_WRITE (0xa)
+and I2C_HS_READ (0xb). Transmit the master code at Fast Mode Plus
+timing (1 MHz) before switching to 3.4 MHz for data transfer.
 
-Define a new gpi_i2c_config1 structure containing tcycle_cnt and
-tlow_cnt fields, with default values of 28 and 38 respectively,
-as required for 3.4 MHz HS mode operation.
+For GPI DMA, extend the configuration with a CONFIG1 TRE to pass HS
+timing parameters to the DMA engine. Add gpi_i2c_config1 with
+tcycle_cnt and tlow_cnt fields (defaults: 28 and 38).
+Use the set_config1 flag in gpi_i2c_config to send CONFIG1 TRE before
+the GO TRE in HS mode.
 
 Signed-off-by: Jyothi Kumar Seerapu <jyothi.seerapu@oss.qualcomm.com>
 ---
- drivers/dma/qcom/gpi.c           | 56 +++++++++++++++++++++++++++++++++++-----
- include/linux/dma/qcom-gpi-dma.h | 28 +++++++++++++++++++-
- 2 files changed, 76 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-qcom-geni.c | 127 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 113 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/dma/qcom/gpi.c b/drivers/dma/qcom/gpi.c
-index a5055a6273af..835021a9b7ed 100644
---- a/drivers/dma/qcom/gpi.c
-+++ b/drivers/dma/qcom/gpi.c
-@@ -21,6 +21,7 @@
- #define TRE_TYPE_IMMEDIATE_DMA	0x11
- #define TRE_TYPE_GO		0x20
- #define TRE_TYPE_CONFIG0	0x22
-+#define TRE_TYPE_CONFIG1	0x23
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 658636c1ee0e..03c7bf95aec6 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -21,9 +21,21 @@
+ #include <linux/spinlock.h>
+ #include <linux/units.h>
  
- /* TRE flags */
- #define TRE_FLAGS_CHAIN		BIT(0)
-@@ -58,9 +59,14 @@
- #define TRE_I2C_C0_TX_PACK	BIT(24)
- #define TRE_I2C_C0_RX_PACK      BIT(25)
- 
-+/* I2C Config1 WD0 */
-+#define TRE_I2C_C1_TLOW		GENMASK(9, 0)
-+#define TRE_I2C_C1_TCYCLE	GENMASK(19, 10)
++#define SE_GENI_CFG_REG68		0x210
++#define SE_I2C_HS_TLOW_REG		0x268
+ #define SE_I2C_TX_TRANS_LEN		0x26c
+ #define SE_I2C_RX_TRANS_LEN		0x270
+ #define SE_I2C_SCL_COUNTERS		0x278
++#define SE_I2C_HS_TCYCLE_REG		0x27c
 +
- /* I2C GO WD0 */
- #define TRE_I2C_GO_CMD          GENMASK(4, 0)
- #define TRE_I2C_GO_ADDR		GENMASK(14, 8)
-+#define TRE_I2C_GO_MASTER_CODE	GENMASK(17, 15)
- #define TRE_I2C_GO_STRETCH	BIT(26)
++/* I2C High-Speed mode definitions */
++#define I2C_HS_MODE_FREQ		3400000
++#define I2C_HS_SRC_CLK_FREQ		(100 * HZ_PER_MHZ)
++#define I2C_HS_TCYCLE_CNT		28
++#define I2C_HS_TLOW_CNT			38
++/* I2C HS mode support requires QUPv3 core version >= 4.3 per HPG */
++#define QUP_I2C_HS_MIN_MAJOR		4
++#define QUP_I2C_HS_MIN_MINOR		3
  
- /* DMA TRE */
-@@ -518,7 +524,7 @@ struct gpii {
- 	bool ieob_set;
+ #define SE_I2C_ERR  (M_CMD_OVERRUN_EN | M_ILLEGAL_CMD_EN | M_CMD_FAILURE_EN |\
+ 			M_GP_IRQ_1_EN | M_GP_IRQ_3_EN | M_GP_IRQ_4_EN)
+@@ -36,6 +48,9 @@
+ #define I2C_ADDR_ONLY		0x4
+ #define I2C_BUS_CLEAR		0x6
+ #define I2C_STOP_ON_BUS		0x7
++#define I2C_HS_WRITE		0xa
++#define I2C_HS_READ		0xb
++
+ /* M_CMD params for I2C */
+ #define PRE_CMD_DELAY		BIT(0)
+ #define TIMESTAMP_BEFORE	BIT(1)
+@@ -138,6 +153,9 @@ struct geni_i2c_dev {
+ 	u32 num_msgs;
+ 	struct geni_i2c_gpi_multi_desc_xfer i2c_multi_desc_config;
+ 	const struct geni_i2c_desc *dev_data;
++	bool is_hs_mode;
++	bool config1_sent;
++	u32 dfs_index;
  };
  
--#define MAX_TRE 3
-+#define MAX_TRE 4
+ struct geni_i2c_err_log {
+@@ -162,9 +180,9 @@ static const struct geni_i2c_err_log gi2c_log[] = {
+ struct geni_i2c_clk_fld {
+ 	u32	clk_freq_out;
+ 	u8	clk_div;
+-	u8	t_high_cnt;
+-	u8	t_low_cnt;
+-	u8	t_cycle_cnt;
++	u16	t_high_cnt;
++	u16	t_low_cnt;
++	u16	t_cycle_cnt;
+ };
  
- struct gpi_desc {
- 	struct virt_dma_desc vd;
-@@ -1631,7 +1637,7 @@ static int gpi_create_i2c_tre(struct gchan *chan, struct gpi_desc *desc,
- 	struct gpi_tre *tre;
- 	unsigned int i;
+ /*
+@@ -194,10 +212,30 @@ static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz[] = {
+ 	{}
+ };
  
--	/* first create config tre if applicable */
-+	/* first create config0 tre if applicable */
- 	if (i2c->set_config) {
- 		tre = &desc->tre[tre_idx];
- 		tre_idx++;
-@@ -1645,20 +1651,48 @@ static int gpi_create_i2c_tre(struct gchan *chan, struct gpi_desc *desc,
- 		tre->dword[1] = 0;
- 
- 		tre->dword[2] = u32_encode_bits(i2c->clk_div, TRE_C0_CLK_DIV);
-+		tre->dword[2] |= u32_encode_bits(i2c->clk_src, TRE_C0_CLK_SRC);
- 
- 		tre->dword[3] = u32_encode_bits(TRE_TYPE_CONFIG0, TRE_FLAGS_TYPE);
- 		tre->dword[3] |= u32_encode_bits(1, TRE_FLAGS_CHAIN);
- 	}
- 
--	/* create the GO tre for Tx */
--	if (i2c->op == I2C_WRITE) {
-+	/* Create CONFIG1 TRE if requested */
-+	if (i2c->set_config1) {
- 		tre = &desc->tre[tre_idx];
- 		tre_idx++;
- 
-+		/* CONFIG1 TRE with timing parameters */
-+		tre->dword[0] = u32_encode_bits(i2c->config1.tlow_cnt, TRE_I2C_C1_TLOW);
-+		tre->dword[0] |= u32_encode_bits(i2c->config1.tcycle_cnt, TRE_I2C_C1_TCYCLE);
-+		tre->dword[1] = 0;
-+		tre->dword[2] = 0;
-+		tre->dword[3] = u32_encode_bits(TRE_TYPE_CONFIG1, TRE_FLAGS_TYPE);
-+		tre->dword[3] |= u32_encode_bits(1, TRE_FLAGS_CHAIN);
-+	}
-+
-+	/* create the GO tre for Tx */
-+	if (i2c->op == I2C_WRITE || i2c->op == I2C_HS_WRITE) {
-+		u8 master_code = 0;
-+		u32 cmd_opcode;
-+		bool is_hs_mode = false;
-+
-+		tre = &desc->tre[tre_idx];
-+		tre_idx++;
-+
-+		is_hs_mode = (i2c->op == I2C_HS_WRITE || i2c->op == I2C_HS_READ);
-+
-+		/* Select HS-mode or standard I2C opcode */
- 		if (i2c->multi_msg)
--			tre->dword[0] = u32_encode_bits(I2C_READ, TRE_I2C_GO_CMD);
-+			cmd_opcode = is_hs_mode ? I2C_HS_READ : I2C_READ;
- 		else
--			tre->dword[0] = u32_encode_bits(i2c->op, TRE_I2C_GO_CMD);
-+			/* I2C HS write vs Regular I2C write */
-+			cmd_opcode = is_hs_mode ? I2C_HS_WRITE : i2c->op;
-+
-+		tre->dword[0] = u32_encode_bits(cmd_opcode, TRE_I2C_GO_CMD);
-+
-+		if (is_hs_mode)
-+			tre->dword[0] |= u32_encode_bits(master_code, TRE_I2C_GO_MASTER_CODE);
- 
- 		tre->dword[0] |= u32_encode_bits(i2c->addr, TRE_I2C_GO_ADDR);
- 		tre->dword[0] |= u32_encode_bits(i2c->stretch, TRE_I2C_GO_STRETCH);
-@@ -1674,7 +1708,7 @@ static int gpi_create_i2c_tre(struct gchan *chan, struct gpi_desc *desc,
- 			tre->dword[3] |= u32_encode_bits(1, TRE_FLAGS_CHAIN);
- 	}
- 
--	if (i2c->op == I2C_READ || i2c->multi_msg == false) {
-+	if (i2c->op == I2C_READ || i2c->op == I2C_HS_READ || i2c->multi_msg == false) {
- 		/* create the DMA TRE */
- 		tre = &desc->tre[tre_idx];
- 		tre_idx++;
-@@ -1826,6 +1860,14 @@ gpi_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 	if (direction == DMA_DEV_TO_MEM) /* rx */
- 		nr_tre = 1;
- 
-+	/* I2C High-Speed mode sends an extra CONFIG1 TRE ahead of the GO TRE */
-+	if (gchan->protocol == QCOM_GPI_I2C) {
-+		struct gpi_i2c_config *i2c = gchan->config;
-+
-+		if (i2c->set_config1)
-+			nr_tre++;
-+	}
-+
- 	/* calculate # of elements required & available */
- 	nr = gpi_ring_num_elements_avail(ch_ring);
- 	if (nr < nr_tre) {
-diff --git a/include/linux/dma/qcom-gpi-dma.h b/include/linux/dma/qcom-gpi-dma.h
-index 332be28427e4..dda5f00660f9 100644
---- a/include/linux/dma/qcom-gpi-dma.h
-+++ b/include/linux/dma/qcom-gpi-dma.h
-@@ -6,6 +6,24 @@
- #ifndef QCOM_GPI_DMA_H
- #define QCOM_GPI_DMA_H
- 
-+/**
-+ * struct gpi_i2c_config1 - I2C High-Speed mode timing configuration
-+ * @tcycle_cnt: I2C HS mode TCYCLE counter value
-+ * @tlow_cnt: I2C HS mode TLOW counter value
-+ *
-+ * This structure is used for I2C High-Speed mode to configure the
-+ * high-speed timing parameters via CONFIG1 TRE. The CONFIG1 TRE
-+ * must be sent before the GO TRE when operating in HS mode.
-+ *
-+ * For I2C HS mode (3.4 MHz):
-+ * - tcycle_cnt: Typically 28 for 100 MHz source clock
-+ * - tlow_cnt: Typically 38 for 100 MHz source clock
-+ */
-+struct gpi_i2c_config1 {
-+	u16 tcycle_cnt;
-+	u16 tlow_cnt;
++/* source_clock = 100 MHz */
++static const struct geni_i2c_clk_fld geni_i2c_clk_map_100mhz[] = {
++	{ I2C_MAX_STANDARD_MODE_FREQ, 1, 449, 548, 998 },
++	{ I2C_MAX_FAST_MODE_FREQ, 1, 76, 167, 248 },
++	{ I2C_MAX_FAST_MODE_PLUS_FREQ, 1, 23, 59, 98 },
++	{}
 +};
 +
- /**
-  * enum spi_transfer_cmd - spi transfer commands
-  * @SPI_TX: SPI peripheral TX command
-@@ -52,6 +70,8 @@ struct gpi_spi_config {
- enum i2c_op {
- 	I2C_WRITE = 1,
- 	I2C_READ,
-+	I2C_HS_WRITE = 0xa,
-+	I2C_HS_READ = 0xb,
- };
+ static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
+ {
+ 	const struct geni_i2c_clk_fld *itr;
  
- /**
-@@ -62,15 +82,19 @@ enum i2c_op {
-  * @high_count: high period of clock
-  * @low_count: low period of clock
-  * @clk_div: source clock divider
-+ * @clk_src: source clock
-  * @addr: i2c bus address
-  * @stretch: stretch the clock at eot
-- * @set_config: set peripheral config
-+ * @set_config: set peripheral config (CONFIG0)
-+ * @set_config1: set peripheral config1 (CONFIG1)
-+ * @config1: I2C HS mode timing configuration (CONFIG1 TRE parameters)
-  * @rx_len: receive length for buffer
-  * @op: i2c cmd
-  * @multi_msg: is part of multi i2c r-w msgs
-  */
- struct gpi_i2c_config {
- 	u8 set_config;
-+	u8 set_config1;
- 	u8 pack_enable;
- 	u8 cycle_count;
- 	u8 high_count;
-@@ -78,6 +102,8 @@ struct gpi_i2c_config {
- 	u8 addr;
- 	u8 stretch;
- 	u16 clk_div;
-+	u32 clk_src;
-+	struct gpi_i2c_config1 config1;
- 	u32 rx_len;
- 	enum i2c_op op;
- 	bool multi_msg;
++	/* Check if HS mode is requested */
++	if (gi2c->clk_freq_out == I2C_HS_MODE_FREQ) {
++		gi2c->is_hs_mode = true;
++		/* For HS mode, source clock should be 100 MHz */
++		itr = geni_i2c_clk_map_100mhz;
++		/* For HS mode, start with 1MHz for master code */
++		gi2c->clk_fld = &itr[2];
++		return 0;
++	}
++
++	gi2c->is_hs_mode = false;
++
+ 	if (clk_get_rate(gi2c->se.clk) == 32 * HZ_PER_MHZ)
+ 		itr = geni_i2c_clk_map_32mhz;
+ 	else
+@@ -219,7 +257,12 @@ static int qcom_geni_i2c_conf(struct geni_se *se, unsigned long freq)
+ 	const struct geni_i2c_clk_fld *itr = gi2c->clk_fld;
+ 	u32 val;
+ 
+-	writel_relaxed(0, gi2c->se.base + SE_GENI_CLK_SEL);
++	if (gi2c->is_hs_mode) {
++		writel_relaxed(I2C_HS_TCYCLE_CNT, gi2c->se.base + SE_I2C_HS_TCYCLE_REG);
++		writel_relaxed(I2C_HS_TLOW_CNT, gi2c->se.base + SE_I2C_HS_TLOW_REG);
++	}
++
++	writel_relaxed(gi2c->dfs_index, gi2c->se.base + SE_GENI_CLK_SEL);
+ 
+ 	val = (itr->clk_div << CLK_DIV_SHFT) | SER_CLK_EN;
+ 	writel_relaxed(val, gi2c->se.base + GENI_SER_M_CLK_CFG);
+@@ -500,7 +543,9 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+ 
+ 	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
+-	geni_se_setup_m_cmd(se, I2C_READ, m_param);
++
++	geni_se_setup_m_cmd(se, gi2c->is_hs_mode ? I2C_HS_READ : I2C_READ,
++			    m_param);
+ 
+ 	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+@@ -539,7 +584,9 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+ 
+ 	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
+-	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
++
++	geni_se_setup_m_cmd(se, gi2c->is_hs_mode ? I2C_HS_WRITE : I2C_WRITE,
++			    m_param);
+ 
+ 	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+@@ -689,7 +736,8 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[],
+ 	 * programming an extra TX DMA TRE that would cause an unintended
+ 	 * write cycle on the I2C bus before the actual read operation.
+ 	 */
+-	if (op == I2C_WRITE && msgs[msg_idx].flags & I2C_M_RD) {
++	if ((op == I2C_WRITE || op == I2C_HS_WRITE) &&
++	    msgs[msg_idx].flags & I2C_M_RD) {
+ 		peripheral->multi_msg = true;
+ 		goto skip_tx_dma_map;
+ 	}
+@@ -700,7 +748,7 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[],
+ 		goto out;
+ 	}
+ 
+-	if (op == I2C_WRITE)
++	if (op == I2C_WRITE || op == I2C_HS_WRITE)
+ 		map_dirn = DMA_TO_DEVICE;
+ 	else
+ 		map_dirn = DMA_FROM_DEVICE;
+@@ -737,7 +785,7 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[],
+ 	peripheral->set_config = 0;
+ 	peripheral->multi_msg = true;
+ 
+-	if (op == I2C_WRITE)
++	if (op == I2C_WRITE || op == I2C_HS_WRITE)
+ 		dma_dirn = DMA_MEM_TO_DEV;
+ 	else
+ 		dma_dirn = DMA_DEV_TO_MEM;
+@@ -760,7 +808,8 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[],
+ 	desc->callback_result = i2c_gpi_cb_result;
+ 	desc->callback_param = gi2c;
+ 
+-	if (!((msgs[msg_idx].flags & I2C_M_RD) && op == I2C_WRITE))
++	if (!((msgs[msg_idx].flags & I2C_M_RD) &&
++	    (op == I2C_WRITE || op == I2C_HS_WRITE)))
+ 		gi2c_gpi_xfer->msg_idx_cnt++;
+ 
+ 	cookie = dmaengine_submit(desc);
+@@ -827,6 +876,7 @@ static int geni_i2c_gpi_xfer(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[], i
+ 	peripheral.high_count = itr->t_high_cnt;
+ 	peripheral.low_count = itr->t_low_cnt;
+ 	peripheral.clk_div = itr->clk_div;
++	peripheral.clk_src = gi2c->dfs_index;
+ 	peripheral.set_config = 1;
+ 	peripheral.multi_msg = false;
+ 
+@@ -836,6 +886,13 @@ static int geni_i2c_gpi_xfer(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[], i
+ 
+ 	gi2c->num_msgs = num;
+ 	gi2c->is_tx_multi_desc_xfer = false;
++	gi2c->config1_sent = false;
++
++	/* Initialize config1 TRE settings for HS mode */
++	if (gi2c->is_hs_mode) {
++		peripheral.config1.tcycle_cnt = I2C_HS_TCYCLE_CNT;
++		peripheral.config1.tlow_cnt = I2C_HS_TLOW_CNT;
++	}
+ 
+ 	tx_multi_xfer = &gi2c->i2c_multi_desc_config;
+ 	memset(tx_multi_xfer, 0, sizeof(struct geni_i2c_gpi_multi_desc_xfer));
+@@ -883,14 +940,25 @@ static int geni_i2c_gpi_xfer(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[], i
+ 		if (i > 0 && (!(msgs[i].flags & I2C_M_RD)))
+ 			peripheral.multi_msg = false;
+ 
+-		ret =  geni_i2c_gpi(gi2c, msgs, &config,
+-				    &tx_addr, &tx_buf, I2C_WRITE, gi2c->tx_c);
++		/* Set config1 TRE only for HS mode */
++		if (gi2c->is_hs_mode && !gi2c->config1_sent) {
++			peripheral.set_config1 = 1;
++			gi2c->config1_sent = true;
++		} else {
++			peripheral.set_config1 = 0;
++		}
++
++		ret =  geni_i2c_gpi(gi2c, msgs, &config, &tx_addr, &tx_buf,
++				    gi2c->is_hs_mode ? I2C_HS_WRITE : I2C_WRITE, gi2c->tx_c);
+ 		if (ret)
+ 			goto err;
+ 
++		/* CONFIG1 TRE is only for the TX channel; clear before RX call */
++		peripheral.set_config1 = 0;
++
+ 		if (msgs[i].flags & I2C_M_RD) {
+-			ret =  geni_i2c_gpi(gi2c, msgs, &config,
+-					    &rx_addr, &rx_buf, I2C_READ, gi2c->rx_c);
++			ret =  geni_i2c_gpi(gi2c, msgs, &config, &rx_addr, &rx_buf,
++					    gi2c->is_hs_mode ? I2C_HS_READ : I2C_READ, gi2c->rx_c);
+ 			if (ret)
+ 				goto err;
+ 
+@@ -1037,6 +1105,7 @@ static int setup_gpi_dma(struct geni_i2c_dev *gi2c)
+ static int geni_i2c_init(struct geni_i2c_dev *gi2c)
+ {
+ 	u32 proto, tx_depth;
++	unsigned long freq_out;
+ 	bool fifo_disable;
+ 	int ret;
+ 
+@@ -1046,6 +1115,36 @@ static int geni_i2c_init(struct geni_i2c_dev *gi2c)
+ 		return ret;
+ 	}
+ 
++	/* HS mode requires QUPv3 version >= 4.3 and source clock=100 MHz */
++	if (gi2c->is_hs_mode) {
++		u32 hw_ver = geni_se_get_qup_hw_version(&gi2c->se);
++		u32 major = GENI_SE_VERSION_MAJOR(hw_ver);
++		u32 minor = GENI_SE_VERSION_MINOR(hw_ver);
++
++		if (major < QUP_I2C_HS_MIN_MAJOR ||
++		    (major == QUP_I2C_HS_MIN_MAJOR && minor < QUP_I2C_HS_MIN_MINOR)) {
++			dev_err(gi2c->se.dev,
++				"QUP HW v%u.%u does not support I2C HS mode (requires >= %u.%u)\n",
++				major, minor,
++				QUP_I2C_HS_MIN_MAJOR, QUP_I2C_HS_MIN_MINOR);
++			ret = -EOPNOTSUPP;
++			goto err;
++		}
++
++		ret = geni_se_clk_freq_match(&gi2c->se, I2C_HS_SRC_CLK_FREQ,
++					     &gi2c->dfs_index, &freq_out, false);
++		if (ret) {
++			dev_err(gi2c->se.dev, "Failed to get DFS index for HS mode: %d\n", ret);
++			goto err;
++		}
++
++		ret = clk_set_rate(gi2c->se.clk, freq_out);
++		if (ret) {
++			dev_err(gi2c->se.dev, "Failed to set HS mode clock rate: %d\n", ret);
++			goto err;
++		}
++	}
++
+ 	proto = geni_se_read_proto(&gi2c->se);
+ 	if (proto == GENI_SE_INVALID_PROTO) {
+ 		ret = geni_load_se_firmware(&gi2c->se, GENI_SE_I2C);
 
 -- 
 2.34.1
