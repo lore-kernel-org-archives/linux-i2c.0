@@ -1,57 +1,69 @@
-Received: from PNZPR01CU001.outbound.protection.outlook.com (mail-centralindiaazon11021138.outbound.protection.outlook.com [40.107.51.138])
+Received: from MRWPR03CU001.outbound.protection.outlook.com (mail-francesouthazon11011034.outbound.protection.outlook.com [40.107.130.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787903093CF;
-	Mon, 14 Sep 2026 13:23:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.51.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84233468C16;
+	Mon, 14 Sep 2026 14:03:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.130.34
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789392230; cv=fail; b=d0DlpC1GtoNszhMuAm2zhZsSxuzutt2K3YtEBlQxV+aJSgMGS6u32OQWRk+Ve05rHGv/DYzs29gx+91rUQw6SptmXxaPp4HdSVo2KoCXlK1ZEdSvjgOjfaU3VBNdbelQ3pMsF1FWN8UNLdtqCkAgSTfj58lQ45KhPVwFgr5JnVQ=
+	t=1789394588; cv=fail; b=qB1u0zMsCD7deflT9YK6sMyX+m880SOMzenxytn5WJ1yCgPX+13qrVNvk20gMhA1gzgUwf6pN37o9F3tlNGo/nSPYpTvAQ3KPAxD/ATy5KbIg3b+N6pb+0x/WMo04Fortxz+CtKs98gS0kja1kQ2MHUUwMefi/P4DBrGSN8J1I4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789392230; c=relaxed/simple;
-	bh=O71Caw62uxAhIinuaHwKxfkNforb4Y11r30b3/GuF/4=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=awKanWcdB6pkeQgxAkqXnUOy+uoojemVAAD+1f8oYlpiLjwfUWfuwUHP4gEK08oc0q6RvnkV4Pcz9Oh0FLcnnhE0G8/iuJQqzXd4jgnHwv2GFag7R1b0+sLOMhN8a7kNOHi+sjnzp5W2v9+5qIkr5SBJgI6vyBFX2uD+Xf6Eia4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ebytelogic.com; spf=pass smtp.mailfrom=ebytelogic.com; arc=fail smtp.client-ip=40.107.51.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ebytelogic.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ebytelogic.com
+	s=arc-20240116; t=1789394588; c=relaxed/simple;
+	bh=4HVNoLlCliNamp/smTL5NLwHeGb7aFVsdtRvbKJgM9c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=iCR/baumbud+qc4q7WEKbEFmA2sKp+ANuEb1ANfs0ca147s4TytXBofPuKvBY8ocJ8DYEtccm0d2izuiFSpWIbjg7mJtrLpGaeL0Y55oH3h2Y8pCddBSooNtub1kor2LQYbr96ciPjjMMUUDdTuFu4+KQYhnVxgP73+QTY2v54Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=LgtLVCeO; arc=fail smtp.client-ip=40.107.130.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="LgtLVCeO"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=GkgVYWU8cLaogRext/oA6UE4OHmZ20HxJdan8LXhk5r2/26mKBdxREVN9WqwuqbVh6L7EULMMR5B+iUF+CIU6o9+SRPx8bPhHOxkNdR1GDDB/A1x9lLArFUijhXF1V5z3GpIpo9qZ/tuFQB2qv0+rOIRYcV8FnqQIjco2diRPe8fRq2eOFmqHmo3YYNAzw4jaMSJrwv2r+nVKPiZOIrQHg82HPlVaqon+fatlYi2xO/AP+SQqCSkN/Q699i0QQJ7kjObP45QlZFtnCxq9YY8IzNPKFxonF1WPu8eUmoVaEpr/A8gJ5RIU2Yt9rkrGe2xGiy0LpMZ9LqZxgHIZlrC/A==
+ b=gewbdNG4IrLndvhx6+sjrxepKvNa9y67x7dz4pUeihGQ5CQckdZ5enhub7etdgwIsqkApoutlpQAw8bW/tn7cY9JHt50xSxdVIfmwfMt4/qUZu0o6CXZNbJ5YIJqlkifqzKm+82HpolbPdn3vzOZXp5Did9O1p5FHDAoK3hFuPqRnV80hgbJEMBAeA2OxdSQYw42NrLHL5BDP7x2sXBe6B0goIt2OnPo/Wr3wETuD5752bFHygeph5Qz3i2zkCP0WPTsCT6ua7aDSzebpuagHX7KmUMnaK6eAP6UTAesUvfJ0egLMDoYaUQl2emNDHiMaR24vw1ZGx3+xZl71t8vyA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yCyrtoR1R3oH9LVyD34BoSf1gBW8c3ufYeDUnkAQKKg=;
- b=nv11uGx1s3DNC5qw3T/hxQoWEXByJC37JafMmcjm/xargM6ubRQINa+kR31ETBgPuUQsAc/KoqRxxgwHHej57ZXw70vsDjs63vv6U4S3bOzj5tCM5PPSZ5UxavyclT3MkFL8rAi8jGh1lfoNW1byPSlC5++/2i0qrepl1Kqc2sofjy1Q+WA+QcFOH2C83yIkaB7keSHADWfSBoOGnhc7fNs63OX0sFFHDcY/qEAZTVsR45owcWjqD884ovSCrwzUsjjW1gAnpsSo9h8SOgyTZ6mJuK6pgYpNmkUdHdkeL5PEocvWuAFNvP95+hzshZoLbvUkWqQs2z97urvQpo0c0A==
+ bh=L0XqH5mnTIMc1ejcPkekCcmTdYVa/8fjkLrJjlt0b5g=;
+ b=PYZxhCa1iDorNKIMhOhekbWZAzUT6icVB0fkCt8hhTWBRNiaPyffHQOgUNl1vocIK+AcC9IseV04etLaA9DN2jbKAUtMAhRQjgCO1a4PRFMwhNjdZgDRn1bTR++QZN6owD1TXrl6fuDLpZ18qdw6y9qznTISQQcTbBiH2Imy4uPy/RxFUcJH6Kije3l6+pzeN6C9zp3JPcFefod/oNq0TJRUxzaSkZpOiFAtIwuPFEQlaTk+cgXt73B+j/k89zFXFOjYggugAhXSvQikvG/TekjpzgKYvAqOG5d3H+PmdTRyt2oHkeNpEnTMRqwN9untvZWIu7KvuKBLK3OfVOhSZQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=ebytelogic.com; dmarc=pass action=none
- header.from=ebytelogic.com; dkim=pass header.d=ebytelogic.com; arc=none
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=L0XqH5mnTIMc1ejcPkekCcmTdYVa/8fjkLrJjlt0b5g=;
+ b=LgtLVCeOkHsWKhJCIBXzsW6lsJ81EJpYk8IatFe956xxJhKtcuJk6rG16kZyFHiUMYteOq/renDIQFFFHW5j8KPCcDOQ9IacakNok5FlyXqwvvq8fv003l9QPAn9XxhTjajjkQJ+Q5/jz3BSzIyvXFAFQfPrggz1JHgBf5bBVjUzA6uLvPSKeOVBdueqXpfmqKYEDxqh29fAg9fT0lF/vmIx888aQENH/9vdtE38MNdBlt0qabIfds0PnnIomQFym38ZNevvLlXlkII2v6sLnu8hcAm3CxocraXgokwA0TEfjITth12s3vJXJz8mjAOko8M6HBtMqaKNiq0aSVAxAA==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=ebytelogic.com;
-Received: from PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM (2603:1096:c04:1::97)
- by PNWP287MB6066.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:345::23) with
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
+ by GV1PR04MB10486.eurprd04.prod.outlook.com (2603:10a6:150:1d3::14) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Mon, 14 Sep
- 2026 13:23:44 +0000
-Received: from PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
- ([fe80::df75:6e8c:7def:a08e]) by PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
- ([fe80::df75:6e8c:7def:a08e%6]) with mapi id 15.21.0406.007; Mon, 14 Sep 2026
- 13:23:44 +0000
-From: Hitesh Patel <hitesh@ebytelogic.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	ravi@ebytelogic.com,
-	Hitesh Patel <hitesh@ebytelogic.com>
-Subject: [PATCH] i2c: qcom-cci: enable SCL clock stretching in standard mode on CCI v2
-Date: Mon, 14 Sep 2026 18:53:28 +0530
-Message-ID: <20260914132328.976902-1-hitesh@ebytelogic.com>
-X-Mailer: git-send-email 2.43.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: PNYPR01CA0064.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:c01:2b7::9) To PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
- (2603:1096:c04:1::97)
+ 2026 14:02:54 +0000
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c%7]) with mapi id 15.21.0406.007; Mon, 14 Sep 2026
+ 14:02:54 +0000
+Date: Mon, 14 Sep 2026 09:02:43 -0500
+From: Frank Li <Frank.li@oss.nxp.com>
+To: Guangshuo Li <lgs201920130244@gmail.com>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
+	Gao Pan <b54642@freescale.com>, Fugang Duan <B38611@freescale.com>,
+	Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] i2c: imx: disable autosuspend on remove
+Message-ID: <aqf-g0DtUAkn947r@SMW015318>
+References: <20260914091544.1667137-1-lgs201920130244@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260914091544.1667137-1-lgs201920130244@gmail.com>
+X-ClientProxiedBy: CY5PR16CA0016.namprd16.prod.outlook.com
+ (2603:10b6:930:10::26) To GV2PR04MB11799.eurprd04.prod.outlook.com
+ (2603:10a6:150:2cf::9)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -59,100 +71,100 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PN3PPF28092842E:EE_|PNWP287MB6066:EE_
-X-MS-Office365-Filtering-Correlation-Id: dc2cb598-8d26-425e-92bd-08df12636638
+X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|GV1PR04MB10486:EE_
+X-MS-Office365-Filtering-Correlation-Id: 83e97a8c-2be2-4a8c-0ef4-08df1268df13
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|52116014|10070799003|23010399003|1800799024|366016|10067099003|56012099006|18002099003;
+	BCL:0;ARA:13230040|19092799006|7416014|376014|23010399003|1800799024|366016|10067099003|56012099006|11063799006|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	+psDkWBIpRvAWi4V8BG7rUgZHxquhDHJ+q5xx08mvrZhQeg0mdPDwSOF3no7CRtcyFm6Hsi5tK3E9x8FYOIsCmekzefJ6nNpcLBLb7QwE4ok56epi9CYM3Qh1q7Z8sXcIZGkbU9xIx7ocS21QX20viFgVrMDOWF3bSjpqrPJOjRu22VyC5AhLsrUTQiE2sttqHchhCv9X6LijOshxp8qdoYyYTP++snji+RsxFJQos72S9ayLtNAz3Lw4e/ypCqoU17jvGnlbCi9uhbnuEIbmnNBZfQJBz2VQsXjJEtNwxjylgtMWgdj7BQncQPqMn9x9dTvceMQ18hGRDcrTRBwSXUhWamWGiSMimI1ny5J70f0wMlIoaHFs4eR6v3gV8HwGi6K84Pf0CovgPwXiSnQFdYQ0SShARncl7Aie6ZQAT2Blr8WatfDt+fMXF/cvxFnsy+GVN/Owe2U9m/gcuMj4ZLmTVigme9seeUNqGw4MTA/4rTFt/070NKXfxevYl1uKAw7Ym1oUB2oDpZOFmWohygjyonnJFyEcsWbPuRnpzUty6OUK5L+5RnG8y957k85xdAuGX0wUE76jn30aoSUbX+wG4ccUgASDn8tli5FZgB5XBGrc084ifELImPYV/x4jrnUNXK46SDdK1Y/z3P/E9uqyhnrlMHZD4fOP7ZEfCE=
+	/la91tcT2Rxi62mlB+o9IgwJbqzkanYqqq+c8dvb/rzeZyNBd/3GnuwUjuW+FGUz6x5ohI9rsgC8ARHw0s5hBjGSVpe3fHgS0e4i905eIHw0ei/LRGJ2qJ2PWa8Y2DJgcUeeKF1GpEJt8uEVeAALNKBUs62z69R1ZyhZzJEuqCjWo/6XN/k3cqCCss1LResx0oAVDxt9BGyDUHjTfybiDIu0tGPhmdBSkY35/ZSXtxcBD+kv2aBwhlKX2YCVY8mN84SGjSiuUtvtpNsXY/DoTBa6miB153mMB/u9hfnZs8QLIllEBLPKAHExGKMS9MDipoXFci2hA61AqH1mhuO5E7sjxFQg3oiuRCAVIILerRFneIGFwC8tCHzYQrGn0HI9YeCR8hCNNORZWNaRNwDkPrSvpU7IhBSS526ec75/O2S8UZMYjxyBvwoFSMHfFMJSzfvpPFIsq971BA725fKSnS4BfutBk8bru9TsbK0c5iaF5kGHmf3gwblVHcn78wdjM4dg+hvtkHxqVyJQWTSPEPc7vAiSRL2SidheaczjCB0oOSizdShxlP+iLBx+mQssB/sjbx2rvZObxmMzbXWpXOnO92Nypo5oUE2WO0vXEjG9ogsajoArcL0mWnBQw80IbFzDEVeuKzZ1RpdPaxyhL+EbQiHz4TNbLVHBwOX0x9E=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(376014)(52116014)(10070799003)(23010399003)(1800799024)(366016)(10067099003)(56012099006)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(19092799006)(7416014)(376014)(23010399003)(1800799024)(366016)(10067099003)(56012099006)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?5VhJQkmSHB8xlFonklh4UpDGGbc0pkpBuCrMtdB+LZfF3RoTRfa1IlA6Jx7Q?=
- =?us-ascii?Q?jPDy/xrIepa5WmsQpL571TmttELevBrdoQAFBg2YA4kG+gvMFxXYaxj7RrMx?=
- =?us-ascii?Q?0SPldjQMI14tvbVjlQL8qlMtvklNNUU8AsEENdXQZ+utYq7UkouXCJrLnQnK?=
- =?us-ascii?Q?otkcD0wwrLkhOL995kQuvJ6lC7oWEBgrFOF3lgQDDvef5dc1JPc9Otace6jl?=
- =?us-ascii?Q?QobJnso2HPjr/uo7uofFJiwN5xAZb9I6bWR+LL23zsHfz5znQh2ZCOtyf4bw?=
- =?us-ascii?Q?o7GQJEf49KQAlWf3KcAftmUA6/pDqPkvk5SlYMWymIOTCIIaGWWDPHHEETZ/?=
- =?us-ascii?Q?ZZQ75AztzYCIeJtV5oKDfNZxyRTeoqLEGjP9R6E/VpVwR33lc9FiW9uG3eX4?=
- =?us-ascii?Q?AvvX79WpkGC02Vnt4waga+jfUHXDvR1611FzGJPnHYJdY0uuNLk2Lklt/pyY?=
- =?us-ascii?Q?qlKOV6T3VgDr0U2Plj5dXAh/QARR8e/IvD8/uj2NDmcQxONhJNh6RxtWHUCK?=
- =?us-ascii?Q?62wYoYcbcj07f0GwfPUsnJmNHRe2wzD05HKa7BU5WhHei8YkUa97H1Khv+aj?=
- =?us-ascii?Q?FvxzCeyPDbjEmA6f7njqvTgOBM549wasVlPBfZ4RdS3SWeYlZH12+VqHX2O6?=
- =?us-ascii?Q?ySfb8L8q5HeC8YsPK3lznqNBp1ULAtJ7ROfnp0n1tud9EFofoz7aGbBPW8C9?=
- =?us-ascii?Q?VWC72MDbhKKNWInORUhPTs++9t66+axnolkUP4Uq6Je7ht2NaAbOln977glI?=
- =?us-ascii?Q?ZoTlZ77RFxp9FsXI26Qh0M+xmgp1UlOfChE6IgEFm6zzz2cb9XSOGvV9oiFA?=
- =?us-ascii?Q?evcy8rXbOqBhntySqjizkzTIsbQ+1pNO92VbhzfNGhZ8Wok1hkKL3eIJ1vYx?=
- =?us-ascii?Q?vjDQcRfS3JPK4yTMj99ui7FK5qCsLKRYVQPbj5Wh14+cy2OcZJlJuwW8DoUh?=
- =?us-ascii?Q?4CtZkRyXwBLraOnUMaegBoLDWWhF1ijWzJjKzAzC53+Fh5/P9nbATz+Rdm1e?=
- =?us-ascii?Q?Jf4Qi2PeiGDeH7Tzdn05yc58fKNxCm3F7vncIYu3rLaSE9QdwVSForw2q9jf?=
- =?us-ascii?Q?8P470ZXXAT6Bg7cmSN/9c//5lIAOIA9pxrgr7N8W0um7hBq2bIGCM/3FiVEn?=
- =?us-ascii?Q?3F6haRZNRbLXzf/xMUuK5xZlBZ41h1wxvXVBd6VyiBpm82DmDr7Io3U5WhdH?=
- =?us-ascii?Q?2IsjTI5KflxDobgg5ztQjIhZ5Zmh3tjVIpKQM5FkJhEFk8czSiS2tzGg1D9p?=
- =?us-ascii?Q?Whtkc18NAmcmEj3tggchkuGrxZIwhPLEl6BrtWd1ltUhft9asnXjLpf0n4RN?=
- =?us-ascii?Q?eSvhumiAdONw5GTmnfeiLUYyfFs3SccKhs8T64SCk8Wpq5e/N1cEJ+uO5HJw?=
- =?us-ascii?Q?3vYBQ5QJ8cbPwt3hTkbaVCXmAuJn+qPOi1CijcAoq4tW+IE5s6upSYt48K4Y?=
- =?us-ascii?Q?sLRV0ra4NjS764amtYrMTh4EYgPjUMuS8V1vcYBrAg2q7xcq2uqfLkrkfZoa?=
- =?us-ascii?Q?KHPJGxJ8Ep5cRLY0XtTUMrGMCfkVmz35dDIKddrDa7KARIceteQ4tDfg8W1O?=
- =?us-ascii?Q?QTDA+lJQ1wzWB1QV1yG+MZcYf/QWWBTrMStrs2LYxilUOa05cXdpOLH+T+ho?=
- =?us-ascii?Q?03YBt2/tKweDIZCCXaPfVXA3BCI/DFQoOp6sdaQAoPZGhDLnNccZZuN314uf?=
- =?us-ascii?Q?a/gs1Bqt7VBRXRLNm38zQhlRm1cYz0ff9Sx5CTk24xEBK+Lch/GlvTTPfIbj?=
- =?us-ascii?Q?7tgB66OC1Sz5QijS+6kq+2c1asnXtpZ3KUVhfA6aFdhZUWHZXx2HSRXVZg1D?=
-X-MS-Exchange-AntiSpam-MessageData-1: xr0XfZuzxhx7gw==
-X-OriginatorOrg: ebytelogic.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dc2cb598-8d26-425e-92bd-08df12636638
-X-MS-Exchange-CrossTenant-AuthSource: PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
+	=?us-ascii?Q?bsr7uFjykTcxV3F9lNr0k4SgDXQoFjmWnSx9OLo7Zu5/F3UnRTV8g+n3a4bP?=
+ =?us-ascii?Q?qYaba28r8C3Srf8SACQMAgV017iF+gOT0jBCE/VyQLjfipMBo9XfsmJ3NnE6?=
+ =?us-ascii?Q?Y3p7BDr/l7l5ytenL/mnMuMKXTc1njI4DrOMyR/JRbIKx93ljuT24XDNcBlG?=
+ =?us-ascii?Q?4UuAGiJIaVmha0gSfR33OhB9FbSHHCGVt4MWaRRF8wKsBb0i5ed3GGWzNHTq?=
+ =?us-ascii?Q?yT1UmxLQJpMzHrv43QgPe1Twgsfyk9qCsX+UdMkp5ZxL2ttITe430z38e6Bg?=
+ =?us-ascii?Q?dU/b1vGmjv1pIUy/7vZ+KwkfZxVuT3PYZk/NSmptsJ6sZok0CzJyqojCEKDD?=
+ =?us-ascii?Q?tH1MLAxbMsYv/TefJLVKD0IoRKDn5ZGeks+jnBG8ijzsysH8Cu9CBUz1bdXY?=
+ =?us-ascii?Q?ZqmhazjgWClw42OetPPvqCPw6F5md9qJU/A+QlAuz8eCWFwqQkd39jULm7aO?=
+ =?us-ascii?Q?j/yAD5xdqFEdo/EKED8zm+DeUGZWZIz5YUPtBKsdQcTt+AxjHls2R7f1EkQH?=
+ =?us-ascii?Q?Hnzz6RFLX0M+Fw+BecinAZShZQVbBPRfR6Ibx5Q+lk4SpPL6y2qHMAekDAjs?=
+ =?us-ascii?Q?TvxCVvaNIYzQZtn/pVYTHboyMIF5J1DV0wQrl8jvoo9RxT4tELqxKA7GhrpY?=
+ =?us-ascii?Q?G0MrF2AP90w//j+BQXLtAY/HMsLMk0eEOU+eXRM5RdrujH3NfjVV0b4AWiIW?=
+ =?us-ascii?Q?oei3A0yhku/tOU05MwMMTxfP1o+UdE6YgLcXMAFcZXLtdhOzQeNZoKkUFw41?=
+ =?us-ascii?Q?aG3qTsDzZ9shiCicY8jN3TpMS3LuhR/IgolCQPFP5GhrcwDgbTK+091PegPC?=
+ =?us-ascii?Q?ec6pj4yC0G3Y4w2IAKHD7fOrcxL/vYr3YYSk1CeA17Lel1lalJNy68w6eU6K?=
+ =?us-ascii?Q?UGZfmiRmdPfhbkGoS39BGIyzHhO07IHOEkGAc6AvgAkOtkiOnweJYMcIaROC?=
+ =?us-ascii?Q?nz0xXbAmMW/zCxhd4kMBj6Q8OOagcRnTHAyAxrf5ZSjHgbXEuN8kVcCmGwdN?=
+ =?us-ascii?Q?ZkDNMje51GYNZRtTC/7TIDcqyl9nyF+NJqnQArWXiuIq69IZ2X+2W2ltNyjr?=
+ =?us-ascii?Q?jBXC7bgBUNbQr5N6E1OF9ltOr4fM7tZewqUFyULl5C6hY1GzTH9lsq/6Rcyc?=
+ =?us-ascii?Q?x/PIRi/MBQUL+9JvfC6P4ZQtqjrUAuNfCRHZeUZ7Nb6RhQkA1G2bYnkZQYce?=
+ =?us-ascii?Q?1aL3I0nhoxT4bnLMMueTukNRFFnGzvs+ocXO4Fiwrzz8TilqiENbdzdwPOHO?=
+ =?us-ascii?Q?7epH8aWZeL5xSfopPWIKIpK4Wla5qjCnDOV/xVZLxKijVWEORPHuN9Hg9ZYn?=
+ =?us-ascii?Q?z7VmxoclmY4448zOT3W/pmNOr2QYVgvh+SciPn7s3Qzeut2aIIF+urBkl+2/?=
+ =?us-ascii?Q?Q61cT4m2PoSz9xxOqewaJICx/xN5t9GWwOE6QpCrjzkiw6qd5LuU4z/WuKah?=
+ =?us-ascii?Q?zA2GRcAhh4VT1SmqMyfymgKvQju9RLAfUxXNgYY8PvO5DIOkuEyXb32x3R+H?=
+ =?us-ascii?Q?YXOUPPHk+Gblc4xW5yYuu6azOrHRGZ9GxMcosCHhd5TiOm+ndBrhedkxKBpr?=
+ =?us-ascii?Q?K0T2MWufLnTdJsmRcgeFNV7BYBdKMKwelKtF2o38GSuw25umJ6ARA+le3ASo?=
+ =?us-ascii?Q?mfkgaoCrS37PqBPwBqAuJCcaisXuCWIW6KLmIWAYECmhPC5p3/N6QsK/MPvk?=
+ =?us-ascii?Q?R+3lxd/SObTWpM9bNZp6j7pQDDoQa2UiAlKNQ7NqbJDZX1WJ35wNkxMkeKIr?=
+ =?us-ascii?Q?2vHHJOKO/T410Dy86jh1ZNNGu5YuNSUQwAS75oWiBRSa3koSW/3D?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 83e97a8c-2be2-4a8c-0ef4-08df1268df13
+X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2026 13:23:44.1338
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2026 14:02:54.1171
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 13bdb17c-4ae8-490c-90c1-ec8121ef96ee
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tibLIf2fkS+GGfxIHWKpQyOTI+12ES5hCbBkRgFY3TMCQ/5CdqZabEb8dVE1cb+p4gF5p1vqPc9sWeNUI3gOiQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PNWP287MB6066
+X-MS-Exchange-CrossTenant-UserPrincipalName: sZyQjgGJSaj/HTZHtgO4jzNmvT6kiJsbfS62Q98NIRtWOM9mP00CiZVJ95NXmMinysz2soooZo1K1/TKs1G8ecbmX5cY4Y2kOkLgaNxUU8JnTxzvGCGxMjUgRcqPl+Ly
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV1PR04MB10486
 
-The CCI v2 standard-mode (100 kHz) timing table leaves SCL clock
-stretching disabled, unlike the fast-plus table for the same block.
-A slave that holds SCL low is then not waited for: the master keeps
-its own clock timing and the transfer fails with a NACK or returns
-corrupt data.
+On Mon, Sep 14, 2026 at 05:15:44PM +0800, Guangshuo Li wrote:
+> i2c_imx_probe() enables runtime PM autosuspend with
+> pm_runtime_use_autosuspend(). The probe error path correctly undoes
+> this setting with pm_runtime_dont_use_autosuspend(), but the normal
+> remove path only disables runtime PM.
+>
+> The runtime PM API requires pm_runtime_use_autosuspend() to be undone
+> with pm_runtime_dont_use_autosuspend() at driver exit unless runtime PM
+> was enabled with devm_pm_runtime_enable(). Leaving the autosuspend flag
+> set therefore leaves the runtime PM state incompletely cleaned up after
+> the driver is unbound.
+>
+> Add the missing pm_runtime_dont_use_autosuspend() call to the remove
+> path.
+>
+> This issue was found by manual code inspection.
+>
+> Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the performance")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
+> ---
 
-This is hit with a camera reached through a GMSL serializer/
-deserializer I2C tunnel (MAX9296A/MAX96717 on the RB3 Gen2 vision
-mezzanine). The deserializer acknowledges the address locally, but
-forwards the transaction over the coax link and stretches SCL until
-the remote side has completed it, which takes well over one clock
-period at 100 kHz. Without stretching the register reads of the
-sensor behind the link intermittently return garbage and writes are
-dropped, which shows up as random sensor init failures.
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
 
-Clock stretching is part of the I2C specification for every speed
-mode and a device that does not stretch is unaffected by enabling it,
-so enable it for standard mode as it already is for fast-plus.
-
-Signed-off-by: Hitesh Patel <hitesh@ebytelogic.com>
----
- drivers/i2c/busses/i2c-qcom-cci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index 25b6e4e9e..327efa86f 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -723,7 +723,7 @@ static const struct cci_data cci_v2_data = {
- 		.thd_dat = 22,
- 		.thd_sta = 162,
- 		.tbuf = 227,
--		.scl_stretch_en = 0,
-+		.scl_stretch_en = 1,
- 		.trdhld = 6,
- 		.tsp = 3
- 	},
-
-base-commit: 68142f986ff04b2b70b31db00f719bf690f64a9a
--- 
-2.43.0
-
+>  drivers/i2c/busses/i2c-imx.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 19ec056b00af..4dc3df6a41a4 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1920,6 +1920,7 @@ static void i2c_imx_remove(struct platform_device *pdev)
+>
+>  	pm_runtime_put_noidle(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+> +	pm_runtime_dont_use_autosuspend(&pdev->dev);
+>  }
+>
+>  static int i2c_imx_runtime_suspend(struct device *dev)
+> --
+> 2.43.0
+>
+>
