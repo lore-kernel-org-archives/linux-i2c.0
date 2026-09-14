@@ -1,115 +1,161 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 432D4403EA5
-	for <linux-i2c@vger.kernel.org>; Mon, 14 Sep 2026 08:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF7F4418A28
+	for <linux-i2c@vger.kernel.org>; Mon, 14 Sep 2026 08:57:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789376140; cv=none; b=jZdxrInbyjVW0vsi0/s1MEHJq+0LYpnH7FVrZy52oRI3aFAUCHUA0vPwIh0ZDQrSl8oTvmzfH9EEN+4l2xfJpUkWfU3Gb5msn3q5X4wONk308EcOsQut/4TdBLxFZInCoThdbytqG0Dy33yB5gnzUgol1IDptX4xwwMu+aCYYSI=
+	t=1789376245; cv=none; b=P1o73Sdn1+1jkQqBr45mNLvb5ejgBzw3SU6+vYETl8+pAzw5X/iDkqHBNz3rnmIYNiQnHdqZ9c2TOE/aC2KnJQbzs/vYEh27x36krGF6h0BAMXg1yt8ReTtg0Q7kc0m7tvRJZRZ2nxCvx9/YPpS4MDP2q++kZenkV6DGbK7pKqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789376140; c=relaxed/simple;
-	bh=RvwfwsibcIKVeXocpg4YyIcnyvBRCDfLjxr1o0x/eoo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dNUW4JeyCT6Qi71YN9uu03wCSwUL3qUQB49cAC4bIEGhFeuZUlEG6n2+zJzIfaARlcBWIMhgT60D4MCuHRReR0fG78lu4HmMlgsjYms+MurGN7THXsRS5reUVdWEUx7pjOarWFiiB0KHUBSWCzvFm93OmD+aiair3ETM9SfpzWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=awJgfLgY; arc=none smtp.client-ip=74.125.228.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789376245; c=relaxed/simple;
+	bh=JCvFHGCA4rHUgkn8fPq4I3sbSzAZ4NWsrmGMQGr7b3g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dWCyoxXKkRqTJNz5XRN65o4OUpbeZDbGZxqheZEyFaE+kF/vEIrKm8BYY/QNccGZrhrmS6ySoPF6b/7mXxYNzDvfFZ54Ub8xKyHlkyYB1IJKxA+aYybxhJdgBleIAZlFg24mIZjGGKvenAcSakJIhkg8hhkKCKrb+xrCBoltLww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aIuB5y36; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="awJgfLgY"
-Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc1cea4ae2cso1810793a12.0
-        for <linux-i2c@vger.kernel.org>; Mon, 14 Sep 2026 01:55:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789376133; x=1789980933; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NHO8MqohSxSNmUhoqWgAJs04LZZgNjwjhI5rapZreFA=;
-        b=awJgfLgYusmxP2DeGei/AKFb0VQklQzErtugbI8dZpAJgWOewxdNsSh4xYrK6OZxCi
-         NA7RyH8IjkFQjW8rM8W1zEmFN/h8n5zjex/sPsSgp7OF6cVKhfSMgqACSuUQBRNaHJcg
-         Y+Cq53rvvD0Hi84Sety6F+HiCJlzTxu/nqtkt6vXMQ673V6XzSKKK8pyAjYywuRZ0mwz
-         gY/GwDZGcPGWeERfIYkU7SPIGICWZbwV4+S3dzaftpU89LfA/g7fZvxxUoggZb0ys59n
-         EguyZkV7OuPJILWGCoX/OYuntOitzdwh23EaJvMPrgfKY1d61n8YbrgkusgBJ2Agnm1t
-         4F4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789376133; x=1789980933;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=NHO8MqohSxSNmUhoqWgAJs04LZZgNjwjhI5rapZreFA=;
-        b=LgGC/Eg2RXOL4xAb1Bi7YYb2eTDJTtos8vOLm3a4LNjxXU8F69J9Yn55dt+Kf2GF2b
-         HuaVlyG9Qz4D7ds+cA0BC/REvPxuYdGpybjBnoWqMLFTW93W2PFg4Vrfzi5nObkvcZq8
-         0bLcrBMDLeeqHNqDvg5kPH9n+WAk5391XBTLxAQXqP26gxvKazxP4VlcLkY0B3zdQ+cY
-         lbJCXiEqJtapIQTVZd06HGy2f6WPtBeKrpmNgo3GGx4BoxlLTUNyR2QwEXPjQ0QXNFr5
-         YzOtr25C7aFxqeYY+0QHZM26NFSG2zDsPfT/z5mMAqhrAD8Oy+oXOIgscnWZSqvmIXsQ
-         lA9g==
-X-Forwarded-Encrypted: i=1; AKwUvBxTWQxzar1y+KbaVYNuPOWtFn8GRrH0Z4EI2E6AnwzxwdjQU7wPWBd0NxB0If+IhgnrF0CLQdqGerQ=@vger.kernel.org
-X-Gm-Message-State: AFuF++nhmVgYIsaN5smHK8HtlUDFssamf0yDjBgKnNHezWftxwrMXn8W
-	KMbDJbqYmaRhh7cc9odWR+itzEbrHTcyX8Kr9Q4102fWh2K1g0m7BwmI
-X-Gm-Gg: AYBFou1S7vo8sD3GuVwtq/JwgCjGfcHSbNWDn21rxUkMGzsbyQGjkApO+q1J0oSHDy/
-	++RlPU3rDQYp61Wx3nUwW+zwFk/hjM4PqMv4ZBUkJZYv9vRRBfauY0s65xfDVumZ7++/mhZdcIM
-	oGwavitKID4b9FIGoDnk6sdJFPmTI4e40RLA8w77n+CLHzm9WJHH41x2ev/ATJupV+KC5g+epsZ
-	Sc+4p7oN7lg45lwmcY7W7zDtrLqdn0aU65TKtZonrKVnmPOwl/Ab+RV8LxHOTjLZow+1AeBBqIx
-	xc0OtrdLLDW636BcFZWhbiH0ublQg+KMN0ycu4TEBWoUjxN9T2tCDGqgEH88TPoDi84suzl+0/S
-	vkWOQswCD6EG2GfjPWg6BXm7qvpxNq69O2120xiTl9JOwFMHxNuC8eeoAv5kAF9MwEIYMT3kXEz
-	GcloySS0cYOy/rRZHYtozmDfUMu9lEr/TCL/GLxRnJmd0oxe3Ek2OwoQ==
-X-Received: by 2002:a17:90b:1dc6:b0:39d:84af:a0b3 with SMTP id 98e67ed59e1d1-39dec09cf6dmr3712915a91.18.1789376133103;
-        Mon, 14 Sep 2026 01:55:33 -0700 (PDT)
-Received: from lgs.. ([2001:250:5800:1002::de93])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d9d7ff2c5sm4885197a91.2.2026.09.14.01.55.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 01:55:31 -0700 (PDT)
-From: Guangshuo Li <lgs201920130244@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Ed Blake <ed.blake@sondrel.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Guangshuo Li <lgs201920130244@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] i2c: img-scb: disable autosuspend on remove
-Date: Mon, 14 Sep 2026 16:55:19 +0800
-Message-ID: <20260914085519.1665498-1-lgs201920130244@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aIuB5y36"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 655581F0089B
+	for <linux-i2c@vger.kernel.org>; Mon, 14 Sep 2026 08:57:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789376237;
+	bh=xKdkdtTMOIdPI1/d4Upir9+jkNvwkE+aa7zOe3c/KSU=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=aIuB5y36Tax6rIEyx6gsawh+nmQi+CfR7FHrKZuLBVJ4edweefoGKhuMVg5N3UqNj
+	 w8WPgPnmc6SnBOWB/RoqfAFiNTtkcDcqqluau4qWXwkvQejYkikrsevok8AeItp24r
+	 w0NOEcSf13yoJ2z5Izs7lRKIHTY19wMhPVvqFYbRrR/skINOBT2ElFCdNrfHv7CZYD
+	 cBf8v/VGY/WFbjHPjlmFdEGdxzLGcUvOnyNI7DAZfPtF75ROZI9XIHTqQgZ5MT+tEC
+	 Eg9x1EkAZ0Uzc+gabb3oL2Xea10cpHDZIq9Vvp9rfnkzUvPOW06wQB24AMnMPSJV/B
+	 B8xN1hI9PqiNQ==
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5b754cc3b6aso3226219e87.2
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Sep 2026 01:57:17 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBz6KamOkg9rqxu5xf2ux22r7LiMawZj6z9sKznemOrWmJXjr5+8KlwILPZCIUkUq65t1j262trw9Ew=@vger.kernel.org
+X-Gm-Message-State: AFuF++msEqRh1zHBBQ2tVV1+jkWkSyaNLoNt40zcmplBWbeSCr9htaB4
+	s5A6xAzLygGgL6b6ZvkAwhUz4QNsuC7heQkRjffrPu2orWVFMR/nX00lpdAzipZXZB/zZy4he0H
+	Xu5npVWfml6bL9ICB30J7ApaCsgXwzGw=
+X-Received: by 2002:a05:6512:1293:b0:5b6:1a7c:aa12 with SMTP id
+ 2adb3069b0e04-5b8ae6acc3dmr443850e87.42.1789376236013; Mon, 14 Sep 2026
+ 01:57:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAD++jLnKXqbV0xB3wvTF9Ri7g1MuWV6csO0MGzCtv5LBwmSr4g@mail.gmail.com>
+ <20260827220805.23112-1-michael.zaidman@gmail.com>
+In-Reply-To: <20260827220805.23112-1-michael.zaidman@gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Mon, 14 Sep 2026 10:57:03 +0200
+X-Gmail-Original-Message-ID: <CAD++jLksAPyfZz6d--n7a1KhPackigEucQJqbYiA-e9S835seA@mail.gmail.com>
+X-Gm-Features: AcwNN1W0b8mgLF0Lz5Bd-fzU0UbPDLmwUn7TUmgZbPxFYpvvpI8bzXM8UFvEfRo
+Message-ID: <CAD++jLksAPyfZz6d--n7a1KhPackigEucQJqbYiA-e9S835seA@mail.gmail.com>
+Subject: Re: [PATCH 08/13] HID: ft260: uart: add modem pins control via ioctl
+To: Michael Zaidman <michael.zaidman@gmail.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, brgl@kernel.org, 
+	germain.hebert@ca.abb.com, rio@r26.me, brunoceg1@gmail.com, 
+	contact@christina-quast.de, daniel.beer@igorinstitute.com, 
+	gregkh@linuxfoundation.org, jirislaby@kernel.org, 
+	linux-serial@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-img_i2c_probe() enables runtime PM autosuspend with
-pm_runtime_use_autosuspend(). The probe error path correctly undoes
-this setting with pm_runtime_dont_use_autosuspend(), but the normal
-remove path only disables runtime PM and leaves autosuspend enabled.
+Hi Michael,
 
-The runtime PM API requires pm_runtime_use_autosuspend() to be undone
-with pm_runtime_dont_use_autosuspend() at driver exit unless runtime PM
-was enabled with devm_pm_runtime_enable().
+On Fri, Aug 28, 2026 at 12:08=E2=80=AFAM Michael Zaidman
+<michael.zaidman@gmail.com> wrote:
 
-Add the missing pm_runtime_dont_use_autosuspend() call to the remove
-path so that the runtime PM state is fully restored when the driver is
-unbound.
+[Me]
+> > On Kconfig, so that gpiolib is always available and you can use
+> > the generic modem control helpers for modem control over GPIO.
+>
+> I looked into this, and it does not work for the FT260 without
+> changing serial_mctrl_gpio.c first. Three blockers:
+>
+> - Every GPIO access on this chip is a USB transfer, so the
+>   gpiochip has can_sleep =3D true. mctrl_gpio_set() calls
+>   gpiod_set_array_value() and mctrl_gpio_get() calls
+>   gpiod_get_value(), and gpiolib does WARN_ON(can_sleep) in both,
+>   so every TIOCMGET/TIOCMSET would give a WARN backtrace.
 
-This issue was found by manual code inspection.
+Can't you just patch mctrl to use gpiod_set_array_value_cansleep()
+and gpiod_get_value_cansleep()?
 
-Fixes: 93222bd9b966 ("i2c: img-scb: Add runtime PM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
----
- drivers/i2c/busses/i2c-img-scb.c | 1 +
- 1 file changed, 1 insertion(+)
+I don't think any of the users depend on call thing this
+in atomic context.
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 88192c25c44c..9cfa403cda8e 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1415,6 +1415,7 @@ static void img_i2c_remove(struct platform_device *dev)
- 	pm_runtime_disable(&dev->dev);
- 	if (!pm_runtime_status_suspended(&dev->dev))
- 		img_i2c_runtime_suspend(&dev->dev);
-+	pm_runtime_dont_use_autosuspend(&dev->dev);
- }
- 
- static int img_i2c_runtime_suspend(struct device *dev)
--- 
-2.43.0
+> - mctrl_gpio_init() takes a struct uart_port and its IRQ handler
+>   needs it: uart_port_lock_irqsave(), uart_handle_dcd_change(),
+>   port->icount, delta_msr_wait. This UART is a plain tty_driver
+>   with a tty_port, so only mctrl_gpio_init_noauto() is left - and
+>   the FT260 GPIO lines have no interrupts anyway.
 
+I don't understand this :D
+But hopefully the TTY/serial maintainer does.
+
+> - mctrl_gpio_init_noauto() only picks up lines that exist as
+>   firmware properties: device_property_present(dev, "cts-gpios")
+>   and friends. A gpiod_add_lookup_table() table is the machine
+>   lookup path, so every line would be skipped, all descriptors
+>   would stay NULL and both helpers would silently do nothing.
+>   Software nodes could satisfy that check, but there is no
+>   PROPERTY_ENTRY_GPIO in the tree to build them with.
+
+Using software nodes is the way to go I think,
+<linux/gpio/property.h> contains PROPERTY_ENTRY_GPIO.
+
+> serial_mctrl_gpio.h is also private to drivers/tty/serial - all
+> eleven users are serial_core drivers in that directory.
+
+Well having serial drivers in drivers/hid and having all kinds
+of misc drivers in drivers/hid has made it a dumping ground
+for anything HID.
+
+> Registering a uart_port instead was tried for this device and
+> turned down. Daniel Beer's 2022 FT260 UART patch was built on
+> serial_core and called uart_add_one_port(); Greg asked for
+> usb-serial, and Johan Hovold answered that "neither USB-serial or
+> serial (core) is a good fit for such a HID device", pointing at
+> Christina Quast's tty driver as the right approach - which patch
+> 1 of this series is a port of.
+>
+>   https://lore.kernel.org/lkml/638c51a2.170a0220.3af16.18f8@mx.google.com=
+/
+>   https://lore.kernel.org/lkml/Y6WNl6+ySy8zcSyg@hovoldconsulting.com/
+
+Well if it absolutely has to live in drivers/hid then do the
+ugly thing and
+
+include "../tty/serial/serial_mctrl_gpio.h"
+
+It's perhaps the lesser evil then?
+
+Otherwise we just bite the bullet and move
+drivers/tty/serial/serial_mctrl_gpio.h
+to
+include/linux/serial_mctrl_gpio.h
+?
+
+(Unless Greg want some new subdir such as
+include/linux/serial/serial_mctrl_gpio.h)
+
+> > The core idea is that the serial modem control should look
+> > up the GPIOs from its own gpiochip and use the MCTRL
+> > library helpers, then this should result in very little and
+> > compact code that is easy to read.
+>
+> No argument with the goal - I would rather have that than my own
+> TIOCM handling. But making it usable here means work inside the
+> serial helpers: cansleep set/get, a path that does not require a
+> uart_port, a lookup that works without firmware properties, and
+> the header moved to include/linux. That is a serial subsystem
+> series to agree with Greg and Jiri Slaby, so I propose keeping
+> the ioctl implementation in this series and doing the conversion
+> as a follow-up.
+
+These things have a tendency to never happen and it's
+not like we have a shortage of technical debt.
+
+Yours,
+Linus Walleij
