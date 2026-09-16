@@ -1,44 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 133813033CB;
-	Wed, 16 Sep 2026 05:28:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5126D357CE1;
+	Wed, 16 Sep 2026 06:10:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789536514; cv=none; b=t+OWu2FTW1pLg0Q3DLHzQULmyZrBVSrU5Eo9GPjgW4xKSvjNVTMiMvXfRnKowrvFwLRPknYA6s6l/rOif4u37oEhwTVv55hGOk7eRTQJ5cnIX67LY5RROHAhKMnFAYdY24+ZRtGUBjp9g6+ROROC9lhWbpy0OeXrrQ18NYO/9jA=
+	t=1789539006; cv=none; b=hsRqpzjACwBmJ+KnJ5CIXxiS/IbDtJbz2EdCR2xIlJCYD+wrlN2TDOR5CozCKU0HpkzN/mrTws/t3bnArN6k0PVDxFi9XpfgAs0mDLcX600bcWc2X42wctY3ocJdHcPAa8KywB1nuvj/fLucZkP3qezz7d0kX25KrdD3pwz7Eso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789536514; c=relaxed/simple;
-	bh=dkdkd8Lu7qc8W7cHI2YtShJG+Cb5ARVQPtCg3mYi46M=;
+	s=arc-20240116; t=1789539006; c=relaxed/simple;
+	bh=cgmZUj37znDWHLe1/1qVDF0HFfyqRXUjGanSdGoxQmw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BBcVpunFSOrv3LzytRjVJ15dHjjQYREngIt2SyJxNFmC+Npxw7NAbdeZ2DC7V4uK6geWKmQLlNeq5v7heec1akE16SubxwUvEJAsnOXxjUeaTgaDgTxYJxx8CbC+k20g0pV4VlfB8QRAPPSEeXzhoA95iJMrFeSB38bVm59Czm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AYZzAj5z; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=dXh5gr1C1bNLT+WWWv113euZn8o5reeIYRxxR2J6UD7RvdeX21nTzJ879DXUBEk/x693tN4beF5gfZCoMaKKcnJd3EiiTZkCo5bv/Rgv1sRsA462buAmD9gx+miOu+sUMOUUgXVeq7CA65Y7GNUYcGRoLPFPyV/B7Yq23u7vE9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EcuhtJlU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AYZzAj5z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD5301F000FF;
-	Wed, 16 Sep 2026 05:28:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EcuhtJlU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E848D1F000FF;
+	Wed, 16 Sep 2026 06:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789536512;
-	bh=66PyGPF5wXahXxW5sg6wPuZ0lhWWMmXUKvHfOKoSdYs=;
+	s=k20260515; t=1789539003;
+	bh=2suWbUO1++tl2GtDPvL7vT4XRH9qSp7387WoQtb3opc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AYZzAj5zgFh920pxLpGKuWZ8NFaBVz6NPYkQGl1EIBxUvvkhG8GyY4i53xxm/U6nQ
-	 nLyVV6jbYqY0XmojBX/9D/t9eC1msZQsf/q4508X9g/8PdkVHRolfaIm5e0QrGF7EL
-	 3fqdQ9bNXEh7n6NKwybOOZTqlxm1zGMv+JGQDkGihNzMxVOViYveQL+vR4+/SLbL7k
-	 yZ+nGRgE8+lk3izvSS+jxsbLmCmo7JRkzZOPJeSeWDQvVkOCLWuuS7MvAv59frQu10
-	 WHbdydez2ikJiB0FxpPkRuLPnwAmi9t3ebrIFneJqse6qS+boNZlphsRvVITCnmJjp
-	 mVh4BnFZtNlvA==
-Date: Wed, 16 Sep 2026 07:28:28 +0200
+	b=EcuhtJlU2oyKYUerEcaeP1JAQdy9+pthcr9c5F8mt6pRBx9QlMgANwk353gJApHYq
+	 uIJRK7CGLeyWJdfzTfYY6h14+tBTMksR8zDwPCwMn8YD0hhSzF445QuZWLywvu/l9Z
+	 8Y4x46nTAuJ52tDhYFoXtkGg5HUmL/s/0EBkOC8D4gDcaMu4Z5eUN5ZyKNpaEF+nT3
+	 AsthU1Zvjr6aiWwkYdNuV0Cld8MOfSuWLy86fxcxEFdgEwStwh1mRNxhRzLRaBLzZq
+	 Kq0XAPP7oRCrhHehhaU4GzzwJQQ0VrqfL1FaIfpcwnEYO3TKKhSTQVXvM3q0SYTwau
+	 IyLzT85TYv+AQ==
+Date: Wed, 16 Sep 2026 08:09:59 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Guangshuo Li <lgs201920130244@gmail.com>
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Gao Pan <b54642@freescale.com>, 
-	Fugang Duan <B38611@freescale.com>, Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org, 
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: imx: disable autosuspend on remove
-Message-ID: <aqoolBhfLIG1hK8h@zenone.zhora.eu>
-References: <20260914091544.1667137-1-lgs201920130244@gmail.com>
+To: Linkai Gong <gonglinkai@kylinos.cn>
+Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
+	Luca Ceresoli <luca.ceresoli@bootlin.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: atr: fix dangling adapter pointer on add failure
+Message-ID: <aqoykvwKbsFS81aO@zenone.zhora.eu>
+References: <20260806073545.2071006-1-gonglinkai@kylinos.cn>
+ <20260907071102.1080840-1-gonglinkai@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -47,37 +45,26 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260914091544.1667137-1-lgs201920130244@gmail.com>
+In-Reply-To: <20260907071102.1080840-1-gonglinkai@kylinos.cn>
 
-Hi Guangshuo,
+Hi Linkai,
 
-On Mon, Sep 14, 2026 at 05:15:44PM +0800, Guangshuo Li wrote:
-> i2c_imx_probe() enables runtime PM autosuspend with
-> pm_runtime_use_autosuspend(). The probe error path correctly undoes
-> this setting with pm_runtime_dont_use_autosuspend(), but the normal
-> remove path only disables runtime PM.
+On Mon, Sep 07, 2026 at 03:11:02PM +0800, Linkai Gong wrote:
+> i2c_atr_add_adapter() stores atr->adapter[chan_id] before
+> i2c_add_adapter() so that the I2C bus notifier can match child clients
+> during registration. On failure the channel is freed but the slot was
+> left pointing at freed memory, which can lead to use-after-free in
+> i2c_atr_del_adapter() / cleanup and also block reuse with -EEXIST.
 > 
-> The runtime PM API requires pm_runtime_use_autosuspend() to be undone
-> with pm_runtime_dont_use_autosuspend() at driver exit unless runtime PM
-> was enabled with devm_pm_runtime_enable(). Leaving the autosuspend flag
-> set therefore leaves the runtime PM state incompletely cleaned up after
-> the driver is unbound.
+> Clear the slot on the i2c_add_adapter() error path before freeing chan.
 > 
-> Add the missing pm_runtime_dont_use_autosuspend() call to the remove
-> path.
-> 
-> This issue was found by manual code inspection.
-> 
-> Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the performance")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
+> Fixes: a076a860acae ("media: i2c: add I2C Address Translator (ATR) support")
+> Signed-off-by: Linkai Gong <gonglinkai@kylinos.cn>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-merged to i2c/i2c-fixes.
+pushed to i2c/i2c-fixes.
 
-I applied this patch only because someone spent some time to
-review it.
+Please, next time don't send v2 as --in-reply-to.
 
-Please, follow Krzysztof advice. group all the patches together,
-version them and add a changelog.
-
+Thank you,
 Andi
