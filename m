@@ -1,223 +1,126 @@
-Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011044.outbound.protection.outlook.com [52.101.70.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej2-f12.google.com (mail-ej2-f12.google.com [74.125.228.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAEE74B4023;
-	Wed, 16 Sep 2026 16:43:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789577029; cv=fail; b=F2I7gWD0VnpY8r4JcswtvFy6wVUK3NF+U93JdDx3D0DLK15fS8M2HYubmnx/gpCn1qLFqfD9/0sRGIFFiorXaeGj4UJy4LCr8kIuchFGWHkdPwoTXpiU4KnAMQwBUhkjuIWdQAwidiWeWo0mp156VoSmwSGF7KZyFruoDHHffFQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789577029; c=relaxed/simple;
-	bh=lojdUx+oH6aBTmNQiitrAO4Lz1+ii2W2e8j0hZfzpT8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=PnfsZm9lZ7TF8yjIHCafpd4RBv0M3YADMAF+Moj4+VrD7e/uxXRSFfrD9U58IzuzxjcmUyHVIWyYKuyo4rWwp/Kk2v6j+amf9nA3rB0cgm9h2mXnVVQ9KIxZX5XeKGcrA5quGhgYj8uVDlH4+EsTjwW4EEIhLmxnDFqI96rjI8g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=Dd1OoXxU; arc=fail smtp.client-ip=52.101.70.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A4C1490BF1
+	for <linux-i2c@vger.kernel.org>; Wed, 16 Sep 2026 22:07:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.140
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789596448; cv=none; b=gicWqgShDuk/keoUYz4fXKuMQzcr15SBD+gYklUTOg8X9OPyVxj1wiLIh3gzgz5WQzPN4QJb4r5n6FVwwN8fwL2635raUcmXs6jNkNjGdv+NKZndpvn7Yy6hJwTyJZ7j9gVlewK3vsRK701jjw5KVxvBmTJ1MN0+9eCfe0pz440=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789596448; c=relaxed/simple;
+	bh=lt3BikJB93Zkg8UHHA0fVUsHS8vy+oVkjtAS1xezz34=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Mg8CaGH7iplqJQ8R+Y7Q4yxQM1RDMq1M2rvzSAsjltRonclXNLxTkMTFy8wWHPlPRzf6k1y95zQr06pPb4my68QHGj1BQuVtpbIP9W9I3nZ6HVauHXs8tV2ttKCBfQ0yD8CYXs9+HQKi9laidRJI5Bd3Y8kUfT5BV1NOyvVUF4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=GLgS4xk3; arc=none smtp.client-ip=74.125.228.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="Dd1OoXxU"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Qd2ggFblsu9A8inp5DV1r53HT/3s+uALPfVXknFHUcqCF4JGJvzuSzMM8lN+TqdaFIgx4J9SZA1uKOy6EBvC3EBsLKGz8NL90XUxdX9NtPIM6t495BKjZcWBbpPXRrHi0/tdbyOFNsAJOatjjqoeJj4ncDNoB4v0+xmdQOYxQYGaTCG+iTpTmfQWdxNNDUDgfy0t6Zdt2eBxuCmbC2/ZzwToqSTUmKLwbs+oKCG1+of+nXW1+hwvFw18mORTmSsVl2jCH4svLZSvHIA04eAXoBZYWijJnnUIZeYqEASswTmMSRRa+lkc6gwUUCc3BEq1a0heiglE5Y9434Krh2zuKg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LNMO8XLh/P//rTxtlnaw2Rxq/9bsyltTfRpwCoSjgSY=;
- b=StFsXaEnOn7u1ewY7oMNtgm1ItRTfwxJLpZhDFFz9sWcxzRON9CspdG/kidTRy1yfqA0ANuuD1YeqEwPXUc+glU0cYOeQNSrI2KLj9svmLNmdYwWinT+sKQOEB9RVN3ZzqRlXis66+c+2Y2PI7JWsYLDJgwdlfrwyF9b1cKvoMHPbFux3kY7aS6f10GH2Ti8+z2mPQ/E7RMmw5R1UEqn9/F0dH093EgGlU/8LQrPbR+mS+3DQNRzU+u3izzHB6AGymtOukNMFsqtOdtkwA+JdbI9ORDk0CaZ4zjLIEzmv/iWRtl8YteuhOPGm72W85a0BfxAiqKMAFZrfKIqgVGbwA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LNMO8XLh/P//rTxtlnaw2Rxq/9bsyltTfRpwCoSjgSY=;
- b=Dd1OoXxUrRyfwlmarXkuFnXxOTn67vwrQs3ImuVC7ZiYJiA4Tci9eGj9mwu6aLQVkBix0K0JAR3Vli72/01ecU2Vu0kBnQUiuhk67CXCiUn84pmC4WlykUdFcfXawD8zJ2ziSxnOhaMgYU/BK6TS7B5h6xVmqtV88yWjnzmXTwy429ZziMuraBuShe6Xm4uTwMQXqpCL76tcY77243hQswWmpMganehx6HQs7D8uBxd8pQaYK1IY8BdgwoBhtmAWN+e5Uzt0aj9PQZUpkLFRaSepRHA1esFcPaoDWzp6Q5jQN9B9YuyBRRLmcRJfTFuDX/BAELzSAygDagWWzTdPOQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
- by PA2PR04MB10446.eurprd04.prod.outlook.com (2603:10a6:102:415::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Wed, 16 Sep
- 2026 16:43:28 +0000
-Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
- ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
- ([fe80::2146:83a2:5329:b7c%7]) with mapi id 15.21.0406.012; Wed, 16 Sep 2026
- 16:43:28 +0000
-Date: Wed, 16 Sep 2026 11:43:18 -0500
-From: Frank Li <Frank.li@oss.nxp.com>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-Cc: Dong Aisheng <aisheng.dong@nxp.com>, Andi Shyti <andi.shyti@kernel.org>,
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: Re: [PATCH] i2c: imx-lpi2c: use dmaengine_get_dma_device() for DMA
- mapping
-Message-ID: <aqrHJsO5xYBO4WvB@SMW015318>
-References: <20260916-i2c-dma-v1-1-6dd4f1916910@nxp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260916-i2c-dma-v1-1-6dd4f1916910@nxp.com>
-X-ClientProxiedBy: PH7P220CA0019.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:510:326::26) To GV2PR04MB11799.eurprd04.prod.outlook.com
- (2603:10a6:150:2cf::9)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="GLgS4xk3"
+Received: by mail-ej2-f12.google.com with SMTP id a640c23a62f3a-c29703cb470so35631666b.0
+        for <linux-i2c@vger.kernel.org>; Wed, 16 Sep 2026 15:07:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1789596433; x=1790201233; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=bRx2j1EfmgsLJaRhKgwq7WbmeY6pd50RmhdABMQZV3M=;
+        b=GLgS4xk3XkW12Zm5GjPB8ifKd8UTHR2JfNHncScZlvGsMUJm4Uw19wFXBApD93N9yL
+         ubjTU0klz2DgqJE4D8y2RScEfhqVaA96S3KRAOZ4KISxXxVVNcaCw4S0a8FesN5DzByM
+         mag7oZYQJFnuwCbOnKeULDIhfl5SvO3kRNw4U=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789596433; x=1790201233;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bRx2j1EfmgsLJaRhKgwq7WbmeY6pd50RmhdABMQZV3M=;
+        b=ArUkBwsa/RRJVPI2gmIl5BFnDlrJQFUVeZSqA9zh70fVS7RvluD82hAC2xasOWM9om
+         vtZIZ+n9ZUUwxVhxA0F4V9nVLxuKRVrkuhADvjnqZljcjHjyp/jhkZIp1Bl8pMjMHvO4
+         GYwjHzRKJicWzEm8rMsBevWDx1e0g4C2lSUQ3IEEcIBmSlrzxEhhTNlrfHP3UizRoDPq
+         Su4Kq/wE854sBUgdhKPRRhhoEmMfrx8g3p4Nn7+WaIOEvATGomttrAyGjpGz1S+95jGC
+         QQp7xhDP3YM+6ZZTIKckYR6l7KH95FJsnQlKPJq2dSDdKrQuGgdWite/EkZSUiZnsI5U
+         UWoQ==
+X-Forwarded-Encrypted: i=1; AKwUvBx9OD/+uvNkhcbQiHQVaSsHmvcdUuNQecatJIeZ21S/rW2ZNagEe5Golku4bCt1z6IZVxB09Nf4pnI=@vger.kernel.org
+X-Gm-Message-State: AFuF++lwGO5S4cC7T7vAYhyZqahRrLtWJ6L9mj9t4DJDvVriR4Qlk2JM
+	8LSaPRVr9r+XQeXQP4Ur3uYldE74zuXYqoP9kLP71gED5zvpiHWTxgKGJdP2ZOZHdsypJTwSRiS
+	JE/k=
+X-Gm-Gg: AYBFou2P08OorqzTqOtTt+6VdImApI8FjF+2KBoXOS5XiUUeDjXH4+kl6j+mqqAzsvF
+	ZPh+ewzxeGleCqbnRl6plQeot85Yl0MvTykL7WfgNeAV97uy3IU5p7fKsJ1+DdW9bGvbjhgec9h
+	5X7iWHvdXHvZfHeOp9mn7zcFHm2XiS/PY5A8xvq0VPG8Dnqc6MU83bRvo2hQJwUwO8CCxeBGLAv
+	mR+VTDsldCsvg2hHPQNyqHH0CpAW2rDbyBgVIvx1lzJVEqKGYX1NBfwIuhAkNTRWK9IE4eRMKW5
+	rYKSCMDKGFu9fZnmCQ0gxooPlfmyUhj+ZRM21Xlt+L3vacB/yHoUQfwxMx05iLN9aWs3vc5dTi9
+	ISmp1/ksuEjRbui6DIPA615iaHKoTuGzuqofSjTfbl/53qhwptUqOyi6AWE+ReNDdgrKT1kWbLO
+	okt3BEeI/EGdr8mGV+5tLCoJIJk/3zPGxKF0T/Om/MzXqHLM4wdnLKaSxiTLUh6BYiNe8Va270d
+	IXcCTN1F7Zb+uHEhbvPDW57/nQOBzy/XxTTZT4=
+X-Received: by 2002:a17:907:9447:b0:c29:c213:1ec9 with SMTP id a640c23a62f3a-c29e51b2eb6mr470788266b.9.1789596432666;
+        Wed, 16 Sep 2026 15:07:12 -0700 (PDT)
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com. [74.125.225.141])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c29de5b22b2sm195945966b.36.2026.09.16.15.07.10
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Sep 2026 15:07:11 -0700 (PDT)
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49cd38e0f79so1146435e9.3
+        for <linux-i2c@vger.kernel.org>; Wed, 16 Sep 2026 15:07:10 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxLzXFZkY6B/HzHX7bj7x2L/bG2Y036vr8NbwUoqsKA1fbneS3PrQuEmNuSkNoXfzY8k89gvJu/nNk=@vger.kernel.org
+X-Received: by 2002:a05:600c:3b0c:b0:49f:bc28:e8b1 with SMTP id
+ 5b1f17b1804b1-49fbc28e978mr56379705e9.14.1789596429113; Wed, 16 Sep 2026
+ 15:07:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|PA2PR04MB10446:EE_
-X-MS-Office365-Filtering-Correlation-Id: b07a7abc-e6b5-451c-2003-08df1411a267
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|23010399003|19092799006|376014|10067099003|22082099003|18002099003|11063799006|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	5Vkl830Y8AXCtdvhO9ehaL2/9bH7WteRrNWblPwcmCGX0cO2MG/bKDTzRhp0+BfoTm1Qjc+gUi+/40ecjuGmIVZI2gv9OSUT9UleD7Z2JdbdS5fQfbprbUFXyd9Fabpix5OjPEndLU5kOUg5UyeLYs7hUCb8zNFuhSwkspvxLhLsCBIZ+cuDpdn2nBXNnKWlqgTWWzDRScPAd0yxffB2vtpjsfDuBGi4VoybP0MUiN6N/kaMpaI6a+IjxGO1sFgVoB7o3msKoaqCGRQV8mjTZcij6JpII0qfbXfTohDBmg4aCzOT3oytmR7KC5t6GNpvverbAl7JWoFDwSvihxumyyJ012ADNjZiNaraL4XVjPhcjQKjy0oGXM+sIaKMguDw0240ILrWUFbVcFjNXR9HahBXCLkcTaoimROzLe6Ctuluh2dccUKmFWp07KNI80xxc6TS/2ccR5fmDcl3Qx0bhdKQ55JXIcIUktLBYxopUh2WC4Ye+2TJ+dqMKycNUkgijJx2WBhB9tS/g+UXLbz5pudnvrXM/e4HmzKOpxGbz9TWB2khORkCcCmIvaYQXFROmSCQiIy5H5PWaheU2Zpj9t9AnTcs7Y9mSJA1zPh2varT7HMnWwnoCKqGIWvnapzKIJDSUmK2ebzfEH8nOh6cwhgjnG98KAdzHSLF6UNTOrM=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(23010399003)(19092799006)(376014)(10067099003)(22082099003)(18002099003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?j1eJav19ht2sysMFHGvabuUc4NxmBsfpHGwczn4vyinhq4W/ipSHS+L3dwSD?=
- =?us-ascii?Q?CcgNlqWW7THabspVE07sp50QwXX4nSjuLxF7mrSRVfq9C6E7pbMEOyTwDPsK?=
- =?us-ascii?Q?xEftqDtuI8lPf3kuYKxGwUOEgHF9RUiYZwFLtXMjtcKmp0OJXpCsrgJZHK+E?=
- =?us-ascii?Q?aTTHCamZFPkDzcovhLC0lZiQzMfX2qQBQ8KCAsro9r4CJu039G+DL0gyRPOF?=
- =?us-ascii?Q?OITmNbahA4dyDJgGa5QF+Ma/ESlzRgXFtYjt/VXt1O5AuKpzJk6dgB/ImKWK?=
- =?us-ascii?Q?u3kaw0hwn+yhbg+ZsDPj42TLWpy+bZKg/DQxiOHyEtl9c9IQOGYY/0QQBkXd?=
- =?us-ascii?Q?fuG0FX1gZF8RKk4jvDejk1KB1rH9Z2n++Re18/oGon01mW1qTS9mwIZSRTln?=
- =?us-ascii?Q?26rdiluzP6SoUbyLG/JwqaRxwSz5z5aY6FGWfTPMCpgELqjllyhkeO7g6AIZ?=
- =?us-ascii?Q?emFngMc+nsOyC4igNYVWc6qDyVWwMC1mWxvsWT6SGfxaHit2qsOZJsdLkspl?=
- =?us-ascii?Q?X3jrgp/AxSehy8zEZ2xd3DsyZBUr4657EFQEFwb9eWgg126dwS7JtVUOxPNY?=
- =?us-ascii?Q?kQzwHODBPlGkLcX8NkzBpbigItwAv8iytkwzKDhAqK22phXfueRWl/8uQ9KK?=
- =?us-ascii?Q?t1NixECiZXhVbVE1+QdN+wTuwsQnTFEmPHllNnJOHnCBqKLDkj0fvq5g3vgM?=
- =?us-ascii?Q?QqYDt71bwwMh0xS8OKTDykA6V/DmWmNnEmcXZwEJ+hNzCSXohgnZ+mWCZbhj?=
- =?us-ascii?Q?C2V5thlWgxVH+VoHvp/ThwfTybRrVgarSQLjs9rIRN/f/ALur7zw42wqM1to?=
- =?us-ascii?Q?w/xDVZqU8Jl1vNIOVBs/Dnfv9SAKsWJGk2EKY1h73nhQSOmpbqYlkyevR+34?=
- =?us-ascii?Q?h9fyoYRJ0XpgZYmjkYUUldKHtQkBHGk/puXzLiXxbTx1o7yy93hqG1yBnXwR?=
- =?us-ascii?Q?mc7y+7hVxLU4d5PVvIiGG0wXWSSbY0YjqGjbe6ZDQOlcwmnIdnW0ap2u3QMM?=
- =?us-ascii?Q?ozd3MztvbBz+e6V0nhIIyRg1lZJF5qjK6gKw7jxKlsGh5u6mwjLi8uzm7Mo5?=
- =?us-ascii?Q?8uEHyAFhEh/CJ2aAGspj7ZCDzn4hWZWIp9Nbrx0IE+87U0yu3Jk4i7MBn8e4?=
- =?us-ascii?Q?9t9uhcwptxWUjopluSNL6DTMbmtYY4yUnOfLqQ2VG5G2c7fHttbPVjHcazs6?=
- =?us-ascii?Q?5Ej7/ENzTV+Jlv0w1kjTi5x9Zb4qzxGpoXTB0lQCJg6jLOguFVUS9axuqlaU?=
- =?us-ascii?Q?07Gmno8ADnv/YQfDQlC0PprTBqvUMwZORBVUcaDxpQM8R2hExDLPv92opokj?=
- =?us-ascii?Q?WZlLTrjU3sZg1pMRwU/DzouZd2rDa7ZyJVKkTIh+7ljLDDSiY6emkT2mA139?=
- =?us-ascii?Q?+wTOyaD74eEtGsFUA0ebIwPGlDWFL7h2t+3Q3V70aXUTgTjc8jg1TvkbyZqs?=
- =?us-ascii?Q?7L69ZEhLGIVFtnUOP9TGPIodOH3uSov4q6j1vcv7B/yQk4y4R/ninrNBWQ6V?=
- =?us-ascii?Q?+ryXy5k11/6lUupGQ/xY0i6vx/63okUYEPygeaP4XF7znFhX+/BGcQHJ3ewX?=
- =?us-ascii?Q?o1wr3TD8UVqEjBuKq3HG8ZZGQB26SaEZP8Sbcm8VzuOjvj+5jvEHL8MrZpiU?=
- =?us-ascii?Q?bQ4peVHn9VapW+s4GlUm+BFP7/gE05wyEle2Wfp+5dI4Ue9C99Wz3k5zliq4?=
- =?us-ascii?Q?wqP69Ksj7PEmc0VWX2iDzJm57jDioFl2c6r4KU+1bxLq6GPFnconFYBTgryT?=
- =?us-ascii?Q?l1fseC3G7y6/KlrF8itXBI6WvJ9m7lpvXXQJL3JPck0mFx5rL5zj?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b07a7abc-e6b5-451c-2003-08df1411a267
-X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2026 16:43:28.4628
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EkKp5NBu5ZrXXjaLRm+eT6ZsJ8wg7gikc01sjjjdk0PVNgdCNIikpEWDSEYEdjNAdSvmZEmEbuUclOqchbvqmBlx5YKpoPaC2wgwd1zY3gXGedX3cLjvHmQEkMlmYUMb
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA2PR04MB10446
+References: <20260916155730.2077434-1-vulab@iscas.ac.cn>
+In-Reply-To: <20260916155730.2077434-1-vulab@iscas.ac.cn>
+From: Doug Anderson <dianders@chromium.org>
+Date: Wed, 16 Sep 2026 15:06:57 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=WU7yOQWBW4SEMcHTwXxvNTMqO4P0DABaeQ6mBw7h=+Bw@mail.gmail.com>
+X-Gm-Features: AcwNN1W4bKNukAgg1BwCpMhcUy96SsDz__HwTsvy2JJtukIrTrTDwRV8nOIqNGU
+Message-ID: <CAD=FV=WU7yOQWBW4SEMcHTwXxvNTMqO4P0DABaeQ6mBw7h=+Bw@mail.gmail.com>
+Subject: Re: [PATCH] i2c: of-prober: Fix device node reference leak in i2c_of_probe_simple_enable()
+To: Wentao Liang <vulab@iscas.ac.cn>
+Cc: andriy.shevchenko@linux.intel.com, angelogioacchino.delregno@collabora.com, 
+	devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, wenst@chromium.org, 
+	wsa+renesas@sang-engineering.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 16, 2026 at 11:25:26PM +0800, Peng Fan (OSS) wrote:
-> From: Peng Fan <peng.fan@nxp.com>
+Hi,
+
+On Wed, Sep 16, 2026 at 8:58=E2=80=AFAM Wentao Liang <vulab@iscas.ac.cn> wr=
+ote:
 >
-> Replace all chan->device->dev references with
-> dmaengine_get_dma_device(chan) so that DMA mapping goes through the
-> correct device when the DMA controller has per-channel IOMMU domains
-> (chan_dma_dev=true). Without this, DMA map/unmap bypasses the IOMMU
-> context configured by the eDMA driver.
+> of_get_compatible_child() returns the child node with an incremented
+> reference which the caller must drop with of_node_put(). The error
+> paths release it via the out_put_node label, but the success path
+> returns without doing so, leaking the node reference.
 >
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> Release the node before returning success.
+>
+> Fixes: 897261149d25 ("i2c: of-prober: Add simple helpers for regulator su=
+pport")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
 > ---
+>  drivers/i2c/i2c-core-of-prober.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/i2c/i2c-core-of-prober.c b/drivers/i2c/i2c-core-of-p=
+rober.c
+> index 6a82b03809d4..603de487ee2d 100644
+> --- a/drivers/i2c/i2c-core-of-prober.c
+> +++ b/drivers/i2c/i2c-core-of-prober.c
+> @@ -354,6 +354,7 @@ int i2c_of_probe_simple_enable(struct device *dev, st=
+ruct device_node *bus_node,
+>         if (ret)
+>                 goto out_disable_regulator;
+>
+> +       of_node_put(node);
+>         return 0;
 
-Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Sure, looks fine. I guess alternatively we could use
+'__free(device_node)' for cleanup, but it doesn't seem critical to me.
 
-
->  drivers/i2c/busses/i2c-imx-lpi2c.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> index 49aabef7f115c..60547006f8b44 100644
-> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> @@ -780,7 +780,7 @@ static void lpi2c_dma_unmap(struct lpi2c_imx_dma *dma)
->  	struct dma_chan *chan = dma->dma_data_dir == DMA_FROM_DEVICE
->  				? dma->chan_rx : dma->chan_tx;
->
-> -	dma_unmap_single(chan->device->dev, dma->dma_addr,
-> +	dma_unmap_single(dmaengine_get_dma_device(chan), dma->dma_addr,
->  			 dma->dma_len, dma->dma_data_dir);
->
->  	dma->dma_data_dir = DMA_NONE;
-> @@ -789,7 +789,7 @@ static void lpi2c_dma_unmap(struct lpi2c_imx_dma *dma)
->  static void lpi2c_cleanup_rx_cmd_dma(struct lpi2c_imx_dma *dma)
->  {
->  	dmaengine_terminate_sync(dma->chan_tx);
-> -	dma_unmap_single(dma->chan_tx->device->dev, dma->dma_tx_addr,
-> +	dma_unmap_single(dmaengine_get_dma_device(dma->chan_tx), dma->dma_tx_addr,
->  			 dma->rx_cmd_buf_len, DMA_TO_DEVICE);
->  }
->
-> @@ -817,10 +817,10 @@ static int lpi2c_dma_rx_cmd_submit(struct lpi2c_imx_struct *lpi2c_imx)
->  	struct dma_chan *txchan = dma->chan_tx;
->  	dma_cookie_t cookie;
->
-> -	dma->dma_tx_addr = dma_map_single(txchan->device->dev,
-> +	dma->dma_tx_addr = dma_map_single(dmaengine_get_dma_device(txchan),
->  					  dma->rx_cmd_buf, dma->rx_cmd_buf_len,
->  					  DMA_TO_DEVICE);
-> -	if (dma_mapping_error(txchan->device->dev, dma->dma_tx_addr)) {
-> +	if (dma_mapping_error(dmaengine_get_dma_device(txchan), dma->dma_tx_addr)) {
->  		dev_err(&lpi2c_imx->adapter.dev, "DMA map failed, use pio\n");
->  		return -EINVAL;
->  	}
-> @@ -844,12 +844,12 @@ static int lpi2c_dma_rx_cmd_submit(struct lpi2c_imx_struct *lpi2c_imx)
->  	return 0;
->
->  desc_prepare_err_exit:
-> -	dma_unmap_single(txchan->device->dev, dma->dma_tx_addr,
-> +	dma_unmap_single(dmaengine_get_dma_device(txchan), dma->dma_tx_addr,
->  			 dma->rx_cmd_buf_len, DMA_TO_DEVICE);
->  	return -EINVAL;
->
->  submit_err_exit:
-> -	dma_unmap_single(txchan->device->dev, dma->dma_tx_addr,
-> +	dma_unmap_single(dmaengine_get_dma_device(txchan), dma->dma_tx_addr,
->  			 dma->rx_cmd_buf_len, DMA_TO_DEVICE);
->  	dmaengine_desc_free(rx_cmd_desc);
->  	return -EINVAL;
-> @@ -872,9 +872,9 @@ static int lpi2c_dma_submit(struct lpi2c_imx_struct *lpi2c_imx)
->  		dma->dma_transfer_dir = DMA_MEM_TO_DEV;
->  	}
->
-> -	dma->dma_addr = dma_map_single(chan->device->dev,
-> +	dma->dma_addr = dma_map_single(dmaengine_get_dma_device(chan),
->  				       dma->dma_buf, dma->dma_len, dma->dma_data_dir);
-> -	if (dma_mapping_error(chan->device->dev, dma->dma_addr)) {
-> +	if (dma_mapping_error(dmaengine_get_dma_device(chan), dma->dma_addr)) {
->  		dev_err(&lpi2c_imx->adapter.dev, "DMA map failed, use pio\n");
->  		return -EINVAL;
->  	}
-> @@ -1085,7 +1085,7 @@ static int lpi2c_imx_dma_xfer(struct lpi2c_imx_struct *lpi2c_imx,
->  	}
->
->  	if (dma->dma_msg_flag & I2C_M_RD)
-> -		dma_unmap_single(dma->chan_tx->device->dev, dma->dma_tx_addr,
-> +		dma_unmap_single(dmaengine_get_dma_device(dma->chan_tx), dma->dma_tx_addr,
->  				 dma->rx_cmd_buf_len, DMA_TO_DEVICE);
->  	lpi2c_dma_unmap(dma);
->
->
-> ---
-> base-commit: e6e35979777d646fe3c7c94dca7dd32fb25d45f4
-> change-id: 20260916-i2c-dma-e9cd42e4e7ff
->
-> Best regards,
-> --
-> Peng Fan <peng.fan@nxp.com>
->
->
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
