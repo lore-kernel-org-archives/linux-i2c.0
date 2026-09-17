@@ -1,148 +1,157 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20B5A4E06C5
-	for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2026 12:21:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 847194DDB20
+	for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2026 15:26:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789647714; cv=none; b=gZJ0gDfyNDEOf7d4f7iooXAZQYSkEqcKjr53+jHpq1wJNaHijTn5+H3HXB/b1k6vIDdM1eC2gW1birzqX2ONeJuSlB2Vf01uHrmr6Nym1xTehfB09SYuiAtDJvlJZWohh2m2Q3B/X6aAJC8QD2B7gkHxrgN79OrCHo+4gIEdYss=
+	t=1789658781; cv=none; b=ESwl75jQWH4zea81Ss+NH3bv2VEDtYu25fOWnihSaXcUsEINAtZnAatQ6A1nVub7/x8orrDLGfEFuaCV/Dxriy/kh7/wVjInXqJixBwwLVuEbRoL6te4XJmQ5bT0WNiOfUlLvbUxPIhwnOU99NAigRY7eBMvb/qqCadcCHOcQmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789647714; c=relaxed/simple;
-	bh=p+IXiJ+EE2Fjypax+gxoHE3ZHGysplGrD9n927sEoQk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=PxErPD5cFDQb6SHWNQk4QnZ6SwUT/OidZlwrOEjsWkk9WMiULSaKeeT25saYpJAJPwiK18dtfamTrpwNB8ESl/3NTbWFmiFr3zEhXUMrQu2CP9lS2wh755HoCVFX81AWjYPkcbyyMYjHaTJ1XMqYG3yyouMi+L+VacJ/zt1/Pgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=flipper.net; spf=pass smtp.mailfrom=flipper.net; dkim=pass (2048-bit key) header.d=flipper.net header.i=@flipper.net header.b=nLiaUjzu; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=flipper.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flipper.net
+	s=arc-20240116; t=1789658781; c=relaxed/simple;
+	bh=3qmlskWMzY85Oikfhb/KXg46Z6tfOC9OdCPH+ZehnJM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SzRNsVxCW/jA8YSuio/TcAWGiArF5zxfwXgcx85GyPHNa0UYtefqmzm/c+qev3do7cxERyqS2A5kCUj8KNnMgRAaCZlytdvawL7UNIYT8zld6DJTDzyXQ0IyiT5E5HwZbqrcaEs9GIGOEZ3SaRHXGsYJVvwI5cDK3WHawRN79Tw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=U/r+rU3n; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=aoJeDqDd; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=flipper.net header.i=@flipper.net header.b="nLiaUjzu"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912df756so5578975e9.3
-        for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2026 05:21:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="U/r+rU3n";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="aoJeDqDd"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68HDkQtN1956155
+	for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2026 15:26:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=ln57oQHyBkL7V+ZLstDX/rR8
+	u1lfqU3aYXYeyOqWe4E=; b=U/r+rU3nLB+dvF0TXAM7NKyQDeLKUjbIyQ8IyH8q
+	zHYKb7kGN7xu4WIAEOq4K9kOAyIvvKrJ3us66pLC62z5kP/9cEDYX7xB1ohEIOA5
+	CcJTkZL8NVU8CFt8i9qCv73hftU1mjLTZUcXG8tftC1nrPH8qsMPuMowLxI4OKd9
+	Bo1VMNr4MCVaX3OCEqqHHZ9Ygln1anRO/2vULSoIgjpp/5mHU+H7D2RwLYK7FlhP
+	4vGTGMXKRXE0/az1woszeD7DVx1bvtnoq5gLTuxthBZxOpU+oqwhTYgG13Urn0B3
+	lbJS+5dTNrKq5DB5mVH2xqhGre5Go7S74NzJPqWtTyeXjw==
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com [209.85.219.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4grgu5gq65-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2026 15:26:07 +0000 (GMT)
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-90e7de22fddso18486596d6.3
+        for <linux-i2c@vger.kernel.org>; Thu, 17 Sep 2026 08:26:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flipper.net; s=google; t=1789647699; x=1790252499; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=hBTjOuIbpjCrSgc+53G/q1SlCRXTaO4XMWMEj7JJEBM=;
-        b=nLiaUjzu8wf6gCJN+MpVFTZB35jrtNSrgdXW6L9Wpf617bT20by6KPOGVAOJXgoHGe
-         7mRHIqVFSACTPs9GRNKQnbpazlr6Gij/mHQhDOgdQTJebF8I//EF1EPy3t+hhoHmPtOu
-         9+AWEISmriiHd+R1u5W9CFTLm2FslTrqC46+WbKax9+cDHtt+Djt5YQo+dC1G8pSLn7s
-         DVmMl700CywIkAWcblYYr1ynIux/Io3QwOq50iQoEDNAgj5ktYMPpTXBtftlq2A5VjAk
-         9DWAw0pNNOKCW2EX3KphyEiuxoRMTZayY3xzWlys/x8gAdkrpiP0QV0U/E4X+vD1KZII
-         iYXA==
+        d=oss.qualcomm.com; s=google; t=1789658767; x=1790263567; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ln57oQHyBkL7V+ZLstDX/rR8u1lfqU3aYXYeyOqWe4E=;
+        b=aoJeDqDdLdHkj7EXitk/82HUu9mbJSvyeBgFtNUSQbdXMfSzryWzMPD8ouC2zfsKp9
+         br7eh3Ax6LQ4xRyvZJHWyzxPMfRjoch93WJNlQn6cM8qoE3tyo8lkO7RHC33tO5onHGV
+         APdT0Oa3th1kN5h6MWcEXwkhBDIG8Q7/tQPUv7YTlzJm+V8MuqERfClalmnB8C8kfyPn
+         k4Nl4UIl42zdOa0ntCXfa9gt64Ejh2TAwScF3oJHTVAniVgh3uhY+Eckh/MX4cDs7HCn
+         ckAoRa80E6CM7qUnYrqt4zCTmKZlxIj0Evdk9RQTPh1pZIIZ3hSsK00dweW+wKkarLtW
+         ymnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789647699; x=1790252499;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=hBTjOuIbpjCrSgc+53G/q1SlCRXTaO4XMWMEj7JJEBM=;
-        b=lSfmszt5fLCPuh5wH4XGFtbALkiQSWN5OBgjOfpV771M8R99lZaiJmLRj+driUagly
-         +BTL34s7NoONFc9TxTA8FMF6/i4CHkEVfZ8sSAOr2c4ZcgiID8rXoJ+NrtskYap8W+ut
-         9bnVAghzAzVYsjbPoXLqPa9kGrOdgjhaT/pWzE7D25yNV0mwGET1UYIY/Qb4ybkem60w
-         9qiFd+Onbo+dYJiAvfHleukmptsEiORuJV8L3sPinCqOVM1H5T5CxbceYYtjdZ1xkaT3
-         IClc42sm7R/ZlgyRirS5eqiRhUxNekGTr5/wH7z5PHvCWUVuB7TK5/n7DiwrJ5xRSEV/
-         ntUw==
-X-Forwarded-Encrypted: i=1; AKwUvBzevN9gDzq9lrbS04Uo2uaam/9GFr5wq5BDOHvbwxOVBXk8pnsvzGnKkkqsPKG7cvmOtEqoAlgOsQU=@vger.kernel.org
-X-Gm-Message-State: AFuF++mN4tB6vG8CyQ17qS1fbMGlVB0Xr1uB03+BQx3tj4M+PUDCyxCB
-	cjWvUC5TSS9UXYbsLM9rwBi8zQqlhEpZOFyhhSIFXK/qkYpjdEMRkv6R8wCe0p2ye8MRnN8DziE
-	qBhaY6epXRQ==
-X-Gm-Gg: AYBFou1JTNf0SSzfNkR5vAZXYogRC8i7pLztXcFA9Nn//NYhNKeKoWlhCjuTpSqh3ZF
-	Sat+OQYmCw4rr6epGV3qQp3TxRuUHt/vRWynAe+Sd/Qe44PxuE5u6ajy434iOcyYY8H6EDSSZSH
-	QPM+Z9bgryaV9MR0Tfv+B5dfsz6oV5+2iRcVtqdUWEwzp6IAyt761eCftsUh9YFcd5MV2hh96+n
-	zYqM2C+7KtW0qHvHaIx5WWQWBhPg3v5viYT+q/7QP5pybDqsJJKlexPVtJmGSYaIWE6rJXmf+fT
-	+tK42R2ToZZQHg0CuwmL/LkR1EGxwGJTzWYwso4qwym3qotXkafMrZjv42ahE/MDO0jG0TnPpbi
-	G3XoYsLWOpatCBSdZA8l7fOPl5/8jQC8vkxwDdwHEdlETBosb5aKU2ljc11Cu9rZf0umEz1jjea
-	9HzyPo6LU0NyJDYt2BtbrnuC1SxZYLpFqUVWRAV2iefQ2QKUtC9w+qn4Qgv1n+r6uiQXBlILdkg
-	IObWaw2+K56X1wpFjzqoXkBZvrAXi2laT91z2XHWFQeeBTI21s=
-X-Received: by 2002:a05:600c:190e:b0:49c:f4ff:e872 with SMTP id 5b1f17b1804b1-49eb7314d54mr75624565e9.5.1789647698761;
-        Thu, 17 Sep 2026 05:21:38 -0700 (PDT)
-Received: from alchark-surface.localdomain (bba-2-51-220-108.alshamil.net.ae. [2.51.220.108])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fbd1ce79csm81949715e9.0.2026.09.17.05.21.36
+        d=1e100.net; s=20260707; t=1789658767; x=1790263567;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ln57oQHyBkL7V+ZLstDX/rR8u1lfqU3aYXYeyOqWe4E=;
+        b=opafClZ3RAVOWYGGGv9rNF7vdbyZHhE9Zcq8fILv4N40FMmGlLuVpHD6GnegrqL8VJ
+         vfvgD3X1wOCOOLKeXpaVjFt6XkPXx9Th8SF1Qx8oN8UcVuhXL7kOAehcEH8vl3QovxU/
+         4Cn6KNatBZbYRImqsNuzrFvf2mCKzxGQFsm+3XuLTxnIeEmlyB+FICvConJjhllqP+kK
+         /B1ZU3UU/FviLp3yl5Li7WwSfuXXYlt3JXcF+eRGbnbsNNowSUKjuKJCgLatu+ohGyZW
+         dSYBgKhbVSVy+jyhAGCvXvr5YmbTrUpxfdEholpcH5Vnpw1uTMe523+9HBkM2qzJn0EA
+         ekQQ==
+X-Forwarded-Encrypted: i=1; AKwUvByMOaGwYhqKGySH5hgRnhjv/40DhVRbhRGQ959usAYzytE96D8KLFXqHvX8Ni88xmTod7F9AY22EvY=@vger.kernel.org
+X-Gm-Message-State: AFuF++lU5SwDuCCUGb8kt4BTJ4LoMDZIwzk/L8i0BIuYTK3mHvLsen7K
+	q7ZfjVimQwnd78cuT/TQ8dqk9kj+Xvf53q1KLoYMtKviCSvCOaTI6J02C+uE2/WHqshkKXjjmcd
+	cmWCQ2tN/thIbvyYSisyZbYHkCh4sQKIj80EXsr8P51T24A5y5thB9tUr/F15blA=
+X-Gm-Gg: AYBFou3VF8I1SFN720mK1Ae/+GUS8G425A2gBLwG9P+pKMBp+9DNC1c2KF8gmsUwKfA
+	ApR5CvBWJgHYHNCPxW9BSmt1EXA3af0CY52WaWoPz0SIw3q18W//4SbUxhHuRg0D3Mjt8XvG3qW
+	U75XnTh1sYN3EHobGlKmCMoAw2keGnu5mI3NcVibYnwvuJ7mW68NAbHmMQyR0GvTpUBfRSYWiMn
+	5NtoU8pf0MQSzR/Li8FvALSng+60DLiTroaFbpY/eJ7+x8mS9in8rIUOPgERKdqEprAIWvpkYX9
+	FbAEQw/f0Jsl6podxWy3rif6AnvJRKJTlpFrkCld5hf7u4e60usm7mZydEAGKrwwd46qxi4knKf
+	+EIttClh7LR+dMlU=
+X-Received: by 2002:a05:6214:5b86:b0:912:264a:874b with SMTP id 6a1803df08f44-9123d70d4a8mr129826006d6.8.1789658766451;
+        Thu, 17 Sep 2026 08:26:06 -0700 (PDT)
+X-Received: by 2002:a05:6214:5b86:b0:912:264a:874b with SMTP id 6a1803df08f44-9123d70d4a8mr129825146d6.8.1789658765936;
+        Thu, 17 Sep 2026 08:26:05 -0700 (PDT)
+Received: from oss.qualcomm.com ([86.121.170.232])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fbd232d5bsm82102005e9.12.2026.09.17.08.26.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2026 05:21:38 -0700 (PDT)
-From: Alexey Charkov <alchark@flipper.net>
-Date: Thu, 17 Sep 2026 16:21:30 +0400
-Subject: [PATCH] i2c: rk3x: Do not dispatch stale pending bits after a NAK
+        Thu, 17 Sep 2026 08:26:04 -0700 (PDT)
+Date: Thu, 17 Sep 2026 18:26:02 +0300
+From: Abel Vesa <abel.vesa@oss.qualcomm.com>
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: Bryan O'Donoghue <bod@kernel.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>, Abel Vesa <abelvesa@kernel.org>,
+        linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        Suresh Vankadara <quic_svankada@quicinc.com>,
+        Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+Subject: Re: [PATCH v8 1/5] arm64: dts: qcom: shikra: Add CAMSS node for
+ Shikra
+Message-ID: <2zraylrv7h25qgkxbqpq7rg7nodw7hsajshsdxxf5gsgtrigxy@3keepqqao3eb>
+References: <20260917-shikra-camss-review-v8-0-9b9596221cfa@oss.qualcomm.com>
+ <20260917-shikra-camss-review-v8-1-9b9596221cfa@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260917-rk-i2c-stop-v1-1-e6ad83d8c888@flipper.net>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ5AMBBA0avIrE3SdqHhKmJBTRkSpINIGndXL
- N/i/whCgUmgyiIEOll4XRJ0noEb22Ug5D4ZjDKFKrXFMCMbh7KvG3qvSNuOlLY9pGIL5Pn6bnX
- zW45uIre/C7jvB3WgLmlvAAAA
-X-Change-ID: 20260917-rk-i2c-stop-ff0e17be017d
-To: Heiko Stuebner <heiko@sntech.de>, Andi Shyti <andi.shyti@kernel.org>, 
- Max Schwarz <max.schwarz@online.de>, Wolfram Sang <wsa@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, 
- linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
- Alexey Charkov <alchark@flipper.net>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2125; i=alchark@flipper.net;
- h=from:subject:message-id; bh=p+IXiJ+EE2Fjypax+gxoHE3ZHGysplGrD9n927sEoQk=;
- b=owGbwMvMwCW2adGNfoHIK0sZT6slMWStvu3LHF2g33ulsnL7R2OZ6QF3zs/u2rRTOGtz+CQ5D
- +u+vQ0yHRNZGMS4GCzFFFnmfltiO9WIb9YuD4+vMHNYmUCGSIs0MAABCwNfbmJeqZGOkZ6ptqGe
- oZGOsY4RAxenAEx19WGGf8aTBR7cs2K0+fjW/3j61vLEVw2u+pzG1kl7Wldc/L2TR5uR4ZyJlmP
- y/9DXb1hK9Ex+x3sE7VGaU2tq+W3m/nmP3aU4mAA=
-X-Developer-Key: i=alchark@flipper.net; a=openpgp;
- fpr=9DF6A43D95320E9ABA4848F5B2A2D88F1059D4A5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260917-shikra-camss-review-v8-1-9b9596221cfa@oss.qualcomm.com>
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDIxOCBTYWx0ZWRfXy4SW470Lvm2m
+ vGi4qFOFlUSusqQKdDuizD5xjn8PKVa2B+q48Mki5sVjWGDZewGWiHZ4b51CWsMfKRgrEUtYncH
+ iZgOKx+R3f/GGmjzFhRMfEGDjNEG2Us=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDIxOCBTYWx0ZWRfX1blTZkqAjtV7
+ i7cXmK04/MyWAzbXIOiFunFyvg0scJLnexP9KBMB4K/QRDKpPJrYvxkY98p9nV6ZI+xrSTYWrk3
+ i6P11SxjIzhY2RWVRcKVhVVSAzm/H5U3lk92MIEiSvsY/tXzBLNIITdL5F5w4Tj6Jhpzvd9QqwX
+ IhIi2UfPRlpoGKuEs6rgBV1BQ4qpbCYySOGsXz+G8yQzy+7w0BeberFEuL3d7NjIl6+dnj5Q8YF
+ aniRRI3/dYg0se6wuIIZbTC2CxL5nLWJjK3eqXOByARDn0l6gCu+gk6zAUGVKdYxJ3XrKMpI4Yw
+ sbGSM+u3UMHs+xIjcRLPd/pE0tBMxx9ZRZ9UUBfx+c5qihE2aQ8Q/0PuXhdY09zgg/EZol0UtDI
+ crx6N0qh+OztItygMl//SeZ+QQ0iQq46EjMNOtQi+aunu0xl+P5p8nNgBXPAV/bRpfW/HGmEBji
+ PaN079RgZuZd4YfssRQ==
+X-Proofpoint-GUID: nMph-okhwa9Lo27s9nDw9aSck95NbNOZ
+X-Authority-Analysis: v=2.4 cv=GvbXaU1C c=1 sm=1 tr=0 ts=6aac068f cx=c_pps
+ a=wEM5vcRIz55oU/E2lInRtA==:117 a=po8fGBi+ks8MzcVQGuqtFQ==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
+ a=EUspDBNiAAAA:8 a=KKAkSRfTAAAA:8 a=XE-wypd_VeY0GsksmEIA:9 a=CjuIK1q_8ugA:10
+ a=OIgjcC2v60KrkQgK7BGD:22 a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-ORIG-GUID: nMph-okhwa9Lo27s9nDw9aSck95NbNOZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-17_03,2026-09-16_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 phishscore=0 adultscore=0 spamscore=0 impostorscore=0
+ bulkscore=0 clxscore=1015 suspectscore=0 lowpriorityscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609170218
 
-A read that gets NAKed raises NAKRCV alongside the spurious START flag
-which the controller sets on every read. The NAK branch acks NAKRCV and
-calls rk3x_i2c_stop(), moving the state to STATE_STOP, but the leftover
-START bit survives the REG_INT_ALL mask, so the state machine below runs
-once more and dispatches it into rk3x_i2c_handle_stop().
+On 26-09-17 17:11:00, Nihal Kumar Gupta wrote:
+> Add the Camera Subsystem node. Shikra shares the same IP as QCM2290
+> with two CSIPHYs, two CSIDs and two VFEs, but does not include CDM
+> and OPE blocks, so only a single IOMMU context bank is needed.
+> 
+> Co-developed-by: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+> Signed-off-by: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+> Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
 
-That path finds no STOP bit, reports a bogus "unexpected irq in STOP",
-replaces -ENXIO with -EIO and calls rk3x_i2c_clean_ipd(), which clears
-the pending bit of the STOP that rk3x_i2c_stop() has just started. The
-completion interrupt is lost, so the transfer only ends when the 1s
-timeout expires, holding the adapter lock and stalling every other client
-on the bus.
-
-Return from the handler once the NAK has been acted upon.
-
-Fixes: c41aa3ce938b ("i2c: rk3x: add driver for Rockchip RK3xxx SoC I2C adapter")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexey Charkov <alchark@flipper.net>
----
- drivers/i2c/busses/i2c-rk3x.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index fcede9f6ed54..7629ea7b6ac2 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -507,8 +507,18 @@ static irqreturn_t rk3x_i2c_irq(int irqno, void *dev_id)
- 
- 		ipd &= ~REG_INT_NAKRCV;
- 
--		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK))
-+		/*
-+		 * rk3x_i2c_stop() moves us to STATE_STOP and arms the STOP
-+		 * interrupt. The remaining pending bits belong to the state we
-+		 * just left, so stop processing them here: dispatching them
-+		 * into rk3x_i2c_handle_stop() would report a bogus "unexpected
-+		 * irq in STOP", replace -ENXIO with -EIO and clear the pending
-+		 * bits of the STOP we are waiting for.
-+		 */
-+		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
- 			rk3x_i2c_stop(i2c, -ENXIO);
-+			goto out;
-+		}
- 	}
- 
- 	/* is there anything left to handle? */
-
----
-base-commit: 0d9d0dbf2fddcff5859d623e90ca73c4054276e1
-change-id: 20260917-rk-i2c-stop-ff0e17be017d
-
-Best regards,
---  
-Alexey Charkov <alchark@flipper.net>
-
+Reviewed-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
