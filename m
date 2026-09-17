@@ -1,115 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from canpmsgout02.his.huawei.com (canpmsgout02.his.huawei.com [113.46.200.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C513F12EC;
-	Thu, 17 Sep 2026 08:00:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82153CC7CE;
+	Thu, 17 Sep 2026 08:28:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789632045; cv=none; b=nBYm45enRtd+QngJf2TsNrF4uLewAtF8tf2fcTgThz2HvPFDOvnOou4ZDRBdyRpKDla1bDLAuSO5PiMjuvK9ALb1uCV1+ZeloN232E63m0Fbg7wSLA1dqC6M/LFuZ8+tynijOtBYWbPRkHugGoJ4/6FBRdastmH0TuqrIpnS18A=
+	t=1789633716; cv=none; b=XyFmVg4n6sQ7hXcqoEyXOnOwGcjM+wkzSHzPaQ5uej2iO4k8T/F9/F+GomwPQTX48LnFH8FnU2W40MJLK7pfPUJ5ZYG87hqfs1UXthZJzpuGQwJMVCdo0tQOQezIdM9p3maon8vwi98Hr6WrBMnOpWO/WAk8w3o3tZQCfp7/AZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789632045; c=relaxed/simple;
-	bh=eto8+h/MaXkAsviCHPdmpQdT7c0Kfi4t066koHw6hAo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=PPPp29caxnLr0O32dN5ROBNYZ5i9TC8wlTTZLGnc93UfPWkXwuaXxnXp00dst7xkppqgRw0reyKkhSWjwyveDw9xqMTL2Xb27yKwGxJTuKZggcSSBPHsqDjkd8aVECSfwUzwNJ16sdHSRLqhujH5Ff3aOCzNgY3AlihQ9vJg3GE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aLYkHTsH; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aLYkHTsH"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 55E25C2BD05;
-	Thu, 17 Sep 2026 08:00:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1789632045;
-	bh=eto8+h/MaXkAsviCHPdmpQdT7c0Kfi4t066koHw6hAo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=aLYkHTsHZXIDsir866SV6YWty1ZgyZIGhcp+9Ub6n3FayyM7guGMhDZJ6ZcHCVYM4
-	 PpiQH0/ymoHlf67jrt06SSJe1Z7srO5I7vizPoc0Eu5gDXmNUTFs2lvBt2qC8Vgabd
-	 j+OumI+rxNdG6fdzgvFqhr6A2W7SWFMFlhiKKhrNnSrTvm7HuVKlC0VrGN4GUca4IN
-	 lzFCM2GtqVb8l2mgzzwLJwwZt8eeAh9HhMKveIQlx0n60ISE9g8Y3cPkCkv95UKrad
-	 IKonTTwrDnpYG4Lz0he/YC9ZaAQn4vbyQ31U5KpASBxYhujul2fhNM0F1xmAEF+SC8
-	 WwMlH0GoFGR0A==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 389CFC982D0;
-	Thu, 17 Sep 2026 08:00:45 +0000 (UTC)
-From: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
-Date: Thu, 17 Sep 2026 09:59:05 +0200
-Subject: [PATCH v12 6/6] arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU
- fan node
+	s=arc-20240116; t=1789633716; c=relaxed/simple;
+	bh=jYPuoRoudLtcquC0QCNNKs75zfnF9Cw5cd2UWh3WgF0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=IjOYHOLmWI+GF+q53hKnGj7dX72XhxFYwlmui3tSMH2rfbkLJk7PDKSCUSMpJ4cTkgorpsmyEOhB2qGd3AGpvAQbUlQo6FlKnjWVlZtBrnXpox7mNlfiFoTmTEJ5cxacHRY9wFMCSxfnSe12NychQLfBc3H1bb8trU7lZDX8qek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=hisilicon.com; spf=pass smtp.mailfrom=hisilicon.com; arc=none smtp.client-ip=113.46.200.217
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=hisilicon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hisilicon.com
+Received: from mail.maildlp.com (unknown [172.19.162.140])
+	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4hlpWb3bs8zcb46;
+	Thu, 17 Sep 2026 16:16:59 +0800 (CST)
+Received: from kwepemf200017.china.huawei.com (unknown [7.202.181.10])
+	by mail.maildlp.com (Postfix) with ESMTPS id A98F92017D;
+	Thu, 17 Sep 2026 16:28:12 +0800 (CST)
+Received: from [10.67.121.58] (10.67.121.58) by kwepemf200017.china.huawei.com
+ (7.202.181.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Thu, 17 Sep
+ 2026 16:28:11 +0800
+Message-ID: <5e00c73f-fdb2-42f9-92cd-652fd8be4489@hisilicon.com>
+Date: Thu, 17 Sep 2026 16:28:11 +0800
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] i2c: hisi: Add I2C bus recovery support
+To: "yubowen (H)" <yubowen8@huawei.com>, <linuxarm@huawei.com>,
+	<liudingyuan@h-partners.com>, <andi.shyti@kernel.org>,
+	<linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC: <prime.zeng@hisilicon.com>, <wanghuiqiang@huawei.com>,
+	<xuwei5@huawei.com>, <zhangpengjie2@huawei.com>
+References: <20260909023958.4190890-1-yubowen8@huawei.com>
+ <db15e184-244d-4415-b590-8a7d44783830@hisilicon.com>
+ <ffcc17b2-7d4e-4ade-b8c4-2a64567a20e3@huawei.com>
+Content-Language: en-US
+From: Jie Zhan <zhanjie9@hisilicon.com>
+In-Reply-To: <ffcc17b2-7d4e-4ade-b8c4-2a64567a20e3@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260917-add-mcu-fan-khadas-vim4-v12-6-497cd543a148@aliel.fr>
-References: <20260917-add-mcu-fan-khadas-vim4-v12-0-497cd543a148@aliel.fr>
-In-Reply-To: <20260917-add-mcu-fan-khadas-vim4-v12-0-497cd543a148@aliel.fr>
-To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
- Beniamino Galvani <b.galvani@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
- Mark Brown <broonie@kernel.org>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
- mfd@lists.linux.dev, Ronald Claveau <linux-kernel-dev@aliel.fr>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1095;
- i=linux-kernel-dev@aliel.fr; h=from:subject:message-id;
- bh=Z7uWC5BzI9Wq+imS2bvYjb9eymbusN6NdD/vEPC6HdE=;
- b=owGbwMvMwCWm1SvKXP3cUInxtFoSQ9bqeYqHb2Qe4D9/hil7ZZOBFKt54vSIIMXClw8iSn1dJ
- NodZiV3lLIwiHExyIopsvTPtTzx7vLRM1/3qKfAzGFlAhnCwMUpABM53cTI8Nbl6P2Xqx4eK/22
- IDZ4gy67df2pmt2Pf+6/cS7TbvW0oxkM/xM0A50duCT034TmRzE52/O6n/AP2LggT8ktVeXY3Sh
- WFgA=
-X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openpgp;
- fpr=DFD863F61375BF917F0012173953305EF1D0EC3E
-X-Endpoint-Received: by B4 Relay for linux-kernel-dev@aliel.fr/default with
- auth_id=744
-X-Original-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-Reply-To: linux-kernel-dev@aliel.fr
-
-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-
-Enable and configure i2c MCU node to get fan working on Khadas VIM4.
-
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
----
- .../boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts      | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-index c41525a34b721..7d95aadcf6a66 100644
---- a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-+++ b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-@@ -167,6 +167,19 @@ xtal: xtal-clk {
- 	};
- };
- 
-+&i2c_m_ao_a {
-+	status = "okay";
-+	pinctrl-0 = <&i2c0_ao_d_pins>;
-+	pinctrl-names = "default";
-+
-+	khadas_mcu: system-controller@18 {
-+		compatible = "khadas,vim4-mcu";
-+		reg = <0x18>;
-+		fan-supply = <&vcc5v>;
-+		#cooling-cells = <2>;
-+	};
-+};
-+
- &pwm_ab {
- 	status = "okay";
- 	pinctrl-0 = <&pwm_a_pins>;
-
--- 
-2.49.0
+X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
+ kwepemf200017.china.huawei.com (7.202.181.10)
 
 
+
+On 9/17/2026 10:39 AM, yubowen (H) wrote:
+[ ... ]
+>>> +static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr)
+>>> +{
+>>> +	struct platform_device *pdev = to_platform_device(ctlr->dev);
+>>> +	struct i2c_adapter *adapter = &ctlr->adapter;
+>>> +	int ret;
+>>> +
+>>> +	if (acpi_disabled)
+>>> +		return -ENODEV;
+>> Is #ifdef CONFIG_ACPI still useful if 'acpi_disabled' is checked?
+> Thanks for the review, Jie.
+> 
+> Both guards are needed; they operate at different layers and cannot replace each other.
+> 
+> - #ifdef CONFIG_ACPI is a compile-time guard to prevent errors caused by functions
+> 
+>     like acpi_has_method
+> 
+> - acpi_disabled() is a runtime check, it is 1 by default and set to 0 when the platform
+> 
+>     boots via acpi.
+if not CONFIG_ACPI, acpi_disabled would be 1.
+> 
+> Other comments will be fixed in v4.
+> 
+> 
+> Thanks
+> 
+> Bowen
+> 
+>>> +
+>>> +	ret = hisi_i2c_get_bus_recovery_res(ctlr, pdev);
+>>> +	if (ret)
+>>> +		return ret;
+>>> +
+>>> +	ctlr->rinfo = (struct i2c_bus_recovery_info){
+>> Neat: (struct i2c_bus_recovery_info) {
+>> Good to add a space.
+>>> +		.get_scl = hisi_i2c_recovery_get_scl,
+>>> +		.get_sda = hisi_i2c_recovery_get_sda,
+>>> +		.set_scl = hisi_i2c_recovery_set_scl,
+>>> +		.prepare_recovery = hisi_i2c_prepare_recovery,
+>>> +		.unprepare_recovery = hisi_i2c_unprepare_recovery,
+>>> +		.recover_bus = i2c_generic_scl_recovery,
+>>> +	};
+>>> +	adapter->bus_recovery_info = &ctlr->rinfo;
+>>> +	ctlr->acpi_handle = ACPI_HANDLE(ctlr->dev);
+>> Neat: a blank line before return 0.
+>>> +	return 0;
+>>> +}
+>>> +#else
+>>> +static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr) { return -ENODEV; }
+>>> +#endif /* CONFIG_ACPI */
+>>> +
+>>>  static int hisi_i2c_start_xfer(struct hisi_i2c_controller *ctlr)
+>>>  {
+>>>  	struct i2c_msg *msg = ctlr->msgs;
+>>> @@ -504,6 +645,10 @@ static int hisi_i2c_probe(struct platform_device *pdev)
+>>>  	adapter->dev.parent = dev;
+>>>  	i2c_set_adapdata(adapter, ctlr);
+>>>  
+>>> +	ret = hisi_i2c_recovery_init(ctlr);
+>>> +	if (ret)
+>>> +		dev_info(ctlr->dev, "I2C bus recovery not available\n");
+>>> +
+>> Move this before setting 'adapter' and i2c_set_adapdata()?
+>>
+>> Recovery init should be done before the final preparation of 'adapter'.
+>>>  	ret = devm_i2c_add_adapter(dev, adapter);
+>>>  	if (ret)
+>>>  		return ret;
