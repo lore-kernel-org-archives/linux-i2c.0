@@ -1,59 +1,45 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9422479CD;
-	Thu, 17 Sep 2026 06:57:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 934D93B42EE;
+	Thu, 17 Sep 2026 08:00:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789628268; cv=none; b=W6bc3xUm0lioCZROZtileqV/KK2I/sxAu2NFlvTEGm6W20L66QXhmLRHv0KCBGBCyugp+tGiRnkSPAYVaPj9BECMMndN746HreHzFXZr0wb+Q+o2WNBwAENnjWUVsfCki7/JiG7qFr26UaR/MbxD8c6/Dawnvll4SmSVRmYMbVM=
+	t=1789632013; cv=none; b=Hq0PAcOjCC1ogc567VAdvLDgaWrV7bLWuDDtT3g/v4vAmrHY7KxD3l/gKIByQI3LLKZN/Qromp9IiuOgLyBbfJA7EW63covWLVVUoZyVhx3l5q+o/8c+jWKiXUx3GtZEWqeCK2ClBS0L3GoZzzzvfG1IXzK9TCuZFdEgHuI2y8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789628268; c=relaxed/simple;
-	bh=d+j6sRCIMCL7jTmbiPfcwJKDQLoJglY1jAVWQeOicMU=;
+	s=arc-20240116; t=1789632013; c=relaxed/simple;
+	bh=t4eRF8+XBIuFbxJfnNVPbx4Ln4LJwPIhnhzoFSEuVvs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DF7t7JRaXEMqzp8gAzfcC/FU8Xyg00TgSe0nkYmO1NWmotNJn0hzvau44IRnDsZiuemD75WEDCYia5a9BYolsd1OyHIJVWD0Ybv0vwSMlnGorSCzsB1T1WRAzq24Gs+UfLJOsZdzJVA7SIuKVp3yXpDdHx+HP+UyAGcyE81MAzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hIQGS9Sv; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ByqOSi0FcTe2ItP7+VCVHO+s/t65tvtTDabPkckyIT167SyaY8NYu3zp5nYAsjoEvZVcbBfP0uHpXip1yTh2M4MVbKh4xMlXfG3vZFlFQGqQD1wf7gfgL2srV60NKOJgGt5/bEcImY0Z15Enip6SctIUPkIw09cP7+O7UdbIuYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MS8tPaGZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hIQGS9Sv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1789628266; x=1821164266;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=d+j6sRCIMCL7jTmbiPfcwJKDQLoJglY1jAVWQeOicMU=;
-  b=hIQGS9SvFiqfsTfoOTuSpf9TLkG2+zp9VF+H6SO3wHnPgdge162dxkmn
-   eE/jO8JqqlklCl/gO03d1ZQfI0rryeFT8pYNTniAjtIKpiCV7k5K/c4QD
-   QgSkfN49cnNX/D7zTAzMN6AE4UmdlzcpDbEBvugahK8ZxXU4qZFMhDAGQ
-   K6EhJ8zx7YsBVVUoWtKKSMlt7ZTbxM/qHXefGkh/hEmOmiOPopTVhxlwR
-   3x2PrTMPDN/4/0YpXIFZmmNGta6eTLCes24YjynK8sApI0H4yWmaVynee
-   IbA0h1owfnXcWIa+mJ1c6vwmP9Kuz37YbHQXtV4ddCvWtbb2JAhVRP+PV
-   Q==;
-X-CSE-ConnectionGUID: Pogs9a6PSoehKzVoH+aoeg==
-X-CSE-MsgGUID: 1raFZF/3SYif3UgVtZG71Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11905"; a="89887009"
-X-IronPort-AV: E=Sophos;i="6.27,103,1787036400"; 
-   d="scan'208";a="89887009"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2026 23:57:45 -0700
-X-CSE-ConnectionGUID: dsrwRVcxSZqijTofHs19BA==
-X-CSE-MsgGUID: JwSfN43XQ7u08exarL/CWg==
-X-ExtLoop1: 1
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa003.fm.intel.com with ESMTP; 16 Sep 2026 23:57:43 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 1CB0599; Thu, 17 Sep 2026 08:57:43 +0200 (CEST)
-Date: Thu, 17 Sep 2026 08:57:43 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: andy.shevchenko@gmail.com, linux-acpi@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	westeri@kernel.org, wsa+renesas@sang-engineering.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: acpi: Fix adapter reference leak in
- i2c_acpi_new_device_by_fwnode()
-Message-ID: <20260917065743.GZ106095@black.igk.intel.com>
-References: <20260916155507.2074970-1-vulab@iscas.ac.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MS8tPaGZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 160821F00898;
+	Thu, 17 Sep 2026 08:00:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789632012;
+	bh=uE9UWharQqy5/fAiwBZmsbswzhzEgqPDu8gY7vY8sVs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=MS8tPaGZgC6kUVPjJLHzxqMpCYM03N/2wB6Qnl4lupTK5ptNWVq17LosxvW15sGBP
+	 ehIcGeieeaG/wHDo3v9sYYLhqyWuWejbMqVz2p/4OlYtWzH1RTfDKk25OlKzpktxgY
+	 yI3AV1TVMUTkIqdZyR2L8R9W7klFJZ+6E3g9wln7KcVyih9LZTIrQ95eoEAiR5k0Rb
+	 NYk0COnOf/tUEwetFCcBVjv7wCbIEhCXhQE4TdVMLz7hJIE0WPo8jS75yBk+eTsUPo
+	 js5ugsDU7Tt4bMnm9daNa/ZGBjhbF0jEWauFy7zCyLJMpTqRtD/jcUQq/QpYlfrSll
+	 qb0aTtu0JNjzA==
+Date: Thu, 17 Sep 2026 10:00:07 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Lee Jones <lee@kernel.org>
+Cc: Linus Walleij <linusw@kernel.org>, 
+	Michael Zaidman <michael.zaidman@gmail.com>, jikos@kernel.org, brgl@kernel.org, linux-input@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C
+ fixes
+Message-ID: <aqucXBi0Fmq-tCWr@beelink>
+References: <20260827205116.GJ2943942@google.com>
+ <20260827222550.24634-1-michael.zaidman@gmail.com>
+ <apaLLD4ZXhNV-Dph@beelink>
+ <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com>
+ <20260916125806.GR11487@google.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -62,25 +48,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260916155507.2074970-1-vulab@iscas.ac.cn>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260916125806.GR11487@google.com>
 
-Hi,
-
-On Wed, Sep 16, 2026 at 03:55:07PM +0000, Wentao Liang wrote:
-> i2c_acpi_find_adapter_by_handle() returns the adapter with a reference
-> obtained via get_device() in bus_find_device(), which the caller is
-> responsible for dropping. i2c_new_client_device() stores the adapter
-> pointer without taking a reference and does not release the caller's
-> reference on any path, so the reference is leaked.
+On Sep 16 2026, Lee Jones wrote:
+> On Mon, 14 Sep 2026, Linus Walleij wrote:
 > 
-> Drop the adapter device reference after creating the client, like
-> i2c_acpi_notify() does.
+> > Hi Benjamin, Lee,
+> > 
+> > On Tue, Sep 1, 2026 at 4:03 PM Benjamin Tissoires <bentiss@kernel.org> wrote:
+> > 
+> > > TBH, I'm not a big fan of having multiple subsystems children into HID.
+> > > Mostly because I can't review the best practive in each of them. However,
+> > > for quite a long time, HID was mostly for input devices, and input is a
+> > > different subsystem.
+> > >
+> > > That being said, there are 2 types of HID devices:
+> > > - ones with defined standard usages (keyboards, mice, touchscreen,
+> > >         battery, etc) and using MFD for those would certainly be overthinking
+> > > - others use raw HID device with a custom protocol (cp2112, mcp2221,
+> > >         ft260), these could be MFD candidates
+> > 
+> > Surely, as HID start to attract chips which clearly fall into the MFD
+> > category of things, with a plethora of subsystems hooking into the
+> > same HID device, we must find a way for HID devices to spawn
+> > MFD cells?
+> > 
+> > MFD solved and evolved a system for handling exactly this type
+> > of situation.
+> > 
+> > Whether there should be an MFD device in the middle spawning
+> > each a HID, GPIO, I2C, UART cell or whether HID device itself should
+> > sit in the nexus and gain the ability to simply spawn out MFD cells
+> > from itself is what we need to figure out.
 > 
-> Fixes: 53f8f7c5cf14 ("i2c: break out ACPI support into separate file")
+> There's no figuring that part out.
+> 
+> If you want to use the MFD API, the part that uses it must reside in
+> drivers/mfd.  Else it becomes a nightmare to maintain and things get
+> wild, quickly.
 
-I don't think this is right. The issue existed already before the move.
+Historically speaking, HID devices always have been under drivers/hid.
+They are usually leaf drivers, only hooking to input/battery/LEDs.
 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+As mentioned, hid-sensor-hub is an exception but this got sorted out by
+splitting the HID part from the IIO.
 
-Acked-by: Mika Westerberg <westeri@kernel.org>
+Looking at the various MFD-like HID drivers, they all share the common
+point of not really being HID devices: they rely on a custom protocol
+handled in .raw_event().
+
+So I think I'd be OK to have those drivers moved to the mfd tree as long
+as they only rely on low level HID API, and do not have to deal with
+"generic" HID report descriptors. If that arise, I think we should split
+the HID/MFD parts like hid-sensor-hub does.
+
+So you can have my unformal acked-by for transfering those drivers.
+
+Last, I'm currently using a cp2112 as a i2c-hid bridge in my upstream
+CI. It's relying on a DSDT override in the VM to actually work, and I'd
+like to keep that around. So my main request here is to keep the
+equivalent of the DSDT override in the MFD cells, at least for this one.
+
+Cheers,
+Benjamin
+
+> 
+> You'd be surprised what "creative" engineers can do with it!
+> 
+> -- 
+> Lee Jones
+> 
