@@ -1,185 +1,134 @@
-Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11012004.outbound.protection.outlook.com [52.101.66.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA75363C48;
-	Thu, 17 Sep 2026 09:13:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.66.4
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789636403; cv=fail; b=I9UKVW9NPYilYCQ5/2JQrTiokLYNHfyNQ/NjEBNISKZKSx8IY4YKgvNIFfjqlanGVFwlkaSBNCkyoOltz6RJD6igGpeAf+lCWCcU0PkrNx0yUOfKUkeL0ShacP/H2lOunD8Pi9qHVWRvCDL687ASeLynQqOz0LVux9aSW2HeXjU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789636403; c=relaxed/simple;
-	bh=aliPio6CqLVgNs018s5LaNz6VwQkLeU40mTy6s1lx/o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=q4Au2oB6Di/t4AkxUSfek4JA/oLKuj9m4o+kCRrbsu1ytoiqf/uEsm6p1+fxUuUTdrMESbth6+SJCaPltB/DmajOiBpD0lwuFKnDvKUu/7HeCWEUgNx0InZEyKH4aQAJIGUBsRfJ1+mzp6zjlz3Y+YpPuyuFW+QXGmXvK5cyxMk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=oyHEq2wx; arc=fail smtp.client-ip=52.101.66.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8F24B1CF7;
+	Thu, 17 Sep 2026 10:05:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789639514; cv=none; b=M71GtIcWGnnxf66k8OhVotTo1u4w+YzbOdN3gNNi7yOnUFYj6OthFfJi3P9+syeAcbsz33Ldiyj/eRDfOCm+qeZhhRQFnM/WvN+ui7K8IF/1jLpA7KPzQJ3GkZ+EOniVQnnhU/EYPChROzHya6a2akxlWzTQg8L4DemGlo7UO10=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789639514; c=relaxed/simple;
+	bh=8twaT9zLI/VWKHo/Ti18avE0HnBxOYc5otwq7psWXaI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gmsT6D+9mw87m0h5r9m4u+WJoV1CeF/AUBDD/gFpmMsmQd/u+8Dn2Hv8wY5s/Dv6scK3biyzAmGt0JK9V6c7qTXZ8KWa2BnxoAGpWhPjolLXP/Tqng/u6gvGhuJcxDaULm8n/g9TZTeT6dDTmDvIp9b77UcfQLUHe4PoNW30h70=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c6yP7X8Q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="oyHEq2wx"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=xJewXL7C4MxFyInEJNPxLSgOm2Uwl1T3tme3VvotBrqAJEZ3Xod+kgchcA+6tXZUogE4fcY0dCJyO2N0uhbHSfEBItSIc+9fzxS7POixSwAiI6aQBPZqiSyEHkbTH4fFaUQov5M9xL+g/fC57z5QN4HGKEJMd2h8Q6ZfMTh4jcIP8P4lRmiq+nj8sVro/rhbq6aRqIbHGaYM7Nu+RXWvG33GQwbqpzrDVxN+vlRf+TVE/KrFj31w77lky7QqyneEgE+whg0NOxGF8j7raExyMUJHxx77uHiHLIx+4W6iBzlozmSutowv49JmjwEqOXk/QcHrvRwzmAeALMKqi2vCZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UEkb0gFEltBX2Uk9A1CIk5tOYIox/3vPW4obLKIjOOg=;
- b=YKb+CNGDaI5+qO2YFXJGAeIU9vPbyznFQKnfZ4Xi7fayvY1o1ZSNQ/YggvB7hcF4X6rHzlJ7rm0UHGZeiN47rFZTqYwcJGJGM8H9pKB24wmawk+bkCiIQN3NSQ4YeueodXV7hhPGl4/VhgxdvEbK8chdb2hsFP8O1ll5dH8rvlZtS9t9NkG+jSQ8+Jdtk5mgGIb0U8P83ENVI3hRevIyHJFWWj/SkG8D6wkYSpKfLrZy3NuHg0DF8HocMHzWRFU5+X7opYUGL/6y3PUF5a9+POhVoroW7G/sPD8saLAf1tHa28ORDMNSKhty75RDLNy6dAkbkEi0cOCxKLDaRGe7YQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 164.130.1.59) smtp.rcpttodomain=iscas.ac.cn smtp.mailfrom=foss.st.com;
- dmarc=fail (p=none sp=none pct=100) action=none header.from=foss.st.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UEkb0gFEltBX2Uk9A1CIk5tOYIox/3vPW4obLKIjOOg=;
- b=oyHEq2wxa59GPyEDqIAxr8PSjV2r2KVks1jIS481AAuKF+RA2FNa1nxoUcQPFXFgwn4k55RtZTmdVC4sh372xQOX68BuqthScceVbkw2yUEnH/tGT/laX1+JTLFns2ujtDXLVzc/xz0vYwu1OBoqy7sfQcPBwIOAz0Y4sFdprmcsFvUk6egCchtivvmb4JNsJveHOcJr9lQCyFfoVT0dUB0dwnhnBxYszOxvtVaa1Qh2nG5T0J3PSAIJDL9xavLUcZ/BQiw9DIKik+VmEbq9l4BabF+prm7w5t9yxEK8uE0mSaMaoCudQ+l4AD+SKiiOlp4+S0vmlv91hLkfgE5fPQ==
-Received: from AS4P192CA0025.EURP192.PROD.OUTLOOK.COM (2603:10a6:20b:5e1::19)
- by DU0PR10MB6297.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:3ec::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Thu, 17 Sep
- 2026 09:13:18 +0000
-Received: from AMS1EPF0000008F.eurprd05.prod.outlook.com
- (2603:10a6:20b:5e1:cafe::aa) by AS4P192CA0025.outlook.office365.com
- (2603:10a6:20b:5e1::19) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.428.12 via Frontend Transport; Thu,
- 17 Sep 2026 09:13:18 +0000
-X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 164.130.1.59)
- smtp.mailfrom=foss.st.com; dkim=none (message not signed)
- header.d=none;dmarc=fail action=none header.from=foss.st.com;
-Received-SPF: Fail (protection.outlook.com: domain of foss.st.com does not
- designate 164.130.1.59 as permitted sender) receiver=protection.outlook.com;
- client-ip=164.130.1.59; helo=smtpO365.st.com;
-Received: from smtpO365.st.com (164.130.1.59) by
- AMS1EPF0000008F.mail.protection.outlook.com (10.167.242.86) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.428.7 via Frontend Transport; Thu, 17 Sep 2026 09:13:17 +0000
-Received: from STKDAG1NODE1.st.com (10.75.128.132) by smtpo365.st.com
- (10.250.44.71) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.43; Thu, 17 Sep
- 2026 11:19:21 +0200
-Received: from [10.48.87.93] (10.48.87.93) by STKDAG1NODE1.st.com
- (10.75.128.132) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.43; Thu, 17 Sep
- 2026 11:13:15 +0200
-Message-ID: <c5cf542c-46eb-47c5-9424-a7bc3ce630ab@foss.st.com>
-Date: Thu, 17 Sep 2026 11:13:14 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c6yP7X8Q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1760A1F000FF;
+	Thu, 17 Sep 2026 10:04:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789639499;
+	bh=Jbm4chty2zYyyLMXqcWCL6EkoK03pWrHLt0hOsiDGns=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=c6yP7X8Q0UqQoGqQHlZEAfYr2HaADgEEOz9Hc8hhZj6Kt13UlDqvEVSzH5lGPysqt
+	 UeR8nBuHUktjqDP4q8d0ZHOMOavagMRkvKbM08AdhgOqfJQHqv4h1MONi7bn0rhPCL
+	 /ygclqhTvcqwrKDbdqy/ovrpb27tuazxIPS3s+Fvea31QBpkz1u9bfh0y472KHPZ53
+	 NVATpWWa9Zl2CcuHu8gDJ54kH/4qyMidW23idvEzLwbWbwEnenbhgOr6ITXYwzctC+
+	 uL7GqhlVRU8qUHVRVZTwq3VUCOQ4phsX1CQOiDLXaC1d+Uqc9lUCOzoabi7j5D13kY
+	 jzIvRLjRHCIkQ==
+Date: Thu, 17 Sep 2026 11:04:55 +0100
+From: Lee Jones <lee@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Linus Walleij <linusw@kernel.org>,
+	Michael Zaidman <michael.zaidman@gmail.com>, jikos@kernel.org,
+	brgl@kernel.org, linux-input@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C
+ fixes
+Message-ID: <20260917100455.GG1605367@google.com>
+References: <20260827205116.GJ2943942@google.com>
+ <20260827222550.24634-1-michael.zaidman@gmail.com>
+ <apaLLD4ZXhNV-Dph@beelink>
+ <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com>
+ <20260916125806.GR11487@google.com>
+ <aqucXBi0Fmq-tCWr@beelink>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: st: Fix clock reference leak in st_i2c_probe()
-To: Wentao Liang <vulab@iscas.ac.cn>, <andi.shyti@kernel.org>
-CC: <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <maxime.coquelin@st.com>, <wsa@kernel.org>,
-	<stable@vger.kernel.org>
-References: <20260916160235.2080462-1-vulab@iscas.ac.cn>
-Content-Language: en-US
-From: Patrice CHOTARD <patrice.chotard@foss.st.com>
-In-Reply-To: <20260916160235.2080462-1-vulab@iscas.ac.cn>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ENXCAS1NODE2.st.com (10.75.128.138) To STKDAG1NODE1.st.com
- (10.75.128.132)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AMS1EPF0000008F:EE_|DU0PR10MB6297:EE_
-X-MS-Office365-Filtering-Correlation-Id: a6d1b721-c90a-46a5-68f4-08df149be900
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|23010399003|376014|1800799024|82310400026|10067099003|11063799006|56012099006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	QgSH8mSelrECj7AZf9WgOYSUZK8Hz8eqY4eoB8FHynPdHcMRqgjzUE9ExhBfZr+ZcTw1cnBLuj0aqVneXQ8W49F+zu1hTIjr7k74CgPeqYFVsZMfhGGtMeYLLLKuQ06DPcCXPncghPHKfpL+BGAafjKm32OFxEk5118LBhxuXPkSQWqMaDYnG+Z6GLCvCzO2IeN+8EcFwuyPV2XRUZSxThK1AF3yZpUWQz1+L971RZEVVvNCe8Blv7wAzlhUUW8Okg6/93tveqPZb8ZlWBb6txxyASAvsigdeSKsI4Fj7MFFE1SKt5WEfENFS7dTtY423umL1WD/qiBZpzBZKjB4tw535Z8moXWrw/v5+2chalEK46713aDXlMd+C/WrnlS5RxfIELP4QqoM06Or3vGSFRjoKaZWhM9ObC/4CKyKsfxaukm9obr5JkvnY/yObrVWMmoO/qMPAOU1MuRXsYHkiirvBotHsnCd9oiWkt1iyQGV/AFiGz5HLZFTRcs4lrfHZ4O/WAujkOnAUlIXh1mCvHwJVuvosOtMF3SE00qb7OKrGEsDzX4H6hcJCwAx4SFKn2lxt+8pMTjkppEEzjIQ9p/9Hg0w++w7mDQEpb03D10V/1IwoAdSaMjRf5coXPvaDdVlPtZDP/YWqIdQvNB2l1TLSBs5SXTmvn8Jcu2SB+2OtyNRmcMOrrgz5LYJXl18dv8p5W5Gc4J4PXr6q3aoHA==
-X-Forefront-Antispam-Report:
-	CIP:164.130.1.59;CTRY:IT;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:smtpO365.st.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(23010399003)(376014)(1800799024)(82310400026)(10067099003)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	GdUEP4MD0BmtndjGshK4P+shW0rJ63O46t23KWmspFIwdZeRkkY8swSBQsUnkLwHmEoJp7vGqHFQ2B9fYhd+hzkvyAuy6vBt1NwIjToZh7iFFGYGV77Fg3Idr8RQVMZYJ2Aq8qssEbGBU2OOwqZQG0qHfaTzSlS1n/R9bOfWlH6w5Yf9YK1jut4zbhtvjzgfh/toev9BjWbrN+7aAsuoLiAY7yzNcjdWttzB/v2s8GFkceenUX6TjuHMlKdZxD0PIWAI4Mwo6OEsrSmsEOBZUWGSJoBt0QXgHpMVLLqICbWs1Z23yu+METC3XKKGaNsU+aEHGx21rP2yUzTsbyBYavBJISaraQ8pP0XoJ2qk/vz0ZKmrwTu+mRQuFaoVKEG2kcdcqHrIQ6FCOSs6MZ6rt2pC7NgOu9N7xCPy5H2iv/dTbj8zeigHjuoJQEQMDeJX
-X-OriginatorOrg: foss.st.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Sep 2026 09:13:17.0705
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6d1b721-c90a-46a5-68f4-08df149be900
-X-MS-Exchange-CrossTenant-Id: 75e027c9-20d5-47d5-b82f-77d7cd041e8f
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=75e027c9-20d5-47d5-b82f-77d7cd041e8f;Ip=[164.130.1.59];Helo=[smtpO365.st.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	AMS1EPF0000008F.eurprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR10MB6297
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aqucXBi0Fmq-tCWr@beelink>
 
+On Thu, 17 Sep 2026, Benjamin Tissoires wrote:
 
-
-On 9/16/26 18:02, Wentao Liang wrote:
-> The clock obtained with of_clk_get_by_name() is never released: the
-> probe error paths after it, irq request failure, deglitch setup
-> failure and adapter registration failure, return without clk_put(),
-> and st_i2c_remove() does not drop the reference either.
+> On Sep 16 2026, Lee Jones wrote:
+> > On Mon, 14 Sep 2026, Linus Walleij wrote:
+> > 
+> > > Hi Benjamin, Lee,
+> > > 
+> > > On Tue, Sep 1, 2026 at 4:03 PM Benjamin Tissoires <bentiss@kernel.org> wrote:
+> > > 
+> > > > TBH, I'm not a big fan of having multiple subsystems children into HID.
+> > > > Mostly because I can't review the best practive in each of them. However,
+> > > > for quite a long time, HID was mostly for input devices, and input is a
+> > > > different subsystem.
+> > > >
+> > > > That being said, there are 2 types of HID devices:
+> > > > - ones with defined standard usages (keyboards, mice, touchscreen,
+> > > >         battery, etc) and using MFD for those would certainly be overthinking
+> > > > - others use raw HID device with a custom protocol (cp2112, mcp2221,
+> > > >         ft260), these could be MFD candidates
+> > > 
+> > > Surely, as HID start to attract chips which clearly fall into the MFD
+> > > category of things, with a plethora of subsystems hooking into the
+> > > same HID device, we must find a way for HID devices to spawn
+> > > MFD cells?
+> > > 
+> > > MFD solved and evolved a system for handling exactly this type
+> > > of situation.
+> > > 
+> > > Whether there should be an MFD device in the middle spawning
+> > > each a HID, GPIO, I2C, UART cell or whether HID device itself should
+> > > sit in the nexus and gain the ability to simply spawn out MFD cells
+> > > from itself is what we need to figure out.
+> > 
+> > There's no figuring that part out.
+> > 
+> > If you want to use the MFD API, the part that uses it must reside in
+> > drivers/mfd.  Else it becomes a nightmare to maintain and things get
+> > wild, quickly.
 > 
-> Add a cleanup label that drops the clock reference on the probe error
-> paths and release the reference in the remove path.
+> Historically speaking, HID devices always have been under drivers/hid.
+> They are usually leaf drivers, only hooking to input/battery/LEDs.
 > 
-> Fixes: 85b4fab26960 ("i2c: i2c-st: Add ST I2C controller")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
-> ---
->  drivers/i2c/busses/i2c-st.c | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
+> As mentioned, hid-sensor-hub is an exception but this got sorted out by
+> splitting the HID part from the IIO.
 > 
-> diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-> index 751ea421caaf..2049bbce3656 100644
-> --- a/drivers/i2c/busses/i2c-st.c
-> +++ b/drivers/i2c/busses/i2c-st.c
-> @@ -831,7 +831,7 @@ static int st_i2c_probe(struct platform_device *pdev)
->  			IRQF_ONESHOT, pdev->name, i2c_dev);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
-> -		return ret;
-> +		goto err_clk;
->  	}
->  
->  	pinctrl_pm_select_default_state(i2c_dev->dev);
-> @@ -840,7 +840,7 @@ static int st_i2c_probe(struct platform_device *pdev)
->  
->  	ret = st_i2c_of_get_deglitch(np, i2c_dev);
->  	if (ret)
-> -		return ret;
-> +		goto err_clk;
->  
->  	adap = &i2c_dev->adap;
->  	i2c_set_adapdata(adap, i2c_dev);
-> @@ -857,13 +857,17 @@ static int st_i2c_probe(struct platform_device *pdev)
->  
->  	ret = i2c_add_adapter(adap);
->  	if (ret)
-> -		return ret;
-> +		goto err_clk;
->  
->  	platform_set_drvdata(pdev, i2c_dev);
->  
->  	dev_info(i2c_dev->dev, "%s initialized\n", adap->name);
->  
->  	return 0;
-> +
-> +err_clk:
-> +	clk_put(i2c_dev->clk);
-> +	return ret;
->  }
->  
->  static void st_i2c_remove(struct platform_device *pdev)
-> @@ -871,6 +875,7 @@ static void st_i2c_remove(struct platform_device *pdev)
->  	struct st_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
->  
->  	i2c_del_adapter(&i2c_dev->adap);
-> +	clk_put(i2c_dev->clk);
->  }
->  
->  static const struct of_device_id st_i2c_match[] = {
+> Looking at the various MFD-like HID drivers, they all share the common
+> point of not really being HID devices: they rely on a custom protocol
+> handled in .raw_event().
+> 
+> So I think I'd be OK to have those drivers moved to the mfd tree as long
+> as they only rely on low level HID API, and do not have to deal with
+> "generic" HID report descriptors. If that arise, I think we should split
+> the HID/MFD parts like hid-sensor-hub does.
+> 
+> So you can have my unformal acked-by for transfering those drivers.
 
-Hi Wentao
+A couple of caveats to this:
 
-This patch need to be rebased on last kernel.
+Only the most basic set-up parts need to go into MFD (shared resource
+allocation, core device initialisation: clocks, resets, regulators,
+IRQs, etc.  Anything that does a 'thing' needs to reside in the
+applicable sub-system that supports the 'thing'.
 
-Thanks
-Patrice
+Device need to straddle at least 2 additional subsystems to qualify as
+an MFD which undoubtibly would be HID and then something else: gpio,
+regulator, uart, iio, clk, what have you. 
+
+> Last, I'm currently using a cp2112 as a i2c-hid bridge in my upstream
+> CI. It's relying on a DSDT override in the VM to actually work, and I'd
+> like to keep that around. So my main request here is to keep the
+> equivalent of the DSDT override in the MFD cells, at least for this one.
+
+I have no idea what that means, but we can discuss it.  Maybe this lives
+in some form of platform data?  I'd be able to advise better when I know
+what it is.
+
+-- 
+Lee Jones
