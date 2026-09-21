@@ -1,78 +1,87 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.4])
+Received: from ms1.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36AA83537F8;
-	Mon, 21 Sep 2026 05:19:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48EC2376A12;
+	Mon, 21 Sep 2026 06:52:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789967943; cv=none; b=KrklLSvms/BcVOMuvAwh7fYuXk3SB0Fai2vAhuHgs/Vg1mHUII+cvXcEEaOfb/c0ScKS6cCM/49/POexyVQnWktzcxK9Iqkqn1Npad4MD11MbifA9ZmWSKqQc6mI7xQx8EUOiZeR5JDW+zQU3dXJQrVMfcqtiUzpHP7xC1rELNQ=
+	t=1789973543; cv=none; b=Fqlm2xmjhiI+bMccH9xvOH0qNDMI1vP8Xovi9JhSZVYXrolk/1FB7/wtuVjaLeV9n/uzE+SLZDQB3c1nIbvExvixY4Tm4ES6Ulx05k6RJIIGtAignElNe5At5K+Bg4SZJQXNUrbOcInrQA+aqkAcn+RfGmEVIpaS0hRbam9y9Ms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789967943; c=relaxed/simple;
-	bh=8u7wVb8eqcT/8CqT90NFKey6Lq12JB2Xmy5c9MxjMm8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tDLrthPdEGnTbq6aoi4/ORZLl22kXmOGhOHXuOwjZJh6Oljz4n8Ewk5vNLrGv60vkT6zXAOT3WOKEpznZHVCr3gpiV2arhtQhh1lrcLMKWwxbWtGEdHLZpLKcTLw7l1GGyDQCVhqJy/I/9mpHcwfaR/VrsJj3CEgkM0491+OZTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bWmf0iRr; arc=none smtp.client-ip=192.198.163.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1789973543; c=relaxed/simple;
+	bh=xJJwh/uSa9O0HL+0RnWkMAy/Q+hl+tSY0E0DE4F1PGc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=ZTNKRIS1Hd5xhuRwMCepUcv2hqkWIpA6ebnc9DnT4ms9cQzzijLEwHZWgoL0X56SrFG6jPFlzKooqXfau1GzvqGchzG170/610H7vkzfWka149+phn7G3PjMOwPitCHvv1yuapI4PDOBwg05wSue5ncKDPLBFnQ9FYe9loBXF4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=Ji4y4rJR; arc=none smtp.client-ip=210.202.87.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bWmf0iRr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1789967942; x=1821503942;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=8u7wVb8eqcT/8CqT90NFKey6Lq12JB2Xmy5c9MxjMm8=;
-  b=bWmf0iRr0KYnoDb9el5nJpiMNDsqHu1EzvPhQLIV0I0tyXOT3M3kiz6X
-   akcJ7QG9lF+UPaAFSiXPoDUeSrgRTvl5Q181Cpw4uX+WxAIsJ0Tc9Wnpl
-   pWsekfzx1Q+LlfMhjpU7iQrbgyJfJEojkFwNDk12m1sHavN9G1fiqmJRk
-   /F0JMm6XYkUGC11LZSYLz5DMWxcFEaAHNEXShHfEsncJjto8By87uXWn8
-   X+KAnCkfGuYLkEwdwTRiOQVs6H2uhV9/+Sw8buq4y3jR391L5y4Xr3CSn
-   EFiFjNOBqXZ9xOKFwre6vuefL3m9ZTaZ2EncQnccJ+aCjMFZq7+9Pse46
-   Q==;
-X-CSE-ConnectionGUID: Z5RN7KLrRY6NWS/jRcIhTg==
-X-CSE-MsgGUID: mN36HD9ZRe6FLeL04zJowQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11911"; a="965785"
-X-IronPort-AV: E=Sophos;i="6.27,114,1787036400"; 
-   d="scan'208";a="965785"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa114.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Sep 2026 22:19:01 -0700
-X-CSE-ConnectionGUID: E45H9p5hQeWXIt49Pq6cIQ==
-X-CSE-MsgGUID: ImqydzKLQVa/sCz5Fosf/Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,114,1787036400"; 
-   d="scan'208";a="271964259"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa007.fm.intel.com with ESMTP; 20 Sep 2026 22:19:00 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id A85F499; Mon, 21 Sep 2026 07:18:46 +0200 (CEST)
-Date: Mon, 21 Sep 2026 07:18:46 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Hans de Goede <johannes.goede@oss.qualcomm.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 2/2] i2c: acpi: Add AttribRawBytes accessor-type support
- to OpRegion handler
-Message-ID: <20260921051846.GO106095@black.igk.intel.com>
-References: <20260919193642.43058-1-johannes.goede@oss.qualcomm.com>
- <20260919193642.43058-2-johannes.goede@oss.qualcomm.com>
+	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="Ji4y4rJR"
+X-UUID: 445711eab58811f1b1aaad79f5fb1677-20260921
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
+	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From; bh=Wzk3FyWUHLwQgpzFqcp0G1JS/KnsFbHhVG6dgCYmkWI=;
+	b=Ji4y4rJRhhps97yPKZV5Ejv+frBoWRRuoowcqQ0fI4GXHoZNL4O6FEW2rWi2OZ2MzsO/kBMv9pZS4gMD1jPAQfjOWwvwK1bxC4bUCEN9hqhTnTvfhlUoRoi4nRLoWb08QTf2lcm+fmKg5/iCiJHGctv39hZ3Xvv/wEo46TZqAjA=;
+X-UUID: 445711eab58811f1b1aaad79f5fb1677-20260921
+Received: from spmgt1 [(172.20.13.10)] by ms1.novatek.com.tw
+	(envelope-from <sp_isw1_at@novatek.com.tw>)
+	(Generic MTA)
+	with ESMTP id 1287419015; Mon, 21 Sep 2026 14:47:09 +0800
+Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.20.160])
+	by spmgt1 (Postfix) with ESMTP id 363B31A1E1C;
+	Mon, 21 Sep 2026 14:47:09 +0800 (CST)
+Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
+	id 6A337C600DD; Mon, 21 Sep 2026 14:47:08 +0800 (CST)
+From: nina_kuo@novatek.com.tw
+To: robh@kernel.org
+Cc: andi.shyti@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	krzk+dt@kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	shihpei_hsu@novatek.com.tw,
+	toby_chui@novatek.com.tw,
+	jason_jj_wu@novatek.com.tw,
+	f_y_pai@novatek.com.tw,
+	Ben Huang <Ben_Huang@novatek.com.tw>
+Subject: Re: [PATCH v9 1/3] dt-bindings: i2c: Add Novatek NT72676 I2C controller
+Date: Mon, 21 Sep 2026 14:46:43 +0800
+Message-Id: <20260921064642.564969-1-nina_kuo@novatek.com.tw>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <178975623902.1285316.4399627146278456114.robh@kernel.org>
+References: <178975623902.1285316.4399627146278456114.robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260919193642.43058-2-johannes.goede@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Sep 19, 2026 at 09:36:42PM +0200, Hans de Goede wrote:
-> Add AttribRawBytes accessor-type support to OpRegion handler, this is used
-> by the ACPI tables on a ThinkPad T14s gen6 Snapdragon laptop.
-> 
-> Looking at the AML it seems the expected behavior is to simply read or
-> write accessor-length bytes and this implementation allows successful
-> communication with the EC on a T14s gen6 Snapdragon laptop.
-> 
-> Signed-off-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
+From: Ben Huang <Ben_Huang@novatek.com.tw>
 
-Acked-by: Mika Westerberg <westeri@kernel.org>
+Hi,
+
+On Saturday, September 19, 2026 2:31 AM, Rob Herring <robh@kernel.org> wrote:
+> On Thu, 10 Sep 2026 11:01:20 +0800, nina_kuo@novatek.com.tw wrote:
+>> From: Ben Huang <Ben_Huang@novatek.com.tw>
+>> 
+>> Add Devicetree binding documentation for Novatek NT72676 I2C
+>> controller.
+>> 
+>> Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
+>> Signed-off-by: Nina Kuo <Nina_Kuo@novatek.com.tw>
+>> ---
+>>  .../bindings/i2c/novatek,nt72676-i2c.yaml     | 76 +++++++++++++++++++
+>>  1 file changed, 76 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt72676-i2c.yaml
+>> 
+>
+> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+
+Thanks for your kind review!
+
+By the way, is anyone reviewing the driver code in PATCH 2/3 of this
+series?
+
+Sincerely,
+Ben Huang
