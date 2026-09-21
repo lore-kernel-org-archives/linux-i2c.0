@@ -1,99 +1,107 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pz2-f42.google.com (mail-pz2-f42.google.com [74.125.228.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91C814D0CF7
-	for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2026 15:53:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF864E325A
+	for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2026 17:05:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790006034; cv=none; b=fc89KTToKc6h90+vHUP/Ln2X/FbCqX0sfi2FEh2z3+bdgAycuqFYgiAaiyacCnRhMu7cEuBzeNDZeBC5cpD/TYnrx9KtrxldTOrt7gIT+sk8eKL3FDl53ZocBKsWGlEkURK6fNQl/apXLcRl5l5r4ttzJ7iL+Tw7lUCCM0fM9pE=
+	t=1790010304; cv=none; b=gCZexX1xndsgAYBCmv+oh8glNQw8Em48vc41ypN/pEm7oRVay7nwdu2RKKmqbfHf6cv+g5M5A8906u2HhAA4buPROryigxrGScDf0BL3Dxyr/vOSk/PF6zTrVNBu/D+JUNcGCXe7JR4IY+3xBu7zdCAAADgvR7pBO/gddo2/IjI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790006034; c=relaxed/simple;
-	bh=kAV83GG8Wx3vs0tpxEdTxwn0XZCNc0tZOHUrR9Lz48M=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=CUNpiKZP4NV+lvdopoGqfEP1QnksAg+9fBEwz2HaCGizSx+Rvzjwo8nKwmlfiggHlvWkWxQZrJSdFfM8FYqO/yfrRp16CoF9HGPekOFBpUZbViM1tQK49THKqv+fTbXTmoe1W/hDfaKcyPLICdcDcp43b4L1Eo4ZmxYzGXB7rYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=eUb7/z9r; arc=none smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1790010304; c=relaxed/simple;
+	bh=UE/E6CwtSRO5jTRXSvtyJcHoke+D2mQVa9MShYJdIN8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RUJRKeplunp0uwHkXZXs3XsgiLujvYd0LSkfVJQiTYgTKFluRBeq3KMTPY1SMdpNK6xNJ+H6Z05ok3KRd9KCtF1NWqDPvw4rMoig7Mpp0Su/hd5u/TioGsIcD3Bm6oIRQkhUe8TuvxBl4f/gY04+VI/Hn0gG62r1VWacVsSz1lA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oQs6olMD; arc=none smtp.client-ip=74.125.228.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="eUb7/z9r"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d747f05ffcso24075705ad.0
-        for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2026 08:53:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oQs6olMD"
+Received: by mail-pz2-f42.google.com with SMTP id 41be03b00d2f7-cc4e4979c47so248450a12.2
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2026 10:05:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1790006032; x=1790610832; darn=vger.kernel.org;
-        h=content-type:mime-version:message-id:date:references:in-reply-to
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kAV83GG8Wx3vs0tpxEdTxwn0XZCNc0tZOHUrR9Lz48M=;
-        b=eUb7/z9rRboiBmTpaCl6lc21MbiVYTqZq2BkuHUXMy9Qx+fjnMZz4Bb7z8d/uF2Ae3
-         sT6WmYODcw0JVzrx7KxrQz4kFJ9Q5QYBH/IqEiZzxeO41MWHpaxFo8uQ6gb/y83kY2pB
-         NP90W18zDe72xDHSnU3kKG76OQ0wDcb+Aqiz/atuxwrXdcg5t8RjpSF24W6IiaDErE2t
-         VPuD5uClKy+m5MRUoNey4jqUD9zOxYKXxKhK+bO/fRcrzUMWgASfP5k+MOb7EZPjLhIx
-         IcHGBNFRnSA/UAPQF9SrtFbt5/FJfbtqF+YAgEjAIdhAB7Kz2EOGo2WCHtpdijCvkjSW
-         bOCA==
+        d=gmail.com; s=20251104; t=1790010302; x=1790615102; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Uus09vYPEXHFApWCOovYoZZLizLBAtxcjeR9wZ/FY4k=;
+        b=oQs6olMDkgYai7RNIo5dyusYz7X+5LUrKNH13iclFv6tXIWrQgaZ8+7J/5iZ41h3oa
+         4fAbJDp3Hgnst2HJM5CJnkKSDBRWqUMuESuvCZM+3FR5gUuH7jKHWDuDKE9AJnloMktc
+         rGyxh2QQ6G6FjuIkk4QldRtsb7LXNt6C19R0bTZWE2CUx57nqyGNwyJFd9nT3F1NsHPA
+         OBs0qeauDUK4hI9A6Nc1xraGp3V+Gbdrb0deVfeJeYC3nhBdsmQeLhUw+X4NR6cLBEBa
+         WI7+fBBZ2FVRKPtexU8Z553LunxzYy6C8U84oTiy8xpOBLHuJk7vfNCSfLRSv1V0YMq6
+         iHVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790006032; x=1790610832;
-        h=content-type:mime-version:message-id:date:references:in-reply-to
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=kAV83GG8Wx3vs0tpxEdTxwn0XZCNc0tZOHUrR9Lz48M=;
-        b=tIzKwd/oLnXSJhqa1F13tdlhG4/HRnxl+vb4My+eEu/olBqumEXcLSENMf/JsC6EdL
-         OgMtIwgtZR0YTQVO+wkOeRggXZ8IvAV2AFU0TqTJIzTPfnrwFtXylqUreshavtNbOzQx
-         2CEne90QRfGlqDTXMu2Vz7guBHOn4/9BOtsKekTIVQWoy37X3RwiWw28d7JclD1fNdZy
-         Mai8ifDPv5zSkdediTOFCTAKKp00+hUKG37FZLvUtyziXoZVnwm6Bwu8pGonH8/5hs88
-         5TRkEIdbC6KO8E1dWELvrVnRoM2FLwvjGjBI3L3nhU85yCReZk3yhq99W7krdzH4EVZj
-         VLiA==
-X-Forwarded-Encrypted: i=1; AKwUvBzE+ys1eoBGbRwEZ8YFZWltmQ47V+SXevYlAAMj6tVpa+Ac5Z/XmzxIqjHVvDOLmOzitaxp3fxOPA0=@vger.kernel.org
-X-Gm-Message-State: AFuF++nL3Qd6P/EaVM6GLU4yqptv9hed8rzHvxrZ3Ctg/eUz1yC9pPrB
-	Ug9CHd8JI7iEwjUPCZTfeqHZVWk37VVsnX5uFM50SDV45hD8wXv1OXHNNEiGoUAnvSY=
-X-Gm-Gg: AYBFou2nzjdybHJh+v0RssrYknhJ3g4OBcRE0W4vHFskEVZkIAEy8ZK8HOaqxPoIIEg
-	EWdngFE/10dbFgxJ4CaJi8Mr4YgnZAiPSmGhTa8OZyhoT+sdLiSu2qFTlaZ6Bqw1EV+pqX41bR+
-	OemF3kGYYtjvEBG+RSqU0BCdWyFD3SrZj+FHjRMJm12lnAIRkmCdjliiUG83dA43P953phfFFOx
-	HogpdJ1gLXc/0RSKf27Qn2uxXgC1nwZoVOmcnsTeU+61pmDRNasSyd90lKriGdZ2wV5VTWVTlkP
-	NiShat80l5H0wN3zYgWiAIKFHnu/HuhoXZyh+3Hkh05VlmCB6O7rCwYcXy6ohw3Sr7V7JwPbS2j
-	dYTWubNA28Nxxo5jYDGUl28AuMXj1mRbbjwmJFmNjb0R8fv0SBNVKn4AObsUHUTYay7CuPTeeuj
-	q8JbdlMFAz2w8nDlAvQBB7s2U3dGREIUlr2W4VtTRPXnsbkb7P3G+FOh7Hvk71hc1BICk=
-X-Received: by 2002:a17:903:98f:b0:2dd:c053:e0f4 with SMTP id d9443c01a7336-2ddc053e132mr114905975ad.35.1790006031634;
-        Mon, 21 Sep 2026 08:53:51 -0700 (PDT)
-Received: from localhost ([71.212.197.238])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-2ddc178701csm36425795ad.13.2026.09.21.08.53.50
+        d=1e100.net; s=20260707; t=1790010302; x=1790615102;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Uus09vYPEXHFApWCOovYoZZLizLBAtxcjeR9wZ/FY4k=;
+        b=Frlb3snbxPD/qswJSGzjk+ebAmFInbA6oUkrO5D5mNpkos9FHl2pXl9IYcP/55njhC
+         m1aWcAfwYyVMV+S9lGJzhYwQ3UMStSfRFHZWcZV0Pyo9gQT/XU0+AsSpC5PL7+PgjJdh
+         FqyIsNXR112cBwJ/Pkojnt+u0t43hCPoQC+lOw/CxoR1BvdYpvGcomHMzvnjvtvhq3td
+         MtFeiYZ61xuo11RKdOW2+tFfdu7VhocG80awJH0kNy4s5PhMjPyAS/Xz2JBukDiffaDw
+         G7Jm8tqyc2qZhN3bxZixCGrKloCMe2y0mPDss1GV6dTtkUTKVI2VNxnhuFLwouyGX6Ve
+         H+xQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzRdvOrE+rAEzKudfwcUSzel2ipYjJeWZjoraIyYQ82npW4aeXUAWegY1CtNV1DNcdQNHh0022pIKY=@vger.kernel.org
+X-Gm-Message-State: AFuF++l1hLofaArnd6e6i8dFoJNcL8VlAQiDoebjgyU8xFsVSQ/hNbA1
+	EU7FQfg9m8Bbozbvn8sJjHGwoXdKeGRSj8CbzlwRYIUrrkIL4BEbsTYx
+X-Gm-Gg: AYBFou2/etVaDKJu7RqinuYWcuP7bdlRHx7ch0ygPSjiXFLabAZ8mg2C8/7EjWHXcmX
+	l3CNQpdEjvr7oXczE5u2hrU4Lb1zcW083t0XyQWhDgtsSbHsIjLmwNNmmzoSZs3h2fD9pfnDBxs
+	qvV7y0T0WjkzQGYacrlIbQ3vXgabYKVgrKVs+dTrIJRv/n0IeSifr8orncak8gcxQ7170X0olTV
+	weG09d3K9zGF1EOLxCaznwJp5i0S1BPRAhxBIFp/A3tuBnnhAd+t1Buz8S56O/myV3O1U/A7JCm
+	+WhdYHIzQKoRMQM3cUPYLMKCe7uslj0VwVqbr4OC7/ZpR8/Fo5QOoq6/z0Isd+6648SSoUr6S7U
+	8aQbbqeeyrQ7vqRqplt/Ckhu6uR9ILqyiywHXriEbYeOngWXt74osQUvuzwFDakyn5t9w/seXDB
+	tGGIIsZFDhjoistF9K7mQw2DqeKWstJ8JkM9B/nikgU/lWnBFtuC9WXXn04Z1zHrvSTPFFZ5jiz
+	gAJ/p2ThKXfVDsS6zat+PK+PUlrNFcAxisd2ksd6TZNIYhW8ifr0aQl4STziTMERs41MrV3UKnU
+	3H1quxXgjJ3dFXlBO4C4
+X-Received: by 2002:a17:90b:254a:b0:398:a2e4:c784 with SMTP id 98e67ed59e1d1-39e5940c49cmr20845132a91.1.1790010301926;
+        Mon, 21 Sep 2026 10:05:01 -0700 (PDT)
+Received: from cachyos-aura ([45.112.148.109])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a0670b410fsm240975a91.9.2026.09.21.10.04.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 08:53:50 -0700 (PDT)
-From: Kevin Hilman <khilman@baylibre.com>
-To: Andrew Davis <afd@ti.com>, Tony Lindgren <tony@atomide.com>, Vignesh R
- <vigneshr@ti.com>, Andreas
- Kemnade <andreas@kemnade.info>, Roger
- Quadros <rogerq@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Davis
- <afd@ti.com>
-Subject: Re: [PATCH v2 1/8] i2c: omap: Drop bit shift for I2C register
- addresses
-In-Reply-To: <20260908154223.116074-2-afd@ti.com>
-References: <20260908154223.116074-1-afd@ti.com>
- <20260908154223.116074-2-afd@ti.com>
-Date: Mon, 21 Sep 2026 08:53:50 -0700
-Message-ID: <7hzexad2i9.fsf@baylibre.com>
+        Mon, 21 Sep 2026 10:05:01 -0700 (PDT)
+From: Navon John Lukose <navonjohnlukose@gmail.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: designware: size the RX FIFO threshold to the queued transfer
+Date: Mon, 21 Sep 2026 22:34:56 +0530
+Message-ID: <20260921170456.53354-1-navonjohnlukose@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260921120526.GV106095@black.igk.intel.com>
+References: <20260919232647.448748-1-navonjohnlukose@gmail.com> <20260921120526.GV106095@black.igk.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Andrew Davis <afd@ti.com> writes:
+On Mon, Sep 21, 2026 at 02:05:26PM +0200, Mika Westerberg wrote:
+> I'm slightly worried about the latency increase here and the fact that
+> HIDIOCGINPUT is pretty much same as HID_REQ_GET_REPORT so it's not only
+> hidraw that is affected but everything else using HID_REQ_GET_REPORT as
+> well.
 
-> The OMAP7xx devices used a register address shift of 1, but this device
-> has long since been removed from the kernel. So now no remaining board
-> device uses a shift other than 2, and no DT supported platform ever did.
-> We can drop this flag and use the pre-shifted register addresses. This
-> simplifies the register access.
->
-> Signed-off-by: Andrew Davis <afd@ti.com>
-> Reviewed-by: Andreas Kemnade <andreas@kemnade.info>
+You are right, it is every HID_REQ_GET_REPORT user, not just hidraw.
 
-Acked-by: Kevin Hilman <khilman@baylibre.com>
+The main motivation for this patch was cutting the wakeups from the
+interrupts, and I should have made that clearer. The /dev/cpu_dma_latency
+line was just to measure where the extra latency comes from.
 
-Feel free to take this with the rest of the drivers/i2c/ patches.
+What the wakeups cost, measured with a 21-byte HID GET_REPORT at 142 Hz
+pinned to one CPU, display off, 32 reps per arm in randomized order:
 
-Kevin
+                        psys W
+    idle             1.87 +/- 0.28
+    patched          2.53 +/- 0.17
+    stock            4.11 +/- 0.44
+
+Against the idle floor the polling costs 2.24 W without the patch and
+0.66 W with it. Paired saving 1.58 W, 95% CI [1.42, 1.75].
+
+So the added exit latency is the package idling deeper than it can when
+the controller interrupts once per received byte.
