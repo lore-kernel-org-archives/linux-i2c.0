@@ -1,208 +1,204 @@
-Received: from mx0b-0002e601.pphosted.com (mx0b-0002e601.pphosted.com [148.163.154.28])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA2F637AA95;
-	Mon, 21 Sep 2026 08:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=148.163.154.28
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789979173; cv=fail; b=VziaLb1HxR0050JU2qtJgSZKvKeKBl0uToM8vB3VypgwJK6CAp/C+dvSPviLop/ZHUijsHLQM6FuFIXiTCuq7+koFFdxlnNNDg+bY0lNv66G9XKH8i1NfEi05apXSAQ6NBLzuUaaECKtRTuNwMlzBtNTjuyJSH7GNpojR8mVDKw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789979173; c=relaxed/simple;
-	bh=xy9zpBEw58ysTe5sYJnzsyOSGz+T4Tzm4B9l9Ekl5mI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=UVvxMvmJAgqhVjK9w1bQHlkbuF8wRvG7kscyUuL5J+YK7/VSGZk3oBphJFLtG7B2PpWutSgyIbDDWRuRnqeC8jSzbrXkPyUeiCojJuzUjZNyPBmzX77oV5DXwgG9w5fjxFcyc5ENYcEHbrBGRg2takfbjV/VMQhlEbvwbeLI0vk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b=O63v9xTJ; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=QVjgebaR; arc=fail smtp.client-ip=148.163.154.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B35B645349C
+	for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2026 08:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789979894; cv=none; b=dQ3PPQGOs7A7P0lr/mrWmIb1+ahBjiKdX9gMWuY2vbt4HBvS8B2sY1DaY6bckmL18/n1T5psejEE3PXvwreASimr0Ttavr/2YZcJZqThmriST8nx34XleUnhDKSVimgROJlTWCGyz1AKNSgbZg1DWsZOil74E9onRLWe0jXJPtU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789979894; c=relaxed/simple;
+	bh=9ppgiylzdQ8XOR13ZsEkYbvHKg6Kqma3CrDXroZZGfI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QZWDvOfCdP1iOHJkIr+LXf8azdLDhRNzN2YtlXbgHY179jmX2QgtD6mvP5KRTW4mpFRxU9axTnA9KEw4nYdsrsr2kZrxH4r+Q/ehK43Y265iZAQ7dktK6A43XCwUM+dyOj4ZEPuj7lOKnTVVFE8TWsMtZ0dBwqntbNeX0aWlR4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BrEhFV6d; arc=none smtp.client-ip=74.125.227.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b="O63v9xTJ";
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="QVjgebaR"
-Received: from pps.filterd (m0374955.ppops.net [127.0.0.1])
-	by mx0b-0002e601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68L7AxHa3481772;
-	Mon, 21 Sep 2026 03:25:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	proofpoint-05-2026; bh=xy9zpBEw58ysTe5sYJnzsyOSGz+T4Tzm4B9l9Ekl5
-	mI=; b=O63v9xTJbMCRP7JCOVwfT69GPJxP1Q9Fuo+BwE+iqXLml9tsJN0JQaoq2
-	OIqqJuUsTK4wuJtSjooy2i1UIZ1zw9DEtuKaF6/6TNgvaMSojidfCLIyiWhhAl2w
-	sltIPnuuzMQ2m/NiiGL8tGfIzTMn07ME4uuhOUbfFgNfbs1yEGYabR++6DgfzfqH
-	Jx/NR8JYPnGR71bEtsHXXcrYXJXafowBbwSr6QcRGA35FLE2GkYAooK4/GMMIGuS
-	CI7vv+tM02JiJNQgb5CjQSa3qJ6u9+PZMCVpPBHTp0gPcou1PDds0mqD/zCAuxuR
-	cCUkcP2vHGGwDg/xEzTBinugTF1Fw==
-Received: from cy7pr03cu001.outbound.protection.outlook.com (mail-westcentralusazon11010001.outbound.protection.outlook.com [40.93.198.1])
-	by mx0b-0002e601.pphosted.com (PPS) with ESMTPS id 4gt9s5nq5m-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 21 Sep 2026 03:25:48 -0500 (CDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=r6lM04FH26SfDSLZX88vrui7HcUb8172dXp+n94ogvx1KTgHKrMUuPs+hV7uR+33MMpbhhMhxMAn6pcJOn4IHD6kMAcIwSZxuSlOE+MnxXq8ha4uQSY2HqNIcOPdIpaaH+lZK2NG2qLGk5BnYw2ICaegVXYlKmjHx3F5y/k7X/dUd9ijwqxU130ajZjJFhkLVX95UJX62iSKFrzG8kxQnzaNOfFuSWGioNjLe03MrgxRDne0IhM1wPgPXLCuDAGxSFq8MoJ06p8lbCTbtvEI14TWbYB9HASpSoF1l1hUyobg6ujQ7tmwi59+QE+8i96OsOYa0lZEwoBHQ0nkExp5Gg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xy9zpBEw58ysTe5sYJnzsyOSGz+T4Tzm4B9l9Ekl5mI=;
- b=psDOzQYUgkdy/YjiMoTPxvNRL+44BBVN4N9rrpR3dacLr3GoV4884XOMA/lxK9MSHr4e/Ru5Ae4O7/lLFYU3qzGq6KjEPXjP2RO8qwEuY2vXLxzrtXrEllwjbxtRBusLWETmsWcdbZtQHfAyQcrK9WMYILtxU+Gg+cqGCoFCd6rJ8Kr9cIDqk4Pvu+yMuDs1oc9ZGbZwqPY1vGOR7Y5y67XQnparfKTBIKxz5WOPxLfsN+UNldivdYjCoYz6kbo3k6R82dj2VLhH8KzJWeufa/uxlA/TrMMKaZSm63usr1DJLGJ7z9w8KtSiZ6CFtmfAEOac2HYbRsTcb/Z8s6ZhAg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 198.47.23.195) smtp.rcpttodomain=arm.com smtp.mailfrom=ti.com; dmarc=pass
- (p=quarantine sp=none pct=100) action=none header.from=ti.com; dkim=none
- (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xy9zpBEw58ysTe5sYJnzsyOSGz+T4Tzm4B9l9Ekl5mI=;
- b=QVjgebaRNbWlk2yPk8p7jr1aNO2nJhaKWy1bj52NpBwRoGWMHFHLBuKrQzXViT0sA/Gc7DRKK9mGdcMKLQGSOGUmKnfkHFDHZT7OnH0lzw4kSWE6r8BSLKkaLnlIvhvnBYd6ojYHiN+63W8Fha4HSxcZyRKqH5G3X8Dg0oK96Uo=
-Received: from MW4PR03CA0079.namprd03.prod.outlook.com (2603:10b6:303:b6::24)
- by DS7PR10MB5024.namprd10.prod.outlook.com (2603:10b6:5:3a4::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.9; Mon, 21 Sep
- 2026 08:25:46 +0000
-Received: from MWH0EPF000C618F.namprd02.prod.outlook.com
- (2603:10b6:303:b6:cafe::6a) by MW4PR03CA0079.outlook.office365.com
- (2603:10b6:303:b6::24) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.428.16 via Frontend Transport; Mon,
- 21 Sep 2026 08:25:46 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 198.47.23.195)
- smtp.mailfrom=ti.com; dkim=none (message not signed) header.d=none;dmarc=pass
- action=none header.from=ti.com;
-Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
- 198.47.23.195 as permitted sender) receiver=protection.outlook.com;
- client-ip=198.47.23.195; helo=lewvzet201.ext.ti.com; pr=C
-Received: from lewvzet201.ext.ti.com (198.47.23.195) by
- MWH0EPF000C618F.mail.protection.outlook.com (10.167.249.103) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.451.8 via Frontend Transport; Mon, 21 Sep 2026 08:25:45 +0000
-Received: from DLEE207.ent.ti.com (157.170.170.95) by lewvzet201.ext.ti.com
- (10.4.14.104) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Mon, 21 Sep
- 2026 03:25:29 -0500
-Received: from DLEE214.ent.ti.com (157.170.170.117) by DLEE207.ent.ti.com
- (157.170.170.95) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Mon, 21 Sep
- 2026 03:25:29 -0500
-Received: from lelvem-mr06.itg.ti.com (10.180.75.8) by DLEE214.ent.ti.com
- (157.170.170.117) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45 via Frontend
- Transport; Mon, 21 Sep 2026 03:25:29 -0500
-Received: from [10.24.51.24] (psdkl-workstation0.dhcp.ti.com [10.24.51.24])
-	by lelvem-mr06.itg.ti.com (8.18.1/8.18.1) with ESMTP id 68L8PO0K1673871;
-	Mon, 21 Sep 2026 03:25:24 -0500
-Message-ID: <de66ac18-6bc3-4693-bd76-df8113bdb914@ti.com>
-Date: Mon, 21 Sep 2026 13:55:23 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BrEhFV6d"
+Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-39e03468a5fso2349509a91.0
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Sep 2026 01:38:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789979892; x=1790584692; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xvmNcp2BGzDYZW5Bhdvt0umZh/KqhVfSHw61I/uVOGs=;
+        b=BrEhFV6dzrYma5gZTdA94HMle/+pu8QTwQzX0uuITSRDAt5a7Xoxy+W9mRGuiZabid
+         ZIf2i3stRNO8BuycS1DYLML5XLwWxX1p8MsQGxTyb1vMc5MwM/tNjZzVotHOq7GWdIse
+         gfJX+ok7YIjjbxEDCedLE7W6PUfgFbkf8MnSIbG/1tRSarut0o0hQxP6CuDT7fRJjhsW
+         onJLfIpnxKPP1WfFbMfs2dF/SXiuwa4ZLL/SzcHBDGDfgyc0wO9f3QkgwlxxbjADxx5y
+         C2fPq2r1ku5UVEpe/HI9hyG6yIsryeuppW3y89Y9k917P8eykUateBFoKtDwoEtl+p5z
+         c8Vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789979892; x=1790584692;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xvmNcp2BGzDYZW5Bhdvt0umZh/KqhVfSHw61I/uVOGs=;
+        b=FsOom2FfAthiin7rH7d6CXbHo7OlDUGuUv8EB1sa0B2j1vd6g1s28fyq7AnTTlvPRt
+         lwx5YTDch7BtW47ZbQWiwWbe5g40k/kc5DMdOLmX+a1ze/GKYxAffymlepu9sUuBsQe0
+         ivqRvLqUNCCjG27kcVoEdBz51XN1lTwgxvnwAoezd51vvC49Z1kRRJXgBY4SjnZmRjl/
+         7rr7Rj6dSZmErWbFe2H241Mbf6E6/i5Z9gDXvWib5pR/CSPj4PX6gJOwe9KIA4maI/jW
+         d8Rwi7b7KDGyjND6rNuND3HZF83/Uj6nuamoIfaOx5pY615w4b+k95wUehCpuXL2+Nnt
+         9A5A==
+X-Forwarded-Encrypted: i=1; AKwUvBxeiZMTz49+3BXWZqhPVVGk5PMKS22zS5YPuhAiky3ctX9ygna8AMeXXlDSr/vdsgsOu3MLVsYqCI0=@vger.kernel.org
+X-Gm-Message-State: AFuF++mnlA0tplvWQTpqOiPqDctn3NASqxqzN8Nt5nXwShomnvNHOULC
+	LbM88x88EeFeoUyH9yHQBef6QPxYWT1Uo7j2dgc4RG6vLvNSVWe7USUQ
+X-Gm-Gg: AYBFou2B3mEPRmyuQJ1A31YIMU8sbB5u2+hApcYRupQ3yYCbu0V9f8M9MZmDPbvukuk
+	9UBGRLnPbFXiwXeMkmN2R/Q5d/FZoYgHJRuq1ZMKWwTiqjjwACMBnkEZ3Y+MdVAm3hyYEeKAzDx
+	BjVDABec84jid22R3VyGl5oNucJQtTh8OfvsYVxEWeAo6H17785poe7Sts7zsvsm34PIDZzLXDU
+	UCrFln9PtGzzbcjfoO+lxSYckuwszRtJ39xRke9/hkEzKlKgR3bt6RrUaTH9lzF25s4l7ND7iwV
+	k3WtZMzhvkyTnAQhlFbGncgkCNJncLGElTM7xg2g317O2ZCGhzgSUh8tFQzaojPOhMOQNj+jmKt
+	hQQ3YXVfG4O/oPCUzsAvN4KjLQHxbWQ7ovacrT6x1mNU4GIgwveKwhQV83MeV8cAYG+6qA6alD+
+	2Fft6Zf09ERNW99fbhg4FuDh+ieckCQbNX+uxcHpOzhsiyo+pvgzFZeZV2yrAbD6oCeP9kGdKq0
+	kzVLsyv7MG86W7CJUHadu53k3m8ZlOerhG1EcLnFoMVwf22tF2y4EZL
+X-Received: by 2002:a17:90b:17c1:b0:39e:3559:12df with SMTP id 98e67ed59e1d1-39e54aa357amr15593290a91.1.1789979891912;
+        Mon, 21 Sep 2026 01:38:11 -0700 (PDT)
+Received: from localhost.localdomain (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e6ca50694sm15121508a91.2.2026.09.21.01.38.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2026 01:38:11 -0700 (PDT)
+From: Zi-Yu Chen <zychennvt@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Cc: Jacky Huang <ychuang3@nuvoton.com>,
+	Shan-Chun Hung <schung@nuvoton.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Zi-Yu Chen <zychennvt@gmail.com>
+Subject: [PATCH v10 0/3] i2c: ma35d1: Add support for MA35D1 I2C controller
+Date: Mon, 21 Sep 2026 16:37:50 +0800
+Message-Id: <20260921083753.1109826-1-zychennvt@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] dt-bindings: i2c: dw: Add DWC_i2c compatible
-To: Krzysztof Kozlowski <krzk@kernel.org>
-CC: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Nirujogi Pratap
-	<pratap.nirujogi@amd.com>, Bin Du <bin.du@amd.com>,
-        Andy Shevchenko
-	<andriy.shevchenko@linux.intel.com>,
-        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <vigneshr@ti.com>, <nm@ti.com>,
-        <u-kumar1@ti.com>, <lianfeng.ouyang@starfivetech.com>,
-        <Ritwick.Sharma@arm.com>
-References: <20260919-tda54-upstream-i2c-v1-0-b0b9f77be18b@ti.com>
- <20260919-tda54-upstream-i2c-v1-1-b0b9f77be18b@ti.com>
- <20260920-warm-lurking-poodle-dd73ee@quoll>
-Content-Language: en-US
-From: Aniket Limaye <a-limaye@ti.com>
-In-Reply-To: <20260920-warm-lurking-poodle-dd73ee@quoll>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000C618F:EE_|DS7PR10MB5024:EE_
-X-MS-Office365-Filtering-Correlation-Id: cf1ddb72-aaf5-40c1-2b92-08df17b9ef47
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|36860700016|82310400026|376014|7416014|23010399003|56012099006|22082099003|10067099003|18002099003|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	668XgPFfEJf9uepPeYDSX4p0PKzoEZLJmC8e5J0Ase59XWVd/IWgPZrDm+wS4nIPpWYN4Gak5T+biNigo62q2acCpHFaNVoiciUex0voWRcbEcDXP5YTLZ8xPswIjVU9p66thSVuZ8ZjVnWYGuv/CTccuFe4Q1XrwCS+6dtKJ2XuPE1DdR9c6VXP7gylDnBaWOHvzhMTGa5H3mkRYlQEf6wImkz72DTllOFj71SLcBfIW7919Cu9CIMpPa3f2NSSWPlvMxrzvPxCGZvHgxHKbDmEHUQgJ2QzbWnZYRgBzI337D/k4O+TRUWtW8Li+rOVKbNvXjdDa3iK44ddhI2yGEv/8nIFn9bzdNv46UETpNJOCpDwJjwEn+82D5LUypjWKdlk1TF9Kj2utjg4nBzkRpfBqg5b9odO58COlrbyUiCCG/qWa8JmbyHf4wlN/jIehdLZYSO1i1giF7BZ9g5OuERv9cXeSSiEebSiXgtsK89uzLsVnk6ir8C3Q7QFcPPJRBM8fgRS2MVcBwCifGq5/SDUrU9sShqlE90P8nkE2h6RAtAA8bHTH8dOyFnxhfI7I2IHKl2sZUe1on4Rjt075GzISgB188Ff0F5+ep5IVbYQ1vYfo1LFBpytdJx10xbw68l2fQ0GNDjinIL/AhWsj6DsqJIYL37iRGAjfUJR4wvwu/iAxzN1wmjkrJduefF0M8AfoEfR54rjU3B18piIMw==
-X-Forefront-Antispam-Report:
-	CIP:198.47.23.195;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:lewvzet201.ext.ti.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(36860700016)(82310400026)(376014)(7416014)(23010399003)(56012099006)(22082099003)(10067099003)(18002099003)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	fKeD0V5vzmlMWlxPS65+s6BZqeS7CVjhNXMI2NYuaNONMG4bt5MS3bg3wK1HL80lWZ7mf0HCeUGpQR6ra+Wdsl0dCwtD5knZo9x4mBQsZ6xqEaOqSwd0oNJifw+p9Z/oaMBB0V54ON9mBCRjZEEyPnoDlV8G6+S/gvZ6VI2GzdeM1lhWd8Vrg7NAO9Y8R9pQN3/jsptDRtOzRv9SUe0jVjEvnuHov9kmyCsW/o7fwruAv3K3jlUd7tRY1JsNE2ULj/mIvpHyWzI2QxGkEJwDpkhjDWvvkr08V1Z0t2IY2fyML7dtO7V2I+UXqkc8ZXaUPiDKsfbEfBA8mXl6AbClwPw094scuvTv9WXbJDVqhuACAyBvl5UGJo22SAaykNvQDjfsirOZbH/D1F8geckFWjTX9AHEWqByJg7R3am4DThguELeBnYFUZWBvDcAKl2N
-X-Exchange-RoutingPolicyChecked:
-	mUixhseV5dVfa6zQ9hU3l7Uu1yWEylb12WnW9utFQMIAJBOg3co0nBKO9clHwcyl10aDC81Cho+AyRrlYWniH3iK+R75Ot5H6FH3K00hpkMvhXxOqfIEWEI1LSNobIot4si5HtEA4SXe1L6G7p5m15mQmL42NRUtPsevJRRqcbHtXnKRyLvUIgii6qhlo5N0lXjDKsy/ORGgD2dZc9OpB6ws/UOLZWBd/G0MEenbd/pmtGL8spsp4xUMDA/iqxcCnJvIm2KJTmT49wWRjK9fmsIAJddTEDVs0JTbkl6OEkrnBLjBOTXwvLRiVo16qY9iY8IwZYY4oqeA8xsA9Hf49Q==
-X-OriginatorOrg: ti.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Sep 2026 08:25:45.9293
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: cf1ddb72-aaf5-40c1-2b92-08df17b9ef47
-X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.23.195];Helo=[lewvzet201.ext.ti.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MWH0EPF000C618F.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB5024
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIxMDEyMCBTYWx0ZWRfX1a7t/IFnV+3b
- nHJUPDwSJORvo+jJkfB/QLhP7x8ku/gU7zYe8YNroCHtn/RxISa938hfRPRwt0WOrOK5847v0M3
- cU5frE8fiImqxM4bgNZmTdYOwnS4SXb2AUYNa/1GQbEe7zPTFiVFIYVWE0ltnGYCihci/C000si
- OYMEeptrr0BeXpXo+1dXTwnICS7c2iAbSZoBJmyrsfVpVv8QVEylRCUJjHKViZmK1SM+RsiSwxJ
- XI3Yu/05PrAUvjC85/rzID7VCUlQOPndpNEbZE8UEvwImrpyVmoYtblhgj3OAoN07VbS6X+n3cm
- LpwmrXxnaL2P7+s99HhDKr9nLNsnhTR3OyF9arNKe9ZTYI4HG0lxEiNzev2c2UjlsoOEXybn5Ex
- N7hywtHYfwr0D/Qo09/EYpekH5js3FARSi8DhllCh8+G4AwM1H7BXEp4Amh/EEhKwL01yeuM0GG
- ae+4g6sIkcv8O2PtEow==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIxMDEyMCBTYWx0ZWRfX0uqszv88h/0L
- r7tvhfx3G0mdW5f0yktIUEESP6Ak3JbwPFcyu+I/zKOUXxpgtHwOFrHaJ3FYSOzPn/XMo5A+0e4
- LBNsMPqSu1C7p1oxZxAo1t1npQlKnI4=
-X-Proofpoint-GUID: 44fKCmK0b41OnNRGxCLBbr3IGGn2y3pk
-X-Proofpoint-ORIG-GUID: 44fKCmK0b41OnNRGxCLBbr3IGGn2y3pk
-X-Authority-Analysis: v=2.4 cv=X6rHu2Te c=1 sm=1 tr=0 ts=6ab0ea0c cx=c_pps
- a=GTrFB3HemkLL5/X2VaS9CA==:117 a=f+v6EHfkeJbVwR46tk4DMg==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
- a=s63m1ICgrNkA:10 a=V5UXEbMT0ywA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Z8NIEmU8O1QQgoT56wFK:22 a=fPAWb5peG099m5CrUpKH:22 a=habD29W1QCEFKxx15VkA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-21_03,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 malwarescore=0 clxscore=1011 bulkscore=0
- suspectscore=0 phishscore=0 spamscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609210120
+Content-Transfer-Encoding: 8bit
 
+This series adds support for the I2C controller found in the Nuvoton
+MA35D1 SoC. The driver supports controller and optional target mode
+and runtime power management.
 
-On 20/09/26 23:54, Krzysztof Kozlowski wrote:
-> On Sat, Sep 19, 2026 at 02:36:06PM +0530, Aniket Limaye wrote:
->> Add the "snps,dwc-i2c" compatible for Synopsys Advanced I2C Controller
->> referred as DWC_i2c. Compared to the existing "snps,designware-i2c"
-> dwc is designware, so snps,dwc-i2c = snps,designware-i2c
->
-> I think this is *the* argument why generic compatibles are wrong.
+The implementation has been tested on the Nuvoton MA35D1 SOM board.
 
-These are 2 different controllers with some different registers and
-vastly different register offsets.
+Signed-off-by: Zi-Yu Chen <zychennvt@gmail.com>
+---
+Changes in v10:
+	- Handle enable_irq_wake() return value in suspend.
+	- Correct clock divider mask and maximum limit to 10-bit.
+	v9: https://lore.kernel.org/r/20260807060400.2047517-1-zychennvt@gmail.com/
 
-So, the official product name (short format) for the SNPS Advanced I2C
-controller is "DWC_i2c", as per SNPS' own reference document [0].
-Whereas the original "snps,designware-i2c" corresponds to the product
-name "DW_apb_i2c" as per its own databook [1].
+Changes in v9:
+	- Centralize SI handling in the interrupt handler.
+	- Fix target mode comments.
+	- Initialize the target transmit byte.
+	- Add reset_control_deassert() during probe.
+	v8: https://lore.kernel.org/r/20260804084806.1846570-1-zychennvt@gmail.com/
 
-So based on this I though it'd be best to keep "dwc-i2c" close to SNPS'
-own naming, despite the fact that it does seem very similar to the
-generic "snps,designware-i2c".
+Changes in v8:
+	- Remove rpm_put avoid duplicate processing.
+	- Add synchronize_irq wait for interrupt to finish before i2c->target = NULL.
+	- Add ma35d1_i2c_restore_idle() to handle bus errors or spurious interrupts.
+	- Change return types of TRX helper functions to irqreturn_t, returning
+		IRQ_NONE for unhandled status codes.
+	v7: https://lore.kernel.org/r/20260727081859.1737223-1-zychennvt@gmail.com/
 
-If you'd prefer to make it more explicit, I could change this to something
-like "snps,dwc-adv-i2c"? Although, again, this does deviate from the
-convention that SNPS uses in it's own documents.
+Changes in v7:
+	- Disable IRQ before clearing i2c->msg.
+	- Support	CONFIG_PM=n, and simplify runtime PM setup accordingly.
+	- Remove redundant register access in runtime suspend/resume callbacks.
+	- Defer clearing i2c->target until after pm_runtime_put_sync() in ma35d1_unreg_target().
+	- Enable interrupts alongside I2C enable in ma35d1_i2c_reset().
+  v6: https://lore.kernel.org/r/20260720030616.1067660-1-zychennvt@gmail.com/
 
-[0]: DWC_i2c_reference.pdf
-[1]: DW_apb_i2c_databook.pdf
+Changes in v6:
+  - Patch 2 (driver):
+		- Removed dynamic IRQ toggling helpers for simpler interrupt management.
+		Based on Sashiko AI Feedback:
+		- Added zero-length read quirk.
+		- Set i2c->msg to NULL on timeout to avoid use-after-free.
+		- Cleared hardware registers on target unregistration to release the bus.
+		- Protected suspend-path register writes with a spinlock.
+		- Validated clock-frequency to prevent division-by-zero.
+		- Removed incorrect I2C_M_IGNORE_NAK handling.
+		- Corrected a comment typo in the receive data path.		
+  - Patch 3 (dts):
+    - use a generic functional name audio-codec@1a
+  v5: https://lore.kernel.org/r/20260630012106.3616821-1-zychennvt@gmail.com/
 
-Thanks for your review!
-Aniket
+Changes in v5:
+  - Patch 2 (driver):
+    - Add spinlock protection for MA35_CTL0 register access.
+    - Add NULL pointer check for i2c->msg in the ISR.
+    - Use devres-managed cleanup (devm_add_action_or_reset) for runtime PM.
+    - Use pm_runtime_force_suspend/resume() for Controller mode 
+      system sleep.
+    - Control I2CEN bit enabling/disabling via runtime PM.
+    - Refactor arbitration lost handling in state machines.
+    - Remove unsupported I2C_FUNC_PROTOCOL_MANGLING flag.
+    - Clean up readl_poll_timeout() parameters, retry loop, and
+      unused macros.
+  v4: https://lore.kernel.org/r/20260610030208.2020275-1-zychennvt@gmail.com/
 
->
-> Best regards,
-> Krzysztof
->
+Changes in v4:
+  - Patch 1 (dt-bindings):
+    - Update example interrupt number.
+  - Patch 2 (driver):
+    - Remove redundant spinlocks and fix 'irq' type to signed.
+    - Fix target address recovery in ma35d1_i2c_reset().
+    - Refactor IRQ handler for multi-msg reads and NACK/IGNORE_NAK.
+    - Fix timeout UAF via explicit IRQ disabling during recovery.
+    - Drop IRQF_SHARED and fix PM paths in probe/unregistration.
+    - Limit suspend/resume wakeup logic to target mode only.
+  - Patch 3 (dts):
+    - Add missing i2c0 node to dtsi.
+    - Switch SoM configuration from i2c1 to i2c2 with updated pinctrl.
+    - Add nau8822 audio codec node under i2c2 on the SoM board.
+    - Drop redundant i2c0 alias and clean up dtsi property ordering.
+  v3: https://lore.kernel.org/r/20260512073953.564323-1-zychennvt@gmail.com/
+
+Changes in v3:
+  - Fix minor DTS formatting issues (whitespace, missing newline)  
+  v2: https://lore.kernel.org/r/20260316063726.41048-1-zychennvt@gmail.com
+
+Changes in v2:
+  - Overall:
+    - Rebase on linux-i2c/i2c-next
+    - Switched terminology from "master/slave" to "controller/target".  
+  - Patch 1 (dt-bindings):
+    - Simplified description and fixed 'reg' size in example.
+  - Patch 2 (driver):
+    - Modernized using devm_*, generic device properties, and FIELD_PREP/GENMASK.
+    - Optimized power management by moving clock control to runtime PM.
+    - Simplified code by removing redundant .remove(), .owner, and inlines.
+    - Added dev_err_probe() and default bus frequency handling.
+  - Patch 3 (dts):
+    - Moved i2c aliases to board dts and reordered nodes alphabetically.
+  v1: https://lore.kernel.org/r/20260302020822.13936-1-zychennvt@gmail.com
+
+Zi-Yu Chen (3):
+  dt-bindings: i2c: nuvoton,ma35d1-i2c: Add MA35D1 I2C controller
+  i2c: ma35d1: Add Nuvoton MA35D1 I2C driver support
+  arm64: dts: nuvoton: Add I2C nodes for MA35D1 SoC
+
+ .../bindings/i2c/nuvoton,ma35d1-i2c.yaml      |  63 ++
+ .../boot/dts/nuvoton/ma35d1-som-256m.dts      |  20 +
+ arch/arm64/boot/dts/nuvoton/ma35d1.dtsi       |  72 ++
+ drivers/i2c/busses/Kconfig                    |  13 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-ma35d1.c               | 781 ++++++++++++++++++
+ 6 files changed, 950 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/nuvoton,ma35d1-i2c.yaml
+ create mode 100644 drivers/i2c/busses/i2c-ma35d1.c
+
+-- 
+2.34.1
+
