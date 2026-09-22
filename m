@@ -1,77 +1,77 @@
-Received: from mail-pz2-f42.google.com (mail-pz2-f42.google.com [74.125.228.42])
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EABF253ED08
-	for <linux-i2c@vger.kernel.org>; Tue, 22 Sep 2026 12:12:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8D453ECFC
+	for <linux-i2c@vger.kernel.org>; Tue, 22 Sep 2026 12:12:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790079167; cv=none; b=jH5FdxKetmG24GbHtBkvHpWciBvqF2AO33Z8fKLozfGIb7SCVQU03eRLi/JN3BtgmAuOuHPnhliqpEfm7C41yzDET56FhrDlQvR3rvmYvgC9hPio+N3cAvSikIRR3956EI+9mXxzVV7uLtsGmy2iJbLOzr2xJDyRlG0DEh2m/8c=
+	t=1790079177; cv=none; b=kZBS/giVVQ9kOTIefVBvLBwzjqRbkkD49gDUkhwLuBnEyRM3Qa7/bnAHJMfEjWjxV17RI1HVF/a9f0bQV0jYkY2mzrutPPfiGLaXQ8N1cNzi8Q3ko6rEb2J3QCFGKpzP2d6bTqmfbzLn9iCVE/ST3ahq9/eCi/JRuakyHIxt+qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790079167; c=relaxed/simple;
-	bh=QCx53jzyHh0wEL7VJuUKs+fphH56IILmzUrQEC9ChHI=;
+	s=arc-20240116; t=1790079177; c=relaxed/simple;
+	bh=rFtM7Y/4hLz4QUzVQrWr8hZpi5xC8pCu87wXIa+Qv9U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EBd8bgCUImVdGWpU3T39lcyqhVL/HdCE6C7x5kcKSSPOXQpv6NcFWiP6aQHZfKsh7HZPIXA2SOpO256LMcH20IRMauCsTi6xLNO/7ZnczGieOm8iqIO0kLKg/6hToIqATM4J7px/h4z3dPX2SikhzdyTkjkM20ZsSDYv10+SrMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KLASV+/M; arc=none smtp.client-ip=74.125.228.42
+	 MIME-Version; b=tBL9ubnCC+kbEAVuXZhvYDwvRcOfVvQGXH0spMo6u51TNgxiaInLa72SVmave9VjCqUy6ShFf/Dg8EitHPk9LlMpjEvXeJW3M6WvPWP+5U8rcHVih535gjK9gMtyYAsntuXLmYZNQobRJ6PQ4q9LzW8y5POJHCIe0o+V+xIeus0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PKwgBvV/; arc=none smtp.client-ip=74.125.228.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KLASV+/M"
-Received: by mail-pz2-f42.google.com with SMTP id 41be03b00d2f7-cc1ab16a9ceso60819a12.2
-        for <linux-i2c@vger.kernel.org>; Tue, 22 Sep 2026 05:12:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PKwgBvV/"
+Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc1ab17a156so161867a12.0
+        for <linux-i2c@vger.kernel.org>; Tue, 22 Sep 2026 05:12:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790079165; x=1790683965; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790079175; x=1790683975; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=QCx53jzyHh0wEL7VJuUKs+fphH56IILmzUrQEC9ChHI=;
-        b=KLASV+/M5CYE2vKFvL8CXoW9ga+9eu0KawPkeM6Vr9UiKyD0kBai4cgKQR5Dm78u/U
-         JHJJPy1NvUJFXlfwpAwI7SnXQSB6shLOg8tRsUoqxTplzNsf6YJ+wNx4fVQ4cLFNXGc9
-         s7mpeuQiVpC4K/etXAPV7riqssQKrDS2wHldEGj2+IGYaOiaiYG+9nTiO8pBq1PhjE2G
-         xgQ2AnA+YiGxVxUIUcCRo4qha+RMvwi7tg3mTDWDGoNJXVEwhfph/T0h8xY0ecloMt3q
-         8iJ7Hn4qb5UHp5e6TUUV78ebZQVtFCwSsmEK5VEhEu2pmskVE1Wxwe+LxqGh5Pf2vrs/
-         0Nsg==
+        bh=rFtM7Y/4hLz4QUzVQrWr8hZpi5xC8pCu87wXIa+Qv9U=;
+        b=PKwgBvV/eCibDTYKGd/9k780slqUN1qZ2/60FDez3ZAiiv94EFoR11P/kv1y7w7wCb
+         vwNwkwYgXj3noI1MWXCDFcM+NdOgBRbJsgDaSyMbr/vVtNZ8Nsy76MBucpYi8vwG5AGW
+         6vhkgfOw6/5o7C+LHSwD4AdKHgIZPtGzay1rP6OIYs8UK4as1bzKqFnr8t5wP6+8Br58
+         Wd5hQoyj4ME+6fiWS4qMr5K03zzbtEgzKQg05EN402BH05BQ70HIWu96Tmv+JJxsw/fW
+         Ov6uny3LeWmy/w2N63icdRQEagL8In46hV636msMDV/CqCS79MQuGYhar/woQZj3fliq
+         0Itg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790079165; x=1790683965;
+        d=1e100.net; s=20260707; t=1790079175; x=1790683975;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QCx53jzyHh0wEL7VJuUKs+fphH56IILmzUrQEC9ChHI=;
-        b=BbCG4238JeUkNC7uIdifNC+4TAyVDZaOgxXnpURy1AH4lakf4LMK8YiOJ+GzhyjdtH
-         ZTgxS46mdhv02AnBGfRfIuXnuPWdFKUtHDkhi4XZdmEwwweppYQ0fhNgzXJl3SQ16jId
-         cgUSRUtixBspV35xhOmsnQdUhCrFhJF2f6DbLoLW0Useb8s1UwyIc5moQSjKOLseYpqy
-         oUMSbkFU3ojXnC8eYvO4vFxQ5aswiUY6O7JUhnKJFy2wmyIgQ0qWKPNRq8ISjK2SUmPR
-         wBgzYwaonPdDO97wIlQZhwEBZKEG9RB1yz+bodtE+i3fIY2C0SgTXwLORbGvIQT9mx2i
-         RYpQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz7JXo/W4o4ceCVLUoup0y0YreJyIrhdq/Mn9waG3WmR2qIaaByCSMKnUV4Y6a+iQkbRIHKdHWKprY=@vger.kernel.org
-X-Gm-Message-State: AFuF++ln7xCKwOwdslx7H11C9FZbKYNf+rLXobt8d4KHXC8h/nAzr+uk
-	7Co3Plid9qnqytKsPpzvjdHH43McQ367nBRDGhwDgKfS27CJbXB+VZGC2vVuOg==
-X-Gm-Gg: AYBFou2493460qhfvNd5f4k5WwEMbiiUaUP2qN57PqWNJb+GxR2zPKxQ7fHXwESnuLv
-	xQY3nfapBueWpSon+9oy9wpkpgUgiNjeIN5/D0ot5lF5BSzWt8wF5rJ9E4OcKqOXP1yzWXAXx9n
-	ARqDoRZi0lhe97ax6cbT67PA3OYgxeGLHPFrWYrmUgPUZhTmivg7NOEFdlhJkdC94XQ8vPQ845t
-	hLWA3HppzZiFmq1KuyNPUlshRxrYFilJyxssOgaYVdSJ10Bk8Q4w0tMP5Iui4OkyhvR5tMXuy9g
-	L2qiq6g2X7Go6Mxr/PZjxx/dS3GBHEHCvtPBmW+vA8y2iVRu7xiVwSMhsV5I6ojIy5WFbx0y2KY
-	h/8LS2uu3UYMdMXAoHWpNBBosM0cemhWjeBqxfaJMINMIpxUnATsnqJS3cUGyuYpOHtzksEOK2r
-	9NER0FzeWZNslIUJpRGGHpBJyd6LmqEkvUAaLbHWLmlPSfBuC5C/YRWdGQcrmwRTefAd1SBSoHS
-	MTwYFPNoo/nSwZvuQMfim0E9CqPUZZs8zzGWNxQ6HHU3UbHV11V4b+EKf16BVEJMIv4Tafrzwt8
-	RdXpysyGmgNHN65WCTrgFwIKS8kd/g==
-X-Received: by 2002:a17:90a:da84:b0:3a0:238b:db4d with SMTP id 98e67ed59e1d1-3a0732dd66dmr1810985a91.5.1790079165337;
-        Tue, 22 Sep 2026 05:12:45 -0700 (PDT)
+        bh=rFtM7Y/4hLz4QUzVQrWr8hZpi5xC8pCu87wXIa+Qv9U=;
+        b=KGlQJGNokOLNZej39ma58dvLHVGT/orzUx0CIa4xPrDVo41wR3F9DLBzth6dFyhhMf
+         VS5bMDWtcNFwDJsMLXyxap1G6mATVVbr2jgdEWiDCcgMZr5m+jveikqU5kDCeApLmbCT
+         aDZzzmU//7rJSJR2c5g3LPkuNqAslJl4lVMQUX+2XKbcl0hOR54fWzyombWJ21Ti+rbK
+         pCFHO/wPIvBeZ29A3KFXBr9W04FzCdaqkrEDG+H6VD5EUx6acSuaJ6Tp3wKaXpt3PTdZ
+         A9V5gzsgI8kYwaDmeosKPxW13idgg5EVS76e9Xgd87EPiOCeIheLNd6l9hCV4uGa/nBl
+         62zg==
+X-Forwarded-Encrypted: i=1; AKwUvBzwCEi0nQML6J7Q4z9ehDLk3bSwvORhsWoJN+S3qeAUSTLwDUwe80j8AUACRkVWnJWGsFyMcqZ8FdA=@vger.kernel.org
+X-Gm-Message-State: AFuF++kalVfUy8VHMo5TZ1BU5DTrHhhyDHphplQu+E39O6ND9so64XJu
+	23R49I2VEKMTJceL4MhYxD/P1dVOh9R6sKgFn5SdUXBE0p7mGMxVqPUs
+X-Gm-Gg: AYBFou3+tQ7gObSXEQS9Jh/4aqW/IMsI5B9OrVx6Lyu4ni/P1uEGJ8amF4A7SzKdn0p
+	ndyxEXr2KoQNE2gEFQ+6QFC1TdkQ0CauEgfVIU/aLKg8cvbwAeOu0A/I75kHXK1vi1s/OcK5iNS
+	IsRvYemxN9EvTEMF6BnKsyWRxR4NE1VW/5D9lwqXvNPGyV2EZ3iY2EtLVxu7tokJlwevsWrso/h
+	emiJw6rAju7g3XDVNYGImJW5uDlU7WRjMh1lGmtKfwP+GR3ooMuqeiyT7KlinA9nZP6VK5ik1gb
+	CTgUTsUkehzSIeEqpio00205Xl3/6VYOs8UMmXIjmmQzpmYawNRZ4PL06s3sMMdqxmeW9QdaNe9
+	GTZlmvOPifdytGcLdH9VnrrFuNJ4OGeCFEWBIdaT1oQMGK+VBkWbFhPjDcTOEqriEBcvxDsxPaQ
+	rc0u5HANQzDR0sJvfHkW8WEXdiSkMpvZIEONJGPQQ8NQm925cJeDlDDH5Ragosy9kBdjaluckxO
+	pQJs+cqb8nQr3nBWLuo8kUFFdBrjpbqnZl6ofP83F8iGy+zdJJG2Ys7AxKBe2UZxmSB8Docy8vS
+	PA6lq6wV47l+Kqrp1edvCZQcACDugA==
+X-Received: by 2002:a17:90b:4e8e:b0:39e:3728:3b11 with SMTP id 98e67ed59e1d1-3a0732ba084mr1605467a91.3.1790079175243;
+        Tue, 22 Sep 2026 05:12:55 -0700 (PDT)
 Received: from cachyos-aura ([45.112.148.109])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-144f29d8762sm5091159c88.5.2026.09.22.05.12.42
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33e6129a33esm5771625eec.14.2026.09.22.05.12.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 05:12:44 -0700 (PDT)
+        Tue, 22 Sep 2026 05:12:54 -0700 (PDT)
 From: Navon John Lukose <navonjohnlukose@gmail.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] i2c: designware: size the RX FIFO threshold to the queued transfer
-Date: Tue, 22 Sep 2026 17:42:38 +0530
-Message-ID: <20260922121238.46016-1-navonjohnlukose@gmail.com>
+Date: Tue, 22 Sep 2026 17:42:49 +0530
+Message-ID: <20260922121249.46057-1-navonjohnlukose@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260922065041.GC106095@black.igk.intel.com>
-References: <20260919232647.448748-1-navonjohnlukose@gmail.com> <20260921120526.GV106095@black.igk.intel.com> <20260921170456.53354-1-navonjohnlukose@gmail.com> <20260922065041.GC106095@black.igk.intel.com>
+In-Reply-To: <arJRC4Ou1LSAMGTs@ashevche-desk.local>
+References: <20260919232647.448748-1-navonjohnlukose@gmail.com> <arJRC4Ou1LSAMGTs@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -80,23 +80,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 22, 2026 at 08:50:41AM +0200, Mika Westerberg wrote:
-> Yes power savings are always good but in this case it also affects the
-> latency visible to the user so we don't want devices like touchpads become
-> "sluggish" either. Do you see any such issues with the devices when you
-> have this enabled and not using /dev/cpu_dma_latency or any other interface
-> to limit the CPU low power states?
+On Tue, Sep 22, 2026 at 12:57:31PM +0300, Andy Shevchenko wrote:
+> Nobody will go with 0 in cpu_dma_latency. It basically kills the idea of CPU
+> power states.
 
-No. I have been running it as my only kernel for a week with nothing set on
-cpu_dma_latency, and I cannot tell the difference on the touchpad.
+Agreed, and the patch does not ask anyone to. Holding it at 0 was how I
+measured where the added latency comes from. Mika raised the same point and
+there is more detail in that subthread:
 
-This patch increases latency by 0.7 ms on the mean, which I don't think
-is easily noticeable by humans. Against that, the i2c traffic alone cost
-2.24 W on the machine I measured, more than its entire 1.87 W idle draw.
+https://lore.kernel.org/all/20260921170456.53354-1-navonjohnlukose@gmail.com/
 
-However, if anyone tests and can feel the difference, please let me know.
+> If you need a dynamic run-time PM QoS, patch the HID subsystem to
+> make those when they want to heavily communicate with the HW.
 
-Also, i2c_dw_configure_mode() sets TX_TL to half the FIFO and RX_TL to 0
-on adjacent lines, so a transmit interrupt moves up to half a FIFO of
-data and a receive interrupt moves one byte, which is what this patch
+A QoS request would bound the latency, AFAIK. It would not change that the
+controller raises RX_FULL once per received byte, which is what this patch
+is about, so I do not think one blocks the other.
+
+> There is also the issue of the interrupt locality.
+
+I am not sure what the i2c driver can do about that. What did you have in
+mind?
+
+Worth noting i2c_dw_configure_mode() sets TX_TL to half the FIFO and
+RX_TL to 0 on adjacent lines, so a transmit interrupt moves up to half a
+FIFO and a receive interrupt moves one byte, which is what this patch
 changes.
