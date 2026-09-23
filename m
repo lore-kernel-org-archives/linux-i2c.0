@@ -1,131 +1,185 @@
-Received: from master.debian.org (master.debian.org [82.195.75.110])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6E765293E9
-	for <linux-i2c@vger.kernel.org>; Wed, 23 Sep 2026 14:07:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC3F3750C4;
+	Wed, 23 Sep 2026 15:02:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790172432; cv=none; b=uPbSxMZcnrOJ9PI5MXVQ8O6gMpj1O4zy/Q8h+HQY7EXScLpileNueQKpr8BjyhX8PJH4GQMILOQYZ2r5OQ0vsu0IfFUILqevkv1lOUHBr+Xi8O8onCQGYzhyjnaJcb3geM3D8AzMgOFklgZ0n0YOfiwJlYn3WdTgJghqAtAqYgQ=
+	t=1790175782; cv=none; b=tojBpDGh3Q0s/Da/LpaWu1xWlPxzcbPjjnmeDWb5UTTwJjyNB9XzXiWjxsAG527qVWVw7q1zh9omgaKv35TE9lgQYvVIlhSRisqtkZSaHn5w7kjUaOfRzUIJeAJjglnDQTIeomdo0WpnRQz8x6GJ9TDabDewD1n/YOZcEIU6PJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790172432; c=relaxed/simple;
-	bh=wybTwWof/MDQoMZjmwxI/U7NZee0w+BUaIv7s2t/h00=;
+	s=arc-20240116; t=1790175782; c=relaxed/simple;
+	bh=g4yztPLF14IFKat6B/4l1+1nklLi8lbpN+VrOZgaHGw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YWKSIx6kTUbrmITvby6m5B3fp8FEZFwIGm8grxzO7Phzg9xNYoVTwPKRoH88TGPu4ihirpEyhKeUl7MA0xjz9nO4WsHqBaCZrlQrnMEsR3n31RiXBTv81/+uZyzg+yRLCDqQLqh658xiWNocAdCJ4J6eoSIx9PcCyT2UOA7ugRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=master.debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=ogv3rpqJ; arc=none smtp.client-ip=82.195.75.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=master.debian.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=PBqrAGS7rhZ41e9QpLs88KrTx26tuYyuhRx9AXK1vhzKLhVFIs2985Z22E9TJFWw15Y/02D847R8Pz8dy7or9UoEm6D++0mppRdq0NUuXDwklZN2mfCY1eTiFKIkRvjSZ8yQ3i4MF+gYjPY0CIYkYzqkmL9T3Iwb88IlFr0LE8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WNtMUE8X; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="ogv3rpqJ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.master; h=In-Reply-To:Content-Type:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-Transfer-Encoding:
-	Content-ID:Content-Description;
-	bh=FwSTdb1/TpsxcIJ39RYbmBW11gYzJPeVrTojNFdUEu4=; b=ogv3rpqJUZip3ouxtADZOriOcH
-	5cxteKBy8xVLww2rTiW3KrrqPG0w2zmmdgJvy+0o/+DoYduuiNPk75OB/WCd14oOZvevHNwB49vft
-	q1eVaWrYC+QoijfIeEgVi3QcsBFRqXislcWZXLqvdNjdN7/HOU/pMtaDmSdXBTGSga1PM3R0dggea
-	mSdZxaRit/6AsoKk18Kank2HZDPZr9ki4MpwyMy9brqN30ByYw8rhv+v7pf5Q9QmooFNwPtLP8xNo
-	nK8KeoV2Y0i+xvuvzYLyZmdIOUVBNUCNQsebWm+jaPIv8PxrMD5Or9EWKP3w4r2E1RhwrKjxArdO7
-	nESI1cnA==;
-Received: from ukleinek by master.debian.org with local (Exim 4.96)
-	(envelope-from <ukleinek@master.debian.org>)
-	id 1x9Nce-0063sf-23;
-	Wed, 23 Sep 2026 14:06:56 +0000
-Date: Wed, 23 Sep 2026 16:06:55 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@debian.org>
-To: Al Ma <AlMa0@ro.ru>, 1110749@bugs.debian.org
-Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
-Subject: Re: Bug#1110749: ee1004: DDR4 SPD cannot be read, =?utf-8?Q?decod?=
- =?utf-8?Q?e-dimms_fails=2C_=E2=80=9CFailed_to_select_page_0_=28-6=29?=
- =?utf-8?B?4oCd?=
-Message-ID: <arPcZcu7S9vqE3JE@monoceros>
-References: <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
- <handler.1110749.B.1754853823932687.ack@bugs.debian.org>
- <9ed6f717-a04c-425f-945e-7fe8fe3b5d7d@ro.ru>
- <ac700b24578663492aecd6d544bfc205b060c948.camel@suse.de>
- <812847a5-5630-4d26-8012-c816e6d1db32@ro.ru>
- <20260911135604.6c2451e7@endymion>
- <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
- <8d8740a4-6b9f-483b-9ea4-145293e63c25@ro.ru>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WNtMUE8X"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFED1F000FF;
+	Wed, 23 Sep 2026 15:02:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790175779;
+	bh=OCxq+ZHhtCCy9E971jUUATPIiEsaqmg1t95wT9gz/IE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WNtMUE8XTGSA/CgJBnZEdZIlrnSlkUN4U2POw3LpaQmujhBHigtisLzC5E60+TiUy
+	 tSvuueuA3HukTbJpd69VQxex59xqTDJnqy2xSMhoQ16IVYoZwnHRD7wHI0/XMqNud0
+	 q6XP4QaGShXVKvFfV/KKV1cbiWiPQCjtbMTbBNjNL2/STS4UWhfpyw9ZXEHYJFBpD5
+	 R2MJ6SlIBpvBtBYkJtThW43MrtVQqhO7JCqSWAlgBWA6HIFfB+VoR6NdYOHK1hXUyq
+	 0L5YpZ1P/aXlpBn8282dd5mGMXd8E5c1MtChIoV9f7pZCIwgu/HVrRQaWYU09mbkJf
+	 /QjSH4aYZBlbQ==
+Date: Wed, 23 Sep 2026 16:02:54 +0100
+From: Lee Jones <lee@kernel.org>
+To: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v3 2/9] mfd: cgbc: Add I2C platform data
+Message-ID: <20260923150254.GH3864833@google.com>
+References: <20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com>
+ <20260911-cgbc-i2c-storage-devices-support-v3-2-594b53fbc5ea@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="imelkw77qpbbslbi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8d8740a4-6b9f-483b-9ea4-145293e63c25@ro.ru>
+In-Reply-To: <20260911-cgbc-i2c-storage-devices-support-v3-2-594b53fbc5ea@bootlin.com>
 
+On Fri, 11 Sep 2026, Thomas Richard (congatec GmbH) wrote:
 
---imelkw77qpbbslbi
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: Bug#1110749: ee1004: DDR4 SPD cannot be read, =?utf-8?Q?decod?=
- =?utf-8?Q?e-dimms_fails=2C_=E2=80=9CFailed_to_select_page_0_=28-6=29?=
- =?utf-8?B?4oCd?=
-MIME-Version: 1.0
+> Define I2C platform data for each I2C bus in the cgbc MFD driver. Platform
+> data passes per-bus parameters to the I2C driver, rather than being defined
+> inside the i2c-cgbc driver itself. This makes the i2c-cgbc driver more
+> generic.
+> 
+> Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+> ---
+>  MAINTAINERS                            |  1 +
+>  drivers/mfd/cgbc-core.c                | 39 ++++++++++++++++++++++++++--------
+>  include/linux/platform_data/i2c-cgbc.h | 22 +++++++++++++++++++
+>  3 files changed, 53 insertions(+), 9 deletions(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 6215fcb07770..561f102c2541 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -6621,6 +6621,7 @@ F:	drivers/mfd/cgbc-core.c
+>  F:	drivers/video/backlight/cgbc_bl.c
+>  F:	drivers/watchdog/cgbc_wdt.c
+>  F:	include/linux/mfd/cgbc.h
+> +F:	include/linux/platform_data/i2c-cgbc.h
+>  
+>  CONSOLE SUBSYSTEM
+>  M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
+> index 4a409234e66c..321fa3fff2ac 100644
+> --- a/drivers/mfd/cgbc-core.c
+> +++ b/drivers/mfd/cgbc-core.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/mfd/cgbc.h>
+>  #include <linux/mfd/core.h>
+>  #include <linux/module.h>
+> +#include <linux/platform_data/i2c-cgbc.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/sysfs.h>
+>  
+> @@ -55,6 +56,35 @@
+>  
+>  static struct platform_device *cgbc_pdev;
+>  
+> +static const struct cgbc_i2c_platform_data cgbc_i2c_gp_pdata = {
+> +	.name = "Congatec General Purpose I2C adapter",
+> +	.cgbc_bus_id = 0,
+> +};
+> +
+> +static const struct cgbc_i2c_platform_data cgbc_i2c_pm_pdata = {
+> +	.name  = "Congatec Power Management I2C adapter",
+> +	.cgbc_bus_id = 4,
+> +};
+> +
+> +static const struct mfd_cell cgbc_devs[] = {
+> +	{ .name = "cgbc-backlight" },
 
-On Fri, Sep 11, 2026 at 10:33:07PM +0200, Al Ma wrote:
-> Awesome!
->=20
-> Below, I'll comment on whatever I can meaningfully comment.
->=20
-> > * Short term, you want to blacklist the ee1004 driver on your system.
-> >    It is not a good idea to load a driver which binds to the wrong
-> >    device.
->=20
-> Here we go, following https://wiki.debian.org/KernelModuleBlacklisting:
->=20
-> $ echo "blacklist ee1004" | sudo tee /etc/modprobe.d/ee1004.conf
-> blacklist ee1004
-> $ sudo depmod -ae
-> depmod: WARNING: -e needs -E or -F
-> $ sudo update-initramfs -u
-> update-initramfs: Generating /boot/initrd.img-6.12.107+deb13-amd64
->=20
-> Can the above warning be ignored?
+MFD_CELL_*
 
-I think yes. AFAIK that depmod step isn't needed and the wiki should be
-fixed.
+> +	{ .name = "cgbc-gpio" },
+> +	{ .name = "cgbc-hwmon" },
+> +	{
+> +		.name = "cgbc-i2c",
+> +		.id = 1,
 
-Does that help?
+Why does PLATFORM_DEVID_AUTO not work for you?
 
-> > * Still mid term, we probably want to blacklist SPD probing explicitly
-> >    for your motherboard (we'll need to know the contents of
-> >    /sys/devices/virtual/dmi/id/board_vendor and
-> >    /sys/devices/virtual/dmi/id/board_name on your system). Maybe this
-> >    can be implemented as an empty entry in mux_dmi_table (as in, we know
-> >    the board requires multiplexing, but we don't know yet to implement
-> >    it on that board).
->=20
-> Here we go:
->=20
-> $ cat /sys/devices/virtual/dmi/id/board_vendor
-> ASUSTeK COMPUTER INC.
-> $ cat /sys/devices/virtual/dmi/id/board_name
-> WS C422 PRO_SE
+> +		.platform_data = &cgbc_i2c_gp_pdata,
+> +		.pdata_size = sizeof(cgbc_i2c_gp_pdata),
+> +	},
+> +	{
+> +		.name = "cgbc-i2c",
+> +		.id = 2,
+> +		.platform_data = &cgbc_i2c_pm_pdata,
+> +		.pdata_size = sizeof(cgbc_i2c_pm_pdata),
+> +	},
+> +	{ .name = "cgbc-wdt" },
+> +};
+> +
+>  /* Wait the Board Controller is ready to receive some session commands */
+>  static int cgbc_wait_device(struct cgbc_device_data *cgbc)
+>  {
+> @@ -235,15 +265,6 @@ int cgbc_command(struct cgbc_device_data *cgbc, void *cmd, unsigned int cmd_size
+>  }
+>  EXPORT_SYMBOL_GPL(cgbc_command);
+>  
+> -static struct mfd_cell cgbc_devs[] = {
+> -	{ .name = "cgbc-wdt"	},
+> -	{ .name = "cgbc-gpio"	},
+> -	{ .name = "cgbc-i2c", .id = 1 },
+> -	{ .name = "cgbc-i2c", .id = 2 },
+> -	{ .name = "cgbc-hwmon"	},
+> -	{ .name = "cgbc-backlight" },
+> -};
+> -
+>  static int cgbc_map(struct cgbc_device_data *cgbc)
+>  {
+>  	struct device *dev = cgbc->dev;
+> diff --git a/include/linux/platform_data/i2c-cgbc.h b/include/linux/platform_data/i2c-cgbc.h
+> new file mode 100644
+> index 000000000000..4465e8a7b40e
+> --- /dev/null
+> +++ b/include/linux/platform_data/i2c-cgbc.h
 
-If the above is confirmed to help, I think we have everything to
-implement a quirk with the same effect as blacklisting manually.
+I think this area is mainly used to share data with OF.
 
-Best regards
-Uwe
+Did you consider include/linux/mfd?
 
---imelkw77qpbbslbi
-Content-Type: application/pgp-signature; name="signature.asc"
+> @@ -0,0 +1,22 @@
+> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+> +/*
+> + * i2c-cgbc interface to platform code
+> + *
+> + * Copyright (C) 2026 congatec GmbH
+> + * Author: Thomas Richard <thomas.richard@bootlin.com>
+> + */
+> +
+> +#ifndef _LINUX_I2C_CGBC_H
+> +#define _LINUX_I2C_CGBC_H
+> +
+> +/**
+> + * struct cgbc_platform_data - Platform data of the CGBC I2C driver
+> + * @name:		I2C adapter name
+> + * @cgbc_bus_id:	I2C bus ID (from Board Controller point of view)
+> + */
+> +struct cgbc_i2c_platform_data {
+> +	const char *name;
+> +	int cgbc_bus_id;
+> +};
+> +
+> +#endif /* _LINUX_I2C_CGBC_H */
+> 
+> -- 
+> 2.53.0
+> 
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqz3PwACgkQj4D7WH0S
-/k7zMwf/epi4XIYdQdXSPRou8IE8OQfXKIhI7UQXkxqhH95xJJ5oqelh8OVmVtRv
-rzzcmG5cZDuwaRo1h0k1/HNbSdcptj1yoAJ9SPGxGr/iZENAekohAgQTfp3jABTF
-nl3KYV7Mi7VSnEb9iUG6GSoVOCDC2MLjarCleAO9pdGfRzNRRWa/+AQLjAZRI8ak
-qBGwxvhGVKDES8DZantYBo1fuQRYcGzNe1iJc3bQLuMbESQUvGnpvFcNCDxyaFIe
-vqEgcpkk8CWf2d00DHisw8Y8/l4cWoqOlObRniNY5m5k8ZGIt8turr4kHD6F3nPP
-4J43XCw3kYmH83grN1yf3L/Sqn9cAA==
-=4FXv
------END PGP SIGNATURE-----
-
---imelkw77qpbbslbi--
+-- 
+Lee Jones
