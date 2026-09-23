@@ -1,33 +1,67 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej2-f43.google.com (mail-ej2-f43.google.com [74.125.228.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 180C94A6885;
-	Wed, 23 Sep 2026 12:44:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6FF38330A
+	for <linux-i2c@vger.kernel.org>; Wed, 23 Sep 2026 12:48:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790167462; cv=none; b=BpDuPePvyixasFnO2fewMdcjYa22yZRZzO50Z1hPMcUdNxe9XASgBOFP+3UdK1L8UnCjVA1wHAeWYj0TgzAxjaa1R6gYx5tiUh05+i7XzQh1q+H8uIxpnoe/gAQjZgIdviv4R5Dab43w+/EgkPg4JhxxcsN5tQAJ2MUciRcNiYI=
+	t=1790167694; cv=none; b=bEq/xj3TlmB21uu4XzbPCzlPpznm40bYL2m2jPZTgIr4o4gAEwNkK9cjI7IHZ/3cJgBkd7p3VS/1VvHgqbZRJoFaktu7htRrn2l0ghrl+lYtowQLYaWZ0nrei8l8stAwHNS/Rt0idi/KiUopX2YBsB32AH6DAg7eqSLC+bhEr9Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790167462; c=relaxed/simple;
-	bh=RdEmR/J83fMmalS7pjZ26QsqKkj6VKIAOShFe/+OsZs=;
+	s=arc-20240116; t=1790167694; c=relaxed/simple;
+	bh=IY2o/9Zd0FHMEWHyc0k2wv+f7cAv88OH6tphokM1gso=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hjy9lHOe+B0a69/jK0uhElN2qa3McWh7cHrBPegPjMz4mE2S+1Js2qxBnCBJlLhcvw1fsMBliI1ZE/oLgyM268G2zJUNW5w+04zKweCX9mZAqfQSixcXqqIvpDwh98QGj9bj/70YrXI9AMmuW2YsTBS0Q1nanxP08YDJEEePa6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DYwUTTRq; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Hqw56naozC4wNNwyNnh70k/rzBVdMuEgTsBVyGQModqeVUrylN9AWHePGzleifODa2yWTTKE2bhvrdoN59qiZqgzpSKeMuX63omXQA8dGYlLCmkSNXdd2SsjxSZXzmOtXg+8AryLUYr654JLiszq4euiWuosaNGg5Qbwdca0Xzk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Comt8vul; arc=none smtp.client-ip=74.125.228.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DYwUTTRq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E57111F000FF;
-	Wed, 23 Sep 2026 12:44:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790167460;
-	bh=Mg2st3LNG8MVlxrzkdcxLihCw9xVJQuxSEi+n326UAs=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=DYwUTTRqGsrqhxTTYvIshXfJUE3EpQvQU/SaveOLJ4T5WWcMA1ZXpEHwKsQzTymYZ
-	 bxgidTf+oq6kMpCpIiSjsgav7LJRcwcNCB2ufLOujzKbHhydB2S+J/HkYeuWySzNLs
-	 Vj7kIw8T0aq0ixa9P1A+jMMmR+o43ydcXYvLr+mEsYMrasjW3/L3QZ9nsscJnfs+nx
-	 M6rXJ4w+ZdJs+nPOT26Q9HZbZK4rRIHwi/BEdQZ0UGWxStCUesgPcNEB09xxZK9OE3
-	 VLLhllg0BntKpv3EKuMgKLcnWOCd7EjQ/Ga8Rac3v46ry3YAlr/QbCVxgdUgfWTJH9
-	 FOrrjpNavpCgA==
-Message-ID: <78dd7850-5957-4a09-9628-f2ad3fab93d4@kernel.org>
-Date: Wed, 23 Sep 2026 13:44:15 +0100
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Comt8vul"
+Received: by mail-ej2-f43.google.com with SMTP id a640c23a62f3a-c2a1a631f6aso103373966b.3
+        for <linux-i2c@vger.kernel.org>; Wed, 23 Sep 2026 05:48:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1790167690; x=1790772490; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=SLuek/JnZcrHdEol8bs1CY5iS+EZUcbu/8zASCIc9oo=;
+        b=Comt8vulNJSzEfrWtzbQpLlA2WLwL8E+hI/7Vxzy3p4qTVogQ1pMHK3q45X/Z61pPp
+         gqB11bctP7gzA1H3LeZkx1Y9pxRxY5uRYkFFzrXuwGh262uxJwVODHKrIHxLLD6eXzNr
+         EBGweZBmTallHSNSkyXwmZ++huUu2d/M1+HLC9XV8ZJDOXl8bqDJAySM4Gic1sGMo4YS
+         EnOLKW8fyl7FPVh0a/WB6HIGXUJpg++K+dW9d11yOpr/WFBsMx0EJMJRAsrHAkqBMKQZ
+         zsVbaTKzO+KfJ3NRwpiWJrYbwQbPH9GPt8Y8bG45XLZI/3t+OH97yDCNewuxB0lBL+TX
+         hTyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790167690; x=1790772490;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=SLuek/JnZcrHdEol8bs1CY5iS+EZUcbu/8zASCIc9oo=;
+        b=izYvOEm5TjVt/MOfvnmxl2yBEaJWzP3w+Vtzl1I+9cqa7ErxNw5arGwR6eW0N8s8UR
+         BAcqKg0ciOcQLWhOFIjdam/N7S6v2cMz/faKGRt6dmXhCNbgN33WZdwy+aAx5AaAD4Ti
+         cRX8mtOxBcgLWQibadqj5ZYaFk3vlce9XJ39tg3J77U6EU2PX3S7C4wtVyWDEUkEuq2O
+         yzHuyZSoJHSVOiB0ozCWAqEnMWrRHLvVW2yHPQIuR3d8etgt/9RfPRKXIpqlk/3CxDIa
+         b25nE5mg+R7/ZuP/BDNUnkrBkdSU5wT+88ltWNumYQKV1a0p7pdHSOg2cbZwAAGCX1LT
+         Z6aA==
+X-Forwarded-Encrypted: i=1; AKwUvBytL0qQCZ6LvJSzcMldiEdtR1xbVKOHHOzsGLwmSpZ9xK1A2AeIocGOja02cNNhL0FoDTn+uwJCyi0=@vger.kernel.org
+X-Gm-Message-State: AFuF++nPo/7C4pCXRjndZvZDSPYNqLyZe4ImY5nj4HWgfYVyHQeMgUaF
+	8rj4SZPJM5MP7V8lHuD4Xa2B3xJQuVNObTSaMBciCDU5kQwliQrr3K/JpFkN+izF2zc=
+X-Gm-Gg: AYBFou09lK7hOhRwIRsZGy4rF+Q43rKpLMu9Di9TlTKXI/cp4s0QfmMrvaScWl6d4y+
+	UafXcId17mRM8H+5BKlwWm6uZfBRblnnGSIHhn80S103Bbk0wrImJG0uri29t2yWQarij4Bjyl8
+	4dvqzU1QHnMHEKbZ133jSzcuzrQ9FnAp/NV7RiAZi3ipHLh6alDEs4H2DmbHNJJsU8tU04pIHS3
+	7IMkJ3WY5JLKEkMswxbcy5APqngRSD8NPzBW+XshfYo9FMkXesoMDkxkEYXLJTEbqnXMVVahSNJ
+	6l8POWlZnK0qI7VF27edxOzPemVoXbq15FKaIECSSY9j8E9ef0Dx36Wu6/gyxHD1Q9Sn6cH6nUI
+	ejFtF27sOwn1EYkfU1lcfQLyWO+6Jnzj65AqH2fWZxHUFzpwkpSgyiREvdq11kD457lArJxnFzr
+	ZPq6BnSbSisWKsrnyk/nxh6glOg2teyx949L546TgVw48QGSxv4oe38CFZjd/EZiFWr/V7Ps7ap
+	ZV3eI4UWfPwzoosLSMM
+X-Received: by 2002:a17:906:9fd2:b0:c29:f5d5:5aa6 with SMTP id a640c23a62f3a-c2aae2b6a2amr198058466b.48.1790167690003;
+        Wed, 23 Sep 2026 05:48:10 -0700 (PDT)
+Received: from [192.168.0.167] ([51.37.94.232])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2aae6ecd17sm112583666b.63.2026.09.23.05.48.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 23 Sep 2026 05:48:09 -0700 (PDT)
+Message-ID: <97595856-b932-40fc-b39b-04016517069b@linaro.org>
+Date: Wed, 23 Sep 2026 13:48:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,8 +69,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 10/15] arm64: dts: qcom: hawi-mtp: Enable camera
- subsystem for Hawi MTP
+Subject: Re: [PATCH RFC 15/15] arm64: defconfig: Enable S5KJN5 camera sensor
+ for Qualcomm boards
 To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
  Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
  <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
@@ -51,68 +85,37 @@ Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  linux-media@vger.kernel.org, Suresh Vankadara <svankada@qti.qualcomm.com>,
  Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 References: <20260923-hawi-maili-camss-v1-0-cbbb42e534ef@oss.qualcomm.com>
- <xqgw4uxpnI5Usu5MyKqNpZThqk9mUKoh0iZ4oLLBtSL0zNd6sU1fm6TtTrJAjTNfzJURTyj4dU1oGNVCDJ8NzQ==@protonmail.internalid>
- <20260923-hawi-maili-camss-v1-10-cbbb42e534ef@oss.qualcomm.com>
-From: Bryan O'Donoghue <bod@kernel.org>
+ <RbdPcB-QGL3Q9kH1vj2YTIDgS-JUQ3rmbo-QovaLqE1ij0XTZhsPpaet3uWWJI9Yag6wL3TciIvWVqVK4TcTzQ==@protonmail.internalid>
+ <20260923-hawi-maili-camss-v1-15-cbbb42e534ef@oss.qualcomm.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Content-Language: en-GB
-Autocrypt: addr=bod@kernel.org; keydata=
- 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
-In-Reply-To: <20260923-hawi-maili-camss-v1-10-cbbb42e534ef@oss.qualcomm.com>
+In-Reply-To: <20260923-hawi-maili-camss-v1-15-cbbb42e534ef@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 23/09/2026 12:02, Nihal Kumar Gupta wrote:
-> +
-> +&csiphy2_in_ep {
-> +	bus-type = <MEDIA_BUS_TYPE_CSI2_DPHY>;
-> +	clock-lanes = <0>;
-> +	data-lanes = <1 2 3 4>;
-> +	remote-endpoint = <&s5kjn5_ep>;
-> +};
-> +
-
-Drop the clock-lanes part its not current.
-
----
-bod
+> Enable the S5KJN5 driver which is used for the camera sensor on the
+> Qualcomm Hawi and Maili MTP boards.
+> 
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> ---
+>   arch/arm64/configs/defconfig | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+> index 5217de386edc5e32289e453288db0bd9449d4c6f..fa35db683bb253e83af6bb25f702e3127761c086 100644
+> --- a/arch/arm64/configs/defconfig
+> +++ b/arch/arm64/configs/defconfig
+> @@ -960,6 +960,7 @@ CONFIG_VIDEO_IMX412=m
+>   CONFIG_VIDEO_OV5640=m
+>   CONFIG_VIDEO_OV5645=m
+>   CONFIG_VIDEO_S5KJN1=m
+> +CONFIG_VIDEO_S5KJN5=m
+>   CONFIG_AUXDISPLAY=y
+>   CONFIG_SEG_LED_GPIO=m
+>   CONFIG_DRM=m
+> 
+> --
+> 2.34.1
+> 
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
