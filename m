@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 211404ADD8F;
-	Wed, 23 Sep 2026 12:11:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7012549E12F;
+	Wed, 23 Sep 2026 12:30:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790165484; cv=none; b=FvBIKNvkKUxn/ty6EmqTCai7uaudNGdLDdH0ZlQiEnlG6tTZ50sdNdzaDapOlGwjzYAaN9DFRrD5Wy4bMW8NMY/Rj4BjMYRFrpfbUqxS5Zz/PW6ybgFe33lj92SzqPPJnA1k+pjjpekZRAPB20vjXV1z0+S95nqwrmh/LqG12uQ=
+	t=1790166653; cv=none; b=fAIo3q4NKu+aPgC4/GmgdP/9KGg+Ka5MM/5I4oO9TARgGXfnrPPc+f3ErdqSRkfFc5ZB9ObbRve96Yxokn3nHzmP8sP5KLGkBX8hCzAJdML6pcbiycHhzVQk2gAdhBgWCCVtxtWxleBJrKOlNtYuSp13G50+rPkBBPXjgXPZRpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790165484; c=relaxed/simple;
-	bh=mXLobxmGtI3ksGO4btON2esJ1RfyrrglQF9P2VAOvBU=;
+	s=arc-20240116; t=1790166653; c=relaxed/simple;
+	bh=haN3oiftVd8pbKhDX7n/Wh1pXnvH6Qs0qO3+tpxyLZU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LoSulOFQvkfRw0q5V8ZydUdnOV/MWnnSsauRb1kCbJTODmLlrd4JV7baGY43NqW81rQOo0TrEWopHGBz1Hfv42J0HHHxdPYMBeQrXN7SnjuNf2uwK9L0XYG2fivMv/U0NpP2H4dXgA04iir8Ozhro5/jLSF4g/Do35ZJBT1mNx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mOxgLYvA; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=WQAWXCwmsF/6mdDisReLo1YS2QsAmlqfZGdh8KV6XpZgu03gz1FgwxPfXY+BFgOYB6EpGOZLBimLOFpRFXyIcWmtJH/n0aBGMZm5rdKxy2FFmLmxkoFrakDSI2lIqMVP7qMTneKCvEptIrtHJ2Ykig5+6TMCunFMdJ5I4HWJTXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mYthJH55; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mOxgLYvA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CDE31F000FF;
-	Wed, 23 Sep 2026 12:11:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mYthJH55"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225F61F000FF;
+	Wed, 23 Sep 2026 12:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790165479;
-	bh=+DzgaCMiha0jugPhYih7prKXf2sWPS0BDooC/KPd08Q=;
+	s=k20260515; t=1790166650;
+	bh=SMWTQn3Y+iSqYhor4neUA3msswLlBM2sXa3V1cp489g=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=mOxgLYvA9syLr27Z5GKKcKY5QY/qvxbl1rSkw344nK9+x4h8utOlYU6CJytvUIB9J
-	 RQgJxZqxc4RjLZhD0U43JdQRitixZxjMpcBnvUCGitmgjUvlxRnP06lHxFjiepKCi1
-	 MUztzv3NUr458mrlpgTTWMEg+k2XiFrUqrH/PkluLUKNyD65l9+Ku8GlDpFDFZb77D
-	 tobEYvrEAMjj5ktdNiKdDJGr6CebYJYbg+lWLetwSMl8Q1aghyMLn/MPJRlIXLjAJT
-	 kTQibl9+cfrvq6r5MkOmPw5zX1F5r4mSMKV0AcjaKwQPp3y0rHPcaZhIdWgayax/qM
-	 WKYp2Mcnzq83A==
-Message-ID: <b48796e3-4ff3-464f-98e3-738360f7e692@kernel.org>
-Date: Wed, 23 Sep 2026 13:11:14 +0100
+	b=mYthJH55MUCnuz2qdHsrJMOf9WtS//hhYG6DJDjhzyrK0LwNZDRdX4H2E8nGkxnML
+	 EaVXdbFBJ8sDRL8Yxm+xkVHNkk1/0Pcqaf3duPJxJZbjwQdQoC9NOJghCgg7x3nNon
+	 i//2cTgrlpehNqVRyF6bvAydCEohyJHsYM/E9lKhRJ7/23JkxLyfWapRpiU2bB1aSV
+	 db8dtujQmzMlDMpCetWL7j+3xQ9Lwt89kFQ5gIgEgbiTo/cECAq7dNRvQFJCx4j7Iu
+	 AjMxQqOWQogiwYjd/hsuSrvsVD+gkzPHabJ6aBkdy7hoCsf6GHwhnvnJtnOJ4aRS7U
+	 /QE+uB4N08Y/Q==
+Message-ID: <df6d93bc-b0c1-489f-9ca2-7de4d355ceb6@kernel.org>
+Date: Wed, 23 Sep 2026 13:30:45 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 02/15] dt-bindings: phy: qcom,x1e80100-csi2-phy: Add
- Hawi and Maili compatibles
+Subject: Re: [PATCH RFC 05/15] media: qcom: camss: Add Hawi compatible camss
+ driver
 To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
  Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
  <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
@@ -51,8 +51,8 @@ Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  linux-media@vger.kernel.org, Suresh Vankadara <svankada@qti.qualcomm.com>,
  Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 References: <20260923-hawi-maili-camss-v1-0-cbbb42e534ef@oss.qualcomm.com>
- <00feVjuDXWEOH5KMhsF9lGceYtMFLwd4P3FB3h8yL5Q-OX0Vz5uMHweweoh-OSnW2nmB9KgqD7grIPRggpsHsA==@protonmail.internalid>
- <20260923-hawi-maili-camss-v1-2-cbbb42e534ef@oss.qualcomm.com>
+ <-SfKe1h9v_GKikJ1GpSP9vCzngJ7rE-jLyFCc419KBCuxpKK_kH33Xd65VtCIyoH80D_SMZP306pJZ7aKnpxdw==@protonmail.internalid>
+ <20260923-hawi-maili-camss-v1-5-cbbb42e534ef@oss.qualcomm.com>
 From: Bryan O'Donoghue <bod@kernel.org>
 Content-Language: en-GB
 Autocrypt: addr=bod@kernel.org; keydata=
@@ -98,50 +98,328 @@ Autocrypt: addr=bod@kernel.org; keydata=
  LKSGEglMpiX07M1AotgvylN5C8fjbouoK+/RAMsXkk8jba6rPfuuXPaDjCyyKn6zSVHETnHW
  3AJbgVY50T8STpnxayBQvWbCvu+6NOEjXCbyaOJig+5l0zlGN9XHjdANXC5HnwmyaGRL9YDq
  Jh2nVXVJDincOdQRdKcJjYLqaOAoWrYWSDi1iZGspHBTDrnOvfMQzzHY
-In-Reply-To: <20260923-hawi-maili-camss-v1-2-cbbb42e534ef@oss.qualcomm.com>
+In-Reply-To: <20260923-hawi-maili-camss-v1-5-cbbb42e534ef@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 23/09/2026 12:02, Nihal Kumar Gupta wrote:
-> Hawi and Maili integrate the same CSIPHY IP as Kaanapali with an
-> identical register interface. Add qcom,hawi-csi2-phy and
-> qcom,maili-csi2-phy falling back to qcom,kaanapali-csi2-phy.
+> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 > 
+> Add support for Hawi in the camss driver. Hawi reuses the CSIPHY
+> resource table from Kaanapali and the TPG resource table from
+> X1E80100. The CSID and VFE resource tables are Hawi-specific.
+> 
+> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 > Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+
+Missing Co-Developed-by:
+
 > ---
->   .../devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml      | 12 +++++++++---
->   1 file changed, 9 insertions(+), 3 deletions(-)
+>   drivers/media/platform/qcom/camss/camss.c | 259 ++++++++++++++++++++++++++++++
+>   drivers/media/platform/qcom/camss/camss.h |   1 +
+>   2 files changed, 260 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml b/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml
-> index 24ca06b97656077cf168e72b2a32f493d9c06af2..84d70e3e5783980bc76807869f00e7d112a046ae 100644
-> --- a/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml
-> +++ b/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml
-> @@ -16,9 +16,15 @@ description:
+> diff --git a/drivers/media/platform/qcom/camss/camss.c b/drivers/media/platform/qcom/camss/camss.c
+> index b862f067936c481408e1e8e1660c8aaf71b065a4..d0cb66ea850e33783912722ef60c97c2148d0ad5 100644
+> --- a/drivers/media/platform/qcom/camss/camss.c
+> +++ b/drivers/media/platform/qcom/camss/camss.c
+> @@ -4476,6 +4476,249 @@ static const struct resources_icc icc_res_sa8775p[] = {
+>   	},
+>   };
 > 
->   properties:
->     compatible:
-> -    enum:
-> -      - qcom,kaanapali-csi2-phy
-> -      - qcom,x1e80100-csi2-phy
-> +    oneOf:
-> +      - enum:
-> +          - qcom,kaanapali-csi2-phy
-> +          - qcom,x1e80100-csi2-phy
-> +      - items:
-> +          - enum:
-> +              - qcom,hawi-csi2-phy
-> +              - qcom,maili-csi2-phy
-> +          - const: qcom,kaanapali-csi2-phy
+> +static const struct camss_subdev_resources vfe_res_hawi[] = {
+> +	/* VFE0 - TFE Full */
+> +	{
+> +		.clock = { "gcc_axi_hf", "cpas_ahb", "cpas_fast_ahb",
+> +			   "vfe0_fast_ahb", "vfe0", "cpas_vfe0",
+> +			   "camnoc_rt_axi", "camnoc_nrt_axi", "qdss_debug_xo",
+> +			   "cpas_mnoc_hf", "cpas_mnoc_sf" },
+> +		.clock_rate = { { 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 238200000, 397000000, 440000000, 480000000,
+> +				  630000000, 750000000, 833000000 },
+> +				{ 0 },
+> +				{ 171428571, 240000000, 300000000, 400000000,
+> +				  480000000, 600000000 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 } },
+> +		.reg = { "vfe0" },
+> +		.interrupt = { "vfe0" },
+> +		.vfe = {
+> +			.line_num = 3,
+> +			.is_lite = false,
+
+You should only have to set is_lite = true when it is true.
+
+> +			.reg_update_after_csid_config = true,
+> +			.has_pd = true,
+> +			.pd_name = "ife0",
+> +			.hw_ops = &vfe_ops_gen4,
+> +			.formats_rdi = &vfe_formats_rdi_845,
+> +			.formats_pix = &vfe_formats_pix_845
+> +		}
+> +	},
+> +	/* VFE1 - TFE Full */
+> +	{
+> +		.clock = { "gcc_axi_hf", "cpas_ahb", "cpas_fast_ahb",
+> +			   "vfe1_fast_ahb", "vfe1", "cpas_vfe1",
+> +			   "camnoc_rt_axi", "camnoc_nrt_axi", "qdss_debug_xo",
+> +			   "cpas_mnoc_hf", "cpas_mnoc_sf" },
+> +		.clock_rate = { { 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 238200000, 397000000, 440000000, 480000000,
+> +				  630000000, 750000000, 833000000 },
+> +				{ 0 },
+> +				{ 171428571, 240000000, 300000000, 400000000,
+> +				  480000000, 600000000 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 } },
+> +		.reg = { "vfe1" },
+> +		.interrupt = { "vfe1" },
+> +		.vfe = {
+> +			.line_num = 3,
+> +			.is_lite = false,
+> +			.reg_update_after_csid_config = true,
+> +			.has_pd = true,
+> +			.pd_name = "ife1",
+> +			.hw_ops = &vfe_ops_gen4,
+> +			.formats_rdi = &vfe_formats_rdi_845,
+> +			.formats_pix = &vfe_formats_pix_845
+> +		}
+> +	},
+> +	/* VFE2 - TFE Full */
+> +	{
+> +		.clock = { "gcc_axi_hf", "cpas_ahb", "cpas_fast_ahb",
+> +			   "vfe2_fast_ahb", "vfe2", "cpas_vfe2",
+> +			   "camnoc_rt_axi", "camnoc_nrt_axi", "qdss_debug_xo",
+> +			   "cpas_mnoc_hf", "cpas_mnoc_sf" },
+> +		.clock_rate = { { 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 238200000, 397000000, 440000000, 480000000,
+> +				  630000000, 750000000, 833000000 },
+> +				{ 0 },
+> +				{ 171428571, 240000000, 300000000, 400000000,
+> +				  480000000, 600000000 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 } },
+> +		.reg = { "vfe2" },
+> +		.interrupt = { "vfe2" },
+> +		.vfe = {
+> +			.line_num = 3,
+> +			.is_lite = false,
+> +			.reg_update_after_csid_config = true,
+> +			.has_pd = true,
+> +			.pd_name = "ife2",
+> +			.hw_ops = &vfe_ops_gen4,
+> +			.formats_rdi = &vfe_formats_rdi_845,
+> +			.formats_pix = &vfe_formats_pix_845
+> +		}
+> +	},
+> +	/* VFE3 - IFE Lite */
+> +	{
+> +		.clock = { "gcc_axi_hf", "cpas_ahb", "cpas_fast_ahb",
+> +			   "vfe_lite_ahb", "vfe_lite", "cpas_vfe_lite",
+> +			   "camnoc_rt_axi", "camnoc_nrt_axi", "qdss_debug_xo",
+> +			   "cpas_mnoc_hf", "cpas_mnoc_sf" },
+> +		.clock_rate = { { 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 200000000, 400000000, 480000000 },
+> +				{ 0 },
+> +				{ 171428571, 240000000, 300000000, 400000000,
+> +				  480000000, 600000000 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 } },
+> +		.reg = { "vfe_lite0" },
+> +		.interrupt = { "vfe_lite0" },
+> +		.vfe = {
+> +			.line_num = 4,
+> +			.is_lite = true,
+> +			.reg_update_after_csid_config = true,
+> +			.hw_ops = &vfe_ops_gen4,
+> +			.formats_rdi = &vfe_formats_rdi_845,
+> +			.formats_pix = &vfe_formats_pix_845
+> +		}
+> +	},
+> +	/* VFE4 - IFE Lite */
+> +	{
+> +		.clock = { "gcc_axi_hf", "cpas_ahb", "cpas_fast_ahb",
+> +			   "vfe_lite_ahb", "vfe_lite", "cpas_vfe_lite",
+> +			   "camnoc_rt_axi", "camnoc_nrt_axi", "qdss_debug_xo",
+> +			   "cpas_mnoc_hf", "cpas_mnoc_sf" },
+> +		.clock_rate = { { 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 200000000, 400000000, 480000000 },
+> +				{ 0 },
+> +				{ 171428571, 240000000, 300000000, 400000000,
+> +				  480000000, 600000000 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 },
+> +				{ 0 } },
+> +		.reg = { "vfe_lite1" },
+> +		.interrupt = { "vfe_lite1" },
+> +		.vfe = {
+> +			.line_num = 4,
+> +			.is_lite = true,
+> +			.reg_update_after_csid_config = true,
+> +			.hw_ops = &vfe_ops_gen4,
+> +			.formats_rdi = &vfe_formats_rdi_845,
+> +			.formats_pix = &vfe_formats_pix_845
+> +		}
+> +	},
+> +};
+> +
+> +static const struct camss_subdev_resources csid_res_hawi[] = {
+> +	/* CSID0 */
+> +	{
+> +		.clock = { "csid", "csid_csiphy_rx" },
+> +		.clock_rate = { { 480000000 },
+> +				{ 480000000 } },
+> +		.reg = { "csid0" },
+> +		.interrupt = { "csid0" },
+> +		.csid = {
+> +			.is_lite = false,
+> +			.parent_dev_ops = &vfe_parent_dev_ops,
+> +			.hw_ops = &csid_ops_gen4,
+> +			.formats = &csid_formats_gen2
+> +		}
+> +	},
+> +	/* CSID1 */
+> +	{
+> +		.clock = { "csid", "csid_csiphy_rx" },
+> +		.clock_rate = { { 480000000 },
+> +				{ 480000000 } },
+> +		.reg = { "csid1" },
+> +		.interrupt = { "csid1" },
+> +		.csid = {
+> +			.is_lite = false,
+> +			.parent_dev_ops = &vfe_parent_dev_ops,
+> +			.hw_ops = &csid_ops_gen4,
+> +			.formats = &csid_formats_gen2
+> +		}
+> +	},
+> +	/* CSID2 */
+> +	{
+> +		.clock = { "csid", "csid_csiphy_rx" },
+> +		.clock_rate = { { 480000000 },
+> +				{ 480000000 } },
+> +		.reg = { "csid2" },
+> +		.interrupt = { "csid2" },
+> +		.csid = {
+> +			.is_lite = false,
+> +			.parent_dev_ops = &vfe_parent_dev_ops,
+> +			.hw_ops = &csid_ops_gen4,
+> +			.formats = &csid_formats_gen2
+> +		}
+> +	},
+> +	/* CSID_LITE0 */
+> +	{
+> +		.clock = { "vfe_lite_csid", "vfe_lite_cphy_rx" },
+> +		.clock_rate = { { 480000000 },
+> +				{ 480000000 } },
+> +		.reg = { "csid_lite0" },
+> +		.interrupt = { "csid_lite0" },
+> +		.csid = {
+> +			.is_lite = true,
+> +			.parent_dev_ops = &vfe_parent_dev_ops,
+> +			.hw_ops = &csid_ops_gen4,
+> +			.formats = &csid_formats_gen2
+> +		}
+> +	},
+> +	/* CSID_LITE1 */
+> +	{
+> +		.clock = { "vfe_lite_csid", "vfe_lite_cphy_rx" },
+> +		.clock_rate = { { 480000000 },
+> +				{ 480000000 } },
+> +		.reg = { "csid_lite1" },
+> +		.interrupt = { "csid_lite1" },
+> +		.csid = {
+> +			.is_lite = true,
+> +			.parent_dev_ops = &vfe_parent_dev_ops,
+> +			.hw_ops = &csid_ops_gen4,
+> +			.formats = &csid_formats_gen2
+> +		}
+> +	}
+> +};
+> +
+> +static const struct resources_icc icc_res_hawi[] = {
+> +	{
+> +		.name = "ahb",
+> +		.icc_bw_tbl.avg = 38400,
+> +		.icc_bw_tbl.peak = 76800,
+> +	},
+> +	{
+> +		.name = "hf_mnoc",
+> +		.icc_bw_tbl.avg = 2097152,
+> +		.icc_bw_tbl.peak = 2097152,
+> +	},
+> +};
+> +
+>   static const struct camss_subdev_resources csiphy_res_x1e80100[] = {
+>   	/* CSIPHY0 */
+>   	{
+> @@ -6116,6 +6359,21 @@ static const struct camss_resources sm8650_resources = {
+>   	.vfe_num = ARRAY_SIZE(vfe_res_sm8650),
+>   };
 > 
->     reg:
->       maxItems: 1
+> +static const struct camss_resources hawi_resources = {
+> +	.version = CAMSS_HAWI,
+> +	.pd_name = "top",
+> +	.csiphy_res = csiphy_res_kaanapali,
+> +	.tpg_res = tpg_res_x1e80100,
+> +	.csid_res = csid_res_hawi,
+> +	.vfe_res = vfe_res_hawi,
+> +	.icc_res = icc_res_hawi,
+> +	.icc_path_num = ARRAY_SIZE(icc_res_hawi),
+> +	.csiphy_num = ARRAY_SIZE(csiphy_res_kaanapali),
+> +	.tpg_num = ARRAY_SIZE(tpg_res_x1e80100),
+> +	.csid_num = ARRAY_SIZE(csid_res_hawi),
+> +	.vfe_num = ARRAY_SIZE(vfe_res_hawi),
+> +};
+> +
+>   static const struct camss_resources x1e80100_resources = {
+>   	.version = CAMSS_X1E80100,
+>   	.pd_name = "top",
+> @@ -6151,6 +6409,7 @@ static const struct of_device_id camss_dt_match[] = {
+>   	{ .compatible = "qcom,sm8250-camss", .data = &sm8250_resources },
+>   	{ .compatible = "qcom,sm8550-camss", .data = &sm8550_resources },
+>   	{ .compatible = "qcom,sm8650-camss", .data = &sm8650_resources },
+> +	{ .compatible = "qcom,hawi-camss", .data = &hawi_resources },
+>   	{ .compatible = "qcom,x1e80100-camss", .data = &x1e80100_resources },
+>   	{ }
+>   };
+> diff --git a/drivers/media/platform/qcom/camss/camss.h b/drivers/media/platform/qcom/camss/camss.h
+> index fadba57c5efaacb39ed3a55b107111528fd3182b..a92aea37c016db8066de392c40405303b74575fc 100644
+> --- a/drivers/media/platform/qcom/camss/camss.h
+> +++ b/drivers/media/platform/qcom/camss/camss.h
+> @@ -96,6 +96,7 @@ enum camss_version {
+>   	CAMSS_8550,
+>   	CAMSS_8650,
+>   	CAMSS_8775P,
+> +	CAMSS_HAWI,
+>   	CAMSS_KAANAPALI,
+>   	CAMSS_X1E80100,
+>   };
 > 
 > --
 > 2.34.1
 > 
 
-I don't think you should depend on kaanapali unless you have a good 
-reason to.
-
----
-bod
