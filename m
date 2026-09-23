@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEDAD517BD3;
-	Wed, 23 Sep 2026 12:40:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91AD53B42E7;
+	Wed, 23 Sep 2026 12:42:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790167254; cv=none; b=tNAfdrkwDG9KQmjvOYHGQzvl/YbSHGOTeU/XMdmzqKsd/TByBztsviyx7Lihj0BtrrCB3bb89sN0V5OpQ7+8fnJL7204IMyWCXgd6myoaFWUwo85JB2wyorwr9CIKkkHt1usdYHzQpt2wajin26OppDGELbyWQ7GsdjhR9/Wv6k=
+	t=1790167380; cv=none; b=nJ+cPUFUBYgAQeGKxrQeP6LW2mXJxre5Hzvf9Kclqa0LgV8bFvjQ1DwD7GjOayb+bzZ24dpljkQL4zZag1900v+SWlekXyJEOGUSKY5F6wYVsxyVKZX42K3y0wh1IJ4+83HwUmlvcaoj9XkCu0vgXaeTmS1DC47m1O3wzzMh00c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790167254; c=relaxed/simple;
-	bh=M2JYx4xWOZzm9Q2zOZDca/3K/ZZbVtIkOr15gbLzfg0=;
+	s=arc-20240116; t=1790167380; c=relaxed/simple;
+	bh=q8Bk6TbrCKX2zBRVtSc69cfeVEpf25HM21zhm2za2QA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=g0TO8oW1bjM6hQKnDTyO3nxPycnWxfPQjSuTZK806yHskBFsugY4ohGRdTAqGq9vfV/OlLKkaPq4u5Ny0YGT11edKudk1FwCDLDMpjM/IPOJS2oaNjypX3FI6YeEVIABC1ck7LP0hpA2VxMk2Uu0zxLXoIZbNwSzJKx6k0Zhp30=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PRBxiZTG; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Wl+xduvIh7+oHUhKA5iNId0v8sVkU2G/9wUopVaMCtfgmzMdrROtkA+WZDO2+zGNRI00XM27A5OnYfVBeQP/y5CUWRrtR7+UhapX9BrtdgA2Hs+B1o+5Sqt5mCYlPweuwjdShuelwETAbgRJSP7ooYDvhst11fwYS4KGJDilc1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h70gejA/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PRBxiZTG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C15D41F000FF;
-	Wed, 23 Sep 2026 12:40:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h70gejA/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628FF1F000FF;
+	Wed, 23 Sep 2026 12:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790167252;
-	bh=fHcWvmtQ3vB9ZKlwILTjHP3mJcsPveslG9sn5ZjYFXM=;
+	s=k20260515; t=1790167379;
+	bh=q8Bk6TbrCKX2zBRVtSc69cfeVEpf25HM21zhm2za2QA=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=PRBxiZTGLWyZVJBJfDV1tVu6YnSkxf7wDnQ7X75/Aplblvw5KhOq3zviycIcZIbMD
-	 w4/jnLStvsEB7hKI3KvenwDlszxvn/RwnLSBOdQwE814cCB5CkKjHbuk2o5z7MPk1d
-	 ABYYWOr/IR9eo/lVdjx9u3EQt7JunnCmPmIQjiOGtfUGOLlfbnKXp/L0OTZs52Vunb
-	 FWe7mjXHW2i9yGWOV3YbJebmmqeo+pVAgPBYlARXvYBtZ5tAha5aqL0/l27IH1e+0H
-	 /CsueY6gnkfbeFTnpowQ8TW1G+fZxxtY7OdfDy7z2F8xjf9wO8OCGwP1d/PqFuR7Mf
-	 Uv+vFi7/JuelQ==
-Message-ID: <e8a4533d-dfe0-4481-a761-d6f51587c2fd@kernel.org>
-Date: Wed, 23 Sep 2026 13:40:47 +0100
+	b=h70gejA/vGPxmBdrJENefkExCq5bNvy5XZ7uaRTPTsVilUajkrC8fsy9EWfc67Tw3
+	 nCR/OFfO/cozHoWmZjJMdE3zIxA/5R/xJ9g7UZ4pZJmTAYg18Db7UKahqpEEK8f2nz
+	 aa8wonwwjgLh7LrSGlPgS5vmVBmX7p3BeF2SIzpH+HnlujjMeA1xJ2uRd6ZWXYOylx
+	 KfELU3fO9ppH+LSzsp8yLwdyVYedEpMgx/yXGyaZD3HYB3BENv8Wh/HZv9Aule0UCk
+	 KdXfNzyGmWyYIYFKZvSMGj9xyy1qjQ76i/bAQnDti0KerajotjcY8nXea91wr9tpBH
+	 bxPAgu2Aphlcw==
+Message-ID: <4582a6a6-12d9-4ed3-963d-314a54ef9adc@kernel.org>
+Date: Wed, 23 Sep 2026 13:42:54 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 07/15] arm64: dts: qcom: hawi: Add CAMSS and CSIPHY
- nodes for Hawi
+Subject: Re: [PATCH RFC 08/15] arm64: dts: qcom: hawi: Add CCI definitions for
+ Hawi
 To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
  Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
  <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
@@ -51,8 +51,8 @@ Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  linux-media@vger.kernel.org, Suresh Vankadara <svankada@qti.qualcomm.com>,
  Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 References: <20260923-hawi-maili-camss-v1-0-cbbb42e534ef@oss.qualcomm.com>
- <ageksOhb83YwCJ-P2tts4rOWyDX95EQWMBssXg6ffZH7F4M8tDAhtEhDEb1G0b52lLtTL63wGoWOmn0b84TpJQ==@protonmail.internalid>
- <20260923-hawi-maili-camss-v1-7-cbbb42e534ef@oss.qualcomm.com>
+ <sUHuCGYrY3xhg-24U-SheZeeAV9xPLgPEvLMnHk_f_uoiK6tOHAd2n4nznCZMtVm4YkyUHnqIEC41E48Z6Upxg==@protonmail.internalid>
+ <20260923-hawi-maili-camss-v1-8-cbbb42e534ef@oss.qualcomm.com>
 From: Bryan O'Donoghue <bod@kernel.org>
 Content-Language: en-GB
 Autocrypt: addr=bod@kernel.org; keydata=
@@ -98,14 +98,15 @@ Autocrypt: addr=bod@kernel.org; keydata=
  LKSGEglMpiX07M1AotgvylN5C8fjbouoK+/RAMsXkk8jba6rPfuuXPaDjCyyKn6zSVHETnHW
  3AJbgVY50T8STpnxayBQvWbCvu+6NOEjXCbyaOJig+5l0zlGN9XHjdANXC5HnwmyaGRL9YDq
  Jh2nVXVJDincOdQRdKcJjYLqaOAoWrYWSDi1iZGspHBTDrnOvfMQzzHY
-In-Reply-To: <20260923-hawi-maili-camss-v1-7-cbbb42e534ef@oss.qualcomm.com>
+In-Reply-To: <20260923-hawi-maili-camss-v1-8-cbbb42e534ef@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 23/09/2026 12:02, Nihal Kumar Gupta wrote:
-> +			compatible = "qcom,hawi-csi2-phy", "qcom,kaanapali-csi2-phy";
+> Signed-off-by: Hangxiang Ma<hangxiang.ma@oss.qualcomm.com>
+> Signed-off-by: Nihal Kumar Gupta<nihal.gupta@oss.qualcomm.com>
 
-OK, this is why you depend on Kaanapali.
+Fix your Co-Developed-by and Signed-off-by chain
 
 ---
 bod
