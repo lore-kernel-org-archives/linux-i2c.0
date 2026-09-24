@@ -1,92 +1,92 @@
 Received: from mx0b-0002e601.pphosted.com (mx0b-0002e601.pphosted.com [148.163.154.28])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FFF3E7BCC;
-	Thu, 24 Sep 2026 23:41:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D04C83E7BCC;
+	Thu, 24 Sep 2026 23:43:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=148.163.154.28
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790293310; cv=fail; b=TVLY778WyYpo5vDZgPUUHTw2FetF9nPtHDtw2KdG/XZw3NCGYs9cEm8uIkfZWQPwr0ak5Z8lJSPOe4g6Am7Tc/+BR0O2/foohRNIG+mS4gbwUQ3NC41okzwpUw2JFkmZ22184E0Qy0T6VBCymRzr0gnjaWYpqtL/a4MsmgefegM=
+	t=1790293389; cv=fail; b=KZl3BxPC9aVdOJByU/BNpFqOG2Vz8wSFn0FhTYjHr2yL52fLK+RMtCYVhEBSVeuQTRzP74xC8zES1N8UoOIsVCUqn8aUVgtEAchlMOw9lpMf+LS72CXFm+K8S/RTYRVtXetgaQR2hcRTxEUpSdQSzPcPAvI0qbNTzkuL+4YHD9E=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790293310; c=relaxed/simple;
-	bh=9EkqJDBCNKPRpc5Xcc14oTp9RMsFHNn5hFDTaLu/6Cc=;
+	s=arc-20240116; t=1790293389; c=relaxed/simple;
+	bh=1xWDnsI0dJqMkSoluqT26MUd3TVx1C+g83VlpXt9AlE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=hHXJXGimkAGy9DqNsqZZblEojSypLzKyNEKjHz2efZPVplDprhPiLe8b3tteRbZXAEe6PMON41xTIsHl7qxiFzg1PsqBzP5bkoqFjfWosIruFzIG8+rPmUP00jTHVUKlwZqq4DUKH4UjTtUj8ql1B70l555z0IiKl+T7Ffs7FBo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b=mPR24nkG; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=iCpG2bEz; arc=fail smtp.client-ip=148.163.154.28
+	 In-Reply-To:To:CC; b=TvPZrpiXtyBX+nD5AJhMioB79R2fF1NCpp9sN7yIHpp/hVGUxBLPBduEgVyjv9bmrqFTx6dXakw+hgcJb9YNci/DNZy3wXBT0ibBpUG3C/6mAfdtdHSP7LKtA2Y0393OlQwyKV3JqyF7gF+r4JLnPovnl3zrJpbT+i6BPLpFetg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b=AEOweyJi; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=e8qfpOVR; arc=fail smtp.client-ip=148.163.154.28
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b="mPR24nkG";
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="iCpG2bEz"
+	dkim=pass (2048-bit key) header.d=ti.com header.i=@ti.com header.b="AEOweyJi";
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="e8qfpOVR"
 Received: from pps.filterd (m0374956.ppops.net [127.0.0.1])
-	by mx0b-0002e601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68OMPtY2485854;
-	Thu, 24 Sep 2026 18:41:30 -0500
+	by mx0b-0002e601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68OMQ4Hp486013;
+	Thu, 24 Sep 2026 18:42:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=
-	proofpoint-05-2026; bh=WtenFQEtwRP4t/ve7kg88QFRBWouW8zHv4orw6JNt
-	7k=; b=mPR24nkGEvh9Tpi+BYFrDCEAbkfYrRQIFaE0i1OjWnoKryUSJs3MrEwA+
-	6b+AEPO/z7yrodrkcpVfH8Nrz9kKjRWuOEsZbINOO7+m2FfueKbG43a8aOVntj/i
-	rlMBK7SBmsfJZNSMpodjnNGpYelF1+PpApb4hkFnDuc3et3B7dKoLQhdp45nkuzs
-	QTOurzNFWa8ph5D3mEFUnXsyMFnmPRxiNEZOHL7IdqgX9blrm9MZ2voZB/j0KssJ
-	vr9jR63DL7hvYhI2gsmjrHHdnhl3QLx2XxfsvHq1hxVQcirYSHK9scYNG/7q+2LO
-	yphL+9h94EvHiqJ2fmKhW2hJgVILA==
-Received: from ch5pr02cu005.outbound.protection.outlook.com (mail-northcentralusazon11012026.outbound.protection.outlook.com [40.107.200.26])
-	by mx0b-0002e601.pphosted.com (PPS) with ESMTPS id 4gvwm3637b-1
+	proofpoint-05-2026; bh=D6LnuUx1gmDSDZBp57639BYXzWxMieDrVVcjwc0dx
+	84=; b=AEOweyJiUIrfaSrFebZ17/Zhmnj9TJsG0vWLLagHrIzEe/PX0bA+jlp5s
+	BAiKr7Su2iasgFXMmiFtRg7Hxzn7cmAU22WgzH+bGsI4AYXyKZQTZ/oh5bb/S2Dg
+	6k7zTSku4nN1VXeb3uKkCpFAmSvO0j51d8gYHaGLdDnMxZ1AnelFAbwAkIWfJCHG
+	hdp06C8A8ap6GmqhFBuIOZebAYhptieCp9rLNCsvifdpk8z5mzSWCBc8qaIMGQ21
+	0gC41bSkmIBJvgS1TdFcjpYknP7Xo4O4N0qYsexqqUyTVK8qsHSRnCGl18iDQdzt
+	1QkKUqtfvOVQBHwiUmYAoeZiL4bRA==
+Received: from sn4pr2101cu001.outbound.protection.outlook.com (mail-southcentralusazon11012027.outbound.protection.outlook.com [40.93.195.27])
+	by mx0b-0002e601.pphosted.com (PPS) with ESMTPS id 4gvwm363ce-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 24 Sep 2026 18:41:29 -0500 (CDT)
+	Thu, 24 Sep 2026 18:42:48 -0500 (CDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ckBXoRzzyPoB3BseGm9t9ObVW77tGZUxqv7yGdxUXj9UbuBgFsfFVQSUKHe0pYsOSlnRyq/QygcAKBzUWwxGge+D9ZFEQVNC1BbWZpJf7uHUROdvwz0yo/NfZG3D8UOpyKBSDu9X435vH2JJ7S4yS0QkBLl5BLofSjE7wlcuPVyz+YPMavBICmh45X0H4imyuZBpImEMUaAmG+8obGDWyzlRmkcVoaLGBYThJpXo0wBBvN0Y9XZe78kT45Bqgr6amWUCLIYPdfz+Yh3WwCoER1p+zBn+1PRcbTYzsHoFrTYOyNTJmGxFdlOL5k/xIgnqKJjGMDeL39qh4GALi4YZ0Q==
+ b=GQ7/dxbVZ4YwJ0DRnE/99mvzJjqoZrNeJf+m2jhg1LMv9de8sB9HRhDU+Tbmhkaj5FFlNZiPM2dYGbVfQGj+Tv1Fz7zOGMYMVqx5VlC8YtZYWD4d9T7AKLr0X+Ox7p4yvw8xIFzAAavNJUeX+4MBdzjWGSRmTiaa4tQcLchukClM7+ZWVTC/SNcYMMYLfHE/hzACLB7fuB2YBeB65oCarfVj4VLK+twfHl85YkontMWIsSwmHylgIGimvmdTOAKXPrA847d6w2qwhA7OiSv1xLE0pp+n/6wDewWpHZ6nxWti0dLajyQct9X5xPFxja2fitYFrSga3rjJfgMI+dZYTQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WtenFQEtwRP4t/ve7kg88QFRBWouW8zHv4orw6JNt7k=;
- b=T6wM7E+nrg285NtVmhQABilzrS8UOF0/b0Fuo8B13ZI11kzrAz3jIfC0Zz9vlmUo7p/QCdLEJRbKvFkbAls4CcoAUMbynuFnxq5CRpyxNG7AQ4NMqE6GUmKB+MJ7d3DRBy3THIHo+73gtJTOQ6c31MpVxqDyb4cMia3i44rZfTcFzK2XIXWM/4mh9nnwEyMsiaSOtysn3VJhsgZloChac/bmPE1DmhP5v/Ur5XfW6cwzNh5+uJh2pjLijcY5n4RSH+tb2ozbsS4p55o8jpkJzqL4K0J9rzLiD+9kY8icn1SGLDy61jP9MoPgzwGk6bVfNdqf/nLPLqk74uuNG0NxVw==
+ bh=D6LnuUx1gmDSDZBp57639BYXzWxMieDrVVcjwc0dx84=;
+ b=qJKcZSoeZDREH5T/6X0VADUQPKObD25RZqvEk9KeTT6ccOhaCoyIweGDUuC9DDhIVCA3xEI3EzjsxZP1qtlAxoUMfcRKiUJn3fLF8f3Q4HofSPuRjSrBmnV8IgpTT/8xjPpydJSYg3wjNJA8xFkqLmC3mzoDS7s9VVT4DGB5ERU+O7PAoe8ylVYH2x/MbiTRxdhBJGZWJ0K23vgbflnJ2WIIDkJlhs3LbnL/snWGPPKu2dG6nHqGi/GofFb9LU3d7LWkUf/oFfmpgwy14/CpgUlfTvBh+jWuF6hr2M1+t+qJIEvUzRzKiBS8L7HD2yl5s/ZDialMr3we5d85VLO5mw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 198.47.21.194) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
+ 198.47.21.195) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
  dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=ti.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WtenFQEtwRP4t/ve7kg88QFRBWouW8zHv4orw6JNt7k=;
- b=iCpG2bEzObf3JLmENz8X17+cgp1JpDbKoHD90ZYI/3/hnZNsveJA6X0hQUbk+B22F0PNomjZs4PFrfWn9mVRDozvOU2H0bQDI+u50z5Az9LLEmp+bBu6BA4/5xdLbHqoeROBe2w+laSVe0ceONUiBEHXDYXL2T41h1ygrFplH1s=
-Received: from CH5PR05CA0018.namprd05.prod.outlook.com (2603:10b6:610:1f0::28)
- by DM4PR10MB6014.namprd10.prod.outlook.com (2603:10b6:8:ad::18) with
+ bh=D6LnuUx1gmDSDZBp57639BYXzWxMieDrVVcjwc0dx84=;
+ b=e8qfpOVRtldTn16VNxsljJvFKgqLJlrEODItHfixBI3zR5xbA0VFNCOu+Jc5HAxExQaeKgXI+YlB4Aoji9AhedhaliAk1H/jwV8LsV6RG+sqwAMKKwKhSHJm1AO1pVFaaGHfP0TQnne243QDgwRo9yJR0ptXWigbdQO3lj3rY6E=
+Received: from MW4PR03CA0164.namprd03.prod.outlook.com (2603:10b6:303:8d::19)
+ by CH0PR10MB7533.namprd10.prod.outlook.com (2603:10b6:610:183::6) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.472.7; Thu, 24 Sep
- 2026 23:41:25 +0000
-Received: from BN2PEPF0000A802.namprd02.prod.outlook.com
- (2603:10b6:610:1f0:cafe::a4) by CH5PR05CA0018.outlook.office365.com
- (2603:10b6:610:1f0::28) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.17; Thu, 24 Sep
+ 2026 23:41:12 +0000
+Received: from SJ1PEPF000037A3.namprd04.prod.outlook.com
+ (2603:10b6:303:8d:cafe::60) by MW4PR03CA0164.outlook.office365.com
+ (2603:10b6:303:8d::19) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.21.451.18 via Frontend Transport; Thu,
- 24 Sep 2026 23:41:25 +0000
+ 24 Sep 2026 23:41:11 +0000
 X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 198.47.21.194) smtp.mailfrom=ti.com; dkim=none (message not signed)
+ is 198.47.21.195) smtp.mailfrom=ti.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=ti.com;
 Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
- 198.47.21.194 as permitted sender) receiver=protection.outlook.com;
- client-ip=198.47.21.194; helo=flwvzet200.ext.ti.com; pr=C
-Received: from flwvzet200.ext.ti.com (198.47.21.194) by
- BN2PEPF0000A802.mail.protection.outlook.com (10.167.245.171) with Microsoft
+ 198.47.21.195 as permitted sender) receiver=protection.outlook.com;
+ client-ip=198.47.21.195; helo=flwvzet201.ext.ti.com; pr=C
+Received: from flwvzet201.ext.ti.com (198.47.21.195) by
+ SJ1PEPF000037A3.mail.protection.outlook.com (10.167.244.135) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.451.8 via Frontend Transport; Thu, 24 Sep 2026 23:41:24 +0000
-Received: from DFLE201.ent.ti.com (10.64.6.59) by flwvzet200.ext.ti.com
- (10.248.192.31) with Microsoft SMTP Server (version=TLS1_2,
+ 15.21.451.8 via Frontend Transport; Thu, 24 Sep 2026 23:41:10 +0000
+Received: from DFLE202.ent.ti.com (10.64.6.60) by flwvzet201.ext.ti.com
+ (10.248.192.32) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Thu, 24 Sep
- 2026 18:41:00 -0500
-Received: from DFLE203.ent.ti.com (10.64.6.61) by DFLE201.ent.ti.com
- (10.64.6.59) with Microsoft SMTP Server (version=TLS1_2,
+ 2026 18:40:47 -0500
+Received: from DFLE205.ent.ti.com (10.64.6.63) by DFLE202.ent.ti.com
+ (10.64.6.60) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Thu, 24 Sep
- 2026 18:40:59 -0500
-Received: from lelvem-mr06.itg.ti.com (10.180.75.8) by DFLE203.ent.ti.com
- (10.64.6.61) with Microsoft SMTP Server (version=TLS1_2,
+ 2026 18:40:46 -0500
+Received: from lelvem-mr06.itg.ti.com (10.180.75.8) by DFLE205.ent.ti.com
+ (10.64.6.63) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45 via Frontend
- Transport; Thu, 24 Sep 2026 18:40:59 -0500
+ Transport; Thu, 24 Sep 2026 18:40:46 -0500
 Received: from psdkl-workstation0.dhcp.ti.com (psdkl-workstation0.dhcp.ti.com [10.24.51.24])
-	by lelvem-mr06.itg.ti.com (8.18.1/8.18.1) with ESMTP id 68ONeXkx785172;
-	Thu, 24 Sep 2026 18:40:53 -0500
+	by lelvem-mr06.itg.ti.com (8.18.1/8.18.1) with ESMTP id 68ONeXkv785172;
+	Thu, 24 Sep 2026 18:40:41 -0500
 From: Aniket Limaye <a-limaye@ti.com>
-Date: Fri, 25 Sep 2026 05:10:22 +0530
-Subject: [PATCH v2 3/3] i2c: designware: Add ti,tda54-i2c support
+Date: Fri, 25 Sep 2026 05:10:20 +0530
+Subject: [PATCH v2 1/3] dt-bindings: i2c: dw: Add ti,tda54-i2c compatible
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -95,7 +95,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <20260925-tda54-upstream-i2c-v2-3-261785e58493@ti.com>
+Message-ID: <20260925-tda54-upstream-i2c-v2-1-261785e58493@ti.com>
 References: <20260925-tda54-upstream-i2c-v2-0-261785e58493@ti.com>
 In-Reply-To: <20260925-tda54-upstream-i2c-v2-0-261785e58493@ti.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
@@ -118,51 +118,51 @@ CC: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
 X-Mailer: b4 0.14.3
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN2PEPF0000A802:EE_|DM4PR10MB6014:EE_
-X-MS-Office365-Filtering-Correlation-Id: 13d8f649-d15a-4555-caae-08df1a955896
+X-MS-TrafficTypeDiagnostic: SJ1PEPF000037A3:EE_|CH0PR10MB7533:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4ab64bd5-6bda-4d07-4fd6-08df1a955051
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|1800799024|23010399003|82310400026|376014|7416014|921020|10067099003|56012099006|22082099003|18002099003|3023799007|6133799003;
+	BCL:0;ARA:13230040|23010399003|82310400026|36860700016|7416014|376014|1800799024|921020|13003099007|18002099003|22082099003|3023799007|56012099006|10067099003;
 X-Microsoft-Antispam-Message-Info:
-	hWcdf1CaHl5ub+dKk5XYbjEBCpYEaSyQxoCNWjf+EQv0Xm0LAWbqtlitchgPzjn0yQK6B0KuGEIfX+NvIJVFvUjfuoWdRTUSvPxpwklV4IVPfkvtxnozigbYg0PKAbo/MslKumOSQG7WkBFfZ9pS/LaM/d6rlJ9gWWtyP9aH/4vhKhiLXmSLAA72TJxJbBSM8enlm23nLhQDo9k2nmeWTqIaPcHBBpZKx22ux7dP+YpIVagiGrnh30EUGioS6fTWc2FD/hM1TZYl0AHWLativ+T7B6fJaWoNKz4TF3PhypQwEe4NIY8RZ51/AFtp54zWnVla8vWchwaLJcXwF9sX3FtMIE9YpkQG4/yadYy4dHcvvKRDNg0aH58DYM0MUhHCFipA05I/MO+9ejJPoZ8eMj1EDzECqipMt1PCHA+f2DD9ls8EzmjOQ/8kK2o6juuJiOJP01qZGskVTyYpm8ieiyyoEMu8wrlzMw/OAcy715gOP9RbLLqHalTdailFL3SUVp0q2/A/K0+vBHuo+QMC9IT6DLit8VWE6SpZ6/1sG50lvQG0ILZhjA7bBs1AqbVrJueGvxIjsSQIjPvF9d/2kUpY1azDbgbuVGofRoe3WpLJmWug8N2y5V/ATbeFAXTUdeogQKxwETYPjtqZJEgn6NVHek19mdDS5aY/zH/2MNJd35Bl3cW+qV149D+XJqoS
+	/k4cB+ewoJy0sptJC7HvkEBbLhiA89qVO3GtO6mDCe8AHpbF5DgdbqK1hQ03XsfmX9n7LUY5eAyq/QLTOhowgdfPZeawAlnrK0PzkCCSA6oKxPtWPBHnahqAR+z4gbjcKUkRaa7292h79I+f37hRUw6gpHq9SJdpHOPQcmt3VrX89vsZSAgZSLi2bmYo/mb/HCCmpdgou29xUsarIH7GJEHdiWr4Yg78tznMBjz3W/gA0xMczRjhTpFSganhAWUxJ8FYNY4PNlafwJCdqsDNudK4Dl+GxLW2avKiy0rhabddYYD31Wb2hldRR9j80rX91bROtTcYafrVoeNs6xg2EJDqiW0lqPaJg1yZS25OwE+EXudzeoodrIWisLHcGLyCKUq6ML+aaOqowOymM1bWfDzX6GSjBSgPBy0QSwixzVohWHdtnxh5zJmalURO+QNB4Cb3rPUjPTpxiksoukVs+u0bCM/iuZyGjJ9aFkuk7Cf1jhIMojvTJWT+zkuvd/GhgyZg5pzPP3NP6SJcpgOKtDN/DZoj9rmDyt2+0nGJOVxb8JwfhY67w8kVwDyAB5otGYim1njlifFn9gFJm8j6gOT19un0KGvTsxghDoraWm8rbjvVYUDfFc5sc7jaTvHgJuK29SqLpOl3J0cdr0cJzbpWgKtErpYFdUcihDuqhu31Otn5Gco90LC5P7vWuBLdVDWhGjWK7GjMWu1USkl2fQ==
 X-Forefront-Antispam-Report:
-	CIP:198.47.21.194;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:flwvzet200.ext.ti.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230040)(36860700016)(1800799024)(23010399003)(82310400026)(376014)(7416014)(921020)(10067099003)(56012099006)(22082099003)(18002099003)(3023799007)(6133799003);DIR:OUT;SFP:1101;
+	CIP:198.47.21.195;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:flwvzet201.ext.ti.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230040)(23010399003)(82310400026)(36860700016)(7416014)(376014)(1800799024)(921020)(13003099007)(18002099003)(22082099003)(3023799007)(56012099006)(10067099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	QOZnnn83RYUPk8ItYe1jr09c3AgoQ188/NHoJiJYy9YJt3JZ9WYkrkPRbKZKjOa2PgCMXSj6qm5ljtb6MVotY9reztYda4/viTE+c1YD01gCbWpmBLRXrbejGEMwQzxIMqkme9pwiA3k0/r8am3IUT4S1hm5UwuGbtfj/Lo81cunwVVqumSNkWcG3+teNB41CI1uVYe6C4guSERF1PhTR187w19k+5O4x1ciPjfIY4m0iUyrAQ8GZN897WkmjiUUNlBJYlL/v7iVcOxgJLGwWEs5QwPM87HDa265t3SMf+JL7hofvSN/5Vmrrxos/WKOu/nmvsnjqeFfy8HhGQ5d0YBPG/0Res8nEx5vLcnVAx5urCrXyRx7lGv2juBcMFoUjbHmoFey/LZDSOrNj7z+VZkqkb0o16raht6IGmd72gcq4sdWLf+h3t1a6wvXCtx2
+	D7SsqagKwGcRFCPEtK3VSQQ82yTxuEBbD8cBkRGInFdD3NTOHPaqfgoPSOJmQN5yWIW9JE99SAXenTwWPbJGYTCbmXu3Rvg34D2dbIZUhsLrDHBCgwCQx49BMunZwOfEgkuNRSH/omb6jaU/FT9WxcR/teYz2hTkOB1QQCAcWOPeJE8AkIdmZ17wC7WbzeIUwFh/Feh5pWbgtfmfOSiwyxmw+p7DSyPgMwjf1qUzYGAhbhx8T42/32caMPpqqNJi108PzfL8wp5iCSuqSWkOMwCzpjwrGzucC4z/iFm8R2SkGS9vwsEPH5aJ96qC6qe8uWX5YV3pCGGSK5yrUCuO8e70JsLpXD8AvNWPgj/UZ+2/V8KoxIey/ak1jkQCt3GPwXwd5dcmckcDSKvhagrbirk4egLuuNs2UazBeMByqIsy22zGxBmPkJrbdtuqO9dG
 X-Exchange-RoutingPolicyChecked:
-	VTSQ85O+ZvuzbZWDtIZGtB6q2It1JH5Rz5A6Af8OWV4FnLDVzOCozK0n8Z4f++rUcCmxCDXURJSUyka9HXe+GKJsN87OuOZcKdGrxDCXDNpxZIDIJIh6cZDSPO2JAT09ajjQZyzlAbCAIpTW+K+f6QTtHTiKZts6XeZgXv/tM9Oxypb3cYtxpM2uBXvmWwcTlKtuRX622nwYRsxwz5gJJd47YPefWusQMwllhBLSFtrqMuDz9EXAMRhkI76eF/M2JacPbv63DzpNPNb0iX+vfsWiLnCmtNKGJ5q+rdY9Yhk+m6bzyE3Z8bcwP+F6oUeYhH4mEQ2Hc+EbDzLI+/+xHA==
+	cSI2OO/iTgXQ0PyaWWMzu8qOi3lvuzQBgCrbJPafkA0V24UqDV0smGKV5NTp62JAPyGbAoZyN3jQtdHvqGv0ZUmgo4ljgNemU532Pd1iCVdAV2umh4aC2qiNyh5uKXb6tIa7+Zjbnp+E+EZZlN+eIQPDGW0G3aiXnbq+fb5j1GwbYqT9pxE/peiojNtnp5Dcsn4a+v87lTVqTZZ+VC52etWGJ64GDLVQhNRUvqdjYetc9swuJ0K35RvCVIIl8mEnLatoGJacwDu9g7Mo7+6/aEe1TmIb2ZgaKw3xUTOyxahpO82xZly2ij93hz1tSV7WQcZv65tBoAhk6FGk/E6lAQ==
 X-OriginatorOrg: ti.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2026 23:41:24.7401
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2026 23:41:10.8463
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 13d8f649-d15a-4555-caae-08df1a955896
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ab64bd5-6bda-4d07-4fd6-08df1a955051
 X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.21.194];Helo=[flwvzet200.ext.ti.com]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.21.195];Helo=[flwvzet201.ext.ti.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	BN2PEPF0000A802.namprd02.prod.outlook.com
+	SJ1PEPF000037A3.namprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB6014
-X-Proofpoint-GUID: l8_EzvKb_9F3STbirK2Iz_Bnu6Zfk88K
-X-Authority-Analysis: v=2.4 cv=EvdHPicA c=1 sm=1 tr=0 ts=6ab5b529 cx=c_pps
- a=A3soYu1h9hn2xD7k0nk5XA==:117 a=iwqwCZQqcuTv3JOpYdM7/Q==:17
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB7533
+X-Proofpoint-GUID: tuRzgsi5EwB8un4AMYBpLTvUTrXrECzf
+X-Authority-Analysis: v=2.4 cv=EvdHPicA c=1 sm=1 tr=0 ts=6ab5b578 cx=c_pps
+ a=0pMqp0B7/3h4ah4p3fuJNw==:117 a=tJyPKKxUohctrY4NYmUjkA==:17
  a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
  a=V5UXEbMT0ywA:10 a=VkNPw1HP01LnGYTKEx00:22 a=Z8NIEmU8O1QQgoT56wFK:22
  a=jwouBfj2j3NM8CExmVVE:22 a=VwQbUJbxAAAA:8 a=sozttTNsAAAA:8
- a=SFMlj2LtjsmYIoXMqcoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI0MDA5NiBTYWx0ZWRfX8wCu8nyS46JL
- biILaeRhuY7hbxbmI+qEU61Fr6mR9FYN3x6SRwLJPOi1WQ/k96TMQQhhEbPhqCUl8SUJrwWf7Kh
- UkFVvzG+Bl2VMfAjsgGPEhREOGlx5tw/54cDS/L0oWfxM9RsMLMOltMuGVmwarSPVR+o1gfPZX5
- lS6Cc6Pi+fO99JaOA8z/wD6/cJIRAhkHPgYUC+csYdf8G7U6bptcvIehb/06p6eCyE0g4tXvigu
- j0ZhK7SM9kN6cgUPKC4MoYMpLBdMHmpQ9NgPMQdfA5qgodhjB6LbMfBDy77MgT3nJfQoOhO2hbb
- 0f+nf0qiEHVa8T57Iqo/JfWdwQwcXsuoKMY2dVZDZQD74Gi8IG33vIfJQ7tk7kPYYWUPmB702po
- DxhMEG/M71tzVx5XD+7WA++2WqFH1N9j/maHfjDMJLijNGgD3IkXRHzgyP0BpdcCDXoFcFCA+/f
- DRCLTFie322tMuZMjsw==
-X-Proofpoint-ORIG-GUID: l8_EzvKb_9F3STbirK2Iz_Bnu6Zfk88K
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI0MDA5NiBTYWx0ZWRfXwaQV9Lx7s9Us
- diANKwXyuMy9gJrwjkuWmpnMA+rv6FqYZ9weJWo0TYRKP6FPo6uK1g0/jtC5a2xeNwbeQXyqfIL
- neOHiAfzdYQLI/BG+RRXsRxqFUOmuuM=
+ a=sXrg0fSgDYXE2HFaoGIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI0MDA5NiBTYWx0ZWRfXwTrqlIKh56uE
+ 1fSh25vykpIR6prLAXyHAjE9R6PfcN/IuZSBmlfT3SyXDjLG77HPJsqq4Bd6WcjY1zjnHOVf3GE
+ XQ0EPuKwg7UzQ5wXrKxY8DBHzaMC2scsUGrS6hJ2S9a4aRwHtdrFtY3jkhVI6hQeAeW8wa8iL8r
+ H6s0eR3s6fd0191Of+PNoCCg20pvbA24dNSkHfCfTzZXtk0yJKyn73h/N93AqviMIOzfSslsn5/
+ SwSN4QqbbnyPYp9G4tqvBdxOGncxov28zqY3UrIQ8m6L5YHd2Ua1tZsBMl1XqtOzYZhG4Bl94nI
+ emUPUegVd5jyvxi1+K8dnwvwc7wSnAkS9KWnTjPB4EPFBXk7WqPKDAJd4bDdp7SdmOws2G0Qtmy
+ J2YGh6w3DUqb2ImYVWTUgsOBFGmgDHt2FIBa921HeGZhjns49cC12a7EqxXGarr6D66T39KT2FL
+ oAvPKfrCDJZU8LDXfkA==
+X-Proofpoint-ORIG-GUID: tuRzgsi5EwB8un4AMYBpLTvUTrXrECzf
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI0MDA5NiBTYWx0ZWRfX7GDiTe4o+GXJ
+ hPAuy4RXuRgoAqW10j6UTfHHlhQR6wYouM0OGkOI4ocszw99SfJcjE+TQz9Un7TaXJrtmrWzE6X
+ /2M/nCC9eU0VH8jlM/QqDwAEyu0s4HI=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-24_06,2026-09-21_02,2025-10-01_01
@@ -173,349 +173,89 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
  definitions=main-2609240096
 
-Compared to the existing DW_apb_i2c layout [1], DWC_i2c present in TDA54
-SoC [0] differs enough to need MODEL_TI_TDA54-gated special-casing in a
-few places:
+Add the "ti,tda54-i2c" compatible for Synopsys Advanced I2C Controller
+(DWC_i2c) present on TDA54 SoC. Compared to the existing
+"snps,designware-i2c" (DW_apb_i2c), it broadly differs in its register
+offsets and some bit fields, requiring changes to interrupt handling,
+timing handling, etc.
 
-- Add new register offsets table for TI TDA54 SoC.
-- The DW_IC_CON register bitfields are also updated.
-- Interrupts are acknowledged by writing a bitmask to a single CLR_INTR
-  register instead of reading N dedicated CLR_* registers;
-  i2c_dw_ack_intr() picks the right method based on dev->flags.
-- One HCNT/LCNT register pair is shared between standard and fast speed
-  instead of having one pair each; i2c_dw_write_timings() writes
-  whichever value set matches the configured speed.
-- No COMP_PARAM_1 register, so FIFO depth and high-speed-mode support
-  can't be autodetected: FIFO depth now comes from the required
-  snps,tx-fifo-depth/snps,rx-fifo-depth DT properties, and the
-  high-speed capability check is skipped.
-- No defined CON.RESTART_EN bit; treated as always set.
-- TDA54 SoC does not have SMBus block, skip accesses to those registers.
-
-[0]: DWC_i2c_reference.pdf
-[1]: DW_apb_i2c_databook.pdf
+Unlike DW_apb_i2c, this IP has no COMP_PARAM_1 register to autodetect
+the FIFO depth from, so add snps,tx-fifo-depth and
+snps,rx-fifo-depth as required properties.
 
 Signed-off-by: Aniket Limaye <a-limaye@ti.com>
 
 ---
 
 Changes in v2:
-- Rename compatible/flag: snps,dwc-i2c -> ti,tda54-i2c,
-  MODEL_DWC_I2C -> MODEL_TI_TDA54.
-- Remove i2c_dwc_has_smbus(); just skip the SMBUS_INTR_MASK write under
-  MODEL_TI_TDA54.
-- Link to v1: https://lore.kernel.org/r/20260919-tda54-upstream-i2c-v1-3-b0b9f77be18b@ti.com/
+- Rename snps,dwc-i2c to ti,tda54-i2c
+- Link to v1: https://lore.kernel.org/r/20260919-tda54-upstream-i2c-v1-1-b0b9f77be18b@ti.com/
 ---
- drivers/i2c/busses/i2c-designware-common.c  | 128 +++++++++++++++++++++++++---
- drivers/i2c/busses/i2c-designware-core.h    |  22 ++++-
- drivers/i2c/busses/i2c-designware-master.c  |  26 +++---
- drivers/i2c/busses/i2c-designware-platdrv.c |   1 +
- 4 files changed, 153 insertions(+), 24 deletions(-)
+ .../bindings/i2c/snps,designware-i2c.yaml          | 33 ++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index eeeb1f189205..a0a54d4445df 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -72,6 +72,40 @@ static const char *const abort_sources[] = {
- 		"incorrect slave-transmitter mode configuration",
- };
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+index 467bdcbb8538..80a9376d6de7 100644
+--- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -21,12 +21,23 @@ allOf:
+       properties:
+         reg:
+           maxItems: 1
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: ti,tda54-i2c
++    then:
++      required:
++        - snps,tx-fifo-depth
++        - snps,rx-fifo-depth
  
-+/* "ti,tda54-i2c" block-based register layout */
-+#define DWC_ADV_OPERATION_BLK_OFFSET		0x00
-+#define DWC_ADV_I2C_BLK_OFFSET			0x28
-+#define DWC_ADV_FIFO_INTR_BLK_OFFSET		0xbc
-+#define DWC_ADV_DEBUG_BLK_OFFSET		0xf8
+ properties:
+   compatible:
+     oneOf:
+       - description: Generic Synopsys DesignWare I2C controller
+         const: snps,designware-i2c
++      - description: TI TDA54 SoC I2C controller (Synopsys DWC_i2c IP)
++        const: ti,tda54-i2c
+       - description: Renesas RZ/N1D I2C controller
+         items:
+           - const: renesas,r9a06g032-i2c  # RZ/N1D
+@@ -121,6 +132,18 @@ properties:
+       low period of SCL line.
+     type: boolean
+ 
++  snps,tx-fifo-depth:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      The depth of the hardware TX FIFO. Required on the ti,tda54-i2c
++      variant, where fifo depth cannot be autodetected.
 +
-+static const u32 tda54_i2c_reg_offsets[DW_IC_REG_MAX] = {
-+	[DW_IC_ENABLE]			= DWC_ADV_OPERATION_BLK_OFFSET + 0x04,
-+	[DW_IC_CON]			= DWC_ADV_I2C_BLK_OFFSET + 0x04,
-+	[DW_IC_TAR]			= DWC_ADV_I2C_BLK_OFFSET + 0x08,
-+	[DW_IC_SAR]			= DWC_ADV_I2C_BLK_OFFSET + 0x0c,
-+	[DW_IC_DATA_CMD]		= DWC_ADV_I2C_BLK_OFFSET + 0x58,
-+	[DW_IC_SS_SCL_HCNT]		= DWC_ADV_I2C_BLK_OFFSET + 0x24, /* shared SS/FS pair */
-+	[DW_IC_SS_SCL_LCNT]		= DWC_ADV_I2C_BLK_OFFSET + 0x28,
-+	[DW_IC_FS_SCL_HCNT]		= DWC_ADV_I2C_BLK_OFFSET + 0x24,
-+	[DW_IC_FS_SCL_LCNT]		= DWC_ADV_I2C_BLK_OFFSET + 0x28,
-+	[DW_IC_HS_SCL_HCNT]		= DWC_ADV_I2C_BLK_OFFSET + 0x2c,
-+	[DW_IC_HS_SCL_LCNT]		= DWC_ADV_I2C_BLK_OFFSET + 0x30,
-+	[DW_IC_SDA_HOLD]		= DWC_ADV_I2C_BLK_OFFSET + 0x34,
-+	[DW_IC_RX_TL]			= DWC_ADV_I2C_BLK_OFFSET + 0x5c,
-+	[DW_IC_TX_TL]			= DWC_ADV_I2C_BLK_OFFSET + 0x60,
-+	[DW_IC_INTR_STAT]		= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x04,
-+	[DW_IC_INTR_MASK]		= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x08,
-+	[DW_IC_RAW_INTR_STAT]		= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x0c,
-+	[DW_IC_CLR_INTR]		= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x10,
-+	[DW_IC_STATUS]			= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x1c,
-+	[DW_IC_TXFLR]			= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x20,
-+	[DW_IC_RXFLR]			= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x24,
-+	[DW_IC_TX_ABRT_SOURCE]		= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x18,
-+	[DW_IC_ENABLE_STATUS]		= DWC_ADV_FIFO_INTR_BLK_OFFSET + 0x14,
-+	[DW_IC_COMP_VERSION]		= DWC_ADV_DEBUG_BLK_OFFSET + 0x08,
-+	[DW_IC_COMP_TYPE]		= DWC_ADV_DEBUG_BLK_OFFSET + 0x0c,
-+};
++  snps,rx-fifo-depth:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      The depth of the hardware RX FIFO. Required on the ti,tda54-i2c
++      variant, where fifo depth cannot be autodetected.
 +
- static const struct dw_i2c_con_bits dw_i2c_con_bits = {
- 	.master			= DW_IC_CON_MASTER,
- 	.speed_std		= DW_IC_CON_SPEED_STD,
-@@ -88,6 +122,26 @@ static const struct dw_i2c_con_bits dw_i2c_con_bits = {
- 	.bus_clear_ctrl		= DW_IC_CON_BUS_CLEAR_CTRL,
- };
+ unevaluatedProperties: false
  
-+/*
-+ * DWC_IC_CTRL bit layout for "ti,tda54-i2c".
-+ * There is no defined bit for RESTART_EN or SLAVE_DISABLE on this IP.
-+ */
-+static const struct dw_i2c_con_bits dwc_adv_i2c_con_bits = {
-+	.master			= BIT(0),
-+	.speed_std		= (1 << 4),
-+	.speed_fast		= (2 << 4),
-+	.speed_high		= (3 << 4),
-+	.speed_mask		= GENMASK(5, 4),
-+	.bit10_slave		= BIT(8),
-+	.bit10_master		= BIT(9),
-+	.restart_en		= 0,
-+	.slave_disable		= 0,
-+	.stop_det_ifaddressed	= BIT(10),
-+	.tx_empty_ctrl		= BIT(11),
-+	.rx_fifo_full_hld_ctrl	= BIT(12),
-+	.bus_clear_ctrl		= 0,
-+};
-+
- /* "snps,designware-i2c": dedicated read-to-clear register ID per logical interrupt */
- static const u32 dw_i2c_intr_clr[DW_INTR_IDX_MAX] = {
- 	[DW_INTR_IDX_INTR]      = DW_IC_CLR_INTR,
-@@ -103,6 +157,21 @@ static const u32 dw_i2c_intr_clr[DW_INTR_IDX_MAX] = {
- 	[DW_INTR_IDX_GEN_CALL]  = DW_IC_CLR_GEN_CALL,
- };
- 
-+/* "ti,tda54-i2c" CLR_INTR bit to write per logical interrupt */
-+static const u32 dwc_adv_i2c_intr_clr[DW_INTR_IDX_MAX] = {
-+	[DW_INTR_IDX_INTR]      = DWC_ADV_IC_INTR_CLR_INTR,
-+	[DW_INTR_IDX_RX_UNDER]  = DWC_ADV_IC_INTR_CLR_RX_UNDER,
-+	[DW_INTR_IDX_RX_OVER]   = DWC_ADV_IC_INTR_CLR_RX_OVER,
-+	[DW_INTR_IDX_TX_OVER]   = DWC_ADV_IC_INTR_CLR_TX_OVER,
-+	[DW_INTR_IDX_RD_REQ]    = DWC_ADV_IC_INTR_CLR_RD_REQ,
-+	[DW_INTR_IDX_TX_ABRT]   = DWC_ADV_IC_INTR_CLR_TX_ABRT,
-+	[DW_INTR_IDX_RX_DONE]   = DWC_ADV_IC_INTR_CLR_RX_DONE,
-+	[DW_INTR_IDX_ACTIVITY]  = DWC_ADV_IC_INTR_CLR_ACTIVITY,
-+	[DW_INTR_IDX_STOP_DET]  = DWC_ADV_IC_INTR_CLR_STOP_DET,
-+	[DW_INTR_IDX_START_DET] = DWC_ADV_IC_INTR_CLR_START_DET,
-+	[DW_INTR_IDX_GEN_CALL]  = DWC_ADV_IC_INTR_CLR_GEN_CALL,
-+};
-+
- /**
-  * i2c_dw_select_variant() - Pick the register offset table, CON-register bit
-  * layout and interrupt-ack mapping matching this device's IP variant
-@@ -110,9 +179,15 @@ static const u32 dw_i2c_intr_clr[DW_INTR_IDX_MAX] = {
-  */
- void i2c_dw_select_variant(struct dw_i2c_dev *dev)
- {
--	dev->regs = dw_i2c_reg_offsets;
--	dev->con_bits = &dw_i2c_con_bits;
--	dev->intr_clr = dw_i2c_intr_clr;
-+	if (dev->flags & MODEL_TI_TDA54) {
-+		dev->regs = tda54_i2c_reg_offsets;
-+		dev->con_bits = &dwc_adv_i2c_con_bits;
-+		dev->intr_clr = dwc_adv_i2c_intr_clr;
-+	} else {
-+		dev->regs = dw_i2c_reg_offsets;
-+		dev->con_bits = &dw_i2c_con_bits;
-+		dev->intr_clr = dw_i2c_intr_clr;
-+	}
- }
- EXPORT_SYMBOL_GPL(i2c_dw_select_variant);
- 
-@@ -429,13 +504,27 @@ static void i2c_dw_configure_mode(struct dw_i2c_dev *dev, int mode)
- 
- static void i2c_dw_write_timings(struct dw_i2c_dev *dev)
- {
--	/* Write standard speed timing parameters */
--	regmap_write(dev->map, DW_IC_SS_SCL_HCNT, dev->ss_hcnt);
--	regmap_write(dev->map, DW_IC_SS_SCL_LCNT, dev->ss_lcnt);
--
--	/* Write fast mode/fast mode plus timing parameters */
--	regmap_write(dev->map, DW_IC_FS_SCL_HCNT, dev->fs_hcnt);
--	regmap_write(dev->map, DW_IC_FS_SCL_LCNT, dev->fs_lcnt);
-+	if (dev->flags & MODEL_TI_TDA54) {
-+		/*
-+		 * Only one HCNT/LCNT register pair backs both speeds on
-+		 * this IP -- write whichever value set matches master_cfg.
-+		 */
-+		if ((dev->master_cfg & dev->con_bits->speed_mask) == dev->con_bits->speed_std) {
-+			regmap_write(dev->map, DW_IC_SS_SCL_HCNT, dev->ss_hcnt);
-+			regmap_write(dev->map, DW_IC_SS_SCL_LCNT, dev->ss_lcnt);
-+		} else {
-+			regmap_write(dev->map, DW_IC_FS_SCL_HCNT, dev->fs_hcnt);
-+			regmap_write(dev->map, DW_IC_FS_SCL_LCNT, dev->fs_lcnt);
-+		}
-+	} else {
-+		/* Write standard speed timing parameters */
-+		regmap_write(dev->map, DW_IC_SS_SCL_HCNT, dev->ss_hcnt);
-+		regmap_write(dev->map, DW_IC_SS_SCL_LCNT, dev->ss_lcnt);
-+
-+		/* Write fast mode/fast mode plus timing parameters */
-+		regmap_write(dev->map, DW_IC_FS_SCL_HCNT, dev->fs_hcnt);
-+		regmap_write(dev->map, DW_IC_FS_SCL_LCNT, dev->fs_lcnt);
-+	}
- 
- 	/* Write high speed timing parameters */
- 	regmap_write(dev->map, DW_IC_HS_SCL_HCNT, dev->hs_hcnt);
-@@ -490,8 +579,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	 * Mask SMBus interrupts to block storms from broken
- 	 * firmware that leaves IC_SMBUS=1; the handler never
- 	 * services them.
-+	 * TDA54 SoC has no SMBus block, so skip it.
- 	 */
--	regmap_write(dev->map, DW_IC_SMBUS_INTR_MASK, 0);
-+	if (!(dev->flags & MODEL_TI_TDA54))
-+		regmap_write(dev->map, DW_IC_SMBUS_INTR_MASK, 0);
- 
- 	i2c_dw_write_timings(dev);
- 
-@@ -535,6 +626,14 @@ int i2c_dw_fw_parse_and_configure(struct dw_i2c_dev *dev)
- 	if (device_property_read_u32(device, "snps,bus-capacitance-pf", &dev->bus_capacitance_pF))
- 		dev->bus_capacitance_pF = DW_IC_DEFAULT_BUS_CAPACITANCE_pF;
- 
-+	if (dev->flags & MODEL_TI_TDA54) {
-+		device_property_read_u32(device, "snps,tx-fifo-depth", &dev->tx_fifo_depth);
-+		device_property_read_u32(device, "snps,rx-fifo-depth", &dev->rx_fifo_depth);
-+
-+		if (!dev->tx_fifo_depth || !dev->rx_fifo_depth)
-+			return -EINVAL;
-+	}
-+
- 	dev->clk_freq_optimized = device_property_read_bool(device, "snps,clk-freq-optimized");
- 
- 	/* Mobileye controllers do not hold the clock on empty FIFO */
-@@ -851,6 +950,13 @@ static int i2c_dw_set_fifo_size(struct dw_i2c_dev *dev)
- 		return 0;
- 	}
- 
-+	/*
-+	 * DW_IC_COMP_PARAM_1 not implemented on this IP;
-+	 * fifo depth set in i2c_dw_fw_parse_and_configure().
-+	 */
-+	if (dev->flags & MODEL_TI_TDA54)
-+		return 0;
-+
- 	/*
- 	 * Try to detect the FIFO depth if not set by interface driver,
- 	 * the depth could be from 2 to 256 from HW spec.
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 4c782594ab4e..bd96abf63c39 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -79,6 +79,18 @@ enum dw_i2c_intr_idx {
- 	DW_INTR_IDX_MAX,
- };
- 
-+#define DWC_ADV_IC_INTR_CLR_INTR		BIT(0)
-+#define DWC_ADV_IC_INTR_CLR_RX_UNDER		BIT(1)
-+#define DWC_ADV_IC_INTR_CLR_RX_OVER		BIT(2)
-+#define DWC_ADV_IC_INTR_CLR_TX_OVER		BIT(3)
-+#define DWC_ADV_IC_INTR_CLR_RD_REQ		BIT(4)
-+#define DWC_ADV_IC_INTR_CLR_TX_ABRT		BIT(5)
-+#define DWC_ADV_IC_INTR_CLR_RX_DONE		BIT(6)
-+#define DWC_ADV_IC_INTR_CLR_ACTIVITY		BIT(7)
-+#define DWC_ADV_IC_INTR_CLR_STOP_DET		BIT(8)
-+#define DWC_ADV_IC_INTR_CLR_START_DET		BIT(9)
-+#define DWC_ADV_IC_INTR_CLR_GEN_CALL		BIT(10)
-+
- #define DW_IC_INTR_DEFAULT_MASK			(DW_IC_INTR_RX_FULL | \
- 						 DW_IC_INTR_TX_ABRT | \
- 						 DW_IC_INTR_STOP_DET)
-@@ -291,7 +303,8 @@ struct dw_i2c_dev {
- 
- #define MODEL_AMD_NAVI_GPU			BIT(10)
- #define MODEL_WANGXUN_SP			BIT(11)
--#define MODEL_MASK				GENMASK(11, 8)
-+#define MODEL_TI_TDA54				BIT(12)
-+#define MODEL_MASK				GENMASK(12, 8)
- 
- /*
-  * Enable UCSI interrupt by writing 0xd at register
-@@ -352,12 +365,15 @@ static inline void __i2c_dw_read_intr_mask(struct dw_i2c_dev *dev,
- 		*intr_mask = dev->sw_mask;
- }
- 
--/* Acknowledge a logical interrupt via dev->intr_clr[]: reg ID */
-+/* Acknowledge a logical interrupt via dev->intr_clr[]: reg ID or bit value */
- static inline void i2c_dw_ack_intr(struct dw_i2c_dev *dev, enum dw_i2c_intr_idx intr)
- {
- 	unsigned int dummy;
- 
--	regmap_read(dev->map, dev->intr_clr[intr], &dummy);
-+	if (dev->flags & MODEL_TI_TDA54)
-+		regmap_write(dev->map, DW_IC_CLR_INTR, dev->intr_clr[intr]);
-+	else
-+		regmap_read(dev->map, dev->intr_clr[intr], &dummy);
- }
- 
- void __i2c_dw_disable(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 329f958ded3e..94594f6349d4 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -42,14 +42,16 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
- 	u32 ic_clk;
- 	int ret;
- 
--	ret = i2c_dw_acquire_lock(dev);
--	if (ret)
--		return ret;
--
--	ret = regmap_read(dev->map, DW_IC_COMP_PARAM_1, &comp_param1);
--	i2c_dw_release_lock(dev);
--	if (ret)
--		return ret;
-+	if (!(dev->flags & MODEL_TI_TDA54)) {
-+		ret = i2c_dw_acquire_lock(dev);
-+		if (ret)
-+			return ret;
-+
-+		ret = regmap_read(dev->map, DW_IC_COMP_PARAM_1, &comp_param1);
-+		i2c_dw_release_lock(dev);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	/* Set standard and fast speed dividers for high/low periods */
- 	sda_falling_time = t->sda_fall_ns ?: 300; /* ns */
-@@ -135,7 +137,8 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
- 	/* Check is high speed possible and fall back to fast mode if not */
- 	if ((dev->master_cfg & dev->con_bits->speed_mask) ==
- 		dev->con_bits->speed_high) {
--		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
-+		if (!(dev->flags & MODEL_TI_TDA54) &&
-+		    (comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
- 			!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH) {
- 			dev_err(dev->dev, "High Speed not supported!\n");
- 			t->bus_freq_hz = I2C_MAX_FAST_MODE_FREQ;
-@@ -398,8 +401,11 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 			 * If both IC_EMPTYFIFO_HOLD_MASTER_EN and
- 			 * IC_RESTART_EN are set, we must manually
- 			 * set restart bit between messages.
-+			 * ti,tda54-i2c does not define a CON.RESTART_EN
-+			 * bit, and behaves like it is set to 1.
- 			 */
--			if (dev->master_cfg & dev->con_bits->restart_en &&
-+			if (((dev->master_cfg & dev->con_bits->restart_en) ||
-+			     (dev->flags & MODEL_TI_TDA54)) &&
- 			    dev->msg_write_idx > 0)
- 				need_restart = true;
- 		}
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 42b34c678146..069c3dc0da10 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -257,6 +257,7 @@ static const struct of_device_id dw_i2c_of_match[] = {
- 	{ .compatible = "mobileye,eyeq6lplus-i2c" },
- 	{ .compatible = "mscc,ocelot-i2c" },
- 	{ .compatible = "snps,designware-i2c" },
-+	{ .compatible = "ti,tda54-i2c", .data = (void *)MODEL_TI_TDA54 },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ required:
+@@ -172,4 +195,14 @@ examples:
+       interrupts = <8>;
+       clocks = <&ahb_clk>;
+     };
++  - |
++    i2c@53b00000 {
++      compatible = "ti,tda54-i2c";
++      reg = <0x53b00000 0x1000>;
++      interrupts = <166>;
++      clocks = <&sysclk>;
++      clock-frequency = <100000>;
++      snps,tx-fifo-depth = <32>;
++      snps,rx-fifo-depth = <32>;
++    };
+ ...
 
 -- 
 2.53.0
