@@ -1,137 +1,170 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80A064AEBD2
-	for <linux-i2c@vger.kernel.org>; Thu, 24 Sep 2026 16:05:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0BCE223DC6;
+	Thu, 24 Sep 2026 17:01:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790265961; cv=none; b=ugm6OCbixRsXEVXg3kdstmXsmTu2M5XM6xLMK9tbiqE85aYZFR69rv4wcJMhj3uvygnNjKNR4QWine2I5DZ8vweCeGQ7wHxnIEQ+qnok++kxE4C0Pivpq/SPn3P+5CZCq0oKjQPFOUStzunyp7kIB9dq9xYXh6S9lPetI0sRg/s=
+	t=1790269285; cv=none; b=egFAA+5SV9cC7BNepp57DwPmNVMo0qwoAZd6OnXj/rwnIPvJP6CXhKrQ+CHPLlIhozXF1dWaaBbKilSMA2MehyZpQvZqoglhBCG6PeQHr64OZOr4qAalkmaUEZCgYcFJEiDiVjuEtKNSJMHmc+IscObs7r7YPo9r5hcFso7Vuw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790265961; c=relaxed/simple;
-	bh=3/FB35Hu5fJEEgD/yBfAAnwDqio0JQJdSJzCduCvMyY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=QEJ8CgSHWzgnXr5pcQnAja9c5oUMPVdU3KdPd8vlwh4bzfQjy0TCLpTnGVyzn6cI7WCBz55Pz+kE8ogKZcZWuejXoPCcV1gQZkPYPHijveSoztASIiSnGmKscxST3y2AUELSeZhaL8NMjuEaaNC0O+a/2gY53aL784lLYzPFT8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=F+9B2JGw; arc=none smtp.client-ip=209.85.221.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1790269285; c=relaxed/simple;
+	bh=HoiZ1dOgaiWoXjsmkLXohzLMB9R80yFujkHl4ErAofo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cPUj1UmTjAFWI7KGcljbJOg85zolVKy6kxgolGk9Rmx5LQUNGIVm+f/rh9S8LYTXtyHVKJonBy+07Lk3NWycOiop7JaN3Tnn6T7IRNTLIBmxj0zJBfBmBSDCvNMWWNCiGuOK4MWaAyqDcEotR5a+UoOA3GHMjGvZHU0JLhASEYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W+cHBIAz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="F+9B2JGw"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-488615e6cfcso458959f8f.0
-        for <linux-i2c@vger.kernel.org>; Thu, 24 Sep 2026 09:05:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1790265956; x=1790870756; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=wm09KZgtMDDuRCaDDlw1bVTO/lDdGx5khYMsZ7nf5Wc=;
-        b=F+9B2JGw6NeW/19APcj6gavrZNn1VZ8WDIOPmZ107A/NSGv55xs5d9EffFjqNcyRqj
-         LKewnSDlPYTGqEtgfsLCEYPvZL/azr/Gmi2BwWhCtsV69SrsE7cNHmSd7nYF6CvopuQz
-         kDRrfa5jWutn9qxI6KRumw/qx9ON9dPv+lR4Q6pGh4VrXnon2/ZkybdXgDCNe+Ihbl1+
-         FgV/oc0JqN94EvFnYgANH8i1cDu2d1ttpVIZ2xLw+eSS8kRuR4s2yw4CxnzjZM4OnT4N
-         6jG1V+K36/kytXt4yW2Npuf3LwwSUEMteMIPEEAgOzlRmTjJH7t4ImhZsO3X7lywjuUk
-         tnXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790265956; x=1790870756;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=wm09KZgtMDDuRCaDDlw1bVTO/lDdGx5khYMsZ7nf5Wc=;
-        b=S1Mr9xkCAw5tG9HRjMZYEzq8YitIoDhLIGasSx5bZ7hNbBNQdJ2lTmopMxCGYrKG/a
-         mbm3Cx+mJNymB6GkE9r23hNQlIwCm3jD07YOg8T8z4VL44b2ds517lrtXCtGtN5qHdTo
-         GixJgy2tozoZEV1wLXV4RmdbaInpEDJm4WIgibGKVrIGGpaDa0D4gzZCvr21agPZ311S
-         sGSSyMTx42TFvLcHF43t8LLCtBiAhJEsdl5RpzdsNaFL6yYTbWFI7Dp68D27CMKQCQ5p
-         8c6iAAjLFbeXwoaY3KbjcZovrQM0c4Y684xrUrDBBcQwTGPVU5D7AEflTd/1TL3ivMuo
-         6vrQ==
-X-Gm-Message-State: AFuF++mxpaUSg74rWQWtcX59PXcG24iPGCEvcl+SS+iLIyxgqHN2MLvI
-	4EeegbU19lFjJv0I86JTmatQMLDUJHSxZo8V6jKkqPJKxnvlS5iXQvLk+upXfcZhz6nPUDZkeaI
-	hGAxd
-X-Gm-Gg: AYBFou3ftk2aMjnCJkc6SSUD9doOJuqLOX0KLA6T3EuYYhU3+nQ7EbTUkeMAoPxJQ1j
-	EEZAalwEfj52L6af3DG0D51DRdUClcqbbnN58F9r+8tonUDfa1XrjbxTejzdLQk4hMWOp3Se57g
-	5DaYuFozOI6/iNdexFgZeTq9vVd5bOgIPvOWNmwmQDb3sRW6A4oE+14inDSm46aPKuTEi2MVlOa
-	2rsZQEWsGJNVmdkfdmuWlSzn9ANjEjIBWoUAdCPcO/BgMtORYl0OhWYNdMPsqP1H1m5PBgpIEEP
-	oTR3xEDF6FPTaU2mFtj62gOGQp/ZzdQGF6T35RDsn5lrLFzhQiD2qbYjbu0jJM4Xeo+fXfbpwF4
-	m5V1bftF70QFCnakvZQNogLlaKMN9S/1lXB51zjSrRw1qgyOllydf5z4Y7Yvk+8pH1GoDgY3+v0
-	Io236y58dEGxez/tBpAG/2GcJWl0Mmtf5vu6Y1MGyGidD1iF0+BG7SskmTt6S2FCJ54oN+tH7/T
-	fh8CKCktsFd/k1Eew==
-X-Received: by 2002:a05:6000:2083:b0:487:342:eb28 with SMTP id ffacd0b85a97d-488716f2354mr5536245f8f.24.1790265956591;
-        Thu, 24 Sep 2026 09:05:56 -0700 (PDT)
-Received: from localhost (82-67-6-57.subs.proxad.net. [82.67.6.57])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4887a34a314sm57278f8f.6.2026.09.24.09.05.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 09:05:55 -0700 (PDT)
-From: Jerome Brunet <jbrunet@baylibre.com>
-Date: Thu, 24 Sep 2026 18:05:50 +0200
-Subject: [PATCH v2] dt-bindings: i2c: mv64xxx: Add Allwinner A733
- compatible string
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W+cHBIAz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3044D1F00893;
+	Thu, 24 Sep 2026 17:01:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790269283;
+	bh=nQm2TSsOFmCL75Ew2X2Ml8+Y1hxvqV0VYttpBX+ucy0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=W+cHBIAz4in40QufQgPnl6guc10fk/nKNFwovmn27Hn+FaoIpEPFdc5yE3AwgTwN9
+	 8L00pVPfG69smeuGgutlyNuAk3wfOPA3BwzoH+EU/jrEASrrdmn6oD+BwGzBh4a1mn
+	 OYxgH1XzECdZ5VQ82B2/g/rUZpYQ8FDlSRjBuBUaY4HjIBIMS8XzF4Cwcw0//xclVE
+	 S2nhuYKt9zeI6zhzemyAQ63SI0PfJ/9YrrJGAkGnsD8RgYvZPE2Jpd+y0Zh4jqxSMc
+	 C85+HE/uXDHOjjNizh40QzNePtLV4AvsyOcvvE+is9T1gSFRBd0rZqFfeffSUwHWHX
+	 SAx7zSgXrZIhA==
+Date: Thu, 24 Sep 2026 18:01:19 +0100
+From: Conor Dooley <conor@kernel.org>
+To: xianwei.zhao@amlogic.com
+Cc: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Xianwei Zhao <xianwei.zhaol@amlogic.com>,
+	Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org,
+	linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: add Amlogic A9 I2C controller
+Message-ID: <20260924-primarily-harmonica-fe3455834a4d@spud>
+References: <20260924-a9-i2c-v1-0-b8ad9b46f4a8@amlogic.com>
+ <20260924-a9-i2c-v1-1-b8ad9b46f4a8@amlogic.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260924-allwinner-a733-i2c-compatible-v2-1-0f5f1e9af969@baylibre.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WNSw6CMBQAr2K69pl++BRX3sO4aMtDnoFCWkQN4
- e4WXbh0OclkZmERA2Fkx93CAs4UafAJ5H7HXGv8FYHqxExyWfBKcDBd9yDvMYAplQKSDtzQj2Y
- i2yFIrZWWQvMKHUuNMWBDz0//fPlyvNsbummLbkYThh6mNqD5fUpe/vnMAgTkRaEynmfS1vXJm
- ldHNuAhWWxd36SP4JTZAAAA
-X-Change-ID: 20260910-allwinner-a733-i2c-compatible-2883821809ec
-To: Chen-Yu Tsai <wens@kernel.org>, 
- Gregory CLEMENT <gregory.clement@bootlin.com>, 
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-sunxi@lists.linux.dev, 
- Conor Dooley <conor.dooley@microchip.com>, 
- Jerome Brunet <jbrunet@baylibre.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1582; i=jbrunet@baylibre.com;
- h=from:subject:message-id; bh=3/FB35Hu5fJEEgD/yBfAAnwDqio0JQJdSJzCduCvMyY=;
- b=owGbwMvMwCW2VtK+WnvWU3HG02pJDFlbvZLEvbbuS573+cXazpNcRs3727Jq9WuvrUlsuc5vP
- GnLHkHzjlIWBjEuBlkxRZYa7mrxd5JaX2ZN17kNM4eVCWQIAxenAEwkmpnhD5ehIO+29na1ioXR
- 63k5HTw2v71i8Pl26+GTAhOfZcwrPghUwbUw1KmsP3f/qr7Hzytu9q6t1HhuVLBFL95OeZtoRQQ
- DAA==
-X-Developer-Key: i=jbrunet@baylibre.com; a=openpgp;
- fpr=F29F26CF27BAE1A9719AE6BDC3C92AAF3E60AED9
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bItvP1XPExBUqZoU"
+Content-Disposition: inline
+In-Reply-To: <20260924-a9-i2c-v1-1-b8ad9b46f4a8@amlogic.com>
 
-The I2C controller IP used in the Allwinner A733 SoC is
-compatible with the ones used in the other recent Allwinner SoCs.
+--bItvP1XPExBUqZoU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Add the A733 specific compatible string to the list of existing names
-falling back to the allwinner,sun8i-v536-i2c string.
+On Thu, Sep 24, 2026 at 08:39:34AM +0000, Xianwei Zhao via B4 Relay wrote:
+> From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+>=20
+> Add a Device Tree binding for the I2C controller found on the
+> Amlogic A9 SoC.
+>=20
+> Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
----
-This was tested on the Raxda A7A while enabling the AXP318 PMIC on S-TWI0
+Since this is not in the existing meson file, does that mean that
+there's a substantial change in the IP design, other than the addition
+of dma support?
 
-Changes in v2:
-- Collect Conor's trailer.
-- Cc linux-sunxi (not matched by MAINTAINERS/b4 by default)
-- Link to v1: https://patch.msgid.link/20260707-allwinner-a733-i2c-compatible-v1-1-566340542bdd@baylibre.com
----
- Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml | 1 +
- 1 file changed, 1 insertion(+)
+> ---
+>  .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    | 61 ++++++++++++++++=
+++++++
+>  1 file changed, 61 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml b/=
+Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+> new file mode 100644
+> index 000000000000..681241a52680
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+> @@ -0,0 +1,61 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/amlogic,a9-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Amlogic A9 I2C Controller
+> +
+> +maintainers:
+> +  - Xianwei Zhao <xianwei.zhaol@amlogic.com>
+> +  - Junyi Zhao <junyi.zhaol@amlogic.com>
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: amlogic,a9-i2c
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +  dmas:
+> +    items:
+> +      - description: DMA controller phandle and request line for RX
+> +      - description: DMA controller phandle and request line for TX
+> +
+> +  dma-names:
+> +    items:
+> +      - const: rx
+> +      - const: tx
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - clocks
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    i2c@3a4400 {
+> +        compatible =3D "amlogic,a9-i2c";
+> +        reg =3D <0x3a4400 0x3c>;
+> +        interrupts =3D <1 164 1>;
+> +        clocks =3D <&clkc_periphs 11>;
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +
 
-diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-index c4efcef59133..2a9e723a724f 100644
---- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-@@ -34,6 +34,7 @@ properties:
-               - allwinner,sun50i-h616-i2c
-               - allwinner,sun50i-r329-i2c
-               - allwinner,sun55i-a523-i2c
-+              - allwinner,sun60i-a733-i2c
-           - const: allwinner,sun8i-v536-i2c
-           - const: allwinner,sun6i-a31-i2c
-       - const: marvell,mv64xxx-i2c
+> +        eeprom@52 {
+> +            compatible =3D "atmel,24c32";
+> +            reg =3D <0x52>;
+> +        };
 
----
-base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
-change-id: 20260910-allwinner-a733-i2c-compatible-2883821809ec
+Remove this from your example please.
+pw-bot: changes-requested
 
-Best regards,
---  
-Jerome
+Thanks,
+Conor.
 
+> +    };
+>=20
+> --=20
+> 2.52.0
+>=20
+>=20
+
+--bItvP1XPExBUqZoU
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCarVXXwAKCRB4tDGHoIJi
+0jmbAQD1+PWjoCf58ZsShK3wOnr3jQBCWLxJWedfv/9RCZ8hLgEAvsMsA+s7U7IE
+/rNJ549B02Ub9QvF/P2SlcaHzmzGRgk=
+=qjV7
+-----END PGP SIGNATURE-----
+
+--bItvP1XPExBUqZoU--
