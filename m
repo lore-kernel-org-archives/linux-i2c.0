@@ -1,174 +1,88 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from carlos3.mail.rambler.ru (carlos3.mail.rambler.ru [81.19.78.109])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0F2A39D6CC;
-	Fri, 25 Sep 2026 16:47:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A81E034751B
+	for <linux-i2c@vger.kernel.org>; Sat, 26 Sep 2026 14:04:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.78.109
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790354832; cv=none; b=QdtRikwT9jiPiYkaVw+jJ0LceGV8QieWEo75QALOY+2uWUn8G6N6D1pJoaat/iHKOl85A0o6vOCQkxRQ7EL3T0W7DJecKNJSZhD7aXCovDfkwVMVxypzpYhJTg8O2L6S049muLq78UiaNb9EK8AB4nB5aCIJrjsxB3CuotsOXe8=
+	t=1790431470; cv=none; b=AqgInj21Ry+n5KI3AokF3XqWITB0CIwtqREJO1vCMmcKiGybtEbEN772V3uwn/Miat07V9pl+Dvd5cTlXo+necI6xHuyYY7fSyt2+iSadX3e3JDirtz3LkOaEnwMjdHZzB7wFwxZoNQM1fUlE5Fvc5kBiBe0ZSOhnaJqROXnBqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790354832; c=relaxed/simple;
-	bh=BFwaPQ0vmivMWjHiTk6TX8qDEMgeoCIyEQOaOqBkFh4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=di0d7k8KS1zLx5FoWuZh0zpGh54tSPyCERDy2ZeiOFUglT3eHxZ3MHbWBkfwlx5BnjQJ2q9HJi6pgP6mplPuK31AfZmHsDtCaSG3d4Ek0iH14E7z93Goq7tV9rxE00vEoVWQAq82+OysFv5qNn7ZWfY85IUi2J6h3WSziWwyfPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J3j4SUCF; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J3j4SUCF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB86A1F000FF;
-	Fri, 25 Sep 2026 16:46:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790354819;
-	bh=HVzA8zpGb8erHOnd1U1VdxUvMQSCdU4iWTsvvyaSMg0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=J3j4SUCF3yr+vzf/Y4dNmYQl8PahFapSIfFNeAEnlWvgPuz3qqbkii3coPZ2M+qqz
-	 QIS9BTZ0B51FQK1FV8Hw9ruedD0KrdU4cHV9MyxNTPkL36xVZ2VkuQKIf17OLTePPU
-	 CQf+w8WszeRNuXG5ENZK5CB/bf+iC20bcc5iE9b9vs8y2yon5PtFfwaA5Pudr8HSHY
-	 s1b6SXULa/9jmzIYH7kwsY8GuH14Xu+wslEDdy/oJBg3SlZtlvdGvKm0ahXeiNvxk8
-	 KJtBGM87o3Eb3c0bGVAGRAOg3LvfY+M5MnW47CItcLA722/O8mxVnR1sWn1eKNHP7I
-	 fmPlw2qkp3y/A==
-Date: Fri, 25 Sep 2026 17:46:52 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Aniket Limaye <a-limaye@ti.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Nirujogi Pratap <pratap.nirujogi@amd.com>, Bin Du <bin.du@amd.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, vigneshr@ti.com, nm@ti.com,
-	u-kumar1@ti.com, lianfeng.ouyang@starfivetech.com,
-	Ritwick.Sharma@arm.com, intel-xe@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH v3 1/3] dt-bindings: i2c: dw: Add ti,tda54-i2c compatible
-Message-ID: <20260925-confront-award-35b6d0183a16@spud>
-References: <20260925-tda54-upstream-i2c-v3-0-544d74e992ff@ti.com>
- <20260925-tda54-upstream-i2c-v3-1-544d74e992ff@ti.com>
+	s=arc-20240116; t=1790431470; c=relaxed/simple;
+	bh=uzcH4qU2Be4W2R3f6INMHI43lML3O5/kTiwOOLP5NL0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=A/A4XKFdcNr1pl4OfBeQJAshkVdJ6TQFcAcoB4qwsmtjjPzU5A1k3eqCg5c8BtIw+/AKImSYVd9gjG9IfCONvxSh62P4dhpKhXsebph7U4WBe1H1Yny/IbFTjct0Dpn9NGYygltYFjGnOANfpayLm8U9SEqx4ygu3tnFOroJp/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru; spf=pass smtp.mailfrom=ro.ru; arc=none smtp.client-ip=81.19.78.109
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ro.ru
+Received: from localhost (localhost [127.0.0.1])
+	(Authenticated sender: alma0@ro.ru)
+	by carlos3.mail.rambler.ru (Postfix) with ESMTPA id 7CEC6D236AF;
+	Sat, 26 Sep 2026 16:59:41 +0300 (MSK)
+Message-ID: <e9e4f8c9-9fe9-44fb-900d-d2aa6aa197e6@ro.ru>
+Date: Sat, 26 Sep 2026 15:59:40 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="sCGF9TGR9Si6lSV1"
-Content-Disposition: inline
-In-Reply-To: <20260925-tda54-upstream-i2c-v3-1-544d74e992ff@ti.com>
+User-Agent: Mozilla Thunderbird
+Subject: =?UTF-8?Q?Re=3A_Bug=231110749=3A_ee1004=3A_DDR4_SPD_cannot_be_read?=
+ =?UTF-8?Q?=2C_decode-dimms_fails=2C_=E2=80=9CFailed_to_select_page_0_=28-6?=
+ =?UTF-8?B?KeKAnQ==?=
+To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@debian.org>,
+ 1110749@bugs.debian.org
+Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
+References: <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
+ <handler.1110749.B.1754853823932687.ack@bugs.debian.org>
+ <9ed6f717-a04c-425f-945e-7fe8fe3b5d7d@ro.ru>
+ <ac700b24578663492aecd6d544bfc205b060c948.camel@suse.de>
+ <812847a5-5630-4d26-8012-c816e6d1db32@ro.ru>
+ <20260911135604.6c2451e7@endymion>
+ <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
+ <8d8740a4-6b9f-483b-9ea4-145293e63c25@ro.ru> <arPcZcu7S9vqE3JE@monoceros>
+Content-Language: en-US
+From: Al Ma <AlMa0@ro.ru>
+In-Reply-To: <arPcZcu7S9vqE3JE@monoceros>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
---sCGF9TGR9Si6lSV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> $ echo "blacklist ee1004" | sudo tee /etc/modprobe.d/ee1004.conf
+>> blacklist ee1004
+>> $ sudo depmod -ae
+>> depmod: WARNING: -e needs -E or -F
+>> $ sudo update-initramfs -u
+>> update-initramfs: Generating /boot/initrd.img-6.12.107+deb13-amd64
+>>
+>> Can the above warning be ignored?
+> 
+> I think yes. AFAIK that depmod step isn't needed and the wiki should be
+> fixed.
+> 
+> Does that help?
+> 
 
-On Fri, Sep 25, 2026 at 12:26:28PM +0530, Aniket Limaye wrote:
-> Add the "ti,tda54-i2c" compatible for Synopsys Advanced I2C Controller
-> (DWC_i2c) present on TDA54 SoC. Compared to the existing
-> "snps,designware-i2c" (DW_apb_i2c), it broadly differs in its register
-> offsets and some bit fields, requiring changes to interrupt handling,
-> timing handling, etc.
->=20
-> Unlike DW_apb_i2c, this IP has no COMP_PARAM_1 register to autodetect
-> the FIFO depth from, so add snps,tx-fifo-depth and
-> snps,rx-fifo-depth as required properties.
->=20
-> Signed-off-by: Aniket Limaye <a-limaye@ti.com>
->=20
-> ---
->=20
-> Changes in v2:
-> - Rename snps,dwc-i2c to ti,tda54-i2c
-> - Link to v1: https://lore.kernel.org/r/20260919-tda54-upstream-i2c-v1-1-=
-b0b9f77be18b@ti.com/
-> ---
->  .../bindings/i2c/snps,designware-i2c.yaml          | 33 ++++++++++++++++=
-++++++
->  1 file changed, 33 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.ya=
-ml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-> index 467bdcbb8538..80a9376d6de7 100644
-> --- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-> @@ -21,12 +21,23 @@ allOf:
->        properties:
->          reg:
->            maxItems: 1
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          contains:
-> +            const: ti,tda54-i2c
-> +    then:
-> +      required:
-> +        - snps,tx-fifo-depth
-> +        - snps,rx-fifo-depth
-> =20
->  properties:
->    compatible:
->      oneOf:
->        - description: Generic Synopsys DesignWare I2C controller
->          const: snps,designware-i2c
-> +      - description: TI TDA54 SoC I2C controller (Synopsys DWC_i2c IP)
-> +        const: ti,tda54-i2c
->        - description: Renesas RZ/N1D I2C controller
->          items:
->            - const: renesas,r9a06g032-i2c  # RZ/N1D
-> @@ -121,6 +132,18 @@ properties:
->        low period of SCL line.
->      type: boolean
-> =20
-> +  snps,tx-fifo-depth:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    description:
-> +      The depth of the hardware TX FIFO. Required on the ti,tda54-i2c
-> +      variant, where fifo depth cannot be autodetected.
+Here we go (after many reboots):
 
-Why is the compatible not sufficient to get this information from?
-Does it vary across controllers on the same device?
+$ cat /etc/modprobe.d/ee1004.conf
+blacklist ee1004
+$ lsmod | grep ee1004
+$ sudo dmesg | egrep "i2c|ee1004"
+$ sudo decode-dimms
+No EEPROM found, try loading the eeprom, at24 or or ee1004 module
+$ sudo i2cdetect -y 0
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- 56 -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+$
 
-> +
-> +  snps,rx-fifo-depth:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    description:
-> +      The depth of the hardware RX FIFO. Required on the ti,tda54-i2c
-> +      variant, where fifo depth cannot be autodetected.
-> +
->  unevaluatedProperties: false
-> =20
->  required:
-> @@ -172,4 +195,14 @@ examples:
->        interrupts =3D <8>;
->        clocks =3D <&ahb_clk>;
->      };
-> +  - |
-> +    i2c@53b00000 {
-> +      compatible =3D "ti,tda54-i2c";
-> +      reg =3D <0x53b00000 0x1000>;
-> +      interrupts =3D <166>;
-> +      clocks =3D <&sysclk>;
-> +      clock-frequency =3D <100000>;
-> +      snps,tx-fifo-depth =3D <32>;
-> +      snps,rx-fifo-depth =3D <32>;
-> +    };
->  ...
->=20
-> --=20
-> 2.53.0
->=20
 
---sCGF9TGR9Si6lSV1
-Content-Type: application/pgp-signature; name=signature.asc
+It helps in the sense that the error messages are gone. Is doesn't help in the sense that I still don't know how to programmatically read SPD-EEPROM of the modules installed on my system.
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaralfAAKCRB4tDGHoIJi
-0njqAP9fyVsdwViQaN/hsNZgjikNfcCErYU2efO/qx/w7M1u6gEAwUMNgzwWB9jR
-JlQcMI+eKtzBEMignrKl9xZWQUEibgI=
-=SVzn
------END PGP SIGNATURE-----
-
---sCGF9TGR9Si6lSV1--
+Alma
