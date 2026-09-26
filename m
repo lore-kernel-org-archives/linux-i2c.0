@@ -1,25 +1,25 @@
-Received: from carlos3.mail.rambler.ru (carlos3.mail.rambler.ru [81.19.78.109])
+Received: from carlos6.mail.rambler.ru (carlos6.mail.rambler.ru [81.19.78.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A81E034751B
-	for <linux-i2c@vger.kernel.org>; Sat, 26 Sep 2026 14:04:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.78.109
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01A203E16A4
+	for <linux-i2c@vger.kernel.org>; Sat, 26 Sep 2026 14:09:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.78.117
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790431470; cv=none; b=AqgInj21Ry+n5KI3AokF3XqWITB0CIwtqREJO1vCMmcKiGybtEbEN772V3uwn/Miat07V9pl+Dvd5cTlXo+necI6xHuyYY7fSyt2+iSadX3e3JDirtz3LkOaEnwMjdHZzB7wFwxZoNQM1fUlE5Fvc5kBiBe0ZSOhnaJqROXnBqY=
+	t=1790431766; cv=none; b=d1ZeZUsCReUVkbXUVaiJt22/IPO4XMkn8lM98Kc1fbf5lUwbJdxwSIyOzjpzoPgOAxG1YBzvTWCDEWS4kCS+041wgT9KissTnen4v3zzrvHe1Jaq8Hs+O9LcWVquqXWunB2RkJXR9NWb3Qx4oTlh9F4OVFiz1VcDjRctuNpcRns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790431470; c=relaxed/simple;
-	bh=uzcH4qU2Be4W2R3f6INMHI43lML3O5/kTiwOOLP5NL0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=A/A4XKFdcNr1pl4OfBeQJAshkVdJ6TQFcAcoB4qwsmtjjPzU5A1k3eqCg5c8BtIw+/AKImSYVd9gjG9IfCONvxSh62P4dhpKhXsebph7U4WBe1H1Yny/IbFTjct0Dpn9NGYygltYFjGnOANfpayLm8U9SEqx4ygu3tnFOroJp/8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru; spf=pass smtp.mailfrom=ro.ru; arc=none smtp.client-ip=81.19.78.109
+	s=arc-20240116; t=1790431766; c=relaxed/simple;
+	bh=D+ISMBYV6pUagDgjydAaqBHgdBea+zvQkZpUowLW3Ho=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=WpzAqhGsjk+ttmcEwgarn6XVhYC8uS2Bq1t2BEROW9egJvGHK5Rb2oiftNCsLqCFe6dCIDmGO7HJGORlsnNOOVLJ/xcnfIwlv6Jgepau4unVCmV9OSJ6Y1soNkWXJUYRxCfNwwpjiLyc7WD7U4D7YcbNSTqa6FMjREu/EishugA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru; spf=pass smtp.mailfrom=ro.ru; arc=none smtp.client-ip=81.19.78.117
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ro.ru
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ro.ru
 Received: from localhost (localhost [127.0.0.1])
 	(Authenticated sender: alma0@ro.ru)
-	by carlos3.mail.rambler.ru (Postfix) with ESMTPA id 7CEC6D236AF;
-	Sat, 26 Sep 2026 16:59:41 +0300 (MSK)
-Message-ID: <e9e4f8c9-9fe9-44fb-900d-d2aa6aa197e6@ro.ru>
-Date: Sat, 26 Sep 2026 15:59:40 +0200
+	by carlos6.mail.rambler.ru (Postfix) with ESMTPA id 5708041629CD;
+	Sat, 26 Sep 2026 17:04:08 +0300 (MSK)
+Message-ID: <d7e511c1-3062-48a9-b433-b88933f3660b@ro.ru>
+Date: Sat, 26 Sep 2026 16:04:07 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -27,9 +27,10 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: =?UTF-8?Q?Re=3A_Bug=231110749=3A_ee1004=3A_DDR4_SPD_cannot_be_read?=
- =?UTF-8?Q?=2C_decode-dimms_fails=2C_=E2=80=9CFailed_to_select_page_0_=28-6?=
- =?UTF-8?B?KeKAnQ==?=
+From: Al Ma <AlMa0@ro.ru>
+Subject: =?UTF-8?Q?Typo_correction=3A_Re=3A_Bug=231110749=3A_ee1004=3A_DDR4_?=
+ =?UTF-8?Q?SPD_cannot_be_read=2C_decode-dimms_fails=2C_=E2=80=9CFailed_to_se?=
+ =?UTF-8?B?bGVjdCBwYWdlIDAgKC02KeKAnQ==?=
 To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@debian.org>,
  1110749@bugs.debian.org
 Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
@@ -42,10 +43,9 @@ References: <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
  <ff6982d3-cf60-436b-9107-420924cdabe3@ro.ru>
  <8d8740a4-6b9f-483b-9ea4-145293e63c25@ro.ru> <arPcZcu7S9vqE3JE@monoceros>
 Content-Language: en-US
-From: Al Ma <AlMa0@ro.ru>
 In-Reply-To: <arPcZcu7S9vqE3JE@monoceros>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
 >> $ echo "blacklist ee1004" | sudo tee /etc/modprobe.d/ee1004.conf
 >> blacklist ee1004
@@ -83,6 +83,6 @@ $ sudo i2cdetect -y 0
 $
 
 
-It helps in the sense that the error messages are gone. Is doesn't help in the sense that I still don't know how to programmatically read SPD-EEPROM of the modules installed on my system.
+It helps in the sense that the error message “ee1004 0-0056: Failed to select page 0 (-6)” is gone. It doesn't help in the sense that I still don't know how to programmatically read SPD-EEPROM of the modules installed on my system.
 
 Alma
