@@ -1,80 +1,80 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+Received: from mail-wr2-f35.google.com (mail-wr2-f35.google.com [74.125.225.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44B0D3815F3
-	for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 15:11:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DEDF391E55
+	for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 15:12:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790521863; cv=none; b=ZvUoVi8B9f4ahpwJzdR9tqpaz8x6KMkzyjmEykE6enIELxRUi4MZI50fXin91vSSvnclNZhyWoec1a7tSXByxAEui5FG8/3sMudpNYg+oArpu/Igrgb95vYopGRS1WI682Acm58Lfddbi7GExm3czi5S8/JQIA34Cvo1V0Q2x5U=
+	t=1790521954; cv=none; b=UHEvzD5+Jb+Cv37Tl43cPyxicZIfRrSG1fAJl6J5moE45J1hP+7SKx2n2Bv2wy5Ouh/M7KSe53TOwuzntX+83+05r5Ag77wgNYhJY6BkPXb2aevxrXBi9k3C5bNtDLSt/ekBI4p138WN0/orUznipybd/UydrnW/bADQ1Tbl6po=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790521863; c=relaxed/simple;
-	bh=PUxQWVb7GawpwSubmFAbFA2TUxRXX1OHgxmy1E0FpUY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I/GzElurBDjYKcbDaM5qqV/qf2KgI5rq3FmjsHD8DzJ39SW4vQ4uT7Rm/GfohWT1rBn7MN3BTGr5cB7bEwKAv4Srk+gId+QOP6pNkY9RVb7ACgt3eRz5DLAnT2EMMT+irNgEezFutJeAeDE3Mj6dPdfFJNTRxk/r6LFXS2S+Qqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QC5+sJK5; arc=none smtp.client-ip=74.125.225.76
+	s=arc-20240116; t=1790521954; c=relaxed/simple;
+	bh=9msDYNKS2pX3bRTMRkqLXL2c0qeGUzPeGcRivpd7UC0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=R4GL1R4omSSPXEotgzpgFE34/pKnn1bHpjKL3tX4CuJu8udXDDhIRoTvWM1stEch2cW26LQ5YCgOkrKV6WE0P2ZxtXoH5PR0a+y+E/ZJA2E85sXRqAQAFaLOxmAOEyM46X/2LCOlfl4Z2MR969K1zWaQeDeY0Vols475ZpNPl/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z7L0XEq1; arc=none smtp.client-ip=74.125.225.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QC5+sJK5"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843c3ee4cfso1023609f8f.2
-        for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 08:11:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z7L0XEq1"
+Received: by mail-wr2-f35.google.com with SMTP id ffacd0b85a97d-4888129c46eso1080673f8f.1
+        for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 08:12:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790521859; x=1791126659; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=iq7QY59go/yg3a2RnQSLtv6/NhXKFuv9l2HYC5eUWJQ=;
-        b=QC5+sJK5n18MRSy0gbMYDPh62yU99Jwe1eFfkesLAh6UE77jfibR5+i5hwdWX82xN7
-         lLZfb/qQn738zicqYFtvgrus/dVHHO+pvVWIwOVZ7DcE1tX0uTkL4mwZvXBmK8k78Jqq
-         Dncbfc4O5O/oSu5GqqlLR4lLSJoQWg5BoN44u1z2i+UHQ1D8/DxLZraatSATcGqAZhCK
-         vdPLlxvjS3/3t8xflNHwMuf+mX/GS10pMP5oJHrCZc6uh4cSiIvwX3yDATpjnP4bPsjM
-         WSs3An3MNwHN6KgSq0PEUANDFQmA1/f1lDo2So5ysQyRuE0n7/3m8p6+Pvz/n72gtxLa
-         yJ4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790521859; x=1791126659;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1790521951; x=1791126751; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=iq7QY59go/yg3a2RnQSLtv6/NhXKFuv9l2HYC5eUWJQ=;
-        b=11FyixxnigmbJcHbcHiggRgg115oe9WzLaXGmXGPTYjSWzablVlowvlOnT5hwzTVfG
-         95xqJ3L8qtQB5pJIWDSNd/PIBVIYwFsfVDMBFRmboMlOLwn96IuAVLkmKTM7hzsZPXwf
-         4xjvw2mjPeATybNE1hzlopFUEpMJI11gcivAlCf6s7kHr864PcildxhJ4X9WpuuPChrZ
-         XIv/gsPMCzFu88+04xcZ+zsDD4ZjOEHDzYKkBQFCK95IQ4qxjwox3MfP2f/v9FqrBQZo
-         hMXthjVCRCMhwxQuy0wktqtLrtvdUUDs7F9llRbsbdK4wMJhfIzFmmzTr3p0Pdw0zfkM
-         kxJg==
-X-Forwarded-Encrypted: i=1; AKwUvByxOUglqZ0nEOodMr67nvnncACGSDtYthPveJaK4z0tlzYkRwBnbxcKAKouGQ/g4BHVUnA2fdfikZ4=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKHjE587Ue31gigpV7WVJtf1PNw/TO0eZvEi5aI1JiG2r6EYjiL
-	5a64ObBQVRs3PZqrY0ZlfRXSUDUyqF/MUpymVbFM7Akpv5K1q1pTmzPO
-X-Gm-Gg: AYBFou3beIRvCsvh/467U36qPYZN90S2aVNTqTehVpXdVa6RrY2RJOlda4iL0FDpmfF
-	xGEU/QNs0IN3KvbRCu7eqr3EF9/mdL62ahRmIkqSMJNOiUt+IcMkTe180XNZSKVB+Q8rWJe2olo
-	vWkraV6r6FMPmEdKFtvXx6V5t/xLmhYSBv+W+T44/BP37QEbh+QbXUsKTq/Hj5COZdnYGU6WK53
-	tc8H1Hk0m8ZIiz9xmS6Wrf+tP6gRsKJwPnxbVXeEVMWnNFaOcJ1a48YilBrMh6c6wzx5l2lr7uY
-	j2fS9udrfvGnvS3jd/3HbLEDy2tyEnGJdKAVhvkk9dL9oE+tOKmYh+p3YgovjhpB1HKgxfwBYg+
-	0jLc/mEyo3age4ESBMpXXvSV0+QrR9yE8fl/GLxExnfxnScm/2VBFvurCY16CRRJu0p9R/9RBGE
-	MGaS2VaoLoHYfc0qyNxe2ojlWnwTt7zQoRF6q+mTKvc6zAeo2CayuMDulFw4eBreo0+Z6MxEiER
-	OWur6iCbYNQ+WZYQdIeSZjtsBsk5tlEmyeM+itzU/4=
-X-Received: by 2002:a05:6000:402a:b0:488:8bc1:a2eb with SMTP id ffacd0b85a97d-4888bc1a693mr4386678f8f.39.1790521859115;
-        Sun, 27 Sep 2026 08:10:59 -0700 (PDT)
+        bh=K6NdCou4tWyO9h5BHGqM0MWB7dKTxAp68NTU6wlSIys=;
+        b=Z7L0XEq1o/yYfa1zYAUiJSF2WUBFSiMzjrTFF4gGlrZrvINqv89DDaIRONcVQPR1LC
+         VVwe7a7V0GG2Ipa0OgKmGvrSEYfodmCU5b040IqbfyggbjZamtjUlJ8dHuAJmURAEjca
+         jacFWqTEdasf0Vy3vi9KJQcnd341cypKbdWUBPYtYIuPWh4FRKiMPXL9UdKphJTPaAyh
+         VSYazSSSdOmmBl47RXtB5SnxSVCGJ3xq8Hhjx0Y9yzu1wf2ZUrsuTVlYb8Zkj6LwbUA8
+         LuyNBwfiRK4HpyntC4Ey0WHw8SqZ14BcP3tI8tUD7Y5fd/EOENbJIA/ESpbRqPppRWSL
+         A+kA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790521951; x=1791126751;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=K6NdCou4tWyO9h5BHGqM0MWB7dKTxAp68NTU6wlSIys=;
+        b=guj1zkDOxUkOgQTfa9+/JvRjPn+wRNdUcl25WCxRIt34QWwSEOALUFER5z15WIMpH4
+         mz3kDMvVpzG9f6mucciA1+iCY1tFU9XsEoxZJNigIxoruAof4S6Gsnw5r73NVyipVVQg
+         +843kSJH2t2dhu0tfX0eWETytttzkeIfiLemvYmQhpN+zNuqphMBF7XxbxujdXsVyagj
+         QDky3c2k9pdyarTlFT14irAgZVMWxCWb4Iw5U+Dj+93lf75/Aj5o1OAm05tTi+UB3pit
+         07w+xn/nOEMiB1/AE+rtC02/OIULHkr5caQs3PIMOcBUu/bp3ENyED6UY2xFG6OX3PnS
+         OXrw==
+X-Forwarded-Encrypted: i=1; AKwUvBwepVG6pyyIDNO+Ldeloxgxn4JX8xYsLjF6KzaWuC/lcx5ZHJeVvgQQGdzobDT/+chxGhSVHbYzYVk=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJKkXPXJewMkhbsec7+q0DkbU5kCbj3x8F9WHZD3GLGGNMGX+/u
+	3XJIDYyNvzJ77F5eJTXsyco83+kmWjmhLD2EntdcyUxXfmqZrdtqJsGuUyM7wq7UV3M=
+X-Gm-Gg: AYBFou2cj8J0/CjEPz1TyIBcFcAAs3PoFZpPoNJSbGxjLOtatJTZn/6LYGhi6faKFrJ
+	9nQ6NTMN2+rreRQnXq0QbDqFZMmMHTwX2kY3IPVZg76z1El1Uh914E58fH3bHYtBvUoo5Rv5odz
+	hR9BetjVa+KzfwiN6hQkCnxo2ed6zqgz9tQJ/5Syzn6dSbfevtgtRkTJ8Jh1sNBJTZR60SHmWXw
+	/is0LQALNlTErhrl4mu2267X+OaDfwWQeAmKXJZCb+USd17IlciEMl+7dTU28T/nYP2Bq23Yrca
+	/brzMoCcfNdBOkzmPXeq1vLmaYrXfI7K6SqMoHWO0I58yH0orOh2EynE7PkLXVnYT7RppoiOfRf
+	qiNecqI32nYqXGJPFkQ0vlSF3k28cxUcJAZKTrcj/DIIMC/9/FAR4H9aDM/7Qtx8lxWwzrCC3rz
+	Gr8r89KvPly5NHA7oBqlkIPXbvhVAvsJJtxR0tqADiIy/AYGttxYKdMI6LA2B+9W3H2iVZwszGo
+	STSbAaK/DRCp3Xkk7Ozlfjvnkf5vCvW
+X-Received: by 2002:a5d:5d0e:0:b0:488:7f1d:2735 with SMTP id ffacd0b85a97d-4887f1d288amr14500751f8f.57.1790521950666;
+        Sun, 27 Sep 2026 08:12:30 -0700 (PDT)
 Received: from debian (ip-78-137-176-146.broadband.digiweb.ie. [78.137.176.146])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4887a746c57sm19764208f8f.35.2026.09.27.08.10.57
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4887a746c57sm19764208f8f.35.2026.09.27.08.12.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 08:10:58 -0700 (PDT)
+        Sun, 27 Sep 2026 08:12:30 -0700 (PDT)
 From: Pablo Mazzini <pmazzini@gmail.com>
-To: Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Gregory CLEMENT <gregory.clement@bootlin.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Rob Herring <robh@kernel.org>
 Cc: Pablo Mazzini <pmazzini@gmail.com>,
 	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mmc@vger.kernel.org,
-	linux-rtc@vger.kernel.org,
-	linux-sunxi@lists.linux.dev
-Subject: [PATCH v2 00/11] ARM: sunxi: add Allwinner B288 and the PocketBook Verse
-Date: Sun, 27 Sep 2026 16:10:05 +0100
-Message-ID: <20260927151016.186493-1-pmazzini@gmail.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 07/11] dt-bindings: i2c: mv64xxx: add Allwinner B288
+Date: Sun, 27 Sep 2026 16:10:12 +0100
+Message-ID: <20260927151016.186493-8-pmazzini@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260927151016.186493-1-pmazzini@gmail.com>
+References: <20260927151016.186493-1-pmazzini@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -83,64 +83,25 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Allwinner B288 (sun8iw10p1) is a dual Cortex-A7 SoC used in e-book
-readers. This series adds the CCU and pin controller drivers, the RTC,
-I2C, MMC and NMI compatibles, the SoC .dtsi, and one board: the
-PocketBook Verse (PB629), a 6" reader.
+The B288 controller follows the existing Allwinner variant.
 
-The B288 is closest to the A64: most of its PLLs are bit-identical.
-The clock and pin descriptions come from Allwinner's BSP, cross-checked
-against ccu-sun50i-a64.c. Tested on a PB629, boots to userspace.
+Signed-off-by: Pablo Mazzini <pmazzini@gmail.com>
+---
+ Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes since v1:
-  - Add this cover letter.
-  - Drop both new bindings; add the compatibles to the existing
-    allwinner,sun4i-a10-{ccu,pinctrl}.yaml instead.
-  - Rewrite the pinctrl driver in the DT-provided pinmux style.
-
-Pablo Mazzini (11):
-  dt-bindings: clock: sun4i-a10-ccu: add Allwinner B288
-  clk: sunxi-ng: add Allwinner B288 CCU driver
-  dt-bindings: pinctrl: sun4i-a10: add Allwinner B288
-  pinctrl: sunxi: add Allwinner B288 pin controller driver
-  dt-bindings: rtc: sun6i-a31: add Allwinner B288
-  rtc: sun6i: add Allwinner B288 compatible
-  dt-bindings: i2c: mv64xxx: add Allwinner B288
-  dt-bindings: mmc: sun4i-a10-mmc: add Allwinner B288
-  dt-bindings: interrupt-controller: add Allwinner B288 NMI
-  dt-bindings: arm: sunxi: add PocketBook Verse
-  ARM: sunxi: add B288 and the PocketBook Verse board
-
- .../devicetree/bindings/arm/sunxi.yaml        |   5 +
- .../clock/allwinner,sun4i-a10-ccu.yaml        |   1 +
- .../bindings/i2c/marvell,mv64xxx-i2c.yaml     |   1 +
- .../allwinner,sun7i-a20-sc-nmi.yaml           |   1 +
- .../bindings/mmc/allwinner,sun4i-a10-mmc.yaml |   2 +
- .../pinctrl/allwinner,sun4i-a10-pinctrl.yaml  |  23 +
- .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml |   2 +
- arch/arm/boot/dts/allwinner/Makefile          |   1 +
- .../allwinner/sun8i-b288-pocketbook-verse.dts | 122 ++++
- arch/arm/boot/dts/allwinner/sun8i-b288.dtsi   | 304 ++++++++
- arch/arm/mach-sunxi/sunxi.c                   |   1 +
- drivers/clk/sunxi-ng/Kconfig                  |   5 +
- drivers/clk/sunxi-ng/Makefile                 |   1 +
- drivers/clk/sunxi-ng/ccu-sun8i-b288.c         | 660 ++++++++++++++++++
- drivers/clk/sunxi-ng/ccu-sun8i-b288.h         |  10 +
- drivers/pinctrl/sunxi/Kconfig                 |  10 +
- drivers/pinctrl/sunxi/Makefile                |   1 +
- drivers/pinctrl/sunxi/pinctrl-sun8i-b288.c    |  53 ++
- drivers/rtc/rtc-sun6i.c                       |   1 +
- include/dt-bindings/clock/sun8i-b288-ccu.h    |  88 +++
- include/dt-bindings/reset/sun8i-b288-ccu.h    |  45 ++
- 21 files changed, 1337 insertions(+)
- create mode 100644 arch/arm/boot/dts/allwinner/sun8i-b288-pocketbook-verse.dts
- create mode 100644 arch/arm/boot/dts/allwinner/sun8i-b288.dtsi
- create mode 100644 drivers/clk/sunxi-ng/ccu-sun8i-b288.c
- create mode 100644 drivers/clk/sunxi-ng/ccu-sun8i-b288.h
- create mode 100644 drivers/pinctrl/sunxi/pinctrl-sun8i-b288.c
- create mode 100644 include/dt-bindings/clock/sun8i-b288-ccu.h
- create mode 100644 include/dt-bindings/reset/sun8i-b288-ccu.h
-
+diff --git a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+index c4efcef59133..d3b6f7668621 100644
+--- a/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+@@ -21,6 +21,7 @@ properties:
+           - enum:
+               - allwinner,suniv-f1c100s-i2c
+               - allwinner,sun8i-a23-i2c
++              - allwinner,sun8i-b288-i2c
+               - allwinner,sun8i-a83t-i2c
+               - allwinner,sun8i-v536-i2c
+               - allwinner,sun50i-a64-i2c
 -- 
 2.53.0
 
