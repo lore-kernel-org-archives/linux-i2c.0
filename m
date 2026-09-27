@@ -1,38 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4403829D26E;
-	Sun, 27 Sep 2026 10:03:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44F2537DE8D;
+	Sun, 27 Sep 2026 11:40:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790503429; cv=none; b=freN0AQRDD+RGGwA6FLk92XG7L5LJwP7dKAsFyccqAm+5aImTZnkzGqjgCRHiPJagIutq/ezSIdQ4lzYjScuYqgICRtprm0DbGaYAjv6cntwmsZrPhZlH1QoXd3XtlMl8SKl2+vI1BqilvaQzooCz1VDOIQZ4xnwzmD+hPgLwcM=
+	t=1790509241; cv=none; b=n4xJvsmMqe+BnGSi84yUezKwEo9K0swyVXZA5Y2j/q4vQk6JWc3ULBngYPmCl4dP1NXP7c0S7hcopvAXit6DGr5X9kH/6Cu6yOkErikjOCus97hZgPdoVXrL7NPviKQZvze5lhNvfhKrAGujg9xdN8DHpp/aWoQQWs+DuPadv7U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790503429; c=relaxed/simple;
-	bh=yS7D3PKGt17HrzzprLFopJVoodHQoDVBs1G7BU7B5Sk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Vn0/pVlOMvOmY+YwSXlXdq5SqOBLliL3LoT4BgMwZER3iqNqzs1nnVyal2wKd0l8WN7izXBCl+U82S/A93zm5mTO6Olrl1xnH0oi4BJud+k3US5iZfYgip5VZ0RpKU13LCx7HHeciUd/PoU0xHnmEl9pd7rMSdJvTdPoUkXVCdI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gOmf88K+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790509241; c=relaxed/simple;
+	bh=xp1IDY6mH5cFU1zGiZUUIq0UHnnp9rboVRAuqe0oQkI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KK+8xRVtzluxWwT9Bvu8Elu4lyKOuXM6jJiD0obdz0p9pIRdR6V8jEqWvB0VFO8Q52Uoj/O+3uWyN77po+d0XD1m+olJIaDOs1NxnU8CBRdx6oC9N1UJMKyeu0yGsY4qz7OBSSsF5Hm9E1JJryjfMgmaNgI4HO1wMUj63qjoLxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FZk/je4r; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gOmf88K+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E190A1F000FF;
-	Sun, 27 Sep 2026 10:03:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FZk/je4r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A972D1F000FF;
+	Sun, 27 Sep 2026 11:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790503427;
-	bh=qDbKiQM8+c0G4cyeb9xmRXidwHXaAeau7kS17YjyRNo=;
-	h=Date:From:To:Cc:Subject;
-	b=gOmf88K+U03zi8y88sqGSPH8QbJcWzJ9I0+8qfqUuP9b9xJrnu7E3TjGoplEYoXHr
-	 DjzO+4R7rytCMVepGPlR7gcorxVFBcZbYmETpDR69i7HQo48MfUVwQgJ0v7y9tmvVJ
-	 nmtWU5TcQIglEHdKMG68S1yfSjUam9GyURRl0DAOGOPB5KeA3jhrDjJLl+3rq4mOar
-	 5XmplMHSz9cj4jTC6rfpYFSI3GolE5d4eoY9d5qiwfmJiPeqiyrZToP10da6A5yrbi
-	 FdljZEDJnD9aSqIzLdsGM460YWwtE4y2/z7AUHBpiWYa/lbM3o7NmhwXPQXDAmU3bJ
-	 Gz+qX5BwcqwjA==
-Date: Sun, 27 Sep 2026 12:03:43 +0200
+	s=k20260515; t=1790509239;
+	bh=vmbMvMbNo21iDIQcPjYiZ8rxZbILeVSsn31zI9BczIM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=FZk/je4ruH0VKxzN7nZdZENF9BdMt81miKiYG40Kbr3s+9s2grquDGd+Lyz4MPjyO
+	 uWMLZqN3+ltV+QR9jcceqmehRMiAbsLI5Y6wXXDb98IGn6ddbn5YIT5HgG8Rpj4qaO
+	 DtjVVTVDBCF8Eh0r+oDumhe7om23JSo+Afej2FZNb0ya/dXKwQ0NgKBxJeGOqR1pAy
+	 9RnTKgnhktjFOsz4X1DkOVG1Ze7j9RSQcrnHDAMApESxGFDCU1c2pW8UZgt3h2FtBg
+	 zbHE7j6aca/hbFfkQmj2ds/0JAFcBJ5eeLFQS8BaVrRc4QYl6MOQGnjjHo2V3HRaS7
+	 Y8GoTGlBrnb2A==
+Date: Sun, 27 Sep 2026 13:40:35 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c fixes for v7.3-rc5
-Message-ID: <arjpVJwkFP8ozdq_@zenone.zhora.eu>
+To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: Michal Simek <michal.simek@amd.com>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Raviteja Narayanam <raviteja.narayanam@xilinx.com>, 
+	Wolfram Sang <wsa@kernel.org>, Manikanta Guntupalli <manikanta.guntupalli@amd.com>, 
+	Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [SPAM] [PATCH v7 0/3] i2c: xiic: fix SMBus block read and PEC
+ support
+Message-ID: <arkAZJEJTtNsCjmF@zenone.zhora.eu>
+References: <20260924-i2c-xiic-v7-0-df7e752332ef@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,36 +46,16 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260924-i2c-xiic-v7-0-df7e752332ef@nexthop.ai>
 
-Hi Linus,
+Hi Abdurraham,
 
-here is the I2C fixes pull request for v7.3-rc5.
+> Abdurrahman Hussain (3):
+>       i2c: xiic: preserve PEC byte length in SMBus block read setup
+>       i2c: xiic: defer RX_FULL until all trailing bytes are in FIFO
+>       i2c: xiic: don't clobber msg->len to signal block-read completion
 
-There is just one fix correcting the qcom-geni clock selection.
+pushed to i2c/i2c-fixes-2.
 
 Thanks,
 Andi
-
-The following changes since commit 93f51579e7df248780214094418f205253383cc5:
-
-  Linux 7.3-rc4 (2026-09-20 13:48:15 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.3-rc5
-
-for you to fetch changes up to cb97bf3d4f91453b881acaf8e9f0cc47bb40b604:
-
-  i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL (2026-09-24 22:52:30 +0200)
-
-----------------------------------------------------------------
-i2c-fixes for v7.3-rc5
-
-- qcom-geni: select the correct source clock table entry
-
-----------------------------------------------------------------
-Viken Dadhaniya (1):
-      i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL
-
- drivers/i2c/busses/i2c-qcom-geni.c | 38 +++++++++++++++++++++++++++++++++-----
- 1 file changed, 33 insertions(+), 5 deletions(-)
