@@ -1,151 +1,76 @@
-Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2244633065D
-	for <linux-i2c@vger.kernel.org>; Sat, 26 Sep 2026 18:31:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4403829D26E;
+	Sun, 27 Sep 2026 10:03:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790447509; cv=none; b=gDGVJqvEK895AmSSD/5qwxIdudahie7o9NSu1osy/PHYFGayTWSHi1fEULEVnD+GJWVUkE+5MxJWtCw8wp8OF1wXOnd1CSLekwXutbrRjV8Du799LhCorM0wlOkwHi44GyII5sDSXVxVlTRr2I49YUOR30khqcp/PsRabHskSVY=
+	t=1790503429; cv=none; b=freN0AQRDD+RGGwA6FLk92XG7L5LJwP7dKAsFyccqAm+5aImTZnkzGqjgCRHiPJagIutq/ezSIdQ4lzYjScuYqgICRtprm0DbGaYAjv6cntwmsZrPhZlH1QoXd3XtlMl8SKl2+vI1BqilvaQzooCz1VDOIQZ4xnwzmD+hPgLwcM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790447509; c=relaxed/simple;
-	bh=ZTJPjPJxE0WNlUfHRSqhiAYlVk8gMUP4vwmB54Medcc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cVYpmqYM9NtMePL9Z4Kjr9MH7IWYacWd4EjBFcFVSFqvMS8n+2a8/HJAzPBf+0T6OCyOIDN9H4B8zuRENdfozG25hWs9+9evbrokgbgpA1rcHS0Ns7hlPuUdZuIl3sUPCKd1rJMVLCVIt297ifav+/FVvx3UfMgbGCOSvWLdc38=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PM727M6b; arc=none smtp.client-ip=74.125.225.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790503429; c=relaxed/simple;
+	bh=yS7D3PKGt17HrzzprLFopJVoodHQoDVBs1G7BU7B5Sk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Vn0/pVlOMvOmY+YwSXlXdq5SqOBLliL3LoT4BgMwZER3iqNqzs1nnVyal2wKd0l8WN7izXBCl+U82S/A93zm5mTO6Olrl1xnH0oi4BJud+k3US5iZfYgip5VZ0RpKU13LCx7HHeciUd/PoU0xHnmEl9pd7rMSdJvTdPoUkXVCdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gOmf88K+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PM727M6b"
-Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48884b021dbso425516f8f.3
-        for <linux-i2c@vger.kernel.org>; Sat, 26 Sep 2026 11:31:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790447505; x=1791052305; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZTJPjPJxE0WNlUfHRSqhiAYlVk8gMUP4vwmB54Medcc=;
-        b=PM727M6bvHo7LgABTeXzZQHagXOS00tJFIBldBtAB+kks9qKxu7mvzqzk4pXqFGcZs
-         TqOhueVag5HuxXVZSxYY1mronhkUNpH+OOVxTfRb+HwAQmMiIrbwrA3lmt1j4nxMYX0u
-         X1/PcNoQ+fzK6EWWwIEpox6lXzEj339SixBak/3xJZ0fGVIrXo1U5yluCo/NOgFcS73v
-         2Wje4DvclSs/QIEhKT6y8wTSSz355LYFuR8i4+Vdt+Qbl0oUeNdRiEOJRkmDn79YVbnK
-         JY9HalDRj+XsgTFJvT7L4KfQNGOoN/1S1JEipUu25BTYkZ93qGO65pAu1HnyNuqwJxd5
-         Rj4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790447505; x=1791052305;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZTJPjPJxE0WNlUfHRSqhiAYlVk8gMUP4vwmB54Medcc=;
-        b=bjBRVrRa8hLAOzo8a8EhjglLkAOva9X8MiC1RRchXB4/2V4c5v709aMCB8qLZ8wvbI
-         tS5oQp34X2T3n3SRo1UXkE80qBftVrMRBoktClaE400tkGSh/sZvLq9E1mGXoOtV0vhQ
-         a7+igefWGqW1i9EL63MGtpmb9NbSiIuhQ8FNAJafQWGQbf5jBCz4+HpaSCZevZtl/DtB
-         5QbvMDZAfBmkL+GHewmxEMdzgmQW1OKSbzLqrUH1xcYFVI5e1fJyKX5BXVv7Hct0e9yO
-         Oz8mYmsv4jZ6fvVuYpC7fEmTtSzmdVwdYNoPjGHEmHtbn80Mnd295rpphmk7NCQcVATz
-         Wc2g==
-X-Forwarded-Encrypted: i=1; AKwUvBzvIs4vxaJYzJKpNt+hL97jt5Trr30/HGOBB0d2YfU1N5Lc3F1/FfaAC3CmUgZmS7nq34vduBao8OI=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKRRLraD50Ho32lantKkePJSlrqDrNT5RWOZ9s8pkolIrdYYRHG
-	ZYgoe7Lb+P3RLJ+wcoPS5NLLOrMvEAKZEyOPp+pOtJqp5tx6H3skwLIz
-X-Gm-Gg: AYBFou0UKIvM/f9/ZYxP+c3MMzSSvzNiLV8zRCwFusYnifrXZ9wDLqZ+Vw71GgmcFTI
-	17arF5rnOEwXgpoFaisB/OuitxRdzE/tgzVZojMloKB3WK8iDFArJDocTbipysvAHYVmV/we/Iw
-	H39Rco4qiwhQrKA9GvLihXPlHOIp+RkxydqMbETrhWgb1ISKt9l+rBwwCu/hGzN74vhNkfDHBJX
-	V6cMBzYxklFGnAsyvBMtCMj78kwOJ0ts+SXMpKTnDWF8fZGYsm0XwQJqgWHhgPVkAvbZpksrfWE
-	b8r2i8KpFzLD+SfUaKi9ROe9HoIdFv/xm4pWZIWCU81nkmPOx8gAo+hF01spPeqCQukWYEKaL1/
-	VetdKYEDed7rhCZHAnaUin5eGbaH6agVhDtw1QXN3/mBdIShkMUn7CzjqKVBdt0X9KORQijxRoa
-	ISCCPriuODkGH6aSrCqOMU1sKGOoplQA4xkL5etKVKpn7uDNQls38biD0E5MY1B25DAQkeI16kP
-	c86i5tX
-X-Received: by 2002:a05:6000:468c:b0:488:79db:c73b with SMTP id ffacd0b85a97d-48879dbca28mr7473819f8f.24.1790447505235;
-        Sat, 26 Sep 2026 11:31:45 -0700 (PDT)
-Received: from m2.. ([37.142.154.181])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-4887a34a4e9sm13167970f8f.11.2026.09.26.11.31.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Sep 2026 11:31:44 -0700 (PDT)
-From: Michael Zaidman <michael.zaidman@gmail.com>
-To: Benjamin Tissoires <bentiss@kernel.org>,
-	Lee Jones <lee@kernel.org>,
-	Linus Walleij <linusw@kernel.org>
-Cc: michael.zaidman@gmail.com,
-	jikos@kernel.org,
-	brgl@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
-Date: Sat, 26 Sep 2026 21:31:34 +0300
-Message-ID: <20260926183136.25146-1-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <aqvHqSOgziyfhWgp@beelink>
-References: <20260827205116.GJ2943942@google.com> <20260827222550.24634-1-michael.zaidman@gmail.com> <apaLLD4ZXhNV-Dph@beelink> <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com> <20260916125806.GR11487@google.com> <aqucXBi0Fmq-tCWr@beelink> <20260917100455.GG1605367@google.com> <aqvHqSOgziyfhWgp@beelink>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gOmf88K+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E190A1F000FF;
+	Sun, 27 Sep 2026 10:03:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790503427;
+	bh=qDbKiQM8+c0G4cyeb9xmRXidwHXaAeau7kS17YjyRNo=;
+	h=Date:From:To:Cc:Subject;
+	b=gOmf88K+U03zi8y88sqGSPH8QbJcWzJ9I0+8qfqUuP9b9xJrnu7E3TjGoplEYoXHr
+	 DjzO+4R7rytCMVepGPlR7gcorxVFBcZbYmETpDR69i7HQo48MfUVwQgJ0v7y9tmvVJ
+	 nmtWU5TcQIglEHdKMG68S1yfSjUam9GyURRl0DAOGOPB5KeA3jhrDjJLl+3rq4mOar
+	 5XmplMHSz9cj4jTC6rfpYFSI3GolE5d4eoY9d5qiwfmJiPeqiyrZToP10da6A5yrbi
+	 FdljZEDJnD9aSqIzLdsGM460YWwtE4y2/z7AUHBpiWYa/lbM3o7NmhwXPQXDAmU3bJ
+	 Gz+qX5BwcqwjA==
+Date: Sun, 27 Sep 2026 12:03:43 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Subject: [GIT PULL] i2c fixes for v7.3-rc5
+Message-ID: <arjpVJwkFP8ozdq_@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Benjamin, Lee, Linus,
+Hi Linus,
 
-On Thu, 17 Sep 2026 at 13:07 +0200, Benjamin Tissoires wrote:
+here is the I2C fixes pull request for v7.3-rc5.
 
-> I think HID is just the transport layer (like USB, I2C, SPI, etc...) so
-> it shouldn't count as one of the additional subsystems to MFD.
-
-Agreed for the FT260. The HID reports are the transport. The functions
-are UART, GPIO and I2C.
-
-Jiri answered me off-list on 11 September, before the mails of 14 to
-17 September. He has no strong preference, and he left the sequencing
-to me.
-
-I will land the current driver first, and do the MFD split as its own
-series once this one is in the tree.
-
-GPIO support has been in the out-of-tree driver since 20 November 2022
-[1]. The serial driver was added there on 12 January 2024.
-That is where its bugs were found and fixed. Folding an MFD conversion
-into the same series would replace that structure while the UART and
-GPIO support is still under review. Landing the tested layout first
-keeps those two reviews apart.
-
-I maintain this driver in my free time, and my bandwidth for the next
-few months is limited. A split across drivers/mfd, drivers/tty,
-drivers/gpio and drivers/i2c in this series would stall the UART and
-GPIO support.
-
-The parent device depends on the strap pins. One HID feature report,
-0xA1 System Settings, carries chip mode, the clock, i2c_enable,
-uart_mode, the UART frame and flow control, and the GPIO pin-function
-selects. The I2C interface owns that report, and registers the
-gpiochip, in I2C-only mode. The UART interface does both once UART is
-strapped. Enabling I2C or changing the UART mode moves pins between the
-I2C or UART function and GPIO. That parent is easier to define against
-a driver that is already in the tree.
-
-The MFD series will follow the constraints from this thread. Lee, the
-code that calls the MFD API will live in drivers/mfd, and that file
-will do the shared setup only. The UART, GPIO and I2C drivers will live
-in their own subsystems. Benjamin, the child devices will keep fwnode
-support, so an ACPI or DT child can attach the way your cp2112 CI does
-today.
-
-On Tue, 1 Sep 2026 at 16:02 +0200, Benjamin Tissoires wrote:
-
-> It is maybe a lot to ask, but Michael, can you demo the MFD split on
-> one/two functionality so we can check which approach is the best?
-> Ideally 2 features that would be intricating well enough to demonstrate
-> how hard/easy it would be.
-
-The two features that interact here are GPIO and the I2C and UART
-functions.
-The split is one MFD parent for the two HID interfaces. A demo that
-splits only the I2C part cannot show the gpiochip ownership above,
-which moves between the I2C and the UART interface: with the I2C side
-moved out, there is no configuration where that change can be tested.
-The MFD series has to do the whole device at once, and it comes after
-this one.
-
-[1] https://github.com/MichaelZaidman/hid-ft260/commit/e40e56953e8c2b23c222d76e97b5f5e274b91603
+There is just one fix correcting the qcom-geni clock selection.
 
 Thanks,
-Michael
+Andi
+
+The following changes since commit 93f51579e7df248780214094418f205253383cc5:
+
+  Linux 7.3-rc4 (2026-09-20 13:48:15 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.3-rc5
+
+for you to fetch changes up to cb97bf3d4f91453b881acaf8e9f0cc47bb40b604:
+
+  i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL (2026-09-24 22:52:30 +0200)
+
+----------------------------------------------------------------
+i2c-fixes for v7.3-rc5
+
+- qcom-geni: select the correct source clock table entry
+
+----------------------------------------------------------------
+Viken Dadhaniya (1):
+      i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL
+
+ drivers/i2c/busses/i2c-qcom-geni.c | 38 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
