@@ -1,95 +1,103 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5F2031E832
-	for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 16:02:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4554421223
+	for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 18:48:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790524940; cv=none; b=YUo8jNsZlR7trnxaJQEfdVleZWXTngz2Y6g01Sz3cnOBeCAtitwL+LYSx7u2HjssNXl+o+kCkY7J/7XxbMTFEXPbUvmo7nNAqGpXo9QGH7EPzbVM0HQV5tali2xkVtEJ5zoTG9SrGdB5Ano/Gry53Kbic/iKf0JCkhUV/RTWPAc=
+	t=1790534902; cv=none; b=iPaGbiQus6FmTUXYAi1my8NZlHdfVs39JniJMBBSC+3vFGWTMGONTko1DJu3Bill0tRCtgVuL2lQ/FrxRDrfl98K1IrJNYxxdD9q/S+R/Ol2UDJYM7WiX3D/OfAk1vccEsK1ZIgZ5Ul3qXRA0yOaO6yv7NmlKty/1JgKXO16EGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790524940; c=relaxed/simple;
-	bh=GyjfgPTMRC/yGsJXMwpQENizHPBd6a2BQoquwtHMM4Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mU0/OFiqGH5aetSBS1FeOxxjR1auhHsZxBMnxWqh7vJ8dmivGscYZgP8sRbL5T2HSvFfqPgaE3rK/BpRkd24zUBCdjW/zgOF/MrkmjNcrRVkyUvBIrjbzv8Jx4Hkw72Yv0ceFsCCoySnnBTtlOPAYdF/IZIVcIt1eLbpivrIlyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=PBk/Ffnx; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1790534902; c=relaxed/simple;
+	bh=soXokHFCzmLIi+VJ1I3iTtbX0+pzsLftTokWbQ9P6Cg=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=HhBTlCJa4JBs/oOab1UhVo0owAQZfeurfn9aHYgcxL+D7C4jEDqASiLkK+SEISxZZEFg5t3l0++zmo7X3E0pjHbHxMtTN/HP7rnt0kJ4qoe1p1vpdV3ZFSHAeu4Ax3XJSN+OOFNHc337cJB/8kySdLB2WUbYuOSniUr5aTTMqoY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=k+RmNbcm; arc=none smtp.client-ip=74.125.82.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="PBk/Ffnx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=GNTV
-	8SgU2ZssPNLB9xAnHkQxaxSN7daJSWZhzfq0l/4=; b=PBk/FfnxqwZuSqykNVRq
-	lGCpIIq1YMfeC+U80XsbBurUvau1CKfHSMo680qZSDEuOtkdguWvWcq80bdR/Ks3
-	dNhkXnpVk+ATNJSj//qvlEeUiLmjv35kW0klX27xuH+4nbnoMO1SXVQD6S0hxoIs
-	7nR/BLMY0RLwombQlEuha3O7hDgED6z7njPCOMU/36O+jXFwfbvSAUZgz8mbSFg3
-	cWEQ0OYrpX/UdMDt30VtWR2t/c+SVkLsBhCD8HoF4uogUJDa0Y+jyq7x8ykTdQ8b
-	GArQH4RwlntgxGInqrRJ+nqVSF6ubOHU+g+oH6Lvni8trRgIrShvzDkgFprpNILL
-	vA==
-Received: (qmail 2688003 invoked from network); 27 Sep 2026 18:02:15 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Sep 2026 18:02:15 +0200
-X-UD-Smtp-Session: l3s3148p1@Ic61EnlcBqMujnuD
-Date: Sun, 27 Sep 2026 18:02:13 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Brigham Campbell <me@brighamcampbell.com>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
-	Gero =?utf-8?Q?Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
-Subject: Re: [PATCH v5 0/2] i2c-tools: Make tools accept bus path
-Message-ID: <ark-AXt29OBT5hbg@ninjato>
-References: <20260722-accept-device-path-v5-0-9c0bf9b4da26@brighamcampbell.com>
- <DL9EB60C2IIA.228Z11CQM65Q3@brighamcampbell.com>
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="k+RmNbcm"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-343479e6005so563346eec.0
+        for <linux-i2c@vger.kernel.org>; Sun, 27 Sep 2026 11:48:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1790534900; x=1791139700; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=yqlZZ1RhSPYEVPxxu8nVXKmxPulry40jU+yUEBcr1Ew=;
+        b=k+RmNbcmk2D7AP0kteNYpcaZdc/OxOoy8fVJMwEAKZurJAThwJr5YJOZ8NitnpImVB
+         htLitsit0bfiW+cFgggLx5SZGCgVZ33wVyQIqpPA7OXzBXDiDFwyZwEVYao7D9AEVetl
+         M3uAwn8dDROWtN2sjqzmbid8rTJjyeXbVa2Sr+LP+d0g7sxLpMCHIVT3rKPyifrM/PKe
+         /cqbOOeUGoqFIka2VzrgEwWH9LMR2FmsIDGxzZObx2Ok7MGVyYeUsbJFh3PF8mgPPpf9
+         dBqVwmjmD5Am3UcUIDfBG2EXGAtCgHKUBzgeppUALzldMB3nQJ9aYBGj0B99nh5rdgun
+         7jrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790534900; x=1791139700;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yqlZZ1RhSPYEVPxxu8nVXKmxPulry40jU+yUEBcr1Ew=;
+        b=PDR8X97aDOmRmBnDoe22TOdHRk87AO19nRK4PT9wip1UJ7dUxkSH9MhLFRukcfcvfl
+         rcQV2oGQM9Udy+564fKdeKyymAOwE3bPUE2QaAC4ni+u0Z/efi2vB4fXh2Rz8IaRoSBM
+         glFfoHWrffXGvMiiT98LI65rCWKYrfiEF1UMd2R9+7bjMhoe6Cxtjj74DyTrudh/LVrq
+         J8soGEBOmoYYL+faBq3FUI9A3XxeEnzGm8veP11syXBxvspIKh6jt+bEs8P11TRcwW6I
+         xsxd7ScnL696f0cCVI2r3QZjOIySVdSF0O4ZUNh3EXcAmqqRCELJzlySPjr3Gvk46wHR
+         mZbg==
+X-Forwarded-Encrypted: i=1; AKwUvBxrpsSMRzgMcf8NhnxEyRe6IegB52qlxgjI4+FZX/om/2z31Sn0jjqyxXf/zqwPd5PwJicGp0A4BHM=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKd1ce0zUMGdPtgBIRQro16KqpLlx2t2QD+PeXoT6WRdvGNdYno
+	qxr3g/7k3qMqM3VhGo1+LOtvKtmpUpodYym7huWYYFOtUma3sK8cCwP8VWkLrUKp15E=
+X-Gm-Gg: AYBFou05k39TfOKC73vvBg8ymYuJ+ePqWwvWsA1ko9xeiby9YHRhuyZmEfbLVZVYk9y
+	+/OOoFVniHLL9svMkFVa2ZaBIotsLW9j3yTK2Dy4BsSq8+xzX8PrLGo1CD8KHvHGhQpj5ZRKDpd
+	t1+2UwsuTFPlxtsVfL9lQraOTGr9Jrzi7QG7z85H9BTovPFjuf0d5MTSHm+aUgfPwj7xsUh+yaH
+	n7tutL9vRJcDFG/ispNcGQnNlI5vqEy4TYLq/R12tkuFX/enHPomo6UiYn2tqRU8JXjkWbEmFDd
+	nvkPpDicmUJnaDfmG30jZ6LodVgBJj+4nvX001wnxD+OW4wSme1xT68F+FrosRjf+fuA7Kr1DQv
+	XYBiRjMMkn7aPlrOC6mDKkC+dVXh69sxvnX+yNjb6SPU9m0fkCoK4vi6m2OurkwYki/7/qKQjap
+	VH1pSlfJIUKLO14aPU+x6rUeSclSs7QsntxJCf/xHpcN8oFp3Hrb54UrEa7IqFADTKwJLXd7Y=
+X-Received: by 2002:a05:693c:62dc:b0:332:946c:4778 with SMTP id 5a478bee46e88-342721805c8mr5904589eec.14.1790534899604;
+        Sun, 27 Sep 2026 11:48:19 -0700 (PDT)
+Received: from localhost ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-347323f5a7esm2044300eec.15.2026.09.27.11.48.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 27 Sep 2026 11:48:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="FJ6I+j6OOBJs+gpX"
-Content-Disposition: inline
-In-Reply-To: <DL9EB60C2IIA.228Z11CQM65Q3@brighamcampbell.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 27 Sep 2026 11:48:18 -0700
+Message-Id: <DLQBNCNNWZNO.1AIPW6NRU3GWS@nexthop.ai>
+Cc: "Michal Simek" <michal.simek@amd.com>, "Wolfram Sang"
+ <wsa+renesas@sang-engineering.com>, "Raviteja Narayanam"
+ <raviteja.narayanam@xilinx.com>, "Wolfram Sang" <wsa@kernel.org>,
+ "Manikanta Guntupalli" <manikanta.guntupalli@amd.com>, "Shubhrajyoti Datta"
+ <shubhrajyoti.datta@amd.com>, <linux-arm-kernel@lists.infradead.org>,
+ <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <stable@vger.kernel.org>
+Subject: Re: [SPAM] [PATCH v7 0/3] i2c: xiic: fix SMBus block read and PEC
+ support
+From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
+To: "Andi Shyti" <andi.shyti@kernel.org>, "Abdurrahman Hussain"
+ <abdurrahman@nexthop.ai>
+X-Mailer: aerc 0.22.0
+References: <20260924-i2c-xiic-v7-0-df7e752332ef@nexthop.ai>
+ <arkAZJEJTtNsCjmF@zenone.zhora.eu>
+In-Reply-To: <arkAZJEJTtNsCjmF@zenone.zhora.eu>
 
---FJ6I+j6OOBJs+gpX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun Sep 27, 2026 at 4:40 AM PDT, Andi Shyti wrote:
+> Hi Abdurraham,
+>
+>> Abdurrahman Hussain (3):
+>>       i2c: xiic: preserve PEC byte length in SMBus block read setup
+>>       i2c: xiic: defer RX_FULL until all trailing bytes are in FIFO
+>>       i2c: xiic: don't clobber msg->len to signal block-read completion
+>
+> pushed to i2c/i2c-fixes-2.
+>
+> Thanks,
+> Andi
 
-Hi Brigham,
-
-> I appreciate the feedback you've given to help get this series to v5. Do
-> you have any outstanding concerns about this series? Is there anything I
-> can do to help get it across the finish line?
-
-The main problem here is time :( I have important conferences coming up,
-so I can only schedule this to the second half of October, I am afraid.
-
-What would help a little is maybe a description what cases you tested?
-
-If other people want to review it before, that would help a lot, too, of
-course!
-
-Thanks for your work and patience,
-
-   Wolfram
-
-
---FJ6I+j6OOBJs+gpX
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmq5PgEACgkQFA3kzBSg
-Kbb8eQ//QdpP0hh0T3r4j2Wvh6riVbXX80xOVl1sJKpE9TCAH/m20y8QQbqupMAd
-J+Y+mFRmlD9qCxtogKfBMCETVhciI/OB938cVC6yF6KdOgqTkVJXmhkz/PRf4F1B
-eFOwwAEcAt1oKlCcwOUPMAt4nPnELag+TEUEKmb3mI0z7kuVfw9aOtEOpcA8Hkbb
-ou58sypDZwIQOfmup4+JXV2fx8PZPykGB0lHupdoKX6E5OqxuG1Xjgb7BzWqHm6x
-AerzBPM74qvINAJ44XAV2G1Ilq7vX8QO7ca24vFY21jXOabTdW+U5dbCrc5a1oYF
-+RPmFU6E8vQ77O8mM/aMNp9BtezoIiEDdm1aep3QnvVIWh7BWq1fucuYEK0h3rh4
-iYj9hLeTHMt02WAgvhBC/BYIx3RkvePW1NZoQpL8KrfVVtmQgDzuJdUbomZO5NNJ
-LwVHfLoD8EjUFmhDtx1vV5lDH1SYN59tdpBdvGmVX0UH2YaCSi+oOF/syzSUcxi8
-4Qwb3CJRrKVxR92r/eoAZ/x96ziHcS0JMs4tSBzGsOSg2hBNwY51wmEPnhdl5jly
-LQfscdiOLwaNs1vyaiav1JhXMbi1o7Sz5UGce30Jlp/mvX3xCWdOSrfFBbC3w/jY
-+APfW7oLQ3B9q+vXPeXQeaYrIxVdeFyFoABE1hGqq7DACjdaArg=
-=PJBU
------END PGP SIGNATURE-----
-
---FJ6I+j6OOBJs+gpX--
+Thanks a lot!
+Abdurrahman
