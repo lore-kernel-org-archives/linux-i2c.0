@@ -1,42 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5260376A16;
-	Mon, 28 Sep 2026 10:00:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C689A4915B1;
+	Mon, 28 Sep 2026 10:05:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790589646; cv=none; b=uDQtBio9TrVSbY//PqApHvorqqtotZtauZkQg6gQ/iSo49S9+2TcxI7bhLyXnmfJKUQ6iLri/VwL3PX998v9oRQ2lg3VeR3rsBOHLVM68PObuN3HuJibkYwBai6S0xUqgwVi2nRrJXMaPiFdSE8YVS6vbj0HXNu8SwsBaXCDJkg=
+	t=1790589942; cv=none; b=ZRHPxTmcEM65bFdEFa0Ucuvp8j5hCttBnS03EG155dhhWr+oiRuaWhPOBsh4V4Cf8rg0QiyHxHnddV/kSisqKtspFvpqdtHStv6jbTwcVYZJSQeLb5D5wK70WuvPnLPLWB6HaNJSsv/8TLZo24qJsjeUIuxQo+JAOqsE9wQ7qq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790589646; c=relaxed/simple;
-	bh=op5mtiZAkT1L91chaYCYFcpf/NrcuO6G0vmvkj2IDlo=;
+	s=arc-20240116; t=1790589942; c=relaxed/simple;
+	bh=eAgVLIhlC46EQF1H+SHN3KzrK8z8WrRCtMwu1pBAq5I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I6u0+udKOhKJtN7x4A8GKt/q3RPqp9/9NXDz6q5Qv+x6NauGRrmgN626rU59vEbWRFLsgBFeGBJg5EGkKcQUn/sANEuf5P12i4pPAt2LlQpror/X9A+oVCnuzcVf8Qs84Op0Z2uUN2e+71SB3saNvtwUms13RKuKumQTsCISqCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l7IDN0fx; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=WXhEw2hcmaPqikAsy56DNkumfcDhuH4mLvZUtmQKvNISrPVJjWKk1tlU2iNcWvoVIKj4lBZVL2MGptpdm7DiFSkz4ShRyKCIsuafxnC2n4GoO4I2YqkvXZFGUrrS5Alkt/bzO5hT2bMRAE/wrC4iklbMxnxV7ZOuQuqoBYwTZJ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GOX3tfQm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l7IDN0fx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46691F000FF;
-	Mon, 28 Sep 2026 10:00:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GOX3tfQm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF2451F000FF;
+	Mon, 28 Sep 2026 10:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790589645;
-	bh=F6NMInjal7rd7k40HeV9UzP6zM87fQBAHH/KtpxQDp4=;
+	s=k20260515; t=1790589940;
+	bh=43+YVXyrdWk5fDHV8RByct1Z4fjfr1ARLHxq905/6e8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=l7IDN0fx/CUVhBYtHM03mQinaLrm5+pJVY4y92CH9Gs5hzeKkGHtxFTUVAwcKXfke
-	 vHWcxgK3v082RPtUsOHMIdGHCyLU0/EVBqpu28vuXjxH+xvjttU5UrIe8QF9eeJHPw
-	 H/4rc3HOyj087iv8yrifZWmOuySkqfvh4D1Dor/o4fokYPy5fIGtoKUuiWa+jWP5lu
-	 kY023oIeOxb6f3rlbHkUSjjIrVp+ft31rvOTDYr1Jz6oaIuslGleFjsyQesUKHxf++
-	 1JoZjS/fpX9H8CYqfkZ04mnItqrmyFRRbo5+4QPp247+IUlgXwFhZ0SmbhNRZnq3T8
-	 3kjXskol3w0Rg==
-Date: Mon, 28 Sep 2026 12:00:42 +0200
+	b=GOX3tfQmMrYnoW34ss7TvG8kuqFbajcWZxildni27Q4qyCt3q6MdT0rIg5ciHjuIo
+	 ao/yjWenwFUosPjQn71u4WfnmotIB5tVD7Vdb70ePA6pMmmPU9jAhx2MPsmqDhZ51o
+	 W40AkISe8wpNRrkok7wLzgoO1nNuxOmV9YPC9VoK3HQgMDx0fT8KeoyyOm8zeLII7h
+	 c1Nz/8LwgohFdaLX5VydGVDUD6OHzTWOrYeKc3Xp9QIEq/O7qPdpd+7P+8A8dTOfh1
+	 IUdyrAJxVwfygYSpj3S61JrV7QpenbckymrXTLihS44x9ovfeLwJwgCejCEejqVbms
+	 TftN0U44DYYDQ==
+Date: Mon, 28 Sep 2026 12:05:38 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Pablo Mazzini <pmazzini@gmail.com>
-Cc: Conor Dooley <conor+dt@kernel.org>, 
-	Gregory CLEMENT <gregory.clement@bootlin.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 07/11] dt-bindings: i2c: mv64xxx: add Allwinner B288
-Message-ID: <aro6uf6VJEtLYdOq@zenone.zhora.eu>
-References: <20260927151016.186493-1-pmazzini@gmail.com>
- <20260927151016.186493-8-pmazzini@gmail.com>
+To: Petr Pavlu <petr.pavlu@suse.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>, 
+	H Hartley Sweeten <hsweeten@visionengravers.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Rudolf Marek <r.marek@assembler.cz>, Chris Snook <chris.snook@gmail.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Marek =?utf-8?B?QmVow7pu?= <kabel@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Andreas Noever <andreas.noever@gmail.com>, 
+	Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat <YehezkelShB@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
+	Duncan Sands <duncan.sands@free.fr>, Chas Williams <3chas3@gmail.com>, 
+	Luis Chamberlain <mcgrof@kernel.org>, Daniel Gomez <da.gomez@kernel.org>, 
+	Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>, 
+	linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, 
+	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org, linux-serial@vger.kernel.org, 
+	linux-atm-general@lists.sourceforge.net, linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with __stringify()
+Message-ID: <aro70o5N7VoXbjsy@zenone.zhora.eu>
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-2-c18766690185@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,14 +61,20 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260927151016.186493-8-pmazzini@gmail.com>
+In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
 
-Hi Pablo,
+Hi Petr,
 
-On Sun, Sep 27, 2026 at 04:10:12PM +0100, Pablo Mazzini wrote:
-> The B288 controller follows the existing Allwinner variant.
+On Tue, Sep 22, 2026 at 03:32:22PM +0200, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 > 
-> Signed-off-by: Pablo Mazzini <pmazzini@gmail.com>
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
+> 
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
 
 Acked-by: Andi Shyti <andi.shyti@kernel.org>
 
