@@ -1,107 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C6903F3276;
-	Tue, 29 Sep 2026 03:16:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9320D3DCDA9
+	for <linux-i2c@vger.kernel.org>; Tue, 29 Sep 2026 04:14:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790651794; cv=none; b=PZJerDyv0u+aOwDQ3yPIzJf/ts9A/zGAJV31hpUFl+qFGwhKN/NeQ3GkDSkxxF7947iy/lbqNn7o4F3nC+fF+YasgEh6MV+T82BjbrnnEWP9se87jKJlqnVA15ipOl94zdgtE7ybYsoizH9962syN7rZ+V6XRhpmgEFCDRqAPTQ=
+	t=1790655294; cv=none; b=C1FYUoK7lqoHFSKbEWtRW8AwlrGO4g3R7NLbppD6tQtnjIRIVebW17rMeUgFPbDewWosFRi5vf/HUR5ggwzKZMHjlq1G3204tgvLd7lg94mKnpHm2qtJoSQe88B7g0Vu7d9O2ryL4LUks3lV6NFDmw1RARw/zJ3DHg2xhjN2kII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790651794; c=relaxed/simple;
-	bh=58M0gFWWidG/6zbPnFb5epoEJBUF/zkfX0wEx9uuAZ0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=B804fiZVEIkckTm/nymgD0jiujK/oaz4aivFz50GHX35gawiGvG3ifPXKVK5l8Th/t001SdNakwPCeXHmHwJlIoVtGLhhJ7L/8iRB55407u83cS19SuJxeSmby9Daq/+V4EaZhvBWeAIqCP8cFGDVjzGwr9a3kju3d2tnenb6VY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oA8CL9vq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790655294; c=relaxed/simple;
+	bh=cFXjq2JXCSfmvvjsjl7kaIwIGpfd3uICNYyzTRRVr6A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OU7WvCOf+Jo5MljZe7XBs7XZxB9tfWQX0RGY9OmtBzUETNfaCvb+ln0PbIQLHLTg3dUorbUgt0Dr8Q088GM5/k8/N7S/iuJFM1MfT8nOzOa3owCW5R1PYi6dEaTwO6em6YWg0viBAONaHf7D2w2cE6d+JxxhoqtXGGdCFyJT1Hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=quora.org; spf=pass smtp.mailfrom=quora.org; dkim=pass (1024-bit key) header.d=quora.org header.i=@quora.org header.b=U2qJSkGL; arc=none smtp.client-ip=74.125.227.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=quora.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quora.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oA8CL9vq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEA431F00899;
-	Tue, 29 Sep 2026 03:16:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790651786;
-	bh=F0CTjS7yFkhDUw+iDXIDuiAzpBXHh0hjcv/EEJ3JGDs=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=oA8CL9vq/wIWnCIlahYuBGTm+51jH6ASoouihS9wSoZq2Xk4mab7ftGB1fRA7AWmX
-	 FpzbT82Yc7snvxzrcs9dwCBTGzU1KduOEYcGr3hkSXr2ncJAJvf7g9M+GGgE9ogYSo
-	 ymzeZD+9kHufCIlWrOw9EKhbErjRKzugXNxDCCzpSVc0T3w2ZCqf/TfxyC+V4to9TF
-	 x0a1NsBJG4ehwvCX+ulpkj+/i/yh5bs8LXoCUs6vRQnsTB6mCLk1u+mEPbg2QXNLqU
-	 1yDxGn4JTCiWs+KB9F9C6/k4EkOomoBK4fD0ruW3TbcmQXqgb7xOK9hfX4W6g9oFBf
-	 6+6EjV1TPeGgQ==
-From: Bjorn Andersson <andersson@kernel.org>
-To: Bryan O'Donoghue <bod@kernel.org>,
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-	Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Robert Foss <rfoss@kernel.org>,
+	dkim=pass (1024-bit key) header.d=quora.org header.i=@quora.org header.b="U2qJSkGL"
+Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d747eb79f7so16831005ad.1
+        for <linux-i2c@vger.kernel.org>; Mon, 28 Sep 2026 21:14:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=quora.org; s=google; t=1790655293; x=1791260093; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=z/00Ko7gZUPuAiTpJB4dBnk2KXfjE/uS38djV/L4NvE=;
+        b=U2qJSkGLwVHNC75N3D7jHJg6yXV34LZXxTC1qYxxz2WxEbXt/G4Ai8Sb6x18hcbyDj
+         UJWewIbqzQCXsom078jmIevHvMWaTLYNWnkPBGzhxEWYl8ozBK85lzx77xxTxo2O7aUS
+         axhS7hTfDqSp1CLVlYUw0ryWS3cMozc7uD+iI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790655293; x=1791260093;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=z/00Ko7gZUPuAiTpJB4dBnk2KXfjE/uS38djV/L4NvE=;
+        b=DGcHDwjzsGEUJ9BGgWbPKrPLyn/z0XFX3P2kz3NFsIov1WbMxwXptZKBoXDz41unkh
+         hnpdz6x0Pum+MGLhCOF2JRDsltGjBXIE0WafZfZQL+TDhFIpHlXV+/Al/bmSo+xrSz2H
+         0GcG6IYfS1RyZ60X08OtzGmgxi2EMimKvrhge9g2ojES0LPGbZX+k52MkrvyXZtS+mfC
+         aK1n+WbzieVSy+02HtKERomEL9FYRuDpx50QU1VmaupbWWvBPwFkfQAmph5mgUqH93+d
+         iFXowFqANIRJmIjQpuYCclNGVGcuBMZUvaAPcHtE+JTi99m/9bAsz7YDW5yaHlPlG2c7
+         DCBQ==
+X-Gm-Message-State: AFq9FYLutNdD4kSCcz8HieE2knYkrOExQ5TQ63iSEbI513oyicBbmMDe
+	4G8stMuRahGOnD9l/MX9L+OgJm9Yu0WQF6WjYpFAa/lVzqICTYvFjG2sLIhHzsr1QEQ=
+X-Gm-Gg: AYBFou2PEY84ASkc1xQie1ZsgueoKSnWEMx4AAP84yQ84bR4I/BjM2lby8KbTWQvbH6
+	lhMQtT87IctMCBNLEbW1Ue+YiBMAvld1C1P2FGl7d1FxMZRyzGRnFy7NJ/2rVvBx41lZeOjhsC0
+	YQatnNyUnNuezZ2x+9ED/CSrwyCsixPFZyqmgvb6zCGsnaV6RfQIS3c11a/C3wt4cRB3Y8esMCu
+	ouQAP6rMe/+o/9aQVE6hB9vV/KPEgLtUG8lwlFum5MmXeXjBGDAezqrtPIywxsaQCiksHEbC9XF
+	SCOyXYEpTcPjxKvpc/SmsRhLvb/72IXJyiuAmRFjyjkSk148fqF56fW5dsAxPAuS/9s4oII4Ujg
+	agUq4h+L1//kXP7qrZlnh6N7/ChrXH9mZT4vBq/DjNSJ4TxLZx3MxrXQ8MxeFRiizdtL8PHUHIO
+	cLM38BkiC0lX1YsquIe4EqjtBQO+XI6PQyAv4Tp+CltMeup5EtKYlaGzbDuO5K3WM5ftxxz1nO9
+	DkbX20NXXuFGEBxqfzNmb+3Ylt9cSgsIN9OWAqfHV8fomjHkGRx1fZK7Pjw9n59KRQIUF6XCmmz
+	u+uSIzP8QHeb+h6NtokXgMnbk1qdgo4+NYEXZ2qZvRqfgUHG7WMD57FmBq5PvO+/hu5id/Inmig
+	qpsUlOi+piq4JHTIOL58ts0YFrzSxNtJwCKwjfFq4XDs=
+X-Received: by 2002:a17:902:f544:b0:2df:98a2:a2e2 with SMTP id d9443c01a7336-2df98a2b3b0mr90144685ad.30.1790655292825;
+        Mon, 28 Sep 2026 21:14:52 -0700 (PDT)
+Received: from aegis ([175.158.243.214])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e2c6f46976sm3192895ad.22.2026.09.28.21.14.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Sep 2026 21:14:52 -0700 (PDT)
+From: Daniel J Blueman <daniel@quora.org>
+To: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Abel Vesa <abelvesa@kernel.org>,
-	Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-Cc: linux-arm-msm@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	devicetree@vger.kernel.org,
+	Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
+	Bjorn Andersson <andersson@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	Suresh Vankadara <quic_svankada@quicinc.com>,
-	Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-	Abel Vesa <abel.vesa@oss.qualcomm.com>
-Subject: Re: [PATCH v9 0/5] Add CAMSS and IMX577 sensor support for Shikra EVK
-Date: Mon, 28 Sep 2026 22:15:14 -0500
-Message-ID: <179065170904.2673486.17917322298927031673.b4-ty@b4>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260923-shikra-camss-review-v9-0-09f5fbea1309@oss.qualcomm.com>
-References: <20260923-shikra-camss-review-v9-0-09f5fbea1309@oss.qualcomm.com>
+	stable@vger.kernel.org,
+	Daniel J Blueman <daniel@quora.org>
+Subject: [PATCH] i2c: qcom-geni: restore tSCL with 32MHz I2C fast-mode
+Date: Tue, 29 Sep 2026 12:14:43 +0800
+Message-ID: <20260929041444.9837-1-daniel@quora.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
+Commit cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in
+SE_GENI_CLK_SEL") allowed GENI to use 32MHz clock. This changed I2C
+timing, making the Yoga Slim 7x keyboard (ITE 048D:8987) unusable
+on all boots, and touchpad unusable on some boots, resulting in:
 
-On Wed, 23 Sep 2026 10:27:27 +0530, Nihal Kumar Gupta wrote:
-> Shikra EVK is based on the Qualcomm Shikra SoC.
-> It lacks a camera sensor in its default configuration.
-> This series adds CAMSS driver support, CCI definitions and enables
-> the 22-pin IMX577 sensor via CSIPHY1 through device tree overlays.
-> 
-> We have tested IMX577 Sensor on CCI1 with following commands:
-> - media-ctl --reset
-> - media-ctl -d /dev/media0 -V '"imx577 1-001a":0[fmt:SRGGB10/4056x3040 field:none]'
-> - media-ctl -d /dev/media0 -V '"msm_csiphy1":0[fmt:SRGGB10/4056x3040]'
-> - media-ctl -d /dev/media0 -V '"msm_csid0":0[fmt:SRGGB10/4056x3040]'
-> - media-ctl -d /dev/media0 -V '"msm_vfe0_rdi0":0[fmt:SRGGB10/4056x3040]'
-> - media-ctl -d /dev/media0 -l '"msm_csiphy1":1->"msm_csid0":0[1]'
-> - media-ctl -d /dev/media0 -l '"msm_csid0":1->"msm_vfe0_rdi0":0[1]'
-> - yavta -B capture-mplane -c -I -n 5 -f SRGGB10P -s 4056x3040 -F /dev/video0
-> 
-> [...]
+  i2c_hid_of 1-003a: unexpected HID descriptor bcdVersion (0x0000)
+  i2c_hid_of 1-002c: failed to fetch HID descriptor: -110
 
-Applied, thanks!
+With this change, t_high_cnt 3 and clk_div 4 gave a tSCL of 375ns
+versus the previous default of 521ns, however the I2C spec has a
+minimum tSCL of 600ns.
 
-[1/5] arm64: dts: qcom: shikra: Add CAMSS node for Shikra
-      commit: f1e325d194fb0d719d848a42ec522e0f70250e44
-[2/5] arm64: dts: qcom: shikra: Add CCI definitions for Shikra
-      commit: 7a3fcdb8d28fa5f162003b4f28f0160c82ee62af
-[3/5] arm64: dts: qcom: shikra: Add mclks pin configuration for Shikra
-      commit: e1f5d59e0eca23e2e69353f769bfaa187ad94ab8
-[4/5] arm64: dts: qcom: shikra-cqm-cqs-evk-imx577-camera: Add DT overlay for Shikra
-      commit: 9cd1efbde98772e08a79a7b5d655cae60b38264e
-[5/5] arm64: dts: qcom: shikra-iqs-evk-imx577-camera: Add DT overlay for Shikra
-      commit: a4be00ccf9e0bdcfd407397368e0599c559d90be
+Restore tSCL to the spec with t_high_cnt 5 giving a 625ns tSCL,
+verified on Lenovo Yoga Slim 7x X1E-80100.
 
-Best regards,
+Fixes: 506bb2ab0075 ("i2c: qcom-geni: Support systems with 32MHz serial engine clock")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Daniel J Blueman <daniel@quora.org>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 6a39e21d5ed4..1336a09ca183 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -193,7 +193,7 @@ static const struct geni_i2c_clk_fld geni_i2c_clk_map_19p2mhz[] = {
+ /* source_clock = 32 MHz */
+ static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz[] = {
+ 	{ I2C_MAX_STANDARD_MODE_FREQ, 12, 9, 10, 26 },
+-	{ I2C_MAX_FAST_MODE_FREQ, 4, 3, 9, 19 },
++	{ I2C_MAX_FAST_MODE_FREQ, 4, 5, 9, 19 },
+ 	{ I2C_MAX_FAST_MODE_PLUS_FREQ, 2, 3, 5, 15 },
+ 	{}
+ };
 -- 
-Bjorn Andersson <andersson@kernel.org>
+2.53.0
+
