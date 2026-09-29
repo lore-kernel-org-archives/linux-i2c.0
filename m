@@ -1,48 +1,52 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp5-g21.free.fr (smtp5-g21.free.fr [212.27.42.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FFB549AA24;
-	Tue, 29 Sep 2026 21:16:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A98274E3784;
+	Tue, 29 Sep 2026 21:59:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790716573; cv=none; b=fDIlyROp5DTrlF9xHsPumAKr7WP512iL+n9vkPdtxk8mp2xt4Nvi6c2Ah/QhOh9wlr5ekFSNu0Qj1kChEUq0KQ+SY4dTgb1mXKD9ClgiwBPIRYC9cQos7HBaTkvDs4Ry7PEXHF8oQG99IQt1H2CMQVGfwzsMLcPUlspLoZiM5uU=
+	t=1790719147; cv=none; b=jiOggFY66Z/hXaDqMCLj+DP2JP7bzhSZJleJ1xGx6MEUVMe15nHe6pqSH9a0gEkKabhecNBqxa0OkTpJxfvDTnbyFFP8qx2E0B2zexdOsnaseFmcyDwnhlKY1xg+NlSNWi4ULZMNgFu4JGHFOpqNwE+paDcuTWvPruLaKgtfrXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790716573; c=relaxed/simple;
-	bh=O9/ed/FyzDWfBZ+cwrPtWes5Hx16xHr5FSfmKbsfLC4=;
+	s=arc-20240116; t=1790719147; c=relaxed/simple;
+	bh=cr5V+n/greApI8Zyhw+2u0aNrf/2IvsBktudjqmiqro=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hajN8gXBDBlS0VPJOOZxzsnq+WUP03pIBUvgtKSWh+Pxq2WSugCE45t9mPpWnOQxeR6jwCJwrbUm3FgYypbVgnVM/A2U/yIsH/YBhXV//PqKfYay931UXCRaSzNbpsIkAjrV3+omdoAy8iNXb5Kkueyee9p8/hZbIfCXiwSyrLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LHt2E58Q; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=o4FjYxEbUIsGvLCaKY8ZuOH6dBZ21Ou23js3Bb8qKc343dYS1rgWbKHHDXG6Rsuf/oFGtXR6c/OC0xWOBsEsqDEcV6dthnyPAjgM3Z/eb4vo7+M+r7k4SvYJ2uP8WwrP2zWyINUH2bQ/BNbKOLKppMyIpUjuIJU0vwpkwzpzNH0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=BNoPtG9a; arc=none smtp.client-ip=212.27.42.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LHt2E58Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FEC81F000FF;
-	Tue, 29 Sep 2026 21:16:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790716571;
-	bh=xpw024FPprsgBJNE+ZftfnLgbwyIdP1EDp11HcHw3IU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LHt2E58QCAUzIRlzpO6t7v+9zqFQJx+Jwc46d3dgQ5lIjV8BcZ2JPYxER+oq+CsYl
-	 od7zS9SWrctFtLl+s9Uks5G9FH2b6B5esIaprOPo5il3JGGHFWWQOd/swDCLowTCq0
-	 G92spy4chD19G1XJwxbrPHXhazJce0yxPyaAny9c1mRn343MWrfSkOW3WjKP6YiAym
-	 /l7Ey8BAIfg7io4+BQk+H+H7oca5+I9+WvPFzpWjrMCSTPNI5pay/i22+AEX6AqFyw
-	 NJRu1AN6MplN/+0d3kq+qIYV0TeAN28F3DVUUPezv7nkLajI+6M1AVr/EkqvuNwduq
-	 SUukdTAnGKU3Q==
-Date: Tue, 29 Sep 2026 23:16:08 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>, g@zenone.zhora.eu
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	Min Lin <linmin@eswincomputing.com>, Yulin Lu <luyulin@eswincomputing.com>, 
-	Samuel Holland <samuel.holland@sifive.com>, Darshan Prajapati <darshan.prajapati@einfochips.com>, 
-	Pritesh Patel <pritesh.patel@einfochips.com>
-Subject: Re: [PATCH v4 5/7] dt-bindings: i2c: dw: add ESWIN EIC7700 SoC I2C
- controller
-Message-ID: <arwqgeAvwVFyLBHE@zenone.zhora.eu>
-References: <20260814070007.1662455-1-pinkesh.vaghela@einfochips.com>
- <20260814070007.1662455-6-pinkesh.vaghela@einfochips.com>
+	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="BNoPtG9a"
+Received: from L30177.local (unknown [IPv6:2a01:e0a:ac2:22b0:fd38:7b91:be5e:6aee])
+	(Authenticated sender: vjardin@free.fr)
+	by smtp5-g21.free.fr (Postfix) with ESMTPSA id 7B1C95FFAA;
+	Tue, 29 Sep 2026 23:58:51 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+	s=smtp-20201208; t=1790719143;
+	bh=cr5V+n/greApI8Zyhw+2u0aNrf/2IvsBktudjqmiqro=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=BNoPtG9afk89bIDpSSwZpYx+lHCVs9Wsyv/laS8KKM0eqRGAjxlZleqPa51jjBBU5
+	 CY7Q33HOgnqUtHj8opAsuXscshB9tSe+jXDsh+/IBv/vcGHmMqdN1bYjb4DteSNDPn
+	 B9GDCmqWXGEAaFsiqKB6SN90MGeJKcqebtZORXaAGOryOrUupiWaLlc0JY3LkixbwL
+	 ok5AJ2D+qJ/7MYK3yUMeKDeiAFz73Xpqj78QcL1TN6WCvq87mwuHEBaKYE3apNoPkK
+	 E2prVdLk25A63Wb5VrAMU4px5KRDXSwyLkmnnsoNC+U20BeWfKKrlKF+G5RXl9sj2P
+	 VzGB14XiP14Tg==
+Date: Tue, 29 Sep 2026 23:58:49 +0200
+From: Vincent Jardin <vjardin@free.fr>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Carlos Song <carlos.song@nxp.com>,
+	Haobin Jiang <lemonoutput@foxmail.com>, linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+Message-ID: <arw0mVbacAXv_1H7@L30177.local>
+References: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
+ <apcYp0Zc7CrJMiOh@lizhi-Precision-Tower-5810>
+ <aqO9SMvI89rqoEGb@L23803.iliad.fr>
+ <arMUxCW5ZTzLT3VN@L30177.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -51,22 +55,25 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260814070007.1662455-6-pinkesh.vaghela@einfochips.com>
+In-Reply-To: <arMUxCW5ZTzLT3VN@L30177.local>
 
-Hi Pinkesh,
+Hi Andi,
 
-On Fri, Aug 14, 2026 at 12:30:05PM +0530, Pinkesh Vaghela wrote:
-> From: Pritesh Patel <pritesh.patel@einfochips.com>
-> 
-> Add compatible string for the DesignWare-based I2C controllers present
-> in ESWIN EIC7700 SoC.
-> 
-> Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
-> Acked-by: Conor Dooley <conor.dooley@microchip.com>
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+Sorry to ask again: could you consider this patch for i2c/i2c-next,
+so it can land into v7.4 which is coming soon ?
 
-Acked-by: Andi Shyti <andi.shyti@kernel.org>
+It carries Carlos Song's Acked-by and Frank Li's Reviewed-by.
+It still applies cleanly on your current i2c/i2c-next.
+  https://patchwork.ozlabs.org/project/linux-i2c/patch/20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr/
+which I checked few minutes ago.
 
-Thanks,
-Andi
+Haobin Jiang's
+  "i2c: imx: honour I2C_M_IGNORE_NAK"
+v3 is based on it, and waiting for it:
+  https://lore.kernel.org/linux-i2c/tencent_342A87BFCECA70C9982E68A79AAD878B6909@qq.com/
+
+If you prefer a v3 rebased on i2c/i2c-next with both tags, I can send
+it too.
+
+Best regards,
+  Vincent
