@@ -1,190 +1,227 @@
-Received: from mail-oo2-f39.google.com (mail-oo2-f39.google.com [74.125.231.167])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11011030.outbound.protection.outlook.com [52.101.65.30])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020F752758A
-	for <linux-i2c@vger.kernel.org>; Tue, 29 Sep 2026 13:12:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.167
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790687543; cv=none; b=E6ieup3b6fzHtz42mvKSHrtXSKrg048xMLwoPEOAwFFl7tPhSzxIH6+ZD4p/eodXcxEjjSqGM4fBkj94/93BPP0HgJhjHQtOhWjhLhctuVaz5H4ad9RjhXU3cPVhNEUsbXtRJcdHQwj4ebIDZTVilpLe17j2nw0Te50WVVaX16c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790687543; c=relaxed/simple;
-	bh=wOjzlOoYB90lyjfFiVBHTNDKDKGt6bPwugUnMawhWc4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dTWGoUntOKxbPc1w9jIiC7Bwu04Ypemv2DWcslSvFxsMWPm0acE2Adh6tX0yvuNUE5TVOV5ERlTcSumxJITZmPx94588QaZqtAOCVExmJF8O8LUjZoG/k3D9yXNLRm28QoKRbwi2xvUTZN2No++PhZsu+aOfQtODW7GM3JPJXis=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sifive.com; spf=pass smtp.mailfrom=sifive.com; dkim=pass (2048-bit key) header.d=sifive.com header.i=@sifive.com header.b=HwPu+TmK; arc=none smtp.client-ip=74.125.231.167
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sifive.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sifive.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2579A4F85C4;
+	Tue, 29 Sep 2026 15:02:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.30
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790694150; cv=fail; b=DySrCId0ya/UIHch75oW9HIq8ydqWT4IpS9KaPhm2rCjiRJrZOQGR7jXAEMgB5pIQ4Nq0DF4F7e3i/4aNRAo1EG02h2ZWcjBABuUEZlcnFp3Ncht6k/GrENTc4vjenCLPcGaEmzADjS1YEqBd0ZKk8lXry4qqwp2KTLCkdjQBdc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790694150; c=relaxed/simple;
+	bh=xAiYNFhtsXOpnDPZGs+bcu/26De6OVYHEZ0/BBaOfmQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=JslPnflomz15e1yQM4y1W/umtaCQhYAYEmKF2eotKyNIAG6o2Mz8BYqLjSPYjJ7psOglo8xkTe0ExFLzZPqAwMrRqDVwOGzheppOc5SmSUec+j2NC8L3TE8dgnPxYQKQ0ghNe2LbhNeD3KvauV6LXNnxRrqFFROG7RA/9458qOI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=umt2hlSB; arc=fail smtp.client-ip=52.101.65.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sifive.com header.i=@sifive.com header.b="HwPu+TmK"
-Received: by mail-oo2-f39.google.com with SMTP id 006d021491bc7-6c72bd8a017so2519233eaf.3
-        for <linux-i2c@vger.kernel.org>; Tue, 29 Sep 2026 06:12:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google; t=1790687540; x=1791292340; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=FSKiUJRQhiLhPi0pr/mU+MmO5Nu+j31ELjJx/f3jfj4=;
-        b=HwPu+TmKVQyVgdqw8atSaQoVOE5z+qT/44x+yo701WfkGLui9wMWFcyuZFzl4ZvFMZ
-         84wdieWdMGI5TS2cJqaLel5iTUP2otlah8yQIoOjAOEiQj3SN47PhJmOSbduu4NBhEME
-         TTsbTukxuV3ff5LNxcjs1+2zk3dYBHUy/RT0G/RCYifr1vOooHvXgm0v+FwdM5DbC6ED
-         jByQbNLDsSpr6TZ1HNuAOplHgJ06ZHwaJJVzvgH/m8hsx44uxlKQq3/YXiJb96XWMUWG
-         viZn7hPmTqLyuIX+5+jbjdDeedFvsaIyCHY4bCpdNuhPf6VNQPOc94SE3vMJlRT/ZPuF
-         Jpsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790687540; x=1791292340;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=FSKiUJRQhiLhPi0pr/mU+MmO5Nu+j31ELjJx/f3jfj4=;
-        b=XQRghgv+EaVpW6RXCWBR0Nt02s0qGjnRZ2YvP1reXwfCwJu8CpLV26H/b0+RPJaDgs
-         rU0gVtQGS2qyQYOqar9pqnfw0a5ypvgmaM9Nd1j47V0BpSbE+MCd70L8yEMaOY+zDn7n
-         +U6Uu1xyQUDv+oT4zvLD36hPgWpTnUhmM9xxUvAt+sZs5Zl8zN2wQi8kyxvoUCcI35kd
-         6gIeiMvP+/YfkEghqSRnkhuyOpY0LCDzPyBuws77Ijc6l9fGxtSywzmQKgRYGTtcTPuW
-         1tie4Xe1MLfDB5R8NDthQWgzz9NtUpeHXsz9ZAsCCmVTn2aLfVYPat8+eRqPUBLvfsly
-         Vv5Q==
-X-Forwarded-Encrypted: i=1; AKwUvBypTtfzkeG9zfoerGVZ3Lxl0Qc0B3TIMjh1Tzus/MlRVOIuPUQf/PNZ574eb6JCGoPYVAgtuSm2Up4=@vger.kernel.org
-X-Gm-Message-State: AFuF++l5QVkX2czhOSmwNlN1/HIWzTftM5kbbSdClqI1/wL7XCTb3qfo
-	uL3/KP5YD5uiV4EoNU8eW8jrS2YEdG/Kf8n/WJRWmWfeH4KZEvXb4PPpYVCBbocVcmY=
-X-Gm-Gg: AYBFou1y1jopmFhUcHISm/fOUFB7iRzacaZWTUQvg0Dyctvw3ciogqcy6plYUouj9OM
-	6bh1RUN1mGYSeS1c8EI5RYej4Yzkic82xb9h26sWmhhGG/ydV8SMSBaZa4l+89sXCtsOPpLm5ny
-	O2F31hBjR7Tj4XNNPHwaLz9oX+Jc2aQgSPRJM6V+qffGLd91/MpdXNqwjnV0YBQ99eNay1VFcrP
-	sXartce4FWdZb2xuz1ZqhjBFNkDllz+Kp3Gvd1Kz8azrXxC6OcB87pJeC/UsoXG7V3xt8i0l9yj
-	vyzQ7Se567vs0M3E9Rh/ZHPBaYOSzkU05XyWNhwowBJRaU2UxdfOA/GUbM0IG9y+2mREy9buuMj
-	k1y9Fk35S5iqgDBM8VvXmQfuPBY03brnqUwnQk3gPPAIyTNa5jMEpe/LNXpVGWdG4okM/qz/0Zw
-	X5W+AqfOYF4eogS5m9ZKvMVoLHzYpusAWzTZXPrS//rLlXOu54X63bajtNH/RNgWN6fnqtjTE=
-X-Received: by 2002:a05:6820:1524:b0:6c1:598a:d80a with SMTP id 006d021491bc7-6d440eea6aamr17324629eaf.62.1790687539902;
-        Tue, 29 Sep 2026 06:12:19 -0700 (PDT)
-Received: from [100.64.0.1] ([170.85.13.74])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6d8822199cbsm8598079eaf.5.2026.09.29.06.12.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 29 Sep 2026 06:12:19 -0700 (PDT)
-Message-ID: <e27dd631-73a8-444a-8747-84d51ca3a57c@sifive.com>
-Date: Tue, 29 Sep 2026 08:12:17 -0500
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="umt2hlSB"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=J1PRs/DIIFCN+ASRLC/+kkXL29vGJBxIm824N9S4bjdea4H5OSRS+ygY76HlQyxNIZ7BAVaLbnFNRMXOzCnVJdHGMPU5uqLeeRT3KzAK453MrGOd8weTE8pdZq0vF54yjrr4S8MjZd3IFO8CP1aaqxBaMjtOWASbO1QSX96XQcV++anPoFQlSVQwZBlvwhN+3OKKNm8aL+l7K/KYHzl6IkyhJCBK4maYftFaafm5KHHEMH1roQ5uKnllD4pS6Sn7QTTOHkcghwXDLcyUxpR3qs5qECtQ/l/+b0CDP+tDAgUqXSXH1HBUHKzidipQfdVp63RnkRp36qwn+8iU3NIv3A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dv52Hrnu9HFFpKb8modhz3Sqw0H0rfEaoSJc5UmsYjo=;
+ b=J0cYIQlxkr1UKJ5g2QectxjWpJra3NuPZQX/rQB9c5LxF1hpfb/oBuJPOy1BQ8paz3W2BkuL+mbTfm7kcGlpvmH29fH+7eyjpJGsekaO0KhOJq8mYkhmnJ6mSLMkTBUx174kRsdLnLdIix7T1s6IUD4W85uSDjsFziTDewib8BlJEzZMOL//7N4BVlNFDlTxoHKyU2vXjaMdoWoylMLgDEg1qh4APlmu/do+la+2UfeQwjCelubggdR++CUfVeYudzijQA2CIA7K4xcp9cQrhFckqDaC37D0xEBHzZu7ET4kz1dpUzDEVUSXg9Uvmoumvz1uRySSY6rq/m9tCH6Zig==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dv52Hrnu9HFFpKb8modhz3Sqw0H0rfEaoSJc5UmsYjo=;
+ b=umt2hlSB/MwbEaXOqSlhgeq5rPIH4Ql/gs9Yo2JZqbjQsl5gxXI7QyfU5JhJbfEM/EoTXIpfXo8Wzb9sJ0lgF2SdmWrv0+8qPvmaE7sEgYBAzg/CQ9+/tSaI5djtN4iorfj1K8W8GbmnkLO5kQ8IGn9oDaus6aSPzFVRfZ1rfK502nl2o+vOyqW4bt7/8JZwR1m2v/f7jI1fCtEM/69DJouus5oBfJrVRUVW30O8BMlEK/gpnG5prvyJU/2vzXqz3aiMt96wnsq/upbaG4CU25RMpgrYxBlMNmbAzg4R1yXYa8oUSZzckwGQdVnMDdhUi01Nncn6z35b8uCRzV8lIA==
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
+ by MMZPR04MB619844.eurprd04.prod.outlook.com (2603:10a6:190:54::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.24; Tue, 29 Sep
+ 2026 15:02:07 +0000
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c%7]) with mapi id 15.21.0451.022; Tue, 29 Sep 2026
+ 15:02:07 +0000
+Date: Tue, 29 Sep 2026 11:01:56 -0400
+From: Frank Li <Frank.li@oss.nxp.com>
+To: Jisheng Zhang <jszhang@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney+clk@redhat.com>,
+	Jerome Brunet <jbrunet+clk@baylibre.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Frank Li <Frank.Li@nxp.com>, Lee Jones <lee@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
+	linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 05/20] i3c: dw: switch to array-based exclusive reset
+ control
+Message-ID: <arvS5M5UeK64NP9m@lizhi-Precision-Tower-5810>
+References: <20260929061417.20733-1-jszhang@kernel.org>
+ <20260929061417.20733-6-jszhang@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260929061417.20733-6-jszhang@kernel.org>
+X-ClientProxiedBy: CY5PR19CA0031.namprd19.prod.outlook.com
+ (2603:10b6:930:1a::23) To GV2PR04MB11799.eurprd04.prod.outlook.com
+ (2603:10a6:150:2cf::9)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 7/7] riscv: dts: eswin: add watchdog support
-To: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
-Cc: Yulin Lu <luyulin@eswincomputing.com>,
- Darshan Prajapati <darshan.prajapati@einfochips.com>,
- Pritesh Patel <pritesh.patel@einfochips.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexandre Ghiti <alex@ghiti.fr>, Andi Shyti <andi.shyti@kernel.org>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
- Min Lin <linmin@eswincomputing.com>
-References: <20260814070007.1662455-1-pinkesh.vaghela@einfochips.com>
- <20260814070007.1662455-8-pinkesh.vaghela@einfochips.com>
-From: Samuel Holland <samuel.holland@sifive.com>
-Content-Language: en-US
-In-Reply-To: <20260814070007.1662455-8-pinkesh.vaghela@einfochips.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|MMZPR04MB619844:EE_
+X-MS-Office365-Filtering-Correlation-Id: dd2b95e2-906c-44d5-b0ff-08df1e3aa148
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|366016|7416014|1800799024|23010399003|19092799006|18002099003|22082099003|4143699003|10067099003|56012099006|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	6Hjrj9CIcd1TDrsKVW+SsDPmF3vZ2COw1kTKXjqMAzb9b3YnkrXPFNsH0EhiDW3vPIUGYUvzUYxU5J3G4f0QXig3YGgh0cGiAAwjSa4pT4FCqxRP9uMMGlDKLZ4COUFxBiAH6y35fupYn/OTqNnK6Mp0GnedJGOF61PmBcvMkZ2vsrEi+GMQCxzqEdYPTzGCP8Rwlv77SJnizy7Y55ERZ/Y1oGZ6lF2Gc/q2Gm1BgO537Ja0aNQSY2uM4l5uBdebZK1TDfkCsfkWBWPXV31F6L1ZTRHKzpfYmdtSQ58v4AarWOSnitZNQCWBaBlNGsvKpcIA50XJF34PAcoD5urfafrFybSXRAyofbPA4H+MIs78I6liZg2CFmxcbHH6PzMhw9h2mxdNZ/WOCxuV+uz5CIyZYcsk2spMHylmZvnqNtc30Pn80LPniRyqnMTNihDjCc6zrWO430bXDmXwwGG1sESWbn4w3HIw/zs4BmQ1ECJwpO33oAZTKM4/182mnFx13WrpPOe5T/AxkWad9F+emyruKbYAMwpzUk4uK9jE8951EdV5VrO5bd9mFTatBAt9piLi0L3avifhaM2ZHCmA7lJGZux9ZQNKpeXyvPQp+d9Kl2sm5fPbIC1ijeaP5xdJALEjzgfTxTlROvszne/hB/3KudEVx4dB/xVh6qfh0wA=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(7416014)(1800799024)(23010399003)(19092799006)(18002099003)(22082099003)(4143699003)(10067099003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?KKGWuMMWdES+UO8fULVSQr+RXi2hya3Q5pETILFHyGoCfRjmnd+9eyELMQ/c?=
+ =?us-ascii?Q?zoF8z03Jx/HGI9D6YCUV7i5KxconvOueB4h//K4MUhV6arwPu9gXdg7JkLll?=
+ =?us-ascii?Q?Y4MYCf1ZYwf3eu5PvupAGJfK4R6R/3AMXeWXYnqUJFiYVM3eQORAhSaFUVGA?=
+ =?us-ascii?Q?E7SD/z9hCujZd2zU+G4PPccu/kchApQTIt6f0tykqc7lJVcje6hJitCZCUMb?=
+ =?us-ascii?Q?OdFsgsyRMdQdC+uX5eWFWUA6vBV/ZLlNwspfwKn9MOcrTcy8Js4vOaxKwFJo?=
+ =?us-ascii?Q?AoR2OHtWpGyccpMRxzELXvTOPlR0Cwa34e7+Ki1284hiJLwasxvYgkucPUcn?=
+ =?us-ascii?Q?ZR7bIBng1PAatBc+gSsRHhygIzb6fte0nD5ArzzJ8ByVy6/L9tbTzzbxQ4ne?=
+ =?us-ascii?Q?ModsW9mr+kViXN7dgMKY7teNI2U3QYPTD8BPqLbQccpSbdX6RDH1ifErJia5?=
+ =?us-ascii?Q?t7kVQqF+5Bc5oaBjHdJapnSCAiALmgEKaeSkkWrkVVKEWoC7r5f/Jd53tHyv?=
+ =?us-ascii?Q?Jtriq0Rz5H/ykGO+IU8pS7IMaN/BNI8GWff0XyUwYKR219p5N5H/8eF8FB7V?=
+ =?us-ascii?Q?PH5O5Bu2fN63g1trs7MAZEak97xId235/tfv6QT1XeR5aBI6gzKjDLDBJ10P?=
+ =?us-ascii?Q?5eCsBRtwEocN/b5sC5ikBG2UPgaeaFmaY3n8AP+LPnQS9M8DRgZZT5WunGPu?=
+ =?us-ascii?Q?MHyK/1cm0Cn9XITftkqAr/W4ZCo9/yM8yiqAZlFKMu7b7eQPNKIHsd/ap03+?=
+ =?us-ascii?Q?8ANdW02Gx+37rsBTHWhAZ8RUncTTCvGf9s36nARN+YUn6MZ8I2Pth+Quea2W?=
+ =?us-ascii?Q?YctJeryR8thWJ6TDKGxX3h8eGAKsxx9GQR2kWVmAFbHry0+JeuUtEAhePR1w?=
+ =?us-ascii?Q?L46M8Vxou2je/WipGmD+TW3CjEbu0QXHzTGigAHE7+YpnhylnFw9jjFXz7j5?=
+ =?us-ascii?Q?FJzkkW1o1vbeK7Sg4RJ3JnFZCXjMmIMajtvA20+lN9l/gvFw+XK8ac28s/8g?=
+ =?us-ascii?Q?NJJ6MOVCeAFB5Pt4PtjMr3WykoXhd4H5CqvoVo1ljWyKicxiwwow04s5kgQN?=
+ =?us-ascii?Q?qxic8EwjyJsgiNbHbkId6WTDjY6U4MhA/P49NmFqY/wYVrQo90pQHe5wx/w6?=
+ =?us-ascii?Q?h/jOprstt9DeLbxuHy2eVFZZ3yU5NVJIGAyBo3pcrwMoKBiLi3rd9VazM4Wk?=
+ =?us-ascii?Q?lU9qsnNFTWy6P5/nVW5qdXjvFF1xUgP/X7A68f0TCAUUBCOqULgj8Q3oIuc8?=
+ =?us-ascii?Q?aVOp0IbdY4H5Z4KKDF6LnrfNVK8tOIuD4HaqAD3rySQbIfslCnf9XciXjqv+?=
+ =?us-ascii?Q?JTgys29F661B0SWuZVi0fY9KtUcyeKl99HKyhZ2kAxdRVOsHYmjY/X8oa3hu?=
+ =?us-ascii?Q?rMD5a1CGRe0wn1rLts6C81eq03oY7Oap1KC108XUNkkug+TwIlKDfkQkasiq?=
+ =?us-ascii?Q?q8N+Nj1rFkW12rOWetPQ//tqnBwKjwWuX3ZUdky58V1f2ueRHp0NijJPz3pn?=
+ =?us-ascii?Q?fFQtX50lbRq9eLNfu1TZzfITzSIBHIKlyLHkrVc9phsAj1S7lxNZBbNkEJBo?=
+ =?us-ascii?Q?IHTDoCn8yv9DxAR++uLJwux5hgNdoyT2TVeS316xBOW+RBcDxprN+nMmc3mP?=
+ =?us-ascii?Q?13+w9REMrpgyTgO8ir7KbNM1dV9VpLmE39YBDArPvgBhhj4Uy6i5lVSUFnlH?=
+ =?us-ascii?Q?I37xeoA3WSia61RvVl7CyTa1I2NRAg9sTdil60OzpYnlreFIEAMfhcXTSyS7?=
+ =?us-ascii?Q?N92QCas6Gerr6hnh7e53eb3GB1hSipYN/VCB9SS9qYmO7JDVGey/?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: dd2b95e2-906c-44d5-b0ff-08df1e3aa148
+X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2026 15:02:07.6129
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2pgx2coCKPIBzsiWfYlIOKMbONRPrKXjF8rhs+AqGqqCJl1GrMr5x87tkW96wUIgyccByEA4k9lyZLK7M5IgHBdf+RWVz8QoIVhAkmouaAlAJrc7OsbrugPDAI2wIRaH
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MMZPR04MB619844
 
-Hi Pinkesh,
-
-On 2026-08-14 2:00 AM, Pinkesh Vaghela wrote:
-> From: Pritesh Patel <pritesh.patel@einfochips.com>
-> 
-> Add watchdog node for ESWIN EIC7700 SoC and enable them for HiFive
-> Premier P550 board
-> 
-> Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
-> Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+On Tue, Sep 29, 2026 at 02:14:02PM +0800, Jisheng Zhang wrote:
+> The Synopsys DesignWare I3C master controller can have multiple reset
+> lines, such as a core reset and APB reset.
+>
+> Refactor the driver to use devm_reset_control_array_get_exclusive()
+> instead of a single named reset handle. This automatically manages all
+> resets allocated to the device node sequentially.
+>
+> Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
 > ---
->  .../dts/eswin/eic7700-hifive-premier-p550.dts | 16 ++++++++
->  arch/riscv/boot/dts/eswin/eic7700.dtsi        | 40 +++++++++++++++++++
->  2 files changed, 56 insertions(+)
-> 
-> diff --git a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
-> index 5dddcf13fd25..103c3dab184f 100644
-> --- a/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
-> +++ b/arch/riscv/boot/dts/eswin/eic7700-hifive-premier-p550.dts
-> @@ -207,3 +207,19 @@ &uart2 {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&uart2_pins>;
+
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
+
+>  drivers/i3c/master/dw-i3c-master.c | 24 ++++++++++++++++++------
+>  drivers/i3c/master/dw-i3c-master.h |  2 +-
+>  2 files changed, 19 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/i3c/master/dw-i3c-master.c b/drivers/i3c/master/dw-i3c-master.c
+> index 4563d8761ba0..1c6c870f5bb3 100644
+> --- a/drivers/i3c/master/dw-i3c-master.c
+> +++ b/drivers/i3c/master/dw-i3c-master.c
+> @@ -1657,6 +1657,11 @@ static const struct dw_i3c_platform_ops dw_i3c_platform_ops_default = {
+>  	.set_dat_ibi = dw_i3c_platform_set_dat_ibi_nop,
 >  };
+>
+> +static void dw_i3c_resets_assert(void *data)
+> +{
+> +	reset_control_assert(data);
+> +}
 > +
-> +&wdt0 {
-> +	status = "okay";
-> +};
+>  int dw_i3c_common_probe(struct dw_i3c_master *master,
+>  			struct platform_device *pdev)
+>  {
+> @@ -1696,10 +1701,17 @@ int dw_i3c_common_probe(struct dw_i3c_master *master,
+>  	if (IS_ERR(master->pclk))
+>  		return PTR_ERR(master->pclk);
+>
+> -	master->core_rst = devm_reset_control_get_optional_exclusive_deasserted(&pdev->dev,
+> -										NULL);
+> -	if (IS_ERR(master->core_rst))
+> -		return PTR_ERR(master->core_rst);
+> +	master->resets = devm_reset_control_array_get_optional_exclusive(&pdev->dev);
+> +	if (IS_ERR(master->resets))
+> +		return PTR_ERR(master->resets);
 > +
-> +&wdt1 {
-> +	status = "okay";
-> +};
+> +	ret = reset_control_deassert(master->resets);
+> +	if (ret)
+> +		return ret;
 > +
-> +&wdt2 {
-> +	status = "okay";
-> +};
-> +
-> +&wdt3 {
-> +	status = "okay";
-> +};
-
-The watchdog timers have no dependency outside the SoC, so they can be enabled
-by default (omit the status property). There is no need to separately enable
-them for each board.
-
-Regards,
-Samuel
-
-> diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-> index c13432d14504..f873e9eeb929 100644
-> --- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
-> +++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
-> @@ -265,6 +265,46 @@ syscon: syscon@50440000 {
->  			};
->  		};
->  
-> +		wdt0: watchdog@50800000 {
-> +			compatible = "snps,dw-wdt";
-> +			reg = <0x0 0x50800000 0x0 0x4000>;
-> +			interrupts = <87>;
-> +			clocks = <&clk EIC7700_CLK_GATE_LSP_WDT0_PCLK>;
-> +			clock-names = "tclk";
-> +			resets = <&reset EIC7700_RESET_WDT0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		wdt1: watchdog@50804000 {
-> +			compatible = "snps,dw-wdt";
-> +			reg = <0x0 0x50804000 0x0 0x4000>;
-> +			interrupts = <88>;
-> +			clocks = <&clk EIC7700_CLK_GATE_LSP_WDT1_PCLK>;
-> +			clock-names = "tclk";
-> +			resets = <&reset EIC7700_RESET_WDT1>;
-> +			status = "disabled";
-> +		};
-> +
-> +		wdt2: watchdog@50808000 {
-> +			compatible = "snps,dw-wdt";
-> +			reg = <0x0 0x50808000 0x0 0x4000>;
-> +			interrupts = <89>;
-> +			clocks = <&clk EIC7700_CLK_GATE_LSP_WDT2_PCLK>;
-> +			clock-names = "tclk";
-> +			resets = <&reset EIC7700_RESET_WDT2>;
-> +			status = "disabled";
-> +		};
-> +
-> +		wdt3: watchdog@5080c000 {
-> +			compatible = "snps,dw-wdt";
-> +			reg = <0x0 0x5080c000 0x0 0x4000>;
-> +			interrupts = <90>;
-> +			clocks = <&clk EIC7700_CLK_GATE_LSP_WDT3_PCLK>;
-> +			clock-names = "tclk";
-> +			resets = <&reset EIC7700_RESET_WDT3>;
-> +			status = "disabled";
-> +		};
-> +
->  		uart0: serial@50900000 {
->  			compatible = "snps,dw-apb-uart";
->  			reg = <0x0 0x50900000 0x0 0x10000>;
-
+> +	ret = devm_add_action_or_reset(&pdev->dev, dw_i3c_resets_assert, master->resets);
+> +	if (ret)
+> +		return ret;
+>
+>  	spin_lock_init(&master->xferqueue.lock);
+>  	INIT_LIST_HEAD(&master->xferqueue.list);
+> @@ -1873,7 +1885,7 @@ static int __maybe_unused dw_i3c_master_runtime_suspend(struct device *dev)
+>
+>  	dw_i3c_master_disable(master);
+>
+> -	reset_control_assert(master->core_rst);
+> +	reset_control_assert(master->resets);
+>  	dw_i3c_master_disable_clks(master);
+>  	pinctrl_pm_select_sleep_state(dev);
+>  	return 0;
+> @@ -1885,7 +1897,7 @@ static int __maybe_unused dw_i3c_master_runtime_resume(struct device *dev)
+>
+>  	pinctrl_pm_select_default_state(dev);
+>  	dw_i3c_master_enable_clks(master);
+> -	reset_control_deassert(master->core_rst);
+> +	reset_control_deassert(master->resets);
+>
+>  	dw_i3c_master_set_intr_regs(master);
+>  	dw_i3c_master_restore_timing_regs(master);
+> diff --git a/drivers/i3c/master/dw-i3c-master.h b/drivers/i3c/master/dw-i3c-master.h
+> index 17ad817d1f8e..f5b4491b247a 100644
+> --- a/drivers/i3c/master/dw-i3c-master.h
+> +++ b/drivers/i3c/master/dw-i3c-master.h
+> @@ -36,7 +36,7 @@ struct dw_i3c_master {
+>  	} xferqueue;
+>  	struct dw_i3c_master_caps caps;
+>  	void __iomem *regs;
+> -	struct reset_control *core_rst;
+> +	struct reset_control *resets;
+>  	struct clk *core_clk;
+>  	struct clk *pclk;
+>  	char version[5];
+> --
+> 2.53.0
+>
