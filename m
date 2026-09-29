@@ -1,42 +1,77 @@
-Received: from smtpbgeu2.qq.com (smtpbgeu2.qq.com [18.194.254.142])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3395552F26A;
-	Tue, 29 Sep 2026 16:45:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.194.254.142
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7DAF535FD9
+	for <linux-i2c@vger.kernel.org>; Tue, 29 Sep 2026 16:57:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790700314; cv=none; b=dw5tWJS0huqhpau5C1LWl7MXJ88yEaV+VtPMA81mESKsg3nh1/L7h1DJ4+hOLZk5JTDFMeHfBfWGTzie1Qtttbb6futxOqfLYFSXgzo4h++Bi1cMek0LVYRHkk26kgBylS6tf/0kFqx8VvD+rI2ObRyr21rLWW3LxDyV5KiL78E=
+	t=1790701044; cv=none; b=T3hoKKa0/k5bX90d0ZIkaOKrcugKVp4SqHboxg46EuGVglICNcEOdK04QOgU3Hv7++3ND12t72n+H2Kxz45TVd3LRafdFWWNZMu+d/zYwDVCTEsPJuSfMWWL8KpdTaq6X8Y2YJ3hdJGrvLUnuyyYbAmJ6HfY2oLb8LEVLMRgJAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790700314; c=relaxed/simple;
-	bh=3jqrM9EGYP8FnJ+uVUl8StogGkbJ+YwRcrYDm56BpyI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OSO+NskMJulcCTMB3uVP/8wenwzk5ig14IWlnxdnHh9YDoMF7CuiR4IMkTWIL5KxKCvbNRD478wyvSpZS3GL3mDjVnZSOGMCWDZkt4SN+KH1Tx4dXbDUzCf6utQcZZ+xX6ONoKAv7c24L/WJlwhDZaDZ5iLJqwP+0zwainGnjjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=18.194.254.142
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
-X-QQ-mid: zesmtpip3t1790700227t56fcb664
-X-QQ-Originating-IP: ruwgAguqXXmvgGsRabDLzZIOFYP2ovGEJlAQXfOKK2E=
-Received: from kylin-ThinkBook-14-G5-ABP.. ( [localhost])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Wed, 30 Sep 2026 00:43:44 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 14446974795521971140
-EX-QQ-RecipientCnt: 10
-From: Hongjian Dai <daihongjian@kylinsec.com.cn>
-To: codrin.ciubotariu@microchip.com,
-	andi.shyti@kernel.org,
-	nicolas.ferre@microchip.com,
-	alexandre.belloni@bootlin.com,
-	claudiu.beznea@tuxon.dev
-Cc: linux-i2c@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	me@cherr.cc,
-	Hongjian Dai <daihongjian@kylinsec.com.cn>
-Subject: [PATCH] i2c: at91: release DMA channels when probe defers
-Date: Wed, 30 Sep 2026 00:43:40 +0800
-Message-ID: <7D85C6CB6BF0A82E+20260929164340.41628-1-daihongjian@kylinsec.com.cn>
+	s=arc-20240116; t=1790701044; c=relaxed/simple;
+	bh=1X+I4s/Qc88Q3mt8n2I89ghISwk4YJ11K1+GkdEX0lo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=O3mAYsx6uPCMVZcr2+HHiGTYWXSs4bnKBccbZ12CEFYi6Z7ppwyIUN97vJySSQkLVPB5cA/LKIEIqhPfErRl1illtA65IMRfWcW8r2NEGGwGOvwAl3uLMARKZfV3dXLTxDQ84vE0y679wy0maQgikLj4rKXNA6MQfum2598YR/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oEs1KQ5X; arc=none smtp.client-ip=74.125.225.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oEs1KQ5X"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843f22dcb8so3365116f8f.0
+        for <linux-i2c@vger.kernel.org>; Tue, 29 Sep 2026 09:57:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790701041; x=1791305841; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=wJFH2IjoTkwJen4b0adRNofV230zNzAQykwUxRXPcMY=;
+        b=oEs1KQ5XYeGt6Uno3GqAIF3EWs3zFQZroy8GNmPiespyfCko8nwviONyA5Zdg6itHu
+         CbUbaMZlL3abWttJK8soCb4BDg8wzAN/jXbP8PlsdpDSM25Da7cGNpR7e0mL5ITd+DSr
+         vde1BJV6v6in7krdH8rCbwPGRXnaaQ+nNURkfAysF6qKnMENUOLgaOGxixqRToyWqENF
+         +FdEZ+5Z+Tfiv8Nbweb8xg9MumJYMsEd09hvb8gMFq40yDJmaOOS06VlKF49h2bDx4/Z
+         +zE1ySBuw5c1Rzy7nCztAwSkiuj3Kd+CxFgcAeQ0+zvHMdHPc+mnnF/hi+s48kn3h709
+         TfqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790701041; x=1791305841;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wJFH2IjoTkwJen4b0adRNofV230zNzAQykwUxRXPcMY=;
+        b=OxK3zmgu9KCPFS0RfuY7PRdCKXFUZ5OlarVS+uBceEGyK9bX14V1VAGqQJT9tLQvUS
+         nz3F6D20a6GK6ZscCNWdlBA4AGwSp8+9fxpGYwShqZuv83r/jCO7kN2mcIHjhkRWGnN6
+         RmCS5E6I1/d94Uph/K5DcU9BjAuQxuE9Uk/X26T7azj9MkJagab6Dwrsd83TkmljzP6c
+         6EPyBeUf/w7UeAVkp+Uchw+qSzwHZKVSKYDqj553ja3BNbL3EVUocg8oU3D0w/fLI+nC
+         MzlBl/IWiB04hpfb6kPjXGsDRsQV4/wcyEpKt4I9wCc6z0kPrhUgnvKL7P8JBW0+sjlK
+         AQIQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwHNGNdtEQO13bh19v8O0GrSceedLHW7nlksywHYYlaXzH0nYSEob000gleVBEhJHaxolCYVeo8woY=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ/fOKhA94ZkBR8+tr6YA7GH/tre1LedyGNZGy+xJoC2VDZLMpe
+	WGaZDRCz8ov+XVnXpxylXAjyZXVXJZUdp9QbOaj7yPdhfSiGa+TaZ5jo
+X-Gm-Gg: AYBFou1hJsqKfAKrVdkT3YJdkMTchVtzAMc9pCeFsUey8KN3NdnS89dblV43CniK3Lk
+	kxSCHNGLSVBuvpFbO0ZOs9/fzYs4i4Qsu2IBchcqvYVCLqQxn49btaGLSDPRBcg9Tnsi6dGFiPz
+	FqOfuxzw9rxlN/DtlkRRrMwUAHDBg44jY4ZBY4slKPOoAZCk7PUAhIo1ZJ/hTtXxbO5MO89VWoz
+	L7L/hMZXan7eWt184y0X8msXWiBPxpW0po+qUR16PyAqhRR6pLcj4S0fbttPCCLqjdOZrzGJOug
+	Sx4JRbSn6Sg7cOmwtt7N/U3Gt4NSxkPgFxQbtgRVmnVMI+QqPtPs0y/jkWLSWsGaKKb86XWI+7O
+	+CfJl8usXdSS0vMfFt7afTxeSPHux7ligMD29EqEXiBWefao7UAKVXPzmM7Fiw0JUeJHLL2laR8
+	jBWsCLt0hvRNGB84Mdrvp3/K98gvM3krj2IcWO1hDQBFhqPu3c17hFe0GD9tImPKt+QrNnpdigg
+	9JlBi4b8zGC0wZXLYq0sojRU2IidJvIdhckfA11
+X-Received: by 2002:a05:6000:98f:b0:488:8823:f9ec with SMTP id ffacd0b85a97d-488882404c7mr18420237f8f.34.1790701040835;
+        Tue, 29 Sep 2026 09:57:20 -0700 (PDT)
+Received: from ws1-mint.emulab.it ([2a01:b600:90d3:0:7e:12ca:700a:85e0])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48afe61c876sm57777f8f.3.2026.09.29.09.57.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2026 09:57:20 -0700 (PDT)
+From: Simone Chifari <simone.chifari@gmail.com>
+To: Adamyno <padamyno@gmail.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Andy Lutomirski <luto@kernel.org>,
+	Stefan Schaeckeler <schaecsn@gmx.net>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/1] i2c: imc-skylake: add Intel Skylake-X iMC SMBus adapter
+Date: Tue, 29 Sep 2026 18:57:19 +0200
+Message-ID: <20260929165719.403487-1-simone.chifari@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260928080640.550879-1-padamyno@gmail.com>
+References: <20260928080640.550879-1-padamyno@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,62 +79,54 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpip:kylinsec.com.cn:qybglogicsvrsz:qybglogicsvrsz4b-0
-X-QQ-XMAILINFO: MCg5+ArSTX6cnkbLBDuw/XLMOxMvJYQ986eHpEYKeTgNw3VzLOoRpNnc
-	QboNz7xor0Zays01hvGKgQchVQxWp2LwUcdsNId3dxWGAVjIIOK8oZxq8UfsixkW9nHjMrz
-	7dfJgw7JK8ey49p4bjPZZlLTTtoPC9Ou/LbmgiNqiJPoIN3gSs1QFmQd9DGs4CnEPCxkAmY
-	aYiiYGen60VU0IPTVtVM+e7Ot0O2YhL77zX/ulfpvc1heH2BDqrnNpRDh/qwRUxbQqqia6+
-	6fGEmcTlWgpV+jUFy9iWdwRWlZ8BTbLWzJYfIFOOJG6IqXLYerfw3wP2zua5C4SAq2OiYGf
-	SWlXGSWxdO7SAmj3Fj6qtaO0cxh//41xxzFwa4CA3H/lf5vCnHGVptzfeRzPjqboCEQLu7N
-	kpqM1r+e/uI2SrE312P3MgC2EDYETB4iQ/eq+URo3aV+1P6yi5Ye2+OEZLLPtFhpRS/jV0U
-	yK3m9CrhTdPVCf7v2MxiMuS6dD3PZbs8rIvThvv52dusrLMWe4DQjDsRrmc9k2XraMS19rS
-	397RpSdk4/jGylHY0UMHMzLUBjvQuAbPfXCeRBLlKoozaw4rZKicCWpxJYijTa0mcnYBeqm
-	urQo0eUQ6T393q9HEv5+4Jf1uMEl8+/bLAXPkPMvL97BJig6V97hKGzditAVIP/H4wk3q9c
-	gUz1A8Fh0EFcNe84AXu5OQ/hPebDKiQLHwLXAQ2TXYvh4V+0TTf3sQnY3+NM3omssszycpQ
-	AG7JlR9WWKzwPqYYo8e/gbWy5fQSMj4S6kfczfKVyzognJZIxyVicqqFUh/xxFxsITCKdVO
-	cQVE1phBvaXCUw8MDL93LdB7LH5GtDuuf2Ncr+2B632OphCHYzSTl9/Nq7E/6yMGJY89KRN
-	DNjkg/sjZF/iO1PblGZTB8/BDdC5avOmdh1lgZsKjIYeVRZY0hIeUXEckJCdOV8jh+WRFbj
-	kqoz2XEGtA6TZzrVLDnCnO/XdgVYpd//T52TeoI80Bu0nPg1sQu2PCw7IGqOTlj3CGoFUeQ
-	Awk5OklWdYDEFq6INTGTQizxC7RiBtvt4FaU+1QQ==
-X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
-X-QQ-RECHKSPAM: 0
 
-at91_twi_probe_master() can return -EPROBE_DEFER from
-at91_init_twi_recovery_info() after at91_twi_configure_dma() has already
-claimed the tx/rx DMA channels. at91_twi_probe() then returns without
-releasing them, and since dma_request_chan() is not devres-managed the
-channels leak on every deferred probe attempt.
+On Mon, Sep 28, 2026 at 10:06:26AM +0200, Adamyno wrote:
+> I tested this driver end-to-end on real hardware. Code as published at
+> https://github.com/systempal/i2c-imc-skylake (matching the v3/v4 series;
+> the v4 rework did not change anything relevant to this test).
 
-Release the channels before deferring the probe.
+Hi Adamyno,
 
-Fixes: f7eeb1af8537 ("i2c: at91: release DMA channels on remove and probe error")
-Assisted-by: LLM
-Signed-off-by: Hongjian Dai <daihongjian@kylinsec.com.cn>
----
- drivers/i2c/busses/i2c-at91-master.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+thanks for testing, and for the detailed report. It is the first
+report from a board other than mine, and it will go into the next
+cover letter as such: a second vendor and BIOS, SMBCNTL reading 0 where
+mine reads 0xac000000, ee1004 on all eight modules, and the RGB write
+traffic through both adapters.
 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index 68238cc8aee0..e0c3de5e8203 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -921,8 +921,14 @@ int at91_twi_probe_master(struct platform_device *pdev,
- 	at91_calc_twi_clock(dev);
- 
- 	rc = at91_init_twi_recovery_info(pdev, dev);
--	if (rc == -EPROBE_DEFER)
-+	if (rc == -EPROBE_DEFER) {
-+		/*
-+		 * The DMA channels were already set up above, release them
-+		 * before deferring the probe so they are not leaked.
-+		 */
-+		at91_twi_dma_release(dev);
- 		return rc;
-+	}
- 
- 	dev->adapter.algo = &at91_twi_algorithm;
- 	dev->adapter.quirks = &at91_twi_quirks;
--- 
-2.43.0
+For the record, since the tag lands on the v3 thread: the GitHub main
+you tested has the same transfer path as v4 and only adds shutdown
+handling that is not part of the series. I will carry
 
+Tested-by: Adamyno <padamyno@gmail.com>
+
+in the next revision, unless v4 is applied as is.
+
+If you have time for more, two read-only measurements would help with
+the question this series still leaves open: whether the firmware uses
+the engine behind the driver's back. The numbers in the v4 cover letter
+come from my board only, and yours has a different BIOS. Both scripts
+are in tools/ of the same repository (see tools/README.md) and only
+read config space:
+
+  # OpenRGB closed, driver unloaded: anything that moves is firmware
+  sudo modprobe -r i2c_imc_skylake
+  sudo ./tools/watch-engine.sh --seconds 3600
+  sudo ./tools/dump-pcu-config.sh --settle 10
+
+The raw output is what matters, and it would be credited to you in the
+cover letter. A suspend/resume cycle during the watch-engine hour would
+make it even more useful.
+
+> One observation that may be worth adding to the driver documentation:
+> the RGB controller ICs on G.Skill Trident Z RGB DIMMs answer at SMBus
+> addresses 0x70-0x73 on this bus (4 per channel), not the 0x39-0x3D
+> range that older OpenRGB-era documentation assumed.
+
+Useful to know, but I think it fits OpenRGB's documentation better
+than the driver's: the driver does not know about the devices behind
+it, and ENE controllers can be re-addressed at runtime (OpenRGB's
+detector does exactly that), so the address depends on the modules and
+on the firmware or software that set them up.
+
+Thanks,
+Simone
