@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A84457E66;
-	Wed, 30 Sep 2026 14:52:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A0D251119E;
+	Wed, 30 Sep 2026 15:35:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790779957; cv=none; b=Fxsrdd5uLPUpOb5hWSL85cskgPZQQTYaCCg987txhWc8JClXBbG0+GOOFmqnjvg5cK8zOQ5WBsOx0pqqYJtZSsMJSS4ixttU1po7+Wh0N36owOFzssWs4G6nhfv/BHbkFq0lEBjj1+1Sp+ItdSI0n80GH5llFJiH9HL+1tRhKRU=
+	t=1790782568; cv=none; b=YsvTtq1lo6lLczygwSJI+nfWmKUOEol1zP+cA3iHW6RPowYVhch6bPkbZkjvzSCLcxJdHBdVxLymUvBbWhXf2NboeI+vklgYMG7tsi7/sTfi6CzyXQAVFGje7HbvGieRzndZXkLMl2vDyDhJyu7qqKW+HqTnIU8klLpUa69JdV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790779957; c=relaxed/simple;
-	bh=pTDhLHv4nfV1/DMGA3AH7/YK8JGDK4xxxwHce5X45vE=;
+	s=arc-20240116; t=1790782568; c=relaxed/simple;
+	bh=0wDVpf8cWsXR2u3nRe2LLt52zHxl8zQ3Obk1jlWxk3o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AGtA2fixEX0JLK5tr7LNRjke92D15ZMsDiS2g7Hg7gi2rr1TSvhV0pp/eupYBtkBCYCNII2RLOgEoZEWGES5w1Zb2kAXAkZAKS27yiH12xlGVUiTuK8kRBchC8nqM+SRbUOE/VczHYkOqUY23SaKToJ7Oaw29IpUEUv4/Yw4Gls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a/6hwOnY; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=UXTOwKHMq/O8F+M8oSEvJ1k6vdiXusH7drzGmzKCKPQ3qROPhJY/9WYAzJMUQKeLidlK3rQrt44cgtB0qKYMp72vn+obF+Bdf1L7TwN0kMduN5ELucM7yyK2RueUGXMWW7OhMp/80xNgeOGlDZVLM8l+ckrbpNz5xF+7XLbbE7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ENsxnJqm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a/6hwOnY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 957AA1F00893;
-	Wed, 30 Sep 2026 14:52:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ENsxnJqm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2F6C1F0089B;
+	Wed, 30 Sep 2026 15:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790779941;
-	bh=HsDhMDVuh4cc6ye7ymG8hoMTg53LQnEshrzl/YQU85I=;
+	s=k20260515; t=1790782551;
+	bh=wS4LjSmeazs7ipEDl8K4WoxVwnKJqPAAcY7mjsKl19I=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=a/6hwOnY67kNI4nlzC/x1riFYpZ7PeyzDWmXi6WXlJTgR+sZi7Hsl7pNS6FNVmsv5
-	 NH7/5TEHK/HIAN0MYtMhJWB+nNyFH4hwIXvksH9eAlwM8dAoTfkCmoNgLBceRm7V3U
-	 sfUhqFpafZ+SnoR5JJCSDUzaNIB+LGVxVhyR0oA6+2VS4l/er2Vy5w6o2Vn1SZ5X+V
-	 x5l9ygNECiNiUgl9VZqjSW8X7ejj0gdM1HsOfnwHD05WX5hMy6wom1geor9g7sObxU
-	 mXf6YLv+uvSEQaz44WQFFkusmi+iARVTDm2N4rL8hYI4vKwW3bvGYvjEdGxDc6QXmQ
-	 rKb9WWzqU5j4Q==
-Date: Wed, 30 Sep 2026 22:32:11 +0800
+	b=ENsxnJqmKcCzQZ8LtzXYoty9iQBgyMbQ5ouiTwV+pPSNRRJa/HzE3uVwu9gdjL2Qu
+	 cCcprq6/VuytjCI2cRuOnwFqzy1pvxOZRSh41CRX5PzT/drKE5NCvDjy/p3sTUpM6t
+	 dOQ4QNR7D+dfaHgZ7jHN5N8niUKBGd8uSADoEm7ByRsKdm4v1vChc59Q12OrriwIjt
+	 o7rJpNBR2QMSvHDhF/XgZqzMQUnDdVx9ThN7t3o+mTjRM8TsengaDQDexOQKMckmES
+	 VGYiJRAbQIWfUbpgF2CXcgKYyvvOiD+8IwoTjZfbgAc28SA04z8OYLlOyQQ3kHb12G
+	 BMKs34GfPoovg==
+Date: Wed, 30 Sep 2026 23:15:48 +0800
 From: Jisheng Zhang <jszhang@kernel.org>
 To: Conor Dooley <conor@kernel.org>
 Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -48,10 +48,11 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
 	linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
 	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 00/20] arm64: add Synaptics SL261X SoCs and RDK boards
-Message-ID: <ar0da71zOeeYxURQ@xhacker>
+Subject: Re: [PATCH 08/20] dt-bindings: reset: add Synaptics SL261X SoCs
+Message-ID: <ar0npPCHX1P5Gjzx@xhacker>
 References: <20260929061417.20733-1-jszhang@kernel.org>
- <20260929-smoked-laurel-087d5a3523a3@spud>
+ <20260929061417.20733-9-jszhang@kernel.org>
+ <20260929-sprang-stir-af07a907ccb2@spud>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -60,140 +61,195 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260929-smoked-laurel-087d5a3523a3@spud>
+In-Reply-To: <20260929-sprang-stir-af07a907ccb2@spud>
 
-On Tue, Sep 29, 2026 at 08:38:52PM +0100, Conor Dooley wrote:
-> On Tue, Sep 29, 2026 at 02:13:57PM +0800, Jisheng Zhang wrote:
-> > Add initial support for the Synaptics SL261X SoCs and corresponding
-> > RDK boards.
+On Tue, Sep 29, 2026 at 08:44:13PM +0100, Conor Dooley wrote:
+> On Tue, Sep 29, 2026 at 02:14:05PM +0800, Jisheng Zhang wrote:
+> > Add device tree bindings for the resets on Synaptics SL261X SoCs.
 > > 
-> > The SL261X SoCs include five pin-to-pin compatible SoCs: SL2611, SL2613,
-> > SL2615, SL2617, and SL2619.
-> > 
-> > Only reset, pinctrl, clk/pll, uart, gpio, i2c, spi, i3c are included in
-> > this series. The support for Ethernet, USB, SDHCI, CAN, DMAC, XSPI will
-> > be submitted after this series is merged.
-> 
-> This series is filled with wildcard compatibles, which we don't permit
-> typically. The only case for SoCs that I've seen them accepted is when
-> the devices covered are actually just different binnings of the same
-> device. I took a look at the docs for this device, but it wasn't clear
-> to me if these are actually binnings or if there are different
-> integrations here. If they're binnings, I'd rather you used 0 as the
-> final digit, rather than x, since that matches the synaptics
-> documentation for the family. If they're not binnings, there's no
-> guarantee that they share the same errata etc, and must have different
-> compatibles.
-
-BTW: May I query a qustion?
-After searching the maillist archieves, it seems now maintainers prefer
-spiliting this kind of SoC initial support series into separate patches
-for different subsystems, e.g uart, i2c, i3c, spi and so on, then the
-SoC pinctrl, clk, reset and dtsi/dts files, but AIUI, there will be
-dtb check failures with the SoC dts(i) files patch(es), what's
-the normal solution then?
-
-> 
-> Cheers,
-> Conor.
-> 
-> > 
-> > 
-> > Jisheng Zhang (20):
-> >   dt-bindings: serial: snps-dw-apb-uart: Add Synaptics sl261x uart
-> >   dt-bindings: i2c: dw: Add Synaptics sl261x i2c
-> >   spi: dt-bindings: snps,dw-apb-ssi: Add Synaptics sl261x spi
-> >   dt-bindings: i3c: dw: support up to two reset lines
-> >   i3c: dw: switch to array-based exclusive reset control
-> >   dt-bindings: i3c: Add Synaptics sl261x i3c
-> >   arm64: kconfig: let ARCH_BERLIN cover Synaptics arm64 SoCs
-> >   dt-bindings: reset: add Synaptics SL261X SoCs
-> >   reset: add Synaptics SL261x reset support
-> >   pinctrl: berlin: use u16 instead of u8 for the offset
-> >   pinctrl: berlin: enable module build support
-> >   pinctrl: berlin: add optional pinconf support
-> >   dt-bindings: pinctrl: berlin: Support Synaptics SL261X SoCs
-> >   pinctrl: berlin: support Synaptics SL261X SoCs
-> >   dt-bindings: clock: add Synaptics SL261X clock
-> >   clk: berlin: add Synaptics SL261X SoC clocks and plls
-> >   dt-bindings: mfd: Add Synaptics SL261x global block binding
-> >   regulator: dt-bindings: sy8827n: support standard properties
-> >   dt-bindings: arm: berlin: Add Synaptics SL261X SoC and RDK board
-> >   arm64: dts: synaptics: Add Synaptics SL261X SoC and RDK board
-> > 
-> >  .../bindings/arm/marvell,berlin.yaml          |  20 +
-> >  .../bindings/clock/syna,sl261x-clk.yaml       |  92 +++
-> >  .../bindings/i2c/snps,designware-i2c.yaml     |   1 +
-> >  .../bindings/i3c/snps,dw-i3c-master.yaml      |   6 +-
-> >  .../bindings/mfd/syna,sl261x-gbl.yaml         | 208 +++++
-> >  .../pinctrl/marvell,berlin2-soc-pinctrl.yaml  |  10 +-
-> >  .../bindings/regulator/silergy,sy8827n.yaml   |   5 +-
-> >  .../bindings/reset/syna,sl261x-reset.yaml     |  40 +
-> >  .../bindings/serial/snps-dw-apb-uart.yaml     |  12 +-
-> >  .../bindings/spi/snps,dw-apb-ssi.yaml         |   1 +
-> >  arch/arm64/Kconfig.platforms                  |   4 +-
-> >  arch/arm64/boot/dts/synaptics/Makefile        |   5 +
-> >  arch/arm64/boot/dts/synaptics/sl2611-rdk.dts  |  16 +
-> >  arch/arm64/boot/dts/synaptics/sl2611.dtsi     | 490 ++++++++++++
-> >  arch/arm64/boot/dts/synaptics/sl2613-rdk.dts  |  16 +
-> >  arch/arm64/boot/dts/synaptics/sl2613.dtsi     |  12 +
-> >  arch/arm64/boot/dts/synaptics/sl2615-rdk.dts  |  16 +
-> >  arch/arm64/boot/dts/synaptics/sl2615.dtsi     |  46 ++
-> >  arch/arm64/boot/dts/synaptics/sl2617-rdk.dts  |  16 +
-> >  arch/arm64/boot/dts/synaptics/sl2617.dtsi     |  46 ++
-> >  arch/arm64/boot/dts/synaptics/sl2619-rdk.dts  |  16 +
-> >  arch/arm64/boot/dts/synaptics/sl2619.dtsi     |  44 ++
-> >  .../boot/dts/synaptics/sl261x-rdk-common.dtsi | 135 ++++
-> >  drivers/clk/Kconfig                           |   1 +
-> >  drivers/clk/berlin/Kconfig                    |  25 +
-> >  drivers/clk/berlin/Makefile                   |   4 +
-> >  drivers/clk/berlin/sl-clk.c                   | 279 +++++++
-> >  drivers/clk/berlin/sl-clk.h                   |  31 +
-> >  drivers/clk/berlin/sl-sysmgr-clk.c            | 250 ++++++
-> >  drivers/clk/berlin/sl-sysmgr-clk.h            |  44 ++
-> >  drivers/clk/berlin/sl261x-clks.c              | 385 +++++++++
-> >  drivers/clk/berlin/sl261x-pll.c               | 145 ++++
-> >  drivers/clk/berlin/sl261x-pll.h               |  14 +
-> >  drivers/i3c/master/dw-i3c-master.c            |  24 +-
-> >  drivers/i3c/master/dw-i3c-master.h            |   2 +-
-> >  drivers/pinctrl/berlin/Kconfig                |   7 +
-> >  drivers/pinctrl/berlin/Makefile               |   1 +
-> >  drivers/pinctrl/berlin/berlin.c               | 259 +++++-
-> >  drivers/pinctrl/berlin/berlin.h               |  17 +-
-> >  drivers/pinctrl/berlin/pinctrl-sl261x.c       | 745 ++++++++++++++++++
-> >  drivers/reset/Kconfig                         |   6 +
-> >  drivers/reset/Makefile                        |   1 +
-> >  drivers/reset/reset-sl261x.c                  | 224 ++++++
-> >  include/dt-bindings/clock/syna,sl261x.h       | 131 +++
-> >  include/dt-bindings/reset/syna,sl261x-reset.h |  80 ++
-> >  45 files changed, 3899 insertions(+), 33 deletions(-)
-> >  create mode 100755 Documentation/devicetree/bindings/clock/syna,sl261x-clk.yaml
-> >  create mode 100644 Documentation/devicetree/bindings/mfd/syna,sl261x-gbl.yaml
+> > Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+> > ---
+> >  .../bindings/reset/syna,sl261x-reset.yaml     | 40 ++++++++++
+> >  include/dt-bindings/reset/syna,sl261x-reset.h | 80 +++++++++++++++++++
+> >  2 files changed, 120 insertions(+)
 > >  create mode 100644 Documentation/devicetree/bindings/reset/syna,sl261x-reset.yaml
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2611-rdk.dts
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2611.dtsi
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2613-rdk.dts
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2613.dtsi
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2615-rdk.dts
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2615.dtsi
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2617-rdk.dts
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2617.dtsi
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2619-rdk.dts
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl2619.dtsi
-> >  create mode 100644 arch/arm64/boot/dts/synaptics/sl261x-rdk-common.dtsi
-> >  create mode 100644 drivers/clk/berlin/Kconfig
-> >  create mode 100644 drivers/clk/berlin/sl-clk.c
-> >  create mode 100644 drivers/clk/berlin/sl-clk.h
-> >  create mode 100644 drivers/clk/berlin/sl-sysmgr-clk.c
-> >  create mode 100644 drivers/clk/berlin/sl-sysmgr-clk.h
-> >  create mode 100644 drivers/clk/berlin/sl261x-clks.c
-> >  create mode 100644 drivers/clk/berlin/sl261x-pll.c
-> >  create mode 100644 drivers/clk/berlin/sl261x-pll.h
-> >  create mode 100644 drivers/pinctrl/berlin/pinctrl-sl261x.c
-> >  create mode 100644 drivers/reset/reset-sl261x.c
-> >  create mode 100644 include/dt-bindings/clock/syna,sl261x.h
 > >  create mode 100644 include/dt-bindings/reset/syna,sl261x-reset.h
 > > 
+> > diff --git a/Documentation/devicetree/bindings/reset/syna,sl261x-reset.yaml b/Documentation/devicetree/bindings/reset/syna,sl261x-reset.yaml
+> > new file mode 100644
+> > index 000000000000..8cfec17df800
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/reset/syna,sl261x-reset.yaml
+> > @@ -0,0 +1,40 @@
+> > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> > +# Copyright (C) 2026 Synaptics Incorporated
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/reset/syna,sl261x-reset.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: Synaptics SL261X reset controller
+> > +
+> > +maintainers:
+> > +  - Jisheng Zhang <jszhang@kernel.org>
+> > +
+> > +description: The reset controller node must be a sub-node of the chip
+> > +  controller node on SL261X SoCs.
+> > +
+> > +properties:
+> > +  compatible:
+> > +    enum:
+> > +      - syna,sl261x-soc-reset
+> > +      - syna,sl261x-system-reset
+> > +
+> > +  "#reset-cells":
+> > +    const: 1
+> > +
+> > +required:
+> > +  - compatible
+> > +  - "#reset-cells"
+> > +
+> > +additionalProperties: false
+> > +
+> > +examples:
+> > +  - |
+> > +    chip: chip-control@f7e10000 {
+> > +        reg = <0xf7e10000 0x1000>;
+> > +
+> > +        chip_rst: reset {
+> > +            compatible = "syna,sl261x-soc-reset";
+> > +            #reset-cells = <1>;
+> > +        };
+> 
+> Why can't this just be part of the parent node?
+
+Good question! IMHO, the reasons are:
+
+1. the so called Gbls(Gbl means global) such as mcuGbl and
+chip control Gbl contain not only reset, pinctrl and clk/plls
+but also some other registers for different purposes, e.g in the
+chip control gbl, there are some registers to control eth phy sel(RMII
+or RGMII), and TXC 90 degree selection etc. These registers will
+be used by the Ethernet driver;
+
+While there's no pinctrl regs in avioGbl and vppGbl. In the vppgbl,
+there are some registers for DPHYTX etc.
+
+As can been, in different Gbls, there maybe different purposes registers, no
+obvious patterns.
+
+So the question here is why not split the gbl into different register
+spaces, and abstract each space for each function group? Two blocking
+points make this impossible and ugly: different reg space may not be
+aligned at 4KB boundary, e.g reset: 0x350 ~ 0x37c; eth phy sel:0xa18;
+some registers which belong to similar functionality, e.g clks, may not be
+adjacent.
+
+So the best way is to abstract these GBLs via. "syscon", "simple-mfd", and
+put necessary subnodes such as reset, pinctrl and clks under the GBL
+node. If the registers in GBL is misc control, pass the syscon phandle
+to the main driver, e.g I planed to pass the syscon phandle to GMAC
+driver to control the RMII/RGMII selection.
+
+2.follow current bg2 and bg2q style
+e.g arch/arm/boot/dts/synaptics/berlin2q.dtsi
+
+IMHO, why bg2 and bg2q dtsi files are implemented as current
+style is due to the above point 1.
+
+Kindly let me know if there's a better solution.
+
+> From a quick check of the dts, the node with this subnode didn't also
+> have a system-reset node too, so there's no conflict or anything of that
+> nature.
+> 
+> > +    };
+> > diff --git a/include/dt-bindings/reset/syna,sl261x-reset.h b/include/dt-bindings/reset/syna,sl261x-reset.h
+> > new file mode 100644
+> > index 000000000000..7034f58aae5b
+> > --- /dev/null
+> > +++ b/include/dt-bindings/reset/syna,sl261x-reset.h
+> > @@ -0,0 +1,80 @@
+> > +/* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
+> > +/*
+> > + * Copyright (C) 2026 Synaptics Incorporated
+> > + *
+> > + * Author: Jisheng Zhang <jszhang@kernel.org>
+> > + */
+> > +
+> > +#ifndef _DT_BINDINGS_SL261X_RESET_H
+> > +#define _DT_BINDINGS_SL261X_RESET_H
+> > +
+> > +/* ACPU subsystem */
+> > +#define RST_SOC_SDIO0		0
+> > +#define RST_SOC_USB0		1
+> > +#define RST_SOC_EMMC		2
+> > +#define RST_SOC_GETH0		3
+> > +#define RST_SOC_SDIO1		4
+> > +#define RST_SOC_USB1		5
+> > +#define RST_SOC_GETH1		6
+> > +#define RST_SOC_USB0PHY		7
+> > +#define RST_SOC_USB0CORE	8
+> > +#define RST_SOC_USB0MAHB	9
+> > +#define RST_SOC_USB1PHY		10
+> > +#define RST_SOC_USB1CORE	11
+> > +#define RST_SOC_USB1MAHB	12
+> > +#define RST_SOC_UART0		13
+> > +#define RST_SOC_UART1		14
+> > +#define RST_SOC_UART2		15
+> > +#define RST_SOC_UART3		16
+> > +#define RST_SOC_I2C0		17
+> > +#define RST_SOC_I2C1		18
+> > +#define RST_SOC_SPI0		19
+> > +#define RST_SOC_SPI1		20
+> > +#define RST_SOC_SPI2		21
+> > +#define RST_SOC_SPI3		22
+> > +#define RST_SOC_APBTIMERS	23
+> > +#define RST_SOC_APBSYSCNT	24
+> > +#define RST_SOC_APBWDT		25
+> > +#define RST_SOC_APBGPIO		26
+> > +#define RST_SOC_APBDMA		27
+> > +#define RST_SOC_GPUCORE		28
+> > +#define RST_SOC_NPUCORE		29
+> > +#define RST_SOC_AVIOAIOG	30
+> > +#define RST_SOC_AVIOVPPG	31
+> > +#define RST_SOC_AVIOVIPG	32
+> > +
+> > +/* system subsystem */
+> > +#define RST_SM_ADCCORE		0
+> > +#define RST_SM_ADCPRST		1
+> > +#define RST_SM_CAN0PRST		2
+> > +#define RST_SM_CAN0SRST		3
+> > +#define RST_SM_CAN1PRST		4
+> > +#define RST_SM_CAN1SRST		5
+> > +#define RST_SM_GPIOPRST		6
+> > +#define RST_SM_GPIOSRST		7
+> > +#define RST_SM_I2CM0PRST	8
+> > +#define RST_SM_I2CM0SRST	9
+> > +#define RST_SM_I2CM1PRST	10
+> > +#define RST_SM_I2CM1SRST	11
+> > +#define RST_SM_I3CPRST		12
+> > +#define RST_SM_I3CSRST		13
+> > +#define RST_SM_PDMPRST		14
+> > +#define RST_SM_PDMSRST		15
+> > +#define RST_SM_PVTHSRST		16
+> > +#define RST_SM_PVTPRST		17
+> > +#define RST_SM_PWMPERIRST	18
+> > +#define RST_SM_PWMPRST		19
+> > +#define RST_SM_SPIMPRST		20
+> > +#define RST_SM_SPIMSRST		21
+> > +#define RST_SM_SPISPRST		22
+> > +#define RST_SM_SPISSRST		23
+> > +#define RST_SM_UART0PRST	24
+> > +#define RST_SM_UART0SRST	25
+> > +#define RST_SM_UART1PRST	26
+> > +#define RST_SM_UART1SRST	27
+> > +#define RST_SM_UART2PRST	28
+> > +#define RST_SM_UART2SRST	29
+> > +#define RST_SM_UART3PRST	30
+> > +#define RST_SM_UART3SRST	31
+> > +
+> > +#endif /* _DT_BINDINGS_SL261X_RESET_H */
 > > -- 
 > > 2.53.0
 > > 
