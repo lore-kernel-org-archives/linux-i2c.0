@@ -1,224 +1,285 @@
-Received: from mail-pz2-f37.google.com (mail-pz2-f37.google.com [74.125.228.37])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A5EC485920
-	for <linux-i2c@vger.kernel.org>; Thu,  1 Oct 2026 07:52:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6028A4BE44D
+	for <linux-i2c@vger.kernel.org>; Thu,  1 Oct 2026 08:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790841123; cv=none; b=bskMKptF4sXp4F7trrnYT+xKWggZ9HznTRbMZtmnzItEFTYwOdy1JTIWWTuS9w/LPb9agbkY+QBB9rIyqQclu164fkFe08pB0y0GZEw2lwcVD68m45fZaBJWfzilx3Kt4QYHWLZsDT1Em+phvWYS4dTruU0sksi4losMiDDThyw=
+	t=1790844218; cv=none; b=ZwriyseN3M5b6B78F2PW95M8iWim+7kSRHq3X57SJr/6MSuX+6ykViF72A9GVopW+PHX6WjENS/ZmTVm7v9b3z4y14o+b+NJrrg2PCsp4j+qsNix/42KH48O+j+SJNM6XNdMfn6n5SQLxH3qdNTHDB27D/C5Zo7/0WaiLJH483Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790841123; c=relaxed/simple;
-	bh=0aVue5qlHixKUDgsg0/JaFYVf7jDnLSm4fZZkO8n+uE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=inMbVH0LprASuEJ2Zr/MXu4tsMljJ4F6+faJEWLmKE1kvTNP96PgInbBARLkHXCv+WzLISl19xTqohsqmlN4jzc2WtKUyzOF7Q5lP6vT90MHVvisXKlrfLyazyLAJmNgymDYZLkZ2fbwBXDuHwL7Hco0yQSEtDH+GRjCbePZStU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eQ2nQkl6; arc=none smtp.client-ip=74.125.228.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790844218; c=relaxed/simple;
+	bh=05hckqbzWrSWg6nAu4ayXZJ0SnccK6eIRIGmfGXur/8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=jhUO1gT5B/cJfMyHVEo8q78+yB67/XfhMSJ0+gkohTqJaJkbBE9f9w1S/3cJN2ktt42hyejvMiBhIPjG4b3JcmP6SAVWd/jQlgMpRDMsF1PmYZkfGtG/5L9QVhvLK7KtCJkK0P5wV6xNiNp1yfvwgmOfqIAqR77JH3u884ai7Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=flipper.net; spf=pass smtp.mailfrom=flipper.net; dkim=pass (2048-bit key) header.d=flipper.net header.i=@flipper.net header.b=pbwkf557; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=flipper.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flipper.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eQ2nQkl6"
-Received: by mail-pz2-f37.google.com with SMTP id d2e1a72fcca58-8867466563eso394674b3a.0
-        for <linux-i2c@vger.kernel.org>; Thu, 01 Oct 2026 00:52:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=flipper.net header.i=@flipper.net header.b="pbwkf557"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-4a006bb267eso22802485e9.0
+        for <linux-i2c@vger.kernel.org>; Thu, 01 Oct 2026 01:43:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790841121; x=1791445921; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=KjOU7YARtrXAbkjxgoW/D83MupO/fBHcHqOARUheMbc=;
-        b=eQ2nQkl6xX4DO7OtJKlDC9LSi/pWn3aq/InuMEWwzSavkm3nYfWZmeabTiYHqpIexJ
-         wYJLovMz8avshQIk/ZeOPryr/8R3Q22pm6vb50s9NGQMV5N9UeS9Slb32nnf8kxm4uDo
-         jbEqcwQSXZgNAF4cWuN8SJbgv1DzXZmNGQCEpSWkpOZbfDDXZrnciucWN34D7HN26d9I
-         XE8K7Vog1VcRYkAYRRYjwqnxkGZkCg1fmiuU5LrpdoHBBFa7cIVoNyJMUxHAlDrKNJ9N
-         i3iv/9aWQreMfVYDVgK2rM6NQsQca+GEXBImBw0aCvv6zzwZDRepPWzzysNfKGXbRBUu
-         9M8w==
+        d=flipper.net; s=google; t=1790844213; x=1791449013; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=4dA/c3M5G0xH9p5gUF/XWZZJAKjMX6RGI0WkDKQAyf0=;
+        b=pbwkf557ZGNCP9lc0N1jmU3Q5ZvPrSXEbLkj5MWyaxICF46fCOwhGSoMy+Wk4ey542
+         7vqN3/KmZSyiMSr+s1QUUsU4gIeXKt5NYjD3J0LBjMaOWNw2USkSGEWfUxKKKF/a33Zu
+         MX+BSu6beTSm150gvkoK5tbTifJZfPgho30Ym2KtdsV+lWvGdzUcUceD19a9ZX13sO0L
+         AwD8hMHD+pa5QazEOeJwebxrbKN8vmHV3gb37NorF2HU32TKjY6RS2cbKRdychz2YFWT
+         tI2Y427waCRWOXKpqKyalQQ81Gulgp9Cgnopa4y032HBvIMPNfEs+AKz5LRlMVPG/sQl
+         7D9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790841121; x=1791445921;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KjOU7YARtrXAbkjxgoW/D83MupO/fBHcHqOARUheMbc=;
-        b=Q8BL8Sm6S7ICrzrju9wi7eihKGqDuiA+LbQE0LmwbwidMi28htw4IATk/f0pW9rodC
-         Jpu10RnWN+Cp5dZK33lw+qFLifE8MgfWgl8zD9hqeaWzAmzX1enPbt8k1XunXP4N4Ve8
-         soHqahFizrU5/appvX3+bLigyckFgVxQQ7f5mneYy1mG5XQGz0jYfiWj7UvQjDkMF0Mo
-         QaO7lOHxPqHvjRelIYKI/4pNUN0u6vksnjfokkevRGS0VceFbeMYND2/p651yOmhozGA
-         V+I0sjOEKTs2TWrjFHEdBUMIEWxUK3p+LqqZc/L1q5FFQcnHnT6uXf8NZJ31gMnnyO9k
-         2t6A==
-X-Forwarded-Encrypted: i=1; AKwUvBypy/2ObzqwAqTls4gmQuJyUHk+VRAr0wZf0rZrYILKBCqeChaPPveJA+oTAvKvpmleifvvmM6HQnM=@vger.kernel.org
-X-Gm-Message-State: AFuF++nO5/g1Y+5ZI2ypbAW4ewHR5HrYzBiVNKiNar0XoEYwoId13ud4
-	aECtrLI1HSnkQ+HqOg6WgYTVtJ7FKXQ6IXpjX3YGlVDnDkmWMpEcDziu
-X-Gm-Gg: AYBFou08uljwkLGRqGzmRHvkervJfANVwgMl8tV+FSFqDoBiqARECjIXHeBV6bNcQY9
-	qyq54+AwCM4fyIUrUaESD+g4QT1rUv2vNR6vLBwpztt09JbofSDcuEVOYa1srHgQVW+SePRVosW
-	TxnLrr6LFphQ/gtN3KvBjOvRmpGHZ6eSOy5q0ps21iWQk5asKgAkET+Td4stNjsEc+9p33o9+I3
-	8FdI4nf1wkzSOAlmGJ+jqnd5GwbbYc3pgzR761qGHk1q/94FN/6pCdIZyB71GFMmRrS/quPsSXv
-	olNo8xZ0mv7o5t0PzcJyuFaWtT15BU4GbQ0J4+9yWRXfrQtEX4dEI/aJ/Yoc9mil/emARDzPyim
-	Waaph9jiXRM4VEznlQqRbMwmf1LUPumGU1+1Dzfwa4GpYQngmL4qma79U+/QunrJ8JifQydQ04v
-	XceAC6JLIwAtPebwQ07RMWfmw6H8Fte/q218yrJsPSx4ibv6jdBLXhlgMjj+qs3KTswYf+4YXXN
-	qL0XCXcc8Rz6wgp41Ip4WGcrzbq+clyBe/wWQjrlFF0K6/iHIH9DqlH
-X-Received: by 2002:a05:6a00:2301:b0:886:95df:c50c with SMTP id d2e1a72fcca58-887fe5c8dddmr1176734b3a.26.1790841121413;
-        Thu, 01 Oct 2026 00:52:01 -0700 (PDT)
-Received: from localhost.localdomain (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-88819db440csm666843b3a.60.2026.10.01.00.51.58
+        d=1e100.net; s=20260707; t=1790844213; x=1791449013;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=4dA/c3M5G0xH9p5gUF/XWZZJAKjMX6RGI0WkDKQAyf0=;
+        b=y/CI0a2mG33ff7Nm2aPJ7xCqqEdGa7Qm25t7vPsWrOJpSV11VMYIilMAKzf+OOnHTo
+         /guzlA91eWYZxq8fU2SU4CiNIwetviOutRV3TliwKFMniP7OgvXNUCY5A2FP+lC3m4yb
+         nSRuLcPsUrS7DG414OBDSXUF7QnkmDN6AcNa0jVe6un0bf6NBq7E7R2gze4La2Km95Mc
+         /PgCdgoSbDgZa1g9pmfQs1g6U386myERVV6KVCNhOE+vjXZ8Fpph4OpsgIY4dvNMWQsA
+         Jb5o1m7+KlJ8c6HWs472D9H87iHIB+jlwBfVFvwgKxuxGKxFpPxnNsSfYY/5PMQVk0sF
+         BsPw==
+X-Forwarded-Encrypted: i=1; AKwUvBzN7I3QSfmKb9bv0Q2NHreDiOj1FcI3TRZw0rxS2eZwrME9Gv9hEL/DhP+M62Zso9luStxAWeWctW0=@vger.kernel.org
+X-Gm-Message-State: AFuF++kajOlfzMy2RKlQoL6ob+41RodfbH8GrLX3V9gG0tJnv1624nOR
+	32em50c3zPCRqbqtWcbdQk+7pL422x6giKOPpnPEls8NY/dFXDLBvaZMMe+t2i13vXI=
+X-Gm-Gg: AYBFou0Xr3Qy1xd5R16iA3ftIUPHlCsdTnPcY+eMDtyVYwlc19aBdCYUnASMdDxmz7d
+	vqtQBLWL7+AOofKnozJFdY1/+KmtcHbvMrI6Fhq9a/JAst7ppm6O2iFzLdKCkLZzMN+LH4RrZs/
+	ciX+wa7DWyziN7X6XvegQkaNsslmMBfzjy7LSyG70OPaEDleID2eT8AwI2X0Y/1o+laCV5RpMTT
+	jkNyk38ILBKf9DVPpxljehae8G3129kGvXPu4dw0LHTuT7Y/5x9Zs25XQpku79vB+HmKbouNpU4
+	T/ydTle/Hb10LJtSYuD55JzHLIn8MhSjctj4qp9JPFqKFLb06YN1kVQCEwvZvX9ws+YdhEyy9DW
+	8QO2he4UgGDAwxCaRTw2o/rTw0Rg0A5XSvx+4XCmATg3htYfXKGNwdiBNG6MsF7a54UwUJjIuiv
+	xAxHMTBdS1pEGVvyzTU8HkhMe4Ujq+lKGcrLvElLKF9FfEBW8a11mjQ9uVlp2inG0+uDBro2SEK
+	SvfT7e+58jIHpBToB520hadwuo=
+X-Received: by 2002:a05:600c:c8a:b0:49e:7862:c09e with SMTP id 5b1f17b1804b1-4a01adec28amr66837005e9.14.1790844212958;
+        Thu, 01 Oct 2026 01:43:32 -0700 (PDT)
+Received: from alchark-surface.localdomain ([5.194.93.183])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01f979c05sm84307725e9.3.2026.10.01.01.43.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Oct 2026 00:52:00 -0700 (PDT)
-From: Zi-Yu Chen <zychennvt@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Cc: Jacky Huang <ychuang3@nuvoton.com>,
-	Shan-Chun Hung <schung@nuvoton.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Zi-Yu Chen <zychennvt@gmail.com>
-Subject: [PATCH v11 3/3] arm64: dts: nuvoton: Add I2C nodes for MA35D1 SoC
-Date: Thu,  1 Oct 2026 15:51:01 +0800
-Message-Id: <20261001075101.489660-4-zychennvt@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20261001075101.489660-1-zychennvt@gmail.com>
-References: <20261001075101.489660-1-zychennvt@gmail.com>
+        Thu, 01 Oct 2026 01:43:32 -0700 (PDT)
+From: Alexey Charkov <alchark@flipper.net>
+Date: Thu, 01 Oct 2026 12:43:20 +0400
+Subject: [PATCH] i2c: rk3x: Add generic GPIO based bus recovery
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261001-rki2c-recovery-v1-1-ea29ce7317fc@flipper.net>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQrCMBBG4auUWRtIpiDiVcRFnf7RUUhl0paW0
+ Ls31eW3eK9QhikyXZtChlmzDqkinBqSV5eecNpXE3s+B++Ds4+yOIMMM2x1nvnCEjvEtqUafQ1
+ Rl9/wdv87T483ZDwutG07saLDvXIAAAA=
+X-Change-ID: 20261001-rki2c-recovery-02282cfaef33
+To: Heiko Stuebner <heiko@sntech.de>, Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, 
+ linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Alexey Charkov <alchark@flipper.net>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6657; i=alchark@flipper.net;
+ h=from:subject:message-id; bh=05hckqbzWrSWg6nAu4ayXZJ0SnccK6eIRIGmfGXur/8=;
+ b=owGbwMvMwCW2adGNfoHIK0sZT6slMWTtkzWVi7jpc3tlDsfnVxOXxnW1ZOn/TjjDtVTsezira
+ pm1ofb6joksDGJcDJZiiixzvy2xnWrEN2uXh8dXmDmsTCBDpEUaGICAhYEvNzGv1EjHSM9U21DP
+ 0EjHWMeIgYtTAKZ6tREjQ0+r8oZFpSU3uU7NfzblsvXPtyYvL3UyNj5WPL+I92XD08sM/yyzUh6
+ c9b90RMxTvUaR+VTJLeaMKz/mP9phss3cqEXGnAMA
+X-Developer-Key: i=alchark@flipper.net; a=openpgp;
+ fpr=9DF6A43D95320E9ABA4848F5B2A2D88F1059D4A5
 
-Add I2C controller nodes to the MA35D1 SoC dtsi file.
-Also, enable the I2C2 interface on the MA35D1 SOM board and
-configure its pinctrl to allow communication with the onboard
-NAU8822 audio codec
+A target that loses track of the framing can be left driving SDA low while
+it waits for a clock to shift out an ACK, e.g. after decoding a data byte
+in another device's reply as its own address. The controller then cannot
+generate a START, and the target takes the first bytes of the next
+transfer as data for itself, silently corrupting its registers. This has
+been observed on RK3576 with a TI BQ25792 charger and a TI BQ28Z620 gauge
+sharing the bus, with gauge reads ending up in the charger's registers.
 
-Signed-off-by: Zi-Yu Chen <zychennvt@gmail.com>
+Use the I2C core's generic GPIO bus recovery so that boards can describe
+the recovery pins, so that the core can clock the target out of the wedged
+state and issue a STOP when SDA reads low before a transfer.
+
+Some newer SoCs such as RK3576 have a dedicated bus status register which
+can be read atomically with a single MMIO access, so use it as a fast path
+to detect a wedged bus where available, falling back to the generic GPIO
+based detection otherwise. Recovery itself is always GPIO based and thus
+only available in non-atomic contexts due to the need to switch pinctrl.
+
+Signed-off-by: Alexey Charkov <alchark@flipper.net>
 ---
- .../boot/dts/nuvoton/ma35d1-som-256m.dts      | 20 ++++++
- arch/arm64/boot/dts/nuvoton/ma35d1.dtsi       | 72 +++++++++++++++++++
- 2 files changed, 92 insertions(+)
+ drivers/i2c/busses/i2c-rk3x.c | 84 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 84 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts b/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
-index a029b660e8dc..488567f830a6 100644
---- a/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
-+++ b/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
-@@ -57,6 +57,18 @@ &clk {
- 			   "integer";
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index fcede9f6ed54..a4ca2585a39b 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -41,6 +41,12 @@
+ #define TXBUFFER_BASE 0x100
+ #define RXBUFFER_BASE 0x200
+ 
++/* Registers present on some SoCs only */
++#define REG_SCL_OE_DB  0x24  /* target clock stretching debounce */
++#define REG_ST         0x220 /* SCL/SDA line status */
++#define REG_DBGCTRL    0x224 /* SCL glitch filter, clock stretching detection */
++#define REG_CON1       0x228 /* automatic STOP control */
++
+ /* REG_CON bits */
+ #define REG_CON_EN        BIT(0)
+ enum {
+@@ -66,6 +72,10 @@ enum {
+ /* REG_MRXADDR bits */
+ #define REG_MRXADDR_VALID(x) BIT(24 + (x)) /* [x*8+7:x*8] of MRX[R]ADDR valid */
+ 
++/* REG_ST bits */
++#define REG_ST_SDA        BIT(0) /* 1: SDA is high */
++#define REG_ST_SCL        BIT(1) /* 1: SCL is high */
++
+ /* REG_IEN/REG_IPD bits */
+ #define REG_INT_BTF       BIT(0) /* a byte was transmitted */
+ #define REG_INT_BRF       BIT(1) /* a byte was received */
+@@ -163,11 +173,13 @@ enum rk3x_i2c_state {
+  * struct rk3x_i2c_soc_data - SOC-specific data
+  * @grf_offset: offset inside the grf regmap for setting the i2c type
+  * @calc_timings: Callback function for i2c timing information calculated
++ * @has_bus_status: REG_ST reports the SCL/SDA line levels
+  */
+ struct rk3x_i2c_soc_data {
+ 	int grf_offset;
+ 	int (*calc_timings)(unsigned long, struct i2c_timings *,
+ 			    struct rk3x_i2c_calced_timings *);
++	bool has_bus_status;
  };
  
-+&i2c2 {
-+	status = "okay";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_i2c2>;
+ /**
+@@ -181,6 +193,7 @@ struct rk3x_i2c_soc_data {
+  * @clk_rate_nb: i2c clk rate change notify
+  * @irq: irq number
+  * @t: I2C known timing information
++ * @rinfo: bus recovery information, filled in by the I2C core from firmware
+  * @lock: spinlock for the i2c bus
+  * @wait: the waitqueue to wait for i2c transfer
+  * @busy: the condition for the event to wait for
+@@ -206,6 +219,7 @@ struct rk3x_i2c {
+ 
+ 	/* Settings */
+ 	struct i2c_timings t;
++	struct i2c_bus_recovery_info rinfo;
+ 
+ 	/* Synchronization & notification */
+ 	spinlock_t lock;
+@@ -1056,6 +1070,60 @@ static int rk3x_i2c_wait_xfer_poll(struct rk3x_i2c *i2c)
+ 	return !i2c->busy;
+ }
+ 
++/*
++ * A target that lost track of the framing may be left driving SDA low, e.g.
++ * waiting for a clock to shift out an ACK. The controller cannot generate a
++ * START then, and the target takes the next bytes on the bus as data for
++ * itself. Clock the target out and issue a STOP before starting a transfer.
++ */
++static bool rk3x_i2c_sda_held_low(struct rk3x_i2c *i2c, bool polling)
++{
++	struct i2c_bus_recovery_info *bri = i2c->adap.bus_recovery_info;
++	u32 st;
 +
-+	nau8822: audio-codec@1a {
-+		compatible = "nuvoton,nau8822";
-+		reg = <0x1a>;
-+		nuvoton,spk-btl;
-+	};
++	if (i2c->soc_data->has_bus_status) {
++		clk_enable(i2c->clk);
++		clk_enable(i2c->pclk);
++		st = i2c_readl(i2c, REG_ST);
++		clk_disable(i2c->pclk);
++		clk_disable(i2c->clk);
++
++		return !(st & REG_ST_SDA);
++	}
++
++	/* Reading the recovery GPIO may sleep */
++	if (polling || !bri || !bri->get_sda)
++		return false;
++
++	return !bri->get_sda(&i2c->adap);
++}
++
++/*
++ * Polling transfers come in through .xfer_atomic, which the I2C core only uses
++ * when the caller cannot sleep.
++ */
++static int rk3x_i2c_clear_bus(struct rk3x_i2c *i2c, bool polling)
++{
++	int ret;
++
++	if (!rk3x_i2c_sda_held_low(i2c, polling))
++		return 0;
++
++	/* Recovery switches pinctrl states, which may sleep */
++	if (polling || !i2c->adap.bus_recovery_info) {
++		dev_warn_ratelimited(i2c->dev, "SDA held low, cannot recover the bus\n");
++		return 0;
++	}
++
++	dev_warn_ratelimited(i2c->dev, "SDA held low, recovering the bus\n");
++
++	ret = i2c_recover_bus(&i2c->adap);
++	if (ret)
++		dev_err_ratelimited(i2c->dev, "bus recovery failed: %d\n", ret);
++
++	return ret;
++}
++
+ static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
+ 				struct i2c_msg *msgs, int num, bool polling)
+ {
+@@ -1066,6 +1134,10 @@ static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
+ 	int ret = 0;
+ 	int i;
+ 
++	ret = rk3x_i2c_clear_bus(i2c, polling);
++	if (ret)
++		return ret;
++
+ 	spin_lock_irqsave(&i2c->lock, flags);
+ 
+ 	clk_enable(i2c->clk);
+@@ -1200,6 +1272,12 @@ static const struct rk3x_i2c_soc_data rk3399_soc_data = {
+ 	.calc_timings = rk3x_i2c_v1_calc_timings,
+ };
+ 
++static const struct rk3x_i2c_soc_data rk3576_soc_data = {
++	.grf_offset = -1,
++	.calc_timings = rk3x_i2c_v1_calc_timings,
++	.has_bus_status = true,
 +};
 +
- &pinctrl {
- 	uart-grp {
- 		pinctrl_uart0: uart0-pins {
-@@ -100,6 +112,14 @@ pinctrl_uart16: uart16-pins {
- 			power-source = <1>;
- 		};
- 	};
-+
-+	i2c-grp {
-+		pinctrl_i2c2: i2c2-pins {
-+			nuvoton,pins = <1 8 4>,
-+				       <1 9 4>;
-+			bias-disable;
-+		};
-+	};
+ static const struct of_device_id rk3x_i2c_match[] = {
+ 	{
+ 		.compatible = "rockchip,rv1108-i2c",
+@@ -1229,6 +1307,10 @@ static const struct of_device_id rk3x_i2c_match[] = {
+ 		.compatible = "rockchip,rk3399-i2c",
+ 		.data = &rk3399_soc_data
+ 	},
++	{
++		.compatible = "rockchip,rk3576-i2c",
++		.data = &rk3576_soc_data
++	},
+ 	{},
  };
+ MODULE_DEVICE_TABLE(of, rk3x_i2c_match);
+@@ -1261,6 +1343,8 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+ 	i2c->adap.dev.of_node = np;
+ 	i2c->adap.algo_data = i2c;
+ 	i2c->adap.dev.parent = &pdev->dev;
++	/* The core picks up recovery GPIOs and pinctrl states, if described */
++	i2c->adap.bus_recovery_info = &i2c->rinfo;
  
- &uart0 {
-diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
-index 7228ad4735b5..28488889f564 100644
---- a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
-+++ b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
-@@ -372,6 +372,78 @@ uart15: serial@407f0000 {
- 			status = "disabled";
- 		};
+ 	i2c->dev = &pdev->dev;
  
-+		i2c0: i2c@40800000 {
-+			compatible = "nuvoton,ma35d1-i2c";
-+			reg = <0x0 0x40800000 0x0 0x1000>;
-+			interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk I2C0_GATE>;
-+			clock-frequency = <100000>;
-+			resets = <&sys MA35D1_RESET_I2C0>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c1: i2c@40810000 {
-+			compatible = "nuvoton,ma35d1-i2c";
-+			reg = <0x0 0x40810000 0x0 0x1000>;
-+			interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk I2C1_GATE>;
-+			clock-frequency = <100000>;
-+			resets = <&sys MA35D1_RESET_I2C1>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c2: i2c@40820000 {
-+			compatible = "nuvoton,ma35d1-i2c";
-+			reg = <0x0 0x40820000 0x0 0x1000>;
-+			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk I2C2_GATE>;
-+			clock-frequency = <100000>;
-+			resets = <&sys MA35D1_RESET_I2C2>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c3: i2c@40830000 {
-+			compatible = "nuvoton,ma35d1-i2c";
-+			reg = <0x0 0x40830000 0x0 0x1000>;
-+			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk I2C3_GATE>;
-+			clock-frequency = <100000>;
-+			resets = <&sys MA35D1_RESET_I2C3>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c4: i2c@40840000 {
-+			compatible = "nuvoton,ma35d1-i2c";
-+			reg = <0x0 0x40840000 0x0 0x1000>;
-+			interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk I2C4_GATE>;
-+			clock-frequency = <100000>;
-+			resets = <&sys MA35D1_RESET_I2C4>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c5: i2c@40850000 {
-+			compatible = "nuvoton,ma35d1-i2c";
-+			reg = <0x0 0x40850000 0x0 0x1000>;
-+			interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk I2C5_GATE>;
-+			clock-frequency = <100000>;
-+			resets = <&sys MA35D1_RESET_I2C5>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
- 		uart16: serial@40880000 {
- 			compatible = "nuvoton,ma35d1-uart";
- 			reg = <0x0 0x40880000 0x0 0x100>;
--- 
-2.34.1
+
+---
+base-commit: 6c2cb8b8b843d216ab549b678a0d8831c43153e0
+change-id: 20261001-rki2c-recovery-02282cfaef33
+
+Best regards,
+--  
+Alexey Charkov <alchark@flipper.net>
 
