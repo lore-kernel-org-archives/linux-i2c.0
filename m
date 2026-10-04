@@ -1,51 +1,52 @@
-Received: from send288.i.mail.ru (send288.i.mail.ru [95.163.59.127])
+Received: from send78.i.mail.ru (send78.i.mail.ru [89.221.237.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9966C334C3D;
-	Sun,  4 Oct 2026 15:48:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.163.59.127
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF2F370D7C;
+	Sun,  4 Oct 2026 15:48:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.221.237.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791128920; cv=none; b=ocye/KcvrhO1NRsMnq0moxspcZ0eE/yKjNGQ2szecqR/1BuRTJ6klKYz8sIxf+NgmNHycjcvsDODI4sA2g/S56PGndCLZ2cBs8o1NEmwb3UaiaJTG64JIM/91ewDGv9u5wA2WxpW0m0c0cBR78D722EHLMLDOT4JYbf+sTZW9RQ=
+	t=1791128937; cv=none; b=rdoG9VmoeCU3ENv4sCWyzJB1Rr1W7ko5ckaL3ttKaj6CHTdxxMsTIK+5NiRU0MlQU/CY/haEyCV9Qw3Aw+T/Rkxxap0nUJTa0iplnD+Jb8grt02YMrvsSc+UJlYTJTzc5JJNI1LJ6NUGIppFKwInA+1UgjBXqWZvRBnPXjVMwfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791128920; c=relaxed/simple;
-	bh=Q98Ob/et0Ad5ThdzlalK0d5SbwqbtC0m1flyFqDf3tU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=glCGHMRHLzkGQl3uMZKCzSn3KKNhyNpMZM8eb6oqAcof12Y1OSUsz0lPRKZFAOVygIX/faYiEWnGSDhNGw3pDLbxhYcYGn0gwdPQwUlv1C8FRM3PeMSYGZ2lVigJwlddJ9N+I7xCeU04asTYYxl9X7UlyIQzdVbfcSPTbujAmt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru; spf=pass smtp.mailfrom=mail.ru; dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b=npeLtRjx; dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b=vJo9pSpO; arc=none smtp.client-ip=95.163.59.127
+	s=arc-20240116; t=1791128937; c=relaxed/simple;
+	bh=HtPj4v8vpBxFgFJufxwc4+glAkb0g0ppGp3VEwVoCYE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=mgO3VRFW30QVfEoUYZA8nOsP9G1sYwkhelPPQfKgHoZioC0+nixUvyLZRJNfOUAAOddLE3leFHguFLXr6w23XFpd+M2aHX3QhzcHCnMcV90slQRLC5MC2tHzQopomQhbuJc3eWTfYKiLN1mNFhLReTwnMD6TylhpqtgpqALQPG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru; spf=pass smtp.mailfrom=mail.ru; dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b=kf0VJuql; dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b=IM3c2xhY; arc=none smtp.client-ip=89.221.237.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b="npeLtRjx";
-	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b="vJo9pSpO"
+	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b="kf0VJuql";
+	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b="IM3c2xhY"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru;
-	s=mail4; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:Cc:
-	To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	s=mail4; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive:X-Cloud-Ids;
-	bh=mB90G5H+eGeqxMX1ZBd2kKxnWNEIT8sYLRoBasATiMw=; t=1791128916; x=1791218916; 
-	b=npeLtRjxF9o3miyD5tvH4hitQHTtCh+0GmECmbChm53jqSalEaHYPq6mxsi3buf7Gj4c5nZjq47
-	RGl6sf52UM0mRyZvNYyWVU2o50TJqodiGo6j/sGkJzMEG/KLgzPNNzmePxqa+EwANQ5UJfbSKvQN5
-	4sQ7hBDttuQmHBCuVVvIHpiRwREEfBy/FMGUu1URVPwYlqoGEUJe85benACTHMKBCC7LDOFhcOM+s
-	XQHeG5OICIpf3cBG5tpCevCWtEbO1CK8ny3OkR8RtD9sXy2ykpc94Ol2dWIzRQZ5tYgiAKXF0oP2b
-	Gz2R12/1Eyd+tfr+j0YXJi1KQzh6DLsogmHw==;
-Received: from [10.113.70.127] (port=34956 helo=send243.i.mail.ru)
-	by exim-fallback-canary-30-5f5f5797b7-sjhwp with esmtp (envelope-from <misha.zavertkin@mail.ru>)
-	id 1xDODK-00000000EbX-3zUr; Sun, 04 Oct 2026 18:33:23 +0300
+	bh=AoqdPOP+Cjce4dSgxWZppBWDxwYNlD9LQgjeP3c5zxg=; t=1791128930; x=1791218930; 
+	b=kf0VJuqlLszWtCqh/143mcMtP0bzpWvuttBiAGTCkkIEitZTXuLkW6IYHrNHHnb2KvjYcDwLHcl
+	kZiyZdx0S8UL8RKi25Wv8WhTYgAbsI1Zj2nKSpqf0TGzV1M6jISuMafIp0fhwwOI7lTaSScPBaVZb
+	VYAWJPRGFG8WtaY0e/1HcXEjfR7RnroYmZ3br/zltiI3lnNwxbBg9J284oUH41C9Dqq3OzcB7gvul
+	ASrYZacv3YmS/OMpmgVd5HMBsI6R/58K+WVIQnOOtpqcNY2a/ooeOJVpjh38Wn1GOU/hfY5pL0wiF
+	lowkQX5CSY14GorVjIxMe3yK5ymP/hqwgJJg==;
+Received: from [10.113.104.231] (port=58018 helo=send217.i.mail.ru)
+	by exim-fallback-canary-10-5f5f5797b7-zrprb with esmtp (envelope-from <misha.zavertkin@mail.ru>)
+	id 1xDODX-0000000099x-1f3C; Sun, 04 Oct 2026 18:33:35 +0300
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru;
-	s=mail4; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:Cc:
-	To:From:From:Sender:Reply-To:To:Cc:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+	s=mail4; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	Message-ID:Date:Subject:Cc:To:From:From:Sender:Reply-To:To:Cc:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
 	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:
 	X-Cloud-Ids:Disposition-Notification-To;
-	bh=mB90G5H+eGeqxMX1ZBd2kKxnWNEIT8sYLRoBasATiMw=; t=1791128002; x=1791218002; 
-	b=vJo9pSpOnY2m/vYu3Q6ZyBuyb9KvLtJ1Q7HWnRivbqYeQCA52uITKFFhpNm01i+8Y2LbsBubWLR
-	7j2W4j9D1Q47X3lFyEWRhuaQEHmU7b4TnaNqy0AbupmdMdTIX81erNRUneWxUHkO+9TNNYMLg+66I
-	SZRbWxhSy7qKWNpzAtFQfjtNoeJvG/hf6Zu97+ehiv1BbsGE1/QrPCoTfw2BcNeloPQz+c4UFgSa8
-	yTTXIlZhCINR+NO2V/u6HiQECgWO+GriSf0YbHEta6SnVxtx9jnwfpc3RUOW8vMu+AZZHXgvIlm9b
-	zSBvmTxyY8MWLiXEydlTLXyy4x5GGu4N8o7Q==;
-Received: by exim-smtp-canary-30-7bd8444d88-2gbk7 with esmtpa (envelope-from <misha.zavertkin@mail.ru>)
-	id 1xDOD9-00000000PBz-0Xh1; Sun, 04 Oct 2026 18:33:11 +0300
+	bh=AoqdPOP+Cjce4dSgxWZppBWDxwYNlD9LQgjeP3c5zxg=; t=1791128015; x=1791218015; 
+	b=IM3c2xhYBP2kBIiYT6eE/Lu5CqsF1naF7bfW+O75CR/wJSC9rh0XgFWkRDX8BbaPmfGecHdFlty
+	+t1swhawmZODSW+1mpLZ/GzDgXvkx/jqTQu6GjjLQ0XuAwUoq0K/wesVAAZE7wV7HC16BoveATm0F
+	u+7YPpdHoHNOKnaKl/JLCFWHMOr/dImlYTr+wfwUvtPhthPeFgDxHH6SK4J3IBFcxgihzHFEu8lRN
+	PZjHy0wU9+e6GvTMZYXqBf9hYnXT4g6LAO+3M2rJsvszfJVk+m4OvWRtLrJVfFWUUJXLBKkcMXlOo
+	iLEzegdw3CJ+kzQojzNCp5Aum6ksy6J0QmHQ==;
+Received: by exim-smtp-canary-10-7bd8444d88-pl44g with esmtpa (envelope-from <misha.zavertkin@mail.ru>)
+	id 1xDODN-00000000GTm-3GwH; Sun, 04 Oct 2026 18:33:26 +0300
 From: Michael Zavertkin <misha.zavertkin@mail.ru>
 To: linux-i2c@vger.kernel.org
 Cc: Rustam Adilov <adilov@disroot.org>,
@@ -57,10 +58,12 @@ Cc: Rustam Adilov <adilov@disroot.org>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Michael Zavertkin <misha.zavertkin@mail.ru>
-Subject: [PATCH 0/2] i2c: rtl9300: remove IO_MODE configuration
-Date: Sun,  4 Oct 2026 22:32:33 +0700
-Message-ID: <cover.1791127538.git.misha.zavertkin@mail.ru>
+Subject: [PATCH 1/2] i2c: rtl9300: remove IO_MODE configuration
+Date: Sun,  4 Oct 2026 22:32:34 +0700
+Message-ID: <6f0c33689ebda2ff828a0b830bb78b1168b199b3.1791127538.git.misha.zavertkin@mail.ru>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <cover.1791127538.git.misha.zavertkin@mail.ru>
+References: <cover.1791127538.git.misha.zavertkin@mail.ru>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -70,41 +73,82 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Mailru-Src: smtp
 X-7564579A: 646B95376F6C166E
-X-77F55803: 4F1203BC0FB41BD916CE66F793C04802C937705057FAC64C8D095010D03BA95E00894C459B0CD1B9E75B5B493919319E06104296DCCA83D203A58B56A10BFA1FC28C821639F114AEF82D89A8CF7DB8F5
-X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE789805A6418246A1AEA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F7900637AC83A81C8FD4AD23D82A6BABE6F325AC2E85FA5F3EDFCBAA7353EFBB553375669FBB6EE09702D42792CFA01CAF86D7B1085DA90028991B7B932B26F09BF67B538EEF46B7454FC60B9742502CCDD46D0DEDCF5861DED71B2F389733CBF5DBD5E9D5E8D9A59859A8B699DB8DEEBFCC4B66CC7F00164DA146DA6F5DAA56C3B73B237318B6A418E8EAB8090A508E0FED6299176DF2183F8FC7C06526C9B1F5BC626BCD04E86FAF290E2DB606B96278B59C421DD303D21008E29813377AFFFEAFD269A417C69337E82CC2E827F84554CEF50127C277FBC8AE2E8BA83251EDC214901ED5E8D9A59859A8B6104AF9A031C589D7089D37D7C0E48F6C5571747095F342E88FB05168BE4CE3AF
-X-C1DE0DAB: 0D63561A33F958A5EFE4809F597D63A15002B1117B3ED6968851931A9796B66DF09842853758E9E5823CB91A9FED034534781492E4B8EEAD619183A7BD6BC6F1F36E2E0160E5C55395B8A2A0B6518DF68C46860778A80D54AF47762AB4810619
-X-C8649E89: 1C3962B70DF3F0AD73CAD6646DEDE1918E10F71CB4DF9F9677DD89D51EBB774225B6776AC983F447FC0B9F89525902EE6F57B2FD27647F25E66C117BDB76D659243F0C7AC694BC8FCD8B58DAF003AF8FA4B141E193EA3E3F8E0F9DDF096DE02937192837DAA70EBEB8341EE9D5BE9A0AC71548C1A69F2F49442C5154916628D7998682C8811A4AFF52EE4E5D9E54FDA427302E973F6434AB8511FE41C8941D68F571C199C4BE91E79E69A34BD5DD98C9F0A6D2C91ED28CB6
-X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+ObcCpyrx6l7KImUglyhkEat/+ysWwi0gdhEs0JGjl6ggRWTy1haxBpVdbIX1nthFXOcIETfglQORZ0zpDET4ZrlAo0bq3TDyw5v+G6YiroYwPBU2Rt8bj1Q=
-X-Mailru-Sender: FD65D7C492470CAEE010D97EE9FDA1EF30A43CBF52B51200D77739F4E260083E5A2229DB1BE3CD3932A72BBB8BE3169CF767ED260C4F5E398B67290C0B8F2C0D0ACA136676B1AD1C82BADC8C81B40964835B6B713A4867D9C77752E0C033A69E3453F38A29522196
+X-77F55803: 4F1203BC0FB41BD9BB9BFA8D9985286B4F78699DE9EED6EA473D818687BD1C4A182A05F5380850404C228DA9ACA6FE279C61FDE9CE37E1BE3DE06ABAFEAF6705D8DA8371B8ABA3A286CEB8CC6E9E542E012184F85FB44711
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE7AD2F2D6F6013FF7FC2099A533E45F2D0395957E7521B51C2CFCAF695D4D8E9FCEA1F7E6F0F101C6759CC434672EE6371C2A783ECEC0211ADC4224003CC836476D5A39DEEDB180909611E41BBFE2FEB2B7D0B5183840C9FF9EF6160EB656399EF45B3919D0767016C7968AC6EA8EA59EF0C819B32DFABC24A725E5C173C3A84C31E02C13459908652117882F44604297287769387670735204B6963042765DA4BF6B57BC7E6449061A352F6E88A58FB86F5D81C698A659EA73AA81AA40904B5D98AA50765F7900637C58260CBB077EDD1D81D268191BDAD3D3666184CF4C3C14F3FC91FA280E0CE3D1A620F70A64A45A98AA50765F79006372E808ACE2090B5E1725E5C173C3A84C3C5EA940A35A165FF2DBA43225CD8A89FBFBFE0634520CEB9156CCFE7AF13BCA4B5C8C57E37DE458BEDA766A37F9254B7
+X-C1DE0DAB: 0D63561A33F958A5ABE912BF0A094BF35002B1117B3ED6961DFAB8D082378937C638DF663A625AFA3610D81D389A125CDE35189EBF2DEA28FEA14CD2CD220BB99C5DF10A05D560A9880EC71AF561E0AAD9143641EC25BB394A2C4B6BA9DFC510F36E2E0160E5C55395B8A2A0B6518DF68C46860778A80D548E8926FB43031F38
+X-C8649E89: 1C3962B70DF3F0AD73CAD6646DEDE191716CD42B3DD1D34C77DD89D51EBB774225B6776AC983F447FC0B9F89525902EE6F57B2FD27647F25E66C117BDB76D659F026A0FD0F68FC9665F699225282CFD70E900F82C31408C1C7D0DEEF1BED95A747426E8E4290DFBEB8341EE9D5BE9A0A775A37602C485E74B812BCDD4C60D96665FED16896228FC952EE4E5D9E54FDA427302E973F6434AB8511FE41C8941D68F571C199C4BE91E79E69A34BD5DD98C9F0A6D2C91ED28CB6
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+ObcCpyrx6l7KImUglyhkEat/+ysWwi0gdhEs0JGjl6ggRWTy1haxBpVdbIX1nthFXOcIETfglQORZ0zpDET4Zrk3igikrdHlWGLFSMbYFIZdl/VZul3y37o=
+X-Mailru-Sender: FD65D7C492470CAEE010D97EE9FDA1EF30A43CBF52B51200965EDF11CFD47EC72093B1EE85BB7EC84626B9F2B7165D05F767ED260C4F5E398B67290C0B8F2C0D0ACA136676B1AD1C82BADC8C81B40964835B6B713A4867D9C77752E0C033A69E3453F38A29522196
 X-Mras: Ok
 X-Mailru-Src: fallback
-X-7564579A: B8F34718100C35BD
-X-77F55803: 6242723A09DB00B400464DA02507E70B0546FCE11372492E55863E2B7114EDB0049FFFDB7839CE9E920F40F1183B47102B473EABEA2527F4EEFED01033B76AC4039D4C6DD5D7D878D020F7FCB975CFC3
-X-7FA49CB5: 0D63561A33F958A50F1B27CD8912D05D5002B1117B3ED69608B10F07AB9A4E21F4374DBC560C873002ED4CEA229C1FA827C277FBC8AE2E8B54F520D093A0DF28
-X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+OYcBso8Zm+oliTz8oZwnDrFsY77LZRcHyw5ht0smWrfSeTW5FiI8avd9v29gUBslpLaIlvAR6h4id02YH9mgeCTAyYoNlVO8a/xwH01AMJkn9snoPBmFZWo=
-X-Mailru-MI: 20000080020000000000000800
+X-7564579A: 646B95376F6C166E
+X-77F55803: 6242723A09DB00B400464DA02507E70B0546FCE11372492EA203111655A248E6049FFFDB7839CE9E920F40F1183B4710DB691C1CA50798F9400DE8D5D10784F5028FFF5AE1A43F2F357E5DA21CF0CBBE
+X-7FA49CB5: 0D63561A33F958A5A1644732401DA7925002B1117B3ED6963C4C5414080E67A63C54B0D56BCD470902ED4CEA229C1FA827C277FBC8AE2E8B54F520D093A0DF28
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+OYcBso8Zm+oliTz8oZwnDrFsY77LZRcHyw5ht0smWrfSeTW5FiI8avd9v29gUBslpLaIlvAR6h4id02YH9mgeCTAyYoNlVO8a/xwH01AMJkn79cp17RWWLI=
+X-Mailru-MI: 20000000020000000000000800
 X-Mras: Ok
 
-i2c driver for RTL9607C used to configure IO_MODE register. The register
-is global and responsible for configuring SoC pins, therefore it should
-belong to pinctrl driver.
+IO_MODE is used to route peripheral controller to SoC pins. This is a
+job for pinctrl driver.
 
-SoC-specific pinctrl driver is WIP (waiting for these patches in OpenWRT),
-but pinctrl-single could be used instead.
-
-Remove scl configuration (used only to modify IO_MODE register) and
-reflect these changes in Documentation.
+Since select_scl now have nothing to do, remove it.
 
 Signed-off-by: Michael Zavertkin <misha.zavertkin@mail.ru>
 ---
-Michael Zavertkin (2):
-  i2c: rtl9300: remove IO_MODE configuration
-  dt-bindings: i2c: rtl9300: add pinctrl
+ drivers/i2c/busses/i2c-rtl9300.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
- .../devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml |  7 ++++++-
- drivers/i2c/busses/i2c-rtl9300.c                     | 12 +++---------
- 2 files changed, 9 insertions(+), 10 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+index 3a8225b0666c..c36c29e1833e 100644
+--- a/drivers/i2c/busses/i2c-rtl9300.c
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -130,7 +130,6 @@ struct rtl9300_i2c_xfer {
+ #define RTL9310_I2C_MST_DATA_CTRL			0x8
+ 
+ #define RTL9607_I2C_CONFIG				0x22f50
+-#define RTL9607_IO_MODE_EN				0x23014
+ #define RTL9607_I2C_IND_WD				0x0
+ #define RTL9607_I2C_IND_ADR				0x8
+ #define RTL9607_I2C_IND_CMD				0x10
+@@ -190,7 +189,6 @@ static int rtl9300_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_c
+ 
+ static int rtl9607_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_chan *chan)
+ {
+-	const struct rtl9300_i2c_drv_data *drv_data;
+ 	int ret;
+ 
+ 	if (i2c->sda_num == chan->sda_num)
+@@ -200,11 +198,6 @@ static int rtl9607_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_c
+ 	if (ret)
+ 		return ret;
+ 
+-	drv_data = device_get_match_data(i2c->dev);
+-	ret = drv_data->select_scl(i2c, i2c->scl_num);
+-	if (ret)
+-		return ret;
+-
+ 	i2c->sda_num = chan->sda_num;
+ 	return 0;
+ }
+@@ -619,7 +612,6 @@ static const struct rtl9300_i2c_drv_data rtl9310_i2c_drv_data = {
+ 
+ static const struct rtl9300_i2c_drv_data rtl9607_i2c_drv_data = {
+ 	.field_desc = {
+-		[F_SCL_SEL]		= GLB_REG_FIELD(RTL9607_IO_MODE_EN, 13, 14),
+ 		[F_EXT_SCK_5MS]		= MST_REG_FIELD(RTL9607_I2C_CONFIG, 26, 26),
+ 		[F_DEV_ADDR]		= MST_REG_FIELD(RTL9607_I2C_CONFIG, 14, 20),
+ 		[F_MEM_ADDR_WIDTH]	= MST_REG_FIELD(RTL9607_I2C_CONFIG, 12, 13),
+@@ -631,7 +623,9 @@ static const struct rtl9300_i2c_drv_data rtl9607_i2c_drv_data = {
+ 		[F_I2C_TRIG]		= MST_REG_FIELD(RTL9607_I2C_IND_CMD, 0, 0),
+ 		[F_MEM_ADDR]		= MST_REG_FIELD(RTL9607_I2C_IND_ADR, 0, 31),
+ 	},
+-	.select_scl = rtl9310_i2c_select_scl,
++	/*
++	 * No select_scl - single channel available
++	 */
+ 	.config_chan = rtl9607_i2c_config_chan,
+ 	.config_clock = rtl9607_i2c_config_clock,
+ 	.misc_init = rtl9607_i2c_init,
 -- 
 2.54.0
 
