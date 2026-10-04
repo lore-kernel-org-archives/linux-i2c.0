@@ -1,85 +1,100 @@
-Received: from mail-dl2-f41.google.com (mail-dl2-f41.google.com [74.125.229.169])
+Received: from mail-dy2-f43.google.com (mail-dy2-f43.google.com [74.125.229.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B641B37FF60
-	for <linux-i2c@vger.kernel.org>; Sat,  3 Oct 2026 22:37:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD59C72602
+	for <linux-i2c@vger.kernel.org>; Sun,  4 Oct 2026 02:57:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791067027; cv=none; b=pxYjTS9cng35BdVR6A8VHH2p7z60+1jP3U22iRg2ApgrDvSatpMUnllqbvZwST0xQzV6ROupwwq3SHzcdyqn7JM7c8fdOs4CCr4t0TNdDcxAyliF4j+E+NYX/EYT9j5n7SLlz7tFkFJIKWv4co+ESKmEzRZU66aG8UDJkBPgXfc=
+	t=1791082627; cv=none; b=iMrRj7MRrjg4wbhwcbkorOMnJoTlDTTPJ4F15QCpZNui4RLc9dYue0BoG95FFxMexu04G4+jKr68+BJTV9/q2PaHDaxTtuuGKXHFrIgeJrJpub0jpaaPBPl95K7tmwcWp/NwB5TfLWEVZRpIPXgQUEQazX3AIU1RKRbvhbs07uc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791067027; c=relaxed/simple;
-	bh=gw+IpNQewdVI0rqRaqiRXyApfzC7YILLn9U3LasmatY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OZ4xwbviU2yao+mZuk2hGXHLAk/dXrWWGYCGgrOT6eJInT5znnUVlZVq7kPNOmMtM8ECjiIEY6p4cFQffZ6OrN5ZOUQAzu4HNfuYTauF5MUWj1rSvNLP5QdCxqHWZdk+yPbGbkX8HlsXAfkKtpI+/Frkae7FRfSzGG1zPQ/XAQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mnZDRAb/; arc=none smtp.client-ip=74.125.229.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791082627; c=relaxed/simple;
+	bh=fG5QMpMo3ggEv2hmyOpwXOgMxbSbtZRjj5e0jGGueoc=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=afIpTmg/5GZ9LIgrYGrihkTfmHsBH/nd3z0z3TcjG8cFnRK+rbpAQRgcA7x+IDnzbEZEjEPa8tqjeJYc1YCPaqqmdYHQnqzhRwm1WoK0uLUemU+9MDnSVq+2lWDEKlvpNL7Bw7rJ1JQjcDjGo/7kQN52WQmWdST1l5IOuT2v7V8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=APHMV5+w; arc=none smtp.client-ip=74.125.229.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mnZDRAb/"
-Received: by mail-dl2-f41.google.com with SMTP id a92af1059eb24-148bc4a87eeso31501c88.2
-        for <linux-i2c@vger.kernel.org>; Sat, 03 Oct 2026 15:37:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="APHMV5+w"
+Received: by mail-dy2-f43.google.com with SMTP id 5a478bee46e88-33bfb26865fso424670eec.2
+        for <linux-i2c@vger.kernel.org>; Sat, 03 Oct 2026 19:57:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791067026; x=1791671826; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=gw+IpNQewdVI0rqRaqiRXyApfzC7YILLn9U3LasmatY=;
-        b=mnZDRAb/grxX/XcfEiAhoSiaMxnzA8BU1Z6HwxHzxBQvm80Zjlp9fo2IeoJ0OXiyyo
-         JsTCb5TgM1iksF1g/UD8q3DXFnAfDQiIS0DR8nyaDX4gPBC+utLubXtCUmK7gkk2C3g8
-         7Qm0FyZwgHlo+wgnNbsFsOPa40+7S5CBIN+cCAaI+KjiNy1i+26iJyilQUvul9GeS0TG
-         Z8fWuAlPmcdGjGA7FZFAZfAnqbVVwtMBwUw682KRezlpAToh9EqzbzGw+3vV3OmIL17U
-         3Yoorcx18oXTos6AL0sBvYvPeb0eZmItr8RRVdt9FlaYi/7kYd+fXWGi9iTuZbjMQLKo
-         pOig==
+        d=brighamcampbell.com; s=google; t=1791082626; x=1791687426; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=fG5QMpMo3ggEv2hmyOpwXOgMxbSbtZRjj5e0jGGueoc=;
+        b=APHMV5+wU+gFYz7Y8TkYANXG/jSWkBr3FkKF1KQRyRQ3D2CMLtiss+woDkKoDZoI08
+         Jg7r1R82z+GKV2XNfwjopTPdFw31qn7WooKwpVayMMRFM3nUH7lnIOfMRA9ZUiahThTW
+         sVxkoNBRN6Ee9Nvqx+Kk8dUalvvsr2NpJhyGKwUGPINs9DOlkuCK2mjGz0xhyUotV1IX
+         ggg0bwrnxWolETINCe29lTdAgWKiN2y2HfaIGS1vzUEabWTR/ZxjTbBHOH3VbPNtXRtc
+         ZZawQAuFajZcFuMy9+96vs3gWgOtqxO/PdF9G4sU+1iaXzl5UX5JYlIVUmkaXkMgAsvm
+         axkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791067026; x=1791671826;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=gw+IpNQewdVI0rqRaqiRXyApfzC7YILLn9U3LasmatY=;
-        b=lsZMM7tS0H5Mtgi1XA51/YQO1cv6eB2Txq4+FY9g5OxTbXdtz7p9PTkqzeL0+cRU7b
-         KbVt3EpH4NTwltebZUETwV1iQ8DSenf8xgaL3gVi6gk9B8UD0ZTWDxEGeKeoErnkxhfc
-         ZXBAhTRZlPipVSC7ZUgFJRF2TeUA4dFmUBanBOsR/29trJSTVM1ZKo9XSS4ASfaqzIYB
-         yUk6rmvYx0Qv6kmdIE0w1LPYgr5uGJpDWsZOoHAPufXn1IVRbItiLvRoOe381ITcUo/J
-         8M9WDSVKChiDjjKTV+4tLezZomN5IX8I6h8//qA+5bh3SMW8v6b1rfKHo1HZzx80oRw4
-         OeuA==
-X-Gm-Message-State: AFuF++lm2jrQC7lekCMe4nDy4NwfipRfa8MNKEUU70puKwViC4pR4AEs
-	ZXlYkbuzHF3M38B65bRde+glDCrcpWKn8TRawsecCjzaLxf8tK9HZXkj1d05aytRyKQ=
-X-Gm-Gg: AYBFou2rQ+Bu+7kdtk/2u8kM7ityNNqVgEGtfWmq277az3pYcftskvWjFMh1KmVRnmy
-	K72uu4iTm5Icq7N6JFtLQbeeUNppnUarmEzhvzktOI6RSlb2L9t+nURsAtd6dOe5vsKscAkLeIC
-	NTXO4rdWpc6b/Yv+oLI5UmV1uOZVHP3VUo3fH8G+zOUU85/VmtMBl1vPE27bXxVeONQXhaTYvg6
-	LebPwS4vGQ9yzNLmpszjgfW+sdfKLwvK3ONNMOP8jZE0RgwwZI9ESt62bABFT1ZMw+3WS2TUBBx
-	6NVybo1UejWVg4B8br0/a5MNytDOreEIpxY2MsfOyF/dGq9GuhKgBr8TRVDlo3g6/6O+ym0QQzr
-	3ygXD4av7aUUBAG0XaSn1aEsDQG/aJ/w6vF1js6KPtgfGvByC24hUpeojziHOBD/0O3Y7fJuvEa
-	Q+5UnJtayEMDdS22sojjxnuKaBif4ZwUCEX1JAf5XoWA7ntpu8MkBeNyGSMmpxjf/03jcRTXV82
-	kaKYc2gevwihXYvY7voOCulE6aF7Pa6ExxFRKJWYpfDIVcn1P5ST8QrZszxaiB258oYEVx+gNrv
-	ga2nL/yZDgwURfbtW2WdFnVhCL+a
-X-Received: by 2002:a05:701b:2516:b0:144:ff51:2d73 with SMTP id a92af1059eb24-14f5b11e751mr11363335c88.2.1791067025496;
-        Sat, 03 Oct 2026 15:37:05 -0700 (PDT)
-Received: from cachyos-aura ([45.112.148.98])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-151fca985c6sm12436321c88.10.2026.10.03.15.37.02
+        d=1e100.net; s=20260707; t=1791082626; x=1791687426;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=fG5QMpMo3ggEv2hmyOpwXOgMxbSbtZRjj5e0jGGueoc=;
+        b=sSnfu8dcrO3+ZzLqxRfIq4D9SK3a32ekkTcosSxgbt6Uts+I7fE6EZzZQimalMFkEX
+         bnlrfxC+stNcBkWs8kmExa/NSDETRxPZ3ch2CD7ruNYLgHk3WqqcFeI5RJQ6VUrdYQKi
+         INzvoharU5WApsV/aXJK6c2zSKOXiiLz9UEvK2csX9IrLda5/yXvkPrGghHa7ZunbN0p
+         QFWin+a2CMpbFSU8zQ6mYqApI1C2LaIPr5NewL8EBUtItm14hMhAq7KxhpzCdsB5X0LH
+         0KAEqbXENVvvtyFRi65US4IGkh3swOYz67pvuScKWbJV8+Ub6DUzkZz2qO89lCTCR+1L
+         dAMw==
+X-Forwarded-Encrypted: i=1; AKwUvBy2rD0AGZsbt97I6aouV8VALeCaAdN4CNzjZu002nKhLSkZjExtZppfKVIHM1ZPUULIIcE30s5uA7I=@vger.kernel.org
+X-Gm-Message-State: AFq9FYILDC1VeXg/OlXvbdtY6HXqFWr1iDl0MMeq4sjY7bNVluBVF3QE
+	iUtfoZ5aVCHzkxRsgGaQMyJtTVb2IaTRpIC/p/jai3OLfhVX6u9TcJ/L5i9CveyW53o=
+X-Gm-Gg: AYBFou1/D0i2iZdFq2c8tJMvJ1wjdKC75bV/6s7yWuFq8/sDCNU2uFNZ47SWVs6k3Mk
+	WS8Wup2/f5t2u9yehcDRleOcPwS6RkIQbCyEMNPbc0p9g1iBNAdiSNsiUGlcRtwBaeZdsRXwyIs
+	IzhXqdHnG6sViaPp5DQZBLPnT8LK4sP9k6xkzURqdNOp8WJS6YXSdBQgTpBFGTb4EteKxANuDQA
+	QoTnn/ntAnjoxO16ogAZ1r+X140xIUB2ByGWWv2IKHHqFigf3SGXzEH/YzhD1+tXuwRtlZ5jEik
+	toJvB1OYH8LcS5NOqEyU4a3Pmiem1Z9SRNvUKKSVtX+/BOML+91q98x/joB9W9UV0X1gO4nUbqE
+	fJkqaBLPhRdpkk0FkC4qz3YvLoJlT+sy9hGER/vyp9ul9DJMJ5PWanX1dc5zH5i8lTeoGBgBDAK
+	YQVp0UnYJr561jvowFJp6VCniGbblZbhTpYyr5R8Sol7YYYwM38685KIcQsIndozmYF7iLPfQ1E
+	3i+xPRQ9rCYCwHtDlw7t+YoBEi7SiaZZFUHrnioyKJJ
+X-Received: by 2002:a05:7300:e9cd:10b0:33c:e82:70c7 with SMTP id 5a478bee46e88-34f21985077mr8684717eec.30.1791082625507;
+        Sat, 03 Oct 2026 19:57:05 -0700 (PDT)
+Received: from brighamcampbell.com ([2605:fb40:0:c09:9328:12b0:aafb:5758])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-351273aaed6sm961680eec.29.2026.10.03.19.57.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 03 Oct 2026 15:37:04 -0700 (PDT)
-From: Navon John Lukose <navonjohnlukose@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: designware: size the RX FIFO threshold to the queued transfer
-Date: Sun,  4 Oct 2026 04:06:59 +0530
-Message-ID: <20261003223659.13974-1-navonjohnlukose@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20260919232647.448748-1-navonjohnlukose@gmail.com>
-References: <20260919232647.448748-1-navonjohnlukose@gmail.com>
+        Sat, 03 Oct 2026 19:57:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 03 Oct 2026 20:57:01 -0600
+Message-Id: <DLVPSTHQJ2F9.1HPIUXJ2EW5RU@brighamcampbell.com>
+Cc: "Jean Delvare" <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>,
+ =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
+Subject: Re: [PATCH v5 0/2] i2c-tools: Make tools accept bus path
+From: "Brigham Campbell" <me@brighamcampbell.com>
+To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Brigham Campbell"
+ <me@brighamcampbell.com>
+X-Mailer: aerc 0.22.0-0-gc2f86b7abde3
+References: <20260722-accept-device-path-v5-0-9c0bf9b4da26@brighamcampbell.com> <DL9EB60C2IIA.228Z11CQM65Q3@brighamcampbell.com> <ark-AXt29OBT5hbg@ninjato>
+In-Reply-To: <ark-AXt29OBT5hbg@ninjato>
 
-Hi Andi,
+On Sun Sep 27, 2026 at 10:02 AM MDT, Wolfram Sang wrote:
+> The main problem here is time :( I have important conferences coming up,
+> so I can only schedule this to the second half of October, I am afraid.
 
-Patchwork has had this as Changes Requested since 2026-09-29, but I
-don't see a request on the list. What should change?
+No worries at all. I understand. I hope you enjoy the conferences!
+
+> What would help a little is maybe a description what cases you tested?
+
+I tested as I was developing the patch, but that was a while ago now.
+I'll test some more and report back with the details.
+
+By the way, I'm happy to review (and test, when I can) other patches if
+it would help. If so, feel free to send me some lore links or msgids.
+
+--=20
+Brigham Campbell
+https://brighamcampbell.com
+
