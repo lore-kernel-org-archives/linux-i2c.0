@@ -1,136 +1,302 @@
-Received: from PNYPR01CU001.outbound.protection.outlook.com (mail-centralindiaazon11020079.outbound.protection.outlook.com [52.101.225.79])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07382F8EA3;
-	Mon,  5 Oct 2026 04:27:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.225.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B34A3B42F3
+	for <linux-i2c@vger.kernel.org>; Mon,  5 Oct 2026 08:30:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791174456; cv=fail; b=lL/nNnfkMysGIOMmiRFl5oxeat08wI3qHHbecyvmz6juo8oUVPCfXVHkRr3Wby6JU2/w/vrDRY96ivUwIGuBn+I+eYG0YHEmXnqcVzaaC5QlyxuwMgGgpDnCD1O6yQaamCzqjdghCuE5fVYIGS0ziXGM8b0krk+6EzUMp+X1XqE=
+	t=1791189031; cv=pass; b=AU6iue20cVyJtaoHSn2Oz2UYjKxZfW+IJDxCyLUkRFy/lnso1pWG/S48Arpp0dx+hmKHqxcYB8qu6YHWYsId8VVuLgLQfRNfTA3KvCS4cHwHcm1B+wJi8zfyGT+Qz/1bM0ogGmgq20ePzBStrw5v9ySmLIFf8Be4HUOWutjQlZg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791174456; c=relaxed/simple;
-	bh=4byU3bVZZcPGpfvlhtmgxxJsP0tvIcx48SPzHy8nqAA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=RJeaEsnMeUUxxTjHKG9699VrPY7Fc+9JRibxEKWKtCB4VChxw6/SlViPjwgxU4GGplxBkksEGJxnCw6x+PBytPMStp3a/Z8wjd7DioN429nU3RJEmLHkhY8ITr9pI9gJtO/pyvv7Nztk4YVIFPVJQ4kWAZMJrN6P+XMw/jYx7oc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ebytelogic.com; spf=pass smtp.mailfrom=ebytelogic.com; arc=fail smtp.client-ip=52.101.225.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ebytelogic.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ebytelogic.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=P91IOzT4i5oF+44FFsD88mBSvTF9p4Hc+9u83456SntZOJueHS++nGimVMFPLhfL8FaxtStmZxtFmJibNAEOQfrc7fl+GgRtgPHGvgfOZ0XYhN5j7cqBcmOkbwiTPaxapVMAlhr9oxBd+7kgmyIRhMlemziIQAC/uFT4e+arjh7LyJTUFStFem3A+iUHs8qhQORV6jwZ4f3iAl2pKBhS21N/zJMEnj5brcXj6AyHs6RTWvlKu2433222ms1T5qs5//vnuOnzBk2B0MS8GPavqLP0IhPf7pLVo2eHI2KsMTYl95S/l7vMefVJZ1Uf9A13FTLuBKu39Huv5hvLbN2+OA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jktB4HdeCh7V6tCxsuMKL5Evo5Fd4zXMyp59O1tnkvQ=;
- b=eHv5BriGGGjQ55IGDE0sYt71kLdOv8e6VJFl7PqT+HcNxQ2kxCMMjAGAp84USr+xTwqFvnA59wz/z09vONee31+nz5oIiWudykf2UVHJ0uDI+uedXNrUTuBPsjesW7g/s/rBsqDHJlxdmdsqcrErppFHouKiW4T9jzZE6/2FBn6lq04L0k9Hh2ebilyURf7NS5pPngNSVJZr03JHx9KH9xYBxHiVlXM/sZFwZ3y0WMIZdMV07g4Q8aIhVHiyLloNcFvHsR02yYUmnrOcip6hKfINt3E3ugGhf91SoDaOj/lg2Lx7Xru46ZhE6MajrqBJap0DMsIObbz+F37GfU+SeQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=ebytelogic.com; dmarc=pass action=none
- header.from=ebytelogic.com; dkim=pass header.d=ebytelogic.com; arc=none
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=ebytelogic.com;
-Received: from PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM (2603:1096:c04:1::97)
- by PN1P287MB3789.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:256::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.472.20; Mon, 5 Oct
- 2026 04:27:30 +0000
-Received: from PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
- ([fe80::df75:6e8c:7def:a08e]) by PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
- ([fe80::df75:6e8c:7def:a08e%6]) with mapi id 15.21.0472.016; Mon, 5 Oct 2026
- 04:27:29 +0000
-From: Hitesh Patel <hitesh@ebytelogic.com>
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Cc: Hitesh Patel <hitesh@ebytelogic.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	ravi@ebytelogic.com
-Subject: Re: [PATCH v2] i2c: qcom-cci: always enable SCL clock stretching
-Date: Mon,  5 Oct 2026 09:57:20 +0530
-Message-ID: <20261005042721.162972-1-hitesh@ebytelogic.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <arr57tHBYx1MowW7@zenone.zhora.eu>
-References: <20260921131954.1690578-1-hitesh@ebytelogic.com> <arr57tHBYx1MowW7@zenone.zhora.eu>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: PN4P287CA0083.INDP287.PROD.OUTLOOK.COM
- (2603:1096:c01:26b::11) To PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
- (2603:1096:c04:1::97)
+	s=arc-20240116; t=1791189031; c=relaxed/simple;
+	bh=OKSP/9Loo+L4sqcvcofnJFL8eE/vtmfgviV7QLfsCbs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=id3RJRDpmXFd4rcYp+TpphrDmm6cCwSCtXQ6ayCKlBGB/yql6n2rj+p1IuhpFj2XcGBh1qIuVqfq7+tgWZVigZsibPo1F3E0Mhuc1/sK735fwBy4OHXQJFxuxapSpNrIdXBk60xU6g77sXDeLICk9/T++g8EZaroC264vvKYKEM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=fxLhMybF; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=cGeGTem3; arc=pass smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="fxLhMybF";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="cGeGTem3"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69583oYu1180551
+	for <linux-i2c@vger.kernel.org>; Mon, 5 Oct 2026 08:30:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	VadTPzAKAm9tESrVQzhsSzsHSDJZpG8vVfU/2WgaFsM=; b=fxLhMybFbyytP9+H
+	sBCdr2b2o4wTUlf1eLRY70n/O6tM2iA2eg6o/JUUjavirmcmGAYvDd+3Wo8ePtGL
+	RAIB1tXo/OOWpOga2KUMavJy7+pw3Yk0CGHRHjuKuvlO9KaIZTluRL/ZO4Mbay/l
+	Rnwp6zHKHCfn5DO7qXVy/WXXosNbWIfePk2IRXowEJAi6r+F1qLCt0xl+RX6bg8V
+	g8nL51BW9RktfE31h99I4KiEMnbRXG5dl3fRdTgg8L2fg7T5ROCBfvP4auBWscSx
+	/DxPo/f6zkSP5DK+ROia3swOuJBgOUCYUsldEcPOFSIBM5f9LcBM5myNh9JziYL7
+	hfxs5A==
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h3xhs19ga-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 05 Oct 2026 08:30:26 +0000 (GMT)
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-934963b2bc0so231551485a.3
+        for <linux-i2c@vger.kernel.org>; Mon, 05 Oct 2026 01:30:26 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791189026; cv=none;
+        d=google.com; s=arc-20260327;
+        b=XIOK+HfbdjL6N34SyD0Z0jV0cmljTfz6ZRaqooYxQPAr53sKf/MTeYeU0GgXwHRsKB
+         vdjoITvZJuqB02cphyHxA3YEr0dtkyx8q0As51hIzqHMs6kiixHgb13js/TpL1MktA2F
+         l6/+d4OysF8qOuwzRT0LCEZeo7Om2FhmdWmEwGAAgAL9ciJoLOtlsnWhA++2aNtm4nHB
+         cWgyZ+433CSRQQqzNDrlRqNWMmSXpN8dAJzYQRTrmEHc2RdrmPxypCL0waiJ8LTUrceX
+         KBVPSCCfVein9bQr9pdnDHzMSS4HXnEmj1qL6DcPgkr+yvlp/C0M7FQR02ZVBsoPKTlJ
+         iyAg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=VadTPzAKAm9tESrVQzhsSzsHSDJZpG8vVfU/2WgaFsM=;
+        fh=+yJidrOKY6AqSbcUVClO/EgeLiNreqOvK3d61BGkfKU=;
+        b=ZYs+TION5VvmMIAHxnVmckzxiHjdMchA11Dvtd3rOnwS1McJA2HnIOGDjkq7dtyTO7
+         a5U3uWgobVZIc8dpVELK8lCb5zWFrIZEjmuPCrRo6YKiAqMyyHa2q1h6/1GJW56Sd/eC
+         30cm30vjpmGnd1zTyKx3zHlazbUdmwjvsryYvfb1GgcbpzhssQYZObRAZ0/vj77ZyxsQ
+         uxK8wKBkCQ6sMWQ5q39Z9zZ6BsDiEskVmT5zbF6g9LINBSEDeMLa1ebJKRlhuYQMwFEQ
+         fmkouh4g0nfF6kDPSEeJybjNFwKbWL7wQHU6J5c+QbiWhsK4MajWj4z61lU3wCQZVmZt
+         nDig==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1791189026; x=1791793826; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=VadTPzAKAm9tESrVQzhsSzsHSDJZpG8vVfU/2WgaFsM=;
+        b=cGeGTem3sdDifP0wiwcCBei3tHDKXpS2zYRZEh5IcDa/HNDfXJPYG7IFV5iVCjEEsA
+         Vg/NUrNlRhe93lrxN0u45lJT+Eb1ZCXWMCA5XHEMbvA80ILyt1Qz4fsVuSsaiqd5q1/I
+         MttXpMXaVRrOznBPUV6465elWDd2irqlOG0fuqNzUJfKU6n/lhqdEgnK7tpfCjx5e1ix
+         f/U6osiF0obOMhVA31awMnAm1Y5O1VjkGa5mezwweGMGmbJT8T//3RlyyKX+u64Z8Q/m
+         fUhDR2wNC0adDGfQ5VUsq/lWME0kcfhRiPMrixxmo/croGCHAJMPFyQDann75XqC8VgC
+         asWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791189026; x=1791793826;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=VadTPzAKAm9tESrVQzhsSzsHSDJZpG8vVfU/2WgaFsM=;
+        b=FakwX1qCaqdrMX3lKOg8sK3V3XSonq/6WyRCYrXmEKrX+9XRG7ll5CK7sR0rwgXmPr
+         ObUUro3VGhcAgQ6qIeau+39p1gf31Cg9veqlpfrIrMCYc1okxS6Gz2xuaE4+9MCUtdar
+         UGg2IC7p4CFhie5JYZcyBonCm6kDFX/ihjf5ISfu3/uDy2WgD+Zjn3T0KNpghSnmNSuz
+         WO2qQTdnNKUxI7FWQJ+tTak3jsrZq61WDaLRQ/hxQxZon+bKRj6Ma92vq4g7M2rJX6Lt
+         VzYbvbeSnxQRN+5JXZrc58KsORN5cu3rK49XG+5UsJxu+L8zmiLkVhcJ7KnXMghLHwsq
+         u7UA==
+X-Forwarded-Encrypted: i=1; AKwUvByNOSaq4T/2JVVStcTWFQNVKHYGfYxwZf/6NaSXlz1uIrz9yzL9O9YTXhkHso+9UqugnIZCGNn3VRI=@vger.kernel.org
+X-Gm-Message-State: AFuF++mzbR21Dfn9VMp9EloY1ii9eWkiQD3cEqVgM610ENzctAz4FRkt
+	ZoDfZOyM/aZuHmeGTAALkVohq+qWFG3uDSwLr+/ESOApTUMiygZhnRQpDAKkVy3clBw3iyiNiWb
+	6VC+k6fs/3XEGjJ/vnOQunzmVdaxM8vgJKBJQSCTdU5pqnTc6NRAYCOSzbOV4g1CWiVlxW5NGwK
+	7ePvMWSi4quHJVzVRBqkn8f0+MZAAGf2M7NpqOQg==
+X-Gm-Gg: AYBFou0fyvLFnUvhUo90OIsb4RHRAuCaCj7D4DlVVye44XsB6//kuOpoMYNnBk9+IM9
+	4hpJgj7EstT1VqCOnnBlIsrhrwVyXQcg+rVDpCfzpjV2ovEM2vGP0aa5e3zPF0+TsS0sKcMG5mg
+	/LlRz6etHqn2StaeGS7PvSJvkTnwWLWDl78B8NHlhGigE8QorR7nrdAjQlSPjH6X1e0vzXj/xy/
+	e1q50OCRwWtfFDIRsdXoSJnhp+k69btDKwhkEvefvyNQgEdxH/3WNGalsMe1psV31Ac3bbNhTM=
+X-Received: by 2002:a05:620a:4149:b0:93e:6f43:b2c1 with SMTP id af79cd13be357-93e6f43b4edmr473229585a.16.1791189026047;
+        Mon, 05 Oct 2026 01:30:26 -0700 (PDT)
+X-Received: by 2002:a05:620a:4149:b0:93e:6f43:b2c1 with SMTP id
+ af79cd13be357-93e6f43b4edmr473223885a.16.1791189025382; Mon, 05 Oct 2026
+ 01:30:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PN3PPF28092842E:EE_|PN1P287MB3789:EE_
-X-MS-Office365-Filtering-Correlation-Id: fc7d2b15-499d-424c-9d37-08df2298f770
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|10070799003|52116014|376014|23010399003|1800799024|18002099003|22082099003|4143699003|10067099003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	dFGD6qrtoAS6cJpNdGomD3/Vr2uAFCHvLNguOb6E5UMNCZ5inwQvGpQTRInTDPcjpB+bvcwl7D4JCYLaZLmO2Q3cGF0Jn8Z3szlnoFcSPfaEvd1cYy5djOZdMdURLaIyBXFcwUvioNUyM1+5HlfUtcu1Ii0fkiGxcq6p2iv4wkHIvQkAqkyMhEmUgFHSnPHeb8a3nPa+l8OtQiyvanG5reBqIR8Ix/pSPmwkXea1SH31Uu1uiEjw9+bMUU/Il7sScZUE7DFspppoimOd+Y8f+jMkA5XVUMHYqgLAuv0pMhbsxD12gFafZU8OAhXC2LWmlhV1sR4fE/ftn4EN/k7iDiNkThfTV3KnbMy0PTSQO24pR4CThcw3+Qd/cYktc+UuIrz49Kyt6+R3raM9AP9IDjk1T2t8QN1Ot5DUjwr8f/G+AeGApApJnfrr4VZDIQQM4ng+0kFhUe5Xemi8q3yNn16ZNp8CKkRaXE9MXEKnw8BwHImvngQ/mUHKqxLRsR6QsSzb4kEqQ+Gh3itqaTcBqeQwkvzTi3YyYoL0b+8lpSM0iUHF9gfsjNEa4BkMNsUlF4U/OUpoHfZ1hxDXgRtoEsfQlnwFNxqZ9402umBEp8DbRd41SmRIGU+t5nhIz7Hs
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(10070799003)(52116014)(376014)(23010399003)(1800799024)(18002099003)(22082099003)(4143699003)(10067099003)(56012099006);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?qTE+3Nvn1OBGWNNrlikPN2lV41Y/8/QVzhAGPb1Ppb4Go90u74Au/eHJhgt/?=
- =?us-ascii?Q?w+NC/Mt8Q/Klr5NMkcXwivNpQ8lUxrdM3+iny9feYvULjfaVC9a6ZA6MwC1t?=
- =?us-ascii?Q?nq0GRV8I1a2CCcRFnJT4FHNHfiCx0ssosQ7dWdc4SUA3xAZQpS7Nmv14TDVK?=
- =?us-ascii?Q?d7xzpwe1KO2CEfcXEHb+eprV/LmfOa9Bo0EOP2HPnDNdSA6aDdsoBboFAw8i?=
- =?us-ascii?Q?qYKvPbxWa5v0RAXTQYsS/uGi6ktCvzPjo2sb/gh4mMplcHbH2FQVK0h8UByv?=
- =?us-ascii?Q?qw3Hb5hXuUrSrJDaFWDceAGfNrs60TfVD3bEd6U6rcI1rUs8xXh++AS5JJWp?=
- =?us-ascii?Q?zZ/jSeBnF5Kzpztny0b8Zg+kC5P45YPS8O2SZWJwaGFdxI9pneI46jvCT3ns?=
- =?us-ascii?Q?CRu2pNSqtl8p5IvAmMdYdUR9ic1XFJuAwhRCcp2HdAaDOMItQY0293VTrSBl?=
- =?us-ascii?Q?y/Hk+9py4fsveGiliYTUyUN0a4eA4m2S6IURMdccO3Zzw2ORyLh1RoSYAjbl?=
- =?us-ascii?Q?APusrB6hlwsjry7LNUrSCAv4QoBXdtFczAcPwKoRKiJODVYifea6rtPDtQcq?=
- =?us-ascii?Q?RVllb+esHGqjVKG4oqzksTsYSmi//y4WxSOuCgKeJfWd90mG/0US+gAt8CRH?=
- =?us-ascii?Q?rmpCcjIDwImw0mFt8+JJl1tl7T4LFUtXvZjxb3/YPeFMmbFC3ru2MkozCCxd?=
- =?us-ascii?Q?WEzf7BmyetFplqGQLm3iOoPs8kK4nBcRmrGA5thfJ/5aBHYJJ6PGQxprbHza?=
- =?us-ascii?Q?evrBnMJUV5tDz8Lkl8cYUa3LutSlOz83Ij/C2UKengM8GIYuyeDFaD9i/Jwm?=
- =?us-ascii?Q?u5U6h3uvD8FIhA3whNz2/NlwZabS0liY4fAjf0WwWcxr5Esn9vZVioGUcCm1?=
- =?us-ascii?Q?so0rv6v5Y1Myjkb2fiHp7SvMrSEE3oCKXD0CrsOxmc2C9UIjoqpaK/8Kk7CG?=
- =?us-ascii?Q?8ja9F50M41VLgnzUBzD6OWdC80R+d0cvTVu/7rz4RcTJxqsWBL7h+Lztt/Ht?=
- =?us-ascii?Q?USf2SWCHTS0oP6GQfUnBvWorM5t8q10W1R+62LTy38wkzF/U21Ki6qjZ+dsC?=
- =?us-ascii?Q?UzAFiddfYbA+5J/Af7Sw2eznbWc2W1+/+5Wxpv6IZwktDDSh2St6yvTOjtHl?=
- =?us-ascii?Q?qidQiIRKrVpKBjBOvjOoXHXQCfQXqFC5bUWZJGGFU8sjufZ2TfC7zP1J889E?=
- =?us-ascii?Q?1ZJCsszsUCcNn/mlDfGAk1NlYzovl6NNwTGqY6mDSukaiYPSy0w+GBo6SgTp?=
- =?us-ascii?Q?7nUSqlDOHi2Cok/U/WUpVuM49puqcRegsQsFWCYklvfZcUQPHcTNPcwBtnER?=
- =?us-ascii?Q?jeHVPG1vsgOC9L3IgNMUkRwV93CvyMbSlOYYskXNRkkaXs0JziGOAAj7J3rV?=
- =?us-ascii?Q?O7/pKKceWKQ98V6iQviigDhmg0ZFugScUhOUAIX2bZwMWz2dCM7DgOyLWxL9?=
- =?us-ascii?Q?l1ZpsbFFY3GbPZbVcB6JPteQ4oTNxnd4f7ppZg9ZHqbDPlexSiDTfyhV/fWR?=
- =?us-ascii?Q?vOf5DtNoptv5c5/L270O2VrLNZl3nrbU0Iokd2LB+lWpFGDZArViFmgNDHSt?=
- =?us-ascii?Q?KHwoSK3j0UCUhVXmza0Sp3uXcMSIc/1+gOJt878FMOLgL52H0H2PZoNCiQvR?=
- =?us-ascii?Q?yYyeJoj1IRhJAsxHi/5qr9zKclkGkagzaLvaiD8pybBC4Wnv97rsUPdjD6GJ?=
- =?us-ascii?Q?6bE4vYJFikUUmotmfkAnz1u3ilPXZ4tOoffIJLhB+VLGKd29Sa94gNl+naod?=
- =?us-ascii?Q?QhrQ8EmvZKXN0UultPsO6WQ+DsKqhkqI9fMzO0m+KHU9CosQiW6xSZPoGxYl?=
-X-MS-Exchange-AntiSpam-MessageData-1: x426S5KQFqY7bg==
-X-OriginatorOrg: ebytelogic.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fc7d2b15-499d-424c-9d37-08df2298f770
-X-MS-Exchange-CrossTenant-AuthSource: PN3PPF28092842E.INDP287.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2026 04:27:29.4741
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 13bdb17c-4ae8-490c-90c1-ec8121ef96ee
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: htZKgkQ4k5LYegHIGXieEQmm2q1Gk8z8BOYJYcgxmEXavqfXYr/tDwYxUf3ycWrqfKDCWfxY238XS40Y7p6guA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN1P287MB3789
+References: <20260914132328.976902-1-hitesh@ebytelogic.com> <20260921131954.1690578-1-hitesh@ebytelogic.com>
+In-Reply-To: <20260921131954.1690578-1-hitesh@ebytelogic.com>
+From: Loic Poulain <loic.poulain@oss.qualcomm.com>
+Date: Mon, 5 Oct 2026 10:30:13 +0200
+X-Gm-Features: AclHuK9X1M20qTe7O-MaPpEdsy0W24zs5dbBAahH9WMWCQYvvxJKIpAifNZ6cI8
+Message-ID: <CAFEp6-2r=1Jj5owc-yuk17YwvtJSrepUjeAgjUZ=QJ1FL=ejOA@mail.gmail.com>
+Subject: Re: [PATCH v2] i2c: qcom-cci: always enable SCL clock stretching
+To: Hitesh Patel <hitesh@ebytelogic.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+        Robert Foss <rfoss@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ravi@ebytelogic.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Proofpoint-ORIG-GUID: eABGYVU0O6K_4fVyADf1gSRaBKf6GcDO
+X-Proofpoint-GUID: eABGYVU0O6K_4fVyADf1gSRaBKf6GcDO
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA1MDAzMyBTYWx0ZWRfXyzb65oEnCunM
+ kzhAtnzBLKppMw+0dszl07pesPWbu2VEUSGBo0KpyeCr0LBTQxqoL9u9KdHikon3h9sICNJtW66
+ IKx3IHnC9rPqUdStIPXzXXBk1BvCz7o=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA1MDAzMyBTYWx0ZWRfXzhGwCxNXkg4s
+ O9C9rGMWuBKqpZRZwps42DDj6gXkvAQw1qcJbdaPQCj+RCCoZgq5+GUKDeJF3FVMotjoosNwmSO
+ A3Be62f3YLWUdRBGqJWcJH5zFan2ZR+sx2UwusRRry6Ih7tGEgPrtAe9gI1fhQDT8ruQOCew8/T
+ 0eVJ6Xvtnw56SwpzIOCWqTmTgaczXPv6eohb3G1vSDoguDUSwlkuByfZdwCVjJ196EYiih0+xZM
+ haI4g5G2l7jxXQPJfUe60T8ex7hDLR09ANvMzH3L0ggt7CVjdNnPrG8CmoBUtoyyReG3PdYWibL
+ whncDn648K+F6chj9sjCQn7nWn2ky+R59Z6RFjRcjQKKm/mp4pvMuCqGoVEsRfLkgszNtne31cB
+ EJMX+BTxg5no7Qh/NwMAGJ3jIsvY+3X5ynzNCV2YLMPXZQAe/lSAls9r58vgEBrTkHPTSvW1Iud
+ a4vpNCFB/GyVQIsU09Q==
+X-Authority-Analysis: v=2.4 cv=Q6tHcI2a c=1 sm=1 tr=0 ts=6ac36022 cx=c_pps
+ a=qKBjSQ1v91RyAK45QCPf5w==:117 a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10
+ a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=rJkE3RaqiGZ5pbrm-msn:22 a=ZovgdgjKAAAA:8 a=EUspDBNiAAAA:8
+ a=FDL_EtIiEFQlQlNcByQA:9 a=QEXdDO2ut3YA:10 a=NFOGd7dJGGMPyQGDc5-O:22
+ a=VOxKbm1zgHvARWIDjr3b:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-05_01,2026-10-02_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 bulkscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
+ malwarescore=0 impostorscore=0 suspectscore=0 phishscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610050033
 
-Hi Konrad,
+On Mon, Sep 21, 2026 at 3:20=E2=80=AFPM Hitesh Patel <hitesh@ebytelogic.com=
+> wrote:
+>
+> Every CCI timing table except the msm8953 fast-plus one leaves SCL
+> clock stretching disabled in MISC_CTL. A slave that holds SCL low is
+> then not waited for: the master keeps its own clock timing and the
+> transfer fails with a NACK or returns corrupt data.
+>
+> This is hit with a camera reached through a GMSL serializer/
+> deserializer I2C tunnel (MAX9296A/MAX96717 on the RB3 Gen2 vision
+> mezzanine, SC7280 CCI v2 at 100 kHz). The deserializer acknowledges
+> the address locally, forwards the transaction over the coax link and
+> stretches SCL until the remote side has completed it, which takes well
+> over one clock period. Without stretching the register reads of the
+> sensor behind the link intermittently return garbage and writes are
+> dropped, which shows up as random sensor init failures.
+>
+> Clock stretching is part of the I2C specification for every speed
+> mode and a device that does not stretch is unaffected by it, so there
+> is no reason to make it a per-table parameter. Set the bit
+> unconditionally and drop the scl_stretch_en field.
+>
+> Signed-off-by: Hitesh Patel <hitesh@ebytelogic.com>
 
-A gentle ping on this one - Andi is holding it for your ack.
+Looks good to me. In addition to Andi's point about using
+--in-reply-to, don't forget to include a short changelog when
+submitting a new series/patch revision.
 
-The v2 is what you suggested: it drops the per-table scl_stretch_en
-field and sets CCI_I2C_MISC_CTL_SCL_STRETCH_EN unconditionally in
-cci_init(), so every speed mode on every CCI version gets it.
+Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
 
-Tested on SC7280 (CCI v2) at 100 kHz through a GMSL I2C tunnel and at
-1 MHz for the on-board devices. The other tables are untested, but the
-change is identical for all of them.
 
-  https://lore.kernel.org/linux-i2c/20260921131954.1690578-1-hitesh@ebytelogic.com/
-
-Thanks,
-Hitesh
+> ---
+>  drivers/i2c/busses/i2c-qcom-cci.c | 14 ++------------
+>  1 file changed, 2 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-q=
+com-cci.c
+> index 873e901..fbd5507 100644
+> --- a/drivers/i2c/busses/i2c-qcom-cci.c
+> +++ b/drivers/i2c/busses/i2c-qcom-cci.c
+> @@ -27,6 +27,7 @@
+>  #define CCI_I2C_Mm_SDA_CTL_1(m)                        (0x108 + 0x100 * =
+(m))
+>  #define CCI_I2C_Mm_SDA_CTL_2(m)                        (0x10c + 0x100 * =
+(m))
+>  #define CCI_I2C_Mm_MISC_CTL(m)                 (0x110 + 0x100 * (m))
+> +#define CCI_I2C_MISC_CTL_SCL_STRETCH_EN        BIT(8)
+>
+>  #define CCI_I2C_Mm_READ_DATA(m)                        (0x118 + 0x100 * =
+(m))
+>  #define CCI_I2C_Mm_READ_BUF_LEVEL(m)           (0x11c + 0x100 * (m))
+> @@ -97,7 +98,6 @@ struct hw_params {
+>         u16 thd_dat; /* data hold time */
+>         u16 thd_sta; /* hold time (repeated) START condition */
+>         u16 tbuf; /* bus free time between a STOP and START condition */
+> -       u8 scl_stretch_en;
+>         u16 trdhld;
+>         u16 tsp; /* pulse width of spikes suppressed by the input filter =
+*/
+>  };
+> @@ -263,7 +263,7 @@ static void cci_init(struct cci *cci)
+>                 val =3D hw->tbuf;
+>                 writel(val, cci->base + CCI_I2C_Mm_SDA_CTL_2(i));
+>
+> -               val =3D hw->scl_stretch_en << 8 | hw->trdhld << 4 | hw->t=
+sp;
+> +               val =3D CCI_I2C_MISC_CTL_SCL_STRETCH_EN | hw->trdhld << 4=
+ | hw->tsp;
+>                 writel(val, cci->base + CCI_I2C_Mm_MISC_CTL(i));
+>         }
+>  }
+> @@ -659,7 +659,6 @@ static const struct cci_data cci_v1_data =3D {
+>                 .thd_dat =3D 10,
+>                 .thd_sta =3D 77,
+>                 .tbuf =3D 118,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 1
+>         },
+> @@ -671,7 +670,6 @@ static const struct cci_data cci_v1_data =3D {
+>                 .thd_dat =3D 13,
+>                 .thd_sta =3D 18,
+>                 .tbuf =3D 32,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 3
+>         },
+> @@ -692,7 +690,6 @@ static const struct cci_data cci_v1_5_data =3D {
+>                 .thd_dat =3D 10,
+>                 .thd_sta =3D 77,
+>                 .tbuf =3D 118,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 1
+>         },
+> @@ -704,7 +701,6 @@ static const struct cci_data cci_v1_5_data =3D {
+>                 .thd_dat =3D 13,
+>                 .thd_sta =3D 18,
+>                 .tbuf =3D 32,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 3
+>         },
+> @@ -725,7 +721,6 @@ static const struct cci_data cci_v2_data =3D {
+>                 .thd_dat =3D 22,
+>                 .thd_sta =3D 162,
+>                 .tbuf =3D 227,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 3
+>         },
+> @@ -737,7 +732,6 @@ static const struct cci_data cci_v2_data =3D {
+>                 .thd_dat =3D 22,
+>                 .thd_sta =3D 35,
+>                 .tbuf =3D 62,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 3
+>         },
+> @@ -749,7 +743,6 @@ static const struct cci_data cci_v2_data =3D {
+>                 .thd_dat =3D 16,
+>                 .thd_sta =3D 15,
+>                 .tbuf =3D 24,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 3,
+>                 .tsp =3D 3
+>         },
+> @@ -770,7 +763,6 @@ static const struct cci_data cci_msm8953_data =3D {
+>                 .thd_dat =3D 10,
+>                 .thd_sta =3D 77,
+>                 .tbuf =3D 118,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 1
+>         },
+> @@ -782,7 +774,6 @@ static const struct cci_data cci_msm8953_data =3D {
+>                 .thd_dat =3D 13,
+>                 .thd_sta =3D 18,
+>                 .tbuf =3D 32,
+> -               .scl_stretch_en =3D 0,
+>                 .trdhld =3D 6,
+>                 .tsp =3D 3
+>         },
+> @@ -794,7 +785,6 @@ static const struct cci_data cci_msm8953_data =3D {
+>                 .thd_dat =3D 16,
+>                 .thd_sta =3D 15,
+>                 .tbuf =3D 19,
+> -               .scl_stretch_en =3D 1,
+>                 .trdhld =3D 3,
+>                 .tsp =3D 3
+>         },
+> --
+> 2.43.0
+>
+> base-commit: 68142f986ff04b2b70b31db00f719bf690f64a9a
