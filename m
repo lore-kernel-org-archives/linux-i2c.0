@@ -1,64 +1,64 @@
-Received: from mail-pj2-f40.google.com (mail-pj2-f40.google.com [74.125.227.168])
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82C2137923
-	for <linux-i2c@vger.kernel.org>; Mon,  5 Oct 2026 02:47:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.168
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ECB62874E6
+	for <linux-i2c@vger.kernel.org>; Mon,  5 Oct 2026 03:27:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791168461; cv=none; b=pRsgm6qiET+lS/ra5fLvDqu/1aXBA6UGJjP01+3wz9nz9XMdrUaWt98zjzD4BpK8l42t34k2CAf9itHXbmPMPC5jfGzBWhMtQ+gjrvJrxiQwYX7pMSJNUaC7R/1mriLxLCn0F29Qko1AHcbXE3E9b8Y/8jG93yF76kwd0+eUWrg=
+	t=1791170859; cv=none; b=oLnedwcs/fgPLQk/5XaAEomVztkjtvPUilj0EjBcl9x3JWLRQ3nKZ6XHtB33PnlgB3GCk7Kxy8xorvj1svmsNqTDQFsusvJzZ1a+vtJ9Qbbep7f8Ln5/WAVGrYNl0laeldpJJ7gbNtRF4Mupm3+pzJnCDRnKUKAGuC1cXF5Kw38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791168461; c=relaxed/simple;
-	bh=ZgvtJM/DUHMnHszNUGeuhEtSEbOa/wydpZaLbhEugRE=;
+	s=arc-20240116; t=1791170859; c=relaxed/simple;
+	bh=E5O0wlXlJyvkkz/5Vo5XiLD7vEKkwgsN4f53JEeHJvE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YNP1A2bpsxGOezL/G5aO8bMb3xpUURCeHAyYBblQniDzd9fqme0IqVR+kjrbsy2z/AXC/QF82jbL2xc6ZYPiyf/O48jZj/i2LBQ9SKUbkv9AvgflRF6ILJtcu/o+iO2Kx8vAPJwCdjwsVILJCYKOs5E/KnVuV8JZ54u98n4kdHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qwCEx8N2; arc=none smtp.client-ip=74.125.227.168
+	 MIME-Version; b=LF/C/m/VBYsnrv0Wi9mkGX9CPAylAo/rCNiridEAsU4Lxo4o+zeZ6fpa7rqN2Vx29Q7n/HsVZSEl8wrpUxvnoPuTcXp5LruGPF06P9hR95WFvPxwOU0fFQynEwESnUvSEvu2CEXk5a+y+lJL7FFm3andyRlbp49VqZlwQXTjsJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bPYcFeIO; arc=none smtp.client-ip=74.125.228.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qwCEx8N2"
-Received: by mail-pj2-f40.google.com with SMTP id d9443c01a7336-2e58733c31fso1223095ad.0
-        for <linux-i2c@vger.kernel.org>; Sun, 04 Oct 2026 19:47:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bPYcFeIO"
+Received: by mail-pz2-f12.google.com with SMTP id d2e1a72fcca58-85469e25400so334358b3a.0
+        for <linux-i2c@vger.kernel.org>; Sun, 04 Oct 2026 20:27:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791168459; x=1791773259; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791170857; x=1791775657; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=5fPN+9NWOFucdGixkLZfdt14fhztpKr2pAx7CYx5nGY=;
-        b=qwCEx8N24if+xWkPq68GJKkKtl9s60/nbKvwaUX2wbOwRBayypmyc1KZdpnNltelEI
-         z3jLKgRVzal74WKXy3R679RxS8cVQI5XCYe6tsSZu47ukr2GhBmJ38uPsVD+3ns+hqoY
-         j4y5444l5+sJNRYec2IhVNBrRTSxgd/6zwtBL2qp1Yzsr916lfnIRx88vx6MGrJIZGHq
-         Pcgv9o2gbXAQzFbOn2cx2jwNNvnycjML6GI77DBDJqrUnrUXjLXSWu05VEvmxUSz/y2A
-         9gCprrmvAsoBgeRbscyjmVpeVdpEznSEhrL7GOxUnJY8TwwSmIz2nqRoYC9Ix7mW91/L
-         U/6A==
+        bh=+7rtVf2jZjIswFkHLMjLn3J1S9WPnjKaw0RzizJrzhw=;
+        b=bPYcFeIO1SmYox9vZpDt3UsSZir491cPfkqonSfQitiBaVVX4uS1B3YIy0Fgf4kMgE
+         K+t9ArkkH3nj3tbCB2Ahatqi4vkh8MzU5PPkDJSzWF5HkpJJhltDRBlXp0JnAQDQ+mih
+         JyPEvH2RRdlg0+EkkhMIe3WO8/THIVVdnoeyJL/fmZ+to6K/jOjJoayncKpLZbJMo+xm
+         DsgpierdVc7Z3et8+6hnFwzowjXTVRTSja2xM1brQAjU6dOysEBBwKru3M55o77S37Hh
+         bLBmgk2gQV3Kq0Z6nY3mvx0i1xez2gpfuA+AU8NWAOFcCJ/CMIGKgv7C5VjJmSIa42De
+         OVnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791168459; x=1791773259;
+        d=1e100.net; s=20260707; t=1791170857; x=1791775657;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=5fPN+9NWOFucdGixkLZfdt14fhztpKr2pAx7CYx5nGY=;
-        b=uXYYPm8hmHlIpcfy1bDXB2IRHlNkvk8vx30Oxc4T89B5/dXH949/oDQv7LGVzyVNdz
-         hYnLQGlEl1UXtd1+nicIJSyCQiUE5dtpatGRTB3qJGbl3oRBTeHtUs28gbXjRiyjLKSu
-         fhOfkWsYqpnLxmPty8xnIe/dOXLjFlgiI3avLH9PWV1AQ1yi+Eecyeqw2AZ0mbowe41z
-         wqWVF/9Z1V9JHviTCgqkbF5Vxx5cEz/T/XxVmpgsI0K7PhtOGn4GYSU/awyqYYaRl/m3
-         5sqeSCIx8QtfUrazPVFuI/BzaMmCazvClhNNV9/yiPMCxA7Rdu9hl13CrtGm34iqv9Gk
-         7q+g==
-X-Forwarded-Encrypted: i=1; AKwUvBxWN3yY8NXuc837zZ1+k32WoLKlAOeJNf5jZBg6x3KsZqX8TWlIL5sMj5GWSfYIRwmdS3MQA3fSdC0=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKDpTpwy4L+Wv/oxFpAg/Ed2EtElwBhSzZaxS2a0sI4zlyuv973
-	oOcoSZ9Hhy4ChWiy+XFM1N7qpop7OyxHwqu0i9Kle/BOnVjFUv1JvY32
-X-Gm-Gg: AYBFou3rHuRlKnmRgcyCithOzQflPnwKl8SNh2RxuxUjBGNGHm3rNrdueYFRFyKDamT
-	eJUc96hwgzB4cOEqjmaIoDxGYdb5cygu6Nvl0V2ZONpOHzqO8M0glIBPReoflWfk5jVMWCT4hzD
-	s+NSjv03yYPJvokdS6Bci8aqYiQoB6Vjfj4znC2ZioJTJQwyzssXx0r+9v+U4kP1ctPvbxohh+c
-	WYUCMXXsYrC4tqhG7JGTL1bxfQ18roL0likuN7JSmyDuapfwWVb5SLbJSdGDoDBmqz3YN/Ap7nT
-	tLoEmdbUKpqoajZp6gTWJN9FRbBpb3ckrsAZY4jmDMNdwcK+GN1neTxchrzRHwfyjSVSiwWECNi
-	7qOPWRnIVuZSV11FnrXljhee3cqCiFCQY3fHTTcNpfHMp0ci9hHtjeTMaxiBBToRDvBfcqdH0mu
-	r9+Mt6mnI4TGUejKzOF/J9doDPAKkl5NOgkY/3K4jRAwMJD/XUA5HpMKJh7yl7T+Zb5R1GDqw6o
-	cnrkUSew/aVDDxgXQxIGEagEHR6O5huBJtizoLcXmG6nBXQTA==
-X-Received: by 2002:a17:902:d511:b0:2dd:c100:4b85 with SMTP id d9443c01a7336-2e49b6ea3b8mr89037265ad.60.1791168459101;
-        Sun, 04 Oct 2026 19:47:39 -0700 (PDT)
+        bh=+7rtVf2jZjIswFkHLMjLn3J1S9WPnjKaw0RzizJrzhw=;
+        b=MvakunsumvpgRINKbmuQxAP2jxetjvMEIL9sn0DJo0fyj84gf0XneuE5vh/KwlhvMm
+         dD3nGWUk7cuXVYym9WNsSbHbrpuWMCzXZGaGk+H2qPhRmtLTiDFce2GUQvioD4Fe3UQw
+         JZH+GqxqK0NglwU5bNiD6OPqCg98r1KO+f5PI08Hm/SlZ+Azg+4sZWGZ5HoxBo7kZMx8
+         NfmqxGU7uTsEmKCXJvZu6dM/51zjQD8j9+sxH0xayHWHddW1bSEQIa3tyAG1tQlelGuh
+         AwnZH68t9Sus2FBZQTL3NY2Pc+XVZiI/Vkh0eSGKqog4Rx5s2UZ2aPuFCkgMiCK+E6WL
+         NHQQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwdxsrI6N7ZzqMQ7AW/PEpN/A2ip10Kk3ej6Luiq6VInpTyQtZ/065qNr3UU3bKtPunBrHMsc8udlg=@vger.kernel.org
+X-Gm-Message-State: AFuF++mLHG30Z/ULtFZudeKJGCcvf916UDKRh6j8jutbeHdLfKFB8wCB
+	9HVl9ykh1GVtnU95R1n9fkg6Op4hfdI1WdGlxPM/s6BdK0GxoSTODTsB
+X-Gm-Gg: AYBFou2e0VxjFeemYHMLzXJy2FL3ZeQ69G9wPvuguTkymLFsGqn8F7MFv6zMXn7nUbW
+	mjHJbhOy49ASU8CMEh3vfcRnD/8N2loCaSmLLakLuyWjOGbG4eroME27t1Wyu4IAJkgYZIpjzdH
+	alNAW0t0tZw9ogj8HvzSjFjskwbjpAj++yd7PI2fLV0dA2/OcFEIEo2tTsPJRZ6ZxNgK2lFwV/L
+	74YQ+l0bzLOKqIHPIDKOd38fxS7OLjewt2BsvIlLP2HzeYmuWIOAce4X4zx9GjUX5mihFW7ccAj
+	nJcaMLuXPn1IUXmkcp2AnnNC44LbPfIMf2A3SzyPf+Em0NbUm1TXbAs1dZmj9jTbTchfMDLEQGh
+	OcLSx5KAIS56wK4a6Xz7KNPoNNwjmYWtYbUgGty7t+DT5SBXOSq0YR/lhc8goTVEyKVJ8Pb37bO
+	nMWCAIj6XBRs8DgG1I9AEY86fwpYx4wjixujLeemrBtSVbXsmT/mGplIuW1GY0ctRk0JhdAZfHP
+	F+ALfO9bNp169GeOo4z7f2a+MvnTvCfygmvWRU=
+X-Received: by 2002:a05:6a20:4324:b0:3e0:d65c:494b with SMTP id adf61e73a8af0-3e0d65cf428mr6369545637.26.1791170857208;
+        Sun, 04 Oct 2026 20:27:37 -0700 (PDT)
 Received: from lenovo-thinkbook.lan ([112.2.158.7])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e5a5ef5576sm744665ad.72.2026.10.04.19.47.35
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cce6ddd9a25sm115037a12.22.2026.10.04.20.27.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Oct 2026 19:47:38 -0700 (PDT)
+        Sun, 04 Oct 2026 20:27:36 -0700 (PDT)
 From: Yuqi Xu <xuyuqiabc@gmail.com>
 To: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: westeri@kernel.org,
@@ -67,11 +67,11 @@ Cc: westeri@kernel.org,
 	linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] i2c: acpi: Add ELAN0662 to i2c_acpi_force_100khz_device_ids
-Date: Mon,  5 Oct 2026 10:46:54 +0800
-Message-ID: <20261005024654.26888-1-xuyuqiabc@gmail.com>
+Date: Mon,  5 Oct 2026 11:26:55 +0800
+Message-ID: <20261005032655.12633-1-xuyuqiabc@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260918055653.GD106095@black.igk.intel.com>
-References: <20260918054109.23550-1-xuyuqiabc@gmail.com> <20260918055653.GD106095@black.igk.intel.com>
+In-Reply-To: <20261005024654.26888-1-xuyuqiabc@gmail.com>
+References: <20260918054109.23550-1-xuyuqiabc@gmail.com> <20260918055653.GD106095@black.igk.intel.com> <20261005024654.26888-1-xuyuqiabc@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -80,46 +80,65 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Andi,
+Hi Andi, Mika,
 
-I just wanted to gently ping on this patch. It has been a little over
-two weeks, and Mika acked it on Sep 18.
+Please don't apply this patch. I was wrong about the fix, and I'm
+sorry for the time already spent on it.
 
-Please let me know if there is anything else you would like changed.
-Otherwise, I would appreciate it if you could take a look when you
-have a moment.
+I treated this as the same 100 kHz quirk as the other ELAN touchpads.
+That was a mistake. On this machine, forcing ELAN0662 to 100 kHz does
+not stop the touch jumps.
 
-Thanks for your time,
+The firmware already asks for 400 kHz. \_SB.I2CA (_HID AMDI0010)
+publishes the timings through _DSM. iasl marks the UUID unknown, and
+I could not find a public AMD specification for it:
+
+    Method (_DSM, 4, Serialized)
+    {
+        If ((Arg0 == ToUUID ("d93e4d1c-58bb-493c-a06a-605a717f9e2e")))
+        {
+            Switch (ToInteger (Arg2))
+            {
+                Case (Zero)
+                {
+                    Return (Buffer (One) { 0x03 })
+                }
+                Case (One)
+                {
+                    Return (Buffer (0x04) { 0xE5, 0x00, 0x6A, 0x00 })
+                }
+            }
+        }
+    }
+
+The same UUID is present on other Lenovo AMD platforms. AMD's
+amdi2c.sys 1.2.0.126 reads function 1 as two little-endian words,
+LCNT 0x00E5 (229) and HCNT 0x006A (106), and programs IC_SDA_HOLD
+with 0x48. I could not find that layout written down anywhere else.
+
+i2c-designware does not evaluate this _DSM. It derives HCNT/LCNT from
+the 150 MHz input clock and leaves SDA hold at the reset value of 1.
+The comment above i2c_acpi_force_100khz_device_ids already suspects
+those default counters, and notes that Windows works at 400 kHz.
+Forcing 100 kHz only avoids the bad fast-mode counters.
+
+Programming the values from the _DSM changed the result:
+
+  100 kHz, SDA hold 45: touch jumps within about a minute
+  400 kHz, FS HCNT/LCNT 106/229, SDA hold 0x48:
+
+    i2c_designware AMDI0010:00: SDA Hold Time TX:RX = 72:1
+    i2c_designware AMDI0010:00: Fast Mode HCNT:LCNT = 106:229
+    i2c_designware AMDI0010:00: Bus speed: Fast Mode (400 kHz)
+
+  the same use no longer logged "Touch jump detected".
+
+So this entry does not belong in
+i2c_acpi_force_100khz_device_ids. The follow-up will be a separate
+i2c-designware patch: in i2c_dw_acpi_configure(), when SSCN/FMCN are
+absent, take fast-mode HCNT/LCNT from that _DSM and set SDA hold to
+0x48, and leave the bus at the firmware speed. Please drop this one.
+
+Thank you for the Ack, Mika, and sorry again.
+
 Yuqi
-
-On Fri, Sep 18, 2026 at 07:56:53 +0200, Mika Westerberg wrote:
-> On Fri, Sep 18, 2026 at 01:41:09PM +0800, Yuqi Xu wrote:
-> > The ELAN0662 touchpad (04F3:317C) in the Lenovo ThinkBook 14 G4+ ARA
-> > (21D0) intermittently stutters and drops touches. libinput discards
-> > invalid touch coordinates and logs (rate limited to five messages per
-> > 24 hours):
-> >
-> >   libinput error: event6 - ELAN0662:00 04F3:317C Touchpad: kernel
-> >   bug: Touch jump detected and discarded.
-> >
-> > The ACPI DSDT describes the touchpad's I2cSerialBus resource on an
-> > AMDI0010 controller with a connection speed of 0x00061A80 (400 kHz),
-> > and the kernel does not lower it for this device, so the touchpad runs
-> > at 400 kHz. This is the same issue previously fixed for ELAN06FA and
-> > ELAN0678.
-> >
-> > Forcing the bus to 100 kHz was tested with a DSDT override on the
-> > affected machine, and the kernel confirmed the override:
-> >
-> >   ACPI: Table Upgrade: override [DSDT-LENOVO-CB-01]
-> >
-> > Before the change libinput discarded three touch jumps within about a
-> > minute of touchpad use; after the change no touch jumps were logged
-> > during more than an hour of normal use. The patch itself was not build
-> > tested; the behaviour was validated through the ACPI table override
-> > above.
-> >
-> > Assisted-by: DeepSeek:deepseek-v4.1-flash
-> > Signed-off-by: Yuqi Xu <xuyuqiabc@gmail.com>
->
-> Acked-by: Mika Westerberg (Intel) <westeri@kernel.org>
