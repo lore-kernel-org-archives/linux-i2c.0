@@ -1,366 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from send81.i.mail.ru (send81.i.mail.ru [89.221.237.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A47A747A883;
-	Mon,  5 Oct 2026 10:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E7C47F3B0;
+	Mon,  5 Oct 2026 13:53:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.221.237.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791197429; cv=none; b=rpm/EAwVRaFvdU8Q9RhS+c7nP99k5EpaOKycaXe+zRp8EyPWp0BDtDT6ctHO/drxkJnrmPhb4jNrlVtoEvlq9Yt5yhxrGadeAkt2ejvwUm9sx6DIxCEAhhp656Sli1nniVmjjgKd3PjGV+yAuoX5xy1ff+Q/+jZGwWqN1EA3Xz0=
+	t=1791208395; cv=none; b=OT9ha5Bk6ahjOFYH0eCKysx4BhhnJY+PiOajxXkHv/jLd2588N9W7/TmKE4rvUXS7/MUBXIas+9Xpgc1Lnf0EusuBecfHpKH2rPhpbIip+oCs0m9U5Sej9rmN1XccpFJ4nYDKiQB0LKuvpy+CpsZJ6YD+4MdsbQZJdzZplbbof8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791197429; c=relaxed/simple;
-	bh=YGDhlmcqxyB467cF+myHTsIJbcHCBo5ygBNyKyt1gHE=;
+	s=arc-20240116; t=1791208395; c=relaxed/simple;
+	bh=qFqpZmLgXQdD36JqzuxIBU26jHAI+zPnBqx40ODgbcw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TkY6TI6OYFWe5zCiSsZ8Vca887ghzhfe0O7uq19jZOSUSc2rrSQBFFqsle/VvJxqo0VVBAmV5fI2XGQAc5gHfSz5wja5dX4AJiF6EIrt++SqGUYWPI+lsEkeYiry4tD8oiJ8oCPfuz95CO5BI1FrPfbaJYe7J+kKCqe1874FVCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NuV4R0Nd; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=jLZra/FIUXjoaxpnySJG+64B603ezEPeYywCg7F72QmWxPG32Sxu1NMeniNXUeWT6mdNE5KTyHZEXIu3tmToM0vJDkRonzY4SY0l6LpYKax7anwgMA2Y01si+xRugVrs3ii834ZAQlcw/h5qRgtsR2aaLGNPgu0V5rvL9Z3CYkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru; spf=pass smtp.mailfrom=mail.ru; dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b=AF3LBcm5; arc=none smtp.client-ip=89.221.237.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NuV4R0Nd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC531F00893;
-	Mon,  5 Oct 2026 10:50:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791197427;
-	bh=dNNu6FxDNOOWjNZIXKqoN5QQzPfYosIUED3AJWJ62cA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=NuV4R0Ndzki6VgB4Om4UUR9MgwgrCfkDvYNpScrdMa8v6zgXtRhGbYNLY8o6xqR9X
-	 WZMwikc6KCkeH1v78mAGgD5+QpJvL8eYyNOXjE+BI1OfcfRcgjEVInuynXSqGyo5Ll
-	 KW91Nr3aNCxs4Yd3hApAAHQgw1NnnauvVWpzbvw8tJ828dbL51RmsPt6RfWZb3yQRW
-	 pbxpmsidwPYxW0bMYBtGuBnhwXVZinQcwSO9rXSiV6dskijym854NtJ5TXtzYd2QR1
-	 AtHLbhVf3r9ngpvLs0nDmVvEwShhjy1uECf8whixppree5lwxS+YOLwPZ5aH7A4PLc
-	 ACtkjOcCQT7/w==
-Date: Mon, 5 Oct 2026 11:50:19 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Jisheng Zhang <jszhang@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
-	Brian Masney <bmasney+clk@redhat.com>,
-	Jerome Brunet <jbrunet+clk@baylibre.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Frank Li <Frank.Li@nxp.com>, Lee Jones <lee@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
-	linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 08/20] dt-bindings: reset: add Synaptics SL261X SoCs
-Message-ID: <asOA6-r41fuoGkEo@squawk>
-References: <20260929061417.20733-1-jszhang@kernel.org>
- <20260929061417.20733-9-jszhang@kernel.org>
- <20260929-sprang-stir-af07a907ccb2@spud>
- <ar0npPCHX1P5Gjzx@xhacker>
- <20260930-legend-helium-ca5a0ff56709@spud>
- <ar_POzPRppAwK7ui@xhacker>
+	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b="AF3LBcm5"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru;
+	s=mail4; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:From:Sender:Reply-To:To:Cc:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:
+	X-Cloud-Ids:Disposition-Notification-To;
+	bh=jRMZkEQ1w8xAoRWT7fIuKzGi8bAdOsKoWDkqoL7Hhjw=; t=1791208392; x=1791298392; 
+	b=AF3LBcm5DGHIAvlcVwd1hVfGWfOcJB0rnBCHjXViKuGPRBLUMYQUM9PDlLm4lsSssGhZutSElNa
+	mzrdlOAXcWtsctoi09EtCCg97k14TDeopVfh6x+Gi4xgadI6ZIvxcAgPpWXG7It7ZfkVp5jAtO3eU
+	FiABKlbgR0YYABMeApWH7wnyxdWPIO6I7dusMcQGWo4voOlW3pWRPgKW8KU2vGEQ288q4zPTCfQIA
+	LHJ4BiI+RDmCAUnaUXTEE7tNWKRnrlU44MwPuuuA4dymmiFOQ+e7qo3MyOf5XroC+olr+6gSlgTgq
+	i+C1izJfeJuxJPFBgpjotzPQXMQvOtkLOQtg==;
+Received: by exim-smtp-5bd9c49696-zpn2x with esmtpa (envelope-from <misha.zavertkin@mail.ru>)
+	id 1xDj7r-00000000HQZ-43vA; Mon, 05 Oct 2026 16:53:08 +0300
+Date: Mon, 5 Oct 2026 20:53:05 +0700
+From: Michael Zavertkin <misha.zavertkin@mail.ru>
+To: Conor Dooley <conor@kernel.org>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Rustam Adilov <adilov@disroot.org>
+Subject: Re: [PATCH 2/2] dt-bindings: i2c: rtl9300: add pinctrl
+Message-ID: <asOrwd7eAddenA-_@gamepc>
+References: <cover.1791127538.git.misha.zavertkin@mail.ru>
+ <0cd1f9b98511c55a375ab82b121fe256916b87e2.1791127538.git.misha.zavertkin@mail.ru>
+ <asN-O5ntmiXvZBvs@squawk>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Gk8IWZpUcu6PCSl4"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <ar_POzPRppAwK7ui@xhacker>
+In-Reply-To: <asN-O5ntmiXvZBvs@squawk>
+Authentication-Results: exim-smtp-5bd9c49696-zpn2x; auth=pass smtp.auth=misha.zavertkin@mail.ru smtp.mailfrom=misha.zavertkin@mail.ru
+X-Mailru-Src: smtp
+X-7564579A: 646B95376F6C166E
+X-77F55803: 4F1203BC0FB41BD916CE66F793C04802681FD38DEF83E1DA77A7EB953293C78F00894C459B0CD1B91AC0D19862E7631589CEA9C911D09995A1F4E213D52D61C909E6AD5482958E394C6784DEA8096F07
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE712EB008F780777E9EA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F7900637560334CFC131571A8638F802B75D45FF799C897B879640A07197CC67C87A96611B59CA4C82EFA658A7BF724E0505E4F3BB22F9947019DC91BD80732E7DD4A9D86F9789CCF6C18C3F8528715B7D10C86878DA827A17800CE767883B903EA3BAEA9FA2833FD35BB23D27C277FBC8AE2E8B5C00A253C229F406A471835C12D1D977C4224003CC836476EB9C41850244470149FD398EE364050F4B6963042765DA4BC8623B8F170C382FB3661434B16C20ACC84D3B47A649675FE827F84554CEF5019E625A9149C048EE902A1BE408319B293FC91FA280E0CE3D3A03B725D353964BAD74539164518AE535872C767BF85DA227C277FBC8AE2E8B7E5613B76AD15BA275ECD9A6C639B01B4E70A05D1297E1BBCB5012B2E24CD356
+X-C8649E89: 1C3962B70DF3F0AD73CAD6646DEDE1918E10F71CB4DF9F9677DD89D51EBB774225B6776AC983F447FC0B9F89525902EE6F57B2FD27647F25E66C117BDB76D6590C9F04931F3800364610A94AE8244E392067DC5E4DA32EB8563D06C2FC53B1166B9698CB35BE2FB0B8341EE9D5BE9A0A6F8A87A1133EC55E47E5CC68B884274153B1FF19FEEE2A4C546A885F7A58241B4C41F94D744909CE2D653CA06E969CEAC4926F5095E487D6D64CFEF34022E96A964550E41902C4E4
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+ObcCpyrx6l7KImUglyhkEat/+ysWwi0gdhEs0JGjl6ggRWTy1haxBpVdbIX1nthFXOcIETfglQORZ0zpDET4Zrk3igikrdHlWIVyuglZZ1THAP+qXqN/L60=
+X-Mailru-Sender: FD65D7C492470CAEE010D97EE9FDA1EF6C8C27904EEC8E8D20C74B26AAFF93457272C4DCA726D4EB1045281C71E08B15F767ED260C4F5E398B67290C0B8F2C0D0ACA136676B1AD1C82BADC8C81B40964835B6B713A4867D9C77752E0C033A69E3453F38A29522196
+X-Mras: Ok
 
---Gk8IWZpUcu6PCSl4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Oct 05, 2026 at 11:38:51AM +0100, Conor Dooley wrote:
+> On Sun, Oct 04, 2026 at 10:32:35PM +0700, Michael Zavertkin wrote:
+> > For RTL9607C driver used to configure IO_MODE register. This register is
+> > global and is a scope of pinctrl driver (either pinctrl-single or WIP
+> > driver for SoC).
+> > 
+> > Drop realtek,scl requirement for that SoC and require pinctrl instead.
+> 
+> This patch itself is probably fine, but the driver changes will cause
+> regressions because all existing devicetrees are going to have
+> realtek,scl and not the pinctrl properties. You need to retain the
+> driver code and make the register setting optional depending on if the
+> scl is there (or similar).
+> pw-bot: changes-requested
+> 
+> Thanks,
+> Conor.
 
-On Fri, Oct 02, 2026 at 11:35:23PM +0800, Jisheng Zhang wrote:
-> On Wed, Sep 30, 2026 at 05:49:18PM +0100, Conor Dooley wrote:
-> > On Wed, Sep 30, 2026 at 11:15:48PM +0800, Jisheng Zhang wrote:
-> > > On Tue, Sep 29, 2026 at 08:44:13PM +0100, Conor Dooley wrote:
-> > > > On Tue, Sep 29, 2026 at 02:14:05PM +0800, Jisheng Zhang wrote:
-> > > > > Add device tree bindings for the resets on Synaptics SL261X SoCs.
-> > > > >=20
-> > > > > Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-> > > > > ---
-> > > > >  .../bindings/reset/syna,sl261x-reset.yaml     | 40 ++++++++++
-> > > > >  include/dt-bindings/reset/syna,sl261x-reset.h | 80 +++++++++++++=
-++++++
-> > > > >  2 files changed, 120 insertions(+)
-> > > > >  create mode 100644 Documentation/devicetree/bindings/reset/syna,=
-sl261x-reset.yaml
-> > > > >  create mode 100644 include/dt-bindings/reset/syna,sl261x-reset.h
-> > > > >=20
-> > > > > diff --git a/Documentation/devicetree/bindings/reset/syna,sl261x-=
-reset.yaml b/Documentation/devicetree/bindings/reset/syna,sl261x-reset.yaml
-> > > > > new file mode 100644
-> > > > > index 000000000000..8cfec17df800
-> > > > > --- /dev/null
-> > > > > +++ b/Documentation/devicetree/bindings/reset/syna,sl261x-reset.y=
-aml
-> > > > > @@ -0,0 +1,40 @@
-> > > > > +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> > > > > +# Copyright (C) 2026 Synaptics Incorporated
-> > > > > +%YAML 1.2
-> > > > > +---
-> > > > > +$id: http://devicetree.org/schemas/reset/syna,sl261x-reset.yaml#
-> > > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > > > +
-> > > > > +title: Synaptics SL261X reset controller
-> > > > > +
-> > > > > +maintainers:
-> > > > > +  - Jisheng Zhang <jszhang@kernel.org>
-> > > > > +
-> > > > > +description: The reset controller node must be a sub-node of the=
- chip
-> > > > > +  controller node on SL261X SoCs.
-> > > > > +
-> > > > > +properties:
-> > > > > +  compatible:
-> > > > > +    enum:
-> > > > > +      - syna,sl261x-soc-reset
-> > > > > +      - syna,sl261x-system-reset
-> > > > > +
-> > > > > +  "#reset-cells":
-> > > > > +    const: 1
-> > > > > +
-> > > > > +required:
-> > > > > +  - compatible
-> > > > > +  - "#reset-cells"
-> > > > > +
-> > > > > +additionalProperties: false
-> > > > > +
-> > > > > +examples:
-> > > > > +  - |
-> > > > > +    chip: chip-control@f7e10000 {
-> > > > > +        reg =3D <0xf7e10000 0x1000>;
-> > > > > +
-> > > > > +        chip_rst: reset {
-> > > > > +            compatible =3D "syna,sl261x-soc-reset";
-> > > > > +            #reset-cells =3D <1>;
-> > > > > +        };
-> > > >=20
-> > > > Why can't this just be part of the parent node?
-> > >=20
-> > > Good question! IMHO, the reasons are:
-> > >=20
-> > > 1. the so called Gbls(Gbl means global) such as mcuGbl and
-> > > chip control Gbl contain not only reset, pinctrl and clk/plls
-> > > but also some other registers for different purposes, e.g in the
-> > > chip control gbl, there are some registers to control eth phy sel(RMII
-> > > or RGMII), and TXC 90 degree selection etc. These registers will
-> > > be used by the Ethernet driver;
-> > >=20
-> > > While there's no pinctrl regs in avioGbl and vppGbl. In the vppgbl,
-> > > there are some registers for DPHYTX etc.
-> > >=20
-> > > As can been, in different Gbls, there maybe different purposes regist=
-ers, no
-> > > obvious patterns.
-> > >=20
-> > > So the question here is why not split the gbl into different register
-> > > spaces, and abstract each space for each function group?
-> >=20
-> > No, you misunderstood. I'm not asking for the register space to be
-> > split, I am asking why you cannot do
-> > | syscon@f7e1000 {
-> > | 	compatible =3D "syna,sl2610-soc-syscon", "syscon";
-> > | 	reg =3D <0xf7e10000 0x1000>;
-> > | 	#clock-cells =3D <1>;
-> > | 	#reset-cells =3D <1>;
-> > | };
-> > With this kind of thing, you can either use the auxiliary bus or
-> > MFD_CELL_NAME() to create the other devices. The latter is good if
-> > you've got a region with clocks that also has resets thrown in, the
-> > former is probably better if you have a syscon with a genuine
-> > assortment of different functions that you're going to be looking up via
-> > phandle.
->=20
-> I see your points now. But there are two problems with this solution:
->=20
-> 1. Besides reset, pinctrl and clk, the so called "Gbl" also contains
-> registers for other purpose, e.g DPHYTX, when we need the driver for
-> DPHYTX, I assume I could also go with the auxiliary bus or MFD_CELL_NAME(=
-),
+I understand backward compatibilyti requirement. However all known users
+of this driver are here (me and Rustam Adilov). Does compatibility
+strictly required for such case?
 
-Correct.
+If so, what would be better - print warning about realtek,scl (only for
+RTL9607C) and work as earlier, potentially interfering with pinctrl
+driver - or abort probe with error if there is no pinctrl property?
+Explicit error or message is better then silent regression, if I
+understand you correctly.
 
->=20
-> 2. where should the driver(s) and dt-bindings doc be put?
-> I assume drivers/soc/synaptics/ and
-> Documentation/devicetree/bindings/soc/synaptics?
-
-Personally, this is where I put them in the MFD_CELL_NAME() case. In the
-aux bus case, there's generally no "parent" driver that just probes
-children, so it'd go into clock or whatever the main purpose is.
-
-Thanks,
-Conor,.
-
->=20
-> Kindly correct me if I misunderstood something.
->=20
-> Thanks
-> >=20
-> > > Two blocking
-> > > points make this impossible and ugly: different reg space may not be
-> > > aligned at 4KB boundary, e.g reset: 0x350 ~ 0x37c; eth phy sel:0xa18;
-> > > some registers which belong to similar functionality, e.g clks, may n=
-ot be
-> > > adjacent.
-> >=20
-> > This sort of thing, with non-adjacent clocks is still possible, you have
-> > a regmap just like before.
-> >=20
-> > > So the best way is to abstract these GBLs via. "syscon", "simple-mfd"=
-, and
-> > > put necessary subnodes such as reset, pinctrl and clks under the GBL
-> > > node. If the registers in GBL is misc control, pass the syscon phandle
-> > > to the main driver, e.g I planed to pass the syscon phandle to GMAC
-> > > driver to control the RMII/RGMII selection.
-> >=20
-> > And you can get the regmap from other drivers by doing phandle or
-> > compatible based lookups just like before.
-> >=20
-> > >=20
-> > > 2.follow current bg2 and bg2q style
-> > > e.g arch/arm/boot/dts/synaptics/berlin2q.dtsi
-> > >=20
-> > > IMHO, why bg2 and bg2q dtsi files are implemented as current
-> > > style is due to the above point 1.
-> >=20
-> > Unfortunately, this is the berlin2q devicetree showing its age, we've
-> > been pushing people away from nodes that exist just to probe a driver
-> > and don't provide any additional value. Something like
-> > | chip-control@f7e10000 {
-> > |     reg =3D <0xf7e10000 0x1000>;
-> > |=20
-> > |     chip_rst: reset {
-> > |         compatible =3D "syna,sl261x-soc-reset";
-> > |         #reset-cells =3D <1>;
-> > |     };
-> > |=20
-> > |     chip_clk: clock {
-> > |         compatible =3D "syna,sl261x-soc-clock";
-> > |         #clock-cells =3D <1>;
-> > |     };
-> > is exactly the pattern we are trying to avoid.
-> >=20
-> > Cheers,
-> > Conor.
-> >=20
-> > >=20
-> > > Kindly let me know if there's a better solution.
-> > >=20
-> > > > From a quick check of the dts, the node with this subnode didn't al=
-so
-> > > > have a system-reset node too, so there's no conflict or anything of=
- that
-> > > > nature.
-> > > >=20
-> > > > > +    };
-> > > > > diff --git a/include/dt-bindings/reset/syna,sl261x-reset.h b/incl=
-ude/dt-bindings/reset/syna,sl261x-reset.h
-> > > > > new file mode 100644
-> > > > > index 000000000000..7034f58aae5b
-> > > > > --- /dev/null
-> > > > > +++ b/include/dt-bindings/reset/syna,sl261x-reset.h
-> > > > > @@ -0,0 +1,80 @@
-> > > > > +/* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
-> > > > > +/*
-> > > > > + * Copyright (C) 2026 Synaptics Incorporated
-> > > > > + *
-> > > > > + * Author: Jisheng Zhang <jszhang@kernel.org>
-> > > > > + */
-> > > > > +
-> > > > > +#ifndef _DT_BINDINGS_SL261X_RESET_H
-> > > > > +#define _DT_BINDINGS_SL261X_RESET_H
-> > > > > +
-> > > > > +/* ACPU subsystem */
-> > > > > +#define RST_SOC_SDIO0		0
-> > > > > +#define RST_SOC_USB0		1
-> > > > > +#define RST_SOC_EMMC		2
-> > > > > +#define RST_SOC_GETH0		3
-> > > > > +#define RST_SOC_SDIO1		4
-> > > > > +#define RST_SOC_USB1		5
-> > > > > +#define RST_SOC_GETH1		6
-> > > > > +#define RST_SOC_USB0PHY		7
-> > > > > +#define RST_SOC_USB0CORE	8
-> > > > > +#define RST_SOC_USB0MAHB	9
-> > > > > +#define RST_SOC_USB1PHY		10
-> > > > > +#define RST_SOC_USB1CORE	11
-> > > > > +#define RST_SOC_USB1MAHB	12
-> > > > > +#define RST_SOC_UART0		13
-> > > > > +#define RST_SOC_UART1		14
-> > > > > +#define RST_SOC_UART2		15
-> > > > > +#define RST_SOC_UART3		16
-> > > > > +#define RST_SOC_I2C0		17
-> > > > > +#define RST_SOC_I2C1		18
-> > > > > +#define RST_SOC_SPI0		19
-> > > > > +#define RST_SOC_SPI1		20
-> > > > > +#define RST_SOC_SPI2		21
-> > > > > +#define RST_SOC_SPI3		22
-> > > > > +#define RST_SOC_APBTIMERS	23
-> > > > > +#define RST_SOC_APBSYSCNT	24
-> > > > > +#define RST_SOC_APBWDT		25
-> > > > > +#define RST_SOC_APBGPIO		26
-> > > > > +#define RST_SOC_APBDMA		27
-> > > > > +#define RST_SOC_GPUCORE		28
-> > > > > +#define RST_SOC_NPUCORE		29
-> > > > > +#define RST_SOC_AVIOAIOG	30
-> > > > > +#define RST_SOC_AVIOVPPG	31
-> > > > > +#define RST_SOC_AVIOVIPG	32
-> > > > > +
-> > > > > +/* system subsystem */
-> > > > > +#define RST_SM_ADCCORE		0
-> > > > > +#define RST_SM_ADCPRST		1
-> > > > > +#define RST_SM_CAN0PRST		2
-> > > > > +#define RST_SM_CAN0SRST		3
-> > > > > +#define RST_SM_CAN1PRST		4
-> > > > > +#define RST_SM_CAN1SRST		5
-> > > > > +#define RST_SM_GPIOPRST		6
-> > > > > +#define RST_SM_GPIOSRST		7
-> > > > > +#define RST_SM_I2CM0PRST	8
-> > > > > +#define RST_SM_I2CM0SRST	9
-> > > > > +#define RST_SM_I2CM1PRST	10
-> > > > > +#define RST_SM_I2CM1SRST	11
-> > > > > +#define RST_SM_I3CPRST		12
-> > > > > +#define RST_SM_I3CSRST		13
-> > > > > +#define RST_SM_PDMPRST		14
-> > > > > +#define RST_SM_PDMSRST		15
-> > > > > +#define RST_SM_PVTHSRST		16
-> > > > > +#define RST_SM_PVTPRST		17
-> > > > > +#define RST_SM_PWMPERIRST	18
-> > > > > +#define RST_SM_PWMPRST		19
-> > > > > +#define RST_SM_SPIMPRST		20
-> > > > > +#define RST_SM_SPIMSRST		21
-> > > > > +#define RST_SM_SPISPRST		22
-> > > > > +#define RST_SM_SPISSRST		23
-> > > > > +#define RST_SM_UART0PRST	24
-> > > > > +#define RST_SM_UART0SRST	25
-> > > > > +#define RST_SM_UART1PRST	26
-> > > > > +#define RST_SM_UART1SRST	27
-> > > > > +#define RST_SM_UART2PRST	28
-> > > > > +#define RST_SM_UART2SRST	29
-> > > > > +#define RST_SM_UART3PRST	30
-> > > > > +#define RST_SM_UART3SRST	31
-> > > > > +
-> > > > > +#endif /* _DT_BINDINGS_SL261X_RESET_H */
-> > > > > --=20
-> > > > > 2.53.0
-> > > > >=20
-> > >=20
-> > >=20
->=20
->=20
-
---Gk8IWZpUcu6PCSl4
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCasOA6wAKCRB4tDGHoIJi
-0tAeAP9g4V0Uppa+RPpNSegPViM1PGFBb2qMlUfL3Eqtfqq5rwD8DNvWRbx6J1Y2
-bBUZpYZhNV0JSq2I6MV77ygY10S8cQ4=
-=9BJK
------END PGP SIGNATURE-----
-
---Gk8IWZpUcu6PCSl4--
