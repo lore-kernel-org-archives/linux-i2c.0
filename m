@@ -1,42 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F6063750BC;
-	Tue,  6 Oct 2026 09:28:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AFA13D9DC9;
+	Tue,  6 Oct 2026 09:34:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791278886; cv=none; b=EVjwrw/f/RbHOeZ5u77VPy+cQ52lhf/j3ZeqjO4x6PJW7OH4NzVj0NX4lFEk75RRhYQ8vkDVnP4xAtejE0IpizYes3vI/I+hlQ2lUPuVHuvuUxK2SEtONTDC8QmiDxQWAsBYx8ki2ogDhJRrgQFujgZVtYoO0cBq6PExl+P156A=
+	t=1791279292; cv=none; b=trH/whjWQRrVlIthyJ1lHXJpluL26j+72qBwWYn2dUfSCTa6joWZOwAqUtaLNAgDedPelHhW47SIpAbgRrOnyOwi2YIgivYGThO+379saqEbvDkORujifSjbLhZf99OEqgNN/Qy2BI+QfWFFJnlYvBSwxoV+Q2ZXrAMFJrnXM38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791278886; c=relaxed/simple;
-	bh=+FDaVM+iN2S6d4LlhnhZFZtqkz2EVNDOZrfwx7Ivk3o=;
+	s=arc-20240116; t=1791279292; c=relaxed/simple;
+	bh=QcMm21XZyTDjC5onR0ZC/Mk5AFMbO9TuS1iDa3AD3c0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TGeDBPk6F/DZ4PuDPpx7N6kuwxbTIzpjaP9bNHL2sC4TlDJliT/0GHFpS4ODSHKnYcb3oOQT/RMDvpxw9kP7X/xIfkhWRrihOBN2pyExWUsDewU/I1dxyOTjFPjddWlS4QdYosfAQ4uQTQgW1FhGQaVLSuij1R9uThmD5tmdWZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A/g7hcLT; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=IVWkB2Rh6O3Tq8edqedQMWq/lNtN0VvahLpdUiZI17Qu7wfLjmIW61Kn22fr63hPmiX5XmKltmt+UuXuOcVxOuqh/7FDLd4Vci6+CNqCk+PQBKtiusehiWaVay7UXqsmQv6h2bfdZGp6shOyWSpUqaAW6IJ5TP2epBlbqbQKCx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j6Ps3Om5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A/g7hcLT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 015361F00898;
-	Tue,  6 Oct 2026 09:28:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j6Ps3Om5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D86E51F000FF;
+	Tue,  6 Oct 2026 09:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791278884;
-	bh=aFfRik6ofX2MimsXUIjUnGQ1h4GtCfo0fIPNLZE0cwI=;
+	s=k20260515; t=1791279280;
+	bh=QcMm21XZyTDjC5onR0ZC/Mk5AFMbO9TuS1iDa3AD3c0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=A/g7hcLT6/z2TxB/35QnTnfOF00uR0EMe5WoZajEwktcwzQbEpxxIgdQtxajOYw7r
-	 bexZ0ALMvZs/7FP99hVteatwKpapTQg8LS4T6/y0NIBkFcm1cMWadCt6n2zrOpz2rU
-	 jAl4cn4VpNJGLjSx0qqRSZSEhnlszt3fWTMRAn5fHh0fIOH9yrW/lL95PCekb7DRoy
-	 2wdO8z/2DRsIfAPE+AtctbAYLZ9QjxsTtm5jspyM8xnsi2PRa1/a2vwZz341OEnx4y
-	 kw94OsUK/Ka+7uAM4rHZyBd9ZoAWs9kELNwfuMRtbF8A/jCF5yd7ki66XMlwd5ysRj
-	 U0C5dKPiZ7Epg==
-Date: Tue, 6 Oct 2026 11:28:01 +0200
+	b=j6Ps3Om5x2CrooaQB40xdb9urU2P9CP7k5CQFv5m2qFa00EZKVsJYQXjTqbIZJR6j
+	 82pAinKvrPwr8ClmHzb5UudzcrsdeXVD+wDETbSZTSR0iulsQZWZphaPV+HAKHTNqr
+	 qFQeST4u7hzgaztnSqkPuGYusGb0vKaCIlc9Lalv9O4KV/qpzGEDZI+s6ceL+KHt7R
+	 OAh3uuqtg34iGb3hUVkMxYAhqT9Nn47X2w8FXvbeS2GuJnJgmFs8W+CxYH5JyzAxxA
+	 /w/VJLg2XdsbTl+UdDf8buuubwgxnjgOqZ1dybi4uqgmLD+3EkUiuLgYxv6ZyzDg4s
+	 xCKxh0dWSRsLg==
+Date: Tue, 6 Oct 2026 11:34:37 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
 To: Loic Poulain <loic.poulain@oss.qualcomm.com>
 Cc: Robert Foss <rfoss@kernel.org>, 
 	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/5] i2c: qcom-cci: Handle and report queue
- overflow/underflow interrupts
-Message-ID: <asS-ppSQ3zHjjVBs@zenone.zhora.eu>
+Subject: Re: [PATCH 3/5] i2c: qcom-cci: Detect capabilities from
+ CCI_HW_VERSION at runtime
+Message-ID: <asS_Z1RWYiwXnXop@zenone.zhora.eu>
 References: <20261004-cci-imp-v1-0-227d12cb4829@oss.qualcomm.com>
- <20261004-cci-imp-v1-2-227d12cb4829@oss.qualcomm.com>
+ <20261004-cci-imp-v1-3-227d12cb4829@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,28 +45,22 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261004-cci-imp-v1-2-227d12cb4829@oss.qualcomm.com>
+In-Reply-To: <20261004-cci-imp-v1-3-227d12cb4829@oss.qualcomm.com>
 
 Hi Loic,
 
-...
+On Sun, Oct 04, 2026 at 09:09:49PM +0200, Loic Poulain wrote:
+> In theory, every SoC integrating a CCI revision that differs from
+> an existing one should introduce a dedicated compatible string.
+> In practice, most CCI instances still fall back to the msm8996
+> compat (v1.4.0), one of the oldest supported versions. In order
+> to take advantage of capabilities introduced in later versions,
+> such as larger queues (v1.6.0) or threshold IRQ support (v1.7.0),
+> we need to properly dinstinquish the different variants.
 
->  	if (unlikely(val & CCI_IRQ_STATUS_0_I2C_M0_Q0Q1_HALT_ACK)) {
-> -		reset = CCI_RESET_CMD_M0_MASK;
-> +		reset |= CCI_RESET_CMD_M0_MASK;
->  		ret = IRQ_HANDLED;
->  	}
->  
->  	if (unlikely(val & CCI_IRQ_STATUS_0_I2C_M1_Q0Q1_HALT_ACK)) {
-> -		reset = CCI_RESET_CMD_M1_MASK;
-> +		reset |= CCI_RESET_CMD_M1_MASK;
+distinquish/distinguish (no need to resend for this).
 
-these changes are independent from the patch you sent. Can you
-move them to another patch? Probably this part can also be
-considered as a fix and if so it can be sent separately. Right?
+I didn't see anything wrong in the rest of the patch.
 
 Thanks,
 Andi
-
->  		ret = IRQ_HANDLED;
->  	}
