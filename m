@@ -1,74 +1,89 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58A583E51E8
-	for <linux-i2c@vger.kernel.org>; Tue,  6 Oct 2026 14:55:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9775A2F6562
+	for <linux-i2c@vger.kernel.org>; Tue,  6 Oct 2026 21:49:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791298507; cv=none; b=DH4mayy4ODhjRzXaiMnLn3FCsFLLtQ6xDWk2wdMzKGtuRSF1fLYkbbhcZpBp6krIfXRfXprwqTo1QWRaoTY1yE54/JQWJDJbARkLe7hWX3bjHwjHi4NzPHIGRrL/30osNtwjKGb/MxZxoNel5e4UBGiyWKqjsq4zVQvFGdZrbes=
+	t=1791323358; cv=none; b=OU4eDhv2i5HUhXUmlCzvTlEBJ++zW7iAACHb0oK9e+dsR+c1Kbjct2wFuN2p467lwMBsbWza5mwt1bobjNm82r1QCfQi5NnB1L3BLIYQs43f25N4yOs6HOYzBK4jypdMba/GKexL7VzTBD4vNLt8NkLuVzA/FXHCzcZKBHX/AKk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791298507; c=relaxed/simple;
-	bh=R4KgQ3S4Hw1T8EoPFbH6w2icBtvqBXb5gZZ1wkD2hYs=;
+	s=arc-20240116; t=1791323358; c=relaxed/simple;
+	bh=poluRrFSmDIlB+/zIiUoVzpJ86A8vkad5nYfGvBnzmA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dM1QtpxlRG8GRSfz4/gL59EoPywHZaMsg0HLhWyrXEZ6rJ0icgpYWfRVzx5VYLPHE8AIbZXo77n2FeMb7M8UaLHoNWMd1WUZTYRZ0b3wJJWU9dcssTErXO6rwS1OLHL8kH/lpElFt8GZjUnPbI8LnpTRH9zOtoHHSS1PFcJFv3U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DNxW2ePX; arc=none smtp.client-ip=74.125.82.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 MIME-Version; b=QTCDoZuYbfX6E+FQeLoXc+DfpYapICctJSjWlcciaXQJecmKOiWjPIk7lAndJWqUonnnMajUJOjGUL+yCD71zB2Em1x0PpOrBBFVZrj6x9wgkFm6wuhbgmRal6Rk8sWNzUNVEZ/onbTDRBHWGDLiXUkVdav8EYeuiz+RhZrp9oU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b=e/gWFdwp; arc=none smtp.client-ip=185.125.188.122
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DNxW2ePX"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-15354aa70e8so7780488c88.1
-        for <linux-i2c@vger.kernel.org>; Tue, 06 Oct 2026 07:55:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791298504; x=1791903304; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=R4KgQ3S4Hw1T8EoPFbH6w2icBtvqBXb5gZZ1wkD2hYs=;
-        b=DNxW2ePXDQoOCN5STko2zaq29Q++QxwK4Xfv145SwJCcF06vUIzgSh4rVlyXtr3Zeh
-         /IVzWppqfBAiKolF9tXNgGTOVpyamVdrdcBpYp4JMga6uVmS+vhzyD7eYVbPjj/cuvsy
-         vBpV1op/Gl3P/RpCPRgo8dDr0te1qUNeJ9VCDAKmX46my3vkGdDQRouvoYMOIpykRKEq
-         dO6Xf+bsIIZnvgXA1GgQNIoFwrQUT+ZhXAZ6ksD2KacrM5ykzFmyIVXeOi5sGQDuVZTp
-         JG77q/LhEyajnxg3L45XbL3tlOzvhj1O8nfARhGIwtsJZI2FRKINRO3l8ZPBIVNfoLgN
-         CV5Q==
+	dkim=pass (4096-bit key) header.d=canonical.com header.i=@canonical.com header.b="e/gWFdwp"
+Received: from mail-dy1-f200.google.com (mail-dy1-f200.google.com [74.125.82.200])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id B088B3F788
+	for <linux-i2c@vger.kernel.org>; Tue,  6 Oct 2026 21:49:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20251003; t=1791323352;
+	bh=poluRrFSmDIlB+/zIiUoVzpJ86A8vkad5nYfGvBnzmA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version;
+	b=e/gWFdwp2u3bkjtUfUJu30eth+tyUKW78DbJ6X17S4/giEoVaBAhAZVKX45kxTeo2
+	 +d36kJ4AybcRy2wnd4zVlT/5a5vvse/7+DGtNnWwoDGduqjgQoavrAzeLQWN1oTP4M
+	 IOxwSWRFI2pIjXLdoVS6YAVp8izIYKktMUB4NgwB5bOcXLuA/bwxCbXxpLJ9Exfyqb
+	 vwt3Txr3uwj8gDx4uos4UMlHhh0gOa18iKssQavSDdUxoQDFkwU/NXSfPuiz/iZ3+U
+	 Bw2eRxrbmdXjb03e5U3gFCr4C9bVOq9/Cxnu+aXZyh49XbX1tcp2nX5k8jfPzHD6Qu
+	 2lui6CXNoTdEMLP2h4rvfWDkETa7Xk4FOgrP3ELJO2CJ0dzObLl7mNmEQY7FgWEU+j
+	 buAVuTYiswjs8WI+Ni/eqpW5drJ1Pdrusx01GNdI5gDPACgDFGYqjshC9zlR8kOb2R
+	 BZDM8UnkjWEd58vzclI39+sJEbmyXlv1WrVNG5oCiYTjMFF+O4xzfr2+15WoR/o5cH
+	 R2YUXx0la18ZUrJ06GMlovVBjUuMqWYb8BZMHNXBQYnc2kwiSIKHDmR7AMAZp6VdtW
+	 QU0WkWXwkVooiknFypSKQBgQequCQi0dVOiKrVAej6gBLDWDv0pzzJfpo6qCvPtofj
+	 5Yoo88kaofsYyeEhyySzRYJU=
+Received: by mail-dy1-f200.google.com with SMTP id 5a478bee46e88-30c0d568830so7403358eec.1
+        for <linux-i2c@vger.kernel.org>; Tue, 06 Oct 2026 14:49:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791298504; x=1791903304;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=R4KgQ3S4Hw1T8EoPFbH6w2icBtvqBXb5gZZ1wkD2hYs=;
-        b=TkR/ShQdsVHl3AOJtFknJ1KwTzPWbXsLTiPnHvQMbyRqXSfQ++jIWjZbLvLNkoIXYH
-         dSlScrdKMZn/gDlEq3LU+/Aa74XlE+u1CJvDzWqUlIVBG1icNwH+AHFHtXUhVQ6w4P50
-         tQItqXRjEOp+pVCb/LotffSyUKcGpnjzJArknD5SRqyeXaCpOKV/zdIFkF6RNhM/PiSH
-         TqQob/GKtLp77KmyoaL8FqfV4wQxWRf383alhmoHUMLfIE2Fs+6D2I3CxIFQWuwGxArI
-         N8yiZn4xOK+jgpfEI5UNXwAs3N9sJ8a+DcKxUedizIQhGhaxIA/c76dNCitZCJ/JFv4d
-         vGOA==
-X-Gm-Message-State: AFuF++mE58aNWVj+cLL9laAosApWYf/u1LLDcsNWH/NxqnxWcBq6DvZp
-	i4eDWuoakHDOEUBks1deuANGW6EM+FhXhNhtjn6awiVCyruMh5QYU8fQ
-X-Gm-Gg: AYBFou2aoIENfvoLV1XVSbOaw/7i5/4AFKeeNi/DQ8Z59XRPKdMgVzqnAqnItMEhCiV
-	+JCZGFc5d2ixhqyuSxG7D+KEQnVi85ANKrhMKxI+hO9nTYBaLNe9FIl9QK5Mi6LChej88npYIAB
-	odxZgaMy9FxmDf991QGW2FEbKJFl6OKIGR1eGoX4eSdhFJvium05R71BbVoQXAPUGqd0aG8spQW
-	TNpCgYc5/qHmbH8bzr0ImweXoe0ie8wZ+nEwdmuk/5MCfmkoJYMu1UGPJ6IXchITd93tA/rMRnI
-	oEIhQEphhAIS0ufcqufuQHiiVVT0KnXFSZcDBSfu/qKM3dcJRmwMAQ33hJdkoBhy1NjVfS2mAmq
-	RdemRpUqqi3MAg9bYw/FlV5Htot2uh+RhLJfaoyyhvjxaYRbjJfkkmg2wuqVafynFGrztcHOLLK
-	iPnebk//5Ggc4H17Dd3ReH71umO3S+dQGglgcdD+5kDHQhFFy7Xxjioc82AekKwi69mxxGbgeex
-	5ZhW4eHxTShTUXXiPyg/7DkI3WRAkiY2FMc9tkrvh48UqV65fBjwtpgINx0E4RROzlPgsXt1TSO
-	ipx3/PAAT+X3WVJ3HfJUmuJXQ8AdMJGvz1QNhn/1/Wuv20ks1Xxsq48mMXsvkZjgKU+sJkKsmUJ
-	5vzyqmHRA4EJtvLWXi+gcAzu+H8FPXkYCfi2/3QA9SqnKJJCg2UJMcY8=
-X-Received: by 2002:a05:7022:7e8a:b0:143:298f:33b8 with SMTP id a92af1059eb24-151c4c11b5amr21602995c88.44.1791298504055;
-        Tue, 06 Oct 2026 07:55:04 -0700 (PDT)
-Received: from yoda.tailb23519.ts.net (38.70.247.229.sumofiber.net. [38.70.247.229])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-16105519176sm11243c88.13.2026.10.06.07.55.03
+        d=1e100.net; s=20260707; t=1791323351; x=1791928151;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=poluRrFSmDIlB+/zIiUoVzpJ86A8vkad5nYfGvBnzmA=;
+        b=kP3JZsSV/gp0b9PeU86VudCnXTPSWif0cvo/efIICIEG+DsBmU7nzkc7J7cmEKK+t6
+         GcCVmMId81VzwZe+AYx2qhcpaDRV3CHjx363Iqor60L6iyofbcS8xT8H54/AsSwRHB5v
+         bnDfC7lqxykLaWoSAAWeyQdOGF4QjYptxq085T1PemE6SR0jiZN3zGbb/kWhSqaJyb1/
+         kQZnfgyhCZl548pAcyo3xbhn7gO2lMiq2ne0amoYLZhtC753KHCXbclpHX0YJsrp9zPF
+         GuqmIgbAbM8Ll1sWKCVRqFS4eZPdvXXyHpW7NqFem7KeHzkVxRAl04BIJyNzYZIGkSlg
+         uePg==
+X-Forwarded-Encrypted: i=1; AKwUvByM+NtvEoPV9n5gIRgHdmDWB/wHgYQYBz3/BIeEwtsd6KFiWqzbaDBjNicuczS+epx2T/uJ9TbLTK4=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKDVgtv/jRJxZeOXPgNEYp7ef+lrsFNXb6wlvu2LV9Q3ljvLjur
+	pEwIieFyb5vqu+bbLINuKXmjYric95ogc8exMwijfZpE0bky7jIdk99FeMR5T3LrnHmFsZeJ8Kc
+	O4tYJemGd24mPVmByGa3AbYjhg20ZwJZ4jDP04s7RLvYBWJ+6/Iyt09Rqc0znarRAUzx4zNOic2
+	IkWg==
+X-Gm-Gg: AYBFou1tLcebZoADbN8vcsEsdWBHDoNne52owax3otIMUEQ3VLZQBkaaIgRnwwajfzb
+	o85qjppsYyaHwdO8x0S5SiolynKJFIYOyVnjnRcV5fhmXsQygfzYpSB7QzG9Ft2txkT76uIjGwg
+	eL0MHybi1gnLAvRAVsmHfLMeuuI+ERnviUyFpcoKGLb6rvl3VN7TGSueYMAiOvqzSArrM4OSlot
+	9kGpuCwhmC134AE3xh340CFTSE5hu1HHie8AkWoXNKNBgGQ84g6kO5v8ZPwv0eQaZ/H5IvuDC2l
+	rYwwB70iXNGuy6yFL46s8OnQ9ZanKcZv+tKR0WJDnI5lSR1IwTg0IPFA03edLermOCmzbI6SFKs
+	qQ1oERq5p1cntX81WlQ==
+X-Received: by 2002:a05:7301:db0f:b0:33c:e74:4625 with SMTP id 5a478bee46e88-3515de89918mr138828eec.28.1791323351072;
+        Tue, 06 Oct 2026 14:49:11 -0700 (PDT)
+X-Received: by 2002:a05:7301:db0f:b0:33c:e74:4625 with SMTP id 5a478bee46e88-3515de89918mr138771eec.28.1791323349201;
+        Tue, 06 Oct 2026 14:49:09 -0700 (PDT)
+Received: from localhost ([2600:6c40:657f:4180:3a1e:4952:21ef:b8ec])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3515afd00e0sm1271255eec.23.2026.10.06.14.49.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Oct 2026 07:55:03 -0700 (PDT)
-From: Hasty Heat <hastyheat@gmail.com>
+        Tue, 06 Oct 2026 14:49:08 -0700 (PDT)
+From: mitchell.augustin@canonical.com
 To: abel.vesa@oss.qualcomm.com
-Cc: linux-i2c@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org
+Cc: andi.shyti@kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mukesh.savaliya@oss.qualcomm.com,
+	viken.dadhaniya@oss.qualcomm.com,
+	mitchell.augustin@canonical.com
 Subject: Re: [PATCH] i2c: qcom-geni: Restore the source-clock selection policy
-Date: Tue,  6 Oct 2026 09:55:02 -0500
-Message-ID: <20261006145502.105542-1-hastyheat@gmail.com>
-X-Mailer: git-send-email 2.53.0
+Date: Tue,  6 Oct 2026 16:48:41 -0500
+Message-ID: <20261006214841.202946-1-mitchell.augustin@canonical.com>
+X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260928-b4-i2c-qcom-geni-preserve-source-clock-v1-1-9aded7552a76@oss.qualcomm.com>
 References: <20260928-b4-i2c-qcom-geni-preserve-source-clock-v1-1-9aded7552a76@oss.qualcomm.com>
 Precedence: bulk
@@ -77,28 +92,11 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Mon, Sep 28, 2026, Abel Vesa wrote:
-> On X1E80100 CRD, this results in switching the source clock from 19.2 MHz
-> to 32 MHz, which causes intermittent failures when probing the I2C HID
-> keyboard.
+From: Mitchell Augustin <mitchell.augustin@canonical.com>
 
-Same issue here on a Lenovo Yoga Slim 7x (X1E80100) running v7.2.9, which
-carries cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in
-SE_GENI_CLK_SEL"). The ITE 048D:8987 keyboard on the touchpad's bus
-(b80000) came up as 0018:FFFF:FFFF with a report descriptor of
-0x00 0xff 0xff..., after "did not ack reset within 1000 ms". After a warm
-reboot the same bus also hit "Bus arbitration lost, clock line
-undriveable", and both the keyboard and touchpad failed.
+Same issue on my machine. This patch fixes it for me as well. Thanks!
 
-With this patch applied to v7.2.9, the SE clock stays at 19.2 MHz. The
-keyboard (hid-lenovo) and touchpad (hid-multitouch) probe cleanly, with
-no arbitration or reset errors, on a warm reboot, a cold boot, and a
-warm reboot from another kernel.
-
-Tested-by: Hasty Heat <hastyheat@gmail.com>
-
-It would be good to get this into stable as well, since cb97bf3d4f91 is
-already in 7.2.y.
+Tested-by: Mitchell Augustin <mitchell.augustin@canonical.com>
+Reviewed-by: Mitchell Augustin <mitchell.augustin@canonical.com>
