@@ -1,92 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp6-g21.free.fr (smtp6-g21.free.fr [212.27.42.6])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC80744D6B4;
-	Wed,  7 Oct 2026 14:01:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5B9346FA8;
+	Wed,  7 Oct 2026 17:43:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.6
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791381698; cv=none; b=UyUeYTxewwYi7MIpNtpBT4CFHvf8y6EhhTXClaok3QARUxwjzpx4oZbj9omikRF/TJl/FS0YlAI6GTEiKfXZ1LzVYTCT+aC66HyHYG/544WIk8ZwjAMm3Rdnst3VPkuYYTPy1c5IZwHCGKxzWLEQXazaPn32NIDeypsjSEJ4QVE=
+	t=1791394989; cv=none; b=Nfz667HUH2pYWjGIXNbHLlcvkfD2ca6vUQrsAE+ocNr74NeZRbYBpuwupfbXHIAQ7sx37SNmyBkeX78xwRxHUDM+Fi6GUL594W34Zhhg9Yp/pknox1+fKSM25WbFVxOM6XWsvS+BTRLSpw7VT5T8MGCYCzaDZ5BYX/TEx55hmQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791381698; c=relaxed/simple;
-	bh=PQAOQXQQabgrsu0QQpZx3L1ouvEyx2hXhU4Hhtht6Ho=;
+	s=arc-20240116; t=1791394989; c=relaxed/simple;
+	bh=pLfXra5Jo90UbwTBsB9NGQ3f0bIBVXsiTTgt1LOnb6s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Xmgl28ss/0zCtCe86KCSpP6kga2ptJgdLS4fQ/byf7TzWTBYedcuEhaJNgLaWiXpjHFl9CETMhL4n5LwlySrEQN5Cl2zMop2Sc6qPv6rt4ftW7gO+M3K0ApmmJ2smdmOfH798DE0ce+z0FndmcmF/pvGQy51ZoZJH1Dg7CU5eco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gRuC8sWs; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=l3BJFOYz8AjB2oejfBI8xtkwJ3vjpToFbrfZTZUdCh5kM1fztT+BkY8xP2Mp5Af+WG57+rTGMJkdC8HGyi9lIypW50h54zwYhOvIEYqhycuHwu3g9NdTeCLDd/YHstTs85L6dBBN+6oJe3ORIdfb6KlsQllPfslCFTFvKjAb3sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=eGySEcTv; arc=none smtp.client-ip=212.27.42.6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gRuC8sWs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BBD11F0089B;
-	Wed,  7 Oct 2026 14:01:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791381690;
-	bh=PQAOQXQQabgrsu0QQpZx3L1ouvEyx2hXhU4Hhtht6Ho=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gRuC8sWsQiYjijYIxNt2M1B9TwZci5Xie6QWpJmvHfn8z6IOxW5q2PNaGz8n5wGDh
-	 ftEksoSVZwSKwU7lL1j79ykp1+LuGgqBLXBkIm28enx8954bgnnIn2dZNqssrArum1
-	 /l5jRHTKWhn/RiB7vrE9/iqzhVilUodB/ne6cTRjkc3yj+3DxIdQRb2kqQAbjSYKCo
-	 203znyKHfM+VM1oPw3VQBIU3LF69nKLnwJQ4oRRCFm4yBFor4f5GTafVBlnxFJeGVA
-	 dTYODODyyBy/zFwb+M633cvD3DsVCH2EpNcLc0AtfhRo7YSMDDgDi6GZv2OxXiar7d
-	 j0q8ysZ+tcYYA==
-Date: Wed, 7 Oct 2026 15:01:24 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Michael Zavertkin <misha.zavertkin@mail.ru>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chris Packham <chris.packham@alliedtelesis.co.nz>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Rustam Adilov <adilov@disroot.org>
-Subject: Re: [PATCH 2/2] dt-bindings: i2c: rtl9300: add pinctrl
-Message-ID: <20261007-7268f1c071653c5a89e28b61@squawk>
-References: <cover.1791127538.git.misha.zavertkin@mail.ru>
- <0cd1f9b98511c55a375ab82b121fe256916b87e2.1791127538.git.misha.zavertkin@mail.ru>
- <asN-O5ntmiXvZBvs@squawk>
- <asOrwd7eAddenA-_@gamepc>
- <20261007-370cbe94c765a69550a85bbd@squawk>
- <asZKOn8HIuIaaqKA@gamepc>
+	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="eGySEcTv"
+Received: from L30177.local (unknown [78.242.246.191])
+	(Authenticated sender: vjardin@free.fr)
+	by smtp6-g21.free.fr (Postfix) with ESMTPSA id 1B23B780505;
+	Wed,  7 Oct 2026 19:42:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+	s=smtp-20201208; t=1791394985;
+	bh=pLfXra5Jo90UbwTBsB9NGQ3f0bIBVXsiTTgt1LOnb6s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=eGySEcTvLGf1K4n+0/B5s8ni5lHAHsIVa8gSTFnQpWZoKM2Bu0g3wom+bNh55IjmH
+	 i3PPKg+dy5xd6+1NpM3E2cpVDUw7jxHsi86+3I3Ipez3E42KgssjqmXE5ggf2IBwvu
+	 D4D+vWa/TKg2wKFm61IQrLQlpjkyaPhpFiaqCdcr4e0dMNf0Dcp85Cmnx3KrSQf3HQ
+	 fjLB1VzTmpLeK47WFQPOivfQRUetQLqfl66Wm7NIplwAIzhv5SDwPPFlcC6I6GtZzB
+	 1IIiMLM0TzkX0nZiYEvyWYDozke9WLCWoqoOAW8zqR4uX1xZ/lH0AdZqaWIemBeQKg
+	 4F+zBWY+mrDLA==
+Date: Wed, 7 Oct 2026 19:42:45 +0200
+From: Vincent Jardin <vjardin@free.fr>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Carlos Song <carlos.song@nxp.com>,
+	Haobin Jiang <lemonoutput@foxmail.com>, linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+Message-ID: <asaElUqBu5ht6amB@L30177.local>
+References: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
+ <apcYp0Zc7CrJMiOh@lizhi-Precision-Tower-5810>
+ <aqO9SMvI89rqoEGb@L23803.iliad.fr>
+ <arMUxCW5ZTzLT3VN@L30177.local>
+ <arw0mVbacAXv_1H7@L30177.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="jU4ff4PniF9MT41+"
-Content-Disposition: inline
-In-Reply-To: <asZKOn8HIuIaaqKA@gamepc>
-
---jU4ff4PniF9MT41+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <arw0mVbacAXv_1H7@L30177.local>
 
-On Wed, Oct 07, 2026 at 08:33:46PM +0700, Michael Zavertkin wrote:
-> On Wed, Oct 07, 2026 at 11:12:36AM +0100, Conor Dooley wrote:
-> > > If so, what would be better - print warning about realtek,scl (only f=
-or
-> > > RTL9607C) and work as earlier, potentially interfering with pinctrl
-> > > driver - or abort probe with error if there is no pinctrl property?
-> > > Explicit error or message is better then silent regression, if I
-> > > understand you correctly.
-> >=20
-> > If there's genuinely only two users, then I suppose you can break it.
-> > But two known users doesn't meant two users. Otherwise, use pintrl if
-> > available and use the fallback to the existing property if not. Mark the
-> > property deprecated and probably emit a warning.
->=20
-> Okay, I'll prepare v2. Support for deprecated property should be removed
-> somewhere in future, right?
+Hi Andi,
 
-Sure
+Sorry for the noise and resending again: with v7.3-rc7 due this Sunday if
+I am correct, could you take this patch into i2c/i2c-next for v7.4 ?
 
---jU4ff4PniF9MT41+
-Content-Type: application/pgp-signature; name=signature.asc
+It carries Carlos Song's Acked-by and Frank Li's Reviewed-by and it
+still applies cleanly on today's i2c/i2c-next.
 
------BEGIN PGP SIGNATURE-----
+Haobin Jiang's "i2c: imx: honour I2C_M_IGNORE_NAK" v3 still depends on it.
 
-iHUEARYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCasZQpgAKCRB4tDGHoIJi
-0lGNAQDQMF37jZmNnj11RPDjOz5F0muHEphh5sN+oUhsxbvCWQEAzWG+99FIRHWU
-plkDOPlxCPkKt3ASEOSfxRWgAqENeAo=
-=5C/L
------END PGP SIGNATURE-----
+If anything needs to change, tell me and I will send a v3 right away.
 
---jU4ff4PniF9MT41+--
+Best regards,
