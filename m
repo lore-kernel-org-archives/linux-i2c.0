@@ -1,156 +1,423 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69ED345A295
-	for <linux-i2c@vger.kernel.org>; Wed,  7 Oct 2026 08:51:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B03F481A86
+	for <linux-i2c@vger.kernel.org>; Wed,  7 Oct 2026 09:21:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791363102; cv=none; b=d0ONH7PHvzoe0totxjmrEqHMnXdPyn2yNargdZOM4TTRvDsLWCwkRauCvWPxtb3WyJnQ8K7MstMgjIuaGycMDplwsHsZCjAh5+TEyyoRsI82f5nepFsG8XxEqfOJ7/OM4yPDPDlWiO/rzrTQoGucLCbZ6hhp3qnRE5NDtOVxW/Y=
+	t=1791364975; cv=none; b=SCYCUjFCQkXMz100ALKHnzzFSxUHCAEg58fShacZZICAo6BhRUxrqsBMhcxaf2gvLC6uuDmNvvnvIFkI3r4v9WqGiIxFHF9wgkCMDNauG8uqkJI8AH5ia1AzkM4hzdiebZOccTu00mggVJEBXKla9Kcqy52TMHK5/nMRZsfW50I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791363102; c=relaxed/simple;
-	bh=CiCPHoKbA7QwOLstlzHIyTwZHiWB29u57jr15U2ffdY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Z7Y7dI346tYCS8yvDzTijmhNcDa1xnEneD10Z92daZ7HUc+S5d7Fg+pmxZHNwtDCFu1JTo7QUm034m9idO7fKq1NWhpyJFm6RaXIDH6ySLN9TmQrUHyROfH5ikrLAMwNHyOEwRPLxamHrpf90ov/Hu8s3nGiQyOmVK6nwpClV/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=U4OpEcQk; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=YfPNoujj; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1791364975; c=relaxed/simple;
+	bh=MN/tosXe50qK6zGgu7QPwgEYVWhq4bEWWWzocRskHjo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=gsjYnjRhr1gXu24Iiwa+tWQ43QOzl04jbru174jnrj/aHGDoF+X/8E3EpgKCzxJBuK9rZ6qYQO4JB5DmV6Izx+PALKzBnTc8izlVftVdEaeKAZtcSQsWqkllqPz1aH5OdGbmVhEBS5Yxl8UVkUnl4tua5nqD83AyPVQZoSNMyN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cBuILKxy; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="U4OpEcQk";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="YfPNoujj"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6977jedw119490
-	for <linux-i2c@vger.kernel.org>; Wed, 7 Oct 2026 08:51:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	YRMO/BIFTS6t5KCadnTGwzkaBkcMRT2kVp1MYvn8vlI=; b=U4OpEcQkQIQ4z5ej
-	X4PJJ8RUbYDn3oovYkwGFkhHWi6r5CyCyPlzQ/d05CTJCrQ6IKSAfCgYAA6rW5Jz
-	giHiRMXWfsdCljgvOd4zpvdcxeU8JHTfljCgbK1WD0kNzZ+4giroSrHf6q3uXj3g
-	yEApDeVOHzVf42ENaGHa1nIdV2GZ7zWB2FcQNdVi+BVEhhk/Yeu+bhE2chvvWspc
-	k/uqDJtOeQTeQP7fqxW1foOGAbfVOCN6Con/wxoYOxxKrz0zs/dYC6gSwQKknrJW
-	y33M3sgngOmOpox9KbL8Gv3+7NiE171C7tRE/1PSxnEDdT6ErsD/Y2oD/VtIo6YY
-	94AQGQ==
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h5fc58pv0-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 07 Oct 2026 08:51:40 +0000 (GMT)
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3823dcc1647so3009875a91.3
-        for <linux-i2c@vger.kernel.org>; Wed, 07 Oct 2026 01:51:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cBuILKxy"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2e60f9af6e6so2950415ad.3
+        for <linux-i2c@vger.kernel.org>; Wed, 07 Oct 2026 02:21:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1791363100; x=1791967900; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YRMO/BIFTS6t5KCadnTGwzkaBkcMRT2kVp1MYvn8vlI=;
-        b=YfPNoujjzYkqOobFz5aB1TDTBYPTrnIW8H+psjxkZreV/LyLZOl0EX31al7GwGCDFs
-         UHS8YIYn3ag5ONpgmIrGWMvsSt5I7JB6Zws1QcWujpmRqaHVagdTuT0wuem3xf+Ak7/m
-         OLo93p9xxWGOEfPa2g9F+7ehJq6NXNBltyhnYe4FzgsHFRek0xRHO3BIiFnmVawg2Xxb
-         3CdRHlJdLUiYbmHqoShxwZ9ZIrglrH3ZfDMcRmkanc4rPwf2sXiNbNuStlDBsLEMlozd
-         T+M25qsOCJ0YWpIe6TMCaQgCnMMqU4AhDDrKJ2So0kz5QhKtXXY5S+rOzUeGUALOZvYN
-         plLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791363100; x=1791967900;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1791364912; x=1791969712; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=YRMO/BIFTS6t5KCadnTGwzkaBkcMRT2kVp1MYvn8vlI=;
-        b=xbGU8XMt4NUvSXy5H36C1n2XrOQ3AdutnYtG+eh3hC/ceFVehpoLXIVMtt1et7L3q1
-         oWfQgSe6Lb8KOHqbwHifGZizuqkreBqfFkvMzSP+oLgVJNCJQg6LBApk9g9jvU7gcFxa
-         5vER1LhIhgGjKQjCdfyK17Jki9hzAQIHB0w5UOWyMkXzo6XR2ElRuc+WN/EY4l01asNb
-         DFhOuFPNo34HlHqQIa5LcCorgTutqIf59Os+yTQMLIeQrlZuQb4mldwYLurpVEyTmRXU
-         /ZZ9UKWL2Rcks0MfwBTmSJbVfzJzK/ZDtoCydj5Ll7Bfbr2KZuJHaFboa1rP2hdUUj8u
-         XbdA==
-X-Forwarded-Encrypted: i=1; AKwUvBwwB4wqNZFpkaBUokuCBpHuzFosukBk1eI902p2PrtRLW1TCgzf5A4qIQ7FPSr0z4Sh8F8oGzGd4LI=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKYthSqO2Pq60otE4y3zjdG5k4pgHpxNhMGEJGuULpA6tAI1vjH
-	45bN1PDbJI5Iw90P2Gb2tu3g7/pJE6S4PyjDu5MHYo8qN4Vi9dUw+5kIKbysajKTKW6dZw9dV4P
-	WXQIsUw0nZfuVRqAQPVyWR7cKBF2zLsLdDlXZ+m1tOrl7xchqNUfPGqpZ625qJWs=
-X-Gm-Gg: AYBFou0Xw03DTdeJRXiWn4pGmAYx/mnHhrcgS6xGHhkvE0NFsJ85C/aE6N4s/S+p18N
-	d9qpV4Zr2BHco0BZiYitRyZIn6/BMiLogdgamlyvzbR4YogVHnlci80/vqfnONsXDp7pLFcuSeK
-	n2ksUF/JtW72VPIIw1FSBsO0wqJ2cLRRTYF0cO2n/OvpJx7w9Sdo5A8svI7G13HrXzrq967hSkj
-	aWUq5T/IynKx2IDoRam0wI1z6kEpFEFfWLpwLdd2sva4/Ybd62nVJjwEy1ulKnSP2ktOUz0c2+X
-	t2Inuh4QbAIhqYBdwZfGxebzA1IbMQM7aXlwqIVAfNd25xqJHLh0O/WQpDkqgYXPDV44u3ySSZL
-	dUyLfEUeLFOYWHOrHSXxqHc9hVYHAOHw/
-X-Received: by 2002:a17:90a:c883:b0:3a0:bf0a:c9da with SMTP id 98e67ed59e1d1-3a8a1bbf160mr1409068a91.47.1791363099928;
-        Wed, 07 Oct 2026 01:51:39 -0700 (PDT)
-X-Received: by 2002:a17:90a:c883:b0:3a0:bf0a:c9da with SMTP id 98e67ed59e1d1-3a8a1bbf160mr1409044a91.47.1791363099481;
-        Wed, 07 Oct 2026 01:51:39 -0700 (PDT)
-Received: from [10.217.219.98] ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e60482cab0sm6760885ad.50.2026.10.07.01.51.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Oct 2026 01:51:39 -0700 (PDT)
-Message-ID: <57f068a0-41fa-4986-8702-8fd3d6dc0976@oss.qualcomm.com>
-Date: Wed, 7 Oct 2026 14:21:31 +0530
+        bh=2iJyL0v0upUooQaIydRy/LssiS2GOYokP8Qha8qI0ps=;
+        b=cBuILKxyELwcNTGFM/l12yIjouE/Kp55a+aeUQzPQmbSdK6/osUwLQrbw8Hx3OYi6L
+         fZJR46sWPqRq92uXX767lJgulTjW3aPZov4xvrzMK3WBBIsRucllfGymb7hsA5YPuQlb
+         E0+JoKOQ+pWT34ZXv/xdoY4MR1XlvEuEknvrcL7imz1Unde01wfThbAbSviwWRsbDGdt
+         HsKhGmMCDvGDUQ/TOIC7kAKVQGYQ0rA9bj4yDYpAj3zku4DjoRbSsObCpm7z0sMW7AjU
+         LglxlkGSRAtVwVR7rKge3DsiiGl8KyXyrczNDj/QMbVfc+/tzxqwSsk2dMVByOSX/Zww
+         lkpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791364912; x=1791969712;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=2iJyL0v0upUooQaIydRy/LssiS2GOYokP8Qha8qI0ps=;
+        b=Aq8ZIgwObcr+Xir95k2UZYZxLnmM7NBU/xRCnRF3kieYD3CjTHf1PtwLLiaoU2twap
+         l80fqSQVocGYmd5C5P1aum6kGpqDg5tuP4huYhCOurSrKkb8eF52IyEMquPIcGHOJtiS
+         W1EL0PnzPCk2GLXrI61gtF3UhSPyEkZ3uEMztEWNhjLVIqqYhJJ4ReRAarTLiFR9zyEY
+         7gLhqUUNY+x9m6Mx8tnHAzEIEgx9ni7vasK/ph6Te2wml1Bd1RiSXoCdMSVBB50PJf0G
+         wewIT95AecBe4RTWM5oXf2LbZz3fMS5alxLb3tNZTQAUQAiq5VJajJRDYrDKi23AaWSY
+         Qj3Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxGh6248aOjQ03InpQxlinHTdMGmatGUqX2riP3s5BvFs3okvbKRK1RF2Bjaj0KbKRvBtALHWuwJ4A=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIT+/pX3rah4lozkjzNWDQz/6170uAVHVScALRtxotZ8F/j9pmg
+	E9RUWw3fG8icXGUy+5ALPuYAm2SBmz9f8l7Q0dfWD5GZBdZ4Q2S8Ijjs
+X-Gm-Gg: AYBFou3PPvT2dwLn8G5jRgTfFfZogg4B+J9DLLUri4YIXFbrhSKIUoJVwp2AEbtfNBe
+	OFu/xSjmHNEO9nMaTBjvK3cOZzpob3guO0Hy1Qp89TiXQl2wFEkM5WrX8PzWppqUIqYPbtwgpBH
+	UBFYp6s3Bmm4KLojGWIDiTu0GIybdTiSCdLAiHpSNdoh23rp+Rw+liCJUX58dYt2pQOEXYGX9QQ
+	Qh5tcC1sfj6WxLsHeI7ZLfBdhsIXtnbGFiAMbEGEp6k2ORO6C16trGHgWeb+swgi70ncfENErfk
+	WsD6kkicO5ajlADg7UlDoYooRQRvsMzRRSBPG3sTbugPTCCTuwdtQD23DT5fYLtWs5+zoPXALIb
+	jyiixq8UPFo2uJ70HumUsnKNZnH7ItcKN8ujBkNCN4WMQoDX8UPpfJoeWiiO7IisDbgjRXH1HCJ
+	ghnb69+cQbrtrPen+DG07ZUTeMbmbTqEgpp0ePwbyZGkUcr9qIRaBCDpgWMFSOC51kBJ1fZjFHS
+	iamiQBiiX2cuRqEgkc1CFlHWn9GfXApNE1Rw+yT
+X-Received: by 2002:a17:903:2c8:b0:2e5:a355:56d8 with SMTP id d9443c01a7336-2e60039784amr15470645ad.42.1791364911602;
+        Wed, 07 Oct 2026 02:21:51 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e6046fe0e8sm7180675ad.25.2026.10.07.02.21.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Oct 2026 02:21:51 -0700 (PDT)
+From: a0282524688@gmail.com
+To: lee@kernel.org,
+	Ming Yu <tmyu0@nuvoton.com>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>,
+	linux-i2c@vger.kernel.org,
+	mfd@lists.linux.dev
+Subject: [PATCH v8 11/13] mfd: nct6694: Introduce regmap-based transport abstraction
+Date: Wed,  7 Oct 2026 17:21:00 +0800
+Message-Id: <20261007092102.3768818-12-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261007092102.3768818-1-a0282524688@gmail.com>
+References: <20261007092102.3768818-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/9] soc: qcom: geni-se: Remove OPP rate reset from
- resource deactivation
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>,
-        konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-References: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-0-091697dbeb02@oss.qualcomm.com>
- <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-4-091697dbeb02@oss.qualcomm.com>
-Content-Language: en-US
-From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
-In-Reply-To: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-4-091697dbeb02@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDAzNSBTYWx0ZWRfX+5mTwjh0F5SR
- P9QHEK/6eLV2AoLGwlGE420xROm6j7BDGzIrVmQN69ngWV49E4Z7lDzF1yRUCF6o/dsa8+jEIW3
- NccgMQGGqCPaKB1NHVWUtetJ80hluOo=
-X-Proofpoint-GUID: 5fQ3EFUiNNj9GdXxIl124s_I1Cy3k3Pd
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDAzNSBTYWx0ZWRfX6uvKaq+B8F3q
- AM6AWofrYAQlSFKJEWaR+Gh0UGA6GnkNfvwmTiN7qxDEs5Ic/XLsh0xNphJdypWbDN0jEc1tFku
- 1g9Nb9aSqhuV4Cru7G2GXWpR/29em09kelT1SzHhe/ZMjjtTokVZtherSXlgkALn5zfTYe0afz5
- nHb30p9ez2BjuGR4UMCbM5DoZTQm5lRI2SIeCchq53gF8+aUGCh8vLYaN1qKAGCzxxqL9F4JpXl
- PdBBUW/GsqKncuKTqFSLTcTfUE2CZNumRPTnAFpGk7UzBwI4qsRlIWKD0sARhYqaBMtgk0MNhx6
- AQQQDqtSxXeZApyqbjMd8f6BL8v8IRKzzTnRWatvWWznn8Kuzlr9b+Hn7UluIu6+WLVGli1/dXy
- q/710SV2EtZKEaxqT5SO9VB5yoq7nWcw3Z9I/l7VBXEcHC+IpodMVTDAqQdPvMXvyaXsbWLXE5u
- PdIVaZH+jgetc5AvRMQ==
-X-Proofpoint-ORIG-GUID: 5fQ3EFUiNNj9GdXxIl124s_I1Cy3k3Pd
-X-Authority-Analysis: v=2.4 cv=a6+lZkSF c=1 sm=1 tr=0 ts=6ac6081c cx=c_pps
- a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=Um2Pa8k9VHT-vaBCBUpS:22
- a=EUspDBNiAAAA:8 a=9QLVM3U_lBk_t3napV8A:9 a=QEXdDO2ut3YA:10
- a=rl5im9kqc5Lf4LNbBjHf:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-07_03,2026-10-06_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 adultscore=0 suspectscore=0 malwarescore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 clxscore=1015 impostorscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2610070035
+Content-Transfer-Encoding: 8bit
 
+From: Ming Yu <a0282524688@gmail.com>
 
+Sub-device drivers call into the USB transport directly, so a second
+transport cannot be added without touching all of them.
 
-On 8/27/2026 11:29 PM, Praveen Talari wrote:
-> Remove the dev_pm_opp_set_rate(se->dev, 0) call from
-> geni_se_resources_deactivate().
-> 
-> OPP resource management should be controlled by the consumer driver.
-> Additionally, clocks are already disabled by geni_se_clks_off(), making
-> the OPP rate reset unnecessary during resource deactivation.
-> 
-> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
-> ---
-Reviewed-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+Wrap the transport behind a regmap bus. The command header is mapped
+onto a single 32-bit register by packing the host control byte, the
+module id and the 16-bit offset, so that the sub-device drivers can use
+the regmap bulk accessors. The access_lock is dropped as regmap already
+serialises the bus accesses.
+
+Add nct6694_write_read_msg() for the commands that send a request and
+read the reply back in the same firmware message, and use it for the
+I2C deliver command.
+
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
+---
+Changes in v8:
+- Renamed the transport buffer arguments to tx_buf/rx_buf.
+- Dropped max_raw_read/max_raw_write from the regmap_config, as they
+  are ignored when a regmap_bus is provided.
+
+Changes in v7:
+- Made the USB transport helpers static and gave nct6694_usb_write_msg()
+  separate @tx/@rx buffers, so a SET command only copies the firmware
+  reply back when the caller asks for it.
+- Documented in the shared header why nct6694_write_read_msg() is
+  expressed as a read of a SET register.
+
+Changes in v6:
+- New patch. Replaces the v5 function-pointer abstraction with a
+  regmap_bus based transport: the firmware command header is packed into
+  a single 32-bit regmap register and sub-device drivers use the regmap
+  bulk accessors. Adds nct6694_write_read_msg() for request/response
+  commands and drops the per-transport access_lock (regmap already
+  serialises bus accesses).
+
+ drivers/i2c/busses/i2c-nct6694.c |   2 +-
+ drivers/mfd/Kconfig              |   1 +
+ drivers/mfd/nct6694-usb.c        | 102 ++++++++++++++++++-------------
+ include/linux/mfd/nct6694.h      |  53 +++++++++++++---
+ 4 files changed, 108 insertions(+), 50 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index ef3329f34246..7e32dab6e759 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -77,7 +77,7 @@ static int nct6694_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int
+ 		deliver->addr = i2c_8bit_addr_from_msg(msg_temp);
+ 		if (msg_temp->flags & I2C_M_RD) {
+ 			deliver->r_cnt = msg_temp->len;
+-			ret = nct6694_write_msg(data->nct6694, &cmd_hd, deliver);
++			ret = nct6694_write_read_msg(data->nct6694, &cmd_hd, deliver);
+ 			if (ret < 0)
+ 				return ret;
+ 
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index e4fd4572472f..a0d9d6ccfb0c 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -1166,6 +1166,7 @@ config MFD_MENF21BMC
+ config MFD_NCT6694
+ 	tristate "Nuvoton NCT6694 support"
+ 	select MFD_CORE
++	select REGMAP
+ 	depends on USB
+ 	help
+ 	  This enables support for the Nuvoton USB device NCT6694, which shares
+diff --git a/drivers/mfd/nct6694-usb.c b/drivers/mfd/nct6694-usb.c
+index 455eeed62dce..636721f277a0 100644
+--- a/drivers/mfd/nct6694-usb.c
++++ b/drivers/mfd/nct6694-usb.c
+@@ -9,6 +9,7 @@
+  * CAN, WDT, HWMON and RTC management.
+  */
+ 
++#include <linux/bitfield.h>
+ #include <linux/bits.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+@@ -17,7 +18,9 @@
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/nct6694.h>
+ #include <linux/module.h>
++#include <linux/regmap.h>
+ #include <linux/slab.h>
++#include <linux/unaligned.h>
+ #include <linux/usb.h>
+ 
+ #define NCT6694_VENDOR_ID	0x0416
+@@ -35,7 +38,6 @@ union __packed nct6694_usb_hdr {
+ 
+ struct nct6694_usb_data {
+ 	struct nct6694 core;
+-	struct mutex access_lock;
+ 	struct usb_device *usb_dev;
+ 	struct urb *int_urb;
+ 	union nct6694_usb_hdr *hdr_buf;
+@@ -108,21 +110,9 @@ static int nct6694_usb_err_handling(struct nct6694 *ddata, unsigned char err_sta
+ 	return -EIO;
+ }
+ 
+-/**
+- * nct6694_usb_read_msg() - Read message from NCT6694 device
+- * @ddata: NCT6694 device pointer
+- * @cmd_hd: command header structure
+- * @buf: buffer to store the response data
+- *
+- * Sends a command to the NCT6694 device and reads the response.
+- * The command header is specified in @cmd_hd, and the response
+- * data is stored in @buf.
+- *
+- * Return: Negative value on error or 0 on success.
+- */
+-int nct6694_usb_read_msg(struct nct6694 *ddata,
+-			 const struct nct6694_cmd_header *cmd_hd,
+-			 void *buf)
++static int nct6694_usb_read_msg(struct nct6694 *ddata,
++				const struct nct6694_cmd_header *cmd_hd,
++				void *rx_buf)
+ {
+ 	struct nct6694_usb_data *usb_data = to_nct6694_usb_data(ddata);
+ 	union nct6694_usb_hdr *hdr = usb_data->hdr_buf;
+@@ -133,8 +123,6 @@ int nct6694_usb_read_msg(struct nct6694 *ddata,
+ 	if (data_len > NCT6694_MAX_DATA_LEN)
+ 		return -EINVAL;
+ 
+-	guard(mutex)(&usb_data->access_lock);
+-
+ 	memcpy(&hdr->cmd_header, cmd_hd, sizeof(*cmd_hd));
+ 	hdr->cmd_header.hctrl = NCT6694_HCTRL_GET;
+ 
+@@ -168,26 +156,15 @@ int nct6694_usb_read_msg(struct nct6694 *ddata,
+ 		return -EIO;
+ 	}
+ 
+-	memcpy(buf, usb_data->data_buf, data_len);
++	memcpy(rx_buf, usb_data->data_buf, data_len);
+ 
+ 	return nct6694_usb_err_handling(ddata, hdr->response_header.sts);
+ }
+-EXPORT_SYMBOL_GPL(nct6694_usb_read_msg);
+ 
+-/**
+- * nct6694_usb_write_msg() - Write message to NCT6694 device
+- * @ddata: NCT6694 device pointer
+- * @cmd_hd: command header structure
+- * @buf: buffer containing the data to be sent
+- *
+- * Sends a command to the NCT6694 device and writes the data
+- * from @buf. The command header is specified in @cmd_hd.
+- *
+- * Return: Negative value on error or 0 on success.
+- */
+-int nct6694_usb_write_msg(struct nct6694 *ddata,
+-			  const struct nct6694_cmd_header *cmd_hd,
+-			  void *buf)
++/* @rx_buf may be NULL when the reply to the SET command is not needed */
++static int nct6694_usb_write_msg(struct nct6694 *ddata,
++				 const struct nct6694_cmd_header *cmd_hd,
++				 const void *tx_buf, void *rx_buf)
+ {
+ 	struct nct6694_usb_data *usb_data = to_nct6694_usb_data(ddata);
+ 	union nct6694_usb_hdr *hdr = usb_data->hdr_buf;
+@@ -198,11 +175,9 @@ int nct6694_usb_write_msg(struct nct6694 *ddata,
+ 	if (data_len > NCT6694_MAX_DATA_LEN)
+ 		return -EINVAL;
+ 
+-	guard(mutex)(&usb_data->access_lock);
+-
+ 	memcpy(&hdr->cmd_header, cmd_hd, sizeof(*cmd_hd));
+ 	hdr->cmd_header.hctrl = NCT6694_HCTRL_SET;
+-	memcpy(usb_data->data_buf, buf, data_len);
++	memcpy(usb_data->data_buf, tx_buf, data_len);
+ 
+ 	/* Send command packet to USB device */
+ 	ret = usb_bulk_msg(usb_dev, usb_sndbulkpipe(usb_dev, NCT6694_BULK_OUT_EP),
+@@ -240,11 +215,53 @@ int nct6694_usb_write_msg(struct nct6694 *ddata,
+ 		return -EIO;
+ 	}
+ 
+-	memcpy(buf, usb_data->data_buf, data_len);
++	if (rx_buf)
++		memcpy(rx_buf, usb_data->data_buf, data_len);
+ 
+ 	return nct6694_usb_err_handling(ddata, hdr->response_header.sts);
+ }
+-EXPORT_SYMBOL_GPL(nct6694_usb_write_msg);
++
++static int nct6694_usb_regmap_read(void *context, const void *reg_buf,
++				   size_t reg_size, void *val_buf,
++				   size_t val_size)
++{
++	struct nct6694 *ddata = context;
++	u32 reg = get_unaligned_be32(reg_buf);
++	const struct nct6694_cmd_header cmd_hd = {
++		.mod = FIELD_GET(NCT6694_REG_MOD, reg),
++		.offset = cpu_to_le16(FIELD_GET(NCT6694_REG_OFFSET, reg)),
++		.len = cpu_to_le16(val_size),
++	};
++
++	if (FIELD_GET(NCT6694_REG_HCTRL, reg) == NCT6694_HCTRL_SET)
++		return nct6694_usb_write_msg(ddata, &cmd_hd, val_buf, val_buf);
++
++	return nct6694_usb_read_msg(ddata, &cmd_hd, val_buf);
++}
++
++static int nct6694_usb_regmap_write(void *context, const void *data,
++				    size_t count)
++{
++	struct nct6694 *ddata = context;
++	u32 reg = get_unaligned_be32(data);
++	const struct nct6694_cmd_header cmd_hd = {
++		.mod = FIELD_GET(NCT6694_REG_MOD, reg),
++		.offset = cpu_to_le16(FIELD_GET(NCT6694_REG_OFFSET, reg)),
++		.len = cpu_to_le16(count - sizeof(reg)),
++	};
++
++	return nct6694_usb_write_msg(ddata, &cmd_hd, data + sizeof(reg), NULL);
++}
++
++static const struct regmap_bus nct6694_usb_regmap_bus = {
++	.read = nct6694_usb_regmap_read,
++	.write = nct6694_usb_regmap_write,
++};
++
++static const struct regmap_config nct6694_usb_regmap_config = {
++	.reg_bits = 32,
++	.val_bits = 8,
++};
+ 
+ static void nct6694_usb_int_callback(struct urb *urb)
+ {
+@@ -329,9 +346,12 @@ static int nct6694_usb_probe(struct usb_interface *iface,
+ 	ddata->dev = dev;
+ 	usb_data->usb_dev = usb_dev;
+ 
+-	ret = devm_mutex_init(dev, &usb_data->access_lock);
+-	if (ret)
++	ddata->regmap = devm_regmap_init(dev, &nct6694_usb_regmap_bus, ddata,
++					 &nct6694_usb_regmap_config);
++	if (IS_ERR(ddata->regmap)) {
++		ret = PTR_ERR(ddata->regmap);
+ 		goto err_free_urb;
++	}
+ 
+ 	int_pipe = usb_rcvintpipe(usb_dev, NCT6694_INT_IN_EP);
+ 	usb_fill_int_urb(usb_data->int_urb, usb_dev, int_pipe,
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 03296132ad34..1593806d34fd 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -9,6 +9,9 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#include <linux/bitfield.h>
++#include <linux/regmap.h>
++
+ #define NCT6694_HWMON_MOD	0x00
+ #define NCT6694_PWM_MOD		0x01
+ #define NCT6694_I2C_MOD		0x03
+@@ -82,6 +85,7 @@ struct __packed nct6694_response_header {
+ 
+ struct nct6694 {
+ 	struct device *dev;
++	struct regmap *regmap;
+ 	struct ida gpio_ida;
+ 	struct ida i2c_ida;
+ 	struct ida canfd_ida;
+@@ -94,25 +98,58 @@ struct nct6694 {
+ int nct6694_device_init(struct device *dev);
+ void nct6694_device_exit(struct device *dev);
+ 
+-int nct6694_usb_read_msg(struct nct6694 *ddata,
+-			 const struct nct6694_cmd_header *cmd_hd,
+-			 void *buf);
+-int nct6694_usb_write_msg(struct nct6694 *ddata,
+-			  const struct nct6694_cmd_header *cmd_hd,
+-			  void *buf);
++/*
++ * Each firmware command is mapped to a single 32-bit regmap register, so that
++ * the sub-device drivers use the regmap bulk accessors and each transport only
++ * implements a regmap bus:
++ *
++ *   bits [31:24]  host control (NCT6694_HCTRL_GET / NCT6694_HCTRL_SET)
++ *   bits [23:16]  module id
++ *   bits [15:0]   offset (low byte = command, high byte = selector)
++ */
++#define NCT6694_REG_HCTRL	GENMASK(31, 24)
++#define NCT6694_REG_MOD		GENMASK(23, 16)
++#define NCT6694_REG_OFFSET	GENMASK(15, 0)
++
++static inline u32 nct6694_cmd_to_reg(const struct nct6694_cmd_header *cmd_hd,
++				     u8 hctrl)
++{
++	return FIELD_PREP(NCT6694_REG_HCTRL, hctrl) |
++	       FIELD_PREP(NCT6694_REG_MOD, cmd_hd->mod) |
++	       FIELD_PREP(NCT6694_REG_OFFSET, le16_to_cpu(cmd_hd->offset));
++}
+ 
+ static inline int nct6694_read_msg(struct nct6694 *ddata,
+ 				   const struct nct6694_cmd_header *cmd_hd,
+ 				   void *buf)
+ {
+-	return nct6694_usb_read_msg(ddata, cmd_hd, buf);
++	return regmap_bulk_read(ddata->regmap,
++				nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_GET),
++				buf, le16_to_cpu(cmd_hd->len));
+ }
+ 
+ static inline int nct6694_write_msg(struct nct6694 *ddata,
+ 				    const struct nct6694_cmd_header *cmd_hd,
+ 				    void *buf)
+ {
+-	return nct6694_usb_write_msg(ddata, cmd_hd, buf);
++	return regmap_bulk_write(ddata->regmap,
++				 nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_SET),
++				 buf, le16_to_cpu(cmd_hd->len));
++}
++
++/*
++ * Some commands, such as the I2C deliver, send a request and read the reply
++ * back in the same firmware message. Express this as a read of a SET register:
++ * @buf holds the request on entry and the reply on return. This relies on the
++ * regmap being uncached and byte sized, so that @buf reaches the bus as is.
++ */
++static inline int nct6694_write_read_msg(struct nct6694 *ddata,
++					 const struct nct6694_cmd_header *cmd_hd,
++					 void *buf)
++{
++	return regmap_bulk_read(ddata->regmap,
++				nct6694_cmd_to_reg(cmd_hd, NCT6694_HCTRL_SET),
++				buf, le16_to_cpu(cmd_hd->len));
+ }
+ 
+ #endif
+-- 
+2.34.1
+
