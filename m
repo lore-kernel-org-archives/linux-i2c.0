@@ -1,173 +1,198 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016094D5995
-	for <linux-i2c@vger.kernel.org>; Thu,  8 Oct 2026 15:41:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791474120; cv=pass; b=J/AMtDMgPzLxOJ54Oel7UbcCoMLZZTSnveqPwtSbt2AfI0HAjHu4RJ8QcojSHO5BoGFs3XczjUJfyiklFpVLrzMmNHwqhy90ZB3SnwDwVGRd2JIuzK8q1Z6rOPmuGSxa5ti3eQxc9jX/zIacbve3yOT+/LOddlAKppo0qy+GMFc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791474120; c=relaxed/simple;
-	bh=t20Ga3x8bXqC2bOb7ons2kgZbLzv9IG8A7SxB1EW40M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=l3PFxZOOkncmJZ9dnwMtna2EQkfNwkMpggydRrW0FrMYdtesFoZ0f4lYeQ45FJtUTTd23mXNQnA/ym1k+UPx0cnqp1I5E500ENOFJePteJV42Esez3eLNfi4IH9DV3WlXhsFhqHAz6KL9VjcOZ8WMG/RSOQZvsLybWYGSLcmzTM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=OEgbYTy7; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=PD3/xvz1; arc=pass smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 432A235F199
+	for <linux-i2c@vger.kernel.org>; Thu,  8 Oct 2026 16:02:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791475364; cv=none; b=dCkq1dKPVE0VeRNJJV4I1NHkFyB2CnIE0SPM8svTFme/Xf4yeBa29Qdi68Aiy9JO4OC6q5DetKFFalXUiVOGa8K6gAZIAueN2+O29RwjT7nDJqNyJT3tvng8jgMV9GG1HcIq5G0Lk/1zvqkJQi0Q2CLW690N8cFF3st3uN9KyEA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791475364; c=relaxed/simple;
+	bh=1I3B0zE9Jl3k4SV939nOeTDGmvV7FCqaULnQQve9RFk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=SF/78HUehE5fiMzADgo42r2JfhaTNwVgav1/pHeZnwMFwVRRDNvcJxcZsQyt3Y5iCF1lclZLYllqn0XXeLGfxjCY2zVIvVTBkjOH0CD8eJIHrcEAWGjLflXHl40EnoZoZaea0FdDsXMV1raE7zKwjbniahjG092V9PkvQL2jzKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=fA21ARmn; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="OEgbYTy7";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="PD3/xvz1"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 698EVQ5j3121551
-	for <linux-i2c@vger.kernel.org>; Thu, 8 Oct 2026 15:41:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	BjM/nY2k93xH8zJGRXcEc24X+zL/pJP08AQxr27mCe8=; b=OEgbYTy710WUPuNO
-	RjKY3GPUnKrdQ4I1jXmsmAx1LqtadDZ/Nx6f2EgiEfWEkq3cgpv2/VuROLQiQXJk
-	M/6lnZdnw5bG5aX8GyMSWjQtQ7tRPQ8A5tDg30a5gus4fUrwMR38IlBC/WZy6FW7
-	3rZYVfCJfmgKB2kAR2VLS253RERTM3jWFTgr83vnvGMpUNrGPMgfzOFWqXo8uXuJ
-	TJWlctt4JyOKzbTfu/fcjd4UbVEEsFLCcuytkWiN8u8yktcBcqg3zm5xKmimTU7p
-	Z0Shlg4TvAS53Bp2U63xEuo4qjs62+85idT0rSGYWuZY5OFXamARyox3NiKh2YcO
-	MP4ZTA==
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h5xe2upcw-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 15:41:57 +0000 (GMT)
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-93e834ff4d0so1016292685a.3
-        for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 08:41:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791474117; cv=none;
-        d=google.com; s=arc-20260327;
-        b=FRRi/UOuQGu8/d+E/tGrURGdJfyL+tH7YzhfogUo5AEOBRi2gNXFOJVrK2AUCvnAVq
-         Io812itSn/LBFQPLdrQ6wsCT1qYoTmtq4NngTMIztgClk4Fro0dlw4CrWKvUniolHcsc
-         eiYxFJChxtgOaL80wRelcjgdeHPHL8P2it2E9MT9++4GXZNITTl5+amPRIsjoaxrYE4u
-         08dyEZzand/ONTxik1yeJ5mfq6oeRHtXEGiPjHT0gjGPLaIluKbfpzqL+2dEmcUZqgot
-         UQQJcbp7yCI4hHm5HdTdkkVXo5YOdlHHB2Q1KT2FVcmOFlDEi8BEd5wPpdcfsChPeAZr
-         DeeA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BjM/nY2k93xH8zJGRXcEc24X+zL/pJP08AQxr27mCe8=;
-        fh=kG1UsQvcKVC7Ln0Vji+6xpnECpUkceGUrOToC01orS0=;
-        b=IrXjeBaMhlVVodnB9feAqFZykC8bG19XE7ArENT7rlP/eiSLCt54J+VS6sJvr89HK3
-         E3l3/j3epcNVT49th7BN4YyM3zzu16cUPnikzwpTw10WLjPOEyWJfMke545k/IIZeOiV
-         4hwNDU9TH02EYg+nuilgTDR6gx4moykFczQ62jibXLrleQRFCGlW25UwhAOqxxf+zJGd
-         57pI3GsrcyryNHHterU4qw3wT2mb8+lL5AKjvseRNZ+Z3hBXvbUFq157cbD/qopdyEiR
-         6A9HHpz7RoaMreLDCmTmi+nj7O9h555y8hcoNgpkcnRGZEsGlCULAa2T2bUKjcMCZ76F
-         77xQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="fA21ARmn"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2d032846c95so27333805ad.1
+        for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 09:02:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1791474117; x=1792078917; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BjM/nY2k93xH8zJGRXcEc24X+zL/pJP08AQxr27mCe8=;
-        b=PD3/xvz1aEbo8gCg2sl5Jb3RFNNDHAs2UgbBv3RPnfQqYqG+BlyTeRRiKvfwATAPRg
-         Cks1lg3AoZpJwfvXbiv38dpODLe1Xr7IuPRn+difZ8BZKCtH6L+IjOWdvBQNb5gO0mz+
-         LCmb8p415lEOKza5EJ8OTJTrFdSGguFwNDF2oMYg4Rn7hvgZHEUevDr5Yi7wdF925D3z
-         +7ODgZpke/bqF2GEYbNPOpIbRAEckdqYhy15KW2CytqSK2zsoT21a4B/K1NEloPlQBP+
-         K2hi4V21EN1fvUoGf9rO0faBwwGZVPfSuD/5RJv/+oWkLZVPm9uJ6y6eddis15QpuQEy
-         bvJA==
+        d=nexthop.ai; s=google; t=1791475362; x=1792080162; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=85BR7qHH4G0CBb5vxlCQpLUFJ3RuaLjxlde617uk3v4=;
+        b=fA21ARmngWFTKNZTyIgU5t90upxl99EZIhrACLg0dyl2vZpePPYWr/i/9TMKBDr82j
+         4ah4iBT9TzepMOAnWkKASXuwexqv04NrJBF3qn00zIyNcoFCJa756Ldh2GozIz81WLkb
+         jFRomPB+2PodOEWzv3I35C4sttDSIdb/9fkxf2zYWQBDexe++hsKaUtyw9PuHWcbVcJX
+         o1eZn++LdFkcOJ7n6AnH5NTFQrkbCu3PX4iGAWHDZBK2/6o1c24dCjnQceLeqlfbAQGW
+         cXic4LbEbN9qRdUzHcRpm10L3eN4CqkbtE6Oo2vR7WH/JmgNgrddqkfy+RJ4UTEZbrOn
+         QCLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791474117; x=1792078917;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BjM/nY2k93xH8zJGRXcEc24X+zL/pJP08AQxr27mCe8=;
-        b=usN/ZanibxdhpxdQoKWNBkvoVDDwaRhdA7iNo/4HoFMGo+YFqpSapqeZZMCBgvEnec
-         PoBgYQySXzEFx+YVECYj0w19gLBEDSsB2x/u/1/Nf7pk+pxI7tb8+p7gi+Xbn3ETApzX
-         tDJwhbMO93ot+f3mpigLR4rgaorVEquYzsACqh77DYnviJB/S2dh3Ff2PU4JIsx2rWOb
-         a+THM3JvQb0uLXZ9X2Ru9HtdA8giMkMsp75rgog56vMvK0Qyfv5xKpIFu5eWtAatSZDa
-         obhQ95Bx1FspDSd5DFdyaiJ+VbEoB4bDxuRzn1q4/lWlH6pNsda1tct2a8MxA0MQAqri
-         dLbA==
-X-Forwarded-Encrypted: i=1; AKwUvBygu1DyYyGJMpBq2scTTMDThzaz3xwKSGknv9cy4zFCPGsRrJZo1m5gCa4shbUsl/+hFlDYZvOfeNA=@vger.kernel.org
-X-Gm-Message-State: AFuF++kCfuABId7Miu0D8yxUYuX3b3mtaVpDlaMuZaZw/qGl+nQFB+ed
-	nDochCdg1NYBwflTiApYZ32MV6gn6Keat+et1iOUNI1fdhQmuxpVZvty3M94fm8tqTMXhnq474Y
-	LiZ07DMmpOe8wj8RUgsSq4LG/l55QEp+4LuSDpxnsiYVV0cOSZPzfjHDgtLjdlpeGxKJ4EphYxv
-	9bRyR8FdOmnQSNzIoHYbXxI9Cq2Z6C9MGDN4hlqw==
-X-Gm-Gg: AYBFou25+AL+DQER+3yk470Kicx0jDFNxZgFRHj26Fpy+VQD1bzwujEH9c3hMlrWWs5
-	uBKXjesHw9MBBEjmts9lYBiTKyNz2xMVv/e0/OA15FjEeE2eFKzVd57RTXXNHadDDUU0vx/KsQg
-	BqQudTRWgEWw6YGQjccpOXpf6Xe0OmEj3CpZsKmB8mqGELUJtCPqBzQGCkLkUbG4wdGRlgKxDF8
-	do1YYd4on6RcSUfs3rs/+DmFR5ft3E/pa0ae1HAUKhgzibnpn92wUGgA/Vs/yGumuIc46FMo+8=
-X-Received: by 2002:a05:620a:470b:b0:93c:c96c:a592 with SMTP id af79cd13be357-93e9b7753ebmr1062737785a.36.1791474117023;
-        Thu, 08 Oct 2026 08:41:57 -0700 (PDT)
-X-Received: by 2002:a05:620a:470b:b0:93c:c96c:a592 with SMTP id
- af79cd13be357-93e9b7753ebmr1062733885a.36.1791474116529; Thu, 08 Oct 2026
- 08:41:56 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791475362; x=1792080162;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=85BR7qHH4G0CBb5vxlCQpLUFJ3RuaLjxlde617uk3v4=;
+        b=JzGf3r9lSDQydj9tYeeEf2KYFmHAdNDXSEGqvbrVtPqVydhXNp+JNyO4nwcBFIph9+
+         bD7EWKheavC8r2M1kZfRm5JvJlKpuXN7Xwqn3XYWAUryC0bJxK+EItBRybhZaghu/nMV
+         JlNxfB7OHGIpsTxhbSy0goBhTqyASEL82wpBGPA29SPH+y6gO/Ke99c6rL6+oYDSHB+x
+         QiWYMmCekPImyF3taHZYXxnFEcaRV/5OkcKtRVhfydskxSQ+5gX2c/49L3OF7Jq5HHH/
+         EM5l73hff/gk0NWhTalcjgbDCg5gIUIGdVXm6PGbNf5PoWmwYSTzYirgSb5uDVPbfDdG
+         eRgQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzD1ynLUONvCGicRygUtoQhlnfQmmFVPGUt+5pFDqJ5OWXykw06rr/31oyQrMIxUdqGgi6wCdjZkbs=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIj9Zp2ERuUibySkucbeYYG/3WhxP0dLui49lAVjTV0yyTEwM40
+	zNE71BV/ufRiK0ooDiRMtq6w/xnpWAdV57tdzTlhHCWfCw/WqmnB6PWkwLBdgIMCu7k=
+X-Gm-Gg: AYBFou1fmOllpBq00Tg7lKwO1GjP9Yk3OC/Gz16GVeOVunaQW5JSDQiXw6enL36ELv4
+	qdl7j1UUcjJZzddy5TQQgRXrRMgC3+lM2GlZQyoHy12AYtQXfO69L9acoBfOh3r8PxLrQ47VWXT
+	zdiDy+C0pMrcjqOoieOY2f5MDLVhGGe6ZUUxSziDQ1JAz7AKtdF9XTOawf3GMj9Kbu68WMQjT7t
+	u41xkSH3q+duHRe5thHsyr2wo/DOCuNZKQ6QPzPCykdb6Q5onyFcc1LytnTSUbCvtKIv4u4eGkY
+	caYtFEiyk7pmpwpwwjpZUZJNrIgJd4bZp74eopVTXV8GZYjOK/mVsu49BOvyJUJWPaBnUmXI3IC
+	GqwI+zDE+DGfJjC915cQj9r7T3wlr8lTfnMSasFUA30Lqb+xQUw5ItkNFC4zBZob5zst5SjMYak
+	1qxMkuL0zZeiKxiLVc8h7n8ksQqQe0kOPXAd69pMgajaw46lWJL/bDNLTH69Ms8km+8Inw8Hgzr
+	Q==
+X-Received: by 2002:a17:903:2a84:b0:2e3:980:dfd6 with SMTP id d9443c01a7336-2e6004e9e7fmr50032605ad.38.1791475362381;
+        Thu, 08 Oct 2026 09:02:42 -0700 (PDT)
+Received: from [127.0.0.2] ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e60494c323sm27461895ad.69.2026.10.08.09.02.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Oct 2026 09:02:41 -0700 (PDT)
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Date: Thu, 08 Oct 2026 09:02:38 -0700
+Subject: [PATCH] i2c: xiic: NACK the last byte of an SMBus block read
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261004-cci-imp-v1-0-227d12cb4829@oss.qualcomm.com>
- <20261004-cci-imp-v1-2-227d12cb4829@oss.qualcomm.com> <asS-ppSQ3zHjjVBs@zenone.zhora.eu>
-In-Reply-To: <asS-ppSQ3zHjjVBs@zenone.zhora.eu>
-From: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Date: Thu, 8 Oct 2026 17:41:45 +0200
-X-Gm-Features: AclHuK9ctZbMWTN3PEzNG4CbIi1vmDGf5VZHwy1UaF8tqiYzoG87hLMVrDUMXo8
-Message-ID: <CAFEp6-0nLqJ2BxzALKoGzTYw+dgzrvAB9BgvRVtNMZ10yXsXnQ@mail.gmail.com>
-Subject: Re: [PATCH 2/5] i2c: qcom-cci: Handle and report queue
- overflow/underflow interrupts
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Robert Foss <rfoss@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Authority-Analysis: v=2.4 cv=AbMkjHXG c=1 sm=1 tr=0 ts=6ac7b9c5 cx=c_pps
- a=HLyN3IcIa5EE8TELMZ618Q==:117 a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=gowsoOTTUOVcmtlkKump:22 a=VwQbUJbxAAAA:8 a=eS36LTtrxdnvZwTP-pUA:9
- a=QEXdDO2ut3YA:10 a=bTQJ7kPSJx9SKPbeHEYW:22
-X-Proofpoint-GUID: EwaWSlvJ5Q7ss1oTQKMTtqnwhv9SCpYa
-X-Proofpoint-ORIG-GUID: EwaWSlvJ5Q7ss1oTQKMTtqnwhv9SCpYa
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDA2MiBTYWx0ZWRfX782MjdwMT51V
- tKACGZ9SiILyGnJUbpAnE767VwFmO+//PoV9EfLEHpm5TGqlqCIxJAm9sGz9OH4PcfzzvHaVtFy
- AmInUk070gQpxMi4ozamPLsdwGN8mzk=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDA2MiBTYWx0ZWRfX7s6el4iIJvfD
- MtTtaO5Z4hA5MwM2UsKxLdup/E3Yck5PkN3oBlEUkviUMoTh4T2tJRa/c+gWCfxCaRVRjZzfT37
- kv9vgCzeg2DzHZzsJtWQiskfBJHYIsgCgBFoMzqJhPmKuGq4T0fGBiYzDuStx978La6j99OJLaQ
- YfYrD9Ht+1+UfLE5IqRx8zuQYKtaiB36D6TY/VxR1xwCvnxZ4cl/mDqm3I7Kj83QqXujnMNrc0B
- j2GbxMD8gRNHRWGTHb61ynNwCBYBdqhVEeXtIOqNqkPeXjELyBb6jsIGzZndP8eIj6QlrHOAXYo
- ojg+ollV558YgaMbQFN3McqoOKmzeSqa2nL6c3+Gk9/RbKMPfY2O9wo/D0Jewcfi12DUjhSKftY
- GQngSG9HMPHyXQPcWDal52WoKaVYh+MvsX4QdInV8dOaQL1K4urGEDjrrB/gd/TnKwKk7pJJ5fN
- awlMR4APkWxVCOdE/PA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-08_05,2026-10-08_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 suspectscore=0 lowpriorityscore=0 spamscore=0
- impostorscore=0 malwarescore=0 adultscore=0 phishscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080062
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261008-i2c-xiic-block-read-nack-v1-1-94882af6e598@nexthop.ai>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQqDMBCF4avIrDsQIyr0KtJFMjPW0RIl0SKId
+ 2+0u/ct3n9AkqiS4FkcEOWrSeeQUT4KoMGFt6ByNlhjm9KYFtUS7qqE/jPThFEcY3B5sfVtVXv
+ HzBXk+xKl1/1Od6+/0+ZHofXqwXn+AHNvzQZ8AAAA
+X-Change-ID: 20261007-i2c-xiic-block-read-nack-d2b735baddd3
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Siddarth Chilukuri <siddarth@nexthop.ai>, 
+ stable@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791475360; l=4822;
+ i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
+ bh=1I3B0zE9Jl3k4SV939nOeTDGmvV7FCqaULnQQve9RFk=;
+ b=WCxGw45Y+qEC2HCOsv+UZ77Ta8l/WlwVssXmZA2am4P0cqqr8eMPr1NWWN5yHOfRg+bHusd3a
+ 4omlow0Y9A9BczNCaat7wN3FVEnQikLdXd1ANff9FGIVbAKr2Elz5GB
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-On Tue, Oct 6, 2026 at 11:28=E2=80=AFAM Andi Shyti <andi.shyti@kernel.org> =
-wrote:
->
-> Hi Loic,
->
-> ...
->
-> >       if (unlikely(val & CCI_IRQ_STATUS_0_I2C_M0_Q0Q1_HALT_ACK)) {
-> > -             reset =3D CCI_RESET_CMD_M0_MASK;
-> > +             reset |=3D CCI_RESET_CMD_M0_MASK;
-> >               ret =3D IRQ_HANDLED;
-> >       }
-> >
-> >       if (unlikely(val & CCI_IRQ_STATUS_0_I2C_M1_Q0Q1_HALT_ACK)) {
-> > -             reset =3D CCI_RESET_CMD_M1_MASK;
-> > +             reset |=3D CCI_RESET_CMD_M1_MASK;
->
-> these changes are independent from the patch you sent. Can you
-> move them to another patch? Probably this part can also be
-> considered as a fix and if so it can be sent separately. Right?
+Commit e6fe3ea04f01 ("i2c: xiic: defer RX_FULL until all trailing bytes
+are in FIFO") raised the Rx FIFO threshold for an SMBus block read whose
+trailing bytes fit in the FIFO, so that the drain takes xiic_read_rx()'s
+bytes_rem == 0 path. That path skips the bytes_rem == 1 branch, the only
+place that sets NO_ACK, so every trailing byte is now ACKed. Having had
+its last byte ACKed, the target goes on to drive the next one, and the
+STOP that follows lands in the middle of it.
 
-Indeed, I've just been lazy on that point. I will submit it as a separate f=
-ix.
+Some targets ride this out; others are left wedged until the next
+transactions clock them free. A TDK FS1412 fails the two transfers that
+follow any block read, so it never probes: pmbus reads MFR_ID as a block
+and then VOUT_MODE as a byte. A Renesas RAA228246 and one RAA228244 on
+the same controller show the same pattern.
 
-Thanks,
-Loic
+Program the threshold so that RX_FULL fires with one trailing byte still
+to come, letting xiic_read_rx() set NO_ACK for it on the bytes_rem == 1
+path, and set NO_ACK straight away when only one trailing byte remains.
+
+Twenty rounds per device of a block read and a PEC block read of MFR_ID,
+each followed by a byte read:
+
+               before                      after
+            block  PEC   byte after     block  PEC   byte after
+  FS1412    20/20  0/20  20/40 fail     20/20 20/20   0/40 fail
+  RAA228246  0/20 20/20  20/40 fail     20/20 20/20   0/40 fail
+  RAA228244  0/20 20/20  20/40 fail     20/20 20/20   0/40 fail
+
+A second RAA228244 and an Infineon XDPE1A2G5B passed every round before
+and after. PEC block reads, which that commit fixed, still pass.
+
+Fixes: e6fe3ea04f01 ("i2c: xiic: defer RX_FULL until all trailing bytes are in FIFO")
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: stable@vger.kernel.org # v6.3+
+---
+A follow-up to my xiic block-read series, now in 7.3-rc as
+b7e6df2f52ed, e6fe3ea04f01 and 840d8acc8792. The second of those
+stopped NACKing the final byte of a block read that fits in the Rx
+FIFO, which leaves some PMBus targets wedged for the next couple of
+transfers.
+
+Tested on a 6.12 kernel carrying that series, against an AXI IIC
+controller with an FS1412, RAA228244/RAA228246 and XDPE1A2G5B behind
+it, using plain and PEC block reads and the byte reads that follow.
+
+The same happens on a second board, where two of four ISL68225s behind
+the same AXI IIC core fail plain block reads and the two transfers
+after them. A capture of SCL/SDA taken inside the FPGA shows the
+mechanism: after the last byte of an MFR_ID block read the master
+drives ACK, the target starts on the next byte with SDA low, and the
+STOP the master then attempts never appears, leaving SDA held low. With
+this change the last byte is NACKed and the STOP is clean, and all four
+pass.
+
+With this change a block read ends with a NACK, and so with TX_ERROR,
+like any other read. That puts it in the window Siddarth's patch closes,
+where xiic_process() sees TX_ERROR before RX_FULL and resets the core
+even though the data is already in the Rx FIFO:
+
+  https://lore.kernel.org/linux-i2c/20261005-i2c-xiic-rx-fifo-v1-1-0177ac5f72d7@nexthop.ai/
+
+The two touch different functions and apply cleanly to v7.3-rc6 in
+either order.
+---
+ drivers/i2c/busses/i2c-xiic.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 5e397a7e63f6..2714fd2231b4 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -568,12 +568,24 @@ static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
+ 			i2c->rx_msg->len = SMBUS_BLOCK_READ_MIN_LEN;
+ 			i2c->smbus_actual_len = 1 + rxmsg_len + pec_len;
+ 		} else {
++			unsigned int tail = rxmsg_len + pec_len;
++
+ 			/*
+-			 * All trailing bytes fit in the Rx FIFO. Defer RX_FULL
+-			 * until every one of them is buffered, so the drain
+-			 * takes xiic_read_rx()'s bytes_rem == 0 path.
++			 * All trailing bytes fit in the Rx FIFO. The last one
++			 * must be NACKed or the slave keeps driving SDA into
++			 * the STOP. With one byte left, NACK it now; otherwise
++			 * fire RX_FULL with one byte still to come so
++			 * xiic_read_rx() sets NACK in its bytes_rem == 1 path.
+ 			 */
+-			rfd_set = rxmsg_len + pec_len - 1;
++			if (tail == 1) {
++				u8 cr = xiic_getreg8(i2c, XIIC_CR_REG_OFFSET);
++
++				xiic_setreg8(i2c, XIIC_CR_REG_OFFSET,
++					     cr | XIIC_CR_NO_ACK_MASK);
++				rfd_set = 0;
++			} else {
++				rfd_set = tail - 2;
++			}
+ 			i2c->rx_msg->len = rxmsg_len + 1 + pec_len;
+ 		}
+ 		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
+
+---
+base-commit: a90ee4305c4a5df72c11b31dacfdc76e00fcf78a
+change-id: 20261007-i2c-xiic-block-read-nack-d2b735baddd3
+
+Best regards,
+--  
+Abdurrahman Hussain <abdurrahman@nexthop.ai>
+
