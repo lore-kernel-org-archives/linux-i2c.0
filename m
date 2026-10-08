@@ -1,123 +1,116 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7E4F47CA84
-	for <linux-i2c@vger.kernel.org>; Thu,  8 Oct 2026 22:16:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791497818; cv=pass; b=kMZBJ6w9dWUzYc3Nh1aRI50WmosP9pBqsHKfVZGAUyDte76AHu+hVwtlDpDNIOidpwYcdWeGjHNsmz654sFm4I8m+BEz7aUc741IjYVgpEcLNcmQbHbJ7IZTkkU1gB2WAv7RPlq00o+waW0Ofkx5UOs+O8RyPl9TiPgvCo//7Gc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791497818; c=relaxed/simple;
-	bh=hRz2Up5ISD2OXp/YSfpaI4bBnwMkonIsXu4OzAHa+tI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WbYLeEf1PZ0jzwCrzK1FUAY9CyL5B9wz4kprG/jSaHC+zZHdJE6B1aumedlCqAImbw7iZE3dyAz1DasZ1SsvMxQDw7rYHB7pL9/QGV60rRNpxnBARUi6hBeTiE8JbDvUoDVZOMhLuEW9E97yYJrQBTwJTcGwMekpZnjeVXDZLkI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=gVcDmcFd; arc=pass smtp.client-ip=74.125.82.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E740542466A
+	for <linux-i2c@vger.kernel.org>; Thu,  8 Oct 2026 23:07:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791500859; cv=none; b=Kojtj+FwVmKsDLHgFLMjtjzk05e18p7fOb3XEuMcxJxiCtmdn8ec5IyW2H+jL+pFev+yDoweh90u1r4atFqfZreOfv1HQMNF0BfhZsksETLPOjCl5/U1BYnJ81SMHPH7CAWWGBpAExSu8JetTUBvJwrjUOm4Jnx+XzkjK876m9g=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791500859; c=relaxed/simple;
+	bh=Uo5ZRxOWSc6BTc5xSM/Az9cMdX0GLlELbAn/TockEyU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LyukckOquEl0DDqSFlTaGi3Y70gSWu+fQJ5UKo9OFLtN9ghaiMt+olKA739ERMm01jpUTbsD6x0SGuJMrmM5PlL315zpwYl9jyYSkYHLk6WEoucSyKY0g9yVcmJnYEmTHRolYSxTxqIFRwpAYlOBabFOOfDb2qVag4C55wJPJ6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IuO9pcz8; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="gVcDmcFd"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-351f7a0b13bso710320eec.1
-        for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 15:16:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791497817; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AxwI2vlSgpcJJzQDQO4/8asa7qdAzp4KZ9OBjqx5JSxcnwKarfWscAJCfJu+jCMlFM
-         R0O9B38eF2XwOubqt/ZM1Ioy3Y4rPFN9cgOc4uJqvobcuFiSMSU9Qz8JBH7YQMSjM4k7
-         khltSLXWWfhwQIMFyFxMcPboS9N609DF8pY5s8Bir038szCvzhRsBF9FJUW5DdGb4rKn
-         po/gRxwgCU4vak6hMIyedz/VTda78oBbZxEpc4bDDGQQisJVgAMYewALeYr/RYRyA5Nb
-         Zo8xPJJWAEG6H841hi6DrXNtC1Of/bZZhq9TpprRA57BtW9CR/M63A23V0OE74oZoNXD
-         qxxw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=HVDKkJhQMONwczHs0ftCK6WjzDumHDVk9DP6ZY0LChU=;
-        fh=BdT8gNAOPfHgl3F3wYGRUOlZowr5KY/Qyx+h4aodMKw=;
-        b=UeXRthGoxmT2FIn6s5LY2hwHNdp7d/2bPcDMCw96iBaxakCd7TvNnCFz4ZqFTUx5Li
-         bKkdGxWijMKfGSl4VUbe7bIJI6OHtiKr32ZZ3nsQ2Z2o5vE83M3j96oJ5sgvPEjIObjo
-         hYnC+0qHk3pYdzvteSebAS3bf3fTmFRHePY/PaHJZV29HGUHcGDHMY9JzkBVQa802iAz
-         jt5Nkq4YUb1gK0pAY4jUWwnA7YZgxCtGi7bI6EL46pt6bsRUHhQDPqS+3jme17cWF9F7
-         Frdck4F4jZN/2ZqlkX9145211hsbLb2FbLHLAQWQTK+0CkvPStHJ1TN+T4H5O3qnu7Af
-         zvYg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IuO9pcz8"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a16aaf2067so66250795e9.0
+        for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 16:07:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1791497817; x=1792102617; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=HVDKkJhQMONwczHs0ftCK6WjzDumHDVk9DP6ZY0LChU=;
-        b=gVcDmcFd0mcmAwWE0aet7pLllHwOmQURXOTcNwRkBJTOd4yH3kQoNhaZnzHFyIVH1h
-         jU8YcHev3kfsI2pZRJ7OTVaN3AeBo1ZeHBQvORQPqxbV5JvDbkb6s5Vfdpl0BnCT6mHC
-         OmJxaRz7SqCB2bdkTOakmsm30buqE+7cLcUBBBAkyiKuZ2VF2BBhquL3oGGIAOiv2onM
-         t0xvu3by5JmUWQsUAWtPreGq8CnK/WlhOzH5EOHmporIaU9qqzKmHuviGN9/Tu7/G1ev
-         bV4sjWz7vGw1Y98BylCeTgtmLmISeE8SCJCMn2hatOYg/zPgDdTiKcqiE54sb8IntrH6
-         uURw==
+        d=gmail.com; s=20251104; t=1791500856; x=1792105656; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=CLE+b8D5djbP1RTNiaIJqryFeKHBRiPy92yjjm07OBE=;
+        b=IuO9pcz8nq4VOCJlJhCpdD2kbwsfh6qLyGdBem5Q7arYYHil98IsiX9bXURmFR8l5i
+         ZKZW/kot0SNnhZppP0UAgDAXm/B7dkImrDpqJaVM5sr4A9oVe1RJlqKWcOExkREvHHr7
+         oEaI7xBg8LrSsU5oDwoOcW7SrRYge8Lsvonoif7gBhrTKVmVqMFhe5Qhoevm6vOzdJRa
+         IhDjewQhlIMTB/Ezd9gkn08koRz4JopIfcVTDQc2L/uOIEc2PBnNoBpaH3Ldotv3zvbs
+         NsFNpHU5q+HM/GEaAsMK33JlIPieXhb8mn5F2Wfo7IV34QrwWQcMSgYwyeDdI41FdcVr
+         UWaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791497817; x=1792102617;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=HVDKkJhQMONwczHs0ftCK6WjzDumHDVk9DP6ZY0LChU=;
-        b=jnyANJneYwuS5wC+oD1QlEo2IhqMKnrVwius3Ow/IhN5MaGeqEHLsXSSXDmHGz1rnV
-         4c86R6y64q6ys/BYorFLIailXvlkw+hF+ecQGpt+zCUcqNoRW9WjrGq+FnCzrgCFaxGe
-         cOBQeRJffbtAl8KHbzJWNLbIJCVL4gKZm++fjIq09Q6c6fsHSrH8OjomnYHPEESGHnIq
-         sowqrIVWBNW2EwRMdAgV9Q4gsVZQ8Qh5WDgdar1rjOCUCKvpWb83yz/w+l4VRKsou3lW
-         2MEZwEXqcMmQkQ7P4XwB7atNgGALZLkrxDt9DIvoijXmYOfEH45ACpcVwB48t7xxaVQ+
-         YJZQ==
-X-Forwarded-Encrypted: i=1; AKwUvBy4prCWqkpyYqpflUEQYuLOGAr0E5K1437MZe8U2J/E1u7XtN/ZFcKhz2Dom7VUB42yr+ShAk4mWRY=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKKDnWwaMY+/HxzxzZiOZ8lv6/b+p8YSOiMCQkPVb5FPpn845Fz
-	+snp15VrN1EkQNz+hjlPB7Vp0HDs970sitqCRHP9K2PGCPZR4hhfsXH2wVucgmRdCcpl+Ya41Hz
-	OEn9VbS60DiFo/OqoFpssgNwzJEfBiBVTScMyLRsW/mP+P/uRxTl9ZwyRJQ==
-X-Gm-Gg: AYBFou3NHS6DqrQDZoIpHmetGxcXuKwL2EYUjHjCcBiYEQa5KkiG90DYuurYvpBLOiD
-	PQUGx4B6kyVNDnZvDTsSFKoMYvnJkFSMWCoDMVmKnDe3Ia/ElyuAEY8zPoDyLv06q3EWN+w//gb
-	zu6e4HqYYdH6PVaYUpKL9sHS0q2V2hqwHPjrZJAZ9KLGOHRam1hWDgYKl2lkQef+HaPdLqx1SBQ
-	a1I3kCEMEIJCjGWHFvJhLRnCYEZ86jGCaxgXWb4FiCzGmgFn77WmjU52lorG/pukGyqc6bKxJg6
-	g3IXyrPEwV20ZFDW2QAM4a+d+SJGMmvyr9VPf/G7uMB+IEt9PjwYkPQ=
-X-Received: by 2002:a05:7300:c389:b0:34e:2150:e5a4 with SMTP id
- 5a478bee46e88-3536c58dbf2mr892218eec.16.1791497816699; Thu, 08 Oct 2026
- 15:16:56 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791500856; x=1792105656;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CLE+b8D5djbP1RTNiaIJqryFeKHBRiPy92yjjm07OBE=;
+        b=VlypYrbQlYnySSlrlCzXqWWv5Fd2W9YqPnEAkgjpA1sq2Lf9/puRaiMqlMtsFd0onl
+         ZV0bu6IJRj6JirH5iHX9RQ4zQXLx0fN0AlBtkL2jbe/teGPV3j3xueVcUQFWXTRd8lM8
+         6TcAI+Fa3ZegTq84x2SMcGvywj5FnaMXDEk9GRSLyX8azi7EDwB4b9chmio9WrZTzGpr
+         9eftVZ8ExCWbvqCK6N3xxvSqCvEus/n3M7yVlgB1wQg+OOADvfLjZ8MhMSB70FXFkP7v
+         /FKf7lqfw1KFb/J7ZHgW9CaEfytrkajoOZg5F54hdaDuQI174bHoZ1yagan08KQwZVnI
+         tPmg==
+X-Forwarded-Encrypted: i=1; AKwUvBzDuNhisAf4C9JqIxEajBlzlNgOZ5JOxOIG61Vz8uo9mSk/kdNM7qkBYS7nFJQNLcOXeQSly5AA3+o=@vger.kernel.org
+X-Gm-Message-State: AFuF++kS9CcWeU5rAPhTJpxbyVh5ruQuMNjSoMqdB1wZTl6EXgasv355
+	tc0+iUPvOSs0RCGSudLLAR4LK+EZw8RaoHveLHY1QKHBu7j/3xyZyr0n
+X-Gm-Gg: AYBFou2r8YNsvfdfrpQbBSyxoHStN/JH+/qn+D4HWrmwoEMnxeCn8JF5v6q4tgZ/gRo
+	rXmWDnFo9/RIy/59+GMDusSHnWzYE9rmXUW6yTBce7YWh1URnU/D6z2IPq1il5EcBvEqZbMmaS+
+	KiggG3WIhCjIMVgEaLpBe2JAKxRDIHf1M9B79Sr5MDQCGP0kjMIYWn/ni5TG3IEG2i0xPbxNcGJ
+	UsFSBURG1rCSxSEbLR0cR2vMej8If/hVmBbcGrsXeBGne0DIKfBRHGBcj+moXmeO4He+w9iDfFj
+	j9o4Ia6O3lfjlicrpYSGCiaMl93Rnm3SH79iOPGMaA3+nHqYNb3lnls69STcz+Xauv18ukjQsM6
+	5++hAtB5+LvTGREYvog9CMAcnt6K7xqaR9XgLYkY87H8e7W5ThPvXv0GgoqkknvzEfDz897SfuT
+	xiukjWdeoKAHzOP1/KS8uCmjh7NcZGx4fsSTSyvvV2MfUVWqHCXNuuVfpVpdrWHlqitWcWXMXP7
+	UL7YuoDmg==
+X-Received: by 2002:a05:600c:3e08:b0:4a0:1cfd:314 with SMTP id 5b1f17b1804b1-4a180455651mr144799455e9.26.1791500855826;
+        Thu, 08 Oct 2026 16:07:35 -0700 (PDT)
+Received: from localhost.localdomain ([94.252.75.178])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48db9abd3aasm626372f8f.32.2026.10.08.16.07.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Oct 2026 16:07:34 -0700 (PDT)
+From: Oleg Keri <okerixx@gmail.com>
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
+	Robert Foss <rfoss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+	linux-i2c@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Oleg Keri <okerixx@gmail.com>
+Subject: [PATCH] i2c: qcom-cci: skip core clock rates the clock cannot provide
+Date: Fri,  9 Oct 2026 01:07:25 +0200
+Message-ID: <20261008230725.3228-1-okerixx@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261008-i2c-xiic-block-read-nack-v1-1-94882af6e598@nexthop.ai>
-In-Reply-To: <20261008-i2c-xiic-block-read-nack-v1-1-94882af6e598@nexthop.ai>
-From: Siddarth Chilukuri <siddarth@nexthop.ai>
-Date: Thu, 8 Oct 2026 15:16:44 -0700
-X-Gm-Features: AclHuK-e4AvKn1DVj6sz0TdknScpn3tml46-rFF4J0_u7LxyuEEllK9h95XoXnw
-Message-ID: <CABAykkvoTxq=mDvpfUnN3H0O9oX-8D+DhWi9SqzrW0f7kRSFDg@mail.gmail.com>
-Subject: Re: [PATCH] i2c: xiic: NACK the last byte of an SMBus block read
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Thu, Oct 8, 2026 at 9:02 AM Abdurrahman Hussain
-<abdurrahman@nexthop.ai> wrote:
-> +                     if (tail == 1) {
-> +                             u8 cr = xiic_getreg8(i2c, XIIC_CR_REG_OFFSET);
-> +
-> +                             xiic_setreg8(i2c, XIIC_CR_REG_OFFSET,
-> +                                          cr | XIIC_CR_NO_ACK_MASK);
-> +                             rfd_set = 0;
-> +                     } else {
-> +                             rfd_set = tail - 2;
-> +                     }
+cci_get_required_rate() picks the lowest rate that has timings for every
+active master, but never checks that the CCI clock can run at it. On
+glymur, sm8750 and kaanapali the CCI clock table has no 19.2 MHz entry,
+so the request rounds up to 30 MHz or 37.5 MHz, the timing lookup for
+the running rate fails and the controller does not probe:
 
-Thanks for chasing this down!
+  i2c-qcom-cci ac16000.cci: CCI clock is not at expected 19200000 Hz
+  i2c-qcom-cci ac16000.cci: no timing for mode 1 at CCI clock 30000000 Hz
+  i2c-qcom-cci ac16000.cci: probe with driver i2c-qcom-cci failed with error -95
 
-Small nit: it looks like the tail == 1 branch can't be reached. The
-padded branch above already takes 1 + rxmsg_len + pec_len <
-SMBUS_BLOCK_READ_MIN_LEN (i.e. tail <= 1), so this else branch only
-sees tail >= 2. It could just be:
+Only consider rates clk_round_rate() can deliver exactly. Glymur then
+runs its CCI at 37.5 MHz, which has timings for every mode.
 
-        rfd_set = rxmsg_len + pec_len - 2;
+Fixes: fa1eb3af12fa ("i2c: qcom-cci: Enforce the required CCI clock rate")
+Signed-off-by: Oleg Keri <okerixx@gmail.com>
+---
+ drivers/i2c/busses/i2c-qcom-cci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-With that:
+diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
+index 6d8be7b8b79d..289368c00fe4 100644
+--- a/drivers/i2c/busses/i2c-qcom-cci.c
++++ b/drivers/i2c/busses/i2c-qcom-cci.c
+@@ -586,6 +586,9 @@ static int cci_get_required_rate(struct cci *cci, unsigned long *rate)
+ 	for (int ri = 0; ri < NUM_CCI_CLK_RATES; ri++) {
+ 		bool supported = true;
+ 
++		if (clk_round_rate(cci->cci_clk, cci_clk_rates[ri]) != cci_clk_rates[ri])
++			continue;
++
+ 		for (int i = 0; i < cci->data->num_masters; i++) {
+ 			int mode = cci->master[i].mode;
+ 
+-- 
+2.55.0
 
-Reviewed-by: Siddarth Chilukuri <siddarth@nexthop.ai>
-
-Thanks,
-Siddarth
