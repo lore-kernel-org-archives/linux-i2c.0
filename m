@@ -1,192 +1,244 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013039.outbound.protection.outlook.com [40.107.162.39])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C056443498D;
-	Thu,  8 Oct 2026 08:09:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.39
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791446967; cv=fail; b=b2I50s/Vr7/EtcWYIlNPP//h9R4TTd99kyjPiXpfExC0/m3fHeAB3CGSk552ib8DvdJRAtGcf8ORb5mJV0JNTxzFgZWYRn0qxC01SKgotweUXfy6CftgzHX0cMqp9y79CgwdJhrZKznahTG/KKUc6u/LeQG1eG2DZ2cLz0+MUuI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791446967; c=relaxed/simple;
-	bh=OCI6Esl7NgZNk6qJB3kqDmiSGzy7StiVRcD9PoR9nC0=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=MzgodhE2Phj/cXBJP741h3//j05dj69sT0fQ99besdYdZETQAR0oeaR2KXd63+ADLuifRDzBkHVRYTOHy6WHgy3khSkgFQUKkP+GkXQxEnTNZ7ScsiymYElmW4d0S0wCrPVwH9OlZXZyPAZ6Q4xVDpPYSvdc+LFm3sVAqlv4VVA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=PVEztD2B; arc=fail smtp.client-ip=40.107.162.39
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7BC4657FD
+	for <linux-i2c@vger.kernel.org>; Thu,  8 Oct 2026 08:31:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791448319; cv=none; b=Y+EDSUDi6QvkPmpipuXT0ICY1J+qh6jHXiygLCpxsJN/19klqWAKm7j8RwxBxSDg+mtyuubjpEDm+yDLMNikZbGen5Lcw8553Wu8/97ewtrr6rMrD47zgsogiyDepYA23/lHimrprcsZWJChjFV8Tag79bwx5PT1uc1p44IOI5c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791448319; c=relaxed/simple;
+	bh=JTdKXTty5jpDO+q/fR8vgUMb71Q9QpcYpIkAR4s8dc4=;
+	h=Message-ID:Date:MIME-Version:From:To:Subject:References:
+	 In-Reply-To:Content-Type; b=bfpROA6C309pJMkicBjSVI7GVGL7JTTEQF3RSX3sqtWFg3AwrJ+hc9yGmc1MISPBCI4sxSOH9dUxJhltd62+kiBsuTgcCcZOCw4EMegzdIq1C8nF2pPIf9DPXoVkbuKpBAMtu9/4TGhML0cdvVKDiYsufnFUmZwBih5SuaSzdK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=D3nr29rJ; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=RnstdedT; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="PVEztD2B"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=i2PN4OPw0WjVRad607cOcLcBfe9rEeZtR4nggzM9Df0BO5P+pC/7eTQfkFksZNhWaoCAPStVspCExapAwKg5gUIQyu89dNhdOJOxjhUch6Qwz8+1mKAPU4FtfWoaEp1qBMy+nxDhetCGnKqjOrdnEujRDIZNcqjS6ODyvVGKMQFKbPRssYbcg5VHKEcxl+twBh9kSdi5XctnPKs3reqcgTtn2tVP4aDDJoipjSntBoeO13xVkA0cxn7Sw8vVoAN68BHzUp7GhWwQZK0hBO39mLP/JfupC6q/6njI24JShMNzrWji4fzYXiRo+vEWF7pRUa4S9WUlY8nJ+87cDhwXuA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1fM/NbUuCcz+NgvMURmV1EbbFKSjz9HBGBfgCogf+hI=;
- b=WCmuInje1gKzwQpELLAHffmR3qGf6D8Y8DC/cGyNnGKb1HHLA1v+bFIK0bzXSm2+Z0Cw1ZH0676Y+jfCsJ5cPxnd3yfmCseld+xGWqp0dG9cxFx5PYKuLMGq/SGzTs7FZvo/V1TR1ZuJnEC649WPi8ZXd9CLhbc0YlShyTQyKiNZfY8FDPlFO5RqJ/QTd2Moot+iGc2ZCsFHcz8l+xBk14XEmxTZQjieQ8htXCEatTFs7XZJ3lRw3UvLePmZbHblAynGVbHyAmmSHvWhkuseKSL388TWTYSXlbj8o6vCKxdyWfgh2SkS3Whwe3y6d4odsZLJwI1xsFJCHmgfHNSsKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1fM/NbUuCcz+NgvMURmV1EbbFKSjz9HBGBfgCogf+hI=;
- b=PVEztD2BmPzvL3FVsQiaJF5WRUaXEHDAvjAYvF06G3DCo4qhFC2yTDi4B4pUd0rupRnwKYuSlm/lPPvjcmmd03kwkGhaFTzAbaDHB+Nr0ru3vvTJ0UsBY+s9NKaiuWoB3bJtNs1WNOA+eiCTBahC+lKaxKPdaw74ViBrA4RIDhv23FEl1gbYCpvcbZUARizrLhBongnxv3ProDml+VZ1USTdUahgVxwHrBSqDgdrT+5gDaysIyew1tFgnXPMRicoajb+8e+EJTUMYtYI8JvoCn3yH6KhO3p6ViY1jZpjY9Q9FF2lANlV6Sa5dc6VQK5nhL7czbE9oOJLKvJfhYiXvA==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
- by MI9PR04MB210814.eurprd04.prod.outlook.com (2603:10a6:290:c0::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.17; Thu, 8 Oct
- 2026 08:09:22 +0000
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51%6]) with mapi id 15.21.0496.015; Thu, 8 Oct 2026
- 08:09:22 +0000
-Message-ID: <ccde4ec9-ec40-4715-93a0-3801c57809ee@oss.nxp.com>
-Date: Thu, 8 Oct 2026 16:09:12 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] i2c: imx-lpi2c: remove dmaengine_desc_free()
-To: Frank.Li@oss.nxp.com, Dong Aisheng <aisheng.dong@nxp.com>,
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>,
- "open list:FREESCALE IMX LPI2C DRIVER" <linux-i2c@vger.kernel.org>,
- "open list:FREESCALE IMX LPI2C DRIVER" <imx@lists.linux.dev>,
- "moderated list:ARM/FREESCALE IMX / MXC / LAYERSCAPE ARM ARCHIT..."
- <linux-arm-kernel@lists.infradead.org>,
- open list <linux-kernel@vger.kernel.org>
-Cc: vkoul@kernel.org
-References: <20260929190605.3516147-1-Frank.Li@oss.nxp.com>
-From: Carlos Song <carlos.song@oss.nxp.com>
-In-Reply-To: <20260929190605.3516147-1-Frank.Li@oss.nxp.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MA5P287CA0262.INDP287.PROD.OUTLOOK.COM
- (2603:1096:a01:1f1::16) To AM0PR04MB6802.eurprd04.prod.outlook.com
- (2603:10a6:208:184::17)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="D3nr29rJ";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="RnstdedT"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6987KKJ63307465
+	for <linux-i2c@vger.kernel.org>; Thu, 8 Oct 2026 08:31:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	vtU8s/AKst+CauFok+Pw4oYBNEt2fpzTymlfvJLMsv0=; b=D3nr29rJtX0ov8K5
+	iXxXTwkcjfJb5B+dYsXEvQ52eTfxMxKKlqCKH02lZmD7L1epf7mkJtGKLoqh8IRb
+	RjRYVb0Kcg3EF+qN2FwQnBafiXb2RyPTTy8u/xOtZNUmWWoDuyPdAQfPZobqU/kM
+	RYwz9l/RJWvYp1t3UIJVRtWjTGQZhLVYcU1fNBUmQ9dhSFD7qyiOYzHXOqBnaU1F
+	xOxRRSGFpPFFgtbRmOUf0UflF4FlFR6E21caXJNhvAY78gOv04r7H5HENDvC1yNK
+	qCMI8uVo6woiLYGT7ydIZYn48kjWxLQLgB9eng94cvJeZIzDKz4eYIjFv7VyUrsz
+	KFaa/Q==
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h60sg9grd-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 08:31:56 +0000 (GMT)
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-8881a7875e5so3863575b3a.1
+        for <linux-i2c@vger.kernel.org>; Thu, 08 Oct 2026 01:31:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1791448316; x=1792053116; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:references
+         :subject:to:from:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=vtU8s/AKst+CauFok+Pw4oYBNEt2fpzTymlfvJLMsv0=;
+        b=RnstdedTKizLSQ3symCoA8+ox6/fl0VgCtRGEYWV3SJ9jdjXfHNRmSOqOPZ+tC1xYc
+         qWfbwAae8kt5NYgmEeKQDdj4fVnuHp8jIvdksTezSVwogZvcnzMOn6nWyihlG+RCwa+X
+         WgAldGd5/zTOLXIDvQw/XPe9OXNVgFltQjBz4iKQz02ZMQdI5Qeuu5+8Dv/R0O5clnrw
+         NEvTCT3p1C+TK7HRXGIHa9BKejkDLChyvWrFC1DSKN/RP8MiETYx/zc/EKlj23/BcH1K
+         mqX+BiPGTSc1nUfof6gIU/fmOZrePgQ9mPqah9+vD3Ohg0UrGDfPOd/W+Oh730+jMs+T
+         DOwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791448316; x=1792053116;
+        h=content-transfer-encoding:content-type:in-reply-to:references
+         :subject:to:from:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=vtU8s/AKst+CauFok+Pw4oYBNEt2fpzTymlfvJLMsv0=;
+        b=RVGaKVXKo4ZKxdslx2g7qn3JcXCqQrOeFOe2jxYIY6LX/iPfE2UhFGV8RSjYO40tsM
+         VDcHoApTWpFCoTbZM2t33YbKbE7EMipfcCbsoR44Bi4WImuCBO8nzXHUkbI2447go2XI
+         erkBh9zsvC6UNIqxLWed/3+/uhfeCJ23kYeDNeVChNRXksI8nzJzowLzjeeJQk2hgiGS
+         IIx5qHrQumHow+ewFN8/G3YefFaKavF7hBA/wbq+67fmfbHojVvdSY9uDiYRFm0azYFl
+         t+R/UhtYStSDa6OfaF5HeJEQJIDmddy70Os2vmE48H7VTzHz6GdFVEgb/t7yoiQiD7p0
+         hnLg==
+X-Forwarded-Encrypted: i=1; AKwUvByImEKjsBlVlZzre0b6AvlcDSVz204OGe9fOOPMB8v7wUkIQCOgqbCcjgmMHReE8Z32+0L3vi9amR0=@vger.kernel.org
+X-Gm-Message-State: AFuF++k3Z7f/psi5n6HhPDY90atjs4UDfHLO1COQrmI9NguAF/6WPdyY
+	DYSoQywMFarIkW4bbiLdpbgDFk8GjbMHO2GaPPBlkU021GDtbOHvaQr3wH/Z+71T+HmEG/uevvr
+	Ec9N9AFiia202kRG1/bONma6SxhD9NzJD77yzMX9Z2xrN1V3IYZnUxO8jn/DFEHE=
+X-Gm-Gg: AYBFou0KP36DfkSjc/Hl1Yes0/71dCSYgsu9Fu0WRZIodquvhSQI4Sk0yrl+sg0KlIE
+	56BV7UtmADSi6+rO1+MCUb2GYEHu+Qs9hOTHZbdrMJCwAeubfNgB/WpayWsPtqWiRKwTDk7JB0M
+	dwvklqe5Di9R2FsyHgfZBByyttnbbocBwXlKjhvpZ8NXNABiITPnqw4WLmKsgktnWStvhti73Hc
+	AarFlWo4WRBfiVNscdPIK/cUe4xdMZCYTchaYiTe8C6oKMXRHpn351SCQsDD9t3+3RFwvfDuAlb
+	WRwRrRMMluUrgFhecnjJR5Dxu1f9JfhJLtAId6ae+yPbfIXFnPRfU7IfomcdmwFpVp/aVYrjW30
+	BwCovE87XYB3p4yHFCpb729AHstdYQ9ku+MfPA2eKxxco6WIk6KRNAn1iwBs3oQc=
+X-Received: by 2002:a05:6a21:600d:b0:3e0:c5c9:d559 with SMTP id adf61e73a8af0-3e1340a3244mr3798187637.47.1791448316047;
+        Thu, 08 Oct 2026 01:31:56 -0700 (PDT)
+X-Received: by 2002:a05:6a21:600d:b0:3e0:c5c9:d559 with SMTP id adf61e73a8af0-3e1340a3244mr3798163637.47.1791448315587;
+        Thu, 08 Oct 2026 01:31:55 -0700 (PDT)
+Received: from [192.168.1.6] ([117.143.161.217])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cd0a97c2e9dsm2647641a12.19.2026.10.08.01.31.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 08 Oct 2026 01:31:55 -0700 (PDT)
+Message-ID: <071d1984-98b8-4cf7-a0a2-00fb2e02b7c1@oss.qualcomm.com>
+Date: Thu, 8 Oct 2026 16:30:39 +0800
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|MI9PR04MB210814:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5ba52355-3038-4ff2-8fdc-08df25137574
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|19092799006|1800799024|23010399003|366016|22082099003|18002099003|10067099003|921020|11063799006|5023799004|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	ncR3v0maBl0WZ/nvCPEGx2wWcCAN/vVTguemJo9fQNyY8fPYh5e/FqgrojFSkmtSN7G7LbSHuOqROVC0ADZVP2IFEThaTJeeugPSK5JnKhOXRa0uepwC3yQhVcKaFOXH87oRq+n+wu88A9Y3z4+vY+HSeic8enCowJ7XrVEmbWp0j/ZTU070K1n5Ccx7lqCNaAKHpyV0jQDRfpSadzG2kXT2aGmTseFeTntKWtujWXADt4K3w/px67Emiho6kmMCPcBfdM+BrzSwIoP0XIvxr6g8Y/X5GqxaRo6WzybkUdfKPm3dRYGdqvJdkNEA8TtOu1VkEy/t/tFf8DsTh8eGUTzJvM295SngpH+BqlgRYnBFMgHRzv7MRhfFwgmQAQWLPlCb4yiawlmug32cZE0R05FaJ8ySwo16YV5p40afgPN9whiwGFgiAFykusThNop18emsnWPqvPdSba5HK7oRTGYW/Mo7Don/7408cQg3NoISTTRc5R2sXnEgNfsRvzNpbSN2Rqk+xuIrDeDmeoMcTtYPT+xyxcXFVOa4NYWdBTCDwVqKbxVkBLY7jEXFzjjERxUBBppeNosqcGogF8yeCcQRyxnRwvVettdqM/cCPghWR06f2bn8gwk/OUSG+awLPmQxhOwO6O1nGJXN10MGglJ+HJpf7sWrkkmVXjGmtkhT/WRDvboLimYpQuxEAJkuy/ZnFahWSDY/l15/0c/XaA==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(19092799006)(1800799024)(23010399003)(366016)(22082099003)(18002099003)(10067099003)(921020)(11063799006)(5023799004)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?OVB0RDduV1Bpeit5WTgwQytjaU05MlFxN0w3VThnRGN3U0JCcnJKZzVHNUI2?=
- =?utf-8?B?OURIVUVtdnluajBlL1RldTZaT3NiSjVEZ3E3bldJWDNwRXYvbHQrL3l4R3Ft?=
- =?utf-8?B?ZmJaa0ppVHZncStiek42ZGw2dzlXY0FUL3R0KzBhWFdxY3NTb1RMbzdWVW5R?=
- =?utf-8?B?NkpML2tZZlFEY0cxYVkzVUxEYXJ0cW1CUEJzMUNzaVFtUkxqdE5CSFNSUVdq?=
- =?utf-8?B?MmgrTGJ2d05HSDVKcWF3NDgzTEtCOGJ0SzBUc0sxQ0dBbkMxQ0U0dXJwU2Ex?=
- =?utf-8?B?d3E1dVY5eUFpWStNemlnek9BVzNXRENtZS90RDY3Z05KVVVKSERVUVg5N3R4?=
- =?utf-8?B?eC80SkdvYncwVkZEcFVZdHgxbE4yckJYV1JiRGY2bElxV0FtaGM0Zk5iSGRK?=
- =?utf-8?B?UXFsbnRhdXJzczJFTlptVXAraWsrVU9iWUxjNWRqT3EyRkVwV2JqTDJYR0c0?=
- =?utf-8?B?NHk2YTQ3OVVlNS9IM3BDc1BKUERGdnM5S2VycnBoU0lWek9zaG9vVlNpU0RF?=
- =?utf-8?B?aC84OGhlbExzY0RoYkNnbHpNTTV2am54aFdIaDBCVXc0T0ZqdUp6ODJKbnk4?=
- =?utf-8?B?dXJlTXlIREFaS1dockM0YzlvSnkwVm9DSmRiZG8xb1NIV2ZxVHZ3eFNDL0Uw?=
- =?utf-8?B?Q1AvSmJnUUVVU3B0cDRqdzdiUFJFdW5Ma0FuNXFteDkraTgrcU5PWk9iVWRJ?=
- =?utf-8?B?OHRMYnlvdlYvZTRlOEt2K2NHSHpRbS9uUjlwK0xVUUZ3MlEvekNsenowYlhY?=
- =?utf-8?B?SEtBa1YyYVRQdE1HZXFTWHE1bnZCVnpXRU16OGcrQjJJTE1PelJLWHlmbEVX?=
- =?utf-8?B?Tk5lVGFXTWFlUFBtb0hWU1lPRDh1TlFCMEVVZkJxeS91em5jRGhaM3JyUDc1?=
- =?utf-8?B?eXMyS2djZ0RlSDA4MmUyM0hhUUVtbmVJL2FhS2w2bUhlQ1Z3RUgrcDlxcyt1?=
- =?utf-8?B?MUdtN3dNRURuUjl1d0Y3S3g0MnI4TW96WFFCS1FsUllJY29FVGhHQjg0TDY4?=
- =?utf-8?B?d291Z0xXRDBQTklXTDlidmgvSEEzeS9KYUJRQTVlTlpsYXJSelJWc0FuajdQ?=
- =?utf-8?B?VkhlU1hTRGNvNWpEcUdlek1SaHBGMmtJKzNYMVlubDU5Q1dzYXNPdUlJb01p?=
- =?utf-8?B?L3dWV2F2L3JVR25ldUFFSFZPUzJEdmtnVEpXdFJlQkdIUWI2bHE4di9JYnBp?=
- =?utf-8?B?K01USkpqUnV1eFVWK0xacy9wRUNxY01nR2hCa0FGajJUUEZ6YjJoeUNFY2JD?=
- =?utf-8?B?ZEY5dm5CeVhCcUVBQ1FPM2crYzFlM2ZaUmJzTTJ4WFJiakkrQzBPK0NyTElU?=
- =?utf-8?B?blgrNzB0VGl0V2JpQ244S1MzWUcyWENZdldYV1ZGSWNCbmRvN2lQdk1vK1ll?=
- =?utf-8?B?Tmd6VEFwVk1NeDlHSmhkNndpelp1N0UyRU1oN2JYNGZZc1NzYUpQWVU2bUY0?=
- =?utf-8?B?dzZxeStRaktITnczY1h1emhxTDlvSlZLZ0R6RnZrOFVaanhvS2YybDFnTlZC?=
- =?utf-8?B?NHhiaHFFRUwvYWdnejNFRmRjZXF3VzlNNEx6ZVQza2tmWFZSZk5jTklDVzJQ?=
- =?utf-8?B?RmFZa0xhMndEU1hzcWRvMVpJb3JDUWx0dWlLTDRGL0UxdDlsdnNFZEdTci9s?=
- =?utf-8?B?eEtqKzR4NGMzYVBvVFY3M0xrZGJDcFZMeXZURWVaTG1WdzdTYlVxVC9YV0VE?=
- =?utf-8?B?VXJUaGNqRVdJUCswcFE1UlJIQVg0WTVyTURSc2Fhd1NuVmRNa0tiSVhSMDBx?=
- =?utf-8?B?OTBBeDY0dmU2cGFvczNuUFZiZUNuZ0gxODZEMlpLVlllWmNURHV5dk9aOEJB?=
- =?utf-8?B?NWlGeTdNbXo4Rm9pcnI5RjZ6YjJnSU9jaUpVK0x3ZHIvQ2xMOGx5anVuaFRF?=
- =?utf-8?B?RVJqNmtVcStuYkpzYlFPbFpmVkYxN2wzK01aa2dKOUpJWjJtN3h3TWpDS3o1?=
- =?utf-8?B?elJjQ1N1eUVYRnBtK3ozQm1BMmtnckFQTis0c3VWZ2hLVGgyWlpRUlExWnda?=
- =?utf-8?B?VmNLUFAzOW1zR1NLM1VaamlmclFwZUxNVk9hU2xOZW1IcHVsbnUxb2VQakhB?=
- =?utf-8?B?ODdHY0NwTjJFN0hvbWxNTG9MczRBaUUzY1p2SW80dDRLRWk5T3hyQ0RPbVh1?=
- =?utf-8?B?U0xkekFWN0luaEZXK3kwd3pvZWRMSzlTYUhLQWR6ODdvSDJyS2R6TktrQVVV?=
- =?utf-8?B?YTBlSjhGQ29jZ2dZeGNURHE2VG1XU1RReWNwdHYyQWg3Q1hoM0txWHlmeXZi?=
- =?utf-8?B?U1FXb3duN1ZUL0o0cC9TY0c1c3pma2V1SFM0S0xNUTY5clRPNUhnaUlkVVFz?=
- =?utf-8?B?YnRsY1hkakMwdkR2T0tqdWFvQjRyV0FyamNnQjd4OTdIeTZQVVVQQT09?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5ba52355-3038-4ff2-8fdc-08df25137574
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2026 08:09:22.0384
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: dSijm5TXbcHP8V8uAKucvlZVYI5yEET8oRbVsw/07rmenXmE4NCOmVaOe8vBYwiWtY1k1+hhR29lAreUDjUZkA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MI9PR04MB210814
+User-Agent: Mozilla Thunderbird
+From: hangxiang.ma@oss.qualcomm.com
+To: Hitesh Patel <hitesh@ebytelogic.com>, Andi Shyti <andi.shyti@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Robert Foss
+ <rfoss@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ravi@ebytelogic.com, Hitesh Patel <hitesh@ebytelogic.com>
+Subject: Re: [PATCH v3] i2c: qcom-cci: always enable SCL clock stretching
+References: <20261007050147.274096-1-hitesh@ebytelogic.com>
+In-Reply-To: <20261007050147.274096-1-hitesh@ebytelogic.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-GUID: 1Eg7esLbVD3ymHVbxYOAkBzWcHNjCVa-
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDAzMyBTYWx0ZWRfXxBvhbxwn8MLG
+ B8Dnfvc7E6z0SySUcNOupA3OwCZiDNO6gTuxYcGFBZYG6zY7tnrnyahCxXm+JBFoPIU+HNT8e7x
+ rKpMcYvO7ryq405ne6UzW8Lj6Gltjxk=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDAzMyBTYWx0ZWRfX9GuAfQ+Nt1gX
+ lpLqc4fFAqjUDuplTHpYbgK2p40eKFLlyqSj2CwAMTMesC37wiJLZug4FbkuX+FA5GTnt1nvPdl
+ 7rD6dsXeGjrb6HgQzixBHGfMMoZJOaj/1x+L5f+awdiFdXF0eEAHk9oKDAq3/x3OGqsHWtrNa+h
+ ghoAttj6DqXZUkyzzuzUnAJaiazyAhrixQsKrA6mBkoEYMFO5HjUOOOb1SE1OzSZPWB9OVi3qWi
+ efRMSXDXcRhovzUbO9a8eRrBb1e2n8MixIqVrpQqdwuMOwYdXsdtAc/pIEyTo3e4aXphLVjWMSc
+ EfiwIVjWYmefE0oQm2nUTV4Kg1LV/6w3oHUd/4qEaq/+QyNzImfpRqDtr77O31YKGnSY563j9rT
+ rb6JOUVmdvOiyc12eUyBBkvrYvGkE1lAyr+hHlImdPpt/MqrVazUCWcZPXV9WtEzbDxXtk15DMZ
+ +6JW09x583dA9U/eK6Q==
+X-Authority-Analysis: v=2.4 cv=DfWCOftW c=1 sm=1 tr=0 ts=6ac754fc cx=c_pps
+ a=rEQLjTOiSrHUhVqRoksmgQ==:117 a=K/RrOd38U9TixX+j9hIN8g==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
+ a=ZovgdgjKAAAA:8 a=EUspDBNiAAAA:8 a=aRisd7SqZz04jVWGTukA:9 a=QEXdDO2ut3YA:10
+ a=2VI0MkxyNR6bbpdq8BZq:22 a=VOxKbm1zgHvARWIDjr3b:22
+X-Proofpoint-ORIG-GUID: 1Eg7esLbVD3ymHVbxYOAkBzWcHNjCVa-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-08_03,2026-10-06_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 phishscore=0 clxscore=1011
+ priorityscore=1501 suspectscore=0 spamscore=0 impostorscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080033
 
-
-
-
-
-
-
-> From: Frank Li <Frank.Li@nxp.com>
+On 10/7/26 1:01 PM, Hitesh Patel <hitesh@ebytelogic.com> wrote:
+> The CCI timing tables leave SCL clock stretching disabled. A slave that
+> holds SCL low is then not waited for: the master keeps its own clock
+> timing and the transfer fails with a NACK or returns corrupt data.
 > 
-> dmaengine_desc_free() is designed for DMA_CTRL_REUSE. If DMA_CTRL_REUSE
-> is not set, dmaengine_desc_free() will return -EPERM.
+> This is hit with a camera reached through a GMSL serializer/deserializer
+> I2C tunnel (MAX9296A/MAX96717 on the RB3 Gen2 vision mezzanine). The
+> deserializer acknowledges the address locally, but forwards the
+> transaction over the coax link and stretches SCL until the remote side
+> has completed it, which takes well over one clock period at 100 kHz.
+> Without stretching the register reads of the sensor behind the link
+> intermittently return garbage and writes are dropped, which shows up as
+> random sensor init failures.
 > 
-> 	if (!dmaengine_desc_test_reuse(desc))
-> 		return -EPERM;
+> Clock stretching is part of the I2C specification for every speed mode
+> and a device that does not stretch is unaffected by enabling it, so set
+> the bit unconditionally in cci_init() and drop the per-table
+> scl_stretch_en field, which is zero in every table.
 > 
-> So calling dmaengine_desc_free() does nothing. dmaengine_terminate_(a)sync()
-> will free all already allocated descriptors.
-> 
-> Signed-off-by: Frank Li <Frank.Li@nxp.com>
+> Signed-off-by: Hitesh Patel <hitesh@ebytelogic.com>
+> Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
 > ---
->  drivers/i2c/busses/i2c-imx-lpi2c.c | 2 --
->  1 file changed, 2 deletions(-)
+> Changes in v3:
+> - Rebased on i2c/i2c-next, which reworked the timing tables; v2 no longer
+>    applied (Andi)
+> - The msm8953 table is gone on that branch, so scl_stretch_en is now zero
+>    in every table; commit message updated to match
+> - Collected Reviewed-by from Loic
 > 
-> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> index 49aabef7f115c..d6f266e2d6bea 100644
-> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> @@ -851,7 +851,6 @@ static int lpi2c_dma_rx_cmd_submit(struct lpi2c_imx_struct *lpi2c_imx)
->  submit_err_exit:
->  	dma_unmap_single(txchan->device->dev, dma->dma_tx_addr,
->  			 dma->rx_cmd_buf_len, DMA_TO_DEVICE);
-> -	dmaengine_desc_free(rx_cmd_desc);
->  	return -EINVAL;
->  }
->  
-> @@ -910,7 +909,6 @@ static int lpi2c_dma_submit(struct lpi2c_imx_struct *lpi2c_imx)
->  
->  submit_err_exit:
->  	lpi2c_dma_unmap(dma);
-> -	dmaengine_desc_free(desc);
->  	return -EINVAL;
->  }
->  
+> Changes in v2:
+> - Set the bit unconditionally in cci_init() and drop the per-table
+>    scl_stretch_en field, instead of only fixing the v2 standard mode
+>    table (Konrad)
+> ---
+>   drivers/i2c/busses/i2c-qcom-cci.c | 9 ++-------
+>   1 file changed, 2 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
+> index 6d8be7b..04e3053 100644
+> --- a/drivers/i2c/busses/i2c-qcom-cci.c
+> +++ b/drivers/i2c/busses/i2c-qcom-cci.c
+> @@ -28,6 +28,7 @@
+>   #define CCI_I2C_Mm_SDA_CTL_1(m)			(0x108 + 0x100 * (m))
+>   #define CCI_I2C_Mm_SDA_CTL_2(m)			(0x10c + 0x100 * (m))
+>   #define CCI_I2C_Mm_MISC_CTL(m)			(0x110 + 0x100 * (m))
+> +#define CCI_I2C_MISC_CTL_SCL_STRETCH_EN	BIT(8)
+>   
+>   #define CCI_I2C_Mm_READ_DATA(m)			(0x118 + 0x100 * (m))
+>   #define CCI_I2C_Mm_READ_BUF_LEVEL(m)		(0x11c + 0x100 * (m))
+> @@ -105,7 +106,6 @@ struct hw_params {
+>   	u16 thd_dat; /* data hold time */
+>   	u16 thd_sta; /* hold time (repeated) START condition */
+>   	u16 tbuf; /* bus free time between a STOP and START condition */
+> -	u8 scl_stretch_en;
+>   	u16 trdhld;
+>   	u16 tsp; /* pulse width of spikes suppressed by the input filter */
+>   };
+> @@ -260,7 +260,6 @@ static const struct hw_params cci_hw_params[NUM_CCI_CLK_RATES][NUM_I2C_MODES] =
+>   		.thd_dat = 10,
+>   		.thd_sta = 77,
+>   		.tbuf = 118,
+> -		.scl_stretch_en = 0,
+>   		.trdhld = 6,
+>   		.tsp = 1
+>   	},
+> @@ -272,7 +271,6 @@ static const struct hw_params cci_hw_params[NUM_CCI_CLK_RATES][NUM_I2C_MODES] =
+>   		.thd_dat = 13,
+>   		.thd_sta = 18,
+>   		.tbuf = 32,
+> -		.scl_stretch_en = 0,
+>   		.trdhld = 6,
+>   		.tsp = 3
+>   	},
+> @@ -284,7 +282,6 @@ static const struct hw_params cci_hw_params[NUM_CCI_CLK_RATES][NUM_I2C_MODES] =
+>   		.thd_dat = 22,
+>   		.thd_sta = 162,
+>   		.tbuf = 227,
+> -		.scl_stretch_en = 0,
+>   		.trdhld = 6,
+>   		.tsp = 3
+>   	},
+> @@ -296,7 +293,6 @@ static const struct hw_params cci_hw_params[NUM_CCI_CLK_RATES][NUM_I2C_MODES] =
+>   		.thd_dat = 22,
+>   		.thd_sta = 35,
+>   		.tbuf = 62,
+> -		.scl_stretch_en = 0,
+>   		.trdhld = 6,
+>   		.tsp = 3
+>   	},
+> @@ -308,7 +304,6 @@ static const struct hw_params cci_hw_params[NUM_CCI_CLK_RATES][NUM_I2C_MODES] =
+>   		.thd_dat = 16,
+>   		.thd_sta = 15,
+>   		.tbuf = 24,
+> -		.scl_stretch_en = 0,
+>   		.trdhld = 3,
+>   		.tsp = 3
+>   	},
+> @@ -368,7 +363,7 @@ static int cci_init(struct cci *cci)
+>   		val = hw->tbuf;
+>   		writel(val, cci->base + CCI_I2C_Mm_SDA_CTL_2(i));
+>   
+> -		val = hw->scl_stretch_en << 8 | hw->trdhld << 4 | hw->tsp;
+> +		val = CCI_I2C_MISC_CTL_SCL_STRETCH_EN | hw->trdhld << 4 | hw->tsp;
+>   		writel(val, cci->base + CCI_I2C_Mm_MISC_CTL(i));
+>   	}
+>   
+> 
 
-Hi, Frank
+Tested-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com> # S5KJN5 on Kaanapali
 
-LGTM.
-
-Reviewed-by: Carlos Song <carlos.song@nxp.com>
-
--- 
+---
 Best Regards,
-Carlos
-
+Hangxiang
