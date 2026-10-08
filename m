@@ -1,56 +1,40 @@
-Received: from smtp6-g21.free.fr (smtp6-g21.free.fr [212.27.42.6])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E72047ACEB;
-	Thu,  8 Oct 2026 09:01:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4FF749A3A0;
+	Thu,  8 Oct 2026 13:37:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791450074; cv=none; b=IY0Au2MPuUWKl4vxW43SFEuOTFYUcll5MAE/YPsRh7KwXVOtJjYGdQ8M8G8v/3CAgrPCW6yMwInspeAg8B6fO6R3rUtRXwfxBDJhR3HPqInKesFEcsb+N6g7ucX8H4mCEByFR7/HH+fFFML1dM4hpidL683SQ1KH5kSn/u+jOCQ=
+	t=1791466639; cv=none; b=sl6hBzIHW43ecb200+toQ8so02b7CwqMMAvOvhhX7meaKZGZW/3nWj6bVXiJ3RMS5xr+miUIgcVCTmox5bx3Sr/vpFsyywJNTD618XO3sJ31xHb2Du2V6+GCNWREmRU75d8F4ogW2k9cSs1MctVvCcdzwxSYNeWlIBpG/IELBZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791450074; c=relaxed/simple;
-	bh=4F03o97iXSlmGOeJsrP5FuGxw5vNoZtKjrawKFd6mQQ=;
+	s=arc-20240116; t=1791466639; c=relaxed/simple;
+	bh=bXuDHAESQYveM+ddfeipUXC2d0GypSSSZh+yw2r9iUA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=riEbcESawKIqeC+unNJzdXto1lN+kRcBvliWGnCwVUzQA/6HEi4SLk2gmWrXFMaLMC7MGbUVkQ7fMR60diTmlmOv9nuZpxPueUN1O4LUJh9SZv7R1knlEYUEBLcXVzoArhhMvwg7kO7GetUL9Y4nV5vYoTgsVjS4xxeI7ZIeq60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=rZDzBkfR; arc=none smtp.client-ip=212.27.42.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
+	 Content-Type:Content-Disposition:In-Reply-To; b=nvEO0d4kNfUqDl6qxE/i2pxcWLqVl+PHqgIpXO8aEwddHtb1tmmiY3VCdsHyKQxWAIi0I+Otj0/bFklKI2ySEV8wR125gJLajtsvOfN/7dAni/jNtoR5GBfrypMcEfeasHGOV/HR5BEBBxijm9aoiQlxafkzkfhGrcAAOnD/ByQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y2OwjCO+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="rZDzBkfR"
-Received: from L30177.local (unknown [213.36.7.12])
-	(Authenticated sender: vjardin@free.fr)
-	by smtp6-g21.free.fr (Postfix) with ESMTPSA id 3FEF4780502;
-	Thu,  8 Oct 2026 11:00:49 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
-	s=smtp-20201208; t=1791450064;
-	bh=4F03o97iXSlmGOeJsrP5FuGxw5vNoZtKjrawKFd6mQQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rZDzBkfRvSyiwKF5K42MielqdUUkE1C2gmHhhap35L/GORwrBU2l71Xl8FTU2RGdE
-	 Zj4F/Q/xipQZ1CBnDytQM9ZnADLjNyuQxy16WuOTThMKR8ayJcFO7sDTsCnb+KgVlk
-	 ZLYAuBiH+n7rV6id6vSfZ/JcIMK9I+LgNm6GuPNu91HGEhQlXjUMn7mAHqzolO6EcQ
-	 wyJPf/EJfAxyuLPq4E6D46uTMc4QJFxsR22UOvN/RFESwJigwvSVSfwwdxhvqB9/R2
-	 oT9Qlwqy9rW0uNGStUl+kUFDJw4dpp8hHvh5k6g0xyIvoAFsqAi+1qHuPz0RW0C4tk
-	 rAc/VxzUeXXNA==
-Date: Thu, 8 Oct 2026 11:00:48 +0200
-From: Vincent Jardin <vjardin@free.fr>
-To: Carlos Song <carlos.song@oss.nxp.com>
-Cc: Haobin Jiang <lemonoutput@foxmail.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Carlos Song <carlos.song@nxp.com>, linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
-Message-ID: <asdbv4ZWwJ72ObNn@L30177.local>
-References: <20260812-for-upstream-i2c-imx-lx2160-reverse-v2-1-f1343714c5a9@free.fr>
- <apcYp0Zc7CrJMiOh@lizhi-Precision-Tower-5810>
- <aqO9SMvI89rqoEGb@L23803.iliad.fr>
- <arMUxCW5ZTzLT3VN@L30177.local>
- <arw0mVbacAXv_1H7@L30177.local>
- <asaElUqBu5ht6amB@L30177.local>
- <c72e3cfa-26f3-4557-858a-2a919bf68986@oss.nxp.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y2OwjCO+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA59A1F000FF;
+	Thu,  8 Oct 2026 13:37:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791466638;
+	bh=UO9BIEliwCrka/QBUERN6qrORL7los73DuQd/M2lROw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Y2OwjCO+Sh8htYbtD0lk4Y5GxK8D6VbRxVflBa3bC8x+rKoQQyZfwSGMf6Y3sjz8a
+	 ngalOvo5K84tgm2nH9kGhtifBtjOnIbyWTInlF+5EoQ0VmLnbiqT3m5W6YrJ9y8Yzb
+	 8hQwBAH90GpF7JpdivDfuLzjjr5xnBWYhuCi/HOVI6vQf2497APRirJWj+nDqtWl9o
+	 9TE7XcDihuv/jXcMjRvYwqjCXRPyJ2ay8nXro/an/ywJWVm8SjirDDqrCZcC7WLK7D
+	 7nc19k+JOWTMFsDYFjOfGgpYqtB3mSokY70rDm6AZJKVlNG4z0/mgQgcw7CJ3EVH2E
+	 ztsKGEApMfd2A==
+Date: Thu, 8 Oct 2026 15:37:14 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: nina_kuo@novatek.com.tw
+Cc: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	ben_huang@novatek.com.tw, toby_chui@novatek.com.tw, shihpei_hsu@novatek.com.tw
+Subject: Re: [PATCH v9 0/3] i2c: Add Novatek NT72676 SoC I2C controller
+Message-ID: <asecW-z2RwOR3OxQ@zenone.zhora.eu>
+References: <20260910030123.215609-1-nina_kuo@novatek.com.tw>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -59,15 +43,16 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c72e3cfa-26f3-4557-858a-2a919bf68986@oss.nxp.com>
+In-Reply-To: <20260910030123.215609-1-nina_kuo@novatek.com.tw>
 
-Hi Carlos,
+Hi Nina,
 
-> This patch is a new feature, so I think it will be merged until v7.4 at
-> least.
+> Ben Huang (3):
+>   dt-bindings: i2c: Add Novatek NT72676 I2C controller
+>   i2c: nt72676: Add Novatek NT72676 I2C controller driver
+>   MAINTAINERS: Add entry for Novatek NT72676 I2C controller driver
 
-ok, understood. I'll wait and if needed a I can/will resend
-an updated patch based on a rebased with v7.4
+pushed to i2c/i2c.
 
-best regards,
-  Vincent
+Thanks,
+Andi
