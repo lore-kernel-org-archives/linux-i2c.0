@@ -1,117 +1,93 @@
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from send243.i.mail.ru (send243.i.mail.ru [95.163.59.82])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D9174F4753
-	for <linux-i2c@vger.kernel.org>; Fri,  9 Oct 2026 20:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791576993; cv=pass; b=QN0o4n6EPDny3akRR2NdE4iXSol6rNwHvEr7LoakQQtpPyieUd3Qr6M/UpElaoVWgNzqOdwGN1qkILsIpAR82YBDqDg5w6WxF/peMoYgFEJM39WFvoZoIxYZh63kK4yvEfhCFivMaK95U0kbYXkTYs0ABb1N71DC4KTO0ST+mEk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791576993; c=relaxed/simple;
-	bh=9ZstjgpPw37lwOmQxNVbD7gUthkSfwTkdvZxCusc7QU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=b3XhT1ZQq886Gu+sPgPrpdTExNU6ifo1ueBTiAvm1jjxAhIozRFXMCPN5nm9K/F6YInprpu8mPGBZO50UZmOUf/S6KBbZC+cb7NMvm9GfIZpAb5nPAd89X2YcgIWIG+kJFXBMzWW/tQhiZ1IQtBgmh2iNnyl5uDaZLz912LPJsE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=J2PJsXPj; arc=pass smtp.client-ip=209.85.128.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B10C137E5C9;
+	Sat, 10 Oct 2026 06:12:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.163.59.82
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791612760; cv=none; b=asb4KM2vbDlYh9DVpPs0qpvMkLCcWvubFJ0xw3wjCCDOurerjzrlZuhQesWsnd+sg36Jj8qaYHjLEPO1LWlXfAqnwBGIfV8sbaFhVSzyu5/WQ92poH3CdDOZzaC2hmhPmqcCLQZf29WMFGJu5NkdAfgLtXqee20MECUahA4SwDc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791612760; c=relaxed/simple;
+	bh=VQ03bKt1Lc9xSCPUDMHYST6N7vO5NoSZVaTHwV2YQ5Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AGNk45d6WwCbceaCvoeNXxOVpC61/Bal+ZNfF9WOwcgHG1ksTgQHkD1TcgUAyHBHZFYhq9r41zOX/8ScncTI8eRwN7Pjo1ywdlOBduLg7/7Kylgqv4zW+Y8Y5/CX/tZs5QYZedelm8FvQuNHeKE6fC2x8/DopIQgENRw/42ygKM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru; spf=pass smtp.mailfrom=mail.ru; dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b=Sv+992xj; arc=none smtp.client-ip=95.163.59.82
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="J2PJsXPj"
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-8b06c0794cfso695867b3.0
-        for <linux-i2c@vger.kernel.org>; Fri, 09 Oct 2026 13:16:32 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791576991; cv=none;
-        d=google.com; s=arc-20260327;
-        b=YotTi2KH2Ui1f2HXc2TeKlzhJvifNDdjeN3laUM4WzPDCrIa6BswgK012ZFRZBXxOo
-         /vgu1GwyzRGE+qVeM4NxhDuoVr0LbHYeJLsGGd/a++bNXFYtxAII6oP2uqGRu14yr8+Y
-         M+518upQMgNxv0mHyEjmolYbm6FPf0Q7Ye9ythMQh168WVYnHzK/jee+y+n+vB9jH97N
-         nXqHCrY8QHQwfugNZsQ5u9ijw/M54kGvvlU4Vc6V04IsrrgdntAVyMHWT389SHf6bApt
-         BB2jsC1OaCZZ3m7I4eOnWZRVY4o1EN/1H3u4qWpdQZURgNGSDNrt3FjWScDVWCn6on96
-         nonA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=9ZstjgpPw37lwOmQxNVbD7gUthkSfwTkdvZxCusc7QU=;
-        fh=/JptvpZZB7+H6yQNQOKp+GJhQzOgO4Ynfxzq2gvO9U0=;
-        b=picIKvBqPetC1A66GKAM1UJnAIwCD0iEV27BsxvPy1zjiB/Lb9TJDjHwf7mBkVkRPF
-         sxvPzKYYKzD8aQ5Po4IsaN23Y/CR5w/FIIBMbujTYjbLW7WI56kXFpixlWtR70jjufMe
-         lMJQjQYjxWHREeIQgtKK6H7napHsSQGVsr3NJe1Ozm3R8gsQZybCxzZ281KeFpcnG5U3
-         0IheFz/TNrmAi338HiHJyzRYSsgitH0A7q6La1T+wl6ch13jjH7Eu8/ajga9arhX5cRf
-         XJe82ik/i4Lluk05ioqJTEEuBiLCbTW+p7w83Zm3in9jfS9tgkNPJAipZgKQdGopRQvM
-         wc3g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1791576991; x=1792181791; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=9ZstjgpPw37lwOmQxNVbD7gUthkSfwTkdvZxCusc7QU=;
-        b=J2PJsXPjVseJD/FlS1ey3Ik6q6O/j9URIcuzNuHvqwAAHUIdkHiTbCsZYMoNDZxVyx
-         CqsHyrbhrIwLF/udZUSYeV6KwoWW5PRSyZW359Af3xOlvMX/qI+BPXz1J07q25rvTVeJ
-         wFu8WbOQzfdR9A/0FWTtr2WyXZq40SjQ/iom4j+52+gjKu59BWljoJCMhm51OKojrjg/
-         iRa94YEeowQF2FRNep3TLaVoT936kzrZ9Cbg0nhRWiJ0LvMYhvK9TIRerF6pc/JRFTOg
-         Cv54jBZTDLUC+2yZJ6u9QdTSq3pCvFTTkEycQAfDqMws1Yq/lTmZYJn+Pe4UGR194c0V
-         2IuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791576991; x=1792181791;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9ZstjgpPw37lwOmQxNVbD7gUthkSfwTkdvZxCusc7QU=;
-        b=zHlskI0q7x/UPpIKCUHw8xgPDFQHZPF0niTkgTbd27J9mJF09Aag5gpPVE2yrTS1RY
-         XDSMretVOQUFBKyHZq4GePJn5oOxh5qnGBFWuOJZN+PaljxE2aupg/vK/qQUzX+vVbrr
-         2E/5xHzhXhjB2f28wRHeyY3JG2Yv4DwdxyW5qqmzVAQtNlBuE3uiwBd0HJOZGAeOXgm8
-         0hPd3j7tsipMxwCCZYEpMiOLz0cdHR+tllZVtxQDapVtcNmKOp1RTZL4xEq2qd+LCr96
-         xeVc6AEa09JjEvG5ibVGsVWiCW1ELcaA3KOgjEiH1AgJbAwpiAuUJOgVLNc6WkOM2kfV
-         i5Sg==
-X-Forwarded-Encrypted: i=1; AKwUvByheOjdSn0foJ6/22dF4MPwQH7vErNXKVK3kfXU08X4k7IDX13hVIPPGUNcGoonqLbxCzHi5+OlJmE=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKnUFg0irtvdmrzq74abUbqBxVVPNQiGrKxODXOgIPpoxW7onuZ
-	moXF1SuYhxw/us5j+a/Lu0Uf5c2pOw7lC9ajG0xA5sanxhiAiS6mSYJaR40QywcLQrU7oRw8LD5
-	svkAXXspydlbkkxSIPHFuW9JlSymgAstLLtTB03RjfQ==
-X-Gm-Gg: AYBFou24UO2vGvHittsNETPgiPWaKiY2QwBArrIXR0tnYjfkF7wJZSJgy/5Z8K9Cd4h
-	PBlGto9WFU8FzbFk0cFFzcy7t+6wtzOOyEy2FhD8ftfIxfhBLCSjSFW3LkEbGGP11gB+Ec3X6Mb
-	QeOBToA+SGMndze2ZPv7cy0O9qDfHjs00BSqlr1VXCQ9uK8F6i6hKV4rvLcaO7XMxPyCjCQq5oa
-	W+ursyipR2plH6fmVInK24VHLb1FsO/6ur4ILelC35GW4fekaNCBzdfUcs7AJeiwrEKQ+mVaMyI
-	9/eJecjPJANzwTy2q0KQfKnbJS7KjRhjJ8Eo+Lox1oLj1fK1sX/Z62k=
-X-Received: by 2002:a05:690c:7483:b0:8af:5430:23f3 with SMTP id
- 00721157ae682-8b07edcf030mr14065407b3.19.1791576991277; Fri, 09 Oct 2026
- 13:16:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.b="Sv+992xj"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru;
+	s=mail4; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:Cc:
+	To:From:From:Sender:Reply-To:To:Cc:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:
+	X-Cloud-Ids:Disposition-Notification-To;
+	bh=xKKldkkdmRrlH3+XC2HtxbhefRTI2jE/Cn2PPdVNjdc=; t=1791612756; x=1791702756; 
+	b=Sv+992xjT4XTv/pFJcS0Zwew6OZNoJWEv4hQK47Sw7hledqNx/JJ1o7rgMlHaAt6nTC5Hf7uF2k
+	udzRmDKOGGC5ls2UoQaFdbGOeGTwfPralGZGATLlNRRzUsa94n45tCd3aRvbNZMvbljHqOtRUvkJC
+	8KaabE1a60dZtnLuBePLuvdfVqEIePLbNMQqJ5SJgrdyRa89GHvd6KR2gpxbaywEeM0L4VQF9PtBZ
+	LuqBXeMHmSan0Sj+1e9Zu7UWrRqiJW0I+s9DulNqjMzQuBdq+3VYRGad7vTijEDMR3HXPe5Bb9FJJ
+	NJw8FnGMbq3R/PBqKRz1NlBgnHljBIq82lPA==;
+Received: by exim-smtp-84d6fb566c-gbdpj with esmtpa (envelope-from <misha.zavertkin@mail.ru>)
+	id 1xFQJn-00000000RHY-1S3i; Sat, 10 Oct 2026 09:12:27 +0300
+From: Michael Zavertkin <misha.zavertkin@mail.ru>
+To: linux-i2c@vger.kernel.org
+Cc: Rustam Adilov <adilov@disroot.org>,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Michael Zavertkin <misha.zavertkin@mail.ru>
+Subject: [PATCH v2 0/2] i2c: rtl9300: remove IO_MODE configuration
+Date: Sat, 10 Oct 2026 13:12:08 +0700
+Message-ID: <cover.1791611999.git.misha.zavertkin@mail.ru>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261008-i2c-xiic-block-read-nack-v2-1-76735ed0b0bf@nexthop.ai> <20261009145800.rc-reply-0001@kernel.org>
-In-Reply-To: <20261009145800.rc-reply-0001@kernel.org>
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Date: Fri, 9 Oct 2026 13:16:18 -0700
-X-Gm-Features: AclHuK8NoU9nFQdsnoGWTbzltxdeCAjZZJguqpmO0Y-nucjuamlvwsTRrY9h3TM
-Message-ID: <CAGYn4vzAM2RVv3y5qW1C3P50qYN5J7UKmj-LsMDv9EdqrX=G6Q@mail.gmail.com>
-Subject: Re: [PATCH v2] Revert "i2c: xiic: defer RX_FULL until all trailing
- bytes are in FIFO"
-To: Sasha Levin <sashal@kernel.org>
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Siddarth Chilukuri <siddarth@nexthop.ai>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Authentication-Results: exim-smtp-84d6fb566c-gbdpj; auth=pass smtp.auth=misha.zavertkin@mail.ru smtp.mailfrom=misha.zavertkin@mail.ru
+X-Mailru-Src: smtp
+X-7564579A: 646B95376F6C166E
+X-77F55803: 4F1203BC0FB41BD968B159B7CE59A0BE79D87027893E9730068DA622128DD5D4182A05F538085040C6AC82DBD7B562893DE06ABAFEAF67055E4E41E3A81E8A69135CE729D6484097B7464F346B62472A
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE72F22E6DC541F75D9EA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F7900637AC83A81C8FD4AD23D82A6BABE6F325AC2E85FA5F3EDFCBAA7353EFBB5533756616B1AC507046C935DF4C00BBFB3C043D74995A4EFBB3D3B79C6F6C88131200F68EEF46B7454FC60B9742502CCDD46D0D062BEEFFB5F8EA3EF6B57BC7E64490611E7FA7ABCAF51C92176DF2183F8FC7C0AF05157F0BAFB9978941B15DA834481F9449624AB7ADAF37BA3038C0950A5D36D5E8D9A59859A8B6AC143D7F65F00CAD76E601842F6C81A1F004C906525384303E02D724532EE2C3F43C7A68FF6260569E8FC8737B5C2249EC8D19AE6D49635B68655334FD4449CB9ECD01F8117BC8BEAAAE862A0553A39223F8577A6DFFEA7C52A781257067E9B843847C11F186F3C59DAA53EE0834AAEE
+X-C1DE0DAB: 0D63561A33F958A5C250198685926CE45002B1117B3ED696AC3A97D61D6A891FB2920F75BA9A967F823CB91A9FED034534781492E4B8EEADEEA082C9A12FE455C79554A2A72441328621D336A7BC284946AD531847A6065A17B107DEF921CE79BDAD6C7F3747799A
+X-C8649E89: 1C3962B70DF3F0AD73CAD6646DEDE1918E10F71CB4DF9F9677DD89D51EBB774225B6776AC983F447FC0B9F89525902EE6F57B2FD27647F25E66C117BDB76D659F9064DE9A493218A0CC515E6CFA3C3580CE6D8858CC135DAA1C9F1EC53928A313F7E3A5EA15F1C19B8341EE9D5BE9A0A2C4CD57F0B7B53D7E1A3658CE16BAF6E0BCF0E9579C30B3052EE4E5D9E54FDA427302E973F6434AB8511FE41C8941D68F571C199C4BE91E79E69A34BD5DD98C9F0A6D2C91ED28CB6
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+ObcCpyrx6l7KImUglyhkEat/+ysWwi0gdhEs0JGjl6ggRWTy1haxBpVdbIX1nthFXOcIETfglQORZ0zpDET4ZrlAo0bq3TDyw5v+G6YiroYwQqAS+6VDYZ8=
+X-Mailru-Sender: FD65D7C492470CAE23E6ABD178607DBC318B7C7AFC912EADB951B70A5BD4BD8E6184A1D3A18F35E9140FE51BDE05C0F74B2A3C715BC1DED96EFAE8183A2EAE0D96DD28E056F58A23E3C55DE776B662A1DD77B849F69637CB3DDE9B364B0DF289AE208404248635DF
+X-Mras: Ok
 
-Hi Sasha,
+i2c driver for RTL9607C used to configure IO_MODE register. The register
+is global and responsible for configuring SoC pins, therefore it should
+belong to pinctrl driver.
 
-Thanks for handling this.
+SoC-specific pinctrl driver is WIP (waiting for these patches in OpenWRT),
+but pinctrl-single could be used instead.
 
-Best,
-Abdurrahman
+While added compatible realtek,rtl9607c-i2c relies on pinctrl driver,
+old realtek,rtl9607-i2c left for backward compatibility.
 
-On Fri, Oct 9, 2026 at 12:01=E2=80=AFPM Sasha Levin <sashal@kernel.org> wro=
-te:
->
-> > This reverts commit e6fe3ea04f0113fe4d47c03d76e03805a4768ca7.
->
-> Thanks for the report. I've dropped e6fe3ea04f01 from the 7.2, 6.18, 6.12
-> and 6.6 stable queues.
->
-> --
-> Thanks,
-> Sasha
+Signed-off-by: Michael Zavertkin <misha.zavertkin@mail.ru>
+---
+Changes in v2:
+- Backward compatibility achieved by adding new compatible value. Old
+  one is marked as deprecated
+- Link to v1: https://patch.msgid.link/cover.1791127538.git.misha.zavertkin@mail.ru
+---
+Michael Zavertkin (2):
+  i2c: rtl9300: add realtek,rtl9607c-i2c compatible
+  dt-bindings: i2c: rtl9300: add 'rtl9607c-i2c'
+
+ .../bindings/i2c/realtek,rtl9301-i2c.yaml     | 20 ++++++++++++++++++-
+ drivers/i2c/busses/i2c-rtl9300.c              | 15 ++++++++++----
+ 2 files changed, 30 insertions(+), 5 deletions(-)
+
+-- 
+2.54.0
+
