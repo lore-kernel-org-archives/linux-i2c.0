@@ -1,71 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CF9F1C2324;
-	Sun, 11 Oct 2026 05:39:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C31A3542F8
+	for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2026 16:48:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791697182; cv=none; b=ZeUpp6ss/Rq7Og04yB65xRVfyuMjD18USSw3tnokA7GSGeSMAvyt+Nb3pTTtMLa0bo5VT2TeFc4DRquzqU5njm7dIO+zizfM0fsJkGHYq1QZ9niCAciegzu6hAb7a3n33nXzyivbre/RJCvgN9szhHdyweC5NRyugPK3TCaWfNA=
+	t=1791737341; cv=none; b=WPyRgFqOjAEiNJ0RUWCbMVs5wUuL/bLF2bmJ+rcC0WEZbhHte6fG1zaZbQGxsBU62gKHLBcjzElgm+OyyVLLJ15fVo+GXMFH/6GyBc8R9/vOa/5TiO5O8PqfUSVznn3uQSO6OQ2OCu1pT5iqMci9HJjrowQzoyIXdemzcAY646Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791697182; c=relaxed/simple;
-	bh=36vHwUG3k3xUN+2RzJxHtp8ZAHm4sZbIFWGKecMdqhI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ka5aaYqFI3FG/MXHZZomlcodAgS9Bbd38/DmM8zKvDFI8T3juGlVYO+3J64HifBcGbd/JhX+i12Pj8tiz7qS2UAR4fP3Fs2Riu36xUmZvqqDOM/qTBPYuNrFDO1Mwndx+xsB9+9GnELGGHunkS9bNDI7MD4r53Kfi53GBWkK1ZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jxxhEbN/; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791737341; c=relaxed/simple;
+	bh=FKfgpR8zMF2/vU7G+VjwWWvlWk6W6Tago6pqkc6YiKo=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=eNOcXjGNHu2DcWv4REoJ3vH0VM2FmCHOLMV9iH4xR/WffBqYzSvCiB86FgJvgj+Gjbh76ng2CyaQRo5IuUtJbLq1vc9Ac8tMvFddBdQDzTEcE6y0ld5iRsO9t1UGq0/88qr1UdQlQml2rVbascC0ya6pgn7WxDygE6YthpMk+zE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=qyVaMzq/; arc=none smtp.client-ip=185.70.43.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jxxhEbN/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D321F0089B;
-	Sun, 11 Oct 2026 05:39:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791697180;
-	bh=ZKMQU6XEmcUy4ixkaBXMRiZ7Ldlzsu7npbQrSJzCOVY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=jxxhEbN/QmLgMyPsUKIC/vx7tUkxyOcxVYxwPshgqmhmRVa9O5WhO4whAhri/hFzQ
-	 IbEfL1GqksGIztGPZb4+3wdpgASLN+Jp1mFQYuUf0swRM+zp2j2+eStJoJmc4ToJ7y
-	 1kZI5DpPrbixylt7hYK05YHOAeinK1gjIZAh6Lq5amXcWfBstmg7OmLlJRiU4FOYpv
-	 Zkm9OqIzJ2B9vSoLaUdAnPBkmW9DtHg6fWQsx3tENcnwT6gQQDmT2ICCwl05R/8Bpm
-	 r4/OrS+0m13UHW8zUFRHebdMaJTWeKcjG/MgWaXZVQG9zUj0FU5nVFMpsJaj0bqcnq
-	 OA9MCIQAfiWXg==
-Date: Sun, 11 Oct 2026 07:39:36 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: a0282524688@gmail.com
-Cc: lee@kernel.org, Ming Yu <tmyu0@nuvoton.com>, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH v8 11/13] mfd: nct6694: Introduce regmap-based transport
- abstraction
-Message-ID: <asshAYcQxlUVJoxU@zenone.zhora.eu>
-References: <20261007092102.3768818-1-a0282524688@gmail.com>
- <20261007092102.3768818-12-a0282524688@gmail.com>
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="qyVaMzq/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1791737329; x=1791996529;
+	bh=LarrssuBABWPTwg1p8etRRP2viISHVBLfh4RBo5CEoM=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=qyVaMzq/u8r5g4Gz6ZL8ftUFpsJcA5Gmcdv8a6rsWuzkaWsaDa07q+ksblU8yL7jJ
+	 wwBAQZmgqRngwtu+FTB+41IYqyXKhUdUYrlh17oR1BZbpepc0TgWMdoSJb11ACyGfZ
+	 LtgQLCMj3bKVpJDFgQyyDr49jARfeW2gfv6rI2NqmkzPU1X4DkOrc3K4uYltYv4J9p
+	 8FHNPqO32/GYkSaazqK28LwdDa9c/71bWb2P74Up4/wtc2Tj3xjBWscTWe19PCU1Su
+	 KwT/epRzKSjSG84zYA2c/Y0qEelEoBqFNOyBg/Q+K1srXeHIzx/Ew4GOz1zO0au1yM
+	 fUEOeb9MZ18xQ==
+Date: Sun, 11 Oct 2026 16:48:46 +0000
+To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>
+From: Birk Skyum <birk.skyum@pm.me>
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, stable@vger.kernel.org, regressions@lists.linux.dev
+Subject: Re: [PATCH v2] i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL
+Message-ID: <179173732257.29426.7905170638383807320@pm.me>
+Feedback-ID: 21326998:user:proton
+X-Pm-Message-ID: 5c6754ccefadb41aa845cd9bb2131df664c89160
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261007092102.3768818-12-a0282524688@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi Ming,
+Hi Viken,
 
-On Wed, Oct 07, 2026 at 05:21:00PM +0800, a0282524688@gmail.com wrote:
-> From: Ming Yu <a0282524688@gmail.com>
-> 
-> Sub-device drivers call into the USB transport directly, so a second
-> transport cannot be added without touching all of them.
-> 
-> Wrap the transport behind a regmap bus. The command header is mapped
-> onto a single 32-bit register by packing the host control byte, the
-> module id and the 16-bit offset, so that the sub-device drivers can use
-> the regmap bulk accessors. The access_lock is dropped as regmap already
-> serialises the bus accesses.
-> 
-> Add nct6694_write_read_msg() for the commands that send a request and
-> read the reply back in the same firmware message, and use it for the
-> I2C deliver command.
-> 
-> Signed-off-by: Ming Yu <a0282524688@gmail.com>
+This change takes away the built-in keyboard and touchpad of the Lenovo
+Yoga Slim 7x (x1e80100). It reached stable as 139efdb3ee6e in 7.2.9,
+and with it the laptop has no keyboard, also at the disk passphrase
+prompt.
 
-Acked-by: Andi Shyti <andi.shyti@kernel.org>
+With the change the first transfer on the keyboard's bus fails.
 
-Andi
+  geni_i2c b80000.i2c: Bus arbitration lost, clock line undriveable
+  i2c_hid_of 1-003a: failed to fetch HID descriptor: -11
+  i2c_hid_of 1-002c: failed to fetch HID descriptor: -110
+
+The touchscreen on a80000.i2c keeps working. Both buses are set to
+400 kHz in the device tree.
+
+To narrow it down I took a 7.2.8 kernel that works on this laptop and
+replaced only i2c-qcom-geni.ko, built from the same tree. It is a
+distribution build of 7.2.8 whose patches touch neither this driver nor
+qcom-geni-se.
+
+  7.2.8 driver                                keyboard works
+  7.2.9 driver (its five qcom-geni commits)   keyboard and touchpad dead
+  7.2.9 driver with 139efdb3ee6e reverted     keyboard works
+
+One thing I can see from the outside. The driver does not set the rate
+of the SE clock. Without the change clk_summary shows the clocks of the
+I2C controllers at 19.2 MHz, so the 19.2 MHz table is used and
+SE_GENI_CLK_SEL is 0. With the change the same clocks read 32 MHz.
+
+                                      without     with
+  gcc_qupv3_wrap0_s0_clk (b80000)    19200000    32000000
+  gcc_qupv3_wrap1_s0_clk (a80000)    19200000    32000000
+
+So as far as I can tell these buses now run from the 32 MHz source with
+the 32 MHz table. I have not found why that fails on b80000 and not on
+a80000.
+
+I have not tested mainline, which carries the change as cb97bf3d4f91.
+The same backport is in 6.18.y (5815329988ac) and 6.12.y
+(f5d0302416aa), which I have not tested either. I can test patches on
+this laptop.
+
+#regzbot introduced: cb97bf3d4f91
+
+Thanks,
+Birk
+
