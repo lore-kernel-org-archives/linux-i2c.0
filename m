@@ -1,46 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3325A3451C6;
-	Sun, 11 Oct 2026 05:31:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CF9F1C2324;
+	Sun, 11 Oct 2026 05:39:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791696666; cv=none; b=UXSMULH2Betg9oXMkRO8XcmgTntheWE3CiKtwnJAbU4CW8eO3ob5WcsaXk5N5+NABO+rup5Uhyt1qVFLhiDgxh2zjAXk1RiK8wuGRiFmltlsrLjuzxGpyJJI7fSJS4OATRvIX4HEQ2VzxUsVGVwPSSc67x0z78wzUVW1jH1LR8s=
+	t=1791697182; cv=none; b=ZeUpp6ss/Rq7Og04yB65xRVfyuMjD18USSw3tnokA7GSGeSMAvyt+Nb3pTTtMLa0bo5VT2TeFc4DRquzqU5njm7dIO+zizfM0fsJkGHYq1QZ9niCAciegzu6hAb7a3n33nXzyivbre/RJCvgN9szhHdyweC5NRyugPK3TCaWfNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791696666; c=relaxed/simple;
-	bh=mmkOBjydK8X1MPZjQ+oe1RAsEXoznMVWMyZLqangTok=;
+	s=arc-20240116; t=1791697182; c=relaxed/simple;
+	bh=36vHwUG3k3xUN+2RzJxHtp8ZAHm4sZbIFWGKecMdqhI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Dh3RavRJ5W4undoLaIumg24/FfKCKsRwSfHvlBnJYU3h/55s48SHX1nRe/12q670L00LzFNui5FnNxPBWirBnbT+KbILjstgG9y/BI3kfEbWQj2phovSV/mJ1sFvf3BR+B6F27E51lT31gueg4/qMQdpFWGJaG2qlbtUYmTwQNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SUrpTlgb; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ka5aaYqFI3FG/MXHZZomlcodAgS9Bbd38/DmM8zKvDFI8T3juGlVYO+3J64HifBcGbd/JhX+i12Pj8tiz7qS2UAR4fP3Fs2Riu36xUmZvqqDOM/qTBPYuNrFDO1Mwndx+xsB9+9GnELGGHunkS9bNDI7MD4r53Kfi53GBWkK1ZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jxxhEbN/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SUrpTlgb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7794E1F0089B;
-	Sun, 11 Oct 2026 05:31:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jxxhEbN/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D321F0089B;
+	Sun, 11 Oct 2026 05:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791696664;
-	bh=9UINK8Ylgw2POp8mtSoHe0NZ1kXpFn45FN0OmGDfuuM=;
+	s=k20260515; t=1791697180;
+	bh=ZKMQU6XEmcUy4ixkaBXMRiZ7Ldlzsu7npbQrSJzCOVY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SUrpTlgbVIRHiOgX1oK0kAIDCT9ok7g9D7ot6DGNaGdldQ8dMwoTMyWHEUW2Zr3tl
-	 LjZzh+CTCCQZ8GMe0bNiKhEoLjwAnEIwx03ETzpI2XZxb2IwwvsjPmcFjrY/G6BLIF
-	 YIA+YfdQBEc2ODULd44o4sdIPv6ybChZsiy4J8Z8z+upgMuEY+uWJ4Rd/4ZYTnJHyN
-	 KLCaa5ih8LbhAKDSYc4ApgYFj09VtRR4/03ihFnO1vkNj6uoUpYwvpXqmSpjFY2Nnp
-	 COgoXU/tRd8qX2I5qH6NahXgFm63ClsTAtomQ38W23lWRw/UF21aWREG7xRJAe8IvZ
-	 Fi+6ju0AiZZJw==
-Date: Sun, 11 Oct 2026 07:30:59 +0200
+	b=jxxhEbN/QmLgMyPsUKIC/vx7tUkxyOcxVYxwPshgqmhmRVa9O5WhO4whAhri/hFzQ
+	 IbEfL1GqksGIztGPZb4+3wdpgASLN+Jp1mFQYuUf0swRM+zp2j2+eStJoJmc4ToJ7y
+	 1kZI5DpPrbixylt7hYK05YHOAeinK1gjIZAh6Lq5amXcWfBstmg7OmLlJRiU4FOYpv
+	 Zkm9OqIzJ2B9vSoLaUdAnPBkmW9DtHg6fWQsx3tENcnwT6gQQDmT2ICCwl05R/8Bpm
+	 r4/OrS+0m13UHW8zUFRHebdMaJTWeKcjG/MgWaXZVQG9zUj0FU5nVFMpsJaj0bqcnq
+	 OA9MCIQAfiWXg==
+Date: Sun, 11 Oct 2026 07:39:36 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
 To: a0282524688@gmail.com
 Cc: lee@kernel.org, Ming Yu <tmyu0@nuvoton.com>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Marc Kleine-Budde <mkl@pengutronix.de>, 
-	Vincent Mailhol <mailhol@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH v8 06/13] mfd: nct6694: Move module type macros to shared
- header
-Message-ID: <asse8LZ76649tShM@zenone.zhora.eu>
+	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mfd@lists.linux.dev
+Subject: Re: [PATCH v8 11/13] mfd: nct6694: Introduce regmap-based transport
+ abstraction
+Message-ID: <asshAYcQxlUVJoxU@zenone.zhora.eu>
 References: <20261007092102.3768818-1-a0282524688@gmail.com>
- <20261007092102.3768818-7-a0282524688@gmail.com>
+ <20261007092102.3768818-12-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -49,26 +44,28 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261007092102.3768818-7-a0282524688@gmail.com>
+In-Reply-To: <20261007092102.3768818-12-a0282524688@gmail.com>
 
 Hi Ming,
 
-On Wed, Oct 07, 2026 at 05:20:55PM +0800, a0282524688@gmail.com wrote:
+On Wed, Oct 07, 2026 at 05:21:00PM +0800, a0282524688@gmail.com wrote:
 > From: Ming Yu <a0282524688@gmail.com>
 > 
-> Each sub-device driver defines the module type used by its own
-> commands. The upcoming HIF transport also needs to recognise
-> NCT6694_RPT_MOD, as report accesses are served from a separate
-> register space rather than through the command mailbox.
+> Sub-device drivers call into the USB transport directly, so a second
+> transport cannot be added without touching all of them.
 > 
-> Move all module types into the shared header so that the transports
-> and the sub-device drivers use a single set of definitions.
+> Wrap the transport behind a regmap bus. The command header is mapped
+> onto a single 32-bit register by packing the host control byte, the
+> module id and the 16-bit offset, so that the sub-device drivers can use
+> the regmap bulk accessors. The access_lock is dropped as regmap already
+> serialises the bus accesses.
 > 
-> No functional change.
+> Add nct6694_write_read_msg() for the commands that send a request and
+> read the reply back in the same firmware message, and use it for the
+> I2C deliver command.
 > 
 > Signed-off-by: Ming Yu <a0282524688@gmail.com>
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+Acked-by: Andi Shyti <andi.shyti@kernel.org>
 
-Thanks,
 Andi
