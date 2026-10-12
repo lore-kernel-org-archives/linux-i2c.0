@@ -1,204 +1,136 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.162])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 104297E792
-	for <linux-i2c@vger.kernel.org>; Mon, 12 Oct 2026 05:16:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05591442390;
+	Mon, 12 Oct 2026 07:07:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.63.162
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791782175; cv=none; b=opbn/HLPesJkvuNgEBM6DvHrJq63JY+DBR1kLaBR/X3bxHzquaNTaAuTaOjtqjzjyOH0rHHtKXC0ovzVRlBT30kVoMqTsoNS6c/6HCdBPAeQFlNhd/4AkQImG/naIHnrKbKg1jizccf7wDHm4u8dn17InjVyFRHIqeC9gDtLMzQ=
+	t=1791788878; cv=none; b=t0VYK6rpmIkiwOdr2lqZ3dgcEEul4F/MdPJUExk6E1SSekfNRrq1/boAz8RqimPNeK3fUL/A1PQJ2me/RvvTRFEoQ4WXFqfDK92YlqVz0eFCzjW1nhjDWasFuZ7aC2uCtzZO6C0S07pe083c+5JfvabAprMbkY5JP1z7LRSzwx4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791782175; c=relaxed/simple;
-	bh=Djy/zzJfys8gByPl6c60AthKsfg7TL2htBD6/K2u8PY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KrLOK/ymNl7prPQKwn5Yk2nAyFVlGFz9zVih2nVlRuNMdc9LhKcS4jLHJAWih1DAMDcc3HdfQwB+F1CFnsIMCu/WP//tyzFS5ceVcpzd7dcL0lKOPhm/kTeJEVBAWYYWdHQudsOPRRsOsk40h1ui7iM4GBIXAgzGpEpHEaCpZnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E7E3V4/+; arc=none smtp.client-ip=209.85.160.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791788878; c=relaxed/simple;
+	bh=i5BIRVAPpniOISGJ/i5CsM5ZpN/mj5rHCcHGicli75k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N68HBoKPXM57G5Y4yWnuwsI/5wdW03NLqTijLZU5Rfl+n26wvKkAtrK2OlCL6bz+v2TfrijmlWRJgXyHvRw9Rm9ZLXYc85L4gVJy+I///vwd3bhGFA1pUPVA1l6SOCxJ8Z0HfDv0HYluFwy+A8ksLtNeG3mCFgjEhTuBZZkpIB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=KEGgUBw5; arc=none smtp.client-ip=188.68.63.162
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E7E3V4/+"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-53397554beaso17207651cf.3
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2026 22:16:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791782173; x=1792386973; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DoIjC7EcejB2ioPzHuqTAbp7uokmahiy0Pm6Nq6N6q0=;
-        b=E7E3V4/+ZdF2jg+OHsuNrj3aWgKqxj6EJDzzOzI9fucx1qGlpoKW2XDMq6HRz8Vs1o
-         KEhbumRb106lOp6UcdqtVW9aOF4n8j9/2EfiYO0x87puXP7vIh+Uf2dMZSWxhvJDkTaC
-         N5kEhk1oyuXt+O3oAM4qPW9ENWT8HREXs/yDmHsZ8Y57pUkpJhAwLGulN/rISPJe/bWY
-         kvd1kjzzd1Og4bvmNau1hOd93LL1H25svoJJv1Aee0T72zga72VUeLUyZ0UQ8IO/BNsr
-         a5ccARSDXGvektXVoDoA4RZriucky7lpHjakM4YUDZcsegyfLlUiXWWBABtzflOEAJki
-         CwkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791782173; x=1792386973;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=DoIjC7EcejB2ioPzHuqTAbp7uokmahiy0Pm6Nq6N6q0=;
-        b=VtwDThNAkCc+m+fw5Q8MniFQ29meK/+YVJgbzZKznIPJrGJgOJpvsGwZbVhTpmyyEN
-         OgnxiXPfHFfeCctxMPeRfqPe9DJDV/UxWawFgLi28tFvkXp3s0gyqur7NpFGyOxaW5Vs
-         N2O0FGh4jbu/Hm2d0xZx9BCaw0fS5j5NZo+4ak3ltdIOmShDVBE0WZhxbiEr3wQSIsrO
-         a1TcYIdDywvRj4IKk9ySkbjvbXjy3Hsy4OJf4dd6JyuOhKa6157I7xAo2gcQyQoG57i0
-         rowS/6UqTr13gz+S220vBlKCUdOntNWIMHnzG8jEkbv20g/00wrrG5B/kIosSRAG4OiJ
-         H9Xw==
-X-Forwarded-Encrypted: i=1; AKwUvBzP1F6ZF9fd/enmoFYApMrApa3U5vOJryRvSnFadbaBZj7XrVt1swrEqetgkeHY/X2iw0spaGu2vCE=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKXyRusI6BklLiUeZDJ+giTONU9nXzjw3uOlhAZxqyhs2VpfPg8
-	wogXZicF8IC9WUG8pCSK6YJwpb7mEjaIMS6iXJpRzM1FFLuy6QhUpRY=
-X-Gm-Gg: AYBFou0tOk1oRgdYHttzt1XbIcLDHg2mdtiad6PE1oxwn7UXnasAylw74DZ8xT2Wjna
-	Yk0GyulvODCzF9b1VfSwqJ8UkX0xFzi2KuWoeu1RGsoqBteEjBXAtPxvt1zpVuGPboNiKjFeZxm
-	FVnBIPqXB/cTKRtZ/wnbJtg2eX5MsO8mH3vykzZc3DzcMobiKfuwcbzVsii1UGOXBMyPrfSUaNo
-	gLMsT252pB+GmMf6oFebEMqIzwikal9saR0gFm3Stb3MqQYg0FDYf26Ya7pZjDZhxkDClkWoSk6
-	H2CG/9wbVo1sY0meEYeVBcA7etqDiIafJOz41Kyh/K7JwoFCsuw1dPzM7nRN3wS/jTyLJS7LyXQ
-	/Yu3Gx2zxxxQs1detJ8eYbpjBrJq6rwgeNXXR47wOF0tI3P6AH4IkEZ9Dj6MLTAaVPcy86UNKqg
-	CBG2ZpRYm3hi9GpQpoljWL2Uwge5sNFm/YOYi65bGjxR5KMbfxBHnQVOZ3CiznG8GWC/hMOL/2/
-	UzCjEZEaROg7XWPqZlueBvMM0R/mvZ/pK4/7piT04vwVNYlNqHysHdZblgK1bvYa2TtoB3dFIW6
-	UxI3qOZ73GXY+qtPt4vesU5u+HazNP6/57NOQsU=
-X-Received: by 2002:a05:622a:2486:b0:533:8f97:9362 with SMTP id d75a77b69052e-5359fdd0ba0mr136390851cf.49.1791782172836;
-        Sun, 11 Oct 2026 22:16:12 -0700 (PDT)
-Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b550184adsm86514996d6.9.2026.10.11.22.16.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 22:16:10 -0700 (PDT)
-From: Myeonghun Pak <mhun512@gmail.com>
-To: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Ijae Kim <ae878000@gmail.com>
-Subject: [PATCH] i2c: stm32f7: close SMBus alert work before removing ARA
-Date: Mon, 12 Oct 2026 01:16:08 -0400
-Message-ID: <20261012051608.177145-1-mhun512@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="KEGgUBw5"
+Received: from mors-relay-8201.netcup.net (localhost [127.0.0.1])
+	by mors-relay-8201.netcup.net (Postfix) with ESMTPS id 4j37p961tyz4CN8;
+	Mon, 12 Oct 2026 09:07:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
+	s=key2; t=1791788865;
+	bh=i5BIRVAPpniOISGJ/i5CsM5ZpN/mj5rHCcHGicli75k=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=KEGgUBw51XKEHFsoKPSUYd0h0P1wwCRlCi6pUAg1GQkOLWsAyXDh0gcIQlHTAfnvB
+	 Mf10nBTYRpdKrFl46l6TuNn/836VNoQV40OcXjZgZshcYNG5uT88FPeeWQL4rEvLCd
+	 F46CR508UtmGXuOfIDlnc+I3RZE2XPpquUOSwvRye8tHY9bkMQXiRbKCHCSd85Ff+/
+	 rdGIEgPIj0eXKCXCWFryMSNwVXLSTKpqhNqe1Pmq0oE9KiKSg6dobxh4+yPl9pPOia
+	 1OZUM+tbQGNLWdmP5EdcbG4BNyEqCMm/4BqASsXkjiIkpDMZdaJMJwTyyhlKK78IkD
+	 sj5zLEp+AFivg==
+Received: from policy01-mors.netcup.net (unknown [46.38.225.35])
+	by mors-relay-8201.netcup.net (Postfix) with ESMTPS id 4j37p94l9Xz4CFN;
+	Mon, 12 Oct 2026 09:07:45 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at policy01-mors.netcup.net
+X-Spam-Flag: NO
+X-Spam-Score: -2.901
+X-Spam-Level: 
+Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by policy01-mors.netcup.net (Postfix) with ESMTPS id 4j37p86G9nz8tfd;
+	Mon, 12 Oct 2026 09:07:44 +0200 (CEST)
+Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
+	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 98C085FA1C;
+	Mon, 12 Oct 2026 09:07:35 +0200 (CEST)
+Authentication-Results: mxe9fb;
+        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
+Received-SPF: pass (mxe9fb: connection is authenticated)
+Message-ID: <a64dc5d0-eb09-4482-b8b3-16d8d015e2bc@leemhuis.info>
+Date: Mon, 12 Oct 2026 09:07:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] i2c: qcom-geni: Fix hardcoded clock index in
+ SE_GENI_CLK_SEL
+To: Birk Skyum <birk.skyum@pm.me>,
+ Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+ Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+ Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ stable@vger.kernel.org, regressions@lists.linux.dev
+References: <179173732257.29426.7905170638383807320@pm.me>
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+Content-Language: de-DE, en-US
+In-Reply-To: <179173732257.29426.7905170638383807320@pm.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-PPP-Message-ID: 
+ <179178885607.2571480.10778353119121245415@mxe9fb.netcup.net>
+X-NC-CID: 8Q6MsXqw5AlrJChlWYXUT1ubh9yG509Hi9+8C29qBzL9iKyaUA0=
 
-Clearing ALERTEN does not join a handler that already observed ALERT.
-It can enqueue work after the ARA client has cancelled work and freed
-its backing state.
+On 10/11/26 18:48, Birk Skyum wrote:
+> 
+> This change takes away the built-in keyboard and touchpad of the Lenovo
+> Yoga Slim 7x (x1e80100). It reached stable as 139efdb3ee6e in 7.2.9,
+> and with it the laptop has no keyboard, also at the disk passphrase
+> prompt.
 
-Exclude transfers and join both controller IRQs before detaching the
-alert pointer. Check that pointer before queuing ARA work, and handle
-single-line controllers without disabling the same IRQ twice.
+Not my area of expertise, but from a quick look it sounds a lot like
+this will be fixed by this with will likely be fast-tracked to stable
+once mainlined:
 
-Resume the controller before masking and clearing ALERT. On resume
-failure, skip MMIO while pointer detachment still closes the producer.
-Restore IRQs and release the bus lock before unregistering ARA so its
-worker can finish an I2C transfer.
+i2c: qcom-geni: restore tSCL with 32MHz I2C fast-mode
+https://lore.kernel.org/all/20260929041444.9837-1-daniel@quora.org/
 
-This issue was found by static analysis.
+Could you take a closer look please and maybe even confirm?
 
-Fixes: c8062d11e20c ("i2c: stm32f7: add SMBus-Alert support")
-Assisted-by: LLM
-Co-developed-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
----
- drivers/i2c/busses/i2c-stm32f7.c | 44 +++++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 4 deletions(-)
+Ciao, Thorsten
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 6bd281a9ef72..9b8f378afe3b 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -331,6 +331,8 @@ struct stm32f7_i2c_alert {
-  * @dnf_dt: value of digital filter requested via dt
-  * @dnf: value of digital filter to apply
-  * @alert: SMBus alert specific data
-+ * @irq_event: interrupt for events
-+ * @irq_error: interrupt for errors, or irq_event for single-line controllers
-  * @atomic: boolean indicating that current transfer is atomic
-  */
- struct stm32f7_i2c_dev {
-@@ -364,6 +366,8 @@ struct stm32f7_i2c_dev {
- 	u32 dnf_dt;
- 	u32 dnf;
- 	struct stm32f7_i2c_alert *alert;
-+	int irq_event;
-+	int irq_error;
- 	bool atomic;
- };
- 
-@@ -1534,9 +1538,12 @@ static irqreturn_t stm32f7_i2c_handle_isr_errs(struct stm32f7_i2c_dev *i2c_dev,
- 	}
- 
- 	if (status & STM32F7_I2C_ISR_ALERT) {
-+		struct stm32f7_i2c_alert *alert = READ_ONCE(i2c_dev->alert);
-+
- 		dev_dbg(dev, "SMBus alert received\n");
- 		writel_relaxed(STM32F7_I2C_ICR_ALERTCF, base + STM32F7_I2C_ICR);
--		i2c_handle_smbus_alert(i2c_dev->alert->ara);
-+		if (alert)
-+			i2c_handle_smbus_alert(alert->ara);
- 		return IRQ_HANDLED;
- 	}
- 
-@@ -2116,13 +2123,39 @@ static void stm32f7_i2c_disable_smbus_alert(struct stm32f7_i2c_dev *i2c_dev)
- {
- 	struct stm32f7_i2c_alert *alert = i2c_dev->alert;
- 	void __iomem *base = i2c_dev->base;
-+	int ret;
-+
-+	if (!alert)
-+		return;
-+
-+	ret = pm_runtime_resume_and_get(i2c_dev->dev);
-+	if (ret < 0)
-+		dev_warn(i2c_dev->dev, "Failed to resume for SMBus alert shutdown: %d\n", ret);
-+
-+	/* Exclude transfers and both interrupt handlers while detaching ARA. */
-+	i2c_lock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
-+	disable_irq(i2c_dev->irq_event);
-+	if (i2c_dev->irq_error != i2c_dev->irq_event)
-+		disable_irq(i2c_dev->irq_error);
- 
--	if (alert) {
--		/* Disable SMBus Alert */
-+	/* Keep late or pending ALERT flags from queuing work on the old ARA. */
-+	WRITE_ONCE(i2c_dev->alert, NULL);
-+	if (ret >= 0) {
- 		stm32f7_i2c_clr_bits(base + STM32F7_I2C_CR1,
- 				     STM32F7_I2C_CR1_ALERTEN);
--		i2c_unregister_device(alert->ara);
-+		writel_relaxed(STM32F7_I2C_ICR_ALERTCF, base + STM32F7_I2C_ICR);
-+		readl(base + STM32F7_I2C_ISR);
- 	}
-+
-+	if (i2c_dev->irq_error != i2c_dev->irq_event)
-+		enable_irq(i2c_dev->irq_error);
-+	enable_irq(i2c_dev->irq_event);
-+	i2c_unlock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
-+
-+	/* The alert worker may need a transfer before its removal completes. */
-+	i2c_unregister_device(alert->ara);
-+	if (ret >= 0)
-+		pm_runtime_put_autosuspend(i2c_dev->dev);
- }
- 
- static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
-@@ -2178,6 +2211,8 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	irq_event = platform_get_irq(pdev, 0);
- 	if (irq_event < 0)
- 		return irq_event;
-+	i2c_dev->irq_event = irq_event;
-+	i2c_dev->irq_error = irq_event;
- 
- 	i2c_dev->wakeup_src = of_property_read_bool(pdev->dev.of_node,
- 						    "wakeup-source");
-@@ -2210,6 +2245,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		irq_error = platform_get_irq(pdev, 1);
- 		if (irq_error < 0)
- 			return irq_error;
-+		i2c_dev->irq_error = irq_error;
- 
- 		ret = devm_request_threaded_irq(&pdev->dev, irq_error,
- 						NULL,
+> With the change the first transfer on the keyboard's bus fails.
+> 
+>   geni_i2c b80000.i2c: Bus arbitration lost, clock line undriveable
+>   i2c_hid_of 1-003a: failed to fetch HID descriptor: -11
+>   i2c_hid_of 1-002c: failed to fetch HID descriptor: -110
+> 
+> The touchscreen on a80000.i2c keeps working. Both buses are set to
+> 400 kHz in the device tree.
+> 
+> To narrow it down I took a 7.2.8 kernel that works on this laptop and
+> replaced only i2c-qcom-geni.ko, built from the same tree. It is a
+> distribution build of 7.2.8 whose patches touch neither this driver nor
+> qcom-geni-se.
+> 
+>   7.2.8 driver                                keyboard works
+>   7.2.9 driver (its five qcom-geni commits)   keyboard and touchpad dead
+>   7.2.9 driver with 139efdb3ee6e reverted     keyboard works
+> 
+> One thing I can see from the outside. The driver does not set the rate
+> of the SE clock. Without the change clk_summary shows the clocks of the
+> I2C controllers at 19.2 MHz, so the 19.2 MHz table is used and
+> SE_GENI_CLK_SEL is 0. With the change the same clocks read 32 MHz.
+> 
+>                                       without     with
+>   gcc_qupv3_wrap0_s0_clk (b80000)    19200000    32000000
+>   gcc_qupv3_wrap1_s0_clk (a80000)    19200000    32000000
+> 
+> So as far as I can tell these buses now run from the 32 MHz source with
+> the 32 MHz table. I have not found why that fails on b80000 and not on
+> a80000.
+> 
+> I have not tested mainline, which carries the change as cb97bf3d4f91.
+> The same backport is in 6.18.y (5815329988ac) and 6.12.y
+> (f5d0302416aa), which I have not tested either. I can test patches on
+> this laptop.
+> 
+> #regzbot introduced: cb97bf3d4f91
+> 
+> Thanks,
+> Birk
+
