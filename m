@@ -1,79 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF009395DBE
-	for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2026 20:24:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49EFD2D9EE7;
+	Mon, 12 Oct 2026 01:34:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791750255; cv=none; b=t12zyvT7EOiwwkT9CL3PvxUnGQ8iJ7Fa6xkGFt3wdTV8OfxieOylwHwXpgvemvTWP+SS5gsR15syVeG4KtN2kYm6nkHfuW9kBikyiJsYhQ/nBjkD25sCvaM+xzpxQpCD6YovfGhYudBWAhIc7Rd0XWKDRAo+pveNb2wObT+NVlo=
+	t=1791768890; cv=none; b=sc+WluCBq4I36fKRpD2BxZ277HItt9ZFIWaycXHkUKPQpiAvjJGbHwFP650EZZcaiDt/qjidWJA7ReKqJO6XFVnTMc1Xxck6n3JhhA26lm0S2E+500Lb0qrHG0agaKE3pGEJF+JrJ3NFqlqrNowWtxE7Qtapr0ll3mlb3n53MmI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791750255; c=relaxed/simple;
-	bh=OsRD+F+OLtUmpRSHXSpv9UfMmwgcSUQb/xDcJZ0DHJo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=t4HhAJTDxgMaded1PiGU/rwpTQTrLA/ZO37EX5YnOcGw2Uqo5quS3XuxCiAh2Bn+9B4tqhLm5vcMWJgJSaA02WKNsPZZ1NaWgUwXWvFitdepfgkyfFXkxt2E1SUSpJF5QvY6KPw422OvcRY6xmgFrotbOJlYubJycjVjJcWUEgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bDwkVR+M; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791768890; c=relaxed/simple;
+	bh=wNA424F7S0gOOptV66coIV8Jv8ytswfDkInTaJkdOsU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k7VA1RucEQ8SjmXFVaAbgldDp/KhKQY5W9tgm7kUCJDZBD3FoK867N5ETlhX7HY4USFbHoVdscpHRIFcjO0XYSNanFzPdA0YhxEkywn98VcP6MiFltG+ZebUZf/E3wRjgjB/fEbFeyNozFSTj/giHRkh5LXYpMNk6REwgsb1wYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=kK8mknIn; arc=none smtp.client-ip=220.197.31.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bDwkVR+M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F8701F008A0
-	for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2026 20:24:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791750254;
-	bh=OsRD+F+OLtUmpRSHXSpv9UfMmwgcSUQb/xDcJZ0DHJo=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=bDwkVR+Mng9JjATCiFJWqiEpR38DGPgfTc3U+ctxg8/zcUPYe6TqXRRdyU3ye9pMq
-	 7khAoC94ueck2dwdL60uK4E66jZOkU2aqI2OXJq7u1JJAqaw9VxhBAj0gY5spb92cW
-	 +kZv5+LK8cA2iUxOwjmkOQc3O42BTz05jz5D9LL+Y5TLkTdBtzOt+1yx64SZqy9GHJ
-	 d0k1ADaHIOl5pGP5HGXGaq7W+xMmorZG1E7eT9Ws81zMZExmRZp7PPjtYaLFGZKJu5
-	 BC2NFnqcI9Jxzg+QNaCHVJ009FaM4bblt/P0TJik5hwb/wsdZio2QQe9VyaQGnikLr
-	 f/VK0uEoxEFvA==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5ba3fba0080so796967e87.1
-        for <linux-i2c@vger.kernel.org>; Sun, 11 Oct 2026 13:24:14 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBz1KTZ1hpxkvQKDg/ngCuyR5jai0nCQgyxjRrYJYPHFTARdJyU8rnxnNSjBoqfoCILjLJUCs2yiQPc=@vger.kernel.org
-X-Gm-Message-State: AFq9FYJu/Yc34MHYIxp9YwJUEcevjoQmKF1l+Jiy6nFK6WtcApbL3uiA
-	jRzzeRJJO7fPUWly5wz4UbJPx2zFECwFNYAejjrDMgbnIGQNy1OpJFQbQCQtXUAxKIKmds/LPt5
-	0JLDXxfaSenDlZHNV1rQs3Crfy81WNjs=
-X-Received: by 2002:a05:6512:118d:b0:5b8:bc5e:b570 with SMTP id
- 2adb3069b0e04-5bcde8c13ffmr2228437e87.40.1791750253189; Sun, 11 Oct 2026
- 13:24:13 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="kK8mknIn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=xP
+	RGA++adt8KvzFvkqr/qweA1l/L7d43TDcIHAz7WLY=; b=kK8mknIn5a6PfUCxsP
+	nb1Hs3okwbnCWjo3aPRtuoUOm7KGBG0CZjWpT3jtu2ho82MoI6RZ+JfzcADTDJFk
+	R6d0nPAElpLK2wyZZv1u1rgcCl0pLnjb2ml+ktouMGrItoMlTvL6xLS3CiBUVSRz
+	Y66xNLJqeu03QaRu7H+JkRZ4M=
+Received: from ubuntu.. (unknown [])
+	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wD3H80eOcxqGT5OEA--.60145S4;
+	Mon, 12 Oct 2026 09:34:31 +0800 (CST)
+From: Ma Ke <make_ruc2021@163.com>
+To: westeri@kernel.org,
+	andi.shyti@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	akpm@linux-foundation.org,
+	Ma Ke <make_ruc2021@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] i2c: acpi: Fix adapter reference leak in i2c_acpi_new_device_by_fwnode()
+Date: Mon, 12 Oct 2026 09:34:21 +0800
+Message-ID: <20261012013421.3597430-1-make_ruc2021@163.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev>
- <20261010-apple-m4-pro-max-initial-devicetrees-v1-7-781fb3f2d9f6@cyberchaos.dev>
-In-Reply-To: <20261010-apple-m4-pro-max-initial-devicetrees-v1-7-781fb3f2d9f6@cyberchaos.dev>
-From: Linus Walleij <linusw@kernel.org>
-Date: Sun, 11 Oct 2026 22:23:58 +0200
-X-Gmail-Original-Message-ID: <CAD++jLk+2iUkJfYQckV4G79JEErH77_mOqwGaZ6TyKGawmnFLw@mail.gmail.com>
-X-Gm-Features: AclHuK9cHC-ny7H2OT1BGwCBFcKBYkyqMbq7PnfdAqUY1dh82EQN4ca3xsuP3Cs
-Message-ID: <CAD++jLk+2iUkJfYQckV4G79JEErH77_mOqwGaZ6TyKGawmnFLw@mail.gmail.com>
-Subject: Re: [PATCH 07/10] dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
-	Lorenzo Pieralisi <lpieralisi@kernel.org>, Hector Martin <marcan@marcan.st>, 
-	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
-	Sasha Finkelstein <k@chaosmail.tech>, Mark Kettenis <kettenis@openbsd.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-pwm@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wD3H80eOcxqGT5OEA--.60145S4
+X-Coremail-Antispam: 1Uf129KBjvJXoW7WF4kXw17XFy7JF45Kw1kAFb_yoW5Jr1xpr
+	W5KFyDAryqgF129w4UXFy3Aa4fur4Iy39akF4UJ3y2kFsYgryrtFyayryjga43ArZaqa1D
+	Ar42qaykArWqyFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0p_uc_rUUUUU=
+X-CM-SenderInfo: 5pdnvshuxfjiisr6il2tof0z/xtbC9QclMGrMOSdZIAAA3m
 
-On Sat, Oct 10, 2026 at 7:00=E2=80=AFPM Yureka Lilian <yureka@cyberchaos.de=
-v> wrote:
+i2c_acpi_new_device_by_fwnode() obtains an i2c_adapter through
+i2c_acpi_find_adapter_by_handle(). That helper uses bus_find_device()
+internally, so it returns the adapter with a reference held:
 
-> The pin controller on the Apple Silicon T604x (M4 Pro/Max) SoCs is
-> compatible with t8103. Add "apple,t6041-pinctrl" as SoC specific
-> compatible under "apple,t8103-pinctrl".
+        adapter = i2c_verify_adapter(dev);
+        if (!adapter)
+                put_device(dev);
 
-No Signed-off-by?
+        return adapter;
 
-Yours,
-Linus Walleij
+The reference is only put on the failure path inside that helper. The
+caller owns it otherwise. i2c_acpi_new_device_by_fwnode() never drops
+it, neither on the -EPROBE_DEFER path nor after
+i2c_new_client_device(), so every call leaks one reference on the
+adapter and the adapter can never be released.
+
+i2c_new_client_device() does not consume that reference. It registers
+the new client with the adapter as its parent, and device_add() takes
+its own reference on the parent, which device_del() releases when the
+client goes away.  The reference obtained by the lookup is a separate
+one and has to be dropped here.
+
+i2c_acpi_notify() in the same file already does exactly this. It takes
+the adapter from the same helper, registers the client through
+i2c_acpi_register_device(), which calls i2c_new_client_device(), and
+then puts the reference.
+
+i2c_new_client_device() gives the client its own reference on the
+adapter, so ours can be dropped unconditionally.
+
+Found by code review.
+
+Fixes: 605f8fc22442 ("i2c: core: Add new i2c_acpi_new_device helper function")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ma Ke <make_ruc2021@163.com>
+---
+ drivers/i2c/i2c-core-acpi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 8f3bdd50186e..37d1309e93b5 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -547,6 +547,7 @@ struct i2c_client *i2c_acpi_new_device_by_fwnode(struct fwnode_handle *fwnode,
+ {
+ 	struct i2c_acpi_lookup lookup;
+ 	struct i2c_adapter *adapter;
++	struct i2c_client *client;
+ 	struct acpi_device *adev;
+ 	LIST_HEAD(resource_list);
+ 	int ret;
+@@ -574,7 +575,10 @@ struct i2c_client *i2c_acpi_new_device_by_fwnode(struct fwnode_handle *fwnode,
+ 	if (!adapter)
+ 		return ERR_PTR(-EPROBE_DEFER);
+ 
+-	return i2c_new_client_device(adapter, info);
++	client = i2c_new_client_device(adapter, info);
++	put_device(&adapter->dev);
++
++	return client;
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_new_device_by_fwnode);
+ 
+-- 
+2.43.0
+
