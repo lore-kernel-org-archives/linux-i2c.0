@@ -1,103 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64687469821;
-	Mon, 12 Oct 2026 17:11:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E3E335C6AA;
+	Mon, 12 Oct 2026 17:32:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791825068; cv=none; b=qCGgY4nX2mfvXmYWeWxiVtFXepQRjcP6UhoKGdMHt57MzarHbWZkdOTb6nesV7j9E3oRg8ONqicwZ2Urd0bc6I4CbSLTb766byyfiBXB7yV77QFSUUNFmgBioZCqgRPZIwQCRf4WRXC4VUn/2+z4ysppYA/E3KefNCcpup6yfyc=
+	t=1791826378; cv=none; b=ma6hpzf57zQP55uf1j0VLEYg8lBiEEEH4pVoHBR+i/PmGa8JMkBbcNoD5ppydALS7vUad3BPri16WQhBnqPF5tmlmKoTN2CdGo7XafPWfF4pmY2jFV90KamU+91Y/Gxss1lShXl+XK+/OHmXQ494dbM4FY0Vm+k3YY7qzL0fW8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791825068; c=relaxed/simple;
-	bh=kMeWUKAHOvbp2Y5OMBRA/Xyoibtw8gkX5ll2fWrH2A0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tOiLbu7lPswRpkUevaiFfQ0rKHnha2AwPZjYed5T7HOdqV9qwYPeBIRuv1dn7IeiMQmzhfTxJdIXlnIEUUl19+C5lZogs0B5g5dPBaPmtd44qfTcILzw2Sh93KcFw5qdqaU6IS77NwVlrnXjswO5p1RX0c85hPmU6uPbxN8y1o8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pzi4+a3v; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791826378; c=relaxed/simple;
+	bh=Zzzint5ECeIvn557DthDmutEppVqwPr3W2qzFUq9hXQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Fr9UOGYjOjVbZk8BSOTyu0DNssE7bi0r07vkejytm218sltH3MvgEwqVZQ4ie4Oawy5l2+WcQbtBfnmZ4+wWyv5N9E/V2Pdtfb+iEJPLVo9uueiBWPfUuPRYHRQ+5Syiu5V5JsNRsLQI7R7C+h4jaKhtQySoCT9+BPhe9FcU4pw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YPQcRPHM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pzi4+a3v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76B971F0089B;
-	Mon, 12 Oct 2026 17:11:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791825067;
-	bh=G2ShRVCJl4ADNMgICYYHDFwKwRhCkwXLZDOE5Y9VotM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Pzi4+a3vCIXcG1SI7NRiYdRM3vutIrVXhdQhb3D2AEOFECW4TxmmnG0G9LAwgfd/5
-	 9ZJi6xap7j6TTC2NIh95epvsLO3v4UeHkVwPI8rovJ/TqM7/kUVNG2s4pSFqyEoE+6
-	 7xUQQ1VY/ee78uSgiO0jizULRnDVczoq30977+vlyMC+f+ZzOZDnjwdh82kgatVhYl
-	 y4eACzJjV48FKgbOW2cAN4oO4u+BpgfQucOZFkP/7VUpmVta5IBaboljXH0f/5fLDE
-	 1KjiF9DGXa1GJevaZW3hxQT6PZqdCsKK6DwNN1E5mkcUUP2EnMn///E8t9CCTwGbaJ
-	 bj5Di5NtSFr6g==
-Date: Mon, 12 Oct 2026 18:10:59 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Aniket Limaye <a-limaye@ti.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Nirujogi Pratap <pratap.nirujogi@amd.com>, Bin Du <bin.du@amd.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, vigneshr@ti.com, nm@ti.com,
-	u-kumar1@ti.com, lianfeng.ouyang@starfivetech.com,
-	Ritwick.Sharma@arm.com, intel-xe@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org, Breno Leitao <leitao@debian.org>
-Subject: Re: [PATCH v3 0/3] i2c: designware: Add TI TDA54 I2C support
-Message-ID: <0bf04f71-cec7-453f-af5a-d121277eb51e@sirena.org.uk>
-References: <20260925-tda54-upstream-i2c-v3-0-544d74e992ff@ti.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YPQcRPHM"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1AFD1C2BCFB;
+	Mon, 12 Oct 2026 17:32:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1791826378;
+	bh=Zzzint5ECeIvn557DthDmutEppVqwPr3W2qzFUq9hXQ=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=YPQcRPHMiHFpvaPYGgkrdMBZTa95ZZvUJkCelMbYhi0ppjX7g59fzGEKaHn8gjLXT
+	 qJr1ehexZU5WkNl0ew9KmHVNkREqnuz2+XUQSU9mKCcExPJGRsGC/Vu25BdDrRM7rT
+	 VGJv1pTS2pe/CbniYxDMYaBPyGXOe6O2fliSpQTCy6DI1T05tk+8O0DGojOCd7g9rq
+	 jxte83/3LC4EuZrCpYeAHA2bChzumdLVrafGP7R7wvJ/vrQ6s1WQDANFjRXaJ5Q0fO
+	 FHjLEoSZOCYaoJAU29gfkwfStVe27ZsVY5olQAILSX3wAeTwbHREacoBmXOlh2WmPz
+	 03Pd9HNWbbeXw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF49ECA9EDE;
+	Mon, 12 Oct 2026 17:32:57 +0000 (UTC)
+From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
+Date: Mon, 12 Oct 2026 20:32:56 +0300
+Subject: [PATCH 01/11] dt-bindings: interrupt-controller: Add Cortina
+ Systems CS7542 peripheral interrupt controller
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="bvUae1am23g2EFEG"
-Content-Disposition: inline
-In-Reply-To: <20260925-tda54-upstream-i2c-v3-0-544d74e992ff@ti.com>
-X-Cookie: Academicians care, that's who.
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261012-b4-cs75xx-s2-v1-1-8a7641b7b79c@gmail.com>
+References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
+In-Reply-To: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
+To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+ Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Russell King <linux@armlinux.org.uk>, 
+ Arnd Bergmann <arnd@arndb.de>, Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
+ Fil Dunsky <filipp.dunsky@gmail.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791826375; l=2339;
+ i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
+ bh=A+5dV3NaQB/TuZqJfC9IFKI7zbkGEtJkk6VbEFbSsyk=;
+ b=aS7EyPYv896uSAFVSpeoN2KGEke+u9sKmCFiUaXmk3QSkRG6Bj2JkJpRbyXEwmVEax2tFvalI
+ as0O/tKQFgdCq5Oms7G/wa9kkkM1FEZ/zREBL8A3vtQyeS7uNmEA5wL
+X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
+ pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
+X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
+ auth_id=1085
+X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Reply-To: filipp.dunsky@gmail.com
+
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+
+The low speed peripherals of the Cortina Systems CS75xx SoCs share one
+GIC interrupt. A small controller in the peripheral register block
+reports which of its 15 sources are asserted and allows masking them.
+
+Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
+---
+ .../interrupt-controller/cortina,cs7542-intc.yaml  | 57 ++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/cortina,cs7542-intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/cortina,cs7542-intc.yaml
+new file mode 100644
+index 000000000..2963acaf7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/cortina,cs7542-intc.yaml
+@@ -0,0 +1,57 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/interrupt-controller/cortina,cs7542-intc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Cortina Systems CS7542 peripheral interrupt controller
++
++maintainers:
++  - Fil Dunsky <filipp.dunsky@gmail.com>
++
++description:
++  The low speed peripherals of the Cortina Systems CS75xx (Goldengate G2)
++  SoCs (two software interrupts, two timers, the AXI bridge, SPI, the five
++  GPIO banks, I2C, MDIO, SSP and the random number generator) share one GIC
++  interrupt. This controller has a status register showing the level of the
++  15 sources and an enable register to mask them. The sources are cleared in
++  the peripherals themselves.
++
++properties:
++  compatible:
++    const: cortina,cs7542-intc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  interrupt-controller: true
++
++  "#interrupt-cells":
++    const: 1
++    description:
++      The number of the source, 0 to 14. All sources are active high level
++      interrupts.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - interrupt-controller
++  - "#interrupt-cells"
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++
++    interrupt-controller@f0070004 {
++        compatible = "cortina,cs7542-intc";
++        reg = <0xf0070004 0x8>;
++        interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++    };
+
+-- 
+2.53.0
 
 
---bvUae1am23g2EFEG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Sep 25, 2026 at 12:26:27PM +0530, Aniket Limaye wrote:
-
-> Add new compatible and update driver to support Synopsys Advanced I2C
-> Controller (DWC_i2c [0]) present on TI TDA54 SoC. This is needed since
-> this controller differs from the existing designware i2c (DW_apb_i2c
-> [1]) in its register offsets and some register definitions.
-
-> The new compatible updates driver logic due to changes in register
-> definitions:
-
-I'm working with a SoC with what looks to be another instance of this
-new version of the DesignWare I2C controller - I saw your discussion
-with Andy and the conclusion that a separate driver would be good.  I'm
-really keen to help out with getting the support for these IPs upstream
-however I can, not sure what your plans/thoughts are there?
-
-The I2C needs of the systems I'm using are fairly basic so I should only
-need a small subset of the capabilities that'll be visible in your
-systems, the only thing I can think might not come up for you is that my
-systems are servers so will be using ACPI rather than DT.
-
---bvUae1am23g2EFEG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmrNFKMACgkQJNaLcl1U
-h9DYAAf/bjE9rg7RrRaVEqhn3SMg3esM5MwEfWXwbKi+xD8v7jgxIhi2DVw9EzkT
-5b0p7aNEqVx+NbnLx3rADjd6lGH7tdQr9uvNsPO8qFY1ZaCj8q0dsaEsTHyqAt4m
-9JLZe66Syw8s0mgVB1xrGCGSpdXGSvYQ3qydoIJBjfHp8gpZ70SjCarOEXSPwLcx
-Nkig2YO42HRwDlbhLWuGB7HXIklGkJzaTzolbo9wY2qwjHoZG4MUGzMw9mGoe8CX
-EtrupLW7XYS6AXna9vABDD2Rhm2WESywWDxDWPOwHQaDPiqY21H5S9StzikgyTJo
-Nd3hLF/M+dphTjKwIRllDjwMuk7Xcg==
-=W3xf
------END PGP SIGNATURE-----
-
---bvUae1am23g2EFEG--
