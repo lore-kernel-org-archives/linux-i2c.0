@@ -1,443 +1,305 @@
-Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011050.outbound.protection.outlook.com [52.101.62.50])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F93E39DBF4;
-	Mon, 12 Oct 2026 17:40:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791826841; cv=fail; b=hREPqJeohTB3g4a/93dCnmvIRleSojaicBpPUo8WkxIm6mEYD3W0iGaeYWia1J/t3U6a/o6vKtWzNAbYqkdvBkFFTCP80HkYtIak/1ziEA1RTXHZNq0by0tEYBCtxA1MqEq5WqFcESc1ZMdz4UfCvR0o2w6w9YWDXmtvNm/cels=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791826841; c=relaxed/simple;
-	bh=ZbmvPR1HPzLx43r3nFHyB4xSm+vrHppxxeJHs3ynM38=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=IO1MkJ7r8FZwpapmK+x5j6lkh0MAYqxxTlf4aGsfl2PmJ3Lh2dtLWG/8KMBxENl0zCTQxtt1ywr3BEnKlLWdJUvCntL3RPFqOjCePd5VGx/9rSNKi+s1OQ0th1rhhQYAJqpYSwmZihDOf8WIGX7lekCe4QOdgOfB+WsH3GnCIoQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=acluh5M4; arc=fail smtp.client-ip=52.101.62.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6C6A3815CE;
+	Mon, 12 Oct 2026 18:48:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791830905; cv=none; b=LrBv5RycrgSc47oMDN6klII1nE0ajF0H77lQVkc0MswDIZK71pj/O1KK4ciDL44z5fbmx6GrwodXlbKrjPTL/k1f95bx58F/3nrGWLWrmCsMI0PoepateCh5+YkPHuoRtzXlY/QopWhLwGBauc6fv8FDnmMM6rKAtOLFkMsVSkg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791830905; c=relaxed/simple;
+	bh=bG2UL1MZ5fXRoRBZShS4MI4tfaIQCyZ7CuplYwxuBPE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ea9albfDc8/PKC06Y8FauJ10DPLemKKsNQm037e4uX/sze3i2ZvDyNaijJKo8LmWSC182swiWIItzW1rzvgiTGF7BT+W0iyi2KWmBCFlmbLTeeVuENrNLU5AKRkLj3+AhbN0VfhmaseiBXBWEfAGmCJOkhG3Sa2vJYqfAvUSh+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iTD15HLX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="acluh5M4"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=b6p2bqLY6HrqHtCFDsOEr1Xlqq+R80CJXheHM7w2r5fI4SN2zr6jc7KkH3eWpieLN5QFYg8jI6MKx1SHf+/ZgDhMjhsmVCYhMZ/+rxdRCXbv5eRclojE4THE34J3T9Nb2OrtzlDdIQCJRvtkmNxfhMIOIr2a+VjxiCM/EjTZC56FUvIE+UVS8ia3hzrCOwMzbmyF1YdQ+9fFvrl9whAtt/vZYRnDWARtxl5EYh8K/70EZRLXo5Jhy+CkSAf6GRFsPaPkRtWjwdavunD4OEpBLCutgUD2uVkfL1x1xyMQ4qupMPYiBQJfHCqtmzxY/pPVC6cxyeSkCsvMzoWMKHNPhw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Oe2iANi7T5IaT+aqwG4sM399c++FzPsevCrtlLUpkHM=;
- b=wm2d/MayErx6/7wq0ZGjE1aGk4v32/uIMtjDPw6ZbthwF+/jenGpW4BA4r+gaprxdGOcJOCCOy95bZce0pcpmxtky7p1vpwLEydMU7Tc1BZ2gVDnqaSXV0wv9OdkS4zuhwmrWXboratve0ketifHe9r2itct4wngS9hhRgF+iRLY/ObLVRxL6+jfqU/lqTK30Y+8MVWybKODOqF1DrYE2l6dPqLRwkgKi95IOV38fSLmNatSRCP/TVuICTpb8tTQUU7hfHwvoRdGntNCdcUCrUBiyEcjp2bBvym3jDTkCU677LK/39Egb/YPxatycg1HfMn0oqEkSi3swOwvmpcVNA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Oe2iANi7T5IaT+aqwG4sM399c++FzPsevCrtlLUpkHM=;
- b=acluh5M4pc5Uf5/GWT4v6gQUHsDIi26sK7XbNGPp0Z22psu3T/GtCQHynwODcgtPyuEBjUC6yTB2L8ZF/tEMtASvs44EDJG0CBbWlO+EVv72gaiMK0N9mJQ7fp1hGCU6Cf1YkXvIIAi2IrUzWrqdljKlts8JJk1NyyazQ6F8rx9oPZgs/z3yFcGeszsB19SxBzxzxPXryExFCsHLEiCHnjBKxpahE8jOrcoIIMprqjis7neEtQ51FAMfLBZ/nF/ifRpWsn4XEbEW8GT0JOIB5dGEJE8hhF3gzUaIDGAsdBKHqPyp7p6oZVy6AumNAIn6Ntg2qDFRv9w5Y5+P7RKX6g==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH7PR12MB5974.namprd12.prod.outlook.com (2603:10b6:510:1d9::19)
- by BL3PR12MB6378.namprd12.prod.outlook.com (2603:10b6:208:3b1::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.21; Mon, 12 Oct
- 2026 17:37:59 +0000
-Received: from PH7PR12MB5974.namprd12.prod.outlook.com
- ([fe80::f5a5:bbc3:e9da:f8a0]) by PH7PR12MB5974.namprd12.prod.outlook.com
- ([fe80::f5a5:bbc3:e9da:f8a0%3]) with mapi id 15.21.0496.010; Mon, 12 Oct 2026
- 17:37:57 +0000
-From: Adrian Ambrozewicz <aambrozewicz@nvidia.com>
-To: Rob Herring <robh@kernel.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iTD15HLX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940531F008A1;
+	Mon, 12 Oct 2026 18:48:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791830903;
+	bh=v7JcOS9mRrHiosrahbddQDMnaSYmC8RhnJcuti4UL30=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=iTD15HLXJmnzSHQh1R3/yXxpegiLHAHc8UsCkeN2JxBC23LYmIvckjkhAEs9yFv9T
+	 UeSTYHnpOtVW0B203oNVkfna5csKKJ04HC7F0WS4Xix8xdHKjRAhwkcP/OQ9Urb4F2
+	 kp8jQzo938ibXm66lrQBvXVu4V0gVQUdOC9GrQIW/8mBfTgrsn/6ce1bMceLX31F+H
+	 7Zq/UOGu8hGibZVxB5tTH3OOP61FXO7HxwKu4w9BP/5FcrFbmh81oyz5ZUPOGJRM2L
+	 BL4JQYoWdBNBlcTTKhzLwJ0hjNpGtgOHKfH+8hFB/GqlYnM+H9HZCDGZj+qXcwmSKF
+	 Smm/HBtMGu1gQ==
+Date: Mon, 12 Oct 2026 19:48:17 +0100
+From: Conor Dooley <conor@kernel.org>
+To: filipp.dunsky@gmail.com
+Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Donald Shannon <donalds@nvidia.com>,
-	devicetree@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [RFC] dt-bindings: NVIDIA LSTP USB adapter: shape of the channel nodes
-Date: Mon, 12 Oct 2026 20:37:36 +0300
-Message-ID: <20261012-lstp-dt-rfc-v1-aambrozewicz@nvidia.com>
-X-Mailer: git-send-email 2.43.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: PNYP287CA0044.INDP287.PROD.OUTLOOK.COM
- (2603:1096:c01:23e::21) To PH7PR12MB5974.namprd12.prod.outlook.com
- (2603:10b6:510:1d9::19)
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org
+Subject: Re: [PATCH 00/11] Cortina Systems CS75xx: interrupt controller,
+ GPIO, I2C and TWD watchdog
+Message-ID: <20261012-dreamlike-hazily-19bb60326f0a@spud>
+References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5974:EE_|BL3PR12MB6378:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3844c4fb-757a-4888-8c66-08df28878d8b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|23010399003|376014|366016|10067099003|3023799007|261009223027099003|11063799006|6133799003|18002099003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	JGXxQpggx5TPcwx6hSqVak5iuVgldhWYEq0Wy0P9lcBf9bfvq+zooRoC1mRaa020KdJuL3I0PtQflQBwVFXIz8tVFsGJv6azp3ZikyDhBoij9DJSmW2RBeoHSpWbhOkNh50n/tcTWyvfz5tuvTugDFJbv4Y3B8E40xc9c611d7U82HfePXCzh+RH22UirEwxiwotgOlaUvIj5NrzZq0EWiQlGB3RBH/nFq/pxz+NgxSG5o3BrwLUWrV5C4mAqYRqpVktImDVJbfMFg5Y1rO5mcLaHXy6dR7aUAMCxAhun8QNWPlOIqIqvj/xQkYwae5rhzGrB1w3ul9mFvv6iv+3oajFsWSti6eUrINL9IZ28ujCnYjdgtRhwfi1tHKDnpdW7VQogy2yy2FsE9PXWivqcKdCWwV0iYm8m/Yg+coUd5MCK0deL/mJG928HbdT1AszqyubPYN7S+9cgGDPLE8ahhVN9XpoLRlztsl7y8PJaEq3SwGHqnHnV6DMlCx+Ld0Ufpu5lOxR/LSH1pJb3H1QQV4s5ugONYuZQb9H0GEzX4Tu5tLc2Z0QGwJMD1+mQL0lUQIcWLWmjFcmfUbYIUlOEV9M6onUHyY75ZMGRg3aIuNZGGRKSZeJFGZLsgUdb+sOtPdIKbeaiGFxwLyEESDVjBvsoN+94Tml/9isXzu8NVM=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5974.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(23010399003)(376014)(366016)(10067099003)(3023799007)(261009223027099003)(11063799006)(6133799003)(18002099003)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?C6LYpOeHbHm8crCw08TA2hKgzRif75V3Pdo4t6HseaMRYI7ook0JDlRUPwQs?=
- =?us-ascii?Q?qFGbr2FUxNQ6zCe7l+JlFtwlaxWidUnZaneU+1K1Q/Rp2s45xJL3DZi7YLCX?=
- =?us-ascii?Q?5OsFNkF7SARxYDGb4BA26fijS0R5r6TTz7Ygrex7/VlrJ9HfyO2G5y7Ik8ji?=
- =?us-ascii?Q?IcRc9wlnaMexy/elP2YMQS7ANQ1smQZpFzKbHc7d7l7e+fN3N0MFwYk+LxuF?=
- =?us-ascii?Q?Ogw4LVB9fQYfOd6VtcKcVgt06LBM39UkG775dsgHxY064j8aCapOYt8OkEql?=
- =?us-ascii?Q?k23AiovACWJ44oaDn/EDdrBpGLwT5UX4PmawYzZtnVlSfu6FVN8pv8Q2bqcr?=
- =?us-ascii?Q?DtahjEJxzhtKgnmc8SzKah1OL7x+9G/3PjMShQM2nkzRSJrlRZa6pt2NOkS2?=
- =?us-ascii?Q?Fc4R7OWGIbgKnbvIR2DdLnhdqhGEL4fWn6fdHxXs3UVJ8CL+dWl1WpnSsZfm?=
- =?us-ascii?Q?xAAfFLJOa3CkEZqcjkISEEb2Vqwh+8tG8dTRxxgWxLv29HsVd5BIqR+JXd7P?=
- =?us-ascii?Q?SiGaNc4QKrG0Pzz0zxZUKR2CgYc2+rC2ICT0I8tx2r3nYzen7JT2cE1SWOqz?=
- =?us-ascii?Q?dvUycBI1Wyt7WRV1JpmYXcwGo0ero8CkG8gQEicFW7b1nl7S/qgFYGeqDmsR?=
- =?us-ascii?Q?ipiFSemNmemftLcN8DlLkplqh+8Hq+r4Ey52e+rCL/b7F+AQH5WNd61E5nXB?=
- =?us-ascii?Q?WI9me1t0HZE9un6im/+OKeCn7UndUfSAIOc0ofdlmIT+tnu+rQvMpvTVX2ZG?=
- =?us-ascii?Q?oKaWyuyGVVX3O77cykXXSP0VZ9316VSlk9yBrSdD6rZbpX2+ca92LCbJUIEm?=
- =?us-ascii?Q?crlrMYFLG0KChnzeE+qnBalKskdLw0zthFSLuAFL9rwMEW7mmMWDrYheMFfB?=
- =?us-ascii?Q?rFLJcWS+CWB0eflb2/wEKvXqJGHCz748aPujr44uzclfg9HztYlSc8f/AXHN?=
- =?us-ascii?Q?zN1tqcZOO7U+wi89y4TucD7NNdjBwceba4ktWS2HVJqi+aWNnArVneuaZDZh?=
- =?us-ascii?Q?cLNPS5chtjanbw/OhJcyJah2WnXdKlGqawmOTMcxug5M6sVFMIfqjbST8uxj?=
- =?us-ascii?Q?nca5Q28r293Sx1JLYgKTSwQLLhJjZHz/YF0glGeAGAfMeeTzlbcYkYxj3JWs?=
- =?us-ascii?Q?6y1Lv7AxGtoxa5hE7HDIByQdvDKxipmCvd8k4INpOC5nTrhk7LDubA/dtt6c?=
- =?us-ascii?Q?sUvB5QfyG+2iOb4tWKtwARxThj3OFXAGYCVVKm0Akz+pxPtEIxTxfYLNeKDI?=
- =?us-ascii?Q?55ZtsiLCbEK51Z3NgqHRQiq75hjzSU73jhNV+4H5DdrWUudxJ30KlDmt88ky?=
- =?us-ascii?Q?3RiC3YvEB+DKPvzLGohgDspg6kQw1wMbm0vqPnCVriaus0FU9/MZdDw4Z9AZ?=
- =?us-ascii?Q?EQPXm+VzCQ/RHd1KVCuLPVWi0kTsgACZnh3ytVvitkqptwfPHwRXdy0JO5AN?=
- =?us-ascii?Q?wjDzSontOr190fJ0q5LlNAdDmpEsGl9xCY8tQAjghzffVHBPVOeeH5Bje2/3?=
- =?us-ascii?Q?kcjcgX2BJy/puoXzsHF1RfLJ20z8HJs+Pm5g02ouWJ0eCpZ5Y3Ap0Gcw6Rr/?=
- =?us-ascii?Q?4ckpma22i6QOljMbGP2FUNFvVEnkMc3kmTUTGbl9xiY/BpN+A+y0109tGD9Q?=
- =?us-ascii?Q?2g0N+9Tthj9vm6gMgyRI3iDUs7NpdG7lPLZhzx+UZ8XFxMRMGt7BytMKOCA4?=
- =?us-ascii?Q?nyQqzPon+nmgs4m4Zd69ectE7nCepgqbux6zpD5cgY91q6FcBv3Z0IAvRg9n?=
- =?us-ascii?Q?UqvtopcK0w=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3844c4fb-757a-4888-8c66-08df28878d8b
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5974.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Oct 2026 17:37:57.2504
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8iwuqXgALoXzWe2E/dwUqsYjFt6SHXNN7lUY4TIy/dX7wtCd+yqvsBfLyOf3R2RlHA3TNc8i7QU91Q0EgB2VaQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6378
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="3WAP39xI/QLnZ2cB"
+Content-Disposition: inline
+In-Reply-To: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
 
-Hi Rob, Krzysztof, Conor,
+--3WAP39xI/QLnZ2cB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Together with this mail I am posting the driver series for the NVIDIA
-LSTP USB adapter ("[PATCH 00/11] Add NVIDIA LSTP USB adapter drivers",
-https://lore.kernel.org/r/20261012-lstp-usb-adapter-v1-0-aambrozewicz@nvidia.com);
-patches 1-4 are its bindings. Here I would like your view on the binding
-shape, in particular on the child nodes, and on one vendor property of
-the I2C channel, without making you dig through the series for the
-reasons. The schema excerpts and an example are below; the full bindings
-are in patches 1-4 and in the out-of-tree repository, under
-devicetree/bindings/ at
-https://github.com/NVIDIA/lstp_module/tree/public-next-v1
+On Mon, Oct 12, 2026 at 08:32:55PM +0300, Fil Dunsky via B4 Relay wrote:
+> This is the second step of the Cortina Systems CS75xx ("Goldengate G2")
+> / Securifi Almond+ support. It applies on top of the platform series
+> "ARM: Add support for Cortina Systems CS75xx and Securifi Almond+"
+> v4 [1] and adds:
+>=20
+>   - a driver for the per-CPU private watchdog of the ARM11 MPCore,
+>     Cortex-A5 and Cortex-A9 ("arm,cortex-a9-twd-wdt"),
+>   - the peripheral interrupt controller that combines the interrupts of
+>     the low speed peripherals into one GIC interrupt,
+>   - the GPIO banks,
+>   - the I2C controller,
+>   - the device tree nodes, including the reset button of the Almond+,
+>     and the multi_v7_defconfig and MAINTAINERS updates.
+>=20
+> As in the first series there is no public documentation; register
+> layouts come from the GPL vendor kernels (2.6.36 for the Almond+, 4.9
+> for the Verizon FiOS G1100 with the same SoC) and were checked on the
+> board with the out-of-tree OpenWrt port these drivers are based on.
+>=20
+> The patches go to different trees and only depend on each other through
+> the device tree: the irqchip (1-2), GPIO (3-4), I2C (5-6) and watchdog
+> (7) patches can be picked up independently, the dts, defconfig and
+> MAINTAINERS patches (8-11) need the platform series.
+>=20
+> TWD watchdog:
+>=20
+> The binding "arm,cortex-a9-twd-wdt" (watchdog/arm,twd-wdt.yaml) exists
+> and several dtsi files use it, but there has been no driver since
+> mpcore_wdt was deleted in v3.11 ("watchdog: delete mpcore_wdt driver").
+> The reasons given then were that the watchdog is banked per CPU while
+> the driver only programmed the CPU that happened to run the ioctl, that
+> it used request_irq() for a per-CPU interrupt, and that it had no users.
+>=20
+> This driver does not use the interrupt at all (the watchdog runs in
+> reset mode) and programs, pings and stops the watchdogs of all online
+> CPUs with on_each_cpu() under cpus_read_lock(). A CPU hotplug state
+> arms the watchdog of a CPU coming online while the device is active and
+> stops it on a CPU going offline, since an offline CPU cannot ping it.
+> A watchdog found running at probe time on any CPU is reported as
+> WDOG_HW_RUNNING and reprogrammed with the driver's timeout without
+> being stopped; the reset flag sets WDIOF_CARDRESET.
+>=20
+> On the Almond+ the stock U-Boot arms the watchdog and the board resets
+> after ~300 s unless it is serviced. With this driver the watchdog core
+> pings it until userspace takes over.
+>=20
+> The driver also registers a restart handler: the CPU that restarts the
+> system lets its own watchdog expire right away. The platform series has
+> no other way to restart the CS75xx, so without it "reboot" hangs.
+>=20
+> Interrupt controller:
+>=20
+> A status register shows the level of 15 sources and an enable register
+> masks them; the sources are acknowledged in the peripherals. The driver
+> uses a generic chip on a linear domain and a chained handler. There is
+> a second status/enable pair right behind it whose purpose I do not know;
+> it is not described.
+>=20
+> GPIO and pin muxing:
+>=20
+> Each pin is either a GPIO line or belongs to a peripheral (NAND,
+> Ethernet, UART, I2C, PCIe reset, ...). The choice is made per pin in one
+> GPIO_MUX register per bank, and these registers live in the global
+> control block at 0xf0000000, which also holds the boot straps, the
+> clock and PLL settings, peripheral resets and the other pin mux
+> registers.
+>=20
+> In this version the GPIO node gets its bank's GPIO_MUX register as a
+> second reg entry. A line is switched to GPIO when it is requested as a
+> GPIO or as an interrupt and switched back to the setting found at probe
+> time when it is released. This keeps the driver self-contained, but it
+> means that requesting a line that is in use by a peripheral silently
+> takes the pin away from it; on this board exporting all lines through
+> sysfs hangs it (NAND and Ethernet pins lose their function). Boards can
+> list such lines in gpio-reserved-ranges.
+>=20
+> I think the proper model is a pin controller for the global control
+> block: the block becomes a syscon (it is also needed by the clock driver
+> that will replace the fixed-clock), a pinctrl driver on top of it
+> describes the pins, the GPIO function and the peripheral groups, the
+> GPIO nodes get gpio-ranges and the GPIO driver uses
+> gpiochip_generic_request()/gpiochip_generic_free(). Pinmux ownership
+> then refuses GPIO requests for pins claimed by a peripheral's pinctrl
+> state. The remaining pin mux registers of the block are only partially
+> understood, which is why I did not start with that. Would you accept
+> the GPIO driver in this form first, with the pinctrl conversion (and a
+> binding change to gpio-ranges) later, or should the pin controller come
+> first?
 
-What the device is
-------------------
+I think what's here looks really suspect - regions of two registers
+wide, interlaced between devices etc.
+You mention syscons here, and really that's where I think that this
+should go. The region at 0xf007_0000 looks exactly like a syscon to me
+and should be modelled as one.
 
-LSTP is a vendor-specific USB interface that carries several "channels"
-over one pair of bulk endpoints. The channel types are SPI host, I2C
-host, GPIO (with interrupts and LED pins), UART and an IPMI message
-channel. It is implemented by NVIDIA's SMA, an MCU (0955:cf11), and by
-other vendors' parts: two hub/bridge chips have it built in (0424:4940,
-174c:2214).
+The regions in the first reg property of the GPIOs I dunno about, it's
+hard to say without a full picture of what's around them - but this
+device does seem to /love/ smushing devices in in a compact memory map
+so modelling them as individal devices is probably correct, unless it
+could all be considered to be one big GPIO controller with 4 banks. Hard
+to say really, and not very important IMO.
 
-The device reports its channels itself: their number, each one's ID
-(1-255) and its type. Firmware decides the set, so one VID:PID carries
-different channel sets on different boards, and one interface can carry
-several channels of the same type. Boards in production have up to eight
-I2C channels and two IPMI channels on one interface.
+The second register region would have to be looked up via a syscon
+phandle, but even that seems incorrect to do in the face of your
+explanation of how they're really pinmuxing between gpio and some other
+feature, not an internal of the GPIO functionality.
 
-The DT is therefore optional. It is only for an adapter hard-wired on a
-board, and it adds only what the device cannot report: peripherals on
-the SPI and I2C buses, GPIO line names, hogs, consumers by phandle, and
-LEDs.
-
-Proposed shape
---------------
-
-The device and interface nodes follow usb-device.yaml:
-- a device node with compatible "usbVID,PID";
-- under it, an interface node with a two-cell reg = <interface config>;
-- for a class 0 device with one configuration and one interface, a
-  combined node instead.
-
-Each channel is a child of the interface (or combined) node:
-- named after its type: spi@N, i2c@N, gpio@N, serial@N, ipmi@N;
-- with reg = <channel ID>;
-- with a compatible naming the channel type.
-
-A channel matches its node on reg plus compatible; node names are not
-used. A channel without a node is still usable. A channel whose node has
-status = "disabled" is not used at all.
-
-The spi, i2c and gpio channel schemas are separate files in their
-subsystem directories, each $ref'ing the generic controller schema. The
-serial and ipmi channel schemas are defined inline in the USB binding,
-which $refs the other three.
-
-Example (from the binding, with nvidia,retries added to the I2C channel
-and status added to the UART channel):
-
-    usb {
-        #address-cells = <1>;
-        #size-cells = <0>;
-
-        hub@1 {
-            reg = <1>;
-            #address-cells = <1>;
-            #size-cells = <0>;
-
-            /* Three interfaces; the LSTP channels are on interface 2. */
-            device@3 {
-                compatible = "usb955,cf11";
-                reg = <3>;
-                #address-cells = <2>;
-                #size-cells = <0>;
-
-                interface@2 {
-                    compatible = "usbif955,cf11.config1.2";
-                    reg = <2 1>;
-                    #address-cells = <1>;
-                    #size-cells = <0>;
-
-                    spi@1 {
-                        compatible = "nvidia,lstp-spi";
-                        reg = <1>;
-                        #address-cells = <1>;
-                        #size-cells = <0>;
-
-                        flash@0 {
-                            compatible = "jedec,spi-nor";
-                            reg = <0>;
-                            spi-max-frequency = <18750000>;
-                        };
-                    };
-
-                    i2c@2 {
-                        compatible = "nvidia,lstp-i2c";
-                        reg = <2>;
-                        #address-cells = <1>;
-                        #size-cells = <0>;
-                        nvidia,retries = <5>;
-
-                        temperature-sensor@48 {
-                            compatible = "ti,tmp102";
-                            reg = <0x48>;
-                        };
-                    };
-
-                    gpio@3 {
-                        compatible = "nvidia,lstp-gpio";
-                        reg = <3>;
-                        gpio-controller;
-                        #gpio-cells = <2>;
-                        gpio-line-names = "LED", "INT";
-                    };
-
-                    ipmi@4 {
-                        compatible = "nvidia,lstp-ipmi";
-                        reg = <4>;
-                    };
-
-                    serial@5 {
-                        compatible = "nvidia,lstp-uart";
-                        reg = <5>;
-                        status = "disabled";
-                    };
-                };
-            };
-        };
-    };
-
-Schema excerpt (usb/nvidia,lstp.yaml):
-
-    allOf:
-      - $ref: /schemas/usb/usb-device.yaml#
-      - $ref: "#/$defs/channels"
-      - if:
-          properties:
-            "#address-cells":
-              const: 1
-        then:
-          patternProperties:
-            "^interface@": false
-        else:
-          patternProperties:
-            "^(spi|i2c|gpio|serial|ipmi)@": false
-
-    properties:
-      compatible:
-        enum:
-          - usb955,cf11
-          - usb424,4940
-          - usb174c,2214
-
-    patternProperties:
-      "^interface@[0-9a-f]{1,2}(,[0-9a-f]{1,2})?$":
-        type: object
-        $ref: "#/$defs/channels"
-        properties:
-          compatible:
-            pattern: "^usbif[0-9a-f]{1,4},[0-9a-f]{1,4}\\.config[0-9a-f]{1,2}\\.[0-9a-f]{1,2}$"
-          reg:
-            maxItems: 1
-        ...
-
-    $defs:
-      channels:
-        patternProperties:
-          "^spi@[0-9a-f]+$":
-            $ref: /schemas/spi/nvidia,lstp-spi.yaml#
-          "^i2c@[0-9a-f]+$":
-            $ref: /schemas/i2c/nvidia,lstp-i2c.yaml#
-          "^gpio@[0-9a-f]+$":
-            $ref: /schemas/gpio/nvidia,lstp-gpio.yaml#
-          "^serial@[0-9a-f]+$":
-            type: object
-            properties:
-              compatible:
-                const: nvidia,lstp-uart
-              reg:
-                maxItems: 1
-            required: [compatible, reg]
-            additionalProperties: false
-          "^ipmi@[0-9a-f]+$":
-            type: object
-            properties:
-              compatible:
-                const: nvidia,lstp-ipmi
-              reg:
-                maxItems: 1
-            required: [compatible, reg]
-            additionalProperties: false
-
-The gpio schema (gpio/nvidia,lstp-gpio.yaml) defines:
-- gpio-controller, #gpio-cells = <2> and gpio-line-names (up to 255);
-- interrupt-controller with #interrupt-cells = <2>;
-- hog children;
-- a "leds" child holding led@N nodes on leds/common.yaml, for the pins
-  the device reports as LEDs.
-
-The i2c schema (i2c/nvidia,lstp-i2c.yaml) is the generic controller plus
-one property:
-
-    allOf:
-      - $ref: /schemas/i2c/i2c-controller.yaml#
-
-    properties:
-      compatible:
-        const: nvidia,lstp-i2c
-
-      reg:
-        description: Channel ID reported by the device firmware.
-        maxItems: 1
-
-      nvidia,retries:
-        description: |
-          Number of times the host re-issues a transfer that fails on
-          arbitration loss or a busy bus before giving up.
-
-          Ignored when the channel config reports non-zero bus arbitration
-          retries.  Such a device is expected to retry both arbitration loss and
-          a busy bus itself before reporting failure, so the host adds no
-          attempts on top.
-        $ref: /schemas/types.yaml#/definitions/uint32
-        maximum: 255
-        default: 3
-
-    required:
-      - compatible
-      - reg
-
-    unevaluatedProperties: false
-
-The spi schema (spi/nvidia,lstp-spi.yaml) is the generic controller with
-compatible and reg only.
-
-Questions
----------
-
-1. Per-channel child nodes with their own compatible.
-
-   The channel type is discoverable, so the compatible does not choose a
-   driver for an unknown device. Instead it checks that the node written
-   for channel N describes the kind of channel the firmware put at N. The
-   alternative is to imply the type from the node name, which
-   writing-bindings.rst says not to treat as ABI. Is a compatible per
-   channel type acceptable here, or would you rather have a different
-   property, or no type at all?
-
-2. gpio@N in particular.
-
-   I know the CP2112 review moved its GPIO controller off a subnode and
-   onto the USB device node (silabs,cp2112.yaml). That works because
-   CP2112 has exactly one GPIO block. Here a GPIO channel is one of
-   several channels behind one interface, at an ID the firmware assigns,
-   and the protocol does not limit an interface to one GPIO channel.
-   Putting gpio-controller on the interface node would need:
-   - a three-cell specifier (channel, line, flags);
-   - gpio-line-names, hogs, interrupts and the leds child keyed per
-     channel.
-   We think gpio@N, like i2c@N and spi@N, is the cleaner way to describe
-   that. Do you agree, or do you prefer the interface node as the
-   provider?
-
-3. ipmi@N and serial@N have no resources of their own.
-
-   They allow only compatible, reg and status. writing-bindings.rst says
-   not to create nodes just to instantiate drivers, and these do not:
-   each channel is used whether or not it has a node. Their purpose is
-   status = "disabled", which keeps the channel from being used at all.
-   A board uses it when a channel the firmware reports must not be
-   exposed to the host OS on that board. Is that a sufficient reason for
-   the nodes?
-
-   If not, would you prefer a property on the interface node listing the
-   channel IDs not to use, or dropping the two node types (and
-   disabling) altogether?
-
-4. Device and interface nodes.
-
-   The device node lists the three VID:PIDs in one enum, since the
-   channel layer is the same on all three. The interface node allows the
-   optional "usbifVID,PID.configC.I" compatible from usb-device.yaml.
-   - Is one binding for three USB devices from three vendors acceptable,
-     given that the LSTP interface is what is described?
-   - usb-device.yaml's interface pattern
-     "^interface@[0-9a-f]{1,2}(,[0-9a-f]{1,2})$" makes the ",C" suffix
-     mandatory. Its description, and ours, say the suffix is omitted for
-     configuration 1, so our pattern has "(...)?". Which is intended?
-
-5. File layout.
-
-   The series has gpio/, i2c/ and spi/ schemas, each with its own patch,
-   ahead of usb/nvidia,lstp.yaml, which $refs them and defines serial@N
-   and ipmi@N inline. Would you rather have everything in usb/?
-
-6. nvidia,retries on the I2C channel.
-
-   The channel config tells the host whether the device itself retries
-   a transfer that loses arbitration or finds the bus busy. When it
-   does, the host adds no attempts. When it does not, the host re-issues
-   such a transfer, three times by default. nvidia,retries sets that
-   count per board, for example for a bus shared with another master.
-
-   It is a property rather than something the OS sets later because the
-   peripherals described under the channel are probed as soon as the bus
-   is registered, before anything in userspace could change the count.
-   The nearest precedents I found are device properties, not controller
-   properties: sbs,i2c-retry-count (power/supply/sbs,sbs-battery.yaml)
-   and adi,overcurrent-retries (hwmon/adi,ltc4283.yaml).
-
-   Existing boards use the property without the vendor prefix, as
-   "retries"; our out-of-tree driver keeps reading that name, and the
-   upstream binding and driver would know only nvidia,retries. Is a
-   vendor property for this acceptable, or would you rather keep it out
-   of the binding and leave the count to the host default?
+I think it's fine to make a GPIO controller at this point, and leave
+pinctrl to later, but I don't think that it is acceptable to pretend
+that the mux registers are part of the GPIO controller. The pinctrl-less
+GPIO controller would have to either rely on something else (e.g.
+firmware) setting the mux registers or be not entirely functional until
+the pinctrl arrives - IMO that kind of thing isn't abnormal, it's just
+how things can sometimes be. For example, if you submitted a SPI driver,
+but no board exposed SPI without pinmuxing changes that were not
+possible as the driver for that was not yet upstream, that's not
+something that would block the SPI driver. It might, on the other hand,
+block adding the SPI node to the devicetree.
 
 Thanks,
-Adrian
+Conor.
+
+>=20
+> I2C:
+>=20
+> The controller transfers one byte per command with an OpenCores-like
+> command register. The driver supports plain I2C and emulated SMBus
+> without quick commands (every message carries at least one data byte)
+> and without 10-bit addresses.
+>=20
+> Testing:
+>=20
+> Tested on a Securifi Almond+ with next-20260929 plus series 1 v4 and
+> this series, both CPUs online. The watchdog found the TWD armed by the bo=
+ot
+> loader on both CPUs and took it over ("running on CPU0-1, taking
+> over"); pinged for 60 s from userspace and then left alone, it reset
+> the board when timeleft reached zero. The I2C and GPIO interrupts are
+> delivered through the new peripheral interrupt controller; the reset
+> button (GPIO 37) is claimed by gpio-keys as an active-low input and
+> reports KEY_RESTART; an I2C read of the touch controller at 0x48 is
+> ACKed and an empty address returns -ENXIO without timeouts. reboot(2)
+> issued from CPU1 restarted the board through the restart handler.
+> The same drivers also run in an OpenWrt image on Linux 6.18 booted from
+> NAND through the stock U-Boot, where the SX8650 touchscreen uses a
+> level-triggered GPIO interrupt.
+>=20
+> Build tested with multi_v7_defconfig (GCC 14 and Clang 21, W=3D1),
+> dt_binding_check and dtbs_check. Not tested: CPU hotplug of the
+> watchdog (the platform has no cpu_die yet), repeated START between
+> messages on I2C (only single-message transfers were run), GPIO
+> interrupts with real edges.
+>=20
+> Open questions:
+>=20
+> 1. GPIO muxing, see above.
+> 2. The TWD watchdog binding marks clocks as optional, the driver
+>    requires them (the rate is needed to compute the timeout). Should
+>    the binding be tightened, or should the driver fall back to
+>    something when there is no clock?
+> 3. Is a separate MAINTAINERS entry for the TWD watchdog driver the
+>    right thing, or should it be listed under the watchdog subsystem?
+>=20
+> [1] https://lore.kernel.org/all/20261012-b4-cs75xx-v4-0-df250d903682@gmai=
+l.com/
+>=20
+> ---
+> Fil Dunsky (11):
+>       dt-bindings: interrupt-controller: Add Cortina Systems CS7542 perip=
+heral interrupt controller
+>       irqchip: Add Cortina Systems CS75xx peripheral interrupt controller
+>       dt-bindings: gpio: Add Cortina Systems CS7542 GPIO controller
+>       gpio: Add Cortina Systems CS75xx GPIO driver
+>       dt-bindings: i2c: Add Cortina Systems CS7542 I2C controller
+>       i2c: Add Cortina Systems CS75xx I2C controller driver
+>       watchdog: Add ARM TWD (MPCore private) watchdog driver
+>       ARM: dts: cortina: cs7542: Add interrupt controller, GPIO and I2C
+>       ARM: dts: cortina: almondplus: Add reset button and enable I2C
+>       ARM: multi_v7_defconfig: Enable Cortina Systems CS75xx GPIO, I2C an=
+d TWD watchdog
+>       MAINTAINERS: Add Cortina Systems CS75xx interrupt controller, GPIO =
+and I2C
+>=20
+>  .../bindings/gpio/cortina,cs7542-gpio.yaml         |  68 ++++
+>  .../bindings/i2c/cortina,cs7542-i2c.yaml           |  56 +++
+>  .../interrupt-controller/cortina,cs7542-intc.yaml  |  57 +++
+>  MAINTAINERS                                        |  12 +
+>  .../dts/cortina/cs7542-securifi-almondplus.dts     |  19 +
+>  arch/arm/boot/dts/cortina/cs7542.dtsi              |  75 ++++
+>  arch/arm/configs/multi_v7_defconfig                |   3 +
+>  drivers/gpio/Kconfig                               |  12 +
+>  drivers/gpio/Makefile                              |   1 +
+>  drivers/gpio/gpio-cs75xx.c                         | 332 +++++++++++++++=
++++
+>  drivers/i2c/busses/Kconfig                         |  11 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-cs75xx.c                    | 354 +++++++++++++++=
+++++
+>  drivers/irqchip/Kconfig                            |  12 +
+>  drivers/irqchip/Makefile                           |   1 +
+>  drivers/irqchip/irq-cs75xx.c                       | 103 ++++++
+>  drivers/watchdog/Kconfig                           |  15 +
+>  drivers/watchdog/Makefile                          |   1 +
+>  drivers/watchdog/arm_twd_wdt.c                     | 387 +++++++++++++++=
+++++++
+>  19 files changed, 1520 insertions(+)
+> ---
+> base-commit: 6474fa070f2b8013b4b87350b775b8c3be6e8aac
+> change-id: 20261012-b4-cs75xx-s2-5f548492f51e
+> prerequisite-message-id: <20261012-b4-cs75xx-v4-0-df250d903682@gmail.com>
+> prerequisite-patch-id: 104c6fb668f30ac8c2c5b3b6c524c18caa8808c4
+> prerequisite-patch-id: e7d503348cbec7558cd084162133f8e34df1c1bc
+> prerequisite-patch-id: 1d5770db02b983d012f6c58806fbf3f5291a06c9
+> prerequisite-patch-id: c2815f506d2df1c84cd50111220b938a41d29050
+> prerequisite-patch-id: 6c0137d52f201d8ec085ee6cc7b2d49af15583d8
+> prerequisite-patch-id: 24e110f3c8c008deffdda079bdc27db729b5014d
+> prerequisite-patch-id: cb09693a5d51be6b24bdf66e112b9dd40fc25dbe
+> prerequisite-patch-id: 15c11a668a1a281649fa0713371e7f07ee44917e
+> prerequisite-patch-id: 9b4a468b7b74861017ef533ba0a5574bc14b212e
+> prerequisite-patch-id: 1f232c94dd3fc0d862203b7c0c1449e6ba9a6859
+>=20
+> Best regards,
+> -- =20
+> Fil Dunsky <filipp.dunsky@gmail.com>
+>=20
+>=20
+
+--3WAP39xI/QLnZ2cB
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCas0rcQAKCRB4tDGHoIJi
+0h/1AP42+nhb5OTFfizZPxymGqzai/6Wu4FmQZkq2wjB9h2WVAD5AeL9i/KO+0HY
+30N4sc/BZ+73908yaxdCBoJxRpde6gY=
+=/ZEi
+-----END PGP SIGNATURE-----
+
+--3WAP39xI/QLnZ2cB--
