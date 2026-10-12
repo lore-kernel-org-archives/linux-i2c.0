@@ -1,40 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 551883DA7F9;
-	Mon, 12 Oct 2026 22:04:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 638F5425898;
+	Mon, 12 Oct 2026 22:26:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791842667; cv=none; b=Tox5WMzEsQ1ISRCAt63yjIQwnOjGBzziImRhkrnQRJEH+9cJItcxnlQwXDRlSo1vQKB2gpH2zKCeLKAljyFcajW73DeD8uhfqS/zLDVReiJX2srEtZ+H0QV+V/OzgTK9p/IaJzRXF5GRA7seZu1qq+l8B/IBjBBnr3FAmQraX0c=
+	t=1791844009; cv=none; b=Z3uF8qv+ZYx4nkfIgVVwmZqdI3ztIWisQ5y20nr4KgdfNdHDT0lvW+D1PBbzTXmLJTuGR6E+GgoGNcb56VQsaTThpGX/P9UjmbA/RRBF7k90euoF76w8REyOaFjo/rmFLlafGeaWYPBf4erKKlL+FRwI4FnDvkDRSYPSkU7CoEM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791842667; c=relaxed/simple;
-	bh=+chnhBe9wh9P9qTn6RPmKj1KuaqAb7/QU9Y8koiwOhg=;
+	s=arc-20240116; t=1791844009; c=relaxed/simple;
+	bh=PXJFtXBE6GBu7SYnAql+0hD4YXSqEEHuwYWAKznrdhI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=A6jlljX1PNeMKwJbTkc96S27c54k2xyPKxNZPbq9wTtnPfPAWl1MiXp4BTw3ncpuIhjngk2UGRLiCNe38f72f3cC2PHLsL36sFqQHeAzIdb4Q8d/EzeHtEP0xr53GmAwX/b8SCE/NPNbwL2Wz/BG3wUHvyuYCzPtUXAM7NejQTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=haSA/eiE; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Yw6DuOHmwEobmL8yPM/7pdppjJOsKvRfNQShjOguq+e9E4AQj11IoEJZXJWzwCCSAXW6JoRyOOwvGNV+RNxJOGeI/T7CNvzPWMSWQB++1q66UprVpsXRrleDCic+In+psVuoey3vXNSRvWNtIUhZs+8urCKysjovmf6pTCq5A9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZxKsiGAW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="haSA/eiE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B87F1F008A1;
-	Mon, 12 Oct 2026 22:04:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZxKsiGAW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBDB1F0089B;
+	Mon, 12 Oct 2026 22:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791842666;
-	bh=iQZNrZJOb9M/RSyybEYVU7v3XNHc30eVGXfHTV69cFc=;
+	s=k20260515; t=1791844008;
+	bh=eMeFcr8n3WUgRl/2JwHyab4Wg6+yNQoJjTs/G8uhH6E=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=haSA/eiEY2ZEtrfmoBI+NAtI8fs3jH3/e5WybYXyzudY6FrLF/6wcSFYzcF1ljkub
-	 5tFVX52WK7TLGYcbwld3ukDlBDcpDbmqzdPsXBKlzDMD5wM/w4AppeQz/b2RDCaz/0
-	 d89EcCgSAV9kyWI01Js5xrh7B3NmpltNyuR++3pi54bp5bushPrl0B5ZIfoGfD8T/m
-	 QtXynYhLVuKsrPJZMqgmBN2fr/iezyAq0oj8Y+KzaVuhARicVMOGWErVoE0znyrUmM
-	 NbvrSh1fbgobqaVPyRPcTS3yl+SMahu6VTgIc+zyR/FK0M+5+k99hZ1k524vxI5wAG
-	 B21SXdOTcG9NQ==
-Date: Tue, 13 Oct 2026 00:04:22 +0200
+	b=ZxKsiGAW/eNAswqo6KFBVp7NZ+QcPk4wQljh8smKspXX8cMe8jgIXF9sycUs7EECa
+	 EeZUUFwJ2Armkx1klEHwIeuNLXJVz6e8KnUqUy6c56GaVrCgWREErI2XR1b7yqL4RN
+	 6IlwPR2v5DL4vtrNSYNB36SjUcazFaiBVRALH4Z9ZLZLbOqpHBuXbXzb6p/8KLqQrU
+	 PhgcYjPJa11vUqIx6gvL+aJtH1/N0x9d2QqUFAcFwfLUZY8xfLzxqbdSc8xMkwClZO
+	 oAio85UTP121Wb1ggfMEV3PvcwNJamjJCrJXqvmg0tpRj2U9+YpZp154ymLQOBbIF8
+	 pgOBwXTMoRPOw==
+Date: Tue, 13 Oct 2026 00:26:45 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Jisheng Zhang <jszhang@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v2] dt-bindings: i2c: dw: Add Synaptics sl2610 i2c
-Message-ID: <as1ZVGFgzrahrjlr@zenone.zhora.eu>
-References: <20261005152036.25276-1-jszhang@kernel.org>
+To: Abel Vesa <abel.vesa@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: qcom-geni: Restore the source-clock selection policy
+Message-ID: <as1ekTqIywmjqZD6@zenone.zhora.eu>
+References: <20260928-b4-i2c-qcom-geni-preserve-source-clock-v1-1-9aded7552a76@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,18 +43,34 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261005152036.25276-1-jszhang@kernel.org>
+In-Reply-To: <20260928-b4-i2c-qcom-geni-preserve-source-clock-v1-1-9aded7552a76@oss.qualcomm.com>
 
-Hi Jisheng,
+Hi Abel,
 
-On Mon, Oct 05, 2026 at 11:20:36PM +0800, Jisheng Zhang wrote:
-> Add the compatible for the Synaptics SL2610 SoC I2C controllers, which
-> are compatible with the Synopsys DesignWare I2C.
+On Mon, Sep 28, 2026 at 04:58:47PM +0300, Abel Vesa wrote:
+> Currently, the source clock lookup prefers 32 MHz whenever that rate is
+> available, regardless of the rate configured by the platform. Before the
+> switch to looking up the clock index, the driver used the 32 MHz timing
+> table only if the current source clock rate was 32 MHz, and the 19.2 MHz
+> table otherwise.
 > 
-> Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-> Acked-by: Andi Shyti <andi.shyti@kernel.org>
+> On X1E80100 CRD, this results in switching the source clock from 19.2 MHz
+> to 32 MHz, which causes intermittent failures when probing the I2C HID
+> keyboard. These range from corrupted HID descriptors to failed resets
+> and transfer timeouts, which also affect the touchpad on the same bus.
+> 
+> Restore the original selection policy: use 32 MHz if already selected,
+> otherwise request 19.2 MHz. Look up the index for the selected rate and
+> keep the check that rejects higher-frequency multiples. This retains
+> the dynamic clock index lookup without preferring 32 MHz on platforms
+> that previously used 19.2 MHz. Report the requested rate if the lookup
+> fails.
+> 
+> Fixes: cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL")
+> Assisted-by: LLM
+> Signed-off-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
 
-pushed to i2c/i2c.
+pushed to i2c/i2c-fixes.
 
 Thanks,
 Andi
