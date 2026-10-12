@@ -1,40 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 638F5425898;
-	Mon, 12 Oct 2026 22:26:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B096384CDA;
+	Mon, 12 Oct 2026 22:55:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791844009; cv=none; b=Z3uF8qv+ZYx4nkfIgVVwmZqdI3ztIWisQ5y20nr4KgdfNdHDT0lvW+D1PBbzTXmLJTuGR6E+GgoGNcb56VQsaTThpGX/P9UjmbA/RRBF7k90euoF76w8REyOaFjo/rmFLlafGeaWYPBf4erKKlL+FRwI4FnDvkDRSYPSkU7CoEM=
+	t=1791845716; cv=none; b=INOb+qzCO4tRAYWH4VoGG1gPuQoFZXLSYhImDuteX6sQXNYu5a6Luot93fqVz0/n4fF1AthI2Seg+H0L5ybt2azVWyX2Az7s2E49XaUJgaYNrx73xQMCPVA+dc64UnmN2Lv7XydwNzPA+UfrUPyRZJFXrUqQ/q7iVZKXlVJpu+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791844009; c=relaxed/simple;
-	bh=PXJFtXBE6GBu7SYnAql+0hD4YXSqEEHuwYWAKznrdhI=;
+	s=arc-20240116; t=1791845716; c=relaxed/simple;
+	bh=mzwEaypCwzwTdzF/5CWu6gt+vWvFYueUIderpRNUGEI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Yw6DuOHmwEobmL8yPM/7pdppjJOsKvRfNQShjOguq+e9E4AQj11IoEJZXJWzwCCSAXW6JoRyOOwvGNV+RNxJOGeI/T7CNvzPWMSWQB++1q66UprVpsXRrleDCic+In+psVuoey3vXNSRvWNtIUhZs+8urCKysjovmf6pTCq5A9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZxKsiGAW; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Gq64P3HcpeqO5gwhPS9PC6fjufata2Vehb06Am7OZdbUD1E6XxkmIOHOC31jYzQhi72Iu3zzCwB0WdVxje73ts8/DrxcOicvRDwIByrPPGwfibovlhvPFd1pwFz6px0GnYSQ0Im0UaHibtDIbQh7V8sPoIniH+4BRyITjT8YIHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hMl0uiV+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZxKsiGAW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBDB1F0089B;
-	Mon, 12 Oct 2026 22:26:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hMl0uiV+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8EE1F0089B;
+	Mon, 12 Oct 2026 22:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791844008;
-	bh=eMeFcr8n3WUgRl/2JwHyab4Wg6+yNQoJjTs/G8uhH6E=;
+	s=k20260515; t=1791845715;
+	bh=F4gL4AuSV3iViioxl00z0ZJvZKon3k2zQeY4DYfAv1k=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ZxKsiGAW/eNAswqo6KFBVp7NZ+QcPk4wQljh8smKspXX8cMe8jgIXF9sycUs7EECa
-	 EeZUUFwJ2Armkx1klEHwIeuNLXJVz6e8KnUqUy6c56GaVrCgWREErI2XR1b7yqL4RN
-	 6IlwPR2v5DL4vtrNSYNB36SjUcazFaiBVRALH4Z9ZLZLbOqpHBuXbXzb6p/8KLqQrU
-	 PhgcYjPJa11vUqIx6gvL+aJtH1/N0x9d2QqUFAcFwfLUZY8xfLzxqbdSc8xMkwClZO
-	 oAio85UTP121Wb1ggfMEV3PvcwNJamjJCrJXqvmg0tpRj2U9+YpZp154ymLQOBbIF8
-	 pgOBwXTMoRPOw==
-Date: Tue, 13 Oct 2026 00:26:45 +0200
+	b=hMl0uiV+6WOvPPohkLGx1abAsT+eYk+Gbl1hlY1aiPWtBx/+pS0MZW1NkLDr/W2RR
+	 1rW9c6FMcf7dGuDVQwAiH+KyQ/jcBDjBtM8CgV3U1ZedlER9wV3BLwgZ/uvIS0RrVy
+	 7OoDi++i28I0n+csOLJqvg1gEb8etoS/+UtnGZy5ByZUIXmXNhrf4p+q+5Gc20Bgpv
+	 HHw/j3TXiFPBbPFl8sqAMi7t7PtEnpvr+f7psZ09ilYVbqSn/PvSD/9YqeCqMRdmgU
+	 51wXmJJmf0QEvAgPyHRKv5ORLo7Hi+bvH6M25MbOr8rRfAa0Qv9lFAunA320JN6+n3
+	 oy9VVRpObGWrg==
+Date: Tue, 13 Oct 2026 00:55:13 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Abel Vesa <abel.vesa@oss.qualcomm.com>
-Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: qcom-geni: Restore the source-clock selection policy
-Message-ID: <as1ekTqIywmjqZD6@zenone.zhora.eu>
-References: <20260928-b4-i2c-qcom-geni-preserve-source-clock-v1-1-9aded7552a76@oss.qualcomm.com>
+To: Hans de Goede <johannes.goede@oss.qualcomm.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, 
+	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH 2/2] i2c: acpi: Add AttribRawBytes accessor-type support
+ to OpRegion handler
+Message-ID: <as1gYyr53eIxdzZV@zenone.zhora.eu>
+References: <20260919193642.43058-1-johannes.goede@oss.qualcomm.com>
+ <20260919193642.43058-2-johannes.goede@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,34 +44,32 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260928-b4-i2c-qcom-geni-preserve-source-clock-v1-1-9aded7552a76@oss.qualcomm.com>
+In-Reply-To: <20260919193642.43058-2-johannes.goede@oss.qualcomm.com>
 
-Hi Abel,
+Hi Hans,
 
-On Mon, Sep 28, 2026 at 04:58:47PM +0300, Abel Vesa wrote:
-> Currently, the source clock lookup prefers 32 MHz whenever that rate is
-> available, regardless of the rate configured by the platform. Before the
-> switch to looking up the clock index, the driver used the 32 MHz timing
-> table only if the current source clock rate was 32 MHz, and the 19.2 MHz
-> table otherwise.
-> 
-> On X1E80100 CRD, this results in switching the source clock from 19.2 MHz
-> to 32 MHz, which causes intermittent failures when probing the I2C HID
-> keyboard. These range from corrupted HID descriptors to failed resets
-> and transfer timeouts, which also affect the touchpad on the same bus.
-> 
-> Restore the original selection policy: use 32 MHz if already selected,
-> otherwise request 19.2 MHz. Look up the index for the selected rate and
-> keep the check that rejects higher-frequency multiples. This retains
-> the dynamic clock index lookup without preferring 32 MHz on platforms
-> that previously used 19.2 MHz. Report the requested rate if the lookup
-> fails.
-> 
-> Fixes: cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL")
-> Assisted-by: LLM
-> Signed-off-by: Abel Vesa <abel.vesa@oss.qualcomm.com>
+...
 
-pushed to i2c/i2c-fixes.
+> +	case ACPI_GSB_ACCESS_ATTRIB_RAW_BYTES:
+> +		if (action == ACPI_READ)
+> +			status = i2c_master_recv(client, gsb->data, info->access_length);
+> +		else
+> +			status = i2c_master_send(client, gsb->data, info->access_length);
+> +
+> +		if (status >= 0) {
+> +			gsb->len = status;
+> +			status = 0;
+> +		}
 
-Thanks,
+We should also check whether status != info->access_length.
+
 Andi
+
+> +		break;
+> +
+>  	default:
+>  		dev_warn(&adapter->dev, "protocol 0x%02x not supported for client 0x%02x\n",
+>  			 accessor_type, client->addr);
+> -- 
+> 2.55.0
+> 
