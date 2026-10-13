@@ -1,111 +1,133 @@
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [46.38.247.119])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C87D37F8AF;
-	Tue, 13 Oct 2026 07:35:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.247.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C443D410C
+	for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2026 08:06:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791876904; cv=none; b=d3tYbwTGBW9d8sqGM5ZToBJtZ89LjETyo1cj+oi9tYS+qvsAVZfBy+GbChdcC0f+XZNk0x/h+ZIuWw09HQePa+jKw5O2i1+4xBsdegT92WOMjJWYp+K28JXqXgnLRJm9bHWQAcJYQo1kbFJknDB8jpzWerMiYK0FRx7Q85ynhjM=
+	t=1791878787; cv=none; b=gQqRv+Dcw/WDrqzb32hi2kxgdqZGw6h7oXRZS2wdkwwMKS4tuy2qc6fkNiHi8sbVchOn/ZRfKZj9uWN/FUrlQG5gfW5yx6Lmzatlwxe6H8m/KwnnMq5LTKGL3tZ8jfnvbddz4VAchc/IicSxblyrFKz3gT/27cBPETd7YmSF1Kc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791876904; c=relaxed/simple;
-	bh=yK3aUF6G3VXhj20EG+0GSq6ad7zFjJiv8ySOyktqqnQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DvKaqLK8Nbcgbms8SM+hzLMVQAVWANiCVpr4QXZ7RCieEYCMEn1bMHTFwTcMg7aaQkW6J8ju+6s2PULJ7DQpo70P4kPAmjAcve5bxWj6S4fdDx71CkHRC3TIolGHkPTNVwh50m6DYsTfnm0xs/s0Q7NO6soXkfzw+KOwss0LK4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=c1g6exYk; arc=none smtp.client-ip=46.38.247.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	s=arc-20240116; t=1791878787; c=relaxed/simple;
+	bh=BiS/bMkGceTlf3ws23i7YgIpdVZf2YK3ZmhYCzIMeLc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dxX6AZjim/cJBsvubYDS5pLUIghvb5uaUpdtSDIscQGoKObM/X8xE+2R39BBb9LB2YcRzkiRmm6v49Je8Ax0ErrM6Gyf7wT+CZ15GQ43odefxhcEPx7n2XuYIWcb6SlxFC8W/g2MSEzMWC7OJRR4up8KP2NKKIIjo/GaaMWDaVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fpYzhYr9; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="c1g6exYk"
-Received: from mors-relay-8404.netcup.net (localhost [127.0.0.1])
-	by mors-relay-8404.netcup.net (Postfix) with ESMTPS id 4j3mM70tVbz8GYT;
-	Tue, 13 Oct 2026 09:34:59 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
-	s=key2; t=1791876899;
-	bh=yK3aUF6G3VXhj20EG+0GSq6ad7zFjJiv8ySOyktqqnQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=c1g6exYko+YcYjZ/V1HPUkx8dA20JNZXpxkW0UegwjiQ7pYUXjaz3zXiKqQGxRPGN
-	 sXmcbW6kAiCWlfUpicwuc4rbtLkwA/61fhrHkhX62hrotO9hSWKrK4/xR5t385C/OX
-	 OD5fiCDPWyhnGEnIkkH3RrjBfiQogByUzQpPGT3ZxkSADiR9brfnwZG6ECpELl5SnR
-	 FuSxhcI743HOafdpvbeOplyBRMZ1aXfcCD6J6tm08aytI1TD7Us+2C96/L40j0ZkuR
-	 5Fom9vn8ZyVwpen6DYWdduXUDqIxcYeVVNvcMzBNfNHaMvRPO71DVn1Kji4BLr9m0v
-	 YM8AarzkCkKYQ==
-Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay-8404.netcup.net (Postfix) with ESMTPS id 4j3mM7085fz4yQX;
-	Tue, 13 Oct 2026 09:34:59 +0200 (CEST)
-Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4j3mM62yH2z8sch;
-	Tue, 13 Oct 2026 09:34:58 +0200 (CEST)
-Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
-	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 2CDEB5F998;
-	Tue, 13 Oct 2026 09:34:57 +0200 (CEST)
-Authentication-Results: mxe9fb;
-        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
-Received-SPF: pass (mxe9fb: connection is authenticated)
-Message-ID: <b7bfbf6a-e5b5-48be-84ad-8bcd8e22c5de@leemhuis.info>
-Date: Tue, 13 Oct 2026 09:34:55 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fpYzhYr9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1791878783; x=1823414783;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=BiS/bMkGceTlf3ws23i7YgIpdVZf2YK3ZmhYCzIMeLc=;
+  b=fpYzhYr9AbWvI67RqkKqgd8cIbdWMsiAKm5GywpRBicMCq2bY6ZmlknX
+   CPUxiybspEdSgwasiigDFcWyC2W3QO3Jh3YHRBiVqKLzrR+FwqGpowKwl
+   duLnWLAP+Ad3niS6NjHEGxIRxUnh2+HSVnfOtBNIBOIfXwZYvp2iwc/qY
+   LGhYDvLmYBV29jMuG4XzXmP9w+SgwlwkBhj4lBlrfdkL2gEG7vev6VR1f
+   bCqbzokajKqr7cQSQLw5WxO73gNyFMK2FiiKuzH5y9GxsZwCswuBSTa57
+   gLmmCkvTwEzCnhZYTYDWmfB1m5HY0EHU3BXZekMZ5AoUkkDmk4BUr1BUt
+   Q==;
+X-CSE-ConnectionGUID: yWQRBDxSSrGJJs49fFbUmg==
+X-CSE-MsgGUID: hEcDRJu2SiyGZsD9lzhilw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11933"; a="604243"
+X-IronPort-AV: E=Sophos;i="6.27,155,1787036400"; 
+   d="scan'208";a="604243"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Oct 2026 01:06:22 -0700
+X-CSE-ConnectionGUID: bOffWgcPRwuZei0MnBuhLg==
+X-CSE-MsgGUID: TT0hFBeFSH2QRN0bF0u55A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,155,1787036400"; 
+   d="scan'208";a="1204049"
+Received: from senthil-nuc10i7fnh.iind.intel.com ([10.223.163.42])
+  by fmviesa005.fm.intel.com with ESMTP; 13 Oct 2026 01:06:20 -0700
+From: Saranya Gopal <saranya.gopal@intel.com>
+To: linux-i2c@vger.kernel.org,
+	andi.shyti@kernel.org
+Cc: yo-jung@canonical.com,
+	mpearson-lenovo@squebb.ca,
+	andriy.shevchenko@linux.intel.com,
+	saranya.gopal@intel.com
+Subject: [PATCH v3] i2c: i801: Gate SPD instantiation on SPD Write Disable bit
+Date: Tue, 13 Oct 2026 13:36:03 +0530
+Message-Id: <20261013080603.808196-1-saranya.gopal@intel.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: qcom-geni: restore tSCL with 32MHz I2C fast-mode
-To: Daniel J Blueman <daniel@quora.org>, Andi Shyti <andi.shyti@kernel.org>,
- Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
-Cc: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
- Sasha Levin <sashal@kernel.org>,
- Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
- Bjorn Andersson <andersson@kernel.org>, linux-i2c@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, Birk Skyum <birk.skyum@pm.me>,
- Linux kernel regressions list <regressions@lists.linux.dev>
-References: <20260929041444.9837-1-daniel@quora.org>
- <1ca16602-fb66-4706-8e86-3b35372324b9@oss.qualcomm.com>
- <CAMVG2svsfP+6cpRq=kBCZFva_r8jXSm+-pp+qC9D372S10z12g@mail.gmail.com>
- <eaa6f116-7556-4791-857d-cd50c504528d@oss.qualcomm.com>
- <20261009145800.rc-reply-0004@kernel.org>
-From: Thorsten Leemhuis <regressions@leemhuis.info>
-Content-Language: de-DE, en-US
-In-Reply-To: <20261009145800.rc-reply-0004@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-PPP-Message-ID: 
- <179187689790.3430384.13434509312600935232@mxe9fb.netcup.net>
-X-NC-CID: wdbnc1cbTq5Z4cqPM2VXVJI1T6fW6zQSkLj8AO7tYZMxaJsXRPs=
+Content-Transfer-Encoding: 8bit
 
-On 10/9/26 21:01, Sasha Levin wrote:
->> On 9/30/2026 3:01 PM, Daniel J Blueman wrote:
->>> I would revert the original patch if there is hardware that uses the
->>> I2C 1MHz fast-mode, since the current timings aren't to spec, but also
->>> weren't before.
-> 
-> For stable: cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in
-> SE_GENI_CLK_SEL") has already shipped in 7.2.9, 6.18.55 and 6.12.112, and is
-> queued for 6.6, 6.1, 5.15 and 5.10.
-> 
-> The 32 MHz clock map (506bb2ab0075, v6.13+) does not exist in 6.12.y and older.
-> The backports there pick only the 19.2 MHz entry, so the Yoga Slim 7x /
-> X1E80100 timing regression cannot occur on 6.12.y or older, and I'm keeping the
-> 6.6 and older queues as they are.
-> 
-> 7.2.y and 6.18.y do have the 32 MHz table and are affected. Once the fix lands
-> in mainline, I'll pick it up for 7.2 and 6.18.
+From: Yo-Jung <yo-jung@canonical.com>
 
-@Andi, @viken, and/or @Daniel:
+When DDR5 memory modules are present, probing the spd5118 hub requires
+page-selection write transactions. If the BIOS has set the SPD Write
+Disable (SPD_WD) bit in SMBHSTCFG, the transaction fails and wedges the
+controller into an unrecoverable "SMBus is busy" state.
 
-Is the patch at the start of the thread or some improved version heading
-to mainline meanwhile? What Sasha wrote above is one reason why that
-would be good rather sooner than latter; another is a regression
-report[1] from Birk (now CCed) wo ran into the problem with mainline --
-so it would be good to fix this before 7.3 is released, too.
+Pass the PCH SPD Write Disable status into the SMBus core via
+i2c_register_spd_write_disable(). This safely skips spd5118 instantiation
+under write-protection while leaving legacy DDR4 (ee1004) functional.
 
-Or is a revert the better option to achieve that?
+Retain the original #ifdef CONFIG_I2C_I801_MUX preprocessor block around
+mux_pdev to prevent compile-time regressions when the multiplexer driver
+is disabled.
 
-Ciao, Thorsten
+Closes: https://bugzilla.kernel.org/show_bug.cgi?id=213345
+Tested-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Co-developed-by: Saranya Gopal <saranya.gopal@intel.com>
+Signed-off-by: Saranya Gopal <saranya.gopal@intel.com>
+Signed-off-by: Yo-Jung <yo-jung@canonical.com>
+---
+Changes in v3:
+- Introduced helper function i801_register_spd() as suggested by Andy
+  Shevchenko. This isolates the dynamic routing logic and cleans up
+  the callsite in i801_probe_optional_targets(), avoiding style/preprocessor
+  indentation warnings.
+- Added Tested-by: Mark Pearson <mpearson-lenovo@squebb.ca> from validation
+  on Lenovo platforms.
+- Fixed compile failure when CONFIG_I2C_I801_MUX=n in v2 by retaining the
+  original #ifdef structure around mux_pdev.
+- Link to v2: https://lore.kernel.org/linux-i2c/20250430-for-upstream-i801-spd5118-no-instantiate-v2-2-2f54d91ae2c7@canonical.com/
+Changes in v2:
+- Switched to i2c_register_spd_write_disable() dynamically.
+Changes in v1:
+- Initial submission.
 
-[1]
-https://lore.kernel.org/stable/179173732257.29426.7905170638383807320@pm.me/
+ drivers/i2c/busses/i2c-i801.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index b29c99ed3883..810f61e39cad 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1170,6 +1170,14 @@ static void dmi_check_onboard_devices(const struct dmi_header *dm, void *adap)
+ 	}
+ }
+ 
++static void i801_register_spd(struct i801_priv *priv)
++{
++	if (priv->original_hstcfg & SMBHSTCFG_SPD_WD)
++		i2c_register_spd_write_disable(&priv->adapter);
++	else
++		i2c_register_spd_write_enable(&priv->adapter);
++}
++
+ /* Register optional targets */
+ static void i801_probe_optional_targets(struct i801_priv *priv)
+ {
+@@ -1193,7 +1201,7 @@ static void i801_probe_optional_targets(struct i801_priv *priv)
+ #ifdef CONFIG_I2C_I801_MUX
+ 	if (!priv->mux_pdev)
+ #endif
+-		i2c_register_spd_write_enable(&priv->adapter);
++		i801_register_spd(priv);
+ }
+ #else
+ static void __init input_apanel_init(void) {}
+-- 
+2.34.1
+
