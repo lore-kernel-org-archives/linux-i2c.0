@@ -1,131 +1,111 @@
-Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [46.38.247.119])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E07864B44BF
-	for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2026 07:10:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C87D37F8AF;
+	Tue, 13 Oct 2026 07:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.247.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791875428; cv=none; b=GEiMt/lPqMrVYfxTxdauaWLw49aL9ARiLGVVDdreUiRN2S3hyEw3aq1xrOwfG7B5oNXMNJJUyO8Y81ADvpmDQHjOj3IM1Y68pCEloAdPigKEYI+d+1Vll6rhdM4tfhudOy0PGTihmgtnKEZ+3v1FbvuqpynRZHUxHOCh5XdrEjs=
+	t=1791876904; cv=none; b=d3tYbwTGBW9d8sqGM5ZToBJtZ89LjETyo1cj+oi9tYS+qvsAVZfBy+GbChdcC0f+XZNk0x/h+ZIuWw09HQePa+jKw5O2i1+4xBsdegT92WOMjJWYp+K28JXqXgnLRJm9bHWQAcJYQo1kbFJknDB8jpzWerMiYK0FRx7Q85ynhjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791875428; c=relaxed/simple;
-	bh=YC4l7vs6phBF/kwZPYqd6bhtkTN6nnOLPDyVW74IR1o=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=QiK1rvA+8fWowf4Gur0+w7WOzPgBcJzcKl9kD0PnnBEE/Gpl6noLzNPId1zTvMMwjEclZp1ijZ59Rsm/OIMFLjw9muCN73zpjlqQR8FrKSoBAva/qfYQdMFO5En7l8OHWKwHnC1LAtCEuyMWOvDgQM1BYBa0FlsoZT+Ehf3QXXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YdUCZbR5; arc=none smtp.client-ip=209.85.167.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791876904; c=relaxed/simple;
+	bh=yK3aUF6G3VXhj20EG+0GSq6ad7zFjJiv8ySOyktqqnQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DvKaqLK8Nbcgbms8SM+hzLMVQAVWANiCVpr4QXZ7RCieEYCMEn1bMHTFwTcMg7aaQkW6J8ju+6s2PULJ7DQpo70P4kPAmjAcve5bxWj6S4fdDx71CkHRC3TIolGHkPTNVwh50m6DYsTfnm0xs/s0Q7NO6soXkfzw+KOwss0LK4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=c1g6exYk; arc=none smtp.client-ip=46.38.247.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YdUCZbR5"
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5bb7c6980f1so1945154e87.2
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2026 00:10:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791875425; x=1792480225; darn=vger.kernel.org;
-        h=content-type:mime-version:content-transfer-encoding:message-id:date
-         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=YC4l7vs6phBF/kwZPYqd6bhtkTN6nnOLPDyVW74IR1o=;
-        b=YdUCZbR59sndgbI3P34/lHcO0G/fRRWAKHnvwtv94VTPjZnZwGfRN6MF77V9+Z34Vr
-         mosY+lnsCjFgdSKG40s3y8h5D2kjIBqCcWkYPE1pzTu+kj16pGHGgVZrvEOuuKapbrtl
-         Y4XcCywfKx0jahc7aAC0E3D7Vf6PGw3v36vg/Fv8YKc3dOELhaIRVENBD9FUnY7Z37n6
-         6vV0Mv4adKPXAdIULtb01BJhzr0QZVn1fsfSCzRKZVv79/iQt2xUDFfvDyWEwjbxIlmb
-         yznhDisbxu31BTE09Ai2YmX24chIlY7OpbHApiCZN9LCUv3/GynuhMFaBRQxcTIuf4xL
-         FFpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791875425; x=1792480225;
-        h=content-type:mime-version:content-transfer-encoding:message-id:date
-         :references:in-reply-to:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YC4l7vs6phBF/kwZPYqd6bhtkTN6nnOLPDyVW74IR1o=;
-        b=RAJk6Vqqo+cMkusaq0ik8+CCmZ2ccoC9ks4g8mM/XpObwqXhw4WJwMzMp85cowYBZq
-         21r6cD5XZQ56Ldwl5C5HcEp8HnHGOH0+ryz/cYe3wh6thERqWFhV3B+HSOpZxoKvY3bM
-         psiEw7f7S95a1KgM1NbQRdcKcWvnGx5GhEgOedzKZmkJ6RFOH09jLQGpBM2SEbHK2AwR
-         zrB6spgMr2oJtGmihrbR8DrU6RnBkEvuEX9Inittj5HIfrP+6l8oD7KfNAUZLsAZFyne
-         3v4QRHZyNtj/vrZotpOFuONjqvImP4YHeUrBi0ohDbeP3ReY1iCfBV+1Hpo/H6aTilX+
-         oTqA==
-X-Forwarded-Encrypted: i=1; AKwUvBxDp087bugb87Oq4dRMoGNlwQW1WwyAsMhGA8BiJxIw6PNYJV5VDGhClIjwMUpl9TSllHXnu8FFSaM=@vger.kernel.org
-X-Gm-Message-State: AFq9FYIkkbvebB9Ut6liapO7XMRDnUCElFP0KUC+0Ixnv6zh5NBYAD4Y
-	fFTOt4/ioZ5rHN0JzBwqw6ozzk/ethiskBhuf+wN7lo0f33wd4Bysdxn
-X-Gm-Gg: AYBFou0MXSoQyczqmIVqKRvXxAZbWDstqwD1sWh8fLrGfH+c9nZ/vBRGTPx0DZiitfb
-	n4IV8B8WgIUzMyPDQIZ7kx8rB7UnLVByuvc+Pe6KmgGbCObmuaNlqku9/LTBdUMbhvyXD7spmn6
-	ulUYiysTsXvZaOMvp+JBsLMbJ2wsCSogeR895TS7xoLgIggPzOP1p3/imUBa4mSKsKed/z89aAp
-	Ix548NYZkNOafBHLrJfv5qDBgcHs/L8LS5t7UWRBQY29ATsClh+Ff8WVr1LC+/RO/0k8BW+QAtf
-	rSZ+u41GrTycOSuyviqGLaim91Zp03iAs2FynbRIBB7t3ljdJuRL94vD7Xuc2HwE6YfXGwPvaLx
-	8kgVy9+2jP+ScLCj3/0zpqwt0WtBeElJtsXdSmhCdXISD9y9v8WROGfI94UZC5v02wEIY7F4ApR
-	coxzBjsSqWxC6ibEZrg1EwCOtCG55TWHDM/X6x4StvByvQPxjBtcegbyjtqfSgtGL8+L4sMRHwp
-	fJaMtbWfQuCx9hUirnAvfMM/lBTW0EJTdRM6FeTMcq5dBhUH++higvj
-X-Received: by 2002:a05:6512:3989:b0:5bc:b15d:beb9 with SMTP id 2adb3069b0e04-5bcde6c3067mr3863262e87.29.1791875424914;
-        Tue, 13 Oct 2026 00:10:24 -0700 (PDT)
-Received: from [127.0.1.1] (ip-024-215.users.dtel.ru. [91.210.24.215])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5bcdde36114sm3388236e87.1.2026.10.13.00.10.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 00:10:24 -0700 (PDT)
-From: Fil Dunsky <filipp.dunsky@gmail.com>
-To: Conor Dooley <conor@kernel.org>
-Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>,
- Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>,
- Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
- Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH 00/11] Cortina Systems CS75xx: interrupt controller, GPIO,
- I2C and TWD watchdog
-In-Reply-To: <20261012-dreamlike-hazily-19bb60326f0a@spud>
-References: <20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com>
- <20261012-dreamlike-hazily-19bb60326f0a@spud>
-Date: Tue, 13 Oct 2026 10:10:22 +0300
-Message-ID: <179187542217.3247897.4323160442877168450@gmail.com>
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="c1g6exYk"
+Received: from mors-relay-8404.netcup.net (localhost [127.0.0.1])
+	by mors-relay-8404.netcup.net (Postfix) with ESMTPS id 4j3mM70tVbz8GYT;
+	Tue, 13 Oct 2026 09:34:59 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
+	s=key2; t=1791876899;
+	bh=yK3aUF6G3VXhj20EG+0GSq6ad7zFjJiv8ySOyktqqnQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=c1g6exYko+YcYjZ/V1HPUkx8dA20JNZXpxkW0UegwjiQ7pYUXjaz3zXiKqQGxRPGN
+	 sXmcbW6kAiCWlfUpicwuc4rbtLkwA/61fhrHkhX62hrotO9hSWKrK4/xR5t385C/OX
+	 OD5fiCDPWyhnGEnIkkH3RrjBfiQogByUzQpPGT3ZxkSADiR9brfnwZG6ECpELl5SnR
+	 FuSxhcI743HOafdpvbeOplyBRMZ1aXfcCD6J6tm08aytI1TD7Us+2C96/L40j0ZkuR
+	 5Fom9vn8ZyVwpen6DYWdduXUDqIxcYeVVNvcMzBNfNHaMvRPO71DVn1Kji4BLr9m0v
+	 YM8AarzkCkKYQ==
+Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
+	by mors-relay-8404.netcup.net (Postfix) with ESMTPS id 4j3mM7085fz4yQX;
+	Tue, 13 Oct 2026 09:34:59 +0200 (CEST)
+Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4j3mM62yH2z8sch;
+	Tue, 13 Oct 2026 09:34:58 +0200 (CEST)
+Received: from [IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f] (unknown [IPv6:2a02:8108:8984:1d00:a0cf:1912:4be:477f])
+	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 2CDEB5F998;
+	Tue, 13 Oct 2026 09:34:57 +0200 (CEST)
+Authentication-Results: mxe9fb;
+        spf=pass (sender IP is 2a02:8108:8984:1d00:a0cf:1912:4be:477f) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[IPV6:2a02:8108:8984:1d00:a0cf:1912:4be:477f]
+Received-SPF: pass (mxe9fb: connection is authenticated)
+Message-ID: <b7bfbf6a-e5b5-48be-84ad-8bcd8e22c5de@leemhuis.info>
+Date: Tue, 13 Oct 2026 09:34:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="fixed"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] i2c: qcom-geni: restore tSCL with 32MHz I2C fast-mode
+To: Daniel J Blueman <daniel@quora.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Cc: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+ Sasha Levin <sashal@kernel.org>,
+ Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
+ Bjorn Andersson <andersson@kernel.org>, linux-i2c@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, Birk Skyum <birk.skyum@pm.me>,
+ Linux kernel regressions list <regressions@lists.linux.dev>
+References: <20260929041444.9837-1-daniel@quora.org>
+ <1ca16602-fb66-4706-8e86-3b35372324b9@oss.qualcomm.com>
+ <CAMVG2svsfP+6cpRq=kBCZFva_r8jXSm+-pp+qC9D372S10z12g@mail.gmail.com>
+ <eaa6f116-7556-4791-857d-cd50c504528d@oss.qualcomm.com>
+ <20261009145800.rc-reply-0004@kernel.org>
+From: Thorsten Leemhuis <regressions@leemhuis.info>
+Content-Language: de-DE, en-US
+In-Reply-To: <20261009145800.rc-reply-0004@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-PPP-Message-ID: 
+ <179187689790.3430384.13434509312600935232@mxe9fb.netcup.net>
+X-NC-CID: wdbnc1cbTq5Z4cqPM2VXVJI1T6fW6zQSkLj8AO7tYZMxaJsXRPs=
 
-Hi Conor,
+On 10/9/26 21:01, Sasha Levin wrote:
+>> On 9/30/2026 3:01 PM, Daniel J Blueman wrote:
+>>> I would revert the original patch if there is hardware that uses the
+>>> I2C 1MHz fast-mode, since the current timings aren't to spec, but also
+>>> weren't before.
+> 
+> For stable: cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in
+> SE_GENI_CLK_SEL") has already shipped in 7.2.9, 6.18.55 and 6.12.112, and is
+> queued for 6.6, 6.1, 5.15 and 5.10.
+> 
+> The 32 MHz clock map (506bb2ab0075, v6.13+) does not exist in 6.12.y and older.
+> The backports there pick only the 19.2 MHz entry, so the Yoga Slim 7x /
+> X1E80100 timing regression cannot occur on 6.12.y or older, and I'm keeping the
+> 6.6 and older queues as they are.
+> 
+> 7.2.y and 6.18.y do have the 32 MHz table and are affected. Once the fix lands
+> in mainline, I'll pick it up for 7.2 and 6.18.
 
-Sorry for the late reply, and for sending v2 and v3 without addressing
-this - I missed your mail.
+@Andi, @viken, and/or @Daniel:
 
-On Mon, Oct 12, 2026 at 07:48:00PM +0100, Conor Dooley wrote:
-> I think what's here looks really suspect - regions of two registers
-> wide, interlaced between devices etc.
-> You mention syscons here, and really that's where I think that this
-> should go. The region at 0xf007_0000 looks exactly like a syscon to me
-> and should be modelled as one.
+Is the patch at the start of the thread or some improved version heading
+to mainline meanwhile? What Sasha wrote above is one reason why that
+would be good rather sooner than latter; another is a regression
+report[1] from Birk (now CCed) wo ran into the problem with mainline --
+so it would be good to fix this before 7.3 is released, too.
 
-Understood. The block at 0xf007_0000 is the "peripheral" register block
-of the vendor kernel: the interrupt status/enable pairs, the UARTs, GPIO
-banks, the I2C (BIW), SPI, MDIO and timer registers are all packed into
-it. Would you be fine with a "cortina,cs7542-peripheral", "syscon",
-"simple-mfd" node covering it, with the interrupt controller as a child
-node without its own reg that gets a regmap from the parent? The UART,
-GPIO and I2C nodes would stay separate devices with their own reg, as
-you suggest below.
+Or is a revert the better option to achieve that?
 
-> I think it's fine to make a GPIO controller at this point, and leave
-> pinctrl to later, but I don't think that it is acceptable to pretend
-> that the mux registers are part of the GPIO controller. The pinctrl-less
-> GPIO controller would have to either rely on something else (e.g.
-> firmware) setting the mux registers or be not entirely functional until
-> the pinctrl arrives
+Ciao, Thorsten
 
-Agreed. The next version drops the mux register from the GPIO binding
-and driver and relies on the boot loader's pin mux. A line that the
-boot loader leaves muxed to a peripheral then stays unusable as a GPIO
-until the pin controller exists; I will check which of the Almond+
-lines (reset button, touchscreen interrupt) that affects before
-sending, and leave those out of the dts if needed.
-
-I will not send it before the interrupt controller question is settled,
-and not before 48 hours have passed in any case.
-
-Thanks,
-Fil
-
+[1]
+https://lore.kernel.org/stable/179173732257.29426.7905170638383807320@pm.me/
