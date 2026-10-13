@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649464825AF;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80B40483BE8;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791863221; cv=none; b=MVO2q+Ro2EgREkwex8nTVL9oMImpMUoDnY5JnGZpN8aCBS7SkXGEnG78y/52zmWS8spl02RDxCZLWMdBWRG/e1uwicoYy6lK0qfpd5o4Cm59eKJg+yLpuQNQrX68cThA+/eqK5pDqlbZbcbkNCP0s1q4Rd8RO04ckXpD2d7Gvno=
+	t=1791863221; cv=none; b=JzyuDQem1t0SBu3Lc5YFRttv9eXKTngTEry+XbR9/Z/FZ5CQytp6MSeHebGLnlgw7S1vL25JXbxHXxkecaQR1KfuDBW+sbiRLEZa5elbcSFZ+SUmA34erKv2AWjFIg227ChXr0iFg+w8VA0h3rfE1zo28697LwGfVIc+vNFl+90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1791863221; c=relaxed/simple;
-	bh=2K57Ukhh2ZtD8p9cC8o3YJWWaJ88JHj5YgPFCwXr2bY=;
+	bh=Fc3v+sAfUFif61yc1m5RkBfsjoDptWTKM2sW8+Rf9hA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ijgsCR9x+UU//1WSk3CbYb+vA0Uv0/uWRW32b3qJx+kQBYT/w9/OtAW3Zy3t0QNG7okvEArIu5vtejCnRq3pjdOVQOzMCeJNmLOKZO77LalEZPoDpb7sEUVWTiRCquBQbY+8OL5fMR2d1LBUO2pYqXMVp4ziK/P+jqZ5c87Pkmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LMbT2gWe; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=pahjytoXLTE8pGCj1hMrpqyUqKgCTbYOjc9OU/QRLN2EnblGeBPZvtkq0/QGI6ofl+BbNw7qPpjC3MsSSLNVThh9JBg4MAVccpsuxv2mLlx56wmbElPR40hTSCUSuJXNhcNu1ykqVu/+lCdB12wX4be/Z5wkjIr+t6pHQMT6whA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OD7iu+pB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LMbT2gWe"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3205AC4AF0C;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OD7iu+pB"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 52CDDC2BCFA;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1791863221;
-	bh=2K57Ukhh2ZtD8p9cC8o3YJWWaJ88JHj5YgPFCwXr2bY=;
+	bh=Fc3v+sAfUFif61yc1m5RkBfsjoDptWTKM2sW8+Rf9hA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=LMbT2gWemgBLuysQ9RBlFmfXPNW3MkkTYeluwEKCEUEDxoxqXxjA40/+JZFqIHIiR
-	 MSXKs1S7oNMNfaYctFmAzkiln39NwggXloL3fWrTwKHRAFD3nL2nRIdTbgJOj+C6IG
-	 /MVqIlVMNiwfJeSaF6Axh4V7Use0ptDrsht0BE6Gk5MRj5gFMFvvaDz3c8JfrKRT43
-	 hhVUNKJI5Nm6UPSTR6/1xkXO/Ia+jhIQ5EDWkssGWCoJ6ZZ5s4lotSmU7zE9M2mGfS
-	 rixreKNDaxO0ezdZiZjQIAFFWKXN9GEnGcBa0aYe1tHA/K2tMwvo8qhVvF97s03W28
-	 +BZhcw09xyWLA==
+	b=OD7iu+pBpUWQ22JlV+FEF53ft9TOvWL/gVFuQiNLXtjiJxmkfeUUeBrGpyD5rToi4
+	 yWdiS6N7EazHYkOLz+rqrKYv3e1JY6tTIudDLqZKDaStPdexuLU92VzwnqKxZOWvIZ
+	 kEVoGJxa38XIdGyK+8F4gU3tLwtG6CfFbqUFgp8DiAMhw7kSmtyWdAFRcCs8MnHroG
+	 I7gblBlg/zkmibZE5Aah2SU9BbIu5R0z+87Ypx4ouKmEk527Br2cTzHnR32TgzOD3q
+	 71PAf36lPogNTJJ+OnJHsCN/GIGlkFQjT1cQUvj0I6JqDSxhId8cZIFwgXEtACHnhs
+	 fFePTEIw2Uabw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F716CC6B03;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EE4ECC6B09;
 	Tue, 13 Oct 2026 03:47:01 +0000 (UTC)
 From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 13 Oct 2026 06:47:07 +0300
-Subject: [PATCH v2 09/11] ARM: dts: cortina: almondplus: Add reset button
- and enable I2C
+Date: Tue, 13 Oct 2026 06:47:09 +0300
+Subject: [PATCH v2 11/11] MAINTAINERS: Add Cortina Systems CS75xx interrupt
+ controller, GPIO and I2C
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-b4-cs75xx-s2-v2-9-94f8c0a90cda@gmail.com>
+Message-Id: <20261013-b4-cs75xx-s2-v2-11-94f8c0a90cda@gmail.com>
 References: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
 In-Reply-To: <20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com>
 To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
@@ -56,11 +56,11 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
  Fil Dunsky <filipp.dunsky@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=1441;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791863218; l=1164;
  i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=2Dx/b8/3JsG/5KBFCzsSYSUq7LHO1maolj27mYLmFbc=;
- b=NCZhojoHHDNDG3XNDmNssM8FdsHah1ATGHcI1qanJ/M9/p+ahGop8+fVJAwJYx6j7tdK1iRTh
- yxm/NFQhbfOBxY5fGdxo1PZuSCHumLV63eLgxipMwcjupcLIJABC2eG
+ bh=8born+lqbJWHHfA9yx4+qhsEyHSP/MdbnsbUcNAg5HU=;
+ b=OjNTRpBwm7+styelTVABzZsjoLC2URQ+UUV3d/JL3nx7F2z9ZI0k8C51Yde9/79AFIg6EV2pq
+ 2x3+2Tx9/XMCw9PV/yIWJDirVgp7ynI2YlO715uYMYpP8rklVOP2sUe
 X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
  pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
 X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
@@ -70,62 +70,35 @@ Reply-To: filipp.dunsky@gmail.com
 
 From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-The pinhole button on the back of the Almond+ is connected to GPIO 37
-(bank 1, line 5), active low. The stock firmware uses it for restart
-and factory reset.
-
-Enable the I2C bus, which has the touchscreen controller on it; the
-touchscreen itself will be added together with its driver changes.
+List the new Cortina Systems CS75xx interrupt controller, GPIO and I2C
+drivers and their bindings in the CS75xx entry.
 
 Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
- .../boot/dts/cortina/cs7542-securifi-almondplus.dts   | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/cortina/cs7542-securifi-almondplus.dts b/arch/arm/boot/dts/cortina/cs7542-securifi-almondplus.dts
-index e2988c687..0619bd754 100644
---- a/arch/arm/boot/dts/cortina/cs7542-securifi-almondplus.dts
-+++ b/arch/arm/boot/dts/cortina/cs7542-securifi-almondplus.dts
-@@ -5,6 +5,9 @@
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 53f6fa1c5..604993705 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2925,10 +2925,16 @@ M:	Fil Dunsky <filipp.dunsky@gmail.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/arm/cortina.yaml
++F:	Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
++F:	Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
++F:	Documentation/devicetree/bindings/interrupt-controller/cortina,cs7542-intc.yaml
+ F:	Documentation/devicetree/bindings/serial/cortina,cs7542-uart.yaml
+ F:	arch/arm/boot/dts/cortina/
+ F:	arch/arm/include/debug/cs75xx.S
+ F:	arch/arm/mach-goldengate/
++F:	drivers/gpio/gpio-cs75xx.c
++F:	drivers/i2c/busses/i2c-cs75xx.c
++F:	drivers/irqchip/irq-cs75xx.c
+ F:	drivers/tty/serial/cortina-uart.c
  
- /dts-v1/;
- 
-+#include <dt-bindings/gpio/gpio.h>
-+#include <dt-bindings/input/input.h>
-+
- #include "cs7542.dtsi"
- 
- / {
-@@ -19,6 +22,16 @@ chosen {
- 		stdout-path = "serial0:115200n8";
- 	};
- 
-+	keys {
-+		compatible = "gpio-keys";
-+
-+		button-reset {
-+			label = "reset";
-+			gpios = <&gpio1 5 GPIO_ACTIVE_LOW>;
-+			linux,code = <KEY_RESTART>;
-+		};
-+	};
-+
- 	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x20000000>;
-@@ -50,6 +63,12 @@ &apb_clk {
- 	clock-frequency = <150000000>;
- };
- 
-+&i2c {
-+	clock-frequency = <400000>;
-+
-+	status = "okay";
-+};
-+
- &uart0 {
- 	status = "okay";
- };
+ ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE
 
 -- 
 2.53.0
