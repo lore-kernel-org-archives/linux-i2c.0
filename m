@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54D33490C0D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A83D493D4D;
 	Tue, 13 Oct 2026 06:07:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791871633; cv=none; b=GzljVUi56eP6V8mEIDBO1fijtnCYl6mEoFDbSEIi2pyx/X1DeeVrDu4ypIE1h19HSXqeeKO8axFAhSKCzOayZ6LOTT6enyCC7VVS+63CmD7G8E+daKSiH1WcVfwDhbWcZOyU+FUcM/dRl9ofUukmTnayEencqQm3cR8d57qmBHw=
+	t=1791871633; cv=none; b=TZpuSF26blXuV0ApuHy9bJ4OGybKki1HtVUt8PpweAcVSeTsEOxQ6wkW0Mu2h6lpYrcuoaKA16q60SEaxUJuvwQ6URQmFouHf/9O2ZHclJXohHW6SCEprhmv84DvJXsL51ZltXZ6ODLvWm3fXS2D8YZoVGF8v8P4o5BXCVJrn1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1791871633; c=relaxed/simple;
-	bh=31t7A4ec1Xhu+LA6GuFAzpvU2Mlareg98Anh2jPt2bA=;
+	bh=Ben9ds7l5snlJMg8NPMQQZULDqBGhQj1SfVWHLiwrlA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Ld1hNJhE3qVIzMKN8zJpC7Ia3itxgi9jy3ZDk+wrarslZovm/cgnBApvUgl+Yh763mTOmVFcbn4joCbSA1pV39y9BIu0wJia3myUu0PtM7Aoz5tZXym+2el9bMLAi6sh6+/mBcic0a7pNy3V5TuMIAY6EyEONHOIRM/CokkaPLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q6Eouc+i; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Imw/fWnpO6pyxzfqhHu6mORjzv5r9kc8u26CBEkKNIXqQTTqkx5pmYPW1GZ9wpHJEbt1zVMXECC6nfY0iZsKIBI1d1BWHLNR7yD4jNau+Fc0a3AMPoF1rnNDpr8Bd+VEGlH8Y3B4kEM8R4OOFWjMGQyvEMwupIBbbMk+ycR3HAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uobw6yPU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q6Eouc+i"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 017FCC4AF61;
-	Tue, 13 Oct 2026 06:07:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uobw6yPU"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id CA26FC2BCFF;
+	Tue, 13 Oct 2026 06:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791871633;
-	bh=31t7A4ec1Xhu+LA6GuFAzpvU2Mlareg98Anh2jPt2bA=;
+	s=k20201202; t=1791871632;
+	bh=Ben9ds7l5snlJMg8NPMQQZULDqBGhQj1SfVWHLiwrlA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=q6Eouc+iwsDZ1Tc2nl7lv5s+qJsNlZTUeug6JL27u1YBLtf2V1p9FCnawLwQMWrk0
-	 7E1ADsWDNPQXpne352e19gFlBk2j1SaDOqvuUt5AXqjMSLf6u6cKERmXZ2m4IyG37T
-	 RmdVkFCjmE/zYUrouwm6P6VOR7uk+0Gvn8n6FX824ALuSDHLv8MDj/KopfH3oCCaE6
-	 gw9ZkjzVL5MuAcoP+U34wQHxILEMewc6Yef5FsqoIVqpEj9zI03bS92ws0uj9P6abs
-	 8Y2y9aJvfI2zAZshCMLX+INl7YYsNDAcjx+osT8x7+ErNBu0XUGHZgPf/6LTwpA4OM
-	 31XRAy4DRG2rg==
+	b=uobw6yPUpYSpuf5xCTsaqclrTuN226BdUlssd1PMec2ITYVoeExqYZCcsuU5ZFNoO
+	 +rAsWR1ELvSawukH4OjRI8dLhWauyotSiiGGBp4FEQacGxSwh49O9CBXFbW8qnrz0P
+	 BzwZN20Lzj8fBIxlKdVtST6iRmgxFIcr1IX4bmfZUa8BTtuvV0gZxc0H2mVLScVQUh
+	 h/AHFB28GOM43vQlglIFz2hue393VQ57Sijeiy5JcFCthA0OEnNIZBo9AQxfeuW9Fs
+	 BF4HHGG6dgL4QQMe0zk0U+lQhT4isi7UC6gr4WgzFC+ME3Mw7Xh4eK6/3Puvocym+f
+	 kzjt6JDgsQo1A==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E471ECC6B03;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6002CC6B0F;
 	Tue, 13 Oct 2026 06:07:12 +0000 (UTC)
 From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 13 Oct 2026 09:07:15 +0300
-Subject: [PATCH v3 05/11] dt-bindings: i2c: Add Cortina Systems CS7542 I2C
- controller
+Date: Tue, 13 Oct 2026 09:07:13 +0300
+Subject: [PATCH v3 03/11] dt-bindings: gpio: Add Cortina Systems CS7542
+ GPIO controller
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-b4-cs75xx-s2-v3-5-181bb0d23f4c@gmail.com>
+Message-Id: <20261013-b4-cs75xx-s2-v3-3-181bb0d23f4c@gmail.com>
 References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
 In-Reply-To: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
 To: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
@@ -56,11 +56,11 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
  Fil Dunsky <filipp.dunsky@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791871630; l=1834;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791871630; l=2368;
  i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=aHpVqUhA73R0k52i9jHgHCikRVBzEr4JeY2wk8AHGqM=;
- b=BvBe0dp7LRyf33W6ob5ftfJITrc53jAxputWPz0/dY/ALoBZtzZEQUxOq/wfgAN/MfeG9x1HV
- LD5UoLEMK0YCtD8Vn4uTcyElZ1b13DIxPhHA2hE6pk/iZNaWBTp63nP
+ bh=uz2ou1IT1ghc6GBy1z+YYFHHajTQ9VyMONdxfzPSdIk=;
+ b=D2DelGWmlVdz79PnrSOYvc98Ivo9h90Y1+ao8bnhZDFhm7yW+Q+jBqdKDwu7M29bxvL9SY6p2
+ 9zkonhoEnoSChjBosPP43X+SEgczZ3QHuoX0+4oTxL7tOXfoHjJyRC+
 X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
  pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
 X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
@@ -70,75 +70,89 @@ Reply-To: filipp.dunsky@gmail.com
 
 From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Add a binding for the I2C ("Bi-Wire") controller of the Cortina Systems
-CS75xx SoCs.
+The Cortina Systems CS75xx SoCs have five banks of 32 GPIO lines. Each
+pin is shared between a GPIO line and a peripheral function, selected by
+the bank's GPIO_MUX register in the global control block, which is
+described as the second register region of the bank.
 
 Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
- .../bindings/i2c/cortina,cs7542-i2c.yaml           | 56 ++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ .../bindings/gpio/cortina,cs7542-gpio.yaml         | 68 ++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml b/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
+diff --git a/Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml b/Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
 new file mode 100644
-index 000000000..f70984bd7
+index 000000000..b54421d65
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
-@@ -0,0 +1,56 @@
++++ b/Documentation/devicetree/bindings/gpio/cortina,cs7542-gpio.yaml
+@@ -0,0 +1,68 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/i2c/cortina,cs7542-i2c.yaml#
++$id: http://devicetree.org/schemas/gpio/cortina,cs7542-gpio.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Cortina Systems CS7542 I2C controller
++title: Cortina Systems CS7542 GPIO controller
 +
 +maintainers:
 +  - Fil Dunsky <filipp.dunsky@gmail.com>
 +
 +description:
-+  The I2C ("Bi-Wire") controller of the Cortina Systems CS75xx (Goldengate
-+  G2) SoCs. It transfers one byte per command and runs from the peripheral
-+  (APB) clock through a 16-bit prescaler.
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
++  The Cortina Systems CS75xx (Goldengate G2) SoCs have five banks of 32
++  GPIO lines, each with its own interrupt. Every pin is shared between a
++  GPIO line and a peripheral function; the choice is made per pin in the
++  GPIO_MUX register of the bank, which is part of the global control
++  block.
 +
 +properties:
 +  compatible:
-+    const: cortina,cs7542-i2c
++    const: cortina,cs7542-gpio
 +
 +  reg:
-+    maxItems: 1
++    items:
++      - description: GPIO bank registers
++      - description: GPIO_MUX register of the bank
 +
 +  interrupts:
 +    maxItems: 1
 +
-+  clocks:
-+    maxItems: 1
++  gpio-controller: true
 +
-+  clock-frequency:
-+    enum: [100000, 400000]
-+    default: 100000
++  "#gpio-cells":
++    const: 2
++
++  gpio-line-names:
++    maxItems: 32
++
++  gpio-reserved-ranges: true
++
++  interrupt-controller: true
++
++  "#interrupt-cells":
++    const: 2
 +
 +required:
 +  - compatible
 +  - reg
 +  - interrupts
-+  - clocks
++  - gpio-controller
++  - "#gpio-cells"
++  - interrupt-controller
++  - "#interrupt-cells"
 +
-+unevaluatedProperties: false
++additionalProperties: false
 +
 +examples:
 +  - |
-+    i2c@f00700e8 {
-+        compatible = "cortina,cs7542-i2c";
-+        reg = <0xf00700e8 0x28>;
++    gpio@f00701f0 {
++        compatible = "cortina,cs7542-gpio";
++        reg = <0xf00701f0 0x20>, <0xf0000020 0x4>;
 +        interrupt-parent = <&intc>;
-+        interrupts = <11>;
-+        clocks = <&apb_clk>;
-+        clock-frequency = <400000>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
++        interrupts = <7>;
++        gpio-controller;
++        #gpio-cells = <2>;
++        interrupt-controller;
++        #interrupt-cells = <2>;
 +    };
 
 -- 
