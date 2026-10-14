@@ -1,68 +1,67 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8A484EF134
-	for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 09:40:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A86F337E5E7
+	for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 09:43:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791970814; cv=none; b=kLFMcAIPnuA1LDG50iCDvH8JD593UH8wR2fZEXGedhd8KRjRQIf1HjWtOHkysFlyH2Ovy+zcwn3hMsXLEoSbRZ67xJxxyJn7S8fRbgiZtOWpEMriDLxHsanVi0RTVYrkQcqqb1JMcywuaOMM66fDgpcRZ+sg+HFA21cFdm9K1DE=
+	t=1791971034; cv=none; b=jAXNEQdyR7BEmF53/Mj3dV/VctdhTUQNXMGVrA8lnM/wQhhUirxH/U9DOQ4tWJ0AbH/I6CFpaIDGfytlgPekgXjjgCiL85dnN6KhI/TvSvHF04GIVm0ufzr7AQflboRymzB4TLZo6rKcVBS6hCbWFX9gwgGonQY8NM5+QduhwS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791970814; c=relaxed/simple;
-	bh=/MIV5f10+7si6CVmjQsZhF4fNwIUhkUhxJFAlQ1gCSo=;
+	s=arc-20240116; t=1791971034; c=relaxed/simple;
+	bh=p8bij+xPIuY1F2wzTxNxuEiDx2tLRjfxK2DOQb5YmqY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Z6UiAF/pR4RqO55okbQz8IwWSqYcT5yg3QU5JmfOuK4oqaptjSg2EJYt+sT7PNkoZs7eTM4H9bSmIUl8UYPLOJlmBi4pYl1E1Bki70c8k67FbMzI48QbIDOsJFP2RnEUfEAnNsG73qJ73IrvMxkpCN854gUanyGVZ0tT0vr9Ey4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=AlsBh/T8; arc=none smtp.client-ip=209.85.218.49
+	 In-Reply-To:Content-Type; b=PDIV/yP9wxj79OoLOUKhKjB85E7Hn3BkE+zN+tijROU1t/L5oJc9eX/eOHtAGdsRiZQoMn7apWF2oi4ZeMn/XDPDWZhG2Yktp42Kg/xcwD/tHNCL5UHXKGu/Ues/bJ+s/lkg5pOqWzITeJSyP6PgweQ3r7A0g7/EPBi8JwT+Als=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=uOYw7f4O; arc=none smtp.client-ip=209.85.208.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="AlsBh/T8"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c2acc1e170cso656890866b.1
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 02:40:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="uOYw7f4O"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6b1aa27963eso4145241a12.1
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 02:43:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1791970811; x=1792575611; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1791971032; x=1792575832; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=GJTdB+tkmfzXQ0j0gtaqlX8LAfgF2qu6ASSbm0x0pyA=;
-        b=AlsBh/T8mEJYcCtJJfVVK9fzj2vAhhn4NPFD7gA/5/RXVY9wOrIfgr1kLwawS5ChCy
-         YxFVOmhcdtfe4nfQVaSaYb3OBwlqSZdGhkOXAsD2fa5yTXSEV8pELOgSdlMUFNtr2A8G
-         qHvHHYE47fODY8BF3ketgX81e90H6dMPmBYfpXCnRezFWjTNKYbmWTqExINue8moZKsA
-         3kc8sOHBDAWpHNcJUjh2KvzAZuVuyjwGG+M63juA3GIFckoUKM3D+vaiMhEtAJcqRJAb
-         MxOl++vvy/dasou6Qy3U+EMFto23P6QQgz4IOJwcYTCj6cXUSpdLGYkjUMhgKCZEBt1n
-         1w+w==
+        bh=tOCQwbGkL9XqwqZkq5Sc8MdH9xmRzvz/HA/PLReDL08=;
+        b=uOYw7f4OPvpwLDJBsDw0RiocCBQFaY7L6IVYwf251T6PDD/vlDPeINPkrEszp7xxIo
+         tMYI1dkwiYFQdtHXwQGsFlUNJ4uJ0SQS44kUbPEWNkUWv1Q9jdW1kBeAYxXb5KANJ2Y4
+         RFGHRPgeCRucwsmvJuUSu/C2l+aKDhToYAInFS9joJW/uXFa9aQzXkwAaB30tdikQUCG
+         j22Dkuet1XeZ6Lpk1ZX5Qa9jTLcXR7j7c4VIxP19NtPtgOIJBLb5GpVFh1taqWS0ZlGs
+         KLCOIPOhEozBod3CsqIF6OHYwDVKE+PHKh1svgXSSUWWG8F0RFuGODxfna50qSVRfp5Q
+         kZXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791970811; x=1792575611;
+        d=1e100.net; s=20260707; t=1791971032; x=1792575832;
         h=content-transfer-encoding:content-type:in-reply-to:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=GJTdB+tkmfzXQ0j0gtaqlX8LAfgF2qu6ASSbm0x0pyA=;
-        b=RvY/QXfL2EJ7M0Blj24cRNjDMuIHuwp8fN9oKSiGA1y3Qd8O/rpj/rr8PnSSQ/IRRo
-         7Prki8kmgVY7r9hjp6WM3yL7ECHKffOxloMgGnElugNxVH4/EysqyaV/k+OkZ5zLvDLE
-         U0HomeplBwdezqvPsqoA//wNSCi9AohL9mxMYtjtgj7QTLpWtrnhcazB17ELRGNEJnCP
-         rn4FFWqngzAkr4+lE4OBPYxhJBcnh5VC2fik0vMkvg+w6wJACUiquFEongjH2hePeQt0
-         e317sJDpWWeFp+Y7hgMc3L3dINv3ccBwrrgCuZqtL6gpY3AKQM6hZtACIo7IhQElCuFG
-         ua1g==
-X-Forwarded-Encrypted: i=1; AKwUvBzwm6LXX0eITDZgQT0WIwI/+Y9pUhZiEZZhLpXX1Y0izkWzuoBoltEWbIVSHiqqpKCF1YzSBjDo/3o=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKTwRnU+M0rWmVqMuRCunBtCzyeGejZ1aDomWKIiJuOXtSvg6lb
-	7Fq+ga4mzQryIUVFKQmW59FHYW7C2/Qy5Ib9DXzJZXEBA5lLW2fjGyjVtPRc54hKgR7K4kfP3Kx
-	mzhTK
-X-Gm-Gg: AYBFou1K1YJpMX0WBiN97BxAOlXDGmZylhY4blllsiyVCTQ93ya5ejqLOPXrckUVjgE
-	xJuTPflezKBwW8xfDKcJAMyFsq+Rz3jsL9M8yULQnPDIZkUQsXTptYXpxca1I097xDDmnuODkpO
-	yjcY9vV3M/6RbcEDx7y8Wy89ilQaCcmiye5pStucwejilgU/dyV5Qu3ooMIVb9TxYCCcPBf9OD4
-	Z9UYV6qq+nPAO7+TyNt1IQt+p7tWW2hmfbGeJwXig9lGn3p1YWDlLjrFWQf/vI7fM0nvxWEt2Zf
-	eoXJPCO7AYs127rYKs0QJxvZ4MOKakpYcv8axZlp7kt0i8nwc8hjcrbcjVFWDl2W0MUGo8ywB80
-	2/B3u/WuBWPwXvrTyNB9T2an40MNv9XNNpUBUoNy0pdWSzpaRcvdx9Ab/UiK5cBRC2L+lbrWScI
-	TiyviAIwDnf3MF7gJICfW/BP2+vvxdkr0zg84zSctH/rZJvEGMCbUjo/Mf/ag8thuCux9iUObhF
-	79iitUDGovv
-X-Received: by 2002:a17:906:f586:b0:c2e:4742:4c91 with SMTP id a640c23a62f3a-c31aa08e8a5mr1307707966b.35.1791970810963;
-        Wed, 14 Oct 2026 02:40:10 -0700 (PDT)
+        bh=tOCQwbGkL9XqwqZkq5Sc8MdH9xmRzvz/HA/PLReDL08=;
+        b=XLC5HpBWPea1gWiKzD9rMBJb3jOYf31ZrxInst2NE0v7i4uDOH4BamUVhoaRfe50ct
+         5s87BvLNDTLnz41JdbqLx+S90xJ8NjPNtJKCax//YIXKTAVFdb8BWkFmxX5bAs0C4frz
+         xCyLcNaLNlr4G3Xqp4msKp54jYnM4m8iLNKb3bHj6rVeOFgEDPmHXFPGPNNLEm4C6Pnh
+         ljmCRMF1/R3Da6vBlBFS5vNr+dt37Se002483HIWcVygVqNYmaFjQD5WxMZX5PEyXu54
+         NmvJxpZ0YApCqpKCsIRrcZRaxh0wh4S65qs+ziEuOBQkeqBRZFcnZtSmytc4isLhxco5
+         zJbQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz9uSVfyE5qqvANHb3v4cRb1Th7AHx9DRMuwXmnlfaMc4ligFIEIlZvbaDsLq3XM/Sppo5p7dhKXN0=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIbmF/jTY+E9Bg2ALI0aFDO/VREz0AlvPEONUttKI1MsFpiZe9n
+	bTQ+UfWG7eNFWrcwCz94noP1AaXUh77yJuot7lvFsJB7r5hJPwYxPbsLaddIQWlj/LI=
+X-Gm-Gg: AYBFou0NlL8Ztw0Ebs6sYLmPcgBLykp0kGq/b20tklluX50gNulYN1FQQR1N5TqJXkF
+	oNUteolpdR/I8Ji43iev5O8WgbDPtL/ZAvNXQvwlZlPtWkgbKjWqkR9HApUvMPmf8L6DoSYMyon
+	ufsIJnT1RgUNMS+BQNO3EXzIjG91taBZW5sb2WwNM/stuJ4UsyeLKhoT4PplJdDKspmNHtnjwPj
+	CJfVAP+Ge07k+SMwU5+FmlNzR/0ngJda5xSN4pBuklW0aKNZKBTMnRIqr3jMTTYs3avaMulNAQY
+	96gXIeyKuxt+Okoei8rFEi5mvqihKo4MvwIWP+MZyzyb7QnKXvPenZio0xgnMshzjeT8IBY888A
+	7IypNT+aWhb+j6hb+SP4FlX00mcZmiD+on1PltnA/bjVDXByfO/FV433qfEsoddWwPY4wD3bNhn
+	NMapfxNNuv0wYsYi/2S93xsXTyH790UtBFdgX37sVOj6erxuDBeZjg08UYDlF3WTc5MEmyklkkq
+	xNGrQhdLo+J
+X-Received: by 2002:a17:907:6093:b0:c2d:d929:95e2 with SMTP id a640c23a62f3a-c31a7067739mr1466697066b.21.1791971031904;
+        Wed, 14 Oct 2026 02:43:51 -0700 (PDT)
 Received: from [192.168.0.167] ([109.76.126.202])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c31a9ae6f8asm691140366b.85.2026.10.14.02.40.09
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c31a9ac702fsm690779866b.65.2026.10.14.02.43.50
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Oct 2026 02:40:10 -0700 (PDT)
-Message-ID: <570f378f-3798-4a20-947c-d97d946f94cb@linaro.org>
-Date: Wed, 14 Oct 2026 10:40:09 +0100
+        Wed, 14 Oct 2026 02:43:51 -0700 (PDT)
+Message-ID: <4fe3f636-2352-4f3d-9634-637622b2cd40@linaro.org>
+Date: Wed, 14 Oct 2026 10:43:50 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -96,47 +95,6 @@ Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 13/10/2026 12:02, Nihal Kumar Gupta wrote:
-> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
-> 
-> Add support for Hawi in the camss driver. Hawi reuses the CSIPHY
-> resource table from Kaanapali and the TPG resource table from
-> X1E80100.
-> 
-> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
-> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-> ---
->   drivers/media/platform/qcom/camss/camss.c | 25 +++++++++++++++++++++++++
->   drivers/media/platform/qcom/camss/camss.h |  1 +
->   2 files changed, 26 insertions(+)
-> 
-> diff --git a/drivers/media/platform/qcom/camss/camss.c b/drivers/media/platform/qcom/camss/camss.c
-> index 5db7e12a6f86973df372c0428c15c286d9f7e60a..664237ad5ce60be64806c5386ce88ed2133f0552 100644
-> --- a/drivers/media/platform/qcom/camss/camss.c
-> +++ b/drivers/media/platform/qcom/camss/camss.c
-> @@ -4381,6 +4381,19 @@ static const struct resources_icc icc_res_sa8775p[] = {
->   	},
->   };
->   
-> +static const struct resources_icc icc_res_hawi[] = {
-> +	{
-> +		.name = "ahb",
-> +		.icc_bw_tbl.avg = 38400,
-> +		.icc_bw_tbl.peak = 76800,
-> +	},
-> +	{
-> +		.name = "hf_mnoc",
-> +		.icc_bw_tbl.avg = 2097152,
-> +		.icc_bw_tbl.peak = 2097152,
-> +	},
-> +};
-> +
->   static const struct camss_subdev_resources csiphy_res_x1e80100[] = {
->   	/* CSIPHY0 */
->   	{
-> @@ -6086,6 +6099,17 @@ static const struct camss_resources sm8650_resources = {
->   	.vfe_num = ARRAY_SIZE(vfe_res_sm8650),
->   };
->   
 > +static const struct camss_resources hawi_resources = {
 > +	.version = CAMSS_HAWI,
 > +	.pd_name = "top",
@@ -147,29 +105,12 @@ On 13/10/2026 12:02, Nihal Kumar Gupta wrote:
 > +	.csiphy_num = ARRAY_SIZE(csiphy_res_kaanapali),
 > +	.tpg_num = ARRAY_SIZE(tpg_res_x1e80100),
 > +};
-> +
->   static const struct camss_resources x1e80100_resources = {
->   	.version = CAMSS_X1E80100,
->   	.pd_name = "top",
-> @@ -6121,6 +6145,7 @@ static const struct of_device_id camss_dt_match[] = {
->   	{ .compatible = "qcom,sm8250-camss", .data = &sm8250_resources },
->   	{ .compatible = "qcom,sm8550-camss", .data = &sm8550_resources },
->   	{ .compatible = "qcom,sm8650-camss", .data = &sm8650_resources },
-> +	{ .compatible = "qcom,hawi-camss", .data = &hawi_resources },
->   	{ .compatible = "qcom,x1e80100-camss", .data = &x1e80100_resources },
->   	{ .compatible = "qcom,glymur-camss", .data = &x1e80100_resources },
->   	{ }
-> diff --git a/drivers/media/platform/qcom/camss/camss.h b/drivers/media/platform/qcom/camss/camss.h
-> index 0551211f7948190a7cc2a2e7971e6c549f92ff60..2b0990b95a1fbca8cbc06628223437c24bceb792 100644
-> --- a/drivers/media/platform/qcom/camss/camss.h
-> +++ b/drivers/media/platform/qcom/camss/camss.h
-> @@ -96,6 +96,7 @@ enum camss_version {
->   	CAMSS_8550,
->   	CAMSS_8650,
->   	CAMSS_8775P,
-> +	CAMSS_HAWI,
->   	CAMSS_KAANAPALI,
->   	CAMSS_X1E80100,
->   };
-> 
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+
+Wait a second - no IFE or CSID in this table, with both added in 
+follow-on patches.
+
+Lets just collapse the last three patches into one. I mean this can't 
+bisect in a meaningful way as three distinct patches really.
+
+---
+bod
