@@ -1,142 +1,166 @@
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.98])
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0D502EDD78;
-	Wed, 14 Oct 2026 05:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.63.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8221541D135;
+	Wed, 14 Oct 2026 06:56:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791954542; cv=none; b=nAWeAx378CINlI5vD90O9cpkipXxQ8qAlYUetza8a2E1erqI49fgVyeZpNXeDxeLqwY6xo4jDBC0vBpohmWRSADeZjt75NzE+88oVsM3/CjeaDgtqVEg9KTYjacqxkwAEgr8yGj9/91QLRoQZFYOtSs+v8e6ypz6l1YlY/uQ3gk=
+	t=1791960985; cv=none; b=kfbYSly1xmLaohLYWrVwLvv8QnXpWpvh3NSXOufUMSMDX+rXACE1at8K/adPii60ebYvZIe2W8pPgf4loheiK62fOmxaTVh1aY2N+MFJdZSczZXndeI966Zx1gKGzEZqL5vKLn07LI4yMcDhi371aIcboOfiecGNg3O6hZi8dWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791954542; c=relaxed/simple;
-	bh=rlOCRJxxvXSKz+/MJviNY8p9lyon2NiOyUkj6CTSmVc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=h59J3vJQKIEOiUGIrNkvFHNwkJBTH5XGDccmhzaPwNVOFTjIadtkz4y7M0lii/BDPtnOwA4SrIyVJ8tAvu5CrdIDI+ERQFxZ3zmtJtTFprUOQTxAHMZ4o0k+gvlAExKN1WZ3y2cvoIOFy00eiKe73HGFgHm7ll+LRQ467tfkHuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info; spf=pass smtp.mailfrom=leemhuis.info; dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b=lndRATsB; arc=none smtp.client-ip=188.68.63.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=leemhuis.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=leemhuis.info
+	s=arc-20240116; t=1791960985; c=relaxed/simple;
+	bh=pchHXEt1J4aJR0AWs0OX96hBjb602vhBljsRc6MgM7g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=YhrvC1PWwsPKRfqgudG0/tXl6dD3RDZTv4RjMwro4O0FCA6anXz6vD+NY3HRj8J8s99+13zBGaic1vHDSM/bihF8jzMTF3D07/LdxEYBGI5WYc6KtV2blYdVONwcsLTYfBqNK6cdCl7Sseh1AJC4QNkLvrKTXhuPyDsWqLnnyto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=cCZPlIQc; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=leemhuis.info header.i=@leemhuis.info header.b="lndRATsB"
-Received: from mors-relay-2501.netcup.net (localhost [127.0.0.1])
-	by mors-relay-2501.netcup.net (Postfix) with ESMTPS id 4j4K3m2xL0z6KWM;
-	Wed, 14 Oct 2026 07:08:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leemhuis.info;
-	s=key2; t=1791954516;
-	bh=rlOCRJxxvXSKz+/MJviNY8p9lyon2NiOyUkj6CTSmVc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=lndRATsBfoahdm3mP9oJK+Q0nB9ifTmf237VP9j7KOkIPiEMLksyYWgvwRyjZ4m0e
-	 kbNeNGSq9J1hZWLcsdoJJ5iGy2LhupI84r9qeaCH9K2xjLdb/0t2Ayq4QLCW8P9SF8
-	 lH7V80P3Jb1S1LwGrTOePXnQO0+JoFynbmKmx8D4+f0sl8ZKeGkjzJ30P0SKlRRJDk
-	 V0PcYam7mebSCkL8A4ldR1ymd0OVooeHln4ckfsv8meBeLbfcdmHtjMQdidojN+LOo
-	 RNRklpxocgi/8pw1hdFdVZh73ibt2WYkzQoxI1krKxbBljlcx23nw2dU+JZ0tc/ko5
-	 DB/odp+3nYZgw==
-Received: from policy01-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay-2501.netcup.net (Postfix) with ESMTPS id 4j4K3m2CfMz500g;
-	Wed, 14 Oct 2026 07:08:36 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at policy01-mors.netcup.net
-X-Spam-Flag: NO
-X-Spam-Score: -2.901
-X-Spam-Level: 
-Received: from mxe9fb.netcup.net (unknown [10.243.12.53])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by policy01-mors.netcup.net (Postfix) with ESMTPS id 4j4K3k4Bskz8tgR;
-	Wed, 14 Oct 2026 07:08:34 +0200 (CEST)
-Received: from [192.168.44.19] (unknown [185.238.219.103])
-	by mxe9fb.netcup.net (Postfix) with ESMTPSA id 2395F5FAD1;
-	Wed, 14 Oct 2026 07:08:29 +0200 (CEST)
-Authentication-Results: mxe9fb;
-        spf=pass (sender IP is 185.238.219.103) smtp.mailfrom=regressions@leemhuis.info smtp.helo=[192.168.44.19]
-Received-SPF: pass (mxe9fb: connection is authenticated)
-Message-ID: <e8f862fe-f86c-4522-9ef9-70fd754529af@leemhuis.info>
-Date: Wed, 14 Oct 2026 07:08:27 +0200
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="cCZPlIQc"
+From: Yureka Lilian <yureka@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1791960975;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=RFRhkU5N0xkY+h+ZZaHcxaa1ZMJtDptcbJ0QND+y2ZU=;
+	b=cCZPlIQcPSnjvO680NjrZGy0BG6CEKO524p5wCykGaevyWasCNuGYmGtaMmcEvn9oM89hq
+	b8zrbS8P0V+Gu2GfoUfdPbZV/YOqmP1DnY9rsCE4gp0zQ9NFmjghU0lItKy3GPrFV/OXmc
+	+utiL/vJPVDjsmPooYSCUJ3YEf4Nl1k=
+Subject: [PATCH v2 00/10] Initial Apple Silicon M4 Pro/Max device trees and
+ dt-bindings
+Date: Wed, 14 Oct 2026 08:56:07 +0200
+Message-Id: <20261014-apple-m4-pro-max-initial-devicetrees-v2-0-961edd8d661b@cyberchaos.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: qcom-geni: restore tSCL with 32MHz I2C fast-mode
-To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
- Daniel J Blueman <daniel@quora.org>, Andi Shyti <andi.shyti@kernel.org>,
- Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
-Cc: Sasha Levin <sashal@kernel.org>,
- Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
- Bjorn Andersson <andersson@kernel.org>, linux-i2c@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, Birk Skyum <birk.skyum@pm.me>,
- Linux kernel regressions list <regressions@lists.linux.dev>
-References: <20260929041444.9837-1-daniel@quora.org>
- <1ca16602-fb66-4706-8e86-3b35372324b9@oss.qualcomm.com>
- <CAMVG2svsfP+6cpRq=kBCZFva_r8jXSm+-pp+qC9D372S10z12g@mail.gmail.com>
- <eaa6f116-7556-4791-857d-cd50c504528d@oss.qualcomm.com>
- <20261009145800.rc-reply-0004@kernel.org>
- <b7bfbf6a-e5b5-48be-84ad-8bcd8e22c5de@leemhuis.info>
- <4acb0eee-f7ae-4817-9848-d72cf486bc06@oss.qualcomm.com>
-From: Thorsten Leemhuis <regressions@leemhuis.info>
-Content-Language: de-DE, en-US
-In-Reply-To: <4acb0eee-f7ae-4817-9848-d72cf486bc06@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-PPP-Message-ID: 
- <179195450992.3085560.17461462397598041287@mxe9fb.netcup.net>
-X-Rspamd-Server: rspamd-worker-8404
-X-Rspamd-Queue-Id: 2395F5FAD1
-X-NC-CID: tEcCbzUfgwUCJqdcJyw89SeupMi+Cl/mJpUEdePdcPQiCyi2gWI=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42PTQ6CMBCFr0K6dkxbDD+uvIdhUcpUxiBt2kogh
+ Ltb0AO4/JJv3nuzsoCeMLBrtjKPEwWyYwJ5ypju1fhAoC4xk1wWgvMalHMDwusCzlt4qRlopEh
+ qgC5da4weMYDOW5kbVaqqQpainEdD81Fzb74c3u0Tddyzd6OnEK1fjh2T2L1fpeD/VU4COJSVM
+ G1uZFeb4qaXFn16woZzElmzbdsHS+3j9u8AAAA=
+X-Change-ID: 20261009-apple-m4-pro-max-initial-devicetrees-c3b23fa7a88e
+To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
+ Neal Gompa <neal@gompa.dev>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Radu Rendec <radu@rendec.net>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+ Hector Martin <marcan@marcan.st>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+ Sasha Finkelstein <k@chaosmail.tech>, Linus Walleij <linusw@kernel.org>, 
+ Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ Yureka Lilian <yureka@cyberchaos.dev>, Florian Klink <flokli@flokli.de>
 
-On 10/13/26 20:28, Mukesh Savaliya wrote:
-> On 10/13/2026 1:04 PM, Thorsten Leemhuis wrote:
->> On 10/9/26 21:01, Sasha Levin wrote:
->>>> On 9/30/2026 3:01 PM, Daniel J Blueman wrote:
->>>>> I would revert the original patch if there is hardware that uses the
->>>>> I2C 1MHz fast-mode, since the current timings aren't to spec, but also
->>>>> weren't before.
->>>
->>> For stable: cb97bf3d4f91 ("i2c: qcom-geni: Fix hardcoded clock index in
->>> SE_GENI_CLK_SEL") has already shipped in 7.2.9, 6.18.55 and 6.12.112,
->>> and is
->>> queued for 6.6, 6.1, 5.15 and 5.10.
->>>
->>> The 32 MHz clock map (506bb2ab0075, v6.13+) does not exist in 6.12.y
->>> and older.
->>> The backports there pick only the 19.2 MHz entry, so the Yoga Slim 7x /
->>> X1E80100 timing regression cannot occur on 6.12.y or older, and I'm
->>> keeping the
->>> 6.6 and older queues as they are.
->>>
->>> 7.2.y and 6.18.y do have the 32 MHz table and are affected. Once the
->>> fix lands
->>> in mainline, I'll pick it up for 7.2 and 6.18.
->>
->> @Andi, @viken, and/or @Daniel:
->>
->> Is the patch at the start of the thread or some improved version heading
->> to mainline meanwhile? What Sasha wrote above is one reason why that
->> would be good rather sooner than latter; another is a regression
->> report[1] from Birk (now CCed) wo ran into the problem with mainline --
->> so it would be good to fix this before 7.3 is released, too.
->>
->> Or is a revert the better option to achieve that?
-> 
-> This is in active discussion with hardware experts, but taking time to
-> get specs compliant configuration values while it's being tested.
+Hi,
 
-That's how it is sometimes, but then it's likely best to go back to the
-know old state by reverting the culprit -- or is that a bad idea for
-some reason?
+This series adds initial device trees and dt-bindings for the Apple
+Silicon devices using the M4 Pro/Max (t6040/t6041) SoCs.
 
-> I see 7.3 release on 25th, so what max time we can have before reverting ?
+This series covers only a minimal amount of hardware, which is useful
+as a basis for future developments. The hardware added here has remained
+largely unchanged between the M3 and M4 generations.
 
-Not sure where you get this from, but 7.3 most likely will be released
-this Sunday, so four days from now. Given that this affects stable is
-should ideally be fixed quickly anyway. And the issue is know for a
-while, so it normally should be fixed already, as that's what Linus wants:
+The dt-bindings changes should be mostly boring (in a good way!). The
+device trees themselves are roughly organized into the MacBook Pro
+models on one side (t604x-j614-j616) and the Mac mini and Mac Studio on
+the other side (t604x-j575-j773). I'm hoping to re-use these dtsi files
+for the M5 Pro/Max versions of these machines in the future.
+I applied some version of dt-check-style formatting to all new files
+with the exception of the generated pmgr nodes.
 
-https://www.kernel.org/doc/html/latest/process/handling-regressions.html#on-how-quickly-regressions-should-be-fixed
+Merge strategy:
+Since there are no actual driver changes, we'd prefer to merge the
+dt-bindings changes through the apple-soc tree once Acked by the
+respective maintainers.
 
-""But if it's a regression with a known commit that caused it, I think
-the rule of thumb [to fix it] should generally be "within a week",
-preferably before the next rc."""
+Thanks,
 
-Ciao, Thorsten
+Yureka
+
+Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+---
+Changes in v2:
+- Remove accidental t6050 hunk from "dt-bindings: interrupt-controller:
+- Remove accidental Acked-By & Reviewed-By from "dt-bindings: interrupt-controller: 
+- Fix missing "0x" hexadecimal prefix in cpu cache sizes
+- Use _fe power domains instead of their disabled _cpu counterparts in
+  Mac mini and Mac Studio framebuffer nodes
+- Link to v1: https://patch.msgid.link/20261010-apple-m4-pro-max-initial-devicetrees-v1-0-781fb3f2d9f6@cyberchaos.dev
+
+To: Sven Peter <sven@kernel.org>
+To: Janne Grunau <j@jannau.net>
+To: Neal Gompa <neal@gompa.dev>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>
+To: Guenter Roeck <linux@roeck-us.net>
+To: Rob Herring <robh@kernel.org>
+To: Krzysztof Kozlowski <krzk+dt@kernel.org>
+To: Conor Dooley <conor+dt@kernel.org>
+To: Thomas Gleixner <tglx@kernel.org>
+To: Radu Rendec <radu@rendec.net>
+To: Lorenzo Pieralisi <lpieralisi@kernel.org>
+To: Hector Martin <marcan@marcan.st>
+To: Uwe Kleine-König <ukleinek@kernel.org>
+To: Sasha Finkelstein <k@chaosmail.tech>
+To: Linus Walleij <linusw@kernel.org>
+To: Mark Kettenis <kettenis@openbsd.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: asahi@lists.linux.dev
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+apple,aic2: Add t6041 compatible"
+
+---
+Yureka Lilian (10):
+      dt-bindings: watchdog: apple,wdt: Add t6041 compatible
+      dt-bindings: interrupt-controller: apple,aic2: Add t6041 compatible
+      dt-bindings: arm: cpus: Add Apple M4 Pro/Max CPU core compatibles
+      dt-bindings: arm: power: apple,pmgr-pwrstate: Add t6041 compatible
+      dt-bindings: arm: apple: apple,pmgr: Add t6041 compatible
+      dt-bindings: pwm: apple,s5l-fpwm: Add t6041 compatible
+      dt-bindings: pinctrl: apple,pinctrl: Add t6041 compatible
+      dt-bindings: i2c: apple,i2c: Add t6041 compatible
+      dt-bindings: arm: apple: Add M4 Pro/Max based devices
+      arm64: dts: apple: Add minimal t604x (M4 Pro/Max) device trees
+
+ Documentation/devicetree/bindings/arm/apple.yaml   |   27 +
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    1 +
+ Documentation/devicetree/bindings/arm/cpus.yaml    |    2 +
+ .../devicetree/bindings/i2c/apple,i2c.yaml         |    1 +
+ .../bindings/interrupt-controller/apple,aic2.yaml  |    2 +
+ .../devicetree/bindings/pinctrl/apple,pinctrl.yaml |    1 +
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |    1 +
+ .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
+ .../devicetree/bindings/watchdog/apple,wdt.yaml    |    1 +
+ arch/arm64/boot/dts/apple/Makefile                 |    6 +
+ arch/arm64/boot/dts/apple/t6040-j614s.dts          |   24 +
+ arch/arm64/boot/dts/apple/t6040-j616s.dts          |   24 +
+ arch/arm64/boot/dts/apple/t6040-j773s.dts          |   28 +
+ arch/arm64/boot/dts/apple/t6040.dtsi               |   65 +
+ arch/arm64/boot/dts/apple/t6041-j575c.dts          |   22 +
+ arch/arm64/boot/dts/apple/t6041-j614c.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6041-j616c.dts          |   18 +
+ arch/arm64/boot/dts/apple/t6041-pmgr.dtsi          | 2297 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t6041.dtsi               |  713 ++++++
+ arch/arm64/boot/dts/apple/t604x-j575-j773.dtsi     |   47 +
+ arch/arm64/boot/dts/apple/t604x-j614-j616.dtsi     |   65 +
+ 21 files changed, 3364 insertions(+)
+---
+base-commit: a8ac6027e82415f431bbba49ab535c44f2edaf4d
+change-id: 20261009-apple-m4-pro-max-initial-devicetrees-c3b23fa7a88e
+
+Best regards,
+--  
+Yureka Lilian <yureka@cyberchaos.dev>
+
