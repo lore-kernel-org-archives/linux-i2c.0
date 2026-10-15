@@ -1,324 +1,194 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E98823C51D
-	for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 23:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB57837F01A
+	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 03:58:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792022223; cv=none; b=LQxsJhSZYw0D4jo69ZiSyL107nK+opkgqzY3qKFD5snhWiYub8oJEdmkG3D3UjhXwTcVL5WOR9GbvxYeHAc9H1LhZEIChjlJ1HetG0oVgR7izCEa9ZpMI7aPjvG4ikMa20bpGylZMD2Dk96WYNkhzN3Ob0b+w0HzHJswytKbSdE=
+	t=1792036735; cv=none; b=i8n/vvvHOi5absajxxFQwdtLUKXZJ89gAsc+3iCGd4pSKu1P1xTkmirCOpExI6gE8vFlNPip6Zl/gH2p29ve8CGAk2noTU/6V6XLmc/bjSDqlETfG1N/yDK5DOIgmfcRSPw/5eQBSRLSP5spr8/rqRPiUtC7rseoPAD+FhIJz7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792022223; c=relaxed/simple;
-	bh=hLZglLUb6/M8avFMUY4DETPKC/OcQ8W4VsuJaizRjlY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=oYznb7Un1oKXbcWBPPTAj9EsjjIBvQGq2avEbluB26QMKo+j+8fYjRszR5IKN/EtjDPLbClcx7l29+9UwfbYdFNmYAg2+cCYnXsJ8sDon1rzlvqwv14krNzmrJOq+m3w0aWiCx0/ZJrroq9kh/pif/gSh4bZTPmd1+Od1AMmXzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=Tq+sT22J; arc=none smtp.client-ip=74.125.82.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1792036735; c=relaxed/simple;
+	bh=nguePDkbSX8CdLrI5jeCiApYYmALGzarrJu+OM9Fqm4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Sv56w0dirRPyw2zLy24QJFMxVqLlgqgsLFAkaT8ZEskVQW7e8TcD+qMCDcYMawnhpoXQkEyLH9TQysX/Zk+gd8x3egz1c3euECGFkmoWfupIcQ0MFfkNVHsb5G37ZMwFmL5UhV5t+Gy79Sj3HlRENYbGgkl+UGAGiDjEQZOm/qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=a7kG2EMK; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Id0lvc/g; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="Tq+sT22J"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-35aa0cf7c40so4684693eec.1
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 16:57:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="a7kG2EMK";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Id0lvc/g"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69ENxEaD1682677
+	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 03:58:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	yLcj2xFJ+ldAWy0+daCRV0vS+QgpQC6UVrd5FcRL0HE=; b=a7kG2EMKtNc3ppFV
+	ogttzL9XW4vzOAZkDYPt2ffRra6tQRSjZqEc5ss7PKoRXS3+CC1neU11bs5H+wJJ
+	hv0t6JzmuVAVNBJMNpYtXtmAHgvs0ZLgHPfCtsrwNzyRUiFaFgblwJe1V3XC0PN6
+	5e+BVu6dTNcrxA0F6uGaN2XuN3U1OMcoMCDwscp9ZABI6fTaQcSDKunlFPDiWZXz
+	U7uPDBBOcvNuwLLzE9W3WPH5sc8IN6Vq+iPqdYETcyY7IVg5T/j0sSvSx/BEH4d5
+	1QpW/a0vbZDFtNGyLXbtAzN3PEPir4XiS13YiIp+WaDrZsNUxAmRnoE9UN1eiaua
+	Q34uFg==
+Received: from mail-dl1-f69.google.com (mail-dl1-f69.google.com [74.125.82.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hacb02gmj-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 03:58:32 +0000 (GMT)
+Received: by mail-dl1-f69.google.com with SMTP id a92af1059eb24-147be78cd56so19031183c88.1
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Oct 2026 20:58:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1792022220; x=1792627020; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=MXtvsMWEZDszE2uQQOHilHK7ejv7jH66bQFcbnUr/Yc=;
-        b=Tq+sT22JBLnJC4G6EW98fGZapEkjEQ8WZTLi76QmBoD7b2YKTEUFPHa8WYB7j4qJof
-         5YkS/ehZJEbjnElBuXS3o4wgeCjHSZ4P+SIvZFZCWWWQfwnO7oixM4veLS97Mb4dQ2Sx
-         R5RboHHSuxPZ4ES+Ugt/N1MJBa5Alx/dzbCgSM74BJ5BRsxLuyMT4zjZF7MmM64ElORo
-         UlHh14XeryHTQBRqAYqobM05oKiZq+uAsnxra47oU0sLn/OoS6equ2gsUsyXR9RNwgVa
-         EQCpCjcMTH7iFvQtPX1hN1CiHi5rZygolMX77mP1d2TtlHuQgEG+txOq4INyPnyq3wfc
-         YN0Q==
+        d=oss.qualcomm.com; s=google; t=1792036712; x=1792641512; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yLcj2xFJ+ldAWy0+daCRV0vS+QgpQC6UVrd5FcRL0HE=;
+        b=Id0lvc/gB1ttqNhQU+VY8Qln4VW7JI/Hc/1p7Xth4gMMixMPDw/2SCxgGmr9vugWNG
+         HmR5B3ziZR6DM9ei4H5f308T+5S8N5NHGjlanX9r119OabRCZbRBrC7aLe3MXryDhO6D
+         n5TheWJYicYF9zshW060AYXhuX/praOpZ+hT943/rwIeWTUPvk2YqipHurYDjzWjmY+k
+         MTxXwXtYObE2BEJzQBTEMg6cKXiBnCb1bBAHW/wlGpGrZcdkOXXTxSpwIesm97roxXML
+         F6V1tO/hmHYn8EyDrsA6e86MBba6Ec4/RQR0Fr25eDBflegDMVx2f1br7eDm0eRwtBGb
+         TkgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792022220; x=1792627020;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=MXtvsMWEZDszE2uQQOHilHK7ejv7jH66bQFcbnUr/Yc=;
-        b=I6DerbaA1X/HnVOF+xoxe5fllMExSFa7E38I+AnBpnSxdy2HImsrNlcMAakdBDFU7A
-         NAY9C1I2Whmk/hIhIwZ/MQvEzcnRDVF8uJFZADT1DJIEMs8zVITS5CI13M5gC8oNZKfR
-         PM8F0+yACWsXl4ylYruwm3sXJ+7Yifs9sVVpQi5IdsC7zCN6DeK6CDXv24h5N+MtzGuX
-         UF2DVPORf28+I/UrWpGIFJ6AnWqD/h6lN2WwKnHc4A/H12AterYmYdhx1Nd4VbdDEt5X
-         zstbGYzEFLEgakkGWBs4zhaq9pwvdLahAP0+4ktdE/qjVWWjOhJpsqD73S6PAi6ES/Tw
-         0iTA==
-X-Forwarded-Encrypted: i=1; AKwUvBzwbO8A52a0eFVkDYkLdF3W9K7ue5lyGO1cEdSI3RhSUZKWqveC2aYvP+VElbN5VwNmfb4Iug8Z98A=@vger.kernel.org
-X-Gm-Message-State: AFq9FYJNw0GXVR2PR2ZqavSeDRJGk7sy4LYjwLPAFJZFViEDhQqjjJtO
-	ZYJJjo4hbG4q+8BDAdaEklnj3umKWyA6wLRHx9heWD4k7CsFmr585wMmmNAovbrNxIY=
-X-Gm-Gg: AYBFou1j5Aums5IoorXlcoZ//ct9+hgqzha1ioG74nX7HiBILvmYWVE72dgmNgGNAdP
-	bF970ic/wB1wl6LSswe9L95N3TzUZMAd7+3RWaT/FeJQl1xCBH/tZybs4kI2fMuNyTrXsLIUkVq
-	jYh1wM7WNJ68BIe0YlhqZUQt2gl0HscqJU1s4eemaZZnPi57H0sYEZe80JuX0a4xcdA/GnqewvQ
-	VNToZpcu7ONu3Z9vnTXWbCA7XWqG1DOxGyqSzpulrFEmucQxrNfHu9syBQnyIcEq3T6ifmW5F5Z
-	nFiRg97bPKOaTNPvd7DukegwGN4p9V+6RnXr8WPIjh51ccSDGCI2vhuNo7hRuYjec03SrjsGX8k
-	GleKur6RWBVgYwVg+b4CD8ahvGNVePex70RIf1GeTUfrLyYKlqwv+fchs/IvSTjjoahE6rlWobC
-	BJL4HX79WFstb08V6GLmOQaLnWPaR4ogs2XhLw10EcP/mQZ/ndbsAmhB97nY/jwMF9gqS/2nx4i
-	A==
-X-Received: by 2002:a05:7301:fc18:b0:341:2466:2d68 with SMTP id 5a478bee46e88-3537e0cf2a1mr23131820eec.38.1792022219535;
-        Wed, 14 Oct 2026 16:56:59 -0700 (PDT)
-Received: from [127.0.0.2] ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-35f0c3bcf80sm1759673eec.7.2026.10.14.16.56.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2026 16:56:59 -0700 (PDT)
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Date: Wed, 14 Oct 2026 16:56:55 -0700
-Subject: [PATCH v8] i2c: xiic: restore non-managed runtime PM to fix clk
- WARN flood
+        d=1e100.net; s=20260707; t=1792036712; x=1792641512;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=yLcj2xFJ+ldAWy0+daCRV0vS+QgpQC6UVrd5FcRL0HE=;
+        b=qpLCMbll5A9HkKgxeaIVa/fDBEBB5j2xIVVx/dnT5REXSQE7nxLA7foZkzTBLEnw8J
+         ymejBP7wtuuOFhZl/UHQK+F+mdvBW5EuiXsAfh4Nox66+cGHGOJKOx8naEUi54Q2HaXW
+         gxoVYRs25DyB3o4yiKucTUbUQib/EJFcodD1kjoEX9WSn9MPo2CN7jrOc9MCszi+uJ08
+         TLf4ld4cTa/fgaIFMXHB5SRP/duuxn4m1gMfCCyQPnZMaS5lpWhc+ZLGXj34yNAazriN
+         WjXFTW9L+TbE4jW+3nrSyYed/jM//y4rHCzj2tkOJELxYUOBCdQJ0mZRS/KIkAqkXvBP
+         DKhQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzP6PtklcCdXKQtJXqQzJ5eGOUeWDF4TQic/QGtpt6fSaq/HffT0i9OwmqIBSEzxJuuusp2G5gguPM=@vger.kernel.org
+X-Gm-Message-State: AFq9FYL4RnfnM5eBcvdSIpSMJBDurYPKVZ7kpgMEtzavLtC0W764toN8
+	5YPLxKnUKIP936MB6IOm5Y8Ka0vBFb3hVfXw+GvagfULxyNZwGXYpS+zWKnsLbkNFHZMvVq+Eh8
+	BdownNJvP4/tXJWheCGdFC4cN5pbNc0uDjdmn2xkKolT1cnKxJbTB5RMtGA3IsXA=
+X-Gm-Gg: AYBFou0LbxtEMDdSpQZKJZg54kY4d5j1EJv9JVjiFhiuPLrBWMXTjnRjeAWjcUrZ+Sz
+	0AzfjQRvCwjeMRFowO6uctNmwudjlWsHdGYmpO0nGLbTDDU4rjS4dMbwIWWpv6OKzUF/+7kbygW
+	hkVEBGZLDClajRrt1gf1tIWmW42jcsk3eBhpfiAIsWQ9Sr6iCuYMi7tv4b5uJQjOEhht6M5JdnZ
+	aYbTm918by/xxQJySw0Ld2XmgT1CRmQFuK7HvCpB8BvSoxmzrRYZt1fMntakZxjdvPrk0xuAm4x
+	khvj/4Hf46ZFADpMozxVaIqZKdkHgMW9TBqfA9LLilv8HZVqu3PyzHV/TtSSkOIkYMJYz06P99M
+	ocJOKqGIhzCHcFXg9QTTTxmFRIt9+5Q==
+X-Received: by 2002:a05:7022:e806:b0:178:4a98:8751 with SMTP id a92af1059eb24-1784ab70e5cmr12450101c88.37.1792036712250;
+        Wed, 14 Oct 2026 20:58:32 -0700 (PDT)
+X-Received: by 2002:a05:7022:e806:b0:178:4a98:8751 with SMTP id a92af1059eb24-1784ab70e5cmr12449972c88.37.1792036710046;
+        Wed, 14 Oct 2026 20:58:30 -0700 (PDT)
+Received: from [10.218.14.97] ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-35b29c2f861sm41853429eec.11.2026.10.14.20.58.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Oct 2026 20:58:29 -0700 (PDT)
+Message-ID: <666e2768-28a8-4bb7-8c15-457ad20970a8@oss.qualcomm.com>
+Date: Thu, 15 Oct 2026 09:28:22 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261014-i2c-xiic-restore-runtime-pm-teardown-v8-1-40668c270069@nexthop.ai>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/53Sy07DMBAF0F+pvMZo/I674j8QCz8m1EhNIicNQ
- VX+HbtsgrIJLK80Otea8Z2MmBOO5Hy6k4xzGlPfldA8nUi4uO4daYolEw5cQ8METTzQJaVAM45
- Tn5HmWzelK9LhSid0OfafHY0RnGfR8wCcFGrI2KblUfP69pPHm//AMFW7TlxS1b4e75hZnftj5
- cwoo4Amtp6DNhZeOlymSz88u0Rq58y3qjyo8qIahypCENC2fKeKrdocVEVRVRsFUx5Mg2ynyq1
- qD6qyqNpai14KGVnYqWqjcjioqqIGp6K3GpSCZqfq/6i6biB6FYQBgW5/LbNV2UHVFNUqieUDa
- MWk/KWu6/oNFtlSLe8CAAA=
-X-Change-ID: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1792022218; l=9498;
- i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
- bh=hLZglLUb6/M8avFMUY4DETPKC/OcQ8W4VsuJaizRjlY=;
- b=tpyXJ1ADpdKBPrfXJEAu9joPXTZvN4++AGGay4Ep8CFo5zPvNg4bE/SI9tQGCFiSZIT5pfpl/
- H+q5KqnEojGCJWNCUh94ZZnw/h5skhh+0v/mAUPdKBZC10KRgoXBmu6
-X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
- pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 5/9] serial: qcom-geni: Use geni_se_set_rate() for
+ source clock configuration
+To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        konrad.dybcio@oss.qualcomm.com, Sudeep Holla <sudeep.holla@kernel.org>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Ulf Hansson <ulfh@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc: chandana.chiluveru@oss.qualcomm.com, arm-scmi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-i2c@vger.kernel.org
+References: <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-0-091697dbeb02@oss.qualcomm.com>
+ <20260827-derive_clk_perf_tbl_from_perf_domain_opp_table-v2-5-091697dbeb02@oss.qualcomm.com>
+ <cf4b63ca-adef-46f2-a616-01841a70b173@oss.qualcomm.com>
+Content-Language: en-US
+From: Praveen Talari <praveen.talari@oss.qualcomm.com>
+In-Reply-To: <cf4b63ca-adef-46f2-a616-01841a70b173@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Authority-Analysis: v=2.4 cv=VKpIDNPX c=1 sm=1 tr=0 ts=6ad04f68 cx=c_pps
+ a=kVLUcbK0zfr7ocalXnG1qA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
+ a=ip-HRx4nHBnhdLLshUsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=vr4QvYf-bLy2KjpDp97w:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE1MDAxNSBTYWx0ZWRfX7Pb5v5MAxQkd
+ mfXad8ebNOl10mVo7nkVElS0U50qhhNbkXsQETeXflMD+RxVDk5qBiGsjie/yI/wPZdtkofw66p
+ JJgMZE/VQzQVZq+L3BpQOEulFrmk4qQ=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE1MDAxNSBTYWx0ZWRfX3BjqRYwaDgD4
+ LtefG2sBxmrV8HjgCqlOmnQbhUj1eptrp+0/aGo63IKc0vEGhjLv75bZU6AGkPS4qwkgR6TtP/y
+ 1Oewt0a9Vgm2DWW4pK5YZvDAZQ1DBjcNNWEHtmDbgJ1nulRf05cFpLuxR1cUFSGfYMJrAHTD6eh
+ sgBdKiqzVJOwM+GCw3W9SB0grOY8UGuLwGzv9RF66qpL5lTFihP5y4Tr1Ag05BBcwgFhp3A4Rnd
+ utPeNvK4z25BWLHMfBTkT7kwJmrFtQZ7TIXSJc/o5Vsnh+J9XEWThUAnNdQUmEcqNG25/5rMVP4
+ Tm2qEOgXFE0CMD/9kP4X7tuTcJoW8NtRj0wC/7jxN2DJuXKBQ0JTqmHScm6Lzsjv7hkN2baOuud
+ NGvgiKLfpmgRjFMHTMeupfAtfD01PRVfM/1EhYsoLKBTpM/3iet+iu/e7f4A65PBkJ88PpjSJVJ
+ 9+fQJrOkEoH8xCNSdaw==
+X-Proofpoint-ORIG-GUID: NLYLFOQE0PaFAJH7MzQR5pxaMnK2T1eT
+X-Proofpoint-GUID: NLYLFOQE0PaFAJH7MzQR5pxaMnK2T1eT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-13_01,2026-10-14_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
+ malwarescore=0 phishscore=0 spamscore=0 clxscore=1015 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610150015
 
-The devres conversion replaced manual pm_runtime_enable()/disable() with
-devm_pm_runtime_set_active_enabled() and dropped the remove-time runtime
-PM teardown. The managed release tears runtime PM down in the wrong
-order: it calls pm_runtime_dont_use_autosuspend() before
-pm_runtime_disable(), i.e. while runtime PM is still enabled, and devres
-is LIFO so the devm_clk_get_enabled() release runs afterwards.
+Hi Mukesh
 
-At remove(), pm_runtime_put_sync() leaves the device active with the
-autosuspend timer armed. Clearing use_autosuspend then makes rpm_idle()
-suspend immediately, and xiic_i2c_runtime_suspend() clk_disable()s the
-clock. The later devm_clk_get_enabled() release clk_disable_unprepare()s
-the already-disabled clock, so clk_core_disable() WARNs ("clkN already
-disabled") on every teardown.
+On 08-10-2026 13:05, Mukesh Savaliya wrote:
+>
+>
+> On 8/27/2026 11:29 PM, Praveen Talari wrote:
+>
+> [...]> @@ -2039,15 +2041,19 @@ static void 
+> qcom_geni_serial_remove(struct platform_device *pdev)
+>>   static int __maybe_unused qcom_geni_serial_runtime_suspend(struct 
+>> device *dev)
+>>   {
+>>       struct qcom_geni_serial_port *port = dev_get_drvdata(dev);
+>> +    int ret;
+>>   -    return port->dev_data->power_off ?
+>> -           port->dev_data->power_off(&port->se) : 0;
+>> +    ret = port->dev_data->power_off ?
+>> +          port->dev_data->power_off(&port->se) : 0;
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    return geni_se_set_rate(&port->se, 0);
+> Is there any register access happening as part of this 
+> geni_se_set_rate() ? i was searching but could not see after seeing 
+> set_rate() callback removed.>   }
 
-Drop the managed helper and restore the non-managed runtime PM setup and
-teardown, so runtime PM is enabled once in probe and disabled once in
-remove and the clock enable count stays balanced.
+No, there is no SE register access as part of geni_se_set_rate(), nor is 
+there SE register access immediately after it.
 
-Order the remove teardown so runtime PM is disabled before the usage
-count is dropped: pm_runtime_disable() followed by pm_runtime_put_noidle()
-instead of pm_runtime_put_sync(). Dropping the count first with autosuspend
-still enabled arms the autosuspend timer, and a preemption before
-pm_runtime_disable() lets it expire, suspend the device and clk_disable()
-the clock, which the devm release then disables again - the same WARN.
+Thanks,
 
-Restore the non-managed IRQ request as well. The probe error paths now
-unwind runtime PM by hand via goto, and a devm-registered handler is only
-freed later during devres unwind, so it would stay live across the manual
-teardown (and across any future failing step added after it). Request the
-IRQ with request_threaded_irq() and free it explicitly in the probe error
-path and in remove. The probe error path also clears use_autosuspend, to
-match the teardown in remove().
+Praveen Talari
 
-Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
-Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
----
-Andy, you said v7 looked okay to you [1]. If you are still happy with
-it, a Reviewed-by would help it along.
-
-[1] https://lore.kernel.org/all/aqJQ8Qm_nhBaWR-s@ashevche-desk.local/
-
-Changes in v8:
-- Resend. The code is identical to v7; only the base moved, to v7.3-rc7.
-- v7 has been on the list since 21 August with no maintainer reply.
-  Andy Shevchenko was happy with it on 10 September [1]. Pinged on
-  21 and 24 September.
-- Still a regression from 50c63491ff26 ("i2c: xiic: switch to devres
-  managed APIs"), which shipped in 7.1 and is still in 7.2 and 7.3:
-  every unbind/rmmod WARNs "clkN already disabled".
-- Link to v7: https://patch.msgid.link/20260821-i2c-xiic-restore-runtime-pm-teardown-v7-1-954e06765144@nexthop.ai
-
-Changes in v7:
-- Add the missing kernel-doc entry for the new @irq member of struct
-  xiic_i2c (the non-managed IRQ request added in v4 introduced the field
-  but not its doc), fixing a "struct member 'irq' not described" W=1
-  kernel-doc warning. No functional change.
-- Link to v6: https://patch.msgid.link/20260820-i2c-xiic-restore-runtime-pm-teardown-v6-1-5db5c3703ea0@nexthop.ai
-
-Changes in v6:
-- probe: check the pm_runtime_set_active() return value and unwind on
-  failure (undo pm_runtime_use_autosuspend()) instead of ignoring it.
-  On failure runtime PM would stay suspended while the clock is left
-  enabled, and remove()'s pm_runtime_get_sync() would then resume, enable
-  the clock a second time and leak the enable across the manual teardown
-  (Sashiko).
-- Link to v5: https://patch.msgid.link/20260820-i2c-xiic-restore-runtime-pm-teardown-v5-1-ca5db9605508@nexthop.ai
-
-Changes in v5:
-- remove(): disable runtime PM before dropping the usage count
-  (pm_runtime_disable() + pm_runtime_put_noidle() instead of
-  pm_runtime_put_sync()), so the armed autosuspend timer can no longer
-  race pm_runtime_disable() and re-trigger the clk double-disable.
-- probe error path: also call pm_runtime_dont_use_autosuspend() so it
-  mirrors the teardown in remove().
-- Link to v4: https://patch.msgid.link/20260819-i2c-xiic-restore-runtime-pm-teardown-v4-1-6999eb434d1c@nexthop.ai
-
-Changes in v4:
-- Request the IRQ non-managed (request_threaded_irq/free_irq) and free it
-  in the probe error path and in remove(), instead of a devm handler that
-  would only be released during devres unwind and so stay live across the
-  manual runtime PM teardown in the goto error paths (Andy).
-- Link to v3: https://patch.msgid.link/20260818-i2c-xiic-restore-runtime-pm-teardown-v3-1-5fd315b078e1@nexthop.ai
-
-Changes in v3:
-- Drop the managed devm_pm_runtime_set_active_enabled() helper entirely
-  and restore the non-managed runtime PM setup (pm_runtime_set_active +
-  pm_runtime_enable, with probe error unwinding) and teardown
-  (pm_runtime_disable + set_suspended + dont_use_autosuspend), so the
-  disable depth stays balanced rather than being disabled twice (Andi).
-- Link to v2: https://patch.msgid.link/20260814-i2c-xiic-restore-runtime-pm-teardown-v2-1-7ae5d0c30ff2@nexthop.ai
-
-Changes in v2:
-- Move the Signed-off-by into the commit message proper (Andy).
-- Link to v1: https://patch.msgid.link/20260813-i2c-xiic-restore-runtime-pm-teardown-v1-1-0e7dfb206790@nexthop.ai
-
-To: Michal Simek <michal.simek@amd.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/i2c/busses/i2c-xiic.c | 49 +++++++++++++++++++++++++++++++++++--------
- 1 file changed, 40 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 5e397a7e63f6..ba560462d451 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -67,6 +67,7 @@ enum i2c_scl_freq {
-  * @rx_pos: Position within current RX message
-  * @endianness: big/little-endian byte order
-  * @clk: Pointer to AXI4-lite input clock
-+ * @irq: Interrupt number
-  * @state: See STATE_
-  * @singlemaster: Indicates bus is single master
-  * @dynamic: Mode of controller
-@@ -95,6 +96,7 @@ struct xiic_i2c {
- 	int rx_pos;
- 	enum xiic_endian endianness;
- 	struct clk *clk;
-+	int irq;
- 	enum xilinx_i2c_state state;
- 	bool singlemaster;
- 	bool dynamic;
-@@ -1506,9 +1508,17 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	pm_runtime_set_autosuspend_delay(dev, XIIC_PM_TIMEOUT);
- 	pm_runtime_use_autosuspend(dev);
--	ret = devm_pm_runtime_set_active_enabled(dev);
--	if (ret)
-+	/*
-+	 * Enable runtime PM by hand: devm_pm_runtime_set_active_enabled()
-+	 * tears down in an order that races the devm-enabled clock release and
-+	 * makes clk_core_disable() WARN (see xiic_i2c_remove()).
-+	 */
-+	ret = pm_runtime_set_active(dev);
-+	if (ret) {
-+		pm_runtime_dont_use_autosuspend(dev);
- 		return ret;
-+	}
-+	pm_runtime_enable(dev);
- 
- 	/* SCL frequency configuration */
- 	i2c->input_clk = clk_get_rate(i2c->clk);
-@@ -1517,10 +1527,15 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (ret || i2c->i2c_clk > I2C_MAX_FAST_MODE_PLUS_FREQ)
- 		i2c->i2c_clk = 0;
- 
--	ret = devm_request_threaded_irq(dev, irq, NULL, xiic_process,
--					IRQF_ONESHOT, pdev->name, i2c);
-+	/*
-+	 * Request the IRQ non-managed: later probe steps unwind manually via
-+	 * goto, so a devm handler could still be live after that teardown runs.
-+	 */
-+	i2c->irq = irq;
-+	ret = request_threaded_irq(irq, NULL, xiic_process, IRQF_ONESHOT,
-+				   pdev->name, i2c);
- 	if (ret)
--		return ret;
-+		goto err_pm_disable;
- 
- 	i2c->singlemaster = device_property_read_bool(dev, "single-master");
- 
-@@ -1537,14 +1552,16 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 		i2c->endianness = BIG;
- 
- 	ret = xiic_reinit(i2c);
--	if (ret)
--		return dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
-+	if (ret) {
-+		dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
-+		goto err_free_irq;
-+	}
- 
- 	/* add i2c adapter to i2c tree */
- 	ret = i2c_add_numbered_adapter(&i2c->adap);
- 	if (ret) {
- 		xiic_deinit(i2c);
--		return ret;
-+		goto err_free_irq;
- 	}
- 
- 	if (pdata) {
-@@ -1557,6 +1574,15 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 		res, irq, i2c->i2c_clk);
- 
- 	return 0;
-+
-+err_free_irq:
-+	free_irq(irq, i2c);
-+err_pm_disable:
-+	pm_runtime_disable(dev);
-+	pm_runtime_set_suspended(dev);
-+	pm_runtime_dont_use_autosuspend(dev);
-+
-+	return ret;
- }
- 
- static void xiic_i2c_remove(struct platform_device *pdev)
-@@ -1568,6 +1594,8 @@ static void xiic_i2c_remove(struct platform_device *pdev)
- 	/* remove adapter & data */
- 	i2c_del_adapter(&i2c->adap);
- 
-+	free_irq(i2c->irq, i2c);
-+
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0)
- 		dev_warn(dev, "Failed to activate device for removal (%pe)\n",
-@@ -1575,7 +1603,10 @@ static void xiic_i2c_remove(struct platform_device *pdev)
- 	else
- 		xiic_deinit(i2c);
- 
--	pm_runtime_put_sync(dev);
-+	pm_runtime_disable(dev);
-+	pm_runtime_put_noidle(dev);
-+	pm_runtime_set_suspended(dev);
-+	pm_runtime_dont_use_autosuspend(dev);
- }
- 
- static const struct dev_pm_ops xiic_dev_pm_ops = {
-
----
-base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
-change-id: 20260813-i2c-xiic-restore-runtime-pm-teardown-dd0ab1db2c02
-
-Best regards,
---  
-Abdurrahman Hussain <abdurrahman@nexthop.ai>
-
+>>     static int __maybe_unused qcom_geni_serial_runtime_resume(struct 
+>> device *dev)
+>>   {
+>>       struct qcom_geni_serial_port *port = dev_get_drvdata(dev);
+>> -    struct uart_port *uport = &port->uport;
+>>       int ret;
+>>         if (port->dev_data->power_on) {
+>> @@ -2056,8 +2062,8 @@ static int __maybe_unused 
+>> qcom_geni_serial_runtime_resume(struct device *dev)
+>>               return ret;
+>>       }
+>>   -    if (port->se.has_opp && port->clk_rate)
+>> -        return dev_pm_opp_set_rate(uport->dev, port->clk_rate);
+>> +    if (port->clk_rate)
+>> +        return geni_se_set_rate(&port->se, port->clk_rate);
+>>         return 0;
+>>   }
+> [...]
