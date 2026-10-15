@@ -1,108 +1,158 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C4CA550DA5
-	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 21:04:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D520719644B;
+	Thu, 15 Oct 2026 23:51:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792098284; cv=none; b=ZT17AbMZPVqknuIE0Pi9bDUsaniIEb2rE6JwLGevkIhGSfu0THALVRt7miU7+Yk0bnxv1H7TjNZ48PunsYjYeOatgMwarZX/Ld0drzhgg/+bIb4N5ajQoKZvnUYF+FP5fcEBp7a6DzVYC1IjKDB/3Gb27jvKeVJyzz1pmTF8Yqk=
+	t=1792108299; cv=none; b=fXsdOySZb/RaQeoN21qhm9A4FIisn6CARA5IEMwwR0vCW6sWQE9iVjevNmVWms6g4Hh3B53BMSdj8UKwwVUFLTn2QOespd5LhTuvV9m3Po1kikgqA4N0o177SP66kmyz0BLMabc9TgZd29Gf710fqCqDQf7G8rqQUL5Zxj8T+7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792098284; c=relaxed/simple;
-	bh=7H04CVxxX4x8yKDGeGsyvBX1tcUcpxtXmtydhBTctSk=;
-	h=Content-Type:Date:Message-Id:Cc:Subject:From:To:Mime-Version:
-	 References:In-Reply-To; b=j4lPLRdwH5aRU8U6B2U13bR8MSwKP5Z9ZEyx362xc3eh88DwYTr4lhu33dqAYLwsf7q4Vt3KdhJjktx7C09mfErO5on88pfQwl3sRmLjwFo9ietjTecj/3aQ7I9Zc0UAmeQ8DWLivvisxlnwOK7c9+2UOgw4Ssx/eu+x4GyWHww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=bxyXm997; arc=none smtp.client-ip=74.125.82.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1792108299; c=relaxed/simple;
+	bh=Bz7s2jXAh/f2QSrdnAOesX3O4LT10qkh8YRVM+1uu4w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NQueqvEvp2NaO55AxMVD+uMew3ppq6obKvSjBN9fVXg88bebYL3IFVtC9Z9fLPKyGxIZWDBM4ACcKW30LQUMKqsCHtiyULRWKe4RkQqU1gjW6XlKvL1s9fxOtGAuLhbrQTVzMvGd0ogRxdpX99k9WWNxOZAhDCoGTZWzGgpv9B8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PpLG1J7O; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="bxyXm997"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-17bc533fda3so2747948c88.1
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 14:04:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1792098280; x=1792703080; darn=vger.kernel.org;
-        h=in-reply-to:references:content-transfer-encoding:mime-version:to
-         :from:subject:cc:message-id:date:content-type:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=7H04CVxxX4x8yKDGeGsyvBX1tcUcpxtXmtydhBTctSk=;
-        b=bxyXm9973MrNM6E+YfyDxQdxF+50u6SOgQTLnuW3aUdFqm5T1cspNxYdTXnus9hz7I
-         6ECEoRVRp1JzGy/fIpN0WafiwMCDmWyZU2DCU2yqXV5UbGobas/xkUU8Jltxk20x16Et
-         yyniftTkFujlXGKC2hZ/UMF3SNDv6XCsG1JVn/s3Q2kgGDBCwZ5dek+c/HK8n8NdX6x9
-         DHfu5jNyyKrik8/dxhRfhGCVxeqFM684v83WUyZ/IvxQ1jjwY+iHK7HMU0IH1pU36oSS
-         S0x5wnT+e7ZhQigjjCoQQTuRWijt1Ds4BM+SxzklIbTHFfYwDaShnGQHPcmFAIyQh6R3
-         clcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792098280; x=1792703080;
-        h=in-reply-to:references:content-transfer-encoding:mime-version:to
-         :from:subject:cc:message-id:date:content-type:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=7H04CVxxX4x8yKDGeGsyvBX1tcUcpxtXmtydhBTctSk=;
-        b=j8+8Fw0K33S9z17Ol327LP8zLsjd9cpgxxvJ8VpC3PEZUnS43LDf62CzebFrM4vUfb
-         whrP5RAoXI+GDEN1cv2OkhbbT1UI6pVr2Rwuo8BXTb3iTp8h0+7B6olqXNGoSW4vtLPA
-         Fjgk1+1pVispSY8NbHp7jSZB9M/noqCltjjdzdApTml0xZOJSfDp8+OT62T7vGoRhfKj
-         vybE1qpxFFbvxr2msjwZpOwsEbjgJmm22uJB3Ci1K3VdDCa3d4T3bLYZS9og9TFEmHJg
-         lOXueRKbNSPpNJfTD+3slu3H3eQIpP6KyCPk8tAxExEtj2nUfYGsCHAaPueAjrWkNVkK
-         YwNw==
-X-Forwarded-Encrypted: i=1; AKwUvByrfhuP4kTl/bpZnkfYD7D5KtiFOQLkabt3tzMsfS8y55VpgRTU2bPDxR0dLd1HT44fldfJL9n0XdA=@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ4UJ37W9Ts5PxZXkhsoNl3vIm78OoVt5XYjprGho315HlBPy4M
-	9xfhahQZGntuVGtzdoqji7Opd6XqxRIdJ3Fm3HoIC17Yu8AWZ5ojEUfW9MHdDz91qrw=
-X-Gm-Gg: AYBFou3PGi0HkVyobtAVWU/THGQX7X+n6GHj487+XAhzp8TGqtDVThXr9Et7KCEowcU
-	EbDKsoZmu91BENegdpZzgAdm5ui4Hdf3+hkDI08RjLjmRMUuwlrYC9yvvQbfVcMJRbYXdSP0kcJ
-	jlzIICV/41mB6PepLwaA1ULfsyI/27IxjvU+ZIVR159Xf8SFpr8T2ss75xEfSNPi10Ne/HnrlF4
-	8SZZzwQd8ICoGWUAwR787APmYLBX9/Xa+i9zpSis9hdMnb0oYKYFXdLfvS9Nvt8AIZ4SVjYCF9f
-	8OsY0h+dr7oQ6PLvUH18DPyQlYCn3WAJo20y+1czBs2VBpf1Gqm0WD6uijzmtmt288Yi2ZqqUzi
-	0eniMz1Xoj4Sol3W2FtVyvm3emyLrFy0Egr96cS/i9JZgqUy5Z4miRlbbqxf5aD6frP5SMhmyhj
-	kbxYEWf9bZ3QhVXhmvzr/HiNsP7EaTHZlNt4xrKcgXLTl+dvknNSJEs/h2W0c34eTDDh+SrXg=
-X-Received: by 2002:a05:7301:b13:b0:35d:a0cd:e4e9 with SMTP id 5a478bee46e88-35da0ce0d9bmr8413450eec.17.1792098279540;
-        Thu, 15 Oct 2026 14:04:39 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36082a7b33bsm814741eec.24.2026.10.15.14.04.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 15 Oct 2026 14:04:39 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 15 Oct 2026 14:04:38 -0700
-Message-Id: <DM5PTJLL1Q7I.3LGRGXTNBA9SF@nexthop.ai>
-Cc: "Michal Simek" <michal.simek@amd.com>, "Andy Shevchenko"
- <andriy.shevchenko@intel.com>, <linux-arm-kernel@lists.infradead.org>,
- <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v8] i2c: xiic: restore non-managed runtime PM to fix clk
- WARN flood
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Andi Shyti" <andi.shyti@kernel.org>, "Abdurrahman Hussain"
- <abdurrahman@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PpLG1J7O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 844FF1F000C4;
+	Thu, 15 Oct 2026 23:51:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792108298;
+	bh=/RRbiKX1IIdlTwNCQqDikgAOOiBg6jsNei09RfgsCA4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=PpLG1J7ORRhLp6RnZaE1SYJmNPWjSIkzHmq+PHFjPOwCVpz+s+IrxIyPUutaSL0pJ
+	 6NF5zCscdGImjBADIJl0Wqjbzv2Pt0+Dn+i2Sze/ZlS2baQsGE0a7LkHymtqRexd92
+	 VbKJtbqwF+4B/dy4TOeTDlv/iX0lJrOIIiBxN1/WvARAx0lDJPJY4sMoPoODItbT9z
+	 +8iA1NPZDO8NRP8NWhCcZd0/iho4d/98/0BACUMaW4l7fE527PRcexypUOn9X251eh
+	 zEz5QipXHYmovX72LZWFm3YUtGN+qa5XKuwHPy98cKO/Rp3H+YeUyEMzTZ6ERmQggM
+	 mLcllYSBbCncQ==
+Date: Fri, 16 Oct 2026 01:51:35 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Thilo Zirnstein <thi.zirnstein@gmail.com>
+Cc: michal.simek@amd.com, linux-arm-kernel@lists.infradead.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] i2c: i2c-xiic: fix clearing of bnb irq
+Message-ID: <atFf1ZbNi29Lbdbb@zenone.zhora.eu>
+References: <20261015081127.1566244-1-thi.zirnstein@gmail.com>
+ <20261015081127.1566244-2-thi.zirnstein@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: aerc 0.22.0
-References: <20261014-i2c-xiic-restore-runtime-pm-teardown-v8-1-40668c270069@nexthop.ai> <atE6LA8SFpFvZfzZ@zenone.zhora.eu>
-In-Reply-To: <atE6LA8SFpFvZfzZ@zenone.zhora.eu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261015081127.1566244-2-thi.zirnstein@gmail.com>
 
-On Thu Oct 15, 2026 at 1:40 PM PDT, Andi Shyti wrote:
-> Hi Abdurrahman,
->
-> On Wed, Oct 14, 2026 at 04:56:55PM -0700, Abdurrahman Hussain wrote:
->> The devres conversion replaced manual pm_runtime_enable()/disable() with
->> devm_pm_runtime_set_active_enabled() and dropped the remove-time runtime
->> PM teardown. The managed release tears runtime PM down in the wrong
->> order: it calls pm_runtime_dont_use_autosuspend() before
->> pm_runtime_disable(), i.e. while runtime PM is still enabled, and devres
->> is LIFO so the devm_clk_get_enabled() release runs afterwards.
->
-> ...
->
->> Fixes: 50c63491ff26 ("i2c: xiic: switch to devres managed APIs")
->> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
->
-> pushed to i2c/i2c-fixes.
->
-> Thanks,
-> Andi
+Hi Thilo,
 
-Thank you!
-Abdurrahman
+On Thu, Oct 15, 2026 at 10:11:27AM +0200, Thilo Zirnstein wrote:
+> Add a function for clearing the bnb bit,
+> It waits for all preconditions before clearing the bnb bit or times out.
+> 
+> Tested on Zynqmp dev board with some custom logic.
+> Tested-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
+> 
 
+Please, don't leave blank lines between tags. Moreover in this
+case I don't need your Tested-by, I believe you tested your patch
+before sending.
 
+> Signed-off-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
+
+I'd need here an ack from Michal.
+
+> ---
+>  drivers/i2c/busses/i2c-xiic.c | 42 +++++++++++++++++++++++++++--------
+>  1 file changed, 33 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index 5e397a7e63f6..da9cedb86f94 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -230,7 +230,9 @@ static const struct timing_regs timing_reg_values[] = {
+>  
+>  #define XIIC_RESET_MASK             0xAUL
+>  
+> -#define XIIC_PM_TIMEOUT		1000	/* ms */
+> +#define XIIC_PM_TIMEOUT 1000 /* ms */
+
+Why this change?
+
+> +/* timeout waiting for bus busy */
+> +#define XIIC_BB_TIMEOUT		(msecs_to_jiffies(1))
+
+I don't see much benefit from this define as it's used only once.
+It just makes it more difficult to read.
+
+>  /* timeout waiting for the controller to respond */
+>  #define XIIC_I2C_TIMEOUT	(msecs_to_jiffies(1000))
+>  /* timeout waiting for the controller finish transfers */
+> @@ -392,6 +394,30 @@ static int xiic_wait_tx_empty(struct xiic_i2c *i2c)
+>  	return 0;
+>  }
+>  
+> +static int xiic_clear_en_bnb(struct xiic_i2c *i2c)
+
+Why do you need to return an error value if you ignore it
+everywhere?
+
+> +{
+> +	u8 sr = 0, isr = 0;
+> +	unsigned long timeout;
+> +
+> +	timeout = jiffies + XIIC_BB_TIMEOUT;
+> +	for (isr = xiic_getreg8(i2c, XIIC_IISR_OFFSET);
+> +		(isr & XIIC_INTR_BNB_MASK);
+> +		isr = xiic_getreg8(i2c, XIIC_IISR_OFFSET)) {
+
+this for loop is quite ugly. I believe that with a do...while()
+you can write a clearer code.
+
+> +
+> +		sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
+> +		if (sr & XIIC_SR_BUS_BUSY_MASK)
+> +			xiic_setreg8(i2c, XIIC_IISR_OFFSET, XIIC_INTR_BNB_MASK);
+> +
+> +		if (time_after(jiffies, timeout)) {
+
+If this is called in a context where interrupts are disabled,
+jiffies might not be incremented and you end up looping forever.
+How about using read_poll_timeout_atomic() instead?
+
+> +			dev_err(i2c->dev, "Failed to clear bnb\n");
+> +			return -ETIMEDOUT;
+> +		}
+> +	}
+> +
+> +	xiic_irq_en(i2c, XIIC_INTR_BNB_MASK);
+> +	return 0;
+> +}
+> +
+>  /**
+>   * xiic_setclk - Sets the configured clock rate
+>   * @i2c: Pointer to the xiic device structure
+
+...
+
+> @@ -1225,8 +1248,9 @@ static void xiic_start_send(struct xiic_i2c *i2c)
+>  
+>  		/* Clear any pending Tx empty, Tx Error and then enable them */
+>  		xiic_irq_clr_en(i2c, XIIC_INTR_TX_EMPTY_MASK |
+> -				XIIC_INTR_TX_ERROR_MASK |
+> -				XIIC_INTR_BNB_MASK);
+> +						XIIC_INTR_TX_ERROR_MASK);
+> +
+
+this needs to be aligned properly.
+
+Andi
+
+> +		xiic_clear_en_bnb(i2c);
+>  	}
+>  
+>  	i2c->prev_msg_tx = true;
+> -- 
+> 2.43.0
+> 
