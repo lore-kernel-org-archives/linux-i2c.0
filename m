@@ -1,67 +1,72 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-43100.protonmail.ch (mail-43100.protonmail.ch [185.70.43.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1154051AFF4;
-	Thu, 15 Oct 2026 12:32:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C350851DAE7
+	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 12:33:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792067531; cv=none; b=RD4RZTa0evp4KXOtnaoDutuGfry93s0t8YlAELa+g+tGLqoiU019ulDbt4fqRYq3EXWlNNvbaBAVotesmxJVwDriRLM5GnCubXcHkjuJd0+QR66O5omdvCl2WPU5nGLJqaVZx90WdLUtmsvqyGiQc9KieGfBgVj+8TZ0xon0NgA=
+	t=1792067622; cv=none; b=JjKwPDzxk9EVaUn63EM5HchCLIEpyplTha9Zjt4imqXqzjJPlEu7qBLw/F9kdJ2pT5Up6hx8nDktNOf+ANeZ5JpHnR5Hs8Z3ari4h57ewkZ1kXBEEoIovVWCcbIYxYwW+F9AHgPMpnQA0SznMIj3sLZN5Fpu1FEmsgpsEptvX6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792067531; c=relaxed/simple;
-	bh=kzWJ+SNZHchjY3ftI4ZKDI8gBkfD4rC3k6Atfox9R0A=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=WPt7mKXQwDjhQP7tR2SzYsHT0KwdsZPOnuVV6VWxMkTisnbesV/9La59DAQlCU5f9+q9wBDIbUps0Znq0SAyc8cgFaa5H7CT7TvEk+R729Dw1XKVsegwpXpDmspEvisgaAqSUELhlVqp3jDAlxPukGaJjS4MtX8KOhbCU9jifkw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WoXuu5iV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792067622; c=relaxed/simple;
+	bh=L256Ja9HmeE8cqpLuhOwiDbO5UCv9dziLigvvEqCJm4=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SP15OYF06hI4hWTAzSy9vrcBQc5BCsRngQ4s4981T/UyqzgiThWqMmF8v/3PgUAdr9+8XItK2jBl+zs39KcWGpErWrHH99TwwMWUveYL2uZoxfNZ266UJrUr+FxWvFeaan0W8mUe8Fa5CNVRuwFqsGu3JxmsqFNbLW4D0wuyLwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=E8PRu350; arc=none smtp.client-ip=185.70.43.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WoXuu5iV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A611F000C4;
-	Thu, 15 Oct 2026 12:32:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792067529;
-	bh=l0G1u5/k4DcckxQeq3RlZifz6+ya0XrhqOvHOHu/ECU=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=WoXuu5iVYKzi0YL78zWXnX1DzmJ9moh6C+TQj5egRlmmHOKiGZopRHDcl5ahXN4jO
-	 UijgWMZFE6Wakd4tlP8zhkv2mYEc1+Y9DXIBSd1JujYrZAKw8959VM5rR2sRFXrzLK
-	 +lMXbP80hpSBDDq3NxjBhcouNDhyAqjkXSsF/v1XtYeAAyVxvJI3NBJg3EjLe5qDb+
-	 +wzbLMyZUS6SWTyx4nQ3BAgIhUPS1v9zHFtBbcmMpoMcwL6wtvWoop8Zl2dnNSTUoH
-	 0miTYK7WiOJ090Q/1u4tQW7fXC7lt7OejPe89lrNrsZQSA/8ATyEywSehgxhDOPms9
-	 BIJkjWi0xatog==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>,
- Radu Rendec <radu@rendec.net>, Rob Herring <robh@kernel.org>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Linus
- Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Andi
- Shyti <andi.shyti@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Russell King <linux@armlinux.org.uk>,
- Arnd Bergmann <arnd@arndb.de>, Krzysztof Kozlowski <krzk@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, Fil Dunsky
- <filipp.dunsky@gmail.com>
-Subject: Re: [PATCH v3 02/11] irqchip: Add Cortina Systems CS75xx peripheral
- interrupt controller
-In-Reply-To: <20261013-b4-cs75xx-s2-v3-2-181bb0d23f4c@gmail.com>
-References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
- <20261013-b4-cs75xx-s2-v3-2-181bb0d23f4c@gmail.com>
-Date: Thu, 15 Oct 2026 14:32:06 +0200
-Message-ID: <87tsmndu0p.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="E8PRu350"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1792067613; x=1792326813;
+	bh=jqN7tBTtl6TwoLhDwQvr898F3IgLD04BSqjitGTs+7Q=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=E8PRu350FXqlwzfhRHNS+5hnrjY10ZySyoKGMAymaEHIviSKUQLiiWkTzC9IOMUM9
+	 U2iDDqKkOfVkeX9pAaMfvT2bjRjg5bOFcAHfVzexo8YfrRXgGO+lLIMhawb48pgqi4
+	 TBkeZMelW434234+QS+0kPn3hhonHa7aF5dUN5dzlWurtqQtsySxtGlnBBW6pW58DH
+	 Y8nsMzrUL/uW9wMdMP6R1lBkxflfUl8k6jZEqKQPNbFabnhHPFtJ2t+3tEez1rqQEd
+	 SpeMlmhoehembTturoM5rIe7a+FJp8CHkk8UbACACIFmz6kkqk/Rr9/zkKkGJHpIe7
+	 6BXgTScKnCWGQ==
+Date: Thu, 15 Oct 2026 12:33:27 +0000
+To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+From: Birk Skyum <birk.skyum@pm.me>
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, stable@vger.kernel.org, regressions@lists.linux.dev, Andi Shyti <andi.shyti@kernel.org>, Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+Subject: Re: [PATCH v2] i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL
+Message-ID: <179206760496.80083.2220015870357865408@pm.me>
+In-Reply-To: <52bc42c2-f60b-4249-976d-83d360933ede@oss.qualcomm.com>
+References: <179173732257.29426.7905170638383807320@pm.me> <52bc42c2-f60b-4249-976d-83d360933ede@oss.qualcomm.com>
+Feedback-ID: 21326998:user:proton
+X-Pm-Message-ID: d7e0835a3d7e2823ff8252c8e8192dad58c439f2
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 13 2026 at 09:07, Fil Dunsky via B4 Relay wrote:
-> +static int __init cs75xx_intc_init(struct device_node *np,
-> +				   struct device_node *parent)
+Hi Viken,
 
-No line break required. You have 100 characters. Please fix that all
-over the place.
+Thanks for the suggestion. With drive-strength =3D <6> in
+qup_i2c0_data_clk and cb97bf3d4f91 present, the keyboard and touchpad
+are still dead after a cold boot (one boot). This is v7.3-rc7 with only
+the Yoga's device tree rebuilt with that one change. The I2C serial
+engines run at 32 MHz, and the first transfer on b80000 fails as before.
 
-Other than that this looks good.
+  geni_i2c b80000.i2c: Bus proto err, noisy/unexpected start/stop
+  i2c_hid_of 1-003a: failed to fetch HID descriptor: -5
+  geni_i2c b80000.i2c: Timeout cancel_m_cmd
+  i2c_hid_of 1-002c: failed to fetch HID descriptor: -110
+
+The touchscreen on a80000, also at 32 MHz, works.
+
+Andi took Abel's "i2c: qcom-geni: Restore the source-clock selection
+policy" for 7.3. With it the serial engines stay at 19.2 MHz and the
+keyboard works on this laptop, also at the passphrase prompt. I can
+still test other values here if they help.
 
 Thanks,
+Birk
 
-        tglx
