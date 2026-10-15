@@ -1,44 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E1E853D9D1;
-	Thu, 15 Oct 2026 15:19:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B6E53C3B5;
+	Thu, 15 Oct 2026 15:27:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792077571; cv=none; b=PC0WtAU9kbMXrpfz3ppEDTI30JmNFAhcFX/93S9m7yHlPdgLIt64nT9KoN8WIaaa3S7vqXOqVDPa9mko5j1UgumK68MqOSdL2sHIdRFR+NO+C8ouBaYJ5W8LjvyV8X+IVzOH3rlr5ykCiVQ1aj9u+ZzKyqSW1FfQBApUdu/xz0Q=
+	t=1792078032; cv=none; b=C91y98WR9XEj0Sm1b22RsCPNVV1Y9luUKskVRPgN10vraWYZ14dCHWfIe0tCFiU4fxI/X1COgRBUrWMuBA1KlE65Ilt2iCpujhgovIwoTAMPDpQI+PKYzUQL8Kw3GSOGL0WOR3JcXCNyqW/Lr2BONYhCcG/XZ9A/K2WvC57KyYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792077571; c=relaxed/simple;
-	bh=EZUeNbmpfJYyDpKgx/wfa8dJ6ZCnpjyl7hPuRdP6xRo=;
+	s=arc-20240116; t=1792078032; c=relaxed/simple;
+	bh=pyPORBOaSETWwpKIvWideeIaLROxf+q1qkpDqyb9AY4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BVscDCbJQLSeximwaNOo9xYc7/xygCXC05M+rQZCgXIjJp7REPbMHcA7nDciXCUg9adU+35SmlYZhcwVIU5/d53KD9p+vPYiEqY049dCpCxiLVSVFSD0Iqhz8QOis2m01/Y5NAFPYl9nIAU0fkfiDRaIFmG59n+QXgQSKH567mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e/UvBqAk; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Edjn/YNUlyHkKVCUIy6hM/arP1wJuDTcrX7t2I0R5lf1Rx1PMEMNlY06TIKVAyJF216tYPfZNctBSVHCg66B3FpawT4XMDoWdTOJgrXzTpjtQ8yvSupzjK4rSvC4RsQ35/3HqOanAZlfE6dZIlKoFPDGVhcEaQO+sM4aGVXkK58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KnEKMWRd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e/UvBqAk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3571F000C4;
-	Thu, 15 Oct 2026 15:19:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KnEKMWRd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E241F000C4;
+	Thu, 15 Oct 2026 15:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792077569;
-	bh=Q4YhG24UUHdygj6VRaqvhrJ15ACDfiSdDeOEIq1CZ1I=;
+	s=k20260515; t=1792078024;
+	bh=KdD3lHX4MqmrGabojmzgAwKjvqjGGrSZcnYzYtxPg5s=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=e/UvBqAkIn0RbxKqFHJHJksge81HcPiAbt8t0cIwEm3fa98ItFw/aYt3gWwVW4p06
-	 RycX9Yr41lSpvRyFxFU1LDMwMhsetTP8CXsBuvK0+WYEnBXF2MmZaarETqnrvmjCyk
-	 8kmVk62pePQ9rVExMVbuFBHAmJJKTO//BRiGFCBfx0vx2MPP5ZbiZPYLf/e9UwdHFg
-	 hyS/27fJgvlh+D3olBLgb7f4SH7RA4YwdM5pVn7tFJrwiOfyQKl7YGciO5+sGF7xBe
-	 tfM/OTJPgVlmeepUdInjy0cBCMqXgXuZtCaKg7QL9kV3RxRX6GXGgSw1kbnghOm+jL
-	 b/kvrANhEwWew==
-Date: Thu, 15 Oct 2026 16:19:25 +0100
+	b=KnEKMWRd4fHiNeOVFo7Ow9b8JAlfA60+q0X3iZmdbcBnHLMx8mbxATOitZGz/eLuc
+	 0RkR8T02sBTaBgS4V/k3f3x8vTW8jeRszVlhwZ2WiYFUgHKwqdHImmkLY1fUUNYaH8
+	 tXvLDMdlHjKTvBYPbCO3nou7FxRjG8x5CJ3sleoG+QEfzShOsRat0H/8k+cHvSOeir
+	 Q+Ui2nqvWH2qsqR9rm10H8Nzbk2aY/ifhmVbC42IECVeRmNdudcKfmbAyKFnPlYdTS
+	 VqUmth8Shm/E7E70wgObXCCAlBe+djDepxXiLaHuuU1JXhPy+gy3M9RHh21tzh/eAK
+	 QICRPOUs39OCg==
+Date: Thu, 15 Oct 2026 16:27:00 +0100
 From: Lee Jones <lee@kernel.org>
-To: Thomas Richard <thomas.richard@bootlin.com>
+To: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
 Cc: Andi Shyti <andi.shyti@kernel.org>,
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-	stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
-Subject: Re: [PATCH v4 1/9] mfd: cgbc: Fix use of negative error code as
- valid  session handle
-Message-ID: <179198454582.839288.18173091548459871170@kernel.org>
+	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v4 5/9] mfd: cgbc: Use real I2C bus names
+Message-ID: <20261015152700.GA2048969@google.com>
 References: <20261002-cgbc-i2c-storage-devices-support-v4-0-eb42e0f1df59@bootlin.com>
- <20261002-cgbc-i2c-storage-devices-support-v4-1-eb42e0f1df59@bootlin.com>
+ <20261002-cgbc-i2c-storage-devices-support-v4-5-eb42e0f1df59@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -47,51 +45,71 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261002-cgbc-i2c-storage-devices-support-v4-1-eb42e0f1df59@bootlin.com>
-X-AI-Review-Draft: <20261002-cgbc-i2c-storage-devices-support-v4-1-eb42e0f1df59@bootlin.com>
+In-Reply-To: <20261002-cgbc-i2c-storage-devices-support-v4-5-eb42e0f1df59@bootlin.com>
 
 On Fri, 02 Oct 2026, Thomas Richard (congatec GmbH) wrote:
 
-> The cgbc_session_command() return value was directly cast to u8 and used
-> as session handle without error checking. Casting a negative error to u8
-> produces a valid-looking session handle. So check if return value is
-> positive before to cast and use it.
->
-> Cc: stable@vger.kernel.org
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://sashiko.dev/#/patchset/20260713-cgbc-core-fix-cgbc-remove-v1-1-79274ad62b3a%40bootlin.com?part=1
-> Fixes: 6f1067cfbee7 ("mfd: Add Congatec Board Controller driver")
+> The adapter names described the expected purpose of the buses ("General
+> Purpose I2C adapter", "Power Management I2C adapter") on conga-sa7 board
+> rather than their actual names on the Board Controller.
+> 
+> Rename them to the real bus names "cgbc-i2c0" and "cgbc-ddc0", matching
+> the naming used by Congatec, and update the variable names accordingly.
+> 
 > Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 > ---
->  drivers/mfd/cgbc-core.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
+>  drivers/mfd/cgbc-core.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+> 
 > diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
-> index 2becaf797646..4a409234e66c 100644
+> index 8522df882509..a58d9ffdc277 100644
 > --- a/drivers/mfd/cgbc-core.c
 > +++ b/drivers/mfd/cgbc-core.c
-> @@ -103,7 +103,11 @@ static int cgbc_session_request(struct cgbc_device_data *cgbc)
->  	if (ret)
->  		return dev_err_probe(cgbc->dev, ret, "device not found or not ready\n");
->
-> -	cgbc->session = cgbc_session_command(cgbc, CGBC_SESSION_CMD_REQUEST);
-> +	ret = cgbc_session_command(cgbc, CGBC_SESSION_CMD_REQUEST);
-> +	if (ret < 0)
-> +		return dev_err_probe(cgbc->dev, ret, "session handle request timed out\n");
+> @@ -55,13 +55,13 @@
+>  
+>  static struct platform_device *cgbc_pdev;
+>  
+> -static const struct cgbc_i2c_platform_data cgbc_i2c_gp_pdata = {
+> -	.name = "Congatec General Purpose I2C adapter",
 
-As previously requested, can we make this a bit more user friendly?
+This is odd.  We only just added these.
 
-"Failed to start XYZ session"
+This should be fixed up into the original patch.
 
-> +
-> +	cgbc->session = ret;
->
->  	/* The Board Controller sent us a wrong session handle, we cannot communicate with it */
->  	if (cgbc->session < CGBC_SESSION_VALID_MIN || cgbc->session > CGBC_SESSION_VALID_MAX)
->
+> +static const struct cgbc_i2c_platform_data cgbc_i2c_i2c0_pdata = {
+> +	.name = "cgbc-i2c0",
+>  	.cgbc_bus_id = 0,
+>  };
+>  
+> -static const struct cgbc_i2c_platform_data cgbc_i2c_pm_pdata = {
+> -	.name  = "Congatec Power Management I2C adapter",
+> +static const struct cgbc_i2c_platform_data cgbc_i2c_ddc0_pdata = {
+> +	.name  = "cgbc-ddc0",
+>  	.cgbc_bus_id = 4,
+>  };
+>  
+> @@ -71,13 +71,13 @@ static const struct mfd_cell cgbc_devs[] = {
+>  	MFD_CELL_NAME("cgbc-hwmon"),
+>  	{
+>  		.name = "cgbc-i2c",
+> -		.platform_data = &cgbc_i2c_gp_pdata,
+> -		.pdata_size = sizeof(cgbc_i2c_gp_pdata),
+> +		.platform_data = &cgbc_i2c_i2c0_pdata,
+> +		.pdata_size = sizeof(cgbc_i2c_i2c0_pdata),
+>  	},
+>  	{
+>  		.name = "cgbc-i2c",
+> -		.platform_data = &cgbc_i2c_pm_pdata,
+> -		.pdata_size = sizeof(cgbc_i2c_pm_pdata),
+> +		.platform_data = &cgbc_i2c_ddc0_pdata,
+> +		.pdata_size = sizeof(cgbc_i2c_ddc0_pdata),
+>  	},
+>  	MFD_CELL_NAME("cgbc-wdt"),
+>  };
+> 
 > -- 
 > 2.53.0
->
+> 
 
 -- 
 Lee Jones
