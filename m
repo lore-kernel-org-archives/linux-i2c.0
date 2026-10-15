@@ -1,58 +1,67 @@
-Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528B95304CA;
-	Thu, 15 Oct 2026 12:20:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1154051AFF4;
+	Thu, 15 Oct 2026 12:32:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792066815; cv=none; b=tcKsdhyMnzaaF5nleFK5kGrHB1laLT0PKI4n5rIOaYCab3qGOT3fDtI97mXP0q8DLMAtG7dyTT8cz/0sArJNrsesi2AVyfm0qzQ3AustsQHV7luawVIvse1IAzMldkOFVjI86cpMoKeoNI5YcQpG62KnLn8IberelSTD8t3lKg0=
+	t=1792067531; cv=none; b=RD4RZTa0evp4KXOtnaoDutuGfry93s0t8YlAELa+g+tGLqoiU019ulDbt4fqRYq3EXWlNNvbaBAVotesmxJVwDriRLM5GnCubXcHkjuJd0+QR66O5omdvCl2WPU5nGLJqaVZx90WdLUtmsvqyGiQc9KieGfBgVj+8TZ0xon0NgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792066815; c=relaxed/simple;
-	bh=Gq5YBRvs7s13w69V0nh2uq4o0UEC4big2q5KHPOUVjg=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u1lGY+0alC3ZWSJRbqGId5cbymJqXleGNiaxVNGRftgM9u13AsYHPcsRa36gZSWBZyuTSFWdZ8AHKBLVWfikysdlWYxWLcrEfgMXSvKF3HoCQhbAa+fOWI+LiP4qm+o3p/DfqIpBXC5RXs3zKE8egmNhYGOGeLYUL2wBka7NYgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=i/MkhIfw; arc=none smtp.client-ip=185.70.43.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
+	s=arc-20240116; t=1792067531; c=relaxed/simple;
+	bh=kzWJ+SNZHchjY3ftI4ZKDI8gBkfD4rC3k6Atfox9R0A=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=WPt7mKXQwDjhQP7tR2SzYsHT0KwdsZPOnuVV6VWxMkTisnbesV/9La59DAQlCU5f9+q9wBDIbUps0Znq0SAyc8cgFaa5H7CT7TvEk+R729Dw1XKVsegwpXpDmspEvisgaAqSUELhlVqp3jDAlxPukGaJjS4MtX8KOhbCU9jifkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WoXuu5iV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="i/MkhIfw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-	s=protonmail3; t=1792066805; x=1792326005;
-	bh=Gq5YBRvs7s13w69V0nh2uq4o0UEC4big2q5KHPOUVjg=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=i/MkhIfwmB/ZokhN/sDWO0kOSG/JZNUbhrXSeJZZh1AwQCHpDrpdWu4YWkDu5H+wG
-	 SzaVuL7mdcGHxNYZqVxB4lcxzHaPFq2udAL66bca6chN18yWVMnI+mGQtXacu7589f
-	 lCYkmC8dNDXb05hkizgejnGEpm5kjNf4fhx7O8EZJknWCzT7dNcEL4tuOqAn+KBFvQ
-	 bmGBgJwIKQegGKuBqpro1wmWzFs28DQZ0xP7HvSSbGHt3poYSsiuHPSHgA+a3tqsVq
-	 h7RscCnVwG5g+kOxQl7dnvBQVPTvpolAwqJzJXhibEIKy6YefMGOb9X7Il+ZkLmDpi
-	 5mMF1aDA8a6vA==
-Date: Thu, 15 Oct 2026 12:19:59 +0000
-To: Andi Shyti <andi.shyti@kernel.org>
-From: Birk Skyum <birk.skyum@pm.me>
-Cc: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, Thorsten Leemhuis <regressions@leemhuis.info>, Daniel J Blueman <daniel@quora.org>, Sasha Levin <sashal@kernel.org>, Bjorn Andersson <andersson@kernel.org>, Manikanta Mylavarapu <quic_mmanikan@quicinc.com>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, regressions@lists.linux.dev
-Subject: Re: [PATCH] Revert "i2c: qcom-geni: Fix hardcoded clock index in SE_GENI_CLK_SEL"
-Message-ID: <179206679156.49371.3533488984291951831@pm.me>
-In-Reply-To: <atC-ZZLkXs3yM6l4@zenone.zhora.eu>
-References: <20261014130805.48840-1-birk.skyum@pm.me> <atC-ZZLkXs3yM6l4@zenone.zhora.eu>
-Feedback-ID: 21326998:user:proton
-X-Pm-Message-ID: da2389b14d6ad1bc093c9e3ce672f2ca3776a979
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WoXuu5iV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A611F000C4;
+	Thu, 15 Oct 2026 12:32:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792067529;
+	bh=l0G1u5/k4DcckxQeq3RlZifz6+ya0XrhqOvHOHu/ECU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=WoXuu5iVYKzi0YL78zWXnX1DzmJ9moh6C+TQj5egRlmmHOKiGZopRHDcl5ahXN4jO
+	 UijgWMZFE6Wakd4tlP8zhkv2mYEc1+Y9DXIBSd1JujYrZAKw8959VM5rR2sRFXrzLK
+	 +lMXbP80hpSBDDq3NxjBhcouNDhyAqjkXSsF/v1XtYeAAyVxvJI3NBJg3EjLe5qDb+
+	 +wzbLMyZUS6SWTyx4nQ3BAgIhUPS1v9zHFtBbcmMpoMcwL6wtvWoop8Zl2dnNSTUoH
+	 0miTYK7WiOJ090Q/1u4tQW7fXC7lt7OejPe89lrNrsZQSA/8ATyEywSehgxhDOPms9
+	 BIJkjWi0xatog==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>,
+ Radu Rendec <radu@rendec.net>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Linus
+ Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Andi
+ Shyti <andi.shyti@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Guenter Roeck <linux@roeck-us.net>, Russell King <linux@armlinux.org.uk>,
+ Arnd Bergmann <arnd@arndb.de>, Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, Fil Dunsky
+ <filipp.dunsky@gmail.com>
+Subject: Re: [PATCH v3 02/11] irqchip: Add Cortina Systems CS75xx peripheral
+ interrupt controller
+In-Reply-To: <20261013-b4-cs75xx-s2-v3-2-181bb0d23f4c@gmail.com>
+References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
+ <20261013-b4-cs75xx-s2-v3-2-181bb0d23f4c@gmail.com>
+Date: Thu, 15 Oct 2026 14:32:06 +0200
+Message-ID: <87tsmndu0p.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 
-Hi Andi,
+On Tue, Oct 13 2026 at 09:07, Fil Dunsky via B4 Relay wrote:
+> +static int __init cs75xx_intc_init(struct device_node *np,
+> +				   struct device_node *parent)
 
-Thanks. I tested that fix on the Yoga Slim 7x with v7.3-rc7 and only
-i2c-qcom-geni.ko swapped. The keyboard and touchpad work, also at the
-disk passphrase prompt, and the I2C serial engines stay at 19.2 MHz. So
-the revert is not needed.
+No line break required. You have 100 characters. Please fix that all
+over the place.
 
-Birk
+Other than that this looks good.
 
+Thanks,
+
+        tglx
