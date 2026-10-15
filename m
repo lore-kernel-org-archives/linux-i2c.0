@@ -1,39 +1,40 @@
 Received: from naesa06.arrow.com (naesa06.arrow.com [216.150.161.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6359B23A99F;
-	Thu, 15 Oct 2026 12:58:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EC955237AC;
+	Thu, 15 Oct 2026 12:58:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.150.161.27
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792069090; cv=none; b=X4+5LKAqAAs/rhyxzDgA6Vid4ZbugqwAxt/Pc9wj2lwTxfc1g/JYovt6ocSXBjUeemyMiFwiSUf7qqDao7sB78vwuZHuUVJNenO1hHNQtfCeb9SEFigrue40x/eOUar7TiKLmAbx4SUiHQd3j2ZCI6uENPKPyOPVnscE57AcJR8=
+	t=1792069092; cv=none; b=KKchYat0KtZEJlckOIMWUb3KX9jzZRYK2FvZqgDibkj+olDA8Ip687eYBK4lU7jYibXCVeAwy29STSLyzs5MJ3RUZKj9rV97KmiExaZ0EHhz6MO9h2C840G+NdVhYKNGs9tiQFllJ4iavPzmI0G0HAdV9l2QYY2MHqXAtCnXLSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792069090; c=relaxed/simple;
-	bh=epzI3b95cmaUe+XED/ujwoGNUbfRLLENFhvSJ98CLDo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=YY4g9vvDpVABAZclnlLbsJHLF39xBI2qPwHd6ch9XRzEHPGEbXy0QQth0MME/6YAgWsir7GZtYSyGK36NPW9nX1Dl9DQwD8A5S+Tos3+O1MutKn7mYLS/y5hFV+CisSOxNAKyw3YdoDgWT/DP75qVtfXZJRwfpOHlZvM/p3IDEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=RahSIRdO; arc=none smtp.client-ip=216.150.161.27
+	s=arc-20240116; t=1792069092; c=relaxed/simple;
+	bh=jw3+3lJtQgkvf5fDUwPS8TNUCR+dBtI2QeQxiyX6HAI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=hvgt6W56NJTuNc9FW/8qzIKIvEoAATBPpILrTOiWvrG/8dkNGtIFw+Qk0bbp9EbRu0q65ntXcRLma8jSMDGaR4RfzRFZn0iajmF4XaJiHGFJjQ3qBoBBzdyQYDn8YNKG3efyf8Y14t5E+ZaqtPzQr5zTu3i6XyDWoHdKIqzh9QQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com; spf=pass smtp.mailfrom=einfochips.com; dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b=XIdYhLwR; arc=none smtp.client-ip=216.150.161.27
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=einfochips.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=einfochips.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="RahSIRdO"
+	dkim=pass (2048-bit key) header.d=einfochips.com header.i=@einfochips.com header.b="XIdYhLwR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=einfochips.com; i=@einfochips.com; l=1839; q=dns/txt;
-  s=NAESA-Selector1; t=1792069090; x=1823605090;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=KFb8TFgQbX2FJlutJnLiqDlIKXZrvpZGANN2h8M5k74=;
-  b=RahSIRdOg63oaUXYqde//tdaKDwPHJJ085/9LFzypmnzH+v6SCgKyur7
-   VA03eluGM4f1fnoHkVGCGEPHnUUoQ5o0/GPYtZC/EK2r44UkLfTVkruSU
-   Mu26gngbH9rENmr8z4jHhwXHuKaydYmh6ZdMa06shMvsCBA93h+Mjv+z3
-   hVeHLh3iySGviph/Da9fdybeYpSIqP5yUWOoDGNU+ZaUOke3qikQSo3mk
-   OLHBsn7le+rHyBQbqKPQHyIJKhjAlxw1EKUFSolOFXa9oxy4G79GgYGWH
-   rdNSASwf1oLWGoLE99FnkjF4XRzKJoUIE9Euj0OuoOqvshWloK+a7DaXx
+  d=einfochips.com; i=@einfochips.com; l=908; q=dns/txt;
+  s=NAESA-Selector1; t=1792069091; x=1823605091;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=5/2A2ZLlbiY9nslJ7nQB+Yn+IkxiipPp1ULDmEpmnRE=;
+  b=XIdYhLwRUeRsoFk5dFqBFweMdI/JcFoBSuq+bobCiEn4bPUwWWxqC8iq
+   0AT/Q3pWgALOoiMbXjZbjh4dlZ8oSmoW6RJ5Q2QyNqaOiNrrx3QPulloL
+   e7GUPZoaK5v3T/79GGKPvnBcVH4qKBge/ti74L2/B/SBd/W7Bk+7Vs0Rv
+   kX9Uv1S0xLYn7jAPZvWdWepV3l4OmPPAO2YDsNK1/3rnSRkvcDg3u5DWJ
+   7WDiPx6jZPYpB+XZ2srIoPCijn6S0twYEwXCiE/J2/Lqn7pkpRLnBggY3
+   1fFfiyL9QoA+wcWCZQoD4kePn/jISTQcWcHeNR99T4a6mXL3E7T+Cpn8a
    A==;
-X-CSE-ConnectionGUID: JLe9iawMS9O6s+tuZ6siNQ==
-X-CSE-MsgGUID: RcH2yzdzSZmGWO2JzaUlCw==
+X-CSE-ConnectionGUID: 9JbbqpsmT/22CGnmvpDL8w==
+X-CSE-MsgGUID: hfkNISd3SSGjiBoiFXcgoA==
 X-IronPort-AV: E=Sophos;i="6.27,159,1787032800"; 
-   d="scan'208";a="66052728"
+   d="scan'208";a="66052732"
 Received: from unknown (HELO eicahmirelay01.einfochips.com) ([10.100.49.50])
-  by naesa06out.arrow.com with ESMTP; 15 Oct 2026 06:54:56 -0600
+  by naesa06out.arrow.com with ESMTP; 15 Oct 2026 06:54:57 -0600
 Received: from AHMCPU1888.localdomain ([172.25.5.100]) by eicahmirelay01.einfochips.com with Microsoft SMTPSVC(10.0.20348.1);
 	 Thu, 15 Oct 2026 18:24:55 +0530
 From: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
@@ -56,10 +57,12 @@ Cc: Yulin Lu <luyulin@eswincomputing.com>,
 	Darshan Prajapati <darshan.prajapati@einfochips.com>,
 	Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>,
 	Pritesh Patel <pritesh.patel@einfochips.com>
-Subject: [PATCH v5 0/7] riscv: eswin: eic7700: Add support for clocks, resets, pinctrl, HSP bus, I2C and watchdog
-Date: Thu, 15 Oct 2026 18:24:47 +0530
-Message-Id: <20261015125454.1381941-1-pinkesh.vaghela@einfochips.com>
+Subject: [PATCH v5 1/7] riscv: dts: eswin: add reset generator for EIC7700 SoC
+Date: Thu, 15 Oct 2026 18:24:48 +0530
+Message-Id: <20261015125454.1381941-2-pinkesh.vaghela@einfochips.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20261015125454.1381941-1-pinkesh.vaghela@einfochips.com>
+References: <20261015125454.1381941-1-pinkesh.vaghela@einfochips.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -67,52 +70,42 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 15 Oct 2026 12:54:55.0091 (UTC) FILETIME=[604B1C30:01DD5CA4]
+X-OriginalArrivalTime: 15 Oct 2026 12:54:55.0138 (UTC) FILETIME=[60524820:01DD5CA4]
 
-Changes in v5:
-- Rebased the patches to master branch of linux-next tree having
-  latest tag: next-20261014.
-- Updated dts file
-  - Arranged the nodes in alphabetical order.
-  - Removed the board-wide GPIO pinctrl state and attached GPIO84 to
-    its gpio-leds consumer.
-  - Moved the invariant I2C pinctrl states from board overrides into
-    the corresponding SoC controller nodes.
-  - Removed enabling watchdog nodes and describe them as enabled at
-    SoC level.
-- Updated dtsi file
-  - Added pinctrl property to all I2C controller nodes.
-  - Sorted the always-on I2C controllers by unit address.
-  - Removed default property "disabled" from all watchdog nodes.
-- Updated pinctrl.dtsi file
-  - Resolve missing space issue.
-  - Annotate all nodes with /omit-if-no-ref/.
-  - Removed duplicated base pins from the quad-SPI pin states.
-  - Split UART1 RTS/CTS from its TX/RX pin state.
-- Added "Acked-by" tag of "Andi Shyti" for the I2C binding patch
-  (i.e. Patch 5).
-- Link to v4: https://lore.kernel.org/lkml/20260814070007.1662455-1-pinkesh.vaghela@einfochips.com/
+From: Pritesh Patel <pritesh.patel@einfochips.com>
 
-Pinkesh Vaghela (1):
-  riscv: dts: eswin: add hsp bus node
+Add reset generator node for EIC7700 SoC
 
-Pritesh Patel (5):
-  riscv: dts: eswin: add reset generator for EIC7700 SoC
-  riscv: dts: eswin: add clock generator for EIC7700 SoC
-  dt-bindings: i2c: dw: add ESWIN EIC7700 SoC I2C controller
-  riscv: dts: eswin: add I2C controller support
-  riscv: dts: eswin: add watchdog support
+Signed-off-by: Pritesh Patel <pritesh.patel@einfochips.com>
+Signed-off-by: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+---
+ arch/riscv/boot/dts/eswin/eic7700.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Yulin Lu (1):
-  riscv: dts: eswin: eic7700: add pinctrl support
-
- .../bindings/i2c/snps,designware-i2c.yaml     |    1 +
- .../dts/eswin/eic7700-hifive-premier-p550.dts |   91 ++
- .../riscv/boot/dts/eswin/eic7700-pinctrl.dtsi | 1065 +++++++++++++++++
- arch/riscv/boot/dts/eswin/eic7700.dtsi        |  255 ++++
- 4 files changed, 1412 insertions(+)
- create mode 100644 arch/riscv/boot/dts/eswin/eic7700-pinctrl.dtsi
-
+diff --git a/arch/riscv/boot/dts/eswin/eic7700.dtsi b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+index c3ed93008bca..430a210f01e6 100644
+--- a/arch/riscv/boot/dts/eswin/eic7700.dtsi
++++ b/arch/riscv/boot/dts/eswin/eic7700.dtsi
+@@ -4,6 +4,7 @@
+  */
+ 
+ /dts-v1/;
++#include <dt-bindings/reset/eswin,eic7700-reset.h>
+ 
+ / {
+ 	#address-cells = <2>;
+@@ -341,5 +342,11 @@ gpioD: gpio-port@3 {
+ 				#gpio-cells = <2>;
+ 			};
+ 		};
++
++		reset: reset-controller@51828300 {
++			compatible = "eswin,eic7700-reset";
++			reg = <0x0 0x51828300 0x0 0x200>;
++			#reset-cells = <1>;
++		};
+ 	};
+ };
 -- 
 2.34.1
 
