@@ -1,67 +1,67 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B58847F3BD
-	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 11:02:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 955034C2276
+	for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 11:02:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792062156; cv=none; b=bZVANqJVBrDoWG2N3qUZ1ufOwIQsNoak3ckzsLfhyfEsBnmSKP67W9GidujZTWk7MFkH8BWOBvF9MUIuFX7oaFIy+FpYNUgafKFC74gp3R3M6geTbEp2R+T/mgOy23tAK8jh2N2tfnKZvVAUhwPHVZ1AME4znjoSwiqUZe7jRKY=
+	t=1792062158; cv=none; b=Woxbhz5T/eUrBd+AnPEDXeu5IZrPRHZJyoGnqFgCO8enhiJ+vylePNm0rj3flpBH9UQa6nigLu2gxk5hbQmT0D3ztbdcmuDYkyg7mv/n0TmFPuK9dt2kLok7HtozZo5dsqlOrRb7qrYL7FFpbhVOLR1u32j4juYn6eovuDKDwPU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792062156; c=relaxed/simple;
-	bh=4ap0qTWGOZgih1AXnNRPW+rFGzJn+i0/7ped25p36lA=;
+	s=arc-20240116; t=1792062158; c=relaxed/simple;
+	bh=PydZrvt86mLHkEgBvRO47u3zMGloSwDUhiZhopFMTMw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fq6gUiPdojpVCLbnGwBEY8HynbyVXaFWg8P9gPfUQa8YxXnCFZWgIC3Of8NX1g+aAh98+yx1NrII4cOWp/+1fUFpi1mmYl+aMzyq2l85Fhy99OQnkgqVmqVwV7IiD7AjRDPr2m4mJF6pprufbyKRGnOONKRm3YyM8Q9uQhqAiSg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T0NtDqAZ; arc=none smtp.client-ip=209.85.167.49
+	 In-Reply-To:To:Cc; b=s+LKMhKXp8kpZ0zwlfv1rjjjGVlsvgkwnMUO10Cf2e9kTsE2m+T65jioSnVwzB4nrwy1FehtiqybDIGl1mV2/RCjSIj1Tg10umms5xV0SB7UIK43RgF9L6UtPIjUn+o8B8z5viwKsaxkp2A/cSrzrY2QzWWwee3Tn5qy9QczR8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fodO9+L4; arc=none smtp.client-ip=209.85.167.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T0NtDqAZ"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5be416e603cso270997e87.2
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 04:02:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fodO9+L4"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5ba3ec92031so5283267e87.2
+        for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2026 04:02:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792062153; x=1792666953; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792062155; x=1792666955; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=8a9BS5o5MDEOlFKxjri8LZd6JmLpT8LmYs8UVHNz++8=;
-        b=T0NtDqAZ7j+1Z1BdofJ0ePTn70I29jhHQoUfjox7996xLFLJfu6Ea4qB316fFZCl9G
-         55blCyuMwVtYVdB2NKjjB8buGaEONYJLSs9v/9OFVzj2TrZIFyiN3CJO+wpKxsIoReaA
-         C1FaOvEu+VLSxqcTzvQA879tU0jGe2oHHxyuckPq3KP3H1hVAdjGPwqk/k0sDE7zZIGZ
-         zsHoSOtMkKeGWLwnlGIWr7axSbf89Qav8/KCK+mkIJHjX4CtqcnEt/sA4iDZtaRO4Hx7
-         DN/5lGFPNoEY4GJ7+YBm84RPFezojjA0ZYvD/QJHg/GqIFkApuOqTLzrM2XWqpIm0UR4
-         whQw==
+        bh=y+QorVKMJYnLkrPsErRwwCkJsDT8x7ezxaNNbTsRw5I=;
+        b=fodO9+L4ZDBTEfxQ7fG3fDTw2X8W79kcUUWjHL13rGT1fjX00QfO6rH7CdLYIurne8
+         bfLcr6sxHGKJInRAemP3Wj/pqAlRTLO45GU7WmvklrSZE90PagRl7OmbeF/6rSuHEk+R
+         UATHTJ1WokDJtztfaX4anWlcO4MosbvKyDcdYB3DFVD/yHZoZDNzq9uJxwFTbiQNPWCo
+         rW+kHEr0v1pk5WNfQTRFMQ1ZurMkoMZy2W4E6ks12wTrCrI3UGjc4u89kexVfsK165ZS
+         QwYKZe1xnqef4PqJzuTwPLjN2Wt7J3zTBp9UcHexn5pfe+2uZLDDeBmLum68yfGsbpdK
+         bgMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792062153; x=1792666953;
+        d=1e100.net; s=20260707; t=1792062155; x=1792666955;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=8a9BS5o5MDEOlFKxjri8LZd6JmLpT8LmYs8UVHNz++8=;
-        b=i103yzKh46vhzynHaleybi7t1pp4+O7kAXsB5/fg+MAWQEJIQb7x7eEgPICi05+2ag
-         2Tbpi4RAWiAgeWUYtwR/lMbwhd75vYz4vMVuSCfc0u3sIs0NYuVUAcNjmXmQIOF3pEpQ
-         sTwGWFfsNldxkGjwQ0EQTs8BHyhmhOb1lXY44xphPtYtsxSzivwVyYShsPZhsBvrK8Mu
-         FKlGsRa27CKsdCh1ROvJQyN+lZHflHqTZ2rrKViF5iP+oaeDWzqKLZjWzB+97q9X13Xi
-         Tqp7z7KJTvExRCRjS2DjdD3FpbnXEOW9Er3j7zV5lx78dGC1bkOUMIJgkNglcaglh+4t
-         Uvhg==
-X-Gm-Message-State: AFq9FYLiMSNGMTU79x0/hP/zyJyPqZKkB0MFe5MGDNCg4TichmvnL/ys
-	UTfOKn0CsWRJQp4xigUiBGiXoqjbhGb50dY+RWmjqYVKyMrr8WwX1oFx
-X-Gm-Gg: AYBFou2G3IJzn256T5oEEdC8rfwsw9AqECeFjxNal8Whv/8NjMgwnrNIjAyc9uxK3Ms
-	4cBgdOjEiaxmX+QpAliv9bJpqzydQJN2Du2/oXKJrj+iYx6OC1p7WeRe11+UO5EW7UlU3STPKUe
-	H/VKNgXYA7kH5uLM7W/OxlQKXiebFs2L+MzWeG5RYbY4A8cSFOCpu1AoXr/fX9BF3YG5rd7Kq39
-	5edBY5uoay6XGdmgGO//9IgNr0rXuR3sppSOUBVpzAmakr9IOYw+Efk3KTTWqBkzpOfNkVxlL9u
-	91tBYx1pdRbLaGEodCr4PlEZrtMyytKoUM4GKZjDG4NQZiiTdE997JCLjXDgaLdD1rrYLkASk1o
-	XtxhV5scr/RW6yjHEtdE/og1TkgRpvfnxUpZBAib2pp042Lk1mY+N+RtYPsI/7LBKci0jKXyzUD
-	tKmVjpBtLPtuTlN5xhGhk4A7EECKa3zLygh7eqGmJvHjU/O+9BxrXYyIVy0d2nS0UjFwkd4gzGQ
-	t4VpUHcSQMQfzaS2uD1BJsMA0btBwbkO8y6kke6ctAVRlawfHk=
-X-Received: by 2002:a05:6512:3d16:b0:5be:42c0:6cf6 with SMTP id 2adb3069b0e04-5be42c06e61mr234143e87.6.1792062152686;
-        Thu, 15 Oct 2026 04:02:32 -0700 (PDT)
+        bh=y+QorVKMJYnLkrPsErRwwCkJsDT8x7ezxaNNbTsRw5I=;
+        b=s2xDbrpKmBYbIkno4IW5U6VjvtYv0UwHOxCKCjlOtrj+FrA2Mi2Tge/ReneguGNKmJ
+         UY99VDHpvm3gOdlkvVvaCpg1HjZbztHoCJm45Y7WffhX6e1hJBNXxzdVBtp4GOEnmfvg
+         rWDo0h+iSlLGDJtOecrlQee3rM/2d04CQh25wbGXT5lkVR52AuACuFnRvN0f8BsFzGSM
+         +fvwoPhXEAw/mohfMQUroYh1q5lnQrtZvx0xP8q7epSoSU45b3IpvJRul4wZBC+v4enm
+         tetc86PMWPYLPsgk1l/cRZEr4UpIV0T/H/ThsxcZOAsklSVSSSTYjCjeBoR/Zu/tb7Xj
+         IgaA==
+X-Gm-Message-State: AFq9FYIe/CCLHsff79TTF/NF/DEmXKVi9xi9DKC5iMoODSzmVmWbMcsj
+	Gq51a+mUGZaTDgIeoR45GEjr6UQ3cjGIbfHKyWqKWA02lIBve833Gi8O
+X-Gm-Gg: AYBFou0vSVEagwiKeNaKN99jaeEtzqFQFc4mdxf+Pb8NzZ5Xdpc4gJpYuLNzN6Y7cQy
+	eoUyHvvR850Ddkye62DPE80ZaJWKpXHyLxGDgIcU3UFJ8WYLEQLUWbOHKuBbY2Rn82gB2vxW4Vd
+	Q1nproGt8DfKAPh/JatlMhMcO7KmmvArXhed2rmwHvVKJHTTOcQD3WMhkhfIsPh0egfRImhJ1/G
+	jAxP4WzV3wuKo1EYMca7ScAw9lb3ioWVhoKivqidOrucnC3yZhaO7NZQMuIHVDA3NeDxYuSkdLC
+	bmeFdLYpNejwdF1ytg8MO2p0lEROd5XMlnKvp3QVU8h/bzyBqAOLaI6BMlGNd4rPf5L1mgmneBC
+	WSHdmxZsOm7hAMq4ZRAWG+w34+ATOf4N48xNWro1wnm1UMFKlhnwi9NL+Z3clVc90coJDXsR3vg
+	VR4DEFyA+rNTqhOdt5VHuMiffpV3+vGB4iBBy+vVB4kXY1rJo59m9QMPO6TIZqXa08qknGz0hCf
+	YAUv6UhDeO1KyyR0DGv9OagD0RVSnNsf6+QxKp+Jjz9QSfuS63yFNZt7fh8zA==
+X-Received: by 2002:a05:6512:4404:b0:5b8:999f:718b with SMTP id 2adb3069b0e04-5bcea0c31b7mr4505668e87.12.1792062154506;
+        Thu, 15 Oct 2026 04:02:34 -0700 (PDT)
 Received: from [192.168.1.135] (81-229-40-193-no2450.tbcn.telia.com. [81.229.40.193])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5be3739b5d1sm905465e87.22.2026.10.15.04.02.30
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5be3739b5d1sm905465e87.22.2026.10.15.04.02.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2026 04:02:31 -0700 (PDT)
+        Thu, 15 Oct 2026 04:02:33 -0700 (PDT)
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Thu, 15 Oct 2026 13:01:48 +0200
-Subject: [PATCH v13 1/8] i2c: core: add callback to change bus frequency
+Date: Thu, 15 Oct 2026 13:01:49 +0200
+Subject: [PATCH v13 2/8] i2c: mux: add idle_state property to i2c_mux_core
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261015-i2c-mux-v13-1-778a12cfe93b@gmail.com>
+Message-Id: <20261015-i2c-mux-v13-2-778a12cfe93b@gmail.com>
 References: <20261015-i2c-mux-v13-0-778a12cfe93b@gmail.com>
 In-Reply-To: <20261015-i2c-mux-v13-0-778a12cfe93b@gmail.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
@@ -83,89 +83,137 @@ Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, 
  Marcus Folkesson <marcus.folkesson@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2319;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3427;
  i=marcus.folkesson@gmail.com; h=from:subject:message-id;
- bh=4ap0qTWGOZgih1AXnNRPW+rFGzJn+i0/7ped25p36lA=;
- b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBq0LKjS9gv8htmWbUa+mRSHXHg39xhgl4v/q/0M
- 8UiIGiLUjiJAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCatCyowAKCRCIgE5vWV1S
- MqpzEACqhNkDj9R2p7VsN81RLy6iRqiMQLVV5o24tYcSG8zybFha/ATDIVbTcYl3idD09jzDear
- lkj5qmtmYxSPEnSNW/FudyAeFhkGbrktpeb+iom6uuDX7ECW3sS0Zg9bQExVzmkp0IU70w8/AIK
- f3e3FEyYsRKfRzWZXf8t4lW3Jr4jmGVeAel+W0uUvxIsbcpBw7iyeXgk7xOHeXwcExUQ4LpoEUU
- LSH2YX/e6yGzwXVmLFifXRHB/yi/0TjCifRgLb52G9x4kI0DGI4LHcKKd9pA2k3fWm8QXH/8273
- bVqOTxGmH8WBDnzNIyTO9hu5nDWrFIwoJ/ddschP5XCQtsEzzs02P/EnDFrtnAd2Ebycwca9yxr
- ztF0tw0VdPIeYmMiWQ81QBZDgRaL8sPbMuy0cKZGb9NT+T1YoqDoD4MiL2D+ZwsFP5uCvuCi28Y
- lcmWcDBGZrCVTftSG5HKDI2GUMzNPaVBJF3ssEDjx7enens4Qa5fKXAwndrE0Ky9bAxfSbxRKpR
- M8YIHo4qVgCWtY59zJ9yo9HlUltQqHpjXP3UXU3do85r+YsMiZRjzmJH2hx86NhXbIuvuf8pHON
- RP/8iRNIYmqDJ7Ggi++UXj/eQ2WLZtQfdBPntA4iottyJSQ+nfCdGQFslr+sHQl9ZW3YrFhh4Jd
- 9bVLSlQBiNIAtiQ==
+ bh=PydZrvt86mLHkEgBvRO47u3zMGloSwDUhiZhopFMTMw=;
+ b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBq0LKoIcY9A9AvCh5SSkNgUH2sA6MzgWGCpMpJD
+ E06xQD8236JAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCatCyqAAKCRCIgE5vWV1S
+ MlhuD/sHP9hzPuDbWoiGI5oiApoeF7AO5OTE+Ih2rYrBbQSQTnM3aUCaCY9EoRwpHw7s4NxTcDc
+ Ng8jOu840EZ6aLEei9FlV0T3ibI65xxQ8FDrACZzOc8t26wIT3Pp3I3B/kEhhJ7IjedJxnxwJ2M
+ XMdcJtmJuY4LkuGyYg6qs+2jtObGtKHZyjS+948NTUXXOhur05lfDw0ItuT/ipgsDLS3ARS636k
+ jUIl9DL4dAZcBVQAySS4dqZNiEhzHZ4oQwKrnebhnggOEcqHM/kZPiT0ixJzBIDDlHDifHnHVw0
+ v4AwNrmX5hHJsL9EXKyRssYut5636uyoCORAavn1lfBJTul8ldre6RrzJe8Xim8tn2TUENm7pxx
+ IhC0pTYYS5+5lVc5NWAhh1Em7v8Tbcyi1DTdD6buIF/uet2V2I/DFyyfeVbnD6O+7lmBLfsqKSn
+ b6ZSzblNKKNWlDav3tFH7nGNOufo89epKLFWQbPPLrUIOV1XPCez9vUNeRvsphkJ1H3bfBQE62B
+ /+HzmxudhAkV6ydctNGhcm+ZI6aHHhnLmjuSO2OWCVifk7Kz03kLSFDiGXKUX9TVTLumWGRQ2dp
+ 9L5yX6Gim8QwZx91chiubHWKYZh78CkloOtBj8b/082kwHMZo0Bf0h8fsVdnuygz/XmESsx4TE0
+ LHaiyT3mh9pvkgQ==
 X-Developer-Key: i=marcus.folkesson@gmail.com; a=openpgp;
  fpr=AB91D46C7E0F6E6FB2AB640EC0FE25D598F6C127
 
-All devices on the same I2C bus share the same clock line and the bus
-frequency must therefore be chosen so that all attached devices are able
-to tolerate that clock rate. IOW, the bus speed must be set for the
-slowest attached device.
+Muxes treat their channels differently when idle.
+Let the mux core have this information to make it available for
+internal use.
 
-With I2C multiplexers/switches on the other hand, it would be possible
-to have different "domains" that run with different speeds.
+Possible idle states are:
+ - I2C_MUX_IDLE_AS_IS: Leave channels as is when idle
+ - I2C_MUX_IDLE_DISCONNECT: Disconnect channel (set HiZ when idle)
+ - I2C_MUX_IDLE_UNKNOWN: Unknown idle state
+ - <n>: Enable channel n (starting from 0) when idle"
 
-Prepare for such a feature by providing an optional callback function to
-change bus frequency.
-
-As a side effect, several bus drivers keep the bus speed in a
-private structure and can now have this value stored in a uniform way
-instead.
+Default value is set to I2C_MUX_IDLE_UNKNOWN.
 
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- include/linux/i2c.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/i2c/i2c-mux.c   |  1 +
+ include/linux/i2c-mux.h | 57 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 6a847fc88d25..d2d60e937244 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -635,6 +635,15 @@ struct i2c_timings {
- 	u32 analog_filter_cutoff_freq_hz;
- };
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 53428098ddc7..94cc019b222f 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -248,6 +248,7 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
+ 	muxc->select = select;
+ 	muxc->deselect = deselect;
+ 	muxc->max_adapters = max_adapters;
++	muxc->idle_state = I2C_MUX_IDLE_UNKNOWN;
  
-+/**
-+ * struct i2c_bus_ops - I2C bus control operations
-+ * @set_clk_freq: Set clock frequency for the adapter.
-+ *	Returns negative errno, or 0 on success.
-+ */
-+struct i2c_bus_ops {
-+	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_Hz);
-+};
+ 	return muxc;
+ }
+diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+index 1784ac7afb11..17690f4f0dbe 100644
+--- a/include/linux/i2c-mux.h
++++ b/include/linux/i2c-mux.h
+@@ -14,6 +14,11 @@
+ #ifdef __KERNEL__
+ 
+ #include <linux/bitops.h>
++#include <linux/i2c.h>
 +
- /**
-  * struct i2c_bus_recovery_info - I2C bus recovery information
-  * @recover_bus: Recover routine. Either pass driver's recover_bus() routine, or
-@@ -744,6 +753,7 @@ struct i2c_adapter_quirks {
- /*
-  * i2c_adapter is the structure used to identify a physical i2c bus along
-  * with the access algorithms necessary to access it.
-+ *
-  */
- struct i2c_adapter {
- 	struct module *owner;
-@@ -760,6 +770,7 @@ struct i2c_adapter {
- #ifdef CONFIG_I2C_DYNAMIC_TIMEOUT
- 	int user_timeout;		/* I2C_TIMEOUT ioctl value in jiffies */
- #endif
-+	u32 clock_Hz;			/* bus clock speed */
- 	int retries;
- 	struct device dev;		/* the adapter device */
- 	unsigned long locked_flags;	/* owned by the I2C core */
-@@ -774,6 +785,7 @@ struct i2c_adapter {
- 	struct list_head userspace_clients;
++#define I2C_MUX_IDLE_AS_IS      (-1)
++#define I2C_MUX_IDLE_DISCONNECT (-2)
++#define I2C_MUX_IDLE_UNKNOWN	(-3)
  
- 	struct i2c_bus_recovery_info *bus_recovery_info;
-+	const struct i2c_bus_ops *bus_ops;
- 	const struct i2c_adapter_quirks *quirks;
+ struct i2c_mux_core {
+ 	struct i2c_adapter *parent;
+@@ -22,6 +27,18 @@ struct i2c_mux_core {
+ 	unsigned int arbitrator:1;
+ 	unsigned int gate:1;
  
- 	struct irq_domain *host_notify_domain;
++	/*
++	 * The mux state used by the driver when idle.
++	 * Possible idle states are:
++	 *  - I2C_MUX_IDLE_AS_IS: Leave channels as is when idle
++	 *  - I2C_MUX_IDLE_DISCONNECT: Disconnect channel (set HiZ when idle)
++	 *  - I2C_MUX_IDLE_UNKNOWN: Unknown idle state
++	 *  - <n>: Enable channel n (starting from 0) when idle"
++	 *
++	 * Default value is set to I2C_MUX_IDLE_UNKNOWN.
++	 */
++	int idle_state;
++
+ 	void *priv;
+ 
+ 	int (*select)(struct i2c_mux_core *, u32 chan_id);
+@@ -38,6 +55,46 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
+ 				   int (*select)(struct i2c_mux_core *, u32),
+ 				   int (*deselect)(struct i2c_mux_core *, u32));
+ 
++static inline int i2c_mux_set_idle_state(struct i2c_mux_core *muxc, int state)
++{
++	switch (state) {
++	case I2C_MUX_IDLE_AS_IS:
++	case I2C_MUX_IDLE_UNKNOWN:
++		for (int i = 0; i < muxc->num_adapters; i++) {
++			/*
++			 * idle_state is incompatible with channels that have a
++			 * different clock frequency than the parent adapter.
++			 */
++			if (muxc->adapter[i]->clock_Hz != muxc->parent->clock_Hz)
++				return -EINVAL;
++		}
++		break;
++
++	case I2C_MUX_IDLE_DISCONNECT:
++		break;
++
++	default:
++		if (state < 0 || state >= muxc->num_adapters)
++			return -EINVAL;
++
++		/*
++		 * idle_state cannot select a channel with a different clock
++		 * frequency than the parent adapter.
++		 */
++		if (muxc->adapter[state]->clock_Hz != muxc->parent->clock_Hz)
++			return -EINVAL;
++		break;
++	}
++
++	muxc->idle_state = state;
++	return 0;
++}
++
++static inline int i2c_mux_idle_state(struct i2c_mux_core *muxc)
++{
++	return muxc->idle_state;
++}
++
+ /* flags for i2c_mux_alloc */
+ #define I2C_MUX_LOCKED     BIT(0)
+ #define I2C_MUX_ARBITRATOR BIT(1)
 
 -- 
 2.55.0
