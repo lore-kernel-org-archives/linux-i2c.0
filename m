@@ -1,65 +1,65 @@
-Received: from mail-ej2-f5.google.com (mail-ej2-f5.google.com [74.125.228.133])
+Received: from mail-ej2-f10.google.com (mail-ej2-f10.google.com [74.125.228.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8540E4968EF
-	for <linux-i2c@vger.kernel.org>; Fri, 16 Oct 2026 12:52:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F0674A4839
+	for <linux-i2c@vger.kernel.org>; Fri, 16 Oct 2026 12:52:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792155164; cv=none; b=JaMWuzEFWm5yTE6GCYaGHA+WYBPblcJbG6RfTWC+9dkZPpETqG/VfDkCW2umfWX5ClqqsBkpl0pus/EmewV3Xj5FcAbHPguAZdfueOqzMOqEK/2UR1DsOmW6CTSQO+7afMnP7qYpEVkoR7r02F17sEsDK2OFHD+mEF305dKvaPQ=
+	t=1792155166; cv=none; b=AMSKzhfFxGhFRsruFndhjjjVB56FL7F0Np9OPrgoJGbSCTDoM0itPjK/+qiCZukgIo+vI+WTJbKPGob5OB8LnulwQ0NUP3/FQm5Rj1CASnR3PjYw4CZOu6GLJrFNQvEJjorkph8Hr7NMIF1JI7+5c8pzgIhNfti8xnPb/BsUdUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792155164; c=relaxed/simple;
-	bh=PHKzI/DaDGeG0UXrccrwqI/qjKAvZq6HiGbjGmmX6Hc=;
+	s=arc-20240116; t=1792155166; c=relaxed/simple;
+	bh=B1VEVRlqikpPTMkVjpNttb8IvaJtjlL1JxMWlv+FinU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p489CQ/7K2f/2il3Wv6Uc8k0llDqhcvhjS4B3KSuGsyErSuT4qvBULpFltrx5z6Mz9tzOlEvSv32xDAVWCJ/eOLfpsnM4DM+PzxCjcb/PZdVtCVSUmAJYQyg0VvUcQnoYFHq1ChYCE8i13JhgsJryyGiXZBqVVKuf1rCHmgORi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SXu/gvXW; arc=none smtp.client-ip=74.125.228.133
+	 MIME-Version; b=TrpVQj3pfnF65rIXz+KcRmv/GvOki2KLEoUvC/Cq9pOX2D8ZTZiCUg+ZRYsGwjfBNvemghNs4XiSrOnxCjHFYY1dfXVJp48Avqtmh3+Oy4StOcU18BqyC6cKBqKypWmDGwSKQSQkX3wmLDZp4MIbV9d1mYgqBIo8fIrLDqgs4D0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j5LdNN11; arc=none smtp.client-ip=74.125.228.138
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SXu/gvXW"
-Received: by mail-ej2-f5.google.com with SMTP id a640c23a62f3a-c40e6f63002so15789566b.0
-        for <linux-i2c@vger.kernel.org>; Fri, 16 Oct 2026 05:52:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j5LdNN11"
+Received: by mail-ej2-f10.google.com with SMTP id a640c23a62f3a-c319a4a3c9aso120424866b.1
+        for <linux-i2c@vger.kernel.org>; Fri, 16 Oct 2026 05:52:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792155161; x=1792759961; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792155163; x=1792759963; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=kA+vTZ/Eeoad9jIjZ1JZy2rB2AcKRzVxwNFQY1s/X5o=;
-        b=SXu/gvXWM1umyElGQdWJfYtfOkzprDVdQVATTVHyvU9TsZHg/10bPwQZk0DW+aRxAA
-         DIo1ByLWofOwyNAPgMR0dNk/QJrsE1aipJdgrQMJIi9GXU6jHieEHlIV7fZoz4VGMWny
-         O80W4VAZ3xbV4OzUk1s309mSkTJ/HLpDBdU4saNCqd9AoZABNkl9qrhbx8U0jHxnjAZy
-         G/gcQe83kuLAJdM+az9mFe1pHlGexDLeScyMdvI0ZQaGxXkJn/C0qYu+pi1X7V/bqG2C
-         961UGAosd3iuRGR1god5YAnOp3KzYiZpeVw26VpO+cuZnIU9OfePbmGgT/VdAqgCHKKc
-         yNJA==
+        bh=RdOHOeZUKsNxNoi/BkPDgmePe7PcCdsdpCL+vRvFalY=;
+        b=j5LdNN11rjLwtpDyp3LeXExTmiGDfDKyv2DwfctVKW88VShDVO2c4hAsi2PVwhxwFe
+         HMthaf7qXZJ5bz30TsaLEBM5fVaIp268fZbBo/8cvsK6znvmdnJSYKOfMxtFVP4UkT2v
+         sAAUj0JzfFD/vS9JjeTb90xC2rxWGktRRE8e/iRuGQbgzbObVjB0kFic2430MOEtGbQG
+         NovpUbrXxvoYT/TFmLVbW0c3B+Nn5pNLJi6CWqJxHsiNE0HPTpUJ45xyMm3G7VLja02m
+         lQQI6FiOMbD201lHxvK3cG1sFGqHb2BUldQGPWsQvZ7s0J6stXvIlJUX2ksAoFHY2Ewh
+         zLMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792155161; x=1792759961;
+        d=1e100.net; s=20260707; t=1792155163; x=1792759963;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kA+vTZ/Eeoad9jIjZ1JZy2rB2AcKRzVxwNFQY1s/X5o=;
-        b=bKCpja4ureGeEHAELhsDmTaz6I2oMhn8KjwZkSvtFH/OzUnYhinH0DxYhjOIg81XT8
-         jLNFN9kY2Axh8W+zWHEDNd+I5zC1gp5/MHF3W2VDB3JCwZkuvAkIkOYEnUiCaveWmrP3
-         HXKhzrRnnJVD+j5WP0e7bxSaYQrPZjOU1Bz3IUHTJU/FhjHlTbwf89ykLI6PATWJwvpI
-         Nv36Rh5Mi1f1A14owgsPRyrcObsRSlTO7jkgYhV7JjVrNorQdjf1oF9fAzfik1mBpGkb
-         nqiiqHo1wNszEjYCzNCDo+Ynz6LGWoN3iTd6r3HLq+z1o/IYHJhOlcvQTC38fwCZTNHe
-         v2EQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzSam6vzPKWk5b8ROPfsREiv/We+VZ4XreIkQnX+UrD12c8qvYX1XewPF5qtL2SzwmG2ldYMSoq1lA=@vger.kernel.org
-X-Gm-Message-State: AFq9FYJbfOYA03JizxM93OBEUbKJUEixV6C8tU/z5S4uaJo0LAZE037o
-	0b7ZYYQOM+U1aWbWS4JQSagxoCjOQ6gMMJEjMJD/ZjM2xccZDabGs9Kg
-X-Gm-Gg: AYBFou0xihTzaXuUBZ1pR/iuhaO+YhLAZd1BgTDcO1ZoKexy60RXtclkUx+ddIi3sIQ
-	QaMGCA0Bo9oVcSjZspvqwkGxps+CZnq7/0dntVGV2DCpZBEmuAKPd/JBgAtB3NYAXuYu9SgYIwg
-	Ax0E+D2GFBWDpVUUY8t0Pl+10p8goMET4AacZiFfnWKONWlk5vY4nj4a78VdkWqrM2++aE9L5bb
-	eDyuqbuFBVka4o84oUqVQJwHS5m4TMqF6vji3sQTHLH5walTt4hjsuuG/EFtBUqeRQ3oNQ8q2AD
-	gVpCQlM7/Gnvcy6ACGoJp5S54QMPiL6OIc0XWhv27yLGK61oyzEOK83P+hEAH1Ju2pLUan7/mS4
-	47QNZ5VimG/fOArETAPA32PFjeca+9slispUA9UkVAc4obzNMDRFFd/BkMOSnC8MW9H+85Q0Bh2
-	VpCPmSmUY+GDu4qO3RAvE7lo1ldZcJR93p18wyrvhvasT2b4HQUeLw6lSj66C79wXWOr25te6Ok
-	LGFfzKHPQEscUWR+yYKn6L0smqTurrIoWAHc88zG04Qu8AbtbcHGBN15soTvYUfB7hjHGhmHbw+
-	lGQ3uhUNn5PGqtiJezu0RK3dOfs=
-X-Received: by 2002:a17:907:8687:b0:c16:4e5:944a with SMTP id a640c23a62f3a-c31aa02a1ebmr1954672466b.21.1792155160445;
-        Fri, 16 Oct 2026 05:52:40 -0700 (PDT)
+        bh=RdOHOeZUKsNxNoi/BkPDgmePe7PcCdsdpCL+vRvFalY=;
+        b=L3l4CCv4I4AES7Hpk1sWcflfxn1Onj4Yljd23atmU/755vj0Bc7Axl0xWiLNR2wzqK
+         6+a7Xmmv3PIbUnEqWVPpQ1d3cV1/wDpo4U8AK/1Eh82Wz5PfwN8rc3S1ShTZI0EJ+49J
+         rag6UJrOygcL/uwnT+cbCy/kRnGQ62z9WNKHRIHdAV3g7b1O69i6GzqCCXRhAwL9xG8K
+         XK78AMtw5VO4xWMq0G9bjrD2C1GfqgW0ccK4/cipeOhPkfUK0NLaD03cXVZ8GuhWTITG
+         cKbOktxE3WY7Ig0vPKJqFBWwQpsDhjBpcTmbIKG6oEJahU+uCrDPH8prnD3aQ+Yk3UKI
+         hODA==
+X-Forwarded-Encrypted: i=1; AKwUvByw+jNwXOT2ZlqgU83GZlHozCxsW0zvJzoccTWQPxEhiImVnh18ppCJlxy7SbvbaJhcC4bjiW68mPU=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJxSaFIxwcaSZNQj/IavK7ViLVuHGVmF7P8Bs9HLrFwOP3CjZl0
+	g84RBsLAV5vgqvduMu/kH1EbnoCdnMLKGJITWpWT6crd7h5L9jheBFWP
+X-Gm-Gg: AYBFou2ALWQ0prd1DeB5pQd1zz7MUp6SYLsxVyH7NuzzoC7igOj4qnohhSfIDJe1Ph5
+	3ruoPAWq0dvw41GFs1gyuSCsOGF1Dt4Gv+bqYKN0+VqFJyJ07bFRABJV0G4eo2dz/uD2gi8Y1T9
+	R7DwdJiZMpECXN9zsCizxDzbpjwlHpAjzAslfnITMZDg9P0CI0o9GYUsUtzfQiKjvLMMGsnrwr3
+	4KNdDAVFrSghRPj4G3pN7GpKjMvRRSssYfxiyritT6Xkhb6NOwSj2INT6MXXkZFVIbHMyUGkrOZ
+	IeJgQ5pFyA21orV9KMOek1sy9TTKBO5yNeZyfq2ZVgwCaLR6rcPhGCHsaAHdVz0xmiOD3lTysp3
+	TSFCH1WspIsIXQadkNODQnz6rj1A0kz5teB1Sz4JsupsnxGdZz7F9JjTP0E9g3KjCNYgHFtfB26
+	4XWazc1jjJFrzkE/3E0YiPaWwgVn9f/w5hpygHvjJmKLPvzwkZtrh/dFo5Hxxr5KuZ+rD2LXQyW
+	HSN1H95ICdCpv9EkUGsIBtg8RUOqnPpyp2qKnt5Kc7UHAMJQfdpDYg8EnChvZZujhnq1vaCk1+R
+	CB7d8ZblLWEJici5O2naFcVVGw==
+X-Received: by 2002:a17:907:97ce:b0:c25:f7db:4bec with SMTP id a640c23a62f3a-c40205fb322mr271162166b.18.1792155163197;
+        Fri, 16 Oct 2026 05:52:43 -0700 (PDT)
 Received: from thi-server.fritz.box (dslb-092-076-089-226.092.076.pools.vodafone-ip.de. [92.76.89.226])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c408e32876asm69433966b.10.2026.10.16.05.52.39
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c408e32876asm69433966b.10.2026.10.16.05.52.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 05:52:39 -0700 (PDT)
+        Fri, 16 Oct 2026 05:52:42 -0700 (PDT)
 From: Thilo Zirnstein <thi.zirnstein@gmail.com>
 To: michal.simek@amd.com,
 	andi.shyti@kernel.org
@@ -67,9 +67,9 @@ Cc: linux-arm-kernel@lists.infradead.org,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Thilo Zirnstein <thi.zirnstein@gmail.com>
-Subject: [PATCH v3 1/2] i2c: i2c-xiic: fix clearing of bnb irq
-Date: Fri, 16 Oct 2026 14:52:28 +0200
-Message-ID: <20261016125229.1798791-2-thi.zirnstein@gmail.com>
+Subject: [PATCH v3 2/2] i2c: i2c-xiic: fix waiting/clearing while atomic
+Date: Fri, 16 Oct 2026 14:52:29 +0200
+Message-ID: <20261016125229.1798791-3-thi.zirnstein@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261016125229.1798791-1-thi.zirnstein@gmail.com>
 References: <20261016125229.1798791-1-thi.zirnstein@gmail.com>
@@ -81,111 +81,66 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a function for clearing the bnb bit,
-It waits for all preconditions before clearing the bnb bit or times out.
+Use non jiffies based waiting functions,
+if in atomic context.
 
+Suggested-by: Andi Shyti <andi.shyti@kernel.org>
 Signed-off-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
 ---
- drivers/i2c/busses/i2c-xiic.c | 40 ++++++++++++++++++++++++++++-------
- 1 file changed, 32 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index ba560462d451..e68e17bdf0ba 100644
+index e68e17bdf0ba..fc9a0628cb67 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -233,6 +233,8 @@ static const struct timing_regs timing_reg_values[] = {
- #define XIIC_RESET_MASK             0xAUL
-
- #define XIIC_PM_TIMEOUT		1000	/* ms */
-+/* timeout waiting for bus busy */
-+#define XIIC_BB_TIMEOUT_US	1000
- /* timeout waiting for the controller to respond */
- #define XIIC_I2C_TIMEOUT	(msecs_to_jiffies(1000))
- /* timeout waiting for the controller finish transfers */
-@@ -394,6 +396,30 @@ static int xiic_wait_tx_empty(struct xiic_i2c *i2c)
- 	return 0;
+@@ -359,16 +359,28 @@ static inline void xiic_irq_clr_en(struct xiic_i2c *i2c, u32 mask)
+ 	xiic_irq_en(i2c, mask);
  }
 
-+static void xiic_clear_en_bnb(struct xiic_i2c *i2c)
++static int xiic_poll_rx_empty(struct xiic_i2c *i2c)
 +{
-+	u8 sr = 0, isr = 0;
-+	int ret;
++	if (xiic_getreg8(i2c, XIIC_SR_REG_OFFSET) &
++	    XIIC_SR_RX_FIFO_EMPTY_MASK)
++		return 1;
 +
-+	isr = xiic_getreg8(i2c, XIIC_IISR_OFFSET);
-+	if (!(isr & XIIC_INTR_BNB_MASK)) {
-+		xiic_irq_en(i2c, XIIC_INTR_BNB_MASK);
-+		return;
-+	}
-+
-+	ret = read_poll_timeout_atomic(xiic_getreg8, sr,
-+			sr & XIIC_SR_BUS_BUSY_MASK, 0, XIIC_BB_TIMEOUT_US, 0,
-+			i2c, XIIC_SR_REG_OFFSET);
-+
-+	if (ret) {
-+		dev_err(i2c->dev, "Failed to clear bnb\n");
-+		return;
-+	}
-+
-+	xiic_setreg8(i2c, XIIC_IISR_OFFSET, XIIC_INTR_BNB_MASK);
-+	xiic_irq_en(i2c, XIIC_INTR_BNB_MASK);
++	xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
++	return 0;
 +}
 +
- /**
-  * xiic_setclk - Sets the configured clock rate
-  * @i2c: Pointer to the xiic device structure
-@@ -883,9 +909,6 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
- 	}
+ static int xiic_clear_rx_fifo(struct xiic_i2c *i2c)
+ {
+-	u8 sr;
++	int rx_empty;
+ 	unsigned long timeout;
 
- 	if (pend & XIIC_INTR_BNB_MASK) {
--		/* IIC bus has transitioned to not busy */
--		clr |= XIIC_INTR_BNB_MASK;
--
- 		/* The bus is not busy, disable BusNotBusy interrupt */
- 		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
-
-@@ -1030,7 +1053,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
-
- 		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, val);
-
--		xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
-+		xiic_clear_en_bnb(i2c);
- 	} else {
- 		/*
- 		 * If previous message is Tx, make sure that Tx FIFO is empty
-@@ -1097,7 +1120,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
-
- 	if (i2c->nmsgs == 1)
- 		/* very last, enable bus not busy as well */
--		xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
-+		xiic_clear_en_bnb(i2c);
-
- 	/* the message is tx:ed */
- 	i2c->tx_pos = msg->len;
-@@ -1181,11 +1204,11 @@ static void xiic_start_send(struct xiic_i2c *i2c)
- 		/* Clear any pending Tx empty, Tx Error and then enable them */
- 		xiic_irq_clr_en(i2c, XIIC_INTR_TX_EMPTY_MASK |
- 				XIIC_INTR_TX_ERROR_MASK |
--				XIIC_INTR_BNB_MASK |
- 				((i2c->nmsgs > 1 || xiic_tx_space(i2c)) ?
- 				XIIC_INTR_TX_HALF_MASK : 0));
-
- 		xiic_fill_tx_fifo(i2c);
-+		xiic_clear_en_bnb(i2c);
- 	} else {
- 		/*
- 		 * If previous message is Tx, make sure that Tx FIFO is empty
-@@ -1227,8 +1250,9 @@ static void xiic_start_send(struct xiic_i2c *i2c)
-
- 		/* Clear any pending Tx empty, Tx Error and then enable them */
- 		xiic_irq_clr_en(i2c, XIIC_INTR_TX_EMPTY_MASK |
--				XIIC_INTR_TX_ERROR_MASK |
--				XIIC_INTR_BNB_MASK);
-+				XIIC_INTR_TX_ERROR_MASK);
++	if (i2c->atomic)
++		return read_poll_timeout_atomic(xiic_poll_rx_empty,
++				rx_empty, rx_empty, 10, XIIC_I2C_TIMEOUT,
++				0, i2c);
 +
-+		xiic_clear_en_bnb(i2c);
- 	}
+ 	timeout = jiffies + XIIC_I2C_TIMEOUT;
+-	for (sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
+-		!(sr & XIIC_SR_RX_FIFO_EMPTY_MASK);
+-		sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET)) {
+-		xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
++	while (!xiic_poll_rx_empty(i2c)) {
+ 		if (time_after(jiffies, timeout)) {
+ 			dev_err(i2c->dev, "Failed to clear rx fifo\n");
+ 			return -ETIMEDOUT;
+@@ -383,6 +395,12 @@ static int xiic_wait_tx_empty(struct xiic_i2c *i2c)
+ 	u8 isr;
+ 	unsigned long timeout;
 
- 	i2c->prev_msg_tx = true;
++	if (i2c->atomic)
++		return read_poll_timeout_atomic(xiic_getreg32, isr,
++				isr & XIIC_INTR_TX_EMPTY_MASK, 10,
++				XIIC_I2C_TIMEOUT, 0, i2c,
++				XIIC_IISR_OFFSET);
++
+ 	timeout = jiffies + XIIC_I2C_TIMEOUT;
+ 	for (isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
+ 		!(isr & XIIC_INTR_TX_EMPTY_MASK);
 --
 2.43.0
 
