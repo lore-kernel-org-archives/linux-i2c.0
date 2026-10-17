@@ -1,167 +1,156 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-b4-smtp.messagingengine.com (fhigh-b4-smtp.messagingengine.com [202.12.124.155])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB1A3C198A
-	for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 17:17:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792257473; cv=pass; b=KieVzBpNB8pX+3FLP8zjy5oiDzvKEkUp8fEWdCkcT3qbw3a2G++1fjjPVccLK276wpur0AebCSug5Q1Ucdc7FmaSXSeKn1pj1qJ2Erj6t76VU4yttX/UVcNV0Rb8mVhwfFmq/6p/lTmuB2QMxqYBYRsJ9YaxbaW+OXo8ScbdKfE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792257473; c=relaxed/simple;
-	bh=w2T8FHdfNF5NvbmlR5/foiz0hmQwj34PxDR30yrTsuA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BQdxnWbHm2R6cY7FCJE38pqHYMWfRfEPZacs6BKovoKOnIjAbGFISqkZ361gjnhDNEYQbK2emj5eTRg3buRabspQHHrIFd96FkaFJ7+xnRhDtnFEWC94IceOo12vIhpg+aJfpzYbwVgAyLPJSaeM3upvN7va8+WLR5cS+rkgpRw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nBH9I7To; arc=pass smtp.client-ip=74.125.82.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819593B19B9
+	for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 17:56:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.155
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792259775; cv=none; b=RrZFTZDGumuDhQoEKcPf2IdIufM+24qLoK9nvdCKPZHik3THdLQv4Y9HctKRwmHKrx4bDv+wwQ62l7UhqvppE2riAgAqEOld0yxzPV2Cn5sVo+aisWWbHyQxHLiMrdsvEVo6pwVMS8ujkiF9KHjpJMFA2EAL9+B1fghdyzesTIM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792259775; c=relaxed/simple;
+	bh=4O7SgwgSc1ovT5bBu1/dCBkpGeekHsczWI3Nb65As9c=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=eYQtlb3Zbz37Xrs0J8TwmFfqHTUq/vUxdmnWzlibnbNOHw/+vK8SlOzxMDkgpNKg5ly8Sb9Wj9OUolLY4PBsRDH5rV+CZsLJaptjqkES6xAxA/0cJfT2AUbwV5KdkP1kUyg2N6RqC6w1NUgpKwRJC+GxXPJP9Fg7NjrF8ZO9RGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=howett.net; spf=pass smtp.mailfrom=howett.net; dkim=pass (2048-bit key) header.d=howett.net header.i=@howett.net header.b=OWWVcwQA; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=eOE3Ah0B; arc=none smtp.client-ip=202.12.124.155
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=howett.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=howett.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nBH9I7To"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-35d7fa491deso1008196eec.1
-        for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 10:17:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792257471; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ewPLJX75ceWxPEvbfXtvmOgOi44/tiyJj1S6zNOQrdAZ3qGItYGyKKpAvqk/mKN1Ku
-         K4B2U/k87/3W4CG2GxBppEj33j+dC5B+0OZXtCdSuL6j08ol3BjdsAJ/uStWpHfDebXk
-         ih3axvXNQS2V9KQBW56ucB/YdHQ+K4uM/i8shp9J5HIF/nvDzCPkQKQg2ge8XVfG6V9f
-         rfTeKyo/P7lKy4MBkUQmqDIWuw+PD57z/23uD4fFQ9+QR8yPxcHXT9/4xVC2x522NyIk
-         R2YtKN6i1UN9nss+T83ZXb8mu+ZiOIljkgvpuUJArHiKegXb5LzvzkcuLyA/1AFJAaqB
-         KRKQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=w2T8FHdfNF5NvbmlR5/foiz0hmQwj34PxDR30yrTsuA=;
-        fh=+UpPlDL44FTrhvxSAgFAzxz2vyRfXeU58Ts02PWq4YE=;
-        b=ad/Alkvb/n6+2bN5aFf++/1xUUgYLB04/Q13BXWF24zqi32Z3bx6Iu0XE1tsOOkU7Y
-         2O1sAiJuRVnZWlqItgbTH8Hdqv4Wno9oD20A3wlV7BrySnW/AODGA4spGSV7pLJpPzuq
-         rq2Onf6UEiL4UuTSa4TvyUR3Y/2tTQyfd7VDxOYER+XCgoI9edCqfU7Uhmc3ouo2nRwI
-         OA0tWHIhvSXtCgxUvkYaXRmSlXH1ovoyDGJA4rINGh9xoH5AhQ5vEY32X0K2aN7ZOSoJ
-         Ta3TBKwkJNdC4rGE/olTdfKF+JR25Qeeqt+MMS2Tveee+zKPLy3XsU/j+51M65uJb2r+
-         USeg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792257471; x=1792862271; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=w2T8FHdfNF5NvbmlR5/foiz0hmQwj34PxDR30yrTsuA=;
-        b=nBH9I7ToBPazLmK4KOED9iC1+yglSlOE55oq0Uulb85R/fos9Gr7XiHZP6y5PqTPBX
-         eh71OlUqwhxhZXnJ9Fx2bbyP+kIUT5QRd98+ewhSvPlOtiK8Pw7KYu2LqHQe7E69OJaD
-         4SzH2wAJ4kD7jSbR6pCQWeehND/JWH1N6PiYTmhgQZd95ftKmO0Yx9Uu44q6AX7Jo0E0
-         MqnwxiVDeXFEDkgZG4tP+XZ/Jz2m/AyVsie76xAtda64h0IOuG0rkwgPolikbsEroU2D
-         LFK8fQJqKcsrS/Yk0bDjYDH9VNkWNH1Qdf5LS/Z3tZUOoGU6epxkEkuexeD9SIqz4M8D
-         wXtg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792257471; x=1792862271;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=w2T8FHdfNF5NvbmlR5/foiz0hmQwj34PxDR30yrTsuA=;
-        b=YvXrYs7gYTp+7kwZFGcjJ8lqFarQoYuR40kDuOQ/gqV89IBbMkG3gXQJt2q7Fdtqv7
-         sDNi0wWOREINndFHrPr3t0WIp2eLXhV04cIVMoIC3N4LqTgk0fBfLDw8S70JDbCMt+n4
-         pQoVwlQp4TvEvS549cIgKNHioiSoB5+l0wXzfxJERO6+hqkfYW96aI7lZPoh5aSqDsba
-         b6RsMYiomxvmtudh1MHo25/yRYBDpnjejkqkM9rQO6Bq7jMyX4YWoWb7cc6WnsT1nWRv
-         tcpDIpGG0/60czCgfM3qZn9zXpqK6VVCIdLBNn/sgXlkMN//uRyBUeyF5510AYFrKQDO
-         hG3w==
-X-Forwarded-Encrypted: i=1; AKwUvBw9gVGCZ470pIwdlpyjlgoHIaRbbkcqes3xGA7KHePg63ZEzlIXYMAoUIEFMeuKZkZP5bcZBe55yQ4=@vger.kernel.org
-X-Gm-Message-State: AFq9FYIYA3YSwBqca9ndyxlpfDaTqI4RVWCZokXLQg8RvqWRmI+Jf0SS
-	KY2qqDVUklsYqG9FT9PcxkArFYxSy8MgbZE80Z6HDw56j8YYVsGr6cK2hV+F4qAq5DKXOrCcmp7
-	X8Qjk+IEbswQQF7T9L27xaD+BvIsp4qw=
-X-Gm-Gg: AYBFou0lPxD/tdBOHgsS8w9RytzNjozuLrvsW/z343dcKaTwZZsK+PnI3bgKhgP7xXC
-	vZU6+wgLBmLTT+WKYPrjPwxd5CXlC+2P5NcO49oNqTTCRLezwl63U6ERnjHOkFAgvZ1FqiiUvrR
-	fEAM6qLIO9csCde3JPxV+SIiyjWblrL7GqDQ3pWJjLVzMY78RlwYcEpnluLeFiV9iMg7QHdWt0J
-	lpq6GoAa+8fAl837Qv2DbobFZrLaJkKm2KuQIb5isNeqs5HfN7AzPOhpKvwfW1t0okgETAmdOOU
-	zkhHf4vOxVfquLwTUlG9CPENtRrKGwbs+LblB0ntL7Vl5hMmtbULaTX3BUJ422YFP97Uk1doQL/
-	mP01Vl6HMWKZw
-X-Received: by 2002:a05:693c:42d2:b0:34b:3f7d:6105 with SMTP id
- 5a478bee46e88-3602e3a6861mr7547000eec.14.1792257471057; Sat, 17 Oct 2026
- 10:17:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=howett.net header.i=@howett.net header.b="OWWVcwQA";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="eOE3Ah0B"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 0746E7A00EB
+	for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 13:56:13 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Sat, 17 Oct 2026 13:56:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=howett.net; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm2; t=1792259772; x=1792346172; bh=M9
+	JisLx10fezWwjt78ZTS8jo4wd2o0/pzRfhX2E0P6E=; b=OWWVcwQA9BqreaR5Xq
+	iQ7zIzwLm57xPfw+XGLKs+WlyEYS4eSPI2pKJOeG8Qj/e95Lwp1db9IC8WEakpge
+	h1Mq4Vabu3Dzs+pq8gnGjArw+TbDSr0LL7u5uK2m8TT8anR66RCZoNuub43MazIP
+	5uAyOMQiBeRuTnh/eiZ3o1Bt1o1+sAUk4b55dROZon7pNCTJ49X/9eR/MHQ9VpPP
+	EYctRiOyGttoH9Z5t1IEJQRuIFZYwsb01LjRZH3pR1Ag/8EeA+zQhgryZ8SN2vs7
+	LNRR2xySE5cQk+kz9ada2eDLzkq9j0uvZ87gOg3BSq3S/qYTxJrSpFTuKnrGDdGt
+	Nnmw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm2; t=1792259772; x=1792346172; bh=M9JisLx10fezWwjt78ZTS8jo4wd2
+	o0/pzRfhX2E0P6E=; b=eOE3Ah0Bq3f1jtOixDO0pWs/NsAj6aMDNIPosJPHPd+D
+	njHT+jvuPxWEHhcxNAmQTm+vYje4N+qJ4dYpKtIxZkzNliH+FD0c1qkjnEqkv9K7
+	aCxsTKJ5LbYPD3mg7KcbZbyrxPVZ3z1IwE6r5qgJTuheU5v45DnhCtY2+tmwAG64
+	7Y0Q0FWPcPI7ghBP1HDcbaZgu4132af6L3eDfGlWVK4NDhoJchhKnvBk6dkciODR
+	jq3GB2SaNFBnW5FoDZ1Wg1FFj64Zw+fBFE3d5Azo4uB1Nx0+1M+WF/0US5Unjd2Y
+	NjZBEhe6BfqwTyFY2nZJ50CdBeA3Evc31Vx5XJG2eA==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-10-08; sw=lmtpprox;
+	action=sign d=howett.net a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1792259772; d=howett.net;
+	mf=PGR1c3RpbkBob3dldHQubmV0Pg==;
+	rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
+	s=fm2:rsa-sha256:mC8XFNz796XApHYx1gkEVczNH8gYvrdXpxnri3rt0MhnyOs
+	/pCBiOa9c8+0gNLlAL6HIdVUp8+KzzSu1wIcAW3W1DosQUextOmIwV6XXm5gafYM
+	92SiXPG8uhjcMlnUj4jEIMgrltkRb3kflhYYbnIdBQcNiVzSWFGg2n8BbGbZu3ez
+	CaRi8kMjB7Kuv9M1rwK6JzPiWN32QF3Vrw6mgrHHXKawdinpq2MM8Z5gNXgC70z8
+	VWHRzY9bO2blFCC/YokbF8CVnOxI3yadWdBYAMThP2bWcnw1vPq8cu4YIF0B3tNB
+	im+9IyHksEJoUtDox0LBL2F11JcltFQZwe2/rPg==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-10-08; sw=lmtpprox;
+	action=mi-m=1; hc=10;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,message-id,mime-version,subject,to;
+Message-Instance: m=1; h=sha256:DQK1GDn24eIz1fxeuU2yFXbym7aVlf8m1O1XgL/tx3k=:4O7SgwgSc1ovT5bBu1/dCBkpGeekHsczWI3Nb65As9c=;
+X-ME-Sender: <xms:vLbTalELNrEh_8V7eE9Bw_KOi4vxZOZRkVAFgmnTqnGAR7xv6RzNeA>
+    <xme:vLbTajoHx5Jrj0OEX1w1eDU_U8lnVNZH2w5B010tjReGeJS6NJ43vTkJ_wKynuC9T
+    FmlAlSBomJHrb9GVm_5NeuOUasdktYKSfKOwuWATbFz5g_YHP0XKA>
+X-ME-Received: <xmr:vLbTaub-Kau1ZmWhAGIWjzr1uxFqvlZHRX5YltJoCVYZEQHGs9Tvk6GX0fgEnOvUuhc3QF9HT40U0a87e6I5EYjD7MzwsTFD2ARK9U68irR5bbFYs2Q>
+X-ME-Proxy-Cause: dmFkZTFYebHspQRS9ORtrwYbR9zBGb4K6FX0HcEwTm6Lk+Q7kDDb4EYH2LB65nwuPGGWva
+    wh4F9CgHudNmoSv9S3OkdLZAAbc35D3NcpH2x/TQ2CMpifpmlvD0x1Fqp7Lgn6WVKeEn+/
+    OLhCXXc5yWh8R27t/5FcZ4zbqoki8EITp9TQKuG314mnESW7atkh/zPT8YyzuYweLcjwWL
+    eH7VVoUWotOkQxxM5JjiMvNtnyGDlXiU4MwDLU2HhmwX9FF8v/YYDPjKtylHZ+/RnZB8lq
+    GoAFEugaHPWPEoXkGx3ot7SlZq99aiJ+gG2IWp7SoX12sHeYLqktK544uV3pO6ngeI+xpv
+    eiaQPo153WWclGnjJU5T1kkwBDeWb2fwAUtygun8LmIBd2cM5xW1kj4IRxIA/ltlR83aKT
+    1glwgT6FJTofIna+VcLopqg7iRtded1bMPoM2DuDw/LwLdADqYFriGcx8qsaw2ewxvxWVt
+    J08Vczl4ZiXjR5Cj4aN8sTeSCJIEcvnHhuzkEuhIIzh87OezZ0EKFCbcGp1/wmJsDjefxc
+    eQQxHlv9dpnbxP2+xUH9l2rhbmpYpzhF3yUrg2HlRCxRczhuHl8t/0gNoSMdozdygtmsEw
+    2mpsOsx5VKnRnKXndzsFaGtcwFeytAYT3/pF3z2IsK+C+jB4bs+1pH5Sf4ag
+X-ME-Proxy: <xmx:vLbTasVKHJv17ckSa4P1dG3_aFT8aP-60QGWvHNHQvMKv9EsPrS7HQ>
+    <xmx:vLbTan9K3UcjW89sGn_NYuLBpm_LQlKl2xkFPm70aWyFvVpRFEQFuA>
+    <xmx:vLbTal_WCDgNWuLVOtco0CNUozw3Agyp-QNp37mZBwWZUKDeRJVPsg>
+    <xmx:vLbTanR8NLl9ejE4i2qNvIUVcpX6QwZfWV3eWkdJd5TctSCAZOTtYw>
+    <xmx:vLbTav8kwtSD49BZ8OGLpXBRsMGKw8D1NCg15w43d39bswT6N2RiV7c3>
+Feedback-ID: i32264b73:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 17 Oct 2026 13:56:11 -0400 (EDT)
+From: "Dustin L. Howett" <dustin@howett.net>
+Date: Sat, 17 Oct 2026 12:56:04 -0500
+Subject: [PATCH] i2c-tiny-usb: add support for the Oops Electronics SFP
+ Media Buddy
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20251013060018.43851-1-clamor95@gmail.com> <w3bn5bqxqjhf4uvxov47rwlvmnbic6xnlk25xbpnbmi2eyup7q@tjuiu7pl3mmo>
- <CAPVz0n1-jN5WLFq4e0CZrneExrN_A=GNeGTwGHTCj14NAta+jQ@mail.gmail.com>
- <aPCfiJxyKOXsgNJe@shikoro> <20251021132529.GA4133357-robh@kernel.org>
-In-Reply-To: <20251021132529.GA4133357-robh@kernel.org>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Sat, 17 Oct 2026 20:17:39 +0300
-X-Gm-Features: AclHuK8PuqDaMJH61jp9QkgVw3Jnjuhi4eCGIeZsSWyWbl9ymhpiZkdInIAvvRk
-Message-ID: <CAPVz0n3jt04xEwGr1aiDTJ7OonYYgOy3QneteLXgdGruXGMP_A@mail.gmail.com>
-Subject: Re: [PATCH v1 0/2 RESEND] i2c: muxes: Add GPIO-detected hotplug I2C
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, Luca Ceresoli <luca@lucaceresoli.net>, 
-	Herve Codina <herve.codina@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Peter Rosin <peda@axentia.se>, 
-	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	=?UTF-8?Q?Jonas_Schw=C3=B6bel?= <jonasschwoebel@yahoo.de>, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261017-i2c-oops-electronics-v1-1-ce960f8f1b7a@howett.net>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQqDMBBA0avIrB1IItG2V5EuNJm2I5JIxoog3
+ t2oy7f4fwOhxCTwKjZItLBwDBm6LMD9uvAlZJ8NRplaK90gG4cxToI0kptTDOwErfdVbZ/Nw/g
+ Ocjol+vB6bdv3bfn3Qw7OF+z7AZUZc414AAAA
+X-Change-ID: 20261017-i2c-oops-electronics-5dd3659782da
+To: Till Harbaum <till@harbaum.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Whinis <whinis@whinis.com>, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, "Dustin L. Howett" <dustin@howett.net>
+X-Mailer: b4 0.16.0
 
-=D0=B2=D1=82, 21 =D0=B6=D0=BE=D0=B2=D1=82. 2025=E2=80=AF=D1=80. =D0=BE 16:2=
-5 Rob Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Thu, Oct 16, 2025 at 09:32:24AM +0200, Wolfram Sang wrote:
-> > Hi Svyatoslav,
-> >
-> > > Herve and Luca did not come up with anything meaningful, they provide=
-d
-> > > just a few rough ideas. It will take an inconsiderate amount of time
-> >
-> > Well, IIRC they said that your use case can be mapped onto their
-> > approach. Which is meaningful in my book.
-> >
-> > > before there will be any consensus between them and schema
-> > > maintainers, and even more time would be requited to settle this into
-> > > schemas and implement into drivers. Why should I suffer from this? Wh=
-y
-> > > should changes I need be halted due to some incomplete 'ideas'? This
-> > > driver uses existing i2c mux framework and fits into it just fine.
-> >
-> > I am sorry to bring you bad news, but you need to suffer because this i=
-s
-> > how development goes. If I get presented a generic solution (see Herve'=
-s
-> > mail) and a specific solution (your driver), for this case I as a
-> > maintainer will prefer the generic solution. Generic solutions need mor=
-e
-> > time because there are more things to handle, of course. This is typica=
-l
-> > for development, I would say, it is not Linux or Free Software specific=
-.
-> >
-> > I appreciate that you tackled your issue and were open to share it with
-> > the community. I see the work being done there. However, there are so
-> > many things going on independently that I can't really prevent double
-> > development from happening despite it having a high priority for me. As
-> > soon as I get aware of people working on similar issues, I connect them=
-.
-> > That's what I did here as well.
-> >
-> > So, if you want upstream supported I2C hot-plugging, you need to wait
-> > for Luca's and Herve's work being accepted. Or provide a superior
-> > solution. Or, if you want, join the ride. You already have experience i=
-n
-> > this field (and hardware plus use case), you would be a very welcome
-> > contributor, I would say.
->
-> Agreed.
->
-> What really slows things down is when there is only 1 user of a new
-> binding. Too many times have I accepted one only for the 2nd user to
-> show up right after accepting it and wanting something different. So
-> now I just require more than 1 user and it is on the submitter(s) to do
-> that. After all, it is their itch, not mine.
->
-> Rob
+The Oops Electronics "SFP Media Buddy" is an open-source USB device that
+provides i2c access, among other things, to a SFP+ network module.
 
-Hello there!
+It exposes a vendor protocol which is compatible with the i2c-tiny-usb
+kernel module. Due to a bug in prior firmware versions, that protocol
+can only be used with devices reporting bcdDevice >= 0x0101[^2].
 
-Were there any advancements with i2c-bus-extension so that I could
-finally configure and make my tablet work? Could anyone point me in
-the right direction? Thanks.
+[^1]: https://oopselectronics.com/product/SFPB and
+      https://gitlab.whinis.com/oops-electronics/sfp-media-buddy
+
+[^2]: Devices without the fix will crash and drop off the bus when this
+      module is loaded, which prevents them from being updated.
+
+---
+Signed-off-by: Dustin L. Howett <dustin@howett.net>
+---
+ drivers/i2c/busses/i2c-tiny-usb.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index 73355a56aabf..92a2633a028e 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -162,6 +162,15 @@ static const struct i2c_algorithm usb_algorithm = {
+ static const struct usb_device_id i2c_tiny_usb_table[] = {
+ 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+ 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
++	{
++		/* OopsElectronics SFP Media Buddy v1.01+ */
++		.match_flags = USB_DEVICE_ID_MATCH_VENDOR |
++			USB_DEVICE_ID_MATCH_PRODUCT | USB_DEVICE_ID_MATCH_DEV_LO,
++		.idVendor = 0xc2f9,
++		.idProduct = 0x0004,
++		.bcdDevice_lo = 0x0101
++	},
++
+ 	{ }                               /* Terminating entry */
+ };
+ 
+
+---
+base-commit: 58161ead29e50d70a317ea26b472e0c7508e69da
+change-id: 20261017-i2c-oops-electronics-5dd3659782da
+
+Best regards,
+--  
+Dustin L. Howett <dustin@howett.net>
+
