@@ -1,93 +1,75 @@
-Received: from fhigh-b4-smtp.messagingengine.com (fhigh-b4-smtp.messagingengine.com [202.12.124.155])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819593B19B9
-	for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 17:56:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.155
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 237B036495F
+	for <linux-i2c@vger.kernel.org>; Sun, 18 Oct 2026 03:35:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792259775; cv=none; b=RrZFTZDGumuDhQoEKcPf2IdIufM+24qLoK9nvdCKPZHik3THdLQv4Y9HctKRwmHKrx4bDv+wwQ62l7UhqvppE2riAgAqEOld0yxzPV2Cn5sVo+aisWWbHyQxHLiMrdsvEVo6pwVMS8ujkiF9KHjpJMFA2EAL9+B1fghdyzesTIM=
+	t=1792294523; cv=none; b=J2p0JYWWqQd963fJkb210M/yqNPsqhYhWIe1T9wW3hy9HPi2kbBENzUBjO4UKk2x6dJ3Ydss1zZQn7ybLhnpuItoZp0C6TuOE5vVosO5zT9DuEdnFJkMslDZGmrwd4TKOhnT4iB2YH33ivMq2XEWouYBZIzMzmA64WAZGVz/4n0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792259775; c=relaxed/simple;
-	bh=4O7SgwgSc1ovT5bBu1/dCBkpGeekHsczWI3Nb65As9c=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=eYQtlb3Zbz37Xrs0J8TwmFfqHTUq/vUxdmnWzlibnbNOHw/+vK8SlOzxMDkgpNKg5ly8Sb9Wj9OUolLY4PBsRDH5rV+CZsLJaptjqkES6xAxA/0cJfT2AUbwV5KdkP1kUyg2N6RqC6w1NUgpKwRJC+GxXPJP9Fg7NjrF8ZO9RGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=howett.net; spf=pass smtp.mailfrom=howett.net; dkim=pass (2048-bit key) header.d=howett.net header.i=@howett.net header.b=OWWVcwQA; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=eOE3Ah0B; arc=none smtp.client-ip=202.12.124.155
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=howett.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=howett.net
+	s=arc-20240116; t=1792294523; c=relaxed/simple;
+	bh=uVe06ph1k3Llybni+lMeg6xSZx4jOd56Z9/GOX96LFg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=hn6k2o5UztIE79sA4tHNbA/AItyyWUdqOfK9wp4iWN+hsfqlut0etsb9MwUFqrHcD4gMxLlptRje/p7q2JY83/Ou33JDpc3GLyfudy7hUuwVwJjpULsFPTFHUSq9+tK7xG9oUbfsVQk+4O43rTemwhTRxZcl+eGRwyQZpyHLRTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jaqZd1dD; arc=none smtp.client-ip=209.85.219.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=howett.net header.i=@howett.net header.b="OWWVcwQA";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="eOE3Ah0B"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 0746E7A00EB
-	for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 13:56:13 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Sat, 17 Oct 2026 13:56:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=howett.net; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:message-id:mime-version:reply-to
-	:subject:subject:to:to; s=fm2; t=1792259772; x=1792346172; bh=M9
-	JisLx10fezWwjt78ZTS8jo4wd2o0/pzRfhX2E0P6E=; b=OWWVcwQA9BqreaR5Xq
-	iQ7zIzwLm57xPfw+XGLKs+WlyEYS4eSPI2pKJOeG8Qj/e95Lwp1db9IC8WEakpge
-	h1Mq4Vabu3Dzs+pq8gnGjArw+TbDSr0LL7u5uK2m8TT8anR66RCZoNuub43MazIP
-	5uAyOMQiBeRuTnh/eiZ3o1Bt1o1+sAUk4b55dROZon7pNCTJ49X/9eR/MHQ9VpPP
-	EYctRiOyGttoH9Z5t1IEJQRuIFZYwsb01LjRZH3pR1Ag/8EeA+zQhgryZ8SN2vs7
-	LNRR2xySE5cQk+kz9ada2eDLzkq9j0uvZ87gOg3BSq3S/qYTxJrSpFTuKnrGDdGt
-	Nnmw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
-	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1792259772; x=1792346172; bh=M9JisLx10fezWwjt78ZTS8jo4wd2
-	o0/pzRfhX2E0P6E=; b=eOE3Ah0Bq3f1jtOixDO0pWs/NsAj6aMDNIPosJPHPd+D
-	njHT+jvuPxWEHhcxNAmQTm+vYje4N+qJ4dYpKtIxZkzNliH+FD0c1qkjnEqkv9K7
-	aCxsTKJ5LbYPD3mg7KcbZbyrxPVZ3z1IwE6r5qgJTuheU5v45DnhCtY2+tmwAG64
-	7Y0Q0FWPcPI7ghBP1HDcbaZgu4132af6L3eDfGlWVK4NDhoJchhKnvBk6dkciODR
-	jq3GB2SaNFBnW5FoDZ1Wg1FFj64Zw+fBFE3d5Azo4uB1Nx0+1M+WF/0US5Unjd2Y
-	NjZBEhe6BfqwTyFY2nZJ50CdBeA3Evc31Vx5XJG2eA==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
-	repo=github.com/dkim2wg/interop; date=2026-10-08; sw=lmtpprox;
-	action=sign d=howett.net a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1792259772; d=howett.net;
-	mf=PGR1c3RpbkBob3dldHQubmV0Pg==;
-	rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
-	s=fm2:rsa-sha256:mC8XFNz796XApHYx1gkEVczNH8gYvrdXpxnri3rt0MhnyOs
-	/pCBiOa9c8+0gNLlAL6HIdVUp8+KzzSu1wIcAW3W1DosQUextOmIwV6XXm5gafYM
-	92SiXPG8uhjcMlnUj4jEIMgrltkRb3kflhYYbnIdBQcNiVzSWFGg2n8BbGbZu3ez
-	CaRi8kMjB7Kuv9M1rwK6JzPiWN32QF3Vrw6mgrHHXKawdinpq2MM8Z5gNXgC70z8
-	VWHRzY9bO2blFCC/YokbF8CVnOxI3yadWdBYAMThP2bWcnw1vPq8cu4YIF0B3tNB
-	im+9IyHksEJoUtDox0LBL2F11JcltFQZwe2/rPg==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
-	repo=github.com/dkim2wg/interop; date=2026-10-08; sw=lmtpprox;
-	action=mi-m=1; hc=10;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,message-id,mime-version,subject,to;
-Message-Instance: m=1; h=sha256:DQK1GDn24eIz1fxeuU2yFXbym7aVlf8m1O1XgL/tx3k=:4O7SgwgSc1ovT5bBu1/dCBkpGeekHsczWI3Nb65As9c=;
-X-ME-Sender: <xms:vLbTalELNrEh_8V7eE9Bw_KOi4vxZOZRkVAFgmnTqnGAR7xv6RzNeA>
-    <xme:vLbTajoHx5Jrj0OEX1w1eDU_U8lnVNZH2w5B010tjReGeJS6NJ43vTkJ_wKynuC9T
-    FmlAlSBomJHrb9GVm_5NeuOUasdktYKSfKOwuWATbFz5g_YHP0XKA>
-X-ME-Received: <xmr:vLbTaub-Kau1ZmWhAGIWjzr1uxFqvlZHRX5YltJoCVYZEQHGs9Tvk6GX0fgEnOvUuhc3QF9HT40U0a87e6I5EYjD7MzwsTFD2ARK9U68irR5bbFYs2Q>
-X-ME-Proxy-Cause: dmFkZTFYebHspQRS9ORtrwYbR9zBGb4K6FX0HcEwTm6Lk+Q7kDDb4EYH2LB65nwuPGGWva
-    wh4F9CgHudNmoSv9S3OkdLZAAbc35D3NcpH2x/TQ2CMpifpmlvD0x1Fqp7Lgn6WVKeEn+/
-    OLhCXXc5yWh8R27t/5FcZ4zbqoki8EITp9TQKuG314mnESW7atkh/zPT8YyzuYweLcjwWL
-    eH7VVoUWotOkQxxM5JjiMvNtnyGDlXiU4MwDLU2HhmwX9FF8v/YYDPjKtylHZ+/RnZB8lq
-    GoAFEugaHPWPEoXkGx3ot7SlZq99aiJ+gG2IWp7SoX12sHeYLqktK544uV3pO6ngeI+xpv
-    eiaQPo153WWclGnjJU5T1kkwBDeWb2fwAUtygun8LmIBd2cM5xW1kj4IRxIA/ltlR83aKT
-    1glwgT6FJTofIna+VcLopqg7iRtded1bMPoM2DuDw/LwLdADqYFriGcx8qsaw2ewxvxWVt
-    J08Vczl4ZiXjR5Cj4aN8sTeSCJIEcvnHhuzkEuhIIzh87OezZ0EKFCbcGp1/wmJsDjefxc
-    eQQxHlv9dpnbxP2+xUH9l2rhbmpYpzhF3yUrg2HlRCxRczhuHl8t/0gNoSMdozdygtmsEw
-    2mpsOsx5VKnRnKXndzsFaGtcwFeytAYT3/pF3z2IsK+C+jB4bs+1pH5Sf4ag
-X-ME-Proxy: <xmx:vLbTasVKHJv17ckSa4P1dG3_aFT8aP-60QGWvHNHQvMKv9EsPrS7HQ>
-    <xmx:vLbTan9K3UcjW89sGn_NYuLBpm_LQlKl2xkFPm70aWyFvVpRFEQFuA>
-    <xmx:vLbTal_WCDgNWuLVOtco0CNUozw3Agyp-QNp37mZBwWZUKDeRJVPsg>
-    <xmx:vLbTanR8NLl9ejE4i2qNvIUVcpX6QwZfWV3eWkdJd5TctSCAZOTtYw>
-    <xmx:vLbTav8kwtSD49BZ8OGLpXBRsMGKw8D1NCg15w43d39bswT6N2RiV7c3>
-Feedback-ID: i32264b73:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 17 Oct 2026 13:56:11 -0400 (EDT)
-From: "Dustin L. Howett" <dustin@howett.net>
-Date: Sat, 17 Oct 2026 12:56:04 -0500
-Subject: [PATCH] i2c-tiny-usb: add support for the Oops Electronics SFP
- Media Buddy
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jaqZd1dD"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-91b89c6caffso8285736d6.2
+        for <linux-i2c@vger.kernel.org>; Sat, 17 Oct 2026 20:35:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792294521; x=1792899321; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Jo+tzeeZkBh4RG0xMA+gejZb3NXKmCwEGSYhVavfNxk=;
+        b=jaqZd1dD3ekx3Y/lZc6tlO6oBw9eeomgmN8XNuFuKuUKK1lG/5bfGKz54Qh8iJpPk/
+         ygH7ZZ/njk2nAvOtp6Zx9H68us5jUGCggQcaaOUrD+40Sl4O5HzKUGqyydvjJbdNrJPG
+         lXVwNelDrWDXWGb80/RdA2XOjYerN8kHPRauHax33bFZsMVx0f/y8T0QaJ5QcNL8h8ph
+         Xb0UMJhrpdJnx9OIhv6cMIINtqIqn8AlVenI6wurc0hu4fcoJouuiRr5XwscNJpa3QOu
+         p+2ZItx6oyY2TmDd7krzYbvo0u1k4MiSmRVzxVD3yjSSzl39LdFkZyPjJ8FzoGx1zpkq
+         N0tQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792294521; x=1792899321;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Jo+tzeeZkBh4RG0xMA+gejZb3NXKmCwEGSYhVavfNxk=;
+        b=h1DtEW+w5oeQfotPoplGPxEUSgCr/iY0UhtRFbhAicffhWysux297rIPY9E2Ykmr8f
+         uZ19O5Xd1A5UlP7IuUjaGBAb7x7/msZNcOuEcK5MeKZjIhASE5PuEuU8xUTZPW1ViZaB
+         fm9bCPFRiM/1OzdJ5ZRJIgFXIivJyy+Jq/AONZsxHMJLqeFD+6Bv8MTREs/eFOA7K2dA
+         mR+WgvUCCGoj7+Ij0ZoZUcRIjTwUo6Jg6pTVnuFreqwmArUDoCxy7R8R8D4KJzLiHGPc
+         bd/k4JUf5OHQv9baSAPWOSvAy22fNaWoQuZFA5LtA5QgLhxsel6ZkT2kPVlnhFBKpwch
+         WdrA==
+X-Forwarded-Encrypted: i=1; AKwUvBxog6V1efWxP6dcPokMiENfoLDKeAMQ+1c/ttcxLjlF11JPQgp+CGrcfNtYfqLOQ7L+AB9Wpb5DkLg=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKt2y8Ge2pILJPIglmFATVNvF3UlMVi3b+Q6Kdv42bIu20rZvzC
+	F8Q31tRg108tb08/SfTj5wN0x3Zfi4HFujZDCjsYKNU3CVvNOJCPvew=
+X-Gm-Gg: AYBFou26IRzp+OdyjCHzuueJc1CYEkqm4K7FGsHCoiASkq6p+sONwc71O90AtQF14Uc
+	+5trdvFuXr4jH9mzZB+bLAxW4VFwF0YUJlSbqsHCm9bqBmwG4bmQ6eITPlopy70UjcbhegMVhPu
+	9Af8XDGGWICQ8DybxkxVdr3RBfZGnznQ9WU0+aFpbpC5pbsf/Vs2fzVI+2r7AIoQT4cKDlrIy99
+	wnT+triiaclSmM3Mm2ARnRtiHz8dlxdTxTmhL6gL17mB4yz8mJL50AWlqwnV6yTm2dnORFRpZX+
+	3DK0OCn403lqZyfvMU6uk/pOOl1dFUpwqfwT0NCCBLURPXoRxmjod9+T/SJ2SUPahjL0+8ZRUsY
+	p9fWb2i9SG+My5jg6tqCCQbX5/Igq0vyxMfE5kiF9wYv2iwMq1vmGr7C+pDM1PhjJf9e50OyEou
+	VE3zJL2HB5mzhuDwA9Dg2jWCXc3MHCE1kk3ZgGCpQU67bKFloQ10H9hC3GTukJOdnKVdL9ZBqvf
+	QznLitT05802T/ZJYxHHX/KdMkhZb8nJI4Vzx+ikpjHqMOG94OB1WPA9bIquslDJ/0DURopRW9X
+	WnouWTemu8yTQqRS7JkJrmF7uiuj
+X-Received: by 2002:a05:6214:451c:b0:91b:8d12:bac9 with SMTP id 6a1803df08f44-91bde9285c2mr73080246d6.0.1792294521002;
+        Sat, 17 Oct 2026 20:35:21 -0700 (PDT)
+Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91bcbaa841asm62175456d6.18.2026.10.17.20.35.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 17 Oct 2026 20:35:19 -0700 (PDT)
+From: Myeonghun Pak <mhun512@gmail.com>
+To: wsa+renesas@sang-engineering.com,
+	andi.shyti@kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	ae878000@gmail.com
+Subject: [PATCH] i2c: sh_mobile: request IRQs after mapping registers
+Date: Sat, 17 Oct 2026 23:35:16 -0400
+Message-ID: <20261017233416.47b09ffff48f.i2c-sh-mobile@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -95,62 +77,59 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261017-i2c-oops-electronics-v1-1-ce960f8f1b7a@howett.net>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQqDMBBA0avIrB1IItG2V5EuNJm2I5JIxoog3
- t2oy7f4fwOhxCTwKjZItLBwDBm6LMD9uvAlZJ8NRplaK90gG4cxToI0kptTDOwErfdVbZ/Nw/g
- Ocjol+vB6bdv3bfn3Qw7OF+z7AZUZc414AAAA
-X-Change-ID: 20261017-i2c-oops-electronics-5dd3659782da
-To: Till Harbaum <till@harbaum.org>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Whinis <whinis@whinis.com>, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, "Dustin L. Howett" <dustin@howett.net>
-X-Mailer: b4 0.16.0
+Content-Transfer-Encoding: 8bit
 
-The Oops Electronics "SFP Media Buddy" is an open-source USB device that
-provides i2c access, among other things, to a SFP+ network module.
+The managed IRQ handlers are acquired before the managed register
+mapping, so devres unmaps the registers before freeing the IRQs. A
+transfer wakes its waiter before the ISR's final register read, and
+unregistering the adapter does not synchronize these IRQs. An in-flight
+handler can therefore still access the mapping when it is released
+during driver detach.
 
-It exposes a vendor protocol which is compatible with the i2c-tiny-usb
-kernel module. Due to a bug in prior firmware versions, that protocol
-can only be used with devices reporting bcdDevice >= 0x0101[^2].
+With forced-threaded IRQs, the handler can be preempted after waking the
+transfer waiter and before its final ICSR read.
 
-[^1]: https://oopselectronics.com/product/SFPB and
-      https://gitlab.whinis.com/oops-electronics/sfp-media-buddy
+Map the registers before requesting the IRQs so that managed cleanup
+frees and synchronizes all handlers before unmapping their registers.
+Keep IRQs available while unregistering the adapter because client
+removal may perform transfers.
 
-[^2]: Devices without the fix will crash and drop off the bus when this
-      module is loaded, which prevents them from being updated.
+This issue was identified as part of our ongoing research while
+reviewing kernel code.
+
+Fixes: 7fe8a9993337 ("i2c: sh_mobile: devm conversion, irq setup")
+Co-developed-by: Ijae Kim <ae878000@gmail.com>
+Signed-off-by: Ijae Kim <ae878000@gmail.com>
+Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
 
 ---
-Signed-off-by: Dustin L. Howett <dustin@howett.net>
----
- drivers/i2c/busses/i2c-tiny-usb.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Compile-tested with Clang, W=1. No hardware runtime testing.
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 73355a56aabf..92a2633a028e 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -162,6 +162,15 @@ static const struct i2c_algorithm usb_algorithm = {
- static const struct usb_device_id i2c_tiny_usb_table[] = {
- 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
- 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
-+	{
-+		/* OopsElectronics SFP Media Buddy v1.01+ */
-+		.match_flags = USB_DEVICE_ID_MATCH_VENDOR |
-+			USB_DEVICE_ID_MATCH_PRODUCT | USB_DEVICE_ID_MATCH_DEV_LO,
-+		.idVendor = 0xc2f9,
-+		.idProduct = 0x0004,
-+		.bcdDevice_lo = 0x0101
-+	},
-+
- 	{ }                               /* Terminating entry */
- };
+Based on mainline 0fcb05b72344f40806cbe810de8872f1698bf053.
+
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index dae8967..3a55f80 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -880,10 +880,6 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 		return PTR_ERR(pd->clk);
+ 	}
  
-
----
-base-commit: 58161ead29e50d70a317ea26b472e0c7508e69da
-change-id: 20261017-i2c-oops-electronics-5dd3659782da
-
-Best regards,
---  
-Dustin L. Howett <dustin@howett.net>
-
+-	ret = sh_mobile_i2c_hook_irqs(dev, pd);
+-	if (ret)
+-		return ret;
+-
+ 	pd->dev = &dev->dev;
+ 	platform_set_drvdata(dev, pd);
+ 
+@@ -891,6 +887,10 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	if (IS_ERR(pd->reg))
+ 		return PTR_ERR(pd->reg);
+ 
++	ret = sh_mobile_i2c_hook_irqs(dev, pd);
++	if (ret)
++		return ret;
++
+ 	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
+ 	pd->bus_speed = (ret || !bus_speed) ? I2C_MAX_STANDARD_MODE_FREQ : bus_speed;
+ 	pd->clks_per_count = 1;
