@@ -1,63 +1,91 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from out-2z4y-a139.jellyfish.systems (out-2z4y-a139.jellyfish.systems [198.54.127.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E80381E8C;
-	Sun, 18 Oct 2026 19:06:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3F6430CCE
+	for <linux-i2c@vger.kernel.org>; Sun, 18 Oct 2026 19:48:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.54.127.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792350405; cv=none; b=sL0USXxPPEneTg8iHMtAbNTYIWVl9veV/zcpjZsztfT6vJBWKZuvCUSOuso/r93xEI3l/mzzFsV1USSL8FqRddM3PS4lWk3olaW6nXGxYqm24hFc5qN8GOGRc9fgcikBN0ntcWbdv+WMlnurej6qGCoKFTPb6IHagd+rbdeaL7s=
+	t=1792352932; cv=none; b=Zda4lvNwMzxyUorkgnsQmR47W7l8wT2hgFg4leYggnu9YWfwJ2QCuJJfDrBH7RwdKp9IK4vSgluabfBlwzFVqnTAI7GIBx0SPPZWXO8GpFwytSqyGC6uLGLu9sSGBBI2FDca1VOyNaezVi7eDZTXRM8BIhAMryDTXGcSsvagoLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792350405; c=relaxed/simple;
-	bh=VJSlxiWiLlhRzX4DSRn2mTNdrBpvILYS0Grl3UgbhkI=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=O5E4YJnvHxN1VA0UpYhyS/ojPrl0aQZBeKHJrgPVi7pOga8kFSPMiF/yc608B4iddXK0Uoacvhmpuscm40UTPn/00WOMtyfEhCGHQtyfQ+vBBiTLECG0RzL33Obc3eqVxOBCQ7+wdOF/EqW+4AJ9mCXj6YRvU1hDRJiu4pNcqOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hPc9fm2L; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792352932; c=relaxed/simple;
+	bh=boGOzc+0R9GijHkcuHUBW222YFutKUnDB9YqKc5jI1Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RLK5pI0fOo+BJbTkNiW6XeRGJEuMVSWfc+HgCkDmN7Lp9P3zFtvho72bCRkJWd2v2MpmdKGpUAv9wZ+WXBoW3wg88KruaHqThjl0hhANwZmV8jUP0+GBSH4zh/CkjTFZohc8jGHreovKiYMB83n4m7s4LWMueXzDDkDOi8nn9ZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=r-sc.ca; spf=pass smtp.mailfrom=r-sc.ca; dkim=pass (2048-bit key) header.d=r-sc.ca header.i=@r-sc.ca header.b=j8VGuLCt; arc=none smtp.client-ip=198.54.127.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=r-sc.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=r-sc.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hPc9fm2L"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 064791F000C4;
-	Sun, 18 Oct 2026 19:06:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792350404;
-	bh=deIffueQWgcbAsKBXoJ0l/Y17kkwxBuqYSJJ9KHGm8o=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=hPc9fm2L2WoSai65ZKTu/L/Nyn17Bfl48WHKZ07twdJtlV+DbTWHM+e7IjHb9LW/w
-	 F4T7dTyn8k0ZkbGm8hii4XDdU3LGAgIL/F8d60qc1Tb5grOaARihHmWyVUr1b6GbOu
-	 C1du/lKOqu8igNpe3aKp67QaHFFwtOsjRltEqrRMRxjkSZ+QEtb1rrMK8C5/oTWIau
-	 d8SPT9vH9l9PSwE0OyEt6cSkTDc+vmlelwe3msfU3Nb2CbewyHohLTFGxLFD6vSsdI
-	 Z6XAezmEvhzq2PB7B7fLk1c4AJpPs0S918swqwr+y7CFZcz3LnBEfwWksSGtMDJXY4
-	 kyy+KwqD2RhYw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id F1562381196D;
-	Sun, 18 Oct 2026 19:06:43 +0000 (UTC)
-Subject: Re: [GIT PULL] i2c fixes for v7.3-rc8
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <atTk4XFuPp9T88YL@zenone.zhora.eu>
-References: <atTk4XFuPp9T88YL@zenone.zhora.eu>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <atTk4XFuPp9T88YL@zenone.zhora.eu>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c-fixes-7.3-rc8
-X-PR-Tracked-Commit-Id: d33373c565af9c8a28776af02bd20ba6e5724211
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 72732cbee632b1be22b636813c9be3df55c72bd9
-Message-Id: <179235040255.1786430.9834473388608451955.pr-tracker-bot@kernel.org>
-Date: Sun, 18 Oct 2026 19:06:42 +0000
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+	dkim=pass (2048-bit key) header.d=r-sc.ca header.i=@r-sc.ca header.b="j8VGuLCt"
+Received: from DESKTOP-290OH2S (d207-6-150-133.bchsia.telus.net [207.6.150.133])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.spacemail.com (Postfix) with ESMTPSA id 4j78HF05VLz8sWQ;
+	Sun, 18 Oct 2026 19:43:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=r-sc.ca;
+	s=spacemail; t=1792352601;
+	bh=yRcmqQQ5lQFbIOpFg3KW+TKnDp2sOvrAL/khscqtu3c=;
+	h=From:To:Cc:Subject:Date:From;
+	b=j8VGuLCtrpGSX8lotJksOWvf2xn8UGw0CZqL9VLQE1ksuPhCIeoYFMMQOYR+L/OPh
+	 vwF/Qs8+ev1oiad3dX8Qlv+zWsl7+IQ+vGiNH0XxspseDKE+u6rAIoKiD6BtUoLME9
+	 +iBvEekSjuS7KvrCBlvCcePFuTG8Z0xNuR/NfjGOEQDY56uqK2AaB5cn0AO2yLLPJm
+	 OTZUhjBQ8xmQ6KhYIqiNRA1tRFp5K5x/76U6CTYLxQsaLAqxxul2sL4ZVQ+OaIv1Td
+	 O2fEVn6rVREZ8zzP/2Q8BkBsWe8Do6SGLt1/iQxCwl9tC8CyIxKxOwF6vnttaOXBSu
+	 4/Y3ELOoqEVxg==
+From: Ross Cawston <ross@r-sc.ca>
+To: andi.shyti@kernel.org
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	kees@kernel.org,
+	gustavoars@kernel.org,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-hardening@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ross Cawston <ross@r-sc.ca>
+Subject: [PATCH 0/2] i2c: add GPIO buses sharing one SCL line
+Date: Sun, 18 Oct 2026 12:43:13 -0700
+Message-ID: <20261018194315.945-1-ross@r-sc.ca>
+X-Mailer: git-send-email 2.55.0.windows.5
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Envelope-From: ross@r-sc.ca
 
-The pull request you sent on Sun, 18 Oct 2026 17:29:16 +0200:
+Some Realtek RTL930x switches bit-bang several I2C buses on SoC GPIOs
+with a single SCL line and one SDA line per bus. The MokerLink
+POE-10G07110GSM, for example, has its fan controller, its PoE
+controllers and its SFP+ cage on SDA GPIOs 9, 10 and 11, all clocked
+by GPIO 8. i2c-gpio cannot describe this: every bus would request the
+same SCL GPIO.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c-fixes-7.3-rc8
+This series adds a binding and a small driver that requests SCL once
+and registers one i2c-algo-bit adapter per SDA line, serializing the
+transfers so that only one bus clocks SCL at a time.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/72732cbee632b1be22b636813c9be3df55c72bd9
+The SoC's own I2C master (i2c-rtl9300) is wired to the same pins, but
+it moves at most 16 bytes per transfer, and the PoE controllers on this
+board only accept their 25 KiB firmware as one continuous write: sent
+in 16-byte writes, they NAK the second one. Tested on the MokerLink
+POE-10G07110GSM.
 
-Thank you!
+Ross Cawston (2):
+  dt-bindings: i2c: add GPIO buses sharing one SCL line
+  i2c: add driver for GPIO buses sharing one SCL line
+
+ .../bindings/i2c/i2c-gpio-shared-scl.yaml     |  94 +++++++
+ MAINTAINERS                                   |   7 +
+ drivers/i2c/busses/Kconfig                    |  12 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-gpio-shared-scl.c      | 229 ++++++++++++++++++
+ 5 files changed, 343 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gpio-shared-scl.yaml
+ create mode 100644 drivers/i2c/busses/i2c-gpio-shared-scl.c
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.55.0.windows.5
+
