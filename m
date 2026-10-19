@@ -1,69 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792440774;
-	b=ES4APwUG+4ECL88446pQD+EAXAssS0rRdz1jquFOw+8ptexbvJUhTB1I3XHcDIVprdfe
-	 AHCBFlcg4hK4QYyWuVv5CbGWMUw3rTacSIDUBhNUCDVFb0SvkeW1+bUkvvqRA8rWoetkG
-	 +seMwmmR/S6ES7g1Gz9EGj2QFqJeUYQl74gSkxPVXaLNAOM78Ti0SnPl29an8CWIq3qn9
-	 qpJGbxkbfrmaACU8iJcEN1SHDsiojqQjehRneHbZ4IiiPSYOk/Ba3scP6VdsjJ5dRgr8O
-	 keJXH0apnYIoY8Jhk9rOeU/ASHA5prmRaEkIfBLWpNPkzZ/1YSgkN+pMwkyvbivvBSQ==
+	t=1792443366;
+	b=Q/N1UMxX3fORImyXcdSRI0328terT511oBYAls3/D14+kmuO6ckgnkDXNLU7UhM/CAbB
+	 OfjreCTiejjtQJPNFD0ruKwA/iXW6LLv+JCNdZEapoYD/70VFcAS0BRpsAUnCQjFo7d4a
+	 SJ40KAWmwg7US1gjiBiH/nk7oFjhJnR3VNWOiTiJSC/7JIzkwvZgbXEyW2Tp0jfEwTCLH
+	 GY39/siUMZatuanXt16vIgZIO+qbtc3EzLl00OUPRN7Cg0r+Ync+7W+m2kEGegPw7hLU4
+	 e6lw17FJauFqSynZGvUjBoxeQGUgN9/ULNXu9U+75fXCdPkkgz+lwuWGUneHUDv8jcw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792440774;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
-	bh=bhtdHmlzv0DKoEw+Zc7TOwdDACTcoyGMeQ8adip2B7w=;
-	b=SE8Pq+vRK6WrGOeggw6dGjfAUvThQ1K3D+xDvUkYZT9CVcXg2nWUcXrVgvVaAgDGq3q9
-	 6XNhDz0aurg3UaiDJjcSW7bcoI1QRy9pGYCMIssmHCdNyiSQ0cviq4xx2ZC1AQWy+rMnu
-	 y1tV3dmm0wZuF5//DVC1n3MjWhk+kICKCG2Yfav7iP6WsjTQ8g4Qi47hR3IgRDVa65gOH
-	 ltY171557ECsBdwgVCWbgNR4mTijHVf8s+MCEUWn59GKgrdyDKlKdop+TofZJUQsIk/7I
-	 UkiNzRZRgYzh6IIZMXQzqQqXYQ+Tc5wRzvlOyH7MCMukUseTBdlh/EkDCNLSrt5CgVg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792443366;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=BjZVrzg3rsf7XbY7jaOkZkV6KS8iKu7zuHPhPhRa91E=;
+	b=NQzxsEE2f7JhR5SKQjvwsH96XQyHYqvSYbg6BpN4HLnF+Il/huiE1QNUgxBSX8A+Xj4r
+	 pbTQ0Ne8jhFh2EQfXpeNyPIPCMVKHXPC4AkaT+it+Cx8VO1PlnZMS/daGP/yaZRJbADpt
+	 /dPMOJiE2KVrzbGZcc5dlD8dS6+F9oxOTfKxm8hx2g1s+llIGK3uNIaQz1wnrJ2jNPZqW
+	 jNDlJeSQatksLij1uwBrpGecdE8lxro+V2JJumunL2G0TVZRXfSGfDGOKwu1VFf3KvqvA
+	 i0yEswoJ1iT3mDTc7jDL15Tr4hGn0v6Z9PercazZ4HqvosWBkwCl0VezaNckTRip+1A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="Pa3/iQqA";
-	arc=none smtp.remote-ip=185.246.85.4
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AaqOCt87;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62DE8606A31B;
-	Mon, 19 Oct 2026 20:12:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62DE8606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05437606A31A;
+	Mon, 19 Oct 2026 20:56:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=Pa3/iQqA
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id E5C9C4E4127B;
-	Mon, 19 Oct 2026 20:12:51 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id B800F60582;
-	Mon, 19 Oct 2026 20:12:51 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A795910328C52;
-	Mon, 19 Oct 2026 22:12:44 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1792440766; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=bhtdHmlzv0DKoEw+Zc7TOwdDACTcoyGMeQ8adip2B7w=;
-	b=Pa3/iQqA6vAUfEWx2TIhJVrvDVY1bNti3mgE+dD437CyxrCLMqTJ1ErML4wYetDTmcOhYK
-	PGq7h9FpP9dgS6Ncnd/AkqwJYFSPAxzZpb4yCCAjWY741cXlg2eGwlHYPABmg57+gc+sf9
-	MbVZ5UeAITIRMWz1Eh3/oQAh6vsciD1LpJEyq2XrUfqG5VY2iX+lZm5FyMaQrAOn06ueNZ
-	gi26YmOton3sKCyOeJXz0LOqt71W7hYVDciazQm48/qe7tvcsRlzC/6olMpGP/ez9o+f2V
-	tcsQpXF00uQ0CStVQxb/29i3zXwo+y347qLAYTuhPpZg18W8E8lWlZjzlv/mqw==
-Date: Mon, 19 Oct 2026 22:12:44 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Pablo Mazzini <pmazzini@gmail.com>
-Cc: Andre Przywara <andre.przywara@arm.com>, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-	linux-sunxi@lists.linux.dev, linux-watchdog@vger.kernel.org
-Subject: Re: (subset) [PATCH v4 00/11] ARM: sunxi: add Allwinner B288 and the
- PocketBook Verse
-Message-ID: <179244056617.104236.5769731153552958433.b4-ty@b4>
-References: <20261012100816.331033-1-pmazzini@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AaqOCt87
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B435A1F000C4;
+	Mon, 19 Oct 2026 20:56:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792443365;
+	bh=BjZVrzg3rsf7XbY7jaOkZkV6KS8iKu7zuHPhPhRa91E=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=AaqOCt87uid4jy9SNYadhhhufQD2OkEVYLeIo7wWintbkPMxDFt5hE094B0UN7vP4
+	 wtWaGcX5VWIhD2E9cKYa9k5DgB1K4t72apgufNGpoDikiPAAoosP3Fsbf0WhJcPlxy
+	 hX1WftopX9o+g1zUt7Qv1z0px45podZKK44kBo+r2YMJuxqJExsqHpZgHdTyLSdygs
+	 phh5+ftZaBVa1JwLYi4GUXNXoTaok9DvC52ALGtSmRhE4E5dFVKj27ux2V/2D/1mla
+	 O8Tu3RZ7yOXwFvYMkr/EusQCC5LivmSa62msVHKDIMf2hpVjEkSIy1Bfg2at/pI0Zh
+	 1aTrmPNfNCYmg==
+From: Sasha Levin <sashal@kernel.org>
+To: Daniel J Blueman <daniel@quora.org>
+Cc: Sasha Levin <sashal@kernel.org>,
+	Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Manikanta Mylavarapu <quic_mmanikan@quicinc.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] i2c: qcom-geni: restore tSCL with 32MHz I2C fast-mode
+Date: Mon, 19 Oct 2026 16:55:40 -0400
+Message-ID: <2026-10-19-1-daily-reply-0015-i2c-qcom-geni-clk-policy-7-2-6-18@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <eaa6f116-7556-4791-857d-cd50c504528d@oss.qualcomm.com>
+References: <eaa6f116-7556-4791-857d-cd50c504528d@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -73,33 +66,15 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261012100816.331033-1-pmazzini@gmail.com>
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Transfer-Encoding: 8bit
 
-On Mon, 12 Oct 2026 11:08:05 +0100, Pablo Mazzini wrote:
-> The Allwinner B288 (sun8iw10p1) is a dual Cortex-A7 SoC used in e-book
-> readers. This series adds the CCU and pin controller drivers, the RTC,
-> I2C, NMI and watchdog compatibles, the SoC .dtsi, and one board: the
-> PocketBook Verse (PB629), a 6" reader.
-> 
-> The B288 is closest to the A64: most of its PLLs are bit-identical.
-> The clock and pin descriptions come from Allwinner's BSP, cross-checked
-> against ccu-sun50i-a64.c. Tested on a PB629, boots to userspace.
-> 
-> [...]
+> On 9/30/2026 3:01 PM, Daniel J Blueman wrote:
+> > If you can get the final values into a patch for the next -rc instead
+> > of my fix here, that would be the minimal path for everyone.
 
-Applied, thanks!
-
-[05/11] dt-bindings: rtc: sun6i-a31: add Allwinner B288
-        https://git.kernel.org/abelloni/c/51f30cb855f0
-[06/11] rtc: sun6i: add Allwinner B288 compatible
-        https://git.kernel.org/abelloni/c/3784706c87c2
-
-Best regards,
+Queued the mainline fix, "i2c: qcom-geni: Restore the source-clock
+selection policy", for 7.2 and 6.18, thanks.
 
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Thanks,
+Sasha
