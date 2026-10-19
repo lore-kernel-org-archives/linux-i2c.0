@@ -1,46 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D49C750B3B5;
-	Mon, 19 Oct 2026 14:05:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53B2B54645C;
+	Mon, 19 Oct 2026 14:06:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418751; cv=none; b=trVmU6AM4TfCXQAzx7mR2/OQGXOrHzSID+zoiO4yDKl+K++jabTDYQcf53+08Gb2pLgKgvHsnzUvtbN0W7/grcyNsq9qYCxDfWjTbVBXub2bIlqxKjYwIyhg4fd5oH4cl52rHzqtTk/Cm/mzh/pcNTW7H4qcG86R2959FNUHExc=
+	t=1792418824; cv=none; b=gi6tPC6QMJGvgIiZNEDYzWKI47Eh0UgyqbsG2RJOF+lxfjU19Yh4mRZV3Xwc7rFh/z90iRrte0TU+aZf0N19OwtPI6b54FR6W7J+lMzVOG/3gxkqdKRS47pUX2qvmrE9r49IZP8ruWtXbog5HLPGUiYWAefrZpJ6IFnuVocpd+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418751; c=relaxed/simple;
-	bh=/5RjBPUuYHuoAi4FygzDJ6RkC17xlrOylmKGZ0czhEM=;
+	s=arc-20240116; t=1792418824; c=relaxed/simple;
+	bh=oxdSTRluYO2IE/oTg/gORSQtPQDBuYNfMVkbEt1vNWU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fWGAfZtizdNTyvGvH/WAotWdo3ApuAoT3NM4VAmMPtxdzRLNPZZa3dI7fuEb6ptHY1P7L4VuhCJZ79aX287nNmRfYmenvsgX2XnLHq8SM7d8F3Y9kMDxCscpTXza/eIAkaDrnmMA7/6KJN5YLw0pPScyh/IbgdTbePD19lf+wNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TWSl6jDe; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=EOPqdpLElVNfrQhwe/7wARl/hKYX8IMvqLX5SVTMtiTXBu/IHbGND7VziHXy3ZVetEI8p4mcudmC8pvFvWxrWa7VfOO779vW6PfEGkyRk7e4yREfIA7umPFv4654Rq1zgKbITNrp2/rWLwVSeyyTNKeNJIdsUkUy2UYWnHM3I6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g5lNz9W+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TWSl6jDe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A6EA1F000C5;
-	Mon, 19 Oct 2026 14:05:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g5lNz9W+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41C281F000C9;
+	Mon, 19 Oct 2026 14:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418747;
-	bh=xL5gRDFc7YMEPr92ywowGO8zMnBcNQC7WwUWBW61RzU=;
+	s=k20260515; t=1792418812;
+	bh=LZCg7XlqP+XFJwUJDmW26gdSPgM58euZsKhP6jYBkzg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=TWSl6jDea+3qUGnRqbwcPPK5vWcNQjMjP/w6nXmAAx7BQ1+QVLLUdwGtSdiYepSiP
-	 0fPi6SEHKuP0TyCZHQtIP4RRJZC1/Ma+qIuyLikyGQx1BF4yKn+4WGaOCfEu+wPUcE
-	 EFlmyNTFZdOKMoYBNL3KXHcpqgFp0pqH7jmBqYN9oFGfv6LW79UMr3j2V+uzAzGLpC
-	 CLxzSPoqClSRMPne+Xuhnlv+GJJW2mmcMLlh4ryhsAlxsuV2GQInKnX4WPPMscOcyT
-	 5KcxJIeHDYeHOxjp3DYnlmv0jzbS59BeuaRweaTLl+6//TI0ehP7wra+3KCg4x0Ixa
-	 rkplXStW+26gw==
+	b=g5lNz9W+uXosFNBf12ZfaG4IuAXuO5H5d/G9RacnBZLH+3cYsCqDH+bGpcEYeEn8C
+	 +bSm/s6dwypwB3R6N1PPoJMhIf457jIPCS+vb/86W12izz95ekWXPh0EPkASjADb6k
+	 sNJqe6W1Uk0PkE4ytbsXvuXFoKPdCzutBeNPmrGUqqUNMI5F+orwITXrHGL/NJUtHI
+	 nDHOKoubIjXhGOiaLIuPYk1GWlSnkyGELihD109KT9KdLrrvJvNRi2VH6z7SyYASF9
+	 +IpEPcdBk6y1JJycpqvnHlECMNTAtYEYJdUuvje52s5HiqZqRE2vMYMdgzf/ywDjOB
+	 FN292QrYDPk9w==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Carlos Song <carlos.song@nxp.com>,
-	Frank Li <Frank.Li@nxp.com>,
+Cc: Paritosh Potukuchi <paritoshpotukuchi@gmail.com>,
+	Paritosh Potukuchi <paritosh.potukuchi@amd.com>,
+	Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
-	aisheng.dong@nxp.com,
+	shyam-sundar.s-k@amd.com,
 	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.12] i2c: imx-lpi2c: properly unwind resources on probe failure
-Date: Mon, 19 Oct 2026 09:52:38 -0400
-Message-ID: <20261019135441.1420968-467-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] i2c: amd-asf: Validate firmware-reported length
+Date: Mon, 19 Oct 2026 09:53:25 -0400
+Message-ID: <20261019135441.1420968-514-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -56,450 +55,355 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Paritosh Potukuchi <paritoshpotukuchi@gmail.com>
 
-[ Upstream commit cbd043b00ee3f542c115c8809c4d9a67465c07d5 ]
+[ Upstream commit b2f4816a378dc840b605a1235b80e57c5f85b46c ]
 
-When probe fails at devm_clk_rate_exclusive_get() or clk_get_rate(),
-which occur before runtime PM is initialized, the clocks enabled by
-clk_bulk_prepare_enable() are never disabled.
+The firmware may sometimes return a length greater than the
+allocated buffer size, which can lead to out-of-bounds access
+and a kernel panic.
 
-When probe fails after runtime PM is initialized, the previous error
-path called pm_runtime_put_sync(), which triggers the runtime suspend
-callback. However, due to different clock management strategies on
-different SoCs[1] (to avoid deadlocks between the global prepare_lock
-and runtime PM), the callback may only disable clocks without
-unpreparing them, causing an incomplete unwind.
+Currently, the driver does not validate the length read from
+firmware.
 
-Introduce a new error label 'clk_disable' to explicitly invoke
-clk_bulk_disable_unprepare(). Replace pm_runtime_put_sync() with the
-sequence of pm_runtime_disable(), pm_runtime_set_suspended() and
-pm_runtime_put_noidle() to bypass the runtime suspend callback during
-error recovery. During the LPI2C driver probe phase, clock APIs are
-used exclusively to manage clocks. Once probing succeeds, clock
-management is handed over to the runtime PM core.
+Add a check to ensure the firmware-reported length stays within
+the bounds of the data buffer.
 
-[1] https://lore.kernel.org/all/20251125084718.2156168-1-carlos.song@nxp.com/
-
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+Acked-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Link: https://lore.kernel.org/r/20260716071957.2670263-2-carlos.song@oss.nxp.com
+Link: https://lore.kernel.org/r/20260612101815.4124804-1-paritosh.potukuchi@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **6.12.111** (`pending-6.12`). The buggy probe unwind
-is present here; the later SoC-specific clock strategy is not. The leak
-is real and the fix is a small error-path change.
+## Phase 1: Commit message forensics
 
-===============================================================
-PHASE 1: COMMIT MESSAGE FORENSICS
-===============================================================
+**Step 1.1 — Subject line**
+Record: **[i2c/amd-asf] [Validate] firmware-reported length used as a
+copy bound**
 
-Step 1.1: PARSE THE SUBJECT LINE
-Record: **[i2c: imx-lpi2c]** **[properly unwind]** probe resources are
-not released when `lpi2c_imx_probe()` fails. “Properly unwind” is fix
-language (missing cleanup), not a feature.
-
-Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
+**Step 1.2 — Tags** (pipeline markers ignored: `[Upstream commit ...]`,
+`Signed-off-by: Sasha Levin`)
 Record:
-- **Fixes:** none (expected for this review queue)
-- **Reported-by / Tested-by / Acked-by / Cc: stable:** none
-- **Reviewed-by:** Frank Li &lt;Frank.Li@nxp.com&gt;
-- **Signed-off-by:** Carlos Song &lt;carlos.song@nxp.com&gt; (author);
-  Andi Shyti &lt;andi.shyti@kernel.org&gt; (I2C maintainer, merger)
-- **Link:** https://lore.kernel.org/r/20260716071957.2670263-2-
-  carlos.song@oss.nxp.com
-- **Inline [1]:** https://lore.kernel.org/all/20251125084718.2156168-1-
-  carlos.song@nxp.com/ (later SoC clock/IRQ RPM split)
-- Ignore any pipeline SOBs / “Upstream commit” markers
+- Signed-off-by: Paritosh Potukuchi &lt;paritosh.potukuchi@amd.com&gt;
+  (author)
+- Acked-by: Shyam Sundar S K &lt;Shyam-sundar.S-k@amd.com&gt; (original
+  driver author)
+- Signed-off-by: Andi Shyti &lt;andi.shyti@kernel.org&gt; (I2C
+  maintainer)
+- Link: https://lore.kernel.org/r/20260612101815.4124804-1-
+  paritosh.potukuchi@amd.com
+- No Fixes:, Reported-by, Tested-by, Reviewed-by, or Cc: stable (absence
+  expected)
 
-Step 1.3: ANALYZE THE COMMIT BODY TEXT
-Record:
-- **Bug:** After `clk_bulk_prepare_enable()`, two classes of probe
-  failure leak clocks.
-  1. Failures **before** RPM init (`devm_clk_rate_exclusive_get()`,
-     `clk_get_rate()`): early `return` leaves clocks prepared **and**
-     enabled.
-  2. Failures **after** RPM init: `pm_runtime_put_sync()` runs
-     `lpi2c_runtime_suspend()`, which on this tree only
-     `clk_bulk_disable()`s (no unprepare), so the prepare count is left
-     elevated.
-- **Symptom:** Unbalanced clock prepare/enable. On `-EPROBE_DEFER` the
-  prepare count grows on every retry.
-- **Root cause:** Probe uses clock APIs; after success, RPM owns
-  enable/disable. Error paths mixed the two and did not fully unwind.
-- **Version info in message:** none for 6.12. `[1]` is the later
-  i.MX8QXP/8QM RPM split (`949f647eff76a`, **not** in this tree).
+**Step 1.3 — Body**
+Record: Firmware can return a length larger than the allocated buffer;
+that produces **out-of-bounds access and a kernel panic**. The driver
+never checked the length read from firmware. The fix is a bounds check
+against the data buffer. No stack trace, reproducer, or version range is
+given.
 
-Step 1.4: DETECT HIDDEN BUG FIXES
-Record: Not hidden. Explicit resource-leak / incomplete error-path
-unwind. Not style cleanup.
+**Step 1.4 — Hidden bug fix?**
+Record: **No.** This is an explicit OOB/panic fix, not cleanup disguised
+as a fix.
 
-===============================================================
-PHASE 2: DIFF ANALYSIS - LINE BY LINE
-===============================================================
+---
 
-Step 2.1: INVENTORY THE CHANGES
-Record:
-- **File:** `drivers/i2c/busses/i2c-imx-lpi2c.c` (+14 / −7)
-- **Function:** `lpi2c_imx_probe()` only
-- **Scope:** single-file, error-path only
+## Phase 2: Diff analysis
 
-Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
-Record:
-- **Hunk 1 (pre-RPM errors):** `return dev_err_probe(...)` after
-  exclusive-get / `clk_get_rate()` failure → `goto clk_disable` so
-  `clk_bulk_disable_unprepare()` runs.
-- **Hunk 2 (post-RPM errors):** `rpm_disable` no longer
-  `pm_runtime_put_sync()`. It now `pm_runtime_disable()`,
-  `pm_runtime_set_suspended()`, `pm_runtime_put_noidle()`, then falls
-  through to `clk_disable` for `clk_bulk_disable_unprepare()`.
-- **Success path:** unchanged (`pm_runtime_put_autosuspend()` still
-  hands clocks to RPM).
+**Step 2.1 — Inventory**
+Record: One file, `drivers/i2c/busses/i2c-amd-asf-plat.c`, **+4 / −0**.
+Function: `amd_asf_process_target()`. Surgical single-function change.
 
-Step 2.3: IDENTIFY THE BUG MECHANISM
-Record: **Error-path resource leak (clock prepare/enable).**
-- Missing `clk_bulk_disable_unprepare()` on early probe failure.
-- RPM suspend used as unwind, but in **this** tree
-  `lpi2c_runtime_suspend()` is only `clk_bulk_disable()` (since
-  `fa39065833dbd`), so prepare is never reversed.
-- `clk_disable` is an added put/unprepare, not a double-free: RPM
-  suspend is skipped, then clocks are disabled and unprepared once.
+**Step 2.2 — Code flow**
+Before (verified in `v6.18.53`):
 
-Step 2.4: ASSESS THE FIX QUALITY
-Record: Surgical and correct for this tree. Same pattern as other probe-
-fail RPM unwinds. Success path untouched. Regression risk is low; the
-only real risk is pairing `put_sync` with `disable_unprepare` (double-
-disable). This patch removes `put_sync` and does one explicit unwind.
+```92:94:drivers/i2c/busses/i2c-amd-asf-plat.c
+                len = inb_p(ASFDATARWPTR);
+                for (idx = 0; idx < len; idx++)
+                        data[idx] = inb_p(ASFINDEX);
+```
 
-===============================================================
-PHASE 3: GIT HISTORY INVESTIGATION
-===============================================================
+`data` is `u8 data[ASF_BLOCK_MAX_BYTES]` (72). `len` is `u8`, so
+firmware can return 0–255. The loop writes past the stack buffer when
+`len > 72`. A later loop in the same function also indexes `data[idx]`
+with the same `len`.
 
-Step 3.1: BLAME THE CHANGED LINES
-Record (this checkout):
-- Early leak: `4268254a39484` (“Avoid calling clk_get_rate during
-  transfer”, 2024-05-06) — **in v6.12**.
-- RPM enable/disable-only callbacks: `fa39065833dbd` (2023) — **in
-  v6.12**.
-- `rpm_disable` + `put_sync`: `4f4388a55019d` / upstream `b1852c5de2f2a`
-  (“Fix clock count when probe defers”) — **already in this 6.12 tree**.
-  That only fixed the **enable** count; prepare still leaks.
-- `-EPROBE_DEFER` from recovery pinctrl: `188542964e782` — **in this
-  tree**.
+After: if `len > ASF_BLOCK_MAX_BYTES`, return before the copy.
 
-Step 3.2: FOLLOW THE FIXES: TAG
-Record: No `Fixes:` tag. Bug-introducing history above is in this tree.
-`cbd043b00ee3f` is **not** an ancestor of HEAD.
+**Step 2.3 — Bug mechanism**
+Record: **(d) Memory safety — buffer overflow / OOB.** Firmware-supplied
+I/O length used as loop bound with no clamp. Same pattern already exists
+on the host write path (`amd_asf_access()`: `if (len == 0 || len >
+ASF_BLOCK_MAX_BYTES)`).
 
-Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
-Record: Latest local change is `4f4388a55019d` (the incomplete enable-
-count fix). This commit is the missing prepare-count half of that
-unwind. Standalone for 6.12; does not need DMA, `hwdata`, or
-`need_prepare_unprepare_clk`.
+**Step 2.4 — Fix quality**
+Record: Minimal and obviously correct for stopping the overflow.
+Comparison is `>` against a 72-byte array (index 0..71), so `len == 72`
+is valid. Regression risk is low on the success path. On the error path
+the early `return` skips bank-status clear and `ASFSETDATARDPTR` reset;
+that can leave hardware stuck after a firmware bug, but that path
+already panicked. No API, locking, or data-structure change.
 
-Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
-Record: Carlos Song is an NXP LPI2C contributor (GPIO recovery in this
-tree). Frank Li reviewed. Andi Shyti merged. Series v6 patch 2
-(`a4c419356a333`, controller reset) is independent and not required.
+---
 
-Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
-Record: Message cites later SoC clock strategies (`949f647eff76a`,
-2026-01-19) — **not in 6.12**. The **code** of this fix does not use
-`hwdata` / `need_prepare_unprepare_clk`. Needed APIs
-(`clk_bulk_disable_unprepare`, `pm_runtime_put_noidle`,
-`pm_runtime_set_suspended`) exist in 6.12. **Can be backported
-standalone** with context tweaks.
+## Phase 3: Git history
 
-===============================================================
-PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-===============================================================
+**Step 3.1 — Blame**
+Record: Buggy loop introduced in `9b25419ad3971` (“i2c: amd-asf: Add
+routine to handle the ASF slave process”, 2024-09-23). First in
+**v6.13-rc1**. Present in this 6.18.y tree.
 
-Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
-Record:
-- SHA: `cbd043b00ee3f542c115c8809c4d9a67465c07d5`
-- `b4 dig -c`: https://patch.msgid.link/20260716071957.2670263-2-
-  carlos.song@oss.nxp.com
-- Series: **v6 1/2** “fix probe error handling and reset controller”
-  (v4/v5/v6 of the same subject)
-- Andi Shyti: merged to `i2c/i2c-2` (2026-07-28). No NAK.
-- Cover letter: v3 replaced `put_sync` with disable + set_suspended +
-  put_noidle specifically to avoid the suspend callback during error
-  recovery.
+**Step 3.2 — Fixes: tag**
+Record: None. Introducer is `9b25419ad3971`, confirmed ancestor of
+`v6.18.53`.
 
-Step 4.2: CHECK WHO REVIEWED THE PATCH
-Record (`b4 dig -w`): linux-i2c, imx@lists, linux-arm-kernel; Andi
-Shyti; Dong Aisheng (LPI2C maintainer in MAINTAINERS); Frank Li
-(Reviewed-by); Pengutronix i.MX folks. Right audience.
+**Step 3.3 — File history**
+Record: Related commits already in `v6.18.53`:
+- `a5089cd23b10c` — initialize `len` (Fixes: 9b25419ad397)
+- `b719afaa1e5d8` — set `cmd` on error
+No extra prerequisite is required for this bounds check. Standalone.
 
-Step 4.3: SEARCH FOR THE BUG REPORT
-Record: No syzbot/bugzilla. Bug is from code review / NXP analysis, not
-a crash report. Still a concrete leak with a documented `-EPROBE_DEFER`
+**Step 3.4 — Author**
+Record: First I2C commit from Paritosh Potukuchi. Acked by original AMD
+ASF author Shyam Sundar S K. Applied by I2C maintainer Andi Shyti.
+
+**Step 3.5 — Dependencies**
+Record: Uses existing `ASF_BLOCK_MAX_BYTES` and the existing loop. `git
+diff v6.18.53 d88d3b2633b03^ -- drivers/i2c/busses/i2c-amd-asf-plat.c`
+is empty; `git apply --check` against the 6.18.53 file succeeded.
+**Applies standalone and cleanly.**
+
+---
+
+## Phase 4: Mailing list / external research
+
+**Step 4.1 — Original discussion**
+Record: `b4 dig -c b2f4816a378dc840b605a1235b80e57c5f85b46c` matched
+https://patch.msgid.link/20260612093502.3805287-1-
+paritosh.potukuchi@amd.com
+Thread saved to mbox (lore HTTP 403 via WebFetch/curl).
+
+Revisions:
+- v1 (2026-06-12 09:35): same check, broken indentation
+- v2 (2026-06-12 10:18): indentation fixed (subject still `[PATCH]`, not
+  `[PATCH v2]`)
+- Applied version adds a blank line before the `if` (Andi added it on
+  apply)
+
+Andi asked how often this happens and whether it should be considered a
+fix. Shyam acked without quantifying frequency and without NAK. Andi
+merged to `i2c/i2c-for-7.2`. No reviewer asked for `Cc: stable`. No NAK.
+
+**Step 4.2 — Recipients (`b4 dig -w`)**
+Record: Author, shyam-sundar.s-k@amd.com, andi.shyti@kernel.org,
+linux-i2c, linux-kernel. Right maintainers were on the patch.
+
+**Step 4.3 — Bug report**
+Record: No syzbot/bugzilla link. Report is the patch itself from AMD,
+describing firmware returning too-large length and a panic.
+
+**Step 4.4 — Series**
+Record: Standalone single patch, not part of a multi-patch series.
+
+**Step 4.5 — Stable list**
+Record: lore.kernel.org/stable returned 403. Mbox has no “stable”
+mention. **UNVERIFIED** whether stable@ discussed it separately.
+
+---
+
+## Phase 5: Code semantic analysis
+
+**Step 5.1 — Functions**
+Record: `amd_asf_process_target()` only.
+
+**Step 5.2 — Callers**
+Record: Not called directly. Registered as delayed-work callback in
+`amd_asf_probe()` via `devm_delayed_work_autocancel(...,
+amd_asf_process_target)`. Scheduled from `amd_asf_irq_handler()` when
+ASF target IRQ bit 6 is set (`schedule_delayed_work(&dev->work_buf,
+HZ)`). Workqueue context, not IRQ context.
+
+**Step 5.3 — Callees**
+Record: `inb_p`/`outb_p` (port I/O), then (after this hunk)
+`i2c_slave_event()`. No alloc/lock in the changed path.
+
+**Step 5.4 — Reachability**
+Record: Reached when AMD ASF slave/target interrupt fires
+(`CONFIG_I2C_AMD_ASF`, ACPI `AMDI001A`). Trigger is firmware/BMC ASF
+traffic, not a generic unprivileged syscall. Still a host kernel stack
+overflow if firmware reports `len > 72`.
+
+**Step 5.5 — Similar patterns**
+Record: Host path already bounds-checks in `amd_asf_access()` (`len == 0
+|| len > ASF_BLOCK_MAX_BYTES`) and `amd_asf_xfer()` (`msgs->len >
+ASF_BLOCK_MAX_BYTES - 3`). Slave/target path was the missing check.
+
+---
+
+## Phase 6: Local tree (`v6.18.53` / 6.18.y)
+
+**Step 6.1 — Does the buggy code exist?**
+Record: **Yes.** `git merge-base --is-ancestor d88d3b2633b03 v6.18.53`
+failed (fix not in 6.18.53). `git show
+v6.18.53:drivers/i2c/busses/i2c-amd-asf-plat.c` has the unbounded loop.
+Driver added in v6.13; bug since then.
+
+**Step 6.2 — Backport difficulty**
+Record: **Clean apply.** Parent of the candidate matches 6.18.53 file
+content; `git apply --check` succeeded.
+
+**Step 6.3 — Related fixes already here?**
+Record: Uninit-`len` and error-`cmd` fixes are in 6.18.53. **No existing
+bounds check** on this firmware length.
+
+---
+
+## Phase 7: Subsystem context
+
+**Step 7.1**
+Record: **drivers/i2c** (AMD ASF bus driver). Criticality:
+**PERIPHERAL** (AMD ASF/DASH, depends on `I2C_PIIX4`), but a host panic
+still matters for those systems.
+
+**Step 7.2**
+Record: Small, mature-enough driver (landed v6.13, a few follow-up fixes
+through 6.15). Not staging.
+
+---
+
+## Phase 8: Impact and risk
+
+**Step 8.1 — Who is affected**
+Record: **Driver-specific / config-specific:** `CONFIG_I2C_AMD_ASF` on
+AMD systems with ASF (`AMDI001A`).
+
+**Step 8.2 — Trigger**
+Record: ASF target interrupt + firmware length &gt; 72. Frequency not
+quantified on-list (Andi asked; Shyam only acked). Not a normal syscall
+path; firmware/BMC-driven. Unprivileged userspace generally cannot set
+that I/O length directly.
+
+**Step 8.3 — Failure mode**
+Record: Stack buffer overflow (up to 183 bytes past a 72-byte stack
+array), then OOB read in the second loop. Commit states **kernel
+panic**. Severity: **CRITICAL** (crash; stack smash).
+
+**Step 8.4 — Risk vs benefit**
+Record: Benefit **high** for ASF users (panic/OOB). Risk **very low** (4
+lines, success path unchanged, same check already used on the write
+path). Early-return skips HW cleanup only on the already-broken firmware
 path.
 
-Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
-Record: Patch 2/2 (reset in probe) is a separate hang-on-boot issue; not
-a dependency. Earlier `b1852c5`/`4f4388a55019d` is the related
-incomplete stable fix already here.
+---
 
-Step 4.5: CHECK STABLE MAILING LIST HISTORY
-Record: lore.kernel.org/stable returned HTTP 403. No stable nomination
-on the patch itself. Related defer clock-count fix **was** `Cc: stable #
-v4.16+` and is already in this tree.
+## Phase 9: Synthesis
 
-===============================================================
-PHASE 5: CODE SEMANTIC ANALYSIS
-===============================================================
+**For backporting**
+- Real stack OOB from unvalidated firmware length → panic
+- Tiny, obviously correct, matches existing driver checks
+- Driver and buggy loop are in this 6.18.53 tree (since v6.13)
+- Applies cleanly; no missing helpers
+- Acked by original driver author; applied by I2C maintainer
 
-Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF
-Record: `lpi2c_imx_probe()` only. Unwind interacts with
-`lpi2c_runtime_suspend()` (not edited).
+**Against**
+- AMD-only driver, not a core path
+- Frequency of bad firmware length never quantified
+- Early return does not reset ASF bank/pointer (error-path
+  incompleteness, not a happy-path regression)
+- No Fixes:/Cc: stable (not a negative per rules)
 
-Step 5.2: TRACE CALLERS
-Record: `.probe = lpi2c_imx_probe` on the platform driver. Called from
-driver core on DT devices (`fsl,imx7ulp-lpi2c`) and on deferred retry.
-Not a syscall hot path.
+**Unresolved**
+- Stable mailing list search (lore 403)
+- Exact field reproduction rate (unverified beyond AMD’s “may
+  sometimes”)
 
-Step 5.3: TRACE CALLEES
-Record: `clk_bulk_prepare_enable` / `clk_bulk_disable_unprepare`,
-`devm_clk_rate_exclusive_get`, `clk_get_rate`, RPM helpers,
-`lpi2c_imx_init_recovery_info()` (`devm_pinctrl_get` → `-EPROBE_DEFER`),
-`i2c_add_adapter()`.
+**Stable rules**
+1. Obviously correct and tested? **PASS** — 4-line bound check;
+   maintainer applied after ack
+2. Real bug affecting users? **PASS** — OOB/panic on ASF target RX
+3. Important (crash/security/corruption/deadlock)? **PASS** — stack
+   overflow → panic
+4. Small and contained? **PASS** — +4 lines, one function
+5. No new features/APIs? **PASS**
+6. Can apply to this tree? **PASS** — clean against 6.18.53
 
-Step 5.4: FOLLOW THE CALL CHAIN
-Record: Reachable at boot and on probe defer.
-`lpi2c_imx_init_recovery_info()` is a real `-EPROBE_DEFER` source when
-pinctrl is not ready. Unprivileged userspace does not need to trigger
-it.
+Exception category: none needed; this is a normal crash/OOB fix.
 
-Step 5.5: SEARCH FOR SIMILAR PATTERNS
-Record: Other I2C drivers use `clk_disable:` /
-`clk_bulk_disable_unprepare` on probe fail (`i2c-qcom-geni.c`,
-`i2c-qcom-cci.c`). This driver was the odd one out after RPM callbacks
-stopped unpreparing.
+This 6.18.y tree has the unbounded copy and not the fix. Backporting
+prevents a kernel panic on AMD ASF hardware when firmware reports a
+length above 72.
 
-===============================================================
-PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-===============================================================
+---
 
-Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
-Record: **Yes.** `lpi2c_imx_probe()` in `drivers/i2c/busses/i2c-imx-
-lpi2c.c` still does:
+## What the commit solves, and why it matters here
 
-```609:625:drivers/i2c/busses/i2c-imx-lpi2c.c
-        ret = clk_bulk_prepare_enable(lpi2c_imx->num_clks,
-lpi2c_imx->clks);
-        if (ret)
-                return ret;
-        ...
-        if (ret)
-                return dev_err_probe(...);  /* exclusive_get: leak */
-        ...
-        if (!lpi2c_imx->rate_per)
-                return dev_err_probe(...);  /* rate 0: leak */
-```
+`amd_asf_process_target()` copies firmware bytes into a 72-byte stack
+buffer using a length read from `ASFDATARWPTR` with no cap. `len` is
+`u8`, so a value 73–255 overruns the stack and can panic. This 6.18.53
+tree still has that loop. The patch adds the same bound already used on
+the write path. Cost is four lines; the normal path is unchanged.
 
-```654:657:drivers/i2c/busses/i2c-imx-lpi2c.c
-rpm_disable:
-        pm_runtime_dont_use_autosuspend(&pdev->dev);
-        pm_runtime_put_sync(&pdev->dev);
-        pm_runtime_disable(&pdev->dev);
-```
+---
 
-```672:679:drivers/i2c/busses/i2c-imx-lpi2c.c
-static int __maybe_unused lpi2c_runtime_suspend(struct device *dev)
-{
-        ...
-        clk_bulk_disable(lpi2c_imx->num_clks, lpi2c_imx->clks);
-```
+## Verification
 
-No `hwdata` / `need_prepare_unprepare_clk` here, so **every** SoC only
-disables in RPM. The prepare leak on `rpm_disable` is unconditional.
-
-Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
-Record: **`git apply --check` fails** because context includes
-`hwdata->need_prepare_unprepare_clk` and later DMA probe code. Logical
-change maps 1:1 onto this probe (same exclusive-get returns, same
-`rpm_disable` + `put_sync`). Difficulty: **minor context backport**, not
-a rewrite.
-
-Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
-Record: `4f4388a55019d` is here and only switched `pm_runtime_put()` to
-`put_sync()`. It does **not** unprepare. No other unwind of this leak in
-this tree.
-
-===============================================================
-PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-===============================================================
-
-Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
-Record: I2C bus driver for i.MX LPI2C (`CONFIG_I2C_IMX_LPI2C`,
-`ARCH_MXC`). **IMPORTANT** for i.MX boards (PMIC, audio, sensors on that
-bus), not core MM/VFS. Maintainer: Dong Aisheng; I2C maintainer merged
-it.
-
-Step 7.2: ASSESS SUBSYSTEM ACTIVITY
-Record: Mature driver (since ~2016). This tree’s recent churn is small
-fixes, not a rewrite. The big SoC RPM split landed after 6.12.
-
-===============================================================
-PHASE 8: IMPACT AND RISK ASSESSMENT
-===============================================================
-
-Step 8.1: DETERMINE WHO IS AFFECTED
-Record: **Driver-specific / platform-specific** — i.MX systems using
-LPI2C. Common on i.MX7ULP / i.MX8 class boards, not all Linux users.
-
-Step 8.2: DETERMINE THE TRIGGER CONDITIONS
-Record:
-- Exclusive-get / zero clock rate: uncommon hard errors.
-- **`-EPROBE_DEFER` from pinctrl in recovery init:** normal boot race;
-  retries leak another prepare each time.
-- `i2c_add_adapter()` failure: less common.
-- Not a userspace-triggered security path.
-
-Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
-Record: Clock prepare leak (and enable leak on the pre-RPM returns).
-Repeated defer can unbalance the clock tree, keep parents prepared, and
-block low power. Not an oops/corruption/CVE. **Severity: MEDIUM**,
-higher if defer retries pile up.
-
-Step 8.4: CALCULATE RISK-BENEFIT RATIO
-Record:
-- **Benefit:** Completes the unwind that `4f4388a55019d` only half-
-  fixed; stops prepare-count growth on defer. Medium benefit for i.MX
-  LPI2C users.
-- **Risk:** ~20-line error-path change; success path unchanged. Low risk
-  if backported without keeping `put_sync`.
-- **Ratio:** Favorable.
-
-===============================================================
-PHASE 9: FINAL SYNTHESIS
-===============================================================
-
-Step 9.1: COMPILE THE EVIDENCE
-
-**FOR backporting:**
-- Real clock leak on probe failure, including a documented
-  `-EPROBE_DEFER` path.
-- Buggy code is in this 6.12 tree (exclusive-get + disable-only RPM +
-  `put_sync` unwind).
-- This tree already took the enable-count half (`4f4388a55019d`); this
-  is the remaining prepare-count fix.
-- Small, probe-error only; reviewed and merged by the I2C maintainer.
-- No new API/feature; no `hwdata` dependency in the changed lines.
-
-**AGAINST:**
-- Does not apply with `git apply` as-is (later DMA/`hwdata` context).
-- Not a crash/security/corruption bug.
-- No `Cc: stable` / syzbot / user crash report.
-- Message talks about later per-SoC clock strategies that 6.12 does not
-  have (the leak is still real here, and simpler).
-
-**UNRESOLVED:**
-- Stable list search was blocked (HTTP 403). Unverified whether anyone
-  already NAK’d this for stable.
-
-Step 9.2: APPLY THE STABLE RULES CHECKLIST
-1. Obviously correct and tested? **PASS** — explicit unwind; merged
-   after v4–v6 review.
-2. Fixes a real bug that affects users? **PASS** — clock leak on probe
-   fail/defer.
-3. Important issue? **PASS** at medium — not panic-level, but resource
-   leak on a normal defer path; sister fix already went to stable.
-4. Small and contained? **PASS** — one function, error labels only.
-5. No new features or APIs? **PASS**.
-6. Can apply to the local tree? **PASS with backport** — code is here;
-   context needs a small edit. Not “code missing / bug introduced after
-   branch.”
-
-Step 9.3: CHECK FOR EXCEPTION CATEGORIES
-Record: None (not an ID/quirk/DT/build/docs exception). Qualifies as a
-normal small bugfix.
-
-Step 9.4: MAKE YOUR DECISION
-Backport to **this** 6.12 tree. The later SoC RPM split is not required.
-Drop `hwdata`/DMA context and apply the same `goto clk_disable` + RPM-
-bypass + `clk_bulk_disable_unprepare()` sequence to `lpi2c_imx_probe()`.
-
-Verification:
-- [Phase 1] Tags: Reviewed-by Frank Li; SOB Andi Shyti; Link to v6 1/2;
-  no Fixes/Cc:stable/syzbot
-- [Phase 2] Diff: +14/−7 in `lpi2c_imx_probe()`; two early returns →
-  `clk_disable`; `put_sync` → disable/set_suspended/put_noidle +
-  `clk_bulk_disable_unprepare`
-- [Phase 3] Blame: leak from `4268254a39484` (in v6.12); RPM disable-
-  only from `fa39065833dbd` (in v6.12); incomplete enable fix
-  `4f4388a55019d` already in HEAD
-- [Phase 3] `git merge-base --is-ancestor cbd043b00ee3f HEAD` → not in
-  this tree
-- [Phase 3] `949f647eff76a` (`need_prepare_unprepare_clk`) → **not** in
-  this tree
-- [Phase 4] `b4 dig -c cbd043b00ee3f`: lore v6 1/2; Andi merged to
-  i2c-2; no NAK
-- [Phase 4] Cover: v3 introduced the RPM-bypass unwind; patch 2/2 is
-  independent
-- [Phase 4] UNVERIFIED: stable@ lore (403)
-- [Phase 5] Probe is platform `.probe`; `-EPROBE_DEFER` from
-  `devm_pinctrl_get` in recovery init
-- [Phase 6] `git describe` / Makefile: 6.12.111; buggy returns and
-  `rpm_disable` present; `git apply --check` fails on `hwdata` context
-- [Phase 8] Failure mode: clock prepare leak, worse on deferred probe;
-  severity MEDIUM; risk low
-
-The leak exists on this 6.12 branch, the fix is small and correct, and
-it finishes an unwind this tree already started.
+- **[Phase 1]** Parsed message/tags from `git show d88d3b2633b03`; no
+  Fixes/Reported-by/Cc: stable; Acked-by Shyam; SOB Andi Shyti
+- **[Phase 2]** Diff is +4 in `amd_asf_process_target`;
+  `data[ASF_BLOCK_MAX_BYTES]` (72); `len` is `u8`; write path already
+  checks `len > ASF_BLOCK_MAX_BYTES` at line 176
+- **[Phase 3]** `git blame` on v6.18.53: loop from `9b25419ad3971`; `git
+  describe --contains` → v6.13-rc1; `git merge-base --is-ancestor
+  9b25419ad3971 v6.18.53` true
+- **[Phase 3]** `git merge-base --is-ancestor d88d3b2633b03 v6.18.53`
+  false (fix not in 6.18.53)
+- **[Phase 3]** `a5089cd23b10c` and `b719afaa1e5d8` are ancestors of
+  v6.18.53
+- **[Phase 3]** `git diff v6.18.53 d88d3b2633b03^ --
+  drivers/i2c/busses/i2c-amd-asf-plat.c` empty
+- **[Phase 4]** `b4 dig -c b2f4816a378dc840b605a1235b80e57c5f85b46c` /
+  `-a` / `-w` / `-m`; thread: v1 indent bug, v2 indent fix, Andi process
+  nits + “how often?”, Shyam Ack, merged i2c-for-7.2; no NAK
+- **[Phase 4]** lore WebFetch/curl 403; discussion taken from saved mbox
+- **[Phase 4]** git.kernel.org commit
+  `b2f4816a378dc840b605a1235b80e57c5f85b46c` exists; no Fixes/Cc: stable
+  in that commit
+- **[Phase 5]** `git grep amd_asf_process_target`: only definition +
+  `devm_delayed_work_autocancel`; scheduled from `amd_asf_irq_handler`
+- **[Phase 6]** `git describe HEAD` → `v6.18.53-5049-g0f0bdc2b0dffb`;
+  `make kernelversion` → 6.18.53; buggy loop present in `v6.18.53:` file
+- **[Phase 6]** `git apply --check` of this patch onto the v6.18.53
+  file: rc 0
+- **[Phase 7]** `CONFIG_I2C_AMD_ASF` in v6.18.53 Kconfig, depends on
+  `I2C_PIIX4`, ACPI id `AMDI001A`
+- **[Phase 8]** Failure mode: stack OOB → panic (from commit + code);
+  trigger is firmware length, not a generic syscall
+- **UNVERIFIED:** stable@ list discussion (lore 403); how often firmware
+  returns len &gt; 72 (not answered on-list)
 
 **YES**
 
- drivers/i2c/busses/i2c-imx-lpi2c.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-amd-asf-plat.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 24c70ea371bb9..7c560a4f68319 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -1500,14 +1500,18 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 	 * each transfer
- 	 */
- 	ret = devm_clk_rate_exclusive_get(&pdev->dev, lpi2c_imx->clks[0].clk);
--	if (ret)
--		return dev_err_probe(&pdev->dev, ret,
--				     "can't lock I2C peripheral clock rate\n");
-+	if (ret) {
-+		ret = dev_err_probe(&pdev->dev, ret,
-+				    "can't lock I2C peripheral clock rate\n");
-+		goto clk_disable;
-+	}
+diff --git a/drivers/i2c/busses/i2c-amd-asf-plat.c b/drivers/i2c/busses/i2c-amd-asf-plat.c
+index ca45f0f233210..f5b73c8340495 100644
+--- a/drivers/i2c/busses/i2c-amd-asf-plat.c
++++ b/drivers/i2c/busses/i2c-amd-asf-plat.c
+@@ -90,6 +90,10 @@ static void amd_asf_process_target(struct work_struct *work)
+ 		outb_p(reg, ASFDATABNKSEL);
+ 		cmd = inb_p(ASFINDEX);
+ 		len = inb_p(ASFDATARWPTR);
++
++		if (len > ASF_BLOCK_MAX_BYTES)
++			return;
++
+ 		for (idx = 0; idx < len; idx++)
+ 			data[idx] = inb_p(ASFINDEX);
  
- 	lpi2c_imx->rate_per = clk_get_rate(lpi2c_imx->clks[0].clk);
--	if (!lpi2c_imx->rate_per)
--		return dev_err_probe(&pdev->dev, -EINVAL,
--				     "can't get I2C peripheral clock rate\n");
-+	if (!lpi2c_imx->rate_per) {
-+		ret = dev_err_probe(&pdev->dev, -EINVAL,
-+				    "can't get I2C peripheral clock rate\n");
-+		goto clk_disable;
-+	}
- 
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
- 	pm_runtime_use_autosuspend(&pdev->dev);
-@@ -1545,8 +1549,11 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 
- rpm_disable:
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
--	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
-+clk_disable:
-+	clk_bulk_disable_unprepare(lpi2c_imx->num_clks, lpi2c_imx->clks);
- 
- 	return ret;
- }
 -- 
 2.53.0
 
