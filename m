@@ -1,76 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.226
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792438090;
-	b=aZR92uC951sSlRwbtF9PwzbEmZLQvAbYugDickzx8lCnQGaoD5cUQsNrbxIswkEvUCpg
-	 8FcQMTmfpbbe0Xp4MwUAa3QRGnKppF8myto1e7wssffTMgVyibntg0xexvu4NhyZ81zuu
-	 mAMWhe7lGZP3Gn+yoFwr1/L/iU+sT4S8gBAFPH0izXtGUCeiaI7eSK1FnfHQ5Yzrd9ZCP
-	 KjYxx+GHG2sErUupA0Ag/50U75ccHNs96AS3FCBuAl0aDREXGkjCjUnSXRy3YsNrEjAhj
-	 E/6yDDipr+iCFcwK6EaqeuWqhsfnCd7QqwARPek/h4NKFJU0+ByH6WUrlRCiD0XBG8A==
+	t=1792440774;
+	b=ES4APwUG+4ECL88446pQD+EAXAssS0rRdz1jquFOw+8ptexbvJUhTB1I3XHcDIVprdfe
+	 AHCBFlcg4hK4QYyWuVv5CbGWMUw3rTacSIDUBhNUCDVFb0SvkeW1+bUkvvqRA8rWoetkG
+	 +seMwmmR/S6ES7g1Gz9EGj2QFqJeUYQl74gSkxPVXaLNAOM78Ti0SnPl29an8CWIq3qn9
+	 qpJGbxkbfrmaACU8iJcEN1SHDsiojqQjehRneHbZ4IiiPSYOk/Ba3scP6VdsjJ5dRgr8O
+	 keJXH0apnYIoY8Jhk9rOeU/ASHA5prmRaEkIfBLWpNPkzZ/1YSgkN+pMwkyvbivvBSQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792438090;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 MIME-Version;
-	bh=STt62GhrjtlAglE8Fpdd7yc+6Z9UwSuWNn6eYMG1ouk=;
-	b=dgvlkP3WW+4NUqAqspxFJkDW5DX9T+wycOz8dlTTaAJEvuQdlUFIN2xmsw5JstWqUY4N
-	 3lyAO7mBemBGsvcdv7KUK2SCa7UnRk0xwkdzKwllCsvTS5euSmQa7nWBPcesr6WdZshbF
-	 GaadaZKRYgMmK/O3UcPz6FgitCItO1YKoSrBNRmWbW1HZph9aHUKJGZYJ8CdczNrkCYcJ
-	 t/PnTZv6bb7mthGx98haIcTwF4pKNDpBuay2oNnnS/HxSoKxDqLjuL9KSsXwo8nxoWknv
-	 dgXcou1piJwkv455dDn6gwXbsX2EgX94aHQPeQ87+Foaid2S04Tu6Bm0cvNG7+U7i+w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792440774;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
+	bh=bhtdHmlzv0DKoEw+Zc7TOwdDACTcoyGMeQ8adip2B7w=;
+	b=SE8Pq+vRK6WrGOeggw6dGjfAUvThQ1K3D+xDvUkYZT9CVcXg2nWUcXrVgvVaAgDGq3q9
+	 6XNhDz0aurg3UaiDJjcSW7bcoI1QRy9pGYCMIssmHCdNyiSQ0cviq4xx2ZC1AQWy+rMnu
+	 y1tV3dmm0wZuF5//DVC1n3MjWhk+kICKCG2Yfav7iP6WsjTQ8g4Qi47hR3IgRDVa65gOH
+	 ltY171557ECsBdwgVCWbgNR4mTijHVf8s+MCEUWn59GKgrdyDKlKdop+TofZJUQsIk/7I
+	 UkiNzRZRgYzh6IIZMXQzqQqXYQ+Tc5wRzvlOyH7MCMukUseTBdlh/EkDCNLSrt5CgVg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=Fxg6xaVk;
-	arc=none smtp.remote-ip=91.218.175.226
-Received: from mta0.migadu.com (out-226.mta0.migadu.com [91.218.175.226])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="Pa3/iQqA";
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D68E606A324
-	for <linux-i2c@vger.kernel.org>; Mon, 19 Oct 2026 19:28:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6D68E606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62DE8606A31B;
+	Mon, 19 Oct 2026 20:12:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62DE8606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=Fxg6xaVk
-X-Envelope-To: linux-i2c@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=STt62GhrjtlAglE8Fpdd7yc+6Z9UwSuWNn6eYMG1ouk=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792438087; v=1; x=1793042887;
- b=Fxg6xaVkCLd31VL2ACSczgLAU10H/yiRjT9CLYtgrY3Vwyrp1XN6RreeKwKU1DE25UVEMOOK
- 4mjjmR8YztXS08uX/r9C8xnBzon07y3wnSdQgkdQIt4WGi7hOB3sbBksWW+btIWgypIB2Vzl2+M
- T5zH8450C9GCZzQQWdyJq2FM=
-X-Envelope-To: linux-i2c@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 5e3ea1f02a9fd8ff;
-	Mon, 19 Oct 2026 19:28:06 +0000
-X-Mizu-Trace-ID: 5e3ea1f02a9fd8ff
-X-Migadu-Flow: FLOW_OUT
-From: Igor Korotin <igor.korotin@linux.dev>
-To: =?utf-8?q?Nicol=C3=A1s?= Antinori <nico.antinori.7@gmail.com>,
- Andi Shyti <andi.shyti@kernel.org>
-Cc: Alexandre Courbot <acourbot@nvidia.com>, Alice Ryhl <aliceryhl@google.com>,
- Andreas Hindborg <a.hindborg@kernel.org>, Benno Lossin <lossin@kernel.org>,
- =?utf-8?q?Bj=C3=B6rn?= Roy Baron <bjorn3_gh@protonmail.com>,
- Boqun Feng <boqun@kernel.org>, Brigham Campbell <me@brighamcampbell.com>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- Danilo Krummrich <dakr@kernel.org>, Gary Guo <gary@garyguo.net>,
- Jori Koolstra <jkoolstra@xs4all.nl>, Miguel Ojeda <ojeda@kernel.org>,
- Onur =?utf-8?q?=C3=96zkan?= <work@onurozkan.dev>,
- Shuah Khan <skhan@linuxfoundation.org>, Tamir Duberstein <tamird@kernel.org>,
- Trevor Gross <tmgross@umich.edu>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, rust-for-linux@vger.kernel.org,
- linux-kernel-mentees@lists.linux.dev
-Subject:
- Re: [PATCH v2] i2c: rust: avoid locking when performing I2cAdapter::inc_ref
-Date: Mon, 19 Oct 2026 20:28:02 +0100
-Message-ID: <179243808241.1915.11587324230389063446@linux.dev>
-In-Reply-To: <DM3QKTJYPA8I.13TW7H9HIV3YB@gmail.com>
-References: <20260904134600.340991-1-nico.antinori.7@gmail.com>
- <DM3QKTJYPA8I.13TW7H9HIV3YB@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=Pa3/iQqA
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id E5C9C4E4127B;
+	Mon, 19 Oct 2026 20:12:51 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B800F60582;
+	Mon, 19 Oct 2026 20:12:51 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A795910328C52;
+	Mon, 19 Oct 2026 22:12:44 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1792440766; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=bhtdHmlzv0DKoEw+Zc7TOwdDACTcoyGMeQ8adip2B7w=;
+	b=Pa3/iQqA6vAUfEWx2TIhJVrvDVY1bNti3mgE+dD437CyxrCLMqTJ1ErML4wYetDTmcOhYK
+	PGq7h9FpP9dgS6Ncnd/AkqwJYFSPAxzZpb4yCCAjWY741cXlg2eGwlHYPABmg57+gc+sf9
+	MbVZ5UeAITIRMWz1Eh3/oQAh6vsciD1LpJEyq2XrUfqG5VY2iX+lZm5FyMaQrAOn06ueNZ
+	gi26YmOton3sKCyOeJXz0LOqt71W7hYVDciazQm48/qe7tvcsRlzC/6olMpGP/ez9o+f2V
+	tcsQpXF00uQ0CStVQxb/29i3zXwo+y347qLAYTuhPpZg18W8E8lWlZjzlv/mqw==
+Date: Mon, 19 Oct 2026 22:12:44 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Chen-Yu Tsai <wens@kernel.org>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Pablo Mazzini <pmazzini@gmail.com>
+Cc: Andre Przywara <andre.przywara@arm.com>, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+	linux-sunxi@lists.linux.dev, linux-watchdog@vger.kernel.org
+Subject: Re: (subset) [PATCH v4 00/11] ARM: sunxi: add Allwinner B288 and the
+ PocketBook Verse
+Message-ID: <179244056617.104236.5769731153552958433.b4-ty@b4>
+References: <20261012100816.331033-1-pmazzini@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -80,18 +73,33 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261012100816.331033-1-pmazzini@gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Nicolás,
+On Mon, 12 Oct 2026 11:08:05 +0100, Pablo Mazzini wrote:
+> The Allwinner B288 (sun8iw10p1) is a dual Cortex-A7 SoC used in e-book
+> readers. This series adds the CCU and pin controller drivers, the RTC,
+> I2C, NMI and watchdog compatibles, the SoC .dtsi, and one board: the
+> PocketBook Verse (PB629), a 6" reader.
+> 
+> The B288 is closest to the A64: most of its PLLs are bit-identical.
+> The clock and pin descriptions come from Allwinner's BSP, cross-checked
+> against ccu-sun50i-a64.c. Tested on a PB629, boots to userspace.
+> 
+> [...]
 
-Sorry for the silence, this fell through the cracks on my end.
+Applied, thanks!
 
-rust/kernel/i2c.rs side looks correct -- this is exactly what I had in
-mind in the v1 thread. No change needed there.
+[05/11] dt-bindings: rtc: sun6i-a31: add Allwinner B288
+        https://git.kernel.org/abelloni/c/51f30cb855f0
+[06/11] rtc: sun6i: add Allwinner B288 compatible
+        https://git.kernel.org/abelloni/c/3784706c87c2
 
-Reviewed-by: Igor Korotin <igor.korotin@linux.dev>
+Best regards,
 
-Andi -- the i2c-core-base.c/i2c.h hunks are yours, not mine. Could you
-take a look and Ack if they're fine? I'd like to merge this once you have.
-
-Cheers
-Igor
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
