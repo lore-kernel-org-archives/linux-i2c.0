@@ -1,44 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.131.191.72
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792457342;
-	b=HwPUHs2tTvvm8fBqQv6k+wI+bJvJsI5S8XJJyCHdtVmRjSU7WdTLTfnktOhbLmsCX4/k
-	 uNlkvCRcJtq2Y+Ugi4IgYR64YAE2Sz8Yx7dkQ2Eio/G3ODq6pC/PIn+t2WYhjSVDcYt5O
-	 6+T8++8vW/qu6Nz2tsnA7+LX0iB1Nc9FaUUcdyMiTeC/zO6qSFAxYIBWDsSXWAKpbhYdR
-	 W1NMOvVNbOcicnI89U9VwjgtDs2bZnZNmDnNu4Zw9zjO8oyD/HbvKMFmsZcf1MaQA1ETo
-	 YY6Q5LlII12AvhJaYDFXNuGCrsiuCYtYqHkO97YrypQzMrZ7ewEfVZJaFgIucisZvpw==
+	t=1792459324;
+	b=hS2nGNmqm2bwwUwfuwqvjVeKsxlW0e7Nm0cytpHNb0+la1eugEQ9oRwNZXhJhghfqB7G
+	 NvGfoR/DVNr68jSTdRBZipzQF0jkSiIqaBCR/xd91aoh6EHxiJzWJy+JGFH57W20SoU4w
+	 8WOroa1Tf7gfgmeXFGllYBAk29WquHcIBtnmQwS50uWO/6h06YolG8707lOWNLQbAolF9
+	 svB7w3tHQcrMlITiUDhP+qXzqyjV+MknQAYeC1koS7w3yu5yHaLp2GovXMdBn/RAcKxGc
+	 d9VPZWtksAC7Lmlin/ilc/X3D2j1pBhDKIJo8bmIii6k7Xu4rDCG7pwf1wVeG75dfoQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792457342;
-	h=DMARC-Filter:Received:Message-ID:Date:MIME-Version:User-Agent:Cc:
-	 Subject:To:References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-HM-Tid:X-HM-MType:X-HM-Spam-Status:
-	 DKIM-Signature;
-	bh=J05n6Gr0/sJKA2C8cqIM/17mIypCcK1yS1CYec+efVE=;
-	b=HKWHq1hn+peOl9xU5nxZ+QkH5Sa0zcfNmSJYL46omAQKeeuWN7OeQa/W/zMO2uEWIgUT
-	 fbSnbTDOCN0u1ZY7z9GJa6iwEmwmS4BYeFB8kqIH4aPzcI7f8Xjz2LQhNVWOFhqlllV0A
-	 3/XldBVQn+iJYiLyJYjddyAilKNdfoWYttcPLlQVl1lEZAb0Fes9u+iioU6t+3BO2DIpQ
-	 1ivn9jysx5pSVT4XHDwwth7W+TAL6XSZC1YEpZUyGhGB5wgsXFb5FZbvKMTeKCK4KSJ2m
-	 s/ZYs8mdwMp86y9Q6GyMHrfPzYFJyiwX7eOSD60aj00GrFcI+aUFigejqrBDzw5sV9w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792459324;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=Y5PuInUz/jG/sVc55vzwpQmtUc4DneWfMKEBS2B1HkA=;
+	b=h6Y+7FKdNjawAO5qvyB2A3c7KgTThQ8g3xx0t1rip0eiluFKzdf9mQ2/lh/SwP4vkHiw
+	 e7JWDmZbEUGJ/mKeFKtMg9pgHjLrqfHIN2I+feKE/ZLvtCWByqzo4OJC2coejqLG2uM7B
+	 XLRBA2jlOutMRi16yMo9OK916nL7zLZTnz1JaOjdZP8zO80ZaaYapysa4xDnzWujh+bFB
+	 0xtk852+JG3U2dlck5uOy3LAuyDdL0KsOnAdmRFp1BXwsXPTTq3Kkb969Q61TlKb3qVvp
+	 vxp6onemapaoG2ZNn50mW0gPLRd50+jH6I8zZ8jm4v6Ss6S0pLRMQsP/ktBUPvJXaQA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rock-chips.com;
-	spf=pass smtp.mailfrom=rock-chips.com;
-	dkim=pass header.d=rock-chips.com header.i=@rock-chips.com header.a=rsa-sha256 header.s=default header.b=D8dVqAfw;
-	arc=none smtp.remote-ip=103.131.191.72
-Received: from mail-m10313119172.xmail.ntesmail.com (mail-m10313119172.xmail.ntesmail.com [103.131.191.72])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Ij/ZTfSV";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F602606A31E;
-	Tue, 20 Oct 2026 00:48:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3F602606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rock-chips.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rock-chips.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552BA606A319;
+	Tue, 20 Oct 2026 01:22:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=rock-chips.com header.i=@rock-chips.com header.a=rsa-sha256 header.s=default header.b=D8dVqAfw
-Received: from [172.16.12.48] (unknown [61.154.14.86])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 519de6bff;
-	Tue, 20 Oct 2026 08:48:49 +0800 (GMT+08:00)
-Message-ID: <9c18acc0-2b4b-4f19-9928-de1632718f15@rock-chips.com>
-Date: Tue, 20 Oct 2026 08:48:49 +0800
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ij/ZTfSV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36EE11F000C4;
+	Tue, 20 Oct 2026 01:21:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792459323;
+	bh=Y5PuInUz/jG/sVc55vzwpQmtUc4DneWfMKEBS2B1HkA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Ij/ZTfSVf2swDQKjpQY+M1H2I5MkLeX5CF4dH4/9XKE165jBsDdvEwhW81eUmMMjb
+	 Qa7Npvl6yBb17a13UvFrx+F558g8qtjW3Jx8HQ2wmPfgDecd4FVrr176Pvye0m7huB
+	 b8gB3PVWN+ieA2OWvMaqKqc1pFccggf6hGdppcfcNIIzPb4SLFLMiOICvTaBe8MAMo
+	 ccYqYzmJWOF0vh9T+5mTGwhv1K8ArNjqo22DC2bm6gpAiLDfN6Zb7V8wILCD7w7hbg
+	 OGRinhBbeU5+ZdzL+gEGhTHiNXTwxiIjthvTzVDhkDx0SgvL4YvUPNJZZ9WRLDx3D2
+	 G3K1Ev46o1B/g==
+Date: Tue, 20 Oct 2026 09:01:50 +0800
+From: Jisheng Zhang <jszhang@kernel.org>
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney+clk@redhat.com>,
+	Jerome Brunet <jbrunet+clk@baylibre.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Frank Li <Frank.Li@nxp.com>, Lee Jones <lee@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
+	linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 05/20] i3c: dw: switch to array-based exclusive reset
+ control
+Message-ID: <ata9fqjAm09xnBQM@xhacker>
+References: <20260929061417.20733-1-jszhang@kernel.org>
+ <20260929061417.20733-6-jszhang@kernel.org>
+ <62860351b9ae360c174d36dd54d4110417f395ad.camel@pengutronix.de>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -48,93 +75,75 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: shawn.lin@rock-chips.com, linux-arm-kernel@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org,
- Andi Shyti <andi.shyti@kernel.org>, linux-kernel@vger.kernel.org,
- Heiko Stuebner <heiko@sntech.de>, "david.wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH] i2c: rk3x: Disable the controller between transfers
-To: Alexey Charkov <alchark@flipper.net>
-References: <20261015-i2c-rk3x-disable-v1-1-81625845c175@flipper.net>
- <bfe8baa4-e740-4908-9d2a-4defc5240a82@rock-chips.com>
- <CAKTNdwFYxPeaG6pZn3SYoR6cPAtON37ajo4nZpPE0Hm=y2c6Lg@mail.gmail.com>
-From: Shawn Lin <shawn.lin@rock-chips.com>
-In-Reply-To: <CAKTNdwFYxPeaG6pZn3SYoR6cPAtON37ajo4nZpPE0Hm=y2c6Lg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0aa156c84b5003a4kunmb2638d4f8a0982
-X-HM-MType: 1
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkZHUNJVkxIS09NHkodSB8eHVYVFA
-	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlNSlVKTk9VSk9VQ01ZV1kWGg8SFR0UWUFZT0tIVUJCSU
-	5LVUpLS1VKQktCWQY+
-DKIM-Signature: a=rsa-sha256;
-	b=D8dVqAfw85rr9XasLOyMPAcPscEwWj2/fg2RaOjDPvEXf4fqLm8uGD/ZSzQ3zTpiFFj6KLlNJjR7nsfvCu96NGj8uYakRg6Nhc4+/VPl5wLG1mJfafFfuPY+wU2b4w0nS0/DOiy+dgG5aWf3kp6hlKptsEYkOf4oE7i5lXDhPq8=; c=relaxed/relaxed; s=default; d=rock-chips.com; v=1;
-	bh=J05n6Gr0/sJKA2C8cqIM/17mIypCcK1yS1CYec+efVE=;
-	h=date:mime-version:subject:message-id:from;
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <62860351b9ae360c174d36dd54d4110417f395ad.camel@pengutronix.de>
 
-Hi
-
-在 2026/10/20 星期二 0:50, Alexey Charkov 写道:
-> Hi Shawn,
+On Mon, Oct 19, 2026 at 02:55:21PM +0200, Philipp Zabel wrote:
+> On Di, 2026-09-29 at 14:14 +0800, Jisheng Zhang wrote:
+> > The Synopsys DesignWare I3C master controller can have multiple reset
+> > lines, such as a core reset and APB reset.
+> > 
+> > Refactor the driver to use devm_reset_control_array_get_exclusive()
+> > instead of a single named reset handle. This automatically manages all
+> > resets allocated to the device node sequentially.
 > 
-> On Fri, Oct 16, 2026 at 4:33 AM Shawn Lin <shawn.lin@rock-chips.com> wrote:
->>
->> Cc: + David
->>
->> 在 2026/10/15 星期四 22:00, Alexey Charkov 写道:
->>> The driver leaves the controller enabled once a transfer completes, and
->>> an enabled controller keeps tracking the bus. If the lines collapse under
->>> it while idle, as happens when a target's supply is switched off while
->>> its bus pull-ups stay powered, its state machine wedges driving SDA low.
->>> Every later transfer then times out, since the timeout path only requests
->>> a STOP and never disables the controller, and the stuck state even
->>> survives a kexec.
->>>
->>> Clear the enable bit once each transfer is done, successful or not, so
->>> that the controller does not watch an idle bus and starts every transfer
->>> from a clean state.
->>>
->>
->> I checked the vendor kernel tree and saw another case that you perhaps
->> need to fold something similar below into your patch, along with your
->> disabling controller?
->>
->>       In some case，log like this:
->>
->>       [   12.393926] rk3x-i2c ff150000.i2c: irq in STATE_IDLE, ipd = 0x51
->>       [   12.416592] rk3x-i2c ff150000.i2c: irq in STATE_IDLE, ipd = 0x51
->>
->>       The i2c clock is disabled, so the pending irq clean is not
->>       worked. Disable the interrupt after the i2c jobs were done,
->>       the error log would not happen.
->>
->>
->> /* Disable i2c all irqs */
->> #define IEN_ALL_DISABLE   0
->>
->> i2c_writel(i2c, IEN_ALL_DISABLE, REG_IEN);i2c_writel(i2c,
->> IEN_ALL_DISABLE, REG_IEN);
-> 
-> Thanks for looking into this! Do you happen to have a reproducer or
-> any additional info on how this state gets triggered? I haven't run
-> into it in my setups - did I just get lucky? :)
-> 
+> Note that this does not guarantee any particular order. Are you sure
+> that this is good enough for all implementations of the DW I3C core?
 
-Unfortunately, I don't. That came from what I found when checking
-the vendor kernel commit to see how we handled your case.
-
-So I have looped David who made the internal submision for the same case
-as yours 8 years ago and hope him could have a comment here.
-
-> I see the same write of 0 to REG_IEN just above my changed lines for
-> the case if (time_left == 0), which makes sense because a
-> too-long-running transfer might eventually complete and trigger the
-> interrupt with the controller disabled, unless the interrupt is
-> disabled too. For other cases I'd be interested to know what can raise
-> the interrupt.
+Per my understanding of the doc, it only requires the resets are
+asserted and de-asserted, didn't mention the order. And per my tests
+on syna SL2610 platforms, the DW I3C works perfectly no matter I
+reset apb reset or core reset firstly.
 > 
-> Best regards,
-> Alexey
+> Otherwise it may be wise to at least specify the names in binding, to
+> be able to switch to the bulk API or individual control later, if
+> needed.
 > 
-
+> > Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+> > ---
+> >  drivers/i3c/master/dw-i3c-master.c | 24 ++++++++++++++++++------
+> >  drivers/i3c/master/dw-i3c-master.h |  2 +-
+> >  2 files changed, 19 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/drivers/i3c/master/dw-i3c-master.c b/drivers/i3c/master/dw-i3c-master.c
+> > index 4563d8761ba0..1c6c870f5bb3 100644
+> > --- a/drivers/i3c/master/dw-i3c-master.c
+> > +++ b/drivers/i3c/master/dw-i3c-master.c
+> > @@ -1657,6 +1657,11 @@ static const struct dw_i3c_platform_ops dw_i3c_platform_ops_default = {
+> >  	.set_dat_ibi = dw_i3c_platform_set_dat_ibi_nop,
+> >  };
+> >  
+> > +static void dw_i3c_resets_assert(void *data)
+> > +{
+> > +	reset_control_assert(data);
+> > +}
+> > +
+> >  int dw_i3c_common_probe(struct dw_i3c_master *master,
+> >  			struct platform_device *pdev)
+> >  {
+> > @@ -1696,10 +1701,17 @@ int dw_i3c_common_probe(struct dw_i3c_master *master,
+> >  	if (IS_ERR(master->pclk))
+> >  		return PTR_ERR(master->pclk);
+> >  
+> > -	master->core_rst = devm_reset_control_get_optional_exclusive_deasserted(&pdev->dev,
+> > -										NULL);
+> > -	if (IS_ERR(master->core_rst))
+> > -		return PTR_ERR(master->core_rst);
+> > +	master->resets = devm_reset_control_array_get_optional_exclusive(&pdev->dev);
+> > +	if (IS_ERR(master->resets))
+> > +		return PTR_ERR(master->resets);
+> > +
+> > +	ret = reset_control_deassert(master->resets);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret = devm_add_action_or_reset(&pdev->dev, dw_i3c_resets_assert, master->resets);
+> > +	if (ret)
+> > +		return ret;
+> 
+> This looks like we are missing
+> devm_reset_control_array_get_optional_exclusive_deasserted().
+> 
+> regards
+> Philipp
