@@ -1,72 +1,65 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792518457;
-	b=zjWm7fuQeyRzhzxwvPXwyPyK7sZYGDnWa+i3XbhMJOuvHgYv6/Y17D2fYEdyH+FqxAMe
-	 kRytRTh+3eLJKIwQsgKiadn2sGurjd7FEGBlyfC1DNZGqkdWl5+/vz5DjnIt0f/ELk8GP
-	 6TIKAq1tAxRi3UqU9sKN5P7UrjmMY7EmVkE4GRF9SRx0KnDqt2EM+MVM8PuKOb5B2c2xM
-	 luwnoIL3dJ3BBaoDX1Dl9FMqrZMKhHU2vY1FzciY+w1P2SQZFKir2hbKtWnCGyahXn3Ux
-	 PtUEnRAkI+rKCvJ6YtBBaYCLXVTN9QYv+1S9iGh/0b/j/qsVngF8cR3zZ7RkCtPCn8Q==
+	t=1792521004;
+	b=LYXP/eGfpBuCu+T9pPlnJHcfo73fKu9LQvPm8NMVGYOQuxlO4rjwh2ZyuoVPbwph9B9v
+	 grtwT4d+UbHKMJ49jNT3yU9ezPLOWxrEfDJTe/6m+LM2uEyX13jdM9SlH/yD789gQbtW/
+	 vtfg3LtV0a0Qssl/PyxG4QCjQxEWW/7naUzDUqZQBR7B7qkBRbR7HeZL8/eyDTtrzoBQm
+	 JSjtcvCmVFDHHxD+p7TxEbwiqJZUYqVJ0Q0WybVJouQlIhUDDqEC+5Y0FEOHrbCFqsZNH
+	 8oA/WQ/QP1CIsb/oFekfZr0GRE3u5avE2z/zw+IIIgsMX93BXSW7S89jr2dt95ci/vA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792518457;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792521004;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=HAHTPseBysoQyjFWdWhxEUoIlAFSx4P0uFPxuTZC58E=;
-	b=smb4Jc+a5a1XM2LYKVQf6zWxcFgrMlenHB9wkPpYAESb50liPqL6LRws3ZYYSQOTWKlU
-	 c2zFYqTQx2zJZsoGmy1eLU2Wvayix28rKuDpwQkfaybD3Tvdr4ZycAHLeJVdSw1NibCkF
-	 cZbnEt9Kcu813TMJtHhvuLE3+I/7SYvDPIZpHvj3a6zmkrcSM1rMuyXNSG8pCn/4RXT/R
-	 jgwHuA1/5BJ7NT+4xsQxLn4wL+5Sqjrv/DkkkugT8HceCaN4/WDq4lu1ngy1gd9CPLt/Q
-	 IqM3iYEKjutzoNBnnVE3G24intJoc9rQQKJlCJPisOqgHuVwO7y//obe6sL/e/MbbWg==
+	bh=I61vAeBsOWK2N+3xullrZ89EtvrlTdCPGmIPBmyybbM=;
+	b=l6AaNmQ9WQkrxpuxH+XHp0vOeM/gxO31NJ1OvgBwV3fxKrLgVzw5vdtsC5+yNMESzGff
+	 pGu7aj0JSG+mIxa7f4tgIrjSPELkQ/EODLbAf+fVGGcY0nQfpm0g3X7NhKYTXQn3+95n/
+	 xBPLGCs7natojdjrMF3LDyxFV6APmpAbxQ+n3rMWU4RHueKVxyLgC4dO+6r7ssjPV6hCR
+	 GzAYEj65AytXYdN1ekyCdzO4H4cDMLe9/koEYYiT2jXsH/D0djqzcFTOB+uPUi+HxQMhh
+	 uWnmwqSMGM0KDxLtr7jroGEhqh0eWYyKoU3X8Vak52KPSnn92lC6JAO3MaqM05UGbEw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T5klA8w8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RO1qPL0z;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14390606A319;
-	Tue, 20 Oct 2026 17:47:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CBDC606A31A;
+	Tue, 20 Oct 2026 18:30:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T5klA8w8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C7C1F000C9;
-	Tue, 20 Oct 2026 17:47:31 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RO1qPL0z
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A8401F000C9;
+	Tue, 20 Oct 2026 18:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792518456;
-	bh=HAHTPseBysoQyjFWdWhxEUoIlAFSx4P0uFPxuTZC58E=;
+	s=k20260515; t=1792521003;
+	bh=I61vAeBsOWK2N+3xullrZ89EtvrlTdCPGmIPBmyybbM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=T5klA8w8ldhaGXex5p2C1vk2XmCWEI5ePLrDsiyhXLVFchdZEn+v5/j//jHND7keT
-	 Meqe1HYRaPtXccMkRp824RMlBY/ggOISFpPO91xfQXQlxRa2BEF/hHxRG/jK8L1CgQ
-	 9muVPdNXFcV74oJ2Dgz4HaRViQo1tQbIdaPr+01vyY4wLmybDhkP+Vl1I+bioV+Ygq
-	 uCkDYDCq983KX1BvcP2HAwIVds8N7k+Rqtsxjca0Ovu269GytYQIsu/QGvdh3m3Bcg
-	 UwXzztQF8VoJ3nyz6bU2aIRxqOIpInSrUm2TtfG3URLEtNoUiddkCE0GL6sKdGKVFJ
-	 c6nOo9rgiy+pg==
-Date: Tue, 20 Oct 2026 18:47:29 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Jisheng Zhang <jszhang@kernel.org>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh@kernel.org>,
+	b=RO1qPL0za4UmrX0fRGPOOnAzFmWkfjRNmWrT6WsbNOKaEsjvgfZoQRQNUEV71nAIA
+	 bZgqCZLg0ZtaYCGBeIphxQ72IxdLqf5pyHPi0w9kECEPjtOyZshV7GFNfknlcRvPjR
+	 FHvqS5lTww6et5G1GF+FKQ8ZKHfvOwBMUy3u5Z/8k8dFcBRLGKRhElWSeGvXhb4ocr
+	 O+9G6HolFBLMmc2g7+J0Cu2L239YRZnwA5ODmzGP5O5hFh1RKjF3o1qErJ3EjaydUl
+	 HMzlOLei7927lLPrFPvdHGIbSzJZkddw6qD2WnZD0BIWGura46fS3DzX3QPs+XYiqw
+	 qPOcBVQ9qomfQ==
+Date: Tue, 20 Oct 2026 13:30:02 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Fil Dunsky <filipp.dunsky@gmail.com>
+Cc: Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	linux-arm-kernel@lists.infradead.org,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Thomas Gleixner <tglx@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
-	Brian Masney <bmasney+clk@redhat.com>,
-	Jerome Brunet <jbrunet+clk@baylibre.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Frank Li <Frank.Li@nxp.com>, Lee Jones <lee@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
 	Linus Walleij <linusw@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
-	linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 04/20] dt-bindings: i3c: dw: support up to two reset lines
-Message-ID: <20261020-endocrine-crown-c6d3c83cf436@spud>
-References: <20260929061417.20733-1-jszhang@kernel.org>
- <20260929061417.20733-5-jszhang@kernel.org>
- <80b084d130b7dc7406ae23e54a77706a4f42b606.camel@pengutronix.de>
- <ata--JFFUzSoMock@xhacker>
+	Guenter Roeck <linux@roeck-us.net>,
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+	linux-gpio@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+	linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
+	Radu Rendec <radu@rendec.net>, linux-watchdog@vger.kernel.org,
+	linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v3 03/11] dt-bindings: gpio: Add Cortina Systems CS7542
+ GPIO controller
+Message-ID: <179252100225.709291.3157984607951047986.robh@kernel.org>
+References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
+ <20261013-b4-cs75xx-s2-v3-3-181bb0d23f4c@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -76,48 +69,22 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="PF0S8SXN4APeQtUF"
-Content-Disposition: inline
-In-Reply-To: <ata--JFFUzSoMock@xhacker>
-
---PF0S8SXN4APeQtUF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20261013-b4-cs75xx-s2-v3-3-181bb0d23f4c@gmail.com>
 
-On Tue, Oct 20, 2026 at 09:08:08AM +0800, Jisheng Zhang wrote:
-> On Mon, Oct 19, 2026 at 02:55:14PM +0200, Philipp Zabel wrote:
-> > On Di, 2026-09-29 at 14:14 +0800, Jisheng Zhang wrote:
-> > > The Synopsys DesignWare I3C master controller can have multiple reset
-> > > lines, such as core reset, apb reset, and dma reset.
-> > >=20
-> > > Update the DT binding documentation to increase maxItems for the rese=
-ts
-> > > property to 2.
-> >=20
-> > The last sentence just listed three reset lines. Why increase to 2?
->=20
-> Per the doc, the last one is dma reset, currently dw I3C driver doesn't s=
-upport dma.
-> And increasing it to 3 is still dt compatible. Maybe I misunderstood
-> something. what's more, I don't have platforms with all 3 resets to test =
-and verify.
->=20
-> If dt maintainers prefer 3 in one step, I will sent out a follow-up patch.
 
-I think you can increase it to 3 globally, then restrict to 1 for the
-altera device and 2 for your new one.
+On Tue, 13 Oct 2026 09:07:13 +0300, Fil Dunsky wrote:
+> The Cortina Systems CS75xx SoCs have five banks of 32 GPIO lines. Each
+> pin is shared between a GPIO line and a peripheral function, selected by
+> the bank's GPIO_MUX register in the global control block, which is
+> described as the second register region of the bank.
+> 
+> Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
+> ---
+>  .../bindings/gpio/cortina,cs7542-gpio.yaml         | 68 ++++++++++++++++++++++
+>  1 file changed, 68 insertions(+)
+> 
 
---PF0S8SXN4APeQtUF
-Content-Type: application/pgp-signature; name=signature.asc
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCatepLgAKCRB4tDGHoIJi
-0nTbAP41tIofP+UpvSN0IwKJvT76VMbRwSrA7SIYBjKeyCaPgwEA7iCZGXK59MXH
-F8eKb5c+ngwawXhmX7aqW4NflYqjyAY=
-=Yxu4
------END PGP SIGNATURE-----
-
---PF0S8SXN4APeQtUF--
