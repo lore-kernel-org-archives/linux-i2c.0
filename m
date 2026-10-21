@@ -1,60 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.16
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.11.138.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792611469;
-	b=KVCtMrltMqXqHqlM/+lr7iaRhE7uwcgohejjWSmXeWmw9W/0psBx0NZiUSVewvuRXhxG
-	 jH/TIfd6WhwpBu8RPaG91gvz8esmgBpKR+WeSBjojdt0sSN1THfd2Z5X/4V3fMS2/x6xm
-	 PG48i6PI4khTvR67kdSTb+u/O0joVAu1O0Q55kJlBfugkNxpaJPF1cMviK7rUEM2VB5rU
-	 PS6T8HwYfRI4/81oUZA8nweUaasYlVURsgroMFs/uu0R3k6pjAVKejp/h0FrEvX93jlUA
-	 41Ima7Ih/Prwgp9fQlqqmZwVQmWfnuQKcbC4Xw3XlcZUCtlL2L8yhBSMJ3/IDMDPNtg==
+	t=1792621634;
+	b=EB+183yw609ETxXYTuwhI6loKz6Q83RwXmK5j8hM1+mnkONhUNo8pSXRj3fzygyzxw+Q
+	 qhQvEWvRpBp6jRnge78tidJUMu7vO0EFsn1SYDgU2bg0N4GLv0bVYeLkrvuWY2ObdAEUN
+	 psY6sSUwKlIkQzdmnGs3cuyGIpELhURTiicSH3bFsz7vbgqwtH6h57pHI2NYdKxq0vcwJ
+	 gWaJ/jL10Ivv4DsyuJFtGFaUFPGZj3nG1ICkr/D7fpdIcbVQFA0Eq24i6TKY5T0xJQ63E
+	 e8Kcg9ilt6aCgazf24Rp3E9Pw1nSyWAO+usLThzvSKACBgk9vVT5A5MFTiAFzZS6v6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792611469;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=kJt+ydyRTixeKLbA+0l2aYt6ojWzKdTKUDAlmkzXSx4=;
-	b=3U6eqSMP9wo57E6RcXK02ZGpahea5bpPjAbjvZoGhU7cd4p90DgCdjnJin4Y8gw8LMKx
-	 59HY4+cStL6Yt7WNKibH+6YdoeEkqcGLAy96UH0cGfRu9FaT1z4L9PWzg2tWFeOwW2eso
-	 l8XdPksy9RU+8vgvnudS72J5Z3G6zRJOfQ2dKhlcqDkfbfX9cltiALVaneMH7Y2j4vg4Z
-	 lpIeSqsukS53MN8yyIQc2oXTJTgpI7Sh9CSFV1xWtU8iyu/hIgZTWPZiZvuwEGJWGlI56
-	 v2bv9vbzxQL0i4D5IDW84dLUFl/UbzAuz7E6l7j7XwhFdqos56pk4JQwHshE37eIMYA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792621634;
+	h=DMARC-Filter:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:
+	 Content-Type;
+	bh=/Fy3vYhdZ1fZJw/ef1BHjs8s8zcYhlFJOKnLAYjNcDY=;
+	b=m5DovQUu+w7RQA51yf5x1KbzOqvZ+LWVZNDnzWwnpNygsxW0rk2HQOJJZ6M3N5kLjZLm
+	 SZbF+rKVFEhoaFMSqRGEa+rdfdC53bNlDP9ksIpmglQjZaAtT8ROcKAO/RVmQ5OBhjqrO
+	 u9F1nF6ISziGF7X5i+GEC+tfY2RNNRes22XD3zbkFUoL0j8h+57nkzfFm2mXTlbL+fOLB
+	 4btVB3schFmbqJdLC86q95KqLA1QWVLweWEBFs/dEadi71r0cmhjbEbfofoacBr0MR1lD
+	 9COktDhuGjiOTV3ySalt+3CIteZpNMCF1V6dWsL71sVO9JCBtOWJCCB/6Rnfv2Gkd/Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=pm.me;
-	spf=pass smtp.mailfrom=pm.me;
-	dkim=pass header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b="btu/aT+w";
-	arc=none smtp.remote-ip=109.224.244.16
-Received: from mail-24416.protonmail.ch (mail-24416.protonmail.ch [109.224.244.16])
+	dmarc=pass header.from=sntech.de;
+	spf=pass smtp.mailfrom=sntech.de;
+	dkim=pass header.d=sntech.de header.i=@sntech.de header.a=rsa-sha256 header.s=gloria202408 header.b=ahip0nLo;
+	arc=none smtp.remote-ip=185.11.138.130
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 073B8606A31B;
-	Wed, 21 Oct 2026 19:37:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 073B8606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 076AE606A319;
+	Wed, 21 Oct 2026 22:27:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 076AE606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=pm.me header.i=@pm.me header.a=rsa-sha256 header.s=protonmail3 header.b=btu/aT+w
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-	s=protonmail3; t=1792611466; x=1792870666;
-	bh=kJt+ydyRTixeKLbA+0l2aYt6ojWzKdTKUDAlmkzXSx4=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=btu/aT+wzkBryud6j710GW2QjsH7PZsuAMMGFC03bMG6WMUh4kg8rY7zrsrIQmkvQ
-	 X+pkc+4eiYHuH9aeaP/Pn6wC3aBgNkWqvAD0ajLwQ/vLNzhfZ+KRmi4wD5GowoqJ1V
-	 lZH1sCNs9UconzRk/A1eyIrRWEomHz+F0WyGUzAABzVrsqNWKd1hqhBBe6t12j+cuQ
-	 nQLF9WU8D9DnhUPKudM0u5W6I4+Mc9cBmQsxbciPnIQK3kiEny9F5JW5dPvOvnRuvY
-	 UQfIOgKAsFe4pLG+bCfwrWPeV/T40InKAUQJFKenpNmqYULxeYkgTBtFoNNn7bBFf5
-	 AMC3GeVPtG2bw==
-Date: Wed, 21 Oct 2026 19:37:42 +0000
-To: Loic Poulain <loic.poulain@oss.qualcomm.com>
-From: Birk Skyum <birk.skyum@pm.me>
-Cc: Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Jishnu Prakash <jishnu.prakash@oss.qualcomm.com>, Saikiran <bjsaikiran@gmail.com>, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] i2c: qcom-cci: Reset the controller when it resumes
-Message-ID: <179261145907.36927.12230352776394948067@pm.me>
-In-Reply-To: <CAFEp6-3s9ER_V_B89W5f5PVkRnLrgSwnUwE+tmftbUGB-1_BdA@mail.gmail.com>
-References: <20261020193946.51478-1-birk.skyum@pm.me> <20261020193946.51478-2-birk.skyum@pm.me> <CAFEp6-3s9ER_V_B89W5f5PVkRnLrgSwnUwE+tmftbUGB-1_BdA@mail.gmail.com>
-Feedback-ID: 21326998:user:proton
-X-Pm-Message-ID: ff5736803f5461e1fbf86162dae562ba1f05d144
+	dkim=pass (2048-bit key, unprotected) header.d=sntech.de header.i=@sntech.de header.a=rsa-sha256 header.s=gloria202408 header.b=ahip0nLo
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
+	s=gloria202408; h=Content-Type:Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To;
+	bh=/Fy3vYhdZ1fZJw/ef1BHjs8s8zcYhlFJOKnLAYjNcDY=; b=ahip0nLoapq7XNH6QNpOVtb4m1
+	v9qkpz3ynmvBUaq1pY2hva8QWaxHgiHoOeSnNhhju1iR+aDBpS/dLNMOwzBYJvRU8rBPIPtekaBih
+	UFFW3nOQB74FBnrB9qM1ynbrPFfu2WgCeIeDxxh5fTnvTP1vua3IhW9hjFaW7tpx+IUehaWhXHRtw
+	7/hAQlyEEAMuIHnEvSMdaZpb8O+NYdHRn0bTvbMeVN7wUbB1Um8gTTRDs1MkuumU5I+IKAMeHv3gJ
+	4iSFShsmBWdNiqU6W/oEkAqlpYEgjRHYL1hTuijyP7XwhRv89sbfIX1K7DnO5doVnMZhhbY111jaH
+	pVKUI+cg==;
+From: Heiko =?UTF-8?B?U3TDvGJuZXI=?= <heiko@sntech.de>
+To: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ Philipp Zabel <p.zabel@pengutronix.de>,
+ Elaine Zhang <zhangqing@rock-chips.com>, Lee Jones <lee@kernel.org>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Richard Cochran <richardcochran@gmail.com>, Ulf Hansson <ulfh@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Jisheng Zhang <jszhang@kernel.org>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, David Wu <david.wu@rock-chips.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>,
+ Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+ Jaehoon Chung <jh80.chung@samsung.com>, Shawn Lin <shawn.lin@rock-chips.com>,
+ 1579567540@qq.com
+Cc: Cunhao Lu <1579567540@qq.com>, linux-clk@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+ mfd@lists.linux.dev, linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org,
+ linux-usb@vger.kernel.org
+Subject: Re: [PATCH 07/27] clk: rockchip: Add RK3572 clock and reset support
+Date: Thu, 22 Oct 2026 00:26:36 +0200
+Message-ID: <2339330.72vocr9iq0@diego>
+In-Reply-To: <20261022-add-board-ok3572-c-v1-7-0b0fd85a31ee@qq.com>
+References:
+ <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
+ <20261022-add-board-ok3572-c-v1-7-0b0fd85a31ee@qq.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -64,21 +91,53 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
 
-On Wed, Oct 21, 2026 at 9:20 AM Loic Poulain <loic.poulain@oss.qualcomm.com=
-> wrote:
-> > +       ret =3D cci_init(cci);
-> > +       if (!ret)
-> > +               ret =3D cci_reset(cci);
->
-> If we don't know the state, it's probably better to just
-> unconditionally cci_reset().
+Hi,
 
-Right. I kept cci_init() first so the reset-done interrupt is unmasked
-after a power collapse, but cci_reset() alone works there too. On 7.3
-with only cci_reset() on resume, all 30 camera restarts after 2 s
-pauses started, with the controller suspended in between and no reset
-timeout. v2 calls just cci_reset() on resume.
+Am Mittwoch, 21. Oktober 2026, 18:11:04 Mitteleurop=C3=A4ische Sommerzeit s=
+chrieb Cunhao Lu via B4 Relay:
+> From: Cunhao Lu <1579567540@qq.com>
+>=20
+> CPU clocks are managed by SCMI. Keep BPLL and LPLL enabled for firmware
+> consumers.
+>=20
+> Signed-off-by: Cunhao Lu <1579567540@qq.com>
+
+[...]
+
+> diff --git a/drivers/clk/rockchip/clk-rk3572.c b/drivers/clk/rockchip/clk=
+=2Drk3572.c
+> new file mode 100644
+> index 000000000000..78fd35f5f27d
+> --- /dev/null
+> +++ b/drivers/clk/rockchip/clk-rk3572.c
+> @@ -0,0 +1,1972 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (c) 2025 Rockchip Electronics Co., Ltd.
+> + * Author: Elaine Zhang <zhangqing@rock-chips.com>
+> + */
+
+As you didn't write this driver on your own and even kept the original
+author, please also credit the original author in the commit itself.
+
+This can be done for example with something like
+	git commit --amend --author=3D"Elaine Zhang <zhangqing@rock-chips.com>"
+and in the commit also have both signed-offs-by, aka Elaine first
+then yours below as the submitter, i.e. like
+
++++++++++++
+Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
+[document what changes you did inside the brackets]
+Signed-off-by: Cunhao Lu <1579567540@qq.com>
++++++++++++
+
+The same applies to all commits coming from the Rockchip vendor kernel.
+
+
+Thanks
+Heiko
+
 
