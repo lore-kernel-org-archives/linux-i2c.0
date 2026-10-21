@@ -1,97 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.42
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792598977;
-	b=Wt0j9vqNp8iQoB+AlD70lAkVqqVWCvNqOHg342zQiHDYQKvUlu2eS8g8kOvnj8friaoF
-	 uEzQ+Udd6atGvzEDHXGGmatzHDbj7WElZK+BsQTaX4YrMA4i51kjZFYRDy2nNBDEK4I3i
-	 ybASPtDDIMlkm2C8w61xbVhUymCEbAx5jDfsqj19Z7s008hpeJj3A/D9s4wsdCyHdpivI
-	 iFJ6W417fxLNFX+e1IfjEhhJCad69Cu9I1nDnkx95alACS3tu6AzfBClYF1t/nFttmjOg
-	 Ft3n09wkn0SsDJRY6/jmOK1GjO23yRjXBRDtzuqDY8zNg7tQKso3qcb+HUqz6eONeFA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792598977;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=Q7vPTpyG25KHlbD48LUyUXAGxP+fU7yyx1dKZKZGXsY=;
-	b=yNF6N9vy0sdDd4HK+THzCYNHs4qErOgjlvGTQT7kYWVnDMdKvOEBumWNLVpm/7rFuGom
-	 5VaeVQqW0/vRsgVytSeZJOWrvAawb0K8i+jrfxv0eHIdJpu9VwkrKBpXkxMHlhGT0i5QH
-	 0ksaXgJ0zOEuzzBbsqTpn3ODoi15b6maST514HoWUBK2XZrqPDuqF0V2ruBKH8jzdiAbD
-	 LpT7zp2ip+Z3Z66ItmHY5g02u4dRKJ9tmJWSpJozbGfkuhhlLeA6MK5KA07NZnrbH2iyO
-	 E1ZV9dpaHNdALUrSYVo4igwN8FLAf8K5Rc2PmESF8P0YgC4KmSGPO8v/Q3eEiyniDNQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=SzMHivtY;
-	arc=none smtp.remote-ip=209.85.128.42
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792599145;
+	b=ZK8G26qvR1GHRZyg3vbvsAx7yw4ILA7u0tI7lV22/NLF+uj+JYst9w8mRmbWcgx//2SC
+	 9my+poIhW5oAuuDBgLXxCNLWScpbHD05JGcUVb7dQnMde/APUlL22OmNWpcPtz/c9szED
+	 rfYtqkGfZ3dM7gKj2EDcxWq1hOuuEj3GrdfZ+cbeHQPSMuwxJmJJuMpaxbBRV+d3lfHw4
+	 G6xgeORRqep7otUzF8DCQ1QVFWdjAKJqHvbygkq202PtJfCrYPMQxG78Ej442BMKG3SYM
+	 hVen/2O92qB0dyE7HFAs7XwBqwO34cgYzrpqpdMNZcsItSRomgve7qCeamR8irgqf+A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792599145;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=fTncLPPGPohuW14GIbjnE8CrQrINNX7MPVns5vfiTYo=;
+	b=UGcqgr3N6NQ+kgwn+cn6YoUvH1z6uvVJvPOBvVffZsX9lUSVaSxkG0FrbpzfefK7LY1M
+	 XaTfcQ8/tC1gYHJq8Izfm1WD7eNTFIovjC4QEmytwxJ9Ko/FAmZVzVwH9rDXm5+91X8Kl
+	 qGM2eJTW7v+Dgp8ySn0aTCDm2N8ix/3GS2146JGYzP0OV0zSMSmYJXg9U6/XbFl8sS0u1
+	 JUpVW1Vo5OJnF/8+N+B/nTelPCWlzVJ73aBh7q8Bxfd0uprK1L+aoNM5DNS93EBJjCbvi
+	 RuE/DitOycEATt67IWtGjwaX1z//oKeJDU7KSYp9g/oHrlokoQ8DtxUoPOY8V+njwTQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GbM25pCy;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 919BA606A31A;
+	Wed, 21 Oct 2026 16:12:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GbM25pCy
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1792599145;
+	b=LQ0EICoRZgfCRuKvWr0wxaXOSDZEYM+PXIXF80+DNrhcwyPU7l12aWHcnLDldnyGC8X0
+	 i4KTO1XhTYzppo1eR97Uypcr9JoMJ7Akn3oTO2u25V0zpuaxcWvUlGuJV5PZWtsJrsYxh
+	 bskDj7IqlY98ybGvDTag0NceCYZmqlv9RqYX9dlKmroDbgQvBKbpgyMHJ6Ruvg+Qq7Q5V
+	 wzwY2/w8psXHHqhOuCMjtbT6L+JVgWNkHHzBPtrvVV7XpD5OrJko7rUxvAb49ES8IG/bX
+	 3nvl9TlO2sGwrGRsPCD3quwYJblE5lxXq7DAYymaV6rD3ue4TWvRH1lHMHxQQeGCMmQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1792599145;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=fTncLPPGPohuW14GIbjnE8CrQrINNX7MPVns5vfiTYo=;
+	b=EwnDrTJyDyhCK4Ilb1B3Do5Ml/ERFLygFuev1UGbwOztKDJLVGjg0ylGjJTVdGp9U3lK
+	 YmvzlGv/yOTrwlq0ABuJsvYO+38flXbudqnnyDtzGJPYA/sD/x9C+v/ABNVksAK5k79Ky
+	 AjBL3hOKGdWK1b+ubnBkTWBfVD/m33byye437xmHB1IwQV/HXRKGwCLg9w2kbRHuBywh1
+	 lxlZgY2P8yxHs5Dt4gnRWWq0ITUZgFaKWLXFyg69TkBTo+noZ7HS9cKLwjIi0lonUm26a
+	 WikNFUmmorRfK5mBDzf51WO2RrKqFlBRtoSud82QyC+8/AdIafbmbMlUv25h06ADQ0A==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E84E606A31A
-	for <linux-i2c@vger.kernel.org>; Wed, 21 Oct 2026 16:09:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3E84E606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=SzMHivtY
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4a1e2957d7eso9357165e9.2
-        for <linux-i2c@vger.kernel.org>; Wed, 21 Oct 2026 09:09:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792598975; x=1793203775; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Q7vPTpyG25KHlbD48LUyUXAGxP+fU7yyx1dKZKZGXsY=;
-        b=SzMHivtYzl9WEeITRjfux9Cu/BCfwpYinjhFZLBbmsxXxXavmD/STXYNYc2rwY/h5Q
-         t90Q1RwdYIQ0uOfUAi9xLPg9zWFkdbHqr33dJrPdbd+NaWqTh9Pu16/FLr2fB8AKTRbX
-         bk4TnhWi/MQZ0R2jtvqj5hmHWUUB1coY0e7mENxEH3CjzoeO9CcfQLEc1Rafk9pBF9ML
-         4bT2meXKaTFCkXRbF9t/I/O+f9OwoZkduzaJh/YN/q57dIskFYEpufAfy42sx8nWUb6x
-         X3dzjfXJCRtd2MYpriLbHjvkiH5MTkj1tf5uMEXKJ6CfkD8y4KMjHzD5gJIo7Wg4QFHZ
-         a4/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792598975; x=1793203775;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Q7vPTpyG25KHlbD48LUyUXAGxP+fU7yyx1dKZKZGXsY=;
-        b=NcBqNMIGWjza2BahHx5BEfVrDxV1Q6cn482Nh/Elt3xq3R/Zy5O1G7uYJm4XfU7mTN
-         Ie5l6ZV3J7P27Gdc/tO+q+RAoRGALhfz3B3NEarI4zqENVFOR8sPuH6On9oYA3L6jjO1
-         xWFEPXfyOYCxjDh5EGTRvcs+EuYKVMmKAOxY8xiKn8qgUbV0VOswUfvy4cQSCphx6P6x
-         IZeu9wF0Zf2u57wZaYsCDtZe/0cR1DFhVweKcmcGYztdPrYDr2c1Vesj9q9ahUbd3d7A
-         DQkxE2VKbQNUJjW65iRZPOM7qDPmsX4MqloTTeJ6NFpmY5bNa+cSOasHGdtyw63iEL7f
-         yVPg==
-X-Forwarded-Encrypted: i=1; AKwUvBwP6nCBMLXcR54HCrS31DIS/ogiHfEgZe1/7IMQLQwnOsLdrsFncEj8eQzcQmgnDqQYBEJZoRxXyg4=@vger.kernel.org
-X-Gm-Message-State: AFq9FYK8r6QH6tCt0wZGNMpZ/+vNUM8oi7eIb3SSlqa66+rTXgbUVhIV
-	+xbE1f77XHzxtHJB8JdsRZiYYYiPk7fQ0ZDd8L9J9hXstlOc5jVg2MgX
-X-Gm-Gg: AYBFou0OLL1FPgJTja7CMxGra29bfuo53YOKHKmCMWTnJNmTBK2RHJFg3BIR0QX0AoV
-	WUIYMOJeKEibtGvcVuYbLJlHOrGZsBuEyZ+r966N06dznvYpgks+eCrd2zUFx+p8ttZbFEFVywd
-	wbOFJq2qtHMDEIndhVzsnEUn8vyWDvyOjYeBYph0IlKSV9uL8VDgY05VpIcgjSQkOpX82VJi+00
-	yNV4wGL4Ld3g3dzZ4FyFeGMUtTgNw5UIXkXjr25hC3IvCQsqWX8B0/7jbkbTV005ZFh8306dblx
-	VbymcFcVdyhiYzwq+NG7X9LaAx3nC/iDgApCF5uYDydjNg/nRUsvburebXEvBcbg/UcN06hIXag
-	wQbiqZaYeXrtHrZsu7VKcHAF4AK5SXbvEDX83S4EVbXV0YZL6NHWQ1gFDhPZ86hz/GIJpoCoTgQ
-	Drk/e1Q21NRq09+8CHHkz1VlkUZMC1KV4tPYKB9rT4dMpMKZxtwXGulSEpdIGGy6Tr1UIuAHtED
-	bdqf6oRepxLVqbnFX2yy2RBHL0FnH2ATmJoNcazhPP6lCGDmkgVo/DaCLEo5UE8LKtAYfq9FSE3
-	jlhIfsBV74EnwOneUyRRkV6ieZFmvqyqF5gZ7cPfc2PDrjqMagEcD4tZV73q
-X-Received: by 2002:a05:600c:3b82:b0:4a0:108:3b48 with SMTP id 5b1f17b1804b1-4a1fdaf7464mr60190065e9.7.1792598975417;
-        Wed, 21 Oct 2026 09:09:35 -0700 (PDT)
-Received: from Ansuel-XPS24.localdomain (93-34-92-187.ip49.fastwebnet.it. [93.34.92.187])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48e254f0bc2sm6226569f8f.1.2026.10.21.09.09.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 09:09:34 -0700 (PDT)
-From: Christian Marangi <ansuelsmth@gmail.com>
-To: Stefan Roese <sr@denx.de>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Cc: Christian Marangi <ansuelsmth@gmail.com>
-Subject: [PATCH] i2c: mt7621: fix copying uninitialized kernel stack with reduced page_len
-Date: Wed, 21 Oct 2026 18:09:24 +0200
-Message-ID: <20261021160925.286424-1-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	by smtp.kernel.org (Postfix) with ESMTPS id 9B0951F000C7;
+	Wed, 21 Oct 2026 16:12:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792599145;
+	bh=fTncLPPGPohuW14GIbjnE8CrQrINNX7MPVns5vfiTYo=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=GbM25pCyczVVDhDkqlfpjE/ZcN24CXRb/ZRW9jQmEApF1BJEUnnsftgy5R3QcYfM1
+	 Qm/upuFABF/xm85fUYY7ZxyplONQwCAd6YZUinx9h8yRUvWGiZHZ5U8nLO4XeI2OGM
+	 O3MxtmAECitcSLHHSkPdrNqdoKVQInic/080SqaHG52wO955BeDEpqpnkk9CcfBCXk
+	 y4DBXzkC+HK0aT0Rlh5ExTOh6e41uvMZzN7+cYB6UcrbQKSJlB+ze25SnUh1MYrnXs
+	 ovO1YDPKGJB5rdPD2C46/xDPJrxZ6ZNcsU7saEjlDDi8DrpFnknH6UTJ1dBieR6RNx
+	 GamN9yLiVYyXQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 0A5A0433A3;
+	Wed, 21 Oct 2026 16:12:23 +0000 (UTC)
+From: Cunhao Lu via B4 Relay <devnull+1579567540.qq.com@kernel.org>
+Date: Thu, 22 Oct 2026 00:10:59 +0800
+Subject: [PATCH 02/27] dt-bindings: power: rockchip: Add RK3572 power
+ domains
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -101,46 +83,141 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261022-add-board-ok3572-c-v1-2-0b0fd85a31ee@qq.com>
+References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
+In-Reply-To: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
+To: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>, 
+ Philipp Zabel <p.zabel@pengutronix.de>, 
+ Elaine Zhang <zhangqing@rock-chips.com>, Lee Jones <lee@kernel.org>, 
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+ Richard Cochran <richardcochran@gmail.com>, Ulf Hansson <ulfh@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>, Jisheng Zhang <jszhang@kernel.org>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ David Wu <david.wu@rock-chips.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>, 
+ Maxime Chevallier <maxime.chevallier@bootlin.com>, 
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+ Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
+ Manivannan Sadhasivam <mani@kernel.org>, 
+ Thinh Nguyen <Thinh.Nguyen@synopsys.com>, 
+ Jaehoon Chung <jh80.chung@samsung.com>, 
+ Shawn Lin <shawn.lin@rock-chips.com>
+Cc: Cunhao Lu <1579567540@qq.com>, linux-clk@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ mfd@lists.linux.dev, linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org, 
+ linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org, 
+ linux-usb@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792599138; l=2586;
+ i=1579567540@qq.com; s=20261015; h=from:subject:message-id;
+ bh=XCHXnkhL1K3pqwpZtcnxnK6WkRaV98m9UCg4zRZwm8s=;
+ b=MnXYmtt0bh6snlWCojGt8+2eWEY2VDGVIaBGezscAHOMFj3U56kvvBOcA3fufVOxsrbS2Efql
+ GOt1v4997hoC5Ss8sbADnheAa9c6n1i1wCUJNZAPpb2L9gi3GrIigbO
+X-Developer-Key: i=1579567540@qq.com; a=ed25519;
+ pk=sUTWrzlIwT4C7ctjNfVZAzzg0G7QUn2XxRGpYsw4RtM=
+X-Endpoint-Received: by B4 Relay for 1579567540@qq.com/20261015 with
+ auth_id=1177
+X-Original-From: Cunhao Lu <1579567540@qq.com>
+Reply-To: 1579567540@qq.com
+Content-Transfer-Encoding: 7bit
 
-When a page_len is less than 5 bytes in mtk_i2c_xfer, uninitialized kernel
-stack data is copied and written to REG_SM0D1_REG. Equally on the read
-part, an unnecessary read is done.
+From: Cunhao Lu <1579567540@qq.com>
 
-Guard these extra copy/write and read for the page_len to fix leaking
-uninitialized stack memory.
+Define the RK3572 power-domain IDs and require the system GRF used to
+check firewall status.
 
-Fixes: d04913ec5f89 ("i2c: mt7621: Add MediaTek MT7621/7628/7688 I2C driver")
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Signed-off-by: Cunhao Lu <1579567540@qq.com>
 ---
- drivers/i2c/busses/i2c-mt7621.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../bindings/power/rockchip,power-controller.yaml  | 17 ++++++++++++
+ .../power/rockchip,rk3572-power-controller.h       | 30 ++++++++++++++++++++++
+ 2 files changed, 47 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
-index 19dde7c4069e..b4d2f9c5514d 100644
---- a/drivers/i2c/busses/i2c-mt7621.c
-+++ b/drivers/i2c/busses/i2c-mt7621.c
-@@ -96,7 +96,8 @@ static void mtk_i2c_reset(struct mtk_i2c *i2c)
- 	 * configure open-drain mode, this bit needs to be cleared.
- 	 */
- 	reg = ((i2c->clk_div << 16) & SM0CTL0_CLK_DIV_MASK) | SM0CTL0_EN;
--	if (i2c->have_scl_stretch)
-+	/* Set SCL_STRETCH only for Mediatek SoC */
-+	if (device_is_compatible(i2c->dev, "mediatek,mt7621-i2c"))
- 		reg |= SM0CTL0_SCL_STRETCH;
+diff --git a/Documentation/devicetree/bindings/power/rockchip,power-controller.yaml b/Documentation/devicetree/bindings/power/rockchip,power-controller.yaml
+index b41db576f95de..f8afb0fabe809 100644
+--- a/Documentation/devicetree/bindings/power/rockchip,power-controller.yaml
++++ b/Documentation/devicetree/bindings/power/rockchip,power-controller.yaml
+@@ -43,6 +43,7 @@ properties:
+       - rockchip,rk3528-power-controller
+       - rockchip,rk3562-power-controller
+       - rockchip,rk3568-power-controller
++      - rockchip,rk3572-power-controller
+       - rockchip,rk3576-power-controller
+       - rockchip,rk3588-power-controller
+       - rockchip,rv1126-power-controller
+@@ -57,6 +58,22 @@ properties:
+   "#size-cells":
+     const: 0
  
- 	iowrite32(reg, i2c->base + REG_SM0CTL0_REG);
-@@ -302,9 +303,8 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/* Set SCL_STRETCH only for Mediatek SoC */
- 	if (device_is_compatible(i2c->dev, "mediatek,mt7621-i2c"))
--		i2c->have_scl_stretch = true;
-+		i2c->have_scl_stretch
- 
- 	adap = &i2c->adap;
- 	adap->owner = THIS_MODULE;
++  rockchip,grf:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description: System GRF with firewall readiness status.
++
++allOf:
++  - if:
++      properties:
++        compatible:
++          const: rockchip,rk3572-power-controller
++    then:
++      required:
++        - rockchip,grf
++    else:
++      properties:
++        rockchip,grf: false
++
+ required:
+   - compatible
+   - "#power-domain-cells"
+diff --git a/include/dt-bindings/power/rockchip,rk3572-power-controller.h b/include/dt-bindings/power/rockchip,rk3572-power-controller.h
+new file mode 100644
+index 0000000000000..c2316fa859df9
+--- /dev/null
++++ b/include/dt-bindings/power/rockchip,rk3572-power-controller.h
+@@ -0,0 +1,30 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR MIT) */
++/*
++ * Copyright (c) 2026 Rockchip Electronics Co., Ltd.
++ * Author: Finley Xiao <finley.xiao@rock-chips.com>
++ */
++
++#ifndef __DT_BINDINGS_POWER_RK3572_POWER_CONTROLLER_H__
++#define __DT_BINDINGS_POWER_RK3572_POWER_CONTROLLER_H__
++
++/* VD_NPU */
++#define RK3572_PD_NPU		0
++
++/* VD_GPU */
++#define RK3572_PD_GPU		1
++
++/* VD_LOGIC */
++#define RK3572_PD_NVM0		2
++#define RK3572_PD_NVM1		3
++#define RK3572_PD_DSMC		4
++#define RK3572_PD_PHP		5
++#define RK3572_PD_AUDIO		6
++#define RK3572_PD_IMG		7
++#define RK3572_PD_VDEC		8
++#define RK3572_PD_VI		9
++#define RK3572_PD_VENC		10
++#define RK3572_PD_VO		11
++#define RK3572_PD_VOP		12
++#define RK3572_PD_VOP_PRE	13
++
++#endif
+
 -- 
-2.55.0
+2.34.1
+
 
