@@ -1,78 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792599161;
-	b=LM/yVY2B+cicB1kT0LaKeExBIcIj6EpAUmSSXfoM7fdQXtxtJPJatVj9r6ygfXccuOk1
-	 UbHRSK4GluT5kEiId9NtWHnSuFF1hVHm+2w/F/NU9pdZMRGAFiH1lL2OtiC5pFZW/fKt2
-	 wP6wDNfl0W40YzcqQC2jnFLLkauOkmJmToM1PJyuvwt7gZi7QLE6cyEL9E1zaqAT3n+zP
-	 nDVx9l0LBR0jd/HaOYzyQAT+0lKcOrYTwCDPpvE6sHwNDll3YNgfUDLR+ra0yVYCH+Zmw
-	 MCBOxv2Oi9ERtWn+yGPdsbr7IP4FbjNh6xCkWK9v2CgELbFh9o1cLa0534yrQLBKNIA==
+	t=1792599162;
+	b=uTmRyDYuXbLDRQjStITIYnVhTBVTArKPhS2kTlVKtYgoI2IkRn/rzW/b7FK8CSQSD9Z4
+	 uIdHxj1o3h0rUI4K+IPD0RkbUYfWKG0ldvvu1jvwT8WtEsMGU8IJ53pxfc5Zm/LqtZ1mP
+	 WRREfhnkhk9xSywyF2U9SklirtjGtJfmR5w4sEpJUU/OcdkHdD7xYTTb8hJHP3waeLwKO
+	 WgPz0pZ2Y+/TQw7LoWqATa5lF0hBbznM4Zmz0tTfmBSFbjd2NeH4jU5FLMx21a5oWMg+y
+	 9HWpW8+cTAa0z4CLScxWrPqJzMN6DleOGjBSttBl/pIJr3wgRWB+8XlcvFRVHoAYeLw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792599161;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792599162;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=y/aRDDf0tbbhcaRVo5zqbs8kQxH53mVifboQgC8oqlg=;
-	b=kDeFCVCLZf4ItEk0J8ZuiSabqrvvo5RJFN/5CkQmIVTNHAVtfzY+Oe0L2+X86PgqHEgS
-	 +7DYS/gpSsn8aeFKFqs4kWecBbs/UIH4R7TuOePJYEvoAbZzUYS4KsNs7BF28sQ6NBP1r
-	 3g1LT4YHUv1DzyhBPZVhrX9EYq08de8/DX/7nnkVbn9T57wiTQhiyT0bRVHdb/7NF3u2t
-	 4+abloDEDNgMvvdoLbO53vBnQDkwcqFKKX4MowCAhLIALIYT1FcO1SXw2ZfQOcswRnZ00
-	 P9hVRRIuOVRdRly2dFJc0ZQnzn8IDJunHfzQihndNiNmD7fuErfoCN2MhxVSsdceh9A==
+	bh=1LyLY75raFOWC8g1ja1YF1K6rlijG5R5FhPw46PdyQQ=;
+	b=FS/dwn2HzK41/Ib0Z/JV3dOx+Ex2uMxyaTZQRiZYpvHquJDg3TdDmtmct0mLglF3JyDA
+	 A7qe5S1LuxvlzXkufAzUpruZ2H3OdG3jHVUilbYbUT4iNKteAWzR6UrbQ3ya0md9fnqSH
+	 QjTjqfzp5yjELoYNlUcuqVxvfg72imCpvphhPqkCeCi6OYzPEMqiskWBAkhXJB0eky39U
+	 xmn0lrmPbDShYBLql2cklAGE2frOfcH7zRu4uemv/Ynh9S65b2ftP8CG9s5onzYhwcoGg
+	 0FtytSZ+3gAw8Of7rjL6Rk+Qf6+ewMVh8Rse9jfW9jkzIK3Pa6fQ8URhAXZniPNLF9A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=No0xofZM;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="S0/pHd6L";
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B844606B6C2;
-	Wed, 21 Oct 2026 16:12:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74363606B6E2;
+	Wed, 21 Oct 2026 16:12:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=No0xofZM
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S0/pHd6L
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1792599161;
-	b=RQsOV/TskJajjHT07pmXIfVkyn41wrMBcQGub5xgeFNQEnLkez9qpgj6Anj9/bjmyPEA
-	 3GYggnRHcjwTYeb0slG+w9UpZoTuYUWgqJtcjJiT7lUD2sQxYFfG5g+fiHQeOClPwDq08
-	 PtBaGY3WbWSa4ba6HPAs/L/4N9pzG/zkrts87uqKlLR30pxpoDDMaS6duUeODPM5qBBPj
-	 TxTNDInjwPxi5FVzAVYWjX9yqhfcjAiJGMTs1hX7CTCLvNRShPEDjoIp5x9n0Zvy0d52j
-	 Ic8kKwX6eyMSGXLxg/IpXXy65LOSzvyS6Tq16yxqiiRdjXtqgpnPVWI6w6T977tCFxA==
+	t=1792599162;
+	b=AOXPO6PtaMhMh8uI/QslwGVp6VFKKCGp6obDm/HbPGBSvbz6wNw73UlIL7FwZpQpojJl
+	 sL6buaSI6I3KAfqA0qjmWqEZFWdV3AtMfEB0O2TGECQnRVDPkqM8x2bWCtiZzRSnCO9gj
+	 n2dXqSrShV+bOX6VYWC6xvwpYcxwzMFLKaji4Pyh2dRxATDcsBWQ9gMT28pywWuHr9K36
+	 osLBiCfV7tW4bw5P2MUfIzhzds0wjmHsEWls4NqAtcBWW+gHQzH34rpN410vsz6ct1MPX
+	 c4tIiNZeO8JOiuDdYC3uzxA2r9syfS/YisbEi1m+QqGCmZ4Q+V6Lx3cA+QihRkAMaLg==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1792599161;
+	c=relaxed/relaxed; t=1792599162;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=y/aRDDf0tbbhcaRVo5zqbs8kQxH53mVifboQgC8oqlg=;
-	b=stQAULPk/5bO1ymm3K6Y3yigWQuGCrRA9dWKmvKGlwRNtdlDrfla7mfINDe3RDuUXi5J
-	 Sq4HvniIQjunGN6KB0XTH+PZPl922KPivPaspx3sdbgA3YG0lgI4YZcbt3GEslJNMegj2
-	 cHuUWRBcYic7hZC9SBWjpEOfToAeWyN5jUczQufdCCGET7pqw+gDjqn8QNtCjFBA2r0+R
-	 liq0kW97DL2aght/vS5i6KtXYnm2XnJbCzhg72us1NmtZngd0tFv/ner6YMwwBw9pJarF
-	 zAdFaSNQXCzk868/9ffp3X0eFYbDu5pOSgNXB1Q5S6//DPciLFgLBUJwaAtPbJvFYzQ==
+	bh=1LyLY75raFOWC8g1ja1YF1K6rlijG5R5FhPw46PdyQQ=;
+	b=TqBu8DjSAkYajQx9xJ5kiAD7dajzs6V1fwISspjuh0HTjmC0NISUanDVaj0x6d6wlq7+
+	 QKzGf9joUy9H67dZHWvc66A6hsEJifmhA/r1JxEWigBg7M6oz4a/lKe9LJ6rgMwAIJzXw
+	 VePIzr9T6I4OC+2mM+dTrj019E/Vm0CcafKnHRiGgmVRaXRy9/mgqkzS42KlXaejNkCiR
+	 aJd9qUe0wUn+J4GLSiruhlaucygfBT+EV2ypsCV1M9T40G8acdOX5nuD4vFZOOd02fVuf
+	 ki5AfwiqVUHLmEMuGGf67xzENn8BUEimJ6O7d27taMJFW0LO362Gn4I8yVhtu6TbziQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 615431F01576;
-	Wed, 21 Oct 2026 16:12:35 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id ED0081F0180A;
+	Wed, 21 Oct 2026 16:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1792599161;
-	bh=y/aRDDf0tbbhcaRVo5zqbs8kQxH53mVifboQgC8oqlg=;
+	bh=1LyLY75raFOWC8g1ja1YF1K6rlijG5R5FhPw46PdyQQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=No0xofZMIhsfubV6JJaw0xy43d1X/1e6d2S8HU41lM7BsQeg7cU5kSLkc6I+lnqqk
-	 pXvZl5FkO13VXrXT4b1bMgxJgLv/bugZFMrlMWo9e+BJOHhYmZIxHvRpAO1KLwrQIG
-	 vcRuulPn1l47T8bqXEJnc77yYgi7Lm/1do5rNSn9+9BPecerclNyuL+XAU0x6Q1A0O
-	 pSDgS6Dr+oo5LHxLfC6LROhHicmGu30Cz8oD3DqTyjFnBz7WmKSsfkE0uLvOG84qmf
-	 VvkCRdt1K0Qe5dPBWHWFvedjkd6FTGagAMGIloBSMMR/M+lEy8UyBgfu1fNNCj18hX
-	 NwlXuZiGoBuFA==
+	b=S0/pHd6LQFhhAiaaYoUlhn7+qfFJuwD5FLVCDl1QzU8cfoQHWkJeKGhfqXx7Al73D
+	 YeR8o7k0sqSj8f07AEz0xNcGtvkaTKukulhLeTMuGl58muk4YxtkOvuBO48VeqDy4g
+	 KnC0ct37qUB+rknjI5l2cg+CaIZIK14NBq5xvCxxXlbB7aR0KcqHalU38HsOEjQLMK
+	 RNNS5SeFhQyrowAtNty8SGHZGHFLkMLDUTULRH7tEGRwPUzdvXFopdRirJ0vw8d/WI
+	 1P9IzlPZbe+bc7w1ej/D930oaDbBJGijQcKiedLmVucDxrABQyck5IcVvO05OGSApU
+	 bvFNxViY/hN3g==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 87663433DE;
+	by lkml.kernel.org (Postfix) with ESMTP id 909D8433E2;
 	Wed, 21 Oct 2026 16:12:23 +0000 (UTC)
 From: Cunhao Lu via B4 Relay <devnull+1579567540.qq.com@kernel.org>
-Date: Thu, 22 Oct 2026 00:11:13 +0800
-Subject: [PATCH 16/27] net: stmmac: dwmac-rk: Add RK3572 support
+Date: Thu, 22 Oct 2026 00:11:14 +0800
+Subject: [PATCH 17/27] thermal: rockchip: Add RK3572 support
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -83,7 +83,7 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261022-add-board-ok3572-c-v1-16-0b0fd85a31ee@qq.com>
+Message-Id: <20261022-add-board-ok3572-c-v1-17-0b0fd85a31ee@qq.com>
 References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
 In-Reply-To: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
 To: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
@@ -120,11 +120,11 @@ Cc: Cunhao Lu <1579567540@qq.com>, linux-clk@vger.kernel.org,
  linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org, 
  linux-usb@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1792599138; l=2887;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792599138; l=1769;
  i=1579567540@qq.com; s=20261015; h=from:subject:message-id;
- bh=Rg9amKxMbRRIlhFsyxhoXU1NtXTBv4uhUyFMSA2skGM=;
- b=RlAQCZ0baz8YNd+Fe9U9uTTuBsNuYyNIkkmM+sLmCxpFmmJfRH2JQSdcgqoVkpSpp4l5+IsQp
- ugoGbndipGsB56oFRJkFSBRBu0gv0dr6kL+awbNU6Vp7rpINPT9yOUy
+ bh=bsK0j/Qm4dk7H1oLoynYDwdzYp8Fxzpx4vhiNIJc70k=;
+ b=zSifOOwVDgw+1IA6DzQ0rBwBBT12H+BJr7PpG/+IJVMwXpPRo1f/M3ZA9vr1XX6ULo4oCUoWO
+ htWNcBJy35GB6shfe9XoMRDAnZ4oeBNwoMvR1t00Hfl/yQBkGRA3ggI
 X-Developer-Key: i=1579567540@qq.com; a=ed25519;
  pk=sUTWrzlIwT4C7ctjNfVZAzzg0G7QUn2XxRGpYsw4RtM=
 X-Endpoint-Received: by B4 Relay for 1579567540@qq.com/20261015 with
@@ -135,85 +135,59 @@ Content-Transfer-Encoding: 7bit
 
 From: Cunhao Lu <1579567540@qq.com>
 
-Configure RGMII delays and clocks for both RK3572 GMAC controllers,
-using GMAC-specific GRF registers.
+Support all five RK3572 thermal sensor channels.
 
 Signed-off-by: Cunhao Lu <1579567540@qq.com>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c | 53 ++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ drivers/thermal/rockchip_thermal.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-index 72bdbcb5e863..1a22233179ab 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
-@@ -872,6 +872,58 @@ static const struct rk_gmac_ops rk3568_ops = {
+diff --git a/drivers/thermal/rockchip_thermal.c b/drivers/thermal/rockchip_thermal.c
+index 08891608baa6..745aad53beba 100644
+--- a/drivers/thermal/rockchip_thermal.c
++++ b/drivers/thermal/rockchip_thermal.c
+@@ -1303,6 +1303,31 @@ static const struct rockchip_tsadc_chip rk3568_tsadc_data = {
  	},
  };
  
-+#define RK3572_VCCIO0_3_VO_IOC_CON1		0x10608
-+#define RK3572_VCCIO1_2_4_VI_IOC_CON1		0x12604
-+#define RK3572_VCCIO5_6_IOC_MISC0		0x14630
-+#define RK3572_PHP_GRF_GMAC0_CON		0x0070
-+#define RK3572_NVM0_GRF_GMAC1_CON		0x0020
-+
-+static int rk3572_init(struct rk_priv_data *bsp_priv)
-+{
-+	switch (bsp_priv->id) {
-+	case 0:
-+		bsp_priv->gmac_grf_reg = RK3572_PHP_GRF_GMAC0_CON;
-+		break;
-+	case 1:
-+		bsp_priv->gmac_grf_reg = RK3572_NVM0_GRF_GMAC1_CON;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	bsp_priv->clock_grf_reg = bsp_priv->gmac_grf_reg;
-+	return 0;
-+}
-+
-+static void rk3572_set_to_rgmii(struct rk_priv_data *bsp_priv,
-+				int tx_delay, int rx_delay)
-+{
-+	u32 val = GRF_FIELD(14, 8, rx_delay) | GRF_FIELD(6, 0, tx_delay) |
-+		  GRF_FIELD(15, 15, !!rx_delay) | GRF_FIELD(7, 7, !!tx_delay);
-+
-+	if (bsp_priv->id == 1) {
-+		regmap_write(bsp_priv->php_grf, RK3572_VCCIO0_3_VO_IOC_CON1, val);
-+		regmap_write(bsp_priv->php_grf, RK3572_VCCIO5_6_IOC_MISC0, val);
-+	} else {
-+		regmap_write(bsp_priv->php_grf, RK3572_VCCIO1_2_4_VI_IOC_CON1, val);
-+	}
-+}
-+
-+static const struct rk_gmac_ops rk3572_ops = {
-+	.init = rk3572_init,
-+	.set_to_rgmii = rk3572_set_to_rgmii,
-+	.gmac_phy_intf_sel_mask = GENMASK_U16(11, 9),
-+	.gmac_rmii_mode_mask = BIT_U16(3),
-+	.clock.io_clksel_io_mask = BIT_U16(7),
-+	.clock.gmii_clk_sel_mask = GENMASK_U16(6, 5),
-+	.clock.rmii_clk_sel_mask = BIT_U16(5),
-+	.clock.rmii_gate_en_mask = BIT_U16(4),
-+	.supports_rmii = true,
-+	.php_grf_required = true,
-+	.regs_valid = true,
-+	.regs = { 0x29d20000, 0x2a040000, 0 },
++static const struct rockchip_tsadc_chip rk3572_tsadc_data = {
++	/* center, gpu_npu, ddr, little_core, big_core */
++	.chn_offset = 0,
++	.chn_num = 5,
++	.grf_required = false,
++	.tshut_mode = TSHUT_MODE_GPIO,
++	.tshut_polarity = TSHUT_LOW_ACTIVE,
++	.tshut_temp = 95000,
++	.initialize = rk_tsadcv8_initialize,
++	.irq_ack = rk_tsadcv4_irq_ack,
++	.control = rk_tsadcv4_control,
++	.get_temp = rk_tsadcv4_get_temp,
++	.set_alarm_temp = rk_tsadcv3_alarm_temp,
++	.set_tshut_temp = rk_tsadcv3_tshut_temp,
++	.set_tshut_mode = rk_tsadcv4_tshut_mode,
++	.get_trim_code = rk_tsadcv2_get_trim_code,
++	.trim_slope = 923,
++	.table = {
++		.id = rk3588_code_table,
++		.length = ARRAY_SIZE(rk3588_code_table),
++		.data_mask = TSADCV4_DATA_MASK,
++		.mode = ADC_INCREMENT,
++	},
 +};
 +
- /* VCCIO0_1_3_IOC */
- #define RK3576_VCCIO0_1_3_IOC_CON2		0X6408
- #define RK3576_VCCIO0_1_3_IOC_CON3		0X640c
-@@ -1629,6 +1681,7 @@ static const struct of_device_id rk_gmac_dwmac_match[] = {
- 	{ .compatible = "rockchip,rk3506-gmac", .data = &rk3506_ops },
- 	{ .compatible = "rockchip,rk3528-gmac", .data = &rk3528_ops },
- 	{ .compatible = "rockchip,rk3568-gmac", .data = &rk3568_ops },
-+	{ .compatible = "rockchip,rk3572-gmac", .data = &rk3572_ops },
- 	{ .compatible = "rockchip,rk3576-gmac", .data = &rk3576_ops },
- 	{ .compatible = "rockchip,rk3588-gmac", .data = &rk3588_ops },
- 	{ .compatible = "rockchip,rv1108-gmac", .data = &rv1108_ops },
+ static const struct rockchip_tsadc_chip rk3576_tsadc_data = {
+ 	/* top, big_core, little_core, ddr, npu, gpu */
+ 	.chn_offset = 0,
+@@ -1388,6 +1413,9 @@ static const struct of_device_id of_rockchip_thermal_match[] = {
+ 		.data = (void *)&rk3568_tsadc_data,
+ 	},
+ 	{
++		.compatible = "rockchip,rk3572-tsadc",
++		.data = &rk3572_tsadc_data,
++	}, {
+ 		.compatible = "rockchip,rk3576-tsadc",
+ 		.data = (void *)&rk3576_tsadc_data,
+ 	},
 
 -- 
 2.34.1
