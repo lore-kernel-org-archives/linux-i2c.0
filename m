@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792599165;
-	b=q/b9bl2Urm4KWLkS0DZdvZJF9uNTIoBZ4pLhDtdZOl5vPCj2xgY0meQ6DnxMM19gSQOU
-	 8/DRiwDB63LAH9ht5VzAaXcA+bAVTMn1pZCFM9d6142jVVmOwxjJxNORap7UxMq0aA3mc
-	 SZ7qRPdSDIaz/eLv0UEJJDMjacbZ/RMPV1mVenrxF+g4KaEXJ91TGk4rc1U+4IQIe7Uws
-	 WjZVpaGy1eG+JOogEfAH+mbsYLc024Wzhr2nFjEuXBYilJkNjfm9WsbvhGnoKrQrQfE1d
-	 AgkEwlu3X4oQscpHOEhm2ASTReA/IeZT6Mn2lmxuXQYqd9JSQIniCNXTbJVQKi2EHkw==
+	t=1792599167;
+	b=WS1Y7gyz5ssMvW/IXLAqymEWkSjG5B3ZOcSJ7DWkKm61b+1INXpEEcDRQOCnDZLa1hRN
+	 Oa3mK3dxQs0lDRuigj27yYDjTycFBadnsStAypYx1DUJW6KYg6H6jeMDKo2e5oOOhO2DD
+	 HFy2ZTjPfzI/wakaSCQ/H4BFh7n5Bk2tRCToI6a+ekre88uNgweY+76uGEkCzuXwiRMsx
+	 bViHt30VUeab+rd21AktfC0IuAuUS3m+3lhVO4r40nAO9vO0hSzI89vywRdvVpI8WPPlF
+	 I1/b+Fd33jgiSF4zDt3SBHuYRMglclT9zXw6VRumuyiVTJj3CoJNp6nl/EDVszSw3Hw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792599165;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792599167;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=NVcTs4+R4D4TM8lWcbqJP0vpXUWnEu+1cmq0y1Lvtx8=;
-	b=WfduW9RLTEj1/wDuhovySlv6fiR3+g22oPjBig/RI0iPzslGS7GJ8Wo99o9+4lTenMNq
-	 hOnK4wNMyA56PGCwFnJjtP58g2nBqQixyDoa+1r+eRaYCnUnNwoeNv+7vSONisHE7IK2J
-	 lxekjsRSaBvwvpac0tW2d3bmUfbCbleB39ipJ0dXg1k+n00CDsDFXFk2F66/qUUXnO1Nt
-	 6lBRPyjiUbBZ//IR3Gmus1wGuEOCePSyrgqjhsw49YW5UoSq4t3QeeEo8UqCwTC8JmRGX
-	 TghOSRTEbfOG1Jb3D9tabxoPzuACMc6yJBiainjtHIodmdF8iec+o8dlMC/v1NwkQfw==
+	bh=jJLVwqngB3khTM7aVsmVcc/kQR+Ovh/E3oE7VLbfW6I=;
+	b=33Ma1XjDnVzkt2JzgXUM4U6UNjBZU7eB4Gf7rX0ozt3UQSuZWtayTWrtK8k0v3Q63XUH
+	 dcNupp213QVDF2YCpL0e0QyYr2En5iptAOIz3e9/ZVSPw4s+8OU2ZgzFWj6rpBhWz+kJR
+	 2kpGlpoCqfQYF1T1q6U/+RdH65LCnQx0kPUAX2aj4bwIt31PJXNRgPPqAkKmar1xC9GMe
+	 X/7zgoM7gbkL8nB3jEvGx3yiIRF9bTic9MmAw7b8DuTJGmSgUGAg7DBNB8dMJ/S2P3QSO
+	 W17EH7bDqsvD8I9KxqvxBVQOSOeeRtAqWofBSEc5VdjkBtKZPwQ8lIWLmInyOcLtzrQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IAWzOiIa;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UI+5dcVm;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D15606CD5C;
-	Wed, 21 Oct 2026 16:12:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3BE60A2618;
+	Wed, 21 Oct 2026 16:12:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IAWzOiIa
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UI+5dcVm
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1792599164;
-	b=Rb8753MISmDkCgTw+GH2r56fENSIZ0v5w9TsMkm4jaXtvafubJPyeJRtsYdgqT8Pokji
-	 Cp02NtJIr6vDl6y9teDPqOw6DEb8KY96XasmQVYF0FTaFs3eFH0lE3Logw63n7KjLqkou
-	 2uDqa5RBZme4UivKcmTsquwlfI8sZ7Umk6egotMrJ5bw5Z+lDbwMfZme1KwvOGNjE4C1c
-	 9J0Tf9ajIt8Ef0FJg4Kni77aTapsjsqndgzoM6JTfqyd1YVqqvES8DZW8ciKQb0mN7EDV
-	 lInyG03LIqs6B1U2NuHJiZhZXSbsOE+tub8yGvgJ99CxLUucYgbm9uS8tmWh14ScZzg==
+	t=1792599167;
+	b=Uy/7Bn0i0iI5mObVkuPH5XlcAXt1MSgwKlSFHWyj9G+yeN5KWfx9Wohnp3iLCT5cHczA
+	 bEM/WhCeVLVqeVT0LHxLJzDBcqAZJOpvr0Ic9s/hk9WX1+3RpUKMge4Sb6NG93sC4Q60E
+	 g2vJHL/qcXd0T17qnwmjzdv2GJ+ZY1TU2rDLDFUYmY7/RCA3zM9WT20+pxBaAVmICW9Mc
+	 odBJtBZqzLDbSXSQryvQ9pQztcW4mKXCmtOlRIRYax3Kdaj4MN84TZQ5rUQDycuvhhSEV
+	 NK+RTH0UgEe1qATKEVxuG3zg8jti9dRWLOJYlRiJwJVs/r3MEcVQoqc9z5NvIQBKG0A==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1792599164;
+	c=relaxed/relaxed; t=1792599167;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=NVcTs4+R4D4TM8lWcbqJP0vpXUWnEu+1cmq0y1Lvtx8=;
-	b=HCsqrLLVDKtsZP2B5dqvo3ijeD5sko2/W6zTB88a0+qgGl6cvM1dm2/LTjZ5tRpBWAWQ
-	 FYJaV3DXkW+WT2NIyDklxIDMiGNcFNl4UkwqKvhxMzlLcF0JOzW6FNbyOEI9jXqTvevi8
-	 YGAyJ0kUvCCxsZBWBe3IFFPK4nIqwdushFnfH546jVWKu4UH/yGbqml4JLHL71ka6FHVT
-	 +5lYzXnnf3CST60oWt11j4aQUCltoOGUdlyw9iji2jFa24+lpg18CBQY9+wew+MqVLJ+8
-	 F1sz5qOXHQD3Z605NotnU/4ohYqfm+8YdFLPnF8X1JksapjzMOiJ7X41QQdVnjyU6lA==
+	bh=jJLVwqngB3khTM7aVsmVcc/kQR+Ovh/E3oE7VLbfW6I=;
+	b=qWGmap/iJLRYjHKdO2Mw6NrjdHFC3jUObiqVGxqFrKr5T49LtvsWvJgB79hzd09iuNYY
+	 c/NzaG0OEuF1SHrx6J/7+G/76H29EBPpOTti/CVmGRu7nYgr52cpXdDroVWBs9/WmmWnd
+	 yz4oaBu3FHK6xZdeD/qORseUcLyjnbyXDVsqm84CPTPqydeBNIlX+hXfSTHGy1JcBOH00
+	 pU6Yp2V3IY012+c6vScvO9PPGseTJLY/IGz6y5ayesDbXzfk1muU2GCvV40v+pUfqWdTr
+	 R7qLWxP+uqUm56MsKbmJZL1giaQLOPcwLpZHvlPCmQfC3FtD0/ugN9Z0Jy83E20yGYg==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id F2B9B1F01804;
-	Wed, 21 Oct 2026 16:12:39 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id 812171F0180D;
+	Wed, 21 Oct 2026 16:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792599164;
-	bh=NVcTs4+R4D4TM8lWcbqJP0vpXUWnEu+1cmq0y1Lvtx8=;
+	s=k20260515; t=1792599167;
+	bh=jJLVwqngB3khTM7aVsmVcc/kQR+Ovh/E3oE7VLbfW6I=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=IAWzOiIaXju7EtxNgpjhbvjT7PRlgcxkcdYtAM3VQvVYTpnEvd/Iwzb9DzrLVLO4u
-	 SgPDSbFT0PflzZweDNPvOqFOE/nBd+3MXZLfyF5DR0RMUB6xGOFtPTN3ed+mMVY31P
-	 uIWKSVOL2lmbliEoIz6DNb2VOz5XAiegUgO8dzWExl3PjfgxbhUP2nzCc+VFAxvLIV
-	 uaS1h36QsJVqsUxBEfIJPQcKXQqWRlK+t6oVeMx9dGH9ynS6thv/uKJvJcxTtFKDPb
-	 Y5Kfc07aDtxJVh0EoV2NdpqAPeHbLntbDY97sQOKVDIf5oidjYDtA8+bTXKVf5miAH
-	 UomnMqTPhU42A==
+	b=UI+5dcVmR+0Lgi62uXF0jE6g0B++DgQX12n3af4/n1DUN0KwzGSTLwmnSMBfBd8pE
+	 CxhDaYvLcDjF9e5nN99c19/XmWR+Qm8u2i+BAgu8Uj78GoqEZDxM5VtPOPg945SO0n
+	 S901TzixMjpzdy143PI5WKq406DZ+WtB8tJzyvJNjD7BuMhqAzyWOX1HbrsuXobC3z
+	 9M+Vhw8kciwps7xc4Q24A+KJqDt/W+qmmiDydDI2aTBwqiRjwlxQCZ/9VCKEiILutg
+	 GkAZ9SoyF1PB7hYl97AavGNPsuCDrNP1R7EooIltKJsfnQNxn/sblJAjSbhs8mzb41
+	 /OkLADdxRQcuQ==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id AB47A433EF;
+	by lkml.kernel.org (Postfix) with ESMTP id D07E743400;
 	Wed, 21 Oct 2026 16:12:23 +0000 (UTC)
 From: Cunhao Lu via B4 Relay <devnull+1579567540.qq.com@kernel.org>
-Date: Thu, 22 Oct 2026 00:11:17 +0800
-Subject: [PATCH 20/27] dt-bindings: usb: rockchip: Add RK3572 DWC3
- controller
+Date: Thu, 22 Oct 2026 00:11:21 +0800
+Subject: [PATCH 24/27] mmc: dw_mmc-rockchip: Keep RK3572 NVM domain powered
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,7 +83,7 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261022-add-board-ok3572-c-v1-20-0b0fd85a31ee@qq.com>
+Message-Id: <20261022-add-board-ok3572-c-v1-24-0b0fd85a31ee@qq.com>
 References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
 In-Reply-To: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
 To: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
@@ -121,11 +120,11 @@ Cc: Cunhao Lu <1579567540@qq.com>, linux-clk@vger.kernel.org,
  linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org, 
  linux-usb@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1792599138; l=2999;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792599138; l=2194;
  i=1579567540@qq.com; s=20261015; h=from:subject:message-id;
- bh=iT5BkLeeMmmjRIQeuSIycaI/UXplV+prYKUmY7Ulxps=;
- b=v53jOqW6R2n7fnmg8g19Yw7h4T0AjT02bVfEk5sahYgQzXvZmOvgxh+pYAmDqwo1QrriCFURL
- PtaQ5zJEYipCdDZabXmFfxXkC5DXvBCRrr4RHaHwP9Kab8NEfd0cZhV
+ bh=3PU9hSe/SMk7DBdg0xf4xauSWrjq1Nz1yuJVCXM3AuM=;
+ b=F8VlQQXXXNczwtESOy5RD1fLR2o2T1P1xaFISpXna6qy9gK+Nv97fAEV0tPYcJpVPqhMJ72/i
+ Vvc390n0/atAb9P5zCJiO6A21b9yqanXUk0GsKPdEjNs1+rSq2/UdJr
 X-Developer-Key: i=1579567540@qq.com; a=ed25519;
  pk=sUTWrzlIwT4C7ctjNfVZAzzg0G7QUn2XxRGpYsw4RtM=
 X-Endpoint-Received: by B4 Relay for 1579567540@qq.com/20261015 with
@@ -136,120 +135,70 @@ Content-Transfer-Encoding: 7bit
 
 From: Cunhao Lu <1579567540@qq.com>
 
-Describe the PHP GRF register used to configure the DWC3 PIPE port before
-controller discovery.
+Power cycling the RK3572 NVM domain causes repeated SD recovery. Keep it
+powered during runtime suspend without disabling controller runtime PM.
 
 Signed-off-by: Cunhao Lu <1579567540@qq.com>
 ---
- .../bindings/usb/rockchip,rk3572-dwc3.yaml         | 100 +++++++++++++++++++++
- 1 file changed, 100 insertions(+)
+ drivers/mmc/host/dw_mmc-rockchip.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/usb/rockchip,rk3572-dwc3.yaml b/Documentation/devicetree/bindings/usb/rockchip,rk3572-dwc3.yaml
-new file mode 100644
-index 000000000000..47ff5e16dce6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/usb/rockchip,rk3572-dwc3.yaml
-@@ -0,0 +1,100 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/usb/rockchip,rk3572-dwc3.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/mmc/host/dw_mmc-rockchip.c b/drivers/mmc/host/dw_mmc-rockchip.c
+index 75c82ff20f177..8bc55d4b996c6 100644
+--- a/drivers/mmc/host/dw_mmc-rockchip.c
++++ b/drivers/mmc/host/dw_mmc-rockchip.c
+@@ -10,6 +10,7 @@
+ #include <linux/mmc/host.h>
+ #include <linux/of_address.h>
+ #include <linux/mmc/slot-gpio.h>
++#include <linux/pm_domain.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ 
+@@ -528,6 +529,19 @@ static int dw_mci_rockchip_init(struct dw_mci *host)
+ 	return 0;
+ }
+ 
++static int dw_mci_rk3572_init(struct dw_mci *host)
++{
++	int ret;
 +
-+title: Rockchip RK3572 DWC3 USB controller
++	/* Power cycling the NVM domain disrupts SDMMC recovery. */
++	ret = dev_pm_genpd_rpm_always_on(host->dev, true);
++	if (ret && ret != -EOPNOTSUPP)
++		dev_warn(host->dev, "failed to keep power domain on: %pe\n",
++			 ERR_PTR(ret));
 +
-+maintainers:
-+  - Heiko Stuebner <heiko@sntech.de>
-+  - Cunhao Lu <1579567540@qq.com>
++	return dw_mci_rockchip_init(host);
++}
 +
-+allOf:
-+  - $ref: snps,dwc3-common.yaml#
+ static const struct dw_mci_drv_data rk2928_drv_data = {
+ 	.init			= dw_mci_rockchip_init,
+ 	.parse_dt		= dw_mci_rk2928_parse_dt,
+@@ -541,6 +555,14 @@ static const struct dw_mci_drv_data rk3288_drv_data = {
+ 	.init			= dw_mci_rockchip_init,
+ };
+ 
++static const struct dw_mci_drv_data rk3572_drv_data = {
++	.common_caps		= MMC_CAP_CMD23,
++	.set_ios		= dw_mci_rk3288_set_ios,
++	.execute_tuning		= dw_mci_rk3288_execute_tuning,
++	.parse_dt		= dw_mci_rk3576_parse_dt,
++	.init			= dw_mci_rk3572_init,
++};
 +
-+properties:
-+  compatible:
-+    const: rockchip,rk3572-dwc3
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  dma-coherent: true
-+
-+  clocks:
-+    minItems: 3
-+    maxItems: 3
-+
-+  clock-names:
-+    items:
-+      - const: ref_clk
-+      - const: suspend_clk
-+      - const: bus_clk
-+
-+  phys:
-+    minItems: 1
-+    items:
-+      - description: USB2 PHY
-+      - description: USB3 PHY
-+
-+  phy-names:
-+    minItems: 1
-+    items:
-+      - const: usb2-phy
-+      - const: usb3-phy
-+
-+  power-domains:
-+    maxItems: 1
-+
-+  resets:
-+    maxItems: 1
-+
-+  rockchip,grf:
-+    $ref: /schemas/types.yaml#/definitions/phandle-array
-+    description:
-+      PHP GRF and the controller's PIPE configuration register offset.
-+    items:
-+      - items:
-+          - description: PHP GRF phandle
-+          - enum: [0x14, 0x34]
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+  - clock-names
-+  - phys
-+  - phy-names
-+  - power-domains
-+  - resets
-+  - rockchip,grf
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/rockchip,rk3572-cru.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    #include <dt-bindings/phy/phy.h>
-+    #include <dt-bindings/power/rockchip,rk3572-power-controller.h>
-+    #include <dt-bindings/reset/rockchip,rk3572-cru.h>
-+
-+    usb@24400000 {
-+        compatible = "rockchip,rk3572-dwc3";
-+        reg = <0x24400000 0x400000>;
-+        interrupts = <GIC_SPI 254 IRQ_TYPE_LEVEL_HIGH>;
-+        clocks = <&cru CLK_REF_USB3OTG1>, <&cru CLK_SUSPEND_USB3OTG1>,
-+                 <&cru ACLK_USB3OTG1>;
-+        clock-names = "ref_clk", "suspend_clk", "bus_clk";
-+        phys = <&u2phy1_otg>, <&combphy1 PHY_TYPE_USB3>;
-+        phy-names = "usb2-phy", "usb3-phy";
-+        power-domains = <&power RK3572_PD_PHP>;
-+        resets = <&cru SRST_ARESETN_USB3OTG1>;
-+        rockchip,grf = <&php_grf 0x34>;
-+        dr_mode = "host";
-+    };
+ static const struct dw_mci_drv_data rk3576_drv_data = {
+ 	.common_caps		= MMC_CAP_CMD23,
+ 	.set_ios		= dw_mci_rk3288_set_ios,
+@@ -554,6 +576,8 @@ static const struct of_device_id dw_mci_rockchip_match[] = {
+ 		.data = &rk2928_drv_data },
+ 	{ .compatible = "rockchip,rk3288-dw-mshc",
+ 		.data = &rk3288_drv_data },
++	{ .compatible = "rockchip,rk3572-dw-mshc",
++		.data = &rk3572_drv_data },
+ 	{ .compatible = "rockchip,rk3576-dw-mshc",
+ 		.data = &rk3576_drv_data },
+ 	{},
 
 -- 
 2.34.1
