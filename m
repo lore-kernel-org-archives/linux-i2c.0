@@ -1,65 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=43.163.128.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792651057;
-	b=Lv9HqETH5a2VqGDuFarH75uRSS05FfAeAFkbW7yvP0xYeSM5lDguGcdBrJMN9oNKDNOK
-	 RWiI/xM7ygeKfQaHVLtLbpUlrIGPCx3QsNzczHTVvsc6PgNfwDMq3zlFSulMnXz36bwSj
-	 2CoznWs1Jm9z1mWrg8iTG/yL5g+YjBtWH6wkOE1A5BCpQSrIdl+0RlvRUYM5eiPI5/aVs
-	 zI4xutyZbSscZZmCrYz+gPJjSyKccY3GzwWl7GbXS5G5MaCaWMiQJAAnaircOhLkKgDzP
-	 NkbYC0vSkthl9VrsaVEAVvVDpf7vyeAZinBYZH+wcFQFde+loDMR18KSIIURUtd8cDw==
+	t=1792653275;
+	b=vZWtqrYf/9t81cmr9AspkXYvDx+Z0MJJimaTlpUR6dxz8u3vtBby67uBkQWLwob1obm9
+	 pZfi70J9KusNKJVskSiuSq3aqGbLOm/p45Lnjuu9BJlczV/CdhzHTDAguKPPs5XgaCuku
+	 CpeU2WKitJgUftcwLC0kM/tHFGvjLvzJqYcjZD+/lKnLwBfPVxp4QA9eu6YrpYaMBfBYc
+	 mbe3dTOawCuEuaB34a1ffgJihABORk180C0NvKa01wrj6SvlgsJH9Su10dsw0P0bzOPex
+	 oWgH9feJrfWWcVcNcqYRNiFjBxMbNDF1K0/oLwTDKtl9f2LjSoCljzZdPTjvIlFrTDg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792651057;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-XMRINFO:X-QQ-XMAILINFO:From:To:Cc:
-	 Subject:Mime-Version:Content-Type:Content-Transfer-Encoding:Date:
-	 X-Priority:Message-ID:X-QQ-MIME:X-Mailer:X-QQ-Mailer:References:
-	 In-Reply-To:X-QQ-mid;
-	bh=VQFTusPZWZAQO9ncVP5/pVATTKlUKVRB9FJ/9plts7M=;
-	b=rOqigqugdI/vH7ScdRZWTCGBZe/YBZ6WHRvvm+cYKUGR/wnHCQdG20UNhG+9om0tVYZ8
-	 mNwcjlCghb8u+FJLb6afwcoaKDHfRM18wrKpOg7NUAAxT2cDM4Q3N11fSHpoOlsafLYL4
-	 2cf/KrtzHGcA6WYTCsQCcc95ssLcgQkl7+Dd0ixYcwrucZ2Ysxy835sv6KXHGLE3mNgxl
-	 55HSv9PAATbXHgu57s0uiY9wsOSbvP8PX9f43FW/kQk46xOYpnjR+chARs1fVL+t7jGgR
-	 0VlLCQUpuDF8A4q+vfkdo1YoUOKuEwXqI/r5ZexW10QXPxbMZwtyd/7NYimkvZpYX3Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792653275;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=LeBgHuQ2F+lcGL0HOAeswGNlhahrF/21UKsiSHNd76o=;
+	b=I2R/fUbwDya6hRnw2pH4oK7oKxzz/cdZoSdWzuFuj873TrnyHy0s/9/1UArmHSu/54gK
+	 MxlZQKhsz9i+MoPuA4PvqHz8kQdn7j/Lj3+bLhGHzaJUpkTSeIMncwjs3UUdidHWMfups
+	 BtM0th7TSTZvfz1vAPhHgYhk8iJPuIf38GaxJ3uGvHXITvBQ2iQCGXu26es+ZHq8B/XpW
+	 KC5GXjg6QphG5kChZ6PCapOccRruRJ2njfmFtqd5kPEcavwXaOZyiuek8HBm23smqzqE7
+	 xSchwOf56Xs5OCS3dIsKqi4x2yjw/Yvxs+9Va7kRxYiV4DOZHSwjYcfTJ7/0RrpsHag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=qq.com;
-	spf=pass smtp.mailfrom=qq.com;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=GmTf6oYL;
-	arc=none smtp.remote-ip=43.163.128.52
-Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.52])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=lDNVZ+xI;
+	arc=none smtp.remote-ip=74.125.82.52
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94CB3606A31A;
-	Thu, 22 Oct 2026 06:37:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 94CB3606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA25606A31B
+	for <linux-i2c@vger.kernel.org>; Thu, 22 Oct 2026 07:14:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DBA25606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=GmTf6oYL
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1792651052; bh=VQFTusPZWZAQO9ncVP5/pVATTKlUKVRB9FJ/9plts7M=;
-	h=From:To:Cc:Subject:Date:References:In-Reply-To;
-	b=GmTf6oYL8AKlduANqJiMvZbkQOf7gKp/zQwFXmoaknAFcT1VltESHTOaOrg1fcjsW
-	 ooQVtPfnStMG4UMWTARNwo+QdJW0/ktwQv7oAfnOSn7krkbD0yr8PCfT2j9MVsT4Ld
-	 a+4EUQyPnJwSlLkvXFQ17TUOpHSAfKWsStATXj6U=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
-X-QQ-XMAILINFO: N6vT1niysq6m+dolIeSRQmZ0Z/lSCBqEUxgMgKnhlcqyDzFYwRYb/nFI862AH8
-	 hx16FZ7vQ76yOO4KNrAZLP9nGxJ89E38Vmc3rNG+xB70iOUAV7wSRAQwTihTOulk5fqrM0fPZ230B
-	 KEjiMz7HM7L4qzHyBVCqvG9OHxF9AE9K5R4nq44q5B5A5vDvoF2e6N2kZaxF1Xwl7qyXn0HPU+w0q
-	 jx+hU0FDBXH84DVvxXpEVC45nfZW7RE5b4cT+s2JTCz893w+J65yZGKPYhKhbfVjLu1uzs423rZHF
-	 YhpWLoHB7Z5iyFTSqhVekL+bsNuil22wBS381bllGmpRd0Z5eGD8IpYIPKcsKtvIw3suSvGWztqCp
-	 ZGnIzV/u3oZCv65hNU2vXGJYFoE1CwNhDvwyxZLhcqUptZfdM3alzxLkTi4sZcGcAkl0YQLxv0wcs
-	 xDYdGeTy4dt8w7sun/yBo2hbrgzaosoCMO9RohKNuUElD6qUPsPbWHI0n7ImrN45HY2QPGs1bCvVk
-	 MWSRQYnB5gBQQseXW+2S7fzKMYfLxHzAz/06wSHooNP221o35sl8hHLxnG+gxrgIhpp8SEAZcRLdv
-	 wttYLqc66aRhuxibq6faN+1fdUvvf0l4cS04L724Xdz7CC95Ngz5WGvieS2ipVQY1PH3RPEC0SCQc
-	 LLZDi4lUTEtGHPpV3lXVwSsXOJZKBClnzlse4Bo/O+ZEZSX8poOOa0aS22M1U1Gi0XNUU8VxABkh2
-	 bEmFwFeuf6x8bwc+bj+CMBVRMOBbJozHjSlFbbqRMjHcly44ucpG1KRKT5UmvuIARe2VdvezT5O6l
-	 4AjpimmT+Wwm48X5K++Szf3pWy8brWR888+n7HrXrJNl+S1bpTLclyQC60yZO5MIsRD1+1zgcsxEy
-	 Y16MLptC3/0G6NBTSzeoOt/17k+XaE4mdHZh69reiQfF1CWqaBhKA87ASDRQ945nLDYWOlNQ6C5AI
-	 wOHX74OkmtP7bfnjvPr48Afne4f9RYdonvRTS0CxUYkICRgEbasogiv1kyvxnWGZzdyciyj+lRx9T
-	 ZTKQ1aSJt3odwsS1uNe1fIHMqU8WkURomskKvfn9JQJrjd4w=
-From: "=?utf-8?B?Q3VuaGFvIEx1?=" <1579567540@qq.com>
-To: "=?utf-8?B?U2hhd24gTGlu?=" <shawn.lin@rock-chips.com>
-Cc: "=?utf-8?B?c2hhd24ubGlu?=" <shawn.lin@rock-chips.com>, "=?utf-8?B?bGludXgtY2xr?=" <linux-clk@vger.kernel.org>, "=?utf-8?B?ZGV2aWNldHJlZQ==?=" <devicetree@vger.kernel.org>, "=?utf-8?B?bGludXgtYXJtLWtlcm5lbA==?=" <linux-arm-kernel@lists.infradead.org>, "=?utf-8?B?bGludXgtcm9ja2NoaXA=?=" <linux-rockchip@lists.infradead.org>, "=?utf-8?B?bGludXgta2VybmVs?=" <linux-kernel@vger.kernel.org>, "=?utf-8?B?bWZk?=" <mfd@lists.linux.dev>, "=?utf-8?B?bGludXgtZ3Bpbw==?=" <linux-gpio@vger.kernel.org>, "=?utf-8?B?bmV0ZGV2?=" <netdev@vger.kernel.org>, "=?utf-8?B?bGludXgtcG0=?=" <linux-pm@vger.kernel.org>, "=?utf-8?B?bGludXgtaTJj?=" <linux-i2c@vger.kernel.org>, "=?utf-8?B?bGludXgtc2VyaWFs?=" <linux-serial@vger.kernel.org>, "=?utf-8?B?bGludXgtbW1j?=" <linux-mmc@vger.kernel.org>, 
-	"=?utf-8?B?bGludXgtc3RtMzI=?=" <linux-stm32@st-md-mailman.stormreply.com>, "=?utf-8?B?bGludXgtcGh5?=" <linux-phy@lists.infradead.org>, "=?utf-8?B?bGludXgtdXNi?=" <linux-usb@vger.kernel.org>
-Subject: Re: [PATCH 00/27] rockchip: Add RK3572 and Forlinx OK3572-C support
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=lDNVZ+xI
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-18818daa3e7so20059c88.0
+        for <linux-i2c@vger.kernel.org>; Thu, 22 Oct 2026 00:14:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792653274; x=1793258074; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LeBgHuQ2F+lcGL0HOAeswGNlhahrF/21UKsiSHNd76o=;
+        b=lDNVZ+xI4TWk8YtbkTL11n92mW4AB3EEJcGsNKwMrnPi6zNYDDFQGLFaZGqqo+h4Tc
+         Durk78e1tFd31HvcAc9zIzRX9DHyAx/IADWbmbXIU8w+lDgNRVHEyKyR+jqxIk3U+uot
+         SKw2yQy22Ju4zXIBb0WPRCG9bTtsGCNtkOqU1A0hlE1geL4i+uM58BMz82zrPbZNMeFk
+         3xrsCOqmdOL5COho/iEgTPgolIROIIVEPDTwAgnDXjvHficbn/Z4YBODnJ1At2d0bxQ9
+         ARaKtFIKivQPgvJ3RL0W894tmTxyooiqbjwg7tcrUiLOlKbLnNqijx+Y1tvG+cFWf0uV
+         zapA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792653274; x=1793258074;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LeBgHuQ2F+lcGL0HOAeswGNlhahrF/21UKsiSHNd76o=;
+        b=Qi/rxTZ2l3/TgbtDXWyim/akkNTs46btzPFAXU251BAEhagRItqK4dNlvMdAS0LZAV
+         LYOuRJ23g9E3vXmGhjvmxDUnQYnw8qMVyELNkCwruxQDDqSOV3UhuJVdj4wb1Ju77jAi
+         bFj3vpaSvcYqlqtuQHOI6U1bKVvhiTcG+rVyNsQuWXayqBVjugxm6io4GZHmQBBgAtUj
+         iKTrpVCg6sLYd3DjnImAI2fKmKjHlbjon461KytcMjCRr/dEpGYszNqTphATLBS6yZER
+         csXePc4E1FYdh8Dam49jExZkT9GfYmh8nbvDp6MbZ5G/Rx2A8YmeA1g4JG659j6rSaTj
+         /sAA==
+X-Forwarded-Encrypted: i=1; AKwUvBxTZ45SoywvyOEZUJZ7njrLycbBtaLq1S2aIbsZb+CfKNBCiBqUM20Yc2rK0Hd0XfXmOUCz9dSXhTY=@vger.kernel.org
+X-Gm-Message-State: AFq9FYLonx4LQgWAAmJporqj4Y9vsu5LplfZuqoaXySg7fdpQCaceooq
+	XY5UNKvJj6slS9HcEHt46SgdutwdGda3cXm9KQzp1J0mPb8SmbgJSpVk
+X-Gm-Gg: AYBFou0HiST08iEoWCER81JZpwZMv6tmX+ca+GqjAqkL/rIle7/8EflSexHF3NtJYjr
+	OZFA/vEnwaKU1BUrbg0IM0xSG18UqKp9bWdZgqDkA+nbKMJ+gWPWa8fj/ikTfGoEmC0hFSXdsRy
+	xX44+jRXMcBoBnfqf/nWID2XiXyxzvkjhSKyi9bC/FTUdWuiezxX98JD5wJ1papM0/95lVQtrpk
+	EmdQg020fyrgNZrY1ZoqbSQakvXSJCPIz9Fau0Y7SRdYumMQ/gfbatqevZWMYKks/J96gjapHVD
+	ygsH/GqyF+uGKp7M1hFkT9MIWZD0cruPQMlWHSVGIj+JNCuSOtJCH57mhfYTZoGxDdQZcF5Gwe9
+	pA7wDL6jJXBPl1+UrxhQ6nnx4FECs0HBiJBcNHUchpT8rLpewWNS7IXT2Y5i5JMWQZc/BoGAN5k
+	1u5HouAKx0/bHscfsr5Mx9tBhNhy/OStchz+ARjdDbzfZJ8cQhaap1PQpMJleK+J+a2t9uA3hDV
+	/clkFtnbofN2Mn9GvFX2gxyyGeNbGgy1zavfmdSARD+JesnMMdbSg==
+X-Received: by 2002:a05:7022:458b:b0:14e:d0ba:75af with SMTP id a92af1059eb24-192eebbb953mr2935796c88.6.1792653273782;
+        Thu, 22 Oct 2026 00:14:33 -0700 (PDT)
+Received: from fedora-x1e ([210.89.35.119])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903bd6b7ccsm11112321c88.13.2026.10.22.00.14.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Oct 2026 00:14:33 -0700 (PDT)
+From: Saikiran <bjsaikiran@gmail.com>
+To: loic.poulain@oss.qualcomm.com
+Cc: rfoss@kernel.org,
+	andi.shyti@kernel.org,
+	sakari.ailus@linux.intel.com,
+	hansg@kernel.org,
+	bod@kernel.org,
+	mchehab@kernel.org,
+	vladimir.zapolskiy@linaro.org,
+	jishnu.prakash@oss.qualcomm.com,
+	birk.skyum@pm.me,
+	linux-i2c@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-media@vger.kernel.org
+Subject: [PATCH v1 0/2] i2c: qcom-cci, media: ov02c10: Fix camera power cycling
+Date: Thu, 22 Oct 2026 12:44:16 +0530
+Message-ID: <20261022071418.26895-1-bjsaikiran@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,27 +103,34 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Date: Thu, 22 Oct 2026 14:37:30 +0800
-X-Priority: 3
-Message-ID: <tencent_1468586598128C460803261171FD769AA209@qq.com>
-X-QQ-MIME: TCMime 1.0 by Tencent
-X-Mailer: QQMail 2.x
-X-QQ-Mailer: QQMail 2.x
-References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
-	<7fa26028-5c7c-4c5d-8cc5-3116b2e51cc0@rock-chips.com>
-In-Reply-To: <7fa26028-5c7c-4c5d-8cc5-3116b2e51cc0@rock-chips.com>
-X-QQ-mid: xmsezb41-0t1792651050t9mjujcfl
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-SGksCgo+IFRoYW5rcyBmb3IgeW91ciBwYXRjaGVzLiBUeXBpY2FsbHksIGEgc2VyaWVzIG9m
-IHRoaXMgc2l6ZSBjb3ZlcmluZyBTb0MKPiBzdXBwb3J0IHNob3VsZCBiZSBzcGxpdCBieSBz
-dWJzeXN0ZW3vvIxmb3IgaW5zdGFuY2UsIHNlcGFyYXRlIERUIGJpbmRpbmcKPiBhbmQgZHJp
-dmVyIHBhdGNoZXMgZm9yIGVhY2ggc3Vic3lzdGVt77yMYW5kIG9ubHkgQ0MgdGhlIHJlbGV2
-YW50Cj4gbWFpbnRhaW5lcnMgYW5kIG1haWxpbmcgbGlzdHMuIFRoZSBEVFMgcGF0Y2ggY2Fu
-IGZvbGxvdyBhZnRlcndhcmRzLgoKVGhhbmsgeW91IGZvciB0aGUgZ3VpZGFuY2UuIEkgYXBv
-bG9naXplIGZvciB0aGUgaW5jb252ZW5pZW5jZS4gSSdsbCBzcGxpdAp2MiBieSBzdWJzeXN0
-ZW0uCgpCZXN0IHJlZ2FyZHMsCkN1bmhhbw==
+The OV02C10 camera on the Lenovo Yoga Slim 7x can fail to restart after
+streaming stops. The CCI runtime PM callbacks gate the controller clocks
+but leave the bus pins in their default state while suspended. The X1E80100
+device tree already defines a CCI sleep state with pull-downs for the bus
+pins, so select that state before suspending the controller and restore the
+default state on resume.
+
+The OV02C10 driver also enables the sensor supplies before MCLK and disables
+MCLK before the supplies, with the required reset and startup timing. This
+series fixes the power transitions without adding a regulator-off delay or
+runtime autosuspend workaround.
+
+Tested on Lenovo Yoga Slim 7x (Snapdragon X Elite): 20 consecutive Kamoso
+camera open/close cycles. The sensor entered runtime-active on each open and
+returned to runtime-suspended on each close. Both modified driver objects
+build cleanly against the running kernel configuration.
+
+Saikiran (2):
+  i2c: qcom-cci: Select pinctrl states during runtime PM
+  media: ov02c10: Fix sensor power sequencing
+
+ drivers/i2c/busses/i2c-qcom-cci.c | 14 +++++++++++++-
+ drivers/media/i2c/ov02c10.c       | 20 +++++++++++---------
+ 2 files changed, 24 insertions(+), 10 deletions(-)
+
+-- 
+2.56.0
 
