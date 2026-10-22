@@ -1,79 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1792661175;
-	b=L0Piez4d346n65q1dlTkX7ennIHf5jtxBQftwpmGM5qE1HUQmupIHEqsBNYznsFAgS13
-	 LU6WUf45G59ufEot7e2XZEg5V69iSOoXE2+rwhzWSFVPNVb8GSa7fJHIUKJxHXWMhGvFQ
-	 RJ8otrKcfdKMwxxijrI9FY5/J2vWMZbyPKbMWhGKuUUT0Yy2OigaE6n+6U/RSkJxOMGSq
-	 i1QXcBGApFelwSTEg60b7VuMtfHlnOgu7B+SLifKDrr1HJfGTqHCLRgoy57WQuAkoBFqE
-	 NOaxKYclGVEvpEibZgSGjWtfliVHxJtQVPUnbwLyPsVT9/b0cAt8i4aGEBDHUXKWf6g==
+	b=S87p2szblnD1rBBsnL0MWh5fZRGIYO7sPUgN6L/g0ye0cmu9O2+v1OIg/BEBq2lHDGs9
+	 JdeGbREYD0kT7SfzGL3ks6lL1Dt8fc9Ub5hdUib0UhKcxIjao66waDPsy5/bjygesk637
+	 QJlWrYGx6+esKrp7kvzcMTxMZT5GUm0iiuBnWP4gDUKZfvK+Op6st+dnhG0p88ubazsT0
+	 Bf+ysxOVh36qa4qnLxbWLzITAvyTQutaKWI2VI94A0F8HsdZ/PDx4KVPRdvVwVPeTyhW9
+	 nE+izu70DIBzluXtRbk9ng54zcldoWMCaGMKQIrkqEY2R5IOruyfAMVBZUfD18Pm8xQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792661175;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=aft0sw5cJyBwNmHMPgGVjZdw+TPdBNlCzonpVyWC7EA=;
-	b=EaJJiG4H6c1TyVGPGpZ9QKQ8Ze+BMgKay+aO8AT4bRo6Rl7oYs5sdw26NFCE+CYKb2+i
-	 7xzO2srx4bi90fCKOBEq2Pwv8ksaw4v7L5zKkuMZXZPFBsVQUIqzAS9gemzGwepvSoULC
-	 ALm77rv4LZywkTClvff6nyD/rIHPIDrwYyqZKeMA4PqRLcuQlubnkScdg3MV6Sres359p
-	 62FJvE9Omv/2bwfXg4YefUuptuX6oRK/vRJcA7tFtE5p+CdbBx/+kSPlYaXcHvFBxyRym
-	 9qLl+0EfCBq8t0Xt2wUdfQD97agjhL26G+cVb+ItshsKr54F97d5NdpP6qs7f9NoKTw==
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=wfbg6tsOH+5dCqR6eRG5y+pRRouozsxb6eB2ua5FAlU=;
+	b=1tpDdh++jXEo10asRcQeSnMMQNUYPtBKmNDBzOI8jpLxLdWMLNVt5agNORW+o4Gr6uKq
+	 kT/hJWVg1/ne/+jxsz8Twwv6DNFGb3tSWnYFURsCwsVyLoT0+J0lKseTLKT1hgngsvO9g
+	 tWdYC3/g7Exmlrm6swYC5mKz/g3VklRZak9nOvOiYUHo8oTPnXTvW9GbreQ8FD83uV2it
+	 nwwQhOsLJWr8oeq4oG17WJqF/z/WvdXgcfTJYNZjvBOcJqQfoUdCD2zkTVrs6yMixUpmf
+	 tQFE7171iIL4d1M1ZIuk4hKs0wMKngsifSkC9oiI2NGLwhF7/Tix8BaJ5mlQnlixYXQ==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jP7TEwqP;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WGkG1Xfn;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61FAD606A319;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F8A606A31A;
 	Thu, 22 Oct 2026 09:26:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jP7TEwqP
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WGkG1Xfn
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1792661174;
-	b=xDlhy6+JLSgYFxnmlZiV64OeY5TyWeRUwvp5mYfnNdYQtjStad/mu9XSavFS+CaXW8QK
-	 RuOTw+tj5sGXbQB/mdvRmoXHnyeIVkhCuswbOa4RGaKO5YQeJb9Kxi3Z/cPIWxJ2GbfA2
-	 p31x2T6l2o6zv6LJrXqxf8aEPcu7spog6Ueht2Pk0f6W8bazVwTKrJ/Dzwj3LRfmgTd3r
-	 RfKt4xggmvelLv1FFMRSwLP4y1JRcp8ZzGGhX/Nvy05hoBQ25VV+pNSHz22HsZPRpgzcm
-	 GCyYAr1ad132vesSv+QFMsUAzx8eh5QaFzTxzoux8zMd6nFO2JAbrUdb9PIfxMXuNQA==
+	t=1792661175;
+	b=2x/A9+kHehPwnBWi5Bzz+UwX2G1UwxrSYpBGTtkdGYV+6ldVROFJgbMcGlO8ovFQN4hN
+	 24sxusthLsnG0eodhzh5axnV/LUD/6CDGbv3DI+ZLbFoSWfij2GC1ZGjRxQWkknRm4gil
+	 gf1wLxBsd9S9TKv7YWMIFXaP2/MuWxQARS8dsve9ePcNQ2v3UF9kyw9cItpsGgNGpUbNK
+	 j2r8/9dysC6/DGL7hqX0GSYFJ0bEEB/qmb0rZ8rjk7CsxgmCgIx45c4t351BDdnE8fgBI
+	 PkXrvOR5uabUei3OGueXMZHkEwCJ5taYMRngYthsdhOvBhHvOwhzCEBKHke8eQCD1nQ==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1792661174;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=aft0sw5cJyBwNmHMPgGVjZdw+TPdBNlCzonpVyWC7EA=;
-	b=jcMBkSLYmCTgBjcLhuM63tPnfOq+Uwto6tJzqHm9eClX59m+U5uFb0JSkP6okIDnHicR
-	 jyEjEBGoDaFZIZ5QJ26HPGrrnp+7dGANRaOxChjf8TiV3WiArg3syXDOLrVbi7nUpG7UH
-	 ZTJWbw202mKngUnRoeyv/FVzbrXoW2ttg57wn55W5D2pApX5dFvXMpymZf4tjjd4RFLV7
-	 +virNHqbNhq155rutOsIBeCJmduwoUfX2N6ejUWWpOMTkKnJnaT1zlhNv/Mmrrvti5A6B
-	 xPcMlzvKrk0OOK0NF/ei790doW4AVbjFUhwFSG88X8RmCs745V9MvOcAwYkwAu0RfOw==
+	c=relaxed/relaxed; t=1792661175;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=wfbg6tsOH+5dCqR6eRG5y+pRRouozsxb6eB2ua5FAlU=;
+	b=c2E6ShFWfCSkJizJ8e7woHywVF0tlS12C35j0JFXUGyA9MlGFDmBNg2xPm6RExGMQLhn
+	 HyGncRfHp/GOczJA1elhD1qXtJdi0EukVVzL0nxtUv3xjeTNfHQVWhbnLe3yh9fe8y0no
+	 TIqdWMI9G7UkNeH9/1p+5ZTbCfF4vMLEoL2mqvVyuoGysGFTdGBW1j8EG34dWizng22jH
+	 KvsG72bxnROeAaDAOD2SH+C3F0M4/bn0BFhERfqXtpVxqu68/N4lAR7Erd4MNodZYQIOF
+	 BEkJxAN3ozheALihk4Oc/7El1rQXdPTYlH5LpentvP6zpNLHVpp1pS65kGRGy5X4okQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 5A64A1F000C4;
+	by smtp.kernel.org (Postfix) with ESMTPS id 5A1ED1F000C3;
 	Thu, 22 Oct 2026 09:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792661174;
-	bh=aft0sw5cJyBwNmHMPgGVjZdw+TPdBNlCzonpVyWC7EA=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=jP7TEwqPO7q2J738B7WA6ly4029C3YYlr2SG2OrpsMh6jT/x1ZfflWryIv48AlMXg
-	 iszx8CSbCDZS2asr0E3qpt/bywZd1talZLfPFZT1b3JyZXm7ZEcDmiXPEsyHOSKRtd
-	 aR4Hg7j49nxElCTEZ3OwbM7CibrtASjlmzjxHLr6KWNOeINVUUkQTkeqpfzVHILd8z
-	 ibOliIf2KZAIZd2Zjqdtd+IKegAGQbxvCIlKyIN8nlTya8BqQ2YB+vDSiDPSsmHyqL
-	 ppMGaKgf3mM0wveUWhUBSkkMgKirfFCDE9JWxnB+OTZzi3WIvenpUyqxQ7rfa64zWN
-	 QMys1FJrhQBjQ==
+	s=k20260515; t=1792661175;
+	bh=wfbg6tsOH+5dCqR6eRG5y+pRRouozsxb6eB2ua5FAlU=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=WGkG1XfnsHj41WZbddQd7Yzx08OpDlMTBDeUidC48mkGhxcCD1vuXagyCC2JoRdjp
+	 THU6dkWbXr6bn6jtMwhz9vq9/ynQx32cWKXQPbE7N+qYmTElJujcDntIJwDZBuX82x
+	 jPadxivL91niOYUp2zXBesn3FT6qaxBF9F0/+RzMoaBSk2v8gxwaK27X0nJ61u/4ph
+	 i9+/WqqKA/7TRnmitfLPnUWerJ1lbci5uYE/YtqYJDlBagd8qlr7dKHkt3s04k39rw
+	 EDs+PJ8cdYQ2uKY0v4wGidSjFhWY53QI/hl8o17f32aTCMg05xDGp8ND7M4QGav+Fk
+	 ZnZLkpAY8VDtA==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id AD41743546;
+	by lkml.kernel.org (Postfix) with ESMTP id B7C5A4352F;
 	Thu, 22 Oct 2026 09:26:13 +0000 (UTC)
 From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
-Subject: [PATCH v2 0/2] i2c: Add driver support Amlogic A9 I2C
-Date: Thu, 22 Oct 2026 09:26:08 +0000
-Message-Id: <20261022-a9-i2c-v2-0-45e3cef175bf@amlogic.com>
+Date: Thu, 22 Oct 2026 09:26:09 +0000
+Subject: [PATCH v2 1/2] dt-bindings: i2c: add Amlogic A9 I2C controller
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,12 +83,9 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIALHW2WoC/zWNwQ6DIBAFf8VwLq1sicWe+h+NB8BVN6nQgCE2x
- n8vmPY4700yG4sYCCO7VxsLmCiSdxngVDE7aTcipz4zgxqauhWC65YTWA5S3hQCYKOuLMtGR+Q
- maGenomflUjSH61Lud8CB1qPz7DJPFBcfPkc2ibL+CiD/hSR4zY3SfWtkM0itHnp++ZHs2fqZd
- fu+fwFJiKgLvQAAAA==
-X-Change-ID: 20260911-a9-i2c-24478e22e683
+Message-Id: <20261022-a9-i2c-v2-1-45e3cef175bf@amlogic.com>
+References: <20261022-a9-i2c-v2-0-45e3cef175bf@amlogic.com>
+In-Reply-To: <20261022-a9-i2c-v2-0-45e3cef175bf@amlogic.com>
 To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
@@ -98,49 +94,93 @@ Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org,
  linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1792661171; l=1291;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792661171; l=1719;
  i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
- bh=lgCx6iIhgtG4pBSTGFRd3faIm5dYhSgEQN1+ngpmI9g=;
- b=GSVpFUVXSp4fB7ZRpJvmq8UQN8H4ZLd0NQMr4Gtr53ZbLXBuWhrmygvL7Wg5j3PTif2T8TnXC
- XMdXiZuDbBsDW5X+EoBOK0xq7EDf/VP1p+y4VOYWi6xipQ9vqUAXWX4
+ bh=/oijmKmiPfKgJUJzYs/dQncbUdJ0Rw2jHh3oFq2y0wk=;
+ b=ebjO1TsqDS8xEYXSCiVbo1r6Pb2VkTgwhQv6vwAVaGTVcTXnFLAAR9xv9KN/So9DlyDpV/Iju
+ 2GZaupdC4iVC3Z1LSXZXqy5VuailzKhgqEtrrG1sfWE0evHimY0gT8A
 X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
  pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
 X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
  auth_id=578
 X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
 Reply-To: xianwei.zhao@amlogic.com
+Content-Transfer-Encoding: 7bit
 
-Add a Device Tree binding and driver for the I2C controller found on the
+From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+
+Add a Device Tree binding for the I2C controller found on the
 Amlogic A9 SoC.
 
 Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
 ---
-Changes in v2:
-- dtbinding: make some minor modifications, suggestted by Conor and robot.
-- driver: Make some adjustments, including macro definitions, format adjustments,
-          adding quirks, process optimization, and so on. According to Andi and robot's suggestion
-- Give up MAINTAINERS file the separate submission, make it together with the driver.
-- Link to v1: https://lore.kernel.org/r/20260924-a9-i2c-v1-0-b8ad9b46f4a8@amlogic.com
+ .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    | 56 ++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
----
-Junyi Zhao (1):
-      i2c: amlogic: Add Amlogic A9 I2C controller driver
+diff --git a/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+new file mode 100644
+index 000000000000..31ddc6d23732
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+@@ -0,0 +1,56 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/amlogic,a9-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Amlogic A9 I2C Controller
++
++maintainers:
++  - Xianwei Zhao <xianwei.zhao@amlogic.com>
++  - Junyi Zhao <junyi.zhao@amlogic.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    const: amlogic,a9-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  dmas:
++    items:
++      - description: DMA controller phandle and request line for RX
++      - description: DMA controller phandle and request line for TX
++
++  dma-names:
++    items:
++      - const: rx
++      - const: tx
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c@3a4400 {
++        compatible = "amlogic,a9-i2c";
++        reg = <0x3a4400 0x3c>;
++        interrupts = <0 164 1>;
++        clocks = <&clkc_periphs 11>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++    };
 
-Xianwei Zhao (1):
-      dt-bindings: i2c: add Amlogic A9 I2C controller
-
- .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    |  56 +++
- MAINTAINERS                                        |   9 +
- drivers/i2c/busses/Kconfig                         |   8 +
- drivers/i2c/busses/Makefile                        |   1 +
- drivers/i2c/busses/i2c-amlogic-a9.c                | 469 +++++++++++++++++++++
- 5 files changed, 543 insertions(+)
----
-base-commit: 4ec2365c08de306f52650d8736aef5862baedb8d
-change-id: 20260911-a9-i2c-24478e22e683
-
-Best regards,
 -- 
-Xianwei Zhao <xianwei.zhao@amlogic.com>
+2.52.0
 
 
