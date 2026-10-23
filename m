@@ -1,54 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792773714;
-	b=e3iG3s3Ye4bG0IkFHCen2PF/oFs4ssbAqeDRXdNczMgJZdIWRnEWHL3KdUorw/L+larG
-	 ZNRnov10rZ2nzZfakrgG432exQESlI1ERP+EsD9wgx+6zNvDxd7EQxn5nwb3a/vHtUHMr
-	 WDfaDAwAp/XcSM7JFeQLl1W0fHnlsAfiKjr5EqVHCw3DVT56ISxmlmj8ntH8dvPar7Aji
-	 Egn12odQGc3hip2PW+POynqN0N1gEZ0sy+LZFffw0KryaMkKGc61ph2EPEGkWRToVUL75
-	 FYhgPNEpLvcnW6j73bBaiJ0mQbiUKwKTrUtu7kavC6LwF/01IfnhQxc3ccIZUfUUm0g==
+	t=1792793375;
+	b=VXcrcUaPGnROKVLnfFAAarhBMrq5mptSRJUYf5K04H9BXBP/RYkyKyE6LArmEYtZ2UVu
+	 JdXYTePs73spimzU133NHAf6xK9K+ShDVEh+QGMZtCfZk+8JAXHWNXHSFbRKbKDV3otCa
+	 DXpDoJgPcWKl4Sj1XTcbJ1lOdz6girqKjLjA9/71OK8MrKJjGZCQZ3FxTlizeHMnCvH65
+	 BF6LDSBJ/mQOJT9/3zqD511rQMQ6IElPQ0fpebl3ekOQilMIZjVLlGGvjBJqSlh1IVRCA
+	 d0w1II8SF+g1MpQjpuSdSn4YEbpTyagJSPlf2skfXMFVFqcNM+t4Tif6nfkliigLIKg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792773714;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792793375;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=VnDYIIJpa8hOGMaysz7TE+GWovCxog753iYcM5WzKyo=;
-	b=v3u+j5LEyJLBupMhdOPs66Jgm4fZWG6VZZLx2B8HDomwPu2rlHI5ctRnmMRACWQIxphg
-	 lr8jcGVN13UHd7r8bm40hw1c6jdvgxwbO/5Dl3tVuL+PNrrR4pjolWPj4bB9wX5hlLy/O
-	 NXpFnjd5dtYemOUV2c/ElP06LUmjVOh/gjcZzjdKLoV/ljUKp1h9+49kvlOXK9srVnC+6
-	 Qp4sjYqZroPKLJcpFuZbFtDvxjps49uyrSHkq2oX+b2j4sS0pnrQSGgg45igVdHIMW3bi
-	 gVRedc7iohNCupQpxw/PcQ1ARbNYpzGVbq9StpuOnuD5RPM+GIwLSa0W+T2E0NvSm/Q==
+	bh=7dNcTbu9dSxbJpse2us0c/1XzcXfjLT8MtjeAWDpV5E=;
+	b=cwFRvTN9sIdhvW/0Ryhfv6p0OR8Q+15r2SRa1ecddOIdpfEO/XjLvWytsBjaGI+4wrPl
+	 i6IVCoUULOBvO5jeGxO8zLrTRFkl6gOOUYW26/OUaKQ8TxtY/4/wlALdgLDOau7ybfySC
+	 Wci/2U+kvYWHOmA3tHesB3FDxXsKiYlGBdymny/E4WEcendPatgbtcfZQukxdLicu0pj7
+	 jvtXvEWuHNHSy49wLH/K7f6jzdFORBxc9tXm8spbYriRUcLwKDimGVTJkSOegGxhQnJ/n
+	 FRXm1MGcnuOdj8/LY63O4vuizlZGhhb7w1KFLS9GHDTlfcQcjdg1tYol812c0Pgm91Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQ31nQI2;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XFURxrdU;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F5E606A31A;
-	Fri, 23 Oct 2026 16:41:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 630C6606A31A;
+	Fri, 23 Oct 2026 22:09:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQ31nQI2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FBB1F01825;
-	Fri, 23 Oct 2026 16:41:52 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XFURxrdU
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3BB1F01825;
+	Fri, 23 Oct 2026 22:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792773714;
-	bh=VnDYIIJpa8hOGMaysz7TE+GWovCxog753iYcM5WzKyo=;
+	s=k20260515; t=1792793375;
+	bh=7dNcTbu9dSxbJpse2us0c/1XzcXfjLT8MtjeAWDpV5E=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AQ31nQI20ChWjT0klhf0z2BvZ2hEYL3sSKZXMzP4rcTvAdUIrJ2aIMOsUlDL/WXio
-	 rZRGXpm+aeML+UI+goJbYXDWx96t5Po0WtZKSr1QP1WEGA9DXVFf1N21sJe+JT4k3P
-	 TGEYQaEM3I8rc2Hx1jPjWOU9W7DLcH4tS+VDQjIV2THxJ5X7yd6ZdqIWtssKiFpS/e
-	 F3JJ0tUvhAozzT2qvO8ol/SDYBfC2lg3prbOh/6s0iZPF8v0QWulm5kTsmrYtvINzT
-	 P8p+W47HaBdzA4HDY5OHknmwlsPYGppQy21s9aquz5nPeKFzXM/FyT2sJbnvCm3Ftw
-	 GiPKDVN69TmmA==
-Date: Fri, 23 Oct 2026 18:41:47 +0200
+	b=XFURxrdUSG+mzs2T8f4F3J5m4XUZVPa1SBjwL1KoCVFhwfBRleq65OmmrtGcf3bHw
+	 N4KF55MArNkG2FPnL42ZqDG4W1ABWVDgbAUa5e7N/2oVnDaxZM7FvdPJdR2uPatDBe
+	 ZUriKPYBlaRtn80gaOBae+eQcyOgX0+h/lapt9ZxnTDJMQYzDLqIztZvg5JuBdoFHQ
+	 7KihBC6oPDjVQDkn4VsN+6OwgGBJSgy5LbANoHmq9jHN3A43wJGtSgIxkxjg0ygkAv
+	 RXz1ZaCenrgLX6u8Gbp9JoLt/klGsCveAq8A6pjRvbl6pZwcsTk/ZqQjUtocNmJHRX
+	 AbfQ2BCuxQrbg==
+Date: Sat, 24 Oct 2026 00:09:26 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Igor Korotin <igor.korotin@linux.dev>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	rust-for-linux@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>, 
-	Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>, 
-	=?utf-8?Q?Nicol=C3=A1s?= Antinori <nico.antinori.7@gmail.com>, Georgios Androutsopoulos <georgeandrout13@gmail.com>
-Subject: Re: [GIT PULL] rust-i2c-next for 7.4
-Message-ID: <atuOKm_Yj5JXsrb0@zenone.zhora.eu>
-References: <179260155969.2966.15552703862037914616@linux.dev>
+To: Myeonghun Pak <mhun512@gmail.com>
+Cc: wsa+renesas@sang-engineering.com, linux-renesas-soc@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ae878000@gmail.com
+Subject: Re: [PATCH] i2c: sh_mobile: request IRQs after mapping registers
+Message-ID: <atvUWb-PzouZzL5D@zenone.zhora.eu>
+References: <20261017233416.47b09ffff48f.i2c-sh-mobile@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -60,20 +58,40 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <179260155969.2966.15552703862037914616@linux.dev>
+In-Reply-To: <20261017233416.47b09ffff48f.i2c-sh-mobile@gmail.com>
 
-Hi Igor,
+Hi Myeounghun,
 
-On Wed, Oct 21, 2026 at 05:52:39PM +0100, Igor Korotin wrote:
-> Hi Andi,
+On Sat, Oct 17, 2026 at 11:35:16PM -0400, Myeonghun Pak wrote:
+> The managed IRQ handlers are acquired before the managed register
+> mapping, so devres unmaps the registers before freeing the IRQs. A
+> transfer wakes its waiter before the ISR's final register read, and
+> unregistering the adapter does not synchronize these IRQs. An in-flight
+> handler can therefore still access the mapping when it is released
+> during driver detach.
 > 
-> One fix for this window -- a real use-after-free (KASAN-reported, GitHub
-> issue linked below), not a cleanup.
+> With forced-threaded IRQs, the handler can be preempted after waking the
+> transfer waiter and before its final ICSR read.
 > 
-> Thanks
-> Igor
+> Map the registers before requesting the IRQs so that managed cleanup
+> frees and synchronizes all handlers before unmapping their registers.
+> Keep IRQs available while unregistering the adapter because client
+> removal may perform transfers.
+> 
+> This issue was identified as part of our ongoing research while
+> reviewing kernel code.
+> 
+> Fixes: 7fe8a9993337 ("i2c: sh_mobile: devm conversion, irq setup")
 
-merged.
+Normally, I don't like taking fixes that don't address real
+issues, especially speculative AI-generated fixes.
+
+However, this looks like a harmless reordering that seems
+correct, although the issue it addresses is rather
+hypothetical.
+
+I'll remove the Fixes: tag, since this is purely speculative,
+and apply the patch to i2c/i2c.
 
 Thanks,
 Andi
