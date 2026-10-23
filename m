@@ -1,56 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792773166;
-	b=ZcG+MAZvEC08scN/co//+tafl5QOKMP1iiKKCW5qNlwHaFLqS4WQ5bQI4UaV3QD0Q+X+
-	 /qc2pgXBWPSPvJrdR4BLfFF+Kfk97Jhgxo153NW7VWqdhkM0B0UzYUxmcQHmxbbXMg5ei
-	 qx9q5CF/r44nMyNdx8YrUg9BFR/r+XVnZ0hKWmSNwNxHb8UCLiZMle1c9WJ4xrDdXpnpK
-	 0YfoexjN6xckXbN4svxK5PhuF1pCVH583i/ZLutcRmOYI7Ghs9+7vEGu6ZOwq9PJTwfFS
-	 aKCtMkJZVTl/qEUtX6RoMTIzuuEVCPVE7m7NmPi1rqNahMpDFavAv8ivn4ff/pftEMw==
+	t=1792773714;
+	b=e3iG3s3Ye4bG0IkFHCen2PF/oFs4ssbAqeDRXdNczMgJZdIWRnEWHL3KdUorw/L+larG
+	 ZNRnov10rZ2nzZfakrgG432exQESlI1ERP+EsD9wgx+6zNvDxd7EQxn5nwb3a/vHtUHMr
+	 WDfaDAwAp/XcSM7JFeQLl1W0fHnlsAfiKjr5EqVHCw3DVT56ISxmlmj8ntH8dvPar7Aji
+	 Egn12odQGc3hip2PW+POynqN0N1gEZ0sy+LZFffw0KryaMkKGc61ph2EPEGkWRToVUL75
+	 FYhgPNEpLvcnW6j73bBaiJ0mQbiUKwKTrUtu7kavC6LwF/01IfnhQxc3ccIZUfUUm0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792773166;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792773714;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=b5iTkwSOZHA0NMgeve9AVcmRA7avz9vnNSokzShuXNI=;
-	b=ksH44IrHbobdhCgFA1ydDfR8wWhCdXDcSeZNhAoC5y80W5sWDO0j0XgiCiL2ydpU/8vA
-	 lOi73XpWwnRNfaGN6JyN3usJLXTGSNDRsnv5XewtTWllgmQhKCIysvDVhQk7TREbdXKyz
-	 3hfDm/Yos/4d6XdRLyPucecmvBU3/cg7tbXutqxK0sNr4Z0Mre7luyHVnxJCWo9a8IKJV
-	 YNPJjsdMiJrLwOGmvTLDIn6fskLmOpLf1jv1/PI7nC8Luwavp6VSBI5dklKHfYsHkeRrs
-	 9eZTi9ObY2N0TnD89kqBkHtOFyGpCA6/0Kq0cH/B7Se8v5u9f4UPGb9gz07qOuUtEnA==
+	bh=VnDYIIJpa8hOGMaysz7TE+GWovCxog753iYcM5WzKyo=;
+	b=v3u+j5LEyJLBupMhdOPs66Jgm4fZWG6VZZLx2B8HDomwPu2rlHI5ctRnmMRACWQIxphg
+	 lr8jcGVN13UHd7r8bm40hw1c6jdvgxwbO/5Dl3tVuL+PNrrR4pjolWPj4bB9wX5hlLy/O
+	 NXpFnjd5dtYemOUV2c/ElP06LUmjVOh/gjcZzjdKLoV/ljUKp1h9+49kvlOXK9srVnC+6
+	 Qp4sjYqZroPKLJcpFuZbFtDvxjps49uyrSHkq2oX+b2j4sS0pnrQSGgg45igVdHIMW3bi
+	 gVRedc7iohNCupQpxw/PcQ1ARbNYpzGVbq9StpuOnuD5RPM+GIwLSa0W+T2E0NvSm/Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZDroGC+x;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQ31nQI2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69239606A31B;
-	Fri, 23 Oct 2026 16:32:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F5E606A31A;
+	Fri, 23 Oct 2026 16:41:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZDroGC+x
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9E91F01825;
-	Fri, 23 Oct 2026 16:32:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQ31nQI2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FBB1F01825;
+	Fri, 23 Oct 2026 16:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792773166;
-	bh=b5iTkwSOZHA0NMgeve9AVcmRA7avz9vnNSokzShuXNI=;
+	s=k20260515; t=1792773714;
+	bh=VnDYIIJpa8hOGMaysz7TE+GWovCxog753iYcM5WzKyo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ZDroGC+xpkkXkLSz9nuI+opuu5tNARVn8NQVHvBGJ39Wcu5xwGoNJMMCuYl0xpk2S
-	 unEbIF+IzanPKZcNUTshlOcL6t3fv1xF8cO5Hjpj9/BUYOX1ZMLKuGBcPPLj/b5BRX
-	 dAxWyqRJKfRWVaiL5netmNJNdeuyBFRid9M+kHjzAoHsFtrW3x8NCMnJntoxsuVwkd
-	 ADM6h5a0wWiiJqNXcaoCWfeVHSxoOqefKY8gG7CIjE6ZX/zK+DowM8kj5B6Flg7Is0
-	 pwVCAYcQVIOd68eVAnx7t6ySwcE5/D5CYepQn1InkIirF0wWUyrQLFupAkddsWxMER
-	 dFvoPAcadEk5g==
-Date: Fri, 23 Oct 2026 18:32:38 +0200
+	b=AQ31nQI20ChWjT0klhf0z2BvZ2hEYL3sSKZXMzP4rcTvAdUIrJ2aIMOsUlDL/WXio
+	 rZRGXpm+aeML+UI+goJbYXDWx96t5Po0WtZKSr1QP1WEGA9DXVFf1N21sJe+JT4k3P
+	 TGEYQaEM3I8rc2Hx1jPjWOU9W7DLcH4tS+VDQjIV2THxJ5X7yd6ZdqIWtssKiFpS/e
+	 F3JJ0tUvhAozzT2qvO8ol/SDYBfC2lg3prbOh/6s0iZPF8v0QWulm5kTsmrYtvINzT
+	 P8p+W47HaBdzA4HDY5OHknmwlsPYGppQy21s9aquz5nPeKFzXM/FyT2sJbnvCm3Ftw
+	 GiPKDVN69TmmA==
+Date: Fri, 23 Oct 2026 18:41:47 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Vincent Jardin <vjardin@free.fr>
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-i2c@vger.kernel.org, 
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, Carlos Song <carlos.song@nxp.com>, 
-	Haobin Jiang <lemonoutput@foxmail.com>
-Subject: Re: [PATCH v3] i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
-Message-ID: <atuMDUXq64XhQgqM@zenone.zhora.eu>
-References: <20261023-for-upstream-i2c-imx-lx2160-reverse-v3-1-a07b249df381@free.fr>
+To: Igor Korotin <igor.korotin@linux.dev>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	rust-for-linux@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>, 
+	Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>, 
+	=?utf-8?Q?Nicol=C3=A1s?= Antinori <nico.antinori.7@gmail.com>, Georgios Androutsopoulos <georgeandrout13@gmail.com>
+Subject: Re: [GIT PULL] rust-i2c-next for 7.4
+Message-ID: <atuOKm_Yj5JXsrb0@zenone.zhora.eu>
+References: <179260155969.2966.15552703862037914616@linux.dev>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -62,27 +60,20 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261023-for-upstream-i2c-imx-lx2160-reverse-v3-1-a07b249df381@free.fr>
+In-Reply-To: <179260155969.2966.15552703862037914616@linux.dev>
 
-Hi Vincent,
+Hi Igor,
 
-On Fri, Oct 23, 2026 at 04:20:19PM +0200, Vincent Jardin wrote:
-> The Realtek RTL8366SE SMI read frame per:
+On Wed, Oct 21, 2026 at 05:52:39PM +0100, Igor Korotin wrote:
+> Hi Andi,
 > 
->   S Addr Rd [A] reg[7:0] [A] reg[15:8] [A] [data[7:0]] A [data[15:8]] NA P
+> One fix for this window -- a real use-after-free (KASAN-reported, GitHub
+> issue linked below), not a cleanup.
 > 
-> Linux support it using I2C_M_REV_DIR_ADDR on a write message
-> that inverts the transmitted R/W bit, and I2C_M_NOSTART on the following
-> read message that continues the frame without re-addressing.
-> 
-> This NXP i2c-imx is missing such support, so on an LX2160A the Realtek switch
-> could not be used.
-> 
-> Acked-by: Carlos Song <carlos.song@nxp.com>
-> Reviewed-by: Frank Li <Frank.Li@nxp.com>
-> Signed-off-by: Vincent Jardin <vjardin@free.fr>
+> Thanks
+> Igor
 
-pushed to i2c/i2c.
+merged.
 
 Thanks,
 Andi
