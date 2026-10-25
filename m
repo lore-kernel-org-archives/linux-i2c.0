@@ -1,87 +1,52 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792896542;
-	b=RWcWPygfYbqDJgrLHj1XrzXvfLtGwYDFx3GAwei1T7APSz+cEcInbBc23xykXOJ+3EQX
-	 a/901IZ0dBSSGMNSWEHMgRoIqch4s8nH3TT7vcmjwe47+zzeMCqlkSi7jz50Ja2m5YkE3
-	 wrqFQ5cBGFfP88//2JLoa/v5mYYwJ+AHcmMQBavrYY567P5Da0Slvk794Qp684/idyqhO
-	 hVJyr/S+z+4RSNGcuHc+EK/beuLaiTCYAfmsoOvUSkvbt/4ig10SbMj/fjGzamhvWe6Dt
-	 PpIcOsThvC/dYTumEUeiDCM1q/s0JbH3zgmC3ILXj6Lde4fRHV0G2n5sREqfkeoMhJg==
+	t=1792959630;
+	b=ze1XYSLg8GIAAastwvz58rnKXGNm54z2nkbUd2tqmqwKhB770tRsCChI5bUVr74BXSSn
+	 +2MhiH9y+iROkQvxgMshwSN8ZVtvgWTEDnqJzslhNTB1ctewQjbBgQeJVfXSJwJkmWYfM
+	 l0Q9fkSvt1CoP1sncejGs38CnCbZp13dz3OXxmBQm9dM7sa65Den4fx+q+wI3ryPxnUzO
+	 30uw+No7M5A+dEHxKk3gmwJkVx5kBF3GBhygxsnclJPz58Hw+I03e0TRxLi9GwePex592
+	 cfpFF6rFtpROYqj2B6Zef6fXyYH0FRSkiQsLCYCd6XYrhLbN/kzx6o+mZo+7HiWn5cQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792896542;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:Date:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
-	 References:In-Reply-To:To:Cc:X-Mailer;
-	bh=2WNFFspM+rHRPvmlX/IdB/mvBFJYspViUI+mUu/7+EQ=;
-	b=hJhSU8al/lhQneOuTC+MgHDgEHBjrDC3uYqN2dNeM3fknrgs1btg61rLWqbjbqqUYSwU
-	 CWWbqghHO1Z5Bl58GgpF2q1EMxx7aF3Hh0J92ipIMIW3ruPeZVznN7cAMKyN3PmTsbp8A
-	 oyVd5PbSVBODXbBWyy+x9OJ7qzoL5a+6dA3/G7xlzF0UcsqDe125lrmnHu2bn23lK2wW8
-	 MITRsWSOY1bbBmP8XgGGd/6k0k3xhTcsT8t0c/LeQ9hcLPCLpESYWfXPjs8iOQPh78zS7
-	 MLVd0JSYTH/vTvQN7SRuRx4A221KkULarqkPuUpgRF0I+h2HPD/3QZfQ9NKRLrOnjSQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792959630;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding;
+	bh=SyaPGIQYi/mFlxDPBVA0otWi9hIvkOWVtC96JGc7v1U=;
+	b=41z3BIW4EkRTlC7m3ozmuOgehl0HqdPK6N5/POy5Ce8I0mr1Z596zF0iDt0pSnwi5Rif
+	 s1CjxwDHJ4lMSXn4L63bE18uyOQ3QcRK/zWxwE0nDkkEUtsa6+SQmw/MU3SHH53C2/Ofi
+	 87fHnTwYPfM6pdH60qQzyjYaSTXM7mHI/Mq2o4Qvy8SQ/UOdN9Vs0yUfnIuOiHMIWwZQt
+	 Xc1hhD+DIbaM80c59CcFw7BwGnaEyBcAdY6u/uTJoPeBGvjMapxoEp/g1L1wXHXAgJ8xU
+	 3kLBDXi5SBp3SqWYYMGiEv9h8PkIHpmMsil9dlGeFLnNNGpyUBRRFk9+OwpncSk6xgQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=AogBztQa;
-	arc=none smtp.remote-ip=74.125.82.53
-Received: from mail-dl1-f53.google.com (unknown [74.125.82.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=njlELR10;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DF4E60A263D
-	for <linux-i2c@vger.kernel.org>; Sun, 25 Oct 2026 02:49:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8DF4E60A263D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580CF606A31A;
+	Sun, 25 Oct 2026 20:20:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=AogBztQa
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-15ea896ddc8so3391633c88.0
-        for <linux-i2c@vger.kernel.org>; Sat, 24 Oct 2026 19:49:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792896532; x=1793501332; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=2WNFFspM+rHRPvmlX/IdB/mvBFJYspViUI+mUu/7+EQ=;
-        b=AogBztQaefRHxqIf7r7yyiPJ32TbkKSI3EZbJyc0kM0DrFhuCiEAqIV7SisQG5g01m
-         lP8walfX9nQXhaXidqzuNwI6Liv8Yr7pKoxYww/l1I3zNqNPsE0AbTEz1Y9/wA1xXQ+u
-         pQ6Bjf0E790OrznGUopeKOQszZ9uwLfYdMH3COcZyZ4oSsC6QlaWXUQep2FG9atErDPJ
-         rLSXwIHURFU/vZ1FggsB7lHTTHi5Nztr+uIT7tAjeUcGHkirI6ugimoSrRGeOsGzaU7p
-         Ogm+9BojY6irQAwGPPBCC/Udjma2QscUnzmO2cmOitOQmo9ottCgL420ReMargrfLKyq
-         LgQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792896532; x=1793501332;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2WNFFspM+rHRPvmlX/IdB/mvBFJYspViUI+mUu/7+EQ=;
-        b=yHK0Ze2WMVq0NJbVnwuiyZoIq9jV43mDjh0VcvbLZ+amSE6RqNf3E5PhisyKtrV0nl
-         bzNCJdAwnhzGdIsIKcweAMJtgO6VaJcbR7L1hBXQTkdYRk1GurMDyVkun3A9id9mFe0V
-         g4ZlVLl/p1fy30BPTYFdyQMRSGU8hZdpAmCZRImua282Y70LZKL0yicBrzPhOHmEbeAR
-         PbML/vMz/JF0NxIVWzMV3MJWavgChSNiaXyb5VNOeuNnIRyQaJmuw8mGEJlmen5u1cmC
-         eD+e42/pr1/Kzcyqqk0bJOdzy2NGhPSqDQxPNHFtrxMLSgQoqRfsW9Hb7Yrc16AcOG8F
-         7c7w==
-X-Gm-Message-State: AFq9FYKvkvuky7dv4O65GJ4xEW0ZQP6DvCgBDPxKqnUESpS8ay2wNhnU
-	Jx+b68+NRnOxiOKIXMCPkBQLkvDs9AVe14inFmScGBQMjKDExbUEFcU9
-X-Gm-Gg: AYBFou2H8A5szBDWH3sZCQeA6OgNOQNGSXvSRj/UdxUkXJvKZqPQLpFeIWGch3mCzHr
-	UEtCerz4bcup8W6V4oLcFtwpXE1eXQYgPeR+2KusTlNUdBKcU//LLotpyAgvl4CrltaIPdYfZUf
-	hdAYPyRdJbHK0W8PMpLfGOmlR1udO17kol4i7qHaoiGYNOFxNiniFrXJmrGx0RDEQS5jlrUqN0v
-	0c/qTOy+I4qsBYtr5MmKsFxcE1wL5ULUWL7R+8wppgPufhXi9u7/s7fFVey9MDUVMNvCE8rwpXJ
-	MtbuvmqIUjO0jAA4Tga6EACGoRrDONgF87rjZ1fxVH9ch3bKGHAu1hNtIcU+U2j27qD976uqRcL
-	3Z0oylv0xM8+HTEqzePLhbotBW/5tV6Wcmgo6huwsyms92wJTmyFXQAgx2y1gjlfgzkGei6skro
-	7zdyykKcuL7dCzZYkNeGPYNy3vkm0KMdBmxIRB8dhpDYUIrmi9v2aabPrxpTvYf1FLOPBM/LCtX
-	7o61bfw2Q9UM82I733UmXDEtpe6yJyEv6R5fzI1YE1BY7cHDvOquXdnBROfH7nrHp2ef1/p5MsR
-	wPh+wYGTegAtieZD5eroRsDScboau97U/kulilVByF2lLJ4fg0F+Q2OBQIV0ZSxE
-X-Received: by 2002:a05:7022:ea5b:b0:19e:1ad9:1c2 with SMTP id a92af1059eb24-19e1ad9061emr760295c88.38.1792896531619;
-        Sat, 24 Oct 2026 19:48:51 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:8fe4:693:7158:24de])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-198a2e32479sm10521272c88.21.2026.10.24.19.48.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Oct 2026 19:48:51 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Sat, 24 Oct 2026 19:48:43 -0700
-Subject: [PATCH 3/8] Input: cyapa - use 4-argument
- i2c_smbus_read_block_data()
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=njlELR10
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38EFC1F01828;
+	Sun, 25 Oct 2026 20:20:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792959630;
+	bh=SyaPGIQYi/mFlxDPBVA0otWi9hIvkOWVtC96JGc7v1U=;
+	h=Date:From:To:Cc:Subject;
+	b=njlELR10AqyuTF28+3eZ0sYFZM9gz65ImsBJwjmc3uWJ5B+XOV+m+Li5OobG6t9W6
+	 XN+C/WVQ1ksM7Y7Dm1Mun3eBB3Xn28ZvQi0Bsq6ZrLveUYp1FOfdtT+mIllsqw15k2
+	 0GfMWWAVHr9+UM2MoDCXSrLZ3xDX0XUnnHah/akmPZrUyDj3b41rGeM4UkKj0APqo/
+	 qG3NTd7tfvLbY7PQO+60HxLsKh3bvOz1ygYl9sfYOswJ1a3rwW3h5TxifofzeU0axa
+	 ywyMfgaJmyIk4u3y4fmakf+HxkGKsPtd+TvvkKRbbCGW0LNrwgdVLO6tTMLDbD20TU
+	 MsFj7OfnS4yww==
+Date: Sun, 25 Oct 2026 21:20:26 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Subject: [GIT PULL] i2c for v7.4, part 2
+Message-ID: <at5i65e5wjMz2TCA@zenone.zhora.eu>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -91,57 +56,103 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261024-i2c-smbus-read-block-data-v1-3-19bb97467982@gmail.com>
-References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
-In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
-To: Mika Westerberg <westeri@kernel.org>, 
- Andi Shyti <andi.shyti@kernel.org>, Corey Minyard <corey@minyard.net>, 
- Hans de Goede <hansg@kernel.org>, 
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
- Sebastian Reichel <sre@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
- openipmi-developer@lists.sourceforge.net, 
- platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
-X-Mailer: b4 0.17-dev-e56a4
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Pass the transfer length to i2c_smbus_read_block_data() in
-cyapa_smbus_read_block(), accounting for the final chunk size.
+Hi Linus,
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/cyapa_gen3.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+as anticipated, here is the second part of the I2C pull request
+for v7.4.
 
-diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-index fc3fb954523b..0cdebf2c34e7 100644
---- a/drivers/input/mouse/cyapa_gen3.c
-+++ b/drivers/input/mouse/cyapa_gen3.c
-@@ -256,7 +256,7 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
- 	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
- 		/* read specific block registers command. */
- 		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
--		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
-+		ret = i2c_smbus_read_block_data(client, smbus_cmd, len, values);
- 		goto out;
- 	}
- 
-@@ -265,7 +265,11 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
- 		smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
- 		smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
- 		buf = values + I2C_SMBUS_BLOCK_MAX * index;
--		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
-+		ret = i2c_smbus_read_block_data(client, smbus_cmd,
-+						min_t(size_t,
-+						      len - I2C_SMBUS_BLOCK_MAX * index,
-+						      I2C_SMBUS_BLOCK_MAX),
-+						buf);
- 		if (ret < 0)
- 			goto out;
- 	}
+This round introduces dynamic transfer timeouts in the I2C core,
+already used by qcom-geni. There is also support for additional
+transfer modes in imx and a handful of driver fixes.
 
--- 
-2.56.0.257.gf7497c7d27-goog
+I've also merged Igor's Rust I2C pull request, which removes an
+unsafe conversion.
 
+The branch is rebased on top of your part 1 I2C merge[*].
+
+I'll now start queuing patches for a possible third week of the
+merge window. Otherwise, they will go into v7.5.
+
+Thanks and wishing you a good rest of your holidays,
+Andi
+
+[*] bb436f2a8568 ("Merge tag 'i2c-7.4-part1' ...")
+
+The following changes since commit bb436f2a8568d14f176475c79b0d5069f0a6f9e3:
+
+  Merge tag 'i2c-7.4-part1' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux (2026-10-22 07:36:22 -1000)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-7.4-part2
+
+for you to fetch changes up to f7b70efba26963bf725f10574cc071f86cd5ee1d:
+
+  i2c: sh_mobile: request IRQs after mapping registers (2026-10-24 00:05:15 +0200)
+
+----------------------------------------------------------------
+i2c for v7.4, part 2
+
+This second part introduces dynamic transfer timeouts in the I2C
+core, already used by qcom-geni. Alongside some driver
+improvements and fixes, it also brings in the Rust I2C pull
+request.
+
+Core:
+
+- core, qcom-geni: add and use a dynamic timeout helper
+- acpi: fix adapter reference leak when creating I2C clients
+
+Drivers:
+
+- imx: support reversed address direction and no-start transfers
+- designware: queue block data reads once length is known
+- mt7621: skip the second data register for chunks up to 4 bytes
+- sh_mobile: ensure IRQs are freed before unmapping registers
+
+Rust:
+
+- Remove unsound device-to-client reference conversion
+
+----------------------------------------------------------------
+Andi Shyti (1):
+      Merge tag 'rust-i2c-for-7.4' into i2c/i2c
+
+Aniket Randive (2):
+      i2c: core: Add i2c_update_timeout() helper for dynamic transfer timeouts
+      i2c: qcom-geni: Add dynamic transfer timeout based on transfer length and frequency
+
+Christian Marangi (1):
+      i2c: mt7621: fix copying uninitialized kernel stack with reduced page_len
+
+Ma Ke (1):
+      i2c: acpi: Fix adapter reference leak in i2c_acpi_new_device_by_fwnode()
+
+Myeonghun Pak (1):
+      i2c: sh_mobile: request IRQs after mapping registers
+
+Navon John Lukose (1):
+      i2c: designware: queue only one read command for block reads
+
+Nicolás Antinori (1):
+      rust: i2c: remove TryFrom<&Device> implementation for &I2cClient
+
+Vincent Jardin (1):
+      i2c: imx: add I2C_M_REV_DIR_ADDR and I2C_M_NOSTART
+
+ drivers/i2c/Kconfig                        |  13 +++++++++++++
+ drivers/i2c/busses/i2c-designware-master.c |   8 ++++++++
+ drivers/i2c/busses/i2c-imx.c               | 157 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----------------------------------------
+ drivers/i2c/busses/i2c-mt7621.c            |   9 ++++++---
+ drivers/i2c/busses/i2c-qcom-geni.c         |  48 +++++++++++++++++++++++++++++++++++++++---------
+ drivers/i2c/busses/i2c-sh_mobile.c         |   8 ++++----
+ drivers/i2c/i2c-core-acpi.c                |   6 +++++-
+ drivers/i2c/i2c-core-base.c                |  43 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-dev.c                      |   3 +++
+ include/linux/i2c.h                        |  13 +++++++++++++
+ rust/kernel/i2c.rs                         |  21 ---------------------
+ 11 files changed, 251 insertions(+), 78 deletions(-)
