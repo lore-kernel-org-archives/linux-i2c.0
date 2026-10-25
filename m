@@ -1,103 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792877621;
-	b=BhYbJVMDs007JEdTcdiMnM+Ea/8Urwt443WlDXvb1jpWlTA+Ek500N2dNZcvKq70dMAM
-	 GqTYsMIYfSbXhIUvzW7edhtdv9cEIOlwxNRzX7zsOpVYLsp4sY2w9QDXzybrEI2nkCdUB
-	 UH0yQaqLl9jOgIHfu3EJUHAdSSqA3lpBGBhBbQcbohjME6G+2UJmYyPVhnU3ye5NacFcD
-	 QvFUjYK4m3RLUrt6siMdGhg/uBpjjB2u0YXPtNIEZYVtypYbb9mXkgF//09dkWpU7I1U0
-	 4oiz77KoJeNlSIBO6jcGJej6tkZxAjJqujHFhr2sud5SmWtPLQS3ZSr+AoWNvvsw82Q==
+	t=1792896529;
+	b=0gwkhw9mC5IiU5LtOjGBXihDs2ml8uLfgNtJu4Orp8sJ9/EQ9ELf2pT0uvYqONTZb4dN
+	 XyNTya23uLjK0mD8HuRizRENB/cNhbZuaHoA6FbAGTGBKl/bmmtSbFuKmJXXDrbr/zCT5
+	 S0IxxI3EHF/mdyDKsVP2YvdlFnnXR870kmIqcvPlo4t9CUQgcdiHKFmQ62vud1KVzrme9
+	 8zFOa/U0MWlsiJ6bXENLk6S6LNxXWDfvSlGk/Dw8WaoMqEqZefn0kDpKC+ndbn/bqUpF1
+	 oZIcfkP5XHcYWSoGqNRHIB0PQ2JqBuIjnVVExnYCz5A3953xR0FXV5+xfRfisG8nAeA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792877621;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792896529;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=0KswdmbKVSA5fjmS6TP3KWbeGyCgT1MgBNiKyDDfZYs=;
-	b=LxvDuFIpY70m6YYQOij43LcI4BiV7VGa/FM7NvR1RDOfAMkmFxGFULDZfSi0K86Ia/fS
-	 tVxV8uV7g+eeNAqVw40c5HT9A1ZfT2rj6BYQzJlECFJ31OPH5Hsqr5hh9lVCMQXn/d7yd
-	 cyWSQEKsxtkMPX6f7LhNIpogyqnCkMMs7ZI6/bskdwrCSWnWAuU5HzdJ4B4kbO7pvCbDj
-	 CtQf9DW6X9/1zmcEyKFdAi4Ta1r0bXt3bXluFLSrUT8Tt0YNDuLaX8oErj31T9CGtd5Dt
-	 RP0pAlb1gV2FT9nozLH/bdvkCc7hi1mIB15hsSN9II42U93768wbi9DzYWP2D+lSeqA==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:Date:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
+	 References:In-Reply-To:To:Cc:X-Mailer;
+	bh=FRxwvjYywW2EDj8EBeP8mrgqVWNhsI+cL4nt5lpU7sA=;
+	b=ezpmMdQGFrO9NUjzGgtTpkttW+Y4W0OVbJS5xoj8Q1v5tQ1NJEvLN6JoeRFcHGn97iZy
+	 wOr1cJCi3Lz4Zbl+42kVxTAoR9nYzpl9XI6LYQHvN8KYFZ4+fzhco7Y6Zlf9glhp01chc
+	 ahE5mDPNris1kysHB2E4brEaOeofheDAMVfCv05iBBKErUPvNRSDiQc/DbwRAeUiQEHSS
+	 +RHidlCUE2kU0+hGqWHz1aSYxj2ZpzGs3wZumXfBR3VBUOw1V4sZLqzCzpHQK3xJJcuS5
+	 usoN0nn615f3L45X3yBh5cPf5NlMQD7ParIkujzLXB/9jUTvnC53/6VQ1ZRK9dNeJSQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=fail header.from=mgcrea.io;
-	spf=pass smtp.mailfrom=mg-crea.com;
-	dkim=pass header.d=mg-crea-com.20251104.gappssmtp.com header.i=@mg-crea-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=zCt4oLyI;
-	arc=none smtp.remote-ip=209.85.128.48
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=TpxwA813;
+	arc=none smtp.remote-ip=74.125.82.48
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5B07606A31A
-	for <linux-i2c@vger.kernel.org>; Sat, 24 Oct 2026 21:33:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C5B07606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=mgcrea.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mg-crea.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C622606A332
+	for <linux-i2c@vger.kernel.org>; Sun, 25 Oct 2026 02:48:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6C622606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=mg-crea-com.20251104.gappssmtp.com header.i=@mg-crea-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=zCt4oLyI
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a2069b9710so17867995e9.2
-        for <linux-i2c@vger.kernel.org>; Sat, 24 Oct 2026 14:33:35 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=TpxwA813
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-157fe9d771bso2424415c88.0
+        for <linux-i2c@vger.kernel.org>; Sat, 24 Oct 2026 19:48:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=mg-crea-com.20251104.gappssmtp.com; s=20251104; t=1792877614; x=1793482414; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1792896528; x=1793501328; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=0KswdmbKVSA5fjmS6TP3KWbeGyCgT1MgBNiKyDDfZYs=;
-        b=zCt4oLyIkkf1CqfeSXRB2mIw1vUURk2wMEQclBWujMGgge8xHAnWmq7H82vRauzL7y
-         FAoerBqlzYJKFOkvh9Ejj4giXXpdZn4i7Ev5wI7xnyezfGiOdsRZ+AAGQdEc8q9gaayV
-         k/cfAIp+VhKqscjhPf1Xn9g8odsIFHNKPHpCp6MFFGxo3Sip4v83pVWapXmdfIB2/ylu
-         456rlPZwb6DVAzRr26myyhB6+uPJOEain+cKR9mpOXVbs9jeMyzm3hcJcoEPX8+82wSj
-         k7H6pHmaYuMEbsDBCg5iqIEjpGworu3hpgfFHyvjNCu7joTAVwDp60xcOn8lZQvLwcby
-         P5aw==
+        bh=FRxwvjYywW2EDj8EBeP8mrgqVWNhsI+cL4nt5lpU7sA=;
+        b=TpxwA813+P5znsifZUJ8deji2Cfy3YNYm07xUH+eLP83aZg54OT8spSktYMe6uqGRE
+         iQECHez5gjvBbx6xLGeVbfT8DSZ1k8Qt62vdK8EaDhI3b1+wztqIkJbaJlCtnuCA5esL
+         QRH/IaQA0IS4/4rwKKtRZShp/VJZY5B2CGAQ4+oQP9868SHQzHcsRMqbIUIJIrKAZ80n
+         lruFtXxmDd9FsV8X+PllJ668rF3ZZJTTNnl5/6dcw99NfAg8N0Yo5T4C0J1RuHQYX1ve
+         +cFbn2eSkjaZFV55MBT+LCMMz8FPEg4aiNN52QkcwWnlvHZrZ4/6zCg7MfQQ7POzh5gG
+         lE8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792877614; x=1793482414;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=0KswdmbKVSA5fjmS6TP3KWbeGyCgT1MgBNiKyDDfZYs=;
-        b=UF9Bjljo/eAJu9CuYyu6wVfsc53GwjSuM2N4gln3O9TDKIM46CInxiottnk9oWl8Cw
-         OJKZqQMMRdQ8FYPxdLPTSWQ5sg/AthdXsNXaPuzb6KVRdLnCmoCei+YSSexMtDjZKmAK
-         mOrxXuPAkNl/vHcLtJC4lAFSJ+kO6yF5NYU/DCOacAVqGeafGIozzEjW7kpqyS7uDbxO
-         7v7ejDOaBk5K65gsFwzMsJbyttHQNbyGJqCPPxlPijaoU0UrqJBW+OISOhCwj6OVFatY
-         aI4s5wA8JZi/BoVNBevczfHowt6tpx3Z0rN3Cz1fA0ujhFzJnWHk5HmOjL0zf/6KJKLO
-         4cHg==
-X-Forwarded-Encrypted: i=1; AKwUvBwJFlnqszw4vqMaa6TQHx4UpMb78q/uDlDoGu591EFkyC7vS/HNCB7ba0cM1ZBmR7VceuHXGuL7Kyg=@vger.kernel.org
-X-Gm-Message-State: AFq9FYLqzdPniDpE0q3oj/p4K9BSPf694VHpPkAy9hfEEx0DGceP+gjm
-	HwLHycXLqO3ry7HoW0h3j3fbW3NBqB2EzUXDQeFu40X7jmZJ/426snZowKNCMYXb4v4=
-X-Gm-Gg: AYBFou1x5q4dKgV+cjeErYa92Rt/FMh2tiwAqazT/VQ7ZeEIFi9N/tvdFkL5xL7/YTN
-	nO8gQb9gM74gIzAfLAjlGxGpSLsgn0hEDimbxKl2KV/h7tRmHAuoyfXk6Ki3Bw2FhWTxGdgCDbf
-	QEXJhx0qlc7SqGgtFYXzoQYK4prdYl/StBRVyEog/tau2O4tdmegH+m3vPdlqnCaIidfghW7GhA
-	ZdThbPrnf+/MsBtMeZveDnIGrZKhfov32K47p5OMn8yyFBEGP7j59CM49YJVZ+/ZMNClZvLlrQv
-	hbH9Re1tHHp9TAxJxGAKBvIZ2UL1/tQjbgKS4JVAKu+a9vNfcH5VLzM5jBMRbW/UAOnNTynq4KF
-	cBXlYmMYO2cQA/bErYIsJXbluHDbGd3XkQKMuDohcflikHVk3v27bpmqLbBkVz7gMecPk+MvzKV
-	D/Aqfk7bT+6QxVPrOI9uPOsT+ebMfWMkYaY318de5AcjXbz9A9wVZXQKBNwj7JjlOCq0nV0OaLn
-	5fNCkFM0kUQetjcuO6BZhUtfsdLkumAlukqOSvcDF331iae+lfFV1YNQlYpetVfHBCP6s98nUkx
-	Sm7oQU9xBGG+oiYXSdU++pto7IuL8g1XsmHqg/ijdXGHpOWRtoSo12rJl3gBl6/DPuIel8rxW04
-	=
-X-Received: by 2002:a05:600c:3b93:b0:4a2:397:73fd with SMTP id 5b1f17b1804b1-4a35ac96004mr48075955e9.12.1792877614164;
-        Sat, 24 Oct 2026 14:33:34 -0700 (PDT)
-Received: from localhost.localdomain (2a01cb060184ad00bcfbae5efa3e0f0b.ipv6.abo.wanadoo.fr. [2a01:cb06:184:ad00:bcfb:ae5e:fa3e:f0b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a35a0bdd59sm50531495e9.4.2026.10.24.14.33.33
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 24 Oct 2026 14:33:33 -0700 (PDT)
-From: Olivier Louvignes <olivier@mgcrea.io>
-To: "H . Nikolaus Schaller" <hns@goldelico.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Paul Cercueil <paul@crapouillou.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	Discussions about the Letux Kernel <letux-kernel@openphoenux.org>,
-	Paul Boddie <paul@boddie.org.uk>,
-	Andreas Kemnade <akemnade@kernel.org>
-Subject: Re: [PATCH 2/2] i2c: jz4780: Add support for the X1600
-Date: Sat, 24 Oct 2026 23:33:33 +0200
-Message-ID: <20261024213333.51569-1-olivier@mgcrea.io>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <465127C9-AE28-4F01-8721-8D819258D45C@goldelico.com>
-References: <20261023081452.44118-1-olivier@mgcrea.io> <20261023081452.44118-2-olivier@mgcrea.io> <465127C9-AE28-4F01-8721-8D819258D45C@goldelico.com>
+        d=1e100.net; s=20260707; t=1792896528; x=1793501328;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=FRxwvjYywW2EDj8EBeP8mrgqVWNhsI+cL4nt5lpU7sA=;
+        b=BDBByRn7nvWc+jpZyV8GNYvN4nTSivccei7khufPHC5x5dHDuq2uxRhevcBMt9jcAl
+         hMoHPdSYyhvG64QJXmtNkH5YIjQ6igT/SJh8LltuF+ypGsyzbH9hClTE+5V6onLW4s4G
+         5QnklGUKdv07+eMhE+vBl78bn6lTTuhiIhHYGoTY8vgech5Oo8rOffAzoCxoCgRlSPs+
+         h3m0azTTF8qQkG8py+zK4eF4Q4QlKvVRs/DiLVgSUONPPYYH/a8hFFj8735wk4j77TuF
+         pKBwYbhF/xbYZ3WdWvok7JbQyDYFfuID6NW9GuA+4J7gFcnT2zGaacCnyljZLUgAJvqc
+         s85Q==
+X-Gm-Message-State: AFq9FYJVPbo/rEy09kf18x3YI4Q7KmQhfR14/LZsz+LiIf1gIBAP+57Y
+	VeuNHU22gPxZHhj4Z7EnVhzHNRfUv0AewH/mKjYCMzMIND+5UxyI/BH7
+X-Gm-Gg: AYBFou21TwoEAs4IBdmzw17DXEf9p7hoVoWPYxCSujcR/Gewg3GxqHbPimhJLQks26E
+	swipC/lYK/7DOZCZUKWsWlUuoafFr/I+87KldSx0x4T/fK3dwA2ETk7xjb/OmC+8sffq4+vWxIQ
+	bkMDyMYUk2fzqDA/nb0N+s2yjGgOcBKP2su7Q5d8Hsk7eyz7O4BHyY/IwA9lIKBoFS5IKo1di5I
+	VwJ0vc6bj2g1hN03Ya87OYsIeSJZY+qI3g6reVB13Mvk71Uw1Cr0dXJLQFD/n+YCi/8PrIW+Eok
+	F1uugU7o/lqxn/FjhF2y3Mt0u+bW9UND6jMhWH+lGanIEFEAcCqQhpDv7nRMP+4/lI2whJmKNy/
+	0WzGpZ931O/PNMp4RFyA4+nbAlCRaTdXjvG1G1sUpCsoN1zBNnWU4h0iXq8vG6UeTw3ksBDk4T8
+	h5vmI/gJnVdboTUxKr9lzKoRNxx+dJvfB2WmTELpCBG1HoUf8/iBCTS2o3MbYCvfdSE1ZDgofQC
+	pyYPuY0nRWJmKvNbPByfUPYSlKb+lwbPQH3vRmL8vJ8IC+aJkliRW7GYlqHMXXGm3jjnlLYDOqj
+	47WgYFF2Ei4lsbx8dOtoxMDdAqV5riv9QyVaPQh8cQ8=
+X-Received: by 2002:a05:7022:1087:b0:17d:7b45:f905 with SMTP id a92af1059eb24-19937025befmr4633321c88.31.1792896528487;
+        Sat, 24 Oct 2026 19:48:48 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:8fe4:693:7158:24de])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-198a2e32479sm10521272c88.21.2026.10.24.19.48.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 24 Oct 2026 19:48:47 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date: Sat, 24 Oct 2026 19:48:41 -0700
+Subject: [PATCH 1/8] i2c: acpi: use 4-argument i2c_smbus_read_block_data()
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -107,40 +90,44 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261024-i2c-smbus-read-block-data-v1-1-19bb97467982@gmail.com>
+References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
+In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
+To: Mika Westerberg <westeri@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, Corey Minyard <corey@minyard.net>, 
+ Hans de Goede <hansg@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+ Sebastian Reichel <sre@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+ openipmi-developer@lists.sourceforge.net, 
+ platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
+X-Mailer: b4 0.17-dev-e56a4
 
-Hi Nikolaus,
+Pass I2C_SMBUS_BLOCK_MAX to i2c_smbus_read_block_data() in
+i2c_acpi_space_handler().
 
-On Sat, Oct 24, 2026 at 05:00:10PM +0200, H. Nikolaus Schaller wrote:
-> Comparing x1000 and x1600 programming manuals I was not able to  confirm
-> that the registers have moved or been replaced at all. They even look to
-> be the same as with the jz4780.
-[...]
-> So your problem seems to have a different reason than the setup time.
-> But spike filtering may have.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/i2c/i2c-core-acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-You are right, SDASU did not move. The write to 0xa0 only worked because
-it shortened the spike filter.
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 84841ed13487..4acce685457f 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -751,7 +751,7 @@ i2c_acpi_space_handler(u32 function, acpi_physical_address command,
+ 	case ACPI_GSB_ACCESS_ATTRIB_BLOCK:
+ 		if (action == ACPI_READ) {
+ 			status = i2c_smbus_read_block_data(client, command,
+-					gsb->data);
++					I2C_SMBUS_BLOCK_MAX, gsb->data);
+ 			if (status >= 0) {
+ 				gsb->len = status;
+ 				status = 0;
 
-Measured on the R1, driving single reads by hand with the filter set to
-each value: 1 to 100 APB cycles works, from 110 every transfer ends in
-TXABRT 0x1000. SCL is high for 102 cycles at 400 kHz (140 MHz APB), so a
-longer filter hides the controller's own clock. When I first hit this,
-the R1 had been started from the vendor kernel and the register read
-116. Its reset value of 1 works fine.
+-- 
+2.56.0.257.gf7497c7d27-goog
 
-v2 drops the X1600 entry and programs the filter on the X1000 and later
-to 50 ns, with your Suggested-by:
-https://lore.kernel.org/all/20261024212520.91401-1-olivier@mgcrea.io/
-
-> But I recently have seen issues with i2c on x2600 above 100 kHz so there
-> may be a general bug in register programming which may affect all processors
-> with x1000 and above.
-
-Could be the same thing, worth reading what 0xa0 holds there. A value
-left by the boot loader or a vendor kernel that is longer than the SCL
-high period at 400 kHz does exactly this, and at 100 kHz the high period
-is several times longer, so the same value still passes.
-
-Thanks,
-Olivier
