@@ -1,66 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=111.22.67.139
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793014612;
-	b=sc+QedfxZCNWkpukkASBGgn0HQOJYp1oPZ90dH60fpCTed2XDLXW8DcCYQS6ZLH1d4yC
-	 KH4pKbXHMgacGFZbK/Rw4nK9w+Fgj83JS+fI0TfXJLhBxyy2LgOkVzZPU02Q7enxjGMCP
-	 h86RDUmuAImJqRBv0wC7r8Yk5uk0bjsOMDvThYpLxHDOZQYgVBUguKw5aHWEmnR/Ihk4T
-	 DoCeVhzDn2wiPm7mGTu95wkqo9XAgDx8AT4jtr7knGeDq0HumkYjawW/t7Ico5X4q3nBx
-	 id/MokAxywlmWUsRsQMXwh1wo5gsff4OihDSq7ZMKo4bdWD1yoN8haGghMeBOQlVfkg==
+	t=1793015310;
+	b=iBlBs4cFFxW8MGe5+vOfFR+SE9gQDsfe3G06latn3bi/2WxMsqYb/l20NAXlUMVtoJKS
+	 yUmyCXPO3inrsV6ovr1DJnOro1Kl9gTIsEMVVZ1ALom6TFuL6zSnRq0dusbuvgr+yFiqQ
+	 c57FyNmuPINay023Y3FSg7nzz+QrnHI/cBt+kXOUW+GycHF9E8OtuSUOHTxpk6+ISeuwr
+	 57yHAZnMlbGyFvvoIoLlA2wYYL03yJviR8i55Vdzgx+mFVp8Es67xrSoJyyprYrDjxkqc
+	 h4vXxUHlWWWVnSeHU5vbAaU9va0O2rfuWpxv9BQwXef1h29hRbIvBLNZZ48Eiw+gcTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793014612;
-	h=DMARC-Filter:DKIM-Signature:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:
-	 X-RM-TRANSID:X-RM-TagInfo:X-RM-SPAM-FLAG:Received:X-RM-TRANSID:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=iQhgsyUGgRThP7MeTZ/qzQIw3pgEbEeRs8S1jXKQ/Sg=;
-	b=SEn4llvPZKgrjGx9AE/Jz0ZirQDg9+/2GklCrxvg3nX6OMkU6L5LbUIva9erFtHF6n+x
-	 FtqPHVKIMZJM0QgWAOYM/kO8pVV/PbD45Ci4cja/9hx1llVuwKQxlEQb/1rrtJOa+fq/x
-	 hrGAQMxOnGgdImZEtymXb2+/f9kizBJ8k3VI13YlVJ+QMqHLOZihFZcUgWvmz3yzR9Rwh
-	 NgR/u9PLrIFT3o2cvAwSaqtLwcX3xPnusnbcKkGMdLRqHR2tsuyItDqi9++GVpzG3hl1U
-	 2OXWR+lgGR8XVyPv/I1M16ydinGYcjiNWgBSLa3PncBPwjzQvPy7TDyDS6f4vTYU/Ug==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793015310;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=8VwqPR7o/pIdUz5IDnlKbeGGBhSmMQN6xR1k/yCPgMc=;
+	b=4+sVxttfcfU0uorOuEGvzinShih+cpzlry5vsTjS0ethe04hWkIcCk0RPSerW87onIx0
+	 uph73ufRQLhLeihh5rzRA5Qm+CF+vJcd7fz4QQ0vFmroLRCm0xuichBRp4y2IsU86dOjd
+	 yycAO4MQvnW9gEMCzIgQefAmTmqhf05XAJmrvvKRhj3lyedMZZMpw9DKgF+X896x3npkt
+	 Q3GYCSFS+Noy/UZqjT0o2Y9bywde8wUHI29kUXMybbq05zy8J1WQr+bNv3NDhhaHRUTHa
+	 t2qpBcDbcKtid8tLfBhbGTh3B8xzjbA7jRE+886Q0QF7ewjUf1oVxbH5aVH1N+fC3DA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cmss.chinamobile.com;
-	spf=pass smtp.mailfrom=cmss.chinamobile.com;
-	dkim=pass header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=nIubllTR;
-	arc=none smtp.remote-ip=111.22.67.139
-Received: from cmccmta6.chinamobile.com (cmccmta6.chinamobile.com [111.22.67.139])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1D839606A335;
-	Mon, 26 Oct 2026 11:36:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1D839606A335
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cmss.chinamobile.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cmss.chinamobile.com
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TweK6ymc;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A55D8606A31A;
+	Mon, 26 Oct 2026 11:48:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=cmss.chinamobile.com header.i=@cmss.chinamobile.com header.a=rsa-sha256 header.s=default header.b=nIubllTR
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=cmss.chinamobile.com; s=default; l=0;
-	h=from:subject:message-id:to:cc:mime-version;
-	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-	b=nIubllTRlpmXKc1rjWFtNEwaf76t85jSvPPWzZXFNL+5IQhsehfDDHr7xNorZxevzqIWrIbT1auN9
-	 rmPTufWhhS0KZ3hbkfBdsSOIoE4KtD6459e0d1vM8g4a//GIX6vmN8V4VnnsiQgWqixw4g6OipNjM/
-	 xjywYrdc/VLPL3zo=
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from spf.mail.chinamobile.com (unknown[10.188.0.87])
-	by rmmx-syy-dmz-app01-12001 (RichMail) with SMTP id 2ee16adf3b4796d-2a33b;
-	Mon, 26 Oct 2026 19:36:48 +0800 (CST)
-X-RM-TRANSID:2ee16adf3b4796d-2a33b
-X-RM-TagInfo: emlType=0                                       
-X-RM-SPAM-FLAG:00000000
-Received:from FHA-W6400298 (unknown[10.55.1.71])
-	by rmsmtp-syy-appsvr09-12009 (RichMail) with SMTP id 2ee96adf3b4e5a4-b0856;
-	Mon, 26 Oct 2026 19:36:47 +0800 (CST)
-X-RM-TRANSID:2ee96adf3b4e5a4-b0856
-From: Tang Bin <tangbin@cmss.chinamobile.com>
-To: gregory.clement@bootlin.com,
-	andi.shyti@kernel.org,
-	p.zabel@pengutronix.de
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	tangbin@cmss.chinamobile.com
-Subject: [PATCH] i2c: mv64xxx: Check clk_prepare_enable() return value in runtime resume
-Date: Mon, 26 Oct 2026 19:36:45 +0800
-Message-ID: <20261026113645.2858-1-tangbin@cmss.chinamobile.com>
-X-Mailer: git-send-email 2.52.0.windows.1
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TweK6ymc
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9961F01825;
+	Mon, 26 Oct 2026 11:48:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793015310;
+	bh=8VwqPR7o/pIdUz5IDnlKbeGGBhSmMQN6xR1k/yCPgMc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=TweK6ymcW0yP+juYkqnQinqOuF2Hn80Nd479g49VgpqRQNr2yi/hIzuHotusf3o2y
+	 C9XApIg0V7CyvIfYfmXd8G1Crll6U9ngsxk9gOXLSIw1TLGv2nys9TtP1OeH7ZFEcP
+	 QgWiHo/WJfollYGrwAH3A4SGlCGNhxIkvwMLF74IKc6RIuSOCWki8q3Own3ZxmgqRT
+	 +0QarU8ImpVYVRg4q1jqgd2UVfxxQ+1KIt2KR70ukrI7VCEBNDBZ3eubGwHzg6Cb60
+	 pcrBskM13RCZtS8h35Rl0im1Pux3O/ebmyDJ0UPIYHreDYVrnIaCjGQ1ec4JMenTEO
+	 zyWMKtXb0etwA==
+Message-ID: <c4bd90f8-cdc3-4812-8e36-e438b17c048a@kernel.org>
+Date: Mon, 26 Oct 2026 12:48:26 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -70,54 +51,70 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 7/8] platform/x86: x86-android-tablets: use 4-argument
+ i2c_smbus_read_block_data()
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Mika Westerberg <westeri@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Corey Minyard <corey@minyard.net>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Sebastian Reichel <sre@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ openipmi-developer@lists.sourceforge.net,
+ platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
+References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
+ <20261024-i2c-smbus-read-block-data-v1-7-19bb97467982@gmail.com>
+From: Hans de Goede <hansg@kernel.org>
+Content-Language: en-US, nl
+In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-7-19bb97467982@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-mv64xxx_i2c_runtime_resume() calls clk_prepare_enable() for both
-drv_data->clk and drv_data->reg_clk without checking the return value.
-If either clock fails to enable, the function returns 0 (success) and
-the driver proceeds to call reset_control_reset() and
-mv64xxx_i2c_hw_init() which access hardware registers without clocks
-enabled, potentially causing a bus hang.
+Hi
 
-Additionally, if the second clk_prepare_enable() fails, the first clock
-is left enabled without being disabled on the error path.
+On 25-Oct-26 3:48 AM, Dmitry Torokhov wrote:
+> Pass the expected response length and destination buffer directly to
+> i2c_smbus_read_block_data() in atla10_ec_cmd() instead of copying
+> through an intermediate buffer.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Fix this by checking both return values and properly cleaning up the
-first clock if the second fails.
+Thanks, patch looks good to me:
 
-Fixes: e5c02cf54154 ("i2c: mv64xxx: Add runtime PM support")
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 1acba628e..62a564556 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -963,9 +963,18 @@ static int
- mv64xxx_i2c_runtime_resume(struct device *dev)
- {
- 	struct mv64xxx_i2c_data *drv_data = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = clk_prepare_enable(drv_data->clk);
-+	if (ret)
-+		return ret;
-+
-+	ret = clk_prepare_enable(drv_data->reg_clk);
-+	if (ret) {
-+		clk_disable_unprepare(drv_data->clk);
-+		return ret;
-+	}
- 
--	clk_prepare_enable(drv_data->clk);
--	clk_prepare_enable(drv_data->reg_clk);
- 	reset_control_reset(drv_data->rstc);
- 
- 	mv64xxx_i2c_hw_init(drv_data);
--- 
-2.52.0.windows.1
+Regards,
+
+Hans
 
 
+
+> ---
+>  drivers/platform/x86/x86-android-tablets/vexia_atla10_ec.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/x86-android-tablets/vexia_atla10_ec.c b/drivers/platform/x86/x86-android-tablets/vexia_atla10_ec.c
+> index 67dba9aa51f6..bbfa040cd4ec 100644
+> --- a/drivers/platform/x86/x86-android-tablets/vexia_atla10_ec.c
+> +++ b/drivers/platform/x86/x86-android-tablets/vexia_atla10_ec.c
+> @@ -65,16 +65,14 @@ struct atla10_ec_data {
+>  static int atla10_ec_cmd(struct atla10_ec_data *data, u8 cmd, u8 len, u8 *values)
+>  {
+>  	struct device *dev = &data->client->dev;
+> -	u8 buf[I2C_SMBUS_BLOCK_MAX];
+>  	int ret;
+>  
+> -	ret = i2c_smbus_read_block_data(data->client, cmd, buf);
+> +	ret = i2c_smbus_read_block_data(data->client, cmd, len, values);
+>  	if (ret != len) {
+>  		dev_err(dev, "I2C command 0x%02x error: %d\n", cmd, ret);
+>  		return -EIO;
+>  	}
+>  
+> -	memcpy(values, buf, len);
+>  	return 0;
+>  }
+>  
+> 
 
