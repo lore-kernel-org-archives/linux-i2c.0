@@ -1,89 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793034973;
-	b=GWz1vkt6L7VQLNvRIzmnI4XCvioD8PUEgXgSAgBSEr2WaaUvkQlWJnbjZxqq6288c26X
-	 hVcmm/RcsfcHtD2T/NWylLz2yX3GLFme6RjDp5FHFux1T6qqpueay2p4ZZrqaXdhAjmAb
-	 9wVx6DLcb3H7ngNyFMFniU5u0ppkh67hMgTgg0qCp2WEtmjT7X7tIjMbIH8G41O4b3YFc
-	 xAzl3963ssIiiT8FUbSj4WQL8ZnooArxmML+8ll++LDHr1eh0B+X1KVfxItozDobSsyys
-	 xNGs75E6+khcgQd4gE4PQbDJY4vYYI25Uef8d7rOENVcLiO7DkaAvujydB2dTfcuyjg==
+	t=1793035470;
+	b=JCplIuwIFuX945hHeccK+reG+qIKWS8MngioUhotmc/LwS9PwgidoSqWC4rg+jiMRUt0
+	 rHAo3rst4LspH5m148Z9MENDde/pA8f6000/yB9Z2HpSeYvDgHrvPnuyaAcewKdHXYwKv
+	 CaqR16PFixywtKnkNzZkojO9tCjypv7l0oJR25/pdtOdPVDRKisoetGmJzNvC6DfwFXSj
+	 htxBIe/wNLiyaDtht/ywGppQYZ7yLRYSTAJN45JhpaMkV52vkuhQrr2vU98ddPRxJYS1D
+	 1wOSjp86qjWg/lpaWIx1h3S+0JlRPVnfMp3GMUGaiMHqcUAhGUS46HcnfnhqqQQlolg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793034973;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=y/T7eHMAoSP0rr4UWWXbf1cJ8XwTfHjYASx0lqrxNZw=;
-	b=P0qGbbnU1BHlhrlvm7z7JvRc5uQyJfBp9sYh5CaxiEyTYhboZotRWt55qiDL1j6nJWfx
-	 Vw8OHV+h4gJxCvuz2+8mhBCK1tH7wmg11HvXPZ4ImwS31d0ACa22Qk8aBDsSnmfrVUe+f
-	 3OyG0M703TLmLVyINcQ2vL4gt6RowBVhIWAJD0X0tAXt2eaZE+M51BqHoTrj7GN+HhLDH
-	 4/0K/erYMEALwihS1C7i6k+JKeZsmiF9hA2nuKn4Z29tp608Ut8Se/BsPUwXwUoxVUU7n
-	 seX5Khxi0IUmPYTEj0qNmfP0eY8FkFyVBtYFGyrcUDm4a7JzZasuunYr5sZ8e9quw7w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793035470;
+	h=Received:DKIM-Signature:Received:Subject:From:In-Reply-To:References:
+	 X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:X-PR-Tracked-Remote:
+	 X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:X-PR-Merge-Refname:
+	 X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
+	bh=iQYpXTiEbDliXK9QEJNukRJWq6+pUuPF28NLWUvhzdg=;
+	b=RNrsf4ZLxR5DgYI/t4gXbOe8/u96tyZyZLLsnjwenFimnXypMzGei2btlBk9DG4VbKzJ
+	 3TwCgsRQVd5zdXnnhz7ZiL1fptuFQqj+qweXbl09i1VQzQmer5vW0HUcy44VHMb4FEoAb
+	 WgsZayoLWH/pO/+QFzrNBORr6hjtJDJXqk4cuNTDIUBD1Q1f6vQQB7spwwYPgGaO+m6Zt
+	 MNMR8Ccpo0bDJ/k0MLjWB8B/FrIH+WlB6inyt2EqQ1gEe7oenCoNFMXWIZsqitnAeBpRz
+	 RrTubPeIFgHHjndnA40dnuIpSvXNEteC6bPWm8aiQeEK7V9FgvZSgwcVDIl2NdfSoRg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-foundation.org;
-	spf=pass smtp.mailfrom=linuxfoundation.org;
-	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=RAajzsxU;
-	arc=none smtp.remote-ip=209.85.208.46
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cG+5rLDJ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5420B606A31A
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 17:16:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5420B606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D086606A31D;
+	Mon, 26 Oct 2026 17:24:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=RAajzsxU
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6b408f2d936so4753387a12.1
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 10:16:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1793034970; x=1793639770; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=y/T7eHMAoSP0rr4UWWXbf1cJ8XwTfHjYASx0lqrxNZw=;
-        b=RAajzsxUJ2sFczKNO+26d4DYz10EjLEvi+AmU8k4uMu3opkOZ7SEWtttcqiWzvM8fl
-         ToCVE+dOd36KM4WKHUwLVJONsIgV6QWRfsgJKpo4QLmgatyap4aJRT9bIoK5TdGRmQ25
-         LDLojEWqCFVLE7WflkmlEinSH4pL9YUVgyAoU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793034970; x=1793639770;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=y/T7eHMAoSP0rr4UWWXbf1cJ8XwTfHjYASx0lqrxNZw=;
-        b=Xh6zSjs33Zb7406Qy5l4/c6/kfT7iCwdK+UF8J4IVkk5r9M3T1Gg7H/vit7+iLpkbn
-         4Nw3gtBVfAYe9Z+VieXKcupt4qc1+d8KP6oHKg5/TKcTYSklIAS8y4DwFOoUY5Tf7qZb
-         52sokAC6pOpnTuEv8GGxt/jjdCZUKR8xkS/NvKINY0en0HB6eAfE+1NEQu0ahUO0BnKa
-         w1qgCbGOArP6OMWYS8g82OU2ftBdbXKKxntOOxFZpXA0bfDOO7Ug8zWFgYiFdSVbuzE1
-         6Vl+sJPglnHKhNrIK/CEuKf4wFyLqr6+W9eby3g71xAisop5Py5OMcV5srdgvpzQUoO5
-         BVHg==
-X-Forwarded-Encrypted: i=1; AKwUvBytiPjPg7PivwAWrduRQf0NWNhI2UMwx0iKGf3kXgdk34rfLVsnB4umeqIoxj1mC8Xh13elluLu7Ao=@vger.kernel.org
-X-Gm-Message-State: AFq9FYLqaDmlXtQ2yL5zDieHEm5do3RDYjCElQeah0Sci131Y/e0epg7
-	OLO0zigMs+TUdAtsvzrsyrSxt5YbP1TC23jTL7raCc54YvqDs4NEY0ILnscBFwEYTKTJAEmRm9l
-	tYjIrbl0=
-X-Gm-Gg: AYBFou0Ho+2xIaIE9oQvXAc0xQi3AtTNUyvqxJNZac2sN/de1wf/Xwd+b+r1ongbKFs
-	LHVW75xLwuuUMFxAEZxeXvglSwCTvMyhCtea/wBuhhG+x7JA//vssMCZxNexj5a+797E7glTjo8
-	oS9Kvh7eEbPD7lGYu2zIvJYUVuLKdQay2zAF7nJdWaFb8g2QEUQE3THdffUEc+DMr1FvQAGEvBz
-	C4WxGMBynQzqmJiNQa8y02MjPJukQco0WN9E8PpI76ohazD+zK2cNvefwQJmCTopd+W6LnU1ZSQ
-	HaAC1LmZTUjK+QBYZlzPK+t3p8PObwZP/koKWrgYCznniY4Mj/qKVcGyOZeKzqxeb870WxBG+G6
-	zedrQW3BXYRbbDl6sH6t2i7dJv4rtfKP5r9rwe05gxbEZMywAPjXN2SYCA0JqB1/8+GgKQ+2q7x
-	wVCX1A8XR/5lltNEJuRu80MOdQ2tYKW/iFL+uFMDhnc3j+U4pKBgrTnqt92qzpWtinvNuYPrhWl
-	ocFU4b8Z+/ZBgWmPmHPMwoJtdXeiPLU0csGfeIhbvrVedlm7+srtBshR7N0wWCgA6yLZf7oqaE/
-	zBp6bHzJwgDeBJBApmbt2YN3ydxfzw==
-X-Received: by 2002:aa7:db4d:0:b0:6b3:c382:364a with SMTP id 4fb4d7f45d1cf-6b442ff307cmr5783518a12.35.1793034970439;
-        Mon, 26 Oct 2026 10:16:10 -0700 (PDT)
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com. [209.85.208.44])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b44595d7c8sm3899645a12.8.2026.10.26.10.16.09
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Oct 2026 10:16:09 -0700 (PDT)
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-6afbc363efeso4849466a12.3
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 10:16:09 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBzvmz8vICcmdNuaQWFL6u+e23VIwltSKtgzUg2s0/DUKrUBXzKRT6deKEazwpF51gufui/+phgwq4c=@vger.kernel.org
-X-Received: by 2002:a17:907:96a1:b0:c46:75e7:25af with SMTP id
- a640c23a62f3a-c46bdd6feb2mr883057666b.11.1793034969326; Mon, 26 Oct 2026
- 10:16:09 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cG+5rLDJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 182061F01825;
+	Mon, 26 Oct 2026 17:24:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793035470;
+	bh=iQYpXTiEbDliXK9QEJNukRJWq6+pUuPF28NLWUvhzdg=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=cG+5rLDJDlaG40SXO4YF/dRRDyQe53JK5TeXAZzeWy2PucQEc6h+s8FyvaBITVGpe
+	 sdNgtYV6Mwv4VkDsJuLVzd8mfo/BoT+6th+G9Ui9zW24uprkIl9wP3UIketa4arQTF
+	 /UsQhxJmxmBokrSET/RJ81yixzEJk90gVqABSohljWkK+KThIU3fRxhmHRhyq8snt9
+	 oMQIpDZCSvwMqyXGKCkmq9CD9y9j5rDTWrqyRGdwLdvLm8Gd3VBt6KF49seDcHNGkF
+	 0KGKR8HriO7GsDRRmRvg1HZygSLIQ26Mfqp+a5Pzz57Gm6Ccu+X0Y5NUlc4ZtOSujX
+	 d15nOPdldG1fg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 0758E3AA58BF;
+	Mon, 26 Oct 2026 17:24:30 +0000 (UTC)
+Subject: Re: [GIT PULL] i2c for v7.4, part 2
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <at5i65e5wjMz2TCA@zenone.zhora.eu>
+References: <at5i65e5wjMz2TCA@zenone.zhora.eu>
+X-PR-Tracked-List-Id: <linux-i2c.vger.kernel.org>
+X-PR-Tracked-Message-Id: <at5i65e5wjMz2TCA@zenone.zhora.eu>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-7.4-part2
+X-PR-Tracked-Commit-Id: f7b70efba26963bf725f10574cc071f86cd5ee1d
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
+Message-Id: <179303546853.3291751.9922977220783551561.pr-tracker-bot@kernel.org>
+Date: Mon, 26 Oct 2026 17:24:28 +0000
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -92,44 +67,16 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <at5i65e5wjMz2TCA@zenone.zhora.eu>
-In-Reply-To: <at5i65e5wjMz2TCA@zenone.zhora.eu>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 26 Oct 2026 07:15:52 -1000
-X-Gmail-Original-Message-ID: <CAHk-=wiMOMfksBhvDa+huuNCAu_EfpxzLiSawNxdady0r=zFEg@mail.gmail.com>
-X-Gm-Features: AclHuK9Y_0fn4SgEGbZUWloU7JZaAjwIq8dkffK0lllMB-Mf8oR2BLWFRRI-aLg
-Message-ID: <CAHk-=wiMOMfksBhvDa+huuNCAu_EfpxzLiSawNxdady0r=zFEg@mail.gmail.com>
-Subject: Re: [GIT PULL] i2c for v7.4, part 2
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 
-On Sun, 25 Oct 2026 at 10:20, Andi Shyti <andi.shyti@kernel.org> wrote:
->
-> I'll now start queuing patches for a possible third week of the
-> merge window. Otherwise, they will go into v7.5.
+The pull request you sent on Sun, 25 Oct 2026 21:20:26 +0100:
 
-NO!
+> git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-7.4-part2
 
-I've taken this.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/25e7ab89f4774b0f842cee0e8a20c11f755924d5
 
-But the whole "merge window is for new development" needs to stop. I
-will *NOT* be taking any more patches from you that aren't fixes.
+Thank you!
 
-The merge window is for merging stuff that is ready BEFORE THE MERGE
-WINDOW STARTED.
-
-It's absolutely not for "let's add more to the pile". Never has been,
-and never will be.
-
-The merge window is two weeks NOT as a way to give maintainers two
-weeks (and no, it won't be three weeks this time, I've been keeping
-up) to create new stuff. It's so that the stuff that *was* ready
-before the merge window can be merged in a sane and controlled manner.
-
-So no. No more of this "I'll have a second - or third - pile of
-stuff". If it wasn't ready before, then it wasn't ready, and it goes
-into the *next* merge window.
-
-                  Linus
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
