@@ -1,55 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793028158;
-	b=wsQ7ahUSBsL1XtNYTkYyweWn2I24U69WgeB1CR4sZQ1QNXqL2311T2Qj+xT9PiG+3HQF
-	 UZBhkPcRcWLF6lPMco7ucubQjjAzv7AMIwdvNOmGKLlnvwA7JB3IUtOVdfoQBy7BWfzjk
-	 BihjQA/5C6R5BaiLc7zU7r0NUnwjWIbe4aTZrWq6RE0rLTj83XISE4jFFRxhYgM4CyAoK
-	 LQOHG8H2EiaHxO9EIBv5snYbeFIP5vVDDVUqv4H8qtgrb4AmyIfKzqjq3hg68XeErYyAI
-	 n0ifitQ6Ikk5X6ccZp7+A1RSU7HBjykhM3sbHTR3Qp+mipAWZbBe3rrumwFvd2b4+HA==
+	t=1793034973;
+	b=GWz1vkt6L7VQLNvRIzmnI4XCvioD8PUEgXgSAgBSEr2WaaUvkQlWJnbjZxqq6288c26X
+	 hVcmm/RcsfcHtD2T/NWylLz2yX3GLFme6RjDp5FHFux1T6qqpueay2p4ZZrqaXdhAjmAb
+	 9wVx6DLcb3H7ngNyFMFniU5u0ppkh67hMgTgg0qCp2WEtmjT7X7tIjMbIH8G41O4b3YFc
+	 xAzl3963ssIiiT8FUbSj4WQL8ZnooArxmML+8ll++LDHr1eh0B+X1KVfxItozDobSsyys
+	 xNGs75E6+khcgQd4gE4PQbDJY4vYYI25Uef8d7rOENVcLiO7DkaAvujydB2dTfcuyjg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793028158;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=RZDDaJ57x7rY16pTWiAgH2N6hWJkfwlHnV205h0LFhw=;
-	b=Sp85zHeFhsy+U6J5deGOjM9YrgW++riyNsi9T/6ONaSge2SF6TGZhq38+YTT+3I4mKS6
-	 eDBA3sn1736BpOoqpHrGOCfzsHDrCGJrZPDtRdda5ncU62J//iREjmUCBy2mLUiW61GNi
-	 oHorY4XTyLU6HaLuQ+6AJ/gIRwPgffYze+29bo08kCXqEy6+y4AllWkNsRRET1pFHrg7T
-	 1YVK/gN07SdxlXzkB70zbakovOG47y/1jffqkOK/9Gf7agCtdfoC/Pk8fyHJUvtp/7dWN
-	 rmtynn2hUajVKvgtTqpCG/sQb4P4JhGH4oEAL6XdXGR/0yj5hNklP0xo4PH6S7sj7Rg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793034973;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=y/T7eHMAoSP0rr4UWWXbf1cJ8XwTfHjYASx0lqrxNZw=;
+	b=P0qGbbnU1BHlhrlvm7z7JvRc5uQyJfBp9sYh5CaxiEyTYhboZotRWt55qiDL1j6nJWfx
+	 Vw8OHV+h4gJxCvuz2+8mhBCK1tH7wmg11HvXPZ4ImwS31d0ACa22Qk8aBDsSnmfrVUe+f
+	 3OyG0M703TLmLVyINcQ2vL4gt6RowBVhIWAJD0X0tAXt2eaZE+M51BqHoTrj7GN+HhLDH
+	 4/0K/erYMEALwihS1C7i6k+JKeZsmiF9hA2nuKn4Z29tp608Ut8Se/BsPUwXwUoxVUU7n
+	 seX5Khxi0IUmPYTEj0qNmfP0eY8FkFyVBtYFGyrcUDm4a7JzZasuunYr5sZ8e9quw7w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FnFAugCV;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=linux-foundation.org;
+	spf=pass smtp.mailfrom=linuxfoundation.org;
+	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=RAajzsxU;
+	arc=none smtp.remote-ip=209.85.208.46
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CA26606A31A;
-	Mon, 26 Oct 2026 15:22:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5420B606A31A
+	for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 17:16:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5420B606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FnFAugCV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3319F1F01825;
-	Mon, 26 Oct 2026 15:22:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793028158;
-	bh=RZDDaJ57x7rY16pTWiAgH2N6hWJkfwlHnV205h0LFhw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=FnFAugCV2anMB8GwwB//iiEOTlFCvHL4vGHno2iTe+GQfR3JvTClws4We8W6Xpw6h
-	 WywyeqBz2SbedLzQXZnhBV5LqqKXUL3qDO9xfsWrLY8Cy575GtuWYPYdyWnMIf4+ii
-	 4g5q5cFR6H88yv5JWvlD+zUbxmnqPru6OQp9hCMuXl+t8JcvlzejGxR7iXJ8U2dCTa
-	 VP7V1elV/PpCapJjDhEKRbLhvZAIfjrarAUNU8+trmOnLbq4QgizSxtQfqJUcTvSa/
-	 74OrWew4/OrvFmxOa9YM9nhfmZrYO+bpq2PkEA9LDGccSa8r5EKnAKJuFry74/ZL2U
-	 dRJlcg5Df2X4Q==
-Date: Mon, 26 Oct 2026 16:22:33 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Xianwei Zhao <xianwei.zhao@amlogic.com>
-Cc: Junyi Zhao <junyi.zhao@amlogic.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Xianwei Zhao <xianwei.zhaol@amlogic.com>, Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org, 
-	linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] i2c: amlogic: Add Amlogic A9 I2C controller driver
-Message-ID: <at8nuDtiHEDq4AZ2@zenone.zhora.eu>
-References: <20261022-a9-i2c-v2-0-45e3cef175bf@amlogic.com>
- <20261022-a9-i2c-v2-2-45e3cef175bf@amlogic.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=RAajzsxU
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6b408f2d936so4753387a12.1
+        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 10:16:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1793034970; x=1793639770; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=y/T7eHMAoSP0rr4UWWXbf1cJ8XwTfHjYASx0lqrxNZw=;
+        b=RAajzsxUJ2sFczKNO+26d4DYz10EjLEvi+AmU8k4uMu3opkOZ7SEWtttcqiWzvM8fl
+         ToCVE+dOd36KM4WKHUwLVJONsIgV6QWRfsgJKpo4QLmgatyap4aJRT9bIoK5TdGRmQ25
+         LDLojEWqCFVLE7WflkmlEinSH4pL9YUVgyAoU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793034970; x=1793639770;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=y/T7eHMAoSP0rr4UWWXbf1cJ8XwTfHjYASx0lqrxNZw=;
+        b=Xh6zSjs33Zb7406Qy5l4/c6/kfT7iCwdK+UF8J4IVkk5r9M3T1Gg7H/vit7+iLpkbn
+         4Nw3gtBVfAYe9Z+VieXKcupt4qc1+d8KP6oHKg5/TKcTYSklIAS8y4DwFOoUY5Tf7qZb
+         52sokAC6pOpnTuEv8GGxt/jjdCZUKR8xkS/NvKINY0en0HB6eAfE+1NEQu0ahUO0BnKa
+         w1qgCbGOArP6OMWYS8g82OU2ftBdbXKKxntOOxFZpXA0bfDOO7Ug8zWFgYiFdSVbuzE1
+         6Vl+sJPglnHKhNrIK/CEuKf4wFyLqr6+W9eby3g71xAisop5Py5OMcV5srdgvpzQUoO5
+         BVHg==
+X-Forwarded-Encrypted: i=1; AKwUvBytiPjPg7PivwAWrduRQf0NWNhI2UMwx0iKGf3kXgdk34rfLVsnB4umeqIoxj1mC8Xh13elluLu7Ao=@vger.kernel.org
+X-Gm-Message-State: AFq9FYLqaDmlXtQ2yL5zDieHEm5do3RDYjCElQeah0Sci131Y/e0epg7
+	OLO0zigMs+TUdAtsvzrsyrSxt5YbP1TC23jTL7raCc54YvqDs4NEY0ILnscBFwEYTKTJAEmRm9l
+	tYjIrbl0=
+X-Gm-Gg: AYBFou0Ho+2xIaIE9oQvXAc0xQi3AtTNUyvqxJNZac2sN/de1wf/Xwd+b+r1ongbKFs
+	LHVW75xLwuuUMFxAEZxeXvglSwCTvMyhCtea/wBuhhG+x7JA//vssMCZxNexj5a+797E7glTjo8
+	oS9Kvh7eEbPD7lGYu2zIvJYUVuLKdQay2zAF7nJdWaFb8g2QEUQE3THdffUEc+DMr1FvQAGEvBz
+	C4WxGMBynQzqmJiNQa8y02MjPJukQco0WN9E8PpI76ohazD+zK2cNvefwQJmCTopd+W6LnU1ZSQ
+	HaAC1LmZTUjK+QBYZlzPK+t3p8PObwZP/koKWrgYCznniY4Mj/qKVcGyOZeKzqxeb870WxBG+G6
+	zedrQW3BXYRbbDl6sH6t2i7dJv4rtfKP5r9rwe05gxbEZMywAPjXN2SYCA0JqB1/8+GgKQ+2q7x
+	wVCX1A8XR/5lltNEJuRu80MOdQ2tYKW/iFL+uFMDhnc3j+U4pKBgrTnqt92qzpWtinvNuYPrhWl
+	ocFU4b8Z+/ZBgWmPmHPMwoJtdXeiPLU0csGfeIhbvrVedlm7+srtBshR7N0wWCgA6yLZf7oqaE/
+	zBp6bHzJwgDeBJBApmbt2YN3ydxfzw==
+X-Received: by 2002:aa7:db4d:0:b0:6b3:c382:364a with SMTP id 4fb4d7f45d1cf-6b442ff307cmr5783518a12.35.1793034970439;
+        Mon, 26 Oct 2026 10:16:10 -0700 (PDT)
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com. [209.85.208.44])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b44595d7c8sm3899645a12.8.2026.10.26.10.16.09
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Oct 2026 10:16:09 -0700 (PDT)
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-6afbc363efeso4849466a12.3
+        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 10:16:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBzvmz8vICcmdNuaQWFL6u+e23VIwltSKtgzUg2s0/DUKrUBXzKRT6deKEazwpF51gufui/+phgwq4c=@vger.kernel.org
+X-Received: by 2002:a17:907:96a1:b0:c46:75e7:25af with SMTP id
+ a640c23a62f3a-c46bdd6feb2mr883057666b.11.1793034969326; Mon, 26 Oct 2026
+ 10:16:09 -0700 (PDT)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,134 +93,43 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261022-a9-i2c-v2-2-45e3cef175bf@amlogic.com>
+References: <at5i65e5wjMz2TCA@zenone.zhora.eu>
+In-Reply-To: <at5i65e5wjMz2TCA@zenone.zhora.eu>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 26 Oct 2026 07:15:52 -1000
+X-Gmail-Original-Message-ID: <CAHk-=wiMOMfksBhvDa+huuNCAu_EfpxzLiSawNxdady0r=zFEg@mail.gmail.com>
+X-Gm-Features: AclHuK9Y_0fn4SgEGbZUWloU7JZaAjwIq8dkffK0lllMB-Mf8oR2BLWFRRI-aLg
+Message-ID: <CAHk-=wiMOMfksBhvDa+huuNCAu_EfpxzLiSawNxdady0r=zFEg@mail.gmail.com>
+Subject: Re: [GIT PULL] i2c for v7.4, part 2
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Junyi,
+On Sun, 25 Oct 2026 at 10:20, Andi Shyti <andi.shyti@kernel.org> wrote:
+>
+> I'll now start queuing patches for a possible third week of the
+> merge window. Otherwise, they will go into v7.5.
 
-Sashiko's comments look legit to me, can you please take a look
-at those?
+NO!
 
-Besides...
+I've taken this.
 
-> +static irqreturn_t aml_i2c_irq(int irqno, void *dev_id)
-> +{
-> +	struct aml_i2c *i2c = dev_id;
-> +	u8 *buf = NULL;
-> +	int ret;
-> +	u32 rd_len, i;
-> +	u32 rd_val;
-> +
-> +	spin_lock(&i2c->lock);
-> +	ret = controller_is_error(i2c);
-> +	if (ret) {
-> +		i2c->error = ret;
-> +		goto complete_irq_out;
-> +	}
-> +
-> +	switch (i2c->state) {
-> +	case A9_STATE_READ:
-> +		buf = i2c->msg->buf;
-> +		rd_len = min(i2c->msg->len - i2c->pos, A9_I2C_FIFO_DEPTH);
-> +		for (i = 0; i < rd_len; i++) {
-> +			rd_val = readl(i2c->regs + REG_CFG_RX);
-> +			buf[i2c->pos++] = rd_val & TX_RX_DATA;
-> +		}
-> +		/* Rx must clear thresh after read fifo */
-> +		clear_irq_status(i2c, A9_RX_THRESH_READ);
-> +		break;
-> +	case A9_STATE_WRITE:
-> +		aml_i2c_prepare_xfer(i2c, A9_FIFO_FILL_HALF);
-> +		if ((i2c->pos + A9_I2C_HALF_FIFO) >= i2c->msg->len)
-> +			aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE, A9_TX_THRESH_WRITE, 0);
-> +		i2c->pos += i2c->count;
-> +		/* Tx must clear thresh after write fifo */
-> +		clear_irq_status(i2c, A9_TX_THRESH_WRITE);
-> +		break;
-> +	case A9_STATE_IDLE:
-> +		dev_warn(i2c->dev, "i2c irq triggered abnormally, irq_state:0x%x,irq_en:0x%x\n",
-> +			 readl(i2c->regs + REG_CFG_IRQ_STATE),
-> +			 readl(i2c->regs + REG_CFG_IRQ_ENABLE));
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +
-> +	if (!controller_is_done(i2c)) {
-> +		goto irq_trans_out;
-> +	} else {
-> +		if (i2c->state == A9_STATE_READ && (i2c->msg->len - i2c->pos))
-> +			goto irq_trans_out;
-> +	}
+But the whole "merge window is for new development" needs to stop. I
+will *NOT* be taking any more patches from you that aren't fixes.
 
-No need for brackets here:
+The merge window is for merging stuff that is ready BEFORE THE MERGE
+WINDOW STARTED.
 
-if (...)
-	goto ...;
-else if (...)
-	goto ...;
+It's absolutely not for "let's add more to the pile". Never has been,
+and never will be.
 
-But perhaps the two can be even merged.
+The merge window is two weeks NOT as a way to give maintainers two
+weeks (and no, it won't be three weeks this time, I've been keeping
+up) to create new stuff. It's so that the stuff that *was* ready
+before the merge window can be merged in a sane and controlled manner.
 
-(i2c->msg->len - i2c->pos) is equal to (i2c->pos < i2c->msg->len)
+So no. No more of this "I'll have a second - or third - pile of
+stuff". If it wasn't ready before, then it wasn't ready, and it goes
+into the *next* merge window.
 
-> +
-> +complete_irq_out:
-> +	reset_fifo_pos(i2c);
-> +	complete(&i2c->done);
-> +	i2c->state = A9_STATE_IDLE;
-> +	aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE, A9_RX_THRESH_READ | A9_TX_THRESH_WRITE, 0);
-> +	clear_irq_status(i2c, IRQ_ALL_MASK);
-> +irq_trans_out:
-> +	spin_unlock(&i2c->lock);
-
-...
-
-> +	i2c->state = (msg->flags & I2C_M_RD) ? A9_STATE_READ : A9_STATE_WRITE;
-> +	spin_lock_irqsave(&i2c->lock, flags);
-> +	aml_i2c_prepare_xfer(i2c, A9_FIFO_FILL_FULL);
-> +	i2c->pos += i2c->count;
-> +	spin_unlock_irqrestore(&i2c->lock, flags);
-> +	reinit_completion(&i2c->done);
-> +
-> +	if (last)
-> +		aml_i2c_set_mask(i2c, REG_CFG_BUS, BUS_NO_STOP, 0);
-> +	else
-> +		aml_i2c_set_mask(i2c, REG_CFG_BUS, BUS_NO_STOP, BUS_NO_STOP);
-> +	/* Start the transfer */
-> +	aml_i2c_do_start(i2c, msg);
-
-I think this should also be under spinlock in order to avoid that
-the interrupt handler accesses a partially initialized state.
-
-> +
-> +	time_left = msecs_to_jiffies(I2C_TIMEOUT_MS);
-> +	time_left = wait_for_completion_timeout(&i2c->done, time_left);
-> +
-> +	/*
-> +	 * Protect access to i2c struct and registers from interrupt
-> +	 * handlers triggered by a transfer terminated after the
-> +	 * timeout period
-> +	 */
-> +
-> +	spin_lock_irqsave(&i2c->lock, flags);
-> +	if (!time_left) {
-> +		i2c->state = A9_STATE_IDLE;
-> +		clear_irq_status(i2c, IRQ_ALL_MASK);
-> +		reset_fifo_pos(i2c);
-> +		ret = -ETIMEDOUT;
-
-the next instruction overwrites this error. Perhaps you could
-use a goto to spin_unlock and return.
-
-Andi
-
-> +	}
-> +
-> +	if (i2c->error)
-> +		ret = i2c->error;
-> +	spin_unlock_irqrestore(&i2c->lock, flags);
-> +
-> +	return ret;
-> +}
+                  Linus
