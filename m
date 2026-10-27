@@ -1,99 +1,44 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.222.41
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793055838;
-	b=mCC2xGdglTIrds1A1G05uCfak8GZbWfT06HpQzIi9FzK7gn8IAV3xTIhqlEBFi7YdPmc
-	 BNm+rOkPP8QzS+zy+xFhnozWuHTH7Nj8pqGs9SJ94yJ/4etHlJCqUFg6ZvsAhRIvQ19OW
-	 nzdY+0MmrYxvpTslg5uSS/GRkEzM2iRhmki4O3nj/6Uup8OiutUP9sniQYF71LJRq87cN
-	 l7ixlbEXR9eIMcmlNFPYH6yAZUjXw30cCINKipaoO1IrXejFCSaylRUXrHvJu7XlyrhyW
-	 45nOUw4loASK0pK/+gMOLiJoGI2+O5+wMAa2EvKbo9u01LGptrQxzxCnnB+kBhxgnKQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793055838;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=RPX+RWHDa83ciD85+v8NE/MCh3vpHSDKFtDo6LQXVqw=;
-	b=YC0UNhd2nfpOpAtU8u6ryvJ2y7Ps9kYgRawqWsOuwU0kJGWcMindbzfsR6Qk3GfWN1c2
-	 q/fwB+/iOGPeEBq4ThiO4h1MGfWPbbZz8sPvyFb4fotPkwddm9si8yJpI8lOMp2TOWzzo
-	 y3D++CuqLTxjs6a2C9xcNNRmnOnRGZ5dHOVfAIYHhmI0MqigC6yK4xc/EmBbm++6CGi0T
-	 PqY/dlPe0bw4uKZXNlCyRE/ODp6yMDRCPiloP882u91u2BCk7QPyW0OqGPWU2EO1LPmP4
-	 qSoMTsTQy3jHog4Iuuby3IMkHV6CBZlYMbwxuEM7RD3tXg8g/b4h3WGh2UexqVde1+Q==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jZz9kKk4;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.222.41
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.224.81.90
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793062408;
+	b=2kPa5IRq7EJvdvjtPewsBKtrzZz6W/PIc41nKPpYlKgPJER8v0sEcGFOUub9YX1e4Elb
+	 necJqfG5Azj6x8h15DxvXe92yZq0HwpiHU6dV7xhSQfpt3MHuO8XxbdFx/lem/g7WLewc
+	 3fDtLj7ddzBJaUXESgaOJbYOC0DV2k8hfBXrU6HrFxbLTcJBJpkUt/nVnAYVQ/CJni777
+	 HPhpS/uf32WjXGktqfyMrTTI5LMEybV2UQmFeB8hDd1uotBQ5IQFFYvWo84eBh1kyakXj
+	 hcKepKE0CAfEPqhNDnwdPKWutXXD+kkMjHFioIRmLympDx01CG4F383Hgog/GIc07+g==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793062408;
+	h=DMARC-Filter:Received:Message-ID:Date:MIME-Version:User-Agent:Cc:
+	 Subject:To:References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-HM-Tid:X-HM-MType:X-HM-Spam-Status:
+	 DKIM-Signature;
+	bh=wghg31XooAJPKL/XTiGnCxCN5pFUy2mBUdUxi6yrLos=;
+	b=hsqc+Gv09Vibsh4zPxQF0+f1hqGEsB+xnje/B5sxXEBwklVJZTP/NAUzYwSpCEROr+kA
+	 3iOP+u1Ar1bp/EYH7+1ts8/IgloPHXyYKxP5LmSOY+1UjRC0lv+AE0F3KHlHz+n0W4Th2
+	 UjGXDRTKoIjqsU8xzcL257v5Zc4tmsGsdDsyVE+e8ivOJp9Mucud9fRZoGvL9iS60Wuwq
+	 Pxf5tFfwgM7LXxTU3EfHNOHRRVKoZ1kLOjPhNEF69gewYqa9hHjRwm6h8wAmTCJ1SbH7o
+	 OQHAVGtkWRjuoj2k2ZjA/VClm7DxoxVV2DogKQVaMmq7dFR1JJiTh3XNzJ9fIvYWD5A==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=rock-chips.com;
+	spf=pass smtp.mailfrom=rock-chips.com;
+	dkim=pass header.d=rock-chips.com header.i=@rock-chips.com header.a=rsa-sha256 header.s=default header.b=IJsQys7w;
+	arc=none smtp.remote-ip=156.224.81.90
+Received: from mail-m8190.xmail.ntesmail.com (mail-m8190.xmail.ntesmail.com [156.224.81.90])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFF4E606A31D
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 23:03:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFF4E606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 320C1606A31A;
+	Tue, 27 Oct 2026 00:53:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 320C1606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rock-chips.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rock-chips.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jZz9kKk4
-Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-97ccbba8e86so1006708241.3
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 16:03:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793055836; cv=none;
-        d=google.com; s=arc-20260327;
-        b=rspxyl8G90C/ojyihwhUfqWguH/QRKl60ood00lMeaqgZkFtZsbfVQid93m0RkXN3a
-         34gymvOywyI7w1lRQXhefTz8GvaA0gVLsuVGTtfWLot+HrJIRFmXWEAhpTC4joRDNU2p
-         TFHLbFNW6RfjpA7oHUmGSv9O559X0NqdMt+dslfoYBDoo+a1MWsr72uVomEILCFJ580z
-         mhG6E+qG3kGESocgabQsr41EVftXctPwDovtiydm3MW4YY2k8Gn70ldvmlN+uf09hz15
-         2+nUeToA43BwsEs9jlx9m8SXKbNxz0zInUZW44UF5p5LNAqX8ZKoQscNEWCBzpEPMDLX
-         lbPQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=RPX+RWHDa83ciD85+v8NE/MCh3vpHSDKFtDo6LQXVqw=;
-        fh=SHSzdBbeEcooHHbgo7rQ+QPuC5NsOPNpBddvtRWlP1s=;
-        b=YEjWHKm3Sj0CmyoXN5QwyY8ZGEuoH5fkMWmZsE5RfT4Elrf61kQBkDzpQUmOr5V9Uy
-         AIsq7Un6/atfTICxGCOZJUOUQBn693rwZvtg1olHwkVQbyEzaIO1cVGTC/6DlQVEU7Pv
-         JiSMH5NiAaMu+7RddCA7puVTMEyGR6WVoaUzx3L47kZjkeC9beX0ITCFwsxWjuE9MjTq
-         EIjumevQkYv4cC7BavDhWYSKbTvG3yzJdmZ9Qq2g8VLqxl4kgceKqTHXHmCoDc/hM/ms
-         kPZq+IMaS5N3+vF9edo1lW6zjUFvr7m49fJSouAh52L9ANxp8j47iEYt3VcVAv5/r03+
-         Gk1Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1793055836; x=1793660636; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RPX+RWHDa83ciD85+v8NE/MCh3vpHSDKFtDo6LQXVqw=;
-        b=jZz9kKk4Hvx7975rPnqAOpG2BDDGbG1wGe+6j7dFUC1pE+0uZyJUkQ7Lfb9EPJOyVP
-         d8/CXI3hG+x8KMP5QxUQMw3uLbSMqTYRFLn5VCUxPjjBs7GpFcYcsDMbD3z/23n4b48y
-         kWNPUERCIWBMP5DU6GYkghTHqON34amEU9449mLGkyK2AW1QcSwzTYjulGoGUg1ni5nM
-         k8K80+HFvSiibQBluYM65q9tHQaM9doEZPo8cxG0L8+VTWPMeH8QqSbVvXSAH+cynCB0
-         UbYODQQgx7wnCP91P+TIQoFlFOttOQHCCSPt3J2a+/sv0MjzUKraHbZJ68RSZdK4wpjI
-         lmPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793055836; x=1793660636;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=RPX+RWHDa83ciD85+v8NE/MCh3vpHSDKFtDo6LQXVqw=;
-        b=vXI0M7NQ53AQkJMbW+KBMBtvhVYW+wemAMSnX3DXAsKO//2n2FCZSEYJmWK3La0THR
-         LrvZ8v3ebZCLyuxf2cP0ctjCC2z6M+vs5yoS0stGMmcClOpxcl1wNduBPgt8NBfM+/YE
-         JvBkCE48rPvRAR4V2N7Vr/vPHJhy4QXjdSGoIzxR4pMm7QjRxDJmwEby6NhwFPpbuzFD
-         m8Ihax+99h+Ndjkza5NFz+tHqTTOr5Ef0HNL2yaElqbPKZmqZN5QVuVTVhHsG4J4iY59
-         nm8bPLLZ5OKMlpLVonIFomSqUY2AzTD1oZ4MwgaMotUkBpOT6LZV6iuFQ8F8ewFC1STa
-         SKKA==
-X-Forwarded-Encrypted: i=1; AKwUvBxzJ5JLFOQFsHFjBURCXdI6caelwTVOVZwWiEvgJy/pUJvLyod1uT1lSCTnSfDmrpnDKtX8UXMpLF4=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKQJb2MCZ64NO6OEAnmPNHC/MYcE3jspNFE6H1m3+nXQXN+Vtxy
-	1du5tabr78UaECChYLoky1/OkKw1TDbLdNpTNq8v3ZwYR2kWX9qyOVj/3D8DOSL5g7xLyxAI4cM
-	qFkCWJUQLXb2qyVpsSrmI4A+GOHa1p5g=
-X-Gm-Gg: AYBFou3yEh751hZWAkhV6yaVrod8Aw8Z6EJB+eF2VswdbStwiDKsN8vulIL+cdmWT1m
-	0/pQFVAUKOOr+IdNfJbAHszDLw1MxwmG0G/n6J2mY/OUcqu+P4LduSs+j/lEDbRRkpYLoCH+3VD
-	ZrO7fWP1UEQtreixDFpuj0o3F3hOGefgEy9VmGl9/ff1KvSCCVyrdpvyF+iWrtLjBtXn32r6fog
-	Dk57yH0j/kcjFxdDeBkqUQV0RAtY6qw23A9h6jMCJevWljtDkUASjaiAMj/ymYXXGJhXKhMO5iH
-	OHBTkvc8JXnBgp+TyQL+GjZHKesdL8jzzzGh/ILQ3OIDCVnf21JpuHvq5XJGnF50ujigXDXskQ+
-	M+EugcM7fbCEtYwooGP5RNO02UD8vpOFc0kiwYf8k8yRjnE8MHA76qg71xq9+MZOyoaY=
-X-Received: by 2002:a05:6102:5049:b0:7c8:fb4e:a3b0 with SMTP id
- ada2fe7eead31-7ce5ccddc2fmr2242244137.12.1793055836538; Mon, 26 Oct 2026
- 16:03:56 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=rock-chips.com header.i=@rock-chips.com header.a=rsa-sha256 header.s=default header.b=IJsQys7w
+Received: from [172.16.12.48] (unknown [61.154.14.86])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 526e8ceb0;
+	Tue, 27 Oct 2026 08:53:12 +0800 (GMT+08:00)
+Message-ID: <bb38e2c8-1868-4a66-9e0d-78d9f68ab4be@rock-chips.com>
+Date: Tue, 27 Oct 2026 08:53:09 +0800
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -103,48 +48,137 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261022193853.670625-1-ansuelsmth@gmail.com> <at_arsis_PFKDFxb@zenone.zhora.eu>
-In-Reply-To: <at_arsis_PFKDFxb@zenone.zhora.eu>
-From: "Christian Marangi (Ansuel)" <ansuelsmth@gmail.com>
-Date: Tue, 27 Oct 2026 00:03:43 +0100
-X-Gm-Features: AclHuK9hoAjXwtHctYpz4oUv0zbqoQn_yeGbBI3iJDzHErUSMIyJMIBdwhVkFh8
-Message-ID: <CA+_ehUwY2Z-qvrX5+sdZdrtpF-QtAozi7fHbV7Zz2cM-5UzPHA@mail.gmail.com>
-Subject: Re: [PATCH RESEND] i2c: mt7621: fix copying uninitialized kernel
- stack with reduced page_len
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Stefan Roese <sr@denx.de>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Wolfram Sang <wsa@kernel.org>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Cc: shawn.lin@rock-chips.com, linux-clk@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
+ mfd@lists.linux.dev, linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org,
+ linux-usb@vger.kernel.org
+Subject: Re: [PATCH 24/27] mmc: dw_mmc-rockchip: Keep RK3572 NVM domain
+ powered
+To: 1579567540@qq.com, Stephen Boyd <sboyd@kernel.org>,
+ Brian Masney <bmasney+clk@redhat.com>,
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>,
+ Philipp Zabel <p.zabel@pengutronix.de>,
+ Elaine Zhang <zhangqing@rock-chips.com>, Lee Jones <lee@kernel.org>,
+ Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+ Richard Cochran <richardcochran@gmail.com>, Ulf Hansson <ulfh@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Jisheng Zhang <jszhang@kernel.org>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ David Wu <david.wu@rock-chips.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>,
+ Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+ Jaehoon Chung <jh80.chung@samsung.com>
+References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
+ <20261022-add-board-ok3572-c-v1-24-0b0fd85a31ee@qq.com>
+From: Shawn Lin <shawn.lin@rock-chips.com>
+In-Reply-To: <20261022-add-board-ok3572-c-v1-24-0b0fd85a31ee@qq.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0aa17ad8d47003a4kunm11e232fa473cda
+X-HM-MType: 1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlDTh1CVh1KTR9CSE1LQx4fGFYVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlNSlVKTk9VSk9VQ01ZV1kWGg8SFR0UWUFZT0tIVUpLSE
+	pKQk1VSktLVUpCWQY+
+DKIM-Signature: a=rsa-sha256;
+	b=IJsQys7w6ZxV+DGACFu7tp6IC2XPPwcJXSelxQSD1vTGjhE9PoZcuZz9xwdeWJyiMmawVu+MEW+G8WAm2iMk67hmhZOiMs56Iq7OGWJB2jXbZ7rtdDSqWunDi5ua9gLF9vWCsJIjLwel7Nty1TbOGwqxXT82cvpybuOOJTauLtE=; c=relaxed/relaxed; s=default; d=rock-chips.com; v=1;
+	bh=wghg31XooAJPKL/XTiGnCxCN5pFUy2mBUdUxi6yrLos=;
+	h=date:mime-version:subject:message-id:from;
 
-Il giorno lun 26 ott 2026 alle ore 23:59 Andi Shyti
-<andi.shyti@kernel.org> ha scritto:
->
-> On Thu, Oct 22, 2026 at 09:38:51PM +0200, Christian Marangi wrote:
-> > When a page_len is less than 5 bytes in mtk_i2c_xfer, uninitialized kernel
-> > stack data is copied and written to REG_SM0D1_REG. Equally on the read
-> > part, an unnecessary read is done.
-> >
-> > Guard these extra copy/write and read for the page_len to fix leaking
-> > uninitialized stack memory.
-> >
-> > Fixes: d04913ec5f89 ("i2c: mt7621: Add MediaTek MT7621/7628/7688 I2C driver")
-> > Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-> > ---
->
-> BTW, this is not a RESEND, this is a V2 because the patch is
-> completely different from the supposed first send.
->
-> Next time, please version it properly and add the changelog.
->
+Hi Cunhao,
 
-I used the RESEND tag for this as the first submission was
-completely wrong and didn't reflect the actual changes.
+在 2026/10/22 星期四 0:11, Cunhao Lu via B4 Relay 写道:
+> From: Cunhao Lu <1579567540@qq.com>
+> 
+> Power cycling the RK3572 NVM domain causes repeated SD recovery. Keep it
+> powered during runtime suspend without disabling controller runtime PM.
+> 
 
-(file got mixed on saving and committing)
+Before your v2 about this path, I would like to ask why you need this?
+The dw_mmc-rockchip controller is always under A power domain on every
+SoC, none of the predecessors need this kind of change. If you see
+some errors during RPM, perhaps you should have a look[1] and check your
+DTS.
 
-Had to be more clear and maybe just say ignore the previous patch?
-(a v2 implied that i made changes to that patch but there weren't)
+[1] 
+https://lore.kernel.org/linux-mmc/1768524932-163929-1-git-send-email-shawn.lin@rock-chips.com/
 
-Anyway corner case... sorry won't happen again :(
+> Signed-off-by: Cunhao Lu <1579567540@qq.com>
+> ---
+>   drivers/mmc/host/dw_mmc-rockchip.c | 24 ++++++++++++++++++++++++
+>   1 file changed, 24 insertions(+)
+> 
+> diff --git a/drivers/mmc/host/dw_mmc-rockchip.c b/drivers/mmc/host/dw_mmc-rockchip.c
+> index 75c82ff20f177..8bc55d4b996c6 100644
+> --- a/drivers/mmc/host/dw_mmc-rockchip.c
+> +++ b/drivers/mmc/host/dw_mmc-rockchip.c
+> @@ -10,6 +10,7 @@
+>   #include <linux/mmc/host.h>
+>   #include <linux/of_address.h>
+>   #include <linux/mmc/slot-gpio.h>
+> +#include <linux/pm_domain.h>
+>   #include <linux/pm_runtime.h>
+>   #include <linux/slab.h>
+>   
+> @@ -528,6 +529,19 @@ static int dw_mci_rockchip_init(struct dw_mci *host)
+>   	return 0;
+>   }
+>   
+> +static int dw_mci_rk3572_init(struct dw_mci *host)
+> +{
+> +	int ret;
+> +
+> +	/* Power cycling the NVM domain disrupts SDMMC recovery. */
+> +	ret = dev_pm_genpd_rpm_always_on(host->dev, true);
+> +	if (ret && ret != -EOPNOTSUPP)
+> +		dev_warn(host->dev, "failed to keep power domain on: %pe\n",
+> +			 ERR_PTR(ret));
+> +
+> +	return dw_mci_rockchip_init(host);
+> +}
+> +
+>   static const struct dw_mci_drv_data rk2928_drv_data = {
+>   	.init			= dw_mci_rockchip_init,
+>   	.parse_dt		= dw_mci_rk2928_parse_dt,
+> @@ -541,6 +555,14 @@ static const struct dw_mci_drv_data rk3288_drv_data = {
+>   	.init			= dw_mci_rockchip_init,
+>   };
+>   
+> +static const struct dw_mci_drv_data rk3572_drv_data = {
+> +	.common_caps		= MMC_CAP_CMD23,
+> +	.set_ios		= dw_mci_rk3288_set_ios,
+> +	.execute_tuning		= dw_mci_rk3288_execute_tuning,
+> +	.parse_dt		= dw_mci_rk3576_parse_dt,
+> +	.init			= dw_mci_rk3572_init,
+> +};
+> +
+>   static const struct dw_mci_drv_data rk3576_drv_data = {
+>   	.common_caps		= MMC_CAP_CMD23,
+>   	.set_ios		= dw_mci_rk3288_set_ios,
+> @@ -554,6 +576,8 @@ static const struct of_device_id dw_mci_rockchip_match[] = {
+>   		.data = &rk2928_drv_data },
+>   	{ .compatible = "rockchip,rk3288-dw-mshc",
+>   		.data = &rk3288_drv_data },
+> +	{ .compatible = "rockchip,rk3572-dw-mshc",
+> +		.data = &rk3572_drv_data },
+>   	{ .compatible = "rockchip,rk3576-dw-mshc",
+>   		.data = &rk3576_drv_data },
+>   	{},
+> 
+
