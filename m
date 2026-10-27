@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.39.247.168
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793088219;
-	b=wW6YjG1ezq2Fz0mx5BYIx3lA78hLIT0YLqr7SHGCIjh5PXCzfK+YOynT03nfnYE22fLm
-	 ceP1oT96M8/DQ3K2JI+u9KlmmeO7oxIBr/Orwq1QEdalzKvRUQgS6BGonNi2giwlt1Aqi
-	 TCgjqPAoqHnrYI4SzxgtppkRU3X9vLOIRSZuJ/UU3eVqmpOaw2LIoxmQ2+2OvA+GAAzBd
-	 Y2A0C89pUnaU3wl1Tcvz8N3XbN3Uig0wZJP9wuCK+E+IXkfmuq6a4qSfFSzBlW/4YCXls
-	 5v72pVZA30+IsxNSs1QZLwHZA5fSQTBxa+2Ea2X9ToH/KkYl9feXqKI37ylxkmeZ2Jg==
+	b=kK9atvXiMVQ2IMLMvxrom8QlIdjGZjphXKcPYSqatseJPtwXywZxLaApMjdXekI3ZOx8
+	 2hzEpS0LTCLDNSfYgCL3Mj6e/f0HO60qz4kXbmIvxxoc7rZxwIAf7SGEOVU0Khi/U6MSw
+	 gle7myAGtHpeEmYbLgI9xrCqjMdLqfr6wqT6cv9JFhCj2FLIyj/IuW+YrUZZ7mxOUTkvx
+	 B8ilSnEa/IqhCy2dddk4uql+W8YoReF0u/rEu5uHDQfBleetCssCWMrAgMUfB5yJXQtuM
+	 IdulXKBlnuItuqW/fmxorGS2mLS9LviKMH/YJFgI92U6nF3VRQgRSPCLheWobyV9s/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793088219;
 	h=DMARC-Filter:From:DKIM-Signature:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc;
-	bh=M+T0hC9qrCnKMLXzTWrirmR4GKkGAo6lPil072JQfaQ=;
-	b=Yw/CFrLE8XcEhlQu9LAVK4f7cVGgcV4gaWXidnwm4RFQF9829p17VKYsoRdX7cwCCtZE
-	 c/l5BD2fuIwAdYXD9aSn34g/oGpIvtfOZVKCQCVllhfSL9qx/UvGkpWVH9ppAW9Xd6QOy
-	 7HNHcMuL7LwSzy3qg24QicSKE6sOFU0jQ6WlrGbEqUMluTCq4WQc1XQ57cijZVLmkQ0Yz
-	 YEl7gg08uhs49QOH0TOd8a+ZN83wluCs+QEldy9co3PeF4s7y3SB3DIlKwA+MwFPSBgv8
-	 pqoGefnwd9iyiMPDJRZjMi/qSt1LIDABajjWOc1f4ET6JWP3fZvXH5atGEDx4hkqiag==
+	bh=OvRAW5jWXAqOgYFFCKh4yUQJFXVArQqv2tM8QSxA/7E=;
+	b=0Tso0rLsrWKd35G7yL1pF1AEtraGMEeXb9aBlrW9gO5+Xns7YXCFWdVYgAbzECUpSTsY
+	 d5ZN1LIuZa+XURm+ESY5wkRIh0kganY+fBHvKku81AHqGluoZM9+7X3soQd3o8rF6JYed
+	 bozkTT4QbCcBuEB2fwo3JC1HFfsZy8aJW/+cpG4LQUOn8o/EQ24FH7sKCYEXoTEOvSJSk
+	 Tf+gpH3nTMWIWXF1J0OGOB2YFmmqbaIaImKoeJoMSrP/mVJBE3sNrgFw+1BAgmijMyvvD
+	 eU34t7azLS9TZNAFUV7p8wFCLaYLsrloKn658eNCRrClttS4gkQnh29BXH7Vhu7aikw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=cyberchaos.dev;
 	spf=pass smtp.mailfrom=cyberchaos.dev;
-	dkim=pass header.d=cyberchaos.dev header.i=@cyberchaos.dev header.a=rsa-sha256 header.s=mail header.b=hUihcgUI;
+	dkim=pass header.d=cyberchaos.dev header.i=@cyberchaos.dev header.a=rsa-sha256 header.s=mail header.b=hU7Wm6go;
 	arc=none smtp.remote-ip=195.39.247.168
 Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3820E606A331;
-	Tue, 27 Oct 2026 08:03:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3820E606A331
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFD1606A336;
+	Tue, 27 Oct 2026 08:03:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1BFD1606A336
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.a=rsa-sha256 header.s=mail header.b=hUihcgUI
+	dkim=pass (1024-bit key, unprotected) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.a=rsa-sha256 header.s=mail header.b=hU7Wm6go
 From: Yureka Lilian <yureka@cyberchaos.dev>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
-	s=mail; t=1793088210;
+	s=mail; t=1793088211;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=M+T0hC9qrCnKMLXzTWrirmR4GKkGAo6lPil072JQfaQ=;
-	b=hUihcgUIKp90fzJfjXVAvgy/V68YRR/SF+h2npLlz0wwWPEhxScAYNZHaNmCEQ3flbPrfl
-	4GZGUZc3Fq//7lD/9M/p+C7/7y/vbHbEK4UGg43aqXpbEQt+sFaolNakwX8VlvnfnndNno
-	zf0pY+cd+sQd74ExgFg+kmYKH6c5Qvk=
-Date: Tue, 27 Oct 2026 09:03:22 +0100
-Subject: [PATCH 02/10] dt-bindings: interrupt-controller: apple,aic2: Add
+	bh=OvRAW5jWXAqOgYFFCKh4yUQJFXVArQqv2tM8QSxA/7E=;
+	b=hU7Wm6goihcwaiFPvNDQmNagCPPBiB2424huaCjAhpUn75tb8dKyR9+vZYkVk2rzesedAN
+	ljLKAqepiU3P19/MyzSF8sLlWCy6C+eVBZ34yw0UNlSoAMnHiDz0N0FDiJ92+zT6rTRhh9
+	IN73x+o5FEmXrS6259UH/eTpqd22rNg=
+Date: Tue, 27 Oct 2026 09:03:24 +0100
+Subject: [PATCH 04/10] dt-bindings: arm: power: apple,pmgr-pwrstate: Add
  t8142 compatible
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -58,7 +58,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261027-apple-m5-initial-devicetrees-v1-2-1356181bc50d@cyberchaos.dev>
+Message-Id: <20261027-apple-m5-initial-devicetrees-v1-4-1356181bc50d@cyberchaos.dev>
 References: <20261027-apple-m5-initial-devicetrees-v1-0-1356181bc50d@cyberchaos.dev>
 In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-0-1356181bc50d@cyberchaos.dev>
 To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
@@ -77,26 +77,27 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
  Yureka Lilian <yureka@cyberchaos.dev>
 
-The Apple t8142 (M5) SoC uses an AIC3 as interrupt controller, same as
-the M3-M4 SoCs.
+The device power state management of the PMGR blocks on the Apple
+silicon M5 SoC (t8142) is compatible with the M1-M4 SoCs.
+Add "apple,t8142-pmgr-pwrstate" as M5 specific compatible.
 
 Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
 ---
- Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml | 1 +
+ Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
-index 3c2b24be530e..b6ad9d9192a2 100644
---- a/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
-+++ b/Documentation/devicetree/bindings/interrupt-controller/apple,aic2.yaml
-@@ -49,6 +49,7 @@ properties:
-               - apple,t6041-aic3
-               - apple,t8132-aic3
-               - apple,t8140-aic3
-+              - apple,t8142-aic3
-           - const: apple,t8122-aic3
-       - const: apple,t8122-aic3
+diff --git a/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml b/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
+index a37a837a4eac..451f2a80f844 100644
+--- a/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
++++ b/Documentation/devicetree/bindings/power/apple,pmgr-pwrstate.yaml
+@@ -51,6 +51,7 @@ properties:
+               - apple,t8122-pmgr-pwrstate
+               - apple,t8132-pmgr-pwrstate
+               - apple,t8140-pmgr-pwrstate
++              - apple,t8142-pmgr-pwrstate
+           - const: apple,t8103-pmgr-pwrstate
  
+   reg:
 
 -- 
 2.56.0
