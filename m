@@ -1,111 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793108097;
-	b=kUWYeJibXbDtwGrAsQ8G/RW8ViKnoUfu2O7CrcwkVlkbp1ZFyIfIq6zOn2rVkXP8lVJm
-	 v77ilK9PPCENWlf0tw3Qdz38hHBuf5m52Aljz2UhrWO9QHDQuX9dwfgV1jAkwRcg2C6Kh
-	 ozSjAGRbED91hIfGWVwbKJXwbTq5cbkkldU4U6JkX7tmxK5QC2pg1X+90keZSnmH9OuAi
-	 6rX5k5I1zUEfhNSn6z8frQrWs0A2m3EKbnHV24gVUy/FO3S8YlW2Ylx8hES6tXbCUStkm
-	 P8ckzDHOK8Ekcy5t8PD/5caKEpjBlSG3xfdKlVyPAYrKePlQ7WixiX+EMETPNa2KE+g==
+	t=1793109286;
+	b=aRrHo2lo4ajR+IX4ZRd40vyOGDfkTTBT2R4lfpgqX1cRFiWfID9a7bwLYt77MTr6Zxc1
+	 kMWk6TqPGkz2KHjeEKcADFtqwJ6QuwN5ZSoc/9JyXYi7vRGtWWDNh2ozGpgVrE5YjtuPE
+	 gxzYfN1s3gbWIZWt+7SpL0AarFkkJAJUCyHO2jlubyBrCv4JvBelzoGOLqZDM0M2TWiah
+	 b1GdA2qXmhHBzzJ4X02JDnn8I41RZL40vPYelaZ82oBeO6ztpPo3JY4TqNle5cuTe+XcC
+	 BHYWmzR3tB2OKzu2P8ogYi7N8B7nTOjkpWnIANafhpRuUZHDd7FvpLGJDqXDwNUUpnA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793108097;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=humybFG+4U6oD9aPKeirurXab/GZiJOO+gMWAoyWycQ=;
-	b=uoXprIDl8+YcpTIhdiSfAaSzu6xHnOHOvXZ0GC7l5kgI5ztD5jS8n0ERwnsdglmcHqTQ
-	 hEZ9skbwUGo9DkV4cA2U5cvGOcZRe0ahtXXdCheLDe1cpD+HmFE5xZieUYhUoi09SJR9U
-	 3A8z631TPgOGOcnZiVp59uHvzJl7tkck1zW00+8IaP6v8jO6GhDbkQ4Yue558VxDJ+NzG
-	 Syt4s3v+h6pDWBjsmlRdYJChRXbZKR6WUIsfj9mKGFTqD0PDiejrjvpnkjPD2opneMa1N
-	 /zPskcOU6mxpvGzzOqt/xy2Y+Q2Jbb6j3k3WTsp/Q53+j9D88vngFsmr1Dw62WTRJ/Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793109286;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=J4z9ZlSdwg17sm44uHSAYAhxQN3qoO9h/AHW0OnMDTE=;
+	b=FLIy+rmdOIWU2v2jLeIhH8KJ0IQI+0LE148t5I4q7ZWJjs/gAXmC0wgoT2yyo36LrmqF
+	 oqw45rFYgo2ukM76INgsUUkxrTjfcPwejQrEorWnZe9WehNgI/SJAmO13x5lvDzFXrNGI
+	 Fn3ZQb983x8FNBWV1UG+T+JBTPQVqMKpanWE1UdJo3v8G46vwh0fekIrEPdC6hAkAyatD
+	 GIi+Bo4+pKZVbp9TYPULLgGVfty3XUa+HdsJ6iNYbRgV3dI4orhfs18E1OdTiy3doA//W
+	 0g1S+MGiJlcPllgy/vYaT0H9Qv9PVJR/r34hOKTD0W09H4AWDhSg8NqcHfFlGjhwKfw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=VZc1ObIq;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=kKgtLxn0;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="FNj/m/CL";
+	arc=none smtp.remote-ip=209.85.218.44
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65775606A31B
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 13:34:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65775606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B3B3606A325
+	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 13:54:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B3B3606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=VZc1ObIq;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=kKgtLxn0
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69RAeK8W1427452
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 13:34:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	humybFG+4U6oD9aPKeirurXab/GZiJOO+gMWAoyWycQ=; b=VZc1ObIq3VYML8eh
-	tRUqcPH7SLsFquAM1/bjN6JN0kOjqUOrYN1f7uZJfTkqBvUrK5bDlwBaLh6xKsvI
-	wpwpF2me1hy9+cKf4i8IWqp8GQFKUNRz9HrEzOG1Atw4xQjon9+RWgsqHzfvmCAK
-	1C1ZPuc3XNVCOMPr18aOeVQaPElik7kOQCnq3Seaqyx5hlRF5TEsMtI+xD6HQWaM
-	7rCxBIg9Z4KDz701Wg+H8j/nlWMGp3P9rkEUPQnhCki2Qt+LvNQFi2ct0WBvt3xn
-	QYB6tQJ9yWGltPT27H3/z44lskLhwuH2e6U4gEAcph3HI6N8L+XGPCG9Ik+R4jce
-	sEFXwQ==
-Received: from mail-dl1-f70.google.com (mail-dl1-f70.google.com [74.125.82.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hjbmmbub9-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 13:34:55 +0000 (GMT)
-Received: by mail-dl1-f70.google.com with SMTP id a92af1059eb24-14364a88479so101020c88.1
-        for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 06:34:55 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FNj/m/CL
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c40e30c26a4so160037966b.0
+        for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 06:54:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793108095; x=1793712895; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=humybFG+4U6oD9aPKeirurXab/GZiJOO+gMWAoyWycQ=;
-        b=kKgtLxn0gyFEUGNKsxvLyDDqTSPC5z7sFnBKKR9r6iMMsJVz8ZvVaXr85XUZdmmsM7
-         kB9P8yV3q7jINgcjjz0d6SyW7Q/UNlR9vlNMoPYWWEq/jD8+4wgHeGd1JSPkeGc9pO6C
-         6wVCvhqjeARyCD5ZIaqWkU8nB+n4s8ScuR8OwnbnBA3iiyZx0yXJdGwPKxKv+w62Lwq0
-         LzJwD6AAe+Wx45ZeUfeZSE4W6y5xQ2mXcJGflzIL04CwEYpe0olMqvmlMtVf/bvjIZh4
-         eo+lc47Ql6QDtx2YIhhh2qYTm6+o8KH+E0U38r/dP6B+FDDfFvj4siinR6JTiacybEh6
-         /9oQ==
+        d=gmail.com; s=20251104; t=1793109285; x=1793714085; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=J4z9ZlSdwg17sm44uHSAYAhxQN3qoO9h/AHW0OnMDTE=;
+        b=FNj/m/CLFG41YA1dV1oyDiEs0X78B+xLCpNSLf3GYotGxARVKAsALvTDkBXqn6A5Pd
+         vNa3jpthwBdPOAAWSW/RhaJPq/vcBe5P51B7Q4s3MjqQzNuNDqrKprqJVtIyixocWI9p
+         YU3CvJAz1J1mi0zOf8ztISM6Pt58bTx+bZrAllQulIHT0mfe0Yk9xsKMixKdR2n7vnXD
+         WnD3BgwWNv/62vp8Q10b49Y2ZTmnaw7mXRFRz0EkYPYtF0zmmPgg+E+Y5xadxp5iqIxM
+         lutdtXEU1lM41Hjr2UH8gM54465iCWILx2WIKA2VNiTa+NEFRKC7r18ZE6eoVnGg1sre
+         X2lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793108095; x=1793712895;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=humybFG+4U6oD9aPKeirurXab/GZiJOO+gMWAoyWycQ=;
-        b=1UpJpDRxdL/M6x1jcZlXYdXYSqiRdgcrLHv2C3SecroZ3bYZHv/Cb81RrV3341G3cE
-         y34HxcAHAWd+QTNND0Kcm2/c4eKp2AHiNjZSi0d2Ghee4oCFifwMMlkIAh2+o9IYd3vS
-         oDOydrLNseg3xGTEWx7TVhUyJ/4N8k/HSpZUqopGdDtSlceNdjDAsyFXIFLH0OJsXp9K
-         bVXsl1k46SBjk/W8W3+9rw7p3LO467BErX+/qlEtj1A7biVQw1U3kM7nZzgOi+WPGv+q
-         PGBX7wmCUzx8ONep2qDk2sqgjkHlV8mPEEWTE6BjzHrMxgen/t7Fa1o7/QKAAt/Z6kG8
-         pc1A==
-X-Forwarded-Encrypted: i=1; AKwUvBx7jovVKaDnazRNus8CdGSGpxbae6Xy3wQVUUT1TWZx2Iq+MtB7brjbKU8YzhMTM4HlJafgjv0U7pw=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKs7v3ZbG05ds8A0cDHE0vno6UW0EwPY9rPsET3ohF7IWzo5nk0
-	oas7InDa6OBin1U0lWdobjaaCfF2hZs3mmiFVsEkSFA3JPYMo+JzeYnj8yQBurY1uS0D1+rm0SL
-	MXh7g3xmEdYkDAta3bjBNHGks8QIlChD1G6OtS/kttCLncrEmEWdGJQ24c7YdGms=
-X-Gm-Gg: AYBFou2QNNsmu/2wphmqg00PnowoC2k6NWsc5nnjFOiDhhvCl1Lq6IWwVBgX0khMt2n
-	58+LeFz1asHz0FtaTuoMafExZDJUhRu0ojKuEnQcHbkQodGNRdKVTkSRphJ4b8wDR3fEWX5qL88
-	LNRNtif0gTe4QbzFTqUDcaRx/WrzIM3efmp5a0SjfLAPh1uAtBdGiKs5ansC+Xks8f0oAY4Fbdc
-	xR/xk1oIw/oVlGek/p/gJ7VADRrpc9YRrMgduGqcOxnz1FzKfbzVEraWTsGWXz2arLUfAvVL4mz
-	BXIMt0x6rxQXP/snmuNFF+Y4MRUng+4AzQhP0Y9DCY7ZZA53nwaqfH0EB0XL33hUZghjT46tED8
-	3nZJmwq/8EFn7cRyK5dnCNpfCYS2z9Yv9Fw==
-X-Received: by 2002:a05:7022:f8c:b0:1a3:cbd7:1269 with SMTP id a92af1059eb24-1a3cbd717e6mr5335380c88.23.1793108094424;
-        Tue, 27 Oct 2026 06:34:54 -0700 (PDT)
-X-Received: by 2002:a05:7022:f8c:b0:1a3:cbd7:1269 with SMTP id a92af1059eb24-1a3cbd717e6mr5335328c88.23.1793108093680;
-        Tue, 27 Oct 2026 06:34:53 -0700 (PDT)
-Received: from [10.217.219.98] ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-198a020df20sm39957140c88.6.2026.10.27.06.34.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Oct 2026 06:34:51 -0700 (PDT)
-Message-ID: <197ed473-d259-4f1f-ace0-ce98ac0fd127@oss.qualcomm.com>
-Date: Tue, 27 Oct 2026 19:04:47 +0530
+        d=1e100.net; s=20260707; t=1793109285; x=1793714085;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=J4z9ZlSdwg17sm44uHSAYAhxQN3qoO9h/AHW0OnMDTE=;
+        b=0Gb6pus5yTHqnm9rQ5ZHxeJGSB7gWeTnnkpkSK4rJzmeGU3Y2byRJADF39TmEMIO/q
+         BKEjRKGezp75CRQu9hAdFMuzl1MCxK/ijuC3DrhtBnnrY8gg0eAd7mVKyNgMaUc9v/vc
+         CW4V42aWXZD+IrZccJ3oQL2OijyO/Efqx7fTY5v3ZReuF/IGMrFpM2c3h+WXVaFyg5z8
+         vWX198TnturzCnP1L7L7MV7JLXYJtqA1iZkrXPwr3db8JNYw7arjLQu57kWNxtifb4Ql
+         vHDl0NJ7bmNW6864ciG6WlDed+G4Qo4J8E6WgxaG2OD5jKmTGuQ9ann9dr+VXtAR84/p
+         6l1w==
+X-Forwarded-Encrypted: i=1; AKwUvBz7XiXb8B/xTeK5Z5nUDdykAgaFkFnOzakHArMOR+mgzBgSmq12GfeeU7jDY2n/yeOtzp3/hS3SoeU=@vger.kernel.org
+X-Gm-Message-State: AFq9FYLdhNsu61meNoxdGW38+rZiy0xzv+1+Y1h3F7ly4Zf9CpVzuVGU
+	38qlYfob3n/Gi+VzQFSKr1MUSDotnB5pv1FEsLJiUuxApXOY5Naw2DUI
+X-Gm-Gg: AYBFou0ecgasDTipLtGeBcjfucE7+gWpHqBDmfbSTRUAv/LnhCzCIp0iHdB5Gh/chYl
+	bPa5tCR/Arb8zCfHqSuX3ADixEYbo8kmmnjo8sRUbTpRzKmrI6sFOmTwguJsN8CUEwWiagg97z4
+	lzEd/7KnG1/wvirtgKqkWPDbuU7sTynXiTxWBTOQ1H77iPK1ARZ1khYooI4UKvWWElyN6YP3pjc
+	13cSQukKLWfN+/OQsL93qPYamIGsVaX8G8OtBg7/jJiLGq3icRwWNY38NUIoDRg/422zwWMDtfz
+	L7nNbXn9sh37OESj3HnXgEDEwHmr/BJDQjjyHgytHihoeRKw1k1lyOl1gtbuXmYRIJ0ka2sy5m3
+	NsiYj7QEqAHb7uAoJcBpMee1M9f3p46SI8lQECyWuewl0OcdVBTHSubRwK11bQ/ybnomjYtdZQq
+	jAiKn/YfO52VGKxgnATBL/v629/maz3wmAbEcN0rp4M8apS3jKutV9PCW8Ze2nvupaa6l9nssbv
+	YUE12phyq2HQHhqmI6RmsLJ8YKBzxIokWLrK2I+3YfKotLSXk2lALxa9ONuTius+F1Ana17R1DA
+	Vo15d7MDa8pX/cT/
+X-Received: by 2002:a17:906:c111:b0:c26:1cfd:4244 with SMTP id a640c23a62f3a-c49a735d022mr244123466b.11.1793109284644;
+        Tue, 27 Oct 2026 06:54:44 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b49640f1b9sm59352a12.19.2026.10.27.06.54.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Oct 2026 06:54:44 -0700 (PDT)
+Date: Tue, 27 Oct 2026 13:54:43 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Christian Marangi <ansuelsmth@gmail.com>
+Cc: Stefan Roese <sr@denx.de>, Andi Shyti <andi.shyti@kernel.org>, Matthias
+ Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
+ <angelogioacchino.delregno@collabora.com>, Wolfram Sang <wsa@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH RESEND] i2c: mt7621: fix copying uninitialized kernel
+ stack with reduced page_len
+Message-ID: <20261027135443.575faff1@pumpkin>
+In-Reply-To: <20261022193853.670625-1-ansuelsmth@gmail.com>
+References: <20261022193853.670625-1-ansuelsmth@gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -115,89 +102,72 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/3] dmaengine: qcom: gpi: Add I2C bus recovery opcode
- support
-To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
-        Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: naresh.maramaina@oss.qualcomm.com, linux-arm-msm@vger.kernel.org,
-        dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-References: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-0-7f2a6e572de9@oss.qualcomm.com>
- <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-1-7f2a6e572de9@oss.qualcomm.com>
-Content-Language: en-US
-From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
-In-Reply-To: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-1-7f2a6e572de9@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDA1NCBTYWx0ZWRfX1wBCOWfqV5NE
- sMV46EIC4wjrcLAlF+KRNkXmWw9TRWGVVKox5Ctu/mJWsba5/mq/PHBBxgvcaJg3tQ4stZ1iWpv
- 3O6MbTm0WscIW3s6oEPv25p7NA0TIjQ=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDA1NCBTYWx0ZWRfX1UzcEjKcumIT
- 5BqZ4Ggp+fwZSX0oQq3UGJHfBpi6PaVupTBkaME7ORO0xgNwUOo3/vpZBNTi1XEx0Iou503e1te
- jgtR5rS9iBCwyjinQwVRrcD/vhM24L/ewJVOMVs+o51Pjy0yN1jrMMv0VjrKRxrkMEeXHdU5koC
- hhufYcSH21kFQpRdVuCcyARaMhsMScd7EwGrOw3vajPvsT8R4jWe6Fl4cqju7T8fPjllyM3THOQ
- ygCrdD8YgYw+aQpyiaed6mAZB8jqTvJPL9o91fZpLtL14dqoabYK78tjl2euIhRCayATQKBF1aa
- 8i/jyyuXRhNkbw9PwxENonNB4WUFAdDFE7Bge9Dgt27w+ANXp4oc6s5J3GNXPqMTWwNooCPqltV
- kLatZLKsFROmlC033TTtvvHQ71PKuuLZMZR1XlMOen/jkP2KFzWqFl8uQnQ89kDdo37cDFggzRO
- i8s2YjDIEYb1ew1fv/Q==
-X-Authority-Analysis: v=2.4 cv=PrkG/AM3 c=1 sm=1 tr=0 ts=6ae0a87f cx=c_pps
- a=SvEPeNj+VMjHSW//kvnxuw==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=lV1k8KV2Q4sVphKZFiYA:9 a=QEXdDO2ut3YA:10 a=Kq8ClHjjuc5pcCNDwlU0:22
-X-Proofpoint-ORIG-GUID: ZVCGKkCLSSVmNUG7qFgxRmfFr2upR75-
-X-Proofpoint-GUID: ZVCGKkCLSSVmNUG7qFgxRmfFr2upR75-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-27_02,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 priorityscore=1501 phishscore=0 suspectscore=0
- impostorscore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610270054
 
+On Thu, 22 Oct 2026 21:38:51 +0200
+Christian Marangi <ansuelsmth@gmail.com> wrote:
 
-
-On 10/27/2026 10:43 AM, Aniket Randive wrote:
-[...]
-> diff --git a/drivers/dma/qcom/gpi.c b/drivers/dma/qcom/gpi.c
-> index c41bfac65ddf..394e7287f6e9 100644
-> --- a/drivers/dma/qcom/gpi.c
-> +++ b/drivers/dma/qcom/gpi.c
-
-[...]
-
-> @@ -1692,6 +1709,7 @@ static int gpi_create_i2c_tre(struct gchan *chan, struct gpi_desc *desc,
->   			tre->dword[3] |= u32_encode_bits(1, TRE_FLAGS_BEI);
->   	}
->   
-> +log_tre:
->   	for (i = 0; i < tre_idx; i++)
->   		dev_dbg(dev, "TRE:%d %x:%x:%x:%x\n", i, desc->tre[i].dword[0],
->   			desc->tre[i].dword[1], desc->tre[i].dword[2], desc->tre[i].dword[3]);
-> @@ -1825,6 +1843,18 @@ gpi_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
->   		nr_tre = 2;
->   	if (direction == DMA_DEV_TO_MEM) /* rx */
->   		nr_tre = 1;
-> +	/*
-> +	 * Recovery opcodes do not require DMA data TREs, only CONFIG
-> +	 * (for set_config) and GO TREs. Since gpi_prep_slave_sg() is
-> +	 * shared with SPI, verify the channel is I2C before accessing
-> +	 * the configuration data.
-I think i have mentioned earlier also. gpi_prep_slave_sg() Not only 
-shared with spi but rather say, is a common function for all protocols.> 
-+	 */
-> +	if (gchan->protocol == QCOM_GPI_I2C) {
-> +		struct gpi_i2c_config *i2c = gchan->config;
+> When a page_len is less than 5 bytes in mtk_i2c_xfer, uninitialized kernel
+> stack data is copied and written to REG_SM0D1_REG. Equally on the read
+> part, an unnecessary read is done.
+> 
+> Guard these extra copy/write and read for the page_len to fix leaking
+> uninitialized stack memory.
+> 
+> Fixes: d04913ec5f89 ("i2c: mt7621: Add MediaTek MT7621/7628/7688 I2C driver")
+> Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-mt7621.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
+> index 0a288c998419..9ea5e3f9a763 100644
+> --- a/drivers/i2c/busses/i2c-mt7621.c
+> +++ b/drivers/i2c/busses/i2c-mt7621.c
+> @@ -144,7 +144,6 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  	u16 addr;
+>  	int i, j, ret, len, page_len;
+>  	u32 cmd;
+> -	u32 data[2];
+>  
+>  	i2c = i2c_get_adapdata(adap);
+>  
+> @@ -186,6 +185,8 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  
+>  		/* transfer data */
+>  		for (len = pmsg->len, j = 0; len > 0; len -= 8, j += 8) {
+> +			u32 data[2] = { };
 > +
-> +		if (i2c->op == I2C_BUS_CLEAR || i2c->op == I2C_STOP_ON_BUS)
-> +			nr_tre = set_config ? 2 : 1;
-> +	}
->   
->   	/* calculate # of elements required & available */
->   	nr = gpi_ring_num_elements_avail(ch_ring);
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-[...]
+>  			page_len = (len >= 8) ? 8 : len;
+>  
+>  			if (pmsg->flags & I2C_M_RD) {
+> @@ -194,7 +195,8 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  			} else {
+>  				memcpy(data, &pmsg->buf[j], page_len);
+>  				iowrite32(data[0], i2c->base + REG_SM0D0_REG);
+> -				iowrite32(data[1], i2c->base + REG_SM0D1_REG);
+> +				if (page_len > 4)
+> +					iowrite32(data[1], i2c->base + REG_SM0D1_REG);
+
+1) Why is this using memcpy() rather then just get_unaligned_u32().
+   (Yes, short transfers get tricky...)
+2) Have you checked whether the hardware requires both registers be
+   read/written for correct operation.
+
+David
+
+>  				cmd = SM0CTL1_WRITE;
+>  			}
+>  
+> @@ -204,7 +206,8 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  
+>  			if (pmsg->flags & I2C_M_RD) {
+>  				data[0] = ioread32(i2c->base + REG_SM0D0_REG);
+> -				data[1] = ioread32(i2c->base + REG_SM0D1_REG);
+> +				if (page_len > 4)
+> +					data[1] = ioread32(i2c->base + REG_SM0D1_REG);
+>  				memcpy(&pmsg->buf[j], data, page_len);
+>  			} else {
+>  				if (!(pmsg->flags & I2C_M_IGNORE_NAK)) {
+
