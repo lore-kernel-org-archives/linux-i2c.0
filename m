@@ -1,111 +1,115 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=103.168.172.158
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793111508;
-	b=RcmLykDSrRjyUYwGDekAPs/2+lsiM5vxCKgAnN0pYrtMWNoG9ujPLVh3784b7hVqmI2c
-	 gYY5szTQZsDIUjTXD0nalg08DggjNvZncO2qnZoudG5T/JpGggo5cFP8kNNOWceHdgwE+
-	 l+die7qZrMGN5YqR9L90ygoPIyjAIm/Gr04XSGLdgQ0WS4mJebXNgbLrAeqqawe3pbJSh
-	 UAxqbujRPFcb7zK0jzl0DYMTiowRU221c7A/E9azpiKJQyQWzCppibGzZ9S/H+n501A2h
-	 pCj4/HTVl+P4PH5znon1qqUsiPFee4fjF1B25BfU32bSomJ8WjF89X97FjsTcRPKDLA==
+	t=1793111721;
+	b=SDe10g68L7Z8UiB313i6d8Zca1gDVmt3/ho26Ni2E/PpVI9yBcERvVA7vOQwTFCH8V5r
+	 WlcmoKMH7XVurbpnJLkjV0/k6kzzK+rRf85bU8ke6bksQNfqN040b9v/3m6MJlfHz1T/+
+	 bziHg2P0lM0m8l6zla+hVx+XSLfASV99MFsNpTKpEKunfaNpsymIJctRttjQKiVXgn9A2
+	 4lmbZw1WjuR0Jx7Uqn3bOOan7WoHEDh6Cf6Zqp7NFr0UAgXg7TVPAxQMOBjwZGz+EnM0p
+	 6F9MqaIjF1ltHbFYX3tMYXQVPiIGq1le5Nmz5QveZD2x/Rcx/79L3MBzFCnVH1T205Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793111508;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=YlwVcIUY8gMD3eqih4RJVxsvUcuNodLGMkC2yTuphK8=;
-	b=KW82o+CsuDwl4Nv6yTzht0AnNaapdTyha7KQLGr7XUCWNOlvFLjGzsPiHqCI5vwKu3v+
-	 qPw6CWnXZmzNGHbaJdJobGmhfkJp7BjZjG84atz99ajJqbq8jV5zM+s8CfUOtUlPnomrk
-	 EHDazzA65MVg16oNiKGOSL/Sk44gdi4QobLIzwvpt/ACab0mSM0uAXYv7fSfFN1p6QE3z
-	 ETlwyvSo9FYNGT//Tl3ycmmOIInKlCJEXvr2/aOzmvEHWwjjUNDrCkCqndOE8rbuK4Idg
-	 b/4ras7ahMrfPhz0L6LgHFuj5EUuty2ydIU75anE4QLKRnwVcZN+Fkdp4ogRQqVuJnA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793111721;
+	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
+	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
+	 X-ME-Sender:X-ME-Received:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:
+	 Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:
+	 X-Mailer;
+	bh=Q/JtrdSYqaoMZ5K50zjIe2pHdtAbZc6SNut/NqhXrVI=;
+	b=PrSkB8jqOhN+c5siATLsihKEBYA53WdfdVyjfIZNqMRmdA0QQ7ZM1FedyoRGcdMwc1E5
+	 Yf6RPzboe5Ddrix7kYKX6XhavCcAlMU+KLcAdK84DLywytQu2+njpnc4U8mpvNU4QgjpN
+	 s5E/bQg7jvsvv5Xd9QnNgsW0U8WQffiHDzT3dhwIgr6HwJLEIQMg1Xja7MQzndGwyozD9
+	 X3mNsFHNgYu6kQlqNoDQxUF/EGX1p/kRkWqdSw903tlEI6L45ohyho4qyZPeAh0aNazPR
+	 71GLg9YGnUUcTeIhLesmfOSaBMLU0A0QZjLAWQuv8AkVFqQf0PKajCJYW4G7I8X2ZoQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=i+rtoxO0;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=FDFQzwcs;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	dmarc=none header.from=howett.net;
+	spf=pass smtp.mailfrom=howett.net;
+	dkim=pass header.d=howett.net header.i=@howett.net header.a=rsa-sha256 header.s=fm2 header.b=aAGkOodr;
+	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm2 header.b=Qs7usP+m;
+	arc=none smtp.remote-ip=103.168.172.158
+Received: from fhigh-a7-smtp.messagingengine.com (fhigh-a7-smtp.messagingengine.com [103.168.172.158])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0B48606A323
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 14:31:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0B48606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11BC606A31A
+	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 14:35:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E11BC606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=howett.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=howett.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=i+rtoxO0;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=FDFQzwcs
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69RDoZR91850905
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 14:31:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	YlwVcIUY8gMD3eqih4RJVxsvUcuNodLGMkC2yTuphK8=; b=i+rtoxO0Noy20qKm
-	uYJ5YCbW+8Se7Z5KqAT+4MTHNH7Tk5vnE+7P6LhYkSFvvWTwpU2OMlZhuyekZWkM
-	MdePTZiVPh0iXmOWlx3tfH6tCdqcZCr45Y5I6vNFMQkFdHMucSNsjajaCSXDe5uA
-	0BLEd9gHtBOWQH8CsEpx8uzBl21U2QcSAg8NqTqbrtjND5KjrzTWnyQtIJbQvwpb
-	tt52HCsZd5gqChQeQLy6RIvtWiNvooN0NhzvA+RvOZlVgZiLh1+EMwcjlw4zz7a+
-	EnAJJVZpPtJcFKKkeDGujrHGXSVVO6cZjiRLxo8liKqrd5HUH/G6vqw55CNKZG5D
-	8qXoSg==
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hjbmmc3f6-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 14:31:46 +0000 (GMT)
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2e941532594so46726955ad.3
-        for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 07:31:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793111506; x=1793716306; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=YlwVcIUY8gMD3eqih4RJVxsvUcuNodLGMkC2yTuphK8=;
-        b=FDFQzwcsVN+VQyVMwEc0zOwbZJJmVWYg0F7b2ToVFIY4g0BPtv7kdNxAjtiStWJMV+
-         Y3ZQsG0Vg3FKcICRWK3D3qCxZWjUAI5hhI/BGIYTM4Pf4xz/o3x5LiZLoEBY9NDn08Tr
-         WBdQwvJwTIi/qmBHG6FZRWK/W7B89d0IM28Z+DZhb15BCrzKaDQtOVxaKmZdaPZCg9Xj
-         fVVISTWl28PEocWpF1EqGbNNSHLMawIqgHdBkD3KUT8AAkU8Jmu3AHOtkIJj9/NF4KVy
-         YJLogtJPJ3R/ypf+GIzycEc9uoWTB/jhgsvTuCT7xwsaxD6y7R2eeIAwUIOR9KUuorfl
-         nH6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793111506; x=1793716306;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=YlwVcIUY8gMD3eqih4RJVxsvUcuNodLGMkC2yTuphK8=;
-        b=UHJON7m1PItAhB4ue4eJJgI77XjM/btH1ZgZUCFZj7OuAj/XSPONwh7JfSlHojhfPd
-         xqnNWIglR5TKPFqJlYcukG/fBhclC0xbZgkwBUI1IqNV1hi9sf66H5n9Opad6fUkR9qC
-         HYrKzuXW2IUseD4LwSIYU7Kc/1Iav0RoSvyZ3PXwlVejfONxgaEpX6IHmccZrdIvCSAe
-         /u/F6S8hFL+egGprjlhlbJ+DCc4E6yT+PmN8X5SyN4uCSU8bOeclLczplvGRWQo8NAc7
-         BAOo8zxMRHBdCbmyutfkY+I/kTdJfDbfEB5g9/SD0//7R5fmUCypr8uPQ3Xko1cWNl5O
-         xvlg==
-X-Forwarded-Encrypted: i=1; AKwUvBx/D98Nt20wtnUpO19OrVmZOvqB8eTQVxwwuSN+LDxn6KI1dy2N6nQsPsOPP+lfarlxsIaVgFtp8qM=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKUAaBPrsBL01gyHus6lSKTHtB3dkRZfEVRGF/dHaj+zBa1xfl7
-	4zR5+ID4tJknPtUPAND2PA5yCikLMKFGYmqPbj+bs3HWeW14Poxsl42aUXFauioivlo9Ivr6nw2
-	b7x4CAmkHINBdSpPs/31e9lp1CNVx3w0yAqwAicy8E3igV69P1/AOCL3VbeZbK9M=
-X-Gm-Gg: AYBFou2jRJVhWrk+7i8oHoFoSBda7f0bsIdFHueWQsv4kwfpddXn+nem/8Qe5YUTvgf
-	Wpehva+nw3Wpmx80Slz/cxfFzO52QikDXL4vVSR+/mJyImteVCpdsh7HN8D+0zwYva7kmnGWYT0
-	bi4jMrIy+mcLUCXKXtkT+9oXct2sfzrDrSpazzYa7qal62nsZvXt2Db7noPMD70eLwp2k93lBu8
-	/BPQGv29dcUCG4VMxyjZQT5eFHLpq2tFFc5BD0uPyISpaYWwkk7RMVI3sui/jNa/tAN0sRhU8+g
-	pO3lHGlMkWFKUGdT/pl/FGZ30mpcWl46JJhTmsw5Q8O/XB9SZaN8OyPcjT+qjUHbHDjGYSoNFD2
-	NrsuBHrDehzZu7dcpfCEDAY6dAvu8eTG4
-X-Received: by 2002:a17:902:ea12:b0:2e9:64b9:a332 with SMTP id d9443c01a7336-2ea9c68c8b1mr90167205ad.15.1793111506191;
-        Tue, 27 Oct 2026 07:31:46 -0700 (PDT)
-X-Received: by 2002:a17:902:ea12:b0:2e9:64b9:a332 with SMTP id d9443c01a7336-2ea9c68c8b1mr90166425ad.15.1793111504651;
-        Tue, 27 Oct 2026 07:31:44 -0700 (PDT)
-Received: from [10.217.219.98] ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2eae6454a29sm10749995ad.9.2026.10.27.07.31.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 27 Oct 2026 07:31:44 -0700 (PDT)
-Message-ID: <b88efeae-6041-4189-a559-a16be07450bc@oss.qualcomm.com>
-Date: Tue, 27 Oct 2026 20:01:39 +0530
+	dkim=pass (2048-bit key, unprotected) header.d=howett.net header.i=@howett.net header.a=rsa-sha256 header.s=fm2 header.b=aAGkOodr;
+	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm2 header.b=Qs7usP+m
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 13FF6140004E
+	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 10:35:20 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Tue, 27 Oct 2026 10:35:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=howett.net; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm2; t=1793111720; x=1793198120; bh=Q/
+	JtrdSYqaoMZ5K50zjIe2pHdtAbZc6SNut/NqhXrVI=; b=aAGkOodrm9GJSNDFnm
+	bwuSwi3Gs1GC4H6vg/Am/RahdumD8xkzGNxD0KEA2qOEtsEBE3MiUmOeh2qiq2XY
+	z+SJmQXIobQPNrDNlqT92jBTL2f523uHtKWk38lr08N/7Zg9JOxGasBXQ762wTQS
+	6+qfy3c0UhSgLiDZoATHg4+8N3hAzc8cSufHaOuuxL90M0Nzw+GVdu7MSoKJrGN0
+	4gHGEJF2BR9448G3cRkiEgXoORbKtqIviCaJw9ROAKKLUKwF4Pjda7QLglBCIg3h
+	4/BhzRfsznzHG1WWOa2ltwxtgLCvei+H3X/GCET4BE43fuOU9rsRx4ZYdMBCdJfP
+	fGrQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm2; t=1793111720; x=1793198120; bh=Q/JtrdSYqaoMZ5K50zjIe2pHdtAb
+	Zc6SNut/NqhXrVI=; b=Qs7usP+m0ZhxSsgWlLv+ETSx+HPn72pGgoDm4e8HXHke
+	PgDH/0OqXOPhbuO6u/C8HxyYpctaj08fNnQ+KFpRBciQ0bmc8P3f0HQu4QmbHPS6
+	jEAWtZmo/Dhwqhmo6A2uanuCULZmF15V+al+FGCIo2IhFJ7bkMxFHTc7SmXXA3GC
+	ItB/+CzVU9Fd4nrSO43vxwJmrTYEHarNCvRyDeFbsG3re+MJoGp1HMHwhYUXqcyT
+	3y8Uvib0CO8KvUKEG3XNLEbJrgzaK3NIpYIY+3oZDOYA/IgR5mKN4uJE+S7LwnVi
+	HTbTgWpjN0bXGDOeqGVOdk4kxQ2Xz7HxdDwSPIogCg==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-07;
+	repo=github.com/dkim2wg/interop; date=2026-10-18; sw=lmtpprox;
+	action=sign d=howett.net a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1793111720; d=howett.net;
+	mf=PGR1c3RpbkBob3dldHQubmV0Pg==;
+	rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
+	s=fm2:rsa-sha256:PDqmasvDR5g7ziM5QZuiefsRSCc8Npkw8cr6z40JRa/buGy
+	2HwSc3JPqimTUy6YKAhAINtiPL4L2mvOnGA/SgqTN6mY45kB21djTeit6nLDih+J
+	+cPxZX27UDEwz0k0FAiPNZBK9EmAD0yLyam4IEHuYSwSjJi7USRgR71m6PLSDwcV
+	466B+K+YmVttSP8JhfPxLHlrIwNmK98Xz8l8TzRHDxc4oH0t2v152hyPd+bDiR1H
+	vmO7XdQwbB+jCYg/ycTeeKpDdWa2Bc1ZDAtSMQuwMzBuNyGbnIF6VZsNL9Pb0Gn4
+	2w39Wy9DVNd5NxOro8hZBMIKK6ornfaofnuqEuQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-07;
+	repo=github.com/dkim2wg/interop; date=2026-10-18; sw=lmtpprox;
+	action=mi-m=1; hc=10;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,message-id,mime-version,subject,to;
+Message-Instance: m=1; h=sha256:7MAftU3YGbzG9HxFexOx+ZJ+tmgk6HO3PnmxawkX5MA=:b7leeV9rfUv+9vbvtzbdB4Q/59mZHGYHICDYPmQ+tXA=;
+X-ME-Sender: <xms:p7bgar1KuJh1A8xSgJOq5WoB66K1tVhPsvuuKf7R5P3-eR45wkFIsA>
+    <xme:p7bgajYQx0nepxI_6gQHsx7w3DoWN9KwgzS_m1lzYz-z8ABgZ089xpPlVKVXDBWx9
+    ICpwLwNVI7IxrthelDXld_Y7azGp8cNAZ5X1-sKdoUeEbSVH5onRoyM>
+X-ME-Received: <xmr:p7bgajI6kG4WzDPhmvI7II3W7XR5GbbIyXAzQKZYWuiemJ8AeoyjgtlWFoKEEUxrr-YFLA8HRhmEnb9pn7vl7HpkNBG1xAhJAhmESv7lRn6nZPYMNqo>
+X-ME-Proxy-Cause: dmFkZTFQce6hq3A/PH9aM+qNxdORuWXaq7+Yjm+OUnPHnfDVZyqx1Ex6cpmILMwBRVk+m0
+    0lnTD5NfIWg41bWHXe3c+sfWEDYvTGq6jjyNiDCkygIxn5gXbgfIeaYtd+/3M9jGm5d8+n
+    NtPUaskUoMJUvCGbcPWp7DvSgyxuzkKxsYslsNJMTq/8RhLcwq/Nnk7BIFtdgc3mwgIa/C
+    07lkcJz2X86CSD5VwjX083wkVDSaku1iF4aFiIHaFEH7kxy9Nlp5QsRI1MW/LCy4rYfJB7
+    DB+qShCEiIMk07knNWIebV9+5LcW9jnA39KgYkfXfboTl/0i5HAUWnHYU6JKKiy2HZYaOF
+    ljSUgYcX7xvt1XP6RU4O12FQ3fewokslBVlz9xgVdjro4YhVTYGDBLsGIDWY4qyrzBkD6n
+    mT5dCLg+PNbSTRczyVU0l5NOwRWLi+uS9J9U3jFZlnMJofxxoWjDmBwtgX0qkE/ydqg2vM
+    VSnxMKJab6VSiPpMNfQyHBa20PTFJjP23butcaCbpT/Vyxxtc/sWoyqbX2XtIvjL/Gs3bC
+    90o96BbXS52c0yQJvZ5WlZINsX/UXM3LObxPdrMKXAMU5bFAU3dMqcJrmdJczEr/NZgx95
+    X8HCIxWLj9SaVXmlWxF2OCNx96YShP8nR2gk+eSyzY4KVQEg9WDKQBn6rhLw
+X-ME-Proxy: <xmx:p7bgaiHS-Tg4mgb9Zy-3RNoZsceBbswfzqYteQ_VMCKkkjWMcR5XAw>
+    <xmx:p7bgaquUnBfXnHVG-csukZn4i6Ch-6R95S6x3D28CRhLXwJUftaW2Q>
+    <xmx:p7bgahvzrhGZEkf674JNOv8wr8g9yK_OjLYL0EP3dE0-Ex7kU_DT-A>
+    <xmx:p7bgaoCgDyiz3gVo_ucz7uPBk0KKmLMyeb6AQuqVUSS9yI-Y564Qow>
+    <xmx:qLbgakuM4kV2XIz03-g0TOFXZVNmqo-cTpZO_31q7FU_84JDbA1K7bLR>
+Feedback-ID: i32264b73:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 27 Oct 2026 10:35:19 -0400 (EDT)
+From: "Dustin L. Howett" <dustin@howett.net>
+Date: Tue, 27 Oct 2026 09:35:18 -0500
+Subject: [PATCH v2] i2c-tiny-usb: add support for the Oops Electronics SFP
+ Media Buddy
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -115,121 +119,73 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] i2c: qcom-geni: Add bus recovery support for GPI
- DMA mode
-To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
-        Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: naresh.maramaina@oss.qualcomm.com, linux-arm-msm@vger.kernel.org,
-        dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-References: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-0-7f2a6e572de9@oss.qualcomm.com>
- <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-3-7f2a6e572de9@oss.qualcomm.com>
-Content-Language: en-US
-From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
-In-Reply-To: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-3-7f2a6e572de9@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDA1NyBTYWx0ZWRfX7+W2uuvleTLs
- PY7kXT+eJeOCRQGo8O0By7C66BiM2Z3UmwVvPdg5bAt78PUAkGRi2a6c9r0ejtYm+4pz4bVJvVz
- Py+fBwlGFwVzEKM8bL6Hog2Mg65KS34=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDA1NyBTYWx0ZWRfX0oxija0pOKF8
- 0Ks/yTiZCX2ALEDrH1z43u270xnxMmxXYjqnXO4Lb2TdYVgvkL4GqXI1HN/0pSLHdD18WtnRvtT
- z+GILUNuMyniczIpUUtoPN57xJrJ+B/nV2vIH+gcAzqCaDJ7B0wDGuw2DIJKsZWBDvBbpoL77Oz
- MsDrRGhs7KRSwcTBmcmAj9Smk/QAifox+xtCT5LE/eYQfD7/8xcsHeooorjoz4ZhAJEm0y/VZVx
- EbESTTJOoz9870S1kg0GkTkGXEHfyfE2AxkKy7EtJuWoyb5lHbEOypKDJHP+0AzxdQOV+tVcyFM
- 051YYrPbSHz8u3Yhmz/bFT6dG78c2ZQKnDKalFFHtTue8uM71+VEFV3m6Ja9sZGtrrLFa5icV3P
- 81INYZDOToxm0sZztoCk3qsT3UT4Do1Q1vu8qsonECHs7Zx/46JoclE0nnTJ6lm9YSeph6sPsEs
- rsjlToj9jP5vcjG4bcQ==
-X-Authority-Analysis: v=2.4 cv=PrkG/AM3 c=1 sm=1 tr=0 ts=6ae0b5d2 cx=c_pps
- a=MTSHoo12Qbhz2p7MsH1ifg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=ee05V1XPiC3bpTzN_coA:9 a=QEXdDO2ut3YA:10 a=GvdueXVYPmCkWapjIL-Q:22
-X-Proofpoint-ORIG-GUID: yI1IoCaNfYa16Em0zfxBzJxQ4fkNv9Zs
-X-Proofpoint-GUID: yI1IoCaNfYa16Em0zfxBzJxQ4fkNv9Zs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-27_03,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 priorityscore=1501 phishscore=0 suspectscore=0
- impostorscore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610270057
+Message-Id: <20261027-i2c-oops-electronics-v2-1-0601f2ebf579@howett.net>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WNTQ6CMBBGr0Jm7Rhaw58r72FYQDvIGNOSTkUN4
+ e4WPIDLl3zvewsIBSaBc7ZAoJmFvUugDxmYsXM3QraJQee6VLmqkLVB7ydBepCJwTs2goW1p7J
+ oqlrbDpI6BRr4vd9e2x/Ls78nYfvaFiNL9OGzd2e17f4kZoUKDTVlPtSD6qvuMvoXxXh0FKFd1
+ /UL7wDVZssAAAA=
+X-Change-ID: 20261017-i2c-oops-electronics-5dd3659782da
+To: Till Harbaum <till@harbaum.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Whinis <whinis@whinis.com>, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, "Dustin L. Howett" <dustin@howett.net>
+X-Mailer: b4 0.16.0
 
+The Oops Electronics "SFP Media Buddy" is an open-source USB device that
+provides i2c access, among other things, to a SFP+ network module.
 
+It exposes a vendor protocol which is compatible with the i2c-tiny-usb
+kernel module. Due to a bug in prior firmware versions, that protocol
+can only be used with devices reporting bcdDevice >= 0x0101[^2].
 
-On 10/27/2026 10:43 AM, Aniket Randive wrote:
-[...]
+[^1]: https://oopselectronics.com/product/SFPB and
+      https://gitlab.whinis.com/oops-electronics/sfp-media-buddy
 
-> +static int geni_i2c_gpi_bus_cmd(struct geni_i2c_dev *gi2c, enum i2c_op cmd)
-> +{
-> +	const struct geni_i2c_clk_fld *itr = gi2c->clk_fld;
-> +	struct dma_async_tx_descriptor *desc;
-> +	struct gpi_i2c_config peripheral = {};
-> +	struct dma_slave_config config = {};
-> +	unsigned long time_left;
-> +	unsigned long flags;
-> +	dma_cookie_t cookie;
-> +	int ret;
-> +
-> +	config.peripheral_config = &peripheral;
-> +	config.peripheral_size = sizeof(peripheral);
-> +
-> +	peripheral.set_config  = 1;
-> +	peripheral.pack_enable = I2C_PACK_TX | I2C_PACK_RX;
-> +	peripheral.cycle_count = itr->t_cycle_cnt;
-> +	peripheral.high_count  = itr->t_high_cnt;
-> +	peripheral.low_count   = itr->t_low_cnt;
-> +	peripheral.clk_div     = itr->clk_div;
-> +	peripheral.op          = cmd;
-> +
-> +	ret = dmaengine_slave_config(gi2c->tx_c, &config);
-> +	if (ret) {
-> +		dev_err(gi2c->se.dev, "dma config error %d for bus cmd %u\n", ret, cmd);
-> +		return ret;
-> +	}
-> +
-> +	desc = dmaengine_prep_slave_single(gi2c->tx_c, 0, 0, DMA_MEM_TO_DEV,
-> +					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-> +	if (!desc)
-> +		return -EIO;
-> +
-> +	desc->callback_result = i2c_gpi_cb_result;
-> +	desc->callback_param = gi2c;
-> +
-> +	cookie = dmaengine_submit(desc);
-> +	if (dma_submit_error(cookie))
-> +		return -EIO;
+[^2]: Devices without the fix will crash and drop off the bus when this
+      module is loaded, which prevents them from being updated.
 
-Rather capture ret and return it if it's an error ?
+Signed-off-by: Dustin L. Howett <dustin@howett.net>
+---
+Changes in v2:
+- Matching on interface class as well (thank you Andi)
+- Link to v1: https://patch.msgid.link/20261017-i2c-oops-electronics-v1-1-ce960f8f1b7a@howett.net
 
-> +
-> +	/*
-> +	 * cur and err are shared with geni_i2c_irq() and the GPI callback
-> +	 * i2c_gpi_cb_result(); both write err (the IRQ handler under
-> +	 * gi2c->lock). Reset them under the lock before issuing the transfer.
-> +	 */
-> +	spin_lock_irqsave(&gi2c->lock, flags);
-> +	gi2c->cur = NULL;
-> +	gi2c->err = 0;
-> +	spin_unlock_irqrestore(&gi2c->lock, flags);
-> +	reinit_completion(&gi2c->done);
-Safe to init before dmaengine_submit().> + 
-dma_async_issue_pending(gi2c->tx_c);
-> +
-> +	time_left = wait_for_completion_timeout(&gi2c->done, gi2c->adap.timeout);
-> +	if (!time_left) {
-> +		dev_err(gi2c->se.dev, "timeout waiting for GPI bus cmd %u\n", cmd);
-> +		ret = dmaengine_terminate_sync(gi2c->tx_c);
-> +		if (ret)
-> +			dev_err(gi2c->se.dev, "DMA termination failed for bus cmd %u: %d\n",
-> +				cmd, ret);
-> +		return -ETIMEDOUT;
-> +	}
-> +
-> +	return gi2c->err;
-> +}
-> +[...]
+I think I've seen the under-the-cut behavior with adding Trailers with
+b4 in the past, and was unsure how to fix it. Thank you! It should be
+better now.
+---
+ drivers/i2c/busses/i2c-tiny-usb.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index 73355a56aabf..07cfa6598a44 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -162,6 +162,17 @@ static const struct i2c_algorithm usb_algorithm = {
+ static const struct usb_device_id i2c_tiny_usb_table[] = {
+ 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+ 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
++	{
++		/* OopsElectronics SFP Media Buddy v1.01+ */
++		.match_flags = USB_DEVICE_ID_MATCH_VENDOR |
++			USB_DEVICE_ID_MATCH_PRODUCT | USB_DEVICE_ID_MATCH_DEV_LO |
++			USB_DEVICE_ID_MATCH_INT_CLASS,
++		.idVendor = 0xc2f9,
++		.idProduct = 0x0004,
++		.bcdDevice_lo = 0x0101,
++		.bInterfaceClass = USB_CLASS_VENDOR_SPEC
++	},
++
+ 	{ }                               /* Terminating entry */
+ };
+ 
+
+---
+base-commit: 58161ead29e50d70a317ea26b472e0c7508e69da
+change-id: 20261017-i2c-oops-electronics-5dd3659782da
+
+Best regards,
+--  
+Dustin L. Howett <dustin@howett.net>
+
