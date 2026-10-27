@@ -1,58 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793092319;
-	b=bPwlAauzkN8dMYbvEtyKcJWdMZ/fswYRlpH+ENqd+eP1YzZoJRpogZKzTYzjJg9o+H1I
-	 K9yMKn2IdaouZga9hC2OoLLTK/3M+jg9r/8+TBo3EDGKPOO1l1bP7BMMmuHxQh8b2a9uX
-	 n7BHTWMKVJrvCL3rFSMzDDsYZqSuhLecCvzUwU4ZRM3wcuFDcaZjQLXASNecRwSAqqjxd
-	 votUljwG8GJPjC+gnLMXS+2NHG7nu2Apx9alHCxcy/tPNyal57I+6FHQAHjwWMg42NepV
-	 XvE91kxQJyiohUHc51tqlp+cBP67kqRyw7SzJ1gYWoHuhfmJF15p0O2DSZSZGlQgEqA==
+	t=1793094930;
+	b=yopsbTdDGAvas47IMVTTQD4zb0RqSvZJ/hQh6Tng/NJzX6zqkii+6AVooQud/N1U6bKm
+	 IdS93BK0X0rK55UcygxY8E/1dPJoG+OppL1F5fQWZQSRbgTLq2uz/5avXQI20eJSB7G2H
+	 4sc2EWQQpmhaI/TmojvYVTtvBj4+S6Ts0/ZKBeOBT/c6FmsM9sQShhQ6fi7Bp4vz3LZ8E
+	 2XkYW4TY/9OwXLZj1LfV44/W37zos/NfVVxZJTnVbQgFDkMG0M4SB65Xwh3Aga9HS4g2F
+	 M0RqjcyPPyyNd/8HStkAVpFXujHmf3SNK7xnCf+qdBrIz0+Sg2noO/EbTRDhfLpmKjQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793092319;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:Organization:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=T79Dr75s1wvEXUoDZaE7cn4PwcHACPes5COGJi8oy7U=;
-	b=EJEP3n5hUhNqQNWcNhUE3ag9L32oRAsIqZGSm7RdfMc5lJ/+7KXW/8w4TOpNTw3GxpB1
-	 hHM4y4YoH0Tj3diJYU68dgwNwhXKBys61q5CEiKFnN+LSfn/1Mh43n0zNdYJ3j37XcSOL
-	 R4Wjl7gl53nd+c9/Z+PG/IYMJFbDFAZWh2i7nclWUTrenqVtAWFGOvxY7tQzOgG/dx/6b
-	 OIxsCQk6ZAfbsuU92seKbBtaZaK3I5V5quzpoPxgy7aSP1ouyCtafiSA5CweWfAoV++LX
-	 nVvrstZnfFX2ZlKB33heTSVUYmtYYrHI6Vwaf01OSiOefj4JkKetZLYzJauP2noUnUQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793094930;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=Gq4Dew7AOEXeJiD0yyOgJBKqXm1njeggbkIEMuUJOlU=;
+	b=f83tfQ1y+gpv7NFxE8r9CwkC6tYd1JZWJd/2GblbvvXFshUY3lcHSHTzYj7n6nw0ymp7
+	 9HBqM2ulLx0eOUeWTdEjLmvXPYpz1ZKQ6S+uRRM93PV5AOvUJDw/gLnEGH5u89F3OT+nM
+	 2qEopvftO2tNknEHFW4aIC1cd5JerTSSR2MYKU4Q1weIwK2MBbFIey8LIgVAn4x45ZFvJ
+	 rifUWa0up030FgeBfX/XuC9exN3PhuP2oaogYmG+JoUnJogYHg9ifxo/DuK5cwVsSJ9ut
+	 1ldBlTAisPyRBaNXuGvxtIpX/cyTJAidDdrRzp6XO4p2K44T17Zn+iEdl2TdVEB+WRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="UuR7/ceK";
-	arc=none smtp.remote-ip=185.246.84.56
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hDB8jj6C;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66D49606A328
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 09:11:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 66D49606A328
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BCFC606A31A;
+	Tue, 27 Oct 2026 09:55:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=UuR7/ceK
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 63EAD1A12AA;
-	Tue, 27 Oct 2026 09:11:51 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 2E838603BD;
-	Tue, 27 Oct 2026 09:11:51 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C36211032904F;
-	Tue, 27 Oct 2026 10:11:38 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793092309; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=T79Dr75s1wvEXUoDZaE7cn4PwcHACPes5COGJi8oy7U=;
-	b=UuR7/ceKR3WvRHfZBPIedxhdV4OfAZXNIaXp3g8W7wt1efy1uoDsg0DMZTk5cRNDiNtala
-	Omvkg8mIONIePJs1AXs12/YATeNT0fD5h/EXQZicnjbXevpQ2CpHVhz/8haGqX0ZlIo+JA
-	EG6OC5DHxEGXP9hOB3ylx3BkmW4u5czjzb4XHEq4dL9KXjgmT9wjq8veuW4iAgbI/Q6kOE
-	Tq92N6JhK2VGV1QVFyN8UjliNVqXShOUtGsP3SZLgsFopKDji/FB71MDawONogQloIyLEt
-	h9rUVj8ZpDSYFZlyEq+sOxwNupUnHhkapAE3hbDZlc4ft2t38vmFeyK1r2tU1Q==
-Message-ID: <42d26a0b-c517-4fc5-8d19-e0b7c4506cbf@bootlin.com>
-Date: Tue, 27 Oct 2026 10:11:37 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hDB8jj6C
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D99431F01828;
+	Tue, 27 Oct 2026 09:55:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793094929;
+	bh=Gq4Dew7AOEXeJiD0yyOgJBKqXm1njeggbkIEMuUJOlU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=hDB8jj6CU/U6aKsWQehhHrpC18ldQlA1cCqGxirLKarRTPmzm0Dqot2AaqOIsRfJZ
+	 IoF2ONn0zZ7CTn6z8qbfKTzEyi6U1HH4PZkSFreo9ThowzHDhRzMvKgWLmwm4L7WDK
+	 HM/mre8dDlPH5orFwTJzhCZAGnMFht5ijBRMWRchdPnYIlgFHyVM8GTC6CxKXBrCOS
+	 5IxyaX2N1ZCpTBVezrnJGQmiAyK774fCvEZRxgt2QjZaG954Skd69iXoFRDFnAwLyV
+	 x6KcoSQaej2hEg+FFU4NjTRsX88pOEdeDFS7ugjSeJylzWcTNn8yKUOxukXy1QolGE
+	 u/1my15e+7pKA==
+Date: Tue, 27 Oct 2026 10:55:25 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: "Dustin L. Howett" <dustin@howett.net>
+Cc: Till Harbaum <till@harbaum.org>, Whinis <whinis@whinis.com>, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c-tiny-usb: add support for the Oops Electronics SFP
+ Media Buddy
+Message-ID: <at_f_xNsyM3IyUo1@zenone.zhora.eu>
+References: <20261017-i2c-oops-electronics-v1-1-ce960f8f1b7a@howett.net>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -62,85 +58,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 13/20] dt-bindings: pinctrl: berlin: Support Synaptics
- SL261X SoCs
-To: Jisheng Zhang <jszhang@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
- Brian Masney <bmasney+clk@redhat.com>,
- Jerome Brunet <jbrunet+clk@baylibre.com>, Andi Shyti
- <andi.shyti@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Frank Li <Frank.Li@nxp.com>, Lee Jones <lee@kernel.org>,
- Linus Walleij <linusw@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Philipp Zabel <p.zabel@pengutronix.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>,
- Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
- linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
- linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20260929061417.20733-1-jszhang@kernel.org>
- <20260929061417.20733-14-jszhang@kernel.org>
-Content-Language: en-US, fr
-From: Richard GENOUD <richard.genoud@bootlin.com>
-Organization: Bootlin
-In-Reply-To: <20260929061417.20733-14-jszhang@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <20261017-i2c-oops-electronics-v1-1-ce960f8f1b7a@howett.net>
 
-Le 29/09/2026 à 08:14, Jisheng Zhang a écrit :
-> Document the dt-bindings for pinctrl in Synaptics SL261X SoCs.
+Hi Dustin,
+
+On Sat, Oct 17, 2026 at 12:56:04PM -0500, Dustin L. Howett wrote:
+> The Oops Electronics "SFP Media Buddy" is an open-source USB device that
+> provides i2c access, among other things, to a SFP+ network module.
 > 
-> Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+> It exposes a vendor protocol which is compatible with the i2c-tiny-usb
+> kernel module. Due to a bug in prior firmware versions, that protocol
+> can only be used with devices reporting bcdDevice >= 0x0101[^2].
+> 
+> [^1]: https://oopselectronics.com/product/SFPB and
+>       https://gitlab.whinis.com/oops-electronics/sfp-media-buddy
+> 
+> [^2]: Devices without the fix will crash and drop off the bus when this
+>       module is loaded, which prevents them from being updated.
+> 
 > ---
->   .../bindings/pinctrl/marvell,berlin2-soc-pinctrl.yaml  | 10 ++++++++--
->   1 file changed, 8 insertions(+), 2 deletions(-)
+> Signed-off-by: Dustin L. Howett <dustin@howett.net>
+
+the tags shouldn't be placed under the '---' otherwise won't
+appear in the commit log.
+
+> ---
+>  drivers/i2c/busses/i2c-tiny-usb.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/pinctrl/marvell,berlin2-soc-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/marvell,berlin2-soc-pinctrl.yaml
-> index 6ace3bf5433b..fb60a310a24e 100644
-> --- a/Documentation/devicetree/bindings/pinctrl/marvell,berlin2-soc-pinctrl.yaml
-> +++ b/Documentation/devicetree/bindings/pinctrl/marvell,berlin2-soc-pinctrl.yaml
-> @@ -37,6 +37,8 @@ properties:
->             - marvell,berlin4ct-soc-pinctrl
->             - marvell,berlin4ct-system-pinctrl
->             - syna,as370-soc-pinctrl
-> +          - syna,sl261x-soc-pinctrl
-> +          - syna,sl261x-system-pinctrl
->   
->     reg:
->       maxItems: 1
-> @@ -44,8 +46,10 @@ properties:
->   additionalProperties:
->     description: Pin group configuration subnodes.
->     type: object
-> -  $ref: /schemas/pinctrl/pinmux-node.yaml#
-> -  additionalProperties: false
+> diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+> index 73355a56aabf..92a2633a028e 100644
+> --- a/drivers/i2c/busses/i2c-tiny-usb.c
+> +++ b/drivers/i2c/busses/i2c-tiny-usb.c
+> @@ -162,6 +162,15 @@ static const struct i2c_algorithm usb_algorithm = {
+>  static const struct usb_device_id i2c_tiny_usb_table[] = {
+>  	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+>  	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
+> +	{
+> +		/* OopsElectronics SFP Media Buddy v1.01+ */
+> +		.match_flags = USB_DEVICE_ID_MATCH_VENDOR |
+> +			USB_DEVICE_ID_MATCH_PRODUCT | USB_DEVICE_ID_MATCH_DEV_LO,
+> +		.idVendor = 0xc2f9,
+> +		.idProduct = 0x0004,
+> +		.bcdDevice_lo = 0x0101
+
+I would also use:
+
+		.bInterfaceClass = USB_CLASS_VENDOR_SPEC,
+
+so that i2c-tiny-usb cannot claim the device’s HID interface
+(check the i2c_tiny_usb_probe() function).
+
+Thanks,
+Andi
+
+> +	},
 > +
-> +  allOf:
-> +    - $ref: /schemas/pinctrl/pinmux-node.yaml#
-> +    - $ref: /schemas/pinctrl/pincfg-node.yaml#
-
-The special value bias-pull-up=2 is handled has a strong pull-up in the 
-code, maybe that's something that needs a documentation in the binding
-(or the strong pull up value is really 2 Ohms, and in this case, 
-everything is ok)
-
->   
->     properties:
->       groups:
-> @@ -60,6 +64,8 @@ additionalProperties:
->       - groups
->       - function
->   
-> +  unevaluatedProperties: false
-> +
->   allOf:
->     - if:
->         properties:
-
-Regards,
-Richard
+>  	{ }                               /* Terminating entry */
+>  };
+>  
+> 
+> ---
+> base-commit: 58161ead29e50d70a317ea26b472e0c7508e69da
+> change-id: 20261017-i2c-oops-electronics-5dd3659782da
+> 
+> Best regards,
+> --  
+> Dustin L. Howett <dustin@howett.net>
+> 
