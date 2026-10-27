@@ -1,112 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.223
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793078017;
-	b=NcBHy/NHcvfM0AF+Mj62gQwpkOUDmxUf5ThHXFwwzJ73QT2WPzH7rPe8mpNUkkqNo4Yx
-	 yyb2Xk9Np1t8k0iWTLUs4QADMbL4x1gMcSGld3jSkNVO2WsfXAwlnPj2KHIsnrjpFal+F
-	 dex6cRa0N1YFJMQX6/OOSmwxN2fvl5oW2+lFkI7uyCgcrTDFzfqUwZR+GwN2PO0uXCcD3
-	 52TSSoQ/zf1XMLGHsbbwlrIApC0mBRaiEwxkdSmrnI9OTMgFigvMIVN8tDP01LjGxOx/k
-	 Ae1MxV9C4eQRrcTQZVCMxyMWFe/niLb98LBijbFAxdNpZgWv8v91Dzv7lfji4GolLZA==
+	t=1793083551;
+	b=UF0ubxofouZe0LUJ4Yjk5AtswyB6ItdebILbJzO3Y8D6seQ5/AcbqKE0++FIdzo9DRf5
+	 EC1CCsjU8t0+McPXXBdOKjlywRfiSag16fiDzS9zzqK3a8Ogrd042rxOAf5Jk2obpPwio
+	 61b68fyzMpK19HxMh2fa2ccdVUcV79zamGWlGLH5AJAC2lueEi1c/7KsgG1JYwBWU4g1J
+	 pAn8YwfnWIQGDij5LPpcx/U5u1uO30xLJY1TweAAGU7JOwD0z5+OcHpeU5FJKkIjpKy/h
+	 bHfIjtoHmbpK5PQNmGC9udW8EgP/sNzkYfDMdYoUC1mqIiI05E/tHBLyrwJKnXnL1Zw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793078017;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=1iBMHqRtb9KCVWuGmA0rW9gEgHupGsvkbN3KIIR5/gI=;
-	b=wWK6pdiLgOl3BdBier9JKqKRtQytPs63QBgp8NRD0y5tICfBrLw2IVvSg04EAgxIZ+JB
-	 PQojWCy+FSg104JAGTeandBdURnYkgnRkpgwnGMSIWf9Rb9NxyUWndXd22bBU1EJfZs38
-	 vwPMdQeSirZdwP/39CoJgMCSQeFVBg2BJy1kX/kjeZHh+4TVD/xXMhwbDkhnR0sHzJqaR
-	 4DZHgvmpVsZdBQvuAIsXn+mp2pvLMeclAMlaxDVoHdwIE7GOzUFtwE8tgVVfvpMIGWYXM
-	 GNhgg6kLM5Ni5ttcjTee66vj8KPW28GVbzEjutKOtiPTIZDEse+xpRguA1yzacoUjYQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793083551;
+	h=DMARC-Filter:dkim-signature:Received:Received:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Originating-IP:
+	 X-ClientProxiedBy;
+	bh=45EA+yxw9ZAYEmsBHhVFqQBnIpsw1+TN7/vvynIibe4=;
+	b=0+ZVw1EWhYv7RjiRPlAtZ12mQrYvkv/PEXPAqVvD9iJtTujDT+l7BPeQ9steB+b1EjPO
+	 36a8o6GIuvndMxZQm/vDSn5ugAV8GuZcSCPQmqQ2a1zaSTP/MKJtPqyKeniJ6z9+ROKAl
+	 2xxm9Xe0FLf4ocWdDMaurh9yaKwfjv2szX5cAvbjx/35IIQTlWNF0rcf2sN21B7Wu7XT8
+	 pMTqtob/tNE3eE9WdmwkxDqLnxdPcDqE+yFbgEkS3wxZ09gr0MIznBw6Vq1vWCoGtWOBy
+	 lpCY5FHx238Rm4RISdBS3Z3hqnmGhm5lWIJcSRjp/fT59p+ALj7gh4Yg7BHCNXZRaMg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=UE6MPSbJ;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=YgygeuuI;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	dmarc=pass header.from=huawei.com;
+	spf=pass smtp.mailfrom=huawei.com;
+	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=s13F4IuL;
+	arc=none smtp.remote-ip=113.46.200.223
+Received: from canpmsgout08.his.huawei.com (canpmsgout08.his.huawei.com [113.46.200.223])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D946A606A31B
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 05:13:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D946A606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF05D606A31A;
+	Tue, 27 Oct 2026 06:45:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EF05D606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=UE6MPSbJ;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=YgygeuuI
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69R2F2IO4151922
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 05:13:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	1iBMHqRtb9KCVWuGmA0rW9gEgHupGsvkbN3KIIR5/gI=; b=UE6MPSbJn3gFw3KV
-	Mt0Ojo//+jZfYPRB36SH/wfSKeUV2FfJioEL2fwTzaxA1mN6wSqbL/ZQUMP8NF4E
-	mW0iXtxeb1EnPykG3ix/kA28l8nQL9B01dFLgIP1HusyLmnxp4ZgYHmXrLu2KMs4
-	zeko3eRTEtDN9bJgy0Z34zXcitxVlVE23ggmm0PYi2BB7+3MgikVy/KOnjAAeYWn
-	c+vW8dbuxD08+4P9EKBaMz0LWcU9Q/gGApoVLCB4Elgvdwbzl2Xu7SPJguvNCtGw
-	UFuOFRECsLLLCdzU+lw1hIcJ2JpElouxysPPCYCzn7YtD/zgouxSo9OmeQ45znDM
-	aqtjAg==
-Received: from mail-dl1-f69.google.com (mail-dl1-f69.google.com [74.125.82.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hj3u642ra-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Oct 2026 05:13:36 +0000 (GMT)
-Received: by mail-dl1-f69.google.com with SMTP id a92af1059eb24-139b62317d0so1611079c88.0
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2026 22:13:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793078016; x=1793682816; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=1iBMHqRtb9KCVWuGmA0rW9gEgHupGsvkbN3KIIR5/gI=;
-        b=YgygeuuIHl2uDjHsnaPW9oKaiRxNFWp4br9LPhZB1GsrJ1S8AMhRBdkHW+7dVWUVTD
-         TR4oVZbiBLuUXWEx/tgN2tArNVPJghwRaFxjgk8+cjyM7TcGRCWfyhr92RaOa4CbFKxk
-         dtPuf3gU6gt9OksaJi3FyUpLda2U95e1qpnvnEI8jMhd0xXX3PKv/WvEdSVta3tQKdSF
-         QhtcxujITKUshOHGLTpyIEQRSk8uV4EWGTJPzipJxqAmrfHxczc/a1f97h+cs/MP5Lcg
-         Wh1ERbxEN4mjWUOeaix7RbfZgocwlnMLpjW1S3wLdwGh8Ib2XK8nz/SSGWlcCdU1ZtMy
-         0ECQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793078016; x=1793682816;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1iBMHqRtb9KCVWuGmA0rW9gEgHupGsvkbN3KIIR5/gI=;
-        b=QOedpHISSEFk2WVbJ54GUlKLpWiXZZIfLE25wnPZER+LzSJoqrGMVjjEIdUKisNR1W
-         HwjiYr6Zmq6VZTxsG/xRA0VOZIDJ3HOnR9f6ivMO2BxUL3G9IO2c4mUuLnZSU3Ce3Uf4
-         K3WCOXKVAuZ22RdBi9jc0PD4yBmkhW23JAY88+PLAhkW3y7pOSl1kAzsN4dMTvJ7Tm5e
-         QClUnpdjFUAkT3QQfpMWdGi9+Yw8id3vArQZi3e60z7jCSYIMiTZH/49GLi6SZmT0KlF
-         xscHH/hSZHkHJuLJs3iXLOLCE6krWmarThcLs+1B9DgPLSXUEg+nbtCo/CILoOhYBWe3
-         i+mw==
-X-Forwarded-Encrypted: i=1; AKwUvBygniTR/p4EhH2neCIOZs4hRKDmnf+B3jAhJBk6jAwrYmTUgAPuGcNBcSFybbUMTV1DcLmq0YT+jjw=@vger.kernel.org
-X-Gm-Message-State: AFq9FYLzb03vB5+dYd/OKbhvB4Eacy9Am5SijWhwjpoflncaspGfpodA
-	EmRuH4zamG6udHIq32zDD2+vBNzQjjEUmjn5qItLhmTtyU5tXpWIQiHYZHR3gCC6FBfc/WfwMjd
-	02lvcICYW5BEHUmoVyxv8uXPSLS0Y6P5hxxvIRTzEmcXeoKJXBwoLB3Pihh+i3Sw=
-X-Gm-Gg: AYBFou1xLAR09sk1Coy5pU1itgP0EWXq7AgmH9SwjLJjfBS8YtCgwEtTU8yMZiCq/EH
-	ziiuc8/jzL/ljptXhqFseg8mokE+vH1oFuNvPqIhrESaUSCAiUsDo60u3JSzNBGMT0J967BU+a6
-	ECGuvdVfBDADBP0ri4RIZlKglRGx7hqgBb/Eedefbx2OqkJm8uzZ2W8mS+fGRcczww1Po/BCFR4
-	dJX/L/+XHmGsw/Op4QuaB0e5qTnfBhJmSaeSHmd756XM5y8wv0fnhGn4VUeHBuuqgdsDkfXmB0t
-	CyX77SECz2pFfpF6v69qiVEg/ltF58TAHMXD6SMk0HfPUKhVagQxctx6IHC1Xwy09lnBycb2gIq
-	nX17a7LLAuTC+vtbGWtt7athn9P8WpnvQUg==
-X-Received: by 2002:a05:7022:7f06:b0:186:3f0c:bd09 with SMTP id a92af1059eb24-1992afd1fb5mr13347958c88.5.1793078015269;
-        Mon, 26 Oct 2026 22:13:35 -0700 (PDT)
-X-Received: by 2002:a05:7022:7f06:b0:186:3f0c:bd09 with SMTP id a92af1059eb24-1992afd1fb5mr13347923c88.5.1793078014660;
-        Mon, 26 Oct 2026 22:13:34 -0700 (PDT)
-Received: from hu-arandive-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-198a249c331sm62298866c88.17.2026.10.26.22.13.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2026 22:13:34 -0700 (PDT)
-From: Aniket Randive <aniket.randive@oss.qualcomm.com>
-Date: Tue, 27 Oct 2026 10:43:17 +0530
-Subject: [PATCH v3 3/3] i2c: qcom-geni: Add bus recovery support for GPI
- DMA mode
+	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=s13F4IuL
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=45EA+yxw9ZAYEmsBHhVFqQBnIpsw1+TN7/vvynIibe4=;
+	b=s13F4IuLINF+M1GqDP99tRvU+7xUR12+blUeguu8UXYNAvB3FzQAc7s8zAtqx2/mfQU0o6Sw/
+	4NmraHb1g4xjRi381EH47uRoreLcgqUmE3pTg6e8OQyB+fySmqMIx37NUUr5+eZhJUhYFWi+RD6
+	zqNWHJVNSlBLYC4MdLseAbs=
+Received: from mail.maildlp.com (unknown [172.19.163.15])
+	by canpmsgout08.his.huawei.com (SkyGuard) with ESMTPS id 4jDLbk3czJzmVXl;
+	Tue, 27 Oct 2026 14:45:38 +0800 (CST)
+Received: from kwepemo100017.china.huawei.com (unknown [7.202.195.215])
+	by mail.maildlp.com (Postfix) with ESMTPS id 29E6040578;
+	Tue, 27 Oct 2026 14:45:44 +0800 (CST)
+Received: from [10.67.120.228] (10.67.120.228) by
+ kwepemo100017.china.huawei.com (7.202.195.215) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46; Tue, 27 Oct 2026 14:45:43 +0800
+Message-ID: <cfd7cf81-f87a-4d93-abfe-99354e948830@huawei.com>
+Date: Tue, 27 Oct 2026 14:45:42 +0800
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -116,224 +62,245 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-3-7f2a6e572de9@oss.qualcomm.com>
-References: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-0-7f2a6e572de9@oss.qualcomm.com>
-In-Reply-To: <20261027-20260826_aniket_randive_oss_qualcomm_com-v3-0-7f2a6e572de9@oss.qualcomm.com>
-To: Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>,
-        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: naresh.maramaina@oss.qualcomm.com, linux-arm-msm@vger.kernel.org,
-        dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org,
-        Aniket Randive <aniket.randive@oss.qualcomm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793077998; l=6226;
- i=aniket.randive@oss.qualcomm.com; s=20260325; h=from:subject:message-id;
- bh=oHW16ZLA84x86i3H4S8T1Hpo95kIY9SzvYZ1URod7wo=;
- b=7EPpT6xhz/3IQ+T5APz+XgApRVRSNwvbib5bjIh9yPnOKdfTuaWIQdknSvpESo7IyGbPrJG2P
- DY5sOzyiPStAikTCQ88gqN0mIiPkQSAusGncaVeDZzzfcuP1b4PpIu8
-X-Developer-Key: i=aniket.randive@oss.qualcomm.com; a=ed25519;
- pk=4o37X1ZqGbCO/T2SR8kq/HnWvq0yb1RUlFuNukovbQk=
-X-Proofpoint-GUID: vHMlSQfN3z-JZRLV3mFS5_Mo-dV8DhDz
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDAyMCBTYWx0ZWRfX/ugZ0nkjMlYJ
- wXPO1WPA8lnRu4uKTpbtqGwq0Q7jsdS7gYn7L/lh+Lt5rtWWDo6PQDtNtyQ22we5GG4UFCx4rVC
- STj/t/83aQSXAG6rE4B+YaIF7zUuhp31DQyDujFCUlx2lW7DdzVANdn/FC3sLqKbpUnlLrGCABO
- 6H9KMRewuMxAhD3Bq8YksnUQIQ7Ca/l5RpkvBbUMTsAbCF4EbGksPWuPs6cqv0jbbw/cS9Bhdg9
- BoqEmhlz4xxzqRSZM4bTADkcBgE56CR4heDqih4oYgtpJIpJJXVVBRA8rG8Aek7jQpyKRikcF0c
- JDz7baaRqKpaqLV6R5ZXDF0K0bT6PiZdOEU21fVbz8kY0LoQr7p5Jm6lO+07h6fPhD4U8qpH56B
- eC1eXWGBjg2ZWgqO+RLnXIFgj6AoDH3AR+VBFjFIFCKgrRcKGkpv04Lyh8+9X7aHoJTOwlIBO3u
- GlkqsxR0NaXkzkZ+9bg==
-X-Proofpoint-ORIG-GUID: vHMlSQfN3z-JZRLV3mFS5_Mo-dV8DhDz
-X-Authority-Analysis: v=2.4 cv=K823jCWI c=1 sm=1 tr=0 ts=6ae03300 cx=c_pps
- a=kVLUcbK0zfr7ocalXnG1qA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
- a=EUspDBNiAAAA:8 a=k1huG3081okQl_w4-uUA:9 a=QEXdDO2ut3YA:10
- a=vr4QvYf-bLy2KjpDp97w:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDAyMCBTYWx0ZWRfX1NmycCcAxHsO
- 60zYnZq++jg6SFj637hvf2kUXR/wZIlaMtjLTmSfFCnND30M+3P2+o1HqnqouWGXtbyhS565QPs
- 4NjhTGfzZQoMl2jYb7yomaoJC9rfVdw=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-27_01,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 phishscore=0 spamscore=0 clxscore=1015 impostorscore=0
- lowpriorityscore=0 malwarescore=0 suspectscore=0 adultscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610270020
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] i2c: hisi: Add I2C bus recovery support
+To: <linuxarm@huawei.com>, <liudingyuan@h-partners.com>,
+	<andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <zhanjie9@hisilicon.com>, <prime.zeng@hisilicon.com>,
+	<wanghuiqiang@huawei.com>, <xuwei5@huawei.com>, <zhangpengjie2@huawei.com>
+References: <20260917024018.3052954-1-yubowen8@huawei.com>
+From: "yubowen (H)" <yubowen8@huawei.com>
+In-Reply-To: <20260917024018.3052954-1-yubowen8@huawei.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
+ kwepemo100017.china.huawei.com (7.202.195.215)
 
-I2C transfers in GPI DMA mode can fail with -EIO when a target holds
-SDA low, leaving the bus stuck and preventing subsequent transactions.
-The GPI completion callback reports a NACK and a genuine bus error
-alike as -EIO, and the existing recovery path switches the SE to FIFO
-mode which is not valid in GPI DMA mode.
+Quick ping on this. Any throughts or suggestions, or anything else
+you'd like me to dig into?
 
-Add bus recovery support using the I2C_BUS_CLEAR and I2C_STOP_ON_BUS
-opcodes issued via the GPI TX DMA channel. Guard the -EIO recovery
-trigger with a SE_GENI_IOS I2C_BUS_FREE check to skip recovery when both
-SDA and SCL are already released. Extend the recovery callback to dispatch
-through the GPI DMA path when gi2c->gpi_mode is set.
+Regards
+Bowen Yu
 
-Use the adapter timeout for GPI recovery commands, and preserve the DMA
-configuration error code when GPI setup fails.
-
-Stop recovery on a GPI command timeout and report DMA termination
-failures. Do not issue another command or override the timeout with a
-bus-idle result, since DMA cleanup may not have completed successfully.
-
-Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 107 ++++++++++++++++++++++++++++++++-----
- 1 file changed, 94 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index d9e86f110ae9..ac9d1875b54f 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -1065,13 +1065,81 @@ static bool geni_i2c_needs_bus_recovery(struct geni_i2c_dev *gi2c, int ret)
- 	 * -EPROTO and -ETIMEDOUT indicate bus errors where the target may be
- 	 * holding a bus line low. ARB_LOST (-EAGAIN) on a single-controller
- 	 * bus indicates a stuck target, not a real arbitration loss.
--	 * GPI DMA mode extends this trigger separately.
-+	 * In GPI DMA mode the completion callback reports NACK, BUS_PROTO and
-+	 * ARB_LOST alike as -EIO, so the SE_GENI_IOS I2C_BUS_FREE check
-+	 * distinguishes a genuinely stuck bus from a benign NACK. Recovery is
-+	 * skipped when both SDA and SCL are released (high) after the STOP.
- 	 */
--	return !gi2c->gpi_mode &&
--	       (ret == -EPROTO || ret == -ETIMEDOUT || ret == -EAGAIN) &&
-+	return (ret == -EPROTO || ret == -ETIMEDOUT || ret == -EAGAIN ||
-+		(gi2c->gpi_mode && ret == -EIO)) &&
- 	       !geni_i2c_bus_is_free(gi2c);
- }
- 
-+static int geni_i2c_gpi_bus_cmd(struct geni_i2c_dev *gi2c, enum i2c_op cmd)
-+{
-+	const struct geni_i2c_clk_fld *itr = gi2c->clk_fld;
-+	struct dma_async_tx_descriptor *desc;
-+	struct gpi_i2c_config peripheral = {};
-+	struct dma_slave_config config = {};
-+	unsigned long time_left;
-+	unsigned long flags;
-+	dma_cookie_t cookie;
-+	int ret;
-+
-+	config.peripheral_config = &peripheral;
-+	config.peripheral_size = sizeof(peripheral);
-+
-+	peripheral.set_config  = 1;
-+	peripheral.pack_enable = I2C_PACK_TX | I2C_PACK_RX;
-+	peripheral.cycle_count = itr->t_cycle_cnt;
-+	peripheral.high_count  = itr->t_high_cnt;
-+	peripheral.low_count   = itr->t_low_cnt;
-+	peripheral.clk_div     = itr->clk_div;
-+	peripheral.op          = cmd;
-+
-+	ret = dmaengine_slave_config(gi2c->tx_c, &config);
-+	if (ret) {
-+		dev_err(gi2c->se.dev, "dma config error %d for bus cmd %u\n", ret, cmd);
-+		return ret;
-+	}
-+
-+	desc = dmaengine_prep_slave_single(gi2c->tx_c, 0, 0, DMA_MEM_TO_DEV,
-+					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-+	if (!desc)
-+		return -EIO;
-+
-+	desc->callback_result = i2c_gpi_cb_result;
-+	desc->callback_param = gi2c;
-+
-+	cookie = dmaengine_submit(desc);
-+	if (dma_submit_error(cookie))
-+		return -EIO;
-+
-+	/*
-+	 * cur and err are shared with geni_i2c_irq() and the GPI callback
-+	 * i2c_gpi_cb_result(); both write err (the IRQ handler under
-+	 * gi2c->lock). Reset them under the lock before issuing the transfer.
-+	 */
-+	spin_lock_irqsave(&gi2c->lock, flags);
-+	gi2c->cur = NULL;
-+	gi2c->err = 0;
-+	spin_unlock_irqrestore(&gi2c->lock, flags);
-+	reinit_completion(&gi2c->done);
-+	dma_async_issue_pending(gi2c->tx_c);
-+
-+	time_left = wait_for_completion_timeout(&gi2c->done, gi2c->adap.timeout);
-+	if (!time_left) {
-+		dev_err(gi2c->se.dev, "timeout waiting for GPI bus cmd %u\n", cmd);
-+		ret = dmaengine_terminate_sync(gi2c->tx_c);
-+		if (ret)
-+			dev_err(gi2c->se.dev, "DMA termination failed for bus cmd %u: %d\n",
-+				cmd, ret);
-+		return -ETIMEDOUT;
-+	}
-+
-+	return gi2c->err;
-+}
-+
- static int geni_i2c_recover_bus(struct i2c_adapter *adap)
- {
- 	struct geni_i2c_dev *gi2c = i2c_get_adapdata(adap);
-@@ -1105,20 +1173,35 @@ static int geni_i2c_recover_bus(struct i2c_adapter *adap)
- 		return -EBUSY;
- 	}
- 
--	ret = geni_i2c_fifo_bus_cmd(gi2c, I2C_BUS_CLEAR);
--	if (!ret)
--		ret = geni_i2c_fifo_bus_cmd(gi2c, I2C_STOP_ON_BUS);
-+	if (gi2c->gpi_mode) {
-+		ret = geni_i2c_gpi_bus_cmd(gi2c, I2C_BUS_CLEAR);
-+		/* Do not issue more commands after a timeout: DMA cleanup may have failed. */
-+		if (ret == -ETIMEDOUT)
-+			goto out_pm;
-+		if (ret)
-+			dev_dbg(gi2c->se.dev, "GPI bus clear returned %d, issuing stop anyway\n",
-+				ret);
-+
-+		ret = geni_i2c_gpi_bus_cmd(gi2c, I2C_STOP_ON_BUS);
-+		if (ret == -ETIMEDOUT)
-+			goto out_pm;
-+	} else {
-+		ret = geni_i2c_fifo_bus_cmd(gi2c, I2C_BUS_CLEAR);
-+		if (!ret)
-+			ret = geni_i2c_fifo_bus_cmd(gi2c, I2C_STOP_ON_BUS);
-+	}
- 
- 	/*
--	 * Recovery succeeds only once both bus lines are released. The bus
--	 * state is the authority, while a clean opcode status with either
--	 * line low is a failed recovery.
-+	 * Recovery succeeds when both bus lines are released. Trust the bus
-+	 * state over the opcode return path, which cannot flag a benign
-+	 * recovery event in GPI mode.
- 	 */
- 	if (geni_i2c_bus_is_free(gi2c))
- 		ret = 0;
- 	else if (!ret)
- 		ret = -EBUSY;
- 
-+out_pm:
- 	pm_runtime_put_autosuspend(gi2c->se.dev);
- 
- 	return ret;
-@@ -1359,10 +1442,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	if (!gi2c->gpi_mode) {
--		gi2c->rinfo.recover_bus = geni_i2c_recover_bus;
--		gi2c->adap.bus_recovery_info = &gi2c->rinfo;
--	}
-+	gi2c->rinfo.recover_bus = geni_i2c_recover_bus;
-+	gi2c->adap.bus_recovery_info = &gi2c->rinfo;
- 
- 	ret = i2c_add_adapter(&gi2c->adap);
- 	if (ret) {
-
--- 
-2.34.1
-
+在 2026/9/17 10:40, Bowen Yu 写道:
+> When the I2C bus is stuck due to a slave device holding SDA low
+> (e.g. during an incomplete transfer), the master has no way to recover
+> the bus through normal operation. Add bus recovery support using the
+> subctrl register to manually toggle SCL and generate clock pulses to
+> release the bus.
+>
+> The recovery is performed via a second register resource (sctrl_base)
+> that provides direct control over SCL/SDA lines through mux and
+> output-enable bits. After recovery, the I2C controller is reset through
+> the ACPI _RST method and reconfigured.
+>
+> Recovery is only registered when the subctrl resource is provided in
+> the firmware description, keeping backward compatibility with existing
+> platforms.
+>
+> Signed-off-by: Bowen Yu <yubowen8@huawei.com>
+> ---
+> v3 -> v4:
+> 	-Some clean code fixes.
+> ---
+>   drivers/i2c/busses/i2c-hisi.c | 146 ++++++++++++++++++++++++++++++++++
+>   1 file changed, 146 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+> index ba5c9579ae19..051a7759bb14 100644
+> --- a/drivers/i2c/busses/i2c-hisi.c
+> +++ b/drivers/i2c/busses/i2c-hisi.c
+> @@ -5,6 +5,7 @@
+>    * Copyright (c) 2021 HiSilicon Technologies Co., Ltd.
+>    */
+>   
+> +#include <linux/acpi.h>
+>   #include <linux/bits.h>
+>   #include <linux/bitfield.h>
+>   #include <linux/clk.h>
+> @@ -62,6 +63,8 @@
+>   #define HISI_I2C_INT_CLR		0x0048
+>   #define HISI_I2C_INT_MASK		0x004C
+>   #define HISI_I2C_TRANS_STATE		0x0050
+> +#define   HISI_I2C_TRANS_STATE_SDA_LEVEL	BIT(5)
+> +#define   HISI_I2C_TRANS_STATE_SCL_LEVEL	BIT(6)
+>   #define HISI_I2C_TRANS_ERR		0x0054
+>   #define HISI_I2C_VERSION		0x0058
+>   
+> @@ -86,9 +89,26 @@
+>   #define NSEC_TO_CYCLES(ns, clk_rate_khz) \
+>   	DIV_ROUND_UP_ULL((clk_rate_khz) * (ns), NSEC_PER_MSEC)
+>   
+> +/*
+> + * SUBCTRL SC_I2C_CTRL register
+> + * Set HISI_I2C_CTRL_DAT_CFG_EN and HISI_I2C_CTRL_SCL_CFG_EN to control
+> + * I2C pin behavior by subctrl controller; use HISI_I2C_CTRL_DAT_OE and
+> + * HISI_I2C_CTRL_CLK_OE to control input or output; use HISI_I2C_CTRL_SDA_OUT
+> + * and HISI_I2C_CTRL_SCL_OUT to control output value.
+> + */
+> +#define HISI_I2C_CTRL_DAT_CFG_EN BIT(5)
+> +#define HISI_I2C_CTRL_SCL_CFG_EN BIT(4)
+> +#define HISI_I2C_CTRL_DAT_OE BIT(3)
+> +#define HISI_I2C_CTRL_CLK_OE BIT(2)
+> +#define HISI_I2C_CTRL_SDA_OUT BIT(1)
+> +#define HISI_I2C_CTRL_SCL_OUT BIT(0)
+> +
+> +#define HISI_I2C_RECOVERY_REG_SIZE 4
+> +
+>   struct hisi_i2c_controller {
+>   	struct i2c_adapter adapter;
+>   	void __iomem *iobase;
+> +	void __iomem *sctrl_addr;
+>   	struct device *dev;
+>   	struct clk *clk;
+>   	int irq;
+> @@ -108,8 +128,14 @@ struct hisi_i2c_controller {
+>   	struct i2c_timings t;
+>   	u32 clk_rate_khz;
+>   	u32 spk_len;
+> +
+> +	/* Bus recovery */
+> +	struct i2c_bus_recovery_info rinfo;
+> +	acpi_handle acpi_handle;
+>   };
+>   
+> +static void hisi_i2c_configure_bus(struct hisi_i2c_controller *ctlr);
+> +
+>   static void hisi_i2c_enable_int(struct hisi_i2c_controller *ctlr, u32 mask)
+>   {
+>   	writel_relaxed(mask, ctlr->iobase + HISI_I2C_INT_MASK);
+> @@ -151,6 +177,122 @@ static void hisi_i2c_handle_errors(struct hisi_i2c_controller *ctlr)
+>   	}
+>   }
+>   
+> +#ifdef CONFIG_ACPI
+> +static int hisi_i2c_recovery_get_scl(struct i2c_adapter *adap)
+> +{
+> +	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
+> +	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
+> +
+> +	return !!(reg & HISI_I2C_TRANS_STATE_SCL_LEVEL);
+> +}
+> +
+> +static int hisi_i2c_recovery_get_sda(struct i2c_adapter *adap)
+> +{
+> +	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
+> +	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
+> +
+> +	return !!(reg & HISI_I2C_TRANS_STATE_SDA_LEVEL);
+> +}
+> +
+> +static void hisi_i2c_recovery_set_scl(struct i2c_adapter *adap, int val)
+> +{
+> +	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
+> +	u32 reg;
+> +
+> +	reg = readl(ctlr->sctrl_addr);
+> +	if (val)
+> +		reg |= HISI_I2C_CTRL_SCL_OUT;
+> +	else
+> +		reg &= ~HISI_I2C_CTRL_SCL_OUT;
+> +	writel(reg, ctlr->sctrl_addr);
+> +}
+> +
+> +static void hisi_i2c_prepare_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
+> +	u32 reg;
+> +
+> +	reg = readl(ctlr->sctrl_addr);
+> +	reg |= HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN |
+> +		   HISI_I2C_CTRL_CLK_OE | HISI_I2C_CTRL_SCL_OUT;
+> +	reg &= ~HISI_I2C_CTRL_DAT_OE;
+> +	writel(reg, ctlr->sctrl_addr);
+> +}
+> +
+> +static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
+> +	u32 reg;
+> +
+> +	reg = readl(ctlr->sctrl_addr);
+> +	reg &= ~(HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN);
+> +	writel(reg, ctlr->sctrl_addr);
+> +
+> +	/*
+> +	 * Invokes the specific ACPI method "_RST" to trigger a soft reset
+> +	 * of the I2C controller to help the I2C controller recover from
+> +	 * the abnormal state after the bus recovery process.
+> +	 */
+> +	if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
+> +		acpi_status status;
+> +
+> +		status = acpi_evaluate_object(ctlr->acpi_handle, "_RST", NULL, NULL);
+> +		if (ACPI_FAILURE(status))
+> +			dev_err(ctlr->dev, "_RST method failed: %s\n",
+> +				acpi_format_exception(status));
+> +	}
+> +	hisi_i2c_configure_bus(ctlr);
+> +}
+> +
+> +static int hisi_i2c_get_bus_recovery_res(struct hisi_i2c_controller *ctlr,
+> +					 struct platform_device *pdev)
+> +{
+> +	struct resource *res0;
+> +
+> +	res0 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+> +
+> +	if (!res0 || resource_size(res0) != HISI_I2C_RECOVERY_REG_SIZE)
+> +		return -ENODEV;
+> +
+> +	ctlr->sctrl_addr = devm_ioremap_resource(&pdev->dev, res0);
+> +	if (IS_ERR(ctlr->sctrl_addr)) {
+> +		ctlr->sctrl_addr = NULL;
+> +		return -ENOMEM;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr)
+> +{
+> +	struct platform_device *pdev = to_platform_device(ctlr->dev);
+> +	struct i2c_adapter *adapter = &ctlr->adapter;
+> +	int ret;
+> +
+> +	if (acpi_disabled)
+> +		return -ENODEV;
+> +
+> +	ret = hisi_i2c_get_bus_recovery_res(ctlr, pdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ctlr->rinfo = (struct i2c_bus_recovery_info) {
+> +		.get_scl = hisi_i2c_recovery_get_scl,
+> +		.get_sda = hisi_i2c_recovery_get_sda,
+> +		.set_scl = hisi_i2c_recovery_set_scl,
+> +		.prepare_recovery = hisi_i2c_prepare_recovery,
+> +		.unprepare_recovery = hisi_i2c_unprepare_recovery,
+> +		.recover_bus = i2c_generic_scl_recovery,
+> +	};
+> +	adapter->bus_recovery_info = &ctlr->rinfo;
+> +	ctlr->acpi_handle = ACPI_HANDLE(ctlr->dev);
+> +
+> +	return 0;
+> +}
+> +#else
+> +static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr) { return -ENODEV; }
+> +#endif /* CONFIG_ACPI */
+> +
+>   static int hisi_i2c_start_xfer(struct hisi_i2c_controller *ctlr)
+>   {
+>   	struct i2c_msg *msg = ctlr->msgs;
+> @@ -496,6 +638,10 @@ static int hisi_i2c_probe(struct platform_device *pdev)
+>   
+>   	hisi_i2c_configure_bus(ctlr);
+>   
+> +	ret = hisi_i2c_recovery_init(ctlr);
+> +	if (ret)
+> +		dev_info(ctlr->dev, "I2C bus recovery not available\n");
+> +
+>   	adapter = &ctlr->adapter;
+>   	snprintf(adapter->name, sizeof(adapter->name),
+>   		 "HiSilicon I2C Controller %s", dev_name(dev));
