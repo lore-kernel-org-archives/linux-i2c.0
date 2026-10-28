@@ -1,58 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793197956;
-	b=wPdAPpeCcTF5CSSYRghnQ+lL12x22HylywnIvodoxYgBiS2Rbm4zFH5m0xer2JKaCi0p
-	 Xu0qjm6QKCBDVbCU61EPpf3D4gcp9bcShmVhtKIKC+QLqZv1J45qxt95Vks1DbBB1SbIT
-	 70N5/J6L1i1R4SKk5wUKZT05HCO2Sat6LfzYa9+2i47hBQuFuepJKr8Uh46FGuL02x14x
-	 zO3Tsl1Wg249m9r0WyNFmcUsE1voJfgytHWuxh3LtAZX7akWUztnIoC0GmvT4vVQizE1p
-	 beGiKgMbuKhvcqOeJPgg7CvqLEgWNuljOUrEtS5cPA2k9+Brif9zzpEjlPAedUjTN8A==
+	t=1793201678;
+	b=yRmNUfVFqzebCkBvztOCJ58QeT2BMD4JvTZn98X/9E2VK3QXF/yeotd3cZVk8pVXuT1Y
+	 84LCB+oMBVKG1Da7nA6NXjsurPFmAhWZmoj1UNpz1KrI2ckIZtyHXNRrRetaBBeR9HNeX
+	 j66JTZLFIudMkkwWOJ90o0lDwxbPu0pPNx27JAZWESXv7k/CjDzLgzrofVuWyW+x43dys
+	 a8Eh2DkWNqOvmENgqMT9lolrSiCAvbHM+4SRZgS0FGr1RQE4ge9ZNhlVns4WMCqYvHzGw
+	 ZOaz0Yzy6kTdDzyEFs5CNk9BsCY8oeB6lCnNxYN96JKpA8NjmSUF0gnxAK1RELxLuUw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793197956;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	 Content-Language:Organization:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=+vj3JXaH73DAc9DdU35ASSRyg7WAvYyKv+vce4COULM=;
-	b=WV5XUeWHKVK32Zd+yB4Q41jtJ+phbKY6w7vNCX6M0vCjrKsrSypL6Y/PeSx1yS3Tl/7E
-	 6cOVlpNVUfgLErCht4AmaIGqSGCIuIQQDqnwNvCjInHGSzrdBnV3xJclY8kcRgmPr+i6s
-	 fvENngoyuN81g13fLMYzuyyjKsrRYJtuHMi3+kZMrft4OeSsB4OLBqB/N60b/LteVPSi3
-	 IVkpXF1qMyP2XdAZzVGPkgBlh609iPHr0p44Q9rdeLTqFNItVo23oTvlnLSJ0PsBwK5KB
-	 HhCy3Al5WS+Zq/+mWy0/VamAg703Sd2TY2ssuT1danSKM3nGZ/2B6Jl43o1a5u/ljSg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793201678;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=nwQvp5gT0x4Cpwf86+olDk4WVML2oNByPo4ORkg5KCw=;
+	b=oHTXJ7by0Acv+NnrRLKCPFb1hkMPexzeB4jjoJaeXMMucYCxT6DbVZQ/MD9dWiJsIXMH
+	 dIfnM+72Ka9Xe2QNZf9TdG2A3cLP1tBZf9ERLxRQHJsYaeiFKLbUVxdapoNOJnZ463Rfi
+	 P4cKF9w9vzyXvuTjLIrlRLE+andU1qg+15XtNyaqLuDfJfef3sJOh4iiKq4WFd6uqTI8S
+	 +wUYSEkXYtmwkjAQlCj9NsDInzDkPyskxO3gjrAtoGTkUbPFJkA/eAefpfvWBAT7e2aiC
+	 b/DRlLvII3MxAosY00kUmn/QmCR4Do0GEh55R1Vh6e0tly12mF5l1aF9N286Qw2ZAyA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=PrNxJIoI;
-	arc=none smtp.remote-ip=185.246.84.56
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=CQMZ4hD4;
+	arc=none smtp.remote-ip=209.85.221.41
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71255606A31A;
-	Wed, 28 Oct 2026 14:32:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 71255606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0B6A606A321
+	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 15:34:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E0B6A606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=PrNxJIoI
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 8FD6C1A137B;
-	Wed, 28 Oct 2026 14:32:31 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 5F5B860769;
-	Wed, 28 Oct 2026 14:32:31 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C3E6B103290D1;
-	Wed, 28 Oct 2026 15:32:19 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793197945; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=+vj3JXaH73DAc9DdU35ASSRyg7WAvYyKv+vce4COULM=;
-	b=PrNxJIoIaUyhY8Zqt4SrJf4ec9/mtkg2tiyqW/XNHd1snpJ3Ho9quFY5u9M6HNrg3pe4DJ
-	rEoBT0F3Mq7YaJMxOzPhZiJ4KGmGoe9sjxvUOuV2n6qPLG2XzN05gBCubNZ1sHNqWnQBXl
-	LRmFcPNn37UP3qhOdV3tjyLwibLn8KorGjx5y5VWBzsoxMT0/oVLBKudz/EmG0A7o/PPWW
-	NCdUf//rOnMSiE3qewS9q2nksK0+jikBkQsq+OemhIk3kyGwTEiL22QBuFxNfXE8gQEKmN
-	rA5dGwbBYGMHOdRe/O2j379Co6IiS+ImdN4CA5Dgx96FKJwh3EawJv7Nihzgsw==
-Message-ID: <880e67e2-3f29-4dfd-84ee-09006dc86574@bootlin.com>
-Date: Wed, 28 Oct 2026 15:32:18 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=CQMZ4hD4
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-48af4ba4425so37032f8f.1
+        for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 08:34:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793201676; x=1793806476; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nwQvp5gT0x4Cpwf86+olDk4WVML2oNByPo4ORkg5KCw=;
+        b=CQMZ4hD4sVB4t0bzFakBLUKjDTrGYS3mdtMI0Mk9SqITBCUJ/Q5kUsVwo/cjdYl4r2
+         Gj0jSmbHV0IcRDbeLEBRdiwmYy/TNMa2GgVWaNLuOEQu7p/KcrRi+NDnoxlrCtoGmnCf
+         iB7fUXehopDG3JisGR1WTJio6CfokUl6bMkicidOn2udHddVNf/YNyxFbsOgoEhgCG3l
+         SKFemmXOBmpAZzo/oXCybTSVoMI3mlXcweJM8J6iZZ3F1gg69y+WRkI3JkMB2k5uslJo
+         Q6cCnuME7SfxFb98pVAlp80QGk9J/k7wKCW3HE3uPvCRav3rOG0jEQuGee/+B6/Vshjy
+         szdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793201676; x=1793806476;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nwQvp5gT0x4Cpwf86+olDk4WVML2oNByPo4ORkg5KCw=;
+        b=ql2ZE6uix9hzPpTceEjQ/fSXgtaNfwGlEdWqfWnFSaXQYkU0k8jJBsTpfqfIiKPaW9
+         JLimXgH/Op7qfMj6/8cC2JDvdZ/OEqe0cLxD25bDHns3m45ZLqKpOqQtwLuYQ/FIOH14
+         dkXbjpg49F0uBEzMRRhjjFppPJgqaquvJvbo1Hv6wIauD3dVRnMKio16ieqHoDR0UC15
+         cByGyiC/NTuswmqafR41VmKsVwJx/T97wPOVms0NEBjGGf8rUlkbnzWb7liQu/tZIhaT
+         TKMqJ4rES4qtI1wJ/f1BLojeTKm2eW1IqMJQBpyKlH8FM/xXN86KfI36jui0NvkRRuBr
+         U+KA==
+X-Forwarded-Encrypted: i=1; AKwUvBykTU3C0wshRaXR2Fe4fgFAZsC6/H24xbCVXhGjpdEOAwHMsA+0fNuTlNuiEqRzULi3gBSmyeDBvxI=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIGQAXoyIOBT5yN4h8L4QkUWzEVqXRIPlRmjgUQWDA1xoJy+1iq
+	4JvzvdnD5YGyhrqQcQfnqY4SEsNoTcEcFzsd/JldOIGQ6eWJps9lRgCA
+X-Gm-Gg: AYBFou1xnmGTFt3x+ZE2Ps/+mG1b/Dbife5eZSZQjz7y6IcQiPDEpjM6tNnry7xCa0t
+	oSiu3iMMXLzP1k+einDUk7Z9ztOjeiThF0zQboxOMjjzuZuELm6ltFloGmrA8QU1MNTg9SUQ5yG
+	OPd3MXGFFvTtMPGA/mLeqOP5CQr/9Sos2/Zm7zuGgHeDoSqaFmIkmvEQzwfpS55qDH+RmxjUjhI
+	KK6Z+lvClBAPvDSAA/1R6brlJVyo5R73h8mLa6ajKTfOXwff8j/tJRClPOfLQ61m84mgMNyprSe
+	e8NDZwsop3BxqGOmRFmV84XQgZ48nSFvIRKYs3wUw/yP7XgzME387WHezPkG5rutxcD9lxOXPNj
+	GgcEPizy/CukGIFjox1Yfm5ZXmT1t9OSOFJjyaSxVje1s1e5aLuAq871Qxfg8Iwv09PDM3TLFPa
+	cgreSVZgJbJ47E/xMyDeMO+ZJrrGRB4fa/BLs9oLVAoDDhFvI4Pb9GzbKoKE/VL0EgwBeaNaadu
+	RGO6aQUnx2c/bWs7KsMGGmOiXXJhcRYDs2eMAmFEBjTgjLP8LxJ5Cq975zqB558y77ucGNDZxpf
+	wlitcToZlry6FuFk6K41s2kJV1GbJFFG8Ph5sKu0TzLCu21DmLNpq6FrIdZVZPWgh5Z8VR9iz1w
+	sxeYsmF01W0BV1kIyZ9eoL3k=
+X-Received: by 2002:a05:6000:2ad4:b0:48e:60aa:793e with SMTP id ffacd0b85a97d-48e60aa7a9emr3918828f8f.3.1793201675959;
+        Wed, 28 Oct 2026 08:34:35 -0700 (PDT)
+Received: from thomas-precision3591.paris.inria.fr (wifi-pro-83-149.paris.inria.fr. [128.93.83.149])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48e542ed998sm14428423f8f.13.2026.10.28.08.34.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Oct 2026 08:34:35 -0700 (PDT)
+From: Thomas Fourier <fourier.thomas@gmail.com>
+To: 
+Cc: Thomas Fourier <fourier.thomas@gmail.com>,
+	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	Akash Asthana <akashast@codeaurora.org>,
+	Roja Rani Yarubandi <rojay@codeaurora.org>,
+	Wolfram Sang <wsa@kernel.org>,
+	linux-i2c@vger.kernel.org (open list:QUALCOMM I2C QCOM GENI DRIVER),
+	linux-arm-msm@vger.kernel.org (open list:QUALCOMM I2C QCOM GENI DRIVER),
+	linux-kernel@vger.kernel.org (open list),
+	linux-media@vger.kernel.org (open list:DMA BUFFER SHARING FRAMEWORK:Keyword:\bdma_(?:buf|fence|resv)\b),
+	dri-devel@lists.freedesktop.org (open list:DMA BUFFER SHARING FRAMEWORK:Keyword:\bdma_(?:buf|fence|resv)\b),
+	linaro-mm-sig@lists.linaro.org (moderated list:DMA BUFFER SHARING FRAMEWORK:Keyword:\bdma_(?:buf|fence|resv)\b)
+Subject: [PATCH] i2c: qcom-geni: fix double free of the DMA bounce buffer
+Date: Wed, 28 Oct 2026 16:33:52 +0100
+Message-ID: <20261028153353.69651-2-fourier.thomas@gmail.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -62,346 +109,46 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 12/20] pinctrl: berlin: add optional pinconf support
-To: Jisheng Zhang <jszhang@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
- Brian Masney <bmasney+clk@redhat.com>,
- Jerome Brunet <jbrunet+clk@baylibre.com>, Andi Shyti
- <andi.shyti@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Frank Li <Frank.Li@nxp.com>, Lee Jones <lee@kernel.org>,
- Linus Walleij <linusw@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Philipp Zabel <p.zabel@pengutronix.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>,
- Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-i3c@lists.infradead.org, mfd@lists.linux.dev,
- linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org,
- linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-References: <20260929061417.20733-1-jszhang@kernel.org>
- <20260929061417.20733-13-jszhang@kernel.org>
-From: Richard GENOUD <richard.genoud@bootlin.com>
-Content-Language: en-US, fr
-Organization: Bootlin
-In-Reply-To: <20260929061417.20733-13-jszhang@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-Le 29/09/2026 à 08:14, Jisheng Zhang a écrit :
-> Add pinconf support for newer Synaptics SoCs.
-> 
-> Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-> ---
->   drivers/pinctrl/berlin/berlin.c | 232 +++++++++++++++++++++++++++++++-
->   1 file changed, 228 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/pinctrl/berlin/berlin.c b/drivers/pinctrl/berlin/berlin.c
-> index 0c2179b98629..06c67f00c527 100644
-> --- a/drivers/pinctrl/berlin/berlin.c
-> +++ b/drivers/pinctrl/berlin/berlin.c
-> @@ -13,6 +13,8 @@
->   #include <linux/of.h>
->   #include <linux/of_address.h>
->   #include <linux/of_device.h>
-> +#include <linux/pinctrl/pinconf-generic.h>
-> +#include <linux/pinctrl/pinconf.h>
->   #include <linux/pinctrl/pinctrl.h>
->   #include <linux/pinctrl/pinmux.h>
->   #include <linux/platform_device.h>
-> @@ -20,9 +22,24 @@
->   #include <linux/slab.h>
->   
->   #include "../core.h"
-> +#include "../pinconf.h"
->   #include "../pinctrl-utils.h"
->   #include "berlin.h"
->   
-> +#define PINCFG_DS_10BIT		GENMASK(3, 0)
-> +#define PINCFG_IE_10BIT		BIT(4)
-> +#define PINCFG_PE_10BIT		BIT(5)
-> +#define PINCFG_PS_10BIT		BIT(6)
-> +#define PINCFG_SL_10BIT		BIT(7)
-> +#define PINCFG_SPU_10BIT	BIT(8)
-> +#define PINCFG_ST_10BIT		BIT(9)
-> +#define PINCFG_DS_8BIT		GENMASK(2, 0)
-> +#define PINCFG_IE_8BIT		BIT(3)
-> +#define PINCFG_PD_8BIT		BIT(4)
-> +#define PINCFG_PU_8BIT		BIT(5)
-> +#define PINCFG_SL_8BIT		BIT(6)
-> +#define PINCFG_ST_8BIT		BIT(7)
-> +
->   struct berlin_pinctrl {
->   	struct regmap *regmap;
->   	struct device *dev;
-> @@ -56,6 +73,8 @@ static int berlin_pinctrl_dt_node_to_map(struct pinctrl_dev *pctrl_dev,
->   	struct property *prop;
->   	const char *function_name, *group_name;
->   	unsigned reserved_maps = 0;
-> +	unsigned long *configs = NULL;
-> +	unsigned int num_configs = 0;
->   	int ret, ngroups;
->   
->   	*map = NULL;
-> @@ -75,11 +94,19 @@ static int berlin_pinctrl_dt_node_to_map(struct pinctrl_dev *pctrl_dev,
->   		return -EINVAL;
->   	}
->   
-> +	ret = pinconf_generic_parse_dt_config(node, pctrl_dev, &configs,
-> +					      &num_configs);
-> +	if (ret < 0) {
-> +		dev_err(pctrl->dev, "%s: could not parse node property\n",
-> +			node->name);
-> +		return ret;
-> +	}
-> +
->   	ret = pinctrl_utils_reserve_map(pctrl_dev, map, &reserved_maps,
-> -					num_maps, ngroups);
-> +					num_maps, ngroups * (num_configs + 1));
->   	if (ret) {
->   		dev_err(pctrl->dev, "can't reserve map: %d\n", ret);
-> -		return ret;
-> +		goto exit;
->   	}
->   
->   	of_property_for_each_string(node, "groups", prop, group_name) {
-> @@ -88,11 +115,22 @@ static int berlin_pinctrl_dt_node_to_map(struct pinctrl_dev *pctrl_dev,
->   						function_name);
->   		if (ret) {
->   			dev_err(pctrl->dev, "can't add map: %d\n", ret);
-> -			return ret;
-> +			goto exit;
-> +		}
-> +
-> +		if (num_configs) {
-> +			ret = pinctrl_utils_add_map_configs(pctrl_dev, map,
-> +					&reserved_maps, num_maps, group_name,
-> +					configs, num_configs,
-> +					PIN_MAP_TYPE_CONFIGS_GROUP);
-> +			if (ret < 0)
-> +				goto exit;
->   		}
->   	}
->   
-> -	return 0;
-> +exit:
-> +	kfree(configs);
-> +	return ret;
->   }
->   
->   static const struct pinctrl_ops berlin_pinctrl_ops = {
-> @@ -177,6 +215,191 @@ static const struct pinmux_ops berlin_pinmux_ops = {
->   	.set_mux		= &berlin_pinmux_set,
->   };
->   
-> +static int berlin_pinconf_group_get(struct pinctrl_dev *pctrl_dev,
-> +				    unsigned int group, unsigned long *configs)
-> +{
-> +	enum pin_config_param param = pinconf_to_config_param(*configs);
-> +	struct berlin_pinctrl *pctrl = pinctrl_dev_get_drvdata(pctrl_dev);
-> +	const struct berlin_desc_group *group_desc = pctrl->desc->groups + group;
-> +	bool enabled;
-> +	u32 val;
-> +	int ret;
-> +	u8 conf_bits = group_desc->conf_bits;
-> +
-> +	if (!conf_bits)
-> +		return -EOPNOTSUPP;
-> +
-> +	ret = regmap_read(pctrl->regmap, group_desc->conf_offset, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	switch (param) {
-> +	case PIN_CONFIG_BIAS_DISABLE:
-> +		if (conf_bits == 10)
-> +			enabled = !(val & PINCFG_PE_10BIT);
-> +		else
-> +			enabled = !(val & (PINCFG_PD_8BIT | PINCFG_PU_8BIT));
-> +		val = 0;
-> +		break;
-> +	case PIN_CONFIG_BIAS_PULL_DOWN:
-> +		if (conf_bits == 10)
-> +			enabled = (val & (PINCFG_PE_10BIT | PINCFG_PS_10BIT)) == PINCFG_PE_10BIT;
-> +		else
-> +			enabled = val & PINCFG_PD_8BIT;
-> +		val = enabled ? 1 : 0;
-> +		break;
-> +	case PIN_CONFIG_BIAS_PULL_UP:
-> +		if (conf_bits == 10) {
-> +			if ((val & (PINCFG_PE_10BIT | PINCFG_PS_10BIT)) == (PINCFG_PE_10BIT | PINCFG_PS_10BIT)) {
-> +				enabled = true;
-> +				if (val & PINCFG_SPU_10BIT)
-> +					val = 2;
-> +				else
-> +					val = 1;
-> +			} else {
-> +				enabled = false;
-> +				val = 0;
-> +			}
-> +		} else {
-> +			enabled = val & PINCFG_PU_8BIT;
-> +			val = enabled ? 1 : 0;
-> +		}
-> +		break;
-> +	case PIN_CONFIG_DRIVE_STRENGTH:
-> +		enabled = true;
-> +		if (conf_bits == 10)
-> +			val = FIELD_GET(PINCFG_DS_10BIT, val);
-> +		else
-> +			val = FIELD_GET(PINCFG_DS_8BIT, val);
-> +		break;
-> +	case PIN_CONFIG_INPUT_ENABLE:
-> +		if (conf_bits == 10)
-> +			enabled = val & PINCFG_IE_10BIT;
-> +		else
-> +			enabled = val & PINCFG_IE_8BIT;
-> +		val = enabled ? 1 : 0;
-> +		break;
-> +	case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
-> +		if (conf_bits == 10)
-> +			enabled = val & PINCFG_ST_10BIT;
-> +		else
-> +			enabled = val & PINCFG_ST_8BIT;
-> +		val = enabled ? 1 : 0;
-> +		break;
-> +	case PIN_CONFIG_SLEW_RATE:
-> +		if (conf_bits == 10)
-> +			enabled = val & PINCFG_SL_10BIT;
-> +		else
-> +			enabled = val & PINCFG_SL_8BIT;
-> +		val = enabled ? 1 : 0;
-> +		break;
-> +	default:
-> +		return -EOPNOTSUPP;
-> +	}
-> +
-> +	*configs = pinconf_to_config_packed(param, val);
-> +	return enabled ? 0 : -EINVAL;
-> +}
-> +
-> +static int berlin_pinconf_group_set(struct pinctrl_dev *pctrl_dev,
-> +				    unsigned int group, unsigned long *configs,
-> +				    unsigned int nconfigs)
-> +{
-> +	struct berlin_pinctrl *pctrl = pinctrl_dev_get_drvdata(pctrl_dev);
-> +	const struct berlin_desc_group *group_desc = pctrl->desc->groups + group;
-> +	u8 conf_bits = group_desc->conf_bits;
-> +	u32 mask = 0, val = 0;
-> +	int i;
-> +
-> +	if (!conf_bits)
-> +		return -EOPNOTSUPP;
-> +
-> +	for (i = 0; i < nconfigs; i++) {
-> +		enum pin_config_param param =
-> +					pinconf_to_config_param(configs[i]);
-> +		u32 arg = pinconf_to_config_argument(configs[i]);
-> +
-> +		switch (param) {
-> +		case PIN_CONFIG_BIAS_DISABLE:
-> +			if (conf_bits == 10)
-> +				mask |= (PINCFG_PE_10BIT | PINCFG_PS_10BIT | PINCFG_SPU_10BIT);
-> +			else
-> +				mask |= (PINCFG_PU_8BIT | PINCFG_PD_8BIT);
-> +			break;
-> +		case PIN_CONFIG_BIAS_PULL_DOWN:
-> +			if (conf_bits == 10) {
-> +				mask |= (PINCFG_PE_10BIT | PINCFG_PS_10BIT | PINCFG_SPU_10BIT);
-> +				val |= PINCFG_PE_10BIT;
-> +			} else {
-> +				mask |= (PINCFG_PU_8BIT | PINCFG_PD_8BIT);
-> +				val |= PINCFG_PD_8BIT;
-> +			}
-> +			break;
-> +		case PIN_CONFIG_BIAS_PULL_UP:
-> +			if (conf_bits == 10) {
-> +				mask |= (PINCFG_PE_10BIT | PINCFG_PS_10BIT | PINCFG_SPU_10BIT);
-> +				val |= (PINCFG_PE_10BIT | PINCFG_PS_10BIT);
-> +				if (arg == 2)
-> +					val |= PINCFG_SPU_10BIT;
-The value 2 Ohms is hijacked to be used as strong pull up.
-The more I look at that, the more it feels hacky.
+geni_i2c_{rx,tx}_msg_cleanup() release gi2c->dma_buf through
+i2c_put_dma_safe_msg_buf(), which kfree()s the bounce buffer when the
+message buffer is not DMA safe, but leave the pointer set. gi2c->dma_buf
+is only updated when the DMA setup in geni_i2c_{rx,tx}_one_msg()
+succeeds. If the setup fails for a later message, the function clears
+only its local copy, so the cleanup helper sees the stale pointer from
+the previous transfer, unmaps it again and frees it a second time.
 
-> +			} else {
-> +				mask |= (PINCFG_PU_8BIT | PINCFG_PD_8BIT);
-> +				val |= PINCFG_PU_8BIT;
-> +			}
-> +			break;
-> +		case PIN_CONFIG_DRIVE_STRENGTH:
-> +			if (conf_bits == 10)
-> +				mask |= PINCFG_DS_10BIT;
-> +			else
-> +				mask |= PINCFG_DS_8BIT;
-> +			val |= arg;
-The drive strength is assumed to be lsb (which is the case), but maybe 
-something like:
-	if (arg > FIELD_MAX(mask))
-		return -EINVAL;
-	val |= FIELD_PREP(mask, arg);
-would be more generic.
+Clear gi2c->dma_buf once it has been released.
 
-> +			break;
-> +		case PIN_CONFIG_INPUT_ENABLE:
-> +			if (conf_bits == 10) {
-> +				mask |= PINCFG_IE_10BIT;
-> +				if (arg)
-> +					val |= PINCFG_IE_10BIT;
-> +			} else {
-> +				mask |= PINCFG_IE_8BIT;
-> +				if (arg)
-> +					val |= PINCFG_IE_8BIT;
-> +			}
-> +			break;
-> +		case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
-> +			if (conf_bits == 10) {
-> +				mask |= PINCFG_ST_10BIT;
-> +				if (arg)
-> +					val |= PINCFG_ST_10BIT;
-> +			} else {
-> +				mask |= PINCFG_ST_8BIT;
-> +				if (arg)
-> +					val |= PINCFG_ST_8BIT;
-> +			}
-> +			break;
-> +		case PIN_CONFIG_SLEW_RATE:
-> +			if (conf_bits == 10) {
-> +				mask |= PINCFG_SL_10BIT;
-> +				if (arg)
-> +					val |= PINCFG_SL_10BIT;
-> +			} else {
-> +				mask |= PINCFG_SL_8BIT;
-> +				if (arg)
-> +					val |= PINCFG_SL_8BIT;
-> +			}
-> +			break;
-> +		default:
-> +			return -EOPNOTSUPP;
-> +		}
-> +	}
-> +
-> +	return regmap_update_bits(pctrl->regmap, group_desc->conf_offset, mask, val);
-> +}
-> +
-> +static const struct pinconf_ops berlin_confops = {
-> +	.is_generic = true,
-> +	.pin_config_group_get = berlin_pinconf_group_get,
-> +	.pin_config_group_set = berlin_pinconf_group_set,
-> +};
-> +
->   static int berlin_pinctrl_add_function(struct berlin_pinctrl *pctrl,
->   				       const char *name)
->   {
-> @@ -287,6 +510,7 @@ static const struct pinctrl_desc berlin_pctrl_desc = {
->   	.name		= "berlin-pinctrl",
->   	.pctlops	= &berlin_pinctrl_ops,
->   	.pmxops		= &berlin_pinmux_ops,
-> +	.confops	= &berlin_confops,
->   	.owner		= THIS_MODULE,
->   };
->   
-Regards,
-Richard
+This bug was found statically and compile-tested only.
+
+Fixes: 357ee8841d0b ("i2c: qcom-geni: Store DMA mapping data in geni_i2c_dev struct")
+Signed-off-by: Thomas Fourier <fourier.thomas@gmail.com>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index a431e98723ef..78701310936b 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -500,6 +500,7 @@ static void geni_i2c_rx_msg_cleanup(struct geni_i2c_dev *gi2c,
+ 			geni_i2c_rx_fsm_rst(gi2c);
+ 		geni_se_rx_dma_unprep(&gi2c->se, gi2c->dma_addr, gi2c->xfer_len);
+ 		i2c_put_dma_safe_msg_buf(gi2c->dma_buf, cur, !gi2c->err);
++		gi2c->dma_buf = NULL;
+ 	}
+ }
+ 
+@@ -512,6 +513,7 @@ static void geni_i2c_tx_msg_cleanup(struct geni_i2c_dev *gi2c,
+ 			geni_i2c_tx_fsm_rst(gi2c);
+ 		geni_se_tx_dma_unprep(&gi2c->se, gi2c->dma_addr, gi2c->xfer_len);
+ 		i2c_put_dma_safe_msg_buf(gi2c->dma_buf, cur, !gi2c->err);
++		gi2c->dma_buf = NULL;
+ 	}
+ }
+ 
+-- 
+2.53.0
+
