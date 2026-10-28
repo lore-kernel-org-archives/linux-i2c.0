@@ -1,97 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793171659;
-	b=mvpA83teifC9g1cBrHghmIOoz8rFe2pS7Vei5a0rSB6Jbc19zG3BOGOA0sYBGK+KDMLw
-	 I956OHU/2UEyTWw8VJ9DEDieaKNAOaVbJlqe4jVm2DX4Q33wQabgP3iyRj9u1Aufg0lW8
-	 jcIslkgKhN7NcpP9dgtRNX0BNa8ooU9UBIb9sRMNxkrAbrWtU5n60u8RQ/BVvvLhJQge4
-	 7drIKfa58eEvdueCPx4swb8tVomz1UNMrFqvilJH1u+8Wl5floq0wpWnjcirIxcmllChD
-	 k9eGjmeoHo08rWUpw5bc4GPmSecApE6fjFUEf239/tz9gAFaD03NI1wh3YstBoTVL0g==
+	t=1793182573;
+	b=RRTAkSnUEsBn8vM9XnXys3gDqT30JHB8VgKpyTM23o4HsqpLDDpGHtWQTMOKWUUR2tPJ
+	 Vd8lpS/U6SeWxzO2aBe0u0nP0sPEZc0FiBVcPckngX+N8XFJIOWyFeix4qz5kp9RYzlqw
+	 Q+MtqM4F9yj9DGlZ+bKnoa915kJoMViVavi1a5cl4aIptwu+mrrHeb2V/DlTsVwG4GXp4
+	 UlMbgtq+u4lcW334gbeB98DPR/kbTRRBZ/jD4OHJfHIO41cXsYWYBRDM6bRHw/k9UKPbA
+	 ZLrERMdIho4HAw3LBGpa82BWja7ap+UNxbc3A0tEZqrQa87nURmq1g03yZ9YfZV1XSg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793171659;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=BKa12JHLTaIrkAY7wHaBaCVm5O2tQjU5ZN+Qd4lZVHk=;
-	b=2FXyb1vIOWQPqVsUiSYCmzt8JWrh8J0l/E2Zs3ssgHcaTqIX41kvDXNImY3vp96ZFU7D
-	 g6FLksby0acifBb+Wnecf/EPIgMRbG5f6UaE65PJ1ENn92IJwENvrsGVqYkf6aVSyK2i5
-	 N+CeVyBuLhqGvPv0wvZ/eT7Sna6nt2fkvchVuaj0gkTvkqlcpfM8o000tvmAtIInE9Yjp
-	 c6/VjnOzGFjDqHmJbPXAlvqvNA541jNvG2B29HzqFfjcqLEGDgr5CR1UCEJy6gSrFWt17
-	 P4eU3czVQdezP1pAmSEDdq5ovkorJ9rL30UXhyZygNVctv/RonG8kdDnFExQhJppuzg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793182573;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:Received:Received:From:In-Reply-To:
+	 MIME-Version:References:Date:X-Gmail-Original-Message-ID:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type;
+	bh=bjLe+3f9gc9bVK8rm2L9uAXKG4i5uaLi17dzEkbJ/vQ=;
+	b=1SByV10AnEfniVt/TufysKaOTTyyWOtCV7vSxaAl3b7aJ6lC2uGZ4WnERc79+Di4xl27
+	 lReIiJyp2FbcdyixLpN6ws1TgzXrMqtEnmb3raxq+COO/KGvoCxADRz5QMmTVb8oFhrvy
+	 lp4z7lU/fDI5goqPcnixnZsKJEuoNlbP/GTAq9LF9ncQ/8UgmBz0Wo+UCae9BF/pc/Wgo
+	 bI0hK0i8Z5gqjZQ78pV9bj8ZpDG9KUvI0V2ba80jUMyDoDRxHZd8zgj3kR3v//uurLBuZ
+	 MzvV/5Yf+IQ/hUOPeeiuv8Uare4Ts53xkaXmsZj6Qt8rqlcJJpZXZne3SLwSz4BbO4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=DNo5vidD;
-	arc=none smtp.remote-ip=209.85.221.49
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fcejuAl6;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 861BA606A321
-	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 07:14:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 861BA606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE70606A327
+	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 10:16:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=DNo5vidD
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48dee593f18so400806f8f.3
-        for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 00:14:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1793171657; x=1793776457; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BKa12JHLTaIrkAY7wHaBaCVm5O2tQjU5ZN+Qd4lZVHk=;
-        b=DNo5vidDAbaZyqt5DqOmh3lLhzHdSiDXFx9EpEXiGF5MxBHB80PQg6WPFPAu4m+3MQ
-         G9uIzH2aNzbQXmQoY4eHF7uBgoZ9PnrPQ0C6WnniZ2JKW26vz195fWYBG0ylIyFc05LQ
-         LaaM6Af+PKwaLf64NW/ZRalX92SvnOShO0UE2srbrHovIwi3VCioanRkbRZ3lUDeT61T
-         5gFKraEKB1Qgi+bCL1dzaz9USpJW1jqR5rk2zwoPZ15oZpTF5JuPCslVlykXJcSbTkN/
-         oCvLJ+lx6L46bR+wJ3TVoudqfgzZaI8xOc7/1tV4J3BiDlcfagt6qyJeB+wICmFIAIO0
-         73dQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793171657; x=1793776457;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BKa12JHLTaIrkAY7wHaBaCVm5O2tQjU5ZN+Qd4lZVHk=;
-        b=txKCNFOIRlceNokYAzqEqvNg6lLqpibx7vT85ywwRaWhFWEzfGnf++/45Y0+lAYIfL
-         CIosDWQQSdIAVTJGsLSJfqYcxxfVuWcLiLvZLWHk/nyTrEEQvRIXQJ589/YdXeAY/Mqn
-         Fu9YaIM36f9nlq1y2zHDlTsIziDyLgM3RQJEnWKbA1hmNz0AzCjfMTsRvuLYlk/wtaly
-         tGT4a2KoGYEtQw0vnJ+lZaLJSqIKqCtlBg9cnlzb9qF5IUq4V9v8VeS9veZqbS0a0mlq
-         t7UjcAeFXOdc/dwrOOqVMkkVNr2YPVNHyVc/iEIs3zQqdBkxMQYFA01O5IAR4VN4mHmG
-         qITQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw2VXmBzM6A6NKaQw4xCQGVXHRjQ9hoSQXLgbBbKRPaiszM0QQqYpoF05dUsXAjDzg0N64xRvhjazw=@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ0Us3/aYUNXovezXGtfEponTjISqL2Zbs4jHjres4yb+lo+kYC
-	IgjQ3P4io5eJHPZLMS/+AnNMMEe/VOmyWRWSeOKq8H3BKYSnotWd9OG3jpgYu4Arq/rd3bs4w/w
-	H+srD1bg=
-X-Gm-Gg: AYBFou3EBBon6MkbJf/O9SgOH55jszwS2oObXAKHgtFLSpDSjH3XCRqFSuwmNO5585A
-	Eevc4tOyAGS3TDj42j/EY7Ru/aAas/KxtY1xrZrAFHjaZ2opIjl/Kh/7wila9Ulcjrhym2SzFFl
-	Rl1FtuvZP5NRCaPrd2xB5zNuQ7AYtLrdhJyl53NImkR4cYYRIJxmNnzFnjhP4q/duKloeBeRhb4
-	5IBx9GokD2Jx3ozBDCN19FUgorJ8kxd/KdnuI85nkT2gV3R6LgZDaPoxaVoCa9UQJo7yQlWyJMx
-	j94KKtAZTYYvbOR2QmDKtdUZ+S25MSrTxsGGsTy2JhrjHXhTkXJXjwmVU9qNxGn2Gn2a0kfO01y
-	92Yugah20YYfJztjdwMej7/G2Ra7J0svxvB24II4XTS04VbF7SVVKbo2DDXdlE+w5iy6Y2cESkD
-	2LTz9PfHOP/3UUJJQctFaNsNG5kaakcxwWfYXRA/cQ6UxPj9QlwzJb5CeWir2c8tqZIFSoBwiLR
-	U7dxIMrKyG4bN1LzO7uBi+orz7Bo3/habIgSZ7JVRnXCn+d0XG88ByJmycTAL7/Lmj74O5K53Up
-	MaLTfoh+i0y7yp13ung3jZxNkhEFaeqcun0+j1US4ZP5lk7aJRbQ0WYKIo5mCyNkbUnDymQZJHG
-	ojREgFLWwXKSomsAmFS0yJNFxXLP+XsP20lfV
-X-Received: by 2002:a5d:5d0c:0:b0:48e:4300:c70e with SMTP id ffacd0b85a97d-48e5d5ae171mr3363614f8f.46.1793171656743;
-        Wed, 28 Oct 2026 00:14:16 -0700 (PDT)
-Received: from localhost (p200300f65f19a904c16506b94501b867.dip0.t-ipconnect.de. [2003:f6:5f19:a904:c165:6b9:4501:b867])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48e3ebcb958sm26969844f8f.21.2026.10.28.00.14.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 00:14:15 -0700 (PDT)
-Date: Wed, 28 Oct 2026 08:14:14 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Aniket Limaye <a-limaye@ti.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, lianfeng.ouyang@starfivetech.com
-Subject: Re: [PATCH v4 2/2] i2c: Add Synopsys Advanced I2C (DWC_i2c) driver
-Message-ID: <auGgVBEHvowseCt0@monoceros>
-References: <20261027-tda54-upstream-i2c-v4-0-ebeeaf87d181@ti.com>
- <20261027-tda54-upstream-i2c-v4-2-ebeeaf87d181@ti.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fcejuAl6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517171F01825
+	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 10:16:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793182572;
+	bh=bjLe+3f9gc9bVK8rm2L9uAXKG4i5uaLi17dzEkbJ/vQ=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=fcejuAl6E4+V7xpS9ChrGL6mM/mq7hcNzQluumHdQux62jySqCF1hHjVt/inV4WhP
+	 YkcxJallI2I9HjuB/SJN2TuKyWpXcDGV4NliF2UVO51IilJkj69fziE8klAjqeYvXI
+	 vd9eDg5YAMfF/eITBfogHCsQQ1vYLNJJO4+W7vRR08b80LRqLo4CPFjsJT3a32j+gm
+	 SwRXbA0YlETrDg8O/K+RHgvR1z9WcTv0QMUqmoxsjzShDw3RGZFmuZvUFke+pixq+R
+	 e+KvpTllvcCmHmKZ34vI7UCecYUU6kY0r8RzZzoh15qsAzAVg8GC2B8EwKsT9IZirE
+	 20hYSGa0G2pag==
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-3a9e87ba696so5928231fa.0
+        for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 03:16:12 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBy5q/f44PIZjBFDryq5OAzmvUDTMQ2OJNW6BJfXLbFReLaoo/0a7NDP7OCzM7dlIX3pY7ByRsI4wEk=@vger.kernel.org
+X-Gm-Message-State: AFq9FYL1effQ5DlxxTgyZ0vT8yN5O63D7odh6Hu6EFP7S/WwTmu4744h
+	60eG+OC6/F/JUoaAa8U6N/MV7zLJp6LfldkPehxgd1/BcXcc1eJUQSStefcWYmgxESVNOuhOhKW
+	8rhlEgi6c+LsJzQY4LK983nmKH3DWzKx/JZoy0J15jQ==
+X-Received: by 2002:a05:651c:509:b0:3ab:37ee:aab6 with SMTP id
+ 38308e7fff4ca-3ac9cf6327cmr3565321fa.17.1793182570561; Wed, 28 Oct 2026
+ 03:16:10 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 28 Oct 2026 03:16:09 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 28 Oct 2026 03:16:09 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20261022-add-board-ok3572-c-v1-9-0b0fd85a31ee@qq.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -101,46 +65,287 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="nb47bxu4r7dlod4p"
-Content-Disposition: inline
-In-Reply-To: <20261027-tda54-upstream-i2c-v4-2-ebeeaf87d181@ti.com>
+References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com> <20261022-add-board-ok3572-c-v1-9-0b0fd85a31ee@qq.com>
+Date: Wed, 28 Oct 2026 03:16:09 -0700
+X-Gmail-Original-Message-ID: <CAMRc=MeNF_=T2Yb6wzsQFFcpO+w7sLgaKR=sZhZRzRDFcpgumw@mail.gmail.com>
+X-Gm-Features: AclHuK_BQRJk4TIxkYuHqPCftlY-tqaqteyj8aBVDFPyNxJaNTje36_cX4YFAeQ
+Message-ID: <CAMRc=MeNF_=T2Yb6wzsQFFcpO+w7sLgaKR=sZhZRzRDFcpgumw@mail.gmail.com>
+Subject: Re: [PATCH 09/27] gpio: rockchip: Add RK3572 GPIO support
+To: 1579567540@qq.com
+Cc: Cunhao Lu via B4 Relay <devnull+1579567540.qq.com@kernel.org>, linux-clk@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	mfd@lists.linux.dev, linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org, 
+	linux-usb@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Heiko Stuebner <heiko@sntech.de>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Elaine Zhang <zhangqing@rock-chips.com>, Lee Jones <lee@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Richard Cochran <richardcochran@gmail.com>, Ulf Hansson <ulfh@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Jiri Slaby <jirislaby@kernel.org>, Jisheng Zhang <jszhang@kernel.org>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	David Wu <david.wu@rock-chips.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+	Lukasz Luba <lukasz.luba@arm.com>, Maxime Chevallier <maxime.chevallier@bootlin.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Manivannan Sadhasivam <mani@kernel.org>, Thinh Nguyen <Thinh.Nguyen@synopsys.com>, 
+	Jaehoon Chung <jh80.chung@samsung.com>, Shawn Lin <shawn.lin@rock-chips.com>
+Content-Type: text/plain; charset="UTF-8"
 
+On Wed, 21 Oct 2026 18:11:06 +0200, Cunhao Lu via B4 Relay
+<devnull+1579567540.qq.com@kernel.org> said:
+> From: Cunhao Lu <1579567540@qq.com>
+>
+> Support GPIO V2.7, four parent interrupts, and firmware-provided
+> interrupt-group masks. Keep all pins on the primary interrupt when group
+> queries are unavailable.
+>
+> Signed-off-by: Cunhao Lu <1579567540@qq.com>
+> ---
+>  drivers/gpio/gpio-rockchip.c        | 91 +++++++++++++++++++++++++++++++++----
+>  drivers/pinctrl/pinctrl-rockchip.h  |  8 +++-
+>  include/soc/rockchip/rockchip_sip.h |  5 ++
+>  3 files changed, 92 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
+> index 77b239a9a601e..35894a68b5446 100644
+> --- a/drivers/gpio/gpio-rockchip.c
+> +++ b/drivers/gpio/gpio-rockchip.c
+> @@ -6,6 +6,7 @@
+>   * Copyright (c) 2021 Rockchip Electronics Co. Ltd.
+>   */
+>
+> +#include <linux/arm-smccc.h>
+>  #include <linux/bitops.h>
+>  #include <linux/clk.h>
+>  #include <linux/device.h>
+> @@ -21,6 +22,7 @@
+>  #include <linux/pinctrl/pinconf-generic.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/regmap.h>
+> +#include <soc/rockchip/rockchip_sip.h>
+>
+>  #include "../pinctrl/core.h"
+>  #include "../pinctrl/pinctrl-rockchip.h"
+> @@ -35,6 +37,7 @@
+>  #define GPIO_TYPE_V2		(0x01000C2B)
+>  #define GPIO_TYPE_V2_1		(0x0101157C)
+>  #define GPIO_TYPE_V2_2		(0x010219C8)
+> +#define GPIO_TYPE_V2_7		(0x01074D2E)
+>
+>  static const struct rockchip_gpio_regs gpio_regs_v1 = {
+>  	.port_dr = 0x00,
+> @@ -209,12 +212,27 @@ static int rockchip_gpio_set_debounce(struct gpio_chip *gc,
+>  	if (bank->gpio_type == GPIO_TYPE_V2 && !IS_ERR(bank->db_clk)) {
+>  		div_debounce_support = true;
+>  		freq = clk_get_rate(bank->db_clk);
+> -		max_debounce = (GENMASK(23, 0) + 1) * 2 * 1000000 / freq;
+> -		if (debounce > max_debounce)
+> -			return -EINVAL;
+>
+> -		div = debounce * freq;
+> -		div_reg = DIV_ROUND_CLOSEST_ULL(div, 2 * USEC_PER_SEC) - 1;
+> +		if (of_device_is_compatible(bank->of_node, "rockchip,rk3572-gpio-bank")) {
+> +			if (!freq)
+> +				return -EINVAL;
+> +
+> +			div = (u64)(GENMASK(23, 0) + 1) * USEC_PER_SEC;
+> +			max_debounce = div_u64(div, 2 * freq);
+> +			if (debounce > max_debounce)
+> +				return -EINVAL;
+> +
+> +			div = (u64)debounce * freq * 2;
+> +			div_reg = DIV_ROUND_CLOSEST_ULL(div, USEC_PER_SEC);
+> +			div_reg = div_reg ? div_reg - 1 : 0;
+> +		} else {
+> +			max_debounce = (GENMASK(23, 0) + 1) * 2 * 1000000 / freq;
+> +			if (debounce > max_debounce)
+> +				return -EINVAL;
+> +
+> +			div = debounce * freq;
+> +			div_reg = DIV_ROUND_CLOSEST_ULL(div, 2 * USEC_PER_SEC) - 1;
+> +		}
+>  	} else {
+>  		div_debounce_support = false;
+>  	}
+> @@ -342,6 +360,12 @@ static void rockchip_irq_demux(struct irq_desc *desc)
+>  	chained_irq_enter(chip, desc);
+>
+>  	pending = readl_relaxed(bank->reg_base + bank->gpio_regs->int_status);
 
---nb47bxu4r7dlod4p
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH v4 2/2] i2c: Add Synopsys Advanced I2C (DWC_i2c) driver
-MIME-Version: 1.0
+Please sprinkle in some newlines for readability here...
 
-Hello,
+> +	for (unsigned int i = 0; i < bank->nr_irqs; i++) {
+> +		if (bank->irqs[i] == irq_desc_get_irq(desc)) {
+> +			pending &= bank->irq_masks[i];
+> +			break;
+> +		}
+> +	}
 
-On Tue, Oct 27, 2026 at 05:00:36PM +0530, Aniket Limaye wrote:
-> +#include <linux/mod_devicetable.h>
-> [...]
-> +#include <linux/platform_device.h>
+... here ...
 
-Please don't include <linux/mod_devicetable.h>.
-<linux/platform_device.h> already gives you everything you'd expect from
-<linux/mod_devicetable.h> without introducing a bunch of unneeded build
-dependencies.
+>  	for_each_set_bit(irq, &pending, 32) {
+>  		dev_dbg(bank->dev, "handling irq %d\n", irq);
+>
+> @@ -568,8 +592,9 @@ static int rockchip_interrupts_register(struct rockchip_pin_bank *bank)
+>  	rockchip_gpio_writel(bank, 0xffffffff, bank->gpio_regs->int_en);
+>  	gc->mask_cache = 0xffffffff;
+>
+> -	irq_set_chained_handler_and_data(bank->irq,
+> -					 rockchip_irq_demux, bank);
+> +	for (unsigned int i = 0; i < bank->nr_irqs; i++)
+> +		irq_set_chained_handler_and_data(bank->irqs[i],
+> +						 rockchip_irq_demux, bank);
+>
+>  	return 0;
+>  }
+> @@ -645,6 +670,36 @@ static void rockchip_clk_put(void *data)
+>  	clk_put(clk);
+>  }
+>
+> +static int rockchip_gpio_read_irq_groups(struct rockchip_pin_bank *bank)
+> +{
+> +	struct arm_smccc_res res;
+> +	u32 assigned = 0;
+> +	int status;
+> +
+> +	for (unsigned int i = 1; i < bank->nr_irqs; i++) {
+> +		arm_smccc_smc(ROCKCHIP_SIP_GPIO_CONFIG, ROCKCHIP_SIP_GPIO_GET_GROUP,
+> +			      bank->bank_num, i, 0, 0, 0, 0, &res);
+> +		status = (int)res.a0;
+> +		if (i == 1 && (status == SMCCC_RET_NOT_SUPPORTED ||
+> +			       status == ROCKCHIP_SIP_RET_NOT_SUPPORTED)) {
+> +			/* Older firmware leaves all pins on the primary IRQ. */
+> +			dev_dbg(bank->dev, "GPIO group query unsupported: %d\n",
+> +				status);
+> +			break;
+> +		}
+> +		if (status)
+> +			return dev_err_probe(bank->dev, -EIO,
+> +					     "cannot read interrupt group %u: %d\n",
+> +					     i, status);
+> +		bank->irq_masks[i] = res.a1;
+> +		if (assigned & bank->irq_masks[i])
+> +			return -EINVAL;
+> +		assigned |= bank->irq_masks[i];
+> +	}
 
-Best regards
-Uwe
+... here, etc.
 
---nb47bxu4r7dlod4p
-Content-Type: application/pgp-signature; name="signature.asc"
+> +	bank->irq_masks[0] = ~assigned;
+> +	return 0;
+> +}
+> +
+>  static int rockchip_get_bank_data(struct rockchip_pin_bank *bank)
+>  {
+>  	struct platform_device *pdev = to_platform_device(bank->dev);
+> @@ -654,10 +709,23 @@ static int rockchip_get_bank_data(struct rockchip_pin_bank *bank)
+>  	if (IS_ERR(bank->reg_base))
+>  		return PTR_ERR(bank->reg_base);
+>
+> -	ret = platform_get_irq(pdev, 0);
+> +	ret = platform_irq_count(pdev);
+>  	if (ret < 0)
+>  		return ret;
+> -	bank->irq = ret;
+> +	if (ret != (of_device_is_compatible(bank->of_node,
+> +					    "rockchip,rk3572-gpio-bank") ? 4 : 1))
+> +		return -EINVAL;
+> +	bank->nr_irqs = ret;
+> +	for (unsigned int i = 0; i < bank->nr_irqs; i++) {
+> +		ret = platform_get_irq(pdev, i);
+> +		if (ret < 0)
+> +			return ret;
+> +		bank->irqs[i] = ret;
+> +	}
+> +
+> +	ret = rockchip_gpio_read_irq_groups(bank);
+> +	if (ret)
+> +		return ret;
+>
+>  	bank->clk = devm_clk_get_enabled(bank->dev, NULL);
+>  	if (IS_ERR(bank->clk))
+> @@ -669,6 +737,7 @@ static int rockchip_get_bank_data(struct rockchip_pin_bank *bank)
+>  	case GPIO_TYPE_V2:
+>  	case GPIO_TYPE_V2_1:
+>  	case GPIO_TYPE_V2_2:
+> +	case GPIO_TYPE_V2_7:
+>  		bank->gpio_regs = &gpio_regs_v2;
+>  		bank->gpio_type = GPIO_TYPE_V2;
+>  		bank->db_clk = of_clk_get(bank->of_node, 1);
+> @@ -797,7 +866,8 @@ static void rockchip_gpio_remove(struct platform_device *pdev)
+>  {
+>  	struct rockchip_pin_bank *bank = platform_get_drvdata(pdev);
+>
+> -	irq_set_chained_handler_and_data(bank->irq, NULL, NULL);
+> +	for (unsigned int i = 0; i < bank->nr_irqs; i++)
+> +		irq_set_chained_handler_and_data(bank->irqs[i], NULL, NULL);
+>  	if (bank->domain) {
+>  		irq_domain_remove_generic_chips(bank->domain);
+>  		irq_domain_remove(bank->domain);
+> @@ -807,6 +877,7 @@ static void rockchip_gpio_remove(struct platform_device *pdev)
+>
+>  static const struct of_device_id rockchip_gpio_match[] = {
+>  	{ .compatible = "rockchip,gpio-bank", },
+> +	{ .compatible = "rockchip,rk3572-gpio-bank" },
+>  	{ .compatible = "rockchip,rk3188-gpio-bank0" },
+>  	{ },
+>  };
+> diff --git a/drivers/pinctrl/pinctrl-rockchip.h b/drivers/pinctrl/pinctrl-rockchip.h
+> index 553197f6dc690..058b58dcde404 100644
+> --- a/drivers/pinctrl/pinctrl-rockchip.h
+> +++ b/drivers/pinctrl/pinctrl-rockchip.h
+> @@ -302,7 +302,9 @@ struct rockchip_drv {
+>   *	    bank has its own IOC block
+>   * @clk: clock of the gpio bank
+>   * @db_clk: clock of the gpio debounce
+> - * @irq: interrupt of the gpio bank
+> + * @irqs: parent interrupts of the GPIO bank
+> + * @irq_masks: pins assigned to each parent interrupt
+> + * @nr_irqs: number of parent interrupts
+>   * @saved_masks: Saved content of GPIO_INTEN at suspend time.
+>   * @pin_base: first pin number
+>   * @nr_pins: number of pins in this bank
+> @@ -331,7 +333,9 @@ struct rockchip_pin_bank {
+>  	struct regmap			*regmap_ioc;
+>  	struct clk			*clk;
+>  	struct clk			*db_clk;
+> -	int				irq;
+> +	unsigned int			irqs[4];
+> +	u32				irq_masks[4];
+> +	unsigned int			nr_irqs;
+>  	u32				saved_masks;
+>  	u32				pin_base;
+>  	u8				nr_pins;
+> diff --git a/include/soc/rockchip/rockchip_sip.h b/include/soc/rockchip/rockchip_sip.h
 
------BEGIN PGP SIGNATURE-----
+The changes in headers in other subsystems should be in separate patches.
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrhoMIACgkQj4D7WH0S
-/k7H8wgAnGAwJoL+e+Le96yU8hRX+LS1mxggdmfwSPFllT2XuqUDX0fD2CksmHRN
-8v/0LTJOU6dCoaLDgXojtyhjWD6aQ9eIBohBG9Ednr/skIStvCz9/G5CZOvayK5p
-Bz4o9cdfMzCYj7hMfRMEhckEaE7stpZsqAI6PyOLDlPN2VEsTTO2eNWqQQOST685
-hoxWdnS1aI3LOPzUubb0vITD+l10XFzqGI5Bbq0KmjyRy7i/AOYXUCw5GVPiDQPm
-Dwqtw53FNFvSZP0fhpGHmzAU7GydBWg1NbRITN6AqYzvI6ONc0k2u9fA8GEUqWf7
-R51YEtnYj75xSueedmapu+p+CeOHHQ==
-=1P7c
------END PGP SIGNATURE-----
+> index 501ad1fedb201..984272ede3baf 100644
+> --- a/include/soc/rockchip/rockchip_sip.h
+> +++ b/include/soc/rockchip/rockchip_sip.h
+> @@ -20,4 +20,9 @@
+>  #define ROCKCHIP_SIP_CONFIG_DRAM_SET_PARAM	0x07
+>  #define ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD	0x08
+>
+> +#define ROCKCHIP_SIP_RET_NOT_SUPPORTED		-2
+> +
+> +#define ROCKCHIP_SIP_GPIO_CONFIG		0x8200002c
+> +#define ROCKCHIP_SIP_GPIO_GET_GROUP		0
+> +
+>  #endif
+>
+> --
+> 2.34.1
+>
+>
+>
 
---nb47bxu4r7dlod4p--
+Bart
