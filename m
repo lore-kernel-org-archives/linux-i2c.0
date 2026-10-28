@@ -1,55 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=43.163.128.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793126203;
-	b=uzk24KmGN4oBEbR6jQSG1CI+VRz/yanfaMmGxPJgV7wKheXUAtKihknt3kWacFys0Nyq
-	 r41oWyKGPlsv/Fza1cv6Yg8Xx7S21tgdZ8IT9KlCYYRlZOQbvv4ZH6SpWGzUnD5Cu1rn5
-	 MEQqu8YpI8zbPhk6vPNwAop4vdiaWVg+cFIk9+x1T46Gu0eAhwKGr8tjhkz/8V1BRvVQB
-	 ua/P62vKV1dfOs2CQA46s+m/tQJtD1YI7kQP5lNIRSVwOhrPhUGWaIJnyNAQQompsCHrz
-	 B7ofcXS1H3h+PZ8SIVSvFbzyExLdjw8bUkviIOwY1zU4MiDE54oYuVyEaUlufLK9ekg==
+	t=1793169260;
+	b=2uR0yJ6GvItroNzsGW/79AS01aTJgjPc/AtchtN3VE58TOqhA6xkJn/S7yo/G3HK7jHv
+	 zx5UFPgfatjrlQslF31ttdwrBuJYFuSQ/DX7KSIDew0rl8/NEFHeZqo2RyJq/8jS1wXSY
+	 TvlONY9+EYbphA128vrtNCb5VkQjakm962/A/++fFloWREQiBlDEdEyHflgqLWvB71zEG
+	 Y0eZiiWMvlZV34+IRizoESZg6lAe8FVOtA6i0uFfzLXcVS1b3WwK6HfYdBTljf9p/sZwd
+	 SqrpM95Ya9kz+g36/cdJeO+woBVtWHaSkawburq87kPRIH7ZgboWxBZ4GBOhu3eiTdg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793126203;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=ZklRgwYh2m/0QNgZqJewCA2TZqp2YQjkYuRuekeI+3Q=;
-	b=Q/IC/5hGBhDzU/Eu4RX4Dn0Nxd0d3Kqamm2xr97P9R+o32h01BJATrPx2OLPACAmekTc
-	 9R16V7gJ9bH94Q4HPMnhpx720ncaLXASInNJCLODRHAM07NolvgsUmh8UdIZvMX6I8XrS
-	 UvLk2S82IkSrB0P50mIgAJ1HJXv5tVu8Xe6uku9pRQMwFSnbq4ildzVUk6kA4vgOjnS79
-	 51UZnWWUwGp2k6IJkb6e8ql/Dc6A0eQkJjUjxjVB6xZ/uYiluFH/T/dOXLsen4mJQUheM
-	 Iw/91CZY8ry1aJcGZVohiz3pQXRZjMQFI8jxpRJjYpx+dn+cVwGiL6/O2szKoJMARNg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793169260;
+	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
+	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
+	 X-Mailer:MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=vQof/cj2rfQzelHAPjIhcxdxd60z5aCplNluzkoFJ+o=;
+	b=488tq+ZrmwbLyW3KRnfz6UOSnd/JXGc65ibRkYcqs22f2vAHSoFbqTjVCvm3mtjMTz18
+	 KOgI43Cz3Q/z9Cxh9r7I43t/B5joy25XQksf8SLzJ+y8gThPaeOJhKtrSnE8fxzlxYvH/
+	 9zkGK7jOB7wWZKF2qRSumDM6TOebQuV3MRvpfUaWGiuZsoVTMIOCspW4gfO6JcirrQ+7D
+	 hjayDs2N8Cc5sELHPWUdGSZAXi3pzeZ0AYb3kH6FLYwPmx4pFmCigANyY1mlAQ5n4+nP5
+	 81vmwKR3jmsJWQ7eWOrWhJausiIRyy9ISaAR9btAwhIKn87/n+GKDY2uUOWg7shw0jw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ky1HYNW2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=foxmail.com;
+	spf=pass smtp.mailfrom=foxmail.com;
+	dkim=pass header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=gtvc8xLO;
+	arc=none smtp.remote-ip=43.163.128.53
+Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.53])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6C58606A31D;
-	Tue, 27 Oct 2026 18:36:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34267606A31A
+	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 06:34:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34267606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ky1HYNW2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157351F01825;
-	Tue, 27 Oct 2026 18:36:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793126202;
-	bh=ZklRgwYh2m/0QNgZqJewCA2TZqp2YQjkYuRuekeI+3Q=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ky1HYNW2CruhbVybe/rnHs0X6RATwdkRMNG2BuBWtm40/kJ0rqHPZY5l5zpU9qvH3
-	 eOofh7Ypl4NKKRR2BcUmFkCcczDbr9JSAtnsKi6PLkE4+buSKTl1z75zenDhGirl35
-	 JJwszMx2Nxg6QjFWuzxEa/EhQ37m+LWfA0nc46Hbur0fM+VfNCmm/dkEzN3kaPl8M1
-	 sdR3aXKK0dpzAL92kANIFokMqN6rbNxLd7F6QPCWg2KE/McTKl13CzwJwSEzwKgAuy
-	 AQBVy+OdOMXCjXi8/dS5TY+TterOkMT3QN7jiJFFpcpgC37YuDKoaGz1NFzYg8Jw5G
-	 JeEHXFoPqulew==
-Date: Tue, 27 Oct 2026 19:36:38 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Aniket Limaye <a-limaye@ti.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, lianfeng.ouyang@starfivetech.com
-Subject: Re: [PATCH v4 1/2] dt-bindings: i2c: Add Synopsys DWC_i2c controller
-Message-ID: <20261027-masked-ultraviolet-kittiwake-7da8ec@quoll>
-References: <20261027-tda54-upstream-i2c-v4-0-ebeeaf87d181@ti.com>
- <20261027-tda54-upstream-i2c-v4-1-ebeeaf87d181@ti.com>
+	dkim=pass (1024-bit key, unprotected) header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=gtvc8xLO
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
+	s=s201512; t=1793169255;
+	bh=vQof/cj2rfQzelHAPjIhcxdxd60z5aCplNluzkoFJ+o=;
+	h=From:To:Cc:Subject:Date;
+	b=gtvc8xLO7ZPjwXBX2FUduGPYhQKtTAFfpPAKtDZzGDWhCwIpmJ6bteIrgVRHO8G2L
+	 XxGO5AscHPjKao0PxRe7Fy942q1YOLxv/pp3YAfuhTXRxNRam90k6JPQWcwnWKCXCA
+	 Xmds0w2YWiJhPBElSa0bmjJ137HvNi2yX9rR9zzo=
+Received: from LAPTOP-TKBJAGN4.localdomain ([27.38.201.62])
+	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
+	id 87A2BC36; Wed, 28 Oct 2026 14:33:58 +0800
+X-QQ-mid: xmsmtpt1793169238t2xcorkks
+Message-ID: <tencent_E6D69775D91AD9FE45C994B3755CB1452506@qq.com>
+X-QQ-XMAILINFO: NbgegmlEc3Juz8BRtUTIynhC7xXOfHjjR0NWlufK1lc8NauVMKx5cGNn+stB5Y
+	 g78ip6EvWmYmz1jfKCNsytbtwYz3nCGwMHrW3ISNHhI59rEjHExvEjGU97Boo2OM7hJxDRFyTZqQ
+	 +hJdOyhfVaG2DJX1OVnWV5pgGUMumk6i/KH4vBK/FDXx8vfuvgd5xZg/AVjW/DvvXHqgbalHb1RD
+	 9z4cFYyu7Ordh/NjSgPsqpsJVOH2a3LngM4vAWSshyQIfysVNaQNCY/kQWb5zLLIjXfXfiBAGK6L
+	 Bgg9IM5ISSFDfb5oJ9mejV7EK+Sf56iIKDZfRz0wAL+a1FBMOXmbOH77tG1UFY6ntIliUa5x7m8q
+	 w1RHyna+RYF96hJR7tgaNzGNhpzR1orME4DXPEetDMfA0k7JAa/ruCmxSVbwoi+CLaQ47xMRPyC3
+	 r87qt7tI2okiJq0J7W1mWe4P0KMzyo/veznRIq9a8V0DuKlCKreFMeGT0DE4neaUVkN5dJ21V0lV
+	 uzD9dARAb/YsLYA1sfZwZ2utQMT/P14wFmaxA07jNW2eThpn5bV2DZeCY7c1PVyLpBBR8l76Unt+
+	 chnU0tChMvy8q1VNUQFEu8Yyq6XsLMINDqnRY6l47CMxMB8dxlDa3XnzgLULpDtrWwCP2JBrlC11
+	 1NavXBCGaDNzR/pngkBlIgxLvTw5SZqBw1Kj7LeyvJuTovUDzQ0J+EQ4t3hlnR7+vfspBLOrcGsV
+	 zVBPcT+ot29s0SfZBGNJx0hqmqC9k90dswwmVADoYBi3wziJJN5EpZpZvpa37F0h66PNWkOKmtFL
+	 /tfJX91lYDFyqCaIzziMYv87Hduh0T88uGgiDyZSlTpvv19vhT1MW2v6c4AiHfPNRBGclXOslZre
+	 /fQQTg4ANrbj2aP+BONSjE3uNojDo9UgBLZXdPde3WQcZ7A3DkfzW1GcYLNqC0exKDDPBMO/vhKP
+	 ILpkTeRbQdkILV6mu3C+UIqxW2KAnldrzD9c1W+rXcsiv9S/eXI1gJ7rGwFo3YEVg8JkENwA9UHh
+	 KOKtBFuFzQ0bG/TmxgSlH9jO21ihL1L6XO4aP0V5JTdnnabF/wR7IAYPdlmXr7KKTN+0NJ48ZWps
+	 Ie79+l290bRm6QmpqmvaaNTmZx+X6RL9SzgF1q
+X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
+From: Haobin Jiang <lemonoutput@foxmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Oleksij Rempel <o.rempel@pengutronix.de>,
+	linux-i2c@vger.kernel.org
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Carlos Song <carlos.song@oss.nxp.com>,
+	Vincent Jardin <vjardin@free.fr>,
+	dillon.minfei@gmail.com,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Haobin Jiang <lemonoutput@foxmail.com>
+Subject: [PATCH v5] i2c: imx: honour I2C_M_IGNORE_NAK
+Date: Wed, 28 Oct 2026 14:33:34 +0800
+X-OQ-MSGID: <20261028063334.24845-1-lemonoutput@foxmail.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,107 +89,154 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261027-tda54-upstream-i2c-v4-1-ebeeaf87d181@ti.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 27, 2026 at 05:00:35PM +0530, Aniket Limaye wrote:
-> Add documentation for the Synopsys Advanced I2C (DWC_i2c) controller, as
-> found on the TI TDA54 SoC.
-> 
-> The block cannot work on its own and needs SoC integration, e.g. the
-> FIFO depths are not discoverable from the IP. Do not add a generic
-> compatible and only list SoC specific compatibles. The file is named
-> after the IP so that other SoCs integrating it can be added here.
-> 
-> Signed-off-by: Aniket Limaye <a-limaye@ti.com>
-> 
-> ---
-> 
+Honour I2C_M_IGNORE_NAK for supported PIO transfers and keep flagged
+messages out of DMA.
 
-Here you mention dependency on new dtschema (unreleased), since the
-property was added a few days ago.
+Following Sashiko's review, reject zero-length reads carrying
+I2C_M_IGNORE_NAK before START. This prevents the newly supported flag
+from exposing an existing receive-path bug, without changing unflagged
+zero-length reads.
 
-> Changes in v4:
-> - Drop the approach of extending the existing i2c-designware-* driver
->   with a MODEL_TI_TDA54 variant. Instead, add a new standalone driver
->   (i2c-dwc-adv.c) and a new binding (snps,dwc-adv-i2c.yaml), since
->   DWC_i2c is not register compatible with DW_apb_i2c. (Andy Shevchenko)
-> - Drop the snps,tx-fifo-depth/snps,rx-fifo-depth DT properties from
->   the new binding; FIFO depth is now tied to the compatible string via
->   driver match data instead. (Conor Dooley)
-> - Link to v3: https://lore.kernel.org/all/20260925-tda54-upstream-i2c-v3-1-544d74e992ff@ti.com/
-> 
-> Changes in v2:
-> - Rename snps,dwc-i2c to ti,tda54-i2c
-> - Link to v1: https://lore.kernel.org/r/20260919-tda54-upstream-i2c-v1-1-b0b9f77be18b@ti.com/
-> ---
->  .../devicetree/bindings/i2c/snps,dwc-adv-i2c.yaml  | 75 ++++++++++++++++++++++
->  1 file changed, 75 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/snps,dwc-adv-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,dwc-adv-i2c.yaml
-> new file mode 100644
-> index 000000000000..7ad22536825e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/snps,dwc-adv-i2c.yaml
-> @@ -0,0 +1,75 @@
-> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/snps,dwc-adv-i2c.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Synopsys DesignWare Advanced I2C (DWC_i2c) Controller
-> +
-> +maintainers:
-> +  - Aniket Limaye <a-limaye@ti.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - ti,tda54-i2c
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    items:
-> +      - description: I2C functional clock (ic_clk)
-> +      - description: Register interface clock (pclk)
-> +
-> +  clock-names:
-> +    items:
-> +      - const: ref
-> +      - const: pclk
-> +
-> +  resets:
-> +    maxItems: 1
-> +
-> +  clock-frequency:
-> +    enum: [100000, 400000, 1000000, 3400000]
-> +    default: 400000
-> +
-> +  i2c-sda-hold-time-ns: true
+Link: https://lore.kernel.org/linux-i2c/tencent_877C99956190215D644EB959DF1663542A0A@qq.com/ # [1]
 
-Missing  default, constraints (minimum/maximum)
+Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
 
+---
+v4 -> v5:
+	- Add a scoped zero-length read guard following Sashiko's review.
+	- Previous version: [1].
+---
+ drivers/i2c/busses/i2c-imx.c | 37 ++++++++++++++++++++++++++++---------
+ 1 file changed, 28 insertions(+), 9 deletions(-)
 
-> +
-> +  i2c-scl-falling-time-ns:
-> +    default: 300
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index ccf08cd63151f25581dd3059ee874b606d0dc94c..1e2fd699f4fc658f4a9298cd1852455966018e37 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 	return 0;
+ }
+ 
+-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
++static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
+ {
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
++
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+ 		return -ENXIO;  /* No ACK */
+ 	}
+@@ -971,11 +974,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
+ 	return ret;
+ }
+ 
+-static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
++static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
++				    bool ignore_nak)
+ {
+ 	i2c_imx->isr_result = 0;
+ 
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
++		if (ignore_nak)
++			return 0;
++
+ 		i2c_imx->state = IMX_I2C_STATE_FAILED;
+ 		i2c_imx->isr_result = -ENXIO;
+ 		wake_up(&i2c_imx->queue);
+@@ -988,7 +995,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
+ {
+ 	int result;
+ 
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 
+@@ -1017,7 +1024,7 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
+ {
+ 	int result;
+ 
+-	result = i2c_imx_isr_acked(i2c_imx);
++	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
+ 	if (result)
+ 		return result;
+ 
+@@ -1249,7 +1256,8 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+ 	if (result)
+ 		return result;
+ 
+-	return i2c_imx_acked(i2c_imx);
++	/* I2C_M_IGNORE_NAK messages never take the DMA path. */
++	return i2c_imx_acked(i2c_imx, false);
+ }
+ 
+ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+@@ -1268,7 +1276,7 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, !use_dma);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1401,7 +1409,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, true);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1416,7 +1424,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
+ 		result = i2c_imx_trx_complete(i2c_imx, true);
+ 		if (result)
+ 			return result;
+-		result = i2c_imx_acked(i2c_imx);
++		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
+ 		if (result)
+ 			return result;
+ 	}
+@@ -1613,8 +1621,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+ 	return ret;
+ }
+ 
++/* I2C_M_STOP is the controller's native behaviour; don't reject it. */
+ #define I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS \
+-	(I2C_M_IGNORE_NAK | I2C_M_NO_RD_ACK | I2C_M_STOP)
++	I2C_M_NO_RD_ACK
+ 
+ static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
+ {
+@@ -1625,6 +1634,12 @@ static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
+ 		if (msgs[i].flags & I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS)
+ 			return -EOPNOTSUPP;
+ 
++		/* The receive path cannot handle zero-length reads. */
++		if ((msgs[i].flags & I2C_M_RD) &&
++		    (msgs[i].flags & I2C_M_IGNORE_NAK) &&
++		    msgs[i].len == 0)
++			return -EOPNOTSUPP;
++
+ 		if (msgs[i].flags & I2C_M_NOSTART) {
+ 			/*
+ 			 * NOSTART continues an already open frame. The first
+@@ -1712,6 +1727,10 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+ 		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
+ 			msgs[i].flags & I2C_M_DMA_SAFE &&
+ 			!(msgs[i].flags & I2C_M_NOSTART);
++
++		/* A NAK'd byte may not generate a further DMA request. */
++		if (msgs[i].flags & I2C_M_IGNORE_NAK)
++			use_dma = false;
+ 		if (msgs[i].flags & I2C_M_RD) {
+ 			int block_data = msgs->flags & I2C_M_RECV_LEN;
+ 
 
-no min/max?
-
-> +
-> +  i2c-sda-falling-time-ns:
-> +    default: 300
-
-Best regards,
-Krzysztof
+base-commit: 123cffeca4a33d770c29ff8d3f22453a5fd59c32
 
