@@ -1,85 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=43.163.128.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793169260;
-	b=2uR0yJ6GvItroNzsGW/79AS01aTJgjPc/AtchtN3VE58TOqhA6xkJn/S7yo/G3HK7jHv
-	 zx5UFPgfatjrlQslF31ttdwrBuJYFuSQ/DX7KSIDew0rl8/NEFHeZqo2RyJq/8jS1wXSY
-	 TvlONY9+EYbphA128vrtNCb5VkQjakm962/A/++fFloWREQiBlDEdEyHflgqLWvB71zEG
-	 Y0eZiiWMvlZV34+IRizoESZg6lAe8FVOtA6i0uFfzLXcVS1b3WwK6HfYdBTljf9p/sZwd
-	 SqrpM95Ya9kz+g36/cdJeO+woBVtWHaSkawburq87kPRIH7ZgboWxBZ4GBOhu3eiTdg==
+	t=1793171659;
+	b=mvpA83teifC9g1cBrHghmIOoz8rFe2pS7Vei5a0rSB6Jbc19zG3BOGOA0sYBGK+KDMLw
+	 I956OHU/2UEyTWw8VJ9DEDieaKNAOaVbJlqe4jVm2DX4Q33wQabgP3iyRj9u1Aufg0lW8
+	 jcIslkgKhN7NcpP9dgtRNX0BNa8ooU9UBIb9sRMNxkrAbrWtU5n60u8RQ/BVvvLhJQge4
+	 7drIKfa58eEvdueCPx4swb8tVomz1UNMrFqvilJH1u+8Wl5floq0wpWnjcirIxcmllChD
+	 k9eGjmeoHo08rWUpw5bc4GPmSecApE6fjFUEf239/tz9gAFaD03NI1wh3YstBoTVL0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793169260;
-	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 X-Mailer:MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=vQof/cj2rfQzelHAPjIhcxdxd60z5aCplNluzkoFJ+o=;
-	b=488tq+ZrmwbLyW3KRnfz6UOSnd/JXGc65ibRkYcqs22f2vAHSoFbqTjVCvm3mtjMTz18
-	 KOgI43Cz3Q/z9Cxh9r7I43t/B5joy25XQksf8SLzJ+y8gThPaeOJhKtrSnE8fxzlxYvH/
-	 9zkGK7jOB7wWZKF2qRSumDM6TOebQuV3MRvpfUaWGiuZsoVTMIOCspW4gfO6JcirrQ+7D
-	 hjayDs2N8Cc5sELHPWUdGSZAXi3pzeZ0AYb3kH6FLYwPmx4pFmCigANyY1mlAQ5n4+nP5
-	 81vmwKR3jmsJWQ7eWOrWhJausiIRyy9ISaAR9btAwhIKn87/n+GKDY2uUOWg7shw0jw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793171659;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=BKa12JHLTaIrkAY7wHaBaCVm5O2tQjU5ZN+Qd4lZVHk=;
+	b=2FXyb1vIOWQPqVsUiSYCmzt8JWrh8J0l/E2Zs3ssgHcaTqIX41kvDXNImY3vp96ZFU7D
+	 g6FLksby0acifBb+Wnecf/EPIgMRbG5f6UaE65PJ1ENn92IJwENvrsGVqYkf6aVSyK2i5
+	 N+CeVyBuLhqGvPv0wvZ/eT7Sna6nt2fkvchVuaj0gkTvkqlcpfM8o000tvmAtIInE9Yjp
+	 c6/VjnOzGFjDqHmJbPXAlvqvNA541jNvG2B29HzqFfjcqLEGDgr5CR1UCEJy6gSrFWt17
+	 P4eU3czVQdezP1pAmSEDdq5ovkorJ9rL30UXhyZygNVctv/RonG8kdDnFExQhJppuzg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=foxmail.com;
-	spf=pass smtp.mailfrom=foxmail.com;
-	dkim=pass header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=gtvc8xLO;
-	arc=none smtp.remote-ip=43.163.128.53
-Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.53])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=none header.from=baylibre.com;
+	spf=pass smtp.mailfrom=baylibre.com;
+	dkim=pass header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=DNo5vidD;
+	arc=none smtp.remote-ip=209.85.221.49
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34267606A31A
-	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 06:34:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34267606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 861BA606A321
+	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 07:14:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 861BA606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=gtvc8xLO
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1793169255;
-	bh=vQof/cj2rfQzelHAPjIhcxdxd60z5aCplNluzkoFJ+o=;
-	h=From:To:Cc:Subject:Date;
-	b=gtvc8xLO7ZPjwXBX2FUduGPYhQKtTAFfpPAKtDZzGDWhCwIpmJ6bteIrgVRHO8G2L
-	 XxGO5AscHPjKao0PxRe7Fy942q1YOLxv/pp3YAfuhTXRxNRam90k6JPQWcwnWKCXCA
-	 Xmds0w2YWiJhPBElSa0bmjJ137HvNi2yX9rR9zzo=
-Received: from LAPTOP-TKBJAGN4.localdomain ([27.38.201.62])
-	by newxmesmtplogicsvrsza63-0.qq.com (NewEsmtp) with SMTP
-	id 87A2BC36; Wed, 28 Oct 2026 14:33:58 +0800
-X-QQ-mid: xmsmtpt1793169238t2xcorkks
-Message-ID: <tencent_E6D69775D91AD9FE45C994B3755CB1452506@qq.com>
-X-QQ-XMAILINFO: NbgegmlEc3Juz8BRtUTIynhC7xXOfHjjR0NWlufK1lc8NauVMKx5cGNn+stB5Y
-	 g78ip6EvWmYmz1jfKCNsytbtwYz3nCGwMHrW3ISNHhI59rEjHExvEjGU97Boo2OM7hJxDRFyTZqQ
-	 +hJdOyhfVaG2DJX1OVnWV5pgGUMumk6i/KH4vBK/FDXx8vfuvgd5xZg/AVjW/DvvXHqgbalHb1RD
-	 9z4cFYyu7Ordh/NjSgPsqpsJVOH2a3LngM4vAWSshyQIfysVNaQNCY/kQWb5zLLIjXfXfiBAGK6L
-	 Bgg9IM5ISSFDfb5oJ9mejV7EK+Sf56iIKDZfRz0wAL+a1FBMOXmbOH77tG1UFY6ntIliUa5x7m8q
-	 w1RHyna+RYF96hJR7tgaNzGNhpzR1orME4DXPEetDMfA0k7JAa/ruCmxSVbwoi+CLaQ47xMRPyC3
-	 r87qt7tI2okiJq0J7W1mWe4P0KMzyo/veznRIq9a8V0DuKlCKreFMeGT0DE4neaUVkN5dJ21V0lV
-	 uzD9dARAb/YsLYA1sfZwZ2utQMT/P14wFmaxA07jNW2eThpn5bV2DZeCY7c1PVyLpBBR8l76Unt+
-	 chnU0tChMvy8q1VNUQFEu8Yyq6XsLMINDqnRY6l47CMxMB8dxlDa3XnzgLULpDtrWwCP2JBrlC11
-	 1NavXBCGaDNzR/pngkBlIgxLvTw5SZqBw1Kj7LeyvJuTovUDzQ0J+EQ4t3hlnR7+vfspBLOrcGsV
-	 zVBPcT+ot29s0SfZBGNJx0hqmqC9k90dswwmVADoYBi3wziJJN5EpZpZvpa37F0h66PNWkOKmtFL
-	 /tfJX91lYDFyqCaIzziMYv87Hduh0T88uGgiDyZSlTpvv19vhT1MW2v6c4AiHfPNRBGclXOslZre
-	 /fQQTg4ANrbj2aP+BONSjE3uNojDo9UgBLZXdPde3WQcZ7A3DkfzW1GcYLNqC0exKDDPBMO/vhKP
-	 ILpkTeRbQdkILV6mu3C+UIqxW2KAnldrzD9c1W+rXcsiv9S/eXI1gJ7rGwFo3YEVg8JkENwA9UHh
-	 KOKtBFuFzQ0bG/TmxgSlH9jO21ihL1L6XO4aP0V5JTdnnabF/wR7IAYPdlmXr7KKTN+0NJ48ZWps
-	 Ie79+l290bRm6QmpqmvaaNTmZx+X6RL9SzgF1q
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-From: Haobin Jiang <lemonoutput@foxmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	linux-i2c@vger.kernel.org
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Carlos Song <carlos.song@oss.nxp.com>,
-	Vincent Jardin <vjardin@free.fr>,
-	dillon.minfei@gmail.com,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Haobin Jiang <lemonoutput@foxmail.com>
-Subject: [PATCH v5] i2c: imx: honour I2C_M_IGNORE_NAK
-Date: Wed, 28 Oct 2026 14:33:34 +0800
-X-OQ-MSGID: <20261028063334.24845-1-lemonoutput@foxmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key, unprotected) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=DNo5vidD
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48dee593f18so400806f8f.3
+        for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2026 00:14:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1793171657; x=1793776457; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=BKa12JHLTaIrkAY7wHaBaCVm5O2tQjU5ZN+Qd4lZVHk=;
+        b=DNo5vidDAbaZyqt5DqOmh3lLhzHdSiDXFx9EpEXiGF5MxBHB80PQg6WPFPAu4m+3MQ
+         G9uIzH2aNzbQXmQoY4eHF7uBgoZ9PnrPQ0C6WnniZ2JKW26vz195fWYBG0ylIyFc05LQ
+         LaaM6Af+PKwaLf64NW/ZRalX92SvnOShO0UE2srbrHovIwi3VCioanRkbRZ3lUDeT61T
+         5gFKraEKB1Qgi+bCL1dzaz9USpJW1jqR5rk2zwoPZ15oZpTF5JuPCslVlykXJcSbTkN/
+         oCvLJ+lx6L46bR+wJ3TVoudqfgzZaI8xOc7/1tV4J3BiDlcfagt6qyJeB+wICmFIAIO0
+         73dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793171657; x=1793776457;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=BKa12JHLTaIrkAY7wHaBaCVm5O2tQjU5ZN+Qd4lZVHk=;
+        b=txKCNFOIRlceNokYAzqEqvNg6lLqpibx7vT85ywwRaWhFWEzfGnf++/45Y0+lAYIfL
+         CIosDWQQSdIAVTJGsLSJfqYcxxfVuWcLiLvZLWHk/nyTrEEQvRIXQJ589/YdXeAY/Mqn
+         Fu9YaIM36f9nlq1y2zHDlTsIziDyLgM3RQJEnWKbA1hmNz0AzCjfMTsRvuLYlk/wtaly
+         tGT4a2KoGYEtQw0vnJ+lZaLJSqIKqCtlBg9cnlzb9qF5IUq4V9v8VeS9veZqbS0a0mlq
+         t7UjcAeFXOdc/dwrOOqVMkkVNr2YPVNHyVc/iEIs3zQqdBkxMQYFA01O5IAR4VN4mHmG
+         qITQ==
+X-Forwarded-Encrypted: i=1; AKwUvBw2VXmBzM6A6NKaQw4xCQGVXHRjQ9hoSQXLgbBbKRPaiszM0QQqYpoF05dUsXAjDzg0N64xRvhjazw=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ0Us3/aYUNXovezXGtfEponTjISqL2Zbs4jHjres4yb+lo+kYC
+	IgjQ3P4io5eJHPZLMS/+AnNMMEe/VOmyWRWSeOKq8H3BKYSnotWd9OG3jpgYu4Arq/rd3bs4w/w
+	H+srD1bg=
+X-Gm-Gg: AYBFou3EBBon6MkbJf/O9SgOH55jszwS2oObXAKHgtFLSpDSjH3XCRqFSuwmNO5585A
+	Eevc4tOyAGS3TDj42j/EY7Ru/aAas/KxtY1xrZrAFHjaZ2opIjl/Kh/7wila9Ulcjrhym2SzFFl
+	Rl1FtuvZP5NRCaPrd2xB5zNuQ7AYtLrdhJyl53NImkR4cYYRIJxmNnzFnjhP4q/duKloeBeRhb4
+	5IBx9GokD2Jx3ozBDCN19FUgorJ8kxd/KdnuI85nkT2gV3R6LgZDaPoxaVoCa9UQJo7yQlWyJMx
+	j94KKtAZTYYvbOR2QmDKtdUZ+S25MSrTxsGGsTy2JhrjHXhTkXJXjwmVU9qNxGn2Gn2a0kfO01y
+	92Yugah20YYfJztjdwMej7/G2Ra7J0svxvB24II4XTS04VbF7SVVKbo2DDXdlE+w5iy6Y2cESkD
+	2LTz9PfHOP/3UUJJQctFaNsNG5kaakcxwWfYXRA/cQ6UxPj9QlwzJb5CeWir2c8tqZIFSoBwiLR
+	U7dxIMrKyG4bN1LzO7uBi+orz7Bo3/habIgSZ7JVRnXCn+d0XG88ByJmycTAL7/Lmj74O5K53Up
+	MaLTfoh+i0y7yp13ung3jZxNkhEFaeqcun0+j1US4ZP5lk7aJRbQ0WYKIo5mCyNkbUnDymQZJHG
+	ojREgFLWwXKSomsAmFS0yJNFxXLP+XsP20lfV
+X-Received: by 2002:a5d:5d0c:0:b0:48e:4300:c70e with SMTP id ffacd0b85a97d-48e5d5ae171mr3363614f8f.46.1793171656743;
+        Wed, 28 Oct 2026 00:14:16 -0700 (PDT)
+Received: from localhost (p200300f65f19a904c16506b94501b867.dip0.t-ipconnect.de. [2003:f6:5f19:a904:c165:6b9:4501:b867])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48e3ebcb958sm26969844f8f.21.2026.10.28.00.14.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Oct 2026 00:14:15 -0700 (PDT)
+Date: Wed, 28 Oct 2026 08:14:14 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Aniket Limaye <a-limaye@ti.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, lianfeng.ouyang@starfivetech.com
+Subject: Re: [PATCH v4 2/2] i2c: Add Synopsys Advanced I2C (DWC_i2c) driver
+Message-ID: <auGgVBEHvowseCt0@monoceros>
+References: <20261027-tda54-upstream-i2c-v4-0-ebeeaf87d181@ti.com>
+ <20261027-tda54-upstream-i2c-v4-2-ebeeaf87d181@ti.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -89,154 +101,46 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="nb47bxu4r7dlod4p"
+Content-Disposition: inline
+In-Reply-To: <20261027-tda54-upstream-i2c-v4-2-ebeeaf87d181@ti.com>
 
-Honour I2C_M_IGNORE_NAK for supported PIO transfers and keep flagged
-messages out of DMA.
 
-Following Sashiko's review, reject zero-length reads carrying
-I2C_M_IGNORE_NAK before START. This prevents the newly supported flag
-from exposing an existing receive-path bug, without changing unflagged
-zero-length reads.
+--nb47bxu4r7dlod4p
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Subject: Re: [PATCH v4 2/2] i2c: Add Synopsys Advanced I2C (DWC_i2c) driver
+MIME-Version: 1.0
 
-Link: https://lore.kernel.org/linux-i2c/tencent_877C99956190215D644EB959DF1663542A0A@qq.com/ # [1]
+Hello,
 
-Signed-off-by: Haobin Jiang <lemonoutput@foxmail.com>
+On Tue, Oct 27, 2026 at 05:00:36PM +0530, Aniket Limaye wrote:
+> +#include <linux/mod_devicetable.h>
+> [...]
+> +#include <linux/platform_device.h>
 
----
-v4 -> v5:
-	- Add a scoped zero-length read guard following Sashiko's review.
-	- Previous version: [1].
----
- drivers/i2c/busses/i2c-imx.c | 37 ++++++++++++++++++++++++++++---------
- 1 file changed, 28 insertions(+), 9 deletions(-)
+Please don't include <linux/mod_devicetable.h>.
+<linux/platform_device.h> already gives you everything you'd expect from
+<linux/mod_devicetable.h> without introducing a bunch of unneeded build
+dependencies.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index ccf08cd63151f25581dd3059ee874b606d0dc94c..1e2fd699f4fc658f4a9298cd1852455966018e37 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -612,9 +612,12 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
- 	return 0;
- }
- 
--static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
-+static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx, bool ignore_nak)
- {
- 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
-+		if (ignore_nak)
-+			return 0;
-+
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
- 		return -ENXIO;  /* No ACK */
- 	}
-@@ -971,11 +974,15 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
- 	return ret;
- }
- 
--static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx)
-+static inline int i2c_imx_isr_acked(struct imx_i2c_struct *i2c_imx,
-+				    bool ignore_nak)
- {
- 	i2c_imx->isr_result = 0;
- 
- 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
-+		if (ignore_nak)
-+			return 0;
-+
- 		i2c_imx->state = IMX_I2C_STATE_FAILED;
- 		i2c_imx->isr_result = -ENXIO;
- 		wake_up(&i2c_imx->queue);
-@@ -988,7 +995,7 @@ static inline int i2c_imx_isr_write(struct imx_i2c_struct *i2c_imx)
- {
- 	int result;
- 
--	result = i2c_imx_isr_acked(i2c_imx);
-+	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
- 	if (result)
- 		return result;
- 
-@@ -1017,7 +1024,7 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
- {
- 	int result;
- 
--	result = i2c_imx_isr_acked(i2c_imx);
-+	result = i2c_imx_isr_acked(i2c_imx, i2c_imx->msg->flags & I2C_M_IGNORE_NAK);
- 	if (result)
- 		return result;
- 
-@@ -1249,7 +1256,8 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
- 	if (result)
- 		return result;
- 
--	return i2c_imx_acked(i2c_imx);
-+	/* I2C_M_IGNORE_NAK messages never take the DMA path. */
-+	return i2c_imx_acked(i2c_imx, false);
- }
- 
- static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
-@@ -1268,7 +1276,7 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
- 		result = i2c_imx_trx_complete(i2c_imx, !use_dma);
- 		if (result)
- 			return result;
--		result = i2c_imx_acked(i2c_imx);
-+		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
- 		if (result)
- 			return result;
- 	}
-@@ -1401,7 +1409,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
- 		result = i2c_imx_trx_complete(i2c_imx, true);
- 		if (result)
- 			return result;
--		result = i2c_imx_acked(i2c_imx);
-+		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
- 		if (result)
- 			return result;
- 	}
-@@ -1416,7 +1424,7 @@ static int i2c_imx_atomic_write(struct imx_i2c_struct *i2c_imx,
- 		result = i2c_imx_trx_complete(i2c_imx, true);
- 		if (result)
- 			return result;
--		result = i2c_imx_acked(i2c_imx);
-+		result = i2c_imx_acked(i2c_imx, msgs->flags & I2C_M_IGNORE_NAK);
- 		if (result)
- 			return result;
- 	}
-@@ -1613,8 +1621,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 	return ret;
- }
- 
-+/* I2C_M_STOP is the controller's native behaviour; don't reject it. */
- #define I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS \
--	(I2C_M_IGNORE_NAK | I2C_M_NO_RD_ACK | I2C_M_STOP)
-+	I2C_M_NO_RD_ACK
- 
- static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
- {
-@@ -1625,6 +1634,12 @@ static int i2c_imx_check_msgs(struct i2c_msg *msgs, int num)
- 		if (msgs[i].flags & I2C_IMX_UNSUPPORTED_PROTOCOL_MANGLING_FLAGS)
- 			return -EOPNOTSUPP;
- 
-+		/* The receive path cannot handle zero-length reads. */
-+		if ((msgs[i].flags & I2C_M_RD) &&
-+		    (msgs[i].flags & I2C_M_IGNORE_NAK) &&
-+		    msgs[i].len == 0)
-+			return -EOPNOTSUPP;
-+
- 		if (msgs[i].flags & I2C_M_NOSTART) {
- 			/*
- 			 * NOSTART continues an already open frame. The first
-@@ -1712,6 +1727,10 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
- 		use_dma = i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD &&
- 			msgs[i].flags & I2C_M_DMA_SAFE &&
- 			!(msgs[i].flags & I2C_M_NOSTART);
-+
-+		/* A NAK'd byte may not generate a further DMA request. */
-+		if (msgs[i].flags & I2C_M_IGNORE_NAK)
-+			use_dma = false;
- 		if (msgs[i].flags & I2C_M_RD) {
- 			int block_data = msgs->flags & I2C_M_RECV_LEN;
- 
+Best regards
+Uwe
 
-base-commit: 123cffeca4a33d770c29ff8d3f22453a5fd59c32
+--nb47bxu4r7dlod4p
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrhoMIACgkQj4D7WH0S
+/k7H8wgAnGAwJoL+e+Le96yU8hRX+LS1mxggdmfwSPFllT2XuqUDX0fD2CksmHRN
+8v/0LTJOU6dCoaLDgXojtyhjWD6aQ9eIBohBG9Ednr/skIStvCz9/G5CZOvayK5p
+Bz4o9cdfMzCYj7hMfRMEhckEaE7stpZsqAI6PyOLDlPN2VEsTTO2eNWqQQOST685
+hoxWdnS1aI3LOPzUubb0vITD+l10XFzqGI5Bbq0KmjyRy7i/AOYXUCw5GVPiDQPm
+Dwqtw53FNFvSZP0fhpGHmzAU7GydBWg1NbRITN6AqYzvI6ONc0k2u9fA8GEUqWf7
+R51YEtnYj75xSueedmapu+p+CeOHHQ==
+=1P7c
+-----END PGP SIGNATURE-----
+
+--nb47bxu4r7dlod4p--
