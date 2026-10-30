@@ -1,97 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.16
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793344426;
-	b=Nk+ofr48b4mbymrWcGn1zQXosoE6LqAIw9EB1zSOYkNyMAQ2xh6syWKbDmbVEHgxxsYq
-	 GCnoJX0cq7/V6DqDTFOmxvIE10KzCxSNBAbFVo6gv+ScFBtUAX920R7rSTQGCCQfzBGUG
-	 wKpL9aUPk33xflGaSxfFfspxCvTLZL4x6hr84IcBRiAEFgsaPWJ4dtsP93IR8HcpKg7p2
-	 AqRgDuBkUA8UwrTfxLwZd8a5W/YywIdVvaFHzJaphaTpIuxvx+hupLteywf6v4cQ3A5f8
-	 iZdih8UVMXtVdSgBCj8RcfDkQb8d8vZqu9nuS9yuvti/j+INF+HvHmTztAWxarbtBRQ==
+	t=1793348433;
+	b=YutuZe94es/MhcXaSlOyHlo5hFohsylbQbBZVXhukKtuqregpFlYQ23ds0R6yTecAF4p
+	 yN6NIvzPU+FoUaz4sPRNhSYnJUFdihvmqQe8g2t7u36Bu3pWx75UAfANu+PZUFJJ+QbR6
+	 tNjwUcBkDQPorMjIXmnVUi5sK8atm++kH5p8uI7xAwzgksbVdBhOTXo7V/3vQCIM88zJ6
+	 hz66zoh1DioLAoTIjOcnRfRExhc7+xhiEgY2eXCU1yjqUpzuhn7pQdGO7kFbCSuEvvY3B
+	 0g7itsTfeqqgQAiYmeRxV+2W8H572wUtG6iu5+veyEaWp8OuVjuoO9GexH7gNAAre2A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793344426;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=nXilgdS7CLOmcdrjW/kYGIwI3BWhhi5w7jGBtQxBRhY=;
-	b=FCu79b7pkKuZfLWJO/EAEpHd1TkGHKuDD5HFEpifUQIUM8Ll1N+9dcR1PpOdjCQQrWXH
-	 75lQzifZRvzZ8IYkHBOSobEiRGFCrUpl9Ih9mDHXIC1lunTzO1jSYmIbLRsnT0TK1pdag
-	 0qj5h1nBxhBKEyEStFMoc7sI3SB3DQpK6PNLR2cWKxpAV9vr0TbXR0IN4byUa5MMjm2lx
-	 QUZ92zKrnBRLjIW2YQZD1elfW1kvW//vzM3JekMHP66+i5Oa41xLMq0QVR5Xx0tWZkVRe
-	 rUaCu3TugJ3ztTLq53oNTjVT+u6FCH5q1risPxMHsVr11O1GKnJ0dgjbh+eZ8QyfMUA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793348433;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type;
+	bh=eMw0Tsc5hY6DqmDs0szKnY0CQ5h9hvbZXBJZty/2/ZY=;
+	b=qNG/lWxT0kRsja1caEnIlj+SYwEijDXQxXNjDI+V8nL8Pvn0iAoziryAYpAnxJkP02DO
+	 nLlunrRS4O2UgnzWuPWfya/5az7FRgV/iWGrC5kFLRHBrDpgBCGc+c0w0aEIT0g5+o2bX
+	 jfFlFxt8P2zcO5lu0SMRv6IYodI5xl3IfjFVrXIaQqPHVakdfbZYekJ1EeGFUlr6bZD4h
+	 TSe69T1dhAvH9ABwaooLPIaW0V354/mmNw/GjB/Q6xTrSWusqHu6ffREbVusOF57KjgG8
+	 6l9JKhzTzv/r7U7XEjbxGhhG+xAnY2t0fx8X5vlxoISZZ3ce0wiW0ZWC3cQmn+ogNqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SogZPJn4;
-	arc=none smtp.remote-ip=209.85.221.48
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=proton.me;
+	spf=pass smtp.mailfrom=proton.me;
+	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=aTFFpxxh;
+	arc=none smtp.remote-ip=185.70.43.16
+Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9894E606A31A
-	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 07:13:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9894E606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 744FF606A332
+	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 08:20:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 744FF606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SogZPJn4
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48e3b22e971so143276f8f.0
-        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 00:13:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793344421; x=1793949221; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=nXilgdS7CLOmcdrjW/kYGIwI3BWhhi5w7jGBtQxBRhY=;
-        b=SogZPJn4pjuqS0ad4WFyDqQkm3xx/fne8DbFcoLgwQSV1WFC2uUaMFtCDLp5u6QJuT
-         G7r2asDFVbqo72YzbXORE9y5DJwoUTh6u97N8gIQ/vFEE3MYFyoe4X6J+hfiUut8JL5m
-         W9WbHHQgMl/RHvedeCqP4EnBoTMzVR6K/darLWm92cmv8EnxkzC1zkH1bCBrJcP+VJB4
-         BZuLU1n9epXKgHrEf8prRZpyv3GNi5Qu22hr0sfBQ0/rgakdiwTJK+u2y+FysfRILl4n
-         nUay8W3lcRFWmZz46G2oHhOELPzlRLMgOrxucQ3uZsHcq9WKk85DEdUQKQaU/w8QaKo7
-         t6Sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793344421; x=1793949221;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=nXilgdS7CLOmcdrjW/kYGIwI3BWhhi5w7jGBtQxBRhY=;
-        b=ec5dEh2HzVBaWp+iXuYw3E9EeULG21UlS5zCm6Eji8d0yN530HkpZ9+BrDpP0pWxda
-         A8wssk4G63XJwWHt57ZCi4E1qfR9MkBYJjbmN37VNeqR5d/vAw5QceV1zFqCXCqKoMID
-         6ELcUNeN1ejvjPAharW8a/IdbLneOJGrw9DspxQXU1pT3EZZYcVV+TOqEOU5oPE0ohGN
-         8tp46StpbumZoU/kVMQL8evd1voOoYgjp+lSSJsfScxDIU4EBW3hSbcKTnNLKFA1BH8o
-         xL6Oc0lGtlEldZ+MTWdJRQ073uQwlo4lIdpJEFkLMmwCuKChY3OUMXA6rSzb/njTzhAH
-         zfBg==
-X-Forwarded-Encrypted: i=1; AKwUvBxlgbc+9yBWuneyf1Al298eraS2ZZlc4OLdiO2MAQCYN8jvGfUI41emtJRu1s3PLQ2uUyUsiIWNYLQ=@vger.kernel.org
-X-Gm-Message-State: AFq9FYJLC2FCadyU+Hw3QXhaFYrmCP+8iwKB/b9xmIQ3VPnQuCXB2CEI
-	wx7p9JBL6gENJ091hB3KLpP9uRtJH/NvcMMa1oAHRea/kC3dk6KDhq4L
-X-Gm-Gg: AYBFou0rXdS8IQIc9ShN9ba5ESHiy+Qzlhpjz95YcxYK/immIHZW8orvjM8fQq0TiYg
-	v2Dz2A2T7cCObRve5j4QYzwWfiegTTNaINsDMbOJC5gRsgRx1cXfrOhh72quQvKui6eqDZtqDE2
-	8F02z56o6j9DuD4eTEmAo2GZODjo60vPdkMDOQTxJYHSJ6hbBpJ5Yk4/zdKs0f+Quxe4quoGsHg
-	BCB1JMXRkiYWhkpZEhBiUuZqHWhcsgj1lJJ9yKbCZ56nQZtE8gQDvJE+Qq2fB37gPBim0JFZN+h
-	A6eqmvRsT2mn2oAeM0VJPi5YAB9SDfcVfBGMppXqUMsyCl/5MMR56Wx9LXyjnng3BB2hNudY+Ny
-	NygktliVCVTTy6BN8VeDyNK+b6If6HO/K4rsfAXT+u4R0fP43BPmP1CGbVbwLCj4t7H33x+ymzG
-	xJJridAUCK5ALXXV6KOFfSj4UpVG+a1D2MJO+6A2qvDsg6Nu7OYxHhzzRGhYExJU83eHvvv2uyx
-	TT9s/p6fyw1i5oL4FayFqfqQC7FqZCY4cu4MIRt/Cfz9g9ED9xlkuEfVsPEzzKyx7v4lo7wHoIZ
-	4Aj5xMLjpFOpSphvtEwS6W5Q7RFvHtK73KkEU3MceBExJjAisSIEjf+Tzpa0y1pdlgehCBCRzXX
-	4nOD3v0wXLZrSHQdz/42tbCgJHMDOIMIfkg==
-X-Received: by 2002:a05:6000:430d:b0:48e:25d7:d276 with SMTP id ffacd0b85a97d-48e6e2c3527mr3261224f8f.2.1793344420640;
-        Fri, 30 Oct 2026 00:13:40 -0700 (PDT)
-Received: from Ansuel-XPS24.localdomain (93-34-92-187.ip49.fastwebnet.it. [93.34.92.187])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48e71b78c10sm1489936f8f.25.2026.10.30.00.13.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 00:13:40 -0700 (PDT)
-From: Christian Marangi <ansuelsmth@gmail.com>
-To: Stefan Roese <sr@denx.de>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Cc: Christian Marangi <ansuelsmth@gmail.com>
-Subject: [PATCH v4] i2c: mt7621: rework cmd/wait OPs to support atomic afer variant
-Date: Fri, 30 Oct 2026 08:13:23 +0100
-Message-ID: <20261030071325.2678-1-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=aTFFpxxh
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail2; t=1793348430; x=1793607630;
+	bh=eMw0Tsc5hY6DqmDs0szKnY0CQ5h9hvbZXBJZty/2/ZY=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=aTFFpxxhvkz0apQitjCI++GPp1sNBCa5jWnWyXYFtz1GKCM+9ohYEg83HdgIiZiff
+	 0KvYohZZJ9NHir8hk7O1KmwAnaLp42qpwZ10UltJy9alQ3bdCBl3+ERqdUmp0dAIZk
+	 MXgrUAgXOIIBmtcYsP4k+OjmPARdPdipTAXBtiebXQ2v+570qUTCUMhSZTUz7UlG06
+	 pLZ4qyavffn3G22B3YniS687Nc60WSfa6Mzy4a2fwEACWyaCllKftcsC5q1qAEcubD
+	 UFVvaDw+7uNwzf3qnnS+QhB79cv3773dTfsOm83etzYEyQaEnxRxFK8EJ0IalDVIxv
+	 EQDh7PRa+bNyQ==
+Date: Fri, 30 Oct 2026 08:20:25 +0000
+To: linux-i2c@vger.kernel.org
+From: Yazoudi <Yazoudi@proton.me>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Linux I2C/SMBus] AMD FCH SMBus controller fails to bind on Gigabyte B850M FORCE WIFI6E
+Message-ID: <70db7519-da14-4b59-a196-27f5b67c84bd@proton.me>
+In-Reply-To: <defea8da-35df-478e-8c07-226db605bb1d@proton.me>
+References: <defea8da-35df-478e-8c07-226db605bb1d@proton.me>
+Feedback-ID: 197040310:user:proton
+X-Pm-Message-ID: f6cb6cce089e0a0c6e4fed18b1de0a903a89c4c0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -101,208 +64,160 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed;
+ boundary="b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc"
 
-It was reported the need for atomic operation on some Airoha SoC that
-makes use of I2C bus. Rework the cmd/wait OPs to suppor the xfer_atomic
-variant. To support this it's needed to do the readl poll in
-atomic context and special handling for device_reset.
+--b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
----
 
-Changes v4:
-- Split to dedicated patch
-- Reduce timeout to 250ms
-- Disable device_reset in atomic context
+Hello,
 
-Changes v3..v2:
-- No related changes
+I am investigating an SMBus controller that does not bind to the Linux=20
+i2c_piix4 driver on my Gigabyte B850M FORCE WIFI6E (revision 1.0)=20
+motherboard.
 
- drivers/i2c/busses/i2c-mt7621.c | 75 ++++++++++++++++++++++-----------
- 1 file changed, 51 insertions(+), 24 deletions(-)
+The PCI device is detected, and i2c_piix4 is listed as a candidate=20
+module, but no driver is bound to the device. The kernel also logs an=20
+ACPI resource conflict involving the SMBus I/O range and the GSA1.SMBI=20
+operation region.
 
-diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
-index 9ea5e3f9a763..0283191ac518 100644
---- a/drivers/i2c/busses/i2c-mt7621.c
-+++ b/drivers/i2c/busses/i2c-mt7621.c
-@@ -67,27 +67,38 @@ struct mtk_i2c {
- 	struct clk *clk;
- };
- 
--static int mtk_i2c_wait_idle(struct mtk_i2c *i2c)
-+static int mtk_i2c_wait_idle(struct mtk_i2c *i2c, bool atomic)
- {
- 	int ret;
- 	u32 val;
- 
--	ret = readl_relaxed_poll_timeout(i2c->base + REG_SM0CTL1_REG,
--					 val, !(val & SM0CTL1_TRI),
--					 10, TIMEOUT_MS * 1000);
-+	if (atomic)
-+		ret = readl_relaxed_poll_timeout_atomic(i2c->base + REG_SM0CTL1_REG,
-+							val, !(val & SM0CTL1_TRI),
-+							10, TIMEOUT_MS * 250);
-+	else
-+		ret = readl_relaxed_poll_timeout(i2c->base + REG_SM0CTL1_REG,
-+						 val, !(val & SM0CTL1_TRI),
-+						 10, TIMEOUT_MS * 1000);
- 	if (ret)
- 		dev_dbg(i2c->dev, "idle err(%d)\n", ret);
- 
- 	return ret;
- }
- 
--static void mtk_i2c_reset(struct mtk_i2c *i2c)
-+static void mtk_i2c_reset(struct mtk_i2c *i2c, bool atomic)
- {
- 	int ret;
- 
--	ret = device_reset(i2c->adap.dev.parent);
--	if (ret)
--		dev_err(i2c->dev, "I2C reset failed!\n");
-+	/*
-+	 * Skip device_reset in atomic context as it depends on the
-+	 * reset-controller correctly handling atomic operations.
-+	 */
-+	if (!atomic) {
-+		ret = device_reset(i2c->adap.dev.parent);
-+		if (ret)
-+			dev_err(i2c->dev, "I2C reset failed!\n");
-+	}
- 
- 	/*
- 	 * Don't set SM0CTL0_ODRAIN as its bit meaning is inverted. To
-@@ -117,27 +128,28 @@ static int mtk_i2c_check_ack(struct mtk_i2c *i2c, u32 expected)
- 	return ((ack & ack_expected) == ack_expected) ? 0 : -ENXIO;
- }
- 
--static int mtk_i2c_start(struct mtk_i2c *i2c)
-+static int mtk_i2c_start(struct mtk_i2c *i2c, bool atomic)
- {
- 	iowrite32(SM0CTL1_START | SM0CTL1_TRI, i2c->base + REG_SM0CTL1_REG);
--	return mtk_i2c_wait_idle(i2c);
-+	return mtk_i2c_wait_idle(i2c, atomic);
- }
- 
--static int mtk_i2c_stop(struct mtk_i2c *i2c)
-+static int mtk_i2c_stop(struct mtk_i2c *i2c, bool atomic)
- {
- 	iowrite32(SM0CTL1_STOP | SM0CTL1_TRI, i2c->base + REG_SM0CTL1_REG);
--	return mtk_i2c_wait_idle(i2c);
-+	return mtk_i2c_wait_idle(i2c, atomic);
- }
- 
--static int mtk_i2c_cmd(struct mtk_i2c *i2c, u32 cmd, int page_len)
-+static int mtk_i2c_cmd(struct mtk_i2c *i2c, u32 cmd, int page_len,
-+		       bool atomic)
- {
- 	iowrite32(cmd | SM0CTL1_TRI | SM0CTL1_PGLEN(page_len),
- 		  i2c->base + REG_SM0CTL1_REG);
--	return mtk_i2c_wait_idle(i2c);
-+	return mtk_i2c_wait_idle(i2c, atomic);
- }
- 
--static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
--			int num)
-+static int mtk_i2c_xfer_common(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			       int num, bool atomic)
- {
- 	struct mtk_i2c *i2c;
- 	struct i2c_msg *pmsg;
-@@ -151,12 +163,12 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		pmsg = &msgs[i];
- 
- 		/* wait hardware idle */
--		ret = mtk_i2c_wait_idle(i2c);
-+		ret = mtk_i2c_wait_idle(i2c, atomic);
- 		if (ret)
- 			goto err_timeout;
- 
- 		/* start sequence */
--		ret = mtk_i2c_start(i2c);
-+		ret = mtk_i2c_start(i2c, atomic);
- 		if (ret)
- 			goto err_timeout;
- 
-@@ -172,7 +184,8 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			len = 1;
- 		}
- 		iowrite32(addr, i2c->base + REG_SM0D0_REG);
--		ret = mtk_i2c_cmd(i2c, SM0CTL1_WRITE, len);
-+		ret = mtk_i2c_cmd(i2c, SM0CTL1_WRITE, len,
-+				  atomic);
- 		if (ret)
- 			goto err_timeout;
- 
-@@ -200,7 +213,7 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 				cmd = SM0CTL1_WRITE;
- 			}
- 
--			ret = mtk_i2c_cmd(i2c, cmd, page_len);
-+			ret = mtk_i2c_cmd(i2c, cmd, page_len, atomic);
- 			if (ret)
- 				goto err_timeout;
- 
-@@ -221,7 +234,7 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		}
- 	}
- 
--	ret = mtk_i2c_stop(i2c);
-+	ret = mtk_i2c_stop(i2c, atomic);
- 	if (ret)
- 		goto err_timeout;
- 
-@@ -229,17 +242,30 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	return i;
- 
- err_ack:
--	ret = mtk_i2c_stop(i2c);
-+	ret = mtk_i2c_stop(i2c, atomic);
- 	if (ret)
- 		goto err_timeout;
- 	return -ENXIO;
- 
- err_timeout:
- 	mtk_i2c_dump_reg(i2c);
--	mtk_i2c_reset(i2c);
-+	mtk_i2c_reset(i2c, atomic);
-+
- 	return ret;
- }
- 
-+static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			int num)
-+{
-+	return mtk_i2c_xfer_common(adap, msgs, num, false);
-+}
-+
-+static int mtk_i2c_xfer_atomic(struct i2c_adapter *adap,
-+			       struct i2c_msg *msgs, int num)
-+{
-+	return mtk_i2c_xfer_common(adap, msgs, num, true);
-+}
-+
- static u32 mtk_i2c_func(struct i2c_adapter *a)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
-@@ -247,6 +273,7 @@ static u32 mtk_i2c_func(struct i2c_adapter *a)
- 
- static const struct i2c_algorithm mtk_i2c_algo = {
- 	.xfer = mtk_i2c_xfer,
-+	.xfer_atomic = mtk_i2c_xfer_atomic,
- 	.functionality = mtk_i2c_func,
- };
- 
-@@ -265,7 +292,7 @@ static void mtk_i2c_init(struct mtk_i2c *i2c)
- 	if (i2c->clk_div > SM0CTL0_CLK_DIV_MAX)
- 		i2c->clk_div = SM0CTL0_CLK_DIV_MAX;
- 
--	mtk_i2c_reset(i2c);
-+	mtk_i2c_reset(i2c, false);
- }
- 
- static int mtk_i2c_probe(struct platform_device *pdev)
--- 
-2.55.0
+System details:
+
+  *
+
+    Motherboard: Gigabyte B850M FORCE WIFI6E, revision 1.0
+
+  *
+
+    BIOS: F8a
+
+  *
+
+    Distribution: Arch Linux with zen kernel
+
+  *
+
+    Kernel: 7.2.11-zen1-1-zen
+
+  *
+
+    SMBus PCI device: 00:14.0, AMD FCH SMBus Controller [1022:790b],
+    revision 71
+
+  *
+
+    PCI subsystem: Gigabyte [1458:5001]
+
+Relevant observations:
+
+ 1.
+
+    |lspci -nnk -s 00:14.0|lists |i2c_piix4|under Kernel modules, but
+    does not show a Kernel driver in use.
+
+ 2.
+
+    |/sys/bus/pci/devices/0000:00:14.0/driver|does not resolve to a driver.
+
+ 3.
+
+    The kernel logs:
+    |ACPI Warning: SystemIO range 0x0000000000000B00-0x0000000000000B08
+    conflicts with OpRegion 0x0000000000000B00-0x0000000000000B0F
+    (\GSA1.SMBI)|
+    followed by:
+    |ACPI: OSL: Resource conflict; ACPI support missing from driver?|
+
+ 4.
+
+    |/proc/ioports|lists |0b00-0b0f : PNP0C02:03|.
+
+ 5.
+
+    Reloading i2c_piix4 does not bind the driver, and no SMBus adapter
+    appears among the available I=C2=B2C adapters.
+
+I originally investigated this because OpenRGB cannot detect my KLEVV=20
+CRAS V RGB DDR5 modules. The |spd5118|driver loads, but no SPD devices=20
+are instantiated. I understand that SPD access and RGB control are=20
+separate issues; my immediate concern is the SMBus controller not binding.
+
+I found a related patch discussion concerning an ACPI resource conflict=20
+on the Gigabyte X870 EAGLE WIFI7:
+https://lkml.rescloud.iu.edu/2608.1/09152.html=20
+<https://lkml.rescloud.iu.edu/2608.1/09152.html>
+
+That is a different motherboard, so I do not know whether the same=20
+underlying issue applies here.
+
+Could you advise whether this looks like an ACPI resource reservation=20
+preventing i2c_piix4 from binding, and what additional diagnostics would=20
+help establish the cause? I have not forced the driver to bind or=20
+disabled the kernel's ACPI resource protections.
+
+I can provide the full kernel log, PCI configuration, and other=20
+diagnostic output if needed.
+
+Thank you.
+
+
+--b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc
+Content-Type: text/plain; charset=UTF-8; name=diagnostics.txt
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=diagnostics.txt
+
+PT09IEtlcm5lbCA9PT0KTGludXggWWF6b3VkaVBjIDcuMi4xMS16ZW4xLTEtemVuICMxIFpFTiBT
+TVAgUFJFRU1QVF9EWU5BTUlDIEZyaSwgMTYgT2N0IDIwMjYgMDA6Mjg6NDIgKzAwMDAgeDg2XzY0
+IEdOVS9MaW51eApMaW51eCB2ZXJzaW9uIDcuMi4xMS16ZW4xLTEtemVuIChsaW51eC16ZW5AYXJj
+aGxpbnV4KSAoZ2NjIChHQ0MpIDE2LjIuMSAyMDI2MDgxMCwgR05VIGxkIChHTlUgQmludXRpbHMp
+IDIuNDcpICMxIFpFTiBTTVAgUFJFRU1QVF9EWU5BTUlDIEZyaSwgMTYgT2N0IDIwMjYgMDA6Mjg6
+NDIgKzAwMDAKCj09PSBEaXN0cmlidXRpb24gPT09Ck5BTUU9IkFyY2ggTGludXgiClBSRVRUWV9O
+QU1FPSJBcmNoIExpbnV4IgpJRD1hcmNoCkJVSUxEX0lEPXJvbGxpbmcKQU5TSV9DT0xPUj0iMzg7
+MjsyMzsxNDc7MjA5IgpIT01FX1VSTD0iaHR0cHM6Ly9hcmNobGludXgub3JnLyIKRE9DVU1FTlRB
+VElPTl9VUkw9Imh0dHBzOi8vd2lraS5hcmNobGludXgub3JnLyIKU1VQUE9SVF9VUkw9Imh0dHBz
+Oi8vYmJzLmFyY2hsaW51eC5vcmcvIgpCVUdfUkVQT1JUX1VSTD0iaHR0cHM6Ly9naXRsYWIuYXJj
+aGxpbnV4Lm9yZy9ncm91cHMvYXJjaGxpbnV4Ly0vaXNzdWVzIgpQUklWQUNZX1BPTElDWV9VUkw9
+Imh0dHBzOi8vdGVybXMuYXJjaGxpbnV4Lm9yZy9kb2NzL3ByaXZhY3ktcG9saWN5LyIKTE9HTz1h
+cmNobGludXgtbG9nbwoKPT09IE1vdGhlcmJvYXJkIGFuZCBCSU9TID09PQpCODUwTSBGT1JDRSBX
+SUZJNkUKeC54CkY4YQowMy8xMS8yMDI2Cgo9PT0gU01CdXMgUENJIGNvbnRyb2xsZXIgPT09CjAw
+OjE0LjAgU01CdXMgWzBjMDVdOiBBZHZhbmNlZCBNaWNybyBEZXZpY2VzLCBJbmMuIFtBTURdIEZD
+SCBTTUJ1cyBDb250cm9sbGVyIFsxMDIyOjc5MGJdIChyZXYgNzEpCglTdWJzeXN0ZW06IEdpZ2Fi
+eXRlIFRlY2hub2xvZ3kgQ28uLCBMdGQgRGV2aWNlIFsxNDU4OjUwMDFdCglLZXJuZWwgbW9kdWxl
+czogaTJjX3BpaXg0LCBzcDUxMDBfdGNvCjAwOjE0LjAgU01CdXM6IEFkdmFuY2VkIE1pY3JvIERl
+dmljZXMsIEluYy4gW0FNRF0gRkNIIFNNQnVzIENvbnRyb2xsZXIgKHJldiA3MSkKCVN1YnN5c3Rl
+bTogR2lnYWJ5dGUgVGVjaG5vbG9neSBDby4sIEx0ZCBEZXZpY2UgNTAwMQoJQ29udHJvbDogSS9P
+KyBNZW0rIEJ1c01hc3Rlci0gU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
+dGVwcGluZy0gU0VSUi0gRmFzdEIyQi0gRGlzSU5UeCsKCVN0YXR1czogQ2FwLSA2Nk1IeisgVURG
+LSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9y
+dC0gPlNFUlItIDxQRVJSLSBJTlR4LQoJSU9NTVUgZ3JvdXA6IDEwCglLZXJuZWwgbW9kdWxlczog
+aTJjX3BpaXg0LCBzcDUxMDBfdGNvCgoKPT09IEkvTyByZXNvdXJjZSByZXNlcnZhdGlvbiA9PT0K
+ICAwMDAwLTAwMDAgOiBQTlAwQjAwOjAwCgo9PT0gUmVsZXZhbnQga2VybmVsIG1lc3NhZ2VzID09
+PQpPY3QgMzAgMTA6NTE6NTkgWWF6b3VkaVBjIGtlcm5lbDogQklPUy1lODIwOiBbbWVtIDB4MDAw
+MDAwMDAwYjAwMDAwMC0weDAwMDAwMDAwMGIwMjBmZmZdICBkZXZpY2UgcmVzZXJ2ZWQKT2N0IDMw
+IDEwOjUxOjU5IFlhem91ZGlQYyBrZXJuZWw6IFBNOiBoaWJlcm5hdGlvbjogUmVnaXN0ZXJlZCBu
+b3NhdmUgbWVtb3J5OiBbbWVtIDB4MGIwMDAwMDAtMHgwYjAyMGZmZl0KT2N0IDMwIDEwOjUxOjU5
+IFlhem91ZGlQYyBrZXJuZWw6IGU4MjA6IHJlZ2lzdGVyIFJBTSBidWZmZXIgcmVzb3VyY2UgW21l
+bSAweDBiMDAwMDAwLTB4MGJmZmZmZmZdCk9jdCAzMCAxMDo1MTo1OSBZYXpvdWRpUGMga2VybmVs
+OiBhY3BpIFBOUDBDMDI6MDM6IFJlc2VydmVkIFtpbyAgMHgwYjAwLTB4MGIwZl0KT2N0IDMwIDEw
+OjUxOjU5IFlhem91ZGlQYyBrZXJuZWw6IHJ0Y19jbW9zIFBOUDBCMDA6MDA6IFJUQyBjYW4gd2Fr
+ZSBmcm9tIFM0Ck9jdCAzMCAxMDo1MTo1OSBZYXpvdWRpUGMga2VybmVsOiBydGNfY21vcyBQTlAw
+QjAwOjAwOiByZWdpc3RlcmVkIGFzIHJ0YzAKT2N0IDMwIDEwOjUxOjU5IFlhem91ZGlQYyBrZXJu
+ZWw6IHJ0Y19jbW9zIFBOUDBCMDA6MDA6IHNldHRpbmcgc3lzdGVtIGNsb2NrIHRvIDIwMjYtMTAt
+MzBUMDY6NTE6NTEgVVRDICgxNzkzMzQzMTExKQpPY3QgMzAgMTA6NTE6NTkgWWF6b3VkaVBjIGtl
+cm5lbDogcnRjX2Ntb3MgUE5QMEIwMDowMDogYWxhcm1zIHVwIHRvIG9uZSBtb250aCwgeTNrLCAx
+MTQgYnl0ZXMgbnZyYW0KT2N0IDMwIDEwOjUxOjU5IFlhem91ZGlQYyBrZXJuZWw6IEFDUEkgV2Fy
+bmluZzogU3lzdGVtSU8gcmFuZ2UgMHgwMDAwMDAwMDAwMDAwQjAwLTB4MDAwMDAwMDAwMDAwMEIw
+OCBjb25mbGljdHMgd2l0aCBPcFJlZ2lvbiAweDAwMDAwMDAwMDAwMDBCMDAtMHgwMDAwMDAwMDAw
+MDAwQjBGIChcR1NBMS5TTUJJKSAoMjAyNjA0MDgvdXRhZGRyZXNzLTIwNCkKT2N0IDMwIDEwOjUx
+OjU5IFlhem91ZGlQYyBrZXJuZWw6IEFDUEk6IE9TTDogUmVzb3VyY2UgY29uZmxpY3Q7IEFDUEkg
+c3VwcG9ydCBtaXNzaW5nIGZyb20gZHJpdmVyPwpPY3QgMzAgMTE6MjQ6MjUgWWF6b3VkaVBjIGtl
+cm5lbDogQUNQSSBXYXJuaW5nOiBTeXN0ZW1JTyByYW5nZSAweDAwMDAwMDAwMDAwMDBCMDAtMHgw
+MDAwMDAwMDAwMDAwQjA4IGNvbmZsaWN0cyB3aXRoIE9wUmVnaW9uIDB4MDAwMDAwMDAwMDAwMEIw
+MC0weDAwMDAwMDAwMDAwMDBCMEYgKFxHU0ExLlNNQkkpICgyMDI2MDQwOC91dGFkZHJlc3MtMjA0
+KQpPY3QgMzAgMTE6MjQ6MjUgWWF6b3VkaVBjIGtlcm5lbDogQUNQSTogT1NMOiBSZXNvdXJjZSBj
+b25mbGljdDsgQUNQSSBzdXBwb3J0IG1pc3NpbmcgZnJvbSBkcml2ZXI/Cg==
+
+--b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc--
 
