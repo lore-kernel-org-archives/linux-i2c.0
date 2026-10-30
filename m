@@ -1,95 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793389785;
-	b=nA9PEgishx74XqQWgdwo1nIWnpcOpVMr5i67wEY2kJVmIueSDIB5La/diQsW3KMGcwyw
-	 ENr4Xh16vZ2P05HDjBHyhnt+4SO2inSe6Wlsjs6hHn0VN+M5qhe1hgJjwpTf4xOzQqITX
-	 3hUsPsCWn7iqnFc5j13az7WAQAThh5WgX6RC+BQnu9zwhJx6EjnQmhtH7uNiAIczt2HHc
-	 nvFjdhuiSZfjWjYpuoWO/d2xPcEhtTin061D33m1lzOeftrVp7ahIyGnI9anE41fmVVsk
-	 HSn93jtlM9NV9iuaUqbf3T+qLuojx6Jo9JI8oaeARtxNA23X4vl9GSL9gM/a4q6XNqw==
+	t=1793399819;
+	b=nbHCYxhQE3XDb7LPcMZp0qHT0XGnGjqO1vucwBZUx/0a+QnpltRDPCsOxXcqh0iVulhX
+	 KTsi22nhZQaRwcztWmsALFeA2eTOXUJEO8VGIB3a4WeRyOPSeZ8HZBTMnlLg9l2VbU+x7
+	 oHme2xe7zkvvdzCpmUFYBSAMhkvX195UgKHO/f54jSfbPG4s4vRbQJ2qiWCoVV8evQ8XP
+	 FSLT9DZm+iG/iG8DaHbZldzxNNeZs+avaC3UFysklsEKETapcooyT3D3/W046X5SMWzAs
+	 q7ZhQPWuZoaP8lWgabWlr15smBazfWXLX1tu3eUU61lgBWna5nAtY+1R/1S7HFwo7zQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793389785;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=tGRSe9LvYJDXqnyp9hHRUXYwQf0o1AOnoi+Z+9njJw0=;
-	b=n4Wx5kaPtrivIZyEXc1pPdspLq9jbcjxOklxlNndMN/OLzR2husbu/NECi340CAR8xdY
-	 sNLd0bjUYSU22C773oYFsdhXsJ/0gRoNQm242wx89SYwwyPG8RY7WbdZXM/Nvy4Z+e9dO
-	 jX5sQ+FOHIL5/Eum/jjlwKNBoowdhtaGBgulgRKDhRDAfEMeKDShYsIvPAKRkWK1lHNxu
-	 GzqmZIFDxCyj8vyTzs2WVxj8I8/HjbG9W0FtkSUy+bsy3zRNpBGHVSyujGDTuoRVeyTFn
-	 g5kbSe8LQZBDDkP18DCaZy4f6yD8Ogs1hy2IvIYbWjrvou29nG97WsE6aTFBPHNBhBA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793399819;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=Ut+9IA7+uboYNcIm8+J4cxAe0hs4W7L46fYN/DTBCtw=;
+	b=oI2b1Is2CAb7nvSdzPitobgSIXjgXH7Ut6UB+p9Std2mwWugdnBIC3joj9y19f8kr3Jo
+	 50GeqUlSvXCU4VCQslhWzmaFUxpSgoz+F2b7vJg2aMShPVETcyfqJ7CYm7PNjzlpeYxsc
+	 lALUlCujwUEW8DDouTX2Lxjr/TjMHy5+9GAl8TwwP0IZGIre3ZYcsBqsaiym3Ci247bQn
+	 ex3z6mSlnmZSP18KT5JJSFkV57oxXcRZMmXCaLQFnwC0i1RovZiE/wu85NIlCIps4yK3w
+	 4A5LIssoaD9MXi6Jkr8GUhNbHfeQhSszSg61eY4Ml0ZkHDGHaj8LXCnrwRBpOHsQvBA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IokEpGXr;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LeQ3hKdr;
+	arc=none smtp.remote-ip=209.85.128.53
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82377606A326
-	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 19:49:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 82377606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9497F606A321
+	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 22:36:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9497F606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=IokEpGXr
-Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
-	by cmsmtp with ESMTPS
-	id MqQpx5zjWaC0UMsbhxDOyt; Fri, 30 Oct 2026 19:49:45 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id MsbgxmwFIsTgvMsbhxHnYy; Fri, 30 Oct 2026 19:49:45 +0000
-X-Authority-Analysis: v=2.4 cv=DPiP4zNb c=1 sm=1 tr=0 ts=6ae4f4d9
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=EUspDBNiAAAA:8
- a=yaG995DJD8wxKFCFxIQA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=tGRSe9LvYJDXqnyp9hHRUXYwQf0o1AOnoi+Z+9njJw0=; b=IokEpGXrQD0n5OejTKC1338Lv7
-	nB2qbLUNlHV5stnP9rXGgDLsrG1BzzezifwGK+1Puq504s+/CK+qQZeSYHUy+fWe6vTpXRoNLCcG+
-	xvj3fW0MOJ4Nzk1pmdgFcsYZ+Y7Q0K25aG5ngASEqC8zCK+3rmRE4ZqwKU0PVdKMHaqK+/Tcy7JVE
-	KY7aoSpK4cWkeF0Qp5vCUmFXS84V+Ti3rKMhaw3CjyFBic+m/0+8CJAZmJkRiKE+zLuQv7G6Q29R3
-	MG6D1JOrDScGhEV5WilZ+4rKPqslkRjJgFrVsJqNU3FmWJw5kITj11QQJk1KvoCLL1e7dmb7RY0D0
-	PrjC/Iog==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:56876 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xMsbc-00000003tp5-2F1r;
-	Sat, 31 Oct 2026 01:19:40 +0530
-Date: Fri, 30 Oct 2026 12:49:38 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>,
-	Neal Gompa <neal@gompa.dev>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Hector Martin <marcan@marcan.st>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
-	Sasha Finkelstein <k@chaosmail.tech>,
-	Linus Walleij <linusw@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>,
-	Andi Shyti <andi.shyti@kernel.org>, asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 01/10] dt-bindings: watchdog: apple,wdt: Add t8142
- compatible
-Message-ID: <ee5a1127-1591-4720-ab34-896c1f037276@roeck-us.net>
-References: <20261027-apple-m5-initial-devicetrees-v1-0-1356181bc50d@cyberchaos.dev>
- <20261027-apple-m5-initial-devicetrees-v1-1-1356181bc50d@cyberchaos.dev>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=LeQ3hKdr
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4a2167bd087so9924245e9.3
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 15:36:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793399818; x=1794004618; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Ut+9IA7+uboYNcIm8+J4cxAe0hs4W7L46fYN/DTBCtw=;
+        b=LeQ3hKdrRiIwJ9WYm2818uTU6CMcLXU7f11PkZfTD8EzLL97P/fnUbqAy9BMBy7E03
+         6NPK8ze4FplLeq+oWoDl8osUEVLq7vY0i2zZl33ZWEGfHBt3x7kjE1ug950xIjyIs/r6
+         ZQTcm+jnDmaNFUNfpyD6PmhPMVbpEKR8+xqdbUxul3IDlgDYtYOLWIjzZGEoFVG5LllS
+         8PvQmfguG0350jsGWGl1AosdCZq9lQTCPAZwKLE0Be979prA6RaajtpJIGRk4Skeq4m9
+         EaSqtNO0hDj46Ev/wTqpwvzdMwm9j24iVUDRYeG9stAOQsATLOe+zwS8Y7891vAz745N
+         Kl8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793399818; x=1794004618;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Ut+9IA7+uboYNcIm8+J4cxAe0hs4W7L46fYN/DTBCtw=;
+        b=h5dNEWi93zcVECSTchC+wBCjZ0FOVGKNM637TgL/K/UOLZkbY8kSap/Yf9i/8b/oHa
+         mlaKM+BtxdhmEODa+cTBh6eR0pK0dB901ajHzm37POejiOY3QB8ZUE2e2nK7B+VGAFBj
+         am6z0GRhQE2FjvC8h84m141poptKUrxyyOcYfv/+cUR6wFW4fg4Uokm+qqpepiZ0UNmu
+         eKw/2dp4dWq6HIW9v4oTfuwHlLA7p+s4uxCJdzuw9jhxlMO9qwJD+XCsVi2/jaOGPKYI
+         vTQmDiKBEXign079dgVXOcfmhn3UU7MZH6vmkqKO8IfeMoZI/dgeUez0c5eA1TpG/bEN
+         4xfA==
+X-Forwarded-Encrypted: i=1; AKwUvBzeI16TtsZ6OxlEUt/I/kkyHFIbo1puF7XAR/cNxoFYSyq/rPPImg2OYgq1M0bFMFUqMkYfVrbJ8hU=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKV+TDgSRCNI/knQLczVRvVAXXhwWwE9/wsnf+ZZ2qFwMyb6+9+
+	ShROaofjY4+SWxs18LxwhpxtiTTYtKBTzkE7ut9MkiI/7Ex1ycL1H6ID
+X-Gm-Gg: AYBFou3jm7lbf0N08/3VIrq8sBj5T1163J0KTFmyd0Pd1y0fcb0u444n8IU5RxARjnD
+	L0l1kVvZZuvI325Gh/5rZy7hVjogdqouB79Nrw8ITsAy/lLHEyxFNulZLTamZ2C968e4Mk6zEHQ
+	FtHxtC+/HNIgrRO4hXMv6wFAO7cx7BfV3nJe/cy2KFLK/9s5gbOSR/ajY5aRdeaG33uZ6yptBZu
+	Ib/oticl6VznBdvzMWUGxVO95EszMzBIBX5A8AlgcS7aDC927mrEkbjchtZenLgp07gVKsl+WIi
+	31YJrPMrmXTabLj0G/EWJ8AD8mPW+rdyrryWcwCwk6fw4Z4j5ylDRnfzr3YGV5puhs5yfgF+hz+
+	S3HDPgQcW8XILTfAqRhD4qwaUmC14KENs5BuMlNtQb7AHb7CER6Hs0GMsZPwnK28MortK3cSAeY
+	78LDYLBGVP932pDr5fJoT18nLYXl38IekuI2bNj8bG7gYqpaD/Orj8ibNcINO90dClL2svGeNYx
+	5acOZ1t66vaQSjMpQSMSaXNHJKzX7022Y0G/ctRS0nzJBl2MSu/wpsl2hd3Y24zY8snoQfuHNCV
+	VSSO64q+nAYG0Nhq34sPqrbUUJgM
+X-Received: by 2002:a05:6000:2011:b0:48d:f14a:917e with SMTP id ffacd0b85a97d-48e6e2f24f9mr9160016f8f.11.1793399817797;
+        Fri, 30 Oct 2026 15:36:57 -0700 (PDT)
+Received: from m2.. ([37.142.145.227])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48e71b959c1sm5457300f8f.45.2026.10.30.15.36.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2026 15:36:57 -0700 (PDT)
+From: Michael Zaidman <michael.zaidman@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
+	Germain Hebert <germain.hebert@ca.abb.com>,
+	Christina Quast <contact@christina-quast.de>,
+	Rio Liu <rio@r26.me>,
+	Bruno Giacomazzi <brunoceg1@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Michael Zaidman <michael.zaidman@gmail.com>
+Subject: [PATCH v2 00/15] HID: ft260: add UART and GPIO support, plus I2C fixes
+Date: Sat, 31 Oct 2026 00:36:22 +0200
+Message-ID: <20261030223637.86907-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -99,38 +108,94 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261027-apple-m5-initial-devicetrees-v1-1-1356181bc50d@cyberchaos.dev>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xMsbc-00000003tp5-2F1r
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:56876
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 49
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfJzovY4m2bK3pTTA5CuIOOh85cB57A7lctWbx5eUcUm1NXYoL4T1VMkOg53yibEy8T8drOMSc7h9QpdeaaAl7drEO9rXAsfUGUymO8jwDqANXhaXAzFB
- Ekqfeu1Pu3i23Z9IF/Hi65pV4hd7anrpJHCCNXfhPuFOZinUaAK8Kw5GA+ze/mdwLSHszseKJ/aWxSFOUd7k9+cZjphkoE2sN6UdFn7qHMbTFEifDJMfpnBc
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 27, 2026 at 09:03:21AM +0100, Yureka Lilian wrote:
-> The watchdog on the Apple t8142 (M5) SoC is compatible with the M1-M4
-> SoCs. Add "apple,t8142-wdt" as SoC specific compatible.
-> 
-> Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Mainline supports only the FT260's I2C bridge. This series adds the
+UART/TTY interface and GPIO on top of it, and carries the I2C fixes
+made alongside them [1].
 
-Applied.
+Patch 1 is Christina Quast's v4 serial driver, ported to the current
+I2C code. Patch 2 holds the fixes it needed on hardware. They stay
+two patches, as agreed with Jiri, so that each has its own author.
+Patches 7 and 8 add flow control and the modem pins.
 
-Thanks,
-Guenter
+The v1 thread:
+https://lore.kernel.org/all/20260822213941.98882-1-michael.zaidman@gmail.com/T/#t
+
+As said in the v1 thread, this series lands the current driver first.
+The MFD split follows as its own series once this one is in the tree.
+
+Changes in v2:
+
+- Patch 1: the UART config enums are split per field and use the
+  UART_ infix from the start (Linus Walleij). Lock, read_lock and
+  wait are initialised before hid_hw_open(). Lifetime and TTY fixes
+  (reported by Sashiko).
+- Patch 2: subject now says what it fixes. FT260_UART_RI_DCD_STATUS
+  corrected to 0xE2, as in AN_394 section 4.3. 0xB1 length check and
+  wake-up timer re-arm (Sashiko).
+- Patch 3: subject drops "on top of UART". linux/bits.h, GENMASK()
+  and BIT() for the GPIO masks, FT260_GPIO_MAX renamed (Linus
+  Walleij). GPIO shadow, combined direction/value report, uart_mode
+  OFF (Sashiko).
+- Patch 4: timeout of the last I2C read chunk from its length
+  (Sashiko).
+- Patch 5: a failed feature report is no longer masked; word stores
+  use cpu_to_le16() (Sashiko).
+- Patch 6: __func__ is printed once (Sashiko).
+- Patch 8: v1 patch 10, Rio Liu's RTS/CTS/DTR/DSR polarity fix, is
+  folded in, with Co-developed-by. Error paths of tiocmget and
+  tiocmset (Sashiko). The TIOCM ioctls stay; the switch to the
+  serial_mctrl_gpio helpers needs serial core changes first, as
+  discussed with Linus Walleij.
+- Patch 9: subject drops "gpio:". i2c_enable moves to the interface
+  that owns the gpiochip, so it changes the mask the gpiochip uses.
+- Patch 11: the reset work is flushed on unload, and -ENOMEM does not
+  trigger a reset (Sashiko).
+- Patches 13 to 15 are new: reject an I2C clock outside 60-3400 kHz,
+  return the byte count from the i2c_reset store, and recover a bus
+  that a slave holds low.
+
+Testing: two FT260 boards, one in chip mode 0x03 with a 24LC512 and
+an FT2232 wired to its UART, one with a 24C02. A pytest suite of 202
+tests [2] drives sysfs, the gpiochip, the I2C adapter and the tty. It
+ran on 7.3.0-rc4 with this series applied, built with PROVE_LOCKING
+and DEBUG_ATOMIC_SLEEP, loading the in-tree module. The second board
+was strapped to 0x00, 0x01 and 0x02 in turn; each of the 202 tests
+passed in at least one of the three runs, with no lockdep report.
+Every patch builds with W=1 without warnings.
+checkpatch --strict reports no errors and one warning, for a quoted
+kernel log line in patch 15.
+
+[1] https://github.com/MichaelZaidman/hid-ft260
+[2] https://github.com/MichaelZaidman/hid-ft260/tree/main/tests
+
+Christina Quast (1):
+  HID: ft260: add serial driver
+
+Michael Zaidman (14):
+  HID: ft260: uart: fix the serial driver
+  HID: ft260: add GPIO support
+  HID: ft260: i2c: reduce driver module loading time
+  HID: ft260: i2c: silence sysfs store big-numbers
+  HID: ft260: i2c: reduce bus-error message severity
+  HID: ft260: uart: enable flow control
+  HID: ft260: uart: add modem pins control via ioctl
+  HID: ft260: group sysfs attrs per HID interface
+  HID: ft260: i2c: fix large write transaction failure
+  HID: ft260: workaround for TN_189 errata endpoint STALL after
+    enumeration
+  HID: ft260: i2c: abort in-flight transfers with STOP before reset
+  HID: ft260: i2c: reject an I2C clock outside the supported range
+  HID: ft260: i2c: fix i2c_reset sysfs store return value
+  HID: ft260: i2c: recover a bus held by a slave
+
+ drivers/hid/Kconfig     |   10 +-
+ drivers/hid/hid-ft260.c | 2435 ++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 2175 insertions(+), 270 deletions(-)
+
+
+base-commit: 720806515cb6921ab05caaa6f470f7054b56385e
+-- 
+2.43.0
+
