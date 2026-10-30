@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793372656;
-	b=dmQLFq7l//1qJIZ7HNJvQwZZG5U2fTllVgATONeWJ/XsLyDnki87WVFQEnOCk/Pf39bi
-	 GIotJz4FHo5CGIq8R5OHPq5uPBVJUH4iMeyOIHk6CY6ENPrkqcpOYQPJg+yeU10xNtaiS
-	 vo2Cy5urhbi6TEql+LfEwggLmyR4wRgeJgx0jhR7Z1PWn3DV9Oyaa/JpA6zekwJidA3Yk
-	 VrBAZUYLVidVH9H3nu8IVihX6mG1aLObYRa5laYEoyDtpF/5MYs7f5z+G5HbcoRbSbtyn
-	 iqBHnNLX/L2CY2eZ56SnfwhN00U7z1OS1iEW1oOmYhU/dQKj4OdwP/OKiWKWg3PnXXQ==
+	t=1793372764;
+	b=CAMXB2GtwcKdEmdu/sh8/CznMDC95wAT2Z8kCKCwrKdDzVNO3FXuC00kQX7RwEIh55Kn
+	 IWkw56ofkVl1MlrPMG0iJ72fwFEgqSZITXw1IXH3+wui/vRgMKCFqXtu8fLMGLm1chZN7
+	 I8Dp8T9I9yNQLaJi9lrVgERM5A9vHhj0ArJLUKfJ/vD+hsSFdbep0I2N87QwHKJTvfaYu
+	 pCtNh4Wgol0tcjtzHr/84vHJxvYsDGq6EPnTlpQI1GycRcpV9KHa5zcXrn7UrtAF11guo
+	 jHgdIZYwx66+7tylFa7/a818dpaCaRLwyA8wuxgFh7iBdtH+KiP1J0MMfCYofo9ed2w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793372656;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793372764;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=3ejU+QwuvUUVlsjsPfu0/M64lUD5vHCXgteWpYlp2rI=;
-	b=XYVOV0KkbK0JaSW/JWDxW4us08DP2QtxipAmXCBMUeqOPLRL15+M7RG0Cs1AycVNXsLl
-	 tAuualHFm+O+ODyNDAPcKyaYs27257UksgW09iOezqZ+orRFuqm3/Q0DX9yPLWlNLs+x7
-	 SaDwhvLt4UOG+dnOYULYqOteAyCMMPCLN9OU1zmuEJwHigXusq/pxsYlGggfR/z5ffsJ5
-	 bmI/09rhuo/b1KAfSzkf/qjVPg9ZuRLfZSHQkCcFFs4qSRdF958o27GOTUchppubVQZiW
-	 6wXTv9QCIWrWY8hARtqJ68VNwYdX7lC82bTUnJFsDU7pmlVE3hu3BlzCypfJ2s46P4Q==
+	bh=sYzDRqOzrEYAZS4hTTZnOPoaD6AkG418LLgUVfOQKBQ=;
+	b=2H+JOxLmY9xAyYqvjYYGLrs/0f24/VLHy3zSNn7RmCSP+LHw13hZ54NTupgIg85au323
+	 IWxWqxTJqaval7GV1qXxdupuwQzlOyy6XeyK5Vcgi4noGsQY87Y8P22HmGqBu2fjuwRjn
+	 PI6fKh+M37++ag6LNCvKxxKGo4KDD0HP/noz9PPcEU5m2SIHCHnm4rYDoBGTAhBwNqfM0
+	 E5cmA+E1TjrHvh3LRs8uQ4rFanNAABZmHLJGIkmphDfilsz1DrPJZvAOyb3YinH8HHLuL
+	 GqHMiP3pGrEegE4R4wCKNl2CjOfTiI5/Ypytm4JuNnTqLUhJzwF+09Aq2jhYRZJuPJQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n+xpX27b;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GinZx1PR;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCF05606A31D;
-	Fri, 30 Oct 2026 15:04:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 250B3606A31D;
+	Fri, 30 Oct 2026 15:06:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n+xpX27b
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E881F000C1;
-	Fri, 30 Oct 2026 15:04:10 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GinZx1PR
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D2C81F000C1;
+	Fri, 30 Oct 2026 15:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793372655;
-	bh=3ejU+QwuvUUVlsjsPfu0/M64lUD5vHCXgteWpYlp2rI=;
+	s=k20260515; t=1793372763;
+	bh=sYzDRqOzrEYAZS4hTTZnOPoaD6AkG418LLgUVfOQKBQ=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=n+xpX27bPWE+A2TwUPOE3kmmTRkiwZ/zopIYTmEws4IWwKWLejW2Z7Ym5/KEZUFFl
-	 FsZLfRob1h5sCFMrSQdL+5cazhsLr0XHvEyPqH6sTaTI/oJy+apdaOfOWbDRZ/RjOU
-	 stnzbFpT2HB8K1dQc52sODuD+SWGC9AQbf+v+TLlNIV5f61ODrleB9Ht26auRm+GRr
-	 gFgb9NDKqc2vn6JKdfqE/RVZhr5+6fFBImL223SGX5Zx4CixItBqK6Urd9YtnYexM4
-	 R0Jl/2tJMKrYuSFyd+8tOUJbGHQEmUgPrJTA2jFUst56IwjQVfZrLQWdaWi75g+z2C
-	 arEnhZ87VsAfA==
-Message-ID: <5817be6b-7180-407b-acb5-8c5fdef4edfb@kernel.org>
-Date: Fri, 30 Oct 2026 15:04:09 +0000
+	b=GinZx1PRh60QmM5qiDNQiT6QgBe4qdyaQscATG3RcMHjP0sYl3VQfCqiNevGtSstH
+	 Kojl5XNjX4GDEMYFXnZovD2F0uN+pRSqmUNiMcJ1JfFTIyXRRelJLjFFSzo7z+G5cl
+	 BwYQVngRwWOObknO8quqRzLYK7fuqNx/BYdUnWNbPG/Kt6mQJQalm/Aihl8K0XM7xl
+	 3+HOjVM1zN2Ffbsc3taOMmceOlMq7zJiOGEcH+ixSmxCAQLLpSeNsY2CVCNNDY913n
+	 d7iscjOjR0E2JGZ1fSfCSmd6lvRWIwktOPpl1P8YhSJCcV8WQlhIZ/rmMC/VgAetZp
+	 Ki5jcXQkFA9lA==
+Message-ID: <23845ad3-dedd-4e24-803b-5abf3b030c4a@kernel.org>
+Date: Fri, 30 Oct 2026 15:05:57 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -122,21 +122,19 @@ Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 30/10/2026 12:43, Nihal Kumar Gupta wrote:
-> +static const struct camss_subdev_resources csid_res_hawi[] = {
-> +	/* CSID0 */
-> +	{
-> +		.clock = { "csid", "csid_csiphy_rx" },
-> +		.clock_rate = { { 480000000 },
-> +				{ 480000000 } },
-> +		.reg = { "csid0" },
-> +		.interrupt = { "csid0" },
-> +		.csid = {
-> +			.parent_dev_ops = &vfe_parent_dev_ops,
-> +			.hw_ops = &csid_ops_1190,
-> +			.formats = &csid_formats_gen2
-> +		}
+> @@ -6113,6 +6341,7 @@ static const struct of_device_id camss_dt_match[] = {
+>   	{ .compatible = "qcom,sm8250-camss", .data = &sm8250_resources },
+>   	{ .compatible = "qcom,sm8550-camss", .data = &sm8550_resources },
+>   	{ .compatible = "qcom,sm8650-camss", .data = &sm8650_resources },
+> +	{ .compatible = "qcom,hawi-camss", .data = &hawi_resources },
+>   	{ .compatible = "qcom,x1e80100-camss", .data = &x1e80100_resources },
+>   	{ .compatible = "qcom,glymur-camss", .data = &x1e80100_resources },
 
-This looks strange, why is there only one clock rate ?
+this insertion makes no sense.
+
+In fact glymur should have gone up the top with hawi underneath it.
+
+Could you please remediate ?
 
 ---
 bod
