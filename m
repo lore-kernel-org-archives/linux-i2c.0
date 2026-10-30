@@ -1,60 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.16
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.243.164.118
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793348433;
-	b=YutuZe94es/MhcXaSlOyHlo5hFohsylbQbBZVXhukKtuqregpFlYQ23ds0R6yTecAF4p
-	 yN6NIvzPU+FoUaz4sPRNhSYnJUFdihvmqQe8g2t7u36Bu3pWx75UAfANu+PZUFJJ+QbR6
-	 tNjwUcBkDQPorMjIXmnVUi5sK8atm++kH5p8uI7xAwzgksbVdBhOTXo7V/3vQCIM88zJ6
-	 hz66zoh1DioLAoTIjOcnRfRExhc7+xhiEgY2eXCU1yjqUpzuhn7pQdGO7kFbCSuEvvY3B
-	 0g7itsTfeqqgQAiYmeRxV+2W8H572wUtG6iu5+veyEaWp8OuVjuoO9GexH7gNAAre2A==
+	t=1793357384;
+	b=eaTxRZZ6NdNbpbSoq8CqqXqIW5/JV1Rggk70KVAVKbSNMc6RBtgKEwL3q6NJvUbC9uNs
+	 3+g16/UZJdy8KkG313jdChGMzHB0qJB4c9o6Kh4HuAqSvF6VaZzSlaHUpVZXQu3+4vkhE
+	 gNidQlSRmLE443gfywj/CKQMhsQIpiZUHvnr6RSQ0l5OFn48PRwkHEkPbn2eT43kAsEEI
+	 aogoUXkHvaUI0KoUy4ItJSiMEo0SC/gztQIEyABfnKQs0FVUEJFukdP+XnN/pKTnnobP4
+	 U9Hi8UzE5Ey/0tPywJ1esROzlgL97xdVeGYLOTHR6TzX0KlykqoyuXGspiN6lcJ5WuA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793348433;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type;
-	bh=eMw0Tsc5hY6DqmDs0szKnY0CQ5h9hvbZXBJZty/2/ZY=;
-	b=qNG/lWxT0kRsja1caEnIlj+SYwEijDXQxXNjDI+V8nL8Pvn0iAoziryAYpAnxJkP02DO
-	 nLlunrRS4O2UgnzWuPWfya/5az7FRgV/iWGrC5kFLRHBrDpgBCGc+c0w0aEIT0g5+o2bX
-	 jfFlFxt8P2zcO5lu0SMRv6IYodI5xl3IfjFVrXIaQqPHVakdfbZYekJ1EeGFUlr6bZD4h
-	 TSe69T1dhAvH9ABwaooLPIaW0V354/mmNw/GjB/Q6xTrSWusqHu6ffREbVusOF57KjgG8
-	 6l9JKhzTzv/r7U7XEjbxGhhG+xAnY2t0fx8X5vlxoISZZ3ce0wiW0ZWC3cQmn+ogNqQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793357384;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
+	bh=M5JlZGMtPIuCXri1CvOi7+apBqpZ9BaS4Q7JJAZH5zg=;
+	b=FY94+GMPa1CpXobaWpZ1bniOMoD2YmIeSqIJSNZUPZmcwiIw1TfOG8sFWfje7TSVBIK0
+	 LvRcBin05rZfastJhgo9Yq3Djw5U4PssIX/7GyH+wjZz2l8wfJRe2h64SKHDtCPZDZJ1A
+	 HbWcuv5zOd/HvXdf/ZLQvV7P+k/ClIRL3Tx1PtYe+NYqrkqbjNVn+N9TnhzuykS6Bl6Ek
+	 q4l91naKNZH5j5lk1EXGFcQTDieZRvdlwb18v9o1iYCtWZJsbLxzkE/LXntzHfz/gwsYn
+	 7yXmjlVXyGi1nFQ1Hvpb3PCHvvgSGahTwTb1tO6P0eSFCqlqJCtHrYx9rVcY6Ibzwow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=proton.me;
-	spf=pass smtp.mailfrom=proton.me;
-	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=aTFFpxxh;
-	arc=none smtp.remote-ip=185.70.43.16
-Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 744FF606A332
-	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 08:20:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 744FF606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=aTFFpxxh
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail2; t=1793348430; x=1793607630;
-	bh=eMw0Tsc5hY6DqmDs0szKnY0CQ5h9hvbZXBJZty/2/ZY=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=aTFFpxxhvkz0apQitjCI++GPp1sNBCa5jWnWyXYFtz1GKCM+9ohYEg83HdgIiZiff
-	 0KvYohZZJ9NHir8hk7O1KmwAnaLp42qpwZ10UltJy9alQ3bdCBl3+ERqdUmp0dAIZk
-	 MXgrUAgXOIIBmtcYsP4k+OjmPARdPdipTAXBtiebXQ2v+570qUTCUMhSZTUz7UlG06
-	 pLZ4qyavffn3G22B3YniS687Nc60WSfa6Mzy4a2fwEACWyaCllKftcsC5q1qAEcubD
-	 UFVvaDw+7uNwzf3qnnS+QhB79cv3773dTfsOm83etzYEyQaEnxRxFK8EJ0IalDVIxv
-	 EQDh7PRa+bNyQ==
-Date: Fri, 30 Oct 2026 08:20:25 +0000
-To: linux-i2c@vger.kernel.org
-From: Yazoudi <Yazoudi@proton.me>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Linux I2C/SMBus] AMD FCH SMBus controller fails to bind on Gigabyte B850M FORCE WIFI6E
-Message-ID: <70db7519-da14-4b59-a196-27f5b67c84bd@proton.me>
-In-Reply-To: <defea8da-35df-478e-8c07-226db605bb1d@proton.me>
-References: <defea8da-35df-478e-8c07-226db605bb1d@proton.me>
-Feedback-ID: 197040310:user:proton
-X-Pm-Message-ID: f6cb6cce089e0a0c6e4fed18b1de0a903a89c4c0
+	dmarc=none header.from=stu.shzu.edu.cn;
+	spf=none smtp.mailfrom=stu.shzu.edu.cn;
+	arc=none smtp.remote-ip=162.243.164.118
+Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 397D2606A33E;
+	Fri, 30 Oct 2026 10:49:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 397D2606A33E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stu.shzu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=stu.shzu.edu.cn
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=stu.shzu.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+	Message-ID:MIME-Version:Content-Transfer-Encoding; bh=M5JlZGMtPI
+	uCXri1CvOi7+apBqpZ9BaS4Q7JJAZH5zg=; b=A2zofV7iIlsc8Ceg+aaswLaE0F
+	ze3sm6KHODWb7X11IIAqeh2djGYidhQG2w2iq9KfZNR7yZ6c9xtBdldNgy9+vRCF
+	Eha5XfMd5d1awuaoxILDlGHjB1iesPt6+0m/lNC68N4a2ngt9Tg9Qv7l0uZcqEq1
+	f/GzFcYsnlToKAq0c=
+Received: from kernel-build.. (unknown [39.144.207.123])
+	by hzbj-edu-front-2.icoremail.net (Coremail) with UTF8SMTPA id BLQMCkDWHQM7duRqnoYJAQ--.10533S2;
+	Fri, 30 Oct 2026 18:49:33 +0800 (CST)
+From: Wang Xiong <20221010117@stu.shzu.edu.cn>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] i2c: robotfuzz-osif: use DMA-safe buffers for message data
+Date: Fri, 30 Oct 2026 10:49:30 +0000
+Message-ID: <20261030104931.3958-1-20221010117@stu.shzu.edu.cn>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -64,160 +54,91 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc"
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:BLQMCkDWHQM7duRqnoYJAQ--.10533S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7KF4DtrWxuFW8tr1rJryDAwb_yoW8trykpa
+	nxKFyqkFW2gr9avr42yr47Zry5Jw4rJFyxGF47t3Z7uFs7Jr1jgryktFW0gFy0gr97Xw45
+	ta1kX34UGFn0qFUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvab7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+	A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xII
+	jxv20xvEc7CjxVAFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwV
+	C2z280aVCY1x0267AKxVW8Jr0_Cr1UM2vYz4IE04k24VAvwVAKI4IrM2AIxVAIcxkEcVAq
+	07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r
+	18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vI
+	r41lc2xSY4AK67AK6r4DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI
+	8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AK
+	xVWUXVWUAwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI
+	8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280
+	aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyT
+	uYvjxU4F1vUUUUU
+X-CM-SenderInfo: qsqsjiyqrqiiux6v33wovk63oohg3hdfq/1tbiAgUSCWrfb0EObQACsm
 
---b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+The SMBus emulation layer can pass stack-backed I2C message buffers to
+the adapter. osif_xfer() forwards those buffers to usb_control_msg(),
+which requires DMA-safe storage for nonzero data transfers. An archived
+SMBus read report reaches the USB core's stack-buffer check and the
+transfer is rejected.
 
+Obtain a DMA-safe buffer for each nonempty message and release it after
+the synchronous control transfer. Copy received data back only when the
+full message completed. Keep the existing short-transfer error handling
+and allow zero-length writes without treating them as allocation failures.
 
-Hello,
+Assisted-by: LLM
+Signed-off-by: Wang Xiong <20221010117@stu.shzu.edu.cn>
+---
+ drivers/i2c/busses/i2c-robotfuzz-osif.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-I am investigating an SMBus controller that does not bind to the Linux=20
-i2c_piix4 driver on my Gigabyte B850M FORCE WIFI6E (revision 1.0)=20
-motherboard.
-
-The PCI device is detected, and i2c_piix4 is listed as a candidate=20
-module, but no driver is bound to the device. The kernel also logs an=20
-ACPI resource conflict involving the SMBus I/O range and the GSA1.SMBI=20
-operation region.
-
-System details:
-
-  *
-
-    Motherboard: Gigabyte B850M FORCE WIFI6E, revision 1.0
-
-  *
-
-    BIOS: F8a
-
-  *
-
-    Distribution: Arch Linux with zen kernel
-
-  *
-
-    Kernel: 7.2.11-zen1-1-zen
-
-  *
-
-    SMBus PCI device: 00:14.0, AMD FCH SMBus Controller [1022:790b],
-    revision 71
-
-  *
-
-    PCI subsystem: Gigabyte [1458:5001]
-
-Relevant observations:
-
- 1.
-
-    |lspci -nnk -s 00:14.0|lists |i2c_piix4|under Kernel modules, but
-    does not show a Kernel driver in use.
-
- 2.
-
-    |/sys/bus/pci/devices/0000:00:14.0/driver|does not resolve to a driver.
-
- 3.
-
-    The kernel logs:
-    |ACPI Warning: SystemIO range 0x0000000000000B00-0x0000000000000B08
-    conflicts with OpRegion 0x0000000000000B00-0x0000000000000B0F
-    (\GSA1.SMBI)|
-    followed by:
-    |ACPI: OSL: Resource conflict; ACPI support missing from driver?|
-
- 4.
-
-    |/proc/ioports|lists |0b00-0b0f : PNP0C02:03|.
-
- 5.
-
-    Reloading i2c_piix4 does not bind the driver, and no SMBus adapter
-    appears among the available I=C2=B2C adapters.
-
-I originally investigated this because OpenRGB cannot detect my KLEVV=20
-CRAS V RGB DDR5 modules. The |spd5118|driver loads, but no SPD devices=20
-are instantiated. I understand that SPD access and RGB control are=20
-separate issues; my immediate concern is the SMBus controller not binding.
-
-I found a related patch discussion concerning an ACPI resource conflict=20
-on the Gigabyte X870 EAGLE WIFI7:
-https://lkml.rescloud.iu.edu/2608.1/09152.html=20
-<https://lkml.rescloud.iu.edu/2608.1/09152.html>
-
-That is a different motherboard, so I do not know whether the same=20
-underlying issue applies here.
-
-Could you advise whether this looks like an ACPI resource reservation=20
-preventing i2c_piix4 from binding, and what additional diagnostics would=20
-help establish the cause? I have not forced the driver to bind or=20
-disabled the kernel's ACPI resource protections.
-
-I can provide the full kernel log, PCI configuration, and other=20
-diagnostic output if needed.
-
-Thank you.
-
-
---b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc
-Content-Type: text/plain; charset=UTF-8; name=diagnostics.txt
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=diagnostics.txt
-
-PT09IEtlcm5lbCA9PT0KTGludXggWWF6b3VkaVBjIDcuMi4xMS16ZW4xLTEtemVuICMxIFpFTiBT
-TVAgUFJFRU1QVF9EWU5BTUlDIEZyaSwgMTYgT2N0IDIwMjYgMDA6Mjg6NDIgKzAwMDAgeDg2XzY0
-IEdOVS9MaW51eApMaW51eCB2ZXJzaW9uIDcuMi4xMS16ZW4xLTEtemVuIChsaW51eC16ZW5AYXJj
-aGxpbnV4KSAoZ2NjIChHQ0MpIDE2LjIuMSAyMDI2MDgxMCwgR05VIGxkIChHTlUgQmludXRpbHMp
-IDIuNDcpICMxIFpFTiBTTVAgUFJFRU1QVF9EWU5BTUlDIEZyaSwgMTYgT2N0IDIwMjYgMDA6Mjg6
-NDIgKzAwMDAKCj09PSBEaXN0cmlidXRpb24gPT09Ck5BTUU9IkFyY2ggTGludXgiClBSRVRUWV9O
-QU1FPSJBcmNoIExpbnV4IgpJRD1hcmNoCkJVSUxEX0lEPXJvbGxpbmcKQU5TSV9DT0xPUj0iMzg7
-MjsyMzsxNDc7MjA5IgpIT01FX1VSTD0iaHR0cHM6Ly9hcmNobGludXgub3JnLyIKRE9DVU1FTlRB
-VElPTl9VUkw9Imh0dHBzOi8vd2lraS5hcmNobGludXgub3JnLyIKU1VQUE9SVF9VUkw9Imh0dHBz
-Oi8vYmJzLmFyY2hsaW51eC5vcmcvIgpCVUdfUkVQT1JUX1VSTD0iaHR0cHM6Ly9naXRsYWIuYXJj
-aGxpbnV4Lm9yZy9ncm91cHMvYXJjaGxpbnV4Ly0vaXNzdWVzIgpQUklWQUNZX1BPTElDWV9VUkw9
-Imh0dHBzOi8vdGVybXMuYXJjaGxpbnV4Lm9yZy9kb2NzL3ByaXZhY3ktcG9saWN5LyIKTE9HTz1h
-cmNobGludXgtbG9nbwoKPT09IE1vdGhlcmJvYXJkIGFuZCBCSU9TID09PQpCODUwTSBGT1JDRSBX
-SUZJNkUKeC54CkY4YQowMy8xMS8yMDI2Cgo9PT0gU01CdXMgUENJIGNvbnRyb2xsZXIgPT09CjAw
-OjE0LjAgU01CdXMgWzBjMDVdOiBBZHZhbmNlZCBNaWNybyBEZXZpY2VzLCBJbmMuIFtBTURdIEZD
-SCBTTUJ1cyBDb250cm9sbGVyIFsxMDIyOjc5MGJdIChyZXYgNzEpCglTdWJzeXN0ZW06IEdpZ2Fi
-eXRlIFRlY2hub2xvZ3kgQ28uLCBMdGQgRGV2aWNlIFsxNDU4OjUwMDFdCglLZXJuZWwgbW9kdWxl
-czogaTJjX3BpaXg0LCBzcDUxMDBfdGNvCjAwOjE0LjAgU01CdXM6IEFkdmFuY2VkIE1pY3JvIERl
-dmljZXMsIEluYy4gW0FNRF0gRkNIIFNNQnVzIENvbnRyb2xsZXIgKHJldiA3MSkKCVN1YnN5c3Rl
-bTogR2lnYWJ5dGUgVGVjaG5vbG9neSBDby4sIEx0ZCBEZXZpY2UgNTAwMQoJQ29udHJvbDogSS9P
-KyBNZW0rIEJ1c01hc3Rlci0gU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
-dGVwcGluZy0gU0VSUi0gRmFzdEIyQi0gRGlzSU5UeCsKCVN0YXR1czogQ2FwLSA2Nk1IeisgVURG
-LSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9y
-dC0gPlNFUlItIDxQRVJSLSBJTlR4LQoJSU9NTVUgZ3JvdXA6IDEwCglLZXJuZWwgbW9kdWxlczog
-aTJjX3BpaXg0LCBzcDUxMDBfdGNvCgoKPT09IEkvTyByZXNvdXJjZSByZXNlcnZhdGlvbiA9PT0K
-ICAwMDAwLTAwMDAgOiBQTlAwQjAwOjAwCgo9PT0gUmVsZXZhbnQga2VybmVsIG1lc3NhZ2VzID09
-PQpPY3QgMzAgMTA6NTE6NTkgWWF6b3VkaVBjIGtlcm5lbDogQklPUy1lODIwOiBbbWVtIDB4MDAw
-MDAwMDAwYjAwMDAwMC0weDAwMDAwMDAwMGIwMjBmZmZdICBkZXZpY2UgcmVzZXJ2ZWQKT2N0IDMw
-IDEwOjUxOjU5IFlhem91ZGlQYyBrZXJuZWw6IFBNOiBoaWJlcm5hdGlvbjogUmVnaXN0ZXJlZCBu
-b3NhdmUgbWVtb3J5OiBbbWVtIDB4MGIwMDAwMDAtMHgwYjAyMGZmZl0KT2N0IDMwIDEwOjUxOjU5
-IFlhem91ZGlQYyBrZXJuZWw6IGU4MjA6IHJlZ2lzdGVyIFJBTSBidWZmZXIgcmVzb3VyY2UgW21l
-bSAweDBiMDAwMDAwLTB4MGJmZmZmZmZdCk9jdCAzMCAxMDo1MTo1OSBZYXpvdWRpUGMga2VybmVs
-OiBhY3BpIFBOUDBDMDI6MDM6IFJlc2VydmVkIFtpbyAgMHgwYjAwLTB4MGIwZl0KT2N0IDMwIDEw
-OjUxOjU5IFlhem91ZGlQYyBrZXJuZWw6IHJ0Y19jbW9zIFBOUDBCMDA6MDA6IFJUQyBjYW4gd2Fr
-ZSBmcm9tIFM0Ck9jdCAzMCAxMDo1MTo1OSBZYXpvdWRpUGMga2VybmVsOiBydGNfY21vcyBQTlAw
-QjAwOjAwOiByZWdpc3RlcmVkIGFzIHJ0YzAKT2N0IDMwIDEwOjUxOjU5IFlhem91ZGlQYyBrZXJu
-ZWw6IHJ0Y19jbW9zIFBOUDBCMDA6MDA6IHNldHRpbmcgc3lzdGVtIGNsb2NrIHRvIDIwMjYtMTAt
-MzBUMDY6NTE6NTEgVVRDICgxNzkzMzQzMTExKQpPY3QgMzAgMTA6NTE6NTkgWWF6b3VkaVBjIGtl
-cm5lbDogcnRjX2Ntb3MgUE5QMEIwMDowMDogYWxhcm1zIHVwIHRvIG9uZSBtb250aCwgeTNrLCAx
-MTQgYnl0ZXMgbnZyYW0KT2N0IDMwIDEwOjUxOjU5IFlhem91ZGlQYyBrZXJuZWw6IEFDUEkgV2Fy
-bmluZzogU3lzdGVtSU8gcmFuZ2UgMHgwMDAwMDAwMDAwMDAwQjAwLTB4MDAwMDAwMDAwMDAwMEIw
-OCBjb25mbGljdHMgd2l0aCBPcFJlZ2lvbiAweDAwMDAwMDAwMDAwMDBCMDAtMHgwMDAwMDAwMDAw
-MDAwQjBGIChcR1NBMS5TTUJJKSAoMjAyNjA0MDgvdXRhZGRyZXNzLTIwNCkKT2N0IDMwIDEwOjUx
-OjU5IFlhem91ZGlQYyBrZXJuZWw6IEFDUEk6IE9TTDogUmVzb3VyY2UgY29uZmxpY3Q7IEFDUEkg
-c3VwcG9ydCBtaXNzaW5nIGZyb20gZHJpdmVyPwpPY3QgMzAgMTE6MjQ6MjUgWWF6b3VkaVBjIGtl
-cm5lbDogQUNQSSBXYXJuaW5nOiBTeXN0ZW1JTyByYW5nZSAweDAwMDAwMDAwMDAwMDBCMDAtMHgw
-MDAwMDAwMDAwMDAwQjA4IGNvbmZsaWN0cyB3aXRoIE9wUmVnaW9uIDB4MDAwMDAwMDAwMDAwMEIw
-MC0weDAwMDAwMDAwMDAwMDBCMEYgKFxHU0ExLlNNQkkpICgyMDI2MDQwOC91dGFkZHJlc3MtMjA0
-KQpPY3QgMzAgMTE6MjQ6MjUgWWF6b3VkaVBjIGtlcm5lbDogQUNQSTogT1NMOiBSZXNvdXJjZSBj
-b25mbGljdDsgQUNQSSBzdXBwb3J0IG1pc3NpbmcgZnJvbSBkcml2ZXI/Cg==
-
---b1=_tas4pBrJGPaOHPqnjwdzTAuh5bgQkqaAUyBar8YW1vc--
+diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
+index 412fa8e37..786c3f1b4 100644
+--- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
++++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
+@@ -59,28 +59,33 @@ static int osif_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
+ {
+ 	struct osif_priv *priv = adapter->algo_data;
+ 	struct i2c_msg *pmsg;
++	u8 *buf;
+ 	int ret;
+ 	int i;
+ 
+ 	for (i = 0; i < num; i++) {
+ 		pmsg = &msgs[i];
++		buf = pmsg->buf;
++		if (pmsg->len) {
++			buf = i2c_get_dma_safe_msg_buf(pmsg, 1);
++			if (!buf)
++				return -ENOMEM;
++		}
+ 
+ 		if (pmsg->flags & I2C_M_RD) {
+ 			ret = osif_usb_read(adapter, OSIFI2C_READ,
+ 					    pmsg->flags, pmsg->addr,
+-					    pmsg->buf, pmsg->len);
+-			if (ret != pmsg->len) {
+-				dev_err(&adapter->dev, "failure reading data\n");
+-				return -EREMOTEIO;
+-			}
++					    buf, pmsg->len);
+ 		} else {
+ 			ret = osif_usb_write(adapter, OSIFI2C_WRITE,
+ 					     pmsg->flags, pmsg->addr,
+-					     pmsg->buf, pmsg->len);
+-			if (ret != pmsg->len) {
+-				dev_err(&adapter->dev, "failure writing data\n");
+-				return -EREMOTEIO;
+-			}
++					     buf, pmsg->len);
++		}
++		i2c_put_dma_safe_msg_buf(buf, pmsg, ret == pmsg->len);
++		if (ret != pmsg->len) {
++			dev_err(&adapter->dev, "failure %s data\n",
++				pmsg->flags & I2C_M_RD ? "reading" : "writing");
++			return -EREMOTEIO;
+ 		}
+ 
+ 		ret = osif_usb_write(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
+-- 
+2.47.3
 
