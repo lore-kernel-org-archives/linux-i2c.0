@@ -1,76 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793338343;
-	b=Jv5MmAq41CW2+jzHii1Gy7aCs+fTcjx7Y39pL0b/iGjnN54/Rkz4z5zZ53UAujMKDrww
-	 Gpq3s2dQUtr7gx4u6ekhn+bPQsiLGJqJ6NOO5qSrYZ+Y4KvBnSYGnnZ85vIqolNLOk/OA
-	 Maj0dRzxpWFgY0swtDISETf7FdOpPaoymgveG1Eedso47okMcekk9y0d3FxPJIDzqgPZg
-	 eexSpveVTgn3OTut1s+uhSofKgy11FLrSGfAW0cDFDKhh2rpwTCyZCieYcl+34nPQn6qC
-	 hMzSw9w/Hdu8SH63FpUNAAbPuckgDifTzWOqPlZK1ijJOXhONFtC66N+pCZnjXebzRw==
+	t=1793344426;
+	b=Nk+ofr48b4mbymrWcGn1zQXosoE6LqAIw9EB1zSOYkNyMAQ2xh6syWKbDmbVEHgxxsYq
+	 GCnoJX0cq7/V6DqDTFOmxvIE10KzCxSNBAbFVo6gv+ScFBtUAX920R7rSTQGCCQfzBGUG
+	 wKpL9aUPk33xflGaSxfFfspxCvTLZL4x6hr84IcBRiAEFgsaPWJ4dtsP93IR8HcpKg7p2
+	 AqRgDuBkUA8UwrTfxLwZd8a5W/YywIdVvaFHzJaphaTpIuxvx+hupLteywf6v4cQ3A5f8
+	 iZdih8UVMXtVdSgBCj8RcfDkQb8d8vZqu9nuS9yuvti/j+INF+HvHmTztAWxarbtBRQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793338343;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=iqzvhuQcnt+M1uy6q8ZgEZg+92jJlmTF/zBz9tyaOXw=;
-	b=S11yUm6POSdMigMDjkWvkARK12OWAC4SWzols8nsit8fWpD7z36D9r6fz7LQOfYY7fOf
-	 /OOUMCu04Nu6NOX9rGL0JAMtDcqq2ppFz8oT4+UN2KNPzfWy43M6Pfvk+8dwzvONbcxjc
-	 sL1ugcvB+pdxsYbCYTvFBNn3wwk+s5j6e8cyFqzQ4O21dEX8eaSeyASXK6jdbWLWdHvpj
-	 Et5YcGfW7I1ApI4GvqQtrY2SV0GLi5zjaIlxYjFMTclwUvj/2D+qlLwLb9olmcNfJrh/X
-	 72DWM4z5rozfySf7Nr2ChCRWJy76XEIzeCCjTmmr2wPx3fqO788uqAIV50qJn4mrybw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793344426;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=nXilgdS7CLOmcdrjW/kYGIwI3BWhhi5w7jGBtQxBRhY=;
+	b=FCu79b7pkKuZfLWJO/EAEpHd1TkGHKuDD5HFEpifUQIUM8Ll1N+9dcR1PpOdjCQQrWXH
+	 75lQzifZRvzZ8IYkHBOSobEiRGFCrUpl9Ih9mDHXIC1lunTzO1jSYmIbLRsnT0TK1pdag
+	 0qj5h1nBxhBKEyEStFMoc7sI3SB3DQpK6PNLR2cWKxpAV9vr0TbXR0IN4byUa5MMjm2lx
+	 QUZ92zKrnBRLjIW2YQZD1elfW1kvW//vzM3JekMHP66+i5Oa41xLMq0QVR5Xx0tWZkVRe
+	 rUaCu3TugJ3ztTLq53oNTjVT+u6FCH5q1risPxMHsVr11O1GKnJ0dgjbh+eZ8QyfMUA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=bB5zxCnA;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SogZPJn4;
+	arc=none smtp.remote-ip=209.85.221.48
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68390606A31A;
-	Fri, 30 Oct 2026 05:32:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9894E606A31A
+	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 07:13:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9894E606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=bB5zxCnA
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7441F000C1;
-	Fri, 30 Oct 2026 05:32:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1793338341;
-	bh=iqzvhuQcnt+M1uy6q8ZgEZg+92jJlmTF/zBz9tyaOXw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=bB5zxCnAMbRDPFIf7fH+qrDq6h84IYsxZwVp/YP9NhScXxtWDfbNqfwjiKxGmNH6/
-	 LJbMP6M3xBtjNQz4LZ/Gfws6cMsl48OR4Uw+XmriiFRAMPHJ0IIEW0l/0BHbAAjG9X
-	 /GRLLc8J6d4wmcFL6VBaQHGcG5HCbgIsVWfyQ8fA=
-Date: Fri, 30 Oct 2026 06:32:18 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Jeremy Kerr <jk@codeconstruct.com.au>
-Cc: Adrian Ambrozewicz <aambrozewicz@nvidia.com>,
-	Donald Shannon <donalds@nvidia.com>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	Mark Brown <broonie@kernel.org>, Jiri Slaby <jirislaby@kernel.org>,
-	Corey Minyard <corey@minyard.net>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Len Brown <lenb@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Hans de Goede <hansg@kernel.org>, Lixu Zhang <lixu.zhang@intel.com>,
-	Danilo Krummrich <dakr@kernel.org>, Johan Hovold <johan@kernel.org>,
-	Oliver Neukum <oneukum@suse.com>,
-	Quan Nguyen <quan@os.amperecomputing.com>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	linux-usb@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	linux-acpi@vger.kernel.org, linux-doc@vger.kernel.org,
-	driver-core@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Bart Van Assche <bvanassche@google.com>
-Subject: Re: [PATCH 00/11] Add NVIDIA LSTP USB adapter drivers
-Message-ID: <2026103015-stained-shudder-1582@gregkh>
-References: <20261012-lstp-usb-adapter-v1-0-aambrozewicz@nvidia.com>
- <2026101310-scuttle-unison-d4c3@gregkh>
- <c569c912141e9da7530121b8b2fc81527e0518a4.camel@codeconstruct.com.au>
- <f3f305a0f3195948bd25ca7eea4348113f998ee2.camel@codeconstruct.com.au>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SogZPJn4
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48e3b22e971so143276f8f.0
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 00:13:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793344421; x=1793949221; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nXilgdS7CLOmcdrjW/kYGIwI3BWhhi5w7jGBtQxBRhY=;
+        b=SogZPJn4pjuqS0ad4WFyDqQkm3xx/fne8DbFcoLgwQSV1WFC2uUaMFtCDLp5u6QJuT
+         G7r2asDFVbqo72YzbXORE9y5DJwoUTh6u97N8gIQ/vFEE3MYFyoe4X6J+hfiUut8JL5m
+         W9WbHHQgMl/RHvedeCqP4EnBoTMzVR6K/darLWm92cmv8EnxkzC1zkH1bCBrJcP+VJB4
+         BZuLU1n9epXKgHrEf8prRZpyv3GNi5Qu22hr0sfBQ0/rgakdiwTJK+u2y+FysfRILl4n
+         nUay8W3lcRFWmZz46G2oHhOELPzlRLMgOrxucQ3uZsHcq9WKk85DEdUQKQaU/w8QaKo7
+         t6Sw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793344421; x=1793949221;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nXilgdS7CLOmcdrjW/kYGIwI3BWhhi5w7jGBtQxBRhY=;
+        b=ec5dEh2HzVBaWp+iXuYw3E9EeULG21UlS5zCm6Eji8d0yN530HkpZ9+BrDpP0pWxda
+         A8wssk4G63XJwWHt57ZCi4E1qfR9MkBYJjbmN37VNeqR5d/vAw5QceV1zFqCXCqKoMID
+         6ELcUNeN1ejvjPAharW8a/IdbLneOJGrw9DspxQXU1pT3EZZYcVV+TOqEOU5oPE0ohGN
+         8tp46StpbumZoU/kVMQL8evd1voOoYgjp+lSSJsfScxDIU4EBW3hSbcKTnNLKFA1BH8o
+         xL6Oc0lGtlEldZ+MTWdJRQ073uQwlo4lIdpJEFkLMmwCuKChY3OUMXA6rSzb/njTzhAH
+         zfBg==
+X-Forwarded-Encrypted: i=1; AKwUvBxlgbc+9yBWuneyf1Al298eraS2ZZlc4OLdiO2MAQCYN8jvGfUI41emtJRu1s3PLQ2uUyUsiIWNYLQ=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJLC2FCadyU+Hw3QXhaFYrmCP+8iwKB/b9xmIQ3VPnQuCXB2CEI
+	wx7p9JBL6gENJ091hB3KLpP9uRtJH/NvcMMa1oAHRea/kC3dk6KDhq4L
+X-Gm-Gg: AYBFou0rXdS8IQIc9ShN9ba5ESHiy+Qzlhpjz95YcxYK/immIHZW8orvjM8fQq0TiYg
+	v2Dz2A2T7cCObRve5j4QYzwWfiegTTNaINsDMbOJC5gRsgRx1cXfrOhh72quQvKui6eqDZtqDE2
+	8F02z56o6j9DuD4eTEmAo2GZODjo60vPdkMDOQTxJYHSJ6hbBpJ5Yk4/zdKs0f+Quxe4quoGsHg
+	BCB1JMXRkiYWhkpZEhBiUuZqHWhcsgj1lJJ9yKbCZ56nQZtE8gQDvJE+Qq2fB37gPBim0JFZN+h
+	A6eqmvRsT2mn2oAeM0VJPi5YAB9SDfcVfBGMppXqUMsyCl/5MMR56Wx9LXyjnng3BB2hNudY+Ny
+	NygktliVCVTTy6BN8VeDyNK+b6If6HO/K4rsfAXT+u4R0fP43BPmP1CGbVbwLCj4t7H33x+ymzG
+	xJJridAUCK5ALXXV6KOFfSj4UpVG+a1D2MJO+6A2qvDsg6Nu7OYxHhzzRGhYExJU83eHvvv2uyx
+	TT9s/p6fyw1i5oL4FayFqfqQC7FqZCY4cu4MIRt/Cfz9g9ED9xlkuEfVsPEzzKyx7v4lo7wHoIZ
+	4Aj5xMLjpFOpSphvtEwS6W5Q7RFvHtK73KkEU3MceBExJjAisSIEjf+Tzpa0y1pdlgehCBCRzXX
+	4nOD3v0wXLZrSHQdz/42tbCgJHMDOIMIfkg==
+X-Received: by 2002:a05:6000:430d:b0:48e:25d7:d276 with SMTP id ffacd0b85a97d-48e6e2c3527mr3261224f8f.2.1793344420640;
+        Fri, 30 Oct 2026 00:13:40 -0700 (PDT)
+Received: from Ansuel-XPS24.localdomain (93-34-92-187.ip49.fastwebnet.it. [93.34.92.187])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48e71b78c10sm1489936f8f.25.2026.10.30.00.13.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2026 00:13:40 -0700 (PDT)
+From: Christian Marangi <ansuelsmth@gmail.com>
+To: Stefan Roese <sr@denx.de>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Cc: Christian Marangi <ansuelsmth@gmail.com>
+Subject: [PATCH v4] i2c: mt7621: rework cmd/wait OPs to support atomic afer variant
+Date: Fri, 30 Oct 2026 08:13:23 +0100
+Message-ID: <20261030071325.2678-1-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -80,114 +101,208 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f3f305a0f3195948bd25ca7eea4348113f998ee2.camel@codeconstruct.com.au>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 30, 2026 at 12:06:15PM +0800, Jeremy Kerr wrote:
-> Hi Greg,
-> 
-> > FWIW, we did raise greybus as an approach to various HW vendors; I
-> > assume there were reasons behind OBMF-ICP, and assume some prior-art
-> > assesment was involved, but I don't have specifics for those reasons.
-> >
-> > HW peeps: This would be an excellent opportunity for elaboration on the
-> > motivation there, either for LSTP or OBMF-OCP.
-> 
-> I have been doing some asking around, and a few items came up around
-> motivations for OBMC-ICP over Greybus. My motivation here is entirely
-> around OBMF-ICP; the NVIDIA contributions for LSTP somewhat comes under
-> this, and so we're working on composing a unified solution.
-> 
-> Collating some of those items here:
-> 
-> As a bit of background, the typical use case for OBMF-ICP is for
-> platform pre-boot environments, with limitations in capabilities of both
-> the hardware and software stack. Microcontroller and mask-ROM
-> implementations of either side of the protocol are potential targets.
->
-> This leads to the structure of OBMF-ICP being intentionally
-> light-weight; the channel configuration (ie, definition of the
-> encapsulated devices) is static, and the channel-level messaging is kept
-> simple, mainly through a requirement of only one message in flight per
-> channel.
+It was reported the need for atomic operation on some Airoha SoC that
+makes use of I2C bus. Rework the cmd/wait OPs to suppor the xfer_atomic
+variant. To support this it's needed to do the readl poll in
+atomic context and special handling for device_reset.
 
-greybus is very light-weight, you don't need to have more than one
-message in flight.  That's not a real answer :)
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+---
 
-> [Greg, this is related to one of your points around why not use a
-> multi-function USB device for individual, separate devices: the typical
-> device-side hardware does not have support for enough USB endpoints to
-> do so. Like greybus, the intention is to be able to support multiple
-> downstream peripherals without constraints from USB hardware on existing
-> SoC devices]
+Changes v4:
+- Split to dedicated patch
+- Reduce timeout to 250ms
+- Disable device_reset in atomic context
 
-That's for LSTP, and USB devices are dirt cheap, multi-endpoint ones
-should also be very cheap compared to the system they are attempting to
-control here.  Don't place this on a "it would cost too much so we are
-going to fix that by making the software a complex beast and having
-someone else solve our problem for us" solution driven by a hardware
-designer.  That's not acceptable these days, you all know that...
+Changes v3..v2:
+- No related changes
 
-> There are a few design points that lead to the preference for OBMF-ICP:
-> 
-> The front-loaded configuration mechanism means less state to manage on
-> both sides of the protocol; the channel set and channel-specific
-> parameters (like individual GPIO descriptors and flash geometry) being
-> stable over the lifetime of the device means simpler core protocol
-> support and channel driver implementations.
+ drivers/i2c/busses/i2c-mt7621.c | 75 ++++++++++++++++++++++-----------
+ 1 file changed, 51 insertions(+), 24 deletions(-)
 
-What state needs to be managed here for Greybus?  And given that there
-is firware and kernel code for greybus already written and working for
-10+ years, that feels simpler to me.
+diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
+index 9ea5e3f9a763..0283191ac518 100644
+--- a/drivers/i2c/busses/i2c-mt7621.c
++++ b/drivers/i2c/busses/i2c-mt7621.c
+@@ -67,27 +67,38 @@ struct mtk_i2c {
+ 	struct clk *clk;
+ };
+ 
+-static int mtk_i2c_wait_idle(struct mtk_i2c *i2c)
++static int mtk_i2c_wait_idle(struct mtk_i2c *i2c, bool atomic)
+ {
+ 	int ret;
+ 	u32 val;
+ 
+-	ret = readl_relaxed_poll_timeout(i2c->base + REG_SM0CTL1_REG,
+-					 val, !(val & SM0CTL1_TRI),
+-					 10, TIMEOUT_MS * 1000);
++	if (atomic)
++		ret = readl_relaxed_poll_timeout_atomic(i2c->base + REG_SM0CTL1_REG,
++							val, !(val & SM0CTL1_TRI),
++							10, TIMEOUT_MS * 250);
++	else
++		ret = readl_relaxed_poll_timeout(i2c->base + REG_SM0CTL1_REG,
++						 val, !(val & SM0CTL1_TRI),
++						 10, TIMEOUT_MS * 1000);
+ 	if (ret)
+ 		dev_dbg(i2c->dev, "idle err(%d)\n", ret);
+ 
+ 	return ret;
+ }
+ 
+-static void mtk_i2c_reset(struct mtk_i2c *i2c)
++static void mtk_i2c_reset(struct mtk_i2c *i2c, bool atomic)
+ {
+ 	int ret;
+ 
+-	ret = device_reset(i2c->adap.dev.parent);
+-	if (ret)
+-		dev_err(i2c->dev, "I2C reset failed!\n");
++	/*
++	 * Skip device_reset in atomic context as it depends on the
++	 * reset-controller correctly handling atomic operations.
++	 */
++	if (!atomic) {
++		ret = device_reset(i2c->adap.dev.parent);
++		if (ret)
++			dev_err(i2c->dev, "I2C reset failed!\n");
++	}
+ 
+ 	/*
+ 	 * Don't set SM0CTL0_ODRAIN as its bit meaning is inverted. To
+@@ -117,27 +128,28 @@ static int mtk_i2c_check_ack(struct mtk_i2c *i2c, u32 expected)
+ 	return ((ack & ack_expected) == ack_expected) ? 0 : -ENXIO;
+ }
+ 
+-static int mtk_i2c_start(struct mtk_i2c *i2c)
++static int mtk_i2c_start(struct mtk_i2c *i2c, bool atomic)
+ {
+ 	iowrite32(SM0CTL1_START | SM0CTL1_TRI, i2c->base + REG_SM0CTL1_REG);
+-	return mtk_i2c_wait_idle(i2c);
++	return mtk_i2c_wait_idle(i2c, atomic);
+ }
+ 
+-static int mtk_i2c_stop(struct mtk_i2c *i2c)
++static int mtk_i2c_stop(struct mtk_i2c *i2c, bool atomic)
+ {
+ 	iowrite32(SM0CTL1_STOP | SM0CTL1_TRI, i2c->base + REG_SM0CTL1_REG);
+-	return mtk_i2c_wait_idle(i2c);
++	return mtk_i2c_wait_idle(i2c, atomic);
+ }
+ 
+-static int mtk_i2c_cmd(struct mtk_i2c *i2c, u32 cmd, int page_len)
++static int mtk_i2c_cmd(struct mtk_i2c *i2c, u32 cmd, int page_len,
++		       bool atomic)
+ {
+ 	iowrite32(cmd | SM0CTL1_TRI | SM0CTL1_PGLEN(page_len),
+ 		  i2c->base + REG_SM0CTL1_REG);
+-	return mtk_i2c_wait_idle(i2c);
++	return mtk_i2c_wait_idle(i2c, atomic);
+ }
+ 
+-static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+-			int num)
++static int mtk_i2c_xfer_common(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			       int num, bool atomic)
+ {
+ 	struct mtk_i2c *i2c;
+ 	struct i2c_msg *pmsg;
+@@ -151,12 +163,12 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		pmsg = &msgs[i];
+ 
+ 		/* wait hardware idle */
+-		ret = mtk_i2c_wait_idle(i2c);
++		ret = mtk_i2c_wait_idle(i2c, atomic);
+ 		if (ret)
+ 			goto err_timeout;
+ 
+ 		/* start sequence */
+-		ret = mtk_i2c_start(i2c);
++		ret = mtk_i2c_start(i2c, atomic);
+ 		if (ret)
+ 			goto err_timeout;
+ 
+@@ -172,7 +184,8 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			len = 1;
+ 		}
+ 		iowrite32(addr, i2c->base + REG_SM0D0_REG);
+-		ret = mtk_i2c_cmd(i2c, SM0CTL1_WRITE, len);
++		ret = mtk_i2c_cmd(i2c, SM0CTL1_WRITE, len,
++				  atomic);
+ 		if (ret)
+ 			goto err_timeout;
+ 
+@@ -200,7 +213,7 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 				cmd = SM0CTL1_WRITE;
+ 			}
+ 
+-			ret = mtk_i2c_cmd(i2c, cmd, page_len);
++			ret = mtk_i2c_cmd(i2c, cmd, page_len, atomic);
+ 			if (ret)
+ 				goto err_timeout;
+ 
+@@ -221,7 +234,7 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		}
+ 	}
+ 
+-	ret = mtk_i2c_stop(i2c);
++	ret = mtk_i2c_stop(i2c, atomic);
+ 	if (ret)
+ 		goto err_timeout;
+ 
+@@ -229,17 +242,30 @@ static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	return i;
+ 
+ err_ack:
+-	ret = mtk_i2c_stop(i2c);
++	ret = mtk_i2c_stop(i2c, atomic);
+ 	if (ret)
+ 		goto err_timeout;
+ 	return -ENXIO;
+ 
+ err_timeout:
+ 	mtk_i2c_dump_reg(i2c);
+-	mtk_i2c_reset(i2c);
++	mtk_i2c_reset(i2c, atomic);
++
+ 	return ret;
+ }
+ 
++static int mtk_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			int num)
++{
++	return mtk_i2c_xfer_common(adap, msgs, num, false);
++}
++
++static int mtk_i2c_xfer_atomic(struct i2c_adapter *adap,
++			       struct i2c_msg *msgs, int num)
++{
++	return mtk_i2c_xfer_common(adap, msgs, num, true);
++}
++
+ static u32 mtk_i2c_func(struct i2c_adapter *a)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
+@@ -247,6 +273,7 @@ static u32 mtk_i2c_func(struct i2c_adapter *a)
+ 
+ static const struct i2c_algorithm mtk_i2c_algo = {
+ 	.xfer = mtk_i2c_xfer,
++	.xfer_atomic = mtk_i2c_xfer_atomic,
+ 	.functionality = mtk_i2c_func,
+ };
+ 
+@@ -265,7 +292,7 @@ static void mtk_i2c_init(struct mtk_i2c *i2c)
+ 	if (i2c->clk_div > SM0CTL0_CLK_DIV_MAX)
+ 		i2c->clk_div = SM0CTL0_CLK_DIV_MAX;
+ 
+-	mtk_i2c_reset(i2c);
++	mtk_i2c_reset(i2c, false);
+ }
+ 
+ static int mtk_i2c_probe(struct platform_device *pdev)
+-- 
+2.55.0
 
-> The simpler channel communication protocol is better suited to
-> lower-complexity interfaces that are needed for the pre-boot
-> environments (GPIO control, uart, IPMI, flash access) than the greybus
-> targets for mobile device runtime, with higher-bandwidth communication
-> requirements (camera, audio, display). For example, typical platform
-> management functions generally involve a lot of short i2c operations -
-> ICP messages for these are around half the length of greybus
-> equivalents.
-
-You don't have to do the high-bandwidth devices, just be a low-bandwidth
-device.  and "size" of an operation doesn't make sense here, it's just
-bytes in a buffer that you have plenty of on both sides of the
-connection.
-
-> For the platform-boot use-cases, we would need to provide a bunch of new
-> channel definitions for greybus. This certainly isn't a showstopper in
-> itself, but the specification does not appear to be in active
-> development; last change was 10 years ago, and the spec repository has
-> since been archived as far as I can tell (and so is read-only).
-
-There are new proposals for the spec, see the mailing list.  And what is
-missing for your needs that isn't currently present?
-
-I haven't read all of OBMF, as obviously that isn't what is being
-proposed here, I was just complaining about the madness of attempting to
-create a device tree representation for a single USB device that wanted
-to be carved up into different virtual devices because no one decided to
-learn from history.
-
-I have other objections about OBMF-ICP, but that's not what this thread
-is about, sorry.  Please propose your own patch series for that and I'll
-be glad to criticize it there.
-
-And all of these seem to be OMBC answers, not LSTP answers.  There's
-still no excuse for LSTP to be designed like this :)
-
-> With OBMF-ICP's super-minimal core protocol, and the use-case
-> appropriate channels, seems like a suitable approach to me.
-> 
-> The USB-IF has a class ID allocated for OBMF-ICP interface descriptors,
-> with the intention that we have multiple vendor implementations of the
-> common protocol; we would like Linux to be one of those.
-
-It's always fun to make a new spec and protocol, but getting an ID
-doesn't mean that usb-if says "this is how it shoudl be done."  Anyone
-can get an ID :)
-
-sorry,
-
-greg k-h
