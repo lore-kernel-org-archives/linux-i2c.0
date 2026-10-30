@@ -1,100 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.181
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793371608;
-	b=EIMvHxdin+8u3/OEVLGT1RtWT/PtSbqcAWe13Yf6wwoSNqPix0FiAOJWKCrXyEq7vDuc
-	 F/VeXjxYxsqiwWArFTDQG8WLqh3VRH3oXGHhIeX7+MIDZ2rWkLfSVtTxu5+Sejhi4F3bt
-	 GleiAbYy6wK+nwvuYWt93a910+y7vcrPl2TidPFtnDAckbeWP7pccIeJSBDwJDUfZDmel
-	 B9Xdy9vz4tYPkqd3BDesda8OZ/guXonXSmlMbw10stSvsySOCW46Ab0IDMwlhE1AJ5a8l
-	 kReufpxFb0hGxIRROKZV9eSWe60lGXtN9uIh9rEnC7gyJaxhP5KpmA3J4JeqD2mMxoA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793371608;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=ldEQiD3yYw9PYXG3yEuMCLLnL2/Mwr5f7MvpqEQVi2o=;
-	b=4VZZPul5j1Tp88+HN3NAJGKr3eMObynlfAyC8Sy2IDZYat+pGJPbMQkccHE9LhOOeve0
-	 U/bn2WD7gDzQ/bBBzc4RQWfxBLqlxitP0RAxPTrynHn4LVonZr7xoWCHSL3m8h7LVKbgD
-	 HnccWa1Oa5urtQJ0vq4IR2Qco5+CDmY6lM7sZjcz8Hf6wsbVvpTj/me+DKh9+6IA4LOMv
-	 OfyCr9o+2VXaJEI+287mRCLviPOGnN0966L1UleHwKsYPxNUFMPqA9jLVQ7UPhHhuRPxW
-	 D9oyHRpUBjJ5dUjjbWTy70CC2PZqE3DrZZiv/3aIt7e4dW0xB5KPqyZHqgDuIYfbg7g==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="wI6/c0oR";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.181
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793372656;
+	b=dmQLFq7l//1qJIZ7HNJvQwZZG5U2fTllVgATONeWJ/XsLyDnki87WVFQEnOCk/Pf39bi
+	 GIotJz4FHo5CGIq8R5OHPq5uPBVJUH4iMeyOIHk6CY6ENPrkqcpOYQPJg+yeU10xNtaiS
+	 vo2Cy5urhbi6TEql+LfEwggLmyR4wRgeJgx0jhR7Z1PWn3DV9Oyaa/JpA6zekwJidA3Yk
+	 VrBAZUYLVidVH9H3nu8IVihX6mG1aLObYRa5laYEoyDtpF/5MYs7f5z+G5HbcoRbSbtyn
+	 iqBHnNLX/L2CY2eZ56SnfwhN00U7z1OS1iEW1oOmYhU/dQKj4OdwP/OKiWKWg3PnXXQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793372656;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=3ejU+QwuvUUVlsjsPfu0/M64lUD5vHCXgteWpYlp2rI=;
+	b=XYVOV0KkbK0JaSW/JWDxW4us08DP2QtxipAmXCBMUeqOPLRL15+M7RG0Cs1AycVNXsLl
+	 tAuualHFm+O+ODyNDAPcKyaYs27257UksgW09iOezqZ+orRFuqm3/Q0DX9yPLWlNLs+x7
+	 SaDwhvLt4UOG+dnOYULYqOteAyCMMPCLN9OU1zmuEJwHigXusq/pxsYlGggfR/z5ffsJ5
+	 bmI/09rhuo/b1KAfSzkf/qjVPg9ZuRLfZSHQkCcFFs4qSRdF958o27GOTUchppubVQZiW
+	 6wXTv9QCIWrWY8hARtqJ68VNwYdX7lC82bTUnJFsDU7pmlVE3hu3BlzCypfJ2s46P4Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n+xpX27b;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 251C6606A31A
-	for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 14:46:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 251C6606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCF05606A31D;
+	Fri, 30 Oct 2026 15:04:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wI6/c0oR
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-8b0d91601bdso15906167b3.1
-        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 07:46:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793371607; cv=none;
-        d=google.com; s=arc-20260327;
-        b=S9nAgb6+G8n+czVDLLUffaKBHPMZ0kjbifbbaDMjdjCAVMaRny9V2GhaFPZ5XXy6WC
-         M7TD7YTWIwPSoOG1kpNlpWgUePi0wzF5CMEjDl9nfa8MSACCU0RqBORLQmx/xmHi6wvy
-         SBDZNJFZSQFmnwljuCJlffokv+Iqb6htTBzOdk6KzPsppr0K+mkfTwoJb1V+b+qHUVcO
-         ydN1+Vn4AgZU+fmm3kJJX0n+DoSPn7uWnZw8ZhRtF/R0H5EO4PGRkWAwFuzW5iPWQigv
-         pvpYmxzNK2n5m7AUBwl2nAZbmf4pTWswt4hFaRczVEQijgLIr0tXXyn6bMGH4mEHT/ns
-         5u/Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ldEQiD3yYw9PYXG3yEuMCLLnL2/Mwr5f7MvpqEQVi2o=;
-        fh=PdXgacge+4iBXQ2IjJ6shLUfQFtN2/5ETqwwLo/eP4I=;
-        b=CsvMEhifyb0V5hxO2YzFd7ALke6V1vJeEswQ7SnMvhPth+LYKnIivTizbjcXd99ugI
-         4F+pCJ3tL+0mf4qzBZtuvOt8rTjiyhZ2HncHCO9ty2oO7mtf0LKixwhQi9ukclrfjZvZ
-         pYh997hXy8eBSmXZc1JUgCkwfMdBPElSWZPW5Ox0rdLrE/d1HxNpwZ7/LvdJx8HcR2r1
-         XoGc5mSPlDiJf8GMu6VNKbA+sK/fZjTPlhOpCn4qw34QWp+UXJdXhar4VyyTRcnm5syu
-         V6s+VqXJ3GHx3vk2IlemQIddG87KdPUP9z8Jc2v22rMvpWVUT5T3AIS3pSmz5hPJuedR
-         eUmg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793371607; x=1793976407; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ldEQiD3yYw9PYXG3yEuMCLLnL2/Mwr5f7MvpqEQVi2o=;
-        b=wI6/c0oResgsgq5b8xhMVt/Y6kYk/H2ae6jbf2ayU65xNQSFrxQdj0VOiGPvhU7xgO
-         y+qW80YTz++RZsX/GhMAVOYRfH2il2CjwqzD2eYLrgE1+YCNKVvCYLrVSH1J6BkA4KKu
-         fGSeyxOhzQySNt7MtIKPDSRv2LVPOw/BdqNxXYtZNVHWJFOam+0Vw/HOHDJSl3xu8EH5
-         jzUrfLRig3Ab/mdiLwd82zLd9Rbk4qdgktO4xiS2JEIgo761YcWUTNFNG+xhw6MAgbnZ
-         HdzCKjOzV6bA+mJsaUewy2vobYWahPAm+Gno+UeAwZLY3/SYR61iI8Lze6J4VFjfuPsk
-         RZCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793371607; x=1793976407;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ldEQiD3yYw9PYXG3yEuMCLLnL2/Mwr5f7MvpqEQVi2o=;
-        b=23uPNIx/AI4WzgaM8mE0X9XixSekXsWHUB8jdzWQC7pUZZZGuZ9EwEvRDV5Jk406F8
-         MmVVZ4F7iw3tLZ1eR+PMwPm6pA+WFaTCTgjcrTzbWCATtpHTexwQOZ8OfnrgiS0yRHqi
-         MNuuGiQaC4d4NvPsBwG2lsnrSbVHNzXb0EGCw2yrCKAA5cDf1NHBcoBUoVFcAPAAJRYw
-         gs1v1BEkNsI9PfN5wPQrLB3rlAbAfZxMSaPme7INUqGiURZIvwSfixnAUpFvZSK/5Knh
-         vxDns4nlbIsk/3IkxDx6cQveDLzkgLQckFJBb0wnrmWlMfjmHq+iW4knY6HikGSkzugz
-         c3hw==
-X-Forwarded-Encrypted: i=1; AKwUvBzLjd9L3Pd/ZTj8E3tSbh6bYGDOSP356oLar8HOvo4x9eLVs/3UoE0MqXSF6nOYChChdFiy/KfoxbE=@vger.kernel.org
-X-Gm-Message-State: AFq9FYI8/TuxYGqik/pQYYJBoHbYjDj4ylt1gtvzAeT03vBQZ617mHua
-	NHDmxGbaIyDK607QFkLWoLcrJi//30/ohcsIZKSL9xt1HoDJ08efJyYG2+1RFPpZrLeio7KUiln
-	stByLETV/7lrvyRTivax1ws+pwMRMuHk=
-X-Gm-Gg: AYBFou2To5+uGMx8dg30o5tanH2vYF/tmmL2DezKTiAAU4ocBHSA/oLcmm2dhmRQSu1
-	wngncduBilyDDKeCBjufMX7fz3AY1Qj7qYVn0vu0xgmV4TqyQ4ZtIkH4xppEBC6+TQ64DyG7+iV
-	qScZisjZHHbKJ6aNUS2mJayvTPr/Yr1dK1jiF25HZZbw5VvrmndRnRLW2/4KtQFT03UVc2lY9IG
-	395HAlwvuwppufOQFj6olMatzA8La+9GWucq71FzWn3gX+nE0msIrbVwpXu4Vz5RBOo60OEuOfr
-	HqjR3a0Z8Kv45F5H677IE+/KTw1rE7yYtSb6/zCxmmk3D6ACX8cpVBKYt2KBF8KMSPKCrBlxLwV
-	4YLDENikkVN2X08IG3zU8CENR3Y7MW9X19VbC
-X-Received: by 2002:a05:690e:11c6:b0:675:6c29:c985 with SMTP id
- 956f58d0204a3-67a8d3dda68mr4094771d50.22.1793371606158; Fri, 30 Oct 2026
- 07:46:46 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n+xpX27b
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E881F000C1;
+	Fri, 30 Oct 2026 15:04:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793372655;
+	bh=3ejU+QwuvUUVlsjsPfu0/M64lUD5vHCXgteWpYlp2rI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=n+xpX27bPWE+A2TwUPOE3kmmTRkiwZ/zopIYTmEws4IWwKWLejW2Z7Ym5/KEZUFFl
+	 FsZLfRob1h5sCFMrSQdL+5cazhsLr0XHvEyPqH6sTaTI/oJy+apdaOfOWbDRZ/RjOU
+	 stnzbFpT2HB8K1dQc52sODuD+SWGC9AQbf+v+TLlNIV5f61ODrleB9Ht26auRm+GRr
+	 gFgb9NDKqc2vn6JKdfqE/RVZhr5+6fFBImL223SGX5Zx4CixItBqK6Urd9YtnYexM4
+	 R0Jl/2tJMKrYuSFyd+8tOUJbGHQEmUgPrJTA2jFUst56IwjQVfZrLQWdaWi75g+z2C
+	 arEnhZ87VsAfA==
+Message-ID: <5817be6b-7180-407b-acb5-8c5fdef4edfb@kernel.org>
+Date: Fri, 30 Oct 2026 15:04:09 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -104,62 +51,92 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261016125229.1798791-1-thi.zirnstein@gmail.com> <20261016125229.1798791-3-thi.zirnstein@gmail.com>
-In-Reply-To: <20261016125229.1798791-3-thi.zirnstein@gmail.com>
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Date: Fri, 30 Oct 2026 20:16:34 +0530
-X-Gm-Features: AclHuK-GWiL1q4_WovgWSO5m2eQecD3gBL39B7xCULqbPJrTNpg-6D-hsXEdOeo
-Message-ID: <CAKfKVtEOOGsJSV0_im=-0u=N=fxkDuCMnAzt=1ZfBs4A4rg_0g@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] i2c: i2c-xiic: fix waiting/clearing while atomic
-To: Thilo Zirnstein <thi.zirnstein@gmail.com>
-Cc: michal.simek@amd.com, andi.shyti@kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 5/5] media: qcom: camss: Add support for Hawi
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
+ <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>,
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Cc: Suresh Vankadara <svankada@qti.qualcomm.com>,
+ Vikram Sharma <vikram.sharma@oss.qualcomm.com>, linux-i2c@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-phy@lists.infradead.org,
+ linux-media@vger.kernel.org
+References: <20261030-hawi-maili-camss-v3-0-9742bca8cef2@oss.qualcomm.com>
+ <fFfGGWaoXA-LdO6s8Xh_kQWQfncXe9YNdpcj2yNkphWHAR_V69LdLOcuhXPsbg8dEUSN4j4yygq4wPre5cz79w==@protonmail.internalid>
+ <20261030-hawi-maili-camss-v3-5-9742bca8cef2@oss.qualcomm.com>
+From: Bryan O'Donoghue <bod@kernel.org>
+Content-Language: en-GB
+Autocrypt: addr=bod@kernel.org; keydata=
+ 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
+In-Reply-To: <20261030-hawi-maili-camss-v3-5-9742bca8cef2@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Oct 16, 2026 at 6:24=E2=80=AFPM Thilo Zirnstein <thi.zirnstein@gmai=
-l.com> wrote:
->
-> Use non jiffies based waiting functions,
-> if in atomic context.
->
-> Suggested-by: Andi Shyti <andi.shyti@kernel.org>
-> Signed-off-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-xiic.c | 28 +++++++++++++++++++++++-----
->  1 file changed, 23 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.=
-c
-> index e68e17bdf0ba..fc9a0628cb67 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -359,16 +359,28 @@ static inline void xiic_irq_clr_en(struct xiic_i2c =
-*i2c, u32 mask)
->         xiic_irq_en(i2c, mask);
->  }
->
-> +static int xiic_poll_rx_empty(struct xiic_i2c *i2c)
-> +{
-> +       if (xiic_getreg8(i2c, XIIC_SR_REG_OFFSET) &
-> +           XIIC_SR_RX_FIFO_EMPTY_MASK)
-> +               return 1;
-> +
-> +       xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
-> +       return 0;
-> +}
-> +
->  static int xiic_clear_rx_fifo(struct xiic_i2c *i2c)
->  {
-> -       u8 sr;
-> +       int rx_empty;
->         unsigned long timeout;
->
-> +       if (i2c->atomic)
-> +               return read_poll_timeout_atomic(xiic_poll_rx_empty,
-> +                               rx_empty, rx_empty, 10, XIIC_I2C_TIMEOUT,
-> +                               0, i2c);
-> +
-read_poll_timeout_atomic() expects its timeout argument in
-microseconds  the current one is jiffies. Can you check it.
+On 30/10/2026 12:43, Nihal Kumar Gupta wrote:
+> +static const struct camss_subdev_resources csid_res_hawi[] = {
+> +	/* CSID0 */
+> +	{
+> +		.clock = { "csid", "csid_csiphy_rx" },
+> +		.clock_rate = { { 480000000 },
+> +				{ 480000000 } },
+> +		.reg = { "csid0" },
+> +		.interrupt = { "csid0" },
+> +		.csid = {
+> +			.parent_dev_ops = &vfe_parent_dev_ops,
+> +			.hw_ops = &csid_ops_1190,
+> +			.formats = &csid_formats_gen2
+> +		}
+
+This looks strange, why is there only one clock rate ?
+
+---
+bod
