@@ -1,84 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=188.40.28.6
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793465762;
-	b=Jmc/sGAw+i6nC1G+eg8DwwoH8On2KZIKO3NInoVTQBxqtKYMi3hOKBgJXHwFlPGItVt6
-	 wIsxJFIM3/bI0gsNC1GOf/yIEKA0kAyWebZJ3yc+jtAPb7cuPGnovnxTrtIUFcvXeqFAH
-	 Us7IUW50x417kOwEXx0AilhSQ/ekK9tOK9lKmqfmB7wNcUCrfAOKFulc3SzqUy1Uvstb/
-	 3dryHcsWXmBj49pBcE4afAJrDfRvpnFBlBfz2Fbf22V/mesPbRc60W428xfQvm6Vn9CuW
-	 DcarGCLRd732ghs6sTnCLMbab3qjY7OfZd2pp2VmqVLqPlk96yoq4CQRVF66u0+m7eA==
+	t=1793477249;
+	b=vMgOzhlt/gJlNp5etd6OzF/fqydtgEQ2OSIjxGCWGVUxulmHC9lsxUhAbleVBJ6rssBh
+	 5ZliaxiR8aUaUNFuHOCwQTWoUlbqyuXAHAqgMWk5/5X1/7l4/4nv1vPiVBWmrcrYxkUxI
+	 71RwUM40li18K7PPtwqEjMKyJbb/HcemEgeRaf0fmXnNIgnfje5BqNWZsdoX//ccZA3Gw
+	 yBy4USDw3n/Wphn1q0U81wVjekPP4OIk4XOzVqKOAaM2FwlUVJE4xMAPnnDUN4bSWQ9Sk
+	 b6oKFvhnAuIOmUh2YBtZGy1eWoLsuN8bsUzwkhWBNZzHGTG4kr3/eg6yftUZXkHe0Tg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793465762;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Mime-Version:Content-Transfer-Encoding:Content-Type:Date:Message-Id:
-	 Cc:Subject:From:To:X-Mailer:References:In-Reply-To;
-	bh=dTSpWgCuU+uPZLriefRpG7c7+1TKz+jm36CBK/vsWJk=;
-	b=v7VSQm+CSGoZLol6eC+4Ulymtcd1fKEf90Bf2TkOh8LH/IDy0MS9wD8cFU4uZIzbyUms
-	 OjToO9e9NAcpGQRqgBaZNNX8Uamr4bOeMwWlIOt4SnEAaTRbyXs6JyIxmIkL1xaOE71vJ
-	 A6FGMPG03olpa0p3bDpBbVkRJJn+16z0m8NcaCdkZcvBCVWE6iU3MZwaT0kVI5Z4eJTCe
-	 yTk8Fp1boRoErmwlRpqCcRT8fISEQMzQvRVNlIVcsa8BUHIND6ONFB5up79qpOHNjCycc
-	 TUrVqnNYAZOmWNQQFuoeSHjU53bhh4ez0JfyKUgFUu2Pdnmfute+cr5YqD5Os2eKNBQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793477249;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:Content-Type:
+	 Content-Transfer-Encoding:Mime-Version:Subject:Message-Id:Date:Cc:To:
+	 X-Mailer:X-Virus-Scanned;
+	bh=cUMVxN086Bz/l7fL/7V6VcbTJcIq3D+nzpbmSNzURxY=;
+	b=kGQESEx+QJjxXfBcq4xKuP3I2hLP0A386BXEE6IHLTq+m6KkM071t124wE5rNzqSTxuZ
+	 xiVzhMNUpG5g6vcfNTFOqSFbdIQIskQ4U6dkU1rFneqGKSVDrBK0eBA8wp+Ea+Uboc6qC
+	 qI6c5NOMbrxlCEUmIo/dy0ToZkBxT2+uOF9jVzAhiM7OP6352a8zWBbP0Sr+cdgvbuCNf
+	 mCqsmdR9rnizEXAmxUa8vVvAZoeqx1E2oB/Hu0HfYF+KKs44Go50+tSwu0LuHZjW7hvGx
+	 URZ4ZQrq/bhrSeFBH0GXmpsBF9gvSCloVTK2lkDTsM9YG0QztnpWXOFwLtoqM4iEF4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nexthop.ai;
-	spf=pass smtp.mailfrom=nexthop.ai;
-	dkim=pass header.d=nexthop.ai header.i=@nexthop.ai header.a=rsa-sha256 header.s=google header.b=REnspDXt;
-	arc=none smtp.remote-ip=74.125.82.45
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=rxw.at;
+	spf=pass smtp.mailfrom=rxw.at;
+	dkim=pass header.d=rxw.at header.i=@rxw.at header.a=rsa-sha256 header.s=default1911 header.b=QNwo5vpr;
+	arc=none smtp.remote-ip=188.40.28.6
+Received: from www226.your-server.de (www226.your-server.de [188.40.28.6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 541E0606A31F
-	for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 16:56:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 541E0606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85936606A31A
+	for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 20:07:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 85936606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rxw.at
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rxw.at
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=nexthop.ai header.i=@nexthop.ai header.a=rsa-sha256 header.s=google header.b=REnspDXt
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-1ae18eb9ad0so1471374c88.1
-        for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 09:56:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1793465760; x=1794070560; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=dTSpWgCuU+uPZLriefRpG7c7+1TKz+jm36CBK/vsWJk=;
-        b=REnspDXt+lRcxcp94OICDLypGbuOKyCjYRTlZ8QxpOGOD/WcUbDMN8O87C0EzS5UbH
-         MQ4zjwmACZ/pc67zk2cSLhpLFdA/fPA2CijbU5WtXW+A4anQtI977v6hGmbFP8CAVVbG
-         VeOE/gGNtxRthMf33tWZ6UY4ItrNj/LdHDtfulZtzF82/dqO7e6ppHfP95h+EqkrZgQm
-         tFKGT6wZpO8Oew+0k3NsoOYHf148k6g8PFRY/DLQrssuXEME11rbKsfzQQ9bOF4HyYQl
-         ZxeHqNAkvqaMdt1FXjihcuQZ0kT6wvgGewF5IMb7pOmNBK+g9R4V+K82agU4w5nD4Awk
-         IaVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793465760; x=1794070560;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=dTSpWgCuU+uPZLriefRpG7c7+1TKz+jm36CBK/vsWJk=;
-        b=PL8tidtT0tjvJOnCwOXv/DPdEdjoiKFCeEhqE8TCjSzfKElSUxVGVGXQlHyprbMw0i
-         ruSfO/r/Bqc3o5qXtH6+XW1bfg9aQ1KFjd7ubWhlzJca/PgWWfNBZh0wUWGRplMIqbYm
-         wCqrblkAFzaD2Qz0zXxyep4r5m5a5jUzsONuZl7d4uBjyNfUzv2GNQ794HPegJyPBd1W
-         WiL6kjmiTizJFfdyEJh0NqrlZtnhH6UHG8tOuCap7Ui4xVptCQp228HXS8zozVoTshLw
-         crOa/XeRrkzebgF3u+ulvTNkllK+IUkNCRmgtL6C3lGiUFmZKdymjlTgBNxIAd/w1Gx7
-         4c0Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxZWy2k6AbfsdJiSYAVrjfAawdQcrqpVsAiiGjP8GKed5wsJUCyIVWwTYN2XipjlQiZlZOsAbCSCGY=@vger.kernel.org
-X-Gm-Message-State: AFq9FYIdbUdnz4k/uED7lJ9d0eFsQel90anmGJLOGXfBQru/evgiY08d
-	dKLv6sAP7h4CGrW+MbQWxnx/ImnnBvSfpgbDed9NeEKWGY9T/dChXm9y3GCxtAXBDKc=
-X-Gm-Gg: AYBFou2Bo0Lj6XBmvhCUzoPQTUAOJ1WAU2IGVcZ4blfhL2f/JQdp2PmI5gRMo6r6bFl
-	niEv1wfqJYpHTmLtCfxUa0czOftmMUBte3XLcqDW3A2dIuaXLfj2Rjmh3fc3CFu/hwxFSzQ5jvX
-	3hMlGNb7Kpc9nBqDW/iy1DFjJXrDziytoAdHyzBFOIw3HsANRyKXOrJoHSgUSO5j2tNv1arafJt
-	1a6TTutWaVSW5VBl+v/WXVvRDK/tSKEUh7uBRbdwROVYBZJVS3nojl1OzVWLuza5xm2hcBO8aJ9
-	uDXCX0NdcafTQdHtHCkCf8PFR7A275OSAOPxucsOzJvD5kaJcGYVFw6igP7J+05/DnKkiO2rak0
-	Euw8NkIPU/CxrjDdtneI5cu/atbXNNY82vK8IYTb0duhrwwh3PIBsxyQy/Klql/nuPvMZaUYr1x
-	QaVnU4Eyol71+RPt3PxxexKlBsmKJpDyqun8EJe1uti406ZRLOxJf96pgTfVwG0eX9QsYq2oVJk
-	wrnAPcSnV4YaUZGBCizJvmHNtI7K1Vx6xEraww5SvJvAc35npuKban/bqYEG8lhxjuzyrunsheP
-	ymIfGrpUjjhyydtZhHvmrJzjuKO2lQ==
-X-Received: by 2002:a05:701b:4517:10b0:185:fd0c:4585 with SMTP id a92af1059eb24-1ac5fb18de9mr7587298c88.33.1793465760211;
-        Sat, 31 Oct 2026 09:56:00 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1ac19f4a04esm17690437c88.15.2026.10.31.09.55.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 31 Oct 2026 09:55:59 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=rxw.at header.i=@rxw.at header.a=rsa-sha256 header.s=default1911 header.b=QNwo5vpr
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rxw.at;
+	s=default1911; h=To:Cc:Date:Message-Id:Subject:Mime-Version:
+	Content-Transfer-Encoding:Content-Type:From:Sender:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References;
+	bh=cUMVxN086Bz/l7fL/7V6VcbTJcIq3D+nzpbmSNzURxY=; b=QNwo5vpr+NqGMFo1E4BL9uV6pB
+	0gySJPqZ7mtXcdERuzv8GoQgZj29Vzowvng0CWx1QVedcspdHSFVBLoDO2YDmY3yNXH1MEWwSBJxd
+	0YCXFe4S/pseDQWVJlbywMBoS5BmBQonWOh6crDlM6Y0oe9x8f7JDgBRJXhF7vDghCkbR03gQxzeB
+	IbUnCi5vMMfgpUkgkNPWAlxJEb4I+gahd6ZOo39lUXBUMewCrDjhMlfM1kxWQzv2OFElT+Dm8YFXP
+	7MTkpfRkmjhKDyMq8DpVFCiRdHBHyBg4RjwM6Lrr7mguRhWMyjM2aXMC+D7sTj+TLSu6sdEX6/tQZ
+	lK5OHCjw==;
+Received: from sslproxy03.your-server.de ([88.198.220.132])
+	by www226.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <info@rxw.at>)
+	id 1xNFMD-000JjA-2d;
+	Sat, 31 Oct 2026 21:07:18 +0100
+Received: from localhost ([127.0.0.1])
+	by sslproxy03.your-server.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <info@rxw.at>)
+	id 1xNFMD-000G02-14;
+	Sat, 31 Oct 2026 21:07:17 +0100
+From: RXW Info <info@rxw.at>
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -87,176 +68,260 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 31 Oct 2026 09:55:58 -0700
-Message-Id: <DMJ6JVD0I6KI.2DKEVAB8RYTO4@nexthop.ai>
-Cc: <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, "Sasha Levin" <sashal@kernel.org>,
- "Siddarth Chilukuri" <siddarth@nexthop.ai>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] Revert "i2c: xiic: defer RX_FULL until all trailing
- bytes are in FIFO"
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>, "Michal Simek"
- <michal.simek@amd.com>, "Andi Shyti" <andi.shyti@kernel.org>
-X-Mailer: aerc 0.22.0
-References: <20261008-i2c-xiic-block-read-nack-v2-1-76735ed0b0bf@nexthop.ai>
-In-Reply-To: <20261008-i2c-xiic-block-read-nack-v2-1-76735ed0b0bf@nexthop.ai>
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.700.51.1.3\))
+Subject: i2c: SPD EEPROM of DIMM2 on Dell OptiPlex 3050 is at 0x52,  but
+ auto-registration uses 0x51
+Message-Id: <D815B63F-4029-47E1-9FE9-8CF040AA962A@rxw.at>
+Date: Sat, 31 Oct 2026 21:07:06 +0100
+Cc: jdelvare@suse.de,
+ hkallweit1@gmail.com
+To: linux-i2c@vger.kernel.org
+X-Mailer: Apple Mail (2.3864.700.51.1.3)
+X-Virus-Scanned: Clear (ClamAV 1.4.6/28170/Sat Oct 31 07:24:42 2026)
 
-On Thu Oct 8, 2026 at 6:01 PM PDT, Abdurrahman Hussain wrote:
-> This reverts commit e6fe3ea04f0113fe4d47c03d76e03805a4768ca7.
->
-> That commit raised the Rx FIFO threshold for an SMBus block read whose
-> trailing bytes fit in the FIFO, on the grounds that firing RX_FULL with
-> the last byte still in flight made xiic_read_rx() NACK, and so truncate,
-> that byte. NACKing the last byte does not truncate it: it is how a
-> master ends a read. The byte is still clocked in and is drained on the
-> bytes_rem =3D=3D 0 path that follows, which also issues the STOP.
->
-> What the higher threshold does instead is skip the bytes_rem =3D=3D 1
-> branch, the only place that sets NO_ACK, so every trailing byte is now
-> ACKed. Having had its last byte ACKed, the target goes on to drive the
-> next one, and the STOP that follows lands in the middle of it.
->
-> Some targets ride this out; others are left wedged until the next
-> transactions clock them free. A TDK FS1412 fails the two transfers that
-> follow any block read, so it never probes: pmbus reads MFR_ID as a block
-> and then VOUT_MODE as a byte. A Renesas RAA228246 and one RAA228244 on
-> the same controller fail the plain block read itself and the byte read
-> after it.
->
-> With commit b7e6df2f52ed ("i2c: xiic: preserve PEC byte length in SMBus
-> block read setup") and commit 840d8acc8792 ("i2c: xiic: don't clobber
-> msg->len to signal block-read completion") in place, PEC block reads
-> pass at the original threshold. The PEC failures the reverted commit
-> attributed to the threshold came from the bugs those two fix; all three
-> were developed together against an ADM1266, which rides out the extra
-> ACK, so the regression did not show.
->
-> Twenty rounds per device of a block read and a PEC block read of MFR_ID,
-> each followed by a byte read:
->
->                before                      after
->             block  PEC   byte after     block  PEC   byte after
->   FS1412    20/20  0/20  20/40 fail     20/20 20/20   0/40 fail
->   RAA228246  0/20 20/20  20/40 fail     20/20 20/20   0/40 fail
->   RAA228244  0/20 20/20  20/40 fail     20/20 20/20   0/40 fail
->
-> A second RAA228244 and an Infineon XDPE1A2G5B passed every round before
-> and after.
->
-> Fixes: e6fe3ea04f01 ("i2c: xiic: defer RX_FULL until all trailing bytes a=
-re in FIFO")
-> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-> Cc: stable@vger.kernel.org # v6.3+
-> ---
-> A follow-up to my xiic block-read series, now in 7.3-rc as
-> b7e6df2f52ed, e6fe3ea04f01 and 840d8acc8792. The second of those
-> stopped NACKing the final byte of a block read that fits in the Rx
-> FIFO, which leaves some PMBus targets wedged for the next couple of
-> transfers.
->
-> Tested on a 6.12 kernel carrying that series, against an AXI IIC
-> controller with an FS1412, RAA228244/RAA228246 and XDPE1A2G5B behind
-> it, using plain and PEC block reads and the byte reads that follow.
->
-> The same happens on a second board, where two of four ISL68225s behind
-> the same AXI IIC core fail plain block reads and the transfer
-> after them. A capture of SCL/SDA taken inside the FPGA shows the
-> mechanism: after the last byte of an MFR_ID block read the master
-> drives ACK, the target starts on the next byte with SDA low, and the
-> STOP the master then attempts never appears, leaving SDA held low. With
-> this change the last byte is NACKed and the STOP is clean, and all four
-> pass.
->
-> PEC block reads do not regress: 1000 PEC block reads of MFR_ID per
-> device, each followed by a byte read, on the FS1412, both RAA parts, the
-> XDPE1A2G5B and a further RAA228244 passed without a failure, both with
-> this revert alone and with Siddarth's patch on top of it.
->
-> With this change a block read ends with a NACK, and so with TX_ERROR,
-> like any other read. That puts it in the window Siddarth's patch closes,
-> where xiic_process() sees TX_ERROR before RX_FULL and resets the core
-> even though the data is already in the Rx FIFO:
->
->   https://lore.kernel.org/linux-i2c/20261005-i2c-xiic-rx-fifo-v1-1-0177ac=
-5f72d7@nexthop.ai/
->
-> The two touch different functions and apply cleanly to v7.3-rc6 in
-> either order.
-> ---
-> Changes in v2:
-> - Revert e6fe3ea04f01 outright instead of moving the threshold back by
->   truncated), and with b7e6df2f52ed and 840d8acc8792 in place PEC block
->   reads pass at the original threshold. The code change is the same
->   single line as v1 minus its tail =3D=3D 1 branch, which could never run
->   (Siddarth, Sashiko): reads with fewer than two trailing bytes are
->   padded to SMBUS_BLOCK_READ_MIN_LEN first.
->   Sashiko review: https://sashiko.dev/#/patchset/20261008-i2c-xiic-block-=
-read-nack-v1-1-94882af6e598%40nexthop.ai
-> - Link to v1: https://patch.msgid.link/20261008-i2c-xiic-block-read-nack-=
-v1-1-94882af6e598@nexthop.ai
->
-> To: Michal Simek <michal.simek@amd.com>
-> To: Andi Shyti <andi.shyti@kernel.org>
-> To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> hand: that commit's premise was wrong (a NACKed last byte is not
-> ---
->  drivers/i2c/busses/i2c-xiic.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.=
-c
-> index 5e397a7e63f6..76ef9c26ed57 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -569,11 +569,11 @@ static void xiic_smbus_block_read_setup(struct xiic=
-_i2c *i2c)
->  			i2c->smbus_actual_len =3D 1 + rxmsg_len + pec_len;
->  		} else {
->  			/*
-> -			 * All trailing bytes fit in the Rx FIFO. Defer RX_FULL
-> -			 * until every one of them is buffered, so the drain
-> -			 * takes xiic_read_rx()'s bytes_rem =3D=3D 0 path.
-> +			 * All trailing bytes fit in the Rx FIFO. The widened
-> +			 * condition above guarantees rxmsg_len + pec_len >=3D 2,
-> +			 * so this cannot underflow.
->  			 */
-> -			rfd_set =3D rxmsg_len + pec_len - 1;
-> +			rfd_set =3D rxmsg_len + pec_len - 2;
->  			i2c->rx_msg->len =3D rxmsg_len + 1 + pec_len;
->  		}
->  		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
->
-> ---
-> base-commit: a90ee4305c4a5df72c11b31dacfdc76e00fcf78a
-> change-id: 20261007-i2c-xiic-block-read-nack-d2b735baddd3
->
-> Best regards,
-> --
-> Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
-Hi Andi,
 
-Gentle ping on this one. It missed 7.3, so v7.3 and v7.3.1 now ship
-e6fe3ea04f01, and any pmbus device on xiic that reads a block (the
-FS1412 above, for one) fails to probe. Could you take the revert
-through i2c-fixes for 7.4-rc?
+Hello !
 
-When you apply it, the stable hint should be
+My name is Robert W=C3=BChrer, from Austria.=20
 
-Cc: stable@vger.kernel.org # v7.3
+On two identical Dell OptiPlex 3050 machines (2 DIMM slots, each
+populated with 2x 8 GB DDR4), the SPD EEPROM of the module in DIMM2
+is not registered automatically at boot. hardinfo2 therefore shows
+SPD data for DIMM1 only.
 
-rather than "# v6.3+". Sasha dropped e6fe3ea04f01 from the older stable
-queues, so 7.3.y is the only stable branch that has it.
+Findings:
+- The SPD of DIMM1 is at 0x50 and bound to ee1004 (UU in i2cdetect).
 
-The patch still applies cleanly on current mainline. I can resend
-against -rc1 if that's easier for you.
+- The SPD of DIMM2 responds at 0x52, not at 0x51, and no device is
+  registered there.
 
-Thanks,
-Abdurrahman
+- decode-dimm also finds only one DIMM slot.=20
+
+- Swapping all modules between slots and between both machines makes
+  no difference, so it is neither module- nor machine-specific.
+
+- Same behaviour on Fedora, Debian and Parted Magic.
+
+- Manual registration works:
+  echo ee1004 0x52 > /sys/bus/i2c/devices/i2c-0/new_device
+
+- My assumption (please correct me): the SPD devices are registered
+  consecutively starting at 0x50 based on the DMI type 17 entries, so
+  the second slot ends up at 0x51. On this board the second slot
+  seems to be wired to 0x52 instead.
+
+- I have not tested older kernels, so I cannot say whether this is
+  a regression.
+
+Request: would a DMI quirk for this board be acceptable, or could the
+address mapping be determined differently? I am happy to test patches.
+
+Thank you and best regards, Robert
+
+=E2=80=94=E2=80=94
+
+
+System: Dell OptiPlex 3050, BIOS 09/06/2024, Version 1.32.0
+
+Kernel: 7.2.12+deb14-amd64
+
+
+dmidecode -s system-product-name: OptiPlex 3050
+
+
+root@debian1:~# lspci -nn | grep -i smbus
+00:1f.4 SMBus [0c05]: Intel Corporation 200 Series/Z370 Chipset Family =
+SMBus [8086:a2a3]
+
+
+root@debian1:~# i2cdetect -l
+i2c-0	smbus     	SMBus I801 adapter at 0000:00:1f.4	SMBus =
+adapter
+i2c-1	i2c       	i915 gmbus dpc                  	I2C =
+adapter
+i2c-2	i2c       	i915 gmbus dpb                  	I2C =
+adapter
+i2c-3	i2c       	i915 gmbus dpd                  	I2C =
+adapter
+i2c-4	i2c       	AUX C/DDI C/PHY C               	I2C =
+adapter
+i2c-5	i2c       	AUX D/DDI D/PHY D               	I2C =
+adapter
+i2c-6	i2c       	AUX A/DDI E/PHY E               	I2C =
+adapter
+
+
+root@debian1:~# dmesg | grep -iE "i801|ee1004|spd"
+[    1.019462] i801_smbus 0000:00:1f.4: SPD Write Disable is set
+[    1.019488] i801_smbus 0000:00:1f.4: SMBus using PCI interrupt
+[    1.021106] i2c i2c-0: Successfully instantiated SPD at 0x50
+[    6.413081] ee1004 0-0050: 512 byte EE1004-compliant SPD EEPROM, =
+read-only
+
+
+root@debian1:~# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         08 -- -- -- -- -- -- --=20
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
+30: 30 -- -- -- -- 35 UU UU -- -- -- -- -- -- -- --=20
+40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --=20
+50: UU -- 52 -- -- -- -- -- -- -- -- -- -- -- -- --=20
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
+70: -- -- -- -- -- -- -- --                        =20
+
+
+root@debian1:~# dmidecode -t memory
+dmidecode 3.7
+Getting SMBIOS data from sysfs.
+SMBIOS 3.0.0 present.
+
+Handle 0x0009, DMI type 16, 23 bytes
+Physical Memory Array
+	Location: System Board Or Motherboard
+	Use: System Memory
+	Error Correction Type: None
+	Maximum Capacity: 32 GiB
+	Error Information Handle: Not Provided
+	Number Of Devices: 2
+
+Handle 0x000A, DMI type 17, 40 bytes
+Memory Device
+	Array Handle: 0x0009
+	Error Information Handle: Not Provided
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: 8 GiB
+	Form Factor: DIMM
+	Set: None
+	Locator: DIMM1
+	Bank Locator: Not Specified
+	Type: DDR4
+	Type Detail: Synchronous Unbuffered (Unregistered)
+	Speed: 2400 MT/s
+	Manufacturer: 80AD000080AD
+	Serial Number: xxxxxxx
+	Asset Tag: xxxxxxx
+	Part Number: HMA81GU6AFR8N-UH   =20
+	Rank: 1
+	Configured Memory Speed: 2400 MT/s
+	Minimum Voltage: Unknown
+	Maximum Voltage: Unknown
+	Configured Voltage: 1.2 V
+
+Handle 0x000B, DMI type 17, 40 bytes
+Memory Device
+	Array Handle: 0x0009
+	Error Information Handle: Not Provided
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: 8 GiB
+	Form Factor: DIMM
+	Set: None
+	Locator: DIMM2
+	Bank Locator: Not Specified
+	Type: DDR4
+	Type Detail: Synchronous Unbuffered (Unregistered)
+	Speed: 2400 MT/s
+	Manufacturer: 80AD000080AD
+	Serial Number: xxxxxxx
+	Asset Tag: xxxxxxx
+	Part Number: HMA81GU6AFR8N-UH   =20
+	Rank: 1
+	Configured Memory Speed: 2400 MT/s
+	Minimum Voltage: Unknown
+	Maximum Voltage: Unknown
+	Configured Voltage: 1.2 V
+
+
+root@debian1:~# decode-dimms=20
+# decode-dimms version 4.4
+
+Memory Serial Presence Detect Decoder
+By Philip Edelbrock, Christian Zuckschwerdt, Burkart Lingner,
+Jean Delvare, Trent Piepho and others
+
+
+Decoding EEPROM: /sys/bus/i2c/drivers/ee1004/0-0050
+Guessing DIMM is in                              bank 1
+Kernel driver used                               ee1004
+
+---=3D=3D=3D SPD EEPROM Information =3D=3D=3D---
+EEPROM CRC of bytes 0-125                        OK (0xBD97)
+# of bytes written to SDRAM EEPROM               384
+Total number of bytes in EEPROM                  512
+Fundamental Memory type                          DDR4 SDRAM
+SPD Revision                                     1.1
+Module Type                                      UDIMM
+EEPROM CRC of bytes 128-253                      OK (0x53D8)
+
+---=3D=3D=3D Memory Characteristics =3D=3D=3D---
+Maximum module speed                             2400 MT/s (PC4-19200)
+Size                                             8192 MB
+Banks x Rows x Columns x Bits                    16 x 16 x 10 x 64
+SDRAM Device Width                               8 bits
+Ranks                                            1
+Primary Bus Width                                64 bits
+AA-RCD-RP-RAS (cycles)                           17-17-17-39
+Supported CAS Latencies                          18T, 17T, 16T, 15T, =
+14T, 13T, 12T, 11T, 10T
+
+---=3D=3D=3D Timings at Standard Speeds =3D=3D=3D---
+AA-RCD-RP-RAS (cycles) as DDR4-2400              17-17-17-39
+AA-RCD-RP-RAS (cycles) as DDR4-2133              15-15-15-35
+AA-RCD-RP-RAS (cycles) as DDR4-1866              13-13-13-30
+AA-RCD-RP-RAS (cycles) as DDR4-1600              11-11-11-26
+
+---=3D=3D=3D Timing Parameters =3D=3D=3D---
+Minimum Cycle Time (tCKmin)                      0.833 ns
+Maximum Cycle Time (tCKmax)                      1.600 ns
+Minimum CAS Latency Time (tAA)                   13.750 ns
+Minimum RAS to CAS Delay (tRCD)                  13.750 ns
+Minimum Row Precharge Delay (tRP)                13.750 ns
+Minimum Active to Precharge Delay (tRAS)         32.000 ns
+Minimum Active to Auto-Refresh Delay (tRC)       45.750 ns
+Minimum Recovery Delay (tRFC1)                   350.000 ns
+Minimum Recovery Delay (tRFC2)                   260.000 ns
+Minimum Recovery Delay (tRFC4)                   160.000 ns
+Minimum Four Activate Window Delay (tFAW)        21.000 ns
+Minimum Row Active to Row Active Delay (tRRD_S)  3.300 ns
+Minimum Row Active to Row Active Delay (tRRD_L)  4.900 ns
+Minimum CAS to CAS Delay (tCCD_L)                5.000 ns
+Minimum Write Recovery Time (tWR)                15.000 ns
+Minimum Write to Read Time (tWTR_S)              2.500 ns
+Minimum Write to Read Time (tWTR_L)              7.500 ns
+
+---=3D=3D=3D Other Information =3D=3D=3D---
+Package Type                                     Monolithic
+Maximum Activate Count (MAC)                     Unlimited
+Post Package Repair                              One row per bank group
+Soft PPR                                         Supported
+Module Nominal Voltage                           1.2 V
+Thermal Sensor                                   No
+
+---=3D=3D=3D Physical Characteristics =3D=3D=3D---
+Module Height                                    32 mm
+Module Thickness                                 2 mm front, 1 mm back
+Module Reference Card                            A revision 2
+
+---=3D=3D=3D Manufacturer Data =3D=3D=3D---
+Module Manufacturer                              SK Hynix (former =
+Hyundai Electronics)
+DRAM Manufacturer                                SK Hynix (former =
+Hyundai Electronics)
+Manufacturing Location Code                      0x01
+Manufacturing Date                               2017-W01
+Assembly Serial Number                           xxxxxx
+Part Number                                      HMA81GU6AFR8N-UH   =20
+
+
+Number of SDRAM DIMMs detected and decoded: 1
+
+
+
+
+
+
+
 
