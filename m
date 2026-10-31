@@ -1,93 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793444057;
-	b=43cAkerr7QHA8Fo1p2YkaGQJPbAWymghtsmhCHO7jJGU5zVGMQWj97jNGl8+Oi263G1P
-	 UbV9mzJHk4PMw+fes9RHnEDy/WtC0YtFk5Zg74GR0/8IoQODwQHKhPs18KI4+Ib2IO/pY
-	 1s5166zraMDIsetJt0hIa/Rd+RVk3+tSK1D4jqgICKlcP2BWsI21QJn6tiSYrzZCfxtA/
-	 4qFjwAapD6oZ86oCj4cs9c4lQntuLcNcIqYworsnpMD3BK2q1zdZpbxPQ5ki0Cuxba5A1
-	 Km0mJIcMdRhfYPn15LTcCSQQZPpUI7cBp4S0P+ypy2+TBfznl7ZkD2jKKDAZPAUr9+g==
+	t=1793465762;
+	b=Jmc/sGAw+i6nC1G+eg8DwwoH8On2KZIKO3NInoVTQBxqtKYMi3hOKBgJXHwFlPGItVt6
+	 wIsxJFIM3/bI0gsNC1GOf/yIEKA0kAyWebZJ3yc+jtAPb7cuPGnovnxTrtIUFcvXeqFAH
+	 Us7IUW50x417kOwEXx0AilhSQ/ekK9tOK9lKmqfmB7wNcUCrfAOKFulc3SzqUy1Uvstb/
+	 3dryHcsWXmBj49pBcE4afAJrDfRvpnFBlBfz2Fbf22V/mesPbRc60W428xfQvm6Vn9CuW
+	 DcarGCLRd732ghs6sTnCLMbab3qjY7OfZd2pp2VmqVLqPlk96yoq4CQRVF66u0+m7eA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793444057;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793465762;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=7Xy5C3gd+08js1GAOtSSRa04UMfhl4cyMda6mXjC430=;
-	b=GktKLT9hPQtgUB7rWdzz/rwBRW78JPCnh6YBf38NtAF2DoO+MC6QDi7d3T7X9FV6w6qA
-	 8nx1UoQbNICELb7DsIr0FBaFMSL3MqrJfUNMaUWf1vXTkV6z0ElB505cfXS3cyKhGTNW8
-	 qibbOnETERsdfVQEeTFYIqO07mokmj1hIya4In6OP3Qw58eeRQX7iT2VLwBom8ugf/LbP
-	 +uyElqTtS9Y9BvKyXmGND26RdKaVa8mHs5VmKscsPNforb2brPnCWFExWDOj9R9xXlPtz
-	 TahDu8MpAZuHxGtu5cxMxDIWCxOvWTlZMB9/ZMP/V6GfYEsfLnF5UYszVkivnKdaYFw==
+	 Mime-Version:Content-Transfer-Encoding:Content-Type:Date:Message-Id:
+	 Cc:Subject:From:To:X-Mailer:References:In-Reply-To;
+	bh=dTSpWgCuU+uPZLriefRpG7c7+1TKz+jm36CBK/vsWJk=;
+	b=v7VSQm+CSGoZLol6eC+4Ulymtcd1fKEf90Bf2TkOh8LH/IDy0MS9wD8cFU4uZIzbyUms
+	 OjToO9e9NAcpGQRqgBaZNNX8Uamr4bOeMwWlIOt4SnEAaTRbyXs6JyIxmIkL1xaOE71vJ
+	 A6FGMPG03olpa0p3bDpBbVkRJJn+16z0m8NcaCdkZcvBCVWE6iU3MZwaT0kVI5Z4eJTCe
+	 yTk8Fp1boRoErmwlRpqCcRT8fISEQMzQvRVNlIVcsa8BUHIND6ONFB5up79qpOHNjCycc
+	 TUrVqnNYAZOmWNQQFuoeSHjU53bhh4ez0JfyKUgFUu2Pdnmfute+cr5YqD5Os2eKNBQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ji1qwbZK;
-	arc=none smtp.remote-ip=209.85.214.181
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	dmarc=pass header.from=nexthop.ai;
+	spf=pass smtp.mailfrom=nexthop.ai;
+	dkim=pass header.d=nexthop.ai header.i=@nexthop.ai header.a=rsa-sha256 header.s=google header.b=REnspDXt;
+	arc=none smtp.remote-ip=74.125.82.45
+Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DEE606A31A
-	for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 10:54:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D2DEE606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 541E0606A31F
+	for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 16:56:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 541E0606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Ji1qwbZK
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2e9ae391a05so10630355ad.1
-        for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 03:54:16 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=nexthop.ai header.i=@nexthop.ai header.a=rsa-sha256 header.s=google header.b=REnspDXt
+Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-1ae18eb9ad0so1471374c88.1
+        for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 09:56:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793444056; x=1794048856; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7Xy5C3gd+08js1GAOtSSRa04UMfhl4cyMda6mXjC430=;
-        b=Ji1qwbZK23SCMCsXbvXhhK0j2k+HOHjek/jkDVdy9oS6kMdxCsu+3km53Og1wNOE5s
-         mCVeGhqtbPm4dt6FdBsVi0XRVZlQ/le9h6az2enJAmmlkyQTietyTPb5PQqYTNQMuXSo
-         D7G4vD5VUUBkVf23zVvUljLnEELunSyoh1khXH5O+e68fEFay3ATX3TNHdhC9AwyNb8X
-         NMspy/H7+H8f1nVyKIEJwm3o9fgd+oyXg+brxzKbS5h0gj/6uKhrG1k9c4cyNzHldym0
-         Z00JjHjGMJ75ADSZ+VOgicvHehUmOEt5OPWMtY2OZYjmP44iQTqCsUTZJCpGWqes+4ZN
-         cxXw==
+        d=nexthop.ai; s=google; t=1793465760; x=1794070560; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=dTSpWgCuU+uPZLriefRpG7c7+1TKz+jm36CBK/vsWJk=;
+        b=REnspDXt+lRcxcp94OICDLypGbuOKyCjYRTlZ8QxpOGOD/WcUbDMN8O87C0EzS5UbH
+         MQ4zjwmACZ/pc67zk2cSLhpLFdA/fPA2CijbU5WtXW+A4anQtI977v6hGmbFP8CAVVbG
+         VeOE/gGNtxRthMf33tWZ6UY4ItrNj/LdHDtfulZtzF82/dqO7e6ppHfP95h+EqkrZgQm
+         tFKGT6wZpO8Oew+0k3NsoOYHf148k6g8PFRY/DLQrssuXEME11rbKsfzQQ9bOF4HyYQl
+         ZxeHqNAkvqaMdt1FXjihcuQZ0kT6wvgGewF5IMb7pOmNBK+g9R4V+K82agU4w5nD4Awk
+         IaVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793444056; x=1794048856;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=7Xy5C3gd+08js1GAOtSSRa04UMfhl4cyMda6mXjC430=;
-        b=sPy+n7MF7FYQXnzwF8ANRnuSKsn6vKzKTwE42mnaVO6LZmWr0ovu5lnGHGL8/CRdO2
-         MgKX5VeGWbWVBXtlSMulOfHgakInnjw15nIdQ10seN4Sh2l0NxuXMyJJjksIT4EIlBp2
-         IzvAh3DBT/3L0+Icp4WrlxncxnJtCJYSlmVCK7iaVvqVSK6wapkc/VkA44xfz+WpZTr2
-         v2EVV6MIRVG8bMVZmKYpwV1rlVZIoS8cnyYV5WFrkQQXOg+oEJ0yZZMdouL988HJfKDk
-         6YKPXRWZ5mknTCszhw456Wz31Q+K6LdxkImJavAbn+plH91Zezpel6rBardbwOpG37G1
-         H9QQ==
-X-Forwarded-Encrypted: i=1; AKwUvBx8QAQI64vqLoRZU+TppDUfRYJ77HKOKT8wduljR9UTRexnYXsMlcCTD9JCLfWadqrwTQd+tV4eeOY=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKUVb3ABmhOXagqyK63wLmfiteglnMWwblu7gmVtKbO+n26GCEN
-	zarOPqdAdYhMIFym+ewBpAncVaZU9rK8EmFpyNvLQ19tZObdFJD2iAri
-X-Gm-Gg: AYBFou1DK59moRsoUvbeRofB7stvWoUztQdQd1WC4zFtquAXv5QnTNSVBL4ZXianFl4
-	aU3CaSnnOeE6FIFbY4urm169JOnyHICuu5scCUyI88oFXqjBIYHnVREaChOVlpbU2jT8aAlCIZ5
-	nAgyUoUaIbBtpQOGI8dTC2b7VZJzxK3sdDCdzaDtbG2kQd4BuisXMN1V82CeWaxmFXa4ptRZwaM
-	/J3bNqGnAWKSgM7k+ueTe7oLYKZHk1QSCgoxmSJDGyO6EKu3iGVZ9QrhypQsdyMsK8gnH+fvaKx
-	KWH5foR82ie1gIgUzKyEyZPxIO4Y7XNZxiIgP63vL2H0/4meEtGjcN4D41mwOZg4jf6e9O3aoLr
-	ADZVv5YZj4Wz0K5UpHYMHomn6us+OOsry6T3hnVNrjGSeIGRfILpkcS4WYFek9iMpgTv12PBu2A
-	gWuyL7wVpfGBgYilQSCBPS9Bd4b4ZhNRIH2EueqnyC1C0QdJokGv1JgM2nscAjM708GyXFiS9NN
-	Oj1wYiYFda12HZHndKKo+hURVTQVj1n8wC3lU+PVZzzy2ggRVZjx/Xv3w3emBLSLeh+xecU1rn+
-	sMQLDOjljyCYfsoAxa+RbDLeGQZKguS3yipylZ+fd18p5w==
-X-Received: by 2002:a17:903:1a4e:b0:2df:9e44:32f1 with SMTP id d9443c01a7336-2eb364e1741mr34179695ad.29.1793444056037;
-        Sat, 31 Oct 2026 03:54:16 -0700 (PDT)
-Received: from asahi.tail4da9e3.ts.net ([218.48.198.193])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2eb39052bcbsm14745625ad.10.2026.10.31.03.54.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Oct 2026 03:54:15 -0700 (PDT)
-From: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: designware: preserve invalid SMBus block count
-Date: Sat, 31 Oct 2026 19:54:12 +0900
-Message-ID: <20261031105412.16825-1-pocj8ur4in@gmail.com>
-X-Mailer: git-send-email 2.55.0
+        d=1e100.net; s=20260707; t=1793465760; x=1794070560;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-type:content-transfer-encoding:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=dTSpWgCuU+uPZLriefRpG7c7+1TKz+jm36CBK/vsWJk=;
+        b=PL8tidtT0tjvJOnCwOXv/DPdEdjoiKFCeEhqE8TCjSzfKElSUxVGVGXQlHyprbMw0i
+         ruSfO/r/Bqc3o5qXtH6+XW1bfg9aQ1KFjd7ubWhlzJca/PgWWfNBZh0wUWGRplMIqbYm
+         wCqrblkAFzaD2Qz0zXxyep4r5m5a5jUzsONuZl7d4uBjyNfUzv2GNQ794HPegJyPBd1W
+         WiL6kjmiTizJFfdyEJh0NqrlZtnhH6UHG8tOuCap7Ui4xVptCQp228HXS8zozVoTshLw
+         crOa/XeRrkzebgF3u+ulvTNkllK+IUkNCRmgtL6C3lGiUFmZKdymjlTgBNxIAd/w1Gx7
+         4c0Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxZWy2k6AbfsdJiSYAVrjfAawdQcrqpVsAiiGjP8GKed5wsJUCyIVWwTYN2XipjlQiZlZOsAbCSCGY=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIdbUdnz4k/uED7lJ9d0eFsQel90anmGJLOGXfBQru/evgiY08d
+	dKLv6sAP7h4CGrW+MbQWxnx/ImnnBvSfpgbDed9NeEKWGY9T/dChXm9y3GCxtAXBDKc=
+X-Gm-Gg: AYBFou2Bo0Lj6XBmvhCUzoPQTUAOJ1WAU2IGVcZ4blfhL2f/JQdp2PmI5gRMo6r6bFl
+	niEv1wfqJYpHTmLtCfxUa0czOftmMUBte3XLcqDW3A2dIuaXLfj2Rjmh3fc3CFu/hwxFSzQ5jvX
+	3hMlGNb7Kpc9nBqDW/iy1DFjJXrDziytoAdHyzBFOIw3HsANRyKXOrJoHSgUSO5j2tNv1arafJt
+	1a6TTutWaVSW5VBl+v/WXVvRDK/tSKEUh7uBRbdwROVYBZJVS3nojl1OzVWLuza5xm2hcBO8aJ9
+	uDXCX0NdcafTQdHtHCkCf8PFR7A275OSAOPxucsOzJvD5kaJcGYVFw6igP7J+05/DnKkiO2rak0
+	Euw8NkIPU/CxrjDdtneI5cu/atbXNNY82vK8IYTb0duhrwwh3PIBsxyQy/Klql/nuPvMZaUYr1x
+	QaVnU4Eyol71+RPt3PxxexKlBsmKJpDyqun8EJe1uti406ZRLOxJf96pgTfVwG0eX9QsYq2oVJk
+	wrnAPcSnV4YaUZGBCizJvmHNtI7K1Vx6xEraww5SvJvAc35npuKban/bqYEG8lhxjuzyrunsheP
+	ymIfGrpUjjhyydtZhHvmrJzjuKO2lQ==
+X-Received: by 2002:a05:701b:4517:10b0:185:fd0c:4585 with SMTP id a92af1059eb24-1ac5fb18de9mr7587298c88.33.1793465760211;
+        Sat, 31 Oct 2026 09:56:00 -0700 (PDT)
+Received: from localhost ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1ac19f4a04esm17690437c88.15.2026.10.31.09.55.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 31 Oct 2026 09:55:59 -0700 (PDT)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -96,56 +87,176 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 31 Oct 2026 09:55:58 -0700
+Message-Id: <DMJ6JVD0I6KI.2DKEVAB8RYTO4@nexthop.ai>
+Cc: <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, "Sasha Levin" <sashal@kernel.org>,
+ "Siddarth Chilukuri" <siddarth@nexthop.ai>, <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] Revert "i2c: xiic: defer RX_FULL until all trailing
+ bytes are in FIFO"
+From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
+To: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>, "Michal Simek"
+ <michal.simek@amd.com>, "Andi Shyti" <andi.shyti@kernel.org>
+X-Mailer: aerc 0.22.0
+References: <20261008-i2c-xiic-block-read-nack-v2-1-76735ed0b0bf@nexthop.ai>
+In-Reply-To: <20261008-i2c-xiic-block-read-nack-v2-1-76735ed0b0bf@nexthop.ai>
 
-When a slave reports an invalid SMBus block count, i2c_dw_read() uses
-one extra read to reach STOP. It currently replaces the received count
-with 1 for scheduling and also stores 1 in the message buffer. A count
-above 32 is therefore exposed as a valid one-byte response.
+On Thu Oct 8, 2026 at 6:01 PM PDT, Abdurrahman Hussain wrote:
+> This reverts commit e6fe3ea04f0113fe4d47c03d76e03805a4768ca7.
+>
+> That commit raised the Rx FIFO threshold for an SMBus block read whose
+> trailing bytes fit in the FIFO, on the grounds that firing RX_FULL with
+> the last byte still in flight made xiic_read_rx() NACK, and so truncate,
+> that byte. NACKing the last byte does not truncate it: it is how a
+> master ends a read. The byte is still clocked in and is drained on the
+> bytes_rem =3D=3D 0 path that follows, which also issues the STOP.
+>
+> What the higher threshold does instead is skip the bytes_rem =3D=3D 1
+> branch, the only place that sets NO_ACK, so every trailing byte is now
+> ACKed. Having had its last byte ACKed, the target goes on to drive the
+> next one, and the STOP that follows lands in the middle of it.
+>
+> Some targets ride this out; others are left wedged until the next
+> transactions clock them free. A TDK FS1412 fails the two transfers that
+> follow any block read, so it never probes: pmbus reads MFR_ID as a block
+> and then VOUT_MODE as a byte. A Renesas RAA228246 and one RAA228244 on
+> the same controller fail the plain block read itself and the byte read
+> after it.
+>
+> With commit b7e6df2f52ed ("i2c: xiic: preserve PEC byte length in SMBus
+> block read setup") and commit 840d8acc8792 ("i2c: xiic: don't clobber
+> msg->len to signal block-read completion") in place, PEC block reads
+> pass at the original threshold. The PEC failures the reverted commit
+> attributed to the threshold came from the bugs those two fix; all three
+> were developed together against an ADM1266, which rides out the extra
+> ACK, so the regression did not show.
+>
+> Twenty rounds per device of a block read and a PEC block read of MFR_ID,
+> each followed by a byte read:
+>
+>                before                      after
+>             block  PEC   byte after     block  PEC   byte after
+>   FS1412    20/20  0/20  20/40 fail     20/20 20/20   0/40 fail
+>   RAA228246  0/20 20/20  20/40 fail     20/20 20/20   0/40 fail
+>   RAA228244  0/20 20/20  20/40 fail     20/20 20/20   0/40 fail
+>
+> A second RAA228244 and an Infineon XDPE1A2G5B passed every round before
+> and after.
+>
+> Fixes: e6fe3ea04f01 ("i2c: xiic: defer RX_FULL until all trailing bytes a=
+re in FIFO")
+> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> Cc: stable@vger.kernel.org # v6.3+
+> ---
+> A follow-up to my xiic block-read series, now in 7.3-rc as
+> b7e6df2f52ed, e6fe3ea04f01 and 840d8acc8792. The second of those
+> stopped NACKing the final byte of a block read that fits in the Rx
+> FIFO, which leaves some PMBus targets wedged for the next couple of
+> transfers.
+>
+> Tested on a 6.12 kernel carrying that series, against an AXI IIC
+> controller with an FS1412, RAA228244/RAA228246 and XDPE1A2G5B behind
+> it, using plain and PEC block reads and the byte reads that follow.
+>
+> The same happens on a second board, where two of four ISL68225s behind
+> the same AXI IIC core fail plain block reads and the transfer
+> after them. A capture of SCL/SDA taken inside the FPGA shows the
+> mechanism: after the last byte of an MFR_ID block read the master
+> drives ACK, the target starts on the next byte with SDA low, and the
+> STOP the master then attempts never appears, leaving SDA held low. With
+> this change the last byte is NACKed and the STOP is clean, and all four
+> pass.
+>
+> PEC block reads do not regress: 1000 PEC block reads of MFR_ID per
+> device, each followed by a byte read, on the FS1412, both RAA parts, the
+> XDPE1A2G5B and a further RAA228244 passed without a failure, both with
+> this revert alone and with Siddarth's patch on top of it.
+>
+> With this change a block read ends with a NACK, and so with TX_ERROR,
+> like any other read. That puts it in the window Siddarth's patch closes,
+> where xiic_process() sees TX_ERROR before RX_FULL and resets the core
+> even though the data is already in the Rx FIFO:
+>
+>   https://lore.kernel.org/linux-i2c/20261005-i2c-xiic-rx-fifo-v1-1-0177ac=
+5f72d7@nexthop.ai/
+>
+> The two touch different functions and apply cleanly to v7.3-rc6 in
+> either order.
+> ---
+> Changes in v2:
+> - Revert e6fe3ea04f01 outright instead of moving the threshold back by
+>   truncated), and with b7e6df2f52ed and 840d8acc8792 in place PEC block
+>   reads pass at the original threshold. The code change is the same
+>   single line as v1 minus its tail =3D=3D 1 branch, which could never run
+>   (Siddarth, Sashiko): reads with fewer than two trailing bytes are
+>   padded to SMBUS_BLOCK_READ_MIN_LEN first.
+>   Sashiko review: https://sashiko.dev/#/patchset/20261008-i2c-xiic-block-=
+read-nack-v1-1-94882af6e598%40nexthop.ai
+> - Link to v1: https://patch.msgid.link/20261008-i2c-xiic-block-read-nack-=
+v1-1-94882af6e598@nexthop.ai
+>
+> To: Michal Simek <michal.simek@amd.com>
+> To: Andi Shyti <andi.shyti@kernel.org>
+> To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> hand: that commit's premise was wrong (a NACKed last byte is not
+> ---
+>  drivers/i2c/busses/i2c-xiic.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.=
+c
+> index 5e397a7e63f6..76ef9c26ed57 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -569,11 +569,11 @@ static void xiic_smbus_block_read_setup(struct xiic=
+_i2c *i2c)
+>  			i2c->smbus_actual_len =3D 1 + rxmsg_len + pec_len;
+>  		} else {
+>  			/*
+> -			 * All trailing bytes fit in the Rx FIFO. Defer RX_FULL
+> -			 * until every one of them is buffered, so the drain
+> -			 * takes xiic_read_rx()'s bytes_rem =3D=3D 0 path.
+> +			 * All trailing bytes fit in the Rx FIFO. The widened
+> +			 * condition above guarantees rxmsg_len + pec_len >=3D 2,
+> +			 * so this cannot underflow.
+>  			 */
+> -			rfd_set =3D rxmsg_len + pec_len - 1;
+> +			rfd_set =3D rxmsg_len + pec_len - 2;
+>  			i2c->rx_msg->len =3D rxmsg_len + 1 + pec_len;
+>  		}
+>  		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
+>
+> ---
+> base-commit: a90ee4305c4a5df72c11b31dacfdc76e00fcf78a
+> change-id: 20261007-i2c-xiic-block-read-nack-d2b735baddd3
+>
+> Best regards,
+> --
+> Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
-Keep the received byte in the buffer and limit only the count passed to
-i2c_dw_recv_len(). This preserves the extra read for STOP while retaining
-the invalid count for the caller to reject.
+Hi Andi,
 
-Fixes: 69f035c480d7 ("i2c: designware: Handle invalid SMBus block data response length value")
-Signed-off-by: Baek Kyu, Kim <pocj8ur4in@gmail.com>
----
-The DesignWare receive functions were exercised with stubbed register
-input for block counts 1, 32, 33 and 255. Counts 33 and 255 became 1
-before the change and remained unchanged after it; both versions
-scheduled one extra read for an invalid count. No physical controller,
-STOP signal, PEC result or end-to-end SMBus return was measured.
+Gentle ping on this one. It missed 7.3, so v7.3 and v7.3.1 now ship
+e6fe3ea04f01, and any pmbus device on xiic that reads a block (the
+FS1412 above, for one) fails to probe. Could you take the revert
+through i2c-fixes for 7.4-rc?
 
- drivers/i2c/busses/i2c-designware-master.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+When you apply it, the stable hint should be
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 7e1d9a2e77332..f38ffc5b0a347 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -563,7 +563,7 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
- 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
- 			tmp &= DW_IC_DATA_CMD_DAT;
--			/* Ensure length byte is a valid value */
-+			/* Limit the extra read, but keep the raw count for i2c-core */
- 			if (flags & I2C_M_RECV_LEN) {
- 				/*
- 				 * if IC_EMPTYFIFO_HOLD_MASTER_EN is set, which cannot be
-@@ -574,10 +574,8 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 				 * another byte with STOP bit set when the block data
- 				 * response length is invalid to complete the transaction.
- 				 */
--				if (!tmp || tmp > I2C_SMBUS_BLOCK_MAX)
--					tmp = 1;
--
--				len = i2c_dw_recv_len(dev, tmp);
-+				len = i2c_dw_recv_len(dev,
-+						  (!tmp || tmp > I2C_SMBUS_BLOCK_MAX) ? 1 : tmp);
- 			}
- 			*buf++ = tmp;
- 			dev->rx_outstanding--;
--- 
-2.55.0
+Cc: stable@vger.kernel.org # v7.3
+
+rather than "# v6.3+". Sasha dropped e6fe3ea04f01 from the older stable
+queues, so 7.3.y is the only stable branch that has it.
+
+The patch still applies cleanly on current mainline. I can resend
+against -rc1 if that's easier for you.
+
+Thanks,
+Abdurrahman
 
