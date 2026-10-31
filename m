@@ -1,98 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.177
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793408826;
-	b=ReFRDVsNxy+p/RyxaEdbShq/9SWtbeaY/vRNrZPDOIrsJ2keu5EDlmOy0oLudEnpRA4w
-	 gYQtoDcI9D6aGWmFGkncpFtmMNff8rQW18PA3UxmMtRQH9LRnnj+XkcVcaeSXO84T2UQa
-	 lPyt9SejiqP8zTIkGdu/DslCP8BnrBD6G7wDlxJKhb8Pu+raQ2aK/7VnbcHJLQI/JIIyi
-	 Ve5dNIN/45zkHz0BT9Z5LlYgxACaX5803prNidHnEkC2Oo7MZXPWhF/tiPMu2YJNt7gqi
-	 Eyc4UdDYBKB7jC3DyvZXv9fPg7iJeou6c/gzDUDWmhverzPmw+3uVH0bB7W/YMThU1Q==
+	t=1793409060;
+	b=wEit1kL6Or0no+EPPGBZUILphVFMaMSNw0LjEmm+wupbafF1mcEWPfQu5MFOvQceueWY
+	 XtVHs9H/WnOMGI7mH6N+/9FWiZbGhvX2ST7ezkBE60SCbWG5FpKaSCC7J86m2riI0S2EA
+	 2zGuwVCuQP6eCjbrwJ77vMJl4ivTNkky0llLcC+FNI3SR7ZTf8CS5KaVtP2Wo8yq+rP26
+	 7UjA6P7tuuXCu9pYD+Puu4mNYRRAvzvj5UMl2o+3qqHQyLfS2cpFaecsvQy1Tfm57cwpv
+	 8N+peJ9x5xdAxlLwzR3sHaVxPF24+Ey4Ye0yYm++Aq24fLhcGjVZMc33oI0l46S/etQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793408826;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793409060;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=xT9iMK/3RSde+zBTAQleC9VvYEhHkZyaWiIqI8wE2FM=;
-	b=OsOB1i+Ma9UcdsN37Kejfzha2MvyJOu1/1n8rOk2f1zkp67zFMHbilE+fwAW9rh7b23B
-	 dxHvuHNWAhena54oimoQhcL7BjTAQ8W439phrraxVzQZTW6GVT2ZKEqH2xNZ4Sfxdd9Zo
-	 VMJlImAsoIdkRzGeLg2IkDolM7PU3PBwLzi8hckmGWwF5oA5GpIx6e0kGh+KslcKFS5ig
-	 UtENfhQcMyiAnWqD402TlhQmELF3+q6SwQPdOu5ix/OG/c11OVGVm9qiJsDNzn02bQwBz
-	 HOx10GHAykEC3KgoRgkbdmnWfmxifVe08P3tJKQ+cBuuvU96jysOU6f6TrvBwqUzOyQ==
+	bh=u6n9A3ZneE8NABlrOWtzgZuqAMh0oDJ8q3EQsuGSkn0=;
+	b=rp/QpBCJOyTuYD7JNQssTzSVHsFqH9sX7Hx2X1BQNEkS+JOp/2woNok9irN3cAAIYpRr
+	 UqoPAmsQyoKFdQykt4JHlJgfKA1U1MvKwdXWFDUJwiGurzDWja2yNFUlD7lyIqkp9y4Kl
+	 BMipFPEj2StghENhVzfQlxFtpoCmFKRARRxkBOyZTsNp2ajBV7Xo+lvXyXzunnuXJXy3+
+	 3MQgtWIuQGshQfYH3uK6qt1x7hVxUyLamBGb7NRa5nTXe21+XbqfzP8uyjSnuFB8eIacf
+	 rgnVVmQ+nSgWCUFRgfIgGE+VouslhnrLS1u+GXQ/sCTELENAIh9J8MCLnK3tTkPFBHg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cOAbD30s;
-	arc=none smtp.remote-ip=74.125.82.177
-Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MdnSbLoo;
+	arc=none smtp.remote-ip=74.125.82.50
+Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9D76606A31A
-	for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 01:07:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A9D76606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0229B606A31C
+	for <linux-i2c@vger.kernel.org>; Sat, 31 Oct 2026 01:10:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0229B606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=cOAbD30s
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-33fb4680717so546713eec.1
-        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 18:07:05 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MdnSbLoo
+Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-1a2af4c8d00so421134c88.0
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2026 18:10:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793408825; x=1794013625; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793409059; x=1794013859; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xT9iMK/3RSde+zBTAQleC9VvYEhHkZyaWiIqI8wE2FM=;
-        b=cOAbD30sbP8coqbY7WR55KoVfEL18HRW3wWa9x6tJnKxqfOtVa5AlUoIhAH75tardk
-         +job3cpt7i2RGlW5se1Jlprl9fWpfuaO0gXJkLo8IvbKGye6jDkY2FRHovToyi8f/B1O
-         T5O7lSxK7tpgYN8UQLf5ox55xEuZBYQ3FwIxBHI60SP55rP9WNfMp16GkAia+Df0EOi9
-         1Izd9bJzG4h89Y+HqYy+v1Tq7UPqkR6xYJS3hDTFfhfqSafuMEylCM0cV0lvCJNO1SVv
-         FBNIV8/5DPJ28eZBntCWlMSdSpn4Egef1z5vHmFReH9CjMXfHYXZAdnDAwe7NY+LAzh6
-         VJww==
+        bh=u6n9A3ZneE8NABlrOWtzgZuqAMh0oDJ8q3EQsuGSkn0=;
+        b=MdnSbLoow4XHYSAMpeanDAsO5fXk3GRDZWFXUXt2lOyOcNiSWwKXxiwqLr33NjNJVc
+         Me+mhuJIMhV7aJvUcYHKmaldWldcjtIhQ0QJvBWdYtDtr1hsxuptU8Lzuxd7JHO/w4B2
+         XW6G24c+okFeaO3vQJBIUmuu3Qr1mfBJZAk5oS68S4/vQisgk8+0/9EbJzJwZR33V1aL
+         qt6+2+FF5Be8m6HvWStBvbZW6kwFebJr8HIeuqStAlOIDTzp4Dq6qbXFg8FtrfsteWPC
+         mK06rsdNDyHQOUoSOM8wL8zN/+9geuknric2ZMGhmx1gXJW/hHiSElhjoOzHyWOHxS/t
+         NagQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793408825; x=1794013625;
+        d=1e100.net; s=20260707; t=1793409059; x=1794013859;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xT9iMK/3RSde+zBTAQleC9VvYEhHkZyaWiIqI8wE2FM=;
-        b=qYOP1wf7GKLERHq+n0pbTBKAf7iSkywUqZiF6PzvS4jQ2AywQ4rdcxZpiaPwSIuqd5
-         Ai4x9aVHJPoyiqm7pabQyz1sw11jTT9YSs7w5MnJGwOFVgkx+jI0OrarEQET3C3hUpf3
-         8T1XFVyp8BBLjIzXCoauwsovx3Nw/iZzzYXiCXFd60kfUyWRA7FyNxPmyHcVDEipgqpN
-         3PLa6wyFJIkZFnO/trD6W0hPUCcuSlnOoSSYECaC0VRbQGJCAxMciZIvyk2ycOR0UQsI
-         S0prR02sybw9fKTo94AtpAXOYAT25qlLvFclsyMDknOnGjNttYwdU/U0GwLQUQYJ0GIp
-         nkhQ==
-X-Forwarded-Encrypted: i=1; AKwUvByjA1BBMA4rpf8UOPoMyA8B40PDYXAfDytq8h0lU08lS0V7voUoLiWHv0yq5uy/F9SK2RoXg2Tr9kc=@vger.kernel.org
-X-Gm-Message-State: AFq9FYICIYCZvgtqlPlePZvQOx+WfPMvfJAI5NVeRGYNT3uioNAZaaKS
-	CyyvSfWSdwnHUscPKm7bdtvw5Mt7iObGQ0KYYUdhJcwJfhU19VIUuhmI
-X-Gm-Gg: AYBFou1sjI+BpjnKDX13r342olSdSPNj3hfuPOHm+tHVuW0+UybVqqhHkKDM6kqrCrw
-	j3mD9cIez2aXeRftGguQRlg2rowh9NFtPJxe7Ksd4+xL6cuK4bc/JGj9Q+vqzogmnPnLL17o1yj
-	mqWr4m4gwMSl10DhZv4YpOBgHPbHfpEdKYUIkZj1Cfa75CnR3sCu1CcwLth/jE4F3h+qa6qU1Co
-	p4E5yHGuqcDnVUcTLp0irES19bf8pj/2tq9B4Gm1xZTpVJMlNGiHbYVV9AAT9kmxELIdMjv1rOe
-	+QP23Ez1saeM1tNEvGbac0aBDjr53hnSMdi11h+gczgst99OriQ6ue8mWv4B22GSLX7euFCAAhT
-	n86ipZc+61nOpKYzPR1GID1jrWvBp6cJT67WCo2WzjDVoPP4QVxNt+mHIrUoKZzq2hb2yFreQq7
-	UPXckh7zfYBeZP9XD8Chzf0/2ourAtA9TyXGC3+k21msOrWlzYx2M/2TLO8QGRwuufRWd9N/b+u
-	gouP6+dABNQpIayiRLzt9ViXSh5OBxYAl3Ue8oaOuiItg4lMGgtkfFwPX4mDRKMek7NJCRyA+aR
-	feFVoFjK6LDQEbLDptp6aaM9dU8YDqFS7M+XQAIxqWQRFWKrv7VJ32Q08NnqFKAHZ1nDDcMaFVY
-	fLAtsX0tR5oFqIA7Ne5YAnp2jJ7FRY+kxefr1snvXxD/Isj3QTIL58DlmvhQTelAmptT9Qow/ok
-	RN2ntUGeylPlIt8pOj
-X-Received: by 2002:a05:7300:4353:b0:369:fc93:eda5 with SMTP id 5a478bee46e88-36a42434630mr8230258eec.39.1793408824646;
-        Fri, 30 Oct 2026 18:07:04 -0700 (PDT)
+        bh=u6n9A3ZneE8NABlrOWtzgZuqAMh0oDJ8q3EQsuGSkn0=;
+        b=MNs7zijpWf4MGOuP33W1D2Hhhzux+px+nXrZQ29fo2jwyxQu0Qlbe1Xu4lCeRvw2+9
+         OsotwyEwG1fERK8xh2hRlUxqmDg3aCoG8iFN02gufYr4993x7s+UMAF/qx2lW58UZtlQ
+         Bqlp1H/8U2kb3lvm4fqVSe7OQ+ljJnQWPoPwldZ0txSnMsCFEa3+knH+Ilr7eC1y4lZx
+         PrJgQms1fSadi1Jtn9PR+bEG+2W0rIz5ZXSZ/YnqQ/9s+x0J493GGAggBYLNiRUFpYN9
+         kC9aTVcC9NSyYtyi9c2EAdMdTeZjUSdneOXeTvnwpo1kEVYUF9A0i6bDnQeMVvAQRlTu
+         mQdQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxZQupQkCPsrm5WSBUCJ3IY/IsYD1ZSzICjcQ19be7a3aGvQDeggDvpexpzrwvCh+BAQl1E78/8C/E=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIe1ea1CSEquaC/7exvffavE6i8jQxYyM6KmDI5d6LjrxtOPGsX
+	nIyt6EOpn7kuiN+0mHwn3cxNXIwHeaObpzmNViQu/R+CNM4OxZFtr0Ba
+X-Gm-Gg: AYBFou37KUv82kkJDImI+/rHZLuxmU7lHcl5EhaTJr+2LcOhu49ZZ9QfvygRrYukKKh
+	HKWT/jq4f/3kwWRO3S0dlu8Tbhel3WCpkh3f2mK8Y1Vo/k+6365dyHbzQM2LHoNgkuff7u7ULvY
+	iaBZCdzpLAHXXaGVDJU6FCbYD+HtVmtSBnJ6Sk02Ud2VrfJ2nKnbzkVhlDdG9/kudHt6uCDQMBG
+	nRFyGn9DY5d8Ly5yWa8+msntTGymDyWRp0dK7RKcDM4MreVbVsa4HAyD55JYpbCq5qu2PqZT8gU
+	y+kEtr4TpiiUXY+wC+N5PhXeOcddNqi0vP/YVbLa2SLx2F/soUAaao+djZR0BBz0/T3SJQfoA1X
+	ABWIv+ofLxsIR647GncFcZ4Wy1HqxEZZRUWNpWbtOXArB0BdtdnVLpa0F/qZz/dNlg739lHeTNg
+	+S7b2C+jeEbUeVjhRnCfEHAVGC5EHt2iR9tpqb7Sd1txiEtYad78bthRQF0Fv2f1mq3duJ+ld7y
+	c6qiskU3DjLnYuWU8VKAx5hDOQwOFN+M+G43GyzZ3pt7Xe717Qo65y6O9r2b7jTyo8vHIoyxdtm
+	cseOkAtr1zQrOnfCcL7kAI1/Yazn89onkOJS7/rKHNcTEqywn10Z6uLug1iKVuttiGlgSG43bdz
+	HYVBivMHirGLBloh+JOmB/k2ECmNZtRjXWRlJbWIoF2N5SgC1F9jv20iBUb3dOYe77dfIQKBAEm
+	oEPsWCkqmWE2tlWT0=
+X-Received: by 2002:a05:701b:424e:10b0:1a1:47b2:5512 with SMTP id a92af1059eb24-1ac5b7dfd1cmr5677779c88.26.1793409058894;
+        Fri, 30 Oct 2026 18:10:58 -0700 (PDT)
 Received: from brev-9gdpyq8lp.ap-south-1.compute.internal (ec2-3-110-210-194.ap-south-1.compute.amazonaws.com. [3.110.210.194])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a429018casm9876477eec.14.2026.10.30.18.07.01
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1ac18458e07sm9900636c88.8.2026.10.30.18.10.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 18:07:04 -0700 (PDT)
+        Fri, 30 Oct 2026 18:10:58 -0700 (PDT)
 From: Samarth Narang <samarth.colleges@gmail.com>
-To: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
+To: Qii Wang <qii.wang@mediatek.com>,
 	Andi Shyti <andi.shyti@kernel.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+Cc: Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
 	linux-i2c@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com,
+	linux-mediatek@lists.infradead.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
 	Samarth Narang <samarth.colleges@gmail.com>
-Subject: [PATCH] i2c: stm32f7: synchronize DMA termination before releasing the buffer
-Date: Sat, 31 Oct 2026 01:06:58 +0000
-Message-Id: <20261031010658.3366395-1-samarth.colleges@gmail.com>
+Subject: [RFC PATCH] i2c: mediatek: stop APDMA before releasing DMA buffers on timeout
+Date: Sat, 31 Oct 2026 01:10:53 +0000
+Message-Id: <20261031011053.3370685-1-samarth.colleges@gmail.com>
 X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -105,130 +104,129 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-stm32f7_i2c_dma_callback() is used both as the DMA completion callback
-and as a cleanup helper by the threaded IRQ handlers for bus errors,
-arbitration loss, PEC errors, NACKs, and DMA completion timeouts.
+mtk_i2c_do_transfer() unmaps the DMA buffers and releases the DMA-safe
+message buffers through i2c_put_dma_safe_msg_buf() immediately after the
+completion wait, before checking whether the transfer completed
+successfully.
 
-The helper calls dmaengine_terminate_async() and then immediately unmaps
-the DMA buffer and releases the DMA-safe message buffer through
-i2c_put_dma_safe_msg_buf().
+If the wait times out, APDMA reset occurs only later, through
+mtk_i2c_init_hw(), with i2c_dump_register() running between buffer
+release and the reset.
 
-On the error paths, DMA completion has not been established.
-dmaengine_terminate_async() only requests termination; it does not
-guarantee that the transfer and its callback have finished when the call
-returns. The DMAengine API requires synchronization before memory
-accessible to the descriptor is released.
+A completion timeout does not establish that APDMA has stopped accessing
+memory. For example, a target may hold SCL low until the adapter times
+out and then release it. If APDMA resumes the remaining RX transfer
+before it has been stopped, it could write into memory whose DMA mapping
+has already been released and whose bounce buffer may have been freed or
+reused. With SWIOTLB, a released bounce slot could also be reassigned to
+another mapping.
 
-Although the driver calls dmaengine_synchronize() from
-stm32f7_i2c_xfer_core() and stm32f7_i2c_smbus_xfer(), these calls occur
-after the IRQ thread has already unmapped and released the buffer. They
-therefore cannot establish retirement before that release.
+Commit aafced673c06 ("i2c: mediatek: move dma reset before i2c reset")
+previously addressed APDMA accesses to DRAM after the transfer buffer
+was freed by changing the reset order in mtk_i2c_init_hw(). However, the
+reset still occurs after mtk_i2c_do_transfer() has released the DMA
+buffers.
 
-If the DMA operation retains access after cleanup, a late RX write could
-modify freed or reused memory, while a late TX read could access data
-belonging to a subsequent owner.
+Move APDMA shutdown ahead of buffer teardown on timeout and ACK-error
+paths. Request an APDMA warm reset and wait for the enable bit to clear
+before unmapping and releasing the buffers.
 
-Introduce stm32f7_i2c_dma_abort() for the threaded IRQ error paths. The
-helper disables further peripheral DMA requests and calls
-dmaengine_terminate_sync() before invoking the common buffer cleanup.
-Since these paths execute in threaded IRQ context, synchronous
-termination is permitted.
+If APDMA cannot be confirmed to have stopped, retain the mappings and
+buffers rather than potentially returning memory that the controller can
+still access. This intentionally sacrifices memory reclamation on the
+failed-stop path to avoid unsafe reuse.
 
-Remove the redundant termination request from the genuine DMA completion
-callback, where the descriptor has already completed.
+The change is conditional on the APDMA reset and status operations
+providing the necessary hardware-retirement guarantee.
 
-This establishes the intended ordering between DMA termination and
-buffer release under the DMAengine synchronous-termination contract.
-
-Fixes: 6aae87fe7f18 ("i2c: stm32f7: unmap DMA mapped buffer")
-Fixes: ffdd20555cc6 ("i2c: stm32f7: support i2c_*_dma_safe_msg_buf APIs")
+Fixes: ce38815d39ea ("I2C: mediatek: Add driver for MediaTek I2C controller")
 Assisted-by: LLM
 Signed-off-by: Samarth Narang <samarth.colleges@gmail.com>
 ---
-The issue was identified using a research static analyzer for DMA
-lifecycle ordering and subsequently reviewed against the driver source.
-It has not been reproduced on hardware. The patch has been
-compile-tested on arm64 with W=1.
+This issue was identified through static analysis and model checking and
+the patch has been compile-tested with arm64 defconfig and the driver
+enabled, using W=1, without new warnings. It has not been tested on
+hardware.
 
-The practical exposure with the in-tree DMA providers may be narrower
-than the API-level ordering violation suggests. stm32-dma clears the
-stream enable bit and polls for it to clear, while stm32-dma3 suspends
-and resets the channel. However, neither behavior alone establishes that
-a concurrent completion callback has finished. The stm32-dma polling
-operation can also time out without propagating a failure through
-device_terminate_all().
+I am submitting this as an RFC because the hardware-retirement guarantee
+remains uncertain. I would appreciate clarification on the following
+points:
 
-Consequently, this change primarily corrects the driver's reliance on an
-asynchronous termination request as a final-retirement guarantee. A
-physical late write would require an outstanding access to survive the
-provider's shutdown behavior; that has not been demonstrated.
+1. APDMA warm-reset semantics. Does writing I2C_DMA_WARM_RST to
+   OFFSET_RST abort an outstanding transfer, and does observing
+   I2C_DMA_START_EN clear in OFFSET_EN guarantee that APDMA will issue
+   no further memory writes, including writes already accepted by the
+   interconnect?
 
-Remaining concurrency issue: this patch does not resolve a separate,
-pre-existing race between genuine DMA completion and threaded IRQ error
-handling. If both paths invoke stm32f7_i2c_dma_callback() for the same
-transfer, they may both attempt to unmap and release the same buffer.
-Establishing a single owner for cleanup would require an additional
-change.
+2. SoC-specific synchronization. The multi-message apdma_sync path polls
+   OFFSET_RST until I2C_DMA_WARM_RST clears and additionally sets
+   I2C_DMA_HANDSHAKE_RST. Should the timeout path use the same sequence
+   on SoCs requiring APDMA synchronization, rather than relying solely
+   on the enable-bit status?
 
- drivers/i2c/busses/i2c-stm32f7.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+3. Reset ordering. Must the I2C controller be reset before or together
+   with APDMA to ensure that no further peripheral requests can reach
+   it? Commit 05f6f7271a38 ("i2c: mediatek: Fix apdma and i2c hand-shake
+   timeout") appears relevant to this ordering.
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 6bd281a9e..891b0eebe 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -736,7 +736,6 @@ static void stm32f7_i2c_dma_callback(void *arg)
- 	struct stm32f7_i2c_msg *f7_msg = &i2c_dev->f7_msg;
- 
- 	stm32f7_i2c_disable_dma_req(i2c_dev);
--	dmaengine_terminate_async(dma->chan_using);
- 	dma_unmap_single(i2c_dev->dev, dma->dma_buf, dma->dma_len,
- 			 dma->dma_data_dir);
- 	if (!f7_msg->smbus)
-@@ -744,6 +743,16 @@ static void stm32f7_i2c_dma_callback(void *arg)
- 	complete(&dma->dma_complete);
+4. ACK-error handling. An ACK error may occur before the RX data phase,
+   in which case no outstanding RX writes are expected. The proposed
+   patch also stops APDMA on this path as a precaution. Is that
+   appropriate for the supported controllers?
+
+The DMA-safe message buffers were introduced later by fc66b39fe36a
+("i2c: mediatek: Use DMA safe buffers for i2c transactions"). Before
+that change, the timeout path could unmap the caller's buffer before the
+APDMA reset.
+
+The intent of this RFC is to establish the required ordering between
+APDMA retirement and DMA-buffer release. I would appreciate guidance on
+the correct hardware shutdown sequence before treating the proposed fix
+as complete.
+
+ drivers/i2c/busses/i2c-mt65xx.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 307925fb7..2a8b8bd1d 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -993,6 +993,19 @@ static void i2c_dump_register(struct mtk_i2c *i2c)
+ 		readl(i2c->pdmabase + OFFSET_RX_4G_MODE));
  }
  
-+/* Threaded IRQ context only: terminate_sync() may sleep. */
-+static void stm32f7_i2c_dma_abort(struct stm32f7_i2c_dev *i2c_dev)
++static int mtk_i2c_stop_dma(struct mtk_i2c *i2c)
 +{
-+	struct stm32_i2c_dma *dma = i2c_dev->dma;
++	u32 reg_dma_en;
++	int ret;
 +
-+	stm32f7_i2c_disable_dma_req(i2c_dev);
-+	dmaengine_terminate_sync(dma->chan_using);
-+	stm32f7_i2c_dma_callback(i2c_dev);
++	writel(I2C_DMA_WARM_RST, i2c->pdmabase + OFFSET_RST);
++	ret = readl_poll_timeout(i2c->pdmabase + OFFSET_EN, reg_dma_en,
++				 !(reg_dma_en & I2C_DMA_START_EN), 1, 1000);
++	writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
++
++	return ret;
 +}
 +
- static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
+ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 			       int num, int left_num)
  {
- 	struct stm32f7_i2c_timings *t = &i2c_dev->timing;
-@@ -1552,7 +1561,7 @@ static irqreturn_t stm32f7_i2c_handle_isr_errs(struct stm32f7_i2c_dev *i2c_dev,
+@@ -1201,6 +1214,15 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 	mtk_i2c_writew(i2c, ~(restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
+ 			    I2C_ARB_LOST | I2C_TRANSAC_COMP), OFFSET_INTR_MASK);
  
- 	/* Disable dma */
- 	if (i2c_dev->use_dma)
--		stm32f7_i2c_dma_callback(i2c_dev);
-+		stm32f7_i2c_dma_abort(i2c_dev);
- 
- 	i2c_dev->master_mode = false;
- 	complete(&i2c_dev->complete);
-@@ -1617,7 +1626,7 @@ static irqreturn_t stm32f7_i2c_isr_event_thread(int irq, void *data)
- 			__func__, f7_msg->addr);
- 		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
- 		if (i2c_dev->use_dma)
--			stm32f7_i2c_dma_callback(i2c_dev);
-+			stm32f7_i2c_dma_abort(i2c_dev);
- 		f7_msg->result = -ENXIO;
- 	}
- 
-@@ -1635,7 +1644,7 @@ static irqreturn_t stm32f7_i2c_isr_event_thread(int irq, void *data)
- 			ret = wait_for_completion_timeout(&i2c_dev->dma->dma_complete, HZ);
- 			if (!ret) {
- 				dev_dbg(i2c_dev->dev, "<%s>: Timed out\n", __func__);
--				stm32f7_i2c_dma_callback(i2c_dev);
-+				stm32f7_i2c_dma_abort(i2c_dev);
- 				f7_msg->result = -ETIMEDOUT;
- 			}
- 		}
++	/* Stop the APDMA before unmap; leak the buffers if it won't stop. */
++	if (ret == 0 || (i2c->irq_stat & (I2C_HS_NACKERR | I2C_ACKERR))) {
++		if (mtk_i2c_stop_dma(i2c)) {
++			dev_err(i2c->dev, "APDMA stop timeout, leaking buffers\n");
++			mtk_i2c_init_hw(i2c);
++			return -ETIMEDOUT;
++		}
++	}
++
+ 	if (i2c->op == I2C_MASTER_WR) {
+ 		dma_unmap_single(i2c->dev, wpaddr,
+ 				 msgs->len, DMA_TO_DEVICE);
 
 base-commit: 83f32c773255720a661aa45d83e36278135f23f5
 -- 
