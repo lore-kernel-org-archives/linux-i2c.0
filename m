@@ -1,45 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=156.67.10.101
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793530328;
-	b=Rar9Gf1jMANl7HOyZI5hpRer8xCgpb5ftEmK5H40k7sgIA8J8jT8YcqV5WQa3hUmfx2H
-	 WJxzgxPvcL68wbQlbIt9aPPzyQ+5+PkfCZnECG2hgnMsJFl3X0bCbLVQR5a2JKtWP8c/U
-	 Ittda2XXcEubmV0du+uvI6Vrd0qdz7ORcoPetT+oGjDHUoMGsFz/qkFC3td2FhikKGepN
-	 KlNtQp9lcdH/4hTJT16FmJ495612Leavj8pu+LBoX/EseOc3xN0/DoCmY5GfQ+6FFkAJq
-	 sdDMilhKLmxFhzmf3OiQGFVhie7PnbHhd3pWMEc2vWHIj1yK91+ZEw92vXhpWGjeHWQ==
+	t=1793547725;
+	b=uDf8h7LibfIgD5CKAr56Kp/10mj5yDMtPI7CsydnaIjZGJNhtsZVCo0QJuAokGawEdQI
+	 Of4MrYhYcN4EJnDaxn5U1aJfz+ormnUMmPc0aRZOUt41s1MrPBuaZ6RMzC4V8kCwWDMCB
+	 ct3136l1rcLlxHGKt94ZZ2mG97VGY6reeRdRvib9e2QbNDMRrXwpxklw95ej09PVXo6HE
+	 BcOxRoPxHMWjrxjL+g+nZUqaPnuHAlC20kYbyYoG+F2uwjDnMcGOTRIZynkZZojnKbAL6
+	 l1wJhSYB1ghdJyiQWweATQxcdh5x9I5svg3+GYigGFBZb3lNgnqFlAS1OXPS/wkM/ew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793530328;
-	h=Received:DKIM-Signature:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Subject:From:To:Cc:In-Reply-To:References:
-	 Date:Message-Id:X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=pJVVKwHbhmfTEf9BsmBhWwB3UfIBhltnU3zTc/bmdjo=;
-	b=kHjfFcSIkYIZDlZecGeDHWVs4emKYwEiBKB2xZGaGKQwVQempPQPCyeJX9j2KO1Pyzev
-	 C3NVpbRNMD45aDRcK+9I/mg/L650Hy/ur6KknQQYRQI7/DtbTc2vZ6BuAwkt4iBhH4Kox
-	 l+I/rSb4rGtB9ya4furnbNQKsAx6kcVa5T6UErAvuZpx2LW+CFw1QA6Xgqc0t3ecjpnW6
-	 sGqX2KZTnu6XeZKXJOiZoATYBQaYnZnwgsEbmBtKG8wf1ZFdQap3h36r9/wJuJ/fdqGGu
-	 gCuVD8dX2gxoZTTCe+NDs6c4HGx6LRHJBpdNIaS6+cI3G/VzO7CZ3VrwsQlefjDs9KA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793547725;
+	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=5YJOISa85c8XY87lgejAtJgrxjDeC85yyty9hA0DTew=;
+	b=SDK+Zt+W5O2tifoXbs3tyu0u7xFKizxTHWc9brvbiDulZD4UjbZ21TecNyoJQHBgbruR
+	 KYZrfnQV+Z0w95EB+Ec7sArQh5cSGmLLusqnrtwiGjUGoP7PN2vC238CdrGGHPY9X5TW8
+	 SMFoItjDheYecDe6aTQKG7yxq20Ec5SuIguFBfUYS2GbM0zZDqR4IS6nJdMd1YPd9jtsd
+	 1pvzmYQ4xECE2qJ1zIEH+/ARmHYzYTGOolSUDONTSnqBkhc1U5oB7qiBrrFhf0QroxCKN
+	 MFdS/Hg5x30FHvz35UdxWNgRtjh5rQDu8AJlrbCNx0KxLIrJeUE+E9C5eeibdSM5Ccw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="l0c/lPT/";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=lunn.ch;
+	spf=pass smtp.mailfrom=lunn.ch;
+	dkim=pass header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=QydDIIie;
+	arc=none smtp.remote-ip=156.67.10.101
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B6E6606A324;
-	Sun,  1 Nov 2026 10:52:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B027B606A324;
+	Sun,  1 Nov 2026 15:42:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B027B606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l0c/lPT/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC941F000C1;
-	Sun,  1 Nov 2026 10:51:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793530327;
-	bh=pJVVKwHbhmfTEf9BsmBhWwB3UfIBhltnU3zTc/bmdjo=;
-	h=Subject:From:To:Cc:In-Reply-To:References:Date;
-	b=l0c/lPT/eHsnt1tu0zHEi2fcjmyhFiZ/YhFGHrjw3FbL3pYqJvbloIdadawwaB612
-	 FBUXj/oiY0K3qDL8wX/neSpZzhEHZkMFvAKvNkqQTnumEInIkI6/gCd7lKUmkFdqHz
-	 PxfZ7v4jGDpZvZdkWaoBpXrQErbRQXKlIjTIeRWOR5hVqs/5jLB0rcT1poWWRrLIEx
-	 keRC/Y8Be+MNkn9QSHiLWHWKDEisoJA/OWDywAbucKI3nYaJJ9dQt8eIPH0grbMLPQ
-	 t9IDpoyBs4x4Ix9A6NGoqNrAX/wPqbatMCkyFH7cI18gzxBx4BVvfCmGl/YnX8O4C0
-	 1UBl0NAQojcig==
+	dkim=pass (1024-bit key, unprotected) header.d=lunn.ch header.i=@lunn.ch header.a=rsa-sha256 header.s=20171124 header.b=QydDIIie
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=5YJOISa85c8XY87lgejAtJgrxjDeC85yyty9hA0DTew=; b=QydDIIieE2+04feUam0hml1fSo
+	1uAoPoaVuBM5jqCx/clrx+yTbfkX/HxbgpyvYkEp4tqEJCGnJ/BIQjvlQ+N0UcicWEtbDcRxBEWa+
+	eS3w9j88Qq5xBCax6+UXdKwkjs5EfFKzndLbcIetCThrolfcEmUnFTJOk6zqft2LWmX0=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1xNXh0-00De2D-Ix; Sun, 01 Nov 2026 16:41:58 +0100
+Date: Sun, 1 Nov 2026 16:41:58 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Matthias Goergens <matthias.goergens@gmail.com>
+Cc: Peter Korsgaard <peter@korsgaard.com>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: ocores: delete adapter before disabling controller
+Message-ID: <2ebf2d74-4e2d-40a9-8dd0-81bfa5ac9cb0@lunn.ch>
+References: <20261031033240.2491016-1-matthias.goergens@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -49,131 +62,23 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH 21/27] phy: rockchip-inno-usb2: Add RK3572 support
-From: Manivannan Sadhasivam <mani@kernel.org>
-To: Cunhao Lu <1579567540@qq.com>
-Cc: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
- Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>, 
- Philipp Zabel <p.zabel@pengutronix.de>, 
- Elaine Zhang <zhangqing@rock-chips.com>, Lee Jones <lee@kernel.org>, 
- Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
- Richard Cochran <richardcochran@gmail.com>, Ulf Hansson <ulfh@kernel.org>, 
- Andi Shyti <andi.shyti@kernel.org>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Jiri Slaby <jirislaby@kernel.org>, Jisheng Zhang <jszhang@kernel.org>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- David Wu <david.wu@rock-chips.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, 
- Maxime Chevallier <maxime.chevallier@bootlin.com>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
- Manivannan Sadhasivam <mani@kernel.org>, 
- Thinh Nguyen <Thinh.Nguyen@synopsys.com>, 
- Jaehoon Chung <jh80.chung@samsung.com>, 
- Shawn Lin <shawn.lin@rock-chips.com>, linux-clk@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, 
- mfd@lists.linux.dev, linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
- linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org, 
- linux-usb@vger.kernel.org
-In-Reply-To: <20261022-add-board-ok3572-c-v1-21-0b0fd85a31ee@qq.com>
-References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com>
- <20261022-add-board-ok3572-c-v1-21-0b0fd85a31ee@qq.com>
-Date: Sun, 01 Nov 2026 16:21:52 +0530
-Message-Id: <179353031285.2955.4272173079718014092.b4-reply@b4>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2049; i=mani@kernel.org;
- h=from:subject:message-id; bh=31exuPQfsAOhnwIjmXEjjvAlTRXnnjz1PKLb/yyFj6k=;
- b=owEBbQGS/pANAwAKAVWfEeb+kc71AcsmYgBq5xnKP2pbzdBpJAuX9SwupspI7yJNwomVsnJuz
- aOJqq74qKuJATMEAAEKAB0WIQRnpUMqgUjL2KRYJ5dVnxHm/pHO9QUCaucZygAKCRBVnxHm/pHO
- 9WQAB/96KIbnRgeB00Ab1FYAF1roqbKbj5c0aeRO93f5urNJ5r4URepXfyJP8dOuE9JZMVZcr5b
- GALeNpvXnpsL49mzVQohe0Sp2GxQbbkDvy3WNXMFLbrkiwoNUew3PXjGrpC+WP0iMwunoMh40sM
- +FfXLZ/BJbcm4CwP6xP2rbTgKlRX+YBDZ+5anFKAflhI8lyjzOroc6CaQKJWA1uoNR/cCsO3b/7
- PbLuWLleLh5V6qLB832ZwG0rMmEZomEhcXEuXh11t9ERKG4ysL4hKV6TinMlLU2Ruhu+iLPuGXa
- eWPJiKBNr/cTl6yoqPDo7ctlFKJ8f+OZjojQUZ/2GmF6FG2F
-X-Developer-Key: i=mani@kernel.org; a=openpgp;
- fpr=C668AEC3C3188E4C611465E7488550E901166008
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261031033240.2491016-1-matthias.goergens@gmail.com>
 
-On 2026-10-22 00:11 +0800, Cunhao Lu wrote:
-> Support both RK3572 USB2 PHY instances.
+On Sat, Oct 31, 2026 at 11:32:40AM +0800, Matthias Goergens wrote:
+> i2c_del_adapter() unregisters child devices, and their removal
+> callbacks may perform I2C. Delete the adapter before disabling the
+> controller so those transactions still work.
 > 
-> Signed-off-by: Cunhao Lu <1579567540@qq.com>
-
-Nitpicks below. With those fixed,
-
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@oss.qualcomm.com>
-
-> ---
->  drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 136 ++++++++++++++++++++++++++
->  1 file changed, 136 insertions(+)
+> Found by Sashiko AI review.
 > 
-> diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-> index 7d8a533f24aea..16a36e68cb6d3 100644
-> --- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-> +++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-> @@ -1544,6 +1544,49 @@ static int rk3528_usb2phy_tuning(struct rockchip_usb2phy *rphy)
->  	return 0;
->  }
->  
-> +static int rk3572_usb2phy_tuning(struct rockchip_usb2phy *rphy)
-> +{
-> +	u32 reg = rphy->phy_cfg->reg;
-> +	struct clk *refclk;
-> +	unsigned long rate;
-> +	u32 val;
-> +	int ret;
-> +
-> +	refclk = devm_clk_get(rphy->dev, "phyclk");
-> +	if (IS_ERR(refclk))
-> +		return PTR_ERR(refclk);
+> Link: https://sashiko.dev/#/patchset/20260813153155.3953577-1-ruoyuw560@gmail.com
 
-Please insert a newline between each operation to improve readability.
+Please take a read of:
 
-> +	rate = clk_get_rate(refclk);
-> +	if (rate != 24000000 && rate != 26000000)
-> +		return -EINVAL;
-> +
-> +	ret = regmap_write(rphy->grf, reg + 0x0004,
-> +			   GENMASK(18, 16) | (rate == 24000000 ? 2 : 6));
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = regmap_read(rphy->grf, reg + 0x0010, &val);
-> +	if (ret)
-> +		return ret;
-> +	if (val & BIT(13)) {
-> +		ret = regmap_write(rphy->grf, reg + 0x0010, BIT(29));
-> +		if (ret)
-> +			return ret;
-> +		ret = rockchip_usb2phy_reset(rphy);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	/* Set the normal line-state filter interval. */
-> +	ret = regmap_write(rphy->grf, reg + 0x0020, 0x30100);
-> +	if (ret)
-> +		return ret;
+https://docs.kernel.org/process/submitting-patches.html
 
-Here.
+This patch needs a Signed-off-by:
 
-> +	/* Increase HS voltage by 5.89% and double pre-emphasis current. */
-> +	ret = regmap_write(rphy->grf, reg + 0x000c, GENMASK(27, 24) | 0x0900);
-> +	if (ret)
-> +		return ret;
-
-And here.
-
-- Mani
-
-
+     Andrew
