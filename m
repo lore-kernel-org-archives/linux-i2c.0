@@ -1,73 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.29.241.158
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.228.71
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793610278;
-	b=AqF3OrPAST4wa1U2VQcEVNm+upZKmvio/E9+SOHzkwFOaFnfOutrO3hWompSKrD1jhB1
-	 /96+s3uPboTpg5q3dwkcXsoejDbsJ+1hs0I0hU5pqlq/3Mk7h1sIG57MZ4ogrtDEI2oqo
-	 ieOmCrCN01okoLgJQ0ujmb6/nIgNDa2wqtJyHBL74O4R9z1Cu/jMac7QSHm8+I62oM6Zd
-	 Nzla78vSQNjYmMLKTozYtT8vyNaroMj8lNtyGNXTcIjT/hgJgNpTo9XSZhS4qtpKD44xR
-	 qcP107SFJS57YnqHL1rRRu64uIqmRvorYbESyldg/giux4ZQiVSREk8usKZ8VpUus2Q==
+	t=1793610290;
+	b=bsFOUz+CyNAViRfpmCWLHtfmicOwXcPG807Jx9rjPykFcvqI1HfPVaaGxa63ztfM3Av+
+	 imM6Bebi5PCQ7MOrQyTjHCl4EzenU9ZBDScghY76k+g2xcohgneZZhfxYjycAakucWop/
+	 aXJ5Q4KnRNS9888EuVndkcNA7nisn1J5UdyV6ciZzH3v9n8OP7UKwop5JF2kN6N1ZdPIz
+	 HAadupeqzhPjw436Sb49k4am1QOGGFgiaB9YyS4Pg49TcRPqH12JmzKm4qfLEzDLAbtvW
+	 AkIMUkABopAq6D1n7SI4cjgvxsbejTZ+sFilSdWA1DWIw96yOceMIVdZu8eyErmRrew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793610278;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
-	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 User-Agent:MIME-Version;
-	bh=Yev0hfaXosEbpEcqTujskpvy3SSpHx96TzRdJOzYIRY=;
-	b=Yw1TjWpb4YmmU44gAIoDqvP+07AqaV9T3pzdCkqfP09t9mAwJG0Bh9wkNkEbp3wCk7Uw
-	 kA5qa87bE2d7rjQRCzy/zCaLRjTJsVcYRO/kQ9BL4EGoAyAo0Iao/HEgHzMwaBbr6WGp/
-	 XB0dpJovWItfoHB2Zg4Sa1TQYu+cgSD/pP7GT0AxytNArNGlKTAf/Ou+dqXE0lTuhxCj5
-	 pfOKnBQlfudtTvqAUopsdUDnhECIXv4CIQDdZZZiopOpHNP+xLvy836KR5fBJ0lvA5Avk
-	 vzF33eBPEYc921WX4zOsAX96zxYbL4dWwoSm6I1pvfXKN719Kl+NtwRR8WrGiLvdVVw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793610290;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
+	 In-Reply-To;
+	bh=6OMMDQTVoFYMkW/indxgds3s7rWaF3OYRrED5RcBC8A=;
+	b=3krPvtciLIVQxqAylL/v8tH+Ce07FI3foh1sYIycv2IEOSNXn5xNovrdits/r/xthBZ7
+	 2SvQaPSXqtRRBqbm3VsFXijx4lbA5OgOsd+w3O45kGDF2WWGS0J0rLfwX8AR+BgsLvcU/
+	 MAXb1bSNaoH8vxpJgZqU9XzLELzWdsgJJ9z4yRcAm2dN/fCZ4SzXPjCMJg00ulHz0KlNx
+	 f3H9ka1lDs53ekrqvp1p7PQLvlqMokOfx3BpBYcUzbAzHqAQoU9sE6i0/jlpYaXeZd6Gt
+	 KAjBpQnq7cw8Am8KdUWzfT6Nxd+U5l75ik/ki7UWMYqwpJyipoSR/MgoELoXZ3ADcug==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=codeconstruct.com.au;
-	spf=pass smtp.mailfrom=codeconstruct.com.au;
-	dkim=pass header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.a=rsa-sha256 header.s=2022a header.b=NmWwpHqp;
-	arc=none smtp.remote-ip=203.29.241.158
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="GuY/VUVA";
+	arc=none smtp.remote-ip=74.125.228.71
+Received: from mail-ed2-f7.google.com (mail-ed2-f7.google.com [74.125.228.71])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F10D8606A324;
-	Mon,  2 Nov 2026 09:04:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F10D8606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDA24606A332
+	for <linux-i2c@vger.kernel.org>; Mon,  2 Nov 2026 09:04:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BDA24606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.a=rsa-sha256 header.s=2022a header.b=NmWwpHqp
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GuY/VUVA
+Received: by mail-ed2-f7.google.com with SMTP id 4fb4d7f45d1cf-6b189af3189so2316212a12.0
+        for <linux-i2c@vger.kernel.org>; Mon, 02 Nov 2026 01:04:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1793610275;
-	bh=Yev0hfaXosEbpEcqTujskpvy3SSpHx96TzRdJOzYIRY=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=NmWwpHqpEIHX6LKkKExcC+gdQkrGjuidbolYONWq6psfQ4W9uxLDvj84Gi5aw/6h5
-	 leaUPF7Al1yr3r/hRYrh0F3VGK+0iD/rAQ6va5iEwBToIXG9NtGwugXT6WQt2O+Pue
-	 uxkVgamw6U4LEioXH8bPUBxjhEM55GfkqJJmSouaTVEEU6O3t7sq3uoMDH5el/UWka
-	 c2OBAqjrTiq11sVLLJiWMqvmxtHw2s30PVchtYDhbnnLbtpy3/f8bsABtXT5Q5buLI
-	 DCZLwHmdofLqtTmkfKnCynN+oKtP0/K+sOejbYC2AwQcj5ICRZNSAAzokfuaFmH6QA
-	 7Xgk4wGATQkLg==
-Received: from [192.168.12.105] (unknown [144.6.157.237])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id C47B1648DC;
-	Mon,  2 Nov 2026 17:04:31 +0800 (AWST)
-Message-ID: <7486b1fc4dbcca755dd2f6b6de54d17919af873a.camel@codeconstruct.com.au>
-Subject: Re: [PATCH net-next v2] mctp i2c: add sysfs control for mux child
- netdevs
-From: Matt Johnston <matt@codeconstruct.com.au>
-To: Kenny Hsieh <kenny_hsieh@jabil.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
- "jk@codeconstruct.com.au"	 <jk@codeconstruct.com.au>,
- "andi.shyti@kernel.org" <andi.shyti@kernel.org>,  "peda@lysator.liu.se"	
- <peda@lysator.liu.se>, "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
- "davem@davemloft.net"	 <davem@davemloft.net>, "edumazet@kernel.org"
- <edumazet@kernel.org>,  "kuba@kernel.org"	 <kuba@kernel.org>,
- "pabeni@redhat.com" <pabeni@redhat.com>,  "linux-i2c@vger.kernel.org"	
- <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org"	
- <linux-kernel@vger.kernel.org>
-Date: Mon, 02 Nov 2026 17:04:31 +0800
-In-Reply-To: <DM8PR02MB808768B7D02FF12777B7777E8E602@DM8PR02MB8087.namprd02.prod.outlook.com>
-References: <20261015081341.1262695-1-kenny_hsieh@jabil.com>
-	 <179239912623.3135.11352652156626817288@kernel.org>
-	 <DM8PR02MB808768B7D02FF12777B7777E8E602@DM8PR02MB8087.namprd02.prod.outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2-9 
+        d=gmail.com; s=20260707; t=1793610288; x=1794215088; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6OMMDQTVoFYMkW/indxgds3s7rWaF3OYRrED5RcBC8A=;
+        b=GuY/VUVAezJtbfFdh33XY8NJxSfDBqR48lh0LAsVjL1ogF4222zSGkl2BA82PRzjqr
+         jz6w2/X0EfHrvTbqSHz1jLNFNpsvN54eYsQatClkI0wZdus+gR0hk4d2xu1qa24GXnTi
+         hoCRWhPSQV2Ad8hsVP/J+TcSSxWX6EC22skDu74YBgH96et3RTz/1TaROzFKi5XVyHSd
+         Yi2U2pCjiZO+CVMdSBmQe8h8j8Bu3wRDjMLPSWDDH8VXmCUeA6bX6W1PwnK/IYdErP1b
+         SkxEupLZ/BgBwZNFw0yhCdK2QUbBxG3VVO+j6szdGslz8QT+skiB9DDUZP3IUjSfXR2c
+         cd8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793610288; x=1794215088;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=6OMMDQTVoFYMkW/indxgds3s7rWaF3OYRrED5RcBC8A=;
+        b=Pdxhcu7jyMZibQmrOdLaDNygR8CSXRx2wXA385BW9c3H+VqhM8FO3He4U8X8qsuCQy
+         hccvJnqBuGXRhgnKMvIfF8AbDPLlnhXsdfoPRc4z2azpZK1orclOrD4v/Kg09toi9cvE
+         gx2DGP/KqekG0P0Qi6JAarAUdk3XHls5G4UZBmv6EkA55niM4z80D3u5cBQyk5pLl/Qp
+         6Ur1/uLSvVeOiN0JhatEZHQe+D/VnFcJI5uU/j8aJ5WJP+sKRG/+HvzwS/YKwciaTrc0
+         0+bRnKULptkvXwZPwDl8gzjh10VVEyiLchW9bPUNryXS6YImv5htCJbAs6MBxWJzPDGf
+         ZesQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzDa9Y5c5jKmQtHIu1++9ZkykepEwmmGfYDwIFwl1oDoBrCxE/YszhVg9KwoA4tNfeQWd0HDpgNDjs=@vger.kernel.org
+X-Gm-Message-State: AFq9FYLPbOaR47G0PRbl14JbEr9GvCJ0SZSomNxrB1mZiDoI0sjrfS0m
+	5WzXzxinsUrsdnA6762JHwkNIu+XgsYyiqLET+KpACLljJCbUPYipla5
+X-Gm-Gg: AYBFou0KVi+oL8iAFHmjZgx/I1Xe0Xty8yqHwJOY3GHzZ+XfoIIk4HDb1nSxRYhRDse
+	EWLdBokth/ZUyQvFQRY8288EkyDBujm/26FinE3rVmrmPpQyt1ZCMfr+FV5qQ4bMm09StRINl4y
+	MmU+Ex5Orw14Mzc2J3Ws0sU+gmDQjgwbkkOt1zbtfEs4iYP9Ka7viupRpaCcPbt/W/OiDD2hLh3
+	aW1jMA+B9Sg4mndAr/DolXenGZ4qhdHP2QjgOBt4oYNfGmPfUO+buaX0H26Ibl8yx3Qp41Zv8w8
+	dh6qLUvlmCLx+sTFk5a4ZXKjPKIX5V3EQwB6M53OZiFpbfxw4rg+RizxQM/pTznnoTRgyetOCmT
+	k7xY1QYjvJuiEZXoKsgqZnHo0/L6ob3tnHTjS8KRD5SubwyoKqv62FmcJkehgRijTgfW9Baf+Ur
+	TmpZdYhcDQVGRCN/D5D7xOcX1hUoVeUKYmC19ndq7o0aEVEBIt09IzeepkpzgIGsFPKmnH1NlA2
+	Lp0L1ySFbHwksq0N1aJDVgqefF2i5RFlJym7uoQwxzWIWJUxePCE7uBi3PEcZZxqo9dg0dRcviQ
+	1b5fjXJJuwlTta/8n/APeFknVWkjhcumEv/d+X91lZ6C+Jf7b00cqHagetB3oaSljf4dQ4IaiLO
+	5u1PDVaVRCJmW5aAW52GdE1pnC5W7k3v0msridQ9sFSeLJQTOD7opnvk=
+X-Received: by 2002:a17:907:7212:b0:c2e:3f49:df04 with SMTP id a640c23a62f3a-c4ca793bcd1mr730834266b.1.1793610287846;
+        Mon, 02 Nov 2026 01:04:47 -0800 (PST)
+Received: from thi-server.fritz.box (dslb-092-076-089-226.092.076.pools.vodafone-ip.de. [92.76.89.226])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4cabf15694sm358429266b.81.2026.11.02.01.04.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 01:04:47 -0800 (PST)
+Date: Mon, 2 Nov 2026 10:04:45 +0100
+From: Thilo Zirnstein <thi.zirnstein@gmail.com>
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: michal.simek@amd.com, andi.shyti@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] i2c: i2c-xiic: fix waiting/clearing while atomic
+Message-ID: <auhSLVHIh8mv-KUA@thi-server.fritz.box>
+References: <20261016125229.1798791-1-thi.zirnstein@gmail.com>
+ <20261016125229.1798791-3-thi.zirnstein@gmail.com>
+ <CAKfKVtEOOGsJSV0_im=-0u=N=fxkDuCMnAzt=1ZfBs4A4rg_0g@mail.gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -77,98 +101,62 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKfKVtEOOGsJSV0_im=-0u=N=fxkDuCMnAzt=1ZfBs4A4rg_0g@mail.gmail.com>
 
-Hi Kenny,
+Hi Shubhrajyoti, 
 
-On Tue, 2026-10-27 at 08:58 +0000, Kenny Hsieh wrote:
-> Hi Andi, Peter, Matt, Jeremy,
->=20
-> > - [High] The store-side guard against adapters being deleted does not
-> >   close the race it claims to close.
->=20
-> > - [High] mctp_i2c_remove() runs mctp_i2c_remove_sysfs_all() while the
-> >   client is still on driver_clients.
->=20
-> > - [Medium] mctp_i2c_probe() now releases driver_clients_lock after
-> >   list_add() and before i2c_for_each_dev(mcli,...
->=20
-> > - [Medium] The new ABI lives on i2c adapter devices, which the I2C core
-> >   owns, but the mctp-i2c driver attaches it with sysfs_update_group() o=
-n...
->=20
-> These races come back to the last point: mctp-i2c bolts the attribute
-> onto adapters the i2c core owns. Before I respin I'd like to check which
-> way to go.
->=20
-> I can keep it in mctp-i2c and fix the races there, mostly by reordering
-> notify_del() and remove(), and adding the attributes after the probe
-> walk so it can hold driver_clients_lock again. That works, but it's more
-> bookkeeping and there's still no uevent for the attribute.
->=20
-> The other option is to declare it on i2c_adapter_type in the core and
-> have mctp-i2c register the show/store callbacks. That's cleaner, the
-> driver core handles the lifetime and most of the races go away, but it
-> adds an i2c API with mctp-i2c as its only user.
->=20
-> I prefer to keep it in mctp-i2c, but happy to go either way.
+Thanks for your review.
 
-I agree it would be cleaner to avoid having mctp-i2c create items in i2c co=
-re
-sysfs space.
+On Fri, Oct 30, 2026 at 08:16:34PM +0530, Shubhrajyoti Datta wrote:
+> On Fri, Oct 16, 2026 at 6:24 PM Thilo Zirnstein <thi.zirnstein@gmail.com> wrote:
+> >
+> > Use non jiffies based waiting functions,
+> > if in atomic context.
+> >
+> > Suggested-by: Andi Shyti <andi.shyti@kernel.org>
+> > Signed-off-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
+> > ---
+> >  drivers/i2c/busses/i2c-xiic.c | 28 +++++++++++++++++++++++-----
+> >  1 file changed, 23 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> > index e68e17bdf0ba..fc9a0628cb67 100644
+> > --- a/drivers/i2c/busses/i2c-xiic.c
+> > +++ b/drivers/i2c/busses/i2c-xiic.c
+> > @@ -359,16 +359,28 @@ static inline void xiic_irq_clr_en(struct xiic_i2c *i2c, u32 mask)
+> >         xiic_irq_en(i2c, mask);
+> >  }
+> >
+> > +static int xiic_poll_rx_empty(struct xiic_i2c *i2c)
+> > +{
+> > +       if (xiic_getreg8(i2c, XIIC_SR_REG_OFFSET) &
+> > +           XIIC_SR_RX_FIFO_EMPTY_MASK)
+> > +               return 1;
+> > +
+> > +       xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
+> > +       return 0;
+> > +}
+> > +
+> >  static int xiic_clear_rx_fifo(struct xiic_i2c *i2c)
+> >  {
+> > -       u8 sr;
+> > +       int rx_empty;
+> >         unsigned long timeout;
+> >
+> > +       if (i2c->atomic)
+> > +               return read_poll_timeout_atomic(xiic_poll_rx_empty,
+> > +                               rx_empty, rx_empty, 10, XIIC_I2C_TIMEOUT,
+> > +                               0, i2c);
+> > +
+> read_poll_timeout_atomic() expects its timeout argument in
+> microseconds  the current one is jiffies. Can you check it.
 
-An alternative could be to create sysfs attributes under the mctp-i2c devic=
-e
-instance itself (the i2c slave).
+Ack
 
-Mux buses could have mctp-i2c netdevs instantiated with
+kind regards, 
 
-echo "i2c-6" > /sys/bus/i2c/devices/2-1060/add_mctp_controller
+Thilo
 
-(where i2c-6 is a child mux bus of i2c-2, and i2c-2 0x60 is a mctp-i2c i2c
-device).
-
-"echo i2c-6 > .../2-1060/remove_mctp_controller" would remove the mctp-i2c
-netdev.
-Setting a root node as an mctp controller would involve writing its own nam=
-e
-to the attribute file.
-
-How does that look to you?
-
-Cheers,
-Matt
-
-
-> > - [High] When mctp_register_netdev() fails, mctp_i2c_add_netdev()
-> >   (drivers/net/mctp/mctp-i2c.c) now always sets `midev =3D NULL`, so th=
-e...
->=20
-> > - [Medium] In the baseline, mctp_i2c_add_netdev() has a real double
-> >   teardown.
->=20
-> This is the known double free, tracked in a separate patch on net, and
-> v3 drops the midev =3D NULL change:
-> https://lore.kernel.org/netdev/20261027053715.1623087-1-kenny_hsieh@jabil=
-.com/
->=20
-> > - [Medium] The new ABI document Documentation/ABI/testing/sysfs-
-> >   bus-i2c-devices-mctp says "The attribute appears only on mux child...
->=20
-> > - [Medium] mctp_i2c_new_client() now calls `write_pnet(&mcli->net,
-> >   get_net(current->nsproxy->net_ns))` before i2c_slave_register().
->=20
-> > - [Low] The commit message says "a rebind reattaches it reading 0".
->=20
-> > - [Low] The commit message gives "an adapter that the devicetree cannot
-> >   describe at all, such as a USB-attached one" as a use case.
->=20
-> Will fix all four in v3.
->=20
-> > - [Medium] Writing 0 to mctp_controller removes a channel's netdev
-> >   through mctp_i2c_remove_netdev() -> mctp_i2c_unregister() ->...
->=20
-> The sel reselection on removal isn't new, removing a mux adapter already
-> goes down that path. I'd rather leave that for a separate patch and just
-> fix the ABI wording here.
->=20
-> pw-bot: cr
