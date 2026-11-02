@@ -1,78 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793605694;
-	b=dxoEbP9SwwT08/BxDcJ0Gl19EEuiXao6iSteHeG0X0TVibR2l+Bt//2Mnxlh8KEVUGxM
-	 zTaU1YHtWDis4q5J6WxIrsSV+GECp0kYR0R93PwYGtOJnMqz/ZJurbX1LYbKcD8CxZUT7
-	 xU7APLpxirx8EOPqhhUS0DIpJciEJP+gw9TvTH17dAhRh2qkhMEcgRix/VNl3RY3fyuHD
-	 2uXycqNa9sMYjF/UZZn2nyuwhcqwSjBY8ftyMfamNkrMGaOQD0vWgObp3n5IPzYkJEc0+
-	 skTPNvCoIoZVOTKeuZOw6sRJXEKdpALg09d7qntN7Y1BVe89XNBLZRiUp9wCpEdDm1g==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793605694;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
-	b=CotTaog4p0ZEji8B3fpZNBeDwCVfF1mOpgKxxo3uGSYHVzli6GXz0cofxgaX+QX8W43z
-	 YwuwpwK7jdut86BlJQGBtaLuAQPiKInBO59b4dN9Ds9WqGaQoiQghufwsiSbTh9lQVHaS
-	 x3/Brwi5iWHu+JViCD1Vz04DIh6ptru64W+F4KdJQkxvRIuVPVD0bvTo4V3hhMXagADKj
-	 BulgvW6dcDT5kpCCV9q1loiVOwHQiOypGDhi+u8DD1BqNpUNUt0zZ4EZuMYfg5rQaVOoP
-	 rVUk4mHZOWd/u8xkKrhJMgC2x0enToS9oP7WPlMVEd2bP0MCycRpEWRZg0L3Dl4VX3g==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BFnUArU5;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99C58606A326;
-	Mon,  2 Nov 2026 07:48:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BFnUArU5
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793605693;
-	b=2aVnclzH9QDgAfo5sw0zaNp5TG1L7zD7DxH+o6Bsvbd2qoBrQfyEwmoVfOmQ2H+bm7yQ
-	 BRZHJzvMMoNws9PZKjU67sP8Ghqc5bcmbQI2IOaY+zmJNHR6LGz7ilFPC8baiL+Kscg4l
-	 g06k7LToHD3WR/lqKRAYAyApW2qfpYrNKOAERvsJB3zCOFKgdFIZLmS7E3QJN/yb2PEi3
-	 4SWfvxTjfLL7NldD7gtp1mELwJe2VT7cBnUDaOsJsjJ43vLbdsSIJ2WCcmCqA3tj945cy
-	 whEM9Mcs9095CPRdoVGnAXtR/BXOd43yXYMnqtbPNYCAvnZ7DH7EC/8z6xw73c9GTzw==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793605693;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
-	b=RgEtvbaRJsIs/4q7DLf6g811dQz2KX1eY1uQYLZlEt4MfcSWUJDGpFPXd4bk4w0PoReb
-	 HQcMWWQ6Li0BajAARtPu6zwAHucltZouccLfVFrP6PeoIKQehqpmDmjH6ex9mqkMaWNIH
-	 bJL0mjOMMweBAzk5SmjwwKm9dJFHnAqbTmiE2XM8kv6RmDmKwQfaBD3j24TPhZAe5NFOk
-	 7CC1MAghOT+L/EXZp264TPma6+gpaPBSeCfEl7LX5mKYi+lMR8J2uLFf4VDaRJN93IaJB
-	 uaUHBoBIF8d+HThuwskofSDggIErVh4MMKoudJ+Z+qRS8kD+2nqxhs/fkqrlh3+idIQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.171
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793606613;
+	b=HA9Q6lPTV3+l2209lNsBSb2yTaoqcSEPpc/iL2ljDP9fXY/wSnQGU68O9i6DZubTaLdF
+	 qnq/DRDQadWPZxPSt2tatgxGzCLypIZU+TwvGf0o9tNG3NmWk0fE/Wv2p3e/dEGU9YJGv
+	 Vrlwsbml3YMgNwRMqaFFazZ7D2iryymqcC/LsfVusnnOcJDGfiafPd9YvZFWQ6U0MILsl
+	 mBnVqs55hBtjkbgmMzJKupnjVoSzJlDb0Vtb/gahEinWM84Cs4UKahifBe2g1wW+9PsbX
+	 799/WJu1Kgelau3iGB/K6ObnP89wfXp4UOXrBF8kW66haNetyfm2UBm5gAqxSeiAjdg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793606613;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=QnTjaKjV/Eb5lwtCkCJI2zpKofDOjZaAyQUoBY2T2Qk=;
+	b=E2GW7cl/pgKBs64A3NwyU78VsMMpTV+n48AMb7xsEmTPX06XUHT9xnKEMgK7Wm/BNLnT
+	 oAr+L3R6DzvqotLKVV0B9V+9k8ZeCgbD6g3jvGGkalnUF6aI/5QH9jlmlmBJczDsExz1R
+	 pG6HsJJpDafAc5lDz1j5yFyyD6CuCYWrVOZL/I4Vm9eTTcyIBJxfccfpljxNbgXVysiwm
+	 b+j0Oiy5EIC0x3NyfZNhPicMOkjva8peLra5zVhvcQe/dRcVPa4gBwXAkg+QYRtk3t7dj
+	 CHI/t1zov1phUaY541ijvqD6ubwqoFk48yL6InKQ95VcIcxPYt6JbUamEUo9jPl4imA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OWkwfKfA;
+	arc=none smtp.remote-ip=209.85.210.171
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 7CCC41F00A15;
-	Mon,  2 Nov 2026 07:48:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793605693;
-	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=BFnUArU516smxMVMPmr9QtuOSrlRXMj8rR8gM8eS0Jf9Q4czUbkEGGsNpVEoj4T+b
-	 kzhelQEmn2Iyxz/0/tSxZZkyeL3CfuQiMrMyAgAfnVdVmI5WIF6e1WL+XUiSHCZ8yb
-	 ON0kMtQGZHuNFyY7mRBHrzGnNzIEv75Avbp5PWX69WeuGcRaKgwn2KSqfsE9tf70z/
-	 pAeUTUlgNPfeJ2nsOluS8TjAD81pAENY+Hs5ATVph/0swaczOHPKlevbkgqgrgb2y8
-	 DdK7V/VzFVM2oZgqd+u3HOVCcuQrzS1bVOLD1OpcSsM9hM2XzRUORa2V0BKgkiZnLv
-	 N0of9bjYiyPTQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id DB78A463EB;
-	Mon,  2 Nov 2026 07:48:11 +0000 (UTC)
-From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
-Date: Mon, 02 Nov 2026 07:48:05 +0000
-Subject: [PATCH v4 1/2] dt-bindings: i2c: add Amlogic A9 I2C controller
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B881E606A326
+	for <linux-i2c@vger.kernel.org>; Mon,  2 Nov 2026 08:03:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B881E606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OWkwfKfA
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-8a07078200fso889642b3a.2
+        for <linux-i2c@vger.kernel.org>; Mon, 02 Nov 2026 00:03:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793606612; x=1794211412; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=QnTjaKjV/Eb5lwtCkCJI2zpKofDOjZaAyQUoBY2T2Qk=;
+        b=OWkwfKfAsXbbKJz7QLwcb3/OvbnhOZV+OWnHFr38rZMHRX+U2tUJixFagpNooNi8af
+         JHlhPFxZpAxbzU7WntTbHVvsDhNB1wsBqXuaiP6mQVJ/c4w5mjKWNMAoG9iiuu9Lh35Q
+         qj511tfZLYKlZFmC0TWA4JYVtZ4yydCtlk/X+O4tHECac+/SIGQ77W6KGxE4PcGNLPqo
+         7JfGUTjFD+yCKqxvsWaKOW/muvzvmLf00SMDtTfNZt9UO0n6HiUL+gXJS5XAjiTsTmOj
+         SwU7D92XSXts20RO4D6jb6kIu/Pr+O8A7G6Qsh85bgdeElGcFkzE2tJRBmT2u2RkkYlo
+         GMiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793606612; x=1794211412;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=QnTjaKjV/Eb5lwtCkCJI2zpKofDOjZaAyQUoBY2T2Qk=;
+        b=lDVooAqTa2yBQq2XorYodIq3QUm16dbUqewLGrA1XSa49WI6lbX/OY0EMOzPqzf/gb
+         74nD+lRMXQPQl8y3Fg+C6afvNeKipO/cKbAmpqk3oBNavdvKbZBgQtK9qfRTuAVqqS2u
+         Qfjpk5q1A76/2rvKJsON5Yq6orTuDbFE1rUJD8cR3o3RToCIKneqr38rO7alJGk7Ijon
+         ACk6nOPev/yHlfA42Z/AISwDvwD+FxymfymVm8kDWa6GRPN/iZTxQVBcfH2cFmSrXkaD
+         9AXYM6SOJSVLfK/HLAcv6lVewT9FsVdhKU6i/ggbEp4z4GnZQOIIJplHGkf+VNdglyZc
+         scdA==
+X-Gm-Message-State: AFq9FYITuXXFit1ZHuBZgo8ijEQ2fYU25QY5vKuglzOy+uDwcI9c/2af
+	wsEH2BH3pMU1qG8Tht99nAd+NGzcWnQ2tyuZakDVbPIpPURBSNrMbJb/
+X-Gm-Gg: AYBFou2we03jP70D3+raoiOkoZZy8ylXpHeZ5nJJnsS9CMCOmKDSgi1S+gf7csLGlHC
+	uU+k6Ai/rwuNTXh26itl/aFOf+FgrdoBL6WipV30q9NInrVlzRLZRxvONmYQsE7cK1vu1B0AdXz
+	zfiwQRflF0LiQItFm4FRdc1iohvszWOCRr9/KXHwl0ym8kfgjYk3l9zJaVKi+PRvebyclOahptl
+	8OgXRKo9UQr5qn/ACF6LtMdMTOs8F3lDDUeFFyI7pGO2fV3S56h8b/0rAlALQnDExgrZPmIVbJi
+	bptlF3fcohpq+YVUftwWmVcngkx40LpPz0mGEmvVCps5sWvGJdUkajEKRcZRSFcqzj9buvsozqh
+	v9s1HareZCleyLRCBYpm5bDhjovuLtbM87Dk2IfBpqPtfIoeUblmiEw7OvbRog2fncMqbUTA96F
+	rMteqGRQmD85xhUswTt0dztPGAzBtAttkUzZmulAma8dYArUxcnU9aOVotSk2IaDI2SrggUa0tY
+	I6v/pK9wVJQtK4fe6eu0cswfYL6DgFPHCTt4eT3jorgy7jYUyCZl2U5b+fwBsBF2RZX15Zvvkn7
+	TwKfFSIY1YeLD8J+Z4nDe9huANDTA2Sj1NArJwD/XOKCWuQqtYOcDrHX789RMnFbPslRW/XUHs/
+	GK4nOt0kDwJhLMSLRNUCXqt4RLGEX+Ekc6/BOaZgLmSFDFjaB66r55sAYAUZE3qyA+h9PiMvdo3
+	G/VmUGVtXedOwKbw==
+X-Received: by 2002:a05:6a20:7343:b0:3e5:6c93:2500 with SMTP id adf61e73a8af0-3e9290799a3mr8561614637.57.1793606611852;
+        Mon, 02 Nov 2026 00:03:31 -0800 (PST)
+Received: from spider.bream-herring.ts.net ([103.6.151.236])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cdb096b8323sm2937039a12.6.2026.11.02.00.03.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 00:03:30 -0800 (PST)
+From: Matthias Goergens <matthias.goergens@gmail.com>
+To: Peter Korsgaard <peter@korsgaard.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] i2c: ocores: delete adapter before disabling controller
+Date: Mon,  2 Nov 2026 16:03:27 +0800
+Message-ID: <20261102080327.1466598-1-matthias.goergens@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -82,107 +96,66 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261102-a9-i2c-v4-1-5a169215b8e9@amlogic.com>
-References: <20261102-a9-i2c-v4-0-5a169215b8e9@amlogic.com>
-In-Reply-To: <20261102-a9-i2c-v4-0-5a169215b8e9@amlogic.com>
-To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Xianwei Zhao <xianwei.zhaol@amlogic.com>
-Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org, 
- linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>, 
- Conor Dooley <conor.dooley@microchip.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793605689; l=1772;
- i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
- bh=Sz+UB7O1ObrX0Ep7OtBMUUtSVaLagIleTbf9GlXMQy8=;
- b=av5Ql9+8d9vLT3ZQYaKplKx2KQx0t1LZ2lKkdNcJiyi6LqOZ06R3jNzZPe2YT+6OwK5363yym
- h4IvLCPjkHaDuRPHx/V3khEQkj9Dc6Ly9V35wPmF3InXjTayIhBYKEd
-X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
- pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
-X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
- auth_id=578
-X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
-Reply-To: xianwei.zhao@amlogic.com
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+ocores_i2c_remove() clears the core's enable bits before it calls
+i2c_del_adapter().  Deleting the adapter removes its client devices,
+and some client drivers talk to their device while being removed:
+lm75_remove(), for example, tries to write the sensor's original
+configuration back.  With the core disabled, such a transfer cannot
+work; in interrupt mode it times out after a second and the write is
+lost.
 
-Add a Device Tree binding for the I2C controller found on the
-Amlogic A9 SoC.
+Delete the adapter first, then disable the core.
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Sashiko, the AI review bot, pointed this out while reviewing an
+unrelated ocores patch.
+
+Link: https://lore.kernel.org/all/20260813153155.3953577-1-ruoyuw560@gmail.com/
+Link: https://sashiko.dev/#/patchset/20260813153155.3953577-1-ruoyuw560@gmail.com
+Fixes: 18f98b1e3147 ("[PATCH] i2c: New bus driver for the OpenCores I2C controller")
+Signed-off-by: Matthias Goergens <matthias.goergens@gmail.com>
 ---
- .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    | 56 ++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+v2: v1 went out before it was ready, without my Signed-off-by or a
+Fixes tag; sorry about that.  This version adds them and says what goes
+wrong.  The code is unchanged.
 
-diff --git a/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
-new file mode 100644
-index 000000000000..31ddc6d23732
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
-@@ -0,0 +1,56 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/amlogic,a9-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Amlogic A9 I2C Controller
-+
-+maintainers:
-+  - Xianwei Zhao <xianwei.zhao@amlogic.com>
-+  - Junyi Zhao <junyi.zhao@amlogic.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    const: amlogic,a9-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  dmas:
-+    items:
-+      - description: DMA controller phandle and request line for RX
-+      - description: DMA controller phandle and request line for TX
-+
-+  dma-names:
-+    items:
-+      - const: rx
-+      - const: tx
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@3a4400 {
-+        compatible = "amlogic,a9-i2c";
-+        reg = <0x3a4400 0x3c>;
-+        interrupts = <0 164 1>;
-+        clocks = <&clkc_periphs 11>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+    };
+The other ocores patch from v1, "i2c: ocores: synchronize startup with
+interrupt handling", only narrows its race: a STOP that is still in
+progress when the next START is written can still raise its interrupt
+afterwards.  I am reworking it and will post it separately.
 
+v1: https://lore.kernel.org/all/20261031033240.2491016-1-matthias.goergens@gmail.com/
+
+ drivers/i2c/busses/i2c-ocores.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 2d18c1035837..ff024cf5f92d 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -720,14 +720,15 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ static void ocores_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
+-	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
++	u8 ctrl;
++
++	/* remove adapter & data */
++	i2c_del_adapter(&i2c->adap);
+ 
+ 	/* disable i2c logic */
++	ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+ 	ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
+ 	oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+-
+-	/* remove adapter & data */
+-	i2c_del_adapter(&i2c->adap);
+ }
+ 
+ static int ocores_i2c_suspend(struct device *dev)
+
+base-commit: d89e1d186ec9271bf78e62771779e9fc03bf0fc3
 -- 
-2.52.0
-
+2.56.0
 
