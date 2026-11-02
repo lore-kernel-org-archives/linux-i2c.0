@@ -1,62 +1,77 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793613933;
-	b=ZHp1qe2GKlwHkDkc6Z+T+n48qIhs2jcm/3tXVAkAEikLjCNxrONXhg67qHSChgBnaLyp
-	 R1oF40+bKzD28MWRvrtxKEAJ5GJlobs31IcGZKMhNmYhWqDUD0cTaXFOOhQ5nQ+yMSmpR
-	 +tdr3ZWpEp16Z2LA/RZE4UPz7pVOaj2bLBmh2s8UJ8jHIN/qj7kMcxBEzEVKNnJYaGM08
-	 PmpPVMDa4k4M87F/uqyDJNfqcvb/CRT/A7kHs/4oP54MCjLvaDSflZf/vFNkUF8/U0sKc
-	 FkNG9C3qmvyi+Ok3F8z6QgcYBZDlnvu0NDkzH0QneYceEsx9GPW3dQAKyGvGTdci4Tg==
+	t=1793618837;
+	b=MxJUfsbSiuiBcKdCkrxK/EYLMEPQHdEg4CxSyYCiUC6r/RCBF4UKvxKg8soG4k2VUabn
+	 kzEpWoJdbmBC+L3fW3lHwugqwLr+S1Ud1CTSlGFvjtDUG4YlZdNF+n+UzXa7jE6L5DSfA
+	 rJnOFFCNi1YDzWLMDF5exQVW7uR9GaNlsU3Xz0S8obr3YE7AGHdQ2Y8LacJO16JepyQuM
+	 xu3mBp+h88mrZvXKTLf2PajDuWVd80zndWlaVSeYmR24tkGbjDgk8DhYxS+sehcXZplW9
+	 Rplf3UGLPUHvtn3ZckMw7bvGlQFi8Mse8wRF51XLeuM+25/4aHh+0htuOix7QyNQT/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793613933;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=hraIj5eFlOlhzKylQQ8/efz7x5fIFgzaCgbnxap7ESQ=;
-	b=ivCtJx/JB0s6Qw4forF/5wSTbgEz/jprI4tUpkFZG5Uek1kCWfjbzkz9lrbeeZWBaCaG
-	 ISorg7zwvj3dTsPphabqwpJcKiD35jKGm6I1t72XcfqdTqLdOJbzRTUuyQsNiFqABB8vw
-	 O3/rzZffqrPN1DrU7us1CHt/Ij7VxYWEjBsV6TLRs5C4upMzLHsucjhiTssYguyYKCFpt
-	 qTiRNwlnzMOVKc8yshtPn/cAdi3AOUJeBO5X53Cx3ekd3eYHsHIVU5vIlhecaj6kP4KR2
-	 k/y5J59xwZzgiubYtqpoxZW6HSbbUGVjUd3MU9oN5JWmM7afZKWyUkjbQBaTkbZO+uA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793618837;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=Cv9fYOoWwKUfXT2oTsRskBZMj58HrKtQLYQjDyrTVDs=;
+	b=BGDqZFaGqGWDnHIqF+DRIzpQv9U1ZQ+aGQVRgE7PBEwJWT/XxbemvIqBBeo7Cft9e0F7
+	 GpUoaGia2Mbul85ndYEUYhXo/vFYLIqsHfZ4vQowlTM/p5kboG/NsHH5VJVh9arvwSQpR
+	 a2TdDl4EpG3/zyU46mIn3vhvJwga8rmeXXiSRgNFIVd0UPWPAJF9ROMRC1fX8icJt/gGK
+	 2St1FM0x3Nwwx+YNioAOn1SfZkH6xSQu7cOeWWYR0UHExDRJ48HRw3q0Wtuzz4BRCD8B5
+	 mNhoWFrfwfnUV+Ap50B5wRVWfPEwfeZ286ksPA0dRAUrA9gRqBIJLNMqdUwFrOO20rw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mFJBS1+u;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=FG1xp8AQ;
+	arc=none smtp.remote-ip=192.198.163.13
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 795E4606A326;
-	Mon,  2 Nov 2026 10:05:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBD4F606A326;
+	Mon,  2 Nov 2026 11:27:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BBD4F606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mFJBS1+u
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285091F000C1;
-	Mon,  2 Nov 2026 10:05:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793613933;
-	bh=hraIj5eFlOlhzKylQQ8/efz7x5fIFgzaCgbnxap7ESQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mFJBS1+u1VM91TZWQ5lKgMiqtNJFvAKkHKz0EUpEUbIF5zNnl4OE9WgauZBV2fCCf
-	 Ih0/F6Fh1mQW+ieJ5r+rkXSxxW7BQPm1xSi/gc0C6YJ5/8Nguu1EVxoe3LhJQLumxt
-	 nEnC4PabPxa3vnaQAVnUEMT6u40t9aD0dA81GIEENYiE8P4lo9M8Ek04ecfo2QX++L
-	 QGwgXX1d90QBPfrdJvN8F9B0ZYFwFSYtPjO00Yn6V08xAgP8Yc3F2HsysHFR4AL62W
-	 Bg4tTmNc2Nlxdd5kFX5pAsg91vfpofRlH1nKXa9mf2kOGsIqfk7zPqZm9uN6NUHyR9
-	 hya0S08K57Zjw==
-Date: Mon, 2 Nov 2026 11:05:29 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
-	Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>, Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
-	Suresh Vankadara <svankada@qti.qualcomm.com>, Vikram Sharma <vikram.sharma@oss.qualcomm.com>, 
-	linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-phy@lists.infradead.org, linux-media@vger.kernel.org
-Subject: Re: [PATCH v3 1/5] dt-bindings: i2c: qcom,i2c-cci: Add Hawi
- compatible
-Message-ID: <20261102-macaw-of-exotic-justice-8c11fe@quoll>
-References: <20261030-hawi-maili-camss-v3-0-9742bca8cef2@oss.qualcomm.com>
- <20261030-hawi-maili-camss-v3-1-9742bca8cef2@oss.qualcomm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=FG1xp8AQ
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793618836; x=1825154836;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=/nB8lTnfYGUH3O33ofshGMBV5q9MN0RN/P6LQYfKSfI=;
+  b=FG1xp8AQtrZzYFYyaCc4K3ci4bOYYREX1ykIKHHDihKsve8pOjKLLNol
+   WRGTVAZBMU1cQkl37r6ETpn8J1l8osR4OEDbM3n403iESr1FrnVwP1UT5
+   SqTkclW+voaz0D+aghdl/8/+eR01zn8qNy3EHmVL+LDZH7Q3XKZRfjvgy
+   u5K7tC+BdxSLDJxTVbWEAc+QdYOyYpje6Kj8G3uxq/GipKGRnJzNuIa4M
+   9U6n/UsDT1YNl/pbwkPeBaJfAmBn+r2znQddNybRwwmU6T2eWbY9rAS7+
+   Ub0cC7qfOkoA4U3wj6GQdc5cvQd+bnIpwg9ahmWqlFAImLo8ZbApPkfF3
+   Q==;
+X-CSE-ConnectionGUID: JREeEFtNQ32CJbdxyBiucA==
+X-CSE-MsgGUID: fZJjNxdqR+mTVPe3fTrNcQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11953"; a="2300765"
+X-IronPort-AV: E=Sophos;i="6.27,191,1787036400"; 
+   d="scan'208";a="2300765"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Nov 2026 03:27:15 -0800
+X-CSE-ConnectionGUID: VaR2CX81R0aqrzwHP+dLBg==
+X-CSE-MsgGUID: jjHG8chRSjW08wU/EISiZw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,191,1787036400"; 
+   d="scan'208";a="6422228"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa008.fm.intel.com with ESMTP; 02 Nov 2026 03:27:14 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id A058A99; Mon, 02 Nov 2026 12:27:12 +0100 (CET)
+Date: Mon, 2 Nov 2026 12:27:12 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: designware: preserve invalid SMBus block count
+Message-ID: <20261102112712.GT158991@black.igk.intel.com>
+References: <20261031105412.16825-1-pocj8ur4in@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,24 +83,61 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261030-hawi-maili-camss-v3-1-9742bca8cef2@oss.qualcomm.com>
+In-Reply-To: <20261031105412.16825-1-pocj8ur4in@gmail.com>
 
-On Fri, Oct 30, 2026 at 06:13:01PM +0530, Nihal Kumar Gupta wrote:
-> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+Hi,
+
+On Sat, Oct 31, 2026 at 07:54:12PM +0900, Baek Kyu, Kim wrote:
+> When a slave reports an invalid SMBus block count, i2c_dw_read() uses
+> one extra read to reach STOP. It currently replaces the received count
+> with 1 for scheduling and also stores 1 in the message buffer. A count
+> above 32 is therefore exposed as a valid one-byte response.
 > 
-> Document the Camera Control Interface (CCI) compatible for the Qualcomm
-> Hawi platform. Like other recent platforms it requires two clocks, so
-> add it to the corresponding clocks constraint as well.
+> Keep the received byte in the buffer and limit only the count passed to
+> i2c_dw_recv_len(). This preserves the extra read for STOP while retaining
+> the invalid count for the caller to reject.
 > 
-> Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
-> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
-> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> Fixes: 69f035c480d7 ("i2c: designware: Handle invalid SMBus block data response length value")
+> Signed-off-by: Baek Kyu, Kim <pocj8ur4in@gmail.com>
 > ---
->  Documentation/devicetree/bindings/i2c/qcom,i2c-cci.yaml | 2 ++
->  1 file changed, 2 insertions(+)
+> The DesignWare receive functions were exercised with stubbed register
+> input for block counts 1, 32, 33 and 255. Counts 33 and 255 became 1
+> before the change and remained unchanged after it; both versions
+> scheduled one extra read for an invalid count. No physical controller,
+> STOP signal, PEC result or end-to-end SMBus return was measured.
+> 
+>  drivers/i2c/busses/i2c-designware-master.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+> index 7e1d9a2e77332..f38ffc5b0a347 100644
+> --- a/drivers/i2c/busses/i2c-designware-master.c
+> +++ b/drivers/i2c/busses/i2c-designware-master.c
+> @@ -563,7 +563,7 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+>  		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
+>  			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
+>  			tmp &= DW_IC_DATA_CMD_DAT;
+> -			/* Ensure length byte is a valid value */
+> +			/* Limit the extra read, but keep the raw count for i2c-core */
+>  			if (flags & I2C_M_RECV_LEN) {
+>  				/*
+>  				 * if IC_EMPTYFIFO_HOLD_MASTER_EN is set, which cannot be
+> @@ -574,10 +574,8 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+>  				 * another byte with STOP bit set when the block data
+>  				 * response length is invalid to complete the transaction.
+>  				 */
+> -				if (!tmp || tmp > I2C_SMBUS_BLOCK_MAX)
+> -					tmp = 1;
+> -
+> -				len = i2c_dw_recv_len(dev, tmp);
+> +				len = i2c_dw_recv_len(dev,
+> +						  (!tmp || tmp > I2C_SMBUS_BLOCK_MAX) ? 1 : tmp);
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+I suggest using helper variable here. This is pretty hard to understand
+otherwise.
 
-Best regards,
-Krzysztof
-
+>  			}
+>  			*buf++ = tmp;
+>  			dev->rx_outstanding--;
+> -- 
+> 2.55.0
