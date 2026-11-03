@@ -1,53 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793697680;
-	b=jzUuMWcn9UNc9gKOEvJR2tiyKF9H5m05uK6O8QpOJQVlZXeCYcgdBq8c+DAPM8DQxsfn
-	 ew4aFvbytsOXdT5IBEkU5YfXEmQP8zPkiDTS8kC+6Bya0zY22jVoOR2H7b4Um3r5NaGzn
-	 I/ar6GBcWAxcsxaUyvoVuerhA0zi8eZ86/PHkFqMyGf4+c1BLoC992iVSOsT0KmwzhW3i
-	 wUTkKzDl4Ptbe4wiLexK1X6d1O85wGnjg1HMvJXAukx1WvRh4ge/UUx8Tr8nRhYlyGXJS
-	 pLLlfECIU9XQuZJglpgMEy4HNHfqBLJu0s67EwoC8xyWyisI+35rzePs8wUWLH2kspA==
+	t=1793699307;
+	b=EfDTkGpjSpy7fRBHh3gHQWIxfntNw64a4DU+nRtd0bYVDjH3YnwvTDofLG9ypMSxvps/
+	 DarhfPlImOnnTJd0ATGfB2TqHuoOkYHCjwscIpmP+nzzS/obYjxKL4wrGyZnzBEfrOiCf
+	 4aviNmaByY1B3fdimMIuSaDmjkmTYZK0KODBiVd8QFWjc6guYl5EwFd6krA28APxbV8vB
+	 mfT/cMyAtZzXmWRAx7ye3j+WitDdIkFp3r4rC20N46p95TsDTYW6GOFx1Pf+BynDSzEp0
+	 uK0MHZiORH6606bod0Q8dPeIdkqrrfF+pW1kvYphuVZ3QN+S9EaxYBf3LDbgSV6oLSQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793697680;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=8ff+Ldb+j3rIyThs2zVt58hJSJJjlNUoF1vfWcjecx4=;
-	b=4e4RW4h1OZS3IbHLVblMRwYKjHivTwGL8n8of7nKaH3zqD8uoLt2nGAisasuPb5rQz3L
-	 dptYTjUnRf1d6hvab+S/uz/RI2ohDEiZIV02DR9Dc/1vnuOCcYf8cG/B+31ZKnT6uGdbl
-	 sVS8F7lG3MXfDA8Xnpguo1q2+lOjbDHuEUOHw7Bm81UXBQ8aR6v+VgIwpU0LjUoeRf0J6
-	 YuoMN5PfZ+xcHqm0KkZFZ9uqVojXpOn2EsBRXsVMv09QPUVqy77amZ3WXJYJqqFsCrpX7
-	 tHyem01kImzQlPo9I/gNncS1p1J2k3FqpD8UctVe+EWbnnYVyEtxJbvfD6XEBy22Pow==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793699307;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:Organization;
+	bh=hFUtuIOQjZiGUhcBDFXIk4DME0buSZpk2TX7q8g3RwU=;
+	b=P02mElSumSZ9fw7/oBjTPwG6SJR9jEGuwql7/NizFAQgDlwwCa5TeiiNoXlB9XY6IXWu
+	 CTSgUKNMQ0R355o5iZJMG0LZX1Vf9xA99fMFuAGCFYfx9PN7EsmUkCh0W9pYlLPPNnAMM
+	 go5EQkrQc02UXLU86URWi/FwIS1jPXH4WoMdw++iiCQlTADA8xKJiyE5MDxHp+zKFLRFo
+	 aICBNbe6EUTIedyXluIbTM81X0soJY597/IeZaU/fKq9c3LaiVgUZK8rHLQ04feQhXOGJ
+	 yssP6OcUrJc+aHRxgIHwgY9Ce96lovsRZm058IH1MKL42VlYpte3z0CBxtjdDijouBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jWfFpU+a;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eeh5QeuB;
+	arc=none smtp.remote-ip=198.175.65.18
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90CB606A334;
-	Tue,  3 Nov 2026 09:21:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90FB2606A332
+	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 09:48:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90FB2606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jWfFpU+a
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 910D81F00919;
-	Tue,  3 Nov 2026 09:21:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793697679;
-	bh=8ff+Ldb+j3rIyThs2zVt58hJSJJjlNUoF1vfWcjecx4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=jWfFpU+aR4y2vaJG/o8Zxih+deVBBi55FV9p9y1sP7KWAqD+Gnf0af1aJw8T6QWId
-	 02cEEwKtjpVCEUl2mZ6jOGTQXVkueZb/KOYJ6u0ITXYsYuTF3tXLiJW5m4U6kCoMFo
-	 F66SVUEIAEn0J9fVkYq8RrOMFOk12a/19FLi98dVylfY+GIdVWStW6x4IziDKUHrJL
-	 Ajaqsw1sRZUQZuECpUPFRUMrNLF+utaRY4I6+wCRL8bHqq+zvp4dDdJeBc7AKjwCDF
-	 P2xHglgbR+uw0aqQWbkye2ONpRe8ZN4T8GAcUUOel2DmyxOdvUrhQRns/d+pDj8+ti
-	 ckh6EH2nVbt9Q==
-Date: Tue, 3 Nov 2026 10:21:16 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: peda@lysator.liu.se, linux-kernel@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, stable@vger.kernel.org, wsa+renesas@sang-engineering.com
-Subject: Re: [PATCH] i2c: mux: demux-pinctrl: Release pinctrl handles on
- deactivation
-Message-ID: <20261103-diligent-taupe-seriema-e3fbd9@quoll>
-References: <20261103082905.1167633-1-vulab@iscas.ac.cn>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eeh5QeuB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793699306; x=1825235306;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=hawSgna2EBYvXybjLClEZF13TPoVwk5NUTVPDa5BKNE=;
+  b=eeh5QeuB6xmNqBBv1/D/QxB2LyaD+LUs8BuaeoJRxHo6GGTqnP0cABel
+   XeRBtr4dNfgxBIuHcLWHAlN0SPryQAQKhtgHUxGw9yOUYGeBqeLa/aIpk
+   czvGvuMaUQxW1NP1L3OkGCKE6h0WFhDSSLSb37FJufBvR+3aJ7nW892gx
+   m/WxQKPUdFpEGWkAO1EsSo50HVJYX15TdURZGlSGTDHXfF6hu7EUJtMj7
+   wmZK03AaICfodFTnq7SHU22dGKf4sY3RGNT3am12S4mndjWJeDgaGt4ec
+   kcAuSM65LF0MjTDhsJnb9LKd2y0JoH2Iisi4i7qDKCSDlnNYdSXhWXIal
+   Q==;
+X-CSE-ConnectionGUID: MqOAMoOVRF+X92T58Ldt5w==
+X-CSE-MsgGUID: 3O0lgNY2QjKupX6QAWXusg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11954"; a="2429357"
+X-IronPort-AV: E=Sophos;i="6.27,193,1787036400"; 
+   d="scan'208";a="2429357"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 01:48:26 -0800
+X-CSE-ConnectionGUID: N2zc3XrySTqz9/yZdwCmgg==
+X-CSE-MsgGUID: xFJ5nNs3T4mtrbyxo8eixg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,193,1787036400"; 
+   d="scan'208";a="6378975"
+Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.108])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 01:48:25 -0800
+Date: Tue, 3 Nov 2026 11:48:22 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Samuel Tirwa <samuel.tirwa@web.de>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 2/2] i2c: designware: use polling when IRQ resource is 0
+Message-ID: <aumt5out9avKNuID@ashevche-desk.local>
+References: <20261103090059.1759-1-samuel.tirwa@web.de>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -57,74 +78,41 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261103082905.1167633-1-vulab@iscas.ac.cn>
+In-Reply-To: <20261103090059.1759-1-samuel.tirwa@web.de>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-
-On Tue, 03 Nov 2026 08:29:05 +0000, Wentao Liang wrote:
-> Each master activation calls devm_pinctrl_get() against the parent I2C
-> controller device. Switching or removing the demux only releases the
-> adapter reference, so the pinctrl reference and its devres entry persist
-> until the parent controller is removed. Repeated switches accumulate
-> these entries. Activation failures after obtaining the handle retain it
-> too.
+On Tue, Nov 03, 2026 at 10:00:59AM +0100, Samuel Tirwa wrote:
+> When an Intel LPSS I2C controller has no usable interrupt (firmware
+> reports PCI INTx as not connected), intel-lpss passes 0 as the IRQ base,
+> which leaves the child device with an IRQ resource whose start is 0.
+> platform_get_irq_optional() then returns 0 instead of -ENXIO, so the
+> DesignWare driver never enabled ACCESS_POLLING and request_irq(0, ...)
+> failed.
 > 
-> Use pinctrl_get() and keep the handle with the active channel. Release
-> it when activation fails or the channel is deactivated, before dropping
-> the parent adapter reference and reverting the device-tree changeset.
-> Keep the no-pinctrl case working by storing NULL when get returns
-> -ENODEV.
-> 
-> Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-> Cc: stable@vger.kernel.org
-> Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
-> ---
->  drivers/i2c/muxes/i2c-demux-pinctrl.c | 16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
-> 
+> Treat an IRQ number of 0 the same as 'no IRQ resource' and enable
+> polling mode.
 
+Slow down. You have made a mess in the mailing list: no email thread, no
+versioning between the series of the same, no cover letter. Take your time to
+become a familiar with the process first.
 
+...
 
-Multiple things here:
-1. Your team ignored completely previous feedback. Multiple times.
+>  	irq = platform_get_irq_optional(pdev, 0);
+> -	if (irq == -ENXIO)
+> +	if (irq == -ENXIO || irq == 0)
+>  		flags |= ACCESS_POLLING;
+>  	else if (irq < 0)
+>  		return irq;
 
-2. You use multiple identities with this email address, thus I doubt that we
-   speak with an actual person.
+NAK. irq==0 gives a warning and has not be a valid output from
+platform_get_irq*().
 
-3. Your bot does not even bother running checkpatch, right?
-
-4. Nothing of this was reproduced nor tested.
-
-5. Finally, the same feedback:
-You sent multiple independent patches, to multiple independent
-subsystems. The amount of these patches clearly suggest this was
-AI generated and most likely not tested.
-
-More importantly, you sent all this work without properly organizing
-relevant patches into patchsets. This makes reviewing difficult
-and might cause multiple reviewers to address the same issue.
-Replying to the entire set is impossible and requires handling each
-patch independently, instead of applying or discarding the set.
-Maintainers also won't see the bigger picture of your work. Quite
-worrying.
-
-This is on the verge of hostile patch: bomb us with so many
-contributions, we won't be able to handle them in efficient manner,
-like responding ONCE to ask you to slow down.  Considering all this
-is untested and LLM generated, I have even more doubts whether this
-should be considered for review.
-
-Please read kernel documentation BEFORE posting more work. It will
-explain you how to identify subsystems, how to organize your work per
-subsystem (so a patchset grouping multiple patches with a short cover
-letter), how to document the issue discovery method and what was
-or was not tested.
-
-Best regards,
-Krzysztof
-
-
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
