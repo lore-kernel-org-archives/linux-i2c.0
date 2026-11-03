@@ -1,49 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.144
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793694541;
-	b=mAuR2lGUIbjP9N9L6R1C978pt/56j1LHSzPzfvR1KOhZWcky7moGmWolVxOmL8KfDZpg
-	 /4UzjbYdJI3M+ckMH4NiGMb3mkcS8Nv8b87vzjH7ZdRWcU6IYAKGP9niQPUXM3BrJryAj
-	 +NvqmeRwhi5BUuqhx2dX4Cn8doXndPv52nFuNA+0y4tIdvpDX95FBR8qp5oBzN3bFcfRk
-	 a89h0czTQYu61gzfLUJ4rvJW9z/5Hfmv+JlMuhCQmCMkC/0aiCiT8x7mec6uXypNOP4T+
-	 eT1rJmYV+MrmqL4EAYL6SLG6RT/vGDyOQpIYBoI+1VY6qabZO4Fq4mG+ZSQimtJnf/w==
+	t=1793694598;
+	b=1fCjHLYWmg9gapwFZGlw0Wa/HExnbjEQkKeTfBTql5tbVO/T7ox6NhL8ESCaUyx4EmrF
+	 Q2fIT1UfC9RFcgkKLzM76Blhxu4hQaMT56aPYytkYl/W/UhUJqZf4gQVW+lJa3WX+t9v8
+	 6SWfnvSHfVcbnYmUlcRHkERKFYzlxe2Awr8lFgeZjHTuYraZIox9SYHO0PCpSlCGYfgF/
+	 sfq4cZxlwqR1o9eM3Z8dqm0zhdiZO/i6X8OWKICoAMva7ILAjusbxbJHiAxP5eL8wd85m
+	 erHVBBqMGMLeWKRQogb4MB1SwXEzigbdVF81pndLmDY0w2bl3fM2psF8pSvSSeg0ZQA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793694541;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding:X-CM-TRANSID:
-	 X-Coremail-Antispam:X-Originating-IP:X-CM-SenderInfo;
-	bh=YttGKzudkUcow4dr9QM5c4I7tk6lSvtxkia5p+Lt/ag=;
-	b=oDPqLW9WMBuptSQy6a/3NvY1VLTxnY28ygvMhr2DqCC7GE24y17EFyFLq70cjpfsWU/x
-	 gneRPw16c+TklKQBM5hj9bbQm4nuoNzqzxmVS7mholoqQmEL/ANsX+HeiMb7+cnKSxosw
-	 zQlqIwj9n/evTquBUVdsoAnkdptl7koqv52pV8gu2pjNi6ECD1JUXvPIP/0fxw1jz+326
-	 zzkkOf0+RDjEIMencpzYlJXV43KBybnOAseCBCFvonrTweki9gQ6P3H8yg3z0Mqv6N73U
-	 gE52OEbYA/Ut8BpVD35ch6A7VqgdXXQ10DfOxo9F42F4d4gThdg7+JWOK5L3cDw2CWw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793694598;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
+	 In-Reply-To:To:Cc:X-Mailer;
+	bh=o3LJ0Hj1WCiPYc9EufOE1mRGFeHL/H8/8bQjlcMAaT0=;
+	b=Sf6gd183/YAojtAK74DWZk73OAImU2p5uievFSHDYTwMdUX2z26UzedRJuGvV9w3/x0x
+	 yD+lbpod9MaywYxINbYVnt+AuQS19ntTr/J/OauxbGwavu+Z6HVz2HbVi5r5t6zMiDNa6
+	 sHhYu9srtQfx0lh/TBDf0q8xHIl1LCMh0sa4+i1ib016CqhteP/i8TczKs//m7OwsWb3c
+	 +ZJTlczK1cRSUAzN62jafz7hQ94vwY48c7ug817IzKabHjqb3uGOBNZHtMThCHMmISvsq
+	 RyT5Y5ThlYPTH/G1jNXogy8F1nFjOUvI40YXZxf+jn9QpedC70VGcXNx3ktpiRaKY/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iscas.ac.cn;
-	spf=pass smtp.mailfrom=iscas.ac.cn;
-	arc=none smtp.remote-ip=159.226.251.81
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC9C6606A332;
-	Tue,  3 Nov 2026 08:28:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AC9C6606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from dfae2b116770.home.arpa (unknown [36.110.52.2])
-	by APP-03 (Coremail) with SMTP id rQCowAAnN5hIm+lqv3E6AA--.47768S2;
-	Tue, 03 Nov 2026 16:28:57 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: wsa+renesas@sang-engineering.com,
-	peda@lysator.liu.se
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Wentao Liang <vulab@iscas.ac.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] i2c: mux: demux-pinctrl: Release pinctrl handles on deactivation
-Date: Tue,  3 Nov 2026 08:29:05 +0000
-Message-Id: <20261103082905.1167633-1-vulab@iscas.ac.cn>
-X-Mailer: git-send-email 2.34.1
+	dmarc=pass header.from=mobileye.com;
+	spf=pass smtp.mailfrom=mobileye.com;
+	arc=none smtp.remote-ip=23.90.104.144
+Received: from esa1.hc555-34.eu.iphmx.com (esa1.hc555-34.eu.iphmx.com [23.90.104.144])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8B455606A326;
+	Tue,  3 Nov 2026 08:29:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B455606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
+  t=1793694602; x=1825230602;
+  h=from:date:subject:mime-version:content-transfer-encoding:
+   message-id:references:in-reply-to:to:cc;
+  bh=EHNvnomPYWJp5Iwb8XgCJS4byDJYYpzu7MQG1ZHfDDs=;
+  b=Q0+0hKhMJ71IPRMWt5usbU55EN3FnSg4MHJ7m8IPmmGIXbhTK1CyuhNc
+   o4QIZUROHIzajYkCoyf0fzITrlAtzW98hyGw+hYvMpRD8fIj3T6u8hW20
+   rYjgwRywcoaeJvd9EvNefanp6XWO4gNyVSMbLUFxUeoO5MX6mn7/XEfzR
+   i6WIytGt0G65BtpPAqiW82+O/3CsQlVPjuy6SWwpA5FALMKg0otvooFtH
+   xlFUjZhJPFS2Le1uWHQWclIA9TsYvTywlF7R1dlpBoVezxd5kmOsuHBRC
+   rI4lptoym+FjWqlFuq8miEgAdW1JLnooAAW68+yF2R7A9tDltwZnRzjxB
+   A==;
+X-CSE-ConnectionGUID: mkHVKEemQYKyShKrAcDMuQ==
+X-CSE-MsgGUID: 9ReKZA2BSwGantYAUKCrTw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from unknown (HELO ces03_data.me-corp.lan) ([146.255.191.134])
+  by esa1.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 10:29:54 +0200
+X-CSE-ConnectionGUID: yzbgF8sjTtuqhosP4VXsfQ==
+X-CSE-MsgGUID: PhbRgaCpRbupdCDZWfycYA==
+Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
+  by ces03_data.me-corp.lan with SMTP; 03 Nov 2026 10:37:33 +0200
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Tue, 03 Nov 2026 10:29:46 +0200
+From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Date: Tue, 03 Nov 2026 10:29:37 +0200
+Subject: [PATCH 1/8] i2c: nomadik: optimize struct layout, change unsigned
+ char into u8
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -53,105 +66,81 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:rQCowAAnN5hIm+lqv3E6AA--.47768S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxWFW8Aw15KFWrtFWkWFWUXFb_yoW5Cw13pr
-	4fCry3ZrWqqr4aqFZxJr4DZFy3ua1fJF1xGasrt3yFg3ZxX34rA34rKr45Zr4DCFZ5tF15
-	t3Wqy34Uur4DAFUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkE14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
-	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
-	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2jsIE14v26F4UJVW0owAm72CE4IkC6x0Yz7v_Jr
-	0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v2
-	6r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrV
-	AFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCI
-	c40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267
-	AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_
-	Cr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUXID
-	7UUUUU=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiBwYAA2rpWtn0nQACsp
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261103-i2c-nomadik-fixes-v1-1-655c6af2cb70@mobileye.com>
+References: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
+In-Reply-To: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
+To: Linus Walleij <linusw@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ srinidhi kasagar <srinidhi.kasagar@stericsson.com>, 
+ Ben Dooks <ben-linux@fluff.org>, Andrea Gallo <andrea.gallo@stericsson.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-kernel@vger.kernel.org, Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+X-Mailer: b4 0.16.0
 
-Each master activation calls devm_pinctrl_get() against the parent I2C
-controller device. Switching or removing the demux only releases the
-adapter reference, so the pinctrl reference and its devres entry persist
-until the parent controller is removed. Repeated switches accumulate
-these entries. Activation failures after obtaining the handle retain it
-too.
+Change type of `tft` and `rft` fields of `nmk_i2c_dev` structure from
+`unsigned char` to `u8` and `buffer` field of `i2c_nmk_client` structure
+from `unsigned char *` to `u8 *`.
 
-Use pinctrl_get() and keep the handle with the active channel. Release
-it when activation fails or the channel is deactivated, before dropping
-the parent adapter reference and reverting the device-tree changeset.
-Keep the no-pinctrl case working by storing NULL when get returns
--ENODEV.
+Put two bool variables `xfer_done` and `has_32b_bus` and two u8 variables
+`tft` and `rft` together in order to reduce struct size wasted for padding.
 
-Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-Cc: stable@vger.kernel.org
-Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
-Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+Reviewed-by: Linus Walleij <linusw@kernel.org>
+Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 ---
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 2403c0bf7c43..1d61a0c6e1f2 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -22,6 +22,7 @@
- struct i2c_demux_pinctrl_chan {
- 	struct device_node *parent_np;
- 	struct i2c_adapter *parent_adap;
-+	struct pinctrl *pinctrl;
- 	struct of_changeset chgset;
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index c3878670da9c..45b4815b0945 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -170,7 +170,7 @@ enum i2c_operating_mode {
+ struct i2c_nmk_client {
+ 	unsigned short		slave_adr;
+ 	unsigned long		count;
+-	unsigned char		*buffer;
++	u8			*buffer;
+ 	unsigned long		xfer_bytes;
+ 	enum i2c_operation	operation;
+ };
+@@ -187,13 +187,13 @@ struct i2c_nmk_client {
+  * @clk_freq: clock frequency for the operation mode
+  * @tft: Tx FIFO Threshold in bytes
+  * @rft: Rx FIFO Threshold in bytes
++ * @xfer_done: xfer done boolean.
++ * @has_32b_bus: controller is on a bus that only supports 32-bit accesses.
+  * @timeout_usecs: Slave response timeout
+  * @sm: speed mode
+  * @stop: stop condition.
+  * @xfer_wq: xfer done wait queue.
+- * @xfer_done: xfer done boolean.
+  * @result: controller propogated result.
+- * @has_32b_bus: controller is on a bus that only supports 32-bit accesses.
+  */
+ struct nmk_i2c_dev {
+ 	struct i2c_vendor_data		*vendor;
+@@ -204,15 +204,15 @@ struct nmk_i2c_dev {
+ 	struct clk			*clk;
+ 	struct i2c_nmk_client		cli;
+ 	u32				clk_freq;
+-	unsigned char			tft;
+-	unsigned char			rft;
++	u8				tft;
++	u8				rft;
++	bool				xfer_done;
++	bool				has_32b_bus;
+ 	u32				timeout_usecs;
+ 	enum i2c_freq_mode		sm;
+ 	int				stop;
+ 	struct wait_queue_head		xfer_wq;
+-	bool				xfer_done;
+ 	int				result;
+-	bool				has_32b_bus;
  };
  
-@@ -69,12 +70,13 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
- 
- 	/*
- 	 * Check if there are pinctrl states at all. Note: we can't use
--	 * devm_pinctrl_get_select() because we need to distinguish between
--	 * the -ENODEV from devm_pinctrl_get() and pinctrl_lookup_state().
-+	 * pinctrl_get_select() because we need to distinguish between
-+	 * the -ENODEV from pinctrl_get() and pinctrl_lookup_state().
- 	 */
--	p = devm_pinctrl_get(adap->dev.parent);
-+	p = pinctrl_get(adap->dev.parent);
- 	if (IS_ERR(p)) {
- 		ret = PTR_ERR(p);
-+		p = NULL;
- 		/* continue if just no pinctrl states (e.g. i2c-gpio), otherwise exit */
- 		if (ret != -ENODEV)
- 			goto err_with_put;
-@@ -92,6 +94,7 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
- 	}
- 
- 	priv->chan[new_chan].parent_adap = adap;
-+	priv->chan[new_chan].pinctrl = p;
- 	priv->cur_chan = new_chan;
- 
- 	/* Now fill out current adapter structure. cur_chan must be up to date */
-@@ -118,6 +121,9 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
- 	return 0;
- 
-  err_with_put:
-+	if (p)
-+		pinctrl_put(p);
-+	priv->chan[new_chan].pinctrl = NULL;
- 	i2c_put_adapter(adap);
-  err_with_revert:
- 	of_changeset_revert(&priv->chan[new_chan].chgset);
-@@ -135,6 +141,10 @@ static int i2c_demux_deactivate_master(struct i2c_demux_pinctrl_priv *priv)
- 		return 0;
- 
- 	i2c_del_adapter(&priv->cur_adap);
-+	if (priv->chan[cur].pinctrl) {
-+		pinctrl_put(priv->chan[cur].pinctrl);
-+		priv->chan[cur].pinctrl = NULL;
-+	}
- 	i2c_put_adapter(priv->chan[cur].parent_adap);
- 
- 	ret = of_changeset_revert(&priv->chan[cur].chgset);
+ /* controller's abort causes */
+
 -- 
-2.34.1
+2.43.0
 
