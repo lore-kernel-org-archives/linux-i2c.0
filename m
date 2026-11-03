@@ -1,104 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.53
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793739958;
-	b=pVEuehxRhmM9OtoYMNI+jmczAIJwzVvB8eDdyoDECkKo0EMXMOe5F5T+L8jp5fsJ0/Pr
-	 V1l7WywH8vY9dN9AYLRo/YMf1HkopItkvMDcgvmtt8GBaKujp9aSK7Prh6Pxs0tp0GWLB
-	 be7Eyyu6GlStOueSJJaXyONbdwtpaTKTAgNi412OhpABkZZBdwAFw2Al6gTJ+PipMFEdO
-	 X4QWZtYxbOy35yn9uny6Yzh1WNNHnoXmfmCOnXKlWbdVQB0PXXZRjysUiCE9G+Cpj4Jhc
-	 MjRpAWDTAE1zxJz28HLQNi5Qp93UBiRpel4iV/xM4j03zLfdGeKFarF/RdFR4lIWB1Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793739958;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=QI5qU1trTwZm0S8t5gCAWIJ9CPL9O0gAUfA8IjPCltU=;
-	b=t6IeowecRPx9zv6R7auEalAFyNGkkcg9gKXv9FKbKVcIOzUOByUUMVIXf09/D/qUAld1
-	 P8kddHJu8m61LOra4esggNEaiU6G0tC+TcNylOr1KEsdZskdKgT82ZHh+Pv2Kf+pwSDmy
-	 zlFBmEjYU/hQW4ldf6cCjYDFimvrdRD9vA65a5okk+YRorDXFoZdsSkvgZs/R2iRZGzCz
-	 Xhf3OF2T9CYMZe4lMSwmk8j+I8ilNwzCsGT/0GkzwJYpsEQBRxKSJV9XbDPGubl3iGM1f
-	 5qeiy0NZo7NecvY/bBLdb1WpPPCMzugbA8qmMYiMQH++QtSGjOI6IZ2xpmGM9EPK/Xw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OJuvyz3j;
-	arc=none smtp.remote-ip=209.85.221.53
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.65.63
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793741225;
+	b=Y4gIa0eWYbBELjGt9weNLXaQozrRrn2mHDjaabUqBPKyQiaJf59x0jZ9AaEVXKawkXxc
+	 DKEzaRcaAtdoab45wW9IqTNJQd7jr+90p8a5pqXnMxRjG3mU8QPvItmjIvPxLBEJki9Au
+	 /QGTcoepCOk1QFvwEvFD8kX0CjITYAblWAzIGasFJxmTNB9GOJgMbEqLZfVnTNN/CyBbp
+	 sZ1MG0OXAuqdKGxf3GfcOAznC5TvQ7r0XhUC02UzYiYUZ5GSpa5xFomEaMiECUx7EYHu3
+	 pufBdTq8kE/NXhLd/Zcs1Q1iYhiqtxZGb15So4gHaIy3A8EAVfZqgtEZ1ZMkbXvNbag==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793741225;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:Content-Transfer-Encoding:Content-Type:
+	 X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=htzvAMiU2FhngqwtGPbOr1GhKE6efX+L5FgMwLwRxfc=;
+	b=rXY6XbH2q/RZ91t0tSVGoBJf31HO8whDbrMolT7DaDtfPUUWpby9ChhBXDnxPQTNoN/J
+	 P86LQoVYaXVm17FZHVExeoxM0KhzGkamvqDUF8OL8R2Sfkh+4oyCpt8TZEKlMB138IAG2
+	 RJ2QSbxwydobYH72I5yYQJEE9He7+e5vwevj5ejK2IRTBEm7pa2v0JYZKZUpqJYriy8EE
+	 8xpGDPSUOGzRNnORTXUjAl0kWwEaRBuOgYQW8erm5Z3wcCJAQy0e9R1MqrlwM4S8ysgM0
+	 tCkWCdDPYHjIzwdc2+RNQAhV9T3l7POxFjzDsDIn4Jh6xOz1xpnFhJ4AhWzKoiEhd/w==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=oss.nxp.com;
+	spf=pass smtp.mailfrom=oss.nxp.com;
+	dkim=pass header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-NXP1-onmicrosoft-com header.b=j8RFXFuc;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.65.63
+Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11011063.outbound.protection.outlook.com [52.101.65.63])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 156D2606A333
-	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 21:05:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 156D2606A333
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CBBB606A31B;
+	Tue,  3 Nov 2026 21:27:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CBBB606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OJuvyz3j
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-48c45111bebso16395f8f.0
-        for <linux-i2c@vger.kernel.org>; Tue, 03 Nov 2026 13:05:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793739956; x=1794344756; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=QI5qU1trTwZm0S8t5gCAWIJ9CPL9O0gAUfA8IjPCltU=;
-        b=OJuvyz3j70MjV8XQJoIom1Q/RGba1SDSh9oDkAGWqCHZJvRt79oJJ2dNRgEpZ15hHx
-         uSvh/CAjG0Rho1dTJn/GLNrpOw70dXusp2CcEOp40TMWvGOE0hbP8qaqjwuG7sVQAFYt
-         9gFWE3VP2/KiQf1DEc1Z+KAp7G1Rs12rKa8/ztgrJ6/z6TOq/m7aWcbpEGjkdhMjKALG
-         5vA90huOJO7qrWN20z3retMDkuDJZLYMlneIy5fQU8OG23qDiKOF4Wfk1rVNXf1q3Hcu
-         J3EeQqX5nMKG6S98M0pEm3ZgkzGWX6VT/FYs6hTwa0EEAhQ9JD+98CBTfCDj0DArg9aO
-         bcrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793739956; x=1794344756;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QI5qU1trTwZm0S8t5gCAWIJ9CPL9O0gAUfA8IjPCltU=;
-        b=hDuQsfcTbm8VVJrCdQ5DeLaDN+M5Yf5vDjZpotY59J2ZwUytnMxp61SPW7FfRKgRFg
-         tr8nMwhknlEUW7CWPrcUIP0QT4OUc9OjWAYa2a134hiA6MaOR7rS14NrojeRMr0BLj+w
-         c4PlLCqdl+IGA9hNMLfbmlalx5Uj9zkfLR7Q1Kr6ugXhVwOeCiaSQK4d0rxWNSIch02Y
-         rqjwd8+BIdc5ikRiK9Kg64aFIX9zWTbA5yRzrBFnLy3p8zLxjBniME0AyKQqRypL6PGC
-         Oaj64FT2XeVdB3hpCLPRbD4QyGM5S6d/uVbrXnhIVPLLIvej7/2dHnHvpoZpMp38CpuS
-         Fxvg==
-X-Forwarded-Encrypted: i=1; AKwUvBz9CqnyTNFogd7+HtNLPlrX6jdQX09/Zw55kppQbXBN6HX9oW0jFoeEHQmiMhIUI52NIILNit1IDBA=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+pqI55WnLwvC3z9AWor9mYKewdzsPebXJ6+/uZIP5xJK9CUOJO
-	yepLYvlEJvjrFylr9ULz69KzS8/B9jtwGFioRItYpMJvTITv4oOWR9HZ
-X-Gm-Gg: AYBFou3zmjQs89WikgqcrHD8ZW+rUJN8gBWlib7HiIqGoYI0hkw7rBBsR4dsmsdeTsD
-	Fcqj7H0lhcHLH7ijGa6IK40eloUoZ98qi7tLe5BI8lfFD7ovNrN8skFXd3AEhkkymbcVy01g7rp
-	kRGmqWuBsSP/xusiUtU95EJbH38NqzLq2AZ3XWS3IwKyjHgOFE9x/rL4yw0wPHO0leFAbawCruw
-	OCbvl6QFI6tzjjCCMUstAnCB9KeTlQs8p7QbIEv4GHKpGlWz20Z8XRQ623oGNlGysiJ3sp89rc4
-	v4/F9+Zoe9Rg+loG3AUPPew0+u5o/0SDzufLBiTwOdhRpVzPq2PxQcR5bSEedSytjvkpGfx6hJz
-	vCtGR+X19HSc/3eGV5XUV6Xg7RRAMvyXkp82okB4SWbbMuS4ZqBBJgMjNkvkgb1vHlKfZfX9u89
-	x9+VRu789YeuJiQzx2+IRIcD0/gvnVtmah1cBE0Z6LBz8R8vHLiFRb7yla4XnFIUdCATQYQ3oF8
-	HkGzrsxNy851wEV+UqIioqVpzSKRNNl+8Ozo9a7SoWwfUlwklSru/yAC7chsCIuh/DBqG0GNnFp
-	HsPJG2OfUgbvGmBHD2bl9mZRqoSIIDigokmGsgOiyK+OPzsB5DXSVZBuJmMgvJ+B8DElR6Aav+u
-	VVlFI8g7mGmTwCbAMroxG/UkutDhiCIQJmA==
-X-Received: by 2002:a05:600c:8b2c:b0:4a7:a5db:a93e with SMTP id 5b1f17b1804b1-4ac150b3dbfmr345625415e9.4.1793739956406;
-        Tue, 03 Nov 2026 13:05:56 -0800 (PST)
-Received: from Ansuel-XPS24.localdomain (93-34-90-148.ip49.fastwebnet.it. [93.34.90.148])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-48fed553441sm41850f8f.43.2026.11.03.13.05.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 13:05:55 -0800 (PST)
-From: Christian Marangi <ansuelsmth@gmail.com>
-To: Stefan Roese <sr@denx.de>,
+	dkim=pass (2048-bit key, unprotected) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-NXP1-onmicrosoft-com header.b=j8RFXFuc
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=y9R9rfwEurkvcttF9s635SWDhUKeJj/GQhFkB7kxkv5mefaDC2uRHCfS8i5I5/J1/2i5Be3wKhXoBNh2dpe1/J+lS4KBZhWAQKXtZorD4VHU3rEzqqQGxltbrQl+CKpZkl+oauWF76oAko1BfA1J8NIDAkFvauqCYIRKHRIgUsCpIekuvjtq3H+RK3lJMamaFUU4VCnahk+nriT/IZwilBv7ky8z+Ue+52cOlw0Ez29UmfuttjCd0AzgfWVRxY09bZMygdw4ZiXTlpp7kNsW/BjK+RCLX7Ur0w14KzXU4AUijWy1XBRrATTZ3wGwwfAGHSMCzQO+k5mDZZfksj8/5g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=htzvAMiU2FhngqwtGPbOr1GhKE6efX+L5FgMwLwRxfc=;
+ b=p3ysl1ktOZAb+ZVBvGICeeiMGXmOosF3Vqag2aar0x8pTJKyDSNKQsa9e4Hte6HauQDNLJdBqewLlJu1WPNxW+f1MwE8Ky07BpMdfthkb9av7C53Vpg0vP2RLxRmm4DB3N9AjRMtWh1RkGP41wbYPo438aW55viRqvM55S8Jr3ATiF3vAaOr+fcix75VooN/kWV+8lQgyvCY4AUsKD0uW3d1MqTCszznmP98E0JfOJhuNkHSsxTcz/qRM9i7EIm9LqIV2f7XLisCZGNSnVaTiTIDhjhXt422oMEwrOz4FmeOsXGo90vODO0x0QTUsbN2DDwlOYdZOr4tJxX9W+Xa4g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=htzvAMiU2FhngqwtGPbOr1GhKE6efX+L5FgMwLwRxfc=;
+ b=j8RFXFuc9fuhhxe2uvJXAl/D5/PHzUthpCWGQAhXr6MfwaTDIy0Q0G7woazR6ZzJHgc0jplp96hbLIRR/Lx5yDI8130DUqwIRFcJC6uU9KqfTjGUGjY7WVC/uNwrCLkyKB8wGJ4dS4Ej0m/J5SHX8zGSmGxx6jmhe3ziM5/C6j7yt8o/IBVuKl8TMM2DkOH5wCBw7LEzkwsaAO/YSLoGwibI3c587m0ZmxlWvZ5JcHcnKTyrLN/LND9Gnl2IUSgz83rHDDdVQHwKHiEqFIJpTJbjU8SOtSl8zJe9ENzpn3jjsI8B7IIrfl+AwgGTA2CdYralBixCtOq2onlk+P4TUw==
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from MI3PR04MB12438.eurprd04.prod.outlook.com (2603:10a6:290:76::14)
+ by MI7PR04MB364121.eurprd04.prod.outlook.com (2603:10a6:290:100::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.12; Tue, 3 Nov
+ 2026 21:27:01 +0000
+Received: from MI3PR04MB12438.eurprd04.prod.outlook.com
+ ([fe80::c715:c32:8bb1:b70b]) by MI3PR04MB12438.eurprd04.prod.outlook.com
+ ([fe80::c715:c32:8bb1:b70b%6]) with mapi id 15.21.0592.007; Tue, 3 Nov 2026
+ 21:27:01 +0000
+From: Frank.Li@oss.nxp.com
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Cc: Christian Marangi <ansuelsmth@gmail.com>
-Subject: [PATCH v3 2/2] i2c: mt7621: limit SCL_STRETCH only to Mediatek SoC
-Date: Tue,  3 Nov 2026 22:05:41 +0100
-Message-ID: <20261103210542.15965-2-ansuelsmth@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261103210542.15965-1-ansuelsmth@gmail.com>
-References: <20261103210542.15965-1-ansuelsmth@gmail.com>
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	linux-renesas-soc@vger.kernel.org (open list:RENESAS R-CAR I2C DRIVERS),
+	linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS),
+	linux-kernel@vger.kernel.org (open list),
+	linux-media@vger.kernel.org (open list:DMA BUFFER SHARING FRAMEWORK:Keyword:\bdma_(?:buf|fence|resv)\b),
+	dri-devel@lists.freedesktop.org (open list:DMA BUFFER SHARING FRAMEWORK:Keyword:\bdma_(?:buf|fence|resv)\b),
+	linaro-mm-sig@lists.linaro.org (moderated list:DMA BUFFER SHARING FRAMEWORK:Keyword:\bdma_(?:buf|fence|resv)\b)
+Cc: imx@lists.linux.dev,
+	vkoul@kernel.org,
+	Frank Li <Frank.Li@nxp.com>
+Subject: [PATCH 1/1] i2c: use dmaengine_get_dma_device() instead of chan->device->dev
+Date: Tue,  3 Nov 2026 16:26:54 -0500
+Message-ID: <20261103212655.1774644-1-Frank.Li@oss.nxp.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: PH8P220CA0010.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:510:345::11) To MI3PR04MB12438.eurprd04.prod.outlook.com
+ (2603:10a6:290:76::14)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -108,90 +107,128 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MI3PR04MB12438:EE_|MI7PR04MB364121:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5306a812-083d-4c6f-70c3-08df39f13305
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|19092799006|23010399003|18002099003|261102123227099003|56012099006|10067099003|261009221227099003|261009223027099003|921020|261022105027099003|261021121427099003|261021123027099003|11063799006|261028144727099003|261026121527099003|261026140227099003;
+X-Microsoft-Antispam-Message-Info:
+	fw0mIinos2Ko2bamA9L3VcnaJSuoz4xNrODuQBF7owYsgjbvuV0PFRRuSCXmBy9WBaS+kA9fjqp18W4ZHcoY5YDQ9N3/FpBbHuE8GI6n9vhLsydSRQU66g5xC2MNbhcoEMs2auh8T0TQHgSjmDT1MlbME+cUQDFJQrhHoh+vDapZ4WR4EF70aKcj6oagh/EoHP1pzDMTGAL9TkuT50nY7DCj0mmSFMBKOsrpvuObeor5+x+PwbwWBQfq1k85onuOEFgdHt6eA+4MBmQZO81ohukVyR7ZGPdofgUEtMBiChsds3I+Zqu4qe4Wn/ejhcB9/5aZe2kjEtgayw3tfeBo/QuxdKVFAzS1TO4Veehb9garIgAFz5rL+l8+8Z8DqXLcS8ng6bnGBYptUtlwj+mOzyZq7DxuVI7dYZUPdhEzqXWPITjU8bAKbp2UxgaK6RVbH/AJjtmqQFtNWIL0t62u0LjadS7icIeQOvEOv3sE9N7g6VlzdAFUTqQCkUCUI8HyjyntWcozlMb1w9X3jzSQB1FBgvTjEF5nNYPRqBu1DtKZOPm77vAnho0t3Be5bNW5f2HaTFIR1g9mZTpc/UQc0V7SKAX6kFa3gXNWQbjMlEAR7gZyGmIj3B/1/pQFo2KcIwK7PHCBWppAWjRZxAX3/hoFg5Qps61eEzFkbUPb6qeLeY7agdUjNu2laP9RJnpyIMIoXcbVrs/H4ERMmCElxg==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MI3PR04MB12438.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(19092799006)(23010399003)(18002099003)(261102123227099003)(56012099006)(10067099003)(261009221227099003)(261009223027099003)(921020)(261022105027099003)(261021121427099003)(261021123027099003)(11063799006)(261028144727099003)(261026121527099003)(261026140227099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?zxdy4r5leuO7PQuRWrRkmmil6Jned7lgJ7SOT5sE1mEUAYrVZuhyNvd/LWC0?=
+ =?us-ascii?Q?2vhxcFxYjg7snl1W60HuIxLaY3CJhLs4gYdd1mHys1XElYPLPaPM1HBy0Dze?=
+ =?us-ascii?Q?74WwVoBfF3hMJqBI9UDT4al7VhfjAE9Deitk1NKuF0kFFu4asG/Etd0BvA1G?=
+ =?us-ascii?Q?wkw2HQLOh/NGgMt2oW+XF0VuR1X+xIOdgHJPVQQPj+iZNOwvL4vozYdo5uVB?=
+ =?us-ascii?Q?4ocbrpRwY+I9USdSh5DbVQbvpRxHVHEakCdMTUrZj7g0gPkgK2uf9d0HouIk?=
+ =?us-ascii?Q?jOE2578aIoO758f3m0qhXy97R1bpu1SR9KAHoVtXtJJYtVGWVyntlrZojKnn?=
+ =?us-ascii?Q?H6p3f7l/zb/zorsXkyfQg2p6tB3313r153zvHIwgj09cBhuf2bmgEc1qXoes?=
+ =?us-ascii?Q?9AgBZmCuqR6Eg8Q7zMgbcOAL6suynfbKi4Tw8RoctjDImf4Vz208TaUC6mDB?=
+ =?us-ascii?Q?DCfLONsEBddBbUafgCteoEjriJCFAoxbSJ97Vss2MJw8i1UYBsGZOybPy21H?=
+ =?us-ascii?Q?zV17S/x08N9xqdy0boejiXijVMjEWYJzqBzqrzuVttepWh8kqtZ4OTwcKXLG?=
+ =?us-ascii?Q?SFNaWrHVql1ewnaj/esV6qqN4yI0d7Jp2QSfblZ5m8jt0/JlDYXGZzVBmLYl?=
+ =?us-ascii?Q?KnH2je/WIZby0Q6yfGr1Asv6edW/tH6rDC3Rx7i3RdyPP13EeBqjIE10XtHx?=
+ =?us-ascii?Q?jo2Z7cfEOVv9Rm/axz3EZE6YB/3584UtZi+Jrnc5qAHYKN8IKZfHKGcI8N/b?=
+ =?us-ascii?Q?ctbeVfEsEgtGZh/5+83cRaU5kU9sLJqyPCHeY8xWYalT/bvtHwqbVcBJppsh?=
+ =?us-ascii?Q?DK1727P2NV9DC8MUQot+74ZuG/I3SaLT6v75xf+aQveSBtXONwd8B8F5p2ax?=
+ =?us-ascii?Q?UYOpqWxNsm7FIcY+DJobuB7Gl0W1MZiTqECvcayeu8JC3U5bo8yp8TGNk+Gu?=
+ =?us-ascii?Q?WuFIKfQ0zBaDqDfB6kFL7vKrND/EodB5XlU32D21GnZa4mIDO/CjopQO+A0r?=
+ =?us-ascii?Q?tN9SDHc8HsWfPQtCxLHn91MfZIwPQzp8hlSbQLmSRROccazq0BFjxhPnA/lj?=
+ =?us-ascii?Q?86CtfADF1b4XlEesFBw+GlvRgvQMvXQGc6dgoG4Vb0M7HjhzIMy18HKrP2Cg?=
+ =?us-ascii?Q?WrC23g9xjm6Z9Oed3AEEZUkhyvEX8pwqKXmpwPdXgUKV12cqw1+yoWTMwthT?=
+ =?us-ascii?Q?7OBwfmtRZFc950ARR7vP//8f4HgLehl8JY4FYXaA8jfBBQcndaryPH8iYNAz?=
+ =?us-ascii?Q?PQ04N0Uuc15U7EremWHOtFyA3Bus9/2dApxVpaQUWnvoj3hRLI24wXPaP6R0?=
+ =?us-ascii?Q?V/kruUYCOVGdqmf+P6wuVzB2iGznnRIxw1FKjjGUprqURtbGCOdFOI8Yymrd?=
+ =?us-ascii?Q?vLMQ792TaUlSrQcunYNFIl2rWqn6W0DAGKjNbAN3c1DDUjflaxaRhPxS9TN3?=
+ =?us-ascii?Q?CQE9onKR/xJz1POGZdzvINI4IrMh/bDrqB8TZFvtmgxFn2t6MBammO4wv2BZ?=
+ =?us-ascii?Q?0kdhg5/SfPCRKmqEC6bdVF8YXP1htwobBAxqQXyxjW9qCfAa6HwBdm7LVp/p?=
+ =?us-ascii?Q?nxprBM9Dg4FeC/QZ5BAuWACScQRDeTohu/Ysx5IHFEhbpmC+/BKpHjmdskdC?=
+ =?us-ascii?Q?it+XB0WY+q9LxNxAaJcxjAdYSWcjl2jdxQ2arh/htOkG3+qyafS1yTUPalU/?=
+ =?us-ascii?Q?S20vXYC8gubug17u3M7yn8lKN2QmcCsVzTdhqyAKu2C4ULlnPenaZWJbJkty?=
+ =?us-ascii?Q?hScB4ji+z5g00cZZwOdnzebqakUHU0OObRMQIaYEJYWZSGUf9/Dn?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5306a812-083d-4c6f-70c3-08df39f13305
+X-MS-Exchange-CrossTenant-AuthSource: MI3PR04MB12438.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Nov 2026 21:27:01.6419
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: g5Ecp2IQOAyl2M9NqwTWJmxVG4Bvjte+Tdy0uylXQ27/012QWNzY0YnT5m5rvfajGCAO3FpVXYUvZ+VaMIEixpTmRd2PvGVd3fu2c4WQrP7l7nkHPb4UHYUlq1HEtSnS
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MI7PR04MB364121
 
-The same I2C driver is also used for Airoha SoC with the only difference
-that the i2c_reset should not enable SCL_STRETCH for Airoha SoC.
+From: Frank Li <Frank.Li@nxp.com>
 
-Introduce a new compatible for Airoha and limit the SCL_STRETCH only to
-Mediatek SoC.
+Replace direct dma_chan::device::dev access with the proper
+dmaengine_get_dma_device() for consumer API.
 
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+chan->device->dev is not always the device used for DMA mapping.  Some DMA
+engines support per-channel IOMMU mappings, so different channels may use
+different DMA devices.  dmaengine_get_dma_device() returns the correct
+device for each channel.
+
+This also prepares for making the DMA engine provider data structures
+private.  DMA consumers should not access DMA engine internals directly.
+
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
 ---
-Changes v2:
-- Use match data for storage
+ drivers/i2c/busses/i2c-rcar.c      | 6 +++---
+ drivers/i2c/busses/i2c-sh_mobile.c | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
- drivers/i2c/busses/i2c-mt7621.c | 25 ++++++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
-index 0a288c998419..fa1f32d4f046 100644
---- a/drivers/i2c/busses/i2c-mt7621.c
-+++ b/drivers/i2c/busses/i2c-mt7621.c
-@@ -57,9 +57,14 @@
- /* timeout waiting for I2C devices to respond */
- #define TIMEOUT_MS		1000
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 755064804cb21..86b1df3a56c4d 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -455,7 +455,7 @@ static void rcar_i2c_cleanup_dma(struct rcar_i2c_priv *priv, bool terminate)
+ 	if (terminate)
+ 		dmaengine_terminate_sync(chan);
  
-+struct mtk_i2c_data {
-+	bool have_scl_stretch;
-+};
-+
- struct mtk_i2c {
- 	void __iomem *base;
- 	struct device *dev;
-+	const struct mtk_i2c_data *data;
- 	struct i2c_adapter adap;
- 	u32 bus_freq;
- 	u32 clk_div;
-@@ -83,6 +88,7 @@ static int mtk_i2c_wait_idle(struct mtk_i2c *i2c)
+-	dma_unmap_single(chan->device->dev, sg_dma_address(&priv->sg),
++	dma_unmap_single(dmaengine_get_dma_device(chan), sg_dma_address(&priv->sg),
+ 			 sg_dma_len(&priv->sg), priv->dma_direction);
  
- static void mtk_i2c_reset(struct mtk_i2c *i2c)
- {
-+	u32 reg;
- 	int ret;
- 
- 	ret = device_reset(i2c->adap.dev.parent);
-@@ -93,8 +99,11 @@ static void mtk_i2c_reset(struct mtk_i2c *i2c)
- 	 * Don't set SM0CTL0_ODRAIN as its bit meaning is inverted. To
- 	 * configure open-drain mode, this bit needs to be cleared.
- 	 */
--	iowrite32(((i2c->clk_div << 16) & SM0CTL0_CLK_DIV_MASK) | SM0CTL0_EN |
--		  SM0CTL0_SCL_STRETCH, i2c->base + REG_SM0CTL0_REG);
-+	reg = ((i2c->clk_div << 16) & SM0CTL0_CLK_DIV_MASK) | SM0CTL0_EN;
-+	if (i2c->data->have_scl_stretch)
-+		reg |= SM0CTL0_SCL_STRETCH;
-+
-+	iowrite32(reg, i2c->base + REG_SM0CTL0_REG);
- 	iowrite32(0, i2c->base + REG_SM0CFG2_REG);
- }
- 
-@@ -247,8 +256,17 @@ static const struct i2c_algorithm mtk_i2c_algo = {
- 	.functionality = mtk_i2c_func,
- };
- 
-+static const struct mtk_i2c_data i2c_mt7621_data = {
-+	.have_scl_stretch = true,
-+};
-+
-+static const struct mtk_i2c_data i2c_an7581_data = {
-+	.have_scl_stretch = false,
-+};
-+
- static const struct of_device_id i2c_mtk_dt_ids[] = {
--	{ .compatible = "mediatek,mt7621-i2c" },
-+	{ .compatible = "mediatek,mt7621-i2c", .data = &i2c_mt7621_data },
-+	{ .compatible = "airoha,an7581-i2c", .data = &i2c_an7581_data },
- 	{ /* sentinel */ }
- };
- 
-@@ -286,6 +304,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+ 	/* Gen3+ can only do one RXDMA per transfer and we just completed it */
+@@ -511,8 +511,8 @@ static bool rcar_i2c_dma(struct rcar_i2c_priv *priv)
+ 		len = priv->msg->len - 1;
  	}
  
- 	i2c->dev = &pdev->dev;
-+	i2c->data = device_get_match_data(&pdev->dev);
+-	dma_addr = dma_map_single(chan->device->dev, buf, len, dir);
+-	if (dma_mapping_error(chan->device->dev, dma_addr)) {
++	dma_addr = dma_map_single(dmaengine_get_dma_device(chan), buf, len, dir);
++	if (dma_mapping_error(dmaengine_get_dma_device(chan), dma_addr)) {
+ 		dev_dbg(dev, "dma map failed, using PIO\n");
+ 		return false;
+ 	}
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 3a55f803e4f15..023813c2f7809 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -452,7 +452,7 @@ static void sh_mobile_i2c_cleanup_dma(struct sh_mobile_i2c_data *pd, bool termin
+ 	if (terminate)
+ 		dmaengine_terminate_sync(chan);
  
- 	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
- 				 &i2c->bus_freq))
+-	dma_unmap_single(chan->device->dev, sg_dma_address(&pd->sg),
++	dma_unmap_single(dmaengine_get_dma_device(chan), sg_dma_address(&pd->sg),
+ 			 pd->msg->len, pd->dma_direction);
+ 
+ 	pd->dma_direction = DMA_NONE;
+@@ -526,8 +526,8 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
+ 	if (IS_ERR(chan))
+ 		return;
+ 
+-	dma_addr = dma_map_single(chan->device->dev, pd->dma_buf, pd->msg->len, dir);
+-	if (dma_mapping_error(chan->device->dev, dma_addr)) {
++	dma_addr = dma_map_single(dmaengine_get_dma_device(chan), pd->dma_buf, pd->msg->len, dir);
++	if (dma_mapping_error(dmaengine_get_dma_device(chan), dma_addr)) {
+ 		dev_dbg(pd->dev, "dma map failed, using PIO\n");
+ 		return;
+ 	}
 -- 
-2.55.0
+2.43.0
 
