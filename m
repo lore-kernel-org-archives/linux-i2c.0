@@ -1,62 +1,62 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.147
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793694601;
-	b=B6sDiACak6Y57ZNfJL5lowK1cs/ISlHyD1oUYytnY00YMYW7I3xSjvfx56SUFWxPThq/
-	 OHW/bTgdsJoN0l5g5jfxhu1dPsWZLxSqgdF3hjk8O8IIaLTeE0a94wXrANe/lUz5S4PLc
-	 FXr6Fnuo823KRq6kNCelwYMXePYz/t2/uZsq8n8CuDGIoBrgGonACdti0Jd3t98CdGEyL
-	 21axULUYn82WEhY3sHwIdCSoBI1bpFnpLgC0fEDONVEuDszEwqgNp/OZVSTHExZyQp6bh
-	 L0GpTstc7k5YfZCEC/QN2/hrRnn4tFgEBtnF4xQHvVZR4Rzwv7UKdNhTH+5QUdRIrvg==
+	t=1793694602;
+	b=tELU0+8GFuusjzXcdfTSqCFh/wQbXYT+NmXbRlvKRjvMJKkSiME7YQyb+GggR+M577jB
+	 zgAu88TPPRxu19HL4nvm8baMWdRo4XaslbKrRO1ydwLAT5Ilvle/GpVfehC0MOi+8SZUt
+	 PftgRHBJqFWMyaDJ3bQErP/ikbWB8vAayt7LroFGBTrF7JwkaMMHZz4xglOb/BeSwrMhF
+	 O/zJugLSUTMaaNSyVU/qFP1W61EyNczoEIA970AmNFVKSZcKI7Cp4Ut2hqF53zLTXrPV3
+	 5/GGsJDXPLJgfIgBjAiR8130WcBGMJG97rkqvjDJEbo6Ts5g9h4++dxfAxdt4vigqhQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793694601;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793694602;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
 	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer;
-	bh=ODSyaZb6iOYvcs1BvP93T2fTuOcB0dzKDjVE0d08qMA=;
-	b=ZX/xNkvAx/TE7O9I/q+7vMYPM7FoF4lXSryMT77C2z+p7idhveGk773fddPIJFXUFWEW
-	 IHZhEa+RfTdoPUM4bFPZwD/1jz4+mwvzqc9+J6qRdbARnosLOBucJhtBnXAMPt0E7YjLb
-	 DvhgG4ZDmiQss/3hqFtusxTlVgI0db72fR2jHlA/BZmWdl4ZlyqmcOp/A/NblUw74VUpN
-	 KHs53T4zaUE7q3azPO0GgugCphyk0WItrL3kbYOJbxtZ+ZBdP8DXUSI7Hh6Pvx7KkH7pg
-	 pr3sUzWXUmy43C4fKkeYBxdZYTVmiJhOeKPUhXIR407XBIhy7N+ADtiGhphFebF/iBA==
+	bh=n9UzS+0yoynIRHmX7RFL35r5qc5ZU/OmMg2n54yvo4I=;
+	b=dadEa8cgRLLdjMWVbVo65cGMsGpNMV6fVgLbmXzOUytTBUDW8udGN0nqbcgX47lgJMHJ
+	 Rb8pqmLRxv3xbsNwzxBX62b8UETpTATZPT2zJrMCTs8/LZm8L1mJf+/R2PQ+vnCb2C7ST
+	 Y2fUUOmscJOH62BU6JO+qn01qoj9cHlF9l7hNClbTbOiztxAkR+Y4zTmDHN6VO//8ehDh
+	 du5NnySlMie8qooXvuzk9Kefym8Kd2fRe5s7aF/ybHAQD5D6UDWs9ZSs3PSaZMIffJPZY
+	 fCHkmooD8JgPZHpgse5hozBGSt3v7AdgRuKOuZtWYK0q0dRNErvDQLeCCoq6hOgdl9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=mobileye.com;
 	spf=pass smtp.mailfrom=mobileye.com;
 	arc=none smtp.remote-ip=23.90.104.147
 Received: from esa2.hc555-34.eu.iphmx.com (esa2.hc555-34.eu.iphmx.com [23.90.104.147])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6851D606A33B;
-	Tue,  3 Nov 2026 08:29:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6851D606A33B
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BAF11606D812;
+	Tue,  3 Nov 2026 08:30:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BAF11606D812
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1793694606; x=1825230606;
+  t=1793694608; x=1825230608;
   h=from:date:subject:mime-version:content-transfer-encoding:
    message-id:references:in-reply-to:to:cc;
-  bh=5ot/vsSV1jLBRjwCF03ft7v/3Sn6vO/9cVJVvarpdRI=;
-  b=f+dXn9y6luI6qlVN2tczzvIwI+klJdHm1Ski7c07OzBbMhuwjViK+gCv
-   3UK3Cw/5agtSQK7fNEhpj/bRAHCcekSqEWdU4y2ttwtd8OW17T8FSFD1m
-   2KEQMvfmXdxjMRe/xaaTSlUqj5zjsFojEdVI2vi87oTx4oJsyDZgKGN7t
-   g+T/1Sv9aUIghJfMhcU1XPxHXgNeMf1USDLoLcU3YtbiaOCWkTZT3olYA
-   OrP8nwBl7mtsUkyC9+/Ck3yWY9hYUSY9ddSG8ayiBR5+ot5oXw8NY1i2U
-   LyZK00tm9zwyO65OVOFnNcupM2vQcWKhNOhTN5b24C4m6bqT730wEbZ/U
-   A==;
+  bh=9ihnjzFxJvJl8h5oChA4G/zXh2wj+4MuoWnoqC0/TW0=;
+  b=fLd5oducjhITP50ljOlMaVJW469l8bEdrhw1cMePbZWiyKm8tt2XnBpJ
+   0V0oXvTHtG62TzV2F7ehwpnlUaOWJgMjx+YBBZMtWnXTEYtlodxjGr3LV
+   sRHn2SKuI2/7VtqmhRGByFkafRZ2r4uCkd9/aoexyLft2R+CIKAOewXpl
+   chq/uH6dNZzYFs0GY4kieoDasf4u3VAGCiCPSmU60rtF6lXMOBckCSf4/
+   yX92EpYELBqf0oa/xpZIbBNMMgig9Yt5w5aHMydtboIrkmiwRWBsvQirE
+   972q4DxQmRLaQD+Bv3B8/QckoDr7q1ktawKiSU78JdPUSxsvgJqIeCDZv
+   w==;
 X-CSE-ConnectionGUID: 934Ie9vNTzGq9yPtCoPvOQ==
-X-CSE-MsgGUID: JiB7NE88TWWNP8vXjD1xyg==
+X-CSE-MsgGUID: FEmvPFZ8SNe032lKFoIKRA==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from unknown (HELO ces01_data.me-corp.lan) ([146.255.191.134])
-  by esa2.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 10:29:56 +0200
-X-CSE-ConnectionGUID: U4AlIu8lTLi7/mwzFOBadw==
-X-CSE-MsgGUID: 2tgeEiiiSi6r1E36YMkUNw==
-Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
-  by ces01_data.me-corp.lan with SMTP; 03 Nov 2026 10:37:49 +0200
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Tue, 03 Nov 2026 10:29:48 +0200
+  by esa2.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 10:30:00 +0200
+X-CSE-ConnectionGUID: klZl+CP9Rxy8oF4EFwvFXg==
+X-CSE-MsgGUID: td+SdMnxQb2fLPb9q9wA+g==
+Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.3])
+  by ces01_data.me-corp.lan with SMTP; 03 Nov 2026 10:37:53 +0200
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Tue, 03 Nov 2026 10:29:51 +0200
 From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Date: Tue, 03 Nov 2026 10:29:38 +0200
-Subject: [PATCH 2/8] i2c: nomadik: do not try to retransmit I2C message
- series on errors
+Date: Tue, 03 Nov 2026 10:29:40 +0200
+Subject: [PATCH 4/8] i2c: nomadik: change print level for fault messages to
+ debug
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,7 +68,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261103-i2c-nomadik-fixes-v1-2-655c6af2cb70@mobileye.com>
+Message-Id: <20261103-i2c-nomadik-fixes-v1-4-655c6af2cb70@mobileye.com>
 References: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
 In-Reply-To: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
 To: Linus Walleij <linusw@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
@@ -78,64 +78,43 @@ Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
  linux-kernel@vger.kernel.org, Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 X-Mailer: b4 0.16.0
 
-i2c-nomadik driver of I2C bus controller in xfer() callback retransmits
-the whole message series in cause of any fault, and returns fault only
-after third failed attempt. This behavior contradicts with API because
-not only it hides hardware faults, but also re-sends messages, while
-they are not guaranteed to be idempotent.
+i2c-nomadik driver prints error message on every faulted message. This
+is not a good practice, because in I2C a fault not always is an error,
+sometimes it is the expected result. For example, scanning bus with
+`i2cdetect` prints over 100 messages in dmesg (two messages per each
+target address).
 
-Remove the triple attempt to send messages in xfer() callback.
+To avoid excessive prints in the log, change the print level from err to
+debug.
 
 Reviewed-by: Linus Walleij <linusw@kernel.org>
 Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 ---
- drivers/i2c/busses/i2c-nomadik.c | 30 ++++++++++++------------------
- 1 file changed, 12 insertions(+), 18 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 45b4815b0945..ca9366e09e71 100644
+index a3cef4b66190..9c7658148bd4 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -716,27 +716,21 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	int status = 0;
- 	int i;
- 	struct nmk_i2c_dev *priv = i2c_get_adapdata(i2c_adap);
--	int j;
+@@ -627,7 +627,7 @@ static int write_i2c(struct nmk_i2c_dev *priv, u16 flags)
  
- 	pm_runtime_get_sync(&priv->adev->dev);
- 
--	/* Attempt three times to send the message queue */
--	for (j = 0; j < 3; j++) {
--		/* setup the i2c controller */
--		setup_i2c_controller(priv);
--
--		for (i = 0; i < num_msgs; i++) {
--			priv->cli.slave_adr	= msgs[i].addr;
--			priv->cli.buffer		= msgs[i].buf;
--			priv->cli.count		= msgs[i].len;
--			priv->stop = (i < (num_msgs - 1)) ? 0 : 1;
--			priv->result = 0;
--
--			status = nmk_i2c_xfer_one(priv, msgs[i].flags);
--			if (status != 0)
--				break;
--		}
--		if (status == 0)
-+	/* setup the i2c controller */
-+	setup_i2c_controller(priv);
-+
-+	for (i = 0; i < num_msgs; i++) {
-+		priv->cli.slave_adr	= msgs[i].addr;
-+		priv->cli.buffer		= msgs[i].buf;
-+		priv->cli.count		= msgs[i].len;
-+		priv->stop = (i < (num_msgs - 1)) ? 0 : 1;
-+		priv->result = 0;
-+
-+		status = nmk_i2c_xfer_one(priv, msgs[i].flags);
-+		if (status != 0)
- 			break;
+ 	if (!xfer_done) {
+ 		/* Controller timed out */
+-		dev_err(&priv->adev->dev, "write to slave 0x%x timed out\n",
++		dev_dbg(&priv->adev->dev, "write to slave 0x%x timed out\n",
+ 			priv->cli.slave_adr);
+ 		status = -ETIMEDOUT;
  	}
- 
+@@ -661,7 +661,7 @@ static int nmk_i2c_xfer_one(struct nmk_i2c_dev *priv, u16 flags)
+ 		i2c_sr = readl(priv->virtbase + I2C_SR);
+ 		if (FIELD_GET(I2C_SR_STATUS, i2c_sr) == I2C_ABORT) {
+ 			cause = FIELD_GET(I2C_SR_CAUSE, i2c_sr);
+-			dev_err(&priv->adev->dev, "%s\n",
++			dev_dbg(&priv->adev->dev, "%s\n",
+ 				cause >= ARRAY_SIZE(abort_causes) ?
+ 				"unknown reason" :
+ 				abort_causes[cause]);
 
 -- 
 2.43.0
