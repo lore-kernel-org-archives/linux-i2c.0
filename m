@@ -1,101 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.50
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793638905;
-	b=GEAK2tV5uNbkEmUIajnxGY/oUjbVuTRXMU76Du7bkrNT61BBbmluJTeTh3CnmrYMPW59
-	 +mFwYg+NFSggvBbmSAXn0T18/nDCcJvYcD8cLVMXt3kyc/p6lpVobKCNXwJeCg1KgxZ3L
-	 tKIeEtaeGRHplM/6ngpCCa332DiX4PDk3v5W9ueZCLyJ5CDqNgSZGepbAxS75FYO30hQK
-	 RUH/Gzzbx6hbwVdkGpgNzNuyAfLzCoPUarThub9QYVoqkrs0DUPrIPvS5FzGTVAAVc/5C
-	 lfDWTtw3PlZCn6w22Y4WLSI5jus75MDZKyi9OJunc30rGxU/5hZ+6jekPoU0iR8uqHA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793638905;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=//2dH0tf9WsNJ1T/56d2QvgVSnUsRCYl2PIU9XEdbPI=;
-	b=uZew19XLLxx4a/Txc+wLXqg0bjLRtinSqLN9WTQCVJWtf1Q4Oy2gb7qhRT253C8XZ5Pu
-	 G8wdnpJ+xaqUmzHYtFtuS37u2PMTabjyfv067aJWC0BUK1Uw3HY8pXn0bU+7R5566X3vD
-	 ie0mkfRzY+roJ5RB9nHuh0S2lGrt52bIbwKk9eIG+zUprPd/YdamqKl7OWM2iBlK65kfV
-	 IoR2JcamoAL3FpFM66febOFk39ygp2FbdOKkr+AnPVR6v/d+2H7RZ8l+D3HWWxbgiM3Yy
-	 rCYRHmpjDdiaW9v+IcXqZPDbp3EnsZ8v0axkSuUdHvC3qvFTbDGexysHL0loRBwA0kw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n0M4GQdk;
-	arc=none smtp.remote-ip=209.85.128.50
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793674364;
+	b=NhjBdcpLqLppajGhzU4UPxnWOGww00gfgzkVHzBMH//0FtnheAXCYyuPyOcxN+1Efj7t
+	 a9PdfNU0KAIjCEAJ60JwJNZNQte1/4zK04h7g+9sur5F+byFtOb0HgdY290CW/+AImTdg
+	 1cRAfWYOucmDbPNl6iX4wyGyOE1gcpduJon2zyIeipdrN3dFX1sxTP+5/zkYvgeTfXGuq
+	 AoqnxuaoneGPtH2rqNwyE92sQV0kj1u0tFVtjX4ZTBGmTFZbeEsDxf8IiwsLlhaxi+jCi
+	 r0zU3TYNIKt0V7SI+zjZbNyomaeGUqV0eBxoLNQFPNskMhehWQDdR3QvNibI+2mGWrg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793674364;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
+	b=IDHvwRjy6t2YsrgGo4Q4zKJmSys4b4YlPC5uvWysiAoNqPQuehRk2TL5jhSvwnad0TFH
+	 MMxg+YehClMteWNXcpjvJcwY2ahPAvjOukN+ILgudyrdd4f2C8Gz/hynaGjqy21OofWgv
+	 dwN3SbVJ0UMaiJTAoh/cSW60235moRxc2aCp2GPK9upPxvgvxdzQdPehB4sr43khWTKHN
+	 yDdxa2dplWRU66rShKDqNK/OTFTFgYV0Luli7r89qfgoLnAv81lSIcsM1LieRJVUsSXNY
+	 uUG5dKelOqWT8+2aS5v6a7TjaFRzhzPD6JNpYU5Gmwf5SoFTpwt+M21WOq4x7ncgS0Q==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZF33uj0P;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD164606A327;
+	Tue,  3 Nov 2026 02:52:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZF33uj0P
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793674363;
+	b=Wzr1kkHTXmw2t6ybmt/PjiIfMITBGNkzmfYgAH5FYqPGasTrrWj0+bkyqY6X8SeOsTMB
+	 Rd1s94F6XMrC1mQcjnk/cORHJgwADiw3plR+aQGgekNL0b16Gvlci0f2U1q4wShIxI8AV
+	 gqI4mmy/fv/5aLbF4m27+HRnzvii+PnF0A2q+lls7+4ya4mfBO9+GjRVS6/VuDSPs17PT
+	 X8gk+YCGL3u51/ZDeSs4IQ5K4ReC5Q+LVHxoPG9srhFot8DEO4bdC/VFywv74f7luVeFR
+	 eF5eVN9pUgmyEa+PL5Ghf4ki+Fe6RFkyF8FeJNZETC69+/0pHGY+L0KAQK6VIeu1q8A==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793674363;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
+	b=KjoUhtyjxSh7O55wm5eDq4UJrWjTHzwCRb6FBCb3vQSzS8oblb8gCloTmPHJSbLAmLQk
+	 Sf6+NEQXiDIbroYwYIMEZbWUdJSEIsRFuEj/Eg0UZt2WaKpClKCsvsH3vR5wJdGuJzhUI
+	 rFb1HnIo85Fzc576UVq4e7vnWypZrF0Wg2WOpDALUPmqsFfWLM+tx+28WTQHAcNs0CFca
+	 MiSZmU6UkJQahBG+9DZZEXzbIXL/0j0LyxH/XLYNRt2x99njT33ROFHQGtkTDukQ+WDIz
+	 xEuZVSJ+1h1vy5MSibvxQyweCCsBFEYO5roQaMhAF3gtdYi0AX9M5o32iU3l/lVg/tw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C6F1606F22D
-	for <linux-i2c@vger.kernel.org>; Mon,  2 Nov 2026 17:01:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5C6F1606F22D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=n0M4GQdk
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4a214af2076so24987105e9.0
-        for <linux-i2c@vger.kernel.org>; Mon, 02 Nov 2026 09:01:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793638904; x=1794243704; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=//2dH0tf9WsNJ1T/56d2QvgVSnUsRCYl2PIU9XEdbPI=;
-        b=n0M4GQdk28w4KtKpcrsogDAta86YM5Wp928CKaOwOkxmtfRhJtNe4E360NEhiHoyEX
-         t9fm8FwNtQEjXWDUqvu5aY0R2jxNWL65fDnRJ/95QLOM5Q8Ex+MK1kDVasCVgkKss2rA
-         AceNYF2yTnDaTVyQanJ7fvrCnAIp5EGxC8bBgchj54TTXcQ97ErKJHsFfIhwWR7zcYZP
-         mpiW28w8zrQjfmsC6OT89zUFDrpt0QfDLL83o1EzOqrQLjvTmNs2XJzLSG/e106a8jqG
-         AftueCoUUSyUxnqiGHKNqvOxHwuG3gws4V+2XmOXo44oDOoYeZQwYGYSRfG/0Yzu3tmU
-         SHFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793638904; x=1794243704;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=//2dH0tf9WsNJ1T/56d2QvgVSnUsRCYl2PIU9XEdbPI=;
-        b=2U/EBwH1k0XrbYCijNe0+Ny3jDiPdE2OHzHKcaKV/XuivoBGbb632ILeQ4pD0zJc2o
-         Gzs/do7gKPqAJJtYjiDhXbZIPNMbgUCsZ/NBI/DpDJhnsNrmAs4oMDIeOr1eB7GHon7S
-         AyYS8S5CrNIYMEtliQcYaj17PfneXv5sY+GRymqloWI8yV8y4kVa/r8upyNBSee9ZItU
-         ClXCiDo4lws7SjqGdh+0QemcCFNmwtlgAPNu3WisU5EStM+tKBEyN5FKVwwGDKvay/Gh
-         qYc+/eR58/LvxcLRNGcdNgpOee1s3Orw11jiZN9i6RV7+ckdWQBQrvwNy1Ahkj4Z4YKe
-         QPwQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw1B6N5mFXvgBGsv+Mh9cV2EZobML/LwPzVMqw4Q+dCHxiW2MB+luWkWtmZTEkMYDA6Gd7rtWWqBU0=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKvEzLmmZvqcB0l1e1HEewAsRABSBFnn1b7jUzZWwVqPultSBol
-	5RRPucAKUDtsCvyDbwNhXwQnE6pzEl8VtgIYussR3oUfvySQ/gornMna
-X-Gm-Gg: AYBFou2NMAcKpX1Qn/Btoy15V6JcUFr4gerUrHUkN5qowzsWSlA5Cp1vsbduMaoWbQ8
-	HIhAZor7e2iGsWer6qNvJ0a07BregMeR9tRmYWNZxnRU05s3pDWIs4EhsNKQfGA2p5jbliz4BKV
-	ub9b4u1MLILXe1qnItgefiAzP6pub88N7sDqu9bCum/CUm6Rt+gjOlvKEWC0lEKOVQu5+rgurpD
-	W6oDPkZUvbrh5JzW5TpAehULdX58q0/uT3lCVjT01yBTIRRhYpDsiLPPKUSfwLnWBS/66xib61/
-	wPC5rkPq9qlZeK0PYKABRwfGRp07R7fC423D5HqNMZW/u/uyJU9TMJZjrMBXPnDgj5ZxQ/B9zBV
-	inu5xvieNVsxVEX2DprNh14MKyIf9RuUxDldNXHwv13f0bzrucy3TmZ3Yhy9I1HGlU6l6Ryj3mS
-	yQ0ljOvcSKEN19e5pJOCs1gIi5kNwMdBRCKyyujXeJDJDreDQIE6/GtlyIu99C3YE19GuErEfCP
-	cKQJsHDiO8XRbmGBwn1EyvFb0ym+x0mlBbDLGqymudWmEyZjwhS08z4fLTMBK8360dGkJgZvBiu
-	bDePkZ3zZw/aMy865UroWULXcy6qkOhqIlgu9V2wbAS5GgCdM5yQ6STePt4Afr0kHLwKHNmwyND
-	/SIlHib2agFpYETJ7RObh3tO+/02dSc1VaAFuSJmpUu4AtWrG3KeKDy+ctxbaSzlOBFxNYRjEUw
-	xL/idPOW7XaEvri9LJ2ASCBUeJPiRDfkYuRocsjxUeq/qBRRFAQ5pdwBR+dLmuaT2zG3KIJKoC5
-	A==
-X-Received: by 2002:a05:600c:314a:b0:4a2:fd2:985d with SMTP id 5b1f17b1804b1-4ac1775316amr237285955e9.12.1793638903629;
-        Mon, 02 Nov 2026 09:01:43 -0800 (PST)
-Received: from localhost.localdomain (dynamic-2a00-1028-8388-a84e-0499-f85d-af98-1439.ipv6.o2.cz. [2a00:1028:8388:a84e:499:f85d:af98:1439])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b2a5372d8bsm1215295e9.0.2026.11.02.09.01.42
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 02 Nov 2026 09:01:43 -0800 (PST)
-From: Josef Schlehofer <pepe.schlehofer@gmail.com>
-To: =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Thorsten Blum <blum@kernel.org>,
-	linux-crypto@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Marius Dinu <m95d@psihoexpert.ro>
-Subject: Re: [PATCH] crypto: atmel-i2c - find the bus speed behind an I2C mux
-Date: Mon,  2 Nov 2026 18:01:41 +0100
-Message-ID: <20261102170141.54660-1-pepe.schlehofer@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <auieEHLkx76881ZL@solitude>
-References: <auieEHLkx76881ZL@solitude>
+	by smtp.kernel.org (Postfix) with ESMTPS id 12D931F00919;
+	Tue,  3 Nov 2026 02:52:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793674363;
+	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=ZF33uj0PzCSjw77b3ZkdVPLX0/r69alTZTDaRXqrGNDfTsCGIJgPH02gmS0HC2H/k
+	 xVjOSYTE8Np8U0/n4/KVrxoZZOCWxMO9rB1T0cdqdT3HY8sZeNrxtARcwBm0HkvwZ4
+	 vk0xsE4mlXoERN3wruzzpa8YI1zr4IlmZ8oMEWEgCfs7/tLXMpi6ERwyJrebr23ZIY
+	 yzgKfZcoh4mLKiOzXSxEkf6IoukEUNGEbIGXUd4ooz2KjUjJ6v2L1YG0jyywTL+dsk
+	 cKN+G3QeY11GHhg101jFPRGHMzkopDtPDL5rpHg8vvSjw37sBNe8HjDHLrctb5VXyK
+	 1c+cHvCZRR93A==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 94C3246724;
+	Tue,  3 Nov 2026 02:52:42 +0000 (UTC)
+From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
+Date: Tue, 03 Nov 2026 02:52:37 +0000
+Subject: [PATCH v5 1/2] dt-bindings: i2c: add Amlogic A9 I2C controller
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -105,31 +82,107 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261103-a9-i2c-v5-1-86f2dcd179d8@amlogic.com>
+References: <20261103-a9-i2c-v5-0-86f2dcd179d8@amlogic.com>
+In-Reply-To: <20261103-a9-i2c-v5-0-86f2dcd179d8@amlogic.com>
+To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Xianwei Zhao <xianwei.zhaol@amlogic.com>
+Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org, 
+ linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793674360; l=1772;
+ i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
+ bh=Sz+UB7O1ObrX0Ep7OtBMUUtSVaLagIleTbf9GlXMQy8=;
+ b=kr2LxbDlUScN8iC/AFpWrtMjpomSJf/k3a/RSAvQYAO6W6Inh1FiN5mZCD9znK9eDiVh65Pmy
+ VJwp9qJnBmOBMf6eeYUhdIijzyKNg1FcS6XREUoJj3EwQbFybsipGuh
+X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
+ pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
+X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
+ auth_id=578
+X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Reply-To: xianwei.zhao@amlogic.com
+Content-Transfer-Encoding: 7bit
 
-Hi Marek,
+From: Xianwei Zhao <xianwei.zhao@amlogic.com>
 
-thanks for the ack and the warning.
+Add a Device Tree binding for the I2C controller found on the
+Amlogic A9 SoC.
 
-The hwrng core starts a fill thread for the current RNG, whatever its
-quality. It reads 32 bytes every 60 seconds, even when idle.
-atmel_i2c_send_receive() puts the ATSHA204A to sleep after each
-command. That means about 1440 seed updates per day, and 100k cycles
-in about 70 days.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+---
+ .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    | 56 ++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
-The ATSHA204A becomes the current RNG when the MCU firmware has no
-TRNG. It also stays current when it registers first, because both RNGs
-have quality 1024. Today the probe fails on the Omnia, so it is safe.
-This patch could wear out its EEPROM within months. It is also marked
-for stable.
+diff --git a/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+new file mode 100644
+index 000000000000..31ddc6d23732
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+@@ -0,0 +1,56 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/amlogic,a9-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Amlogic A9 I2C Controller
++
++maintainers:
++  - Xianwei Zhao <xianwei.zhao@amlogic.com>
++  - Junyi Zhao <junyi.zhao@amlogic.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    const: amlogic,a9-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  dmas:
++    items:
++      - description: DMA controller phandle and request line for RX
++      - description: DMA controller phandle and request line for TX
++
++  dma-names:
++    items:
++      - const: rx
++      - const: tx
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c@3a4400 {
++        compatible = "amlogic,a9-i2c";
++        reg = <0x3a4400 0x3c>;
++        interrupts = <0 164 1>;
++        clocks = <&clkc_periphs 11>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++    };
 
-The patch also lets the ATSHA204 on the Turris 1.x probe, as its I2C
-controller has no clock-frequency either. There the talitos hwrng wins,
-because the ATSHA204 has quality 1. Without talitos, the ATSHA204 would
-wear out the same way.
+-- 
+2.52.0
 
-Should we fix the wear before this patch goes in? Does "proper power
-management" mean the idle command instead of sleep? I can look into
-it.
 
-Josef
