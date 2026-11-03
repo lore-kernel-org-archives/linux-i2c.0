@@ -1,88 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793723960;
-	b=WFwfp3OpnVUO98+zhK/A391rOGinMY/M0FeZMH/WRJbmBcJaSallroJMJZriLMcAjHdz
-	 Kc42zWNixtngEXIVq0/UgWM0Ol69Qw/TR3Eaw7xSPbNr7vPqEQdA/AIe5NKCPlIec/ZvM
-	 O3fkUSR8CYKKJEk0t4tZ7EvySFAAtm7EozpCfo+BT9kGPzqh5RrYcCiYPSbvZ4bH/SWHY
-	 +W359UAAAw4PBiJyfo2Fu2DP/SkXrgpo3OjW7H0aA6J+55016LNSSFZ2FW2eRmLhytmTf
-	 IIqKvU2dRLA6Fin66qJCBMEyVisoKElDabSy0s2lxnp+j79MA4vppXPtiG4fubsrs8w==
+	t=1793724571;
+	b=tjbEb6tm7O18EFQ5KfMNSYO7Yaj3w81Z68e9WxlqpKO4cG3p7d+gkKQum3xK2ovicpV5
+	 kyplgfCcK3ewPqcrkBpUosq0qR/BBH72KXLAwBEOzEL/97VuRkbOfc289gfH1B2r7m7iK
+	 rITFSaw4aTFKEnnOKHBrFnU27Of5VGDIeVTclwRLO0JquIi5+Vx1b9RDHI30NtCv4zkq6
+	 +esVSx8lRYdHN72tCaFzC00lgo3ChoOjqWuz6BmPP8JWDJ+V9f7MwxTl/r1OQyqtc1Ngk
+	 dQAffM677wXFIKDEnpVfh9ujAWERDRvbTm5/zHOZeuys5HTOD55UFJbARmCr+UigplA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793723960;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=oZsjAb6zLwPp0TJs4AixW9+hdl4OwhgbeWLiflyHFIM=;
-	b=mKUdbhVgSmDEdg0g2J6zTmrW3YSkqsKhaHK4PftrU6Le+e+3oE0RrLmjgf03qbKMDRXz
-	 V8/3l9qeeHLMrjnj+AdxXT6xZXFgVwKRPGQewgn5vbB/V577Q/fvVoDDrHL9vSeu7bCbt
-	 dLY4kHQQl97+dHFV+OW0FyAgQD/yj7flqWx8yvUEglg1U/4QShxhHdY9LBWrqI243by52
-	 +AJDoQ3FoRHlHAOEFsAZwnHKraTKUJGRFXvcfCv+3KRWgM41+Db2BVAKq+Y0culBZ+PMn
-	 Ga0nMbJGx7gDBGIi6LbOBgvMmcKC5pCd2WhTKqWlQTXhJj7oBjWydzqVXMczHjkCXTg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793724571;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Subject:
+	 Date:Message-Id:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:X-Last-TLS-Session-Version;
+	bh=5dGb8WXTIZvpvRNeR8lBF+8mxozMxifiVbHhgx0PdyY=;
+	b=tQGvu3rNnd6A4E69oIk9/N8tmimQlBd3XOzZtxUXiQMsDO13KrFBGrIYZbfUTMlAC8/X
+	 d/cq1pDLB4t7ZcshI+kuwZ+yYbSNyJ5A0MwiqF9it6CLPIuXDV1dAlVc626eqHCeWAds1
+	 HcG6/kdg2L92Pc/88Kr6s8Vtk5XcL2xXhBn+2x0GzEO3GLC9wHf45RO329Nf6faz+4OAf
+	 zqHJQQg5XAXMVxl7nr8Yovhnngu8caQUtJ9NpLJTt9k0CvvveL7ZuYEyCnf9QR/4afUTO
+	 hflShzEEp40p2Xqmz5v9lJa+mKSD0XJ1tPWfGwjJqzyVh79FtVjiIhmusIVV3CJL23A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=Q8Hb8oMt;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=MIwJML6Z;
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F740606EE9E
-	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 16:39:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7F740606EE9E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE8B2606A332
+	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 16:49:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE8B2606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=Q8Hb8oMt
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=oZsj
-	Ab6zLwPp0TJs4AixW9+hdl4OwhgbeWLiflyHFIM=; b=Q8Hb8oMtVc/5naDLltyf
-	nHbDx4q0Ld8aNDXx/KR8AiVXzACj0uHu/YXU3zpTWzWnaLx3nqd4Dleu9vJQZ5eV
-	EzfCgefF2HcZeZAmoIhcQi+34PbKjJQIs1AxqImORDTzuRIRYNoo2lxgZhdrvlZS
-	DNtobCFdroATQst4hlEFhfNGV0zwbF4RzhpP+XzicxlyC9UGRfIDwI1Id5lprrj4
-	qvkYeVAkpNfVs2YVXHXHtGKVGGs8ReFLDBsXREK/yqNCjzNjqEPc3nDlmAj3blUe
-	Cf2mtc2vod+9JFwuoRh1q/a6DyXFSqMBwj68OwIM1QYxxhX7Vm4Hl+E/RHhf+Pk6
-	/A==
-Received: (qmail 356275 invoked from network); 3 Nov 2026 17:39:12 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 3 Nov 2026 17:39:12 +0100
-X-UD-Smtp-Session: l3s3148p1@V+b25mFfDJnAwtcC
-Date: Tue, 3 Nov 2026 18:39:11 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Frank.Li@oss.nxp.com
-Cc: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
-	Dong Aisheng <aisheng.dong@nxp.com>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Laxman Dewangan <ldewangan@nvidia.com>,
-	Dmitry Osipenko <digetx@gmail.com>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	"open list:MICROCHIP I2C DRIVER" <linux-i2c@vger.kernel.org>,
-	"moderated list:ARM/Microchip (AT91) SoC support" <linux-arm-kernel@lists.infradead.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:FREESCALE IMX LPI2C DRIVER" <imx@lists.linux.dev>,
-	"open list:QUALCOMM I2C QCOM GENI DRIVER" <linux-arm-msm@vger.kernel.org>,
-	"open list:RENESAS R-CAR I2C DRIVERS" <linux-renesas-soc@vger.kernel.org>,
-	"moderated list:ARM/STM32 ARCHITECTURE" <linux-stm32@st-md-mailman.stormreply.com>,
-	"open list:TEGRA ARCHITECTURE SUPPORT" <linux-tegra@vger.kernel.org>,
-	vkoul@kernel.org
-Subject: Re: [PATCH 1/1] i2c: use dmaengine_desc_set_callback()
-Message-ID: <auoOL2JTEDY2abYe@shikoro>
-References: <20261102170004.3852546-1-Frank.Li@oss.nxp.com>
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=MIwJML6Z
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 4910D1A1435;
+	Tue,  3 Nov 2026 16:49:28 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 150F76046C;
+	Tue,  3 Nov 2026 16:49:28 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 28C0D10328C5E;
+	Tue,  3 Nov 2026 17:49:24 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1793724567; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=5dGb8WXTIZvpvRNeR8lBF+8mxozMxifiVbHhgx0PdyY=;
+	b=MIwJML6ZrlML9gz4Da6Q/pl+r7yvzkdB1t99vQCrz9KcnpBFz6rKO4/9fh/7X8eejWR3En
+	C3YsFzJs/+s0kA7YGKSralaozX2IWSwrEtAMNWLlcmU1xChHsX5L6rrKONeeAei7H7Xywk
+	RRP2mVeed8iMRMHRhS07fIAQXPGlBj7hD5N4enabnNV3CiMKjnaHdBoobtNQtmw7WTDTld
+	6rhbW+Vsze5lLum/0OTl0e18R0x3Ex0aQq330KScu9UyzZJSA/v9hrFVfnwOaI9TamqqtY
+	/gvUMDEsnvBBfPlXeAlFDIQ+ZjXiuS/2Az8m/J+BggJQog6bag0vcYCx0XnyeA==
+From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+Subject: [PATCH v5 0/9] Congatec Board Controller: Add storage devices
+ support
+Date: Tue, 03 Nov 2026 17:49:08 +0100
+Message-Id: <20261103-cgbc-i2c-storage-devices-support-v5-0-ac11f23fae51@bootlin.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -92,24 +63,127 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261102170004.3852546-1-Frank.Li@oss.nxp.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/43QzW7CMAwH8FdBOS+VnTT94MR7TDukqQNRSwNJ6
+ QaId19aJLaJw7hEciL//nauLFJwFNl6dWWBJhedH1Kh3lbM7PSwJe7aVDMBooASS262jeFOGB5
+ HH3R6b1OXocjj6XDwYeSNJCoNaSkFsMQcAln3tUS8f9zrQMdTShrvl2xPMeolab2acxBECbWUU
+ GSiQlHUiiPviTYdhYH6zIftDD+3ScAcRA6ZQCyrgkvehcs5XkZvs85fev8ZO7fxMWbHk+6N3++
+ zdLB5qp2b9zkv/zDhMtaycgX5/ytPyIFbamWlEIoSzabxfuzd8OAn8YtEfIEUiZRkdV1XBGTVM
+ yl/yPolUiZS1XmjpG2MIv1M5g8SAcQLZJ5IanJBYLG1qv5L3m63bzDq4x5hAgAA
+X-Change-ID: 20260717-cgbc-i2c-storage-devices-support-b3ee7cea3320
+To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>, 
+ stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+X-Mailer: b4 0.16.0
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Mon, Nov 02, 2026 at 12:00:02PM -0500, Frank.Li@oss.nxp.com wrote:
-> From: Frank Li <Frank.Li@nxp.com>
-> 
-> Replace open-coded assignments to callback and callback_param fields
-> of struct dma_async_tx_descriptor with calls to the
-> dmaengine_desc_set_callback() helper across various I2C bus drivers.
-> 
-> No functional change intended. Prepare make to struct
-> dma_async_tx_descriptor private to the DMA engine.
-> 
-> Signed-off-by: Frank Li <Frank.Li@nxp.com>
+In this v5, I re-ordered a bit the patches to fix I2C bus names first.
+I also made an error message more user friendly.
 
-Looks actually less readable to me, but I won't bike-shed. Code changes
-look okay.
+Lee, this series conflicts with some other ongoing patches series:
+- mfd: Assorted resource lifetime, teardown, and error-handling fixes [1]
+- mfd: Constify mfd_cell arrays [2]
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To make your life easier I rebased this series on top of them. Please let
+me know if you want to proceed in an other way. 
+
+[1] https://lore.kernel.org/all/20261027093306.2812695-1-lee@kernel.org/
+[2] https://lore.kernel.org/all/20261030071137.100954-3-krzysztof.kozlowski@oss.qualcomm.com/
+
+Best Regards,
+Thomas
+
+Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+---
+Changes in v5:
+- mfd: fix error message in case we fail to get session handle.
+- fix I2C bus names earlier in the series.
+- Link to v4: https://patch.msgid.link/20261002-cgbc-i2c-storage-devices-support-v4-0-eb42e0f1df59@bootlin.com
+
+Changes in v4:
+- Fix struct cgbc_i2c_platform_data comment (kernel-doc warning)
+- Move struct cgbc_i2c_platform_data from linux/platform_data/i2c-cgbc.h to
+  linux/mfd/cgbc.h
+- Use MFD_CELL_NAME macros.
+- Link to v3: https://patch.msgid.link/20260911-cgbc-i2c-storage-devices-support-v3-0-594b53fbc5ea@bootlin.com
+
+Changes in v3:
+- rebased on v7.3-rc2
+- use PLATFORM_DEVID_AUTO for child devices
+- move I2C bus and I2C device definition in the MFD driver
+- Link to v2: https://patch.msgid.link/20260811-cgbc-i2c-storage-devices-support-v2-0-3efa998e0ef5@bootlin.com
+
+Changes in v2:
+- i2c: fix typo in CGBC BIOS EEPROM label.
+- mfd: make cgbc_devs const
+- Link to v1: https://patch.msgid.link/20260804-cgbc-i2c-storage-devices-support-v1-0-fed38510671c@bootlin.com
+
+To: Thomas Richard <thomas.richard@bootlin.com>
+To: Lee Jones <lee@kernel.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Cc: Werner Gartner <Werner.Gartner@congatec.com>
+Cc: mfd@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+
+---
+Thomas Richard (congatec GmbH) (9):
+      mfd: cgbc: Fix use of negative error code as valid session handle
+      i2c: cgbc: Use real I2C bus names
+      mfd: cgbc: Add I2C platform data
+      i2c: cgbc: Use plateform data to get bus ID and adapter name
+      mfd: cgbc: Use PLATFORM_DEVID_AUTO for child device registration
+      i2c: cgbc: Add support for fixed frequency buses
+      mfd: cgbc: Add virtual I2C bus support
+      mfd: cgbc: Add virtual storage devices on the virtual I2C bus
+      i2c: cgbc: Register known I2C devices on the bus
+
+ drivers/i2c/busses/i2c-cgbc.c | 108 ++++++++++++------------
+ drivers/mfd/cgbc-core.c       | 187 +++++++++++++++++++++++++++++++++++++++---
+ include/linux/mfd/cgbc.h      |  16 ++++
+ 3 files changed, 244 insertions(+), 67 deletions(-)
+---
+base-commit: d3dfdb6b429a5b99bfd47176bf07cad0956f14ed
+change-id: 20260717-cgbc-i2c-storage-devices-support-b3ee7cea3320
+prerequisite-message-id: 20261027093306.2812695-1-lee@kernel.org
+prerequisite-patch-id: 7d50ed21b2d5d1bb25290d19c46b4668073feddf
+prerequisite-patch-id: 45cdf12f5527ab86a560ba98c02cc447bf6eee4e
+prerequisite-patch-id: 6148da531ee7713f8afb7bec90fb3f548b562d28
+prerequisite-patch-id: fb0c30c409ef451192973c417a0585f989f8917b
+prerequisite-patch-id: 8403fcd8efcd44138f139767624773fa654a5a2f
+prerequisite-patch-id: 434546741519ecd3032e19f3acf2c5370e9a454c
+prerequisite-patch-id: 29540ca5739d6f6f3e2d3fe5b87893ad31f6c3ee
+prerequisite-patch-id: a33adadb2e2efe82d2a14417c1c35c579bf212d0
+prerequisite-patch-id: dd53f1e6db35d71b51061dad45de28dde9ebc70f
+prerequisite-patch-id: 85a1da1285d64ce3fc78c8ae7969fbb0dc7c3cd7
+prerequisite-patch-id: e9b952ebc380d058ac2144771c780a0b08c3b7c3
+prerequisite-patch-id: 1f0dcc7a8c5df7ae1c8bfb5a1c8f62b441704286
+prerequisite-patch-id: 077a4ef70d74321711e2efd4e016e01a1d41c818
+prerequisite-patch-id: 4dcd6cc156bb6ba43684605972fb179557a3891e
+prerequisite-patch-id: 62e87491674feaae09327a99a5ff1b4ed368f221
+prerequisite-patch-id: ab1eac435fd40cdb3d9a8d453a12852a105f57c4
+prerequisite-patch-id: 1cbcc3b666db27cbe9f3fa6c6ead2f49a0d459da
+prerequisite-patch-id: ecb566a7bea44600e9d7e9617e280c994773e3dd
+prerequisite-patch-id: 20e295db85a31587d342471a3c341615c8eb0fd7
+prerequisite-patch-id: 06118bf6e5affc234e7edbdb5c0aae9b05412b33
+prerequisite-patch-id: 17afeb13c5012348feee8eb739ff058e84ed2df8
+prerequisite-patch-id: 27693bdeffbc7a0a295c165912b89af5ca3264aa
+prerequisite-patch-id: 8313fe2293eaf0e69ffd2f0017e18fde64ca68f7
+prerequisite-patch-id: fc53af34353efecb4490087ed066ccb256a74695
+prerequisite-patch-id: 02ad8a3b1fddb4f4e806939d36ae642c01004c36
+prerequisite-patch-id: 7b9b8460613f4240492ffe11ee7ee0e6c0b6ded8
+prerequisite-patch-id: 699c068a32ac9d3171e7a494fb2ca5522045779a
+prerequisite-message-id: 20261030140240.211786-3-krzysztof.kozlowski@oss.qualcomm.com
+prerequisite-patch-id: f6cf975bf90acb029fa985ecd659b59076fdc0cd
+prerequisite-patch-id: 4f16ad80662de796ae1454904c938e7e85115fbd
+
+Best regards,
+--  
+Best Regards,
+Thomas Richard
 
