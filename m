@@ -1,61 +1,106 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=207.54.77.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793722361;
-	b=Ffg6PSO33e6ae/RpVTEP32h2l6G1SCoqKmFMDTycNUyozCUazR10+8ytbk5xPCPJyHmC
-	 nmDyX0I5BDI9hY5uD3Q3D+wMwceB78FxsW/pFDt8Zci8PMOp0mbYUgu2RvrSG0ikvYdo8
-	 7WNAfRk/rhg2w1JeJZ1l/SVCXRnsYqNHB5Nri6jRfLN4sOrwbqI+BQemuhSPFFhF/XXSf
-	 1Q9/e+DZGYcGYWawuktHajy7EnY0bSc32TXJra7l0BC0GtHUYtMlMgTO1IFZekzlhnvLX
-	 f0UlhKAxXe06FwQuCOz13j1NIHSJJnIrS5vKoezPwvpBVjTgxYeg5o9K+YGwHrmFMeg==
+	t=1793722429;
+	b=uald8pHwthMTozbPXF5V5X/E2Mrw057b4vA+0JpVUN+RRBHLSsgtAFFJxfOk5Z1IToSy
+	 V7GzS8Autp0ZYCEHaCQJIDh7lWxtEymFYI7SMlbdyEHvto0IHN90eTZ9lZGOsMCAMye8Y
+	 csA82R37S9sivOLd68Ey8LSNXgGzOBlsvMqhZg3v7q96yTFvS9o+LopvFCHdlF0AczaeO
+	 ifNCQrdm/e848RXTz+NxCLAHVUHMkCpPTOiwaJ4jrXaCv41pLlu3ap9/Vq2Wr0Bo/ZU9N
+	 EFamhCzaVSo1U6fpld1s0OpAbJ5jWdCYN0ca/IxIwe9t8QNL+g4GvLPds2wIY/hU2ew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793722361;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer;
-	bh=hBDO8Msiv8jaGludKRh/EiGLGSqgrzQCArT+HYcx/PU=;
-	b=RHA7dVw9xrmYLV4aKvqpB5C95diSTIKYmzWfEqHavMHB//0Lu54b9UtmDrySS9KDRM1L
-	 8STrNZ9xLJQmcINLT0LItqXl1JA1MEDSJoDDmfWlxLu5aDo27Pidgm9nfoZ2S2gkWT9XV
-	 UG+cLJBfQgjyOMR990KXSA9ASTZ4C6QFcJiJC3TUiZb8NdbamuyqvxAa53hYGi8LO3aeD
-	 Cb12asQWbKKrShA9j/XCKvSPJBc+2aRLGN2Ym1Mp223KQNFo4z5JTHQTEf/LN8/pwF5qI
-	 mKqSGy4SMYc7QC4GNQvdMXTcZww/bRce5DDN3JoyBgxTUU9NzBPctJYQ1JkdUkOlVsQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793722429;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 Content-Transfer-Encoding:MIME-Version:Content-Type;
+	bh=AJyyri76gw2tPYp+4QxyP3AtyJ37KOovjfoziur4IoA=;
+	b=hwr72Jfsi+WzUYKDxC1iPnNq/7IBMfWspd8bzE+doxcWyrEtAsz7WjQSeWHnMKATIJia
+	 bi0s/0c0+MkiMR+SyjDzYe3DrxFmnqzSIrRVEQcigv9F93yEsDJPSMSPAJ5pQ5tYUnOPP
+	 D7YdhOgVsnmKWu93IB++wL7sTTahSeFgoHoi/tGzXR5M6fFSAf2yAu9hseckCxWmxLCsO
+	 hTwyyVpsN6PnqxYrH1zk3UF8rpNvyvFELoIZc0DueDHlAGewUKr6zadGagv3lY6d68lbQ
+	 52ol0bf5I/LRziN/mKCRjBTNBrsDI1Cs38QQ70T2Ltd3hMsD3X4sZIcq6g87Vv4Uwtw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mobileye.com;
-	spf=pass smtp.mailfrom=mobileye.com;
-	arc=none smtp.remote-ip=207.54.77.50
-Received: from esa3.hc555-34.eu.iphmx.com (esa3.hc555-34.eu.iphmx.com [207.54.77.50])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 99F02606EE88;
-	Tue,  3 Nov 2026 16:12:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99F02606EE88
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1793722358; x=1825258358;
-  h=from:date:subject:mime-version:content-transfer-encoding:
-   message-id:to:cc;
-  bh=RU8wwx9R15Mr3gG1Xd5gijADtqrLP+TA57/EffDrdCU=;
-  b=CcOTIg8j4IwCTzkyEM1uBVydewRo0i6Nn7nl3o6UcP6TfoXt5q/+xWR2
-   mNnOKlpioPvmWCFZnNwg/AK7zUEeor500MFDIGNgqL+n4HLcYwxbkoZYd
-   qwME6qwKulp48dfbkZKTe/bIOnX/S2WSvYV17mJu1Bi8osb+9pmiQtPnl
-   Vc9AR3GiXLNfJlyN+QTDsnDv7sqg6KrdHhFjloo84oSyvw3GwNzTsQRr7
-   L46xtsC7p++3gxQyI8PiqC8yT1jz+6WxKMJ0eZOC232vUc0DVmFwwwHmU
-   +PC51nEgzBqbnWpa3YuV0u8FRVedFaAIa5LSmX9AQj01+7xJtBe66aGk+
-   g==;
-X-CSE-ConnectionGUID: YBds/MQ1QHWE0YrOb3RwOA==
-X-CSE-MsgGUID: i6aMI7/mS2OusN4yYlaCtg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from unknown (HELO ces04_data.me-crop.lan) ([146.255.191.134])
-  by esa3.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 18:12:35 +0200
-X-CSE-ConnectionGUID: KmtwslnNQru2+zmtAciTVQ==
-X-CSE-MsgGUID: r98I9sp1Qw+3c6MwRdzEvw==
-Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.3])
-  by ces04_data.me-crop.lan with SMTP; 03 Nov 2026 18:20:29 +0200
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Tue, 03 Nov 2026 18:12:34 +0200
-From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Date: Tue, 03 Nov 2026 18:12:16 +0200
-Subject: [PATCH] i2c: designware: return proper fault codes
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=F9d4b7Ef;
+	arc=none smtp.remote-ip=209.85.128.54
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EC8C606EEBA
+	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 16:13:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4EC8C606EEBA
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=F9d4b7Ef
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a20bdaf39cso48844065e9.1
+        for <linux-i2c@vger.kernel.org>; Tue, 03 Nov 2026 08:13:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793722428; x=1794327228; darn=vger.kernel.org;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=AJyyri76gw2tPYp+4QxyP3AtyJ37KOovjfoziur4IoA=;
+        b=F9d4b7EfncJF5ES2462x+Zjbhb4TYd33M/P+3Y0mSFXz0xngNNtM0a9BCDpY6aPyFn
+         EccfZpdj51j50gsAn5T7iZGoF2czsnhL/CgXIRFFxaUQJ8AIy8hcQrohqa7xZ4IiyqZS
+         4NOjesdM1xKIaKZRE1G5Cns2zp+BR0b0zP6LwIF7DN0YiH5hclwDOhZw1f7cUwtj1DvR
+         d7GpzilbGp54raXH9QSRZdvcbKUMIbHdXFLMJKGuUnVlJj4pW78JqPgHT7fWZtj6D4e2
+         +qENEHrrgxujIH3GBfoqRlRVbsXxPpJBnVFJ9CMZRaPj6XSd+FYZJhscJXOpj2oYJg8x
+         0GwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793722428; x=1794327228;
+        h=content-type:mime-version:content-transfer-encoding:message-id:date
+         :references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=AJyyri76gw2tPYp+4QxyP3AtyJ37KOovjfoziur4IoA=;
+        b=tw3SEat/Hoyeyss9ypsE8Yh9AxzZ+W31iBNTc/pVXLHm1IKIcCUbQo+nkU5NQzwR+W
+         sDDsU5P4LRrv+DrBW3IhZgKS76hhT73Huw8uVvd+NEk7uTrfXN131+4GyV3m6SChCWxA
+         Hm3cxjojgTYW4tViutTYvvpgRY/E7HRAOf3AKbQkqT3erb8Kk7GC6aPlGI66brE4v/ky
+         O9BC5wU+QSQOaP0pwPyum+7YOZE4KhIyzNkXryShc0WcF38JS3sAhZWqzBi/LR6ZSQl/
+         PXk01EwlX0eZGDliujzVJpbiJc9AfJZfYPCFLUYTbFV9ofG54We8fu90p4e5l0g6Gaxc
+         vbLQ==
+X-Forwarded-Encrypted: i=1; AKwUvByvRrhHSCzB7lNlFTf3jH8eGz/SgczANrNHWqT4QRy+YXJlVmfU/GxLbhPMS9fugHSwZV5rL+upDhM=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+Z/Im/td+uaNE+JfuMMSDqISf5mVbdamgrPi6mvNJ4RvhP1tt+
+	OWlOGt5kquimOWq6iB4+Nt+UOoLvZIFgiIa5QyDxtufbBS3Afgdkhkc7
+X-Gm-Gg: AYBFou19ldvZ1AhXfHZq7DAEggY7HOMo1VntPUUoYF10pItUXHmE9NTUXt84SJLiG1S
+	ZjO051RhjxQUtD7sNF4zm5mPtSOSZUV5WG8/gCCobNrw0lkir3xk95CiG/rzlmJyg5dUFe8ZpB3
+	vTrQExkmBrqCMfrcWbKo6uRGukJHgnRCdcbIm2wvgNRVZW998CHthU2FoEGrY5Ooo0g0UduxYrB
+	MejaDkuA2U1KJGj3zoYEkde0OgCeHUhncH9oeWYY8HhnXOc2Dn4wJjdKA1v+8quFRHvcV8TNmTy
+	LI6mCwgYW68SMnKIjAXstVLJECH8LWtkFNsqfklUNhsOS2MUhuDXo6HYGaH/U6GZFv7BL02y6xV
+	rkEHvQI39MK94T0K0WkX2GobAAXze0EN4FxjjaMqm+Q/1o6PoKA0wYiRs4W8ze42cDQmqpF68SY
+	HT4CNlChQOZgf3EfXkzghiO0L2glaWa+jZNWUn/ZS18X9Ll+NpbvwplfRJicwvoH4tsNo0YcMNR
+	3xvOwmpeATkcHBsOWVCWn/MXnjKdPvuo7IaFlBPWlsaJYTQEfuSRYWk3mnZCV82rr4SdT8Ogdeq
+	prfnic/YoNMovjNtswU3U+kBHaKh7RPbcx4Q3GFKdNh4L1ianyds42pDaQxINmZmzqNcSG6rw1m
+	NFGVLWzSjJpdzjw==
+X-Received: by 2002:a05:600c:19c9:b0:4a1:7c7d:8881 with SMTP id 5b1f17b1804b1-4ac182dcb6fmr306531505e9.13.1793722427449;
+        Tue, 03 Nov 2026 08:13:47 -0800 (PST)
+Received: from [127.0.1.1] (ppp91-78-241-225.pppoe.mtu-net.ru. [91.78.241.225])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71b723bfsm24419506f8f.15.2026.11.03.08.13.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 08:13:46 -0800 (PST)
+From: Fil Dunsky <filipp.dunsky@gmail.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>,
+ Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
+ Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-watchdog@vger.kernel.org
+Subject:
+ Re: [PATCH v3 07/11] watchdog: Add ARM TWD (MPCore private) watchdog driver
+In-Reply-To: <004d4007-d049-4257-97e7-bf7f197ae3a8@roeck-us.net>
+References: <20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com>
+ <20261013-b4-cs75xx-s2-v3-7-181bb0d23f4c@gmail.com>
+ <004d4007-d049-4257-97e7-bf7f197ae3a8@roeck-us.net>
+Date: Wed, 04 Nov 2026 02:13:37 +1000
+Message-ID: <179372241749.1222507.6207957568716226558@gmail.com>
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -65,110 +110,42 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261103-i2c-designware-fixes-v1-1-f83dd71f988c@mobileye.com>
-X-B4-Tracking: v=1; b=H4sIAN8H6moC/yXMywqDMBCF4VeRWXcgRrz1VYoLTU51ukhLplVBf
- HejXX4c/rORIgqU7tlGEbOovENCfsvITX0YweKTyRpb5caWLNaxh8oYlj6Cn7JCuSh93frBNFX
- TUko/EdeQykf3t/6GF9z3/KJ9PwBgeJdxeAAAAA==
-X-Change-ID: 20261025-i2c-designware-fixes-35d79db08689
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-X-Mailer: b4 0.16.0
+Content-Type: text/plain; charset="utf-8"; format="fixed"
 
-I2C documentation Documentation/i2c/fault-codes.rst defines fault codes
-for different negative results in I2C transmittion. Previously,
-i2c-designware driver didn't implement them properly - it returned
-EREMOTEIO on NACK either on address or data phase instead of ENXIO and
-EIO respectively, and EINVAL instead of EOPNOTSUPP if a message cannot be
-sent due to controller hardware limitations.
+Hi Guenter,
 
-To comply with the documentation, return the proper fault codes for
-different conditions, namely:
+On Mon, Oct 19, 2026 at 06:46:41PM -0700, Guenter Roeck wrote:
+> The issues raised by Sashiko will need to be addressed, or you'll need
+> to explain why they are non-issues.
 
-- EOPNOTSUPP if the controller cannot transfer the message sequence
-  requested (for example, target address change without STOP condition)
-- ENXIO if target address is not acknowledged
-- EIO on other faults detected by controller (for example, NACK on data)
+Thanks for having a look. All three are real and are fixed in the next
+version:
 
-Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
----
-This patch was previously submitted as a part of a patchset that
-introduces detailed fault reporting feature in i2c-nomadik and
-i2c-designware drivers and i2c-core. 
+1. cpus_read_lock() in the clock notifier (lock inversion with CPU
+   hotplug through cpufreq): the driver no longer takes cpus_read_lock()
+   anywhere. The armed state and the rate are published with
+   WRITE_ONCE() and applied with on_each_cpu(); a CPU coming online
+   meanwhile either sees the new values in its hotplug callback or is
+   reached by on_each_cpu().
 
-This patch does not depend on remaining patches in that set, so I submit
-it separately.
+2. armed set after on_each_cpu() in start, racing with a rate change:
+   the flag is now set first, and the start path and the clock notifier
+   each have a full barrier between their store and their load, so
+   either the watchdog is started with the new rate or the notifier sees
+   it armed and reloads it.
 
-Link to the patch set that it was submitted in:
+3. Watchdog state lost in a deep idle state: a CPU PM notifier sets the
+   watchdog of the CPU up again on CPU_PM_EXIT/CPU_PM_ENTER_FAILED when
+   the device is active and the watchdog mode bit is gone. It does not
+   reload a watchdog that kept running, so idle exits do not count as
+   pings.
 
-https://lore.kernel.org/r/20260903-i2c-fault-reporting-v2-0-fedeb91792e6@mobileye.com
----
- drivers/i2c/busses/i2c-designware-common.c | 8 ++++++--
- drivers/i2c/busses/i2c-designware-core.h   | 3 +--
- drivers/i2c/busses/i2c-designware-master.c | 2 +-
- 3 files changed, 8 insertions(+), 5 deletions(-)
+The earlier Sashiko points (prescaler of a watchdog left running by the
+boot loader, rate changes, resume) were handled in v2 and v3.
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index a1eca6cd4b75..e934bcbe7660 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -776,11 +776,15 @@ int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
- 	unsigned long abort_source = dev->abort_source;
- 	int i;
- 
--	if (abort_source & DW_IC_TX_ABRT_NOACK) {
-+	if (abort_source & (DW_IC_TX_ABRT_ADDR_NOACK | DW_IC_TX_ABRT_TXDATA_NOACK)) {
- 		for_each_set_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
- 			dev_dbg(dev->dev,
- 				"%s: %s\n", __func__, abort_sources[i]);
--		return -EREMOTEIO;
-+
-+		if (abort_source & DW_IC_TX_ABRT_TXDATA_NOACK)
-+			return -EIO;
-+		else
-+			return -ENXIO;
- 	}
- 
- 	for_each_set_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 2c929a6e8da2..025311c8662c 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -112,10 +112,9 @@
- #define DW_IC_RX_ABRT_SLAVE_ARBLOST		BIT(ABRT_SLAVE_ARBLOST)
- #define DW_IC_RX_ABRT_SLAVE_FLUSH_TXFIFO	BIT(ABRT_SLAVE_FLUSH_TXFIFO)
- 
--#define DW_IC_TX_ABRT_NOACK			(DW_IC_TX_ABRT_7B_ADDR_NOACK | \
-+#define DW_IC_TX_ABRT_ADDR_NOACK		(DW_IC_TX_ABRT_7B_ADDR_NOACK | \
- 						 DW_IC_TX_ABRT_10ADDR1_NOACK | \
- 						 DW_IC_TX_ABRT_10ADDR2_NOACK | \
--						 DW_IC_TX_ABRT_TXDATA_NOACK | \
- 						 DW_IC_TX_ABRT_GCALL_NOACK)
- 
- struct clk;
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 7e1d9a2e7733..a469a52b2f8f 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -915,7 +915,7 @@ i2c_dw_xfer_common(struct dw_i2c_dev *dev, struct i2c_msg msgs[], int num)
- 		 */
- 		for (cnt = 1; ; cnt++) {
- 			if (!i2c_dw_msg_is_valid(dev, msgs_part, cnt - 1)) {
--				ret = -EINVAL;
-+				ret = -EOPNOTSUPP;
- 				break;
- 			}
- 
+As the driver is not specific to the Cortina SoC, the next version will
+be a standalone patch to you and Wim instead of part of the CS75xx
+series. It will be sent after v7.4-rc1.
 
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-change-id: 20261025-i2c-designware-fixes-35d79db08689
-
-Best regards,
---  
-Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Fil
 
