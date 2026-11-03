@@ -1,59 +1,52 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793696674;
-	b=gU59ESVmhyugcEDQU96kj7RvMOfbcqeqxYpw+x00DHMLQ5NxD1a+upb1F2siU2Bk6McY
-	 VvHocW/kWg0ltEDFXxykRImIbSwA1A5fpKz8xX+1bTbNBJzm+eHz3GMcJ/GUcU/c7kDWW
-	 HxUs8FzSJVDneHSxq07AJR35QT9j42145xbiAkxJWBSyNZr3i4GmgUaSyWmPs6jHPS4TR
-	 /JOuPF60AYTuQ8J2zDdsSrfmYd/rtUid8WKDwo3Ss8IZq/+MHUnyGKO0aW/pYxzD1X4ud
-	 e64PW1g6OxFbIXv4kTCHL0W5y60QuB4ab7kaz010rJr/2KBVxPgrXWOyGhJQwAuIo3g==
+	t=1793697680;
+	b=jzUuMWcn9UNc9gKOEvJR2tiyKF9H5m05uK6O8QpOJQVlZXeCYcgdBq8c+DAPM8DQxsfn
+	 ew4aFvbytsOXdT5IBEkU5YfXEmQP8zPkiDTS8kC+6Bya0zY22jVoOR2H7b4Um3r5NaGzn
+	 I/ar6GBcWAxcsxaUyvoVuerhA0zi8eZ86/PHkFqMyGf4+c1BLoC992iVSOsT0KmwzhW3i
+	 wUTkKzDl4Ptbe4wiLexK1X6d1O85wGnjg1HMvJXAukx1WvRh4ge/UUx8Tr8nRhYlyGXJS
+	 pLLlfECIU9XQuZJglpgMEy4HNHfqBLJu0s67EwoC8xyWyisI+35rzePs8wUWLH2kspA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793696674;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=Uyv+Mc5d9d1gCJCyssw8BshM15Hv025jfZyc5jx49Bo=;
-	b=fkJ3hVx0G49345zjFU3HyaE25Q8JxpSGlX11yyXo018+uk9HdIPC6utIDoXKw3++7QHb
-	 bELhGM8wmwEMYC/i6RGmU7glPo//cDOFzJx+Ra55xvmVI4KiXqWurlGmqlh9/G8gBDP6C
-	 BTlND92P7kdi9Q8yfMyUcN6NguwcxoEM2p4wpyhP/coKTq45wWZxxHGjqOh2djzuvDCm6
-	 2cJiyQcHdG5flIEvnImvTjVUnNmL0tAeZGekoLvn8a5OSapnwxGkPY+1ymqJHWFGk6C3g
-	 jEYUUK1jMxOhxqQDfzA/VmvvaZ3ZWRxbVkYEe7b6sxubJBd5FMpl+YzAaTwSOTJcu/Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793697680;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=8ff+Ldb+j3rIyThs2zVt58hJSJJjlNUoF1vfWcjecx4=;
+	b=4e4RW4h1OZS3IbHLVblMRwYKjHivTwGL8n8of7nKaH3zqD8uoLt2nGAisasuPb5rQz3L
+	 dptYTjUnRf1d6hvab+S/uz/RI2ohDEiZIV02DR9Dc/1vnuOCcYf8cG/B+31ZKnT6uGdbl
+	 sVS8F7lG3MXfDA8Xnpguo1q2+lOjbDHuEUOHw7Bm81UXBQ8aR6v+VgIwpU0LjUoeRf0J6
+	 YuoMN5PfZ+xcHqm0KkZFZ9uqVojXpOn2EsBRXsVMv09QPUVqy77amZ3WXJYJqqFsCrpX7
+	 tHyem01kImzQlPo9I/gNncS1p1J2k3FqpD8UctVe+EWbnnYVyEtxJbvfD6XEBy22Pow==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=dRgz4HUv;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jWfFpU+a;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A973B606A32C
-	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 09:04:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A973B606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90CB606A334;
+	Tue,  3 Nov 2026 09:21:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=dRgz4HUv
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Uyv+
-	Mc5d9d1gCJCyssw8BshM15Hv025jfZyc5jx49Bo=; b=dRgz4HUvWa1NktTmMP7G
-	/lyCdZIMnsCBeSR9X7GPgUXYjS44XP1ojzhQbML2eqiAKTIJRvooKNiiKKFrQTxq
-	XxrBMzJHHPTX9kcVsOvpf0ZR1QJwrONIdHGYDDSkMBeM/8jfn7zWxAl3oPZDenLW
-	N3L3/zl8f+wGNpWx7rJclM7cBsSLBmriAGL5/XmT0NpNt1joO+bJ2C1lvUhJu6VO
-	Qb4DIGZSRkMF+fy07btxTN5kl9I0hOh13FMCP7jsSBZkqqXX8vewmwP8+VkxRQ28
-	yG2h/G6XQefREoLck4e/6dHNQRjEEADjI/l2W3QfBQREK2GDfgl40f3LAcw9I7Uq
-	7w==
-Received: (qmail 214200 invoked from network); 3 Nov 2026 10:04:22 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 3 Nov 2026 10:04:22 +0100
-X-UD-Smtp-Session: l3s3148p1@I1NYjFtfbsI+ZpL9
-Date: Tue, 3 Nov 2026 11:04:21 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jWfFpU+a
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 910D81F00919;
+	Tue,  3 Nov 2026 09:21:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793697679;
+	bh=8ff+Ldb+j3rIyThs2zVt58hJSJJjlNUoF1vfWcjecx4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=jWfFpU+aR4y2vaJG/o8Zxih+deVBBi55FV9p9y1sP7KWAqD+Gnf0af1aJw8T6QWId
+	 02cEEwKtjpVCEUl2mZ6jOGTQXVkueZb/KOYJ6u0ITXYsYuTF3tXLiJW5m4U6kCoMFo
+	 F66SVUEIAEn0J9fVkYq8RrOMFOk12a/19FLi98dVylfY+GIdVWStW6x4IziDKUHrJL
+	 Ajaqsw1sRZUQZuECpUPFRUMrNLF+utaRY4I6+wCRL8bHqq+zvp4dDdJeBc7AKjwCDF
+	 P2xHglgbR+uw0aqQWbkye2ONpRe8ZN4T8GAcUUOel2DmyxOdvUrhQRns/d+pDj8+ti
+	 ckh6EH2nVbt9Q==
+Date: Tue, 3 Nov 2026 10:21:16 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: peda@lysator.liu.se, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: peda@lysator.liu.se, linux-kernel@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, stable@vger.kernel.org, wsa+renesas@sang-engineering.com
 Subject: Re: [PATCH] i2c: mux: demux-pinctrl: Release pinctrl handles on
  deactivation
-Message-ID: <aumjke-mSGP8WVl1@shikoro>
+Message-ID: <20261103-diligent-taupe-seriema-e3fbd9@quoll>
 References: <20261103082905.1167633-1-vulab@iscas.ac.cn>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -64,56 +57,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="8CkNpLJWHo1/LwAO"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 In-Reply-To: <20261103082905.1167633-1-vulab@iscas.ac.cn>
 
---8CkNpLJWHo1/LwAO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 03, 2026 at 08:29:05AM +0000, Wentao Liang wrote:
+On Tue, 03 Nov 2026 08:29:05 +0000, Wentao Liang wrote:
 > Each master activation calls devm_pinctrl_get() against the parent I2C
 > controller device. Switching or removing the demux only releases the
 > adapter reference, so the pinctrl reference and its devres entry persist
 > until the parent controller is removed. Repeated switches accumulate
 > these entries. Activation failures after obtaining the handle retain it
 > too.
->=20
+> 
 > Use pinctrl_get() and keep the handle with the active channel. Release
 > it when activation fails or the channel is deactivated, before dropping
 > the parent adapter reference and reverting the device-tree changeset.
 > Keep the no-pinctrl case working by storing NULL when get returns
 > -ENODEV.
->=20
+> 
 > Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
 > Cc: stable@vger.kernel.org
 > Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
 > Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+> ---
+>  drivers/i2c/muxes/i2c-demux-pinctrl.c | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
+> 
 
-To get a better picture, how did you test this?
 
 
---8CkNpLJWHo1/LwAO
-Content-Type: application/pgp-signature; name=signature.asc
+Multiple things here:
+1. Your team ignored completely previous feedback. Multiple times.
 
------BEGIN PGP SIGNATURE-----
+2. You use multiple identities with this email address, thus I doubt that we
+   speak with an actual person.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmrpo5EACgkQFA3kzBSg
-Kbad/A//WCwjjBQrxpHVXSeJWb+Xs49uCukN1xzEiEoagUqDhjukYpVsmstAY4lm
-jzOEVsDQo5aN3U0uNOQU/o7RwkXREGj+9ZhjqcG5hHN0XsELI3XZXzNQQdd4Otf3
-fkyZsuebaUAondP8tRBvQpJCqVuVkUU19Cr3be6b6UInimkzrmMxfNJNdQMDZeT9
-83xsGz1ajtlYPBt6y0zJfpoyXlAcFtZ7J0QwnRlXQyr3l+voDSA6p3epj6pNpiFF
-vj/ASfXXGmXNPopIzBEQwL4GG5qQZ7H/+o+w6dbaDfOBac2ZqZHbyVYDj0YeGIhi
-z/3aCV6Vh3BXw7x5+2Zff7OYVRalL/80c153S9T0ZHWqsrOBZZR5zYRUK6afLl7V
-wLI+P5MaOSvHSgriMD2tgXH1yzMTgk/GWF81IOcEptbbfz8sB0aeAjGFd2+lagEL
-4jIFAMgmiqwQSdIrFjGhWj0nMzU0LAx9+Ofjkv2kVsuK+bJpKIMDKonbQbx4BDTn
-f/NJdXnf584+kJnLxVSP4fCH9Z2Dn0KNPlPZd04jLVZmiwkFK46sqUf9QB9AWW8V
-reflwo19HV9xtoakJ+dQkXSESXThAgw7THGAlbFmWXuSF5QkHtaYmV4iXlSRrnwH
-LDK6vkUFsZXsgbePvP7Nsvxt7poFiY6/i/YE76n9wJ3ZVoXth2U=
-=79Zl
------END PGP SIGNATURE-----
+3. Your bot does not even bother running checkpatch, right?
 
---8CkNpLJWHo1/LwAO--
+4. Nothing of this was reproduced nor tested.
+
+5. Finally, the same feedback:
+You sent multiple independent patches, to multiple independent
+subsystems. The amount of these patches clearly suggest this was
+AI generated and most likely not tested.
+
+More importantly, you sent all this work without properly organizing
+relevant patches into patchsets. This makes reviewing difficult
+and might cause multiple reviewers to address the same issue.
+Replying to the entire set is impossible and requires handling each
+patch independently, instead of applying or discarding the set.
+Maintainers also won't see the bigger picture of your work. Quite
+worrying.
+
+This is on the verge of hostile patch: bomb us with so many
+contributions, we won't be able to handle them in efficient manner,
+like responding ONCE to ask you to slow down.  Considering all this
+is untested and LLM generated, I have even more doubts whether this
+should be considered for review.
+
+Please read kernel documentation BEFORE posting more work. It will
+explain you how to identify subsystems, how to organize your work per
+subsystem (so a patchset grouping multiple patches with a short cover
+letter), how to document the issue discovery method and what was
+or was not tested.
+
+Best regards,
+Krzysztof
+
+
+
+
