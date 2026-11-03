@@ -1,74 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.58.211
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793699307;
-	b=EfDTkGpjSpy7fRBHh3gHQWIxfntNw64a4DU+nRtd0bYVDjH3YnwvTDofLG9ypMSxvps/
-	 DarhfPlImOnnTJd0ATGfB2TqHuoOkYHCjwscIpmP+nzzS/obYjxKL4wrGyZnzBEfrOiCf
-	 4aviNmaByY1B3fdimMIuSaDmjkmTYZK0KODBiVd8QFWjc6guYl5EwFd6krA28APxbV8vB
-	 mfT/cMyAtZzXmWRAx7ye3j+WitDdIkFp3r4rC20N46p95TsDTYW6GOFx1Pf+BynDSzEp0
-	 uK0MHZiORH6606bod0Q8dPeIdkqrrfF+pW1kvYphuVZ3QN+S9EaxYBf3LDbgSV6oLSQ==
+	t=1793699620;
+	b=nRA7CWvPjI10COXy/8/WUQcVX/2KfquZiZDlIplKnjAPeDhkSvh/FM9GxCsi6/wn4R09
+	 AM+C18aHceOQcEka4qMZsLdmgD4i+O05PINiAL++UazUw0bdDc/QA/4se1I9HwtlWJit5
+	 Lxbadx3z4Rx/RID6thAq5v0oc2j3iVDdDaoq2K1zsVLj5Ht0mGW+ua8HbwWCtk5JMR/YE
+	 8aV15H0tZosGn7hZ89NUIYFDw+LKTQ/3Xf25z+3sMlHr9K4YsMxO6h9V44P0VNYyEBKDe
+	 Vb1sRgPITsyYW8BI0uEhrkV3IG+LnKyhwKWYOMc0YfUW6eXj5z/8jfuL7qPc5FbZD4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793699307;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=hFUtuIOQjZiGUhcBDFXIk4DME0buSZpk2TX7q8g3RwU=;
-	b=P02mElSumSZ9fw7/oBjTPwG6SJR9jEGuwql7/NizFAQgDlwwCa5TeiiNoXlB9XY6IXWu
-	 CTSgUKNMQ0R355o5iZJMG0LZX1Vf9xA99fMFuAGCFYfx9PN7EsmUkCh0W9pYlLPPNnAMM
-	 go5EQkrQc02UXLU86URWi/FwIS1jPXH4WoMdw++iiCQlTADA8xKJiyE5MDxHp+zKFLRFo
-	 aICBNbe6EUTIedyXluIbTM81X0soJY597/IeZaU/fKq9c3LaiVgUZK8rHLQ04feQhXOGJ
-	 yssP6OcUrJc+aHRxgIHwgY9Ce96lovsRZm058IH1MKL42VlYpte3z0CBxtjdDijouBw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793699620;
+	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
+	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=exuUVrZEzA5+Clh7tzMZyi/JBKCYe76w9r6sEUWqx6M=;
+	b=HlytfLaQ12WlOyv8pqrYgbNVb7BDij1Sj22m80Kt51hD4ErMEWc3/KcSH56F6AzUpDoV
+	 XxklgBKNbJa0ZPhCiu7akX0cm0IVEPdnmBQ77fQBkQXv7y/65wJconN2s7E89WZYWeaQK
+	 dZQTjZDuOcBUXIkwq0ACuv3gpByDNYySDL0OkWcpTOgNjI07yHXvJFNkzlKO56+KHsjlL
+	 5TarUOywCkBYqqi6+ug+OSSQ/clOxd4I+yZapCJ3pi6I48lBmz+5JOBmRZKIWqeqSPIuw
+	 VSO0QpGK6CzBmEkviVaZh9zZR1mbzYyWNgw0JtwWAC7aypQG6Gb14Y4yrOFY8deNdvg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eeh5QeuB;
-	arc=none smtp.remote-ip=198.175.65.18
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	dmarc=pass header.from=qq.com;
+	spf=pass smtp.mailfrom=qq.com;
+	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=rPxgZSle;
+	arc=none smtp.remote-ip=162.62.58.211
+Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90FB2606A332
-	for <linux-i2c@vger.kernel.org>; Tue,  3 Nov 2026 09:48:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90FB2606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F120A606D802;
+	Tue,  3 Nov 2026 09:53:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F120A606D802
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=eeh5QeuB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793699306; x=1825235306;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hawSgna2EBYvXybjLClEZF13TPoVwk5NUTVPDa5BKNE=;
-  b=eeh5QeuB6xmNqBBv1/D/QxB2LyaD+LUs8BuaeoJRxHo6GGTqnP0cABel
-   XeRBtr4dNfgxBIuHcLWHAlN0SPryQAQKhtgHUxGw9yOUYGeBqeLa/aIpk
-   czvGvuMaUQxW1NP1L3OkGCKE6h0WFhDSSLSb37FJufBvR+3aJ7nW892gx
-   m/WxQKPUdFpEGWkAO1EsSo50HVJYX15TdURZGlSGTDHXfF6hu7EUJtMj7
-   wmZK03AaICfodFTnq7SHU22dGKf4sY3RGNT3am12S4mndjWJeDgaGt4ec
-   kcAuSM65LF0MjTDhsJnb9LKd2y0JoH2Iisi4i7qDKCSDlnNYdSXhWXIal
-   Q==;
-X-CSE-ConnectionGUID: MqOAMoOVRF+X92T58Ldt5w==
-X-CSE-MsgGUID: 3O0lgNY2QjKupX6QAWXusg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11954"; a="2429357"
-X-IronPort-AV: E=Sophos;i="6.27,193,1787036400"; 
-   d="scan'208";a="2429357"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 01:48:26 -0800
-X-CSE-ConnectionGUID: N2zc3XrySTqz9/yZdwCmgg==
-X-CSE-MsgGUID: xFJ5nNs3T4mtrbyxo8eixg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,193,1787036400"; 
-   d="scan'208";a="6378975"
-Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.108])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 01:48:25 -0800
-Date: Tue, 3 Nov 2026 11:48:22 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Samuel Tirwa <samuel.tirwa@web.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 2/2] i2c: designware: use polling when IRQ resource is 0
-Message-ID: <aumt5out9avKNuID@ashevche-desk.local>
-References: <20261103090059.1759-1-samuel.tirwa@web.de>
+	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=rPxgZSle
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1793699606; bh=exuUVrZEzA5+Clh7tzMZyi/JBKCYe76w9r6sEUWqx6M=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=rPxgZSle8nDOKptywmWbOo0z8RQ3mCDoGToo1AGOo0lRHC5vhQFlXeejPPN6cN9MA
+	 9NBZ3MZiVaq2/5FHBGuNpvM9Bv6aJyR3hTS8FjXIF6W68J5AsXSxSbrkWn8MsYwcYo
+	 UwcXoG4ZNNWAN04+No32w2/wu9ScEzdkl4iaZvPY=
+Received: from shuai-VMware-Virtual-Platform.. ([218.28.192.28])
+	by newxmesmtplogicsvrszb43-0.qq.com (NewEsmtp) with SMTP
+	id D563F852; Tue, 03 Nov 2026 17:53:22 +0800
+X-QQ-mid: xmsmtpt1793699602td0red6kd
+Message-ID: <tencent_173B7731E90B9624F9F82613DC3031B70907@qq.com>
+X-QQ-XMAILINFO: M07Ulnfy3VHKaC+H0tf4KCWjgzzzUw8hDxsxEI2gxvotU7+hRHwycOPVkOx2oT
+	 U5ys/Cz/e69cQee+tNseErHvnO81TO8tQyWRyu8KlKcmvXvfNlFe6OXXf9RrysGhnBZlCpDQqWtL
+	 RQijzEpKYUc6uPDXuN5T3tMpQNlmdKQZHXu4BUkP7SUWl0umrUwbRkb5LgswdDDn6H4RUa0clWyu
+	 2TPJm+v5ugYa4Pxb5sSpBylPnxqVL2tkKmve0+6Lx5QKnjtZIQU4zuh6lJf3zcysxVxoOt9w///x
+	 BVdf4KsULJ138dM6RaT8ZRKVkYWGDQMvCDBlUBks1AKsR/ah03oGSdnynxyHkyoTrmf45Dx/eLVd
+	 iq2oXUL4j6hgpwKEi/fCBxN6kpF1ISCjOg4G/5313dE7b9Sggcfs7hD8wgZYFcHNNPTQdHzXu10K
+	 /bRNGj9hLgcY8SDfCfWutZL0Bt03VkQJT4h51KzozPZd5yRsSRBFqdmDQ3NK3hVjOyKzSCoDNsiV
+	 8opEGCHuRGMt1OIZEeV7kUQShMKg8Uq0KxZ+h/hesM3pJC4OtjVMmao6Ud+IAmNN5H4vyEtru8Zb
+	 yIti6IKLmLSfjxAYDCllF8eFycihYFCSm4eMK1XnrFzqgDrwfvarMtXIDCeXSlCRfKT9C9oyMGPK
+	 WsIr6R2svBOxoMRmT0A/DONZxSbJnVlcPnh7chV8Jd8gh7RBs9linMoJgU8ZPSlRHgK2tP5tcbcT
+	 COcvXmo6riN7Bru2P1ipuY27DkJ+eKfxPR1PWx3eVg2izsrimhMcPz/GXTfPlvSo6EwtP/x6F6vN
+	 U4Ls19KlLAdCIX/cRL154u7meTEN7FRUZKUoVEp8RfHSYkK/LeQJY3CF2bEfMikRydXKDbIqPI/h
+	 NX6jsTL/dUN/2gNrkyQWc75aaErMY5FgF+Pbp23tOCl9n5L2pTSllLOed0yVTxIUphatUjStIlc7
+	 f5etLVsfTixJiJ/leLP1MAf2lyhZRFKVAIVtBe6en+nnMQv4ocDJlJuX9OQqRmzFPboor/eAXDBj
+	 +d7GosoY2Jbqhc62nwmoqjabP7wo7e6z0DTNUXqIonpAbXQEVGKbaxoAtTi/z7XO1YaEy8+rLteA
+	 wZ+ucu
+X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+From: Shuai Liu <847807867@qq.com>
+To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+Cc: Shuai Liu <847807867@qq.com>,
+	Igor Korotin <igor.korotin@linux.dev>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Gary Guo <gary@garyguo.net>,
+	Alice Ryhl <aliceryhl@google.com>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Lars-Peter Clausen <lars@metafoo.de>,
+	Mark Brown <broonie@kernel.org>,
+	Brandon StJohn <branstj@gmail.com>,
+	linux-iio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH v6 0/4] iio: position: add Rust driver for ams AS5600
+Date: Tue,  3 Nov 2026 17:53:22 +0800
+X-OQ-MSGID: <20261103095322.297395-1-847807867@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261016154819.17936-1-muchamadcoirulanwar@gmail.com>
+References: <20261016154819.17936-1-muchamadcoirulanwar@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -78,41 +94,87 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261103090059.1759-1-samuel.tirwa@web.de>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 03, 2026 at 10:00:59AM +0100, Samuel Tirwa wrote:
-> When an Intel LPSS I2C controller has no usable interrupt (firmware
-> reports PCI INTx as not connected), intel-lpss passes 0 as the IRQ base,
-> which leaves the child device with an IRQ resource whose start is 0.
-> platform_get_irq_optional() then returns 0 instead of -ENXIO, so the
-> DesignWare driver never enabled ACCESS_POLLING and request_irq(0, ...)
-> failed.
-> 
-> Treat an IRQ number of 0 the same as 'no IRQ resource' and enable
-> polling mode.
+Hi Coirul,
 
-Slow down. You have made a mess in the mailing list: no email thread, no
-versioning between the series of the same, no cover letter. Take your time to
-become a familiar with the process first.
+Thanks for the series. I read through v6, including Igor's registration
+rework proposal in this thread. The comments below do not overlap with
+that rework and should carry over to v7 unchanged, as far as I can tell.
 
-...
+1. clippy warnings
 
->  	irq = platform_get_irq_optional(pdev, 0);
-> -	if (irq == -ENXIO)
-> +	if (irq == -ENXIO || irq == 0)
->  		flags |= ACCESS_POLLING;
->  	else if (irq < 0)
->  		return irq;
+`make LLVM=1 CLIPPY=1` reports four warnings on this series, which the
+Rust CI gates on. Three are `clippy::ptr_as_ptr` in the IIO abstraction
+and one is `clippy::useless_conversion` in the driver:
 
-NAK. irq==0 gives a warning and has not be a valid output from
-platform_get_irq*().
+    --- a/rust/kernel/iio.rs
+    +++ b/rust/kernel/iio.rs
+    @@ -202,1 +202,1 @@
+    -    let priv_ptr = unsafe { (*indio_dev).priv_ as *mut T };
+    +    let priv_ptr = unsafe { (*indio_dev).priv_.cast::<T>() };
 
--- 
-With Best Regards,
-Andy Shevchenko
+    (the same pattern at lines 334 and 397; line 334 is already inside
+    an unsafe block and just needs `.cast::<T>()`)
 
+    --- a/drivers/iio/position/as5600.rs
+    +++ b/drivers/iio/position/as5600.rs
+    @@ -133,1 +133,1 @@
+    -                Ok(IioVal::Int(angle as i32))
+    +                Ok(IioVal::Int(i32::from(angle)))
+
+2. ignored doctest in the SMBus word helper
+
+The example on `smbus_read_word_swapped()` (rust/kernel/i2c.rs:841) is
+marked "ignore" and references driver-specific facts (the AS5600).
+Ignored examples are not compiled or run by rusttest, so the helper
+currently ships with no tested usage. A generic, compilable example
+works here:
+
+    --- a/rust/kernel/i2c.rs
+    +++ b/rust/kernel/i2c.rs
+    @@ -841,8 +841,15 @@
+     /// ```
+    -/// // AS5600 stores the 12-bit raw angle at command byte 0x0C with its
+    -/// // high byte first, so the SMBus (low byte first) word result must
+    -/// // be swapped.
+    -/// let raw = client.smbus_read_word_swapped(0x0C)?;
+    -/// # Ok::<(), Error>(())
+    +/// use kernel::{i2c::I2cClient, prelude::*};
+    +///
+    +/// fn read_hi_first_register(client: &I2cClient<kernel::device::Bound>) -> Result<u16> {
+    +///     // A device whose 16-bit register selected by command byte 0x0C
+    +///     // transmits the high byte first needs the SMBus (low byte first)
+    +///     // word swapped.
+    +///     client.smbus_read_word_swapped(0x0C)
+    +/// }
+     /// ```
+
+3. repeated unsafe blocks in the SMBus access helpers
+
+Patch 2 implements the `FallibleIoCapable` impls for `u8`/`u16` with
+five near-identical unsafe blocks wrapping `bindings::i2c_smbus_*`
+calls plus error conversion. Extracting four small safe helpers would
+put the safety argument in one place and turn each call site into a
+one-liner:
+
+    fn smbus_read_byte(client: &I2cClient<device::Bound>, reg: u8)
+        -> Result<u8>;
+    fn smbus_write_byte(client: &I2cClient<device::Bound>, reg: u8, value: u8)
+        -> Result;
+    fn smbus_read_word_data(client: &I2cClient<device::Bound>, reg: u8)
+        -> Result<u16>;
+    fn smbus_write_word_data(client: &I2cClient<device::Bound>, reg: u8, value: u16)
+        -> Result;
+
+For example, `io_try_write` for `u8` then reduces to
+`smbus_write_byte(client, reg, value)`. Happy to send the full diff if
+that is useful as a starting point.
+
+With 1 and 2 applied (and 3 sketched on top), `make LLVM=1 CLIPPY=1
+drivers/iio/position/as5600.o` builds with no warnings and the rusttest
+doctests pass.
+
+Thanks,
+Shuai Liu
 
