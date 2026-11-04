@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793797467;
-	b=YmVmRjeMbj1jiT9f2LpqiRqsaSiBxm9MnhxPhdwbXhIx11o3Z6aK6dWRwqZInZ1A7lZD
-	 QpV5i6WKq3799o2RniLU5UzEuAOM5U6cxzXtXrdIh8ncdnXeCKglCzxcZqrB65SzoyZ8K
-	 sM27PMrfdMfHQDVAZrt+0MHMBkYJaJ4tsBNhhIFRR8gfMMnHJRc/WPbIrwYcf3U6FSLjk
-	 PWCE0Dmvk+Vqr+kFBi6L3yQ9UNqvRAxuyQRjLEoA+9NuwcfC/eeoE/+Kkfr6o//m9ZCC6
-	 Pm5m/ORHQrb4ZgRSLbhZmH66CRQnSgZDc6zeb6/FDvVu1D4snNBLPN/sIYYetJIKdSQ==
+	t=1793797526;
+	b=k4CmIO/uHXnPOdaJ0qMDZDBw4pPoQLLyYnXvJbGq1t4MOIrZZZQWsh8sZ0GO1kdnhPaq
+	 vzMVocVbRWZDVodaSHajvkBk5riMeP4X+QdotbjedKR2Ou7vrSaxwA5+bgHa0zWGnXIur
+	 BOrV09vHeohdpBwhWImkftIf07kP41H0VNGCkxBj0TEF0hslL97kdKeEYDu2c03Zz/+Mi
+	 dMMMYLNER50ZxgoRFJHuPSijcvCRoPT0LNp6l74wy0BDNt7P51tvYdd0qhf25ED0lt/cX
+	 y7QXBNLXHSEE36IzZaTHo0LCXLpnILKJuEEY0smfF8yBQCEwheQTdJLbrZnVHmBF1CA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793797467;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793797526;
 	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
 	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
 	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=0gGIxmVj15HwpHlgucVC67kzMBeDjNiHcqiz6hAOrv8=;
-	b=vIsb7Hdpy3E+uPzrHSTB7bcuBJnZT1z6QBM/kmEwuYRBrS1Ae3d+Of0osl6vPUC88Epr
-	 yLot7Ou+sEanRN83Syjycd89o557lKsNOW5LVOq40D+VJrXbrMeUuiwpP4KPxhjAz3pax
-	 Viy4Pz+OOKCmpq9m0OkHTZrSmnHZdNDf7hgHBzol2hTJ7DH3ZaUFGJsBm1gvyBsiTD9Wl
-	 0rE/1Q/qa4S8Doin6SctJxkRcMo1tGRtXId4Tr1UuM9CAoV0tHkMGMYGZEdFr+ohYo6LJ
-	 linFvq9v+by4/yzUmNruPW1WYQtuEnxvwTWb3YzYtkCvZW5tDtMcV5Hxqt2Vjdg2e/A==
+	bh=LPKBxmhyg89L22fIaf9IQyOx1ftYYGNVMEyFVHYOx+w=;
+	b=HVyYqIJdM+qxBc0qYYKUh37qvt24A/f+G7Kga0K87aaZyvMn0nbHpNNeHwhwFhG/jgT5
+	 1+7LJiTfmqI4nJMkDgFJOBsA4h7ysrKdZkGQPgkd6peqhNlk/wzYkOyprveJ4VK1/Rybq
+	 1aCEr5UVrMyJm4f9qJBylRPP9zp9tBEppWdrvxqBMWCVOMFtfLivoWZa1jsSlZrbbCdK8
+	 RHBGN1jxR3y/b2HHKomn3dfdvys+SbdTsTCRmphq0bYnHBXAEk0cZ7cCj/htunLsR9Qdb
+	 raws2gRRuJyZGFNnimuQoEbpIwhRjKmDiU3EfZ7kSq6bliCCsPtZKlsvTVKifE50i2Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C182rFoz;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WLqSLvYw;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBD92606D81B
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:04:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C9E1606A333
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:05:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C182rFoz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6084B1F00A24
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:04:26 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WLqSLvYw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C861F00A2D
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793797466;
-	bh=0gGIxmVj15HwpHlgucVC67kzMBeDjNiHcqiz6hAOrv8=;
+	s=k20260515; t=1793797525;
+	bh=LPKBxmhyg89L22fIaf9IQyOx1ftYYGNVMEyFVHYOx+w=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=C182rFozjpn+i/0Ts1DVq3b+ldJzLaYXncXGSKU5f4XCAI4+yQi49mycFeAVy/gy7
-	 8i034pd2KQtcZ+CDX7gNbb1ARO9RfgRTbhmouZunnvcULJfaG9HPLVwZ3ytUngroM8
-	 egwAbMwpz9XNDrjkbvaFb7ks4aeC1jnf/7xgjiQSSRWyIkLiOi9LhuCZ0m05jFhICK
-	 nr+140ioY7Z+vWkH+hoTBBLG9p9apDmaJAyXwiVWq7Jj1yLXp7seJxi3P3EtW934rg
-	 oWpdYy+4j+63c1HAegqRqhpSl5cl6n6imJzOTlCBDI2RliYbTkTkC1EonSRTyah1Td
-	 f1twz4w1M1Eww==
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5ba3ac592faso713914e87.0
-        for <linux-i2c@vger.kernel.org>; Wed, 04 Nov 2026 05:04:26 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvBzar2AE82oxudLh0f/ojbEz83QqLnbz9IWUI1q8Ha79YYftAUnxr0oek64PUs/1uoaGY0eP/GQlp3o=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8AgVRhEcLBJKJPDyvxEw8qqNRRP07KJ5XY1+QNQgrw3iCof4k3
-	uhTg3aGyU7g5y6s7eFEGHxgOmt8X+sVleVEPAKK0JLVdWC9+Xy6Q+4n7LjLYaoCyxZs/pdlpio5
-	QuL/vkxez4Svan+X3rykhvnqj4lAefmw=
-X-Received: by 2002:a05:6512:39cd:b0:5bf:b166:f58b with SMTP id
- 2adb3069b0e04-5bfd95782a4mr5476115e87.55.1793797464785; Wed, 04 Nov 2026
- 05:04:24 -0800 (PST)
+	b=WLqSLvYwRuBRb2z2uy097jLLlVZenw1O0Ud3+HdLZPMW2W/yzMsw4PoGFqDOIDUwu
+	 bYeTnemOekwxxrWyrcu3N1/2zGODfTWspcTCv2AIYLDuBbLuQUV8lPQQYsoeeaXIZo
+	 s9pxZA4n1vrlJHdLmklh37T+D8AiUXYc4GVoPjPUCjjcMlonowAys/U2PRW90Kfnup
+	 tuf9hIDTCB7oNt5tvVL+asbU98CD4ARrQUGqF8Nf8SlgNeuq/Vl88CJ3YEo52TiM8A
+	 criMClDoEAWjWwpB9F04k/fO5WKv51xfXn5g8+JQfVgeQbC0d/BD2BPOItMFG3+Cjh
+	 JM4GUMBVSYcnA==
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5be416e603cso409524e87.2
+        for <linux-i2c@vger.kernel.org>; Wed, 04 Nov 2026 05:05:25 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvByhocQCAG9B9AIFd4OVG+9sVK0gDAKSe7ZrrVrlwh2osV42ZmKeSDs1JXDHeryGqARmBDE18OWj3gs=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/qQua/zLP+wNmLE17a8BrFYf+fCpwRiRV5OsCljobFEOU+6v1i
+	IoLzHTNfXqTgTXr8e8E847j3lvfzaABtT01MLBuWmCYEZuzx5C1jwFoHyXiXww6AACW2v8S/7we
+	nLNKawbJNzHMz9AoYgo62au0P3VPwdSA=
+X-Received: by 2002:a05:6512:3a89:b0:5bc:c446:760c with SMTP id
+ 2adb3069b0e04-5bfd956f3c7mr5830020e87.48.1793797524594; Wed, 04 Nov 2026
+ 05:05:24 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,14 +59,14 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com> <20261022-add-board-ok3572-c-v1-5-0b0fd85a31ee@qq.com>
-In-Reply-To: <20261022-add-board-ok3572-c-v1-5-0b0fd85a31ee@qq.com>
+References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com> <20261022-add-board-ok3572-c-v1-6-0b0fd85a31ee@qq.com>
+In-Reply-To: <20261022-add-board-ok3572-c-v1-6-0b0fd85a31ee@qq.com>
 From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 4 Nov 2026 14:04:12 +0100
-X-Gmail-Original-Message-ID: <CAD++jL=2Z3hP74dHRyE3Aabp+PvpcHX_90PQy+a_HMQwBdNx6g@mail.gmail.com>
-X-Gm-Features: AclHuK9_TlXav34NYeX4rfS2IYWnnq1y5c9wSfeOajfltWQaA7IZMQ4oBhaALpc
-Message-ID: <CAD++jL=2Z3hP74dHRyE3Aabp+PvpcHX_90PQy+a_HMQwBdNx6g@mail.gmail.com>
-Subject: Re: [PATCH 05/27] dt-bindings: pinctrl: rockchip: Add RK3572
+Date: Wed, 4 Nov 2026 14:05:11 +0100
+X-Gmail-Original-Message-ID: <CAD++jLkfnsnqr9DeJG1UY1BNPmXV=L1fh0o1fRgq2N70k3Aq2A@mail.gmail.com>
+X-Gm-Features: AclHuK_mv5t_ofBXXvFmTtsscxk8ZZZWMu9yfbYuWEEuKyuLUDpVdyNQz1Is1sQ
+Message-ID: <CAD++jLkfnsnqr9DeJG1UY1BNPmXV=L1fh0o1fRgq2N70k3Aq2A@mail.gmail.com>
+Subject: Re: [PATCH 06/27] dt-bindings: gpio: rockchip: Add RK3572 GPIO banks
 To: 1579567540@qq.com
 Cc: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
 	Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
@@ -101,11 +101,14 @@ On Wed, Oct 21, 2026 at 6:12=E2=80=AFPM Cunhao Lu via B4 Relay
 
 > From: Cunhao Lu <1579567540@qq.com>
 >
-> Add the RK3572 pinctrl compatible.
+> RK3572 GPIO banks have four parent interrupts and a separate debounce
+> clock.
 >
 > Signed-off-by: Cunhao Lu <1579567540@qq.com>
 
-This patch 5/27 applied to the pinctrl tree.
+Reviewed-by: Linus Walleij <linusw@kernel.org>
+
+Perhaps Bartosz can just apply this one patch to shrink the series?
 
 Yours,
 Linus Walleij
