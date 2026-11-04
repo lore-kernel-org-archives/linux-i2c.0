@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793789374;
-	b=0jiFxhMcnj80gucMVMEIQF2BD3IzFdfTi0IFMsYjlmZxjLq+GbzT7GULlbQr/UA6iNwc
-	 Dyb7xME9vqwpLQZiuMea3W5UJbdYkh8SQzItEa+qahjlRaQuzHvQzGIb5YkMyq+/Mdq9n
-	 +NYi1ofiM6n+BBOUHqtZqZClrkHoW1qrycHuOIUYpPChZTwSUnS6cyKnoaYQeqaAaulMi
-	 z7uHUr7zSeRZ7zMIOolqqDo5g2hxIX+vtaOlYHZvihnF+A+6wi1CUYBr7ukKDsWBjC01c
-	 5RTRgWfBxB4E7Oa4EWShYSqhJSC6vGTQdY0OavAPxmW3e+jhx89nTp/F6qY2V//lqsg==
+	t=1793789375;
+	b=XSbuCPMHYrm0231ikp76C7SLtiL9itwpej2CFl5CjQgjWC+FQd0hhcq/zcD6LhZTCMNv
+	 VnF4lOFXrPKFCJbCBlFHaG4cmp3r6F+4U5gBf5MNBG3uj5HpHi01XTc+OdsN6w+0mgUfa
+	 P0+tozJWhnpgMJH4fLfVT5Q9mEHwRJW4oSO9cH/T20etAUTq3rnkIF+DdmHzoTYVNbLP6
+	 BcEo9XDQ01vV2YJvcKI6u1trT60xe9YjV2YnTZGTQPuzDQYf65WXPXiLJUDZMRO4I2tvy
+	 9JUz95fJDp30gvLy31JQuUEYlvsz1Mf4oiA7rinxxht+0rUN+aBuiPPY4iWEWugbluw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793789374;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793789375;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
 	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=aI4EIZNxMoprUdCGvASntRDiuaop22syyWJWgaD/hhQ=;
-	b=32fzCK/6urQHwWzbSDJqonZnHsjYgfSZIZUlrvaslYf+qMbj3C3eYEOniZb2aAmULQL4
-	 RQF8rCl6hD8AU+RyQoH2DuoX7sTkzyZtLYQr89VhihCuN/Fa/J1vl2QYUsNBeAyzhJt3q
-	 MXLhQLkkIySPcGkf/I8RISwWpsqxZgWgl0qgJEqQzS08HFiq7hs8gK0hWnsytpDet/TjB
-	 qrb+tn7dS9DTCTeWNeek9ZbBkJX34WjIp4rQ24dgjmCjdv0EL1eBf1dJYSSVkCxqBFFFV
-	 tezLiU7xO1ODWlnbuGo5gG9H5LWTD+qc2Yomhf4CLs66YZKUrUPFn3VO8eqTzBDVEGw==
+	bh=t/5zO77jqUFjV/r+jtVCxKhvFk7JEFL6M5A3wXfcn/w=;
+	b=rg3ALQBRMhUPzHzWBPtpmJjrwkA+ymd0sxL3rZfREsuuC/K7sHoEK+uEaVjLodOA1qGl
+	 oIZBpcmgK6/ZSVvgcwT5RAoWdVZf1afnfy0WpQFChPw3ZrEFgHeOfQcuX8FKBpMsRVixJ
+	 W7rzDIUk9Ge9XMZok6eiPDnh0V8PgNTo3r1IAAQiFMCDmijB0UDQ9Wipl6C39luUTfLz4
+	 2lkvIVTPWGPdPLyQTTh+3aoYmQmFB5Fv2tJXBNlOcreXzYt6Op4yk8X1bsWiprNV5f9US
+	 zSbQQNNGW39JrbFMgZMGFexA1bTUOKjkYYo7c99lDl8l62rGJFgjFjPpqkSMzwGJELg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=Nc9ijgvo;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IxDtHQrL;
 	arc=none smtp.remote-ip=185.246.84.56
 Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58D47606A326
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 10:49:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58D47606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E921606D80E
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 10:49:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E921606D80E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=Nc9ijgvo
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IxDtHQrL
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 0C69E1A1455;
-	Wed,  4 Nov 2026 10:49:32 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id B26861A1457;
+	Wed,  4 Nov 2026 10:49:33 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id D624060770;
-	Wed,  4 Nov 2026 10:49:31 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9BD42103291D2;
-	Wed,  4 Nov 2026 11:49:29 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 8704660770;
+	Wed,  4 Nov 2026 10:49:33 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6C4E0103291F6;
+	Wed,  4 Nov 2026 11:49:31 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1793789370; h=from:subject:date:message-id:to:cc:mime-version:
+	t=1793789372; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=aI4EIZNxMoprUdCGvASntRDiuaop22syyWJWgaD/hhQ=;
-	b=Nc9ijgvoOPaVD3JjNxp4TrkUWCXvJfVSA7Gz//GSu7l6f9iaXiLK61WkKNRKyRlUIwR7zo
-	7FE0kZGM+RBek+cuVSC3SygzmeA1EpvWUVScm+CsZoR3Apou0U1tVBSCCVybXjchfyo6ve
-	sDJ8D6sd9uPlY/MS6cGjDxVNaBwQmCUQkVjGNlY2d2W3W7OYYtS2L2HRoBZFuBYhPZ+bU5
-	Y0UXcGVahaD6nXpiziHX2SruZBIQ/wtBb11y+giOIFBU3XDJTbs2TNMtTD0PA0caWgiugm
-	m/BeUkOcGBK6XBh+pFl/tOkhk20XG9SAxTgUG5DsLtobbtnR1wHf2eUzIAvv7Q==
+	bh=t/5zO77jqUFjV/r+jtVCxKhvFk7JEFL6M5A3wXfcn/w=;
+	b=IxDtHQrLi7jhsQGtV03M7wWcaIaHpLnSZb3DAmqz32K9UEMWPZ1LI/q2Z4Hxv11ZyNCA4N
+	7TqN8QP9so2tKBOWge5UeO3PNoewueMKogTkdGdHx6xzn55Xa+AKUgYJCrDh7ZCWws3kgC
+	psVd5W/ZpUt82qOw0iBn1GaQ7cPu2RI0aoZC0OnOZAXSlcw1zOQ4rUoK1uP9sdjXEmoR+/
+	ld792bNCy8tQqDcUws5gT8HRKnLhRslCYNxpXZB84vYlMntSDPVTS/uO64yjvLfXdYdZZL
+	bJlwuVpr8dRJwSQDT+JDvsobUxaTQsqf1U2inODFLpW/rFc/XL216YH6zIDcQw==
 From: Paul Cercueil <paul.cercueil@bootlin.com>
 To: Robert Richter <rric@kernel.org>,
 	Andi Shyti <andi.shyti@kernel.org>
@@ -60,11 +60,10 @@ Cc: linux-i2c@vger.kernel.org,
 	Umesh Kumar <ukumar@marvell.com>,
 	Shashank Gupta <shashankg@marvell.com>,
 	Tanmay Jagdale <tanmay@marvell.com>,
-	stable@vger.kernel.org,
 	Paul Cercueil <paul.cercueil@bootlin.com>
-Subject: [PATCH 2/3] i2c: thunderx: Set DMA mask
-Date: Wed,  4 Nov 2026 11:49:11 +0100
-Message-ID: <20261104104912.166301-3-paul.cercueil@bootlin.com>
+Subject: [PATCH 3/3] i2c: thunderx: Use polling with delay in HS mode
+Date: Wed,  4 Nov 2026 11:49:12 +0100
+Message-ID: <20261104104912.166301-4-paul.cercueil@bootlin.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261104104912.166301-1-paul.cercueil@bootlin.com>
 References: <20261104104912.166301-1-paul.cercueil@bootlin.com>
@@ -82,32 +81,43 @@ X-Last-TLS-Session-Version: TLSv1.3
 
 From: Tanmay Jagdale <tanmay@marvell.com>
 
-Without it, MSI-X initialization can fail.
+High I2C transaction latencies exceeding 1 second were intermittently
+observed while operating in HS mode. These delays caused DTLS handshakes
+between the main processor and firmware processors to time out,
+resulting in increased startup time.
 
-Fixes: 4c21541d8da1 ("i2c: thunderx: Replace pci_enable_msix()")
-Cc: stable@vger.kernel.org
+Replace the existing wait mechanism with delayed polling in HS mode to
+improve transfer responsiveness and avoid prolonged latency spikes.
+
 Signed-off-by: Tanmay Jagdale <tanmay@marvell.com>
 Co-developed-by: Paul Cercueil <paul.cercueil@bootlin.com>
 Signed-off-by: Paul Cercueil <paul.cercueil@bootlin.com>
 ---
- drivers/i2c/busses/i2c-thunderx-pcidrv.c | 4 ++++
+ drivers/i2c/busses/i2c-octeon-core.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index 3959f23fc440..2208337e649b 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -198,6 +198,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 	i2c->hlc_int_enable = thunder_i2c_hlc_int_enable;
- 	i2c->hlc_int_disable = thunder_i2c_hlc_int_disable;
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
+index 9f72ec1feaa0..4c05d2d00cbe 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -15,6 +15,7 @@
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
++#include <linux/iopoll.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+@@ -65,6 +66,9 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 		return octeon_i2c_test_iflg(i2c) ? 0 : -ETIMEDOUT;
+ 	}
  
-+	ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(48));
-+	if (ret < 0)
-+		goto error;
++	if (!IS_LS_FREQ(i2c->twsi_freq))
++		return poll_timeout_us_atomic(, octeon_i2c_test_iflg(i2c), 1, 1000, false);
 +
- 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSIX);
- 	if (ret < 0)
- 		goto error;
+ 	i2c->int_enable(i2c);
+ 	time_left = wait_event_timeout(i2c->queue, octeon_i2c_test_iflg(i2c),
+ 				       i2c->adap.timeout);
 -- 
 2.47.3
 
