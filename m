@@ -1,60 +1,69 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=34.202.193.197
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793787623;
-	b=EmPTa98MNNegbrhaCv1K0cgmh5NtTPNzaxHZpxcNac/hJ7TGvdQ0gzBww3OFo5e9qudG
-	 EvKNUSwrOjwij37ugO4tUCJNj5cwx48bOwqXeZ6SXbaWnBPtHGnlSwRfvg/CHEYIMSZwO
-	 Bz46INfqvZyZ2+SI71sOugnNlVtyLYXg9MTkpyZbn6g80SsR4UPCz2VwQ24+qBY4CmLd8
-	 9T881pJ6/Vhj4/XMgBQ6/g0k6Sqz0zKaZOtl1V5cSbaWLFrm+BCR1wUMBXLCghOaac0iR
-	 eb+9O1wlVpGeGe9d6R+nQC5FNYhVN29E71tw5hKOMSuma/Bq7xUFn2onMH0lXu50zDQ==
+	t=1793789371;
+	b=rFquUizhWxEunvvSdUNodb79elXorUaUtgdWgqGPZUDUpvaAIpqFUEjIjDGzwSVP8iH4
+	 Kq1bjPlN29vcWFjt6JFxEsJGu8K8vIrFG73a1yex0ENR4qDGxBA6K29WIDBcwg2ULmIm/
+	 qAgyUI3zzZPONhD5+9NtukUOtJiLPtC6Gmm2ZBT4qwz1op10W4UlIbjVChXuzV4GIf7Wp
+	 GhyjvZ5UGglZDyt5hU29kYBa8hWRKGOv8ISAbb0577YiLrCWDID/oyxMTBVg6zvKpF2xK
+	 PgS9J/I0P4sHQyp3Wln3KAg8tiq4bhbfxC6DqmKmUvqxACF/aZYlTdwN7Ru8MBSSNqQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793787623;
-	h=DMARC-Filter:DKIM-Signature:Feedback-ID:X-Pm-Original-To:Received:
-	 Received:From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 User-Agent:MIME-Version:Content-Type;
-	bh=HQjd+1H8WpsONY0rXjJFwfRM3FYkWY+gH+b8NQqgQWk=;
-	b=IvTkv0Cy5OzWQqCWVIr7PHvU4tsldoVSwMkiIxvQmXzkhug2QB1leD9NQDXV9br7SufL
-	 cWJvVAO5sY4c5AtRJjZKpEC/xphlam4/5R0Bluo+8eO48lgS68t97kUnyUh0jNB08LQIS
-	 A1h7E7rWiyhBIZfzfLByvAbTxnCGxOL5YKsBs9/efdO2/0Fi/rUq/bjSidYobOS5jfnvz
-	 CBQPG4dt8ucuYDZDXy/dRguAfFrB34LlDj5qNX6qVv7W3OZpU/UZMzx9p9gNR5DTnOx7A
-	 3A0kGvCkcyqRCUnI7axpa737FkHowZ8U3OprjUO11HzSxSSnDfepvB4keIukuORw1FQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793789371;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=PeiTE4L7cDiBX3okf4cJ5RjaFHsp1BNxTKSquB0awMA=;
+	b=YfEzeUiUnGq4JtF3KaC2R8qnxyO5PB5huB604yfNEjL0lQ97n0N5CBimuRhA2vj+CRo8
+	 tg6bzaTjGhxfZDFDwDeLxKSHShRsy7oI31fEA39jQz+DLxJWmN5Y13X/zxjl2Q+H0dGqG
+	 /UNV7AsXMItg3/EsXTKPL5R0lzWPFzPCjvegzVrLA6suCb8V77ui0Ptk9ihXi2JvhJldB
+	 oKr0IqeYtg/8dL0CTwLDNEKA6kqtioLRbteExH8fsmhQNX+QjqqaQMwMb4rfcdLQL06N/
+	 a2HianuqZJGik7lkpyzTzPf8htdy7az5qj5dkph/BMgiIIeOaaBqgp1qNqAwhAhtHAg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=korsgaard.com;
-	spf=pass smtp.mailfrom=korsgaard.com;
-	dkim=pass header.d=purelymail.com header.i=@purelymail.com header.a=rsa-sha256 header.s=purelymail2 header.b=Q8S3ccGU;
-	arc=none smtp.remote-ip=34.202.193.197
-Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=x8mLVKv2;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C44BD606A31B
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 10:20:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C44BD606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=korsgaard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=korsgaard.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6731606A32F
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 10:49:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A6731606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=purelymail.com header.i=@purelymail.com header.a=rsa-sha256 header.s=purelymail2 header.b=Q8S3ccGU
-DKIM-Signature: a=rsa-sha256; b=Q8S3ccGUZF3jjo+d3PH7vqx2W45KJX9Ined5TkYxw+Dd+zNxeqaA669U1n9m9qeKzHfRxVq4u6r58YlUIxjshmt9NUs0vCS2uprB1Y6Wc+I03mxcxbdUWN6hoQ2Viz4pgXdmgJ73sqVibByLIGYvQnve357LFNumIyoVZ1jzyxCY+cJFq+ogmG9YfGmz2JpE5kuCfVjQnDImaWlx/HasXQCKjGG6C2Pv9Odj86EA9U4QBwdOcwZz7TNBAd/IpCczQEq4s10BlwEqecFRVvUOBdcIFeWDPB2x2LEcNl7PgQP77UKLlxLj4pPUuq2OIJckxowg54VsK0s6dObWg4n2oQ==; s=purelymail2; d=purelymail.com; v=1; bh=1LTjVjxkniOdPSf3cAHKoq7Q/H/LQdaxRAFw2a07OTo=; h=Feedback-ID:Received:Received:From:To:Subject:Date;
-Feedback-ID: 21632:4007:null:purelymail
-X-Pm-Original-To: linux-i2c@vger.kernel.org
-Authentication-Results: purelymail.com; auth=pass
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -906447370;
-          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Wed, 04 Nov 2026 10:20:11 +0000 (UTC)
-Received: from peko by dell.be.48ers.dk with local (Exim 4.98.2)
-	(envelope-from <peter@korsgaard.com>)
-	id 1xOY6D-000000006dc-0vNF;
-	Wed, 04 Nov 2026 11:20:09 +0100
-From: Peter Korsgaard <peter@korsgaard.com>
-To: Matthias Goergens <matthias.goergens@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>,  Andi Shyti <andi.shyti@kernel.org>,
-  linux-i2c@vger.kernel.org,  linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: ocores: delete adapter before disabling controller
-In-Reply-To: <20261102080327.1466598-1-matthias.goergens@gmail.com> (Matthias
-	Goergens's message of "Mon, 2 Nov 2026 16:03:27 +0800")
-References: <20261102080327.1466598-1-matthias.goergens@gmail.com>
-Date: Wed, 04 Nov 2026 11:20:09 +0100
-Message-ID: <87pkwkkiee.fsf@dell.be.48ers.dk>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=x8mLVKv2
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id ED5ED4E413F7;
+	Wed,  4 Nov 2026 10:49:27 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id C1FF760770;
+	Wed,  4 Nov 2026 10:49:27 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 71047103291F6;
+	Wed,  4 Nov 2026 11:49:23 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1793789366; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=PeiTE4L7cDiBX3okf4cJ5RjaFHsp1BNxTKSquB0awMA=;
+	b=x8mLVKv2sDXPU0x8hMssSMe27NlCxzyArdGIYh63Rlv8YSvaAirqVpPCOKgJVrhHdvIhVU
+	vWKsYx/NQ+Vv+bGQOMbONBFzWnPkr9xvtQjrhgaDvhcwtq2DpdkRBJFS8c9zngaObe9FUl
+	IAvMekqKXmK3RUBOGr5OXVw3t5N4YWHZnpSYOIfzuG+p4ZgXYS48EoRKKqhQ8EDbSA4TWB
+	P+rZPAeSJ9K0SxtolQfgB8enrQ7dhJQnA0846z4fiKfKcNhtU0T2mVyWBPCx58zoV7k+0Z
+	2cPydq3w+78qbXt42kLJvvy5Qg2GPFNBXvJbhwxr2yKBQnR2m2M2v+8JMIL8VQ==
+From: Paul Cercueil <paul.cercueil@bootlin.com>
+To: Robert Richter <rric@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Sunil Kovvuri Goutham <sgoutham@marvell.com>,
+	Umesh Kumar <ukumar@marvell.com>,
+	Shashank Gupta <shashankg@marvell.com>,
+	Tanmay Jagdale <tanmay@marvell.com>,
+	Paul Cercueil <paul.cercueil@bootlin.com>
+Subject: [PATCH 0/3] i2c: octeon/thunderx: Fix DMA mask + improvements
+Date: Wed,  4 Nov 2026 11:49:09 +0100
+Message-ID: <20261104104912.166301-1-paul.cercueil@bootlin.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -64,29 +73,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
->>>>> "Matthias" == Matthias Goergens <matthias.goergens@gmail.com> writes:
+Hi Robert, Andi,
 
- > ocores_i2c_remove() clears the core's enable bits before it calls
- > i2c_del_adapter().  Deleting the adapter removes its client devices,
- > and some client drivers talk to their device while being removed:
- > lm75_remove(), for example, tries to write the sensor's original
- > configuration back.  With the core disabled, such a transfer cannot
- > work; in interrupt mode it times out after a second and the write is
- > lost.
+This patchset adds a fix to the ThunderX driver where the DMA mask was
+not set, sometimes preventing MSI-X from being initialized properly.
 
- > Delete the adapter first, then disable the core.
+The first patch improves error handling on the bus, and the third patch
+improves the latency in HS mode.
 
- > Sashiko, the AI review bot, pointed this out while reviewing an
- > unrelated ocores patch.
+Cheers,
+-Paul
 
- > Link: https://lore.kernel.org/all/20260813153155.3953577-1-ruoyuw560@gmail.com/
- > Link: https://sashiko.dev/#/patchset/20260813153155.3953577-1-ruoyuw560@gmail.com
- > Fixes: 18f98b1e3147 ("[PATCH] i2c: New bus driver for the OpenCores I2C controller")
- > Signed-off-by: Matthias Goergens <matthias.goergens@gmail.com>
+Tanmay Jagdale (3):
+  i2c: octeon: Add error state recovery
+  i2c: thunderx: Set DMA mask
+  i2c: thunderx: Use polling with delay in HS mode
 
-Acked-by: Peter Korsgaard <peter@korsgaard.com>
+ drivers/i2c/busses/i2c-octeon-core.c     | 31 ++++++++++++++----------
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c |  4 +++
+ 2 files changed, 22 insertions(+), 13 deletions(-)
 
 -- 
-Bye, Peter Korsgaard
+2.47.3
+
