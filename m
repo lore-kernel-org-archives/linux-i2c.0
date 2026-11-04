@@ -1,78 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793760295;
-	b=kSU6jG/IGlpxRyG6nG5gRkT4nLnlIoqTJkRF46SL1RoQkARvE41ZdJ8ftQ/m6ORz1WO2
-	 QaF7DUvhGfVS1cYoG98VAjFmgMk4xcYxRdsltCtMwGNhgG/uYEsOt2JJZ87TFWOZYiOPW
-	 lmZm1M6QoVyWszgipGEAMnxoZoqONc19rcnEv80jxp2t6z+EGza3PPQ4i+8NgiZ3liXwz
-	 z1ZP3xQdv4HTrreRBje5y7M3o3c428VKcuX1gtkwAWw2q3aidohWUilk+/xqwkHItxvjn
-	 vnx77qwZR52RAydqVUvZvD9SSyvVyTXRiScWhEjw4pAEod/R/7PY9hh03dmfQVoTKpA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793760295;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
-	b=Nu8jejTXY1WSo3lluBM4Mkv0rNYwRI8ENFtS5yIY9A8l2up6ly8jjBQ9CrcqbeIiWcDr
-	 rkP7ef8dJEs+mJHLlrQe6Rgw5Np2/lX1hJZdtzBNsj5jMgbe02e4hvk5NrujzmegFYqg+
-	 ++uNUyjMHD5cMp7sd+7YCuGxwc1OLZ8HNfiIvM6MxVgZ0+j7vnA4uyRqRvTczq05AxNnd
-	 kcInat0DVwke5grcc5TQ4YoP4098mC2CfZbZe6y0KxubmCTsKmYrqozGrIqzho1C38VWA
-	 vZ9EmG/mb+5Z03xMs9+hNSc0gtpjucIr/mOron0eYkvZExu32T8O7s4OJzpy4v4FzOg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QCsmJtmV;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC7D606A31B;
-	Wed,  4 Nov 2026 02:44:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QCsmJtmV
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793760294;
-	b=R0flO3upQKZwU+aIZp8G9swgjrutBK6yOlPb4Y3Xicas+Rp+c8u04Yq8Iby1cuhNDx6A
-	 2J+Ijb2/EomktTDbwr/vD4aWqoQaaM0f5iti/O8l3TZVb+NMWBHqv+/ccwXCbueq5z+ug
-	 5y/Uu2xi6XMXXw2+zAt1h8mQliVxYFMYPVkBW/yfDizBdLmmEEGcwCqAJGzrtjYxDtJ7l
-	 LZFnODVpvNLRLZZUcCPg+CxDC0wPDEigP7UqGLMsD4IczXU8GEf3AOQmQ6pggEdDbu+oL
-	 0JAptJtD31ud521d41FTDNIbculg42oHklrbam1HF5CM7U3292A6p838flxzxRCHh/w==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793760294;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
-	b=eKT7k9p2H6YhHmtO3OodKKMubrntj5Y8a7epiZbt9hysFnZ46lksLChIBwHB1NKXtjwN
-	 +p+ci1C5CiM9UOAaqwxJsasJYjSpxlWgk0sqlMR2k5y2fXmR8hhLukAHFZAbzyRQUBmoV
-	 YBs+ImiAM9+s4L0FrXzd4CCer4PTKGaWxT3Qaa6VdUSHaAKE8M3cS1oiBkCM9mJ4VHvZJ
-	 7iJpQ7JHNHqF4Uq0pJ8lrH7I2I0P/It9t2UNeZQQIimRu1Q8uE50IBIxTHn35nV4nzbzk
-	 Yb5mln8MRJN8pyIDBHFA2Op5Vj7rq2q7Rwa5XX3J4eQCQ16gBnrQl/iSC2OfUkRapbg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.29.241.158
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793774653;
+	b=WBN15moNpcKTXbPooa2oPmz2UXBL4d8zHAMHv5rbnZqPrP81VFNnjrxbILdo8zf0A0Ba
+	 m4x2TIKPpB4WcOV3r+oiS6hlCmrNSAgTUOkJbjEBhWFqdEhtlfNRfjXSnUAe3v97Aa1cN
+	 /Apl3Y5IK/XQ/f+amU1cOuCrZtvdevxOp9RFa1G7cneDudnHneAqE7lY7tLST7Kmr8en1
+	 Q0djoiFawbYYIDFWT2a8TYGchOnxSigt3pSFmq2Pp4U7s+Ad4qHRZOr1ekxW+ym4H3+E3
+	 uFQHZ9Cy+2rDUzso1K4V6B/kA/ZLM5KlNVL9G/BYRwA2prtnicq6ffJpbZ6w11P6odw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793774653;
+	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
+	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
+	 User-Agent:MIME-Version;
+	bh=5FrnZXhgWerXcG8ymggsVZPGtznnjgT06atJ+YKwCsw=;
+	b=hAy+Iicy5kFy8DPxpKqn8mo3ws/yblMOhyUOdyYISPD7TwR5xh8ztmj5whH0R8dqKIf3
+	 swC+y6livrquA0wU2nYEat2IGZWF/HFWG9JxN7ODodwRlzKUfqiC1pidVMXAPBsPb8urp
+	 /HM/KRtzDTJbNYr+K2SHL5/THt0JoETm9OgFcoEJq8BxNVGd+kG2VVvYJbPFMa5pwsILu
+	 avN55q8U08dbA989mtkKgplsIfxK3FN4jOLwLZh//aaJLvsgQFhcc8nYmR7V5xXw10nRD
+	 E1UfJgpzIee9lOoXwVTAK4CqF+gSQgkPAWvgtf2pF9hyDX6tuyHJHoZ/bwP9VTlyn+g==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=codeconstruct.com.au;
+	spf=pass smtp.mailfrom=codeconstruct.com.au;
+	dkim=pass header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.a=rsa-sha256 header.s=2022a header.b=XG6G26+s;
+	arc=none smtp.remote-ip=203.29.241.158
+Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 0DBCE1F0093A;
-	Wed,  4 Nov 2026 02:44:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793760294;
-	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=QCsmJtmV3WkrbneNNkOAb4DBciDcMSmuzKZPxcRKmWGuK+ODPf/xN+XQSdJaUTj4d
-	 PdlFj1jaur5GEDvYRL32QFTm6qONWi39C5OUHjCKsU/DIPycKpENl6Tjy6ic97PMqu
-	 D1Akpp4B0KiaPPRpEMANNaSKBsme+oxyaoRXx+SBzdiwG6oDpE60R0EKpFEBCZ5UKg
-	 9Ot48Knx5OpX6V5cZZldvNMaWmQU0RO1vuMxkfZFokypn7X0sRazBNBh3AYtnuCthx
-	 EbGllubFFSCvcRFdj+QgOZGLr2BY2OXuBzzIecXwQ/5h0LulBB3cFC+1uZn3RWf2tf
-	 LPRkmVovkbjZA==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 7430446BDE;
-	Wed,  4 Nov 2026 02:44:53 +0000 (UTC)
-From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
-Date: Wed, 04 Nov 2026 02:44:49 +0000
-Subject: [PATCH v6 1/2] dt-bindings: i2c: add Amlogic A9 I2C controller
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721A6606A31B;
+	Wed,  4 Nov 2026 06:44:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 721A6606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.a=rsa-sha256 header.s=2022a header.b=XG6G26+s
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=codeconstruct.com.au; s=2022a; t=1793774643;
+	bh=5FrnZXhgWerXcG8ymggsVZPGtznnjgT06atJ+YKwCsw=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=XG6G26+s/bdq0EvP4046nZzifwVf8qL5acbkt2Nu7LMV1FHbmsRc2S6uCJx5Jll3V
+	 eHy1N/xOS0SQT3B2Ix/p5Qe81kVZEkm/JoZD/LyiKNj81oh8C+P+EboW68cWki//63
+	 dUQH+O7MwiuWdTiA/BqhnSKLNK6T+u9tQkD2S27/qQXrAVTBYRncWJEwS81JnH6xSq
+	 qkRDgWRwW7vDHwCJQqPOPVbODQlWH7TzVOCtI3fhMlgWhx7MvwD8VBgfMi6Q3jF0Ss
+	 NJ6ZTjdSzo6qh6Vxsv7e8oMcPo9eBvmu0DqjqMw86y8hYwcr0KeCyedkSk/dWIXXY8
+	 DcJDCqieDCg0Q==
+Received: from [192.168.14.220] (unknown [144.6.157.237])
+	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id AD6156469B;
+	Wed,  4 Nov 2026 14:44:01 +0800 (AWST)
+Message-ID: <e89969f13177f2e7b3105851d0cf42eaf11bd98e.camel@codeconstruct.com.au>
+Subject: Re: [PATCH net-next v2] mctp i2c: add sysfs control for mux child
+ netdevs
+From: Matt Johnston <matt@codeconstruct.com.au>
+To: Kenny Hsieh <kenny_hsieh@jabil.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+ "jk@codeconstruct.com.au"	 <jk@codeconstruct.com.au>,
+ "andi.shyti@kernel.org" <andi.shyti@kernel.org>,  "peda@lysator.liu.se"	
+ <peda@lysator.liu.se>, "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
+ "davem@davemloft.net"	 <davem@davemloft.net>, "edumazet@kernel.org"
+ <edumazet@kernel.org>,  "kuba@kernel.org"	 <kuba@kernel.org>,
+ "pabeni@redhat.com" <pabeni@redhat.com>,  "linux-i2c@vger.kernel.org"	
+ <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org"	
+ <linux-kernel@vger.kernel.org>
+Date: Wed, 04 Nov 2026 14:44:01 +0800
+In-Reply-To: <DM8PR02MB80878075D2520A9CAD7DF0928E692@DM8PR02MB8087.namprd02.prod.outlook.com>
+References: <20261015081341.1262695-1-kenny_hsieh@jabil.com>
+		 <179239912623.3135.11352652156626817288@kernel.org>
+		 <DM8PR02MB808768B7D02FF12777B7777E8E602@DM8PR02MB8087.namprd02.prod.outlook.com>
+	 <7486b1fc4dbcca755dd2f6b6de54d17919af873a.camel@codeconstruct.com.au>
+	 <DM8PR02MB80878075D2520A9CAD7DF0928E692@DM8PR02MB8087.namprd02.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-9 
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -82,107 +79,53 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261104-a9-i2c-v6-1-baa6171f26f8@amlogic.com>
-References: <20261104-a9-i2c-v6-0-baa6171f26f8@amlogic.com>
-In-Reply-To: <20261104-a9-i2c-v6-0-baa6171f26f8@amlogic.com>
-To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Xianwei Zhao <xianwei.zhaol@amlogic.com>
-Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org, 
- linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>, 
- Conor Dooley <conor.dooley@microchip.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793760291; l=1772;
- i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
- bh=Sz+UB7O1ObrX0Ep7OtBMUUtSVaLagIleTbf9GlXMQy8=;
- b=JlXbRzi78UAxY76JCSiT50f9RrKCV/K77CdIlhpwYQkxpEvnYIlJ2D55Nbu9hju9eGqtBvjXs
- 7TZuGHPQV0iCd4rpKBcP4+Gd7Xq+RhMrDB8R/wU3tEREWWAMuIR6zSF
-X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
- pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
-X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
- auth_id=578
-X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
-Reply-To: xianwei.zhao@amlogic.com
-Content-Transfer-Encoding: 7bit
 
-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Hi Kenny,
 
-Add a Device Tree binding for the I2C controller found on the
-Amlogic A9 SoC.
+On Tue, 2026-11-03 at 14:47 +0000, Kenny Hsieh wrote:
+> Hi Matt,
+>=20
+> On Mon, 2026-11-02 at 17:04 +0800, Matt Johnston wrote:
+> > An alternative could be to create sysfs attributes under the mctp-i2c d=
+evice
+> > instance itself (the i2c slave).
+> >=20
+> > Mux buses could have mctp-i2c netdevs instantiated with
+> >=20
+> > echo "i2c-6" > /sys/bus/i2c/devices/2-1060/add_mctp_controller
+> >=20
+> > (where i2c-6 is a child mux bus of i2c-2, and i2c-2 0x60 is a mctp-i2c =
+i2c
+> > device).
+> >=20
+> > "echo i2c-6 > .../2-1060/remove_mctp_controller" would remove the mctp-=
+i2c
+> > netdev.
+> > Setting a root node as an mctp controller would involve writing its own=
+ name
+> > to the attribute file.
+> >=20
+> > How does that look to you?
+>=20
+> I like that a lot better. Since the attributes live on the mctp-i2c
+> device, they can just go in dev_groups and the driver core creates and
+> removes them for us. So I can drop the per-adapter tracking list, and
+> the remove ordering and probe walk races Sashiko found go away with it.
+>=20
+> Let me know if you'd rather have any of these differently:
+>=20
+>   - adding a bus that already has a netdev, or removing one that
+>     doesn't, just returns success
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
----
- .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    | 56 ++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+Would it be better to return EEXIST (add) or ENODEV (remove) for those case=
+s?
+That could catch mistakes. Usually there'd be a single userspace program
+managing it, so it doesn't need to be idempotent?
 
-diff --git a/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
-new file mode 100644
-index 000000000000..31ddc6d23732
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
-@@ -0,0 +1,56 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/amlogic,a9-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Amlogic A9 I2C Controller
-+
-+maintainers:
-+  - Xianwei Zhao <xianwei.zhao@amlogic.com>
-+  - Junyi Zhao <junyi.zhao@amlogic.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    const: amlogic,a9-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  dmas:
-+    items:
-+      - description: DMA controller phandle and request line for RX
-+      - description: DMA controller phandle and request line for TX
-+
-+  dma-names:
-+    items:
-+      - const: rx
-+      - const: tx
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@3a4400 {
-+        compatible = "amlogic,a9-i2c";
-+        reg = <0x3a4400 0x3c>;
-+        interrupts = <0 164 1>;
-+        clocks = <&clkc_periphs 11>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+    };
+>   - a bus that isn't in this controller's mux tree gets -EINVAL
+>   - a bus name that doesn't exist, e.g. i2c-9999, gets -ENODEV
 
--- 
-2.52.0
+Those look good.
 
-
+Cheers,
+Matt
