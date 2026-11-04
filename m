@@ -1,55 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793797526;
-	b=k4CmIO/uHXnPOdaJ0qMDZDBw4pPoQLLyYnXvJbGq1t4MOIrZZZQWsh8sZ0GO1kdnhPaq
-	 vzMVocVbRWZDVodaSHajvkBk5riMeP4X+QdotbjedKR2Ou7vrSaxwA5+bgHa0zWGnXIur
-	 BOrV09vHeohdpBwhWImkftIf07kP41H0VNGCkxBj0TEF0hslL97kdKeEYDu2c03Zz/+Mi
-	 dMMMYLNER50ZxgoRFJHuPSijcvCRoPT0LNp6l74wy0BDNt7P51tvYdd0qhf25ED0lt/cX
-	 y7QXBNLXHSEE36IzZaTHo0LCXLpnILKJuEEY0smfF8yBQCEwheQTdJLbrZnVHmBF1CA==
+	t=1793797789;
+	b=RE11ZsjlIFk7HpCneuobgSGj4sTqaNQaK3C2TZjvrtN2KdR3mOpu1v3GIIDEY+3fDFa3
+	 WO3J8oWbc7T/+exGJvYI3ik+rUv2i7mNVP/tuaIaNa4OsioiG9DPXwyDIQ7bdqm7XbnUG
+	 kTyMETeGpwe5JZzR/dm+ODCQ2tKM9SioGbmcd8LM8CuVuPnwsPaqW6yOp2cv9ROjO+8Xl
+	 f8K0CpZHn2ZwPpNBQMPGM36PnSMjR4kxDQKZ6XBPJ4KECzo8wDqua246D5z9FqX1NIYJ4
+	 9xpV8KWVQEfK3ZO1mnnjnrjpeWiPNoW465/qQfbdozR+aBqUDYxSZ1WjN4tf08evjdQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793797526;
-	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=LPKBxmhyg89L22fIaf9IQyOx1ftYYGNVMEyFVHYOx+w=;
-	b=HVyYqIJdM+qxBc0qYYKUh37qvt24A/f+G7Kga0K87aaZyvMn0nbHpNNeHwhwFhG/jgT5
-	 1+7LJiTfmqI4nJMkDgFJOBsA4h7ysrKdZkGQPgkd6peqhNlk/wzYkOyprveJ4VK1/Rybq
-	 1aCEr5UVrMyJm4f9qJBylRPP9zp9tBEppWdrvxqBMWCVOMFtfLivoWZa1jsSlZrbbCdK8
-	 RHBGN1jxR3y/b2HHKomn3dfdvys+SbdTsTCRmphq0bYnHBXAEk0cZ7cCj/htunLsR9Qdb
-	 raws2gRRuJyZGFNnimuQoEbpIwhRjKmDiU3EfZ7kSq6bliCCsPtZKlsvTVKifE50i2Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793797789;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
+	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=EvxDNnbUq6iRwGS6lhBcvMyHnODms5EH1l67p6lNEm8=;
+	b=ztI5/43iPUsncwHoh0wRzaMk+nO7uhzwTa1JlpLXH73f3M8rt0jUww9eYEG1Nwv4zwiE
+	 PaduIWaEmBEGQS/W8qt74YtErY45kxWq/ckS6RpuSNvbxZnpS2uvr72GXnuG7Dmba/uky
+	 zEmYGX9mfwDIVddzAkMw9u2vtQhMNnIx5ta6scKaWTaHfb3ch5wO9ugZX+wDis6cPHjLT
+	 ABqiiCb25Ia2tYj+xEfI9TClKQnER3rKeXG9svUzZk+uy+Bo6pIJnsmbIYPFHe5rPvfHD
+	 nYf5sex5C9TVVxwFKjzwfYW3/pUatkwtPGwGmMDKzi2vqzMBGJflEHosOr0cCYRDs+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WLqSLvYw;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=sang-engineering.com;
+	spf=pass smtp.mailfrom=sang-engineering.com;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=IzkT0ZAt;
+	arc=none smtp.remote-ip=194.117.254.33
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C9E1606A333
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:05:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A702B606A31B
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:09:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A702B606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WLqSLvYw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C861F00A2D
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 13:05:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793797525;
-	bh=LPKBxmhyg89L22fIaf9IQyOx1ftYYGNVMEyFVHYOx+w=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=WLqSLvYwRuBRb2z2uy097jLLlVZenw1O0Ud3+HdLZPMW2W/yzMsw4PoGFqDOIDUwu
-	 bYeTnemOekwxxrWyrcu3N1/2zGODfTWspcTCv2AIYLDuBbLuQUV8lPQQYsoeeaXIZo
-	 s9pxZA4n1vrlJHdLmklh37T+D8AiUXYc4GVoPjPUCjjcMlonowAys/U2PRW90Kfnup
-	 tuf9hIDTCB7oNt5tvVL+asbU98CD4ARrQUGqF8Nf8SlgNeuq/Vl88CJ3YEo52TiM8A
-	 criMClDoEAWjWwpB9F04k/fO5WKv51xfXn5g8+JQfVgeQbC0d/BD2BPOItMFG3+Cjh
-	 JM4GUMBVSYcnA==
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5be416e603cso409524e87.2
-        for <linux-i2c@vger.kernel.org>; Wed, 04 Nov 2026 05:05:25 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvByhocQCAG9B9AIFd4OVG+9sVK0gDAKSe7ZrrVrlwh2osV42ZmKeSDs1JXDHeryGqARmBDE18OWj3gs=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/qQua/zLP+wNmLE17a8BrFYf+fCpwRiRV5OsCljobFEOU+6v1i
-	IoLzHTNfXqTgTXr8e8E847j3lvfzaABtT01MLBuWmCYEZuzx5C1jwFoHyXiXww6AACW2v8S/7we
-	nLNKawbJNzHMz9AoYgo62au0P3VPwdSA=
-X-Received: by 2002:a05:6512:3a89:b0:5bc:c446:760c with SMTP id
- 2adb3069b0e04-5bfd956f3c7mr5830020e87.48.1793797524594; Wed, 04 Nov 2026
- 05:05:24 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=IzkT0ZAt
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=EvxD
+	NnbUq6iRwGS6lhBcvMyHnODms5EH1l67p6lNEm8=; b=IzkT0ZAtOWNrmqUdwPXf
+	0tCA2n/yxSTAUpywGuRZu79/v0ZGk1g+lAF5pbgN/eSpOf8m+HYGM8j8oymHGpus
+	VwrpAC+T7wXG6gm2OaFHUUXpZ6G/Lw/J3QNVITKgJA9JW0Ijb9uFIUAjw/fmMfTh
+	YIunEsFf3/0JW+/0EVBrQGdC0gXg0VZPEROMHMleJV9aAyq5gBXlinw1EWCDxNZM
+	6SSDuHWdX2iyARj1tV0kF0evGolGS2z28eP4R1cgDM9DVtJ/Xi1nGSPYzesKDCH3
+	tzM0th3zMDwpU3ouFBYe2aj5Y2xfOmjayQMeU6QsiStZq3RAqubu2WXEruhGzZ+W
+	pw==
+Received: (qmail 732281 invoked from network); 4 Nov 2026 14:09:44 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Nov 2026 14:09:44 +0100
+X-UD-Smtp-Session: l3s3148p1@1UrAF3NfDr7AwtcC
+Date: Wed, 4 Nov 2026 15:09:43 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Myeonghun Pak <mhun512@gmail.com>
+Cc: andi.shyti@kernel.org, linux-renesas-soc@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	ae878000@gmail.com
+Subject: Re: [PATCH] i2c: sh_mobile: request IRQs after mapping registers
+Message-ID: <ausul_FO8-1JKEmL@shikoro>
+References: <20261017233416.47b09ffff48f.i2c-sh-mobile@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,56 +64,66 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261022-add-board-ok3572-c-v1-0-0b0fd85a31ee@qq.com> <20261022-add-board-ok3572-c-v1-6-0b0fd85a31ee@qq.com>
-In-Reply-To: <20261022-add-board-ok3572-c-v1-6-0b0fd85a31ee@qq.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 4 Nov 2026 14:05:11 +0100
-X-Gmail-Original-Message-ID: <CAD++jLkfnsnqr9DeJG1UY1BNPmXV=L1fh0o1fRgq2N70k3Aq2A@mail.gmail.com>
-X-Gm-Features: AclHuK_mv5t_ofBXXvFmTtsscxk8ZZZWMu9yfbYuWEEuKyuLUDpVdyNQz1Is1sQ
-Message-ID: <CAD++jLkfnsnqr9DeJG1UY1BNPmXV=L1fh0o1fRgq2N70k3Aq2A@mail.gmail.com>
-Subject: Re: [PATCH 06/27] dt-bindings: gpio: rockchip: Add RK3572 GPIO banks
-To: 1579567540@qq.com
-Cc: Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
-	Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Heiko Stuebner <heiko@sntech.de>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	Elaine Zhang <zhangqing@rock-chips.com>, Lee Jones <lee@kernel.org>, 
-	Bartosz Golaszewski <brgl@kernel.org>, Richard Cochran <richardcochran@gmail.com>, 
-	Ulf Hansson <ulfh@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
-	Jisheng Zhang <jszhang@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, David Wu <david.wu@rock-chips.com>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
-	Maxime Chevallier <maxime.chevallier@bootlin.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
-	Alexandre Torgue <alexandre.torgue@foss.st.com>, Vinod Koul <vkoul@kernel.org>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	Thinh Nguyen <Thinh.Nguyen@synopsys.com>, Jaehoon Chung <jh80.chung@samsung.com>, 
-	Shawn Lin <shawn.lin@rock-chips.com>, linux-clk@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	mfd@lists.linux.dev, linux-gpio@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-phy@lists.infradead.org, 
-	linux-usb@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="X69eXN8VBfvJjUDN"
+Content-Disposition: inline
+In-Reply-To: <20261017233416.47b09ffff48f.i2c-sh-mobile@gmail.com>
+
+--X69eXN8VBfvJjUDN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 21, 2026 at 6:12=E2=80=AFPM Cunhao Lu via B4 Relay
-<devnull+1579567540.qq.com@kernel.org> wrote:
+On Sat, Oct 17, 2026 at 11:35:16PM -0400, Myeonghun Pak wrote:
+> The managed IRQ handlers are acquired before the managed register
+> mapping, so devres unmaps the registers before freeing the IRQs. A
+> transfer wakes its waiter before the ISR's final register read, and
+> unregistering the adapter does not synchronize these IRQs. An in-flight
+> handler can therefore still access the mapping when it is released
+> during driver detach.
+>=20
+> With forced-threaded IRQs, the handler can be preempted after waking the
+> transfer waiter and before its final ICSR read.
+>=20
+> Map the registers before requesting the IRQs so that managed cleanup
+> frees and synchronizes all handlers before unmapping their registers.
+> Keep IRQs available while unregistering the adapter because client
+> removal may perform transfers.
+>=20
+> This issue was identified as part of our ongoing research while
+> reviewing kernel code.
+>=20
+> Fixes: 7fe8a9993337 ("i2c: sh_mobile: devm conversion, irq setup")
+> Co-developed-by: Ijae Kim <ae878000@gmail.com>
+> Signed-off-by: Ijae Kim <ae878000@gmail.com>
+> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
 
-> From: Cunhao Lu <1579567540@qq.com>
->
-> RK3572 GPIO banks have four parent interrupts and a separate debounce
-> clock.
->
-> Signed-off-by: Cunhao Lu <1579567540@qq.com>
+I know I am late to the game, but I still want to say that while
+changing the order to be "regs then irqs" is in general a good thing, it
+won't matter here, as I see it. Unless the later pm_runtime_get_sync()
+the device should not(tm) be able to send irqs. Famous last words...
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Perhaps Bartosz can just apply this one patch to shrink the series?
 
-Yours,
-Linus Walleij
+--X69eXN8VBfvJjUDN
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmrrLpcACgkQFA3kzBSg
+KbYpag/+JmH6ej53UXJ08VUo5KB/VIydBB6rNhI9e7lIsaYzj9vBTSNrfJrj9jS2
+RoWIFdVwm1RKlARCyNk+il5ws61pnqGaa7aTGNEGBaEPyc9aPvxRjdiDeXLxkcRG
+j8HQ4OHSHvC2bKbTSvYFJ89+GURKNeefKwOzUncOJrfyyIdeUF8y1eVaWqeA8egR
+iYJlgNUYDylanlugNdFG487fswtxDFoVNdCwPvpRAB1KgymswDTzVn2us/YvS0zD
+Hya6RrjAVycFjLUMpgYyitm/NnxTvDIzC+5786VBV4YLX/2iZROy2e4K1R15qKwZ
+5JlZOIAbGVxQCzAt8tjvfhWfLwMbN34Ko3/Db02BNMLz1ZLSkgZVFzUpV2UbOxvq
+DMACvVEz713XwXM4eODYsKBKSPNr2wUFHScH1l6WGH2eIbybdVChKalCr8TzYlB4
+29gN17EVwnWFvllGGL2LI/kPXSmISfKDhNlwLtKxH5jW8tPKRSkMLXkDhjbWkDYl
+8C1dKTySaGPGo6NOkmBPpTbrHbpraLhewo/BX0LfCrzuDm8WL7pH3hHM6etyZI3T
+aHCMMem3UVXETSTCkoZ8EiW9jAXn9g2oY7rp5bw6GmU+nAB0pB6ca45m3QK7kQue
+jccfzv2ajqLBF6tXsl4FUIui3KMUVpTQWDgR3ClTj8I+B4HnaDk=
+=VZ10
+-----END PGP SIGNATURE-----
+
+--X69eXN8VBfvJjUDN--
