@@ -1,58 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793832325;
-	b=c93fAsTItQ0v2N9LPTGQohJsH0cKEA1EmRKImELeB+JM0TIKnxLqdN/t5zBicNj+MlNP
-	 cO4+oIf5v/b4ycuE4uhi816sTx0TeDuSR0j5f/rPgsinmBaiON+JRjXvohAcU+elPSwpi
-	 IoYwGCgm1eE+uh2X4M93xIzJK2rkmpnt24v6e3k3oBod0cXXBC2IXBKkFlNwQ6QaU+88n
-	 zb/cIVc5jJiq52Y2YLDP3LZwG9Fna8N15AymFHXkHoJooNjQ/rX5ZjkfuIX1aJhEzdrGF
-	 i5fPR3Eu0r+QpTnd34Le9H4BE8nc3CbwT+Lk7Qj21iLcj8pZSn3dKCI/ePGFZv3jsMg==
+	t=1793833537;
+	b=bsXhU5OcESGVyG0QY3zFfd3Nt78s61Tm41W/pd6Eq8bANX+24OsqAxfHLu2wlA4z16c/
+	 06wkc7JzquvMJ+TkjVHX/+1r1/uglR6K7aIo8QmX+TeB+5NP7gxfUcVE5qkZdIXEXFdWT
+	 KYD2JCtSShB9hBX5e872/POkKjCK6oDhclz+TnenCurRJ5dF4l9VzLoy8s/lIwdjP30Qb
+	 kAEI3RWOoceqeng9r60o4Qo9/sd6w7EdTMRwNIBJ/Zm0kQLkTvmv3pBRhNeVJZBLOCF2g
+	 Vcs63L4kpb7ZG2OSblJBDqLHK6xb9fSMUtXu0rJCWxgppbRQn5PkWmbXpDjWMyaG/Fw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793832325;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=NisxL0f+f4Kv7Gxb9AXoyNy/iAXVqPNrxuhHVOeyJA4=;
-	b=iQT/zl6TeAynkQmJU94AjQmSa8uUi5fn4nuiHNRVTikpNwJKbMVykBXHI586xvtuGqt4
-	 u167xg5iI44mDWbbNnFyiuMeTuWJJHtKmjzGH4idmGk9APvdPcey0OKUwaejeSw1SAZuK
-	 ugPoPtQjvZ53SifPgHj5Rj34HFSRNgJwGBVNDje9PkhAJj3dTodr2i5hmwVrbz8h12jTI
-	 K5CzWWQUHqyuMWwYXenYd+l95mWpAebIm4zZpVl2cPdjQIggp9FTrV8WYd46VJi/JkPBN
-	 xyydUMeEFFBM9n58x0Oie/L+9voVSdChfHMNy/qWyXbl3RAcSHVPGWY4LrLVFaCPYeA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793833537;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=5Dm4n4ms7YK3xOnBLnFejmdnFkKaY1xBcsZDx4fivZY=;
+	b=HnSX0GXaL/s+Y22afLUOpD0BNGNo7WP4nX6KeDLgUYjObaiChXk0oKU3DcfCv7ZlBJ2B
+	 ZI84XiHIoPoCFlbrlWywjv3OxJmsLZwTMvy8RdUvqHvHh8HNwCdjeGGVGa8YUlGcHnJqG
+	 EqPfCP+Qxfdf4z/gU+YHdbygJWw3zJ0TnN066Hx6S5TnChXwxTAbMH6GbEfNV9YgBttHD
+	 w3/SEqW2LuPwio8mDVMydgLJw3NMgZJQNHWJCqPt+bqWBsoQTQiQ8jsCEKkQwhDDc5Mlv
+	 GcCUS+Z5KlZydn8bUZYcxU1yogCkkojDB6eshcom5dDg9xFdTcViK5bOMhKBJuR9tBg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=Ec56sdEU;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hnpXwoWV;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 978C1606A31B
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 22:45:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 978C1606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67340606A31B;
+	Wed,  4 Nov 2026 23:05:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=Ec56sdEU
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=NisxL0f+f4Kv7G
-	xb9AXoyNy/iAXVqPNrxuhHVOeyJA4=; b=Ec56sdEU3y57YCyf/CEn6SQUt95R4o
-	QErllIeqveA3WsEOgmgDxrEg0CLZVONnLRGqYO/G1gwli3qt6FeeMQsn6knljgDr
-	+0wUdCaMJ1GF1MT8M9/vXrwYNva+WTfcefsiyaMdt90QSJEc2Vujagw+44tUDgH7
-	oO/ieRQNGZNqOsBKf2bhly/zykxJClsVYqBGwgEGnsrtvn1qYwN9AXkcXKfQXSy5
-	uhBirr24aa4X5dETwctxVHRQWL8ooWHsBvZFyk31dlm9owg/GT6ecQo5qOHlUcrd
-	sxLGk02h+WcC1Nwq7wf2pcb7O1OpNtG4NFESVsbB0taIv8/WN4fotz/g==
-Received: (qmail 888325 invoked from network); 4 Nov 2026 23:45:18 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Nov 2026 23:45:18 +0100
-X-UD-Smtp-Session: l3s3148p1@syMhIntfvrnAwtcC
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-i2c@vger.kernel.org
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hnpXwoWV
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FEBB1F000C1;
+	Wed,  4 Nov 2026 23:05:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793833537;
+	bh=5Dm4n4ms7YK3xOnBLnFejmdnFkKaY1xBcsZDx4fivZY=;
+	h=From:To:Cc:Subject:Date;
+	b=hnpXwoWV0i7fUC5DV4IFvrCVYSdaFBg5bstK/+yYlokHwdnUW6+WJqMS6TQUQmJG5
+	 KRqwmOLtY5jLsuU9F9aR64eQ6i5GgcDVf/K/+pZMpPaUP1rVZxpwHhsFyhRIC6YDdS
+	 VYznDBC/c6/85fvAuGbsqXOb0wi1fayI9BwmP/sIQJIP3K52mWin/EhTI6XJeWvtDf
+	 rlLW7f6opBUQIfTxM5ykT0xKsgPuZQTnvKdK9k/4mA5lsQ605LarLdzxwgB8e2tikx
+	 KuBnrSQT3lw9C97FDVIBAMRHwVIhyfcLMl7EIfDmkRHhF+1PWsKlVp4LD47uscnwVo
+	 O6nncwQ9vAKJw==
+From: Vladimir Zapolskiy <vz@kernel.org>
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
+	Robert Foss <rfoss@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Abel Vesa <abelvesa@kernel.org>
 Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] MAINTAINERS: add i2c-algo-bit to i2c-gpio driver
-Date: Thu,  5 Nov 2026 00:44:50 +0200
-Message-ID: <20261104224449.1332-2-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.53.0
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: [PATCH 0/3] arm64: dts: qcom: sm8350: Add CCI and camera MCLK pins
+Date: Thu,  5 Nov 2026 01:05:26 +0200
+Message-ID: <20261104230529.3040285-1-vz@kernel.org>
+X-Mailer: git-send-email 2.51.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -64,28 +67,22 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-i2c-gpio is the prime user of i2c-algo-bit, so I also want to be
-CCed when patches for the latter are coming in.
+Add Qualcomm SM8350 Camera Control Interface (CCI) controllers and the
+pin configurations of camera sensor master clock outputs.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+The series depends on the SM8350 camera clock controller support:
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 93abbb315065..137f39c285cc 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11234,7 +11234,9 @@ F:	kernel/entry/
- GENERIC GPIO I2C DRIVER
- M:	Wolfram Sang <wsa+renesas@sang-engineering.com>
- S:	Supported
-+F:	drivers/i2c/algos/i2c-algo-bit.c
- F:	drivers/i2c/busses/i2c-gpio.c
-+F:	include/linux/i2c-algo-bit.h
- F:	include/linux/platform_data/i2c-gpio.h
- 
- GENERIC GPIO I2C MULTIPLEXER DRIVER
+  https://lore.kernel.org/all/20261104001704.2744766-1-vz@kernel.org/
+
+Vladimir Zapolskiy (3):
+  dt-bindings: i2c: qcom-cci: Document SM8350 compatible
+  arm64: dts: qcom: sm8350: Add CCI device tree nodes
+  arm64: dts: qcom: sm8350: Add camera MCLK pinctrl states
+
+ .../devicetree/bindings/i2c/qcom,i2c-cci.yaml |   2 +
+ arch/arm64/boot/dts/qcom/sm8350.dtsi          | 231 ++++++++++++++++++
+ 2 files changed, 233 insertions(+)
+
 -- 
-2.53.0
+2.51.0
 
