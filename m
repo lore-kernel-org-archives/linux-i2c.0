@@ -1,75 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.29.241.158
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.224
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793774653;
-	b=WBN15moNpcKTXbPooa2oPmz2UXBL4d8zHAMHv5rbnZqPrP81VFNnjrxbILdo8zf0A0Ba
-	 m4x2TIKPpB4WcOV3r+oiS6hlCmrNSAgTUOkJbjEBhWFqdEhtlfNRfjXSnUAe3v97Aa1cN
-	 /Apl3Y5IK/XQ/f+amU1cOuCrZtvdevxOp9RFa1G7cneDudnHneAqE7lY7tLST7Kmr8en1
-	 Q0djoiFawbYYIDFWT2a8TYGchOnxSigt3pSFmq2Pp4U7s+Ad4qHRZOr1ekxW+ym4H3+E3
-	 uFQHZ9Cy+2rDUzso1K4V6B/kA/ZLM5KlNVL9G/BYRwA2prtnicq6ffJpbZ6w11P6odw==
+	t=1793781307;
+	b=FIArqGNiKezXmdJQQbC2FKVNEVLJSsZLHvsfLySCPTv6lCRDubs7kIaHzw0f0ONjfzoC
+	 RMH0w6NzluVXzFlY+RfHkJ9DcQ4FTVUGohxZ+8EjTv+VWljcrYKQYC5jXCZ9YcvQWmwDZ
+	 AkR8x3gpgKr0Yhw8k1Om0E2RcBgqATNfqyomVGolNZbg+YQip8Yni8MSuO0V4Gkvldz11
+	 JRgecXCl/+E5RqzUdaxUoimLC7hpPbVr1YZ0po+F2wUIJOXjXvv53aycXdYclfennZFcj
+	 s3lhCH6YoTf0socWps1zicptladKDwM+6NeXXXrMSxrlPo9P8cfaGzogTeqReJWwHLg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793774653;
-	h=DMARC-Filter:DKIM-Signature:Received:Message-ID:Subject:From:To:Cc:
-	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 User-Agent:MIME-Version;
-	bh=5FrnZXhgWerXcG8ymggsVZPGtznnjgT06atJ+YKwCsw=;
-	b=hAy+Iicy5kFy8DPxpKqn8mo3ws/yblMOhyUOdyYISPD7TwR5xh8ztmj5whH0R8dqKIf3
-	 swC+y6livrquA0wU2nYEat2IGZWF/HFWG9JxN7ODodwRlzKUfqiC1pidVMXAPBsPb8urp
-	 /HM/KRtzDTJbNYr+K2SHL5/THt0JoETm9OgFcoEJq8BxNVGd+kG2VVvYJbPFMa5pwsILu
-	 avN55q8U08dbA989mtkKgplsIfxK3FN4jOLwLZh//aaJLvsgQFhcc8nYmR7V5xXw10nRD
-	 E1UfJgpzIee9lOoXwVTAK4CqF+gSQgkPAWvgtf2pF9hyDX6tuyHJHoZ/bwP9VTlyn+g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793781307;
+	h=DMARC-Filter:dkim-signature:Received:Received:Received:From:To:CC:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:Content-Type:X-Originating-IP:
+	 X-ClientProxiedBy;
+	bh=bUygdQqIIZrkfUGQIVLkrIOXSUuIu4MOWXh+3fLnD/4=;
+	b=XmdocDajFBRanAkDi49TeyGBcogS09EgDP4o9ZGUM5mMmoA94uBTKRdB2WMjgMPAX2kA
+	 yWXGf4MM4wIIkgLyfUv2KnZ/Jz2DDEGoILJn74HxF641h2yK6WJC7S+51WhdLQucqrML9
+	 qv+qhoZTYTjpDQwdnVwpytAhEIEeqQIp56cSTMoSlmSb+UtjnQKvEv9/V7Klb1eAhEr9T
+	 FSc+yVD2KUVxkwMEEkjzvav1NtAkaDILwyY542npxKNjb4WG9wkctqlyBkPJW3VT4aCSt
+	 qq2O+O1kp6j8Tah66/t8YxN7z8OTF+smdvyNj3knw84uThEloC1Gd96V90x1erz1wsw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=codeconstruct.com.au;
-	spf=pass smtp.mailfrom=codeconstruct.com.au;
-	dkim=pass header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.a=rsa-sha256 header.s=2022a header.b=XG6G26+s;
-	arc=none smtp.remote-ip=203.29.241.158
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
+	dmarc=pass header.from=huawei.com;
+	spf=pass smtp.mailfrom=huawei.com;
+	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ziz7Xi7P;
+	arc=none smtp.remote-ip=113.46.200.224
+Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721A6606A31B;
-	Wed,  4 Nov 2026 06:44:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 721A6606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B60606A31B;
+	Wed,  4 Nov 2026 08:35:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D3B60606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.a=rsa-sha256 header.s=2022a header.b=XG6G26+s
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1793774643;
-	bh=5FrnZXhgWerXcG8ymggsVZPGtznnjgT06atJ+YKwCsw=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=XG6G26+s/bdq0EvP4046nZzifwVf8qL5acbkt2Nu7LMV1FHbmsRc2S6uCJx5Jll3V
-	 eHy1N/xOS0SQT3B2Ix/p5Qe81kVZEkm/JoZD/LyiKNj81oh8C+P+EboW68cWki//63
-	 dUQH+O7MwiuWdTiA/BqhnSKLNK6T+u9tQkD2S27/qQXrAVTBYRncWJEwS81JnH6xSq
-	 qkRDgWRwW7vDHwCJQqPOPVbODQlWH7TzVOCtI3fhMlgWhx7MvwD8VBgfMi6Q3jF0Ss
-	 NJ6ZTjdSzo6qh6Vxsv7e8oMcPo9eBvmu0DqjqMw86y8hYwcr0KeCyedkSk/dWIXXY8
-	 DcJDCqieDCg0Q==
-Received: from [192.168.14.220] (unknown [144.6.157.237])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id AD6156469B;
-	Wed,  4 Nov 2026 14:44:01 +0800 (AWST)
-Message-ID: <e89969f13177f2e7b3105851d0cf42eaf11bd98e.camel@codeconstruct.com.au>
-Subject: Re: [PATCH net-next v2] mctp i2c: add sysfs control for mux child
- netdevs
-From: Matt Johnston <matt@codeconstruct.com.au>
-To: Kenny Hsieh <kenny_hsieh@jabil.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
- "jk@codeconstruct.com.au"	 <jk@codeconstruct.com.au>,
- "andi.shyti@kernel.org" <andi.shyti@kernel.org>,  "peda@lysator.liu.se"	
- <peda@lysator.liu.se>, "andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, 
- "davem@davemloft.net"	 <davem@davemloft.net>, "edumazet@kernel.org"
- <edumazet@kernel.org>,  "kuba@kernel.org"	 <kuba@kernel.org>,
- "pabeni@redhat.com" <pabeni@redhat.com>,  "linux-i2c@vger.kernel.org"	
- <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org"	
- <linux-kernel@vger.kernel.org>
-Date: Wed, 04 Nov 2026 14:44:01 +0800
-In-Reply-To: <DM8PR02MB80878075D2520A9CAD7DF0928E692@DM8PR02MB8087.namprd02.prod.outlook.com>
-References: <20261015081341.1262695-1-kenny_hsieh@jabil.com>
-		 <179239912623.3135.11352652156626817288@kernel.org>
-		 <DM8PR02MB808768B7D02FF12777B7777E8E602@DM8PR02MB8087.namprd02.prod.outlook.com>
-	 <7486b1fc4dbcca755dd2f6b6de54d17919af873a.camel@codeconstruct.com.au>
-	 <DM8PR02MB80878075D2520A9CAD7DF0928E692@DM8PR02MB8087.namprd02.prod.outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2-9 
+	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ziz7Xi7P
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=bUygdQqIIZrkfUGQIVLkrIOXSUuIu4MOWXh+3fLnD/4=;
+	b=ziz7Xi7PPJmJvAZSAI0xkJu/4FxMsfDe9IbTquz6cNfBmnsKjKJ3hLSBhdgYwJ1llCJCsnD8B
+	u+pyiitxX1VpsFWgWd3OWgJSL9ayB8GNdmBxsnTN4pXLKUqxMVjnnDwy6yRYA8csYmP9KTkBh6I
+	JD9LnQDVYo16DbzOXSJLTYU=
+Received: from mail.maildlp.com (unknown [172.19.163.15])
+	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4jKJdw1jhMz1cyPP;
+	Wed,  4 Nov 2026 16:34:44 +0800 (CST)
+Received: from kwepemo100017.china.huawei.com (unknown [7.202.195.215])
+	by mail.maildlp.com (Postfix) with ESMTPS id 53F394058E;
+	Wed,  4 Nov 2026 16:34:55 +0800 (CST)
+Received: from localhost.localdomain (10.50.163.32) by
+ kwepemo100017.china.huawei.com (7.202.195.215) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46; Wed, 4 Nov 2026 16:34:54 +0800
+From: Bowen Yu <yubowen8@huawei.com>
+To: <linuxarm@huawei.com>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <andi.shyti@kernel.org>,
+	<liudingyuan@h-partners.com>
+CC: <zhanjie9@hisilicon.com>, <prime.zeng@hisilicon.com>,
+	<wanghuiqiang@huawei.com>, <xuwei5@huawei.com>, <yubowen8@huawei.com>,
+	<ouyiyong1@huawei.com>, <dengtao44@huawei.com>, <tangbin55@huawei.com>,
+	<mojunjun4@huawei.com>, <wuzhanlong@h-partners.com>
+Subject: [PATCH v6] i2c: hisi: Add I2C bus recovery support
+Date: Wed, 4 Nov 2026 16:34:54 +0800
+Message-ID: <20261104083454.3929809-1-yubowen8@huawei.com>
+X-Mailer: git-send-email 2.33.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -79,53 +72,223 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
+ kwepemo100017.china.huawei.com (7.202.195.215)
 
-Hi Kenny,
+When the I2C bus is stuck due to a slave device holding SDA low
+(e.g. during an incomplete transfer), the master has no way to recover
+the bus through normal operation. Add bus recovery support using the
+subctrl register to manually toggle SCL and generate clock pulses to
+release the bus.
 
-On Tue, 2026-11-03 at 14:47 +0000, Kenny Hsieh wrote:
-> Hi Matt,
->=20
-> On Mon, 2026-11-02 at 17:04 +0800, Matt Johnston wrote:
-> > An alternative could be to create sysfs attributes under the mctp-i2c d=
-evice
-> > instance itself (the i2c slave).
-> >=20
-> > Mux buses could have mctp-i2c netdevs instantiated with
-> >=20
-> > echo "i2c-6" > /sys/bus/i2c/devices/2-1060/add_mctp_controller
-> >=20
-> > (where i2c-6 is a child mux bus of i2c-2, and i2c-2 0x60 is a mctp-i2c =
-i2c
-> > device).
-> >=20
-> > "echo i2c-6 > .../2-1060/remove_mctp_controller" would remove the mctp-=
-i2c
-> > netdev.
-> > Setting a root node as an mctp controller would involve writing its own=
- name
-> > to the attribute file.
-> >=20
-> > How does that look to you?
->=20
-> I like that a lot better. Since the attributes live on the mctp-i2c
-> device, they can just go in dev_groups and the driver core creates and
-> removes them for us. So I can drop the per-adapter tracking list, and
-> the remove ordering and probe walk races Sashiko found go away with it.
->=20
-> Let me know if you'd rather have any of these differently:
->=20
->   - adding a bus that already has a netdev, or removing one that
->     doesn't, just returns success
+The recovery is performed via a second register resource (sctrl_base)
+that provides direct control over SCL/SDA lines through mux and
+output-enable bits. After recovery, the I2C controller is reset through
+the ACPI _RST method and reconfigured.
 
-Would it be better to return EEXIST (add) or ENODEV (remove) for those case=
-s?
-That could catch mistakes. Usually there'd be a single userspace program
-managing it, so it doesn't need to be idempotent?
+Recovery is only registered when the subctrl resource is provided in
+the firmware description, keeping backward compatibility with existing
+platforms.
 
->   - a bus that isn't in this controller's mux tree gets -EINVAL
->   - a bus name that doesn't exist, e.g. i2c-9999, gets -ENODEV
+Signed-off-by: Bowen Yu <yubowen8@huawei.com>
+---
+ drivers/i2c/busses/i2c-hisi.c | 142 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
+diff --git a/drivers/i2c/busses/i2c-hisi.c b/drivers/i2c/busses/i2c-hisi.c
+index ba5c9579ae19..5b4e92d23032 100644
+--- a/drivers/i2c/busses/i2c-hisi.c
++++ b/drivers/i2c/busses/i2c-hisi.c
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2021 HiSilicon Technologies Co., Ltd.
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/bits.h>
+ #include <linux/bitfield.h>
+ #include <linux/clk.h>
+@@ -62,6 +63,8 @@
+ #define HISI_I2C_INT_CLR		0x0048
+ #define HISI_I2C_INT_MASK		0x004C
+ #define HISI_I2C_TRANS_STATE		0x0050
++#define   HISI_I2C_TRANS_STATE_SDA_LEVEL	BIT(5)
++#define   HISI_I2C_TRANS_STATE_SCL_LEVEL	BIT(6)
+ #define HISI_I2C_TRANS_ERR		0x0054
+ #define HISI_I2C_VERSION		0x0058
+ 
+@@ -86,9 +89,26 @@
+ #define NSEC_TO_CYCLES(ns, clk_rate_khz) \
+ 	DIV_ROUND_UP_ULL((clk_rate_khz) * (ns), NSEC_PER_MSEC)
+ 
++/*
++ * SUBCTRL SC_I2C_CTRL register
++ * Set HISI_I2C_CTRL_DAT_CFG_EN and HISI_I2C_CTRL_SCL_CFG_EN to control
++ * I2C pin behavior by subctrl controller; use HISI_I2C_CTRL_DAT_OE and
++ * HISI_I2C_CTRL_CLK_OE to control input or output; use HISI_I2C_CTRL_SDA_OUT
++ * and HISI_I2C_CTRL_SCL_OUT to control output value.
++ */
++#define HISI_I2C_CTRL_DAT_CFG_EN BIT(5)
++#define HISI_I2C_CTRL_SCL_CFG_EN BIT(4)
++#define HISI_I2C_CTRL_DAT_OE BIT(3)
++#define HISI_I2C_CTRL_CLK_OE BIT(2)
++#define HISI_I2C_CTRL_SDA_OUT BIT(1)
++#define HISI_I2C_CTRL_SCL_OUT BIT(0)
++
++#define HISI_I2C_RECOVERY_REG_SIZE 4
++
+ struct hisi_i2c_controller {
+ 	struct i2c_adapter adapter;
+ 	void __iomem *iobase;
++	void __iomem *sctrl_addr;
+ 	struct device *dev;
+ 	struct clk *clk;
+ 	int irq;
+@@ -108,8 +128,14 @@ struct hisi_i2c_controller {
+ 	struct i2c_timings t;
+ 	u32 clk_rate_khz;
+ 	u32 spk_len;
++
++	/* Bus recovery */
++	struct i2c_bus_recovery_info rinfo;
++	acpi_handle acpi_handle;
+ };
+ 
++static void hisi_i2c_configure_bus(struct hisi_i2c_controller *ctlr);
++
+ static void hisi_i2c_enable_int(struct hisi_i2c_controller *ctlr, u32 mask)
+ {
+ 	writel_relaxed(mask, ctlr->iobase + HISI_I2C_INT_MASK);
+@@ -151,6 +177,118 @@ static void hisi_i2c_handle_errors(struct hisi_i2c_controller *ctlr)
+ 	}
+ }
+ 
++static int hisi_i2c_recovery_get_scl(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
++
++	return !!(reg & HISI_I2C_TRANS_STATE_SCL_LEVEL);
++}
++
++static int hisi_i2c_recovery_get_sda(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg = readl(ctlr->iobase + HISI_I2C_TRANS_STATE);
++
++	return !!(reg & HISI_I2C_TRANS_STATE_SDA_LEVEL);
++}
++
++static void hisi_i2c_recovery_set_scl(struct i2c_adapter *adap, int val)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg;
++
++	reg = readl(ctlr->sctrl_addr);
++	if (val)
++		reg |= HISI_I2C_CTRL_SCL_OUT;
++	else
++		reg &= ~HISI_I2C_CTRL_SCL_OUT;
++	writel(reg, ctlr->sctrl_addr);
++}
++
++static void hisi_i2c_prepare_recovery(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg;
++
++	reg = readl(ctlr->sctrl_addr);
++	reg |= HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN |
++		   HISI_I2C_CTRL_CLK_OE | HISI_I2C_CTRL_SCL_OUT;
++	reg &= ~HISI_I2C_CTRL_DAT_OE;
++	writel(reg, ctlr->sctrl_addr);
++}
++
++static void hisi_i2c_unprepare_recovery(struct i2c_adapter *adap)
++{
++	struct hisi_i2c_controller *ctlr = i2c_get_adapdata(adap);
++	u32 reg;
++
++	reg = readl(ctlr->sctrl_addr);
++	reg &= ~(HISI_I2C_CTRL_SCL_CFG_EN | HISI_I2C_CTRL_DAT_CFG_EN);
++	writel(reg, ctlr->sctrl_addr);
++
++	/*
++	 * Invokes the specific ACPI method "_RST" to trigger a soft reset
++	 * of the I2C controller to help the I2C controller recover from
++	 * the abnormal state after the bus recovery process.
++	 */
++	if (ctlr->acpi_handle && acpi_has_method(ctlr->acpi_handle, "_RST")) {
++		acpi_status status;
++
++		status = acpi_evaluate_object(ctlr->acpi_handle, "_RST", NULL, NULL);
++		if (ACPI_FAILURE(status))
++			dev_err(ctlr->dev, "_RST method failed: %s\n",
++				acpi_format_exception(status));
++	}
++	hisi_i2c_configure_bus(ctlr);
++}
++
++static int hisi_i2c_get_bus_recovery_res(struct hisi_i2c_controller *ctlr,
++					 struct platform_device *pdev)
++{
++	struct resource *res;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++
++	if (!res || resource_size(res) != HISI_I2C_RECOVERY_REG_SIZE)
++		return -ENODEV;
++
++	ctlr->sctrl_addr = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(ctlr->sctrl_addr)) {
++		ctlr->sctrl_addr = NULL;
++		return PTR_ERR(ctlr->sctrl_addr);
++	}
++
++	return 0;
++}
++
++static int hisi_i2c_recovery_init(struct hisi_i2c_controller *ctlr)
++{
++	struct platform_device *pdev = to_platform_device(ctlr->dev);
++	struct i2c_adapter *adapter = &ctlr->adapter;
++	int ret;
++
++	if (acpi_disabled)
++		return -ENODEV;
++
++	ret = hisi_i2c_get_bus_recovery_res(ctlr, pdev);
++	if (ret)
++		return ret;
++
++	ctlr->rinfo = (struct i2c_bus_recovery_info) {
++		.get_scl = hisi_i2c_recovery_get_scl,
++		.get_sda = hisi_i2c_recovery_get_sda,
++		.set_scl = hisi_i2c_recovery_set_scl,
++		.prepare_recovery = hisi_i2c_prepare_recovery,
++		.unprepare_recovery = hisi_i2c_unprepare_recovery,
++		.recover_bus = i2c_generic_scl_recovery,
++	};
++	adapter->bus_recovery_info = &ctlr->rinfo;
++	ctlr->acpi_handle = ACPI_HANDLE(ctlr->dev);
++
++	return 0;
++}
++
+ static int hisi_i2c_start_xfer(struct hisi_i2c_controller *ctlr)
+ {
+ 	struct i2c_msg *msg = ctlr->msgs;
+@@ -496,6 +634,10 @@ static int hisi_i2c_probe(struct platform_device *pdev)
+ 
+ 	hisi_i2c_configure_bus(ctlr);
+ 
++	ret = hisi_i2c_recovery_init(ctlr);
++	if (ret)
++		dev_dbg(ctlr->dev, "I2C bus recovery not available\n");
++
+ 	adapter = &ctlr->adapter;
+ 	snprintf(adapter->name, sizeof(adapter->name),
+ 		 "HiSilicon I2C Controller %s", dev_name(dev));
+-- 
+2.33.0
 
-Those look good.
-
-Cheers,
-Matt
