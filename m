@@ -1,85 +1,64 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793793312;
-	b=Aj5ARYRJOJbcz62gelD3pbEqw4mV55mQ3gVFd31B5L2b/om65qL0WK+jsgOy8MgxITad
-	 BZosKwaw58jIvFkgJsZK8dP2NlfiJtTjxiDoUjOKwJoQZO0ghG7TEdIULS28F0QlHVLUH
-	 4DkQHGvSkQLDDvBwtk8LG4simX+A0RJtD8btDV89G/hNDxzQ8jbAAvwHsTn+1OmZbdF9N
-	 2BcssiMS0SxaBx5x9LdUgIUDpCumFUVoyxqVrsG4VgKWVsX71VrZ272s1hPQnCmFy4P8O
-	 rspSJHHKMU55af8wnUw/D19xrBpO5Y6PBItQUEKQHshqspmFLkiB1ljaaluUegdsJVA==
+	t=1793794281;
+	b=xM4RacenJm2NrcE2XTCZbeR43MH/E66pOK62MMIST7YbX0Tyc5sl3TN6A6yvxF0BR5w5
+	 0ghmX44L+q5dsxAjrfdR8iI6A7bLBLnEGMBkUoSTbYTrp5cp4RD3/tvHW2OJWsH2lbCXc
+	 WALhwHGj6wCypQV/PFKKkvBExljAVvZgW/ZcHWVcMbuKXAKqQUWaoGfL/zfS5Ry7wsZVa
+	 ucmDg7s54Zr50WYFDamuRrucFL/aWfLG2ZEb4sx2+3W5BrNq5w7vpCEJpXdyqHMrgAZIX
+	 AzVOOQK22ShFsmhTzo0p8RU+8i8oenaNxj0u2O0P3oZ9wv5OhEXOlSruWWiPnhdem/Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793793312;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=F12AjCeObMo8GMff5Cd9gx8f+ATT0wwVACkVrTGxlyY=;
-	b=QzfpqvMMUKXYNaKyEUhkBt4OFSNL9BMxiPh42lOpHYRSXKX0/uTphc9ch3feCAyFo/LC
-	 NPqmsTONPb3h1WmPexjsWC7EbNQiRjUxkc7MV0qz2+lJxvQrzI3G6/e8T5N4ylDXwABy6
-	 /bj9luehPw5+cshBYQMM8ww8Mj9rKkwXq9/pt9ACjLC+BBo5dRQueRiVH3SZuHAgvEKbJ
-	 YBvH2WPqFJuOMpTHI8Fgmbq65ZJZ8n+RHRiYJAWVuYUX1Cu1bY2uz5xsZtFRESnpZQPpI
-	 0bLm7yliL0ipwh5jVPAPCZD0tgLCpdAfUdfp1H75P23M+BTX0MV5OSw6JHg6R1vUD6w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793794281;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=6EsKNx+i/27AOT45Y7CU7NIo3IUkBxCrUdSGAbsZRm4=;
+	b=x6P8UDFsT+MQ8RwoUiiIxAi19JnP2HvmYWYc2Or9X/WRR8ZNHw1C9U+hF/AvSwv+SXH4
+	 3r9YpeEO+uPO79uxfyJsxsnIFuS3W/plHY5YoOBiPmN2ySHoXUvI3WFCmCxPm+3BuTFTI
+	 yO/oKY7WNTQyuUo1h9zGY6JRXLAPKETZCWAlqlZaUtgJaSjpYOWzmbUk6jm+1cxAWdOAL
+	 d1sPJmTSths8qk0zttiVHSi4ktFSznkoZhorU0iemqBfZ6Fsk78zEHxpgLdKFYtreG4GB
+	 FeUkf3Oxe/DAUnxa3UD7vPP4N6I9Whtir2pJaq7ZvIX9bY8WFGzbSojzC2F6AeQmsmw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=QbXZ68bo;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CVb22o5M;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E81606A326
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Nov 2026 11:55:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65E81606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A31AD606A32C;
+	Wed,  4 Nov 2026 12:11:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=QbXZ68bo
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=F12A
-	jCeObMo8GMff5Cd9gx8f+ATT0wwVACkVrTGxlyY=; b=QbXZ68boAOIiNT4CEroe
-	+FbKl+6S6VOO5SNwVsO9zbCtneUsv7Kh3StDFX05+gJ0/fpFdr3nHZ0Lw/mmQfon
-	sJZwUkbYMFMPSlRCkubgjxgIOv1DeduEKrap57Juq3rb1SL1wVyZOMyyG2ZBuLdg
-	lsKZFzb/xP26QmMlKZA4aOK5sudykwK3+Cu0fd6Pxp4Ogqpd33QFXqwnQmRwt5O6
-	excbPdUWcA/fct9a5k079M22fD4lAW1nvou0qo5BdUHrT2WJG1mNe/kcF0T/U0G7
-	jTrrsNtAO9+sJLGbeUPcQXsJ1bPMGIxIAEsYz8f/EdQIpUCSmwDb6gfkxpWs8YNa
-	tQ==
-Received: (qmail 708253 invoked from network); 4 Nov 2026 12:54:59 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Nov 2026 12:54:59 +0100
-X-UD-Smtp-Session: l3s3148p1@jphgDHJf3LHAwtcC
-Date: Wed, 4 Nov 2026 13:54:58 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-Cc: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CVb22o5M
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 827D01F00919;
+	Wed,  4 Nov 2026 12:11:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793794280;
+	bh=6EsKNx+i/27AOT45Y7CU7NIo3IUkBxCrUdSGAbsZRm4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=CVb22o5MeuxPtkYl6fYYqI1g8BE2dtuG9E8jQBTPP/QAhN4X+PPEcvCpb0LQ6DJMo
+	 e6lcTM1/DwwfxmQYhQKfNDFIjyWI3or9dBC/ryYC1eLMNRlCd+wbU81XUU3DrP+8QU
+	 w7KsSPFe9HeoL/jcHWdUsDZORR0eDM5kvF/bjnXn6dBc4fhRiIgZhbvdYMTPsO4861
+	 +f63SHH12IbRoe8viAV9/pfG05ejYzlLRHsVwUHNIxAU0K1fYW3RSLUHDLT7EIWOwg
+	 5BQSngEIVLDhHo/Vm5KiV4Wf7gBEpUDzHBFyN9V+hNVLZ+XDdYXSqqIrQfevsceM6Q
+	 oJ+83gHwuVeWQ==
+From: Michael Walle <mwalle@kernel.org>
+To: Dong Aisheng <aisheng.dong@nxp.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
 	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Vignesh R <vigneshr@ti.com>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Roger Quadros <rogerq@kernel.org>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Peter Griffin <peter.griffin@linaro.org>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Linus Walleij <linusw@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	imx@lists.linux.dev, linux-omap@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] i2c: Convert to subsys_platform_driver()
-Message-ID: <ausdEofHrBQMLiEO@shikoro>
-References: <20261104113316.1634141-1-peng.fan@oss.nxp.com>
+	Fabio Estevam <festevam@gmail.com>
+Cc: Carlos Song <carlos.song@nxp.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Michael Walle <mwalle@kernel.org>
+Subject: [PATCH 2/2] i2c: imx-lpi2c: don't treat a NACK in SMBus block read as an error
+Date: Wed,  4 Nov 2026 13:10:36 +0100
+Message-ID: <20261104121108.659820-2-mwalle@kernel.org>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261104121108.659820-1-mwalle@kernel.org>
+References: <20261104121108.659820-1-mwalle@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -89,152 +68,49 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261104113316.1634141-1-peng.fan@oss.nxp.com>
+Content-Transfer-Encoding: 8bit
 
-Hi,
+An SMBus device might indicate that a value isn't ready yet by asserting
+a NACK.
+This will lead to the following error message which will flood the
+kernel log for some device like an IPMI SSIF BMC:
 
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -896,19 +896,7 @@ static struct platform_driver davinci_i2c_driver = {
->  		.of_match_table = davinci_i2c_of_match,
->  	},
->  };
-> -
-> -/* I2C may be needed to bring up other drivers */
-> -static int __init davinci_i2c_init_driver(void)
+   [    4.277005] i2c i2c-5: SMBus read count failed -110
 
-I'd vote to keep this comment.
+Stop the polling if NDF is set and return -EIO, just like everywhere
+else. While at it, drop the MSR_RDF_ASSERTED() macro, it's just one bit,
+no need for FIELD_GET.
 
-> -{
-> -	return platform_driver_register(&davinci_i2c_driver);
-> -}
-> -subsys_initcall(davinci_i2c_init_driver);
-> -
-> -static void __exit davinci_i2c_exit_driver(void)
-> -{
-> -	platform_driver_unregister(&davinci_i2c_driver);
-> -}
-> -module_exit(davinci_i2c_exit_driver);
-> +subsys_platform_driver(davinci_i2c_driver);
+Fixes: efdc383d1cc2 ("i2c: imx-lpi2c: fix SMBus block read NACK after byte count")
+Signed-off-by: Michael Walle <mwalle@kernel.org>
+---
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-...
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index f57e800ac3b5..583155802e8a 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -92,7 +92,6 @@
+ #define MRDR_RXEMPTY	BIT(14)
+ #define MDER_TDDE	BIT(0)
+ #define MDER_RDDE	BIT(1)
+-#define MSR_RDF_ASSERTED(x) FIELD_GET(MSR_RDF, (x))
+ 
+ #define SCR_SEN		BIT(0)
+ #define SCR_RST		BIT(1)
+@@ -594,7 +593,10 @@ static int lpi2c_imx_read_init(struct lpi2c_imx_struct *lpi2c_imx,
+ 		writel((RECV_DATA << 8) | 0x01, lpi2c_imx->base + LPI2C_MTDR);
+ 
+ 		ret = readl_poll_timeout(lpi2c_imx->base + LPI2C_MSR, val,
+-					 MSR_RDF_ASSERTED(val), 1, 1000);
++					 (val & (MSR_RDF | MSR_NDF)), 1, 1000);
++		if (val & MSR_NDF)
++			return -EIO;
++
+ 		if (ret) {
+ 			dev_err(&lpi2c_imx->adapter.dev, "SMBus read count failed %d\n", ret);
+ 			return ret;
+-- 
+2.47.3
 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index bd659dfa702f..cd4d6d6b32c6 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1611,20 +1611,7 @@ static struct platform_driver omap_i2c_driver = {
->  		.of_match_table = of_match_ptr(omap_i2c_of_match),
->  	},
->  };
-> -
-> -/* I2C may be needed to bring up other drivers */
-
-Ditto.
-
-> -static int __init
-> -omap_i2c_init_driver(void)
-> -{
-> -	return platform_driver_register(&omap_i2c_driver);
-> -}
-> -subsys_initcall(omap_i2c_init_driver);
-> -
-> -static void __exit omap_i2c_exit_driver(void)
-> -{
-> -	platform_driver_unregister(&omap_i2c_driver);
-> -}
-> -module_exit(omap_i2c_exit_driver);
-> +subsys_platform_driver(omap_i2c_driver);
->  
->  MODULE_AUTHOR("MontaVista Software, Inc. (and others)");
->  MODULE_DESCRIPTION("TI OMAP I2C bus adapter");
-> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-> index e1cc2b2bd628..9a9a12b7e981 100644
-> --- a/drivers/i2c/busses/i2c-pnx.c
-> +++ b/drivers/i2c/busses/i2c-pnx.c
-> @@ -735,16 +735,6 @@ static struct platform_driver i2c_pnx_driver = {
->  	.remove = i2c_pnx_remove,
->  };
->  
-> -static int __init i2c_adap_pnx_init(void)
-> -{
-> -	return platform_driver_register(&i2c_pnx_driver);
-> -}
-> -
-> -static void __exit i2c_adap_pnx_exit(void)
-> -{
-> -	platform_driver_unregister(&i2c_pnx_driver);
-> -}
-> -
->  MODULE_AUTHOR("Vitaly Wool");
->  MODULE_AUTHOR("Dennis Kovalev <source@mvista.com>");
->  MODULE_DESCRIPTION("I2C driver for Philips IP3204-based I2C busses");
-> @@ -752,5 +742,4 @@ MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:pnx-i2c");
->  
->  /* We need to make sure I2C is initialized before USB */
-> -subsys_initcall(i2c_adap_pnx_init);
-> -module_exit(i2c_adap_pnx_exit);
-> +subsys_platform_driver(i2c_pnx_driver);
-
-Use this occasion to move the comment and your code upwards right below
-the driver struct?
-
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index 3a55f803e4f1..1ecf14890209 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -986,18 +986,7 @@ static struct platform_driver sh_mobile_i2c_driver = {
->  	.probe		= sh_mobile_i2c_probe,
->  	.remove		= sh_mobile_i2c_remove,
->  };
-> -
-> -static int __init sh_mobile_i2c_adap_init(void)
-> -{
-> -	return platform_driver_register(&sh_mobile_i2c_driver);
-> -}
-> -subsys_initcall(sh_mobile_i2c_adap_init);
-> -
-> -static void __exit sh_mobile_i2c_adap_exit(void)
-> -{
-> -	platform_driver_unregister(&sh_mobile_i2c_driver);
-> -}
-> -module_exit(sh_mobile_i2c_adap_exit);
-> +subsys_platform_driver(sh_mobile_i2c_driver);
-
-Here you have no empty line after the driver struct...
-
->  
->  MODULE_DESCRIPTION("SuperH Mobile I2C Bus Controller driver");
->  MODULE_AUTHOR("Magnus Damm");
-> diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
-> index a1ab6ef6f071..152ab19f272a 100644
-> --- a/drivers/i2c/busses/i2c-versatile.c
-> +++ b/drivers/i2c/busses/i2c-versatile.c
-> @@ -116,18 +116,7 @@ static struct platform_driver i2c_versatile_driver = {
->  	},
->  };
->  
-> -static int __init i2c_versatile_init(void)
-> -{
-> -	return platform_driver_register(&i2c_versatile_driver);
-> -}
-> -
-> -static void __exit i2c_versatile_exit(void)
-> -{
-> -	platform_driver_unregister(&i2c_versatile_driver);
-> -}
-> -
-> -subsys_initcall(i2c_versatile_init);
-> -module_exit(i2c_versatile_exit);
-> +subsys_platform_driver(i2c_versatile_driver);
-
-... while you have one here. Please make it consistent to no empty line.
-
-Other than that, looks good.
-
-Happy hacking,
-
-   Wolfram
