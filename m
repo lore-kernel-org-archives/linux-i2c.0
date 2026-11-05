@@ -1,61 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.147
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.144
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793899006;
-	b=qZZ+zk/qRx4X6Rp4PcppM/iufQboHG6L1rbytXCjUOTdUkj/CqmdsRqdL63Ndda2Wj61
-	 PlTFWnnzBHRQdT7rxgRpteoFHOsTfkVqzoH1UFuabXUBWyejIGXmPx0vzPaBE+OT6xXZ2
-	 bUStDm59gn0hRCTkEUIvpHN6T8fvmNnyT225BeRWSIL4jNNKRkVtVdWeSMslWhaF+t6+L
-	 3sfUT2GYfPhJ5qQtZUeu8x/F1JCLrR/cJlYQCSi30QQJ4U2FBVut1DXMrnVqja3Dfob1+
-	 U8jiJ/fCdlE9yfwRZkBC00KNmzyHAWCQwB11AEOITJdIrfA/u17gqvz+iczfeQN4CZg==
+	t=1793899003;
+	b=qMb9KZ7MDkdZ90zl9LI0jNMTnHGMbrDoC/FnJwIa3F5tD+l6cX0H9ngjlm8xkbBdSyol
+	 0NIxpwmE0FGOHIPgXZQ9nmwNajIzcjvE+grAOVpZfcs+BSzAcuHT0No6wwrwIMsFYAUYs
+	 SKGAmKbLtPNW47vDQ9nawk4u+3uu9pFyI1q1Lq2FiTrFz+3LEOaqpn6r4B4hxy8QH/iwt
+	 d4Z8tK8Z9T4VmKZg6T7oygO1jEnFTzvRsNfBudvWFeTLLrfW+c0lElKbJe7lopUOgJn8z
+	 wHTiJzfHET6JcBTTG7PeYRKXdsvdEKyew7n8XbGnkv5XFTvvZPACpebhyZpIaXDU/lA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793899006;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793899003;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
 	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer;
-	bh=T7tP7R2n8WhWHJO0GCJusIxU/QUf54O8a8To4Y8YAJA=;
-	b=leY8kU3zCI9MTUPsWrBGRXskORl9eHWxlfryYTWbv9onGSal69vMcyUOeZKhQApzQWZL
-	 F9euhJZGfGin2eyu7iG72QGxPRAZPvu75M44sQ1JnZcuGjiXRBNtA/WKcdQ2QGPdAJ+0s
-	 Raz8ogzyHP8TMcLOYDJOUno/nB/JyFz2SYcgLFMiwUsNh8HasXEwvnyWu2p4AHXFsenO1
-	 3udrrNuy5X3fmjtezCgk4klsS4DEBe/kW1pYeHgsXktEBucBQqvd/f4RJCAWL/OS/CozK
-	 zw4S/kwaBebjUIRQF6tc20A+RM9eMqzb6rYNYtI5bTjpVYt5LKBpy3sj1uNT/HMik+g==
+	bh=3tEx8KGrhtebJsZtllQQJuzn9Yar2KAyiVOpIFGqfZk=;
+	b=ZM7BSahlZTrS5Sq99BOoQ7JSU/Datmwuko6NYH5z33TPhR7KlXjkq2HLRS9sNeu4NUF2
+	 x/ct6rWCFANAJKkZusdzyYkvJCcHJdO8pnaBuzQuSadhg7Rll3QvgOIR/yW6EhXU7rwkv
+	 1rxG4avvog9Rpgw3fjZ9JfXCzogs2lSLLClvZAj8xHdDikM5cYYWBhbfXIqdFpzQIuGXW
+	 NkHWnsLLQH1SeH5OwcU7pq48lqkOe4pXnwgBFJ7bJrAAE+kKBfoOxihYa6hKIDykeK7tl
+	 By4csjayAau0dAEUmQ8Aw0HheQJurDH01jITZ0Ab6FUHPWyMQ5wo/1QHUMvJ3U6F4YQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=mobileye.com;
 	spf=pass smtp.mailfrom=mobileye.com;
-	arc=none smtp.remote-ip=23.90.104.147
-Received: from esa2.hc555-34.eu.iphmx.com (esa2.hc555-34.eu.iphmx.com [23.90.104.147])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 660326082BEB;
-	Thu,  5 Nov 2026 17:16:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 660326082BEB
+	arc=none smtp.remote-ip=23.90.104.144
+Received: from esa1.hc555-34.eu.iphmx.com (esa1.hc555-34.eu.iphmx.com [23.90.104.144])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7BB0C6082BC8;
+	Thu,  5 Nov 2026 17:16:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7BB0C6082BC8
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1793899013; x=1825435013;
+  t=1793899002; x=1825435002;
   h=from:date:subject:mime-version:content-transfer-encoding:
    message-id:references:in-reply-to:to:cc;
-  bh=/+cabZaiN4XfIIx659yXwo3U+cCoXUx1gf9HDDu89No=;
-  b=ZY5JCgOm3eobCloQduWGwXlJX2Jt5Zakj/oO9EOJo5OhycZU3ecpqJFa
-   rFYpI+JaRV+iLezmKZ1ixNrLjttH4T/PWrgmPA0bPfsbe9Y7lH8o89Cd6
-   M7CrAWhh5Tm/XW8v9UzKgTv7tZFILgtKTjaBGf4IoF5zu7/Jdt7sklOIO
-   /dMel87s/IIciQGRgJKHQWFpJhOdpIAmUqbhKt3KUR36u/povcejPKKe1
-   BkL83xVjTif8wd2KEDeuWrm9fsYhsfkzynxixEhEw5y0MSoquOwHIeak0
-   pgajCDY+6iaKl36NG+R0j5Ae4uu3Bntfc3EyXQ/LF6L7SYHQ9KndDsq7Z
-   g==;
-X-CSE-ConnectionGUID: NCGXBDD1Rt+T5depArDyFQ==
-X-CSE-MsgGUID: 6o8eMIcaRx+vM26W1Rj0Pg==
+  bh=yJp8z0fUd0WqLNVGCeBa6CZScwSIESwkwvm1zwqw608=;
+  b=apX1FojYDXFmaKuDivdBHyc0P6LTUlD1/fVQGnFT+ZZRLzYcSvZ/zkR5
+   XDhG8VozRcOA5k2YwbxWnOe5tgvuRlhXFjzKqlJy7Fl4QruZ3sMS3x+yi
+   aeLKfGdODp1mbt0N9OD7Q9oVpfoaGGkq534UEnwBW47VTYyDdc/f1odbL
+   16NwNEpOzrmRh4oq9bx4pYEz2gAWKrb59rJw0f+kOEVwedQESaTe2yKoC
+   8XH5Js+OIOECfqogMeMayMKFkRfZ4NRLyCd3vHUvwe9zRfKvjh5yfydWe
+   hVN2rDtQAerDQpAPy5jjQD410NRQgsTmqA0kpqd04nJ28KDyAMz6n7QdA
+   w==;
+X-CSE-ConnectionGUID: NYIjUvP0Q8q5IfoXBCRtyA==
+X-CSE-MsgGUID: s1p4bN15R0G3Mz0IRPmqNA==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from unknown (HELO ces01_data.me-corp.lan) ([146.255.191.134])
-  by esa2.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 19:16:37 +0200
-X-CSE-ConnectionGUID: c6LJYtgqStywnTEpyIVnaw==
-X-CSE-MsgGUID: W1xX3KOGTdCBR+CU05DcGg==
-Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
-  by ces01_data.me-corp.lan with SMTP; 05 Nov 2026 19:24:40 +0200
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 05 Nov 2026 19:16:36 +0200
+Received: from unknown (HELO ces02_data.me-corp.lan) ([146.255.191.134])
+  by esa1.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 19:16:36 +0200
+X-CSE-ConnectionGUID: 6jLmpjNcQq+h2cqnXk79nA==
+X-CSE-MsgGUID: N/kq3xEZT/yWi+7MgDNLXw==
+Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.3])
+  by ces02_data.me-corp.lan with SMTP; 05 Nov 2026 19:24:34 +0200
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 05 Nov 2026 19:16:35 +0200
 From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Date: Thu, 05 Nov 2026 19:15:31 +0200
-Subject: [PATCH RFC v3 10/14] i2c: doc: add section for I2C_RDWR_V2 ioctl
+Date: Thu, 05 Nov 2026 19:15:30 +0200
+Subject: [PATCH RFC v3 09/14] i2c: core: implement I2C_RDWR_V2 ioctl -
+ transfer with detailed report
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -67,7 +68,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261105-i2c-fault-reporting-v3-10-515ad74ac4c9@mobileye.com>
+Message-Id: <20261105-i2c-fault-reporting-v3-9-515ad74ac4c9@mobileye.com>
 References: <20261105-i2c-fault-reporting-v3-0-515ad74ac4c9@mobileye.com>
 In-Reply-To: <20261105-i2c-fault-reporting-v3-0-515ad74ac4c9@mobileye.com>
 To: Andi Shyti <andi.shyti@kernel.org>, 
@@ -85,74 +86,233 @@ X-Mailer: b4 0.16.0
 I2C_RDWR_V2 is a new ioctl for I2C controller devices. It has the same
 functionality as I2C_RDWR, with additional feature - in case of a fault
 during transfer, it provides information how many messages and bytes were
-successfully transferred and which message caused the fault.
+successfully transferred and which message caused the fault. If there is
+any read data, it also may be used.
 
-Add documentation section about the new ioctl and the structures it uses.
+This feature is available on drivers that implement i2c_xfer_v2() method
+in their i2c_algorithm.
 
 Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 ---
- Documentation/i2c/dev-interface.rst | 48 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ drivers/i2c/i2c-dev.c | 123 ++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 104 insertions(+), 19 deletions(-)
 
-diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
-index c277a8e1202b..95e60bdb2f4d 100644
---- a/Documentation/i2c/dev-interface.rst
-+++ b/Documentation/i2c/dev-interface.rst
-@@ -140,6 +140,54 @@ The following IOCTLs are defined:
-   The slave address and whether to use ten bit address mode has to be
-   set in each message, overriding the values set with the above ioctl's.
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index d219eb89f978..14fe1dd7eecf 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -240,11 +240,19 @@ static int i2cdev_check_addr(struct i2c_adapter *adapter, unsigned int addr)
+ 	return result;
+ }
  
-+``ioctl(file, I2C_RDWR_V2, struct i2c_rdwr_v2_ioctl_data *msgset)``
-+  Does the same combined read/write transaction as I2C_RDWR, but also
-+  provides detailed fault report. The argument is a pointer to a::
+-static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+-		unsigned nmsgs, struct i2c_msg *msgs)
++static noinline int i2cdev_ioctl_rdwr_v2(struct i2c_client *client,
++					 unsigned int nmsgs, struct i2c_msg *msgs,
++					 struct i2c_transfer_report __user *user_report)
+ {
++	struct i2c_transfer_report report;
+ 	u8 __user **data_ptrs;
+-	int i, res;
++	int i, res, msgs_done;
 +
-+    struct i2c_rdwr_v2_ioctl_data {
-+	    struct i2c_rdwr_ioctl_data rdwr_data;
-+	    struct i2c_transfer_report report;
-+    };
++	i2c_transfer_report_init(&report);
 +
-+  rdwr_data is the same structure as the argument for I2C_RDWR ioctl.
-+  report is the structure that the transfer report is written to::
++	if (user_report)
++		if (copy_to_user(user_report, &report, sizeof(report)))
++			return -EFAULT;
+ 
+ 	/* Adapter must support I2C transfers */
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+@@ -259,6 +267,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		/* Limit the size of the message to a sane amount */
+ 		if (msgs[i].len > 8192) {
+ 			res = -EINVAL;
++			i2c_transfer_report_bad_msg(&report, i);
+ 			break;
+ 		}
+ 
+@@ -266,6 +275,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		msgs[i].buf = memdup_user(data_ptrs[i], msgs[i].len);
+ 		if (IS_ERR(msgs[i].buf)) {
+ 			res = PTR_ERR(msgs[i].buf);
++			i2c_transfer_report_bad_msg(&report, i);
+ 			break;
+ 		}
+ 		/* memdup_user allocates with GFP_KERNEL, so DMA is ok */
+@@ -287,6 +297,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 			    msgs[i].len < 1 || msgs[i].buf[0] < 1 ||
+ 			    msgs[i].len < msgs[i].buf[0] +
+ 					     I2C_SMBUS_BLOCK_MAX) {
++				i2c_transfer_report_bad_msg(&report, i);
+ 				i++;
+ 				res = -EINVAL;
+ 				break;
+@@ -300,12 +311,44 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		for (j = 0; j < i; ++j)
+ 			kfree(msgs[j].buf);
+ 		kfree(data_ptrs);
++		if (user_report && copy_to_user(user_report, &report, sizeof(report)))
++			res = -EFAULT;
+ 		return res;
+ 	}
+ 
+-	res = i2c_transfer(client->adapter, msgs, nmsgs);
++	if (user_report) {
++		res = i2c_transfer_v2(client->adapter, msgs, nmsgs, &report);
++		msgs_done = report.msgs_cplt;
++	} else {
++		res = i2c_transfer(client->adapter, msgs, nmsgs);
++		if (res < 0)
++			msgs_done = 0;
++		else
++			msgs_done = nmsgs;
++	}
 +
-+    struct i2c_transfer_report {
-+      __s32 fault_msg_idx;
-+      __s32 msgs_cplt;
-+      __s32 bytes_cplt;
-+    };
++	if (user_report && copy_to_user(user_report, &report, sizeof(report)))
++		res = -EFAULT;
 +
-+  msgs_cplt is the number of messages that has been sent or received
-+  successfully. If there are read messages within this range, the returned
-+  data is guaranteed to be valid. If a message has been read from the
-+  device but the read data is lost (for example, FIFO is flushed before
-+  CPU read it), this message must not be counted.  If the controller cannot
-+  determine the number of completed messages, the value is -EOPNOTSUPP.
++	if (msgs_done > (int)nmsgs) {
++		//fixme - use dev_err?
++		pr_err("Bad i2c_transfer_report: msgs_cplt = %i, bytes_cplt = %i, nmsgs = %i\n",
++		       report.msgs_cplt, report.bytes_cplt, nmsgs);
++		msgs_done = nmsgs;
++	}
 +
-+  fault_msg_idx is the number of messages that caused a fault. In case of a
-+  fault, it is not necessary equal to msgs_cplt. For example, if the driver
-+  validates the whole batch before starting transmission, detects that it
-+  cannot send it, it returns -EOPNOTSUPP error immediately, so msgs_cplt is 0,
-+  while fault_msg_idx points to the message that cannot be sent. Another
-+  example when these two value may be different is I2C controller that
-+  flushes RX FIFO when an error is detected before CPU reads data from it.
++	if (report.bytes_cplt > 0) {
++		if (msgs_done < nmsgs && msgs_done >= 0) {
++			msgs[msgs_done].len = report.bytes_cplt;
++			msgs_done++;
++		} else {
++			pr_err("Bad i2c_transfer_report: msgs_cplt = %i, bytes_cplt = %i, nmsgs = %i\n",
++				report.msgs_cplt, report.bytes_cplt, nmsgs);
++		}
++	}
 +
-+  If there is no fault, the fault_msg_idx value is equal to msgs_cplt.
+ 	while (i-- > 0) {
+-		if (res >= 0 && (msgs[i].flags & I2C_M_RD)) {
++		if (msgs[i].flags & I2C_M_RD && i < msgs_done) {
+ 			if (copy_to_user(data_ptrs[i], msgs[i].buf,
+ 					 msgs[i].len))
+ 				res = -EFAULT;
+@@ -439,18 +482,39 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		funcs = i2c_get_functionality(client->adapter);
+ 		return put_user(funcs, (unsigned long __user *)arg);
+ 
+-	case I2C_RDWR: {
++	case I2C_RDWR:
++	case I2C_RDWR_V2:
++	{
++		struct i2c_rdwr_ioctl_data __user *user_arg;
++		struct i2c_transfer_report __user *user_rep;
+ 		struct i2c_rdwr_ioctl_data rdwr_arg;
+ 		struct i2c_msg *rdwr_pa;
+ 		int res;
+ 
+-		if (copy_from_user(&rdwr_arg,
+-				   (struct i2c_rdwr_ioctl_data __user *)arg,
+-				   sizeof(rdwr_arg)))
++		if (cmd == I2C_RDWR_V2) {
++			user_arg = &((struct i2c_rdwr_v2_ioctl_data __user *)arg)->rdwr_data;
++			user_rep = &((struct i2c_rdwr_v2_ioctl_data __user *)arg)->report;
++		} else {
++			user_arg = (struct i2c_rdwr_ioctl_data __user *)arg;
++			user_rep = NULL;
++		}
 +
-+  bytes_cplt indicates the number of bytes sent/received in the message at
-+  index msgs_cplt. If this is a read message, it is guaranteed that these
-+  bytes in the message data buffer are valid. If the controller cannot
-+  determine the byte count, the value should be -EOPNOTSUPP. If there was
-+  no fault or no data was transferred successfully in the faulty message
-+  (for example, NACK on target address or first data byte), the value should
-+  be 0.
++		if (copy_from_user(&rdwr_arg, user_arg, sizeof(rdwr_arg)))
+ 			return -EFAULT;
+ 
+-		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
+-			return -EINVAL;
++		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0) {
++			/*
++			 * I2C_RDWR_V2 ioctl with nmsgs == 0 is used for
++			 * discovering of the controller capability to return
++			 * detailed fault reports.
++			 */
++			if (cmd == I2C_RDWR)
++				return -EINVAL;
++			if (client->adapter->algo->xfer_v2)
++				return 0;
++			else
++				return -EOPNOTSUPP;
++		}
+ 
+ 		/*
+ 		 * Put an arbitrary limit on the number of messages that can
+@@ -464,7 +528,7 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		if (IS_ERR(rdwr_pa))
+ 			return PTR_ERR(rdwr_pa);
+ 
+-		res = i2cdev_ioctl_rdwr(client, rdwr_arg.nmsgs, rdwr_pa);
++		res = i2cdev_ioctl_rdwr_v2(client, rdwr_arg.nmsgs, rdwr_pa, user_rep);
+ 		kfree(rdwr_pa);
+ 		return res;
+ 	}
+@@ -531,6 +595,11 @@ struct i2c_rdwr_ioctl_data32 {
+ 	u32 nmsgs;
+ };
+ 
++struct i2c_rdwr_v2_ioctl_data32 {
++	struct i2c_rdwr_ioctl_data32 rdwr_data;
++	struct i2c_transfer_report report;
++};
 +
-+  To discover whether the device supports detailed fault reporting, use
-+  I2C_RDWR_V2 ioctl with nmsgs = 0. If the driver supports it, the return
-+  value should be 0. If the driver supports only plain I2C_RDWR, the return
-+  value should be -EOPNOTSUPP. In any case, nothing is done on wire.
+ static long compat_i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	struct i2c_client *client = file->private_data;
+@@ -539,19 +608,35 @@ static long compat_i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned lo
+ 	case I2C_FUNCS:
+ 		funcs = i2c_get_functionality(client->adapter);
+ 		return put_user(funcs, (compat_ulong_t __user *)arg);
+-	case I2C_RDWR: {
++	case I2C_RDWR:
++	case I2C_RDWR_V2:
++	{
++		struct i2c_rdwr_ioctl_data32 __user *user_arg;
++		struct i2c_transfer_report __user *user_rep;
+ 		struct i2c_rdwr_ioctl_data32 rdwr_arg;
+ 		struct i2c_msg32 __user *p;
+ 		struct i2c_msg *rdwr_pa;
+ 		int i, res;
+ 
+-		if (copy_from_user(&rdwr_arg,
+-				   (struct i2c_rdwr_ioctl_data32 __user *)arg,
+-				   sizeof(rdwr_arg)))
++		if (cmd == I2C_RDWR_V2) {
++			user_arg = &((struct i2c_rdwr_v2_ioctl_data32 __user *)arg)->rdwr_data;
++			user_rep = &((struct i2c_rdwr_v2_ioctl_data32 __user *)arg)->report;
++		} else {
++			user_arg = (struct i2c_rdwr_ioctl_data32 __user *)arg;
++			user_rep = NULL;
++		}
 +
- ``ioctl(file, I2C_SMBUS, struct i2c_smbus_ioctl_data *args)``
-   If possible, use the provided ``i2c_smbus_*`` methods described below instead
-   of issuing direct ioctls.
++		if (copy_from_user(&rdwr_arg, user_arg, sizeof(rdwr_arg)))
+ 			return -EFAULT;
+ 
+-		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
+-			return -EINVAL;
++		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0) {
++			if (cmd == I2C_RDWR)
++				return -EINVAL;
++			if (client->adapter->algo->xfer_v2)
++				return 0;
++			else
++				return -EOPNOTSUPP;
++		}
+ 
+ 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
+ 			return -EINVAL;
+@@ -575,7 +660,7 @@ static long compat_i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned lo
+ 			};
+ 		}
+ 
+-		res = i2cdev_ioctl_rdwr(client, rdwr_arg.nmsgs, rdwr_pa);
++		res = i2cdev_ioctl_rdwr_v2(client, rdwr_arg.nmsgs, rdwr_pa, user_rep);
+ 		kfree(rdwr_pa);
+ 		return res;
+ 	}
 
 -- 
 2.43.0
