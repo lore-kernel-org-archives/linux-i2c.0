@@ -1,65 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=207.54.77.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793895622;
-	b=aHZW6jy/d1OZYioiy4xGYthwfPAa+xZ8N4up6Ep93LqRfkdIgnbNzajBKBLAFyeTCamj
-	 8XaNw6s6A0uWlBtMJOFSXERBnj35OtfNro5VoI5Vi7SdLzjbo32Mw78h9EoZfEuy6MvYQ
-	 roxhaIzHDf7qfsoAhPkEm9UZJFIpCuwMKr9faAG5Oc+NA8LFwo8yhbACMi/lAjHeGFWjk
-	 j5WOAzJ9OoaJTNze0cXmhwLqYxzWXFNmwdlt96+Xug1wPPWLaSC8ctGmnCklT5t+sPp8r
-	 pT3W9g9hdHBcaP7iQaPfaD3eJ+c6cmwKbkSOwjhQxFbEH/BG0Ah/VChFuOmcrEa9J5Q==
+	t=1793898993;
+	b=oMOmJOnwqGwFq4/Xa8hfxiIBswqJEN+/H493vEFQUnY7+O3WjMf+B0ekLA9MjKQnPu/N
+	 +OkwITtPMgEKhxBM8/ua15Wcnds0ncEF9dDYBsGZ1Bp3bu1LRqH9DSVeL31ppERz7A/fy
+	 iuqKiGXNul55VNiO4VkcUokbLtTIZl4CYcEWSMDSsSRV+Mrec1vDYBojgDNhxb1U3yZaP
+	 p7Klo6DhsT65cgk4yD2EpjZoMmsnRqSIGGD5qo8AGgZPUspXGTzppOwnPQGB+QxZf9Y4/
+	 1KNyu+zJgCUmaifHgUZmYol3tCtMe4aZZx9ZcumFzcha0d2CvjP8OaTNFhXwzQ0594Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793895622;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=y/Sxw5ch/x81dY8hqEEEUwXIqUNRFcAb/AcfPGdjlMg=;
-	b=0Sfn9c7RKwSk/tfyNU4K6DJAi9eLaRCfRGff8BmX3V8G4ty+RpUdNtLtxPNLz/01K5FB
-	 1U4V6WkI5znxySpRJMqp19WywaU2bFzNlJHj7x7vnPYmtTapKppLJU/j15txsr0DVJrGg
-	 RsI2fGKkqUn3nH2+VZEqlXKtmaH7esbW8uTCxLtA1eA02uwZRMgJ4iq9EezWCtbv9Kc47
-	 BHppTjzB+kyxo7Jgvf5ji6/rG/cjFENnVyo6gp+n6eImbSxL7ZVBzogEkjuc5cVOa2awa
-	 3nl4zQXFAHJOWc+wrxpKYNjr+geLGUIsS4HjwQRYNb2sISCQFY6z27LJl41rFX5j49Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793898993;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
+	 In-Reply-To:To:Cc:X-Mailer;
+	bh=ESR01hVfCK1gp7i8nW8yl8a1SOvyJZG5i7j+b3mjIrY=;
+	b=32pwemxUizoRJ0rZpKgHVpS88lFtQ+fv2GBqBjvpDl3yvSo3+pKnRheMzwTIOXGpyXba
+	 BhOqHdAvyo5UAevVntramBzlSsfFzLGask6rWvDdoP9Tw1b9ldg/eEVTniFjAn2+1j3Ek
+	 KA4NvNPUKadVKe+Zxy5bFcL6bMzDei57/WO6NW5S4YJrme5Z7xhXql+fAUTVMktoTQOiM
+	 8QFvdthoSK+XryYehC2v1PnJhYXmcAg7YG8wy7jrx1laX9bNTOqvaOMLOVFFTbjzd88q9
+	 olGmI5B4v7T3FHkktZLf51oyvVHP1qkhmxoi6F/J6KoG5wPPvrme0cpPsa7m7HUv1qQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VAJWky2v;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A95EB606A328;
-	Thu,  5 Nov 2026 16:20:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VAJWky2v
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 798D01F000C1;
-	Thu,  5 Nov 2026 16:20:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793895621;
-	bh=y/Sxw5ch/x81dY8hqEEEUwXIqUNRFcAb/AcfPGdjlMg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=VAJWky2v8e95w4biSTiGSqglMKizTFvJ3QYBSL7Y7qdFiE6pS7OVqAW1q/CxdAvtL
-	 FEFajLTAN3L0B4B1xNupBuHpMZKbtWrI2zWQexy4SqzzL6WzGLbkCBMlx0/QlfPhBl
-	 sh3QCsifx8Lb3/JwUQQM27f0WpazOgNTwyToZeMLxJhHjl8QbjQ//TvXyVUl5rXufQ
-	 iaXvySHs7vLFxhwukoO47IbsmSOkZ48I1q6aUZ+daOXvFwvvUvcRdboc7u+ZuLcEP+
-	 29HHp6yfaaWwEDiZyez1kdUJdgC/TN8AySACgsI6hAW2aktXweB+jXIE/nLPrUD2dS
-	 MPoy/k09V1rpg==
-From: Sven Peter <sven@kernel.org>
-To: Janne Grunau <j@jannau.net>,
-	Neal Gompa <neal@gompa.dev>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Sven Peter <sven@kernel.org>,
-	asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 0/5] I2C and pinctrl support for Apple A18 Pro devices
-Date: Thu,  5 Nov 2026 17:20:04 +0100
-Message-ID: <179389559452.15725.13059409362781617526.b4-ty@b4>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261012-apple-a18-pro-dt-pinctrl-i2c-v1-0-6c757966a99e@cyberchaos.dev>
-References: <20261012-apple-a18-pro-dt-pinctrl-i2c-v1-0-6c757966a99e@cyberchaos.dev>
+	dmarc=pass header.from=mobileye.com;
+	spf=pass smtp.mailfrom=mobileye.com;
+	arc=none smtp.remote-ip=207.54.77.50
+Received: from esa3.hc555-34.eu.iphmx.com (esa3.hc555-34.eu.iphmx.com [207.54.77.50])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4B930606A330;
+	Thu,  5 Nov 2026 17:16:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4B930606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
+  t=1793898999; x=1825434999;
+  h=from:date:subject:mime-version:content-transfer-encoding:
+   message-id:references:in-reply-to:to:cc;
+  bh=ovadr4aQgfWIah4NDeZK3wouRVsN9xHwGwefizVmO4U=;
+  b=HPQHc6rWoPDXRhcQT2L/Dqv7tkh8Q2h34f7gpwOJ/GjAOCyUTvPelzIV
+   +VocVgMqz+ugRMDDBmQALmFQTOtEh17vHw2w7z1N4/b6Nf/w6KeMiNQDd
+   9Q7xVW48BHIa1YzzAF0y9OQqkAnDAGMlsCRheve2DfPVeSiX1tTtwflOF
+   M363cHpK5uwB+4ztQlWS3Y0hRp2KRNqK/JCh+9BG3Esvc4hWwH467yY3C
+   k7BfUZoBnC+QVCNKSierDCecYLS1ztEI2Aq8WljaJK3K5MqEtHmKEYsTQ
+   50sAmflbpsjhjAB87HtB4TjFVc5caGzOBMmqcRnoscCeWyHo8NIn1YgAD
+   g==;
+X-CSE-ConnectionGUID: k6QzcMJsStKTIHBSOZ6+Nw==
+X-CSE-MsgGUID: kwj54falRBCr5j7Wl1442w==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from unknown (HELO ces04_data.me-crop.lan) ([146.255.191.134])
+  by esa3.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 19:16:37 +0200
+X-CSE-ConnectionGUID: 1sizQpTBSQ6izphpk93T/A==
+X-CSE-MsgGUID: CNcNhsHTS/Kt4pRyFB1dUQ==
+Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
+  by ces04_data.me-crop.lan with SMTP; 05 Nov 2026 19:24:26 +0200
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 05 Nov 2026 19:16:28 +0200
+From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Date: Thu, 05 Nov 2026 19:15:24 +0200
+Subject: [PATCH RFC v3 03/14] i2c: core: add helper functions for transfer
+ report generation
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -70,32 +67,71 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261105-i2c-fault-reporting-v3-3-515ad74ac4c9@mobileye.com>
+References: <20261105-i2c-fault-reporting-v3-0-515ad74ac4c9@mobileye.com>
+In-Reply-To: <20261105-i2c-fault-reporting-v3-0-515ad74ac4c9@mobileye.com>
+To: Andi Shyti <andi.shyti@kernel.org>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Linus Walleij <linusw@kernel.org>, 
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+ Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Dmitry Guzman <Dmitry.Guzman@mobileye.com>, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org
+X-Mailer: b4 0.16.0
 
-On Mon, 12 Oct 2026 13:52:31 +0200, Yureka Lilian wrote:
-> this series contains two small formatting fixes for the A18 Pro device
-> trees, and adds the required dt-binding for i2c as well as the dt nodes
-> for pinctrl and i2c controllers used on the MacBook Neo.
-> The pinctrl dt-binding was already picked up from the previous series
-> regarding this topic [1]. The dtbs_check passes when this is applied on
-> top of linux-next or otherwise combined with said change.
-> 
-> [...]
+Add three helper functions for I2C transfer report generation:
 
-Applied to git@github.com:AsahiLinux/linux.git (apple-soc/dt-7.5), thanks!
+- i2c_transfer_report_init() that puts -EOPNOTSUPP in all struct fields
+  (this should be used if the defailed reporting is not supported);
 
-[1/5] arm64: dts: apple: t8140-j700: Fix property ordering
-      https://github.com/AsahiLinux/linux/commit/2bf05983cf34
-[2/5] arm64: dts: apple: t8140: Group cache-related properties of cpus
-      https://github.com/AsahiLinux/linux/commit/d2de25922a49
-[3/5] dt-bindings: i2c: apple,i2c: Add t8140-i2c compatible
-      https://github.com/AsahiLinux/linux/commit/b843aa34726a
-[4/5] arm64: dts: apple: t8140: Add pinctrl nodes
-      https://github.com/AsahiLinux/linux/commit/f5fe46328186
-[5/5] arm64: dts: apple: t8140: Add i2c nodes
-      https://github.com/AsahiLinux/linux/commit/3757588f0cb5
+- i2c_transfer_report_success() that is used to generate the report in
+  success case (all messages are transferred successfully);
 
-Best regards,
+- i2c_transfer_report_bad_msg() that is used if one of messages cannot
+  be transferred and no data were actually transferred.
+
+Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+---
+ include/linux/i2c.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index bf7dc12f7264..9bee726592fc 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -601,6 +601,27 @@ struct i2c_algorithm {
+ #endif
+ };
+ 
++static inline void i2c_transfer_report_init(struct i2c_transfer_report *report)
++{
++	report->msgs_cplt = -EOPNOTSUPP;
++	report->fault_msg_idx = -EOPNOTSUPP;
++	report->bytes_cplt = -EOPNOTSUPP;
++}
++
++static inline void i2c_transfer_report_success(struct i2c_transfer_report *report, int num)
++{
++	report->msgs_cplt = num;
++	report->fault_msg_idx = num;
++	report->bytes_cplt = 0;
++}
++
++static inline void i2c_transfer_report_bad_msg(struct i2c_transfer_report *report, int i)
++{
++	report->msgs_cplt = 0;
++	report->bytes_cplt = 0;
++	report->fault_msg_idx = i;
++}
++
+ /**
+  * struct i2c_lock_operations - represent I2C locking operations
+  * @lock_bus: Get exclusive access to an I2C bus segment
+
 -- 
-Sven Peter <sven@kernel.org>
+2.43.0
 
