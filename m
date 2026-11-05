@@ -1,88 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=203.205.221.153
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793871660;
-	b=eWPruLv2iGA9bpB1O9u9N7dwf4juDqAzhzSsRp5U63o5IW5l3KjXHDqNkphpNT/gveyA
-	 YkSaBDs6rwgBAfsQZ0euZepRaKbUdOTxNhlu+nVbn9MzVMhvu6KDXIM3qw4brrP1zwISU
-	 D37KD8Yp2VVH0KDNfz1N/t7OFV3S1eo3+lhfw+jTnYV1o0Z/RuAWVT+IwsmMSM5tWAYo8
-	 8MhijCpjfr+9y0NDS4rH+aunKIL68fl8BCKdxHcjXulOiBQOcT2ZUOsbOdDorhXJ1xRXb
-	 FxJPbLc4Kiwt4lziHglUDBWJXxgpRZqu8SU4Mzgp/7fzo4S3+ZxTFIisR1RSp3YJ97g==
+	t=1793871876;
+	b=HzLluS8I5HP65K/Jqt9qZFbzRjaj0dhmf1JksBXy+i5XuqrEg8/2jW2+EXSz37Fp2Mwb
+	 Xq0V4bUAGnk8xysIdpgUUU6UdE0BjUWxnspLPxjGSLp6IdjHPBWa3wK1pGm8uaYfUy2Og
+	 U37j985AAutttGKhVHXU/UpFX+FWadwcudj0LTdNMEG+gaGpYy7VjbufSib0q5jEOg3QT
+	 GL9QC0HXXh2SFEsYkEwaGbAgmbSYCBbaiwQjDKqL0ogzHxCebRcDBod08dc7IOlWWEFjd
+	 0RR1+pDJNCENnv0WleLj18ubCX6A9p0gY0exLDDh/b/wjWbHZNFuoMJ3+IbsinESTYQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793871660;
-	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=eOhqa48dtTiB7ksGp6xxxSY9GgyF8VUpdic4WCjGsps=;
-	b=kbhcUJwL+poGIcsmpZ9IaIrPPXlnM50LLiIK/ZovKC3lCt0kFTzA28AYcdcOkdDaUDs+
-	 O451D84Cxr7ilONTIjq4Y9FnQdCylW+jhBHbwhxFaB2Mt7pflnyNnUGzv+zUPXhc4it9+
-	 76KCV58guA3qlzKWid0sKbsjKpV55DXoJMVqnzxAc7/3g3PiF4HbiYW7EH2Lqx2N/kKur
-	 +Jl2VNps5m3ZbgFlRs/P4IyALQxsP7qq15V/K/XPBzx49GNCkvkxruNy4uR9JHzHjMcCw
-	 P0Sw2+hRDDkwlxUAioBQh8ZyVvnZcjNP2gIJFOhm9RVAfjLLpwkb/yPoCs2Hq9zhmoQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793871876;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
+	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=7QhU4psUp36lRhdSvaABTdCrK79wA+X/bI1t7JAA+P4=;
+	b=M+quS4fdHbUUJyZDf+sHoWFIqVeuQIArjgSRB//h6QLbF2FYPl58cUBcHci12SR6R/gr
+	 tHuc/iKXWtzOpQz28JFdnsUspEQiR7XSAEp2Ifn5Q9/iy2EarA12Vvyowta8X4VJw80rV
+	 u3yTE6l0ENFtwTHS41/c3noVjsaH1LYo4FnWPa9RcrTRMEHrLptfe8KU8CAUpCmYYBrCf
+	 aS8CUsDvnQPzonqOQa3e/5Ju0B1vSPREcQIfcgkSVtUoFp8Y1J8zrcDigGNxbbfU/Y0Ll
+	 SJ79hUOdIVWArbRny52EIySOWhW0KtQY3Sll14eFO8+CX4MdhO7BUXv22xOe5M0fBZw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=foxmail.com;
-	spf=pass smtp.mailfrom=foxmail.com;
-	dkim=pass header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=MFi0Itx8;
-	arc=none smtp.remote-ip=203.205.221.153
-Received: from out203-205-221-153.mail.qq.com (out203-205-221-153.mail.qq.com [203.205.221.153])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=linaro.org;
+	spf=pass smtp.mailfrom=linaro.org;
+	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=tRkOqEU4;
+	arc=none smtp.remote-ip=209.85.221.45
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54ACB606A328;
-	Thu,  5 Nov 2026 09:40:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 54ACB606A328
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foxmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF3DF606A326
+	for <linux-i2c@vger.kernel.org>; Thu,  5 Nov 2026 09:44:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BF3DF606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=MFi0Itx8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1793871649;
-	bh=eOhqa48dtTiB7ksGp6xxxSY9GgyF8VUpdic4WCjGsps=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=MFi0Itx8oaPUnsDeYVkQ3fCCa6BduDREuunWlJMAT6Xhfeb4xWK2/D22ZUzSmcWG3
-	 YvQgkfmSCOmYlbCALUQBFAPVSC/TnMVuPHmk/beeGAWQ3EuH/m/czGA3fyNaQv6Gn2
-	 t3v4D7XKYalpKfECoVRVYZyUh0cA6eJdG9kadfOc=
-Received: from LAPTOP-TKBJAGN4.localdomain ([27.38.177.45])
-	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
-	id A2805CD6; Thu, 05 Nov 2026 17:40:40 +0800
-X-QQ-mid: xmsmtpt1793871640tlh7jbj61
-Message-ID: <tencent_3D65EAC95AB758A272F0ABB30C86ECE2A205@qq.com>
-X-QQ-XMAILINFO: Npv5yIQT4nxMDZVNMNpPvnUCLCYe2yvr1BsQqzulHOgeFeXvm4sIboiwxfUQU2
-	 J/AZ3pDGmOmiAedfLd69Tfl8qBsdhhP65I8wPzQNT3VRjmbH4HR1Zz15AqF39cYJhVZbZbSOfb4z
-	 s2qZNaQsRgbtq2Ubi+HSqXkNZksmocMbsjC6x3iH+B+g5dnHYx3e39wXbWAcVl/mrBM1p215dsij
-	 Xj7PeT9ImWpD98AWR02uzXFHUHivlS9ZaEASENrr0ScoRM4eo8DkbdSNVbW7UuT0zmm9XMAIEUGq
-	 WlL5iYxx39JgAChMFgfAJozITWtRS5Et/9SE9LwncCCzL4TDSpN24amO2UT3KCkcrEcBRwkiFQaf
-	 XLToVnJ1X+uSsARK7YwM9nMumnDTp/6bpMhHEMhRpuc+XoItxa3XWdr8++8/YUcgoWJtxji65Z1P
-	 qwF17rlc45yDIwmbaRDfk9GtlCol11kzX4XEcc/dqWaZPdjudwg+E/A/0u9Dr1zPxv93e8m7jsA3
-	 /xM+m6h8CONtVNGdUssOfOnUwhBT8mTQesMdHKDoFxzx3MZOf6qnNQHQiiFe8/CiL4uM45ZvuYac
-	 OhmN/9q4oVO6JEZ4d9uLPEmTHNj8lQLBje+oOpAgsaNFj21yf0+ElgS1rNfwS1Gr8SoXHkY3THTQ
-	 5XOInxRIOjPcXxXi8CEjl3IjHAUyz04rMZQ9JgHsbDmWfzBAT4/okUvafk30VpAmXVKyaI6eR0sp
-	 8OjYd0OBHEMoPsBX4S87YIz3H995Tl3m73KeIKsDhczbCfXqa058RhxD4I1jQrW/RncYh8jzYRwB
-	 dLD0ZX78FvCg/FaOh8VVTAz1RHxRV1+yBT0h82DYgxfslIZInjM0/ECKebQ8O6Tp6ZReH8qMPx/J
-	 RaGECD6RrCVlAgG+JMdDCj6eLEmW5qvYrrRwuYDS7R9P9sucDS0uOLByn3BhPzNwBGNJA/DHVYU2
-	 yvkpoMC3zaqpBPM2zHuzc6tR/w/1xIWlWKarOY/hWKgHNSychtGMcwGDSFuc1qye0/19xC9O+njS
-	 OmwF70dpO46Rnp69ecfJGN6cBubSBZ4na6ystfH+AHvl3cgzZkvYKevfTRp1PtmiSIPe9Vis0Gsj
-	 ngKEK1yt79lcHBtZI=
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-From: Haobin Jiang <lemonoutput@foxmail.com>
-To: carlos.song@oss.nxp.com
-Cc: Frank.Li@nxp.com,
-	andi.shyti@kernel.org,
-	dillon.minfei@gmail.com,
-	festevam@gmail.com,
-	imx@lists.linux.dev,
-	kernel@pengutronix.de,
-	lemonoutput@foxmail.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	o.rempel@pengutronix.de,
-	s.hauer@pengutronix.de,
-	vjardin@free.fr
-Subject: Re: [PATCH v5] i2c: imx: honour I2C_M_IGNORE_NAK
-Date: Thu,  5 Nov 2026 17:39:09 +0800
-X-OQ-MSGID: <20261105093909.4983-1-lemonoutput@foxmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <93667d47-794c-45d1-b72a-a463d5289a29@oss.nxp.com>
-References: <tencent_E6D69775D91AD9FE45C994B3755CB1452506@qq.com> <93667d47-794c-45d1-b72a-a463d5289a29@oss.nxp.com>
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=tRkOqEU4
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-48e20edd106so1113552f8f.1
+        for <linux-i2c@vger.kernel.org>; Thu, 05 Nov 2026 01:44:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1793871874; x=1794476674; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7QhU4psUp36lRhdSvaABTdCrK79wA+X/bI1t7JAA+P4=;
+        b=tRkOqEU4xOzE7XVrSahnzZw+u+Bg+xLCpTkl91fr/FbW0pcnhNr9FAx3T+l1yNJqNY
+         wtu4o+HNeSsr3GQ9Y4PIY2gJ0iNQSyc3FVJoDgC1M37qnJzbxCySN/8cUiR9s2Va+DBk
+         KosHb7H0Cxd5RsHmRdULYyyBcbwoEqsLCzSl0vH+p4RN3/7gmRXOBbwpaAHG0uHWyxcL
+         +MqGCI7/uKRT1akFropCNXnuEd072gwImdusnSv2T2vu1tM8gCeH10HLraP/JALreFzu
+         y1Dy1i3xxfUDA/QuIkMRBtbFdAOM4gqDbju3s3PkxsA4RoiBUjUP+k+eHki80E+TxhiH
+         8KZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793871874; x=1794476674;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7QhU4psUp36lRhdSvaABTdCrK79wA+X/bI1t7JAA+P4=;
+        b=N1XunzlyqfmdZC3ElQwrgM/NzJg0r7kkSI+8UhChOLoaX9mrbspc/H5SfNK0sOqNP8
+         /BY8QTWKsBY5KR9r6J9T0/7HdMlIvngICfBhXvI0txYBu6zHL5iZkKihUeSXmSEBq+Ij
+         c9zQGv3q/KnRVHPTuRtG37iP2j1hNnVMnkK3K8csXJaduwVydjyk4wd0D3ZMw1xCpljR
+         blKRB1wsXvnCJV/2qK8gCDmBxD8cIIroo6dWnkOaSl1hj/kkYrX/ceD5dwHqlobvR2Az
+         9icV6KjDQyoHW1QnlzpRGFnJf95AgGWXjxdk/q8VZvSz4odToIAq525duuAKKDDTlFXP
+         gJMA==
+X-Forwarded-Encrypted: i=1; AKwUvBzl4nl99BttunQdH3DQCdx2wFSn1w3IoBuNTqLYzKdpaF5Kg43J/KIX8SJ3iqRlBhkwYv12Ewbtz/k=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+6Gio1DVEcg+ecDCEmnhf7qQHZs/0EQArpMmPcWKPjefBLNZaU
+	F0EnwIlQ9wmpjBEtfeIzWBhQaeNm6UwwvAD3aTCEOu0xNNfrhb+zObxPI/kZpl++Mvw=
+X-Gm-Gg: AYBFou1NmOckPOsIk5LR+4o9TRJxUjUDYMvjJpDzNg2/bWdqoR+BdRHfK20DqhyCDIq
+	8Kik1/fx+o2v7PfG+dcSZCsMPS5LJP/emce+SWjDzNiV4MbAY7OFz/e+FlVghb3nze8lX0bG5XA
+	pVyGd0dXiEtX2CXnKQtQfEjPJRRVJdw6V+nNmfaP3hRCn+8yxQyGtgrfn3yhX1B8CfcZoL88MEr
+	8UPs8xqndv6nKISUKShR7tDIB8J26tqitX0kS8YCN0dGQcQ/LccSl+uSyp0NuMNEhgqjFXxo/sd
+	L6mkT3uWQawNiqYiiTDp/8Or/lKboaipXPap+6gGIU87Bxafa0eKKr11LmFkvJe1sSzvqxcfOF0
+	pDKSmZ0Vs/a5Vp8wzSZtORZVnqmubgTkpf1bnz0rih8ySeIZato/BuFRV+VFd9ozEiTLzEHkkCT
+	fzCtibrK9B404hsw5L5Odik02r4/6S1hTVzNKWCJxhn2cKJwasmuH/lcPpxsRdyC3M9SywsIDAz
+	OEdQCKHe0GtuHBC1gtpRhMwZ0pOzkbr0AbaZW2cJbfB+CXOnG1KSQ+V3P1k6NknUKsdXiDCA5lf
+	RY5eDVeFU9yIilDcDXu2S25pxukW4c3NSiEJI+lf
+X-Received: by 2002:a05:6000:2997:10b0:48e:5e63:bd23 with SMTP id ffacd0b85a97d-48e6e2ef96fmr29363335f8f.30.1793871874143;
+        Thu, 05 Nov 2026 01:44:34 -0800 (PST)
+Received: from [192.168.0.167] ([51.37.126.136])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48fecac17c1sm8628740f8f.10.2026.11.05.01.44.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Nov 2026 01:44:33 -0800 (PST)
+Message-ID: <a83a948e-3430-4133-ade6-b30045b8b186@linaro.org>
+Date: Thu, 5 Nov 2026 09:44:32 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -92,53 +90,73 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] media: qcom: camss: Add support for SM8150
+To: mail@andrewgigena.dev, Loic Poulain <loic.poulain@oss.qualcomm.com>,
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org
+References: <20261104-sm8150-v7-4-rc1-camss-v1-0-7a9534a9a22f@andrewgigena.dev>
+ <20261104-sm8150-v7-4-rc1-camss-v1-3-7a9534a9a22f@andrewgigena.dev>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Content-Language: en-GB
+In-Reply-To: <20261104-sm8150-v7-4-rc1-camss-v1-3-7a9534a9a22f@andrewgigena.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi Carlos,
+On 04/11/2026 20:54, Andrew Gigena via B4 Relay wrote:
+> The hardware reuses the existing 3-phase 1.0 CSIPHY, Gen2 CSID and
+> VFE 17x implementations; the CSIPHY uses the SC8280XP lane register
+> layout. Add CAMSS_8150 to the version enum and to the shared code
+> paths, then add the per-block clock, regulator, power domain,
+> interrupt and interconnect resources.
 
-> Why not follow community rule to make patch...?
+That's odd. sm8150 and sm8250 are proximate both seven nanometers 
+sc8280xp is five nanometers.
 
-You are right, and thank you for taking the time to point it out.
+PHYs are about converting the analog to the digital domain and so 
+process geometery - ends up making a difference.
 
-> At higher version, better commit log and put change to commit log bottom
-> with extra lines like your V3 patch[2].
+You can get the PHY init sequences here:
 
-Agreed. When I prepared V5, I regenerated the log from the current diff
-and did not carry forward the problem description, the test evidence, or
-the review history from V2/V3/V4. That is my responsibility as the
-submitter.
+drivers/media/platform/msm/camera/cam_sensor_module/cam_csiphy/
+├── cam_csiphy_core.c
+├── cam_csiphy_soc.c
+├── cam_csiphy_dev.h
+└── include/
+     ├── cam_csiphy_1_0_hwreg.h    sdm845
+     ├── cam_csiphy_1_1_hwreg.h    sm8150
+     ├── cam_csiphy_1_2_hwreg.h    sm7150
+     └── cam_csiphy_1_2_1_hwreg.h  kona/sm8250
 
-> I think V5 patch commit log should be better with shorter and clearer
-> problem description, reproduction, resolution, verification based on V2
-> patch[1] and V3 patch[2].
+https://git.codelinaro.org/clo/la/platform/vendor/opensource/camera-kernel/-/blob/LA.AU.1.3.7-02900-gen3_gvmgh.0/drivers/cam_sensor_module/cam_csiphy/include/cam_csiphy_1_1_hwreg.h?ref_type=tags
 
-I will rewrite it that way for V6. The commit log will cover the
-problem, the resolution, the reproduction/verification, and the review
-history with links to V1-V5. I will put the changelog below a single
-`---` line, like V3.
+So yeah going by the name that's CSIPHY 1_1 same for sc8280xp and sm8150.
 
-> But abviously, this patch is generated by AI, and it dropped most commit
-> and discussion details from previous patches.
+Hmm so much for my understanding of how dependant on process node these 
+sequences really are.. perhaps the PHYs area fully synthesizable in RTL, 
+probably.
 
-That is a fair criticism of V5. The tool produced a shorter log; I should
-have caught that before sending. I will restore the AI-assistance note
-from V3/V4 and describe which parts were tool-assisted and how I verified
-them. I will not resend until the V6 log is self-contained and I have
-re-checked the new zero-length guard. I will state clearly what was and
-was not tested.
+Anyway.
 
-One point I want to be explicit about: the V5 guard only rejects
-I2C_M_RD + I2C_M_IGNORE_NAK + len == 0. It does not fix the pre-existing
-unflagged zero-length read path. That scope is a deliberate choice, and
-I will document it in V6 rather than imply the general issue is fixed.
+The one thing to do here is to please _verify_ what's upstream now 
+against the tag provided there.
 
-> AI-generated patches should be subject to more rigorous review and
-> testing... humans must always remain in control in whole flow.
+If there is a divergence then we need to upstream a 8150 compliant version.
 
-Understood. I will keep the human review and test evidence in the
-changelog, and I will be the one accountable for the content.
+...
 
-Thanks,
-Haobin
+Actually its fine, did the verification for you, the 1.1 init sequence 
+as is upstream is fine.
 
+Just please tidy up the ordering of the 8150 switches.
+
+---
+bod
