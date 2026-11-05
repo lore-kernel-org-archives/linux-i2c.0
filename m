@@ -1,58 +1,77 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.14
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793848136;
-	b=sL0e7BYvddlhUtfjWLoXcfPcYiLlrXnDhoET1iSnGcJwi/Kx4vhdjwTBwXJADlOrAn4L
-	 LjUGnnTV2cuwJ6hLM5GSw8+SvFTcW8pQrnfRzNtfT2FG3JiJOqX0hkB1xMuw9TPWGwJ2R
-	 k5hpc8ldAnP6n7gbqS7fnpUDNcYhRu7V3hTdccOh/bHj02+Z7im8RmJQRNVVzaVY8NYjI
-	 03JiyqAN3jNOYDfLFP/LHFflBO2peO5ctpzQwpUsAhjNqrq/gy1k1Aw5wAAtu09X0NiQu
-	 VooMEuzD0td6JmrtvKY+cBhIKU8VAv3f1rGa8Tq5rA6Vi91+068sAE209qagPOMUjDw==
+	t=1793857673;
+	b=RBkO41QI0uwudqsY+FRNtfNE9j6Y0OEDWoHti9AuPH1SRYw1Mk+I54gNDnvgOKfPUtX/
+	 X9TUGu+5IDvKeoGdC1vw47TV17wpQ+sN/IXIce2xr+PWkSY9xmSW4r6Mw7DgkjaDWVgMm
+	 4ds7RVOn7R/TKAeC99+zffeDsLzfxvKF0BSVHg+9rHlUjsrnQiuDgCL+i8fAQ/bq0e50E
+	 J22ZEQfx+I/ZHNd2eo3rbyTB4dRKPSwYTnzewHk7jfoJbTVZuGn+7kZlugTbSd2e24Ngp
+	 iK646YAColesOZBwaKGDZv1NZkhlZCIkWSic37AoqDv2ZiEkx0EvrtfphG5oep2ujtw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793848136;
-	h=DMARC-Filter:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 MIME-Version:X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
-	bh=vuMOrMNlsDeXB/gOpGoVTc30nETCHnPARKydNa9wPb8=;
-	b=hTbH21ekDxQzFFCg03vT74dwBdJnLf33hcn32pYpB5aQyNQ8jD8yGkqu1G+7cFcUyj7x
-	 pV+EAIU0AfkcH/ozMe5Zqf886Q8xNC6Ed0Vd+3maTW6O/3bu8liHXGfs7VrixkhMSq+fW
-	 Er3BScRcFppUuFOq2g3da2REJe+b3jNQ/70YvQmZmNlxEG8jIXOA1nw2SRoNWd9+LpuYa
-	 QyyJaBatyUhGO8jj8+H0gVLKy4L5mBKICLY6Eo+IBiU7G4cn9YgoqBv0mqUNq1VGMSPXV
-	 fpGVo76pilsjjVhzKD+2yV32kPsyogpYANq6MJs/kZe8j4NQLm9xzRnC5W4wDtItNrQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793857673;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=cMJW19wi3AUy5xpsrBVnbC4Fa8g33RvlwJC/485ALLM=;
+	b=2WKf2/8A/5YAknCz26mArJ3WIIcOfc3cVFdBRrneJrOJDlx0pPF9mvGgMo8ZtZxQMf5Z
+	 GEx8ESr/8U7MyGDSficLAGuOVIYX5SA+RDUZhNe1GjSQnZC+qGwGYZFYYavgQiLJa0o8S
+	 yCw1/m51tOj+scb3Ls2BPLxBAcdDONrSN5+Fbj93subng2HTk4ti9zgX1gkKU8R78wQLa
+	 HgAtaaeK+TKLMq2fniL7DP8RWEJLroegfQ9qYFXuLUEre1aCy1L7zoF7ivv+J+Rcn6nUg
+	 3ysCWPSP/EedpAdvQFMf/tSJvYp2isenYl6rxAqU6R9qkJJVHCHfUNAJbucQyhizEag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=163.com;
-	spf=pass smtp.mailfrom=163.com;
-	dkim=pass header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=nG1zv4un;
-	arc=none smtp.remote-ip=117.135.210.3
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nBQWwmqg;
+	arc=none smtp.remote-ip=198.175.65.14
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 188EA606A33D;
-	Thu,  5 Nov 2026 03:08:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 188EA606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D8D8606A31B;
+	Thu,  5 Nov 2026 05:47:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8D8D8606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=163.com header.i=@163.com header.a=rsa-sha256 header.s=s110527 header.b=nG1zv4un
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:Content-Type:
-	MIME-Version; bh=vuMOrMNlsDeXB/gOpGoVTc30nETCHnPARKydNa9wPb8=;
-	b=nG1zv4uns5j1SF7EQQHL4A81sYee6mgvz28McBXq/nZTsB6X7wEk4TY6igfzBO
-	U15191s2WTw2n8N/X9eXGwnHw13C/chkLVwEjzKUluQzq7vV4D+2PFpFuVQwjSmy
-	tv6ocGVDFy4cfDjuGIRTPdeCA3i8HrvyANnyt+IpQNFp4=
-From: Wentao Liang <wentao_liang_g@163.com>
-To: Alexey Charkov <alchark@gmail.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: krzk@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux@prisktech.co.nz, wsa@kernel.org, wentao_liang_g@163.com
-Subject: Re: [PATCH 04/20] i2c: viai2c-wmt: Fix clock leak in wmt_i2c_probe()
-Date: Thu, 05 Nov 2026 03:08:21 -0000
-Message-ID: <179384810127.1670076.13427386991396484928@163.com>
-In-Reply-To: 
- <CABjd4YzNzZ0nnO4Xgw1JsRHhj9Crc6diX1uJnWHpHvd6BcPk2g@mail.gmail.com>
-References: <20260916070631.1965713-1-vulab@iscas.ac.cn>
- <CABjd4YzNzZ0nnO4Xgw1JsRHhj9Crc6diX1uJnWHpHvd6BcPk2g@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nBQWwmqg
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793857672; x=1825393672;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=nPyHAWDO9ZJOoEBFmCM/8d/dyr2AIFxTIVHy1CLHVws=;
+  b=nBQWwmqgehzZgrgrRMgVI7xdO0BTdD/0/UULLe72twZtQdzNvTiMO28i
+   zehkgF7dSV8Ehrj8UgEookn5XPtA75jROY1/RUt9E2edvV+rV1NWDUZjR
+   MLWE4Wv5RmqkLuUx+BkR9dsDceCZxtgF9plZhDmyO++2qtgWVZS/mXiXX
+   fZ5vlDaEolKXmIFcYgzW6AYYuKyf6cD5pyxICIsaNVokDo4wpSJbrPqwo
+   rXTsHQzCU2XWOexpu05r3OrhMeXTZ5aSB9n2uBTriOlEfP0NQ3DfNAloM
+   JtXCqNGpj7AKXAwXDNiq30Xy51Kk1AOZ4qgmXZR/tuSEoFWMBivad1FIf
+   w==;
+X-CSE-ConnectionGUID: 7WLvvQixTCWU2BT8AcE5mg==
+X-CSE-MsgGUID: phuexvRnTeCK0tm24ussYQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11956"; a="2521697"
+X-IronPort-AV: E=Sophos;i="6.27,196,1787036400"; 
+   d="scan'208";a="2521697"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2026 21:47:52 -0800
+X-CSE-ConnectionGUID: Xj/kuXkNRo6akP2buYOZOA==
+X-CSE-MsgGUID: 1UHc0PeRTBS863DrUu5kTA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,196,1787036400"; 
+   d="scan'208";a="6755405"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa008.jf.intel.com with ESMTP; 04 Nov 2026 21:47:50 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id D245299; Thu, 05 Nov 2026 06:47:49 +0100 (CET)
+Date: Thu, 5 Nov 2026 06:47:49 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: designware: return proper fault codes
+Message-ID: <20261105054749.GF176724@black.igk.intel.com>
+References: <20261103-i2c-designware-fixes-v1-1-f83dd71f988c@mobileye.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -62,52 +81,26 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-CM-TRANSID:_____wD3j8wt8+tq+C_JFA--.4408S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7ZFy5GFyrJr4fJw4DKw1fCrg_yoW8ZF4Upa
-	9YgFyYyanrAFySkws2va17Zr18urWxKF45Xrn5WFW0vrn8JF1jyF4rKw4vqFy7Zw4kJ347
-	Jr40qa97AF4DuaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0JU7EfnUUUUU=
-X-CM-SenderInfo: xzhq3t5rboxtpqjbwqqrwthudrp/xtbC7A6dzGrr8y7vRgAA3G
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261103-i2c-designware-fixes-v1-1-f83dd71f988c@mobileye.com>
 
-Hi Alexey, Andi,
+On Tue, Nov 03, 2026 at 06:12:16PM +0200, Dmitry Guzman wrote:
+> I2C documentation Documentation/i2c/fault-codes.rst defines fault codes
+> for different negative results in I2C transmittion. Previously,
+> i2c-designware driver didn't implement them properly - it returned
+> EREMOTEIO on NACK either on address or data phase instead of ENXIO and
+> EIO respectively, and EINVAL instead of EOPNOTSUPP if a message cannot be
+> sent due to controller hardware limitations.
+> 
+> To comply with the documentation, return the proper fault codes for
+> different conditions, namely:
+> 
+> - EOPNOTSUPP if the controller cannot transfer the message sequence
+>   requested (for example, target address change without STOP condition)
+> - ENXIO if target address is not acknowledged
+> - EIO on other faults detected by controller (for example, NACK on data)
+> 
+> Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 
-Sorry for leaving Alexey's review unanswered, and thank you for reviewing
-and merging the fix. I am following up from wentao_liang_g@163.com because
-I can no longer send mail from my original address, vulab@iscas.ac.cn.
-
-> Maybe we could go for devm_clk_get_enabled and drop some more
-> boilerplate which follows in wmt_i2c_reset_hardware, while at it?
-
-Yes, that would allow a broader cleanup. The current reset helper calls
-clk_prepare_enable() and disables the clock if clk_set_rate() fails.
-There are also explicit clk_disable_unprepare() calls on adapter
-registration failure and in remove(). Converting to
-devm_clk_get_enabled() would need to update all of these together to
-avoid double-disabling the clock and account for the resulting cleanup
-ordering. The merged devm_clk_get() change only manages the clock
-reference; it preserves the existing explicit enable/disable handling.
-I agree that the broader cleanup belongs in a separate follow-up rather
-than a v2 of the fix that has already been merged.
-
-> Backporting this to stable seems like a stretch to me, though
-
-I understand your concern about the backporting effort for a rarely
-triggered leak in old code. The original stable Cc was for the missing
-clk_put() on probe failure and driver removal, but I should have
-addressed your concern at the time. This reply is not a request for any
-additional backporting or for the broader cleanup to go to stable.
-
-Andi, the 04/20 numbering came from a batch of independent fixes across
-multiple subsystems, sent to their respective maintainers and lists.
-This fix has no dependency on the other nineteen patches. That numbering
-was confusing here; future independent fixes should be sent separately.
-
-I used OpenAI Codex to help inspect the existing clock cleanup paths and
-draft this reply. No new patch or hardware test results are submitted
-with this message.
-
-Thank you, and sorry again for the missed follow-up.
-
-Best regards,
-Wentao
-
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
