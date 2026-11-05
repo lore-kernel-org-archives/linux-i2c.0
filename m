@@ -1,62 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.144
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.147
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793899001;
-	b=xc20bX1p/6slbR7uMl31pPyJRbS7y/aPTaPhMPB8t5u/L382glSt3vGUzwv8ffdgkXDs
-	 AfpxBfuZKtBoAHErp8EE/6T9UKacuoDBLMrts3QFfYpWCNWv4irAXeG4clchcMfqbpnxI
-	 7Jz6GkNeQO4l70iQAJtPamMgHTahZNeAqXAz8KbRBWzZYVDZ/S0vREZHngQU0p3xyFaYO
-	 CrTAh5AfY+Hqbx+AoSnDpruTTTrtWMdeFFyIllRiyv1OSzAQ+Ul3yfhIC4h3NUikjLJiV
-	 CcSA25htIcn6WYwwfpaV7iNwkFdaJha2Ztm9pH9UVvJVMqAke0Ly0S2QqaPSPMPAvQg==
+	t=1793899006;
+	b=qZZ+zk/qRx4X6Rp4PcppM/iufQboHG6L1rbytXCjUOTdUkj/CqmdsRqdL63Ndda2Wj61
+	 PlTFWnnzBHRQdT7rxgRpteoFHOsTfkVqzoH1UFuabXUBWyejIGXmPx0vzPaBE+OT6xXZ2
+	 bUStDm59gn0hRCTkEUIvpHN6T8fvmNnyT225BeRWSIL4jNNKRkVtVdWeSMslWhaF+t6+L
+	 3sfUT2GYfPhJ5qQtZUeu8x/F1JCLrR/cJlYQCSi30QQJ4U2FBVut1DXMrnVqja3Dfob1+
+	 U8jiJ/fCdlE9yfwRZkBC00KNmzyHAWCQwB11AEOITJdIrfA/u17gqvz+iczfeQN4CZg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793899001;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793899006;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
 	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer;
-	bh=mlozEQJqTD17Kdg9fKmit8CMQRbYKQwG4XIhXLnNK9c=;
-	b=ZUYGP5w1EDy/cVy0ANu7ptA2cD2YDzOJWZpIB6E/XO9AVdp6OUvBddRpmb6FJdonwFZX
-	 n3IrX141XBAFoOiu3ahRlYE6ziHaV+ismrCeF3eq7WNTt5LYMQKvPi6BSVVmM96yFeFUw
-	 0dqq7LcmfVfFNkr1vA6W7lul3eWUAJAaAPKobz+PRJIQOCHBg3AW0FrjAQvPu6kIB8ImF
-	 Q69fHRHeezVvdydV9G7lT5Ovv5C2a1qvJmqy/xxSlRzoVi9ZKytC7wgahWK8M8JPWbEiF
-	 Hs9n2wVFbSrhYyDIKwwXQu3NykWs6fT8oYC0/1GevQ3EB3Ko3IxLLyArCcjmuW1vV1Q==
+	bh=T7tP7R2n8WhWHJO0GCJusIxU/QUf54O8a8To4Y8YAJA=;
+	b=leY8kU3zCI9MTUPsWrBGRXskORl9eHWxlfryYTWbv9onGSal69vMcyUOeZKhQApzQWZL
+	 F9euhJZGfGin2eyu7iG72QGxPRAZPvu75M44sQ1JnZcuGjiXRBNtA/WKcdQ2QGPdAJ+0s
+	 Raz8ogzyHP8TMcLOYDJOUno/nB/JyFz2SYcgLFMiwUsNh8HasXEwvnyWu2p4AHXFsenO1
+	 3udrrNuy5X3fmjtezCgk4klsS4DEBe/kW1pYeHgsXktEBucBQqvd/f4RJCAWL/OS/CozK
+	 zw4S/kwaBebjUIRQF6tc20A+RM9eMqzb6rYNYtI5bTjpVYt5LKBpy3sj1uNT/HMik+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=mobileye.com;
 	spf=pass smtp.mailfrom=mobileye.com;
-	arc=none smtp.remote-ip=23.90.104.144
-Received: from esa1.hc555-34.eu.iphmx.com (esa1.hc555-34.eu.iphmx.com [23.90.104.144])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A22B3606EEB1;
-	Thu,  5 Nov 2026 17:16:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A22B3606EEB1
+	arc=none smtp.remote-ip=23.90.104.147
+Received: from esa2.hc555-34.eu.iphmx.com (esa2.hc555-34.eu.iphmx.com [23.90.104.147])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 660326082BEB;
+	Thu,  5 Nov 2026 17:16:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 660326082BEB
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1793899000; x=1825435000;
+  t=1793899013; x=1825435013;
   h=from:date:subject:mime-version:content-transfer-encoding:
    message-id:references:in-reply-to:to:cc;
-  bh=3jyyUN+2uw6JFBOwpE+o/eA+FGjKrA2InO/IUR82Kg0=;
-  b=RfM7UhnIhV06jB+7r7sDhQw+iOO34rcYarqHQMvZ7VPA59sBi+D0VAnA
-   gQzRoOJ59ycYadg+Il0PKUT+qC8y47pYMgW3Zt1Qom4NTWclMpYZtiCmv
-   0Yna9+jNBWoxiutZ0KhisPGff5AzsgaLqeqeLhJF2dQQChSQGegY9evhc
-   CoeQN/Pz5ITQeiiPJWO2g1WAiRL4VD24Hb/SKjhpX6lbzGWFEiA5IRhTG
-   OcEdR2QACv3UvO1Y2+LBaZJ2kgPyPXMVl335WDJqGzSG5TWUuNcIQxE0n
-   7K09k8jedNkt/tHo69LICvMmFWqgc96/3G3LQrPxR5IoPuD5ChSb3zaop
+  bh=/+cabZaiN4XfIIx659yXwo3U+cCoXUx1gf9HDDu89No=;
+  b=ZY5JCgOm3eobCloQduWGwXlJX2Jt5Zakj/oO9EOJo5OhycZU3ecpqJFa
+   rFYpI+JaRV+iLezmKZ1ixNrLjttH4T/PWrgmPA0bPfsbe9Y7lH8o89Cd6
+   M7CrAWhh5Tm/XW8v9UzKgTv7tZFILgtKTjaBGf4IoF5zu7/Jdt7sklOIO
+   /dMel87s/IIciQGRgJKHQWFpJhOdpIAmUqbhKt3KUR36u/povcejPKKe1
+   BkL83xVjTif8wd2KEDeuWrm9fsYhsfkzynxixEhEw5y0MSoquOwHIeak0
+   pgajCDY+6iaKl36NG+R0j5Ae4uu3Bntfc3EyXQ/LF6L7SYHQ9KndDsq7Z
    g==;
-X-CSE-ConnectionGUID: NYIjUvP0Q8q5IfoXBCRtyA==
-X-CSE-MsgGUID: KbmlAUO+QtuWcj+BISCMRQ==
+X-CSE-ConnectionGUID: NCGXBDD1Rt+T5depArDyFQ==
+X-CSE-MsgGUID: 6o8eMIcaRx+vM26W1Rj0Pg==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from unknown (HELO ces02_data.me-corp.lan) ([146.255.191.134])
-  by esa1.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 19:16:32 +0200
-X-CSE-ConnectionGUID: Q2rOifoGRTWF94W7W8RBmQ==
-X-CSE-MsgGUID: uJOAv3ouRK+VlizjS+FESw==
+Received: from unknown (HELO ces01_data.me-corp.lan) ([146.255.191.134])
+  by esa2.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 19:16:37 +0200
+X-CSE-ConnectionGUID: c6LJYtgqStywnTEpyIVnaw==
+X-CSE-MsgGUID: W1xX3KOGTdCBR+CU05DcGg==
 Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
-  by ces02_data.me-corp.lan with SMTP; 05 Nov 2026 19:24:30 +0200
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 05 Nov 2026 19:16:30 +0200
+  by ces01_data.me-corp.lan with SMTP; 05 Nov 2026 19:24:40 +0200
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Thu, 05 Nov 2026 19:16:36 +0200
 From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Date: Thu, 05 Nov 2026 19:15:26 +0200
-Subject: [PATCH RFC v3 05/14] i2c: trace: pass message length separately in
- trace_i2c_reply()
+Date: Thu, 05 Nov 2026 19:15:31 +0200
+Subject: [PATCH RFC v3 10/14] i2c: doc: add section for I2C_RDWR_V2 ioctl
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,7 +67,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261105-i2c-fault-reporting-v3-5-515ad74ac4c9@mobileye.com>
+Message-Id: <20261105-i2c-fault-reporting-v3-10-515ad74ac4c9@mobileye.com>
 References: <20261105-i2c-fault-reporting-v3-0-515ad74ac4c9@mobileye.com>
 In-Reply-To: <20261105-i2c-fault-reporting-v3-0-515ad74ac4c9@mobileye.com>
 To: Andi Shyti <andi.shyti@kernel.org>, 
@@ -83,64 +82,77 @@ Cc: Dmitry Guzman <Dmitry.Guzman@mobileye.com>, linux-i2c@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org
 X-Mailer: b4 0.16.0
 
-In trace_i2c_reply(), add separate argument for message length and use it
-instead of taking the message length from struct i2c_msg. This allows to
-trace the read data of an interrupted read message.
+I2C_RDWR_V2 is a new ioctl for I2C controller devices. It has the same
+functionality as I2C_RDWR, with additional feature - in case of a fault
+during transfer, it provides information how many messages and bytes were
+successfully transferred and which message caused the fault.
 
-This is preparation for implementation of detailed transfer reporting
-feature.
+Add documentation section about the new ioctl and the structures it uses.
 
 Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 ---
- drivers/i2c/i2c-core-base.c |  2 +-
- include/trace/events/i2c.h  | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ Documentation/i2c/dev-interface.rst | 48 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 12b49c01baed..3dd7ef02c562 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -2349,7 +2349,7 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 		int i;
- 		for (i = 0; i < ret; i++)
- 			if (msgs[i].flags & I2C_M_RD)
--				trace_i2c_reply(adap, &msgs[i], i);
-+				trace_i2c_reply(adap, &msgs[i], msgs[i].len, i);
- 		trace_i2c_result(adap, num, ret);
- 	}
+diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
+index c277a8e1202b..95e60bdb2f4d 100644
+--- a/Documentation/i2c/dev-interface.rst
++++ b/Documentation/i2c/dev-interface.rst
+@@ -140,6 +140,54 @@ The following IOCTLs are defined:
+   The slave address and whether to use ten bit address mode has to be
+   set in each message, overriding the values set with the above ioctl's.
  
-diff --git a/include/trace/events/i2c.h b/include/trace/events/i2c.h
-index 142a23c6593c..b3267dcec420 100644
---- a/include/trace/events/i2c.h
-+++ b/include/trace/events/i2c.h
-@@ -88,22 +88,22 @@ TRACE_EVENT_FN(i2c_read,
-  */
- TRACE_EVENT_FN(i2c_reply,
- 	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
--			int num),
--	       TP_ARGS(adap, msg, num),
-+			int data_len, int num),
-+	       TP_ARGS(adap, msg, data_len, num),
- 	       TP_STRUCT__entry(
- 		       __field(int,	adapter_nr		)
- 		       __field(__u16,	msg_nr			)
- 		       __field(__u16,	addr			)
- 		       __field(__u16,	flags			)
- 		       __field(__u16,	len			)
--		       __dynamic_array(__u8, buf, msg->len)	),
-+		       __dynamic_array(__u8, buf, data_len)	),
- 	       TP_fast_assign(
- 		       __entry->adapter_nr = adap->nr;
- 		       __entry->msg_nr = num;
- 		       __entry->addr = msg->addr;
- 		       __entry->flags = msg->flags;
--		       __entry->len = msg->len;
--		       memcpy(__get_dynamic_array(buf), msg->buf, msg->len);
-+		       __entry->len = data_len;
-+		       memcpy(__get_dynamic_array(buf), msg->buf, data_len);
- 			      ),
- 	       TP_printk("i2c-%d #%u a=%03x f=%04x l=%u [%*phD]",
- 			 __entry->adapter_nr,
++``ioctl(file, I2C_RDWR_V2, struct i2c_rdwr_v2_ioctl_data *msgset)``
++  Does the same combined read/write transaction as I2C_RDWR, but also
++  provides detailed fault report. The argument is a pointer to a::
++
++    struct i2c_rdwr_v2_ioctl_data {
++	    struct i2c_rdwr_ioctl_data rdwr_data;
++	    struct i2c_transfer_report report;
++    };
++
++  rdwr_data is the same structure as the argument for I2C_RDWR ioctl.
++  report is the structure that the transfer report is written to::
++
++    struct i2c_transfer_report {
++      __s32 fault_msg_idx;
++      __s32 msgs_cplt;
++      __s32 bytes_cplt;
++    };
++
++  msgs_cplt is the number of messages that has been sent or received
++  successfully. If there are read messages within this range, the returned
++  data is guaranteed to be valid. If a message has been read from the
++  device but the read data is lost (for example, FIFO is flushed before
++  CPU read it), this message must not be counted.  If the controller cannot
++  determine the number of completed messages, the value is -EOPNOTSUPP.
++
++  fault_msg_idx is the number of messages that caused a fault. In case of a
++  fault, it is not necessary equal to msgs_cplt. For example, if the driver
++  validates the whole batch before starting transmission, detects that it
++  cannot send it, it returns -EOPNOTSUPP error immediately, so msgs_cplt is 0,
++  while fault_msg_idx points to the message that cannot be sent. Another
++  example when these two value may be different is I2C controller that
++  flushes RX FIFO when an error is detected before CPU reads data from it.
++
++  If there is no fault, the fault_msg_idx value is equal to msgs_cplt.
++
++  bytes_cplt indicates the number of bytes sent/received in the message at
++  index msgs_cplt. If this is a read message, it is guaranteed that these
++  bytes in the message data buffer are valid. If the controller cannot
++  determine the byte count, the value should be -EOPNOTSUPP. If there was
++  no fault or no data was transferred successfully in the faulty message
++  (for example, NACK on target address or first data byte), the value should
++  be 0.
++
++  To discover whether the device supports detailed fault reporting, use
++  I2C_RDWR_V2 ioctl with nmsgs = 0. If the driver supports it, the return
++  value should be 0. If the driver supports only plain I2C_RDWR, the return
++  value should be -EOPNOTSUPP. In any case, nothing is done on wire.
++
+ ``ioctl(file, I2C_SMBUS, struct i2c_smbus_ioctl_data *args)``
+   If possible, use the provided ``i2c_smbus_*`` methods described below instead
+   of issuing direct ioctls.
 
 -- 
 2.43.0
