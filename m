@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794004483;
-	b=kaacQsNTqXPREL6u9ZiqYxbSi31LEPb7j0KNkNXbjv3+uhGyVQU3alU65E/vo/A3AGmg
-	 UZh5YTubI0ExCnZdQtjJqMgkqy9uUVmrVKnQWtDUvrsWHNmEGQsob/vBtXCrR69/4ykNQ
-	 e1BxhJtxyRHdA1EYHwKO8XZQWAmKr+64JGxbvE+kVZJIHL62SiUWm6M1N7MrCuashVaKt
-	 DAGR/5HhxymeLCHQYlCFsENFayRhAQ6t0syDL8EBxDmvWuvOCbDdgOJXFBngFKr5zUqQh
-	 fZCr/8QitNBgUrHwtxVF5yALH0jLpV1mpDQ4Z8dsueWxbywvHg8rw+O1ulrtNUsOSRQ==
+	t=1794004534;
+	b=seBn7UGgPsPuxA8Grxy50cnljU1eCP1tWK4nIBZcKmbyQhtuyQhVVpg4o0pxcYty0Wqf
+	 33eGeoM3Pe8tRZI8x6cRRWS/7fYQDAk69mHvOV4Kf8TvHUrABT5o86BL9zFtWn+Nex/QM
+	 NLnmRpS1OBRyHUc9fr6+sLKsxmaeXvP4crlwX2rLa8NMOc5+dyQxypEp2vUi3jK6RpW6I
+	 WOrRMd7E/NkLHyqrl+hKrWppZdkTWxKjG8QRNdDb+QKGw6hSOh4DGRVkN+0WxTJqgZ1je
+	 JbkKj49jKhpVhcm08lKb4f/7ExlYaudAfR/2yniVsJkbYLiWKtoOmXOgQ1uIdpNor4g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794004483;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794004534;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=7Quq3xcYOSiCqP1VWqFYsEpRGnceLb6KT1qUylBV5i0=;
-	b=Sy5SlnLGeCnTmEpkECponiSxXR8AXbMylUG+iaUJSGjHOnFWahJuiGlSPQkFgD2ec7S4
-	 /HG4vugQ+EQ7sKXJyKIZrcuuTxyWvAnhLrNy3VjdyNNCMSjuEox/owCsgwC3Ub3MOeYih
-	 RCFnKzMjs03bf2N+eyK+fBDmiG0r9CngRNmp/ByBjRuwNnaxosd6QmRiWhFbiro8CHcSZ
-	 Zw0KMB2/s+qHxAelpmE+V7XJWvQMdL7oWYYEa0+VnG/P9B386EQf3cdKJ+pRfu3epwidA
-	 hmM+F3pya9fSih3LX/llpxY9E8FJ0XfRSpedqILCeAgLdA0zRySJQi4Jgoy7CV562WA==
+	bh=mFkU8crRkJY2lNoYYYHwPFJe6o0I7upszdTquF60EYI=;
+	b=AQyCRiyJh7Lma8qLseAvAWpZit6IqnFnYdzTmaS9VdvVIaxa/cjlJ5vTCWwzbOD8Ofy9
+	 2oWPzCIj/e3X2inJZkW8dBKihs1U6ntKaoJ5DLfTEwKbvozL5r1yrN/ZPWPtt9PUYf6ft
+	 Yosgof+fHXp0k/cvIfWoeotMoDv0oAUnUR4gTYWILBBpjSS8SWJnTsF6CBYv4r1/2+DHb
+	 oGB4+mO/9wr0vDjAlRgCKJFEYYXqJ6LqNbadfVruZ/yCZCb1c2/Vh3mRbGpnkp7xhabdc
+	 u4OLt+QC0Md2vaDoDrDfh25/fdsuySGA3K/Daw6JGd3+JPqsNN1XjA/P7sqetqYhxPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AmzZ8OtT;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ftpXQ2mL;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86AD5606A326;
-	Fri,  6 Nov 2026 22:34:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08272606A331;
+	Fri,  6 Nov 2026 22:35:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AmzZ8OtT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 474EC1F0089F;
-	Fri,  6 Nov 2026 22:34:38 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ftpXQ2mL
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28F51F0089F;
+	Fri,  6 Nov 2026 22:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794004483;
-	bh=7Quq3xcYOSiCqP1VWqFYsEpRGnceLb6KT1qUylBV5i0=;
+	s=k20260515; t=1794004533;
+	bh=mFkU8crRkJY2lNoYYYHwPFJe6o0I7upszdTquF60EYI=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=AmzZ8OtTiadnCnqTnmUrn4wK5gvLMZ/21+/uTceAXFcpx10yAsv6vL/XCaG+oQAAz
-	 GG8ETTHn+3mDP6tim693onHvQTu0ukO5rX+SetNYamzXPk2PuJ9aiyr22RXdrQFTh+
-	 xluvgtWpQyWGAWPpfcuVWgVWOEvt2Qf3Lj88LD0wWpBSx+ofksWsAI9UwLF5Hq2g5z
-	 fcwoVe1cqKVWST2AP4dNdFZ9DXjGlX8HgxAwBRott8f4el6aSxf+QOJuKO8zQc8pXp
-	 pwaiCQqykoBDLGJCoLyEwqB8FYb19ZF7gi9hDlYgV1f8v6CqORqob5l427a4dRMhO/
-	 5BXgRQqdOQ8XA==
-Message-ID: <5d72eff8-ac6d-453c-ac63-db7e30e4a917@kernel.org>
-Date: Fri, 6 Nov 2026 22:34:36 +0000
+	b=ftpXQ2mLAT19BODYYHyv5oqiDS6hx1JXcPoWW84V8TRVCFx8DNtRCRpgkfOND4oZe
+	 ueepPoFDIwKk5u/xxuaFsT4XBAmcyxbawsU88ebLqFcA+pVJsc81AxZlGWCkcFvjmA
+	 iwmMba7uw+AnkayOt+GYCZQa1ZTwCBzppGUlZbdZWmr8hPuREqmNWQubTlkXh7t2Af
+	 E7yKYiUbCT7eLD2dV6Fr9xcxxsnQBcGo/asTfsABHn5Er/uQBRdUYGh4Bpt5Xm0lgd
+	 RaJl6Vc2VKxW/f1hBx7YvdXkbwCNpiMOJeSdtXVGAGNK8M4Ee9oA0OiUAVyGI+Otkm
+	 LfnIgCf7Tnuzw==
+Message-ID: <cc8e4076-ae0f-4963-89ce-f70a80b1a8df@kernel.org>
+Date: Fri, 6 Nov 2026 22:35:26 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -52,8 +52,7 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/7] media: qcom: camss: Match VFE lite clocks by name
- prefix
+Subject: Re: [PATCH v3 5/7] media: qcom: camss: Add support for SM8150
 To: mail@andrewgigena.dev, Loic Poulain <loic.poulain@oss.qualcomm.com>,
  Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -70,8 +69,8 @@ Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-media@vger.kernel.org, linux-phy@lists.infradead.org
 References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
- <6n2xSSEPbQQR62rX2-W0NR48vBjFHq10xHuJ_rAoN_4xOC4HaGuHmz7IM49xl6JHRC2cKI_VCfJ_NS_kW3jphw==@protonmail.internalid>
- <20261106-sm8150-v7.4-rc1-camss-v3-4-0103e8a0bbcd@andrewgigena.dev>
+ <_AhxlS0ukmjdt5SKGd63Jge_L9EGGdZ7i41L503tuzOyXYjMPzc2f_n3o9AzQyeUoxRI7kCnCzZcDY68fZRbLg==@protonmail.internalid>
+ <20261106-sm8150-v7.4-rc1-camss-v3-5-0103e8a0bbcd@andrewgigena.dev>
 From: Bryan O'Donoghue <bod@kernel.org>
 Content-Language: en-GB
 Autocrypt: addr=bod@kernel.org; keydata=
@@ -117,42 +116,29 @@ Autocrypt: addr=bod@kernel.org; keydata=
  LKSGEglMpiX07M1AotgvylN5C8fjbouoK+/RAMsXkk8jba6rPfuuXPaDjCyyKn6zSVHETnHW
  3AJbgVY50T8STpnxayBQvWbCvu+6NOEjXCbyaOJig+5l0zlGN9XHjdANXC5HnwmyaGRL9YDq
  Jh2nVXVJDincOdQRdKcJjYLqaOAoWrYWSDi1iZGspHBTDrnOvfMQzzHY
-In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-4-0103e8a0bbcd@andrewgigena.dev>
+In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-5-0103e8a0bbcd@andrewgigena.dev>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 06/11/2026 18:35, Andrew Gigena via B4 Relay wrote:
-> @@ -346,6 +347,7 @@ static u32 vfe_src_pad_code(struct vfe_line *line, u32 sink_code,
->   	case CAMSS_6350:
->   	case CAMSS_7280:
->   	case CAMSS_8x96:
-> +	case CAMSS_8150:
->   	case CAMSS_8250:
->   	case CAMSS_8280XP:
->   	case CAMSS_8300:
-> @@ -914,6 +916,9 @@ static int vfe_match_clock_names(struct vfe_device *vfe,
->   	return (!strcmp(clock->name, vfe_name) ||
->   		!strcmp(clock->name, vfe_lite_name) ||
->   		!strcmp(clock->name, "vfe_lite") ||
-> +		(vfe->res->is_lite &&
-> +		 !strncmp(clock->name, "vfe_lite", 8) &&
-> +		 isdigit((unsigned char)clock->name[8])) ||
->   		!strcmp(clock->name, "camnoc_axi") ||
->   		!strcmp(clock->name, "camnoc_rt_axi"));
->   }
-> @@ -2006,6 +2011,7 @@ static int vfe_bpl_align_rdi(struct vfe_device *vfe)
->   	case CAMSS_6150:
->   	case CAMSS_6350:
->   	case CAMSS_7280:
-> +	case CAMSS_8150:
->   	case CAMSS_8250:
->   	case CAMSS_8280XP:
->   	case CAMSS_8300:
-
-This patch mangles the thing the patch title does with switch additions 
-for src_pad_code and bpl_align_rdi.
-
-Please separate.
+> From: Andrew Gigena <mail@andrewgigena.dev>
+> 
+> Add CAMSS platform data for the Qualcomm SM8150 SoC. The camera
+> subsystem contains four CSIPHY, four CSID (two full and two lite), two
+> VFE and two VFE-Lite instances.
+> 
+> The hardware reuses the existing 3-phase 1.0 CSIPHY, Gen2 CSID and
+> VFE 17x implementations; the CSIPHY uses the SC8280XP lane register
+> layout. Add CAMSS_8150 to the version enum and to the shared code
+> paths, then add the per-block clock, regulator, power domain,
+> interrupt and interconnect resources.
+> 
+> The CSIPHY resources are reduced to id/hw_ops/formats only; clocks,
+> regulators, registers and interrupts are owned by the dedicated CSI2
+> PHY driver.
+> 
+> Signed-off-by: Andrew Gigena <mail@andrewgigena.dev>
+You could add your bpl and src_pad stuff in here.
 
 ---
 bod
