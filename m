@@ -1,62 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=199.89.1.16
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793997246;
-	b=3uFAuJrCKBfJX78tJHc8ovfubwzpXaRl+NYLMKvaX9eFDKvOFKLzBsijDntXigGfj+kT
-	 tYAuSrt/HowwwLK1ZHDrAuX3i/Cmf+2w5+9JzSY5qHcNN1eLps9bFJvUKqEqddl6IcHyK
-	 ibuFAtDoYGQI1ZJXIVSO1aAP28jxcqqflnS1mm3CadbVvw7YO7hvYtCWcmqpfRpl5u7U1
-	 CxZQYleAf803pwTYCNlE3masFvDJ3vNn/01rVEpB8KQdCayq89cDm8Zhj9xrFDjlVdODY
-	 kVOarjUzZnyHR0BzSNUxj76GKMjlJW1+UhPFi3CTx3EOAie1m26zicwr8JVoph95RCQ==
+	t=1793997247;
+	b=QArEkbJv3a3//JOt0wXIJVo427/Aovo8Ht0t2pDA7tOuY2AeLkVd2jZtllW6FaZ/jUc6
+	 l3h2sIEg7DD5iIfr4FwXFeJM45ayaoB1mOn9ywVczRP9+EIwmSHGNaXCw/uAwGPTByadb
+	 R/m9vJKa9uEujTlc4dUU+d15FNZo1Yd7VRLiGANq8vATuAuqEa5JRvpaYSys2J99G/hep
+	 rPQ7pI5XLeNTzHpr6eoTdq/LHBF8Rt4/dEpgVqsHM1pPSf7bXZPW0+b7jpi83AOFTKHCS
+	 MRUx/zoDhkP+PMzKa5B0DLAE90BsUhoa+SzZ6TdMo17RJWV17Yg4pgOnxPV+J+z0ewg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793997246;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793997247;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Virus-Scanned:Received:
-	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=Lf4/8nx82WCQx07flCrOKeUURdG0c0aNEb7IfhxSuaM=;
-	b=SKJRPbL4tYm/oCx+SKC2c8XeTiPYpUhsRdkGVZOZkap4iKjQPrha1Bv/LH1kdtfuJU4T
-	 X9WM7/WnCHNPGelNDU/pHUfmfyqMDSijzT6Uu0xmq6Yt0x6YgLXChjHhTNmZr/vRyNvtx
-	 qDM6q2thHrtXNtuvVe8dSO5lVeysYEH+xxBXbt9xEqdQ89t7h3wIZV73v8U8g7fIo7ijP
-	 ptveI7fUreS7UEOHHvkDGe9uW5jXdKnKHmKXcvUvu9ZrDLWnYooSIr8Qu8GQfDBXbxHxK
-	 npN8+rBcaWS8jAg9zr1WDVCqeMHAlKg9QKLkWo9C3vniTFleHtKy6DKMW+EsMOyx/Qg==
+	 Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
+	 References:MIME-Version:Content-Transfer-Encoding;
+	bh=+si3buJcAEUh80xnVYivIHuubUqUeVetRkfB6pI4oHI=;
+	b=Y94ZCntQBFL4bAcW7F00DwmGug4NWIAORyW8wxqfLIu4L9lPuz/5+Q5FSh/0k/vLPRyT
+	 cuPxm1MhaZULmBjxpZHZwTlxNn540vICINBei1Xz1QBaVAGJbOxO3CCUq4GQ/HFVmFqwG
+	 3ODdSBnXgUkPlV4o3O8qWlSvyYep8kntaa2YaZ/+g7Fgfd3OrrS+9MCAmc8eW8tk/BA89
+	 eaeDKLYHCtpwJ6el/ObpSBuf+VjkSvcozRUBz3Yp/NJxK49lPjn2kyDkdJViKR5ZeZYAH
+	 G+XnpYd7yHoEOmGkCWwy024/2aUWi3D+1Ni51GUdy/2Z10AJKzxFhm86/wlh1qn4GPQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=acm.org;
 	spf=pass smtp.mailfrom=acm.org;
-	dkim=pass header.d=acm.org header.i=@acm.org header.a=rsa-sha256 header.s=mr01 header.b=kLLmz3LU;
+	dkim=pass header.d=acm.org header.i=@acm.org header.a=rsa-sha256 header.s=mr01 header.b="gZp2/4d5";
 	arc=none smtp.remote-ip=199.89.1.16
 Received: from 013.lax.mailroute.net (013.lax.mailroute.net [199.89.1.16])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F37C606A326;
-	Fri,  6 Nov 2026 20:34:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9F37C606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF8CF606A32D;
+	Fri,  6 Nov 2026 20:34:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AF8CF606A32D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=acm.org header.i=@acm.org header.a=rsa-sha256 header.s=mr01 header.b=kLLmz3LU
+	dkim=pass (2048-bit key, unprotected) header.d=acm.org header.i=@acm.org header.a=rsa-sha256 header.s=mr01 header.b=gZp2/4d5
 Received: from localhost (localhost [127.0.0.1])
-	by 013.lax.mailroute.net (Postfix) with ESMTP id 4jLrVv3760zlfvps;
-	Fri,  6 Nov 2026 20:33:59 +0000 (UTC)
+	by 013.lax.mailroute.net (Postfix) with ESMTP id 4jLrVx3WgBzlfvpM;
+	Fri,  6 Nov 2026 20:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:mime-version:x-mailer:message-id:date
-	:date:subject:subject:from:from:received:received; s=mr01; t=
-	1793997237; x=1796589238; bh=Lf4/8nx82WCQx07flCrOKeUURdG0c0aNEb7
-	IfhxSuaM=; b=kLLmz3LUQjzFeK6nTVh1TmkfH48cTZX6q4j5FiMpDltyQ5p6FWx
-	mn/pRbIx0UqNGSpm7iGwKoPMHEbGNq77locmu15aE5cPALuY6mVn/vqsUcmscEAK
-	O9dVGrDKnHwTpR+1bhrE1j6xOn4heNYZyZmn7w0MzVAXnU6bLrs3cAzyOHS0zSJS
-	KO7PyVj14I09EUsvbQcpk2KR+EcLq0Yv+PSo8mIEuFkDavmWd4IE9nTGcRyNbPXA
-	qhap5jl3e4hFTf+2oJfFKu/siGnykgDply2J5H5E6qEbLszHqThIeeAY3Oze6Ddh
-	wpCf2UQ0UnzTpSnrWOXm8YQPUuxqINuoZ5Q==
+	content-transfer-encoding:mime-version:references:in-reply-to
+	:x-mailer:message-id:date:date:subject:subject:from:from
+	:received:received; s=mr01; t=1793997239; x=1796589240; bh=+si3b
+	uJcAEUh80xnVYivIHuubUqUeVetRkfB6pI4oHI=; b=gZp2/4d5cg1OqS2nunXYP
+	XEmFTWuonvtOoBX6jQ8oLX9dTMr/vw3XmgXgFn2m+aBFHZ+eFo5FwRROsUpYQvX5
+	3tJeW21c0O3/lelgzQnTJh8fkp1C4DkrcXNUUF6Qj2EjLM1zFu8OVRbZjBU0XJMr
+	icCu27SlJb14CTosJTBoU4WPDyZt9pH+DexwT0hI+v0y40K+FEzLilC+SuIawp32
+	f10MuPvDAQyi7nZg3+31Ni0Ff1N3b86DePCllvfhQUMagO3eYT92ptGDsi5lZWGx
+	x/5UsWIc701yryh7hgIhVaCeNhsAPB3I+RdZKk+Zoppeq1YGy+LWOrqXApFqzh8Y
+	w==
 X-Virus-Scanned: by MailRoute
 Received: from 013.lax.mailroute.net ([127.0.0.1])
  by localhost (013.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id ppmzsRS5ENq3; Fri,  6 Nov 2026 20:33:57 +0000 (UTC)
+ id MCYmKRgbvVMG; Fri,  6 Nov 2026 20:33:59 +0000 (UTC)
 Received: from bvanassche.c.googlers.com.com (57.237.82.34.bc.googleusercontent.com [34.82.237.57])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: bvanassche@acm.org)
-	by 013.lax.mailroute.net (Postfix) with ESMTPSA id 4jLrVr6hzszlfvpH;
-	Fri,  6 Nov 2026 20:33:56 +0000 (UTC)
+	by 013.lax.mailroute.net (Postfix) with ESMTPSA id 4jLrVt21Zlzlfvpn;
+	Fri,  6 Nov 2026 20:33:58 +0000 (UTC)
 From: Bart Van Assche <bvanassche@acm.org>
 To: Peter Rosin <peda@lysator.liu.se>
 Cc: Andi Shyti <andi.shyti@kernel.org>,
@@ -64,10 +65,12 @@ Cc: Andi Shyti <andi.shyti@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 0/3] i2c: mux: pca954x: Track unknown mux state and report deselect failures
-Date: Fri,  6 Nov 2026 12:33:19 -0800
-Message-ID: <cover.1793997098.git.bvanassche@acm.org>
+Subject: [PATCH 3/3] i2c: mux: pca954x: Report deselect failures
+Date: Fri,  6 Nov 2026 12:33:22 -0800
+Message-ID: <b7b0ecf4d922595ac1b4b2672405f28189afc889.1793997098.git.bvanassche@acm.org>
 X-Mailer: git-send-email 2.56.0.455.g6c5a503b38-goog
+In-Reply-To: <cover.1793997098.git.bvanassche@acm.org>
+References: <cover.1793997098.git.bvanassche@acm.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -79,31 +82,43 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 
-Hi Peter,
+The i2c-mux core ignores the return value of the deselect callback.
+Hence, if programming the mux into its idle state fails, the failure
+goes unnoticed and a channel may remain connected until the next
+transfer reprograms the mux. Log a rate-limited warning if
+pca954x_deselect_mux() fails.
 
-If a control register write to a pca954x mux fails (e.g. if only the ACK
-was lost), the write may still have reached the hardware, leaving the
-mux in an unknown state. Currently the driver records last_chan as 0
-(disconnected) after any failed write, which causes idle_state_store()
-to skip the disconnect write if the idle state is updated to
-MUX_IDLE_DISCONNECT. In addition, failures in pca954x_deselect_mux() go
-unnoticed because the i2c-mux core ignores the deselect return value.
-Track an unknown mux state by setting last_chan to -1 after any failed
-control register write, split out pca954x_set_idle_state() from
-pca954x_deselect_mux(), and log a rate-limited warning when deselecting
-a channel fails.
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-Please consider this series for the next merge window.
-
-Thanks,
-
-Bart.
-
-Bart Van Assche (3):
-  i2c: mux: pca954x: Track unknown channel state
-  i2c: mux: pca954x: Introduce pca954x_set_idle_state()
-  i2c: mux: pca954x: Report deselect failures
-
- drivers/i2c/muxes/i2c-mux-pca954x.c | 60 +++++++++++++++++++----------
- 1 file changed, 40 insertions(+), 20 deletions(-)
-
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-=
+mux-pca954x.c
+index 91df2d2fa2b7..45a7d841e7cf 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -359,7 +359,21 @@ static int pca954x_set_idle_state(struct i2c_mux_cor=
+e *muxc)
+=20
+ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+ {
+-	return pca954x_set_idle_state(muxc);
++	struct pca954x *data =3D i2c_mux_priv(muxc);
++	int ret;
++
++	ret =3D pca954x_set_idle_state(muxc);
++	/*
++	 * The i2c-mux core ignores the deselect return value. Report failures
++	 * since these may leave a channel connected until the next transfer
++	 * reprograms the mux.
++	 */
++	if (ret < 0)
++		dev_warn_ratelimited(&data->client->dev,
++				     "failed to deselect channel %u: %d\n",
++				     chan, ret);
++
++	return ret;
+ }
+=20
+ static ssize_t idle_state_show(struct device *dev,
