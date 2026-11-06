@@ -1,113 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793947901;
-	b=0rQ6ErGP8C6NBxc2NiVolGe1BMmR9aFvjMoj2DlCAqoKc0AsVUe02IqgCOZ7PABJCAwM
-	 BTo5YEsljICIMFgE61WjCw1hGyxtmT+bE5Bplifl4wmU0zMSmcNdMC67EVFubKYxVDts3
-	 WZpMSCy9IoYDfG9ngGjNgJZe7wWyEIVWW4737u//ejWTS2EDq0iJiUwt4QozyNwVpHi5V
-	 520df+jsd8Jp7Ody8BHOdg/EkT6wjML0Urkd94V0kbrQjF7OpDyLS3l20tK1lQTlIgOzg
-	 R2Hlyf8DzGX0kkkOuJzzRmfSxj+JMq5sGoMeYSRKcxMLhE5XN7+fdqO6Oq99uVSagFQ==
+	t=1793948591;
+	b=JvVyQgovVc/kRZhyMTe41RwRbeduOLNUAum6WG4TBqNp32I40Kkp7wZ344HVpTXu061u
+	 IZQBGL0WHC773GdxOKInCY+jplKdpHznZj7+z9Goe671s+RRAQ1kPzOgml2p0ktxisqDu
+	 Nkb/bklXJxHCjEvgyhOHR8mp1De9saY+F5N10426StI1h9XnnDPwFr+yKjKzjbQJaIqod
+	 AvZyTQCAjNfUqw3yaqWONmIDXWwcuWmLT1mBmGFgYXPurz3uBIsioicdlWk8+Zs2f634j
+	 grt10Hlr54iQPINwyS0A7QWuCvoeHLkfyNyxySOCaR0Ru+B76Hkn7JQHa6MSS8Ftr0A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793947901;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=kyb6DIRzyj92fp2kO/zPn2THkDfGJwbc9S97yxeZwD4=;
-	b=DnxVNJgsTXrRJA8EKIGmjVgYFc6GTWEG0rygRBpgVGRCZ/KEDPX0gdosxq+HG3hTYHHL
-	 xXmlSkl8F78u4IVYB2RYrqQW67Uc1XOVOKuGnL3yLKJqvM0Qtk+9Ef5DVYI2NPss+P5qB
-	 xK3Ic82SXMtdUohzgHiW+OWRML48WtoYy175VTSRUJE7NRYJGqT5HzxJCIITCU04e2RSX
-	 fpJ2xIBnDhjcQGFyck+vp73zuPBG7HuaYbdu1ucXO+gHyZ9030Z0depFhhjq9rCkoPDW/
-	 x5HY8kk9IHMjUxwDPIPqiJHdf35HrtHwag4oEiwVd+EGIMfwAxBc+D+81eZuAY4LXQA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793948591;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=HJgFJeGyP2RXmPUrqatqK2hfmi9m5K+BAW+Bimi7a/M=;
+	b=ZqtwRKmbmrPE8cpaRQirP1b7mUaXsy2Hy+6dVaFZyukAdmFJM7Yg73qHFZJWACTHPVt8
+	 NWup8CbyU0L930kvzHxuoHlg68w1d9JBvUnCH6OSwYsWVe8ctMkZ2MfYYCg5t81BTKvVo
+	 sgHZXHhkwT710bDbuE5fydzcvRrZpUeF+5assRsy3t1I+R4jv0oOX7znAbvNCV5NvndFq
+	 k+bW9H4mvTT41VW3Byr1x20iJZDuNEJXJj6BhzvVa54Vo5ZK+T8fLHXkJfSvfzZW7fmr8
+	 HfL5l2hMbziKT+AKr0OTKqi0Sq96fEqDP39dZysDyLu6comcjIp5dfD4S/2qNEzS7og==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=temperror header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=maVmE+fk;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=kPlQWlo9;
-	arc=none smtp.remote-ip=205.220.180.131
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=vAP9lf4L;
+	arc=none smtp.remote-ip=74.125.82.181
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAECD606A330
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Nov 2026 06:51:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DAECD606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AE56606A329
+	for <linux-i2c@vger.kernel.org>; Fri,  6 Nov 2026 07:03:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4AE56606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=temperror header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=maVmE+fk;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=kPlQWlo9
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A640DMn3441142
-	for <linux-i2c@vger.kernel.org>; Fri, 6 Nov 2026 06:51:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	kyb6DIRzyj92fp2kO/zPn2THkDfGJwbc9S97yxeZwD4=; b=maVmE+fknvWwjkXy
-	0Xk2Jq332c3P09S6hmY15ylzHfmfI9Cay4PXx/OB7PtZugIcfWV8lyY5+YpDX3pc
-	q5nJMVd4oQ3xvO/HOcyJvlCwSTa97JSfE3jvny/BDHyGN7+1q2UC83fLxIgs8MFt
-	QPD+U4n3N11EEVetEs/emnqOjZ3mmQxMM5MQdrsjGJIBaBhVgSWAGgg0CcpTXV8O
-	q48uaJuKA8oIy2Ce4LN59wMd4GGhRouwH9opAtiF2r6U+twVMEnrHrGo27Z+eggi
-	F0aQ6Z0OEUcKWlAKb9sHwqLqzmYxjEwyH9hg6QMl8QYcvpYtrmuF/0R1sHpG0CYj
-	eZnSuQ==
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hs3pasek2-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 06 Nov 2026 06:51:29 +0000 (GMT)
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3b0afbf532eso399887a91.0
-        for <linux-i2c@vger.kernel.org>; Thu, 05 Nov 2026 22:51:29 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=vAP9lf4L
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-36cad25b8b0so518717eec.1
+        for <linux-i2c@vger.kernel.org>; Thu, 05 Nov 2026 23:03:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793947889; x=1794552689; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=kyb6DIRzyj92fp2kO/zPn2THkDfGJwbc9S97yxeZwD4=;
-        b=kPlQWlo9tyob5810px99DHXkGl2vKYkl0VqJab193TG9J33BIJGr2kJ+gYnvzOhxUg
-         NcYNgvxx3iCNsGcnXf7U8kuOU1iW9l3GDTbMecQCyg3QyDh/LQzEMCju3O7FC860cqwk
-         qnb1G2fg+KkKKnZsppGKjVoXInAJsFeRqj5nGqt0DY7YLW5M4itj4dvMccSpPd/8c2Qu
-         Ebx6JzESPLIULhuYYq3BYgDZXCsjxmh9pqjKAwSeqTSkGEXqmrDXq3OBouUq1YkI55Ro
-         biPicZmmbVXsUh/hIaF84CAASTC/Y6HJmc1b0zMmAb/mDhac4y7+IHb9MAVbsJQoIRHk
-         974Q==
+        d=gmail.com; s=20260707; t=1793948590; x=1794553390; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=HJgFJeGyP2RXmPUrqatqK2hfmi9m5K+BAW+Bimi7a/M=;
+        b=vAP9lf4LC4FognGLWC813NI09sXXLXgYu+exp7h2HyG1VRhASWFg6ggPWl7g0Fp7Km
+         r/OGFfuD06IX8lTQwX2Rl853ZBiZ0HIlpoisbD0b7iSMw8k94MQv8nmtrI9fodGjnFwI
+         75A06TjtqLP2IYZy+eose7VvNp3Ph6rNlFpLdMzBXx74UHoCN0WyOjsqxQGivxxHGcAx
+         cXWidSUT/WRXmwak6JS+jitRHyc+M1I2Kto+WQvca5ukv0PyhNShhUWceo/lV0ER1MId
+         AIGGR/uhVjzKa24nI4x7qyO94PJnq3plxJ5iFj1UIa/TSPM8VR/FOvJjpRCLIwVhvGvC
+         M0Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793947889; x=1794552689;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kyb6DIRzyj92fp2kO/zPn2THkDfGJwbc9S97yxeZwD4=;
-        b=spTh7e6LbxjIIccW8za/FzNrquoixgWQCRKSp1Iq+8i1UVWNAk6XrBz5Uil1viETkV
-         Exz8ztzXi3zfBfYNL/lDrIzYGWII/Gxjnp8tLQxekfFc0j/9Rixy0tvmYMMYs4jFFeys
-         IHFbohcCEphWCnbAkdby6HMHRH1KOAWF+szCEACnxoGNJT3TZEvVkjp9tB2Uzp2dwOX6
-         M6KWEs5+QuRKzRvUT1vKKUS7O7OLwuCISxGGTcXUAOS3qYRThgVfXpKWmJ3E9njm+TdM
-         qmUAjoFCPk82MJHFzPm0dg5gq8R6HnvZ8O6fun5KutKKoKmso0H9n2ULqnLq0A8GftY0
-         OY7Q==
-X-Forwarded-Encrypted: i=1; AL+hErGhB0gCaWb7RZPJyWjIsrhUZviAKMD7EaZBHEWmblbnWXGn0s23vjfIxVUg605Uhf7CHlOaVuaRBGU=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+ChMEJm7PM6ezCkGP6AaJfvu5D0nWLNGmCDOs0HttL2rbRIsJ7
-	dIkFm4VDKyLZ8rfwissIDMPu2ydkiGrtJFN6xyVxbI/CPS4gvp/gbxMoPpEPeGMYrPLnTtnNNFV
-	wiWrFBrMCNb0g/zU/eMqW4uhQ45qoqJfKzhXh4jl6wjpBCKsEGkxA0Xx29RmXT6o=
-X-Gm-Gg: AYBFou2yKvcDGSLEG3geNtLj0ehbS+tCmC4nc4m4ofUh4vM8n+pm1pdqF+jVvkyh4g/
-	4D50XStAYU3iyzHNEc+wD3PXJ/7Z2BMzNGSn6JKzp70C7x1PhkIIWpEpoOKW6YeH4ta/AvIlnz0
-	JZitdUbh1JYOZ5a1BYutEsEWNQLRxyHqsUf3+iAP5mO1ElC8lT+TR7QZnq9/LYNTcGWMrOXdWS4
-	p2EuNDc7qOuGp3LUpz7YaS01CiO2/cqmLG8CpsLSpNJRMo2pIOjx7PcLwph12+q2lpZS/Exyc0a
-	PE0xnXLJsFBiigGPIgaNOxNvM/P7u1pxrFLfQjbJ3/ZnuC8/VBPTRGsBBKJKO/Mc/eEPnZfnBHO
-	PRjelKOXJSU8EshEdQ5ip8yaukumx8iYdtWY5kc6s4Dtz9Z0/tMjF0ZSr4cSosb65nxJEKLA2px
-	OBhoLN
-X-Received: by 2002:a17:90b:180f:b0:3a0:d265:3647 with SMTP id 98e67ed59e1d1-3b0db611621mr1396340a91.8.1793947888574;
-        Thu, 05 Nov 2026 22:51:28 -0800 (PST)
-X-Received: by 2002:a17:90b:180f:b0:3a0:d265:3647 with SMTP id 98e67ed59e1d1-3b0db611621mr1396308a91.8.1793947888002;
-        Thu, 05 Nov 2026 22:51:28 -0800 (PST)
-Received: from hu-nihalkum-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b0b313c0dcsm6597274a91.1.2026.11.05.22.51.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Nov 2026 22:51:27 -0800 (PST)
-From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-Date: Fri, 06 Nov 2026 12:20:46 +0530
-Subject: [PATCH v4 5/6] media: qcom: camss: csid: Scale the clocks with the
- CSI-2 link rate
+        d=1e100.net; s=20260707; t=1793948590; x=1794553390;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=HJgFJeGyP2RXmPUrqatqK2hfmi9m5K+BAW+Bimi7a/M=;
+        b=M2OtaNxBvkd3arysf13UnuFgHUgjuyx8BoT8Nmf24eNGUYN0MKK4VhlxEBT/oY3Iaw
+         3LjRlxWx9SCMG/f2t61Oip9Hh4Et+SkSxF//97dqfH43bBCj3Agy7QgjeZUq6N0c0cNx
+         eBR2JQ68YVAsrY45X2TnHLaYcu5BNZ4QEhfYLmYWAr3WYIHfy5wU11OdUe8oQ31OUXtD
+         Bc193GRWx9I9MJanA8MT91TYuGY0wsaEjWE0aam4MR1hzVlXECiUx2y2o222XI6LjkZO
+         vQuFfy4/RwndxnRSpHVLYjm3hha7fS5GicJYYNIb1bp9W8DlFGjgKF3vgGMfN2xxGhpt
+         Al7Q==
+X-Gm-Message-State: APuU4Z9XQvTU+SR158RHhU6kjCQVHlJxWpyfredNHlIpcw27zLUxbR2d
+	RxdWKNp3ESE6/6qcjKf2URE9VtkLgaF4DnIirS1WYnht4u5J0+eAq2STMXKBEkk=
+X-Gm-Gg: AYBFou1ZBIgX5O/5ANuvwQ5S0ujkkszpHkln9j7aSMq/Zke7GZgF18cCF0K5nLCN0k2
+	eequAfhkgIjRdyjiMB9s224dqYQC6T6E+Bvjl5W9/p5hX0iOL5KT2UZmfigAhax8RIomvf+s10a
+	5lLVAg6mE0/U8b3O3Qip71kIKU6ZqHxQfmuIIJiewTani6mAeMdlXMCMzqbbiQ1P/RLTBNMYpy0
+	Ax9JTsu/KhDDYKTO2+0dP2c8/318ljH4Sr49tgr3VlM2/iY9Dwer6n8mix7LHOSRwAd5pZ8tuTj
+	pVKF+GWSjHeJCf/NpjjKoKSiwPT+J2PmKnYLvlVjcpiVW3pKbFY+k2caCFhZK3LJYudSn4iv/Ab
+	SXv4sA6tJx6TWIp683eKVzoBX+8IXvVeoZhw+6Z7bZFhw/NHDzS17/NluGyJos9IpAdEbA8ImJZ
+	3RBOoROqJvgCLAmXzp4rLP1B9cQ0zANBCO7EWwnyyG8fcz+8+Otb2UgEkEC+RTeSJegyfVbUTzk
+	sTXdFrYXuuS20wWy3QrFShLxN4izIkrAHTadjO4M6Ym1fB8unQY73Szl7/d1VOotKHBtQI3U47K
+	l3/5MBLywL9BPIpdPZZp4p4rs2tRYxSzlxCTKmAt0pIw/+NvrH4=
+X-Received: by 2002:a05:7300:ea95:b0:36a:18d2:8c79 with SMTP id 5a478bee46e88-36f76117e58mr2224940eec.19.1793948590001;
+        Thu, 05 Nov 2026 23:03:10 -0800 (PST)
+Received: from localhost.localdomain ([155.69.103.70])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36faac86a96sm3508887eec.29.2026.11.05.23.03.07
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 05 Nov 2026 23:03:09 -0800 (PST)
+From: Yige Jiang <yigejiang86@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: Yige Jiang <yigejiang86@gmail.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Stephan Gerhold <stephan@gerhold.net>,
+	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Subject: [PATCH v2] i2c: qup: Release DMA channels if interconnect lookup fails
+Date: Fri,  6 Nov 2026 15:03:02 +0800
+Message-ID: <rc-review-20261106-v2-vc48-group-8e29ee9ee1f6@gmail.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -117,374 +96,136 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-hawi-maili-camss-v4-5-d528c7a797b4@oss.qualcomm.com>
-References: <20261106-hawi-maili-camss-v4-0-d528c7a797b4@oss.qualcomm.com>
-In-Reply-To: <20261106-hawi-maili-camss-v4-0-d528c7a797b4@oss.qualcomm.com>
-To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-        Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>,
-        Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Suresh Vankadara <svankada@qti.qualcomm.com>,
-        Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-phy@lists.infradead.org, linux-media@vger.kernel.org
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793947844; l=10252;
- i=nihal.gupta@oss.qualcomm.com; s=20260608; h=from:subject:message-id;
- bh=vmW0WFYVRPz24pEtwcKfQPDH+nrDKAban0QCkqZK5so=;
- b=KR2ZqTTPAKBWmU4lU14qkZMiw4bVnuFGNajzqXYi1B6pZwK9NoS8GHpuk/emITY7o2orwb/GW
- YhHnJyEMkoABvaMooMZxGcigt08G3CBD8Na47kl6lFm87ZbYIYF4D48
-X-Developer-Key: i=nihal.gupta@oss.qualcomm.com; a=ed25519;
- pk=DIbyFMNwqU/iMvU/0pCQp2wmRVgtHFBT3PcSu+A+Ncw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDAyNyBTYWx0ZWRfX9SRokuEXcuZK
- xL0IOmtEEJ7FBHYEZ9KIrgQZ2NN6RUorxrTtmq0xHgU530lCi3id7ge1VIVfstDh56wOvTdqY3o
- 4Iv/p08Ym5NoVnYKiz8Exwj1S5xGwdD/NR6NXSxW3jiPW7nYsud8Pv//6jo6zTjTHYrv3Kf9jYq
- kTJEopyyzUuaMTOr33O6ytjGulAK6aL8MtCNXVbk2eoSrpAOpB3+rH6ptua9La14LTy7Se/9fCk
- tk3ceTXAas7WF9WI8E+9ZcEH6ypbVzAv75MRHTb7HLZCUYFrtmGFadshpXeeBZyy7SxPyIOHvDX
- TxGrma1G2SDYjTBh1K9+rng2W2gwg6W1cd7u2f1H+m6Pj8Cqepf3CS9c/Z9xlvvl6Zbgwjxz/LB
- xVDHSEDGACxstAEdtt5j+oSTZoev+ylKdZd2qPHkEcGIwWzjZ7qxifYCUItaTrTpkFTXua5FK09
- LGZuwNZjrECYZG3/qiA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDAyNyBTYWx0ZWRfX53BseHnMjSAo
- lbp+KYbIc2fUqUMwVzw97446Uw301pSN0VZduC2dK0XXoHgMWAFe64C5ObId9edi9VtM34j05yb
- SsZfPmBeZ6nqHgmlChTUFGMXk24Lprw=
-X-Proofpoint-GUID: T6cDM1gg68jKkV-8r_k30GdqJMB4qHy6
-X-Authority-Analysis: v=2.4 cv=P4ivFSAu c=1 sm=1 tr=0 ts=6aed78f1 cx=c_pps
- a=0uOsjrqzRL749jD1oC5vDA==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=3WHJM1ZQz_JShphwDgj5:22
- a=EUspDBNiAAAA:8 a=1mbsq_4py20XrWrvqusA:9 a=QEXdDO2ut3YA:10
- a=mQ_c8vxmzFEMiUWkPHU9:22
-X-Proofpoint-ORIG-GUID: T6cDM1gg68jKkV-8r_k30GdqJMB4qHy6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-06_01,2026-11-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 clxscore=1015 spamscore=0 phishscore=0 suspectscore=0
- bulkscore=0 malwarescore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611060027
+Content-Transfer-Encoding: 8bit
 
-From: Loic Poulain <loic.poulain@oss.qualcomm.com>
+qup_i2c_probe() acquires both BAM DMA channels before getting its
+interconnect path. If devm_of_icc_get() fails, the direct return skips
+the DMA cleanup and leaks both channels, including when probe is
+deferred. A later probe can no longer acquire those channels.
 
-Only the gen1 "csiN" clocks are scaled with the link rate of the sensor,
-the CSID core and CSIPHY receive clocks of all the other SoCs are set to
-the first rate of the resource table. A SoC can therefore only be
-described for one sensor bandwidth: the lowest rate first breaks fast
-sensors, the highest one burns power with the slow ones.
+Use devm_dma_request_chan() so probe failure automatically releases the
+channels. Group the two requests so a failed RX request also releases
+TX immediately before probe falls back to PIO. Keep reusing the acquired
+pair when the transfer path calls qup_i2c_req_dma() again.
 
-Compute the minimum rate from the link frequency for all generations.
-The CSIPHY passes each D-PHY lane to the CSID over an 8 bit wide
-interface clocked by the receive clock, so that clock has to run at the
-per lane bit rate divided by 8, which is link_freq / 4. The core clock
-must not be slower, hence the same minimum for it and the cap of the
-receive clock at the core rate. The clocks are matched by suffix and
-voted for with clk_set_rate_range(), as the CSIDs of the recent SoCs
-share them.
+Close the successful group so it can be released explicitly at the
+existing probe unwind and remove sites without releasing later device
+resources. Release the group directly in remove, preserving the channel
+pointer state there. The direct interconnect error return is covered by
+the automatic devres cleanup.
 
-Up to 1.8 Gbps/lane the selected rates are unchanged on every supported
-SoC.
-
-Signed-off-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Fixes: d4f35233a634 ("i2c: qup: Vote for interconnect bandwidth to DRAM")
+Signed-off-by: Yige Jiang <yigejiang86@gmail.com>
 ---
- drivers/media/platform/qcom/camss/camss-csid.c | 208 ++++++++++++++++++++-----
- 1 file changed, 169 insertions(+), 39 deletions(-)
+Changes in v2:
+- Use devm_dma_request_chan(), as suggested by Konrad.
+- Group TX/RX requests to preserve immediate rollback before PIO fallback.
+- Reuse an existing pair in the transfer path and release the closed group
+  at the existing probe unwind and remove sites.
 
-diff --git a/drivers/media/platform/qcom/camss/camss-csid.c b/drivers/media/platform/qcom/camss/camss-csid.c
-index a00791b00feb79bcdea7dccf6d1d120f01a8c485..26d754d72b66747abfa02fbbe3f2b2bd662b6d40 100644
---- a/drivers/media/platform/qcom/camss/camss-csid.c
-+++ b/drivers/media/platform/qcom/camss/camss-csid.c
-@@ -16,6 +16,7 @@
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/string.h>
- #include <media/media-entity.h>
- #include <media/mipi-csi2.h>
- #include <media/v4l2-device.h>
-@@ -532,72 +533,197 @@ const struct csid_format_info *csid_get_fmt_entry(const struct csid_format_info
- 	return &formats[0];
- }
+v1: https://lore.kernel.org/r/rc-review-20261105-vc-48-dbf6a486c74f@gmail.com
+
+Based on linux-next next-20261102 (2637bdec0535).
+Validated this package on arm64: the W=1 i2c-qup module build and
+a DMA_ENGINE-disabled driver build passed without warnings.
+QEMU KUnit/KASAN passed 11 expected observations using real
+DMAengine/devres code and a synthetic DMA provider. These checks
+do not execute QUP hardware transfers or prove concurrent unbind
+safety. No QUP/BAM hardware test was available.
+AI assistance was used for analysis and patch preparation.
+
+ drivers/i2c/busses/i2c-qup.c | 54 +++++++++++++++++++++-----------------------
+ 1 file changed, 26 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index ce30634e1f402ddbc092d9b220532d76455fc047..865c03d9aa891b9fc38538ae184541f74c0a2819 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -637,10 +637,7 @@ static int qup_sg_set_buf(struct scatterlist *sg, void *buf,
  
-+/* Match the core clock of the CSID */
-+static bool csid_match_core_clock_name(struct camss_clock *clock)
-+{
-+	/* "csid", "vfe0_csid", "vfe_lite_csid", ... */
-+	if (strends(clock->name, "csid"))
-+		return true;
-+
-+	/* Named after the CSI port on the SoCs with a gen1 CSID */
-+	return !strcmp(clock->name, "csi0") || !strcmp(clock->name, "csi1") ||
-+	       !strcmp(clock->name, "csi2") || !strcmp(clock->name, "csi3");
-+}
-+
-+/* Match the clock of the CSIPHY to CSID interface */
-+static bool csid_match_phy_rx_clock_name(struct camss_clock *clock)
-+{
-+	/* "csiphy_rx", "csid_csiphy_rx", "vfe0_cphy_rx", ... */
-+	return strends(clock->name, "phy_rx");
-+}
-+
-+/* Match a clock whose rate depends on the CSI-2 link rate */
-+static bool csid_match_scaled_clock_name(struct camss_clock *clock)
-+{
-+	return csid_match_core_clock_name(clock) ||
-+	       csid_match_phy_rx_clock_name(clock);
-+}
-+
- /*
-- * csid_set_clock_rates - Calculate and set clock rates on CSID module
-- * @csiphy: CSID device
-+ * csid_get_min_clock_rate - Get the rate the CSI-2 link requires
-+ * @csid: CSID device
-+ *
-+ * The CSIPHY deserialises every D-PHY data lane into bytes and passes them to
-+ * the CSID over an interface which is, as per the CSID HPG, 8 bits wide per
-+ * lane and clocked by the CSIPHY receive clock. That clock has to run at the
-+ * per lane bit rate divided by 8 at the very least. The link frequency is the
-+ * DDR clock of the link, i.e. half the per lane bit rate, which makes the
-+ * minimum rate link_freq / 4.
-+ *
-+ * Qualcomm recommends clocking the CSID core at least as fast as the CSIPHY
-+ * receive clock feeding it, so the same minimum applies to the core clock.
-+ *
-+ * C-PHY maps 16 bits onto 7 symbols and needs a different ratio, but CAMSS
-+ * does not support it so far.
-+ *
-+ * Return the minimum rate in Hz, clock margin included, or 0 if the link
-+ * frequency of the sensor is not known
-  */
--static int csid_set_clock_rates(struct csid_device *csid)
-+static u64 csid_get_min_clock_rate(struct csid_device *csid)
+ static void qup_i2c_rel_dma(struct qup_i2c_dev *qup)
  {
--	struct device *dev = csid->camss->dev;
- 	const struct csid_format_info *fmt;
- 	s64 link_freq;
--	int i, j;
--	int ret;
-+	u64 min_rate;
+-	if (qup->btx.dma)
+-		dma_release_channel(qup->btx.dma);
+-	if (qup->brx.dma)
+-		dma_release_channel(qup->brx.dma);
++	devres_release_group(qup->dev, qup);
+ 	qup->btx.dma = NULL;
+ 	qup->brx.dma = NULL;
+ }
+@@ -649,27 +646,32 @@ static int qup_i2c_req_dma(struct qup_i2c_dev *qup)
+ {
+ 	int err;
  
- 	fmt = csid_get_fmt_entry(csid->res->formats->formats, csid->res->formats->nformats,
--				 csid->fmt[MSM_CSIPHY_PAD_SINK].code);
-+				 csid->fmt[MSM_CSID_PAD_SINK].code);
- 	link_freq = camss_get_link_freq(&csid->subdev.entity, fmt->bpp,
- 					csid->phy.lane_cnt);
- 	if (link_freq < 0)
--		link_freq = 0;
+-	if (!qup->btx.dma) {
+-		qup->btx.dma = dma_request_chan(qup->dev, "tx");
+-		if (IS_ERR(qup->btx.dma)) {
+-			err = PTR_ERR(qup->btx.dma);
+-			qup->btx.dma = NULL;
+-			dev_err(qup->dev, "\n tx channel not available");
+-			return err;
+-		}
++	if (qup->btx.dma && qup->brx.dma)
 +		return 0;
 +
-+	min_rate = link_freq / 4;
-+	camss_add_clock_margin(&min_rate);
++	if (!devres_open_group(qup->dev, qup, GFP_KERNEL))
++		return -ENOMEM;
 +
-+	return min_rate;
-+}
-+
-+/* Get the lowest level of a clock above min_rate, or -EINVAL if there is none */
-+static int csid_find_clock_level(struct camss_clock *clock, u64 min_rate)
-+{
-+	int i;
-+
-+	/* Play safe with the highest level if the link rate is not known */
-+	if (!min_rate)
-+		return clock->nfreqs - 1;
-+
-+	for (i = 0; i < clock->nfreqs; i++)
-+		if (clock->freq[i] > min_rate)
-+			return i;
-+
-+	return -EINVAL;
-+}
-+
-+/* Lower a level down to max_rate, but never below what min_rate needs */
-+static int csid_cap_clock_level(struct camss_clock *clock, int level,
-+				u64 min_rate, u64 max_rate)
-+{
-+	while (level > 0 && clock->freq[level] > max_rate &&
-+	       clock->freq[level - 1] > min_rate)
-+		level--;
-+
-+	return level;
-+}
-+
-+/*
-+ * csid_set_clock_rates - Calculate and set clock rates on CSID module
-+ * @csid: CSID device
-+ */
-+static int csid_set_clock_rates(struct csid_device *csid)
-+{
-+	struct device *dev = csid->camss->dev;
-+	u64 min_rate = csid_get_min_clock_rate(csid);
-+	u64 core_rate = 0;
-+	int i, j;
-+	int ret;
-+
-+	/*
-+	 * Settle the rate of the core clock first, as the receive clock must
-+	 * not outrun it and the clocks are not listed in a fixed order.
-+	 */
- 
- 	for (i = 0; i < csid->nclocks; i++) {
- 		struct camss_clock *clock = &csid->clock[i];
- 
--		if (!strcmp(clock->name, "csi0") ||
--		    !strcmp(clock->name, "csi1") ||
--		    !strcmp(clock->name, "csi2") ||
--		    !strcmp(clock->name, "csi3")) {
--			u64 min_rate = link_freq / 4;
--			long rate;
-+		if (!clock->nfreqs || !csid_match_core_clock_name(clock))
-+			continue;
- 
--			camss_add_clock_margin(&min_rate);
-+		j = csid_find_clock_level(clock, min_rate);
-+		if (j < 0) {
-+			dev_err(dev, "Link rate is too high for the %s clock\n",
-+				clock->name);
-+			return j;
-+		}
- 
--			for (j = 0; j < clock->nfreqs; j++)
--				if (min_rate < clock->freq[j])
--					break;
-+		core_rate = max_t(u64, core_rate, clock->freq[j]);
-+	}
- 
--			if (j == clock->nfreqs) {
--				dev_err(dev,
--					"Pixel clock is too high for CSID\n");
--				return -EINVAL;
--			}
-+	for (i = 0; i < csid->nclocks; i++) {
-+		struct camss_clock *clock = &csid->clock[i];
- 
--			/* if sensor pixel clock is not available */
--			/* set highest possible CSID clock rate */
--			if (min_rate == 0)
--				j = clock->nfreqs - 1;
-+		if (!clock->nfreqs)
-+			continue;
- 
--			rate = clk_round_rate(clock->clk, clock->freq[j]);
--			if (rate < 0) {
--				dev_err(dev, "clk round rate failed: %ld\n",
--					rate);
--				return -EINVAL;
--			}
-+		if (!csid_match_scaled_clock_name(clock)) {
-+			/* The remaining clocks run at their lowest level */
- 
--			ret = clk_set_rate(clock->clk, rate);
--			if (ret < 0) {
--				dev_err(dev, "clk set rate failed: %d\n", ret);
--				return ret;
--			}
--		} else if (clock->nfreqs) {
- 			clk_set_rate(clock->clk, clock->freq[0]);
-+			continue;
-+		}
-+
-+		j = csid_find_clock_level(clock, min_rate);
-+		if (j < 0) {
-+			dev_err(dev, "Link rate is too high for the %s clock\n",
-+				clock->name);
-+			return j;
-+		}
-+
-+		/*
-+		 * There is nothing to gain from running the receive clock
-+		 * faster than the core clock, as long as the link rate is
-+		 * still covered.
-+		 */
-+		if (core_rate && csid_match_phy_rx_clock_name(clock))
-+			j = csid_cap_clock_level(clock, j, min_rate, core_rate);
-+
-+		/*
-+		 * Vote for the rate as a minimum, as the clock may be shared
-+		 * with another CSID which needs it to run faster.
-+		 */
-+		ret = clk_set_rate_range(clock->clk, clock->freq[j], ULONG_MAX);
-+		if (ret < 0) {
-+			dev_err(dev, "clk set rate range failed: %d\n", ret);
-+			return ret;
- 		}
++	qup->btx.dma = devm_dma_request_chan(qup->dev, "tx");
++	if (IS_ERR(qup->btx.dma)) {
++		err = PTR_ERR(qup->btx.dma);
++		dev_err(qup->dev, "\n tx channel not available");
++		goto err_release_group;
  	}
  
+-	if (!qup->brx.dma) {
+-		qup->brx.dma = dma_request_chan(qup->dev, "rx");
+-		if (IS_ERR(qup->brx.dma)) {
+-			dev_err(qup->dev, "\n rx channel not available");
+-			err = PTR_ERR(qup->brx.dma);
+-			qup->brx.dma = NULL;
+-			qup_i2c_rel_dma(qup);
+-			return err;
+-		}
++	qup->brx.dma = devm_dma_request_chan(qup->dev, "rx");
++	if (IS_ERR(qup->brx.dma)) {
++		err = PTR_ERR(qup->brx.dma);
++		dev_err(qup->dev, "\n rx channel not available");
++		goto err_release_group;
+ 	}
++
++	devres_close_group(qup->dev, qup);
  	return 0;
++
++err_release_group:
++	qup_i2c_rel_dma(qup);
++	return err;
  }
  
-+/*
-+ * Drop the minimum rates the CSID votes for and take its clocks back to their
-+ * lowest level, or to the lowest level the other users of a shared clock need.
-+ */
-+static void csid_release_clock_rates(struct csid_device *csid)
-+{
-+	int i;
-+
-+	for (i = 0; i < csid->nclocks; i++) {
-+		struct camss_clock *clock = &csid->clock[i];
-+		long rate;
-+
-+		if (!clock->nfreqs || !csid_match_scaled_clock_name(clock))
-+			continue;
-+
-+		clk_drop_range(clock->clk);
-+
-+		/* Round first, so that the rate respects the other votes */
-+		rate = clk_round_rate(clock->clk, clock->freq[0]);
-+		if (rate > 0)
-+			clk_set_rate(clock->clk, rate);
-+	}
-+}
-+
- /*
-  * csid_hw_version - CSID hardware version query
-  * @csid: CSID device
-@@ -707,6 +833,7 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
+ static int qup_i2c_bam_make_desc(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+@@ -1952,9 +1954,7 @@ fail:
+ 	qup_i2c_disable_clocks(qup);
+ fail_dma:
+ 	if (qup->btx.dma)
+-		dma_release_channel(qup->btx.dma);
+-	if (qup->brx.dma)
+-		dma_release_channel(qup->brx.dma);
++		qup_i2c_rel_dma(qup);
+ 	return ret;
+ }
  
- 		ret = csid_set_clock_rates(csid);
- 		if (ret < 0) {
-+			csid_release_clock_rates(csid);
- 			regulator_bulk_disable(csid->num_supplies,
- 					       csid->supplies);
- 			pm_runtime_put_sync(dev);
-@@ -715,6 +842,7 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
+@@ -1962,10 +1962,8 @@ static void qup_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct qup_i2c_dev *qup = platform_get_drvdata(pdev);
  
- 		ret = camss_enable_clocks(csid->nclocks, csid->clock, dev);
- 		if (ret < 0) {
-+			csid_release_clock_rates(csid);
- 			regulator_bulk_disable(csid->num_supplies,
- 					       csid->supplies);
- 			pm_runtime_put_sync(dev);
-@@ -729,6 +857,7 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
- 		if (ret < 0) {
- 			disable_irq(csid->irq);
- 			camss_disable_clocks(csid->nclocks, csid->clock);
-+			csid_release_clock_rates(csid);
- 			regulator_bulk_disable(csid->num_supplies,
- 					       csid->supplies);
- 			pm_runtime_put_sync(dev);
-@@ -739,6 +868,7 @@ static int csid_set_power(struct v4l2_subdev *sd, int on)
- 	} else {
- 		disable_irq(csid->irq);
- 		camss_disable_clocks(csid->nclocks, csid->clock);
-+		csid_release_clock_rates(csid);
- 		regulator_bulk_disable(csid->num_supplies,
- 				       csid->supplies);
- 		pm_runtime_put_sync(dev);
+-	if (qup->is_dma) {
+-		dma_release_channel(qup->btx.dma);
+-		dma_release_channel(qup->brx.dma);
+-	}
++	if (qup->is_dma)
++		devres_release_group(qup->dev, qup);
+ 
+ 	disable_irq(qup->irq);
+ 	qup_i2c_disable_clocks(qup);
 
--- 
-2.34.1
-
+base-commit: 2637bdec0535a2044cd830eba9a79363651d9043
