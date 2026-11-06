@@ -1,101 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793982623;
-	b=be2rikPmWWjic8UKewTfFx7A1hxDcKI0pB39paXz252T59DSK02Ch0lQnZNEHI0zSGzj
-	 3xuyXcnqzvcszHsVl+TKdEi4Nlhxtc97Sln2wPSp06iQK5Z1xl1PvO+b5oqB0VPIzyoBv
-	 hNl4EMBNPpSgr9fi3Gi3PbAc9WQNrbo9hzL3+F/q1Hx26q+FPPA8E2nWO+kXyaqYqySci
-	 SIzAH9nA+T45CZUA05NdEDU7aY6aFz/HAz49Da9Z1UcdZh8cOU6I4bbio0CLvnUIcPLnp
-	 T8r4DR3NPab59DGPjIpstZNv91Hrwwll9K3cG+sc2KUPByz5gYOCVOvAkP5dBEhUCyA==
+	t=1793990199;
+	b=oxT9M08eGc/uqgdU4oB/11V7yjkYqOYnYyTgN3pTr1CQBpQhobhHkN5XY00TAPFzoFZd
+	 b2niQ95mXomoZuk4Zhqh7yufpeVKORdOilHels8qdf+bNyqVWjh9WYbX1PvzISLIJ/1Ji
+	 fS3kOrpQdMG170NF1yyOIakHU94GMVv6e22hVdCOvRnFfI4u0Fg5zkrW9vl3AhOKccirs
+	 Rr6ASzUpu05Lli00EEdA+H7+oFPKUeaQRutey5nFA/v+eWrrdx86vMUcT/WTPzoVQjGbb
+	 v2r5goe+bXuPPXZLuNmdrbkxesesw1SN6GpxCSW0qL8JvufARPaHl2m1Kyz+W2bMTJw==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793982623;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=FH8WzscKogu5XU+7DFOngcgQrl1MXmTxhCA2KDW4bI8=;
-	b=yIP1kC32M+7s+W77e2NaHcGWywGcwX+TUOvqxzX8SR54jcu1dPvvQS7Q96O9uhjcSQYV
-	 Tmh8ViKLcM7EANgm/e7IbDxxc0k/6r3X/UgXnKElB/lKadraIV0y2/Jm/Z9oa+P8Lpa+q
-	 vmr1vFmEgQ0MzqwYtfNBDxdR6D9ifIB29NRTA45m7UpbF5H0D1LP6EIRWheOtE56Z4J+o
-	 opxMEeAl80BHJL3/xKEcDHTFTLYxyTdNPB8TIgZbZJmu8Jkc0dGbd665dTnbYFXmSkFYq
-	 nBSEleZCVcdyFklILyawisvD9vVgr9VRQSgei8SOrKnQwxLkmn86IG2hMG8CpHtIN5Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793990199;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=ctcEZ6a9ns7YHknubQjF7OevDKpWpr2m6oZDDAn2eh4=;
+	b=jclkzLUvE4m1U1zAi7V+ZtfS/LSTBFac800DwN5EnWLqWx4i+xknvPr6JkvUK71rKTBM
+	 cvfb0fqRsuBQH0uYFeyh+IOoF62HCNmrTen9f8/AV1VzZ5mjdGrnkPWp3Y3X4Nv+d4Xve
+	 Z7a9uqSjIY5bpX6GdwJfIYT8SYho82EouSNWj01NlxJ5zUB2ILwMH5Yd49yvWEoBpvKwI
+	 yqbiaeGIUUSKQhruyii4QTm3FlSHcmyHbO4nSB0h9FDCYtcAf6fpRP6Ct7dMfq0Q4rBng
+	 r61zS8dRXbN+7sezg0hd/iGmJBG37ASyBKbeeGD2boV25hNt2umpQCmgGKcUSDNWJTw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wLWr6qql;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.175
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="J/k9mSlw";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE78606A326;
+	Fri,  6 Nov 2026 18:36:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J/k9mSlw
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793990199;
+	b=tXBsJgY9QvEXjgC9mZ1oqGwSlI+y72oaom4PN/BJY/xOYFIx3cBeL5wZiTbYYYoma5Ra
+	 xN0YlWae8kr4+1BQSqTKdjjjOi+Pzjqlx4wTffIN427D18yr5loDprYMfRCDCPm53YfVN
+	 RjLg8NoWsmYbwOfIWW1j4osgfRwmewhGrpHcHAqbuouk1yaSEh/7qkdUFa6IYAll1e8SI
+	 CHGihSSiwWPo8aSnHaj6wNVKKbv7B1gdNQNgQXanBquN01cECD10n59J0QPI08csz1aHX
+	 l6ahw3Qt9i06hq10vlV5/fz00sXSfEycKc2cd74hV3KDZL+P0M5yjkg5kln8jN8eI8w==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793990199;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=ctcEZ6a9ns7YHknubQjF7OevDKpWpr2m6oZDDAn2eh4=;
+	b=vdGVdVJ5JTC6L9hs6m8zRhVLozeBRpbY5ALGEFAAd+tNjfQeq3phdzvW1b8/QhOdcU+0
+	 OwJupksT1UO0BsioEZYHby0TOYNFtYrSxpPSlGP4yzV9IaXel7N4nRv5t4CjV+XX41I7Q
+	 MnrLsHxKwRVDuWE+lJpmUdLSh5IGUNWqHwU4G0JfV+8Cjr2x5U0PsbX1j3dolwILnh1JH
+	 qAuaeRZoOv7PNWjPDNho2AicfK/HttXs2tDOuggcjS1k4YWh2HOrMyKP7sy4gm0CP0PYH
+	 xq7gSAg5CR4TTlVAU/99D5oH3m4Wmg2pgiWlhnINaBMH857BnwUQOW96LqNxThsGfMw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA395606A32D
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Nov 2026 16:30:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA395606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wLWr6qql
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-8b305d38bafso7043997b3.3
-        for <linux-i2c@vger.kernel.org>; Fri, 06 Nov 2026 08:30:22 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793982622; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Xbz1gFpFJP+HfOCxJkCGVAObODM5Eyq6tFsjEvdLZLm2WgUURQ5EWdWYiTJ67glzTI
-         ZbuB6t6vYy61S2ASezgS80nxwv9igZWubyVYSYaR/kuUZbtJ+F2WxWq2OOXeAJLJ4l1q
-         PiWJILG87fC5CM76WrsZicsZj18QC5epnESu0nqdsFOv+ml+Nhb/vuxTWbZ0vby+Pdml
-         U3p1F7cdQRy9imkGNZFimD2ZlOM9nt+gzWOnn0BNpFWAueuJmaTfcrYIE640Ncc1kpHO
-         j29J8ArudJFWoNZkElI6FftZu4LUyfdFewweLf495Ix+hVniXzZQRIFJkSSzrTC7381m
-         AIbw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=FH8WzscKogu5XU+7DFOngcgQrl1MXmTxhCA2KDW4bI8=;
-        fh=iI6R8geS30yNkyciKMa14QMmXQbWKB5EJf781BG2+qM=;
-        b=gPaWL+wKg8v8UbgSeip6MfQDrcDTCjaQPRGy/UQ7w4UrvmiprwOCDr3eBL4EFRMrZI
-         +p2vwsYw8zJncL7sTdW9Z0ppIJCr+jBRgx3d3SILFCgCvq6EvqbjLO2CITAN6Qpf+fRg
-         24qx0sLWWui6MoUQTEJT8oYbFoMJDp+NlU2K63vzgiyRugTE0zbDClZtrNLrpCI4ptc7
-         QrVLn1O6V8c8ERcqhBIMuAWh1qWKJbdLo+GexEpXZ5zp3LkikrxLqXO3zDbUNnUa6wMv
-         k02xvviKlh82edrYLDJmhwpUQ9JC2sIQ97xmGn+Fde8KfwDnbi9QvquuSGuhBiTJ8KeG
-         /+Ww==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793982622; x=1794587422; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=FH8WzscKogu5XU+7DFOngcgQrl1MXmTxhCA2KDW4bI8=;
-        b=wLWr6qql15sYV7yiDKmkPjELYkTZb/66URjn1f3hxyT0hfMfrTHYj6R9jF4Jg2Z/T4
-         JX0m1zI3ekCQKQM5FjcxDA2mIZkzQvOAuT7mctFngOk+DqyjFnBnWOCNocsox+V1XC0s
-         YGzT4jWsYWF/m7bzwuHjF6gNzCRxKJN90QvgGaAixCTtvmf/6nMu47piDMfMxMKWvRpe
-         Ecv/PmkSSAC5ntPknEXG7I+vIME/9hd+gU2CkNsQJPMF9H6h6PqZ4Ev2dxOWq7LQoCCZ
-         ECuDOxENpMvmipGcC4aJfcqe+xwrM61m//apdM/wFpvlOZabhnsXSIYmB6TkdVXgAhrq
-         Szow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793982622; x=1794587422;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=FH8WzscKogu5XU+7DFOngcgQrl1MXmTxhCA2KDW4bI8=;
-        b=gnq6z87E3zLwxGotpEJ7UEc9yqm6KUpUgIl8sQigBhJrvM2wA85yBok2NdAnIZIFPi
-         VBAlOBubzZIwEsBVIDEzTGf4jA+sbko/wFNZ7qJSCdDkAK2IoiIdvydThX1qcYy9q+ak
-         BqrfIZLBoxLWfnyLWRHPoe7gZ2lDR1D5XGb1Sgoe1/DDmts3zxAK/aJSbBcFr34gh3KZ
-         M6eTmcN85i8rjQpEfjjZSDxrvh/u4IWXTDAgxevzf8038A53JfmWAy2iXAjzN/SOz5H5
-         QHiXOs3VQEJVjFhdeTyZDDtBtucyuq/lw8N23sRUSD6TKCPSpYH8ev/juqGVoI+IVHSD
-         QSNA==
-X-Forwarded-Encrypted: i=1; AL+hErGtpb0Aq3+X24Fo0+pthnG0/0h2TdDlerR/wXYKJgdkvePhlfQ+ML5L6G7wPLex//n35YXTxff4w+g=@vger.kernel.org
-X-Gm-Message-State: APuU4Z//HguK0JhWKYpbPTm4i6FkrGaupUQax4J2VpVXL1vhcCn65RGP
-	caCz0Zxg37TlkxsvxizN3+RErb+U0Nd9hI+npggC2GYQ3pwFt9AGE6b6Bam2LdCNiN1fvo66dav
-	lw1XMeXxB/juTBVTFRAES2AafvKForGg=
-X-Gm-Gg: AYBFou3yRKaFMXFz61LfGnnLoZiNKCXLXT/JvMpIiv/iemfH23VxB6DuAsudncsajRK
-	IJ50wq6i2JbyDH9YoKitT+x599rspqKZAtJOMlFp7ggOYWyeNAMBjU7lgmxGtul/zMBE2f2XpaM
-	bC7eR5SR8hUB/QrDv6/46FlHHZdS8BIbx1V+eiTwul7UKuhGvwVP52HRq6iVax3WMtc51QLac19
-	913LxvmzQlZwxi77Eds69iPejf2uJIOT5eEfQP9VOrYw0n/AGC363UU4JHEFUmktiwkksVVKBB5
-	ymccHgpcCo9nE6ClFH2kvf1HxUcXWqWIZVLukB0Rasuidj4x4h6wSeeYpbHMDDFYotkNLX2/MgM
-	szOAAlqeb7QAW3JkUfnaMxjY/Q6pVGEdJ3hHEE07bIHDwAGhLtZ4W0cHy77HqD61lS5hy+SBuHx
-	av9uOQoSthdD8hV/LsRZyNwJ9U1H3+rIlLCfDkG1x+WkpTp43ZVtkMn+GGOmJqfsa9nV6UT74ur
-	mQpmSJVxg==
-X-Received: by 2002:a05:690c:a006:b0:8ab:3918:33d9 with SMTP id
- 00721157ae682-8b341b65b54mr16819607b3.61.1793982621872; Fri, 06 Nov 2026
- 08:30:21 -0800 (PST)
+	by smtp.kernel.org (Postfix) with ESMTPS id C727D1F008A4;
+	Fri,  6 Nov 2026 18:36:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793990199;
+	bh=ctcEZ6a9ns7YHknubQjF7OevDKpWpr2m6oZDDAn2eh4=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=J/k9mSlwP4hSYZbvLzAP+h6oNoyZPOKWihxOytxj4qPc8doXB32kV94YgNNscClP2
+	 3Kv5LZLxDCrO6A8svDNghrDcI2Dkga5+OiSBCp7XXfkgmdWL4GKaM/1wVCqAhtoCwY
+	 Xq5JOIVptT28lnlgQSqMf3vDDREE20DCPdDrPOyB7hO1JcBkuYQbyFCKhWty/vXR7D
+	 XsIXW8rIt2ddnG6aW7c7ikJXlqOnm2P1N5PfABGa42amsVio9zE1z21qYUoFegmQGZ
+	 XF/fce3TWpUiJtGF4pHz016wG6qCh8nxcUl4kIj6KWwlM9/XT+qHIA5+hksjdeeLuQ
+	 ug7RidFENmK1Q==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 4F5A94781D;
+	Fri,  6 Nov 2026 18:36:37 +0000 (UTC)
+From: Andrew Gigena via B4 Relay <devnull+mail.andrewgigena.dev@kernel.org>
+Date: Fri, 06 Nov 2026 18:35:36 +0000
+Subject: [PATCH v3 4/7] media: qcom: camss: Match VFE lite clocks by name
+ prefix
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -105,98 +83,101 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261104234928.86458-1-sidchintamaneni@gmail.com>
- <DS1PR21MB4279C556CFB876C5562C7F1182772@DS1PR21MB4279.namprd21.prod.outlook.com>
- <b660d79f-887e-4594-ba76-c45dc5f75435@linux.microsoft.com>
-In-Reply-To: <b660d79f-887e-4594-ba76-c45dc5f75435@linux.microsoft.com>
-From: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
-Date: Fri, 6 Nov 2026 08:30:10 -0800
-X-Gm-Features: AclHuK8v0JSVhaJAzidw4U6zc9uGSHU7HDuopjMhviWvbGm_U0W3rhAX7PpRRzM
-Message-ID: <CAE5sdEhozq5SVj-SJLndiaANx1N_sTiAMBD0zeA_aafUYAGOKw@mail.gmail.com>
-Subject: Re: [EXTERNAL] [PATCH v1 1/1] i2c: designware: Add ACPI ID MSFT0006
- for Microsoft Cobalt SoCs
-To: Jarred White <jarredwhite@linux.microsoft.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, 
-	Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J . Wysocki" <rafael@kernel.org>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Len Brown <lenb@kernel.org>, 
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, 
-	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Allen Pais <apais@microsoft.com>, 
-	"rlmenge@gmail.com" <rlmenge@gmail.com>, 
-	"hargar@linux.microsoft.com" <hargar@linux.microsoft.com>, Jeff Kirsher <jeff.kirsher@microsoft.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261106-sm8150-v7.4-rc1-camss-v3-4-0103e8a0bbcd@andrewgigena.dev>
+References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>, 
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, 
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
+ Neil Armstrong <neil.armstrong@linaro.org>, 
+ Manivannan Sadhasivam <mani@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-media@vger.kernel.org, linux-phy@lists.infradead.org, 
+ Andrew Gigena <mail@andrewgigena.dev>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793990195; l=2177;
+ i=mail@andrewgigena.dev; s=20261104; h=from:subject:message-id;
+ bh=RKXBqJzp5jx1oO13mVy3JGt1LTgj4JwjvJ23lzdf2Vg=;
+ b=pYp3wGGx24nx3RQs/uM68jjw91qjhA54KzVks5zInjKDvgsrjRK40Pq5jZGxUGXkWe0RqKT4s
+ kFoiJZYWW+9DN1jzG0xNruH04CTSWPOBKwBxb5v1kw7COZqtwWWOPJE
+X-Developer-Key: i=mail@andrewgigena.dev; a=ed25519;
+ pk=OMhlYIBaOEC8g4mJ4JCKy7kbg+lrwRxuujieZF8Ne6U=
+X-Endpoint-Received: by B4 Relay for mail@andrewgigena.dev/20261104 with
+ auth_id=1402
+X-Original-From: Andrew Gigena <mail@andrewgigena.dev>
+Reply-To: mail@andrewgigena.dev
+Content-Transfer-Encoding: 7bit
 
-On Thu, 5 Nov 2026 at 13:27, Jarred White
-<jarredwhite@linux.microsoft.com> wrote:
->
-> > [You don't often get email from sidchintamaneni@gmail.com. Learn why
-> > this is important at https://aka.ms/LearnAboutSenderIdentification
-> > <https://aka.ms/LearnAboutSenderIdentification> ]
-> >
-> > Add the MSFT0006 ACPI ID for the DesignWare I2C controller integrated
-> > on Microsoft Cobalt SoCs, along with its 300 MHz input clock description
-> > in acpi_apd.c.
-> >
-> > Without an explicit MSFT0006 entry, ACPI device matching falls back to
-> > its _CID (APMC0D0F), which configures a 100 MHz input clock instead of
-> > the controller's actual 300 MHz clock.
-> >
-> > Signed-off-by: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
->
-> Acked-by: Jarred White <jarredwhite@linux.microsoft.com>
->
+From: Andrew Gigena <mail@andrewgigena.dev>
 
-Thanks!
-Do I have to respin the patch?
+vfe_match_clock_names() builds the expected lite clock name from
+vfe->id, but vfe->id is the index of the VFE in the resources array.
+On SoCs where the lite VFEs come after the full VFEs, the generated
+name is vfe_lite2, vfe_lite3, ... and never matches the actual
+vfe_lite0/vfe_lite1 clocks, so their rates are never programmed.
 
-> > ---
->  > Cc: Jarred White <jarredwhite@linux.microsoft.com>
->  > Cc: Jeff Kirsher <jeff.kirsher@microsoft.com>
->  >
-> >   drivers/acpi/acpi_apd.c                     | 6 ++++++
-> >   drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
-> >   2 files changed, 7 insertions(+)
-> >
-> > diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> > index 9fc667d6776c8..a1baa056931c4 100644
-> > --- a/drivers/acpi/acpi_apd.c
-> > +++ b/drivers/acpi/acpi_apd.c
-> > @@ -198,6 +198,11 @@ static const struct apd_device_desc hjmc_i2c_desc = {
-> >          .fixed_clk_rate = 200 * HZ_PER_MHZ,
-> >   };
-> >
-> > +static const struct apd_device_desc msft_i2c_desc = {
-> > +       .setup = acpi_apd_setup,
-> > +       .fixed_clk_rate = 300 * HZ_PER_MHZ,
-> > +};
-> > +
-> >   #endif /* CONFIG_ARM64 */
-> >
-> >   #endif
-> > @@ -272,6 +277,7 @@ static const struct acpi_device_id
-> > acpi_apd_device_ids[] = {
-> >          { "HJMC3001", APD_ADDR(hjmc_i2c_desc) },
-> >          { "LECA0002", APD_ADDR(leca_spi_desc) },
-> >          { "LECA0003", APD_ADDR(leca_i2c_desc) },
-> > +       { "MSFT0006", APD_ADDR(msft_i2c_desc) },
-> >          { "NXP0001", APD_ADDR(nxp_i2c_desc) },
-> >   #endif
-> >          { }
-> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/
-> > busses/i2c-designware-platdrv.c
-> > index 1da6b0314b6a0..f359d38cc63c7 100644
-> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > @@ -280,6 +280,7 @@ static const struct acpi_device_id
-> > dw_i2c_acpi_match[] = {
-> >          { .id = "INT3433" },
-> >          { .id = "INTC10EF" },
-> >          { .id = "LECA0003" },
-> > +       { .id = "MSFT0006" },
-> >          { }
-> >   };
-> >   MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
-> > --
-> > 2.45.4
-> >
->
+Restrict the new prefix match to numbered "vfe_liteN" clocks (digit
+check) to avoid matching aux clocks, leaving the pre-existing
+vfe_lite_name and bare "vfe_lite" matches unchanged.
+
+This affects SM8150, SC7280 and SC8280XP. On a Pixel 4 (SM8150),
+streaming through VFE-lite0 left cam_cc_ife_lite_0_clk at 19.2 MHz and
+failed with "VFE reset timeout".
+
+Signed-off-by: Andrew Gigena <mail@andrewgigena.dev>
+---
+ drivers/media/platform/qcom/camss/camss-vfe.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/media/platform/qcom/camss/camss-vfe.c b/drivers/media/platform/qcom/camss/camss-vfe.c
+index 2680a9914765..29e04d097116 100644
+--- a/drivers/media/platform/qcom/camss/camss-vfe.c
++++ b/drivers/media/platform/qcom/camss/camss-vfe.c
+@@ -9,6 +9,7 @@
+  */
+ #include <linux/clk.h>
+ #include <linux/completion.h>
++#include <linux/ctype.h>
+ #include <linux/interrupt.h>
+ #include <linux/iommu.h>
+ #include <linux/mutex.h>
+@@ -346,6 +347,7 @@ static u32 vfe_src_pad_code(struct vfe_line *line, u32 sink_code,
+ 	case CAMSS_6350:
+ 	case CAMSS_7280:
+ 	case CAMSS_8x96:
++	case CAMSS_8150:
+ 	case CAMSS_8250:
+ 	case CAMSS_8280XP:
+ 	case CAMSS_8300:
+@@ -914,6 +916,9 @@ static int vfe_match_clock_names(struct vfe_device *vfe,
+ 	return (!strcmp(clock->name, vfe_name) ||
+ 		!strcmp(clock->name, vfe_lite_name) ||
+ 		!strcmp(clock->name, "vfe_lite") ||
++		(vfe->res->is_lite &&
++		 !strncmp(clock->name, "vfe_lite", 8) &&
++		 isdigit((unsigned char)clock->name[8])) ||
+ 		!strcmp(clock->name, "camnoc_axi") ||
+ 		!strcmp(clock->name, "camnoc_rt_axi"));
+ }
+@@ -2006,6 +2011,7 @@ static int vfe_bpl_align_rdi(struct vfe_device *vfe)
+ 	case CAMSS_6150:
+ 	case CAMSS_6350:
+ 	case CAMSS_7280:
++	case CAMSS_8150:
+ 	case CAMSS_8250:
+ 	case CAMSS_8280XP:
+ 	case CAMSS_8300:
+
+-- 
+2.56.0
+
+
