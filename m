@@ -1,51 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.180
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793957464;
-	b=OTA7yGr8T/ZL+0MuGzpFEC8ppMda85DF/Cn4Yl0896AqmwCZ1ORbl83DoL4/IXbE3vGc
-	 GndS0yJaRATDFIulxX4Da4keUIG9E9i+X1t+2m4ttcNPBKuEYAYq69GS1ZmjRz5JaMzt8
-	 747gyq0oY3/DTWV/aNbfPg6P9mRZJyNFQoHXndsxrjCb+NnP0O0lLlCuxan+RwtoBuiUO
-	 3PMuR9lwYU59rtk5LpqytIbfFrAC0ru7HWZZRmay551zcOWwahzEr2V+D76c/ViLE3Hru
-	 +uDuJNe7kqUrmOtlSYPmnGJ0ZVuS6vnpQn2EBmFHrfTX8/eeD8EQu1de7Q5vlP5l52A==
+	t=1793964021;
+	b=HBvAby3GS3TrLTmk+HFlxvoUDs89kP2oxZqsUb93Hkz716k/7SM3wZsaLfEAUV6n0YUV
+	 mcrN9e5OBrG8Q6eLce/cbz9BxwlZwwSkzm8k0ENI7f5tYxiDGXh7uXrExs+fV9k+5xn/C
+	 1r+hLXk6FD3erWOqulok84r/sZPFxXrgIWSbIXHtyPc35M+jwoTwW7HjACO4qVeYKtngT
+	 HVul1dfG8b/USOiYz2Zz7UjPTy/J8WTmKrBbNyMFmAxb+XDsunF5h2kfvSYIHAARKrPlB
+	 Vo4R+Fo6lGNbmnkMGEHnv8Rg24885jZt+tpoSylD23W9GdPp2l+ZCLF9Ox0ujLmfhLQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793957464;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:In-Reply-To:References:Date:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID:
-	 X-CM-TRANSID:X-Coremail-Antispam:X-Originating-IP:X-CM-SenderInfo;
-	bh=pkMm2Zmil5ok/PO3ra8ZG4X/dksxyZ+uKs/AtX6aAaY=;
-	b=Gpe/eqB74EA9U3E6gP0L0yOdXLHrx3KXbQVCtKOTqdf3ENLhKKzganD8s18yKJDXQsP5
-	 zDUSpKwJx4LE72/hcKksStnnrtbzG6WDZ3xAMvgI2QbTSLorn+HNSu6c+6IjFAP04DwSB
-	 dX8FvDzqchvH6B21FdJ+svs2u/per5ZVBQAGVfH3uYRfdmsyAdGHOraXVknv52kVnrse2
-	 VuqyJ42PObHo7UCGTmco1z1rIMiHdvLDwNzPhnfyRWJNXUakNCW1bVyRbdNVL03z9F7lr
-	 UcxWyg6vWvbygpa+isacNrrBbRbgjuuoj/yameSrZ9yIflpAeqq7OCm9Zxf7fqnSxNg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793964021;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=QF85CmmgfQB0K98VDXkXqbQirpwlNX5Roqb9EMySWGw=;
+	b=3TDweCvzH0BRXkSZfh3PEYSbA2pNdvPL2t3f+x3npwMUL7Yr5ZKZPUKmoPf0MNi9+7/g
+	 qPWCIb4TmKhdD3TVJwJ99IqzoeAzGIcjOlZWwHXU5Hp9+eZ2i3JiY6hrhHPRT1ZSTbLpV
+	 ma663Rst6KWFHkGg8nPxT975AdXYx2FMTs+XcX9HNSa6DSMWeNkRiPUiko8hgB0qEuaS/
+	 HrVa9C1F885gTvsMaA1kzgMMjlpsgSqxr80vY+yDHubRxorPOQ76ohJMXdqjNRb43g+nw
+	 RxsXBTnfjM2QGup4NPUJBcLjFjdVI5C/0mejwNQO2SylcDJtEV4wFMkoBfhPcNb7swA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iscas.ac.cn;
-	spf=pass smtp.mailfrom=iscas.ac.cn;
-	arc=none smtp.remote-ip=159.226.251.81
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=linaro.org;
+	spf=pass smtp.mailfrom=linaro.org;
+	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=DUFumtMK;
+	arc=none smtp.remote-ip=209.85.208.180
+Received: from mail-lj1-f180.google.com (mail-lj1-f180.google.com [209.85.208.180])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83686606A33D;
-	Fri,  6 Nov 2026 09:31:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 83686606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from [172.100.0.8] (unknown [36.110.52.2])
-	by APP-03 (Coremail) with SMTP id rQCowABXZJVQnu1qt21rAA--.5978S2;
-	Fri, 06 Nov 2026 17:30:56 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>,
- linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, Mika Westerberg <westeri@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: acpi: Fix adapter reference leak in
- i2c_acpi_new_device_by_fwnode()
-In-Reply-To: <20260917065743.GZ106095@black.igk.intel.com>
-References: <20260916155507.2074970-1-vulab@iscas.ac.cn>
- <20260917065743.GZ106095@black.igk.intel.com>
-Date: Fri, 06 Nov 2026 09:31:06 -0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E07E606A32D
+	for <linux-i2c@vger.kernel.org>; Fri,  6 Nov 2026 11:20:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7E07E606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=DUFumtMK
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-3ab35a9d9ceso670051fa.3
+        for <linux-i2c@vger.kernel.org>; Fri, 06 Nov 2026 03:20:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1793964019; x=1794568819; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=QF85CmmgfQB0K98VDXkXqbQirpwlNX5Roqb9EMySWGw=;
+        b=DUFumtMK1phvIfSGAyjvBixjvVUbWj1LhChEW4qMThx2dH1KWLjydGDlGxwzpHi34F
+         ydA4JtviInKqlL9MBEr4abhaPmqh35/Uak9OQijt/vKOoxpyIl7pLa4orHyfSO4vuI8h
+         SglDNnGd8ZUztb4n0NY4SsyAZ9xEeS9rvIb8Uji0t3mFVucpO92chNyBayYeqhSZXz7f
+         pju8gY1T4R95xWyHa0+c6Mq3d7+y2EYrsAokrF5RWngcDjic2+Aau7B9OAqIXzMIdHn4
+         4rVW8y1o56QVlQPc1f89iBiWKmHxDUxq16YvDKR0r+xTHHx+sXdDVn4V3wvaoTs7a4WC
+         gHvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793964019; x=1794568819;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=QF85CmmgfQB0K98VDXkXqbQirpwlNX5Roqb9EMySWGw=;
+        b=sAlHBUEx5vib0f1p66IVeBaAV7o9zeJzf2qdJMReTVc6kwlB7w7rZ2/uniOrIqEU2e
+         oJCooL8dlQPtydn/woN+Vg+sqXRqBfbOegtydT070mY73btafUgHkPknj475mN0YTT5O
+         7+fSml2ay5fv1k6E+J0Mvce3mepBevpfgUjhtMRexf/k3la6KKyFJ4HmRZtqEQTuhihP
+         LhnOj6juMRZVa42QaqShy/EdEd9jRmHAEfGo9IqPP98WsEYysyLtbG0Rc98JbM5iRNQB
+         qgiquROL+aJwLDYPIgdisjvBdZYUkb4FEjvw/0hZQsIjyFaU72eVRV6+FR/R0Daj23Hc
+         T1UQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzoBKCDzWJNurYcrWPu6qIwzSYnp6V40/p0cu8/bMTgwEDdxQsrr067//CmMHrBCw6CeS55gBxRL5g=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9Sk+SpF8e0ZeGllYuNgpkn2s7LNmpp3xthAelXmWp37FxUxySA
+	y0P1RVPxGMqTiPaZaN6CCqxiHIFgdrcpA++DRs8AMQe67ojDeHr+pQzRWezZwYsloAg=
+X-Gm-Gg: AYBFou0UyodzPfT1Sg1ONDLwre5objcxl6eLnaleTIuBR/HgWEFIFWE5ZG4rDrpQHiB
+	9agnDGNfsI3RjM72Y1cfzrKybwfk97XySF5o9urovlX1zA0GsZz4GIyXo5MqUsKbohPj7Ojj1EH
+	XvyeQamQD1Z43UgOE9Ad9wH+1wKUyKOCSZEZ9yLoEvFKB4goCzvfPQCBUXDnSfCL2KcenREsR9t
+	wvzHsz5gGLAUpcRgnbYK+relgd25f/Y0t2xNBh3fI6jlccbudWWsbwwjDIIbqeWWKeyTkf3Q4rp
+	BjGPsLkLeeOkJs/6xtv4COxKYB9+KHl0fH5k/e4NG9QCsL2HoDIzJlSdLff6sPeUMJmhnhVOsta
+	GsOKlfWlM4qMQKE6bCWVlwOsVK0sPaI3+5w6ay/EVqteziz+WdE1zYpbP1xwtlcNTMp41lf9n77
+	80c9cX3IJ+atsPpTGNvlmXP8C+7/yAGctlX2fDcf8vKgH5l5yZ599NDUw5HG1smfjtI1vwuh7pQ
+	BOIA7lIZCMA6MdXT98fQ8S0cIiatCeeHD3X2NVKkBdR2ItT8jzu30QPu7Xt2wcj3U7RMRIrZfh3
+	78wCRaVK2gcEMahbzBmQzbFCn/1qjtoDA56rBuBq1ecBRkMgpe1B8VC0K48mI63mdwNsos6dyMk
+	Zs95fHg==
+X-Received: by 2002:a05:651c:a201:20b0:3ab:1864:5004 with SMTP id 38308e7fff4ca-3acf36dacb5mr4022961fa.0.1793964018157;
+        Fri, 06 Nov 2026 03:20:18 -0800 (PST)
+Received: from [192.168.1.101] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3acf5facfe9sm2950231fa.21.2026.11.06.03.20.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Nov 2026 03:20:17 -0800 (PST)
+Message-ID: <540014fb-d271-4e20-9a3c-3f2fb66723ce@linaro.org>
+Date: Fri, 6 Nov 2026 13:20:16 +0200
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -55,62 +91,96 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/5] dt-bindings: media: qcom,sm8150-camss: Add SM8150
+ CAMSS
+To: mail@andrewgigena.dev, Loic Poulain <loic.poulain@oss.qualcomm.com>,
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org
+References: <20261106-sm8150-v7.4-rc1-camss-v2-0-39ee37787b00@andrewgigena.dev>
+ <20261106-sm8150-v7.4-rc1-camss-v2-2-39ee37787b00@andrewgigena.dev>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v2-2-39ee37787b00@andrewgigena.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <179395746647.2284678.8559513137457956554@iscas.ac.cn>
-X-CM-TRANSID:rQCowABXZJVQnu1qt21rAA--.5978S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7WrWUuFy5tryxCF1rCF47CFg_yoW8Wr45p3
-	95KrnFk3srur1Iv3409a1UXryru3y5Cw45ArZxX3429ws0g340yrySqa1qgryay393tFWU
-	tay8X3Z5Cas0vaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvYb7Iv0xC_KF4lb4IE77IF4wAFc2x0x2IEx4CE42xK8VAvwI8I
-	cIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2
-	AK021l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v2
-	6F4j6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxV
-	W0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv
-	7VC0I7IYx2IY67AKxVWUtVWrXwAv7VC2z280aVAFwI0_Cr1j6rxdMcvjeVCFs4IE7xkEbV
-	WUJVW8JwACjcxG0xvEwIxGrwCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCF
-	04k20xvE74AGY7Cv6cx26r48ZrWUJr1UMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I
-	8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8
-	ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x
-	0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_
-	Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x07
-	UMq2NUUUUU=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiCRIDA2rtky8q+gAAsw
 
-Hi Mika,
+Hi Andrew.
 
-I am very sorry for replying so late, seven weeks after your review.
-You took the time to look at the patch and to ack it the same day, and I
-left the thread hanging without a word. There is no good excuse for
-that, and I apologize for the delay and for the extra work it caused.
+On 11/6/26 05:24, Andrew Gigena via B4 Relay wrote:
+> From: Andrew Gigena <mail@andrewgigena.dev>
+> 
+> Document the Qualcomm SM8150 Camera Subsystem. The IP integrates four
+> CSIPHY, four CSID (two full and two lite), two VFE and two VFE-Lite
+> instances, with 27 clocks, 12 interrupts, eight IOMMU streams, four
+> interconnect paths and three power domains.
+> 
+> SM8150 has a different register layout, clock tree and power domain
+> topology from SM8250, so describe it in a dedicated schema instead of
+> using qcom,sm8250-camss as a fallback.
+> 
+> Signed-off-by: Andrew Gigena <mail@andrewgigena.dev>
+> ---
+>   .../bindings/media/qcom,sm8150-camss.yaml          | 412 +++++++++++++++++++++
+>   1 file changed, 412 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml b/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml
+> new file mode 100644
+> index 000000000000..26f8939001df
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml
+> @@ -0,0 +1,412 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/media/qcom,sm8150-camss.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Qualcomm SM8150 Camera Subsystem (CAMSS)
+> +
+> +maintainers:
+> +  - Andrew Gigena <mail@andrewgigena.dev>
+> +
+> +description: |
+> +  The CAMSS IP is a CSI decoder and ISP present on Qualcomm platforms.
+> +
+> +properties:
+> +  compatible:
+> +    const: qcom,sm8150-camss
+> +
+> +  clocks:
+> +    minItems: 27
+> +    maxItems: 27
+> +
+> +  clock-names:
+> +    items:
+> +      - const: camnoc_axi
+> +      - const: cpas_ahb
+> +      - const: csiphy0
+> +      - const: csiphy0_timer
+> +      - const: csiphy1
+> +      - const: csiphy1_timer
+> +      - const: csiphy2
+> +      - const: csiphy2_timer
+> +      - const: csiphy3
+> +      - const: csiphy3_timer
 
-> I don't think this is right. The issue existed already before the move.
+I ask you to switch to the new CSI2 PHY driver, please exclude these I/O
+spaces from the CAMSS container device.
 
-You are right. 53f8f7c5cf14 only moved the existing ACPI support code
-into a separate file, and I should have traced the history back instead
-of stopping at the move. The leak was introduced by 605f8fc22442
-("i2c: core: Add new i2c_acpi_new_device helper function"), which added
-i2c_acpi_new_device() with the same pattern: the adapter is returned by
-i2c_acpi_find_adapter_by_handle() with a reference taken by
-bus_find_device(), and the function then returns
-i2c_new_device(adapter, info) without dropping that reference. So the
-correct tags are:
+It makes no sense to deal with all-phy-combined supplies and the multitude
+of other solved problems.
 
-	Fixes: 605f8fc22442 ("i2c: core: Add new i2c_acpi_new_device helper function")
-	Cc: <stable@vger.kernel.org> # v4.12+
+The cost of changing the device to exploit the new CSIPHY driver is
+close to zero.
 
-While reading up on the thread I also saw that the same fix has since
-been submitted by Ma Ke and is now in mainline as a65917d0a22f with the
-corrected tag, so there is nothing left for me to resend and I will not
-add a duplicate v2 to the list.
-
-This has been an important lesson for me. From now on I will go through
-all remaining review comments one by one myself and reply in time, and I
-will not send patches in batches that exceed what I can properly follow
-up on.
-
-Thank you for your review, for the ack and for your patience.
-
-Best regards,
-Wentao Liang
-
+-- 
+Best wishes,
+Vladimir
