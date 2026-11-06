@@ -1,113 +1,138 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793975375;
-	b=tQuFF7ITcD7B+kxqZQTN4sMzgwJfJZJD4fIFELTXj/VzY0kxwTwSUBV7s8OkvBnP9eky
-	 X0EQ67voOhlTNVkfFqCiWyzkPP6YJ//brMhZlebkbOJwpGM+07U/9PnRDLNofbS2aM8EE
-	 R9AEuQHj6rJV+wpEt2DM2PXIdCi29V9CvZonUIAKyXCuuv/eMTwfLqnjBJTTfKHAhpWAa
-	 eJwvd3Jp1TEbeBjzqwC1z6DMVggfugfvWyOjdIpuVtWmU8AnCfJBfm+xMR+It7HDCad1k
-	 vFbB2M9YrJ7O83z0+C9WZgFpUHoYN769qiZVyM3Q5Alz8v681dfXGg9Jwq9sacj0PGw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793975375;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=lSRVU7RUuxh6puB6b5i6bOTbwTzK785NvXxbRg2foaM=;
-	b=Qdn4v7GOGyQmX4lFMnNv2gE/K8adghLaTnChyhlWCcTkKaK6c+cQbOMfngDb+fF95wY1
-	 VjlJwxwCqHXssRV8tQYCZD3sJwGVo8BQ9bzjfGyaK5jNXeEVzQfEQxCsy1LgA/kSKoklN
-	 oKQCyFQuUiG/OCkjbqYMjR67YobkAS8N5f6aC/jMlJANAesGqsYB/HBgTs0wzNrMAM6hw
-	 EP8P3ki3lq7XqHRLyLee+DDWHJ0aHRU41GF3ZpaW08dORQh1ETUySKSdwLObHmeL9zBDJ
-	 nDHFjFIvgdX/1Mx9HhIbYI3jOXfdkOT3oH0/UVFbKToXtXFbWJOF8A+fFVGz6lodtbA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=YWQBit+A;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=NiuANmX4;
-	arc=none smtp.remote-ip=205.220.168.131
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.196.49
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793975440;
+	b=Esb4st+otwJ27W3A8CvSVqC2PV6kwJX5exSYaMm5isylvLlGaQOHtKvEaU6DUSGdPeUN
+	 b+anLYEDL3OEKXXDhVSW79NG3vlRPOyxkIahjbDeZrARo3+EtwRXuFlLXvTTwqGZS5Dkm
+	 hF8KWla/3pAZB54GROTrfFb7h92YnQcpoTrgYnaJuqodnWxpGFJN2kUAhNN8mSCGiF5gm
+	 3SyuvmbROtQeQDi0qHVh7gDz/lSr4fz4t+XFftZa2A13zHTe7B70mw7oL9Q2YV7jF4Fnd
+	 KmE+3LChI42esDzd6WPZk+PRvp+c7FDfDLpz62at1EUT2v6jZoOX3YVdf14U/Oygpeg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793975440;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:
+	 MIME-Version:X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
+	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
+	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=Xt9Zhm9YHvvFC6bkV5iJVplR1XjWbz0EC8WE3hHHqOI=;
+	b=XwJSkCyBsn6ORTlwnpxrl1y9wnWsHP8hWI8jdvo2vkd5GerBazeTPMzPmuZ5JBjPiuHE
+	 91H4AAosO6oymMYt3C5YN105vJ00KnnubGQhG+7SfSFxfN+vzQdK/NkdMwHyIuWAtlJ8F
+	 l2ZJQHNa+K/Q+I/Iq/2Wf7pBAr0zCegXzqw4gh1lFAxG/pCMRcC/dyxpK6ibvqFthNbMS
+	 fotf7SagPuOH9Rfww4BeSBRk0zsv57i4gnMxzglNcJ5ar+UwFOt5RMxTqen+kgSTh0WM8
+	 tXw+fg5jRoO+q1mxhFqKCLGO3C3Y1t1lGWcla8VTw5OI/Ztbr/ngWEQ4uCPym//ysRA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=amd.com;
+	spf=fail smtp.mailfrom=amd.com;
+	dkim=pass header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=HRVrY5cB;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.196.49
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013049.outbound.protection.outlook.com [40.93.196.49])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C11606A335
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Nov 2026 14:29:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B5C11606A335
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C82606A326;
+	Fri,  6 Nov 2026 14:30:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 01C82606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=YWQBit+A;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=NiuANmX4
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6EPw0b3647414
-	for <linux-i2c@vger.kernel.org>; Fri, 6 Nov 2026 14:29:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	lSRVU7RUuxh6puB6b5i6bOTbwTzK785NvXxbRg2foaM=; b=YWQBit+ArHsWuZId
-	kUEzcqzG4QNF1fIC0/VMFdTjAuAAen8EgfGw8DAOsC4SpuaMyx7KjdPPZRavtpxS
-	MSQkWCjKF1VyUYPKVAazDJ2V601Tw8ytrJEcrHIe5d/vz2s4Pq2cUjD7TwvSxWHX
-	aChA0k2oWVAydjxyeXxqXy0XY+QDOXPyfZNm4G5TSjIWcoXHrvHDqmeJpLNqJmYS
-	Vixkm3ErADLZ9D9ess4fbF0qOiLTVNwRY5lWUgNeSXOfsCjsHnarsuyPIhbD6bw0
-	ficbzblHf7ht+Nk8no8GFxOPZjN3ZsLs1GRww5rwAGIVZfxKcistKIZP/MM4Z8Pa
-	cPRpeA==
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hs3p9k3ht-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 06 Nov 2026 14:29:33 +0000 (GMT)
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-8b1ae61c87aso575130b3a.2
-        for <linux-i2c@vger.kernel.org>; Fri, 06 Nov 2026 06:29:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793975373; x=1794580173; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=lSRVU7RUuxh6puB6b5i6bOTbwTzK785NvXxbRg2foaM=;
-        b=NiuANmX4PIhci/hbJRjwpuDg/HPkRcMKXbQdol3YHU8fhb1Aq8F9BpTZGLkSzVrSZr
-         2+V3LNoTKmn1ztUYw20VWRZ7t20Qq7hqdVuN2wo9cLx3WBGIJ+MAXZIRbt8ikyYTu5uy
-         EBJvnXPE+I6xCwV07GvlTFzPLBXkVPooVTMkbIVPYYP0YaRRgg1dol1njBOJ0VLV54Gf
-         gP6y26C+Eih/HE8qPvmjbvnptlSlg5JOiA4TsEdRfxyqVmCrXRgo4oh+2gaVRrKRnlBK
-         EOKxRoMOMMDkyq0n91hfIzgwn6+iHMJ6FDdytKVrc2VJR4QJmIYyeftCzU5GZi19DRsF
-         sUNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793975373; x=1794580173;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=lSRVU7RUuxh6puB6b5i6bOTbwTzK785NvXxbRg2foaM=;
-        b=H+nxEl99G0v+T6w+AXAL4fVe89lzty56KGvJG2Uxfx8CmUMRF33e1K/L35LyVb+C02
-         CfD3/x//sZoz0lbWbhPF5onhFDEUVxPXHxQeAMjxDnQYB5bbzXFYn5XO0e1dwW+u/bpz
-         hI7ATFPwe5wynhIPxPUJqpl5pACjqNoU0G521D9Tov2wQ58KnxdGKVCLj+BPQ4DXpDkh
-         oOnqgefWproGInoRAixTcEv5bV9k8yuQNDvDrpBsWS+iwqgfmMOosvgMbiraijcPcGN2
-         h4AZnjkXTKUyB47s+dWcsO2ttq66Ku54M0PFe+kPaZ1pQdKrAolovNJz9Ipo9BX10JQb
-         wfXw==
-X-Forwarded-Encrypted: i=1; AKwUvBw15/w/eq2QBV3vsLxw7EZamPrAEUuT2E/Oex8osmFgWJXgUYQBmkHNBPCGNYfzfHGUqFEet5WCBgw=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/gAVbWjxjWrzsurS9XEBqcWix/65IGLu2ewsg2IfeFty3HDLmT
-	tl2ZEYWyGGZ+DFEcmoIZGd6ZIaq29BqtuS+PCO2eZC2mEVCyOMEj0BVQ7K/t2CyV+rcB7shGQ00
-	+htKePsGppFjzESy4mcZUF8m0SwAYACVPqdll+IZZ0TwqhUROeZQyGY5+YzT4yM4=
-X-Gm-Gg: AYBFou37uX/TwZeYcK+pIZpTTcK1dVZZNK5SdgpV9Xtd0F/Jmmkp88T6oxSmO+XhBSR
-	r5YclroR4P8oKumx+sV79+u21PbG64j6EjpuySYj+ihRKkB0y+zwSfPXJ7iebq+mEFxy6cYBj4v
-	bF5bxMvfbjRAqJSFYq5HQ3nkgzO/GbNJy1BE4XMpoIwmSFsK0uu+JKSyptgNaqXw+BFXiOgIcpj
-	LNeoHhfkwoZVT3BHmOq1me/MVwDCWN6e7Mmn52R9UNRC3Anq3WCrmVdBWWXi/RAs411bhgGN7MK
-	domI8wY0P55txrVehSLKgxc3fixrPEA1TSj00mVef7Z/vud8842VKnt08pACi2ti8cGxNh8o122
-	TZ4h+zNLT/PFmb7pul0kKJ49BTgbUSrb9I69N2SB4Pjua47qFujQirM0LKiAIy4tRGvfV3QfiDs
-	ggMKiUng==
-X-Received: by 2002:a05:6a00:809:b0:8a0:2344:c44b with SMTP id d2e1a72fcca58-8b37b8694a8mr2601830b3a.40.1793975373218;
-        Fri, 06 Nov 2026 06:29:33 -0800 (PST)
-X-Received: by 2002:a05:6a00:809:b0:8a0:2344:c44b with SMTP id d2e1a72fcca58-8b37b8694a8mr2601802b3a.40.1793975372600;
-        Fri, 06 Nov 2026 06:29:32 -0800 (PST)
-Received: from hu-ptalari-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8b3597f0161sm690244b3a.26.2026.11.06.06.29.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Nov 2026 06:29:30 -0800 (PST)
-From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-Date: Fri, 06 Nov 2026 19:59:17 +0530
-Subject: [PATCH v2 2/2] i2c: qcom-geni: Add panic notifier to prevent
- transfers during panic
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=HRVrY5cB
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=cVEgnFPH/B8sU4nTAaPr0Qzz+MvFpLGnHMeX7kWZ23x8Kio2nnfWEWjgVP8FEJvkn/7ovThe+f0SOCL+4pVHzFXZi97Jl6FGPg0NBMlXitf5mOSXXQ8iO2CPQZ2Y0rFMe64j1JEhLa5UI+SdVH/cXyunjla98II1Z+ItpptkRzsG/pxlJ3jKnCjiVzgB5GcEUK4glC9mWQLBWGRTAhw9r2VhXywalBW6arUEhRZcn3VnrXVbsG3CGORouOWBNuXOeLNJjwfAa25RNOus+VlBysXrVyHTPku75rDbkvUHHuekuv+C1x+qFGmYh0ZzaAIvK0Z39PwLAvPt5S5vsSscOA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Xt9Zhm9YHvvFC6bkV5iJVplR1XjWbz0EC8WE3hHHqOI=;
+ b=fTj3VZhnetpmpit22JZjkBp3FYAdDpITe/vVb5L+kAAAVvuxJ8FM9p1DXgHBfLDc5ZjwNqtnLoNOjEHriiVvONNAPY/GSC6+/U33d2iWRLeJz/JWBhhFEhnU3Begn4GA6uLVYDpGYMb6K3mFcqVp1VXfnp3I4yQ6DecPbJ2Dh+Ga90Q/wJO/aSPfLbdJZ70CweXvsiwLMO4O0kgS8QpTDkme3r1f8ckHBHdzDVzhjpVu1u0J0Nsl77woKl7Q3NSArYToyk5fHtraIkmV4CTHdy/zzmhNjxQsTc5jpO7gC/WbWCPkFtmJJbV5jn+5+2dSdeAS5Amaf52m9/I54V8ytw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Xt9Zhm9YHvvFC6bkV5iJVplR1XjWbz0EC8WE3hHHqOI=;
+ b=HRVrY5cBGM5LlAXgDPGtXNBvgD/xmCP6HangZ1xqXnxNHYO0H4vBbIc1ur+A5C0shf+aPLoWZ/BCUjh2CXS6dRgGMGMFTxoyjxZYV7VCzh3mY6Afb4P6bQYoB+ZMyWUOlbK5rnfjpnj3YJC2r3VlXqF/vk8tLWGwpfvtpM7sK1U=
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from LV5PR12MB9779.namprd12.prod.outlook.com (2603:10b6:408:301::14)
+ by DS0PR12MB8072.namprd12.prod.outlook.com (2603:10b6:8:dd::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.592.10; Fri, 6 Nov
+ 2026 14:30:36 +0000
+Received: from LV5PR12MB9779.namprd12.prod.outlook.com
+ ([fe80::8ac8:e862:8ae9:9287]) by LV5PR12MB9779.namprd12.prod.outlook.com
+ ([fe80::8ac8:e862:8ae9:9287%5]) with mapi id 15.21.0592.010; Fri, 6 Nov 2026
+ 14:30:36 +0000
+Message-ID: <092f0494-97ae-445c-be55-67e761cedbd8@amd.com>
+Date: Fri, 6 Nov 2026 15:30:31 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/2] i2c: i2c-xiic: fix clearing of bnb irq and
+ waiting/ clearing while atomic
+To: Thilo Zirnstein <thi.zirnstein@gmail.com>, andi.shyti@kernel.org,
+ Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20261102093228.2751576-1-thi.zirnstein@gmail.com>
+Content-Language: en-US
+From: Michal Simek <michal.simek@amd.com>
+Autocrypt: addr=michal.simek@amd.com; keydata=
+ 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
+ mpwx1d8=
+In-Reply-To: <20261102093228.2751576-1-thi.zirnstein@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR05CA0078.namprd05.prod.outlook.com
+ (2603:10b6:a03:332::23) To LV5PR12MB9779.namprd12.prod.outlook.com
+ (2603:10b6:408:301::14)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -117,136 +142,126 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-add-shutdown-and-panic-notifier-for-i2c-v2-2-d3011344fee8@oss.qualcomm.com>
-References: <20261106-add-shutdown-and-panic-notifier-for-i2c-v2-0-d3011344fee8@oss.qualcomm.com>
-In-Reply-To: <20261106-add-shutdown-and-panic-notifier-for-i2c-v2-0-d3011344fee8@oss.qualcomm.com>
-To: konrad.dybcio@oss.qualcomm.com,
-        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Cc: chandana.chiluveru@oss.qualcomm.com, linux-i2c@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Praveen Talari <praveen.talari@oss.qualcomm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793975360; l=2868;
- i=praveen.talari@oss.qualcomm.com; s=20251114; h=from:subject:message-id;
- bh=z8OTmYoOW68Wr7bPMyY6C22t8YZnlBJl/0+EpX2cz9k=;
- b=n1Byg/UlMz833cQsKM8f3PbKdih2Pil67dVLYQL1TcyWewpIu3Ww1CCw/EEi95skq3mf8sk0u
- dTwBQJnFuX3DtLPJ9K+CjVddaFD2Km3W0o4uVaQQjly3ExRsGCdthEp
-X-Developer-Key: i=praveen.talari@oss.qualcomm.com; a=ed25519;
- pk=NGK/88fjyHXgfhIKwag7+uIytOmyOypvZ/hDFaYPEss=
-X-Proofpoint-ORIG-GUID: DHGWyNfocGEf-TYXg-5iOiBA9p6SF2uh
-X-Proofpoint-GUID: DHGWyNfocGEf-TYXg-5iOiBA9p6SF2uh
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA1NyBTYWx0ZWRfX7IDPUdeGdrb0
- 9LO6Fdh/NfRgDYpbqlMXE5tbOvXZX23WDRxzJBHVLq75/e1Nw/lrb+B3Ms+jDlwBECuBMWaVWTc
- oWb2RQ5lQElZIRvodVjXxtNoFsiR+tU=
-X-Authority-Analysis: v=2.4 cv=XvNvqlF9 c=1 sm=1 tr=0 ts=6aede44d cx=c_pps
- a=mDZGXZTwRPZaeRUbqKGCBw==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
- a=EUspDBNiAAAA:8 a=0wxbfleT6UKSQBY2OSAA:9 a=QEXdDO2ut3YA:10
- a=zc0IvFSfCIW2DFIPzwfm:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA1NyBTYWx0ZWRfX985hdK1JjkjO
- PnIl0vB6BBoamC34RaMN8sy/4ePBDqFTsiIBMqLDALdU1MmBdqUR7YtpMNNd7g506FbW7E1MOli
- SrSl2BEahGaMj7le0JIy8pSwYm8It//y88XsWZgd3DrUltHDvathJS0gEO8Edzkq6h8LxvsEgXO
- OOdhbGYjvQnSGk9jKhY3h/qgaOy4WIWOD3e7mWIYAbukonF7+89rdcvyc0ReBrLnBum895qOtBV
- l4Hm+XKV0KQ82Cfb+SV5BxhnCuIpvjgPK2osa74bnRyx+VFCxxKqcQsfJ4PLcc/Pk3/OXK1Bfub
- N7eB+QGN1kupaPnyBUPK08vHKqnpzqTLHAvDaisCCMINmauuClUYR4pjbrxuefsm3+7SG0ynMUx
- ilz/EF1QC/pFZePiA25EOQ/lhiZzwTDXzKPatZqmT7OBLuXMnuFiLIdaYQMjjCzhyXzhMdJozch
- QDkK3I3+rvFJ/+N5Lxw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-06_04,2026-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 adultscore=0 malwarescore=0 impostorscore=0
- phishscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060057
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV5PR12MB9779:EE_|DS0PR12MB8072:EE_
+X-MS-Office365-Filtering-Correlation-Id: cb32ada5-cd5d-4300-0906-08df3c1285c3
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|376014|1800799024|23010399003|261026140227099003|11063799006|56012099006|261026121527099003|261009223327099003|261022105027099003|261009223027099003|261021121427099003|261102123227099003|261009221727099003|261009220027099003|261009221227099003|261021123027099003|261028144727099003|10067099003|18002099003|22082099003|6133799003;
+X-Microsoft-Antispam-Message-Info:
+	1JPj/tgxshCFd2MArgcCvbAgxB9GPOf8Jc0zLG3CKmcvZSHF0tLCeL/aHcYXIFfq1Ta5YHJ9X4PzicyPS5K/WeLarQy4bLATQ5wAhAxr0CUAmBTYuqEKZawWH4wHJU+VfPr5K4pq3L2BbFabWZleuTxEsj/WllYAifPVzpe5F7F8vs/v4fRy1W0fjA6kxsXjZfnPSJgEpckbuw+2Qi8TyKoBdo4S99MwHYtHE8cbIoGG3NDkJKuS7CMaGiiiqbqjD8yJICfLghx99Q6fJQnUQN21WtqFirOJh2Ph+cecGr2OC+kdhq7gFb7h5a+b2E22dCeQainXIEsihBeUgJqBDszubgHpJbnO8weXgw25A0ceV8RiIxERoulw5dvvaAv5WPBUBATEZzrQOvQ5m1Vqg1Yg6ExztgfDbNbucGSNQx2fyX+Aevpjf+HO9EH8JvVuZdbUfunWYgpkek61xoQY3AxISJ84KvRXlmFU55JqDrlLeIgz8E+oHNLWiyWMb3SlVhjuGprUZ1/aSh8D/AxJLzodyQjZ0/JG/crGNnXGa0BJ+ZL8xTyb3aK/M4/O9IZJ7nL7+q4fIvVPrPLQZIsE8z0J+Dc6lRCfVo8F45kRRZ6oLR9PCINZ7n/lcJHFHD0fy5jK5F1Ol1wywhUODnUy3nkzMKKWRPIdBRV+AQdAPng=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV5PR12MB9779.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(23010399003)(261026140227099003)(11063799006)(56012099006)(261026121527099003)(261009223327099003)(261022105027099003)(261009223027099003)(261021121427099003)(261102123227099003)(261009221727099003)(261009220027099003)(261009221227099003)(261021123027099003)(261028144727099003)(10067099003)(18002099003)(22082099003)(6133799003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?bTdPeVV5T01JK0t1N3VaeTZlWUlQaDdWWkdEbnVDbEpUMjdvZm5PWEcxQ0ho?=
+ =?utf-8?B?ZGFIMDhwUFdyME5WLzRQdTdnNVJzdjY4N1FOSzkxa3BjcldPaXhqZzBwdGZF?=
+ =?utf-8?B?MDU4cWdwckNIQW5BcXdValJQTUhHR2EzS3h2VUljeEJkdnBEMUhKeUkweFhD?=
+ =?utf-8?B?L3VQVDFHNlVCWGwvaytNNDNiTm9BVmxZelJqZUtpQWdvTmJIYUwxVFpZS0xO?=
+ =?utf-8?B?WlVzVnBhem9wM2J2OFZhbUxOcHhIVElIaHE3RGJMajZUVW9XT3pQZ2hFUWwx?=
+ =?utf-8?B?UTlHNFZRRU90WVhVS3JoUUVxMkQxakR3NFZwQ0tPWXlPQnQrT2N6bHBSTElZ?=
+ =?utf-8?B?aGJwMTBOeHJQWW85aWNxME9ZUjY1Q3NCTHM0K2h2MFlrdUc0R3FyVEpSVnVh?=
+ =?utf-8?B?OEpKRTZBNHlrMGJHV0cvM2Nscm5BZmhuYWRNbjF6Q1l3TlduUFh1TVBjTWNo?=
+ =?utf-8?B?ZHZKZzJyNndqcXBuMkI4eFFZYWRnR1RkeGJ3dWUvTjZ2bCsyKzhvWXNrd2dy?=
+ =?utf-8?B?Z0JJeERBWVJmSk42aGZEY2FkeEVkbDNpTGJVeGpZblB4a3hLZkV0WWp0eTFl?=
+ =?utf-8?B?eFRzWW1VNThSMGN5cXVOQ0M1WldiOUdNS3FrT0h3bG56RXFKSUlLYytMeVoz?=
+ =?utf-8?B?VkRHd2x2Y1ZOTzBhdkI0T2FSNlBzdWxUOXQ1enovWHFETnVBb3FxNkVCekdM?=
+ =?utf-8?B?KzhkRmRuQUlHRFlMczBWMUNXL05UTUF6S3BHTEJ0VE51YTJMVXNqczJaYUtI?=
+ =?utf-8?B?VEpKZXJVWjUvR0VLRTFVRVlSZzBWK2NhTU1nVHgvU2dRTW9FWm1URkE0SllU?=
+ =?utf-8?B?akNZUEdWNzdVUHhaVndRNC94RVZDc3BMRVU0MERvUSt0U2FDN3AyUWdkRXNt?=
+ =?utf-8?B?eVUvajlXSXlVcDZrZlFJSldHNzJnQUZiMjBIem1xNUpHWkNrQnZuRjZnMUFM?=
+ =?utf-8?B?UXhyY2hZeW1mVVF2ZGVaVmtGdXRMUHdTMkVuS2lOeWQrK0Z1OXR6bk5Gd3NW?=
+ =?utf-8?B?QVBHMHYwWWJnZ1R6ZkdTUWpZMWRqSUs2L2xuUzdkQTRTcEVQSDhFQTNVNzdm?=
+ =?utf-8?B?RytyNzRYUVVTNUQ0WWVIeHJ2K0k4dFBtZWdLaHl4VGdvbTY1cWgrT2pRRThS?=
+ =?utf-8?B?OGRVajMzVjRTaGFIV0J1MVZ0aVBqb2kwYXRzMnFQN24wczRMbTkrak5ib3Qx?=
+ =?utf-8?B?cUx0ZitiZlM1SGlPUGtIVE5LLzFoNmdNdCtza2U5RTlqTDdWbzY1UC9UYnpt?=
+ =?utf-8?B?TnFjT1huenUyTGNPYU8vUFlIL0dLdjdZUUpPVlZuaWdkS016UjdsUXhhNW1R?=
+ =?utf-8?B?K2RZNWlJdjlkYWQwbXN1aWF1aUdxN3FSeUgyVDc2NFprU2pPbHhQeTZWbitU?=
+ =?utf-8?B?STNwT1BoNHV0b0QzUDdpZFl4UzUzN1BHWVhMQTE5cmJtSjVwUUgyaExlNUw0?=
+ =?utf-8?B?K2YrYlNlRUdPN21YQjIrWHAyYkpranl6Y2xPWEkyZEtWcjJRdFNWOTdIMFB0?=
+ =?utf-8?B?MDN6Y1B5QmdNb3o0aktTcUEvQUErQ1d5a1BXMytoRDhISW5BNGxmOCtEQ0RR?=
+ =?utf-8?B?TXFoRUVSYW5JUkczVlU3SFY3QnFhQ2tEU1ViTVMvdmVlMk5Tc0RibzJtcXdw?=
+ =?utf-8?B?MHY0MHJudUxhTmdQZHdxK2RkTG5NODhud3kwQkFIbFkyRXFKSkd0Nk8vVlhu?=
+ =?utf-8?B?LzJYRmRUY2lEM0FGT0xkRDVtT1FjSmhNOTNPRXUwVzcxMDdQRXRndldoc00y?=
+ =?utf-8?B?aDZJL1p0MG91NnZVdzFvVW5YYUpGcHhBWGpWUm5aYVlBb3FhblprbGltSVJV?=
+ =?utf-8?B?N1VIakRPVTNsMkJaam13VUNobEhvaDdQZEJIMHl2YWt1bm1tWk5UWEpLYTVn?=
+ =?utf-8?B?WlpScmNWOHB6YngycWpLTk9VTE51YkIvTVJ5U0tlc2pOVlJjMytGeEhLSWk0?=
+ =?utf-8?B?N3NkUHhWeExqYTdUZS9sQy8vK2xlMld3SDJWVndQTTBNMFR4ejVyaklmZU5I?=
+ =?utf-8?B?czdnYjVTUERMTmhDMnlqOHFGRlJSR1Jua1hRaUhyVEt1RngyWHQ1cmFpeld2?=
+ =?utf-8?B?YnZKbVFYT3BGR2tMWVZGVmxsS3V4azJDQkkzUHJzTWpLMzhHMDBLYmQ2Y2xZ?=
+ =?utf-8?B?UGZiK1gvSVNmMlo2MjRVdFFMTG9qbTYvUE1EZ2xyQmR6a3VZMW1UVlVucmRw?=
+ =?utf-8?B?b25JTzRJMmsrYThlYitGUFNnd3hQOGMzL0ZCUm1tMm5ndlRoTTNmWFVJS3cr?=
+ =?utf-8?B?aEZ3YkFrbnN1M1g3eWNkeE9LWHlZL3JDUUd4OG9FTTVHU28zMW5LaDBGMU50?=
+ =?utf-8?B?MDB5MnJZRXArMGoyTldQcVVuVUNiMGZRSkVXc2hFYUJlQ1ZSeUp0QT09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cb32ada5-cd5d-4300-0906-08df3c1285c3
+X-MS-Exchange-CrossTenant-AuthSource: LV5PR12MB9779.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2026 14:30:36.2572
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vx0hVD7cScxCIRHHjxMAvMilAN3knp/IEYFPWM0F5h2kI/LtAkHcPa9ZxL8bR6iN
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8072
 
-When a VM crashes with an active I2C DMA transfer in progress, the
-SMMU raises context faults as the DMA engine continues to access IOVAs
-that are invalidated when the VM's memory context is torn down. These
-faults can affect other VMs sharing the same SMMU instance.
++Shubhrajyoti,
 
-Register a panic notifier that calls the same geni_i2c_quiesce()
-helper used by the shutdown path. This marks the I2C adapter
-suspended, preventing new transfers from being initiated, and
-cancels/aborts any transfer already in flight, limiting the window
-during which the DMA engine can access IOVAs that are about to be
-invalidated.
+On 11/2/26 10:32, Thilo Zirnstein wrote:
+> Dear all,
+> 
+> This patch-series fixes the clearing routine for the bus not busy (bnb) irq
+> plus the waiting and clearing routines while in atomic context.
+> 
+> The bnb is used to indicate that the current transfer is done.
+> A high level view of the software flow for tx:
+> 
+> * init i2c controller
+> * prepare all registers ( fill fifo, enable irqs, ... )
+> * start i2c txfer
+> * clear and enable bnb
+> * wait for completion
+> * ( serve interrupts )
+> * ( bnb interrupt ): complete completion
+> 
+> The datasheet ( pg090-axi-iic, Interrupt-Status-Register ISR)
+> states that the bnb bit can only be cleared if
+> the bus busy bit in the status register is set.
+> So the iic controller must have recognized that their is some activity
+> on the bus. ( Start condition )
+> 
+> Currently the bnb bit is cleared without checking or waiting for this
+> condition. This can lead to spurious bnb interrupts.
+> 
+> Andi suggested to use an atomic-save function to wait for bnb.
+> This was applied for other waiting/ clearing functions, too.
+> 
+> Kind regards,
+> 
+> Thilo Zirnstein
+> ---
+> Changes in v4
+> - Fix timeout argument of polling in atomic context
+> 
+> Changes in v3
+> - Use atomic-save functions for waiting and clearing.
+> - Fix intendation
+> - Unintentional changes removed
+> 
+> Changes in v2:
+> - Unintentional changes removed.
+> ---
+> 
+> Thilo Zirnstein (2):
+>    i2c: i2c-xiic: fix clearing of bnb irq
+>    i2c: i2c-xiic: fix waiting/clearing while atomic
+> 
+>   drivers/i2c/busses/i2c-xiic.c | 70 ++++++++++++++++++++++++++++-------
+>   1 file changed, 57 insertions(+), 13 deletions(-)
+> 
+Shubhrajyoti: Please review this patch.
 
-Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 79707095bbbd..6897cad0ddc0 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -16,6 +16,7 @@
- #include <linux/iopoll.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/panic_notifier.h>
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/soc/qcom/geni-se.h>
-@@ -139,6 +140,7 @@ struct geni_i2c_dev {
- 	u32 num_msgs;
- 	struct geni_i2c_gpi_multi_desc_xfer i2c_multi_desc_config;
- 	const struct geni_i2c_desc *dev_data;
-+	struct notifier_block panic_nb;
- };
- 
- struct geni_i2c_err_log {
-@@ -1087,6 +1089,16 @@ static void geni_i2c_quiesce(struct geni_i2c_dev *gi2c)
- 	}
- }
- 
-+static int geni_i2c_panic_notifier(struct notifier_block *nb,
-+				   unsigned long action, void *data)
-+{
-+	struct geni_i2c_dev *gi2c = container_of(nb, struct geni_i2c_dev, panic_nb);
-+
-+	geni_i2c_quiesce(gi2c);
-+
-+	return NOTIFY_OK;
-+}
-+
- static int geni_i2c_init(struct geni_i2c_dev *gi2c)
- {
- 	u32 proto, tx_depth;
-@@ -1241,9 +1253,16 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = i2c_add_adapter(&gi2c->adap);
-+	gi2c->panic_nb.notifier_call = geni_i2c_panic_notifier;
-+	ret = atomic_notifier_chain_register(&panic_notifier_list, &gi2c->panic_nb);
- 	if (ret)
-+		return dev_err_probe(dev, ret, "Error registering panic notifier\n");
-+
-+	ret = i2c_add_adapter(&gi2c->adap);
-+	if (ret) {
-+		atomic_notifier_chain_unregister(&panic_notifier_list, &gi2c->panic_nb);
- 		return dev_err_probe(dev, ret, "Error adding i2c adapter\n");
-+	}
- 
- 	dev_dbg(dev, "Geni-I2C adaptor successfully added\n");
- 
-@@ -1254,6 +1273,8 @@ static void geni_i2c_remove(struct platform_device *pdev)
- {
- 	struct geni_i2c_dev *gi2c = platform_get_drvdata(pdev);
- 
-+	atomic_notifier_chain_unregister(&panic_notifier_list, &gi2c->panic_nb);
-+
- 	i2c_del_adapter(&gi2c->adap);
- 	release_gpi_dma(gi2c);
- }
-
--- 
-2.34.1
+Thanks,
+Michal
 
