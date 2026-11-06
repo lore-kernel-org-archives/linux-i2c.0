@@ -1,77 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=114.242.206.163
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793933248;
-	b=09LTk96B874vykjUIsSbOvzWIla2+VDHZ+K+FydYWr5i+jkLycF5jUfPCfF7/r2T2b2G
-	 1XS/GbSok0cJTWFbC7mNqPgijlMXEJpuaupeA9btyUz5G53/DUUm+JtF6jk+AZZmT+q8v
-	 dsMVCiy8berohA8eLIef+hs8/espedndt1eFV0+d6orA6Ir6qGE7/TFcRdLPaRNoqG8dH
-	 fKKQNjGN6QCnMrCuHSFVQON5gAn/8xZHq0jUG6ATz6doqAftRcZ52zeanfpSYkbUF2bki
-	 XMgfHUwmMoEkKgb1dVGxcHEIFWb7ZgqrJyUwAGnvLR5Cjfeve1WdMBnoF68qa2kehnw==
+	t=1793934136;
+	b=MmZRD5VWyReqlIF0nfRObl4LU3/ZT7lBuLJa5Y7Y2R8cflGyE6bXeE8fY1iC8xpdqxZL
+	 LI6rb7q1+3ffz8a8iv38iTROetVv33MZhxnZ3aBTFGl/Q6KJqFglXCkb+ojnskNmh+SWk
+	 lV+YECp5yr3JU9PEklXO81FqIx/qXqD9ECbuQnIB381G8mYOOkfDLZ1j9NRSYhJ2naOmP
+	 064mtfLh8TDHBh4pzca8BunZ5yd0Ji2xqlgtHk9b51nF1ICe2TsGQ4WQl3fCkrp+j0RV8
+	 G4vwBkWaMJYVE55n2L5P7ZVgiUVkPKlYlAGyxUW8LtDRKOJRQL8sk/jpSD+uoFBRpfA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793933248;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Received:
-	 X-Forwarded-Encrypted:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=6852XYg4nQB/at/PLi5oS751NBudRh/wjJbfpaCbjiE=;
-	b=0DPoa9LpRZDIXoDNHGvYWhNumePz1EQ6FZWBhKtLIhVr/qzPb49Ixosvga/YP8b9fgoY
-	 kWKgM9vx7lfIhL9i6u2SkW4BQ0K5sET7mEiLgwl+zmgcl/Mw+XMj4+H1NQAbdIN62e2ZL
-	 9dcF6FyBOT3hcdsXMOp4auQw+j7fBzCP1spCtzqotO3SQD1c7kO/FSvc4hlvC8WeVtpz6
-	 qCVBuXT9HQ2dnC2pz3TcNmWumAXYAw6pWoFjD7T48hLEZBNFNnvj5mFgUrZk4UfB4DzIr
-	 yy92+6I8Ryep393EmYVPcg7ycamSlBiGo9y6Iw3oAeBqu87UrQ68Z4MXmftwS2m4MMQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793934136;
+	h=DMARC-Filter:Received:Received:From:To:Cc:Subject:Date:Message-Id:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-CM-TRANSID:X-CM-SenderInfo:
+	 X-Coremail-Antispam;
+	bh=1YVbiDtGnxRLtZkdvukEFZWM6VAbfRE5cYeWCDODJ2k=;
+	b=NgWQRT/yg0YzNWWOcmhhlPoRk5Le6cYLQ5KGFhea1+sEFzktC988adUD0io0eoIQUVoU
+	 bRXnn9RKsx0J72y0bG+EFRIdoDC5mZhgfcU4mQvaOsNZF0SxShJkvuZMJv3X+ePuoeiX0
+	 2hHJAQOZ1VE26dRc0KSkHRgSgS92oRUc7Cqq4+tNkahV9mC3mg77NTlOrN7zwOtldxtiC
+	 PXdx+zvb5K0WEvPRHMWDuHpXHU706Wb+BWYvjEjyzAh7iUwe0fp0QJUgRgS870jVSdhYD
+	 IF7V3oQIcr5RliEQi5HETo4s6l166JztjpXpAdDLLGsJ6+lHBSfjK0Lcu/4c+E7ObmQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=fail header.from=andrewgigena.dev;
-	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=209.85.218.52
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D649606A31B
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Nov 2026 02:47:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D649606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=andrewgigena.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c423b145922so22225866b.3
-        for <linux-i2c@vger.kernel.org>; Thu, 05 Nov 2026 18:47:28 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793933247; x=1794538047;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6852XYg4nQB/at/PLi5oS751NBudRh/wjJbfpaCbjiE=;
-        b=mLtOAYoLc+zK3h/4xchrl5dh/PQ5N95PCBjVqyKSvvniTgVW0+FhW3x6uZOZbsUK/a
-         WLxfc9US7pFIqYZSQXxCd3uMjgvvjcMJ95r6GN9g7LjwajJfgp04mCbG1q1POK7v2sRt
-         iwPtAn7I7eTmWFI8jJ6IYktHomXF385KX2VZkJxqZPw0V5W9CkZ1I86VpPbvM/6ZpjDI
-         ZRIYLuq+EkxFgDuRTiDw9U4uwGteS5Ps12q0ds5zb2IIcrRC2kcnsQaOlacyzCpDt2/X
-         NbcMRED3m5dK3JgmbILEmvtOv7SxGPWF0o7lJynWbjW3VjMsk+wEEpD8OAoleVi+iurT
-         7qhg==
-X-Forwarded-Encrypted: i=1; AKwUvBwtMJdc116cpSk+xviuLHqhztIi2Gd1fvRrGbT+GIwb+JO1SHW0pH9wzmsC9HpMODNs4GBHvE1zocQ=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9Guej/lty1Aj3b+xyEVmCbFajLBhl+NgTPe1L3UozZ1iwimTBA
-	MoSqT8jXLm2F/PNfTA5otL5p7XSawlP8BAXSSBaktvP2J8L9xumc2fRf9tX5B7GPToaWRg==
-X-Gm-Gg: AYBFou2jiVZX7WLM/bhuctYXaPwIGxWdqJ2DACaQBejhyzKjwr7K2gOZDPCupNAVVNd
-	24jBIkNJ+81fYtfbf25a5AunBlzAMzZfWLZYK2NA+wG8bIVJqw4SvZgM5l2UJ+VFZKp855vdBRU
-	1Jz4D2LAjyXbWFhroVnAmiu/GZ+0TvTA6JoXhyCNwrt8FyJWzqIdII3M+uYmbR2qIALMO48NEtr
-	WJoghYtA5x9gtQMBi5vyyahcuSTJWBQoRqy1fvPs6EdJd59THXIL0VHZUkzL+0ttSj57cVSMPIN
-	Ka6ymbg17mgfOTaCrZSBb/2x9KyuZjOMFsrdxRcsvD7IEJgFFJ4XIkJ9+ipNq04o59J3meKtI5U
-	GEwuJdJvMIO03DU+uKLi+AsQCm1C5ouvesbd2qr1zyP0G2ucH9eVZJzsEGYM281OHXi1O5BSdXf
-	o+fk2Q+pokT+GyDZ+tB44Eczq+C/IArz+5XliZqPxaR6rJjjcIjqQMwJuSnGpsa3OEHYfvWXVIy
-	z+IhW/vO3lGzlvUu6IFiWexQ3xkZEuJPUzx76AeFTRKtwkh17PZbe51Gbmu7L9u//gReiIa71r6
-	kBWTN32XU7vngk3FNp4NXSCkk5okGTxcLHUQWJ66uRQoTrrlgOUsVBZg1uYuLlXbQmc=
-X-Received: by 2002:a17:907:fd17:b0:c25:afb6:2d91 with SMTP id a640c23a62f3a-c4d344a88eamr92429966b.2.1793933246689;
-        Thu, 05 Nov 2026 18:47:26 -0800 (PST)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com. [209.85.221.51])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d356eab3esm37688266b.87.2026.11.05.18.47.26
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Nov 2026 18:47:26 -0800 (PST)
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-49134c8509fso138139f8f.1
-        for <linux-i2c@vger.kernel.org>; Thu, 05 Nov 2026 18:47:26 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvBxuvby3SNzmiqkdA1gpzUt6WLU/EGus6witQ0IiFvF4etWyoj94OJVz2LIELOZ9en72g4ig93waOLA=@vger.kernel.org
-X-Received: by 2002:a2e:a80b:0:b0:3a9:db75:823b with SMTP id
- 38308e7fff4ca-3acf3b2b509mr2161401fa.17.1793932922440; Thu, 05 Nov 2026
- 18:42:02 -0800 (PST)
+	dmarc=none header.from=loongson.cn;
+	spf=pass smtp.mailfrom=loongson.cn;
+	arc=none smtp.remote-ip=114.242.206.163
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B4922606A336;
+	Fri,  6 Nov 2026 03:02:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B4922606A336
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8AxYdE1Q+1qHOocAA--.18721S3;
+	Fri, 06 Nov 2026 11:02:13 +0800 (CST)
+Received: from loongson-pc.loongson.cn (unknown [127.0.0.1])
+	by front1 (Coremail) with SMTP id qMiowJCxvM4tQ+1qprAyAA--.18991S3;
+	Fri, 06 Nov 2026 11:02:10 +0800 (CST)
+From: Hongliang Wang <wanghongliang@loongson.cn>
+To: Hongliang Wang <wanghongliang@loongson.cn>,
+	Binbin Zhou <zhoubinbin@loongson.cn>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Huacai Chen <chenhuacai@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	Huacai Chen <chenhuacai@loongson.cn>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v11 1/2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+Date: Fri,  6 Nov 2026 11:02:02 +0800
+Message-Id: <20261106030203.15709-2-wanghongliang@loongson.cn>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20261106030203.15709-1-wanghongliang@loongson.cn>
+References: <20261106030203.15709-1-wanghongliang@loongson.cn>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -81,101 +63,56 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261104-sm8150-v7-4-rc1-camss-v1-0-7a9534a9a22f@andrewgigena.dev>
- <20261104-sm8150-v7-4-rc1-camss-v1-3-7a9534a9a22f@andrewgigena.dev> <a83a948e-3430-4133-ade6-b30045b8b186@linaro.org>
-In-Reply-To: <a83a948e-3430-4133-ade6-b30045b8b186@linaro.org>
-From: Andrew Gigena <mail@andrewgigena.dev>
-Date: Thu, 5 Nov 2026 23:41:35 -0300
-X-Gmail-Original-Message-ID: <CANn8Umedp8s=rupOkSdi5NBxOE8AUnWSvfyeQsMSohZG+Hce8A@mail.gmail.com>
-X-Gm-Features: AclHuK9yR1l3Ka6EneLFe1X-dNaa_gcGDfVBlZZtGQ6nC7Dgsgyzy5WyWv0PGgw
-Message-ID: <CANn8Umedp8s=rupOkSdi5NBxOE8AUnWSvfyeQsMSohZG+Hce8A@mail.gmail.com>
-Subject: Re: [PATCH 3/4] media: qcom: camss: Add support for SM8150
-To: "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>
-Cc: mail@andrewgigena.dev, Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	"Bryan O'Donoghue" <bod@kernel.org>, Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
-	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJCxvM4tQ+1qprAyAA--.18991S3
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBj93XoWrurWfuFy3KFW5JFy8Jr4rCrX_yoW8Jr4rpa
+	nxC3WDGr40vF17W395ta4xCr18ZrnxA3ZrWFZrAF4xK3ZxJwn0qr13Krn8Z3WruFW0vFW7
+	ZFZ2krsY9F97CrcCm3ZEXasCq-sJn29KB7ZKAUJUUUUx529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUBYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr0_Gr1UM2kKe7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
+	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUtVWr
+	XwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI4
+	8JMxkF7I0En4kS14v26r1q6r43MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j
+	6r4UMxCIbckI1I0E14v26r126r1DMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwV
+	AFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv2
+	0xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4
+	v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AK
+	xVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8XTm3UUUUU==
 
-Thanks for checking the 1.1 sequence and confirming that the upstream
-one is fine. I've fixed the ordering of CAMSS_8150 in the switch
-statements for v2
+Add clocks and clock-frequency properties to examples.
 
-Regarding Sashiko's note about the VFE-lite clocks: I confirmed it on
-hardware. Routing the IMX363 through CSIPHY3 and CSID-lite1 to
-VFE-lite1, the stream produces no frames and the clock stays at
-19.2 MHz without the extra match. With the match, the same path
-streams 10 frames and cam_cc_ife_lite_1_clk goes to 320 MHz. The normal
-VFE0 path is unaffected.
+Reviewed-by: Binbin Zhou <zhoubinbin@loongson.cn>
+Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
+---
+ Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I fixed it by making the driver also match the vfe_lite0/vfe_lite1
-clock names. Since the same problem affects sc7280 and sc8280xp, should
-I create a new patchset exclusively for this fix or include it on v2?
+diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+index ee09c6d9c5f0..0beb7f2515c8 100644
+--- a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+@@ -37,11 +37,14 @@ unevaluatedProperties: false
+ 
+ examples:
+   - |
++    #include <dt-bindings/clock/loongson,ls2k-clk.h>
+     #include <dt-bindings/interrupt-controller/irq.h>
+ 
+     i2c0: i2c@1fe21000 {
+         compatible = "loongson,ls2k-i2c";
+         reg = <0x1fe21000 0x8>;
++        clock-frequency = <100000>;
++        clocks = <&clk LOONGSON2_APB_CLK>;
+         interrupt-parent = <&extioiic>;
+         interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
+         #address-cells = <1>;
+-- 
+2.47.2
 
-I can send the small media-ctl/v4l2-ctl script I used if it is useful.
-
-Thanks,
-Andrew
-
-El jue, 5 nov 2026 a la(s) 6:44=E2=80=AFa.m., Bryan O'Donoghue
-(bryan.odonoghue@linaro.org) escribi=C3=B3:
->
-> On 04/11/2026 20:54, Andrew Gigena via B4 Relay wrote:
-> > The hardware reuses the existing 3-phase 1.0 CSIPHY, Gen2 CSID and
-> > VFE 17x implementations; the CSIPHY uses the SC8280XP lane register
-> > layout. Add CAMSS_8150 to the version enum and to the shared code
-> > paths, then add the per-block clock, regulator, power domain,
-> > interrupt and interconnect resources.
->
-> That's odd. sm8150 and sm8250 are proximate both seven nanometers
-> sc8280xp is five nanometers.
->
-> PHYs are about converting the analog to the digital domain and so
-> process geometery - ends up making a difference.
->
-> You can get the PHY init sequences here:
->
-> drivers/media/platform/msm/camera/cam_sensor_module/cam_csiphy/
-> =E2=94=9C=E2=94=80=E2=94=80 cam_csiphy_core.c
-> =E2=94=9C=E2=94=80=E2=94=80 cam_csiphy_soc.c
-> =E2=94=9C=E2=94=80=E2=94=80 cam_csiphy_dev.h
-> =E2=94=94=E2=94=80=E2=94=80 include/
->      =E2=94=9C=E2=94=80=E2=94=80 cam_csiphy_1_0_hwreg.h    sdm845
->      =E2=94=9C=E2=94=80=E2=94=80 cam_csiphy_1_1_hwreg.h    sm8150
->      =E2=94=9C=E2=94=80=E2=94=80 cam_csiphy_1_2_hwreg.h    sm7150
->      =E2=94=94=E2=94=80=E2=94=80 cam_csiphy_1_2_1_hwreg.h  kona/sm8250
->
-> https://git.codelinaro.org/clo/la/platform/vendor/opensource/camera-kerne=
-l/-/blob/LA.AU.1.3.7-02900-gen3_gvmgh.0/drivers/cam_sensor_module/cam_csiph=
-y/include/cam_csiphy_1_1_hwreg.h?ref_type=3Dtags
->
-> So yeah going by the name that's CSIPHY 1_1 same for sc8280xp and sm8150.
->
-> Hmm so much for my understanding of how dependant on process node these
-> sequences really are.. perhaps the PHYs area fully synthesizable in RTL,
-> probably.
->
-> Anyway.
->
-> The one thing to do here is to please _verify_ what's upstream now
-> against the tag provided there.
->
-> If there is a divergence then we need to upstream a 8150 compliant versio=
-n.
->
-> ...
->
-> Actually its fine, did the verification for you, the 1.1 init sequence
-> as is upstream is fine.
->
-> Just please tidy up the ordering of the 8150 switches.
->
-> ---
-> bod
->
