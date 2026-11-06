@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794004381;
-	b=ulcjl4AbMxMd2r5+HsYH/0H5jnxnig3lUlmY5GpYVsanOzt172b/CETdcAv7hOgNorHy
-	 bp+OLtp6BzmCgpcxMpCf/qLPkf2N6XTR2dOFaPzoIiDNwuupx5IxLsqm1V2d5GVAuMNY6
-	 CIOK7LlrceNFnUsWx9ckyY3msEXLOKeYT78PqLzXlusxryXW36c4RiY2STloZaxg6oxv5
-	 U1L9FLL62NVCyooVK/SOKipIYtG2Ivref4Mo940fFaWhbATEbM0ziYggVyIFzuFa1c0a9
-	 jxTWcovzKdSjrnNfu4LzNVAo5DVjrVgkQ7g/I51/UpCBXIdUronMFgrU9fXea7MZbLw==
+	t=1794004483;
+	b=kaacQsNTqXPREL6u9ZiqYxbSi31LEPb7j0KNkNXbjv3+uhGyVQU3alU65E/vo/A3AGmg
+	 UZh5YTubI0ExCnZdQtjJqMgkqy9uUVmrVKnQWtDUvrsWHNmEGQsob/vBtXCrR69/4ykNQ
+	 e1BxhJtxyRHdA1EYHwKO8XZQWAmKr+64JGxbvE+kVZJIHL62SiUWm6M1N7MrCuashVaKt
+	 DAGR/5HhxymeLCHQYlCFsENFayRhAQ6t0syDL8EBxDmvWuvOCbDdgOJXFBngFKr5zUqQh
+	 fZCr/8QitNBgUrHwtxVF5yALH0jLpV1mpDQ4Z8dsueWxbywvHg8rw+O1ulrtNUsOSRQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794004381;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794004483;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=2+q+v1jhfTi1dqHhpWP0G7ARYW151hdrkBAttGROBKQ=;
-	b=llS45b46X2FtUaAd0hRWhiWakXQ0SoM9HfGHf7cLwUGLC9uFcE0gc+WssjHNxjJmD1cE
-	 X+lTShQyJ3bI3JEr/XxvaQP7JIGizepLPcrQw8N2hNMHJv+ogzF+kVhmsuPkTEUjqHEXO
-	 tc470UO4gfwavh0tzgh1rsk6ujg24jQ1vDCHC8mm4HA7kyOTYBK6b3A918jk982uSoZ8Q
-	 rPNy3JWjsWcMMAJnQOA2aw8GFxeOMI0wp0ZAud2H/fTYiCud2Jmc7/AX0jL5hDgedA+uU
-	 4MVUBPBcVviyzWP+bSYB6JyP0YYyonlDCz5JjXtsyHYjUMZ03NzgGMLNSo6BuMHrybQ==
+	bh=7Quq3xcYOSiCqP1VWqFYsEpRGnceLb6KT1qUylBV5i0=;
+	b=Sy5SlnLGeCnTmEpkECponiSxXR8AXbMylUG+iaUJSGjHOnFWahJuiGlSPQkFgD2ec7S4
+	 /HG4vugQ+EQ7sKXJyKIZrcuuTxyWvAnhLrNy3VjdyNNCMSjuEox/owCsgwC3Ub3MOeYih
+	 RCFnKzMjs03bf2N+eyK+fBDmiG0r9CngRNmp/ByBjRuwNnaxosd6QmRiWhFbiro8CHcSZ
+	 Zw0KMB2/s+qHxAelpmE+V7XJWvQMdL7oWYYEa0+VnG/P9B386EQf3cdKJ+pRfu3epwidA
+	 hmM+F3pya9fSih3LX/llpxY9E8FJ0XfRSpedqILCeAgLdA0zRySJQi4Jgoy7CV562WA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jCqDvLmO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AmzZ8OtT;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B69606A326;
-	Fri,  6 Nov 2026 22:33:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86AD5606A326;
+	Fri,  6 Nov 2026 22:34:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jCqDvLmO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 132861F0089F;
-	Fri,  6 Nov 2026 22:32:55 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AmzZ8OtT
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 474EC1F0089F;
+	Fri,  6 Nov 2026 22:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794004380;
-	bh=2+q+v1jhfTi1dqHhpWP0G7ARYW151hdrkBAttGROBKQ=;
+	s=k20260515; t=1794004483;
+	bh=7Quq3xcYOSiCqP1VWqFYsEpRGnceLb6KT1qUylBV5i0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=jCqDvLmOi7mKWIYTXQbT3YV0IbscfGb4EhSCA1M04ujQgQaVg0Ylx0gKdpFJzlbyl
-	 cJUbBqpFk0BJXXc0enmi++0dMmTpHOBt6xp+JeszB649Qkv2mOGE21YCeTU4NN28wE
-	 /iGhom/9FbT3IXbTAWreCYbvIKwyYsU6T8qHv3eFTtEeB802AMf+/JAcFEF2VZSt68
-	 Nr8NujhFCfZxDE7b5zTLXWrfjKKendfuGQwkulw9vkgIXgRPyw2poBE053DGXcn6SD
-	 N1Ebd9nsBS8NOhHvr8ew2wwyGToprdxIBxCta9pfUq6Y1OI9ybO8IzlgkpPcQMCg+D
-	 7F98MFG6W3mcg==
-Message-ID: <e1c5faeb-458b-4ed7-9bdc-145a2c09cae6@kernel.org>
-Date: Fri, 6 Nov 2026 22:32:54 +0000
+	b=AmzZ8OtTiadnCnqTnmUrn4wK5gvLMZ/21+/uTceAXFcpx10yAsv6vL/XCaG+oQAAz
+	 GG8ETTHn+3mDP6tim693onHvQTu0ukO5rX+SetNYamzXPk2PuJ9aiyr22RXdrQFTh+
+	 xluvgtWpQyWGAWPpfcuVWgVWOEvt2Qf3Lj88LD0wWpBSx+ofksWsAI9UwLF5Hq2g5z
+	 fcwoVe1cqKVWST2AP4dNdFZ9DXjGlX8HgxAwBRott8f4el6aSxf+QOJuKO8zQc8pXp
+	 pwaiCQqykoBDLGJCoLyEwqB8FYb19ZF7gi9hDlYgV1f8v6CqORqob5l427a4dRMhO/
+	 5BXgRQqdOQ8XA==
+Message-ID: <5d72eff8-ac6d-453c-ac63-db7e30e4a917@kernel.org>
+Date: Fri, 6 Nov 2026 22:34:36 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -52,8 +52,8 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/7] dt-bindings: phy: qcom,sm8150-csi2-phy: Add SM8150
- CSI2 PHY
+Subject: Re: [PATCH v3 4/7] media: qcom: camss: Match VFE lite clocks by name
+ prefix
 To: mail@andrewgigena.dev, Loic Poulain <loic.poulain@oss.qualcomm.com>,
  Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -70,8 +70,8 @@ Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-media@vger.kernel.org, linux-phy@lists.infradead.org
 References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
- <K-dfrm01MH_S8xoeoPRIme4aizF5TEc2Hb5PFkhmtltkZTB-XX7Xe_5So3-0XfgVViSBBlCxS30ui9OdszuetQ==@protonmail.internalid>
- <20261106-sm8150-v7.4-rc1-camss-v3-3-0103e8a0bbcd@andrewgigena.dev>
+ <6n2xSSEPbQQR62rX2-W0NR48vBjFHq10xHuJ_rAoN_4xOC4HaGuHmz7IM49xl6JHRC2cKI_VCfJ_NS_kW3jphw==@protonmail.internalid>
+ <20261106-sm8150-v7.4-rc1-camss-v3-4-0103e8a0bbcd@andrewgigena.dev>
 From: Bryan O'Donoghue <bod@kernel.org>
 Content-Language: en-GB
 Autocrypt: addr=bod@kernel.org; keydata=
@@ -117,57 +117,42 @@ Autocrypt: addr=bod@kernel.org; keydata=
  LKSGEglMpiX07M1AotgvylN5C8fjbouoK+/RAMsXkk8jba6rPfuuXPaDjCyyKn6zSVHETnHW
  3AJbgVY50T8STpnxayBQvWbCvu+6NOEjXCbyaOJig+5l0zlGN9XHjdANXC5HnwmyaGRL9YDq
  Jh2nVXVJDincOdQRdKcJjYLqaOAoWrYWSDi1iZGspHBTDrnOvfMQzzHY
-In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-3-0103e8a0bbcd@andrewgigena.dev>
+In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-4-0103e8a0bbcd@andrewgigena.dev>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 06/11/2026 18:35, Andrew Gigena via B4 Relay wrote:
-> +  vdda-phy-supply:
-> +    description: Phandle to a 0.88V regulator supply to a PHY.
-> +
-> +  vdda-pll-supply:
-> +    description: Phandle to a 1.2V regulator supply to a PHY PLL.
+> @@ -346,6 +347,7 @@ static u32 vfe_src_pad_code(struct vfe_line *line, u32 sink_code,
+>   	case CAMSS_6350:
+>   	case CAMSS_7280:
+>   	case CAMSS_8x96:
+> +	case CAMSS_8150:
+>   	case CAMSS_8250:
+>   	case CAMSS_8280XP:
+>   	case CAMSS_8300:
+> @@ -914,6 +916,9 @@ static int vfe_match_clock_names(struct vfe_device *vfe,
+>   	return (!strcmp(clock->name, vfe_name) ||
+>   		!strcmp(clock->name, vfe_lite_name) ||
+>   		!strcmp(clock->name, "vfe_lite") ||
+> +		(vfe->res->is_lite &&
+> +		 !strncmp(clock->name, "vfe_lite", 8) &&
+> +		 isdigit((unsigned char)clock->name[8])) ||
+>   		!strcmp(clock->name, "camnoc_axi") ||
+>   		!strcmp(clock->name, "camnoc_rt_axi"));
+>   }
+> @@ -2006,6 +2011,7 @@ static int vfe_bpl_align_rdi(struct vfe_device *vfe)
+>   	case CAMSS_6150:
+>   	case CAMSS_6350:
+>   	case CAMSS_7280:
+> +	case CAMSS_8150:
+>   	case CAMSS_8250:
+>   	case CAMSS_8280XP:
+>   	case CAMSS_8300:
 
-Wrong names.
+This patch mangles the thing the patch title does with switch additions 
+for src_pad_code and bpl_align_rdi.
 
-> +  ports:
-> +    $ref: /schemas/graph.yaml#/properties/ports
-> +
-> +    properties:
-> +      port@0:
-> +        $ref: /schemas/graph.yaml#/$defs/port-base
-> +        unevaluatedProperties: false
-> +        description:
-> +          Sensor input. A single sensor is described by a single endpoint with
-> +          one to four data lanes, numbered 1-4. The clock lane is position 0.
-> +
-> +        properties:
-> +          endpoint:
-> +            $ref: /schemas/media/video-interfaces.yaml#
-> +            unevaluatedProperties: false
-> +
-> +            properties:
-> +              bus-type:
-> +                enum:
-> +                  - 4 # MEDIA_BUS_TYPE_CSI2_DPHY
-> +                default: 4
-> +
-> +              data-lanes:
-> +                minItems: 1
-> +                maxItems: 4
-> +                items:
-> +                  minimum: 1
-> +                  maximum: 4
-> +
-> +            required:
-> +              - data-lanes
-> +              - remote-endpoint
-> +
-> +      port@1:
-> +        $ref: /schemas/graph.yaml#/properties/port
-> +        description: Output to the CAMSS CSI input port.
-
-missing split-mode base case definition.
+Please separate.
 
 ---
 bod
