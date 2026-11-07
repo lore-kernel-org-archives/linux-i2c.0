@@ -1,67 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794133167;
-	b=1zQ+YgJ5YjkzRDvLHK9hLfKdNFKB3LUbdBzx4rpRWXiE1+DQ34R6vHxkFXNU6UskeXAO
-	 4l3qcMN0ZD/VGSPu7XDTU+NX3EpmHCDhttCYbjzNx1JiGEiWZLsVbbWAFnyz+gCheTfOB
-	 DkAqamcsCr+Cpa2mcSDrQcrndDkEYKZzllvjnIkwUY+FfBjFaGh2y9qEK3cpRS6pcRm9e
-	 9VKncGDm31L+dWH9uxpVkkJV9UfPApD19OxZpE9D24NFiXRcJjgjuVYTI0ILOhPWRgMTS
-	 VRlyuaXkEKz5MYqycLcgSrIy0qPCvxCd/Z2PbdPPSvFlJqE8+TP3wG132scmfRQvMZw==
+	t=1794133550;
+	b=Q6q9AAw6GaHSkrsQDRqZd4a5uI2IwXrufuCsG5bDCAkLp1BmBSVsLFApCDAaPGCnfSPn
+	 nSUcZQN5eJ34cBqci5bEx6Y6Dlq2/2dbx/MIBFie4c/MHlkWSE5pjecpvQljdXcIC+rPs
+	 fH7Psc927O9LNIFaLIYkiKlo+KD2shGae7A/531KDh+PMtsF4jXkpC9qDAxvHmJSgxwyH
+	 PoN/oKSNMjLldVdNDOr8G6a9qpOdiyczvuwurha45dusDDGGU56AZrChO/ALDJH+jmQbP
+	 xCfEWuOUgEjhFsoy5gc7h022UDE7FXCBUti2Cww5HfNczIFyrS4yaMols8+f5kLLpgw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794133167;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=PpQxkPSco3s1l1g6k6xE1/ySXul2oC8Rp3+HSn9NQlY=;
-	b=LIYbWAhYnXXAEnSFXPchJ8d+15WIRRIhRcgUgazOXCAxlMjtI+b5+CUr/sn+tw7cswSW
-	 O2RetSEtKlmjmPKxfEfVpod7vdvpj2pY0xSby/RMb54x7PwpgiAdwEhwxGnmHRc/qfJEM
-	 pYvB8C9hm5PNfD4AXcpKp8zPgyVkVPEvNywBpG1ETOHpasu4brFDp8OrQt3RoiTLpllVf
-	 oBR/gfVcwfxnBi0HXzA3YqN5hcZjUzzYxfiWgw8AelNQcKwrQ9mjY8CEOl1MJcw5e6x+P
-	 Auh5ISQVJIJ2Sfh+lbI0K3VCWSlgSDZns4gADY+0HGSFbEJzQJGjAWJtaFyGE/tw4Gw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794133550;
+	h=Received:DKIM-Signature:Received:From:To:Cc:In-Reply-To:References:
+	 Subject:Message-Id:Date:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Mailer:X-Developer-Signature:
+	 X-Developer-Key;
+	bh=v1Af1P1P1zbev8CYQkts6hQ+hHJRvEA7sX0TkjFdZnw=;
+	b=QB93FJFObGiWz9VPFNSYb6SOdPmZgicwRHIyaiCLr0CKuzFpm7GFZVXxtGY7JZJImGpW
+	 jLKNxl92hqCBkJgoWc3FrURPMy5BRjkxnCI+8LjrtE+8A/qyBf6apkS1FDrOm/EyiqhNH
+	 vLpk+TZs2pJW1dc0vdDqFU2ljDUYCiZehOqujQ87RRMWNF1sjPSnm2/8/QycKdhPlerkG
+	 hIM3B+m0A80q0u/jBUaIS1KtQuWizQYC3A3dtaH7Hnq1nIImXUnmWUzm9sKskQm2oHKWm
+	 d5p4pUurH5LpasYanuibvPfWO6aJnB5KUqD5pEpDM55SaS9qJtuguR+FJBNpjTGIA5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=IEXWQ+mB;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PNpKxx95;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B5A606A31C
-	for <linux-i2c@vger.kernel.org>; Sun,  8 Nov 2026 10:19:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E2B5A606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 992AA606A31C;
+	Sun,  8 Nov 2026 10:25:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=IEXWQ+mB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=PpQx
-	kPSco3s1l1g6k6xE1/ySXul2oC8Rp3+HSn9NQlY=; b=IEXWQ+mBbOzgPIY6Y0BP
-	ZC+Rj3HVGsEhuIT4uLC5vLLpint7+s+KyHTzqEwiM4s+dO57XeMkGHIkmD7zXwjv
-	qDZXOEu/RwvoMIfW/ujClr1XI608mbUOYUy3oCwrysSWTO6pgSvy8FkW/AkpEiaz
-	c7gcdTdqgI0ND/KF9EXbtHZ2b/5+ph5jJvFOuL0eyCIkskt18I+zAL49UDjfFPef
-	gqGYYjdSyH9iyb78JFAzM31aLy8aUq0hI8CQA3z8opONaISgcwH7phqTwBITlJps
-	IQY9rebsBJxdRGnOGU9gffEMQtZ7Gti5JX4Bd+qHEhpGzysZbB+BHtAOblUfH6a6
-	QA==
-Received: (qmail 2808556 invoked from network); 8 Nov 2026 11:19:22 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Nov 2026 11:19:22 +0100
-X-UD-Smtp-Session: l3s3148p1@CH2rLcFfwo9e20rG
-Date: Sun, 8 Nov 2026 11:19:17 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Linus Walleij <linusw@kernel.org>
-Cc: Dmitry Guzman <Dmitry.Guzman@mobileye.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	srinidhi kasagar <srinidhi.kasagar@stericsson.com>,
-	Ben Dooks <ben-linux@fluff.org>,
-	Andrea Gallo <andrea.gallo@stericsson.com>,
-	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] i2c: nomadik: reduce FIFO flush timeout to avoid
- long interrupt handling
-Message-ID: <avBMpSKHPnsz4vMR@shikoro>
-References: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
- <20261103-i2c-nomadik-fixes-v1-8-655c6af2cb70@mobileye.com>
- <CAD++jLnLz_Y_W3Yg13WNntN=iy8tzxAWN4Z0rr5YnO2QfYdrCg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PNpKxx95
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028201F0089F;
+	Sun,  8 Nov 2026 10:25:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794133550;
+	bh=v1Af1P1P1zbev8CYQkts6hQ+hHJRvEA7sX0TkjFdZnw=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=PNpKxx95tQplb5JM4+uP1TWChj9AbUwLPfociXRfICTLjmxCZsejaOIwW3ME4ie8R
+	 HmFXofTZWu8JpP2MW43DM3+pDXHvi6hiHE17B7I/TUzxhh+fQSFDtDXxMreH/NWSsf
+	 8cyq8mBKLjCB7wDMu2KOl38Yo9G8k7b6ZgzLer+FnR/iTPIzqX1Z+Xk2WojQCfGufD
+	 OhfJx3Z+C4C0m1RWkFRA6otBVj/6VmSmnoH+K1jsr/xbUyatur17pMbrlWXNnaxLqf
+	 kt7iny3qW7m7ps+H9EYZMM7+TR57qqGMlkwl9ookoNI6pROi4I6zbnHf0wMz3GF8FK
+	 WyrbCqg68nmEA==
+Received: from traversing.sirena.org.uk (localhost [IPv6:::1])
+	by traversing.sirena.org.uk (Postfix) with ESMTP id 8509A2BDF03E;
+	Sun, 08 Nov 2026 10:25:48 +0000 (GMT)
+From: Mark Brown <broonie@kernel.org>
+To: Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wenst@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+ linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, 
+ linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+In-Reply-To: <20261103043734.2179858-1-wenst@chromium.org>
+References: <20261103043734.2179858-1-wenst@chromium.org>
+Subject: Re: (subset) [PATCH v7 0/8] arm64: mediatek: Chromebook trackpad
+ supply fixes
+Message-Id: <179406980914.3424803.6201831446824678583.b4-ty@b4>
+Date: Sat, 07 Nov 2026 16:43:29 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -71,41 +69,53 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAD++jLnLz_Y_W3Yg13WNntN=iy8tzxAWN4Z0rr5YnO2QfYdrCg@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1241; i=broonie@kernel.org;
+ h=from:subject:message-id; bh=YiAPZOAOOLU5YOLoZTNzrcCrnz944fe3k/TYLXO5sfw=;
+ b=owGbwMvMwCWm/754w+YLFp2Mp9WSGLI++OmIHPW+E3fsCTvnHlePnZLv27l4DoQUyWulREY6x
+ 286EMfYUcrCIMbFICumyBKXxf2yvuT1Gr6DC9tg5rAygQxh4OIUgImoXGb4X8KwJZIzezXroi7x
+ WYeFpnm4m6/L3b/AvFr18r6k/sLE8wz/M/1VJh02W1fszLh1RtSWKfKXivZ3yAftjY+w65/y++Y
+ 2ZgA=
+X-Developer-Key: i=broonie@kernel.org; a=openpgp;
+ fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
 
-
-> > In flush_i2c_fifo(), the driver sets FTX and FRX flags and waits until
-> > they are reset (these bits are self-clearing). If after the first read
-> > one or both of these bits is set, it waits until both are reset. The
-> > timeout is 10 * I2C transfer timeout. I2C transfer timeout is by default
-> > 200 milliseconds. 2 seconds are much more than needed: as stated in the
-> > comment above, the flushing operation takes just several cycles before
-> > completed.
-> >
-> > flush_i2c_fifo() is called from init_hw() that may be called from
-> > interrupt handler. So, if the I2C controller is stuck and the FIFO does
-> > not get flushed, the CPU may spend up to 2 seconds in the interrupt
-> > handler and cause watchdog timeout or other unwanted consequences.
-> > Moreover, if the interrupt is handled by the same CPU core that updates
-> > jiffies, the loop may not finish at all.
-> >
-> > To avoid too long waiting, reduce the timeout to 100 microseconds and
-> > use read_poll_timeout_atomic() instead of relying on jiffies.
-> >
-> > Fixes: 3f9900f17cdb ("i2c: Add support for Ux500/Nomadik I2C controller")
+On Tue, 03 Nov 2026 12:37:24 +0800, Chen-Yu Tsai wrote:
+> arm64: mediatek: Chromebook trackpad supply fixes
 > 
-> Is it really "fixing" that? I don't know if I agree that this is an error
-> in the initial submission in 2010...
-
-Removed it.
-
-> > Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+> Hi everyone,
 > 
-> Surplus newline above? Maintainer can remove it when applying.
+> This is v7 of my Chromebook trackpad supply fixes and optimization
+> series.
+> 
+> [...]
 
-Fixed this.
+Applied to
 
-Thanks for the reviews, Linus.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-7.5
+
+Thanks!
+
+[1/8] regulator: core: Add "enable and wait" functions
+      https://git.kernel.org/broonie/regulator/c/9f9bcca6adc3
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
 
