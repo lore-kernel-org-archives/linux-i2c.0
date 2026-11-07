@@ -1,78 +1,77 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794060850;
-	b=RzQwQ3AyYbrQusc+HS8tvY18r+UKc2bBORJNEtAz9eJcbsYZGrMzpVwu+eDatwtsTDSs
-	 MHgKdzHrRCOKJOhY5URm/cihJJ2RU5AtEHp87aco37ImAxIqxX2wB4F9yoTbkql6VRaC6
-	 SkfQhXIbCZdzggssBBfkukSr3aOZxlXKHcB807AzttZsn4/XoZI+sTtdQD3NM0BvXf+sx
-	 gviDGBnwZdfBT4emF9rAKcBJb98aLxK7nLWsP4uSuHJxumICwfTb0aFhBJTXJ+YsbWSws
-	 epiSV2qZFuCmYYWf2qkOGKm3Lk52YvCoYlVK2Qhpm4pEDEUlg66veCVeCTGePYDPXAw==
+	t=1794061080;
+	b=Sv/37TaacL1iROSbv6c6VS/DIHyyCTWrbyMel3kpukV6Zi9QTz//Ypbmoed5sEfhtqty
+	 l8ZlFs13KRMH8loj4ZnTNjL5YPpHo5V/YzT3buJrSfNSuAqskuzYwEB2sGcsiBYkAVn+o
+	 6g4GQHsyW61me4Y+XbM9tB7tkNJFa8YgIU/WkT6Aueeb5EVCEThyWLD4IV5kDf2jm7G0v
+	 aItepNoe9hq7BJPyVwRC2xb4MkuCIVJNP7OueuTsnc9f3OZW+Wa4Wos6ICuHOmhVlSzjn
+	 DP/je6/j/Cutlw39EDrcaYV/o9WO0SNipDM4oJr2K6p3v5RvtPRecKM4mB3T0IzExvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794060850;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794061080;
 	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
 	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
 	 Content-Disposition:In-Reply-To;
-	bh=DBMcm3MQt3rFtazZpSgZ4Roq5LuM5LuAD32o736vMeU=;
-	b=2cJpveDEAAmal0XB71/uD3OyTwMOiiUKVnx8965tT0FTjKbmfTbuff/zG2Zd51r1jdwQ
-	 lBDSgk4Nz/DJ4eUbQ+1Tr4Yvw6EzWJErzErVc1qsKsUmVmoYsIvUQtphSNEzxU6jbZeB4
-	 sQqlmWE5wqBSWnPzpSka1fZLouDtgT78XaRVuT4u1bNwUht3+BuUWje7zRK60bIvQXJ1F
-	 604wef7kOhjdXSfZmfUu1MpCE6eaSX5MWvoESMTKPMMK7+Aq6a+iWvrfZws7867LRKi6R
-	 Jt1OsaLQlySq2vlXe5XNrQcL+JB7c4KQJV9L6Lak5ll+k9sngaySwDZiVHReKqWKodQ==
+	bh=dckQmDGK51xUYXkNanlmrWOkBlG7G8NjEFbm3i1p930=;
+	b=yEmsN+qZi58dft6/gry6/2t1IWwDh+tT7EbUfqK+UaKJ/aQKp4y10nIiC14ox3upB6Pa
+	 G6sB4PxkRB7gFYgpSYd7a6FbEPXuv96ENw8e57OVNqSw/wSKRThJKd3gQVmm9b9/Slpib
+	 8mzGa7nnsHhinkJs3weMBXgsEKcSxxzvBLPI/E1Cdx0t1Qw9UVxzKdjbB2Hn0K+eW7YBr
+	 AHfYd2GE3xLON6SvP94d1IH/Dkl+/HkZrJO9FUD5+q179NjuHxPjCx0fz67Eg182q5B5l
+	 JxhEVjeL/FIPOooRTDFOmUI6WBiMFbtd2SdOw7A+Jw04d/Bl1pE/rmAH0wANzbB5E1w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=sang-engineering.com;
 	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=LP1Sjd95;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=B+p524o8;
 	arc=none smtp.remote-ip=194.117.254.33
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0727D606A33E
-	for <linux-i2c@vger.kernel.org>; Sat,  7 Nov 2026 14:14:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0727D606A33E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A8E606A33B
+	for <linux-i2c@vger.kernel.org>; Sat,  7 Nov 2026 14:17:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 85A8E606A33B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=LP1Sjd95
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=B+p524o8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=DBMc
-	m3MQt3rFtazZpSgZ4Roq5LuM5LuAD32o736vMeU=; b=LP1Sjd957bnsCYYNwmid
-	tnXPzkXLU9WjO7PrxKfLGp2Memt2xtgldHuJjte2xxhlmzIakSm1tR2544isJ0aS
-	gENrQYPI6UGMOZeeal3xYPXpFTXXxHnyCK7Cu6oHTU6iz3vyZaPO0XQzZbrI2En5
-	UcGUCs7bwsBtEcK3I24kv9prD1h6UnjwUc7z5fYj7hXPvUFNc42Sw9KltLhy5xUv
-	1FQICatg9yuwyiSWhaTE7rZqrjzp2e9BYBZshwNCmXdi/yUcTCL1rnY4oqTfpBND
-	RXk/ciSddnF+0ee2y1B0TmH+Cqxx/Lheair+MwvZzycx10FoCgXXF3gc7buBbmot
-	Og==
-Received: (qmail 2528043 invoked from network); 7 Nov 2026 15:14:06 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Nov 2026 15:14:06 +0100
-X-UD-Smtp-Session: l3s3148p1@/U5RV7BfEO0FFu4j
-Date: Sat, 7 Nov 2026 16:14:03 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=dckQ
+	mDGK51xUYXkNanlmrWOkBlG7G8NjEFbm3i1p930=; b=B+p524o8hVD3mkP/wnxZ
+	pI+Lzdcoftxh6e5lsWJxeI1PiOgJOh41R22uH8zFRCGxXbwnoBrZbRkXyRoqF6kd
+	aQLuTHvOWZet7z6o0iqXZN/VWaAKc1MdAV/MlfveYZ0nf6GsyZjJMHUFJZgeX8xJ
+	xafeKQI2DIuRLy4Sg4LXTKdSYsbiGgd3SsQJdvv0C5JvtPS5LAHdrf1VMKKdwTeV
+	dc1KAXlzZufLrMOpYArulQlzqf7EsoPiCd/UFK9JSBE+3L3a4Vz1ImML/ZUWFf0K
+	I5bOUACAqLrb4vtD/tcMs1jl7y7APAUL1NbK/2L5hBD/Y9TO4jfwifK4nuaqEtzD
+	tg==
+Received: (qmail 2529595 invoked from network); 7 Nov 2026 15:17:56 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Nov 2026 15:17:56 +0100
+X-UD-Smtp-Session: l3s3148p1@U4cnZbBfNrkFFu4l
+Date: Sat, 7 Nov 2026 16:17:56 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: mail@andrewgigena.dev
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
 Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
+	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Bryan O'Donoghue <bod@kernel.org>,
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Abel Vesa <abelvesa@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	Vinod Koul <vkoul@kernel.org>,
+	Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>,
 	Neil Armstrong <neil.armstrong@linaro.org>,
 	Manivannan Sadhasivam <mani@kernel.org>,
-	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>,
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+	Suresh Vankadara <svankada@qti.qualcomm.com>,
+	Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
+	linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org, linux-phy@lists.infradead.org,
+	linux-phy@lists.infradead.org, linux-media@vger.kernel.org,
 	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v3 1/7] dt-bindings: i2c: qcom-cci: Document SM8150
+Subject: Re: [PATCH v4 1/6] dt-bindings: i2c: qcom,i2c-cci: Add Hawi
  compatible
-Message-ID: <au8yK11wC6Tyvcuo@shikoro>
-References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
- <20261106-sm8150-v7.4-rc1-camss-v3-1-0103e8a0bbcd@andrewgigena.dev>
+Message-ID: <au8zFKCFkO_KCdHj@shikoro>
+References: <20261106-hawi-maili-camss-v4-0-d528c7a797b4@oss.qualcomm.com>
+ <20261106-hawi-maili-camss-v4-1-d528c7a797b4@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,19 +83,21 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-1-0103e8a0bbcd@andrewgigena.dev>
+In-Reply-To: <20261106-hawi-maili-camss-v4-1-d528c7a797b4@oss.qualcomm.com>
 
-On Fri, Nov 06, 2026 at 06:35:33PM +0000, Andrew Gigena via B4 Relay wrote:
-> From: Andrew Gigena <mail@andrewgigena.dev>
+On Fri, Nov 06, 2026 at 12:20:42PM +0530, Nihal Kumar Gupta wrote:
+> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 > 
-> Add qcom,sm8150-cci as a CCI v2 compatible, with qcom,msm8996-cci as
-> the fallback.
+> Document the Camera Control Interface (CCI) compatible for the Qualcomm
+> Hawi platform. Like other recent platforms it requires two clocks, so
+> add it to the corresponding clocks constraint as well.
 > 
-> Signed-off-by: Andrew Gigena <mail@andrewgigena.dev>
+> Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
 > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
 
-Andi, also no driver changes, qcom tree?
+Andi? qcom tree?
 
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
