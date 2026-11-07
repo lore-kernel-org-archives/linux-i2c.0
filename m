@@ -1,64 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794065860;
-	b=sJiDkNkcp2HexfHBUpCWU1qvU+2Zm7z66qX1eSmC4sZb/M9ixdyX75BPQRtxyxyeW6rQ
-	 b4tNzvZi+vbHQbTK9m4AlD3AwOd7HdoFyjf9+VhZhceeiY+OPaUnLUVd6bN7jtMUoqLP5
-	 exOmrlYc5dqXrIf8CB0fHMZlojJ7qG+827fHczZYsJ2A0P2HR6F/Pw3ZaPo5t0fsj+ZEa
-	 UW2exfqkZxgY7U5FrOis8yrh4I0rW0f+DQ8GKnm56T/Dn7v7nJE5CDsrT4clkNrg/CRMO
-	 PpYEc59DmeqhsTdZNNKeyizbJQby5lokLgtC37pIeeRNMywL04yk2GtFXqvx5lSwPoQ==
+	t=1794075147;
+	b=bJHLYqBeHzUbT1y+2qyq1duRbsalnwZeP1QIpv6LVCkWMyZDhjq5cXNCAA8VJfDtDlEE
+	 E0oqT8UWFsSvJtQoQr6+wafYqoYKvD7weeq2l+dczQZGRLcmskFCq1TIQ0slPGUxWNJ9H
+	 HcaXhzdLLDAPfmZ34RfG+ylE1X9vuIxZjR7hIqzrd2j5RsBVhNO9Ekw123SNoTOgUYlrO
+	 rHIkBZ09dDaKbEo748h1v+ORVmaPQLsRh9DnWf1zGodU1G0Xvce/uIQvARURJ49ousVJ1
+	 yVnIWKQKjonuj8eIi8IqcZOuZOR4dz7r3sCZIxAK+F8EW8ICwnltaImdoF0BvrQasTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794065860;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=kNaslowQoeUv0bfP4j0Xm9HOBoRuR1efd9BxtBHbpGQ=;
-	b=dlTSNuhYKSf5MPFN1Ahftch9vhnSZBUth2AR6XHhpSURPTkNRUkmrrPXaYXjGxGU27qv
-	 pkLFDgeNFkTkfVPnNHIRZ0tX4bGPdYkzH5cKYw4mnUBxRPCe+vgOkN9aQI8taS1Puv/B/
-	 S8MV1qJeXCPwb9UQt3FMYLopAhCSgZSKG0xdoRvo7N4G6LuZGOSGVmVWVm4s+qYTIOYTZ
-	 THX9KcC3f2oadPndcuaBTuH99be13y2mNijJkxyyRhyMyHTgDgi5wU/V3UsEMqvJRU0lP
-	 d3cClU3zlu2v39R3VYvLiIXBpl9ffGMGy6DKdXOUOTeYPyykfBoZ9xH0N/3R9zzbYPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794075147;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=4R2s70KmYw92u+iVJhGjnlNSdaRf1beLlhZJ6ki9VqY=;
+	b=LJWl1s/BQAOk9aNDP0T14J8l8x4t9UvZ6Kjca7Fn6XrHdm4M/6p2MjiZ2GJzLOKWVUPx
+	 gBGAi9OQxlve2iOkoqygbPq4RKicrT+OxGZUIKc+zmZJU4ioWjl4pWWjjB1dXRfLU3FYp
+	 0E+E47kpD4lYMVDCDgFx5a9L2KqVooaja7826m+vmvDFz/km1iIeolmz9QQES3QVE86IB
+	 kjsWqmZDJkKq28O7+okYwB4vDvUTZlQSwasJTDk1MM73JUVJA2jP7M4Mtj+ZysSl3rTvG
+	 SiSPMEnFpsQL9rRpEVltYVKxRzRNK8Z+sTj4tPSsZHaD56a5bnIFoTSyBZ2V2i+Gwqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=AeaqMbG8;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m148RFx6;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D97D160A260B
-	for <linux-i2c@vger.kernel.org>; Sat,  7 Nov 2026 15:37:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D97D160A260B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B29E606A326;
+	Sat,  7 Nov 2026 18:12:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=AeaqMbG8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=kNas
-	lowQoeUv0bfP4j0Xm9HOBoRuR1efd9BxtBHbpGQ=; b=AeaqMbG8y/YS9tomKvny
-	XqNLEBDcn0nymD5CDoJ/H246icerH6id8jJ6b9N3gy8tEb8eLT8QZlGIC2FL49yD
-	Z6XvzB5gvZKAf/+3SvT+hMO/kjoPYZY2m24vg8L+RuViClFxGJqBQFZTySXG89gU
-	kNDjx2FCCM9BzcMrEmEr9Tuj+ySo2Qr/y17KCoyOvQZlu/+A4g1VYfqowLCVyTMs
-	3Rj+8hsT1bssxPFdI8f7jUdub39By8xq5ArEsE84f3FxAturutSNy+Ugcus/bm0u
-	DvILwGR/X9cTfcgnnyTQkiB9lEdwV8edjwNot568thRB4Of3DQWALax+XWHqqxa4
-	og==
-Received: (qmail 2547555 invoked from network); 7 Nov 2026 16:37:32 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Nov 2026 16:37:32 +0100
-X-UD-Smtp-Session: l3s3148p1@kO/RgbFf/MQFFu4l
-Date: Sat, 7 Nov 2026 17:37:31 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Umesh Kumar <ukumar@marvell.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	bbhushan2@marvell.com, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6] i2c: designware: Enable SAR in slave mode for
- Multiple SAR controllers
-Message-ID: <au9FtxBvemLIa7S_@shikoro>
-References: <20260804041842.3205356-1-ukumar@marvell.com>
- <20260818144306.357243-1-ukumar@marvell.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m148RFx6
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66B0C1F0089F;
+	Sat,  7 Nov 2026 18:12:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794075147;
+	bh=4R2s70KmYw92u+iVJhGjnlNSdaRf1beLlhZJ6ki9VqY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=m148RFx6G+Es5ZDhvyOZ7tVHK7SITgNjNLNFccWfPi+wNTMXPyUmzc2XwbRtdy7BD
+	 7OSMMjZOyjMrCTwePXhXTZmwEEXz5U9rjI+I0XLO4QSpCkbpRkVyHHKuFv7JcCD01v
+	 7KXWbzJb4bhFZgYWzzVqn0sAvUOkvcP/pPhcmUZTySs3G1iM0oWugvuO+DAr5KAr+H
+	 RrGcoZ+WY7QAYIxTcid78LYB+63WljhJd7JHrBM/N6nmgz+GcR33QVBPZB11scF9gQ
+	 7ttF0LYXZRHTXczHwiccxUvaaQnQiXC22gRgiPQvEGQJnnC+N9KFZTYx98c6SGrzRs
+	 xHWVCp8+jirrw==
+Message-ID: <a3be2e35-13ee-4e8a-b231-5aa0326f6933@kernel.org>
+Date: Sat, 7 Nov 2026 20:12:19 +0200
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,56 +51,172 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="otxvpO2v3blHEoyL"
-Content-Disposition: inline
-In-Reply-To: <20260818144306.357243-1-ukumar@marvell.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] arm64: dts: qcom: sm8350: Add CCI device tree nodes
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>
+Cc: Robert Foss <rfoss@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ devicetree@vger.kernel.org
+References: <20261104230529.3040285-1-vz@kernel.org>
+ <20261104230529.3040285-3-vz@kernel.org>
+ <CAFEp6-3x9P7Q3+RESpMo7mKNYqn6ed0XswSJhhr1nFyHg-w22g@mail.gmail.com>
+From: Vladimir Zapolskiy <vz@kernel.org>
+In-Reply-To: <CAFEp6-3x9P7Q3+RESpMo7mKNYqn6ed0XswSJhhr1nFyHg-w22g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
---otxvpO2v3blHEoyL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Loic.
 
-On Tue, Aug 18, 2026 at 08:13:06PM +0530, Umesh Kumar wrote:
-> DesignWare controllers synthesised with the Multiple SAR feature (e.g.
-> Marvell CN20K) gate the primary slave address behind IC_ENABLE.SAR_EN
-> (bit 19). Per the Synopsys DW_apb_i2c DataBook v2.03a (Multiple SAR
-> feature), when this bit is set the core acknowledges the address matching
-> IC_SAR; otherwise the address is NACKed. The slave enable path writes only
-> IC_ENABLE.ENABLE (bit 0), so on such controllers the target never ACKs
-> its address and a remote master cannot reach it.
->=20
-> Set SAR_EN together with ENABLE when entering slave mode. The bit is
-> reserved (and ignored) on single-SAR controllers, so existing users are
-> unaffected.
->=20
-> Signed-off-by: Umesh Kumar <ukumar@marvell.com>
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On 11/5/26 10:37, Loic Poulain wrote:
+> On Thu, Nov 5, 2026 at 12:05 AM Vladimir Zapolskiy <vz@kernel.org> wrote:
+>>
+>> Add Camera Control Interface (CCI) controller device tree nodes and pin
+>> configurations of the I2C busses to SM8350 SoC dtsi.
+>>
+>> Signed-off-by: Vladimir Zapolskiy <vz@kernel.org>
+>> ---
+>>   arch/arm64/boot/dts/qcom/sm8350.dtsi | 147 +++++++++++++++++++++++++++
+>>   1 file changed, 147 insertions(+)
+>>
+>> diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+>> index a51942c99f8a..41dff3736061 100644
+>> --- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
+>> +++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+>> @@ -10,6 +10,7 @@
+>>   #include <dt-bindings/clock/qcom,gcc-sm8350.h>
+>>   #include <dt-bindings/clock/qcom,gpucc-sm8350.h>
+>>   #include <dt-bindings/clock/qcom,rpmh.h>
+>> +#include <dt-bindings/clock/qcom,sm8350-camcc.h>
+>>   #include <dt-bindings/clock/qcom,sm8350-videocc.h>
+>>   #include <dt-bindings/dma/qcom-gpi.h>
+>>   #include <dt-bindings/firmware/qcom,scm.h>
+>> @@ -2830,6 +2831,88 @@ videocc: clock-controller@abf0000 {
+>>                          #power-domain-cells = <1>;
+>>                  };
+>>
+>> +               cci0: cci@ac4f000 {
+>> +                       compatible = "qcom,sm8350-cci", "qcom,msm8996-cci";
+>> +                       reg = <0 0x0ac4f000 0 0x1000>;
+>> +                       interrupts = <GIC_SPI 460 IRQ_TYPE_EDGE_RISING>;
+>> +                       power-domains = <&camcc TITAN_TOP_GDSC>;
+>> +
+>> +                       clocks = <&camcc CAM_CC_CAMNOC_AXI_CLK>,
+>> +                                <&camcc CAM_CC_SLOW_AHB_CLK_SRC>,
+>> +                                <&camcc CAM_CC_CPAS_AHB_CLK>,
+>> +                                <&camcc CAM_CC_CCI_0_CLK>,
+>> +                                <&camcc CAM_CC_CCI_0_CLK_SRC>;
+>> +                       clock-names = "camnoc_axi",
+>> +                                     "slow_ahb_src",
+>> +                                     "cpas_ahb",
+>> +                                     "cci",
+>> +                                     "cci_src";
+>> +
+>> +                       pinctrl-0 = <&cci0_0_default &cci0_1_default>;
+>> +                       pinctrl-1 = <&cci0_0_sleep &cci0_1_sleep>;
+>> +                       pinctrl-names = "default", "sleep";
+>> +
+>> +                       #address-cells = <1>;
+>> +                       #size-cells = <0>;
+>> +
+>> +                       status = "disabled";
+>> +
+>> +                       cci0_i2c0: i2c-bus@0 {
+>> +                               reg = <0>;
+>> +                               clock-frequency = <1000000>;
+>> +                               #address-cells = <1>;
+>> +                               #size-cells = <0>;
+>> +                       };
+>> +
+>> +                       cci0_i2c1: i2c-bus@1 {
+>> +                               reg = <1>;
+>> +                               clock-frequency = <1000000>;
+>> +                               #address-cells = <1>;
+>> +                               #size-cells = <0>;
+>> +                       };
+>> +               };
+>> +
+>> +               cci1: cci@ac50000 {
+>> +                       compatible = "qcom,sm8350-cci", "qcom,msm8996-cci";
+>> +                       reg = <0 0x0ac50000 0 0x1000>;
+>> +                       interrupts = <GIC_SPI 271 IRQ_TYPE_EDGE_RISING>;
+>> +                       power-domains = <&camcc TITAN_TOP_GDSC>;
+>> +
+>> +                       clocks = <&camcc CAM_CC_CAMNOC_AXI_CLK>,
+>> +                                <&camcc CAM_CC_SLOW_AHB_CLK_SRC>,
+>> +                                <&camcc CAM_CC_CPAS_AHB_CLK>,
+>> +                                <&camcc CAM_CC_CCI_1_CLK>,
+>> +                                <&camcc CAM_CC_CCI_1_CLK_SRC>;
+>> +                       clock-names = "camnoc_axi",
+>> +                                     "slow_ahb_src",
+>> +                                     "cpas_ahb",
+>> +                                     "cci",
+>> +                                     "cci_src";
+>> +
+>> +                       pinctrl-0 = <&cci1_0_default &cci1_1_default>;
+>> +                       pinctrl-1 = <&cci1_0_sleep &cci1_1_sleep>;
+>> +                       pinctrl-names = "default", "sleep";
+>> +
+>> +                       #address-cells = <1>;
+>> +                       #size-cells = <0>;
+>> +
+>> +                       status = "disabled";
+>> +
+>> +                       cci1_i2c0: i2c-bus@0 {
+>> +                               reg = <0>;
+>> +                               clock-frequency = <1000000>;
+>> +                               #address-cells = <1>;
+>> +                               #size-cells = <0>;
+>> +                       };
+>> +
+>> +                       cci1_i2c1: i2c-bus@1 {
+>> +                               reg = <1>;
+>> +                               clock-frequency = <1000000>;
+>> +                               #address-cells = <1>;
+>> +                               #size-cells = <0>;
+>> +                       };
+>> +               };
+>> +
+>>                  camcc: clock-controller@ad00000 {
+>>                          compatible = "qcom,sm8350-camcc";
+>>                          reg = <0 0x0ad00000 0 0x10000>;
+>> @@ -3348,6 +3431,70 @@ tlmm: pinctrl@f100000 {
+>>                          gpio-ranges = <&tlmm 0 0 204>;
+>>                          wakeup-parent = <&pdc>;
+>>
+>> +                       cci0_0_default: cci0-0-default-state {
+>> +                               /* SDA, SCL */
+>> +                               pins = "gpio107", "gpio108";
+>> +                               function = "cci_i2c";
+>> +                               drive-strength = <2>;
+>> +                               bias-pull-up;
+> 
+> I had similar comments on a different platform, but why pull-up here
+> (for SCL/SDA)?
 
-Rebased to top-of-tree and applied to for-andi.
+Here the setting was literally copied from the downstream pad configuration
+of CCI SDA/SCL lines, likely the same has been done for other platforms too.
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Do we expect boards to lack the external pull-ups
+> required by I2C?
 
+The I2C spec requires pull-ups, but I believe it does not require external
+pull-ups explicitly, so there should be no contradiction with the spec.
 
---otxvpO2v3blHEoyL
-Content-Type: application/pgp-signature; name=signature.asc
+> If not, enabling the internal pull-ups seems
+> unnecessary. Also, what is their effective resistance on these
+> platforms? Aren't they typically too weak to meet the rise-time
+> requirements of most I2C modes anyway?
 
------BEGIN PGP SIGNATURE-----
+Likely you are right that the internal pull-ups alone are too weak to get
+the I2C bus functional on higher bus speeds.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmrvRbcACgkQFA3kzBSg
-KbZ0kA/9HOpfN/5gR7JFrLk4jTuxgQt+7c1i1XxW67VAhV5ZKDSofwJDgnWSbfen
-OZWWLEob2CoM0NKUrzebP+rRFG5MoCGEZIgEqCvX7OrhBRRDyIzcqd/FrC/PKOSs
-kwlnQZlzkB4j2Jf4CIxaufvnFahkUQ2b/INcKSJuD7qnddNDw9GVhFMJfZSZ+Pmm
-NQ4qYcc53O5jflaFVcA9lSnW/mDpHZm1dVnvH0IH2kj3dlJC/loPczOnK1KGquNN
-h6/v50uTNdav4298nBbMo8igleloGUNS6QjlkVO6+UTG5KkKr5pu+/SVnV5iojSK
-16cWgx4LLC5ndiw7I7JCpkdPEahpKytY1cpJmt9rlYWuuepUe7/nLdk2HUlmor8V
-iLrY1HrqvBbrDtbsMAyRkSX+mHSpS+7v2tNwQkuPjPW7rJs1CrQ57jU3lYChzoau
-s/LfzBL+Sxb3UhdgSWnkvifrYLCVHr7XoL9yzhjr0afpsUEZx0MVaBS5bw546Aax
-G7ZKh/BLJQsy9sDzVbgSaJmZfD/liTfJ4nZJKVB7aNljAGyZfMvnFvGeJsRPFkbV
-GCXFkN+WL/H8PerQ8H4Wp2AA5+xJHNzDra9PmVWakLlHS19C4CbkOaQvK/qGaplz
-hFp+x2qdz8a5s/lr1gV/LJsgGamCd7b2UrCi84Ae3d5lN0teoGs=
-=DoK9
------END PGP SIGNATURE-----
+What's your preference on this subject, do you wish to see 'bias-disabled'
+instead? I won't have objections against it.
 
---otxvpO2v3blHEoyL--
+-- 
+Best wishes,
+Vladimir
