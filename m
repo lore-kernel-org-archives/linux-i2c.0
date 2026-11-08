@@ -1,59 +1,65 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794144894;
-	b=LXXkkpbxIa2lridH2I47mnBBRcMrvxBlM/gicS+KvMQCRAG1Hs4GutsSPSNIHKl9W4ww
-	 KTHzif2MPub93zOtILNs/Bv+FnP+ucaVwAO0EbQ/ti5oxsVF9WkYfnEbAVYPEz3a9aIlP
-	 yu0vahfHDFc9ygKV7uexrS1jPlbyBme7fgnVbFn0yafGRGloalBGuQwI34igHMqvQWi41
-	 z0l+X4/lTnECaWXyLV6dObV0AqyYZPrSzvOn7R4AcH2IuP2+Tc+El7hTVGxNJpXrJroCe
-	 CbPWz3rtUMmyHtQBGK8ebY2w3GZcIt99tFWfWj45cXRxwenLJgTk3tA0wJdX+AErQ/g==
+	t=1794145236;
+	b=avWVO8nFYj3x7tbXeCQdvaVAwzwj2khPEh0fqE1XjfjBbQzuLjpU3z5hyaopBVrP11bY
+	 WaniPL37aPkfTUZq8zFvPI44jPWI+uQacvFp9sKF3Kgvmq6+nnPuDRX1JE5XIid1rlVdi
+	 uug0i6iWZaux6v3HQsxGsoMSS4jBu1jX2VIQoaCAFhzn4HK4bNH+iX9eWoeRbKX21aq2s
+	 Wiy7wSX1BIXz6Z1hZVul4WvpDD/r8NdDTMP6nDWPQscNUInq+rbGnHC5PDLroGS4cH9aG
+	 JzsmjnLcr1LtP9mSd9KcBeUGHbGJQJCveRtboW8fRg8A5HgoRq2ugtu5z2ctJryOjCQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794144894;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:From:
-	 To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=CJdjs9FWEhmZa2bkCXkn1D4xq6493UaFSNFcODg3JGQ=;
-	b=xv6nbXpRQOJrck2sjbjyONDOo/JX8/qya3KqSuXf8qnZfU13aOP8a6JCxthoIr3FnAX/
-	 6QnPWyRGILPzk9ZUCHLCZIp9XUdCbS1gla7NzKDM9pB74us84Yw7NsEWuEDILf+0iHhN5
-	 30WUOxrj59SyNlaaxtSrcMrIBx1kR2l4R5v9Qpgg5WQNoQ7SLSi4SyF1G8M96D8sTQQie
-	 RsexqQ9nuNEVu3R5fqiAfu0DVDQWj1sFi+XGiAUBp+ilHJYSyjFL5H5Xe3uxrVkYPGaqq
-	 WX/UY3zFFA+w0wSmMiGi6B7AJTmjPEjgZlc8oKXNrvWI9YkRJEKlzQBxMyKua5eBmug==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794145236;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
+	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=5+ZiTVjgAoY9WmiLtiGcJ45ZbwJkkM3n8rvr9vPsvlg=;
+	b=aDDVy4qiL4fWGnpGXZLuV2Ve9VaRYjpVzNHVaLF7HA+JyHcOzpb7PcLTfU1lV9gji8Iu
+	 C6bfEA8crSqff+FJcsfYEqmie5jjrhrBWrEU3i5EI79OPwIMG7gMzs6j+hWyRyn3e2lJK
+	 mKJzjw6s/N0zCCoiggOa6FPLLwXbggTNkBa9XOA0AfPkD1eiE8h+CPGh1XKwQn4z1NRDl
+	 AJdzyQwm9mvjMsoDn3uc2I1J0jUTo8blx2rHZ1EoFtjCPhOA87MQoAa+UvoROrTBtV+UP
+	 OXoqC8LX7euKzJTpw/tCE9/6Y4n/1svAiJ1kbtyY/+9CMcG4q66HC/14216rmCpf5aQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=sang-engineering.com;
 	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=XHTqguvW;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=mIEk0dTp;
 	arc=none smtp.remote-ip=194.117.254.33
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68CFC606A31C
-	for <linux-i2c@vger.kernel.org>; Sun,  8 Nov 2026 13:34:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68CFC606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E33F606A31C
+	for <linux-i2c@vger.kernel.org>; Sun,  8 Nov 2026 13:40:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6E33F606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=XHTqguvW
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=mIEk0dTp
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=CJdjs9FWEhmZa2
-	bkCXkn1D4xq6493UaFSNFcODg3JGQ=; b=XHTqguvWZ9ONm6KfNVpeThbk3YtSuy
-	TI0giGeA4pTP76nFs831P8683rppoUN7b4KFw3f38bY4R7zB9/mCfUY5mu6GTgE2
-	6RZFlbBHNsxF8BuvTA7fJPnoEYNBEtAoHtDdy4KRXGa/Dc5GISxXfEdR95KjiEf9
-	ixmKe7V95quEiFL4cYa1C1sfth04hfO5JkTU8I61oyEDHHTwQYm0FMUFieO9CWe5
-	KUXqlcCgh4mw5ySgjmFkXsxvCa/78aoS+VjlZdpfiQ8iO39+zfFIw2Q3bH+a1dCN
-	0cnemJUajn94rcruoS3dQYhOc8AZ86q27CA+Toko1aFbBDTPaZyC7exQ==
-Received: (qmail 2857347 invoked from network); 8 Nov 2026 14:34:49 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Nov 2026 14:34:49 +0100
-X-UD-Smtp-Session: l3s3148p1@hNDK6MNf/rIvQDC3
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=5+Zi
+	TVjgAoY9WmiLtiGcJ45ZbwJkkM3n8rvr9vPsvlg=; b=mIEk0dTp18YJ35JWF+5O
+	4qaxeYw3eA5U+8OeO28gg8q1lqalztoGio9OZXZkVtWIs1BPaImu97zKwnXoXPbU
+	Hs+obVeaa/djEPiuCUUoQXYsREgIhx6jjdnBSZCHZXIKI9/LjSI9U9QgJFghTrba
+	xxVWjwfE7geBnQGlXtFyoGh0DItYHaTZl2ge0uE03r47hRgBcN5imKRGVmIcx0xl
+	56yBddTHW1m+NiHGAGmTqgVQ5oF2iisn1qzUo4bAOeywpleWwI1zkZIYH5aj7uL9
+	3frpzWV8v4kAnhuS8ZIGLex3m9Jz1CAbimty0X3cBEHent1cpsQR/usFuK6fhwQS
+	oA==
+Received: (qmail 2859629 invoked from network); 8 Nov 2026 14:40:31 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Nov 2026 14:40:31 +0100
+X-UD-Smtp-Session: l3s3148p1@BZcq/cNfbIUvQDC3
+Date: Sun, 8 Nov 2026 14:40:30 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-i2c@vger.kernel.org,
-	Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH i2c-tools] describe how to do releases
-Date: Sun,  8 Nov 2026 14:32:53 +0100
-Message-ID: <20261108133441.2384-1-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.53.0
+To: "Tandra, Vasantha Likitha" <VasanthaLikitha.Tandra@amd.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"git (AMD-Xilinx)" <git@amd.com>,
+	"jdelvare@suse.de" <jdelvare@suse.de>,
+	"Datta, Shubhrajyoti" <shubhrajyoti.datta@amd.com>
+Subject: Re: [PATCH] i2c-tools: i2ctransfer: Set I2C adapter timeout using
+ I2C_TIMEOUT ioctl
+Message-ID: <avB7yqDZ69juNrXb@shikoro>
+References: <20260720163401.2001860-1-vasanthalikitha.tandra@amd.com>
+ <al6c2VXwLFcNRLu7@shikoro>
+ <DM4PR12MB77657106776BE150FDCCF7C093C22@DM4PR12MB7765.namprd12.prod.outlook.com>
+ <al8Xa6P7YYRwOn3D@shikoro>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -63,70 +69,49 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="5dUM5y6MIi8PrsYm"
+Content-Disposition: inline
+In-Reply-To: <al8Xa6P7YYRwOn3D@shikoro>
 
-When I asked Jean how he did releases, he provided me with this text
-file. I just replaceed the hardcoded version number to X.Y. We agreed to
-put it into the repository.
+--5dUM5y6MIi8PrsYm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Maybe the whole release process can utilize more scripts and variables
-but let us start with what we have now.
+Hi Vasantha,
 
-Kind-of-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+> >   Could you let me know how you would like me to handle this - should
+> >   I keep -T/-R as set-only for now?
+>=20
+> Yes. This is the way to go.
 
-Jean, a formal SoB is missing, so if you could provide one, pretty
-please?
+Did you have time to work on this? I'd like to include it in the new
+i2c-tools version which shall come out somewhen this year.
 
- RELEASE-howto | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
- create mode 100644 RELEASE-howto
+Happy hacking,
 
-diff --git a/RELEASE-howto b/RELEASE-howto
-new file mode 100644
-index 0000000..693d701
---- /dev/null
-+++ b/RELEASE-howto
-@@ -0,0 +1,38 @@
-+CHECKLIST FOR NEW RELEASES
-+==========================
-+
-+Release steps:
-+- Update if necessary, the version number of libi2c
-+  (edit lib/Module.mk and change LIB_MAINVER and/or LIB_MINORVER)
-+  Remember: update main number when interface changes, minor if new
-+  functionality is added, and patch if only bugs are fixed.
-+- Update the CHANGES file (set version and release date), make sure list is
-+  up-to-date
-+- Update I2C_API_VERSION in include/i2c/smbus.h
-+- Update version.h
-+- Set I2C_TOOLS_VER in eeprom/decode-dimms to the same version
-+- Commit
-+  git add ...
-+  git commit -m "Set version to X.Y"
-+- Tag the release:
-+  git tag "vX.Y"
-+- Push to the repository:
-+  git push
-+  git push --tags
-+
-+- Create an archive of the release:
-+  make clean
-+  git archive --format=tar --prefix=i2c-tools-X.Y/ vX.Y > ../../release/i2c-tools/i2c-tools-X.Y.tar
-+- Sign it:
-+  cd ../../release/i2c-tools
-+  gpg --detach-sign --armor i2c-tools-X.Y.tar
-+- Compress it:
-+  xz i2c-tools-X.Y.tar
-+- Upload to kernel.org:
-+  kup put i2c-tools-X.Y.tar.xz i2c-tools-X.Y.tar.asc /pub/software/utils/i2c-tools/i2c-tools-X.Y.tar.xz
-+
-+After release, remember to:
-+- Announce on the linux-i2c mailing list
-+- Add "+git" to version.h, commit and push
-+  git add version.h
-+  git commit -m "Post-release version marker"
--- 
-2.53.0
+   Wolfram
 
+
+--5dUM5y6MIi8PrsYm
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmrwe8oACgkQFA3kzBSg
+KbaY8BAAoyDv9tg4gNqvm+VWc2fU+alnaTXk2SVwSJCXx56UGSER2zRVPeMp6mqT
+yBzdVYao30cFHACNvWfgzsq+v92ItwmhYvKaHcw1HXmi3+cxjXtQY1u+cdEyy2/R
+IfgnWndc2g2bje3/9tC3KSmvsxEQ0fsx/GGVMH3px+qVVc4yASjdbVwr0R34EhvP
+BPlkQFH4kNc2j+n8wb65EKqw+M0zVSD9LnIHchQmqzzGGUd8/IILr9oV/HPS7Btf
+eR2OnibnC9fK9Jj5wQWktYCOTLWLWBR9Ymfiw9Kk04/5QGEXktpX2rz/Wp/yBfPw
+ud8q5WMliI8PesRcJL9AHqwLkz2rq4IxN32830ULZ8AU/Cye/Vm8GaJcDIvUEd0v
+8rAkjVXqv7yq0wMIIbqBDy/foqUVpsm1oKi5nHaU8PYRR5Z5pB3iSy9rkMPRKdRK
+dwn08B6QAFxHkWrPIPtjvR77VWCxxMlWBmF2wJXuT3M45nuZzeJs7H7Ho4mkeqNH
+fNsQhKnQgNWRGYtZ9/o2hqJ8iqzu5drjCRzm/cE2MgbOWfV7uJFLPHavT4z32uYV
+Ca5METQGxQWaaKJSzWvCenZ32jzsy/qYQwx+J8vP7siF1XDVoaq9g4ItrKx1cftm
+cDB7ogEve9gBX1OXSK8wvCqmYeHxLSFM9ojWxh9spH839Z4+qUE=
+=nuWt
+-----END PGP SIGNATURE-----
+
+--5dUM5y6MIi8PrsYm--
