@@ -1,61 +1,74 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794134281;
-	b=eDp4YQ9S0uvlroO1XbHRIhr6J5yw8grKFAK7miN8dlvyjTk2Vkj0STp0qT02lIce0eFh
-	 pgJpsosoGC9xV9iZcG733lStwjPnag74v/d03S7RQfbdPWu6mwsTWJOxZ99G4/WpfFBhs
-	 vB83IxJUncw95vjKFRCgA1qplbVUZprzwopvy+Yiv5+8uKvCeOG5kAdV2c5w7BTauBIp8
-	 HKLwPpfpqathMGTdMgsGFInpHIcsdHZQTCJdFFGp2bWEdn5l0Z+ictH6n+CgUHJAMBWJW
-	 F++XU5lQg5dhWmM6YxTvP82JKnG7j1X3G+2c9xM/5jC2S/A2BFH6/6ngens/bx+crpw==
+	t=1794134487;
+	b=I1Q9fcSqV8UwXhjCrD66FmDZvNUl8nSbkeSRrMD7QFwzfa19YjRQUcRUTZNjzeJ42F4v
+	 PnM+IIo4sQZclO773owkCkqKQwGeTJZaXbcc+Tio7A7tm26iXt65YdIf7AJIzpxlDe/vc
+	 NKzhB06GlHrzQYic6RuNpQD0cy2L8NkVyXxuTIzoCm5x0k/YwSJs9AuiJASLuM7ThSJHM
+	 iNMpsWySNtgZ3WDAiayBlo2sLuMf5MJex5WnoCXlw7vQcOyoyZOpiPKDhcm8owypHpo16
+	 R93mOVe2LVgddcMEliVPn6fJvulMawdP1CIQNlSm+RtpQd1il1PIR2TOo2KBRL1zEpw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794134281;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794134487;
 	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
 	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
 	 Content-Disposition:In-Reply-To;
-	bh=FcBOjOq7ejbonHUCPKTPqD9hNhihUnWssu8YyJCjPOY=;
-	b=vrS9mSPx/ag2vSat2vvngX/7GeFcENqeVWAd0uwLHxEYUlgsEoWe1ko8QQ86Jf1Tu2v5
-	 88a6Vu+plCF640fPUmJ4WY6yhQWuESqHAyh8Vrb7eIa3eVUTQFJh+2ToZ5rYtUQktBXZg
-	 pzcyZC/g2bu+JwJ9jxf97PlHAG1dT7nAycTzkNx+uMhpGvpoGlOfZwgh5nMnlmjJ2x9h6
-	 A6r054ELiZ+Zny//tUY0Ixk8b+T2eXuRUyyg6OhFbRh7W5QdlVVtXxZSn/S8FNbxEYkvq
-	 vxRK7nOejjBdzdq3NM5HNGlqeRDAWUJG1o+4Q1uAPGw8wKtxQkrbu/C9DtF7lF5sLoQ==
+	bh=buOLHq3aXEaLOdh+jel+eyDIOFFbNtd2Ddp+pAzex4s=;
+	b=BsJxFHK5JhHFysy7vajWIV7WbzmFUEyEkUK7INlw2pjjj5g0HjtTFkh4uq/KhOO2kor3
+	 z3w1GxoxuGJj0H2JSp/C4A2X+tcZHw+bSvULte987B5dU7moaTsK3LR+J5l1eOxl1ESVa
+	 537lacCFU5BqnB5Mm8fH3bu3HkXKwMMiuHejvSYV5xGmtiXCkIkpyZd4CEIqUKCVssrvt
+	 W7HvJBY3OgtjKoCj9IdYU3YyXRpicVDW9GexjZbk7UixWtNODbA5t68CLQv7g14bLm6KU
+	 isAFWkfc/J1FML2ShyWgONPdiCOU2e0zPYBi9yQOnshj6Pl8eKin3yeWiDTprUrHRBg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=sang-engineering.com;
 	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=bAI11p8Y;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=AjmhaE8m;
 	arc=none smtp.remote-ip=194.117.254.33
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E560B606A31C
-	for <linux-i2c@vger.kernel.org>; Sun,  8 Nov 2026 10:37:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E560B606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 091FD606A31C
+	for <linux-i2c@vger.kernel.org>; Sun,  8 Nov 2026 10:41:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 091FD606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=bAI11p8Y
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=AjmhaE8m
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=FcBO
-	jOq7ejbonHUCPKTPqD9hNhihUnWssu8YyJCjPOY=; b=bAI11p8YWebYE+sg5VSm
-	pNa7AAdhbUaHnx8YhdOpH5GJCrKEG0HRieAZrAflg94egScyR5ZFf+gTED1doVFV
-	OS5Cu6N+e+hMviRDrM5d7Q8HBNz1ZKC+WsySbY2fpNk+ToPLOXKrybcjFYb8RIGP
-	0//9jdqxIqW1XwkR9iNXWANPjlC/EpUdUXOEWEDSyRXSGgDz3xgpP8UKQWAZqala
-	2l/yF/DYDYWjpetGqHUkCpNAwTK8AxSIGo7faj0tCNXzGvZMzIj0lut0bf416uK/
-	PfD1hyhJSTkYBB8za+PZAxaGMFYNLgDO3O/c+8TCT0dXFIvJHOnNU51vOYncV5oz
-	kw==
-Received: (qmail 2813821 invoked from network); 8 Nov 2026 11:37:57 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Nov 2026 11:37:57 +0100
-X-UD-Smtp-Session: l3s3148p1@cTJGcMFfSONe20rG
-Date: Sun, 8 Nov 2026 11:37:56 +0100
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=buOL
+	Hq3aXEaLOdh+jel+eyDIOFFbNtd2Ddp+pAzex4s=; b=AjmhaE8mMo1wy2A4v7bW
+	o/5uLxur08eTQ/lz9R4g4HKOOOrU1/rqf7skAcOURcDDFRQFwvW231UUyiGjaR/E
+	yto6eCJLBQaVH23kFdvAQbpfNF5aynjJaHV9kONy2EUg7BAeZJhJJqdHkmzmW9zk
+	iPBD/5TxNaDTObWJOOufKzPq7KVne+MYZEf+TSn+EHQgZSlyfvhOHacOXA0sffx6
+	wFmPMPHw4yT7Ej8girrWKnPIqtcjlg7Brkn12YZJdeXv92vouEMNjID9afM5C+74
+	DWPw6GkvsegzI9IEBwvl9dadgad/U9gKXnqw+MaCqoMwyHFkyWLmK/oAHsGhB+Jz
+	FQ==
+Received: (qmail 2814864 invoked from network); 8 Nov 2026 11:41:24 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Nov 2026 11:41:24 +0100
+X-UD-Smtp-Session: l3s3148p1@hd2afMFfjpte20rG
+Date: Sun, 8 Nov 2026 11:41:23 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+To: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
+Cc: Jarred White <jarredwhite@linux.microsoft.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: designware: return proper fault codes
-Message-ID: <avBRBOkA-06F0tiB@shikoro>
-References: <20261103-i2c-designware-fixes-v1-1-f83dd71f988c@mobileye.com>
+	"Rafael J . Wysocki" <rafael@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Len Brown <lenb@kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Allen Pais <apais@microsoft.com>,
+	"rlmenge@gmail.com" <rlmenge@gmail.com>,
+	"hargar@linux.microsoft.com" <hargar@linux.microsoft.com>,
+	Jeff Kirsher <jeff.kirsher@microsoft.com>
+Subject: Re: [EXTERNAL] [PATCH v1 1/1] i2c: designware: Add ACPI ID MSFT0006
+ for Microsoft Cobalt SoCs
+Message-ID: <avBR0xxt0dvGb9_a@shikoro>
+References: <20261104234928.86458-1-sidchintamaneni@gmail.com>
+ <DS1PR21MB4279C556CFB876C5562C7F1182772@DS1PR21MB4279.namprd21.prod.outlook.com>
+ <b660d79f-887e-4594-ba76-c45dc5f75435@linux.microsoft.com>
+ <CAE5sdEhozq5SVj-SJLndiaANx1N_sTiAMBD0zeA_aafUYAGOKw@mail.gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -67,30 +80,10 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261103-i2c-designware-fixes-v1-1-f83dd71f988c@mobileye.com>
+In-Reply-To: <CAE5sdEhozq5SVj-SJLndiaANx1N_sTiAMBD0zeA_aafUYAGOKw@mail.gmail.com>
 
-On Tue, Nov 03, 2026 at 06:12:16PM +0200, Dmitry Guzman wrote:
-> I2C documentation Documentation/i2c/fault-codes.rst defines fault codes
-> for different negative results in I2C transmittion. Previously,
-> i2c-designware driver didn't implement them properly - it returned
-> EREMOTEIO on NACK either on address or data phase instead of ENXIO and
-> EIO respectively, and EINVAL instead of EOPNOTSUPP if a message cannot be
-> sent due to controller hardware limitations.
-> 
-> To comply with the documentation, return the proper fault codes for
-> different conditions, namely:
-> 
-> - EOPNOTSUPP if the controller cannot transfer the message sequence
->   requested (for example, target address change without STOP condition)
-> - ENXIO if target address is not acknowledged
-> - EIO on other faults detected by controller (for example, NACK on data)
-> 
-> Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Do I have to respin the patch?
 
-Cool, thanks for making error codes more consistent.
-
-Applied to for-andi.
+Yes, please.
 
