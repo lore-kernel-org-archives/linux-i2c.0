@@ -1,95 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.144
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794209277;
-	b=UkUVvX0ew++I2M3bIHZTCdO8XnaLRQD6mBiky0WUhPtjmQ+HYdnAEB3XV4yIenv8NbUi
-	 2yroHyqzNy9fU1Q9yv7TZ29aWKLf+uaXDpEoz1H9X++ajXkRR50Sj2nm3Rwz8Trw4/U5k
-	 qCKmhFcDnmoNLPPBoqhiaWDqIexlFxgo3VLvoxkQ8+ANG7EdNgi+4O459RtgfrqbctDtG
-	 lkwm0uUuOmVfryS66UdB5YJwIVwY6hkw2Kwe1RuLRxle0yQvmuSY0veRe+5HaVG1SUmsk
-	 vQ/5bp7yfx0D5oSSSW1cgTxrL/GPmVdJhMXKNHYrkCrKtNRT3OhV9heazwmmRlE9WwQ==
+	t=1794212445;
+	b=nA2WnGfifEtBiflfHbFjmirB/o4IqupuW5tvXQDxPQoq5AdW8AYp1BsacCiD8a3l1Ovr
+	 1C+keFY0KXkHft2aB64y8vRspYP5a8KcxpowB2UKCQ2EuXcl9LIUczToa6veNNwerQdSu
+	 lriyWY5bpjir2+OEVjy4oFAyGdEflFeU8wWWnF5j+l/K7aBCKYmsgG4F2YFKZROAAiCGo
+	 dC2MYgHMz+kLHt6pmjgNaaNDs7/Vq/dU1CpcAWsKW8zJHvbryKUwlZ6TiX80yiV6eNLmp
+	 mi20YzKh/0WEfzEaBetGo+4L/YCYFDSFv4L7rE6p33EKFQpZtYAb4E56aKn4tUT8Ydw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794209277;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=E3GSLX6Y3E8KleKfgQiE/C3m6qssnf8TIwA8ymgzC0E=;
-	b=hR263pNJ1bXgz11pL0it4P71Lq5AtzQFyOFJhHZjPVaR2YM9iF/r8aDj59tnQbu6m0il
-	 mAxXJVzsjKmFzsuWTMmruQLCHQ4C5iq9WkhOYOJb5NrBXH+cJhZMSC8t4HBekQOriHI+s
-	 qvxuzHDfzyTdEMxvstmReVq39zgROyLCr3HWhI+7B4gq/Tmd/xspDc9AX6On23myMcVHh
-	 OSJJrccHRlrnhPIc2m16hBiV6JQ4piDJqufJ+VF3Sntf5dNPzXfZoFIvC/vbTVikbvfLJ
-	 G5jZ/DJCGSnXX4nsWho4NPGDM0xkO8o9W9CWdlQpz5wv75hpQ4NbMDknIgPmNvxcjhg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794212445;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:Received:Received:From:Date:To:Cc:Subject:Message-Id:
+	 In-Reply-To:References:X-Mailer:Mime-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=DTYmFCEB465wYwuKSVWIKjqhbVZmXzLt8Fc+jMBonX4=;
+	b=KeHSEkvku3wRKi4nBoFKpKkBFA5rjiSoXcTkLZWgAjXjVfq1iBuvW9wHceKGAtuT2tCs
+	 dB4cVP6McJREasp+CuMtGMDuBCr8ShrWttumiwFnaA9/RE/lWb4ydoZm06mc6XPbQ7u+n
+	 bn+6bp20huKKkMwbUj5NYKcmAKJxY6nQpYPdUbe+HCGGEiL/GBPL0F0y0wSUylbqqxg67
+	 nkm522ZPuQt+cr+gcwyk0jhMNcziW4hiTvasyfeHg2w2Ch+ZuKrPcluJaVXWwNRVfM5T2
+	 QgBVP0GovlawA9K/d5uYXacXboWrF0hcC6zgIJPAhJmpTbhdOzsdLuyGCRYg2mwBf9w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=baylibre.com;
-	spf=pass smtp.mailfrom=baylibre.com;
-	arc=none smtp.remote-ip=209.85.221.51
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69726606A325
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 07:27:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 69726606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-491971ac844so485036f8f.2
-        for <linux-i2c@vger.kernel.org>; Sun, 08 Nov 2026 23:27:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1794209274; x=1794814074; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=E3GSLX6Y3E8KleKfgQiE/C3m6qssnf8TIwA8ymgzC0E=;
-        b=YsJJzZWoS0kA6/sx8xVmsiX3lY7D97+g6vmXE2cme19Nw3wx1YjQMQmFrHMzY2lCsM
-         XcR7m9yMzZZuswXowtmaazeEYerimzOcQm72n3THFcnV/ZYKFFf6o5aRdPpKzQ84woP1
-         gArrQlhv7cd+czWvjDX7vYWw+Iv+PdDhH/iL+9VJJyFGW3b0yz3xrIDgC4vpeLAVcI16
-         Nd8eDoPS9WHdAjw//uYc65it8yepxLbt+KEGnULUWt8eOKO3lMN+IEEcxxH521D1/plX
-         v8inpkSfVYu6aOmd0+AK7zC7l8ZPue95LJE+R1FOMYQdj9TxgT3YDsVxvTTCMMvK3qRH
-         RSiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794209274; x=1794814074;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=E3GSLX6Y3E8KleKfgQiE/C3m6qssnf8TIwA8ymgzC0E=;
-        b=yAmCAmqUay7ECtFbai/GgGotydRQnFOf7zj1CbBIrmsfHeVmZDt8uCsZAvzdEDng9Y
-         gqkjEwO++BsVaIzVqmV13dbBDmi/T7i6RYuZhTAmVwWXxu9oeNDKKF8atBJA4eGBwlYb
-         cM2gs32JX963u/UZioOv1JwBXRimJafym4D889F9YmCx07B28oSiMmf9ZYhi4TLPofeg
-         H1Ax7Iwn9/UHpmdCwwfbrpHXvOccL1INtijOddvr1XZKCT/RKXdwDdSa2Fa6uNG+eLkH
-         wwuQMm6JhiCdsmAbG8jyRnARCoK+wCEDDQ32TQXhENSYwJ7fesdG77CHNYe/Yyskm0TO
-         +nBw==
-X-Forwarded-Encrypted: i=1; AL+hErHe6XbciQYsnaz0NmgJjehBegyAbfHx9Hk0+hhgxDn2JdnVP3nBRgGvX4HFrVTmbfvXFcTQ5qhllIg=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/MKgZgDrnf9GjeC5r3Loxk8ii8NLq8DzXo6yMvkOibcPWKO4uy
-	Lgl1J6khX0943DKlb6IwyeJOEYcq24ZtmMDR3KuU8FaCJ0wQL6pFrahBsE1fwlDK2uo=
-X-Gm-Gg: AYBFou1stgsIl0c15/+TU2uFhCthntWVWTRNIoBBrQwTk60rp6zH0QwX9CmFe351HPh
-	XZU1z6RFLazekjV5EOw9/o0HzOdD9l2IceUDNqDiXW+pw1hFG9OPg+nFVgMYbOR/GhauG3k/QWA
-	SPhDBh+3IEDmf1SwzDxoJEKi4WD3etMpGd2+sBqf4GprfE4Ahl1WHG9CCVW5+Z6uHdxl3ZXvx32
-	1TiELrFnZ4V1SZOOc7ZbZ83+SNwR0GHqx40jBxQh1PR1jPnyHAitVxgxgQf58k8FlIkfz1cQKYb
-	YKhUxY0QPUAVvzX/IeGbEm8nVtED9KvL95YRXJ+STPujK4qtRpTWAS1tjgo5hw/IhU8DFUDuw3A
-	MpVyNXwRoDug4YBUpcZDq1B7zjJ+ecMn3KG+k+UmiU89JcpJAWzfnOttU/Lajx3w09v98wRJxK9
-	9jyP4cGf4Ncwe5JeXtCtfRr7ATPg3YFPZkpY+rHkwcUiWKDeFmfWvRT4rET7f1kzZMYxWvC5aSh
-	Xs5/MxrDjlwSQeWRQAY8gEkvU0ZczuZnSaJPqBdjdJ58FJuE8iJArxWE3pqjexjkiP+TWx38kxP
-	h1rqlJssQKGUujIaiXFK6rzKWsmXp5TsSSgMtDgsLnT35DGxhWWmDJftlBvk+cJiuchUEHeTjIX
-	mIKEXDrjtCkozK2o=
-X-Received: by 2002:adf:e18f:0:b0:48b:1296:52ec with SMTP id ffacd0b85a97d-49583ee2222mr5349721f8f.18.1794209273617;
-        Sun, 08 Nov 2026 23:27:53 -0800 (PST)
-Received: from localhost (p200300f65f19a904b11874a4d8ff21ec.dip0.t-ipconnect.de. [2003:f6:5f19:a904:b118:74a4:d8ff:21ec])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-49592f38e55sm8523279f8f.4.2026.11.08.23.27.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 23:27:52 -0800 (PST)
-Date: Mon, 9 Nov 2026 08:27:51 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Marc Dietrich <marvin24@gmx.de>
-Cc: linux-tegra@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, Thierry Reding <thierry.reding@kernel.org>, 
-	Jonathan Hunter <jonathanh@nvidia.com>
-Subject: Re: [PATCH 2/2] i2c: tegra20: Add driver for Tegra20 I2C target
- controller instances
-Message-ID: <avF1aKFpDAnJi4A1@monoceros>
-References: <20261108212458.275980-1-marvin24@gmx.de>
- <20261108212458.275980-3-marvin24@gmx.de>
+	dmarc=pass header.from=mobileye.com;
+	spf=pass smtp.mailfrom=mobileye.com;
+	arc=none smtp.remote-ip=23.90.104.144
+Received: from esa1.hc555-34.eu.iphmx.com (esa1.hc555-34.eu.iphmx.com [23.90.104.144])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5F2FD606A31C;
+	Mon,  9 Nov 2026 08:20:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5F2FD606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
+  t=1794212449; x=1825748449;
+  h=from:date:to:cc:subject:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Km96QfJf/xhJ8KPGePK7XEw/Gw/0Wp4vlIMbXoYhshU=;
+  b=nFWzkk4+GlN6szzZhvtH7F6X/J5yvwQ9+tCFSEJfH1hpLcOjFpfnOBbd
+   1OkRhL8HUQVm6/kYTn3xS/n0frrrOHntsgSSfHUZWx9/cgSMXapgWTtGJ
+   /6zY347mn5OIZITZPt5Qp5QkmORzm2jyc4oNhOA1KNaKq8t86vpxlhuv1
+   rLQRpi79s3IlQ9eRG8Szw3S27pxW6sj4kzDvQ4ocgYBPLF3Dv8F7hEXbM
+   eSDyfBLgDgm47Nmz2vawf+ESbNZRXK4XUuKzabMIdTymYwCY/OdIOMKcq
+   n6q6XR3/8TNs7O6xDw/O9B0duvNYnyihLIeTX167QxWtbXP+cKKCgbGjI
+   w==;
+X-CSE-ConnectionGUID: r+T0DYdVQkiZebElOlgokw==
+X-CSE-MsgGUID: wqPz6SHoSquiq6bPrq1UWg==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from unknown (HELO ces03_data.me-corp.lan) ([146.255.191.134])
+  by esa1.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 10:20:47 +0200
+X-CSE-ConnectionGUID: lpKBdzlrSHqCfhnek4/bTA==
+X-CSE-MsgGUID: hesYJTjQTs+s5JN1P6z40g==
+Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.3])
+  by ces03_data.me-corp.lan with SMTP; 09 Nov 2026 10:28:33 +0200
+Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Mon, 09 Nov 2026 10:20:38 +0200
+From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+Date: Mon, 9 Nov 2026 10:06:06 +0200
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linus Walleij <linusw@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ srinidhi kasagar <srinidhi.kasagar@stericsson.com>, Ben Dooks
+ <ben-linux@fluff.org>, Andrea Gallo <andrea.gallo@stericsson.com>,
+ linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/8] i2c: nomadik: handle pm_runtime errors
+Message-Id: <20261109100606.493ca48095bcc3527be18573@mobileye.com>
+In-Reply-To: <avFzEaxgam-UuZH0@ninjato>
+References: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
+	<20261103-i2c-nomadik-fixes-v1-6-655c6af2cb70@mobileye.com>
+	<avFwLctRcnJHtINQ@ninjato>
+	<avFzEaxgam-UuZH0@ninjato>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -98,58 +77,52 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="fkuwnclrflkupg2u"
-Content-Disposition: inline
-In-Reply-To: <20261108212458.275980-3-marvin24@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+Hi Wolfram,
 
---fkuwnclrflkupg2u
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH 2/2] i2c: tegra20: Add driver for Tegra20 I2C target
- controller instances
-MIME-Version: 1.0
+On Mon, 9 Nov 2026 08:15:29 +0100
+Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
 
-Hello Marc,
+> > Testbots revealed a smatch warning:
+> > 
+> > drivers/i2c/busses/i2c-nomadik.c:737 nmk_i2c_xfer() warn: pm_runtime_get_sync() also returns 1 on success
+> > 
+> > I will fix it here.
+> 
+> Like this:
+> 
+> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+> index 104da275ff91..8cf1d443a25c 100644
+> --- a/drivers/i2c/busses/i2c-nomadik.c
+> +++ b/drivers/i2c/busses/i2c-nomadik.c
+> @@ -734,13 +734,13 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+>  	struct nmk_i2c_dev *priv = i2c_get_adapdata(i2c_adap);
+>  
+>  	status = pm_runtime_get_sync(&priv->adev->dev);
+> -	if (status)
+> +	if (status < 0)
+>  		return status;
 
-On Sun, Nov 08, 2026 at 10:24:58PM +0100, Marc Dietrich wrote:
-> +#include <linux/mod_devicetable.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
+There is another problem with this patch: 
 
-Please don't include <linux/mod_devicetable.h>.
-<linux/platform_device.h> is good enough to provide struct of_device_id.
-So please just drop <linux/mod_devicetable.h>. (If you insist on full
-IWYU, use <linux/device-id/of.h> instead.)
+include/linux/pm_runtime.h:
 
-> [...]
-> +static const struct of_device_id tegra_i2c_target_of_match[] = {
-> +	{ .compatible = "nvidia,tegra20-i2c-target", },
+> * Note that the runtime PM usage counter of @dev remains incremented in all
+> * cases, even if it returns an error code. Consider using
+> * pm_runtime_resume_and_get() instead, especially if the return value is
+> * checked by the caller, as this is likely to result in cleaner code.
 
-No trailing , before the closing } please.
+I think we just need to replace pm_runtime_get_sync(&priv->adev->dev) with
+pm_runtime_resume_and_get(&priv->adev->dev).
 
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, tegra_i2c_target_of_match);
+This solves both the positive return code issue and the usage counter leak.
 
-Best regards
-Uwe
+Do you agree?
 
---fkuwnclrflkupg2u
-Content-Type: application/pgp-signature; name="signature.asc"
+Best regards,
+--
+Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrxdfQACgkQj4D7WH0S
-/k4pyAf+PbxEvdqRidzu2MVCrCyWxeamOnr6Hnxx7hAjskfnXnOBNqZ10n3JDJ+U
-r8iXDCToc1hMFO1yCzKSbqVSYpwzA2BvUAJQ8wngzhF5IMv4bqBBCvl0Ce1NfPSK
-xHHV+dFRjZ53sshblFCv1TBnDdovJZ5FLA+q57pP3pDyMnDPJFRcTQj4praFdVQN
-GScZLPkhaJye+EdS/X9gFIaxZK2i9E+FONR8OD9pt09l+y+0B/CGwm3M3BsWw02C
-bS8D6rJ1FxFFawAvo/38LXSGhShN1Z/xNjeC4015E1Xb2NWTuQgBM44jdQLzixDQ
-0j1UHQnBBm1bVAdXXZkIosER7AEa1Q==
-=o0wN
------END PGP SIGNATURE-----
-
---fkuwnclrflkupg2u--
