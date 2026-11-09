@@ -1,104 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794247691;
-	b=aVpbieldmcYU17f+d9zsetxI+RqK7lZBA41OytWLSDFnOZdUTqabVk2TMfxXD0lwHozU
-	 6W2ik3ycQwP3YVOvDU05r9KeZ0YtHPeRsiNh4OoLW41sOmBz0xQdYmvMrUrPJjyHgXEDT
-	 8lG8t8oD9emmXZxyEdzDV7bc6VhC0zNcLmsvqtO1fKPT6iYkbuwXHAMnIZHqYcFrMtPZ1
-	 eSTTkk6gfaz5yjgqF1CisEEdkCgqBAkzAssvWFnSOINK4ncHFCZU+8ma0s1d4w5JpwJCi
-	 Yzjkq/F27VS435XqJBxSaUx/6Wy0IhWHD3b+GaJwUPM1gbu5UyyIcfeqB0wpL6IHESg==
+	t=1794251104;
+	b=0I1JP1Ug1TB+4UKAB7q4xg9Vsy1GaU/VglNilX02Yict2LfP1hSiljgmoxN1Ps9Z9H4U
+	 Ej6SEzUpbO64Z9QleQ+evpkKW9/sjhrj0UwHeJdGbuyrLmLMzSNGhZw8tGvpk3z37ttxo
+	 +EL/u1wQS5Sa2OeXMqGVzfioL/huuBNIjYrg4ASTVHGC6ZIebo/lL6N5KmVVj26ywoROW
+	 Lu8/g+x8E5AMbRA7qcscYEZiWmMCJOGbicoGaP4MzqZ+wXiR+kD6ryLJOPNex0kBTO6Ip
+	 JWtkg2CKz9ZYQV9J/XWcDuth45QGEkYGSwuwkUTM3HymZvGja99EsE9Rw8Dk/XJ+Ayw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794247691;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:Subject:
-	 In-Reply-To:Organization:References:Date:Message-ID:MIME-Version:
-	 Content-Type;
-	bh=s7U/x5CE+niXpSBFgBUHJahPZfA7nFuXi/iUGvk2YDg=;
-	b=j/Buw4lHRWZmII5hShFBtLq+bIMvLla8pe4WlITN2TFhdciVHL3dZsT7hDXIMC8S5zEF
-	 cFlwy6BxhIrV9KBjvfq4+lT8WAOR2gVtd9q7KBqRlxrsoZrhRvbiVXTn6oH5qZ92Mai9c
-	 Gz2JD3+57stYEXDfpPwKkiLv4W4LSuZY3Y11arpqinai4xbPn76swOQrThf4I4sS6xfyw
-	 66/DV6HTsUuv3hw1Pir7wEqTYUqwNRvP+CLtA3e0iGPj2iNE5GYhwVAGTNO0sJbqDqabJ
-	 WcJJ6jHBXeOEBv57ETWcG+pzZqCJHZFVuQCHBMDkMFnothPtr0vhTN7RkhycURWHsDw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794251104;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=6Ccwykaou03iEXdgsVl2ojrfIyiLm62r6nS34ODXJLk=;
+	b=Zy1kdGfevNIjk7Jz4l9bf6S9kLe3MxkRTJJ/qqJHNsqTp55/DJPLV2M13yKH6RngS142
+	 9nIsnz1EkCkJaNaz3rJaTmEEKfvR4eWf3914g2QW+A3TCll4wmiC5LIJz++8mFrHkh/zr
+	 rsvqKxmFEaAp9y+OxDX/Q/lwONUqL9mxZ6uvdjOWuYLsqxPopa8Mx0l6fwuanqvnTqxc0
+	 rDrKpcEdnJCHfPlGy8Ha0bQeNcETOdv1Aps6gfEy76pNTV4WPTU2RCjZHpg4aFddrva3f
+	 VXQ7jnHHbjxKx7RdnLTqGJTmmcmlDa2J6DJdcvnd+mKWcZqmwl6QOx5xlQnaBXZ2sXA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=IP9SxyfD;
-	arc=none smtp.remote-ip=192.198.163.11
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=mgcrea.io;
+	spf=pass smtp.mailfrom=mg-crea.com;
+	dkim=pass header.d=mgcrea.io header.i=@mgcrea.io header.a=rsa-sha256 header.s=google header.b=jv7CoQJf;
+	arc=none smtp.remote-ip=209.85.128.44
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F481606A325;
-	Mon,  9 Nov 2026 18:08:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8F481606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E3BD60A381F
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 19:05:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1E3BD60A381F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mgcrea.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mg-crea.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=IP9SxyfD
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794247691; x=1825783691;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=wfrbeowEpzlsOOtS5Xzt/Z99rOONWv91scfsMt1LT1o=;
-  b=IP9SxyfDSB6EGFGs7A0bVCps7q2rwZcFhAiDYps8uP26aAu5UsHuIxSf
-   tlmYluqa8O0Vkzw3iTrVKhijz+FC+kmiN5XaQ71GLb+8eONi8JfI0J27i
-   gAac0Ey+5zHnjNqUoGr9URlzdDJ+F39/qK50JinS21ss/u/G8rc4vPQ7x
-   mqFEASpQPYKebvqnlIxIvZKEEeurzQ5f47Zp+zwzxQZxNVFZvEO6oQe8W
-   qyB2XD0JMOX45lgejPKqDw7YfMTajxl51pPK45w+PADjiswcG2ePqK5eB
-   51DxM3/Q69Vre2Thnw8Y200cdNemMOs78amfHRZkMWzOSK6HYmZMgrBl8
-   w==;
-X-CSE-ConnectionGUID: KecGYyTSRKKI8ipgzy4cvw==
-X-CSE-MsgGUID: CyDqiia7S7WO37n5QGEFUw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11961"; a="2894249"
-X-IronPort-AV: E=Sophos;i="6.27,204,1787036400"; 
-   d="scan'208";a="2894249"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 10:08:09 -0800
-X-CSE-ConnectionGUID: REOqqbgbSlKUYG/hgL23ew==
-X-CSE-MsgGUID: M/rq1zH2TtK3zErWiBcqiA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,204,1787036400"; 
-   d="scan'208";a="8094048"
-Received: from conormcd-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.93])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 10:07:59 -0800
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Petr Pavlu <petr.pavlu@suse.com>, Petr Pavlu <petr.pavlu@suse.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
- <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten
- <hsweeten@visionengravers.com>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Rudolf Marek <r.marek@assembler.cz>, Andi
- Shyti <andi.shyti@kernel.org>, Chris Snook <chris.snook@gmail.com>, Andrew
- Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>, Marek =?utf-8?Q?Beh=C3=BA?=
- =?utf-8?Q?n?=
- <kabel@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Andreas Noever <andreas.noever@gmail.com>, Mika Westerberg
- <westeri@kernel.org>, Yehezkel Bernat <YehezkelShB@gmail.com>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby
- <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>, Chas Williams
- <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, Daniel Gomez
- <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Aaron
- Tomlin <atomlin@atomlin.com>, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, linux-watchdog@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org,
- linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
- intel-wired-lan@lists.osuosl.org, linux-rtc@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-serial@vger.kernel.org,
- linux-atm-general@lists.sourceforge.net, linux-modules@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] Remove obsolete __MODULE_STRING()
-In-Reply-To: <a190f981-d668-4208-8148-f4e50adb31a6@suse.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park,
- 6 krs Bertel Jungin Aukio 5, 02600 Espoo, Finland
-References: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
- <2e88806e-57dd-47e0-a9ef-a8507d22aa3e@suse.com>
- <a190f981-d668-4208-8148-f4e50adb31a6@suse.com>
-Date: Mon, 09 Nov 2026 20:07:56 +0200
-Message-ID: <6c00fc009f4e61e87895eb2dd3d77c5dfb28183d@intel.com>
+	dkim=pass (2048-bit key) header.d=mgcrea.io header.i=@mgcrea.io header.a=rsa-sha256 header.s=google header.b=jv7CoQJf
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a20a37703bso9169505e9.1
+        for <linux-i2c@vger.kernel.org>; Mon, 09 Nov 2026 11:05:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mgcrea.io; s=google; t=1794251102; x=1794855902; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=6Ccwykaou03iEXdgsVl2ojrfIyiLm62r6nS34ODXJLk=;
+        b=jv7CoQJftGCU4PBxF1KDzpDlQUH9a8qKtj4O92bLRSO3djfFWCNS1FPah4as/ZdEgO
+         p1HOwXwuJgdCE6rZXINhR7fxok3QUuovGgTfG+CGDPmFFhwd1p5bYlMIGp2TV+d87Omx
+         VEqk2lwx+EYiC2G/yYeLVjsyJO6PHsmHkL1H8yYGfpOi3rApQI3lCnQMficcBNzs6jTg
+         syLYLv1+W77kS1CnuO0iXi1LSilW3fO8LSsGTLA74K0rBtkCWq2aTpTCeFPk6QAv/Jky
+         WCCMP1dmI3MmMIE2klExHJ+omw3u7NxIvq9kmB/BREtssb5sjTqHdJiTXxdok0QifDx/
+         l9Vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794251102; x=1794855902;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=6Ccwykaou03iEXdgsVl2ojrfIyiLm62r6nS34ODXJLk=;
+        b=fp9t0Fx/VxWu7AzmyM7WzjTgCie38gBwCEfUJp1Pr4mUkhjUqFTEI5R1F6JHB/17/a
+         p8jdu1V2zR2OuXzJ15TYOJYwpuncmQU17xOifonoQW3W3U9sTdTq02oWaiDS7GemmE2Y
+         ac135Uwqph5uvvWWHJIRZfRvu7pJhi7t0n8W32UzMuSCbS8ieH83w+1Rm7Yr6V6sJYIz
+         3Bz85JRyaDR3W1rj3B7YhrtKa02Nj+G7s+nUHvuYcSRyZsBK02a4fIGMl5nUlhcBnPZu
+         o03U4e2lLFE8YaAD8hP6iirymNFfL0u/PH8x/z9ftlgziNnrjd8TYFbVCWN4+igp9p88
+         3fcw==
+X-Forwarded-Encrypted: i=1; AL+hErFpvCfXMeCm4zVZQ7u1KNxAJg+K6OJXKdjghIBZ6HtpzxFCKgBkEYp983udokUodtuUyiqfKgFd1Kw=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8O0D4tsMh+EcT7GWG5jeiE8He0xVqK9jtguFPPPThmbos+1f4N
+	rbcb8ZKQc+Ve7rnSRzXIzqSSMRXmLGKcjVUZzpm2VH8dhuJoqtrJmPEGFfpwXmusV1s=
+X-Gm-Gg: AYBFou1vUFlKzzNMZ4RZsSpjMcy6p0fySaTRr9zWJ0SIT3P0yWsdmZQRdqXoRiG6Vtw
+	6Yk3wj8k+0geh8N+n1n5dvUnalfwWxgDwygNXFLvOEqMEZY8Rhy0sfic+qCXayjkOz5VRcWe0XY
+	vX6YkscGIPyJh5c3QSWWREGq5x+9fmC5cHlibNMOYi0Wjgk3fD3BP4KMIpmplm/dTsxcLHTjG8q
+	AFNz8U1Bc6KuGFlbl7qjtrmtLI7K9E9T0luvmclDTSYbZquCXORDM+NT/n/U6/wYsWrk1+V0+RW
+	olqbBpoNwayS+ReuavK3oKbQnXhAjjHKkfewEsUzEVhDQKToh0AEXCF1dBoxcpVnA9cJ6gvyH3T
+	Hp7cURmGkUiC9OMmygnWtzeIkUvJXX6USaQ+oVltzKIyLnjN8bb4wIEEBFal5oeoO3m5seHlLq2
+	SaBkhOHt3U7kLYVaHYqLlBMnKPf/zpbfhkV7jyDMaad+2e0VhjgtYZucTl/HDZNTWo99Hl3cKlp
+	9vdswMa0Vq5yWdE/HmwzV3IOMbZVF5Mml7nghV+sexbCkjH8+YtHe5XRnQ+QHX9DaHvOGU5hMAg
+	t6Kb3PUEZ8praDPWqG5bf77HEZxIEJRFhD9Zk6BObYBTI6oVpb4UL/4sD0WPsdg=
+X-Received: by 2002:a05:600c:6291:b0:49e:7c8c:361d with SMTP id 5b1f17b1804b1-4ba0234ead8mr3131845e9.22.1794251102350;
+        Mon, 09 Nov 2026 11:05:02 -0800 (PST)
+Received: from localhost.localdomain ([2a01:e0a:9d2:5a71:e834:fd4d:2ecb:b787])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4983585c4fdsm543440f8f.10.2026.11.09.11.05.01
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 09 Nov 2026 11:05:01 -0800 (PST)
+From: Olivier Louvignes <olivier@mgcrea.io>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	"H . Nikolaus Schaller" <hns@goldelico.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: ingenic,i2c: Add the X1600
+Date: Mon,  9 Nov 2026 20:03:45 +0100
+Message-ID: <20261109190345.61480-1-olivier@mgcrea.io>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <at8jCGfp9dKjieoo@zenone.zhora.eu>
+References: <20261024212520.91401-1-olivier@mgcrea.io> <20261024212520.91401-3-olivier@mgcrea.io> <33b5ee36-e293-4356-9906-54e99ba3557e@kernel.org> <at8jCGfp9dKjieoo@zenone.zhora.eu>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -108,40 +105,17 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On Mon, 09 Nov 2026, Petr Pavlu <petr.pavlu@suse.com> wrote:
-> On 10/14/26 11:36 AM, Petr Pavlu wrote:
->> On 10/2/26 10:31 AM, Petr Pavlu wrote:
->>> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
->>> MODULE_PARM support for older modules" [1] in 2002-12. That change also
->>> moved it to the graveyard section at the end of linux/module.h
->>>
->>> Replace the remaining uses of __MODULE_STRING() with __stringify() and
->>> remove the macro.
->>>
->>> Apologies for the wide distribution. Acked-bys are appreciated.
->>>
->>> [1] https://git.kernel.org/tglx/history/c/136839a1b4
->> 
->> I've queued the second patch ("drivers: Replace __MODULE_STRING() with
->> __stringify()") on modules-next for v7.4-rc1. Thanks for the Acked-byes
->> and reviews.
->> 
->> The first patch ("hwmon: Replace __MODULE_STRING() with __stringify()")
->> should go through the hwmon tree. Once these changes are in mainline,
->> I plan to pick up the final patch ("module: Remove obsolete
->> __MODULE_STRING()").
->
-> v7.4-rc1 no longer contains any __MODULE_STRING() calls, so I've queued
-> the final removal in patch 3 on modules-next for 7.5-rc1.
+Hi Nikolaus,
 
-Perhaps send it for v7.4-rc3 to prevent *new* __MODULE_STRING() users
-from cropping up between now and v7.5-rc1?
+On Mon, Oct 26, 2026 at 10:54:49AM +0100, Andi Shyti wrote:
+> I'll wait for Nikolaus ack/r-b for applying the patches.
 
-BR,
-Jani.
+Could you have a look at v2 when you have a moment? It is the version
+after your review of v1: the spike filter programmed on the X1000 and
+later, and the X1600 falling back to ingenic,x1000-i2c. It still applies
+on i2c-host and on v7.4-rc1.
 
-
--- 
-Jani Nikula, Intel
+Thanks,
+Olivier
