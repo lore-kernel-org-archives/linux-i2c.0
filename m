@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794257434;
-	b=DNB7lR0qAwkxTXMTuRXU4Z3dIQNQlrp6Hg7XaZF3KH6e5IWib0tltN9YOzGoOfTToCms
-	 BIE2wFQFrpvxp1Y3GIm/5AVQNZkG3RlAnhh3xlKqz2ok8WlNVpefGK4ECX7LvRKAHne4o
-	 KmJ0P9mnJjxqDPCvPjt25jfigmz8blthpol9PTjhqABvHdtapU+8s1dfipm5pM+jbB/lJ
-	 CKwL+mBoFIApdq2YerUplhgZYmyWNaK1ASVVxRt+VMu2oo1XycHPQcv5ZSBGgH4HBmjvH
-	 Q3xeJrQ919r4Z5EuXSFrtEeuO78OH0ydJGjUohFvJ/SCiuOPqg7fL/Awqkmu7tD3/Ug==
+	t=1794257445;
+	b=A2ZTmVVY5vYrHpI/65ha8XO/XiIiDaDJajxH1WBKChPmYweUqJG22xMmcZlIysyV8Fik
+	 4w7dHzA73elc/0k5YfTVYgC+sPClohS7Mbrv+4KyLI8++SyaNocdlhluPl3IMoYIsFFR7
+	 eLRlMljgo4Cc00+Jn0ZviFvMLQcFsKGmhnD7olpCA6/A/pw2ajtxdWsylYs6WUbct5FjH
+	 S4yER958eBtaFbY5KUfVhP84ciOQoxOK7/At8geLevzFXFphcETblWxIkCu+I7ArCTQMe
+	 /c2G1BZgw1yAzR7P6y70JtSM+uOjVV/r34cL2GHoZHgYpjDL/FxIVtVyhz/AZ3ZeqrQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794257434;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794257445;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=U3dBz/jVADkkXLvlpKnunp0HEFmKspxrcSPqzBVm73U=;
-	b=4M5ZDrcpHnDY6fY4YvQMLgC1pynNEjVXGdys7OwbsxxFFq0lrHxEMYF/8IPAO1KZxjED
-	 WFwhgxJT+fdiPDCEiqmZIuooBrtBvnJoZlTsTD9NqOwvOiEOwmmhj/pSGSwA9Dc0b1vZA
-	 WOeQFJzPTuWxcBfBew2MFlB5e5LnZTPEpzuK8H/LkJL4VXatLECbguNIqqxvyA/x/GMwg
-	 M1rawyJqdODzuRhII/0hAg5ZpOREWioVQDhMyL/Elbj0LhZipDzCFIMT8T5uWBSA5FUu2
-	 /c2xUWKUmcZC3wPve320DA5PNVkc8t9iXxEN9Tnrm1wp2t0gOCab5QzcFmYWJ3DXMkw==
+	bh=sSztLIfTL7rP91viwwmG1Mg/R15whdkK+sNzl7hpt+I=;
+	b=fgqT7S8GP52euYC/gGU2brmJsG6TXohpGhBBk9tdna7Jzlw/8uie3oX5PbtO7UQwGT1i
+	 VWWcKq8D02AIc+AwLQB/hG5LUC2Ywof4rpDpaKUem9qyMkaS9Yz+JhBbk6XKrQFm/aXob
+	 PmuQO8Xgy240oFFnbQzSdACwtlKw0VPbo+BXampK3f2tLU90C2Ibr5ITjvveV9Y0PozRc
+	 ipP5ImYGM3BNbAXg20XBWBrghdiKIPSt1qt8dRPV+WP2dj7+J/YdXiwW1sPKlD7+HYh4F
+	 fMpkDVPOLV5lcHrEp9xGsMMakoGjfHi+z0cf80nqm9RPXi2Fpbuwq0xTvg0k6u6jZqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IuFRFLLB;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iPKYFLqz;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75546606A326;
-	Mon,  9 Nov 2026 20:50:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABC32606A321;
+	Mon,  9 Nov 2026 20:50:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IuFRFLLB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E361F008A1;
-	Mon,  9 Nov 2026 20:50:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iPKYFLqz
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B251F008A1;
+	Mon,  9 Nov 2026 20:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794257434;
-	bh=U3dBz/jVADkkXLvlpKnunp0HEFmKspxrcSPqzBVm73U=;
+	s=k20260515; t=1794257444;
+	bh=sSztLIfTL7rP91viwwmG1Mg/R15whdkK+sNzl7hpt+I=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=IuFRFLLBcJhl4fO8HFoYvnm+hiFuvQF5+RG82n/zznu/lt36a7tnep0pYzweJ4W3t
-	 SF1qiQknWAWW2p5J5Z53YArpcCHZzLx3uUQMhTDHY1L79MSVGYmqAoO+T/0Sd34xfM
-	 q/BoIqT7jrnUr5wVXPlqzU9PsdXP/hU1deHWLoRfJTFTx+7yJ3Gt+JoAX+MfTSUeTI
-	 6LNSFE/i6IHMVNxD2wcnbyYUS1RWBMLWPe53/0nB/5/a/zj32iy/kEG9lX8YOMle7/
-	 P2MAKF8lqeAJdmQHYP2xE+Jz/npOx8I4yKbf0ZMQrvaOEVBVOpG+bymI0brlF5Fxwt
-	 FwGhCwUR6svCA==
+	b=iPKYFLqz+EX/z3/ZFdGtWsQmCPWBeUHQ0WI8Os9aYBpocCiQ902L2eBjfSWSM//JT
+	 azQeruoU98mrIXFU8MXVb3JlvUaz3MjMEPDRG0z3IZ0RWo+XU2RdhpJKXT8gUJrQPl
+	 Z7v4g8YXDLVaO4int9AWQMp7oSmuLWYOgTQuEKgKa0o9KmIVLo0m33LDLWLGCz+7xm
+	 usHFrjzXJ21q4PWLm/ZUbZmFbbps4LNfqw2zHZ0YwFmvUeR8zRgHUnv7bSTkZOBDDF
+	 A+5Gfue+sWm/I+7+nMQIfWuq633v2bYQw5o5f25WsjCWghhMzk2vabviyfTeG6h5l8
+	 +yXKCF2gC8jHg==
 From: Joshua Crofts <crofts@kernel.org>
-Date: Mon, 09 Nov 2026 21:50:05 +0100
-Subject: [PATCH 4/6] i2c: riic: remove redundant
+Date: Mon, 09 Nov 2026 21:50:07 +0100
+Subject: [PATCH 6/6] i2c: xiic: remove redundant
  pm_runtime_dont_use_autosuspend() calls
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261109-i2c-remove-dont-use-autosuspend-v1-4-49a08b8daf36@kernel.org>
+Message-Id: <20261109-i2c-remove-dont-use-autosuspend-v1-6-49a08b8daf36@kernel.org>
 References: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
 In-Reply-To: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
 To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
@@ -72,11 +72,11 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
  linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
  Joshua Crofts <crofts@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794257409; l=998;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794257409; l=1070;
  i=crofts@kernel.org; s=20261015; h=from:subject:message-id;
- bh=IVSers25eoM4DZzx6qxJHQbEMpXnYtK71Jw2toaHrq8=;
- b=t9pE3zY/+7WdfcULSx+Gk9C4x2Vls9kHzCAWOqg1ofU7Ri94Hoa8R1JslHm57Ld4gq4gfV+Ne
- IZ9yOf4qusGBun4WPDb1MluRTItABlkU+1xM5TS6H4Wh6yoC5w6rwrg
+ bh=dk1BkhlWjkfHfvbN45iKopstDS6LZ1zhMuFGwU+ohvM=;
+ b=gHAAkd+gnKdoDSGOhxX08WF7yeK7i/NYttu//4RK0Na+fNs/flmaeV7VOdKxUp2LFm9eAo7Zl
+ T16cg8odT40CfnbWzoVlwiyfw0lyGeQFL0pJqdNDHA57bO4xpkMzqSa
 X-Developer-Key: i=crofts@kernel.org; a=ed25519;
  pk=RTDOoVwgeL4oFdASj9U+cxJuIjXuXk73zkjnGOJKbEo=
 
@@ -88,29 +88,29 @@ Remove the redundant function calls.
 
 Signed-off-by: Joshua Crofts <crofts@kernel.org>
 ---
- drivers/i2c/busses/i2c-riic.c | 2 --
+ drivers/i2c/busses/i2c-xiic.c | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index 26b9d608fa28..57532dd2e3ea 100644
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -591,7 +591,6 @@ static int riic_i2c_probe(struct platform_device *pdev)
- 
- out:
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index ab7916745ad3..4e06fa4f73d7 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -1580,7 +1580,6 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ err_pm_disable:
  	pm_runtime_disable(dev);
+ 	pm_runtime_set_suspended(dev);
 -	pm_runtime_dont_use_autosuspend(dev);
+ 
  	return ret;
  }
- 
-@@ -608,7 +607,6 @@ static void riic_i2c_remove(struct platform_device *pdev)
- 	}
- 	i2c_del_adapter(&riic->adapter);
+@@ -1606,7 +1605,6 @@ static void xiic_i2c_remove(struct platform_device *pdev)
  	pm_runtime_disable(dev);
+ 	pm_runtime_put_noidle(dev);
+ 	pm_runtime_set_suspended(dev);
 -	pm_runtime_dont_use_autosuspend(dev);
  }
  
- static const u8 riic_rz_a_regs[RIIC_REG_END] = {
+ static const struct dev_pm_ops xiic_dev_pm_ops = {
 
 -- 
 2.56.0
