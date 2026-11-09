@@ -1,68 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794256746;
-	b=PmQetEtMfPSobMxFP5JenfKz9r6c7nuzzQ3d/tIh8JXX7+5pvf7lvaXE6AZAVIjEd90f
-	 GbFRmeBm2w0cY18P/I/5v/rYjrbwyZ2h88g9StA9V8F7Xvk//HLLdrqdP9Om7NxND/0ls
-	 d6i+hOhs5GZ7MpHQds+CUnEw6AaUtqF2ybTwpF1RfM0L4MwC7JuwwTAqXU7Cpl/wm6JC4
-	 uGADYweQVh/FRYgZS2Zk2qBo57UGaJS7YA3XISElrNoPpoNrM0dduRA1tmOdZ7LPKFL6u
-	 35F2GIRvs8Nprwpn56mivaM3oE+2aYaIJUqW0nTmyY7DyftCuI1BDW3D/Dd0Ci6gzwA==
+	t=1794257414;
+	b=Tp3fpPu55ASg/aXQ2Y/8ZIwb1Zd5Ix2QP1/g1++vrGtEj1YQOYkZLsTK2D/bZ5C0Ojrj
+	 7DfbqfFJz41KMkVcBIpMfbVEZ0ouvgRcuIqfOx/QPCkQOnDSlVNI0/AwGMkCwuSBYWE49
+	 nHTLZ0FLQosAaybpFtR2LVK1zrGawngTS3Gm4QJnmH+kUBOj9XVSJw4wIt6tZPfX/HYd/
+	 HFnNX9QVZTaFnTp889UNvXAOko7XzO3ed/7knmz0MTZzOO5AwSD6T5HaDzJcISlieIMC7
+	 K6d3UnO7ysVdXjqV+enr7MEis3qkQosO7/l29wzedcYvC+q8gHT3glY5q26sDugFNAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794256746;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=KXTKxpvQmG4qWI9EEs3gz14VI5DReG+qhWlAxe45/Nc=;
-	b=jRBmaQ5uC2EWEeCwP3V11RvfZID02zD7LWEnoIOyahUjyl49qFPjuI6XZuw91kgv3DSo
-	 2F8MjWCgRr9CYbWb+yoMpnvj/+ovLzby+Clh/atiPRB1F9hQgRzCrjwt2B6DNZ1F/s3HR
-	 rP8TZgUZ2e3Oq877eeWxppzZpUnvQhXcZKfwZaSwFNOX+oxgwyKhf98YqtQQuZ6qTTV6Q
-	 9Zs2UMCzxecA4zQnd7GCWNs2VyoppkyJUv+QNWokSJsTitVdim/0H0fnca15hJN7L/JoQ
-	 9C1YdXVqQj/bIfdgH6sXsmi25VQKt2tZNSZK+3bEn3L5e6CrNaJwR/81QgOh9VC5Tww==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794257414;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=pHsOXVxVLlEXOeOwaoQ2j0GNHVZFECcyDzkftLsDHek=;
+	b=3f5F7PcQbf25fn+ITWxMuQjoOzttF+mcUgW31l5pvTMqCN6N6FUw1vvaye+D4stZepU7
+	 5Beb3lHVePRDdr9JdwCExul/CWne1YA4j3W5f7MTgyxawoa+RY/QrdhD0Y/oQ50FlNIJy
+	 fARm4GEqdAyeF7UEDrcPW/ioZfMgpO7+hMnxA/xr/FARE+Iv/sacApdsUrKjSFXohsEst
+	 qaxGqZLfF+MJKkySUy7gmuiGxCVWPKugdBhD7F20OQ0vpW9XjnP9lZLR03t+3Z7L98+vV
+	 T3t/L46JLsr2ir2zUbvU1ZpbMmxUq5kiENceYcpZ2vbrJt9fMz8iwDwwOkSDOLRHIrg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=iv63CrR+;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UZz1gcvI;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84737606A31C
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 20:39:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 84737606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377EB606A337;
+	Mon,  9 Nov 2026 20:50:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=iv63CrR+
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=KXTK
-	xpvQmG4qWI9EEs3gz14VI5DReG+qhWlAxe45/Nc=; b=iv63CrR+NkxkquUtgPAq
-	xEKCX7A9CKbbZWNdTu2lcZahuFZDtMGnqQQ74Y5qcP5fyoa0paj0o/gfo0jeMsZ6
-	PUhWd1+03dTf4bDg/7g13tuVG0PJyP69YOLSYVc6vscb0Esftjgpico9K2F0e2xU
-	gvPI1j2AzUtP8sFgOGxN5+wrZK9aRo7OODlLLtmbTavBpp4cc+f3ayz56AjDrTM7
-	aIr0jOIJewj/VJVAAKUhDiEPrqOdvMOCfJ5VhEGGkSH+TSBpt13R0IfL+HDHvTnx
-	8+eFb37xTHxQT6+/hxTCIVsdO15/jY1Sm9fqCbGQtGVpZU1gjvbCe1rBSfuvlv6E
-	QQ==
-Received: (qmail 3406806 invoked from network); 9 Nov 2026 21:38:58 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Nov 2026 21:38:58 +0100
-X-UD-Smtp-Session: l3s3148p1@1JSC891fWJ0ujntg
-Date: Mon, 9 Nov 2026 21:38:56 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Cc: Linus Walleij <linusw@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	srinidhi kasagar <srinidhi.kasagar@stericsson.com>,
-	Ben Dooks <ben-linux@fluff.org>,
-	Andrea Gallo <andrea.gallo@stericsson.com>,
-	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/8] i2c: nomadik: handle pm_runtime errors
-Message-ID: <avIvYMDqQtyBVIWI@ninjato>
-References: <20261103-i2c-nomadik-fixes-v1-0-655c6af2cb70@mobileye.com>
- <20261103-i2c-nomadik-fixes-v1-6-655c6af2cb70@mobileye.com>
- <avFwLctRcnJHtINQ@ninjato>
- <avFzEaxgam-UuZH0@ninjato>
- <20261109100606.493ca48095bcc3527be18573@mobileye.com>
- <avICFAh07d7XrAIY@shikoro>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UZz1gcvI
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A96331F008A1;
+	Mon,  9 Nov 2026 20:50:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794257413;
+	bh=pHsOXVxVLlEXOeOwaoQ2j0GNHVZFECcyDzkftLsDHek=;
+	h=From:Subject:Date:To:Cc;
+	b=UZz1gcvIrhMnr0bsvjrO5zQ98G288ZwWf4r8HJjmrRmkfFPjCRBhNFyWckYASZQK/
+	 5mVXkG/tIv4qzoIJRjQlgQXX8hUfTP3gjrelEG9cpoDPXWz6k6Kn7Vh61hA3WDGXvU
+	 U6HL2q0tUgDo2F2eER126laCBTcc/F1NX4SURHjlq9EbpA0QIT3rPY7+KfmRG1VSUg
+	 ye7B5MqntDQJpRyOl1wGBkjZLonDRyL3L0KuI1AhtlAKUxn4AMdq3n6DEZFPb8PhTy
+	 nL+9yXl4cIhQZWISwknT185gywW2glZibagxB24Dd3nqRXXECeCxdtI2YLz1OgXlkI
+	 VWtc7dlR1MjGA==
+From: Joshua Crofts <crofts@kernel.org>
+Subject: [PATCH 0/6] i2c: remove redundant
+ pm_runtime_dont_use_autosuspend() calls
+Date: Mon, 09 Nov 2026 21:50:01 +0100
+Message-Id: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -72,14 +54,67 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <avICFAh07d7XrAIY@shikoro>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3NQQqDMBBG4avIrDuQpGixVyldSOa3nUUTyRgRx
+ Ls3uPw27x1kKAqjZ3dQwaamOTX4W0fxO6UPWKWZgguD925kDZELfnkDS04rVwNPdc1WbUESvsc
+ HxuBmkX6gVlkKZt2vw+t9nn8X66SScQAAAA==
+X-Change-ID: 20261109-i2c-remove-dont-use-autosuspend-3c7e920fdd56
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Oleksij Rempel <o.rempel@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, Chris Brandt <chris.brandt@renesas.com>, 
+ Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, 
+ Alain Volmat <alain.volmat@foss.st.com>, 
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+ Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, imx@lists.linux.dev, 
+ linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+ Joshua Crofts <crofts@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794257409; l=1523;
+ i=crofts@kernel.org; s=20261015; h=from:subject:message-id;
+ bh=wAdUJkUDAkxbjk/LjE0YRGa5u0mixzgcRiCVg2IqxwI=;
+ b=65Fv3jq7TmhA+zdfDNZ86aIiq59u0GI3Dk3o5bNnJK/yQBn3U/2105tLuIp7/Pl+9BHgT+NSG
+ ebdp4dR8JceDtO7rPFoav4i4U7TCCv4X1IOwo5s18NKckgMdtXoxxrI
+X-Developer-Key: i=crofts@kernel.org; a=ed25519;
+ pk=RTDOoVwgeL4oFdASj9U+cxJuIjXuXk73zkjnGOJKbEo=
 
+Since commit d1706f9da9f4 ("PM: runtime: call pm_runtime_dont_use_autosuspend() on reinit()"),
+driver core is now responsible for undoing any
+pm_runtime_use_autosuspend() calls on driver exit.
 
-> Having a leak less and cleaner code? Yes, I am sold :)
+Remove the redundant function calls.
 
-Can you please resend an updated patch? The code change is easy for a
-rebase but the commit message needs to be rewritten completely which
-calls for a new version of the patch, I'd think.
+NOTE: Some drivers in drivers/i2c/ still keep their calls because they either
+rely on pm_runtime_dont_use_autosuspend() before pm_runtime_disable() to flush
+pending autosuspend delays and trigger synchronous runtime suspension,
+or operate on a parent device rather than the platform device itself.
+
+Signed-off-by: Joshua Crofts <crofts@kernel.org>
+---
+Joshua Crofts (6):
+      i2c: cadence: remove redundant pm_runtime_dont_use_autosuspend() call
+      i2c: img-scb: remove redundant pm_runtime_dont_use_autosuspend() call
+      i2c: imx: remove redundant pm_runtime_dont_use_autosuspend() calls
+      i2c: riic: remove redundant pm_runtime_dont_use_autosuspend() calls
+      i2c: stm32f7: remove redundant pm_runtime_dont_use_autosuspend() calls
+      i2c: xiic: remove redundant pm_runtime_dont_use_autosuspend() calls
+
+ drivers/i2c/busses/i2c-cadence.c | 1 -
+ drivers/i2c/busses/i2c-img-scb.c | 1 -
+ drivers/i2c/busses/i2c-imx.c     | 2 --
+ drivers/i2c/busses/i2c-riic.c    | 2 --
+ drivers/i2c/busses/i2c-stm32f7.c | 2 --
+ drivers/i2c/busses/i2c-xiic.c    | 2 --
+ 6 files changed, 10 deletions(-)
+---
+base-commit: 7475ea8b58616b33c04afb976cf0fbaad9dd63fb
+change-id: 20261109-i2c-remove-dont-use-autosuspend-3c7e920fdd56
+
+Best regards,
+-- 
+Joshua Crofts
 
