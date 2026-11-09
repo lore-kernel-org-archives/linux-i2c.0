@@ -1,80 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794219610;
-	b=HyIrkAcA1TMGNl6mbwrAc3/xBw/0IwO4aWv34p1C1RgsebtFs+cQsVao+u15W+kXQTo3
-	 XLMD9vWOABskySqlOGDfX036vNnfKl3SJwGHZIFi3zyywAGwL6O6mf9rvO7S3Oc1ZFRbe
-	 k9kuVi77va6bEcUBQevch6KG2OojvaxGTjpNPS3iPGjxgEnt8yzO2Je14aTOq8Bp5Gxow
-	 949kYIDqH6YMbCAjl97rBzSu7MNwtvO7rVcVfDIdhuuYc28DOjIgLQEHcjRDW8zRiozhb
-	 bESDYgGyN1fMa0oJQdfldi/wHAmN+Z6G5WF8V28xnMohkGtXw3drA5egqszBxXyTrtw==
+	t=1794221066;
+	b=yvls/31K5KKYg9zvzRR2ov2ZKwraze6XoQtct5UV6nhSh9QZu3uGKvgSsNGnczIsOIvI
+	 j+aDyo6XqwbC6NvdU89HodALEklIjbmqGLro2voj75uE/2aJf6DEiOOQtrSRo7pMrXhOh
+	 XtmNSLua2y9qbNQ3teWqxhz9y79COsDG+FhNbPsYgLgqQmUFUDuT7mjWYHh6ZIKqBXsFX
+	 hgsAr+932RAsP2eHY1u6dwXqnxIQevmsvicTCwLsphKiHEoFFNt7DEYd+cEzi9Vw9CQL6
+	 0AiuiNrojiKg8C5Y20Yh2jyFFsqlPw4CX7Pd5BnHT1UpXM1oWjdsqqMzMoA9817ESPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794219610;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=HvVYUHBOoAzAjJRPzKohu0cA+q7fpa26AKMIEUnBb60=;
-	b=WBErm0QC56ZO63xPJjsbkwMLhgRwLvVRBRRMUya+UG/wbC3ffNq41r84kCKmMLFA17CJ
-	 m41pzhHcAm7V8Qz11IhZAO9W9QZ+IAD2OBkxACZoLRPptfdfk902ya+siXKWnZW7DRjY0
-	 1RUQQP0mfh+Mon7feFSTcQXnf3UCEj1+R7f2v8aMS5DjctsJjtemPgUIsV7XbKlKyfywz
-	 iLtmJR8dhAc6cAorNnVJ9LmVnEzfJb/U8N5/g9qMQnJC0GnxJwPygbQpO73xv76BOl9/B
-	 K9TDI1nCM3WdI4VVqUqnLUvz1O1FZmxPgcUvyXwdj45uMId7uazNn63ldTJ8osaCFhQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794221066;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=TXr2TKEYrIDqnyQ+02ZfHnpl8vf7msiDB6kAkQN1rZM=;
+	b=YbAVNSbzV1Q0G6YrutAEgs/EmYlf6QrVaqPDBh12Y9NmLhs7t2vYVnhwLOMzPVJn1F6u
+	 e4wTYf/jj/MAfRJvEoLP3d9Y1p0A8cYn98vxrXYUfg/95V6A9JljgG3lnotScOyjOjgkn
+	 4+Bqo9+JbjWnbs9AEtqlGqDYWdBpsSwIWKWkgMuSuv3BDCO/cfmMcWf77TeemzruzDql5
+	 Lgx9Dxq0a5gvH7UfMCULgW+f8SZx2r5KjbMQX32fxbF7OP/mFvP1Cid30uWveYLKgejSG
+	 EcQZOGRIXKTaYp00lKDK95qhGF9pmDHiy7h1KhLrMX4u0FJOdKHns/dMpV84VpiNeDQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=m4SGef4f;
-	arc=none smtp.remote-ip=198.175.65.16
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mfOpr55J;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4D5D606A322;
-	Mon,  9 Nov 2026 10:20:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B4D5D606A322
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F1D606A31C;
+	Mon,  9 Nov 2026 10:44:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=m4SGef4f
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794219610; x=1825755610;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=5RJ9G5cztkvT4K6je/5Jl5iGCmxJySnlDnuLAkGyqM8=;
-  b=m4SGef4fM8iHSS8wpwRnBOjfNO3Kg3qyJGocfwiLVDEj4ZRMpZYuZYrl
-   BPXg0Iap98xmMxVaqZSTwgDFeMk9YNUXaTLmF3lNl5WWP8wLYxqZn9hyt
-   ms9gZoA2Tg9fHEdsBIcfjR241R4I7gzA++4OWvOVSNGwa8fp1NIukT8Nr
-   cp6ojl1pd9bpabU9cbnAxQD5/tmLjY9QTFRp1WtSpvSdHkp320kjcIgo/
-   QL0bm+WDvOB2cGyldHO4WAQ8bywyXig2U35/QZiOTmHWjjP7Ka7TL8Wi+
-   +Bs/jbcSVmmJuzxVicelZDx4iX+nFCxJkXJ503mI1n/dRiT5x9kV5dZtT
-   A==;
-X-CSE-ConnectionGUID: qLpV3oR1Sj6LlO2BSXEvPw==
-X-CSE-MsgGUID: t0A/ubZIQ4yjUXzDFcNImw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2927810"
-X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
-   d="scan'208";a="2927810"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 02:20:10 -0800
-X-CSE-ConnectionGUID: a620QZrMQOCcQg+W+iem8Q==
-X-CSE-MsgGUID: XH3BteTzRDW/G4WLIa4qHQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
-   d="scan'208";a="7959247"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa005.fm.intel.com with ESMTP; 09 Nov 2026 02:20:07 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 18C0399; Mon, 09 Nov 2026 11:20:06 +0100 (CET)
-Date: Mon, 9 Nov 2026 11:20:06 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Atif Ashhar <atifashhar@google.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Release slave SCL hold in
- __i2c_dw_disable()
-Message-ID: <20261109102006.GJ176724@black.igk.intel.com>
-References: <20261104133745.1432212-1-atifashhar@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mfOpr55J
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34E151F0089F;
+	Mon,  9 Nov 2026 10:44:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794221066;
+	bh=TXr2TKEYrIDqnyQ+02ZfHnpl8vf7msiDB6kAkQN1rZM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mfOpr55JSOEAKsYIRwZlPYVVji4xFQLSCZnYgYFBPvHuYw5tqPT6lpcFI9qJa0aep
+	 VERbNONOWWRfHvh/4pt0kOHo5GTHTckTKsADwINYHKcBPYIEykbTiHYKFVvv6Iayco
+	 P56iKD/4w8gwEuVziu3200TNGNO+AhB2cOwaCB72Mkz71mMNHxSY5o0Mp5g7LawzBY
+	 /hqT65DQ7N9EF/R0bmufgMI1JGQVXsKSu8+Hb/tg6OQ6csPirqc+IoZQPamOaOwii6
+	 nfY5lMRBzsqXWKW0jlB2p3CN9fmRVT3ZMcVZGIxc577QjbgavPnbuP3Z9CnA+a/9r1
+	 tz7C6CPoEbMHA==
+Date: Mon, 9 Nov 2026 11:44:22 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Andrew Gigena <mail@andrewgigena.dev>
+Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>, 
+	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
+	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
+	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-phy@lists.infradead.org
+Subject: Re: [PATCH v3 2/7] dt-bindings: media: qcom,sm8150-camss: Add SM8150
+ CAMSS
+Message-ID: <20261109-slick-transparent-ostrich-28ddad@quoll>
+References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+ <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -86,142 +69,70 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261104133745.1432212-1-atifashhar@google.com>
+In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
 
-Hi,
-
-On Wed, Nov 04, 2026 at 01:37:45PM +0000, Atif Ashhar wrote:
-> When an external I2C master initiates a read to the Synopsys DW_apb_i2c
-> adapter in slave mode during kexec teardown, runtime suspend, or driver
-> unbind, the slave hardware stretches SCL low (0V) waiting for TX data,
-> setting DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY.
+On Fri, Nov 06, 2026 at 06:35:34PM +0000, Andrew Gigena wrote:
+> Document the Qualcomm SM8150 Camera Subsystem. The IP integrates four
+> CSIPHY, four CSID (two full and two lite), two VFE and two VFE-Lite
+> instances, with 19 clocks, 8 interrupts, eight IOMMU streams, four
+> interconnect paths and three power domains.
 > 
-> In master mode, __i2c_dw_disable() issues DW_IC_ENABLE_ABORT to release
-> the bus. However, according to the Synopsys DW_apb_i2c Databook, the
-> ABORT bit applies only to master transfers and has no effect in slave
-> mode. Because the slave cannot disable while stretching SCL,
-> __i2c_dw_disable() times out, leaving DW_IC_ENABLE_STATUS[0] = 1 across
-> kexec or rebind. Subsequent writes to DW_IC_SAR are write-protected and
-> silently dropped by hardware, wedging the slave and blocking any other
-> devices sharing the physical bus.
+> The CSIPHY I/O spaces are not part of the CAMSS container device: each
+> CSIPHY is driven by the dedicated qcom,sm8150-csi2-phy driver, so this
+> binding only describes the VFE and CSID resources. Each CSI input port
+> is described with data lanes starting at 1, as required by the CAMSS
+> PHY mode.
 > 
-> Fix this by:
+> Describe SM8150 in a dedicated schema instead of reusing another SoC's
+> schema.
 > 
-> 1. In __i2c_dw_disable(), if DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY is
->    set while disabling, temporarily re-enable the controller so the APB
->    interface accepts data commands without racing with the slave ISR,
->    clear pending RD_REQ/TX_ABRT interrupts, write a dummy 0xFF byte to
->    DW_IC_DATA_CMD to release the SCL stretch, and immediately request
->    disable via __i2c_dw_disable_nowait(). Also drain the RX FIFO if RFNE
->    is set during SLAVE_ACTIVITY.
-> 
-> 2. In i2c_dw_reg_slave(), replace __i2c_dw_disable_nowait() with
->    __i2c_dw_disable() to ensure the controller is fully disabled before
->    calling i2c_dw_set_mode(), which programs DW_IC_SAR and DW_IC_CON.
-> 
-> Fixes: 9f3e065c54b0 ("i2c: designware: add SLAVE mode functions")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Atif Ashhar <atifashhar@google.com>
+> Signed-off-by: Andrew Gigena <mail@andrewgigena.dev>
 > ---
->  drivers/i2c/busses/i2c-designware-common.c | 46 ++++++++++++++++++++++
->  drivers/i2c/busses/i2c-designware-slave.c  |  2 +-
->  include/linux/designware_i2c.h             |  1 +
->  3 files changed, 48 insertions(+), 1 deletion(-)
+>  .../bindings/media/qcom,sm8150-camss.yaml          | 285 +++++++++++++++++++++
+>  1 file changed, 285 insertions(+)
 > 
-> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-> index a1eca6cd4b75..ae737928820c 100644
-> --- a/drivers/i2c/busses/i2c-designware-common.c
-> +++ b/drivers/i2c/busses/i2c-designware-common.c
-> @@ -619,6 +619,50 @@ static int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
->  	return ret;
->  }
->  
-> +/*
-> + * DW_IC_ENABLE_ABORT only aborts master transfers. If the adapter is acting
-> + * as a slave and holding SCL low waiting for TX data (SLAVE_HOLD_TX_FIFO_EMPTY),
-> + * hardware refuses to disable (IC_ENABLE_STATUS[0] stays 1) until a byte is
-> + * written to DW_IC_DATA_CMD.
-> + *
-> + * Mask interrupts and temporarily set DW_IC_ENABLE_ENABLE so the APB interface
-> + * accepts writes to the TX/RX FIFOs without racing with the slave ISR, clear
-> + * pending RD_REQ/TX_ABRT interrupts, feed a dummy 0xFF byte to release SCL
-> + * (or drain any pending RX byte), and immediately request disable again via
-> + * __i2c_dw_disable_nowait() so the controller initiates disable upon
-> + * completing the current byte.
-> + */
-> +static void i2c_dw_release_slave_hold(struct dw_i2c_dev *dev)
-> +{
-> +	unsigned int status, dummy;
-> +	bool tx_hold, rx_pending;
+> diff --git a/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml b/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml
+> new file mode 100644
+> index 000000000000..371ff1ce0bd2
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml
+> @@ -0,0 +1,285 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/media/qcom,sm8150-camss.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +	if (!IS_ENABLED(CONFIG_I2C_DESIGNWARE_SLAVE) || dev->mode != DW_IC_SLAVE)
-> +		return;
+> +title: Qualcomm SM8150 Camera Subsystem (CAMSS)
 > +
-> +	regmap_read(dev->map, DW_IC_STATUS, &status);
+> +maintainers:
+> +  - Andrew Gigena <mail@andrewgigena.dev>
 > +
-> +	tx_hold = status & DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY;
-> +	rx_pending = (status & DW_IC_STATUS_SLAVE_ACTIVITY) &&
-> +		     (status & DW_IC_STATUS_RFNE);
+> +description:
+> +  The CAMSS IP is a CSI decoder and ISP present on Qualcomm platforms.
 > +
-> +	if (!tx_hold && !rx_pending)
-> +		return;
+> +properties:
+> +  compatible:
+> +    const: qcom,sm8150-camss
 > +
-> +	regmap_write(dev->map, DW_IC_INTR_MASK, 0);
-> +	regmap_write(dev->map, DW_IC_ENABLE, DW_IC_ENABLE_ENABLE);
+> +  reg:
+> +    maxItems: 8
 > +
-> +	if (tx_hold) {
-> +		regmap_read(dev->map, DW_IC_CLR_RD_REQ, &dummy);
-> +		regmap_read(dev->map, DW_IC_CLR_TX_ABRT, &dummy);
-> +		regmap_write(dev->map, DW_IC_DATA_CMD, 0xFF);
+> +  reg-names:
+> +    items:
+> +      - const: vfe0
+> +      - const: csid0
+> +      - const: vfe1
+> +      - const: csid1
+> +      - const: vfe_lite0
+> +      - const: csid_lite0
+> +      - const: vfe_lite1
+> +      - const: csid_lite1
 
-I'm not super familiar with the slave mode so adding Heikki just in case.
-Can this cause some unintended traffic on the bus towards the master?
+Seems you ignored my last review, so repeating:
 
-Also use 0xff instead.
+From which binding did you copy such order of entries?
 
-> +	}
-> +	if (rx_pending)
-> +		regmap_read(dev->map, DW_IC_DATA_CMD, &dummy);
-> +
-> +	__i2c_dw_disable_nowait(dev);
-> +}
-> +
->  void __i2c_dw_disable(struct dw_i2c_dev *dev)
->  {
->  	struct i2c_timings *t = &dev->timings;
-> @@ -676,6 +720,8 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
->  		if (!(status & 1))
->  			return;
->  
-> +		i2c_dw_release_slave_hold(dev);
-> +
->  		/*
->  		 * Wait 10 times the signaling period of the highest I2C
->  		 * transfer supported by the driver (for 400kHz this is
-> diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-> index 0abcc7757b23..e51a6b60292a 100644
-> --- a/drivers/i2c/busses/i2c-designware-slave.c
-> +++ b/drivers/i2c/busses/i2c-designware-slave.c
-> @@ -40,7 +40,7 @@ int i2c_dw_reg_slave(struct i2c_client *slave)
->  		return ret;
->  
->  	pm_runtime_get_sync(dev->dev);
-> -	__i2c_dw_disable_nowait(dev);
-> +	__i2c_dw_disable(dev);
->  	dev->slave = slave;
->  	i2c_dw_set_mode(dev, DW_IC_SLAVE);
->  
-> diff --git a/include/linux/designware_i2c.h b/include/linux/designware_i2c.h
-> index 53f37f18a722..113a9d84e34d 100644
-> --- a/include/linux/designware_i2c.h
-> +++ b/include/linux/designware_i2c.h
-> @@ -100,6 +100,7 @@
->  #define DW_IC_STATUS_MASTER_ACTIVITY		BIT(5)
->  #define DW_IC_STATUS_SLAVE_ACTIVITY		BIT(6)
->  #define DW_IC_STATUS_MASTER_HOLD_TX_FIFO_EMPTY	BIT(7)
-> +#define DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY	BIT(9)
->  
->  /* DW_IC_SMBUS_INTR_* bits */
->  #define DW_IC_SMBUS_INTR_ALERT			BIT(10)
-> -- 
-> 2.56.0.317.g454f8302e1-goog
+Best regards,
+Krzysztof
+
