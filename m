@@ -1,97 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.54
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794202894;
-	b=4y87AbWNe0nmARSpeT8xjgKqyCyKaPd9A4XRWH8cpo5R32Cf4DCk4Vq6o52oxhX9pfCz
-	 7kaNFtY+p/lc1eWylXGwyu/BYHebgzfVpHQVoQp6cuJ5KUdkbMvCQ+f9QdI5P3Y1T1jBW
-	 N68YOHF258Xe01Jy6+EgYN7trKAuozKebVq7O6P7Y7Z3HrVgxGyqz+7IoCllCXhEYZ+v8
-	 TQip3w/IyDjDCIpPPGUmoY8n0q4rHCOSM1nneI0779lYDxu0BfuYjWCliPdM0D9GP8QS7
-	 5nOW2JvePSnv2iSFhIhPeHROeDyr383hzZh9GCK0/8+nkM8gtA6OT1sPYOAmQibDX5A==
+	t=1794205378;
+	b=ioYlCMczv1EVgjYkv64muDh4byHHRH+fZWA2fmsjzwPA66g3Sm647bEJPukQ87m5zArp
+	 yiW0ydMWKMEL8RS4+UWtlbYMHmD8CClUTZ7db5XdTtdZvP0RUt/qO7FyJv1ORVGMu5Iiy
+	 zf24l6Ke7Gmatz3TMP4m18t20L17rk/iFBdbLLpbbuNnVLf5q7Qu5z1jD3/PBa5O0l/tE
+	 k1kSmeQIubkCVuQm0rTPGkyOlvJGOoGdXmG8c+L+1O/4gUqMEoI8go2Puh52kT+RhxhTM
+	 wU3MqN6brg3bJP2U98trmWckYpt9CGDgysHfRbRJAhN4tuzVJyDWNdQK/bn4L7h8N0A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794202894;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794205378;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
 	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
 	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=TrI0GbzOqH9Y+vNRVIA18oJVEvnOoZMEzsKGzGyq4VY=;
-	b=cKYDfNl+LPcjL5ACgDslMft5pexvS8CEl3F70Jl48yFMHqW/FOxfMQ3gf6wdtoyJLuPM
-	 Hf5MwWHCpSvcR/6gBVlVzd3z1AQe/zrcKEzSJBDCqe4PWrEHPMi6e8WzFy4N56ItmzRaT
-	 VXW9SlPDY+SUOo8ARfXfXVizHPWlSNfdPVtOjQZF33wE7BZMS8E/mTsxJj634Y5mAKsp+
-	 vbj206pioI1AsEE1GovGqwcs7uOWkQfqQ11S/jVOsR4xTIPiTsZrQYw6DBLuw5cNRYASh
-	 1nPOuYaP0IzHVr40Xhy5SuL+ygwNIbXNlPTWe2s0lZxkq7ewDmNBfgZln+gCDk3Hwsw==
+	bh=URMNcpQ5qqNQl+Xi1BHmKsQnDnwFJRQJWZlQPG3sB+E=;
+	b=L6FZmFIr4vXtyDfKYIWunvab10sHedfIKKHU2+lykCI+JcxljIa3VqBLFH42QUxRU8V9
+	 jazR55l7aZvGwgt/oF1N3vl1yGrxMnNYPxdXCI5DNdN7dWHwV4y1Q8vMjuAAnmoHaLmJF
+	 mxPvubYZB7Gw8GJJA1TP1qQdAQ7ASRFnxMfzfSBXgBdYgEI0rWt4jp4TTk4x2btMIsIx7
+	 ILHRbeTv0wuHZycF02m6kTUtl3pow07zTyQZjYcWfpPhwCmQCurU0MKA3CcKUQh7lKU34
+	 VW9c4NoMNiELUYMN2ea1w6LJnaEsulmPZ5gX7br4sjgHeMeOvor2djkms278uzr6oLw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chromium.org;
-	spf=pass smtp.mailfrom=chromium.org;
-	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ixTT0Vsl;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.48
-Received: from mail-yx1-f48.google.com (mail-yx1-f48.google.com [74.125.224.48])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oxmlE8U3;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.54
+Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0689606A321
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 05:41:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0689606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BB43606A31C
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 06:22:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3BB43606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ixTT0Vsl
-Received: by mail-yx1-f48.google.com with SMTP id 956f58d0204a3-67c00f291e1so257037d50.1
-        for <linux-i2c@vger.kernel.org>; Sun, 08 Nov 2026 21:41:33 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794202893; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oxmlE8U3
+Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-679965fb848so555661d50.1
+        for <linux-i2c@vger.kernel.org>; Sun, 08 Nov 2026 22:22:58 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794205377; cv=none;
         d=google.com; s=arc-20260327;
-        b=kf4OeQvsnXjhPLdkQb4qemfItMadK9FYsEeiuhLj4qzJPMmFNfMPQ2eDf+IjKRruwK
-         YJzgQaOmXoLjBfpHhKL1clnLmITEgf8Egm3uycTWk1P6/wEiTKjpAjEVgtTwl56t1M3X
-         Ioyn+BES+Xn706Aa/yBR07a6Um0ztzr9a5jfx16PMcYfyXhS7avrMfQdOMuJ20jKMTq2
-         iA+njK9KHcVebrtsfSt3G6v1Q5OTYDQ9Br5W7kvxb0C/oK2Q++mVrGBtIS3930a1xJ7S
-         piUA/UB9ShVrzl6yytyc+OHcElRQErmVOxqmwKocU9tpzYmqXGKzU0yNnIt80lWR38q9
-         F9TQ==
+        b=D2VV3mk4AuLrAHXtvKOIf5ju8VNM62gkrg2CeQnZbuFLLzRwAVv6CLX6boeXgtHLdD
+         3NXDOCLezeMneAevRRj7GvNB5jiXgScmtHAOveQ5kjQ6uyGfKskC6Mdh/V8Kf2Ge7lLJ
+         leyE+8GMjS35NOpTyEL/CqJ9SiLWwlaCB9u6c7rVfM8hXko+gmXYO9DJBLyf2z4ICw5v
+         3oO3PTKh5tQH44u3cBr5L57DPkfKeQCVDmME7Br4qZZLDhOXlm7U8/aXLs4SCkYbcDW1
+         Rsh3v8X8ftoz1zTlCKPqTB6X6k6fzflywTk+iZcqPdUzfZjOqDILe/AsDMS4gSPaAwnv
+         x3/w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=TrI0GbzOqH9Y+vNRVIA18oJVEvnOoZMEzsKGzGyq4VY=;
-        fh=6eIs1HPp/eb7SgfzoTGctvu6dXJkP9E9hhhZqkKKUHE=;
-        b=IW3pCNia+5Czqzt+nYD98lZCz0wKYNR4wE7az0eMpT6Ug83AFhxOFo/MBHAGGwl2Co
-         1WlxE3bT3QQb/nNCPNJ4hWyUQOFqyiVFBn8+gbTlE0cI2wQI6V5U5YObQSMi03K4972I
-         8MSxn8mekGWi9sG1i4re0JHdr2hBE3IiLHKqj0j8ZI1rzVjiBfyjG4AIGfrOkwgxGSwQ
-         GWXYN3OX8jJxZObJQyKwDIWZggWeGo9Dj44cwFDl3OjnoF34bAIC4/CIqXNZnwwq9XZC
-         HJ1pIh3dSW0kCzaqxqBO1y70vDiHnwxElc9bHoT1dFiEEt7n5fl7n2fZDeqU78Jh5N3M
-         n18g==;
+        bh=URMNcpQ5qqNQl+Xi1BHmKsQnDnwFJRQJWZlQPG3sB+E=;
+        fh=TbZ7mui+6I2MfsjVbYC9OuXUcqh7CzhxVxpPOrIP3TE=;
+        b=FyTrwG2toCaD7mobw/NSQZBVTamHSK+ZprPr6ZDYun6C7HzomG63jFNNxGUnb2EKdR
+         b/68a8VvZcJONQsmIxmFucPvFctXgeVOnLx5MMCGwqhBFRNZ31bto5+9k4/3XDwyELfj
+         2WuP/0dQvd1zsqa03ZhD5Jou7ttm1Gf68YppAyAvq1ThhX+HMktskM7tq4bi/e9bljy5
+         yhMuM1ylOH1RFfux8GZw2JYq3dIeeOaz02hl7jEIKpOvJmxRe6A8vnRLPrXbjsjA7pyZ
+         NEMSzJ9nwF4ahxfo3GrLu4j7gnNiGspAkbbUx9UCf6GumpOHxuvDfi8BNmKafq+DAVS/
+         ndbQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1794202893; x=1794807693; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794205377; x=1794810177; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=TrI0GbzOqH9Y+vNRVIA18oJVEvnOoZMEzsKGzGyq4VY=;
-        b=ixTT0VslnQORGwqIpda8mBfOWdfApgIl4gRZI/m8GqCr9k4vgh64erx6ypah6o0/ei
-         FQqLI8k1GNwoShoSH0KBqfUziMxq4Ouh2W2Y5bKDiFEJ2gweCdL/io5mWG/OmENupnE4
-         dgOx6HmnuVCdpk4b220rL/apfUh5F5gOC4pc8=
+        bh=URMNcpQ5qqNQl+Xi1BHmKsQnDnwFJRQJWZlQPG3sB+E=;
+        b=oxmlE8U3d5SFm+VZiQuPeXsEoGdZIYMlTYvkA/I5/luvTx76xQU26zDe122m0NAZAv
+         nb6mWBpfzgo6GYKcS0xe+1quZEEJLleeX3jknhyPVA2f4040l9LAoNAjEo/cVojhXhSV
+         kVsFJPZUlT458kmAqyvL7quZmBfpHJBm8Zc2/WNIv71VrFvrgESiSMD9rDKyA4N7MIxl
+         PBNxc4FOQrIwa3y+YP/dYuPzKNz8ycAX+EFQujD52srcMBrlR6WenLRwaJqQmkrd4wzD
+         JJRKCAtFz/tU1ZypxJy5XRMTNqpFQhivgUhNYpNvedOqWk+HhgjpqWd5d9bmCf1qg2yQ
+         jMuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794202893; x=1794807693;
+        d=1e100.net; s=20260707; t=1794205377; x=1794810177;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=TrI0GbzOqH9Y+vNRVIA18oJVEvnOoZMEzsKGzGyq4VY=;
-        b=MWa9TvbIlNBAN4HWPKS1yAH3QJoGCtLFOGs1hZ/96K2skNjYKqheRL71QtDAZZZurj
-         RgZT6IB/zspO2zya7rD0DFwRKim+y73J6+G9Yxp6FIy7rZw9Fvd/BbcwwdnvHhciICuZ
-         wvlOU+fa06jNXUUTX/JalpWf49N/nzakJ5tUK2b6U7NZX6KDyQuaumnM0cTrUpdL3CZY
-         DYeOT+EdYK/XgPK6R+sfS6ACm9+fxVrZpBwyp+yW+mNJA2XhUZZ2Jimqc3EpWb7xPCTH
-         1Aat4J5PYyn1LyV4WKdsjOnER5YYISg1eBahoRqt4F4iQk6VQ02MB5nTaLpPuvJSnzA4
-         uD1Q==
-X-Forwarded-Encrypted: i=1; AL+hErEd32u8+AXYoO6W6UVEFF6NtTS+5KktH7TECKfEh5fbBTBbbK37usXFiHMK+gE91UlJH4FsjqOCyZE=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+4HsSSuns5KSBeEfHWwpkOfWbDVvCoduiv9qqXpv2xQBl/ctpO
-	tNvg7DLA/FokCE+EJZfJxppq4LuhZ84bUFf2Hw7dux7qj/0qdlSTQtSDEXAtEoarvvsrPv1NTkj
-	zvPltZzBMXwUMbZ1SpjiInhN7aLiRexOs2HXYukXx
-X-Gm-Gg: AYBFou2sfHBgxUkMLEM8wALkj/byKGhbmFjusVymUoJTeQLlACTTd4wnfGB8xvKDw6z
-	GfPdRImGDeVFgo5CPXjO0lVHQKQ3rXyET4foHWhMXq7H+Fp9mzenYjP6gxw+hAeF85GuPF62jx2
-	oteCx41VBxBQEkZsgzyDofIiKu53CWGaX8NNg6HpVcc8nO9bBMhIcAdKu3GplmWr9bDUP+GqdI2
-	Xyz3hbnwyCy874ErqfEyTTKnHxDisWdhbF3eosRlIIkqUU1/3X99MgLm0OlpANziFDhV2asg8Qm
-	2sHjS44eZMFyjO853hVid7G/ENyiLLXdaViTy5AgsQDUlsoV4rl+rf5pFDo/0zGAstm26NpJXz1
-	buWoJc296iG9rYyNldFK26/PwRPreRu/RuecNhQ==
-X-Received: by 2002:a05:690e:4393:b0:67c:10d:e377 with SMTP id
- 956f58d0204a3-67c3d97b42cmr874807d50.24.1794202892850; Sun, 08 Nov 2026
- 21:41:32 -0800 (PST)
+        bh=URMNcpQ5qqNQl+Xi1BHmKsQnDnwFJRQJWZlQPG3sB+E=;
+        b=dMgWAhI6r5Wy226x72tWzv6j2NrartWQHUTBdqe8S7jJPLc9kQktzO0dznYFGD0IsX
+         c1FOjpYZTYPOtzzCeHGThGy3GH5upTpZSj6CcTWXjvyERBLGMtWGA58p0U8YH2jcwFoX
+         C+TXY/WQn8V+RtZt2+X6xCLy2Nz2vKvJ1w9V9z7CGUBwXKxEsxBuf4FfnYxje4KgAq/7
+         HAvDxin5uTkEpoTnvPyJKTqu0b/NOEOsttBi5zGq2g+ArJY5Ub4EglDk3i/tMh/Q4mHr
+         4oKu206t6ZkyB9bhb8B29yUEfUr454Tv5ydUYBrTx/RjO8WENC/4cXRn79J4mH1aDPnH
+         xyQQ==
+X-Forwarded-Encrypted: i=1; AL+hErHTT8p7RxqCavhJxVkpxH3nlrFkF5M6FdWAhp79fjyk//Itj+Pp8pKfV/iW8DC2tAtUrLok6Q4CRyw=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9Qn1ltA6KafYFMSQUVqnb2HZ+P2vDEQBwkrwxNdDY3SfkT7y5I
+	oQeBKR+dvoBvp1D2TLrP/eabYoM6jQprMp5sf60NGhdAT3/k3JSG+a7tLKrCMvzCLY27meus3fT
+	0ClO89a8IQkqLglXhzI+EvHxl2Nx8fu0=
+X-Gm-Gg: AYBFou37mFZfSad/luC/QRdLsy6yYHa/M8qMdG3AiDPXjoGFCWex33w6Y3tdeOcDDai
+	OvT7GqIE8D5ZwS4qqhwwGwGiwpW4rtWE72DfywcHcsV6n1UR9SNRm5GDcFX7C7Z32b2xPlv5pdv
+	PTTIHnYx2yvG5fD2z+MUeSg+xf2DmzHYa0V4dqJMC0rsaoBcApG3Jv9h8maf5FC9vQca5tGS11I
+	uCNdCgAt50sUpR+SYyIacyds6dR1/gZrQr1R/72eYKrv8vNq0GfCNAxGaFzkDwp44Kcu36/56ww
+	BT59zkQnAqafQyHboJsaA3vBEYQAucG7TPdAzo6BNQn+QFx1wuvChD4nAGR060M0nAgXziqScxH
+	A95ESoZJPxU/y5RC6Fw/EjDysghvQnVfejivl
+X-Received: by 2002:a05:690e:43c3:b0:67c:1fba:b465 with SMTP id
+ 956f58d0204a3-67c3d9fbc68mr1052892d50.48.1794205377206; Sun, 08 Nov 2026
+ 22:22:57 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -101,73 +104,50 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261103043734.2179858-1-wenst@chromium.org> <179406980914.3424803.6201831446824678583.b4-ty@b4>
-In-Reply-To: <179406980914.3424803.6201831446824678583.b4-ty@b4>
-From: Chen-Yu Tsai <wenst@chromium.org>
-Date: Mon, 9 Nov 2026 14:41:21 +0900
-X-Gm-Features: AclHuK9Uis4PjHZvlrrahSmg0-iKCJazl9kKs9oybOBLW0q8BipFSNFJ0jiQ-bQ
-Message-ID: <CAGXv+5G1SozUuj8v64oD07wz6dFbY+bXh-Q3OVvieY7v41ZJ8A@mail.gmail.com>
-Subject: Re: (subset) [PATCH v7 0/8] arm64: mediatek: Chromebook trackpad
- supply fixes
-To: Mark Brown <broonie@kernel.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, Benson Leung <bleung@chromium.org>, 
-	Tzung-Bi Shih <tzungbi@kernel.org>, linux-mediatek@lists.infradead.org, 
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20261102093228.2751576-1-thi.zirnstein@gmail.com>
+In-Reply-To: <20261102093228.2751576-1-thi.zirnstein@gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Date: Mon, 9 Nov 2026 11:52:44 +0530
+X-Gm-Features: AclHuK_068F5Wc70oWZbpd7SA1pDUlq5xu7WG9r41_d4oinb86Mlf6cH4ArzQug
+Message-ID: <CAKfKVtH_SRTSyZnouwz3MEbGrtinbJLN=y7NzuX_mV4+MgKoRQ@mail.gmail.com>
+Subject: Re: [PATCH v4 0/2] i2c: i2c-xiic: fix clearing of bnb irq and
+ waiting/ clearing while atomic
+To: Thilo Zirnstein <thi.zirnstein@gmail.com>
+Cc: michal.simek@amd.com, andi.shyti@kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Nov 8, 2026 at 7:25=E2=80=AFPM Mark Brown <broonie@kernel.org> wrot=
-e:
+On Mon, Nov 2, 2026 at 3:08=E2=80=AFPM Thilo Zirnstein <thi.zirnstein@gmail=
+.com> wrote:
 >
-> On Tue, 03 Nov 2026 12:37:24 +0800, Chen-Yu Tsai wrote:
-> > arm64: mediatek: Chromebook trackpad supply fixes
-> >
-> > Hi everyone,
-> >
-> > This is v7 of my Chromebook trackpad supply fixes and optimization
-> > series.
-> >
-> > [...]
+> Dear all,
 >
-> Applied to
+> This patch-series fixes the clearing routine for the bus not busy (bnb) i=
+rq
+> plus the waiting and clearing routines while in atomic context.
 >
->    https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git =
-for-7.5
+> The bnb is used to indicate that the current transfer is done.
+> A high level view of the software flow for tx:
 >
-> Thanks!
+> * init i2c controller
+> * prepare all registers ( fill fifo, enable irqs, ... )
+> * start i2c txfer
+> * clear and enable bnb
+> * wait for completion
+> * ( serve interrupts )
+> * ( bnb interrupt ): complete completion
 >
-> [1/8] regulator: core: Add "enable and wait" functions
->       https://git.kernel.org/broonie/regulator/c/9f9bcca6adc3
+> The datasheet ( pg090-axi-iic, Interrupt-Status-Register ISR)
+> states that the bnb bit can only be cleared if
+> the bus busy bit in the status register is set.
+> So the iic controller must have recognized that their is some activity
+> on the bus. ( Start condition )
+>
+> Currently the bnb bit is cleared without checking or waiting for this
+> condition. This can lead to spurious bnb interrupts.
+>
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
 
-Thanks! Though I was wondering if we could get an immutable branch
-or tag for the commit, as three other patches for separate subsystems
-use the new function.
-
-
-Thanks
-ChenYu
-
-> All being well this means that it will be integrated into the linux-next
-> tree (usually sometime in the next 24 hours) and sent to Linus during
-> the next merge window (or sooner if it is a bug fix), however if
-> problems are discovered then the patch may be dropped or reverted.
->
-> You may get further e-mails resulting from automated or manual testing
-> and review of the tree, please engage with people reporting problems and
-> send followup patches addressing any issues that are reported if needed.
->
-> If any updates are required or you are submitting further changes they
-> should be sent as incremental updates against current git, existing
-> patches will not be replaced.
->
-> Please add any relevant lists and maintainers to the CCs when replying
-> to this mail.
->
-> Thanks,
-> Mark
 >
