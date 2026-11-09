@@ -1,91 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794227674;
-	b=4JezMjzzYi7h48V4ifYAW50D1zTd1hdfiIriYkJmGXtvTmG3nC5z6a3grfR7AOHVc6P/
-	 ktly5VPZ4MddqC3HrfeGAPiWGWdZ4nY4RKvmtCuSW2c8M7t7tZWbvIQIc2JMgji3JrquY
-	 vKmNZUAYsP7taGeq5Rb/oE4RxUwr3cCGjFgYZBBjhHOzrk588tClWCy6P9t9yxcYQd0xF
-	 v7RKF4BX33LxUJ6FNW2RHq+uzKRZ+eJbW1qp9po7+RbQtwTkAL5x6zNScXpluxTQfN3Ek
-	 pbb2eUPnpg5GBkfpQgbJTAF3aIIIlhhnN1XzOP87cqZsVoq5+H3JhNHxWDI8PzST8cw==
+	t=1794230484;
+	b=5E5VG4C5XekNvcBYEtzFCOFnDAFR7ywObQQPstUXI1y57Q3qxSyUpqLZmEbPpVToNSxy
+	 +o3UR7S3xvhDCH3DTH0+r1xsjKJ6CWQJ7XztIjlat9jEoQebFtbKDxr965fxXC76ah1H2
+	 SDSilbIT1tNK80Mc496xBAVcBexu8d9D7l+OGfs1BuBnFX1reIMmIjr/gKvgPT2Ir+rfC
+	 H8y5dS7xf0Ux1bsddirNLntjmSho5CGIfmppIcG/JVR5gBjdwWZEat/XDhrfqz5aP0agI
+	 2uG5SSBd/G/OcydZ5JINSsy/D/ItgJKStLCOrJ1q4tKhnLyb8SxxuGLEaDgknOqF/Ng==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794227674;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=gt/3XOB68SSu53/G0Tef5w8/IHOUQEz+9XwgpJEET4I=;
-	b=wnJ8CKC1iXgYtvfKqxoCImzALdmwr/x46DYXzLqOx9YC2qt4sV0bkPulq8NfpWHEe7mT
-	 yJwXX6O6cSSJ3Y/HrSbn2n4qdJX5glwsfq/4fW4EiZjnw8wxVYGfvdLfs+1yYCzlxFiUs
-	 8iV89Q65DP7GZJmTdyLHvNNQHj/RbWc0lnOuhos+IlZR8JYdnj+qZjQZ8AfvYxUcgDc6k
-	 UedqXsismSWuNck8co7YBL8Jgp7uU5yk7+68IdBmVIIN1Oj6E4bWke/tbTOchjhzWTykY
-	 KlFtvehjeHitpKxOTj1vkyBwnr1c2E4//6El/cicBxRqcmfXuVxurJzOK7uAXWwP+0w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794230484;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=dSDOttOUZlbRzOTWEjKBcPBDk84wy77ID43rCwcUDVI=;
+	b=GWCxCLlltAIgJ6FNeTz36tvlaiDYWPvibF2jpnLuWOCdqLqwy++OyYiEhzdlVpH4sgsx
+	 vzqFIYa9o+LFeU+s5dd7Avfl5QbMQsh+gyH3OAwV+4g/KKFmBciOMXhmlcfZC4l5Kzoj3
+	 9SbeyDscACQ3L/0YzauQpTOyXukeklO8+RFnt9x/U0CBHnRwarMBOiPqfYfx17yinM+dl
+	 QtfX3Em1oLpk/MsAAGMPl2Pr6tS3C2GaB7UsISuKAU6J8Tb9oR9wKX4KZaS9FUWcdftAk
+	 O+pFCVro3EHXFbzf83dPE8KFIlNydOrBcF/M/tAOF9CT0uFsF2WcLErdk8KqEUx0PJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bZYnJIW7;
-	arc=none smtp.remote-ip=198.175.65.20
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Rnm2OZ43;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A8B8606A334;
-	Mon,  9 Nov 2026 12:34:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5A8B8606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5D48606A31C;
+	Mon,  9 Nov 2026 13:21:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bZYnJIW7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794227675; x=1825763675;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=usCKxZZR8RyJY+rSPMuZugBONggC3XR1NlE53FogDNg=;
-  b=bZYnJIW7+3HCXKMgf2uY5GnXLCjcUCddsSjBqU5iFeLa2SFyfjBKVHzM
-   ozX+/ZQ65L+Ziw7+JjwCZd8G1sVyDrqgBsPflJrH50Jw0mTPgj+YKsXal
-   n6/84AUPho9CSkiwrpWgA6RRZgVkPpFEHgdRDtsniyW9Xcjw8UsnARyae
-   86PaQ9LBfAbpRq3lrgfNaF4nsr/pR6ogOo/fSWLHUYEPLp2qN6Cq155hr
-   +UXURp9Q0gnZnb73R2LOEY0/GxNl2IMIC6+F4jqQxBrP+19rflv4NT1sh
-   7WCWRw9lN/Aa9/RthpihJqkwAvPOn/4w8Dbfi5MRQqP7w8N2BjTr5+yCg
-   g==;
-X-CSE-ConnectionGUID: jTet3CC9SAaq1Bwr6eZpHg==
-X-CSE-MsgGUID: F+7cc2maSKaKOlwsmmsZCQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2979790"
-X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
-   d="scan'208";a="2979790"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 04:34:34 -0800
-X-CSE-ConnectionGUID: 5YNLzSIdQk+scpqzXkS2Kw==
-X-CSE-MsgGUID: HUpK+atSRuq0gKDikhBrxA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
-   d="scan'208";a="8186273"
-Received: from amilburn-desk.amilburn-desk (HELO localhost) ([10.245.244.144])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 04:34:31 -0800
-Date: Mon, 9 Nov 2026 14:34:28 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Siddharth Chintamaneni <sidchintamaneni@gmail.com>,
-	Jarred White <jarredwhite@linux.microsoft.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	"Rafael J . Wysocki" <rafael@kernel.org>,
-	Len Brown <lenb@kernel.org>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	Allen Pais <apais@microsoft.com>,
-	"rlmenge@gmail.com" <rlmenge@gmail.com>,
-	"hargar@linux.microsoft.com" <hargar@linux.microsoft.com>,
-	Jeff Kirsher <jeff.kirsher@microsoft.com>
-Subject: Re: [EXTERNAL] [PATCH v1 1/1] i2c: designware: Add ACPI ID MSFT0006
- for Microsoft Cobalt SoCs
-Message-ID: <avG91GDyffzeuBVg@ashevche-desk.local>
-References: <20261104234928.86458-1-sidchintamaneni@gmail.com>
- <DS1PR21MB4279C556CFB876C5562C7F1182772@DS1PR21MB4279.namprd21.prod.outlook.com>
- <b660d79f-887e-4594-ba76-c45dc5f75435@linux.microsoft.com>
- <CAE5sdEhozq5SVj-SJLndiaANx1N_sTiAMBD0zeA_aafUYAGOKw@mail.gmail.com>
- <CAE5sdEi9iOwEmuhzWZ=O5u30UVCbCerckhggBqEY9qU5jBce4A@mail.gmail.com>
- <avBSrChTZTQL2rNj@shikoro>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Rnm2OZ43
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF331F0089F;
+	Mon,  9 Nov 2026 13:21:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794230483;
+	bh=dSDOttOUZlbRzOTWEjKBcPBDk84wy77ID43rCwcUDVI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Rnm2OZ43+sNN2aJJ52eRSZhb+eqAhS0A4vIyS9o1EgF2JmB9rRXJJMj6l3lgx4wJg
+	 AlxTQ5BR40MI2Hn9bUmUvgh1JoU7OMTQWgJY68SwtXc4y0UXSJDS3FsdS6LMCYbsNE
+	 ptwUXL4uVBXJ60moWUQZClLUvLZAT6jg6TGMa62lc+OIndtPBAMfabo6Z1PLer2hva
+	 s7Fl6mbCkFosCu+JvZ2k59W24/GVlgJkPB2y7lZrk/5eqfLsc/+VLPXvhIoNc/8PvL
+	 qEK5U+ELNg52phl2lFHfIFr2YMT+6wvczJuVGV/pArLaL48EuEO6F5tutar1rpipAG
+	 a5c6KfPcxQvjQ==
+Date: Mon, 9 Nov 2026 14:21:20 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Antoni Pokusinski <apokusinski01@gmail.com>
+Cc: vigneshr@ti.com, andi.shyti@kernel.org, robh@kernel.org, 
+	krzk+dt@kernel.org, conor+dt@kernel.org, aaro.koskinen@iki.fi, andreas@kemnade.info, 
+	khilman@baylibre.com, rogerq@kernel.org, tony@atomide.com, jmkrzyszt@gmail.com, 
+	sumit.semwal@linaro.org, christian.koenig@amd.com, phasta@kernel.org, 
+	linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linaro-mm-sig@lists.linaro.org
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: ti,omap4-i2c: Add DMA properties
+Message-ID: <20261109-psychedelic-kudu-of-tenacity-b06ada@quoll>
+References: <20261105200556.34240-2-apokusinski01@gmail.com>
+ <20261105200556.34240-3-apokusinski01@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -95,30 +62,39 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <avBSrChTZTQL2rNj@shikoro>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20261105200556.34240-3-apokusinski01@gmail.com>
 
-On Sun, Nov 08, 2026 at 11:45:00AM +0100, Wolfram Sang wrote:
+On Thu, Nov 05, 2026 at 09:05:52PM +0100, Antoni Pokusinski wrote:
+> Document the TX and RX DMA request channels featured
+> by the OMAP I2C controller.
 > 
-> > For Cobalt, the firmware exposes the designware input clock frequency
-> > through the ACPI HCLK object.
-> > Is there an existing way to retrieve or configure this clock frequency
-> > through the ACPI tables, rather than hardcoding it in the driver?
+> Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
+> ---
+>  .../devicetree/bindings/i2c/ti,omap4-i2c.yaml        | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 > 
-> Calling for Andy here for being the designware + ACPI expert.
+> diff --git a/Documentation/devicetree/bindings/i2c/ti,omap4-i2c.yaml b/Documentation/devicetree/bindings/i2c/ti,omap4-i2c.yaml
+> index 58d32ceeacfc..ff946fdfaad3 100644
+> --- a/Documentation/devicetree/bindings/i2c/ti,omap4-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/ti,omap4-i2c.yaml
+> @@ -37,6 +37,16 @@ properties:
+>    clock-names:
+>      const: fck
+>  
+> +  dmas:
+> +    items:
+> +      - description: TX DMA channel phandle
+> +      - description: RX DMA channel phandle
+> +
+> +  dma-names:
+> +    items:
+> +      - const: tx
+> +      - const: rx
 
-We don't have the common way, it's unspecified. However, many drivers and some
-firmwares adopted the "clock-frequency" property. Unfortunately for I2C it means
-the clock of the bus, and not functional clock of the controller. So, I'm
-afraid you will need to have your own custom solution. Also makes sense to look
-what ARM people do in the same situtions (I know that Qualcomm tries hard to
-enable ACPI on laptops, if I was you, I would ask them first).
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
--- 
-With Best Regards,
-Andy Shevchenko
-
+Best regards,
+Krzysztof
 
