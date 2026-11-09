@@ -1,87 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794239513;
-	b=R5Q1GOX63J3cjL3zyGSXMWusOrw2RO73WB6rmIVLTfdYQdByBsKsXiGvBzillBEblNns
-	 D8RyDYF9TJtf67Dwq1BzmXVRUcGh90AfKUII3R+L1V1A2SXp7w3guYysAA4uSnNsvUx0D
-	 tKp2v+cLMryxuAADgqWdxSJ+0g0kGfXqNac1S9+9BjAJtpUtmu1kCz7L4Zakmq1zEmb4r
-	 x6y/c7aFmv6e8y6sbgcDabHJ3QREslzmoj8GEK5VXBehEdt1S7Apx43TkkCTxfOzdY9TL
-	 OGmFIUsv3Z7fvMurIxekiCPlfGt49+II02QD6+U6U4cq3Y37BDB8tPHl/V/m6C9Yo0g==
+	t=1794239872;
+	b=NZaSYbbjSmWMHSGRcdrLezQwpkU091daMuex8ML6Ghl3BfPDQCiIHb/onJgszqzVgDbl
+	 90cB8GmU3V0v2330EtBxoIAdm1ojUTw6My8e/9e+MTRoHqZKkbKFKgPFhvuC+HOC0FHNt
+	 5NMJX78wWdyFOcSyz+0K4SGRz0zYYMIctT8VYKMtuNjf6eYfQ7djZeXMxDSfqnHpSrW8Y
+	 BZ6ruUP6Ed8P7zGdjVW4Yj1umWVI/G11dDk8lKM9DEMD8tcHo7ACqOwBmyl9XK1sI5WK1
+	 azJKaJrVpu0mL2vH+2ItVLVVrzJ/KNg+jnS9CvIxaNUz0f5Rw20TA8BNHPYKwcOjmYw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794239513;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794239872;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:Cc:References:
-	 Content-Language:To:From:In-Reply-To:Content-Type:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=GqcUVOE8YZm1FPDzDze4+rCKgn8rK0xiBVztztTok30=;
-	b=1NQGZnmFn94gYbVdzg7q294E5UOJ6vT9dW2mEWVVv8Tm1s9kRwkHKYUPtBKWc+zOfs+B
-	 QfrxpePjmQ7n28NBQQnDgke9ZsXYTdR2+LAL03bhIDu5f2eXNVwLpkpU5xAZ7c0/oW2Mh
-	 83eO/z2+qCVgaJ/Q8+ky+j4oj4gPobpT5ONOFt/BjcnToolJhYvCXXAgtR9zHH9yO+muX
-	 jBPQlm/IDrncG1a1mQVLQX9rM2RhDCEPcTP2ZBsi4oEQAemU59BJxbOomqOnPS1wU74hE
-	 oxJchIGXmIA8Oihc1ffV9FgS+joFVDygGAGdujLY4uc1haoEjVkdUr97tDK+2a0MDLg==
+	bh=KQFKpRV7NATJKFVseA51zGW96GPsJPPL3A6Ir3znGCk=;
+	b=VEfVZfsImwsfs9v3Bqx58SkubpKLyAm6kK9XDptb9Eq9Ab5Lq831c8BDAcQWJ22+JO6H
+	 pvVMz72VyQ4ndEE4G3xNM4JP3KBh3ggU6/SDNCWdBN4q11B5EKORGKa8Qn/ehvwL60NMb
+	 eekMXxTSjTOgwqZkz6l40XC5hIsQk1WCt43S6KPqLV3O8DnKKHUjcq3HIHAGem25S5d1M
+	 miAFbQsZLBGoV2RML/dXC+OkDZt6Sa3blorom6sE2b17w6b/N4VzJ3OlGtNf+yqr78+eO
+	 B/jhaj2bazTCntZgxGYSidMlmfEjthWk89trkT9Oxf1Pm+JvzBKhJ902DGu+W4VhaZg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.com;
-	spf=pass smtp.mailfrom=suse.com;
-	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=I6Gf+TJ+;
-	arc=none smtp.remote-ip=209.85.221.43
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=hLXCDde0;
+	arc=none smtp.remote-ip=74.125.82.46
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5ABE606A331
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 15:51:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D5ABE606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B28A606A330
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Nov 2026 15:57:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5B28A606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=I6Gf+TJ+
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-492fcbfaa87so674589f8f.3
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Nov 2026 07:51:52 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=hLXCDde0
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1a2761c69fbso872586c88.0
+        for <linux-i2c@vger.kernel.org>; Mon, 09 Nov 2026 07:57:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1794239511; x=1794844311; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from:to
-         :content-language:references:cc:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=GqcUVOE8YZm1FPDzDze4+rCKgn8rK0xiBVztztTok30=;
-        b=I6Gf+TJ+xx28C6M6wGa7IriJIxP64CATq5xKa5KY4/dVEF70L68u8oNbC3qDhkhEI7
-         7ia14iP5TbkPq0pUWtgTMNnR57unFzAtVelBZ6VlJdQ4CrgVYgxw4RobiXpnUn7hkB+D
-         nzTyACD0+MFjBaqWPAWXlFUgKFrj/LJmZ6fQQvFA0wYX9Z+YdDx7xP/wSzXM8J7jhI3Y
-         cnv1opUi8bNDC5CGiUC5RyhE5sufSwg94ps4g0+w/MIT3GHEM+nHtCTD6yBD+zcjVMzC
-         KM6SnUFC/LBhWAJoh5/3RAr1pEMN+dTTDdPPEWzL92kIaF0QNP3pX9QYFDhi6xIlcLq5
-         xWjw==
+        d=gmail.com; s=20260707; t=1794239870; x=1794844670; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KQFKpRV7NATJKFVseA51zGW96GPsJPPL3A6Ir3znGCk=;
+        b=hLXCDde04W5diwbe0GkjBt0uSOoYyhvOqcmGMnNaj7NHl8xd8mikVinjwWXV5VGYDf
+         AwY5T+giJ6h0sL3kz0BJcUmrPNgAGEvBEEK9+1Asx13b+O2UEonf7hU/l5SAciNMQT3N
+         NYhX6qkHr4zLhUfZy1I19FS+NoRlCkIfkPG3FEgEZx3Wp81xyYYYBuMolTUW+4dhZYbR
+         c2/CcY3Pcnx2vJ0tC4uYkDCdmXLy3CxFD/H+7BdHUxwvBmUwihpCZmvYgCKNAm5Lb2tz
+         T5GXBDlDSqPkTtPMHZT3ivSrS2qVs3W4VXdaihX5uvLvXeK5o4N/UA8lCEMozXWIaVfq
+         nXEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794239511; x=1794844311;
-        h=content-transfer-encoding:content-type:in-reply-to:from:to
-         :content-language:references:cc:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1794239870; x=1794844670;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=GqcUVOE8YZm1FPDzDze4+rCKgn8rK0xiBVztztTok30=;
-        b=a1z75xHzg+KgqMUv2dl4pJYJ5nLPr4GLlMkb3iYj1owcofNt0/7YphadI6JQmKcBTr
-         OeuFm9CyW+1OyNUl90Vgw8Fwexm9ali7NyS+dUY1V9K2PvohC4YQpu6Y/agMqamFV8ws
-         ys1gZ2EvHvF5eC4hR9bE2PgGPXqUAejZVyokb5eSY4Uus13riNqZeTdryOYJneodhyhi
-         ICke99XUyxMEmBbyQ0/0BJ+T/pyjJvemjNqH+JQeO1xadoe8OtJmjOwvdctELSbxq4f5
-         sw9v23+0M6umr2CKThcrOzqCn0QHqaTKbmNDwHcQNuHro0sglKjehjF84qkmGRqdaFiz
-         MhKQ==
-X-Forwarded-Encrypted: i=1; AL+hErH81h88wGp1yt140Okw3JXPMjyt49LGNr0qno8cQExVN2Crsjt/VdGzMr5c9WofeTbwOTW5Jo9ACo4=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/ohBNxz4etMD5KfDO9rb1nvw+h3U8AZPPIS5bKYukHrxQfTv25
-	GTdayGtmBneZqgCn/mEaNvKSAIZplWrXWqmCWYYQf+0W7hzos4XPPyCJpLDk5tYyWNU=
-X-Gm-Gg: AYBFou2N9/fmniKmmsjTAfAe7OwL56Zs8SMmT5fRmPNlBu+fLkNdxNQFiOZ1vaaxPZ6
-	oRUn1ipg8VdzTaBJFXoLq3jg9Nrm2e5je33YZO4Hy4Y9mXwnrEhMzV/gzEGnVQeug9gzZuUE8Pj
-	obEHJ8UxMqp5Q4mo1BFkO4cYi714EEI+meVdxYqiemL7//UIQinbYEkDFl4rIJVEtCZ9ImnVSEC
-	/ArbukldXpbQTVVocOfHkmL5SZnZnN3UPyl/4m9BfTl0dvCruLsnqaKIoREPNHJAeoVreixjGtC
-	T1ftyYWydkg7KH17lcB/ohqppwGKteoi4G0AF0dQEHj97LyqSW4YTWuESaO/HRacHB6Sh2PZwDx
-	K7iaElo/T2VJjD5WD4RJJiNquGAWzfia5Yi28HX6S0lsuelQLFRUt3qbaQ5mq1vB27TSE+Ux6Zu
-	7F302pTSPjikXRX0VX5WE84IsVrKP7efzrC0SiCAp8RyUlU+zG5dxN70TU/1up/EnSltCAw8iY+
-	7j3PpbisA8tUfH8rRfHt5pJFGd3IoUSuLA9NWbRUBNew00Ai0dupn5aS7qphUuF3j796BGqvsoG
-	QwFtukxyK4bpV44CVMz4+SGjKU8UKb8BHkMznv5NCjs5v81r7+3ef0JPN2AzjkRo
-X-Received: by 2002:a05:6000:25f5:b0:492:e1a6:90eb with SMTP id ffacd0b85a97d-49582e8e516mr8245452f8f.10.1794239511204;
-        Mon, 09 Nov 2026 07:51:51 -0800 (PST)
-Received: from ?IPV6:2a07:de40:8100:0:89a9:fd0e:583d:4a53? ([2001:af0:8000:1409:193:86:92:181])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49597186eb9sm10435718f8f.35.2026.11.09.07.51.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Nov 2026 07:51:50 -0800 (PST)
-Message-ID: <a190f981-d668-4208-8148-f4e50adb31a6@suse.com>
-Date: Mon, 9 Nov 2026 16:51:48 +0100
+        bh=KQFKpRV7NATJKFVseA51zGW96GPsJPPL3A6Ir3znGCk=;
+        b=hGgUHCaxq3kQtupduLhsX5lc5u2sYLqojAqjJ8jRyodGnKFcrr2jvA4WQvPxWLi439
+         b2/MqrSmvjfB8540aOsMXBl8ePX/SbLarx28P9jiDPN3PLG1VoyHFkdDX07Wk12XHSjK
+         NsNfJhc3cdqZknx5y5Lg4SzoBgPSjcsBKlrytb4vk+sgtBw+GAaQhL/klx0TVVIbDr/o
+         mvFgi+GRFXSHO5CuygA2yC6G5hTSi/SmAkz6cFwlA+QhKgouPg1/TlENyF01C2vvzxin
+         DUmcwjsSKGbYm2h8Z9ZlORjaKjDAc78a4cfb5oqKkGM5BD3xAhfXiFM1eEhrFFrEQe0W
+         cyBQ==
+X-Forwarded-Encrypted: i=1; AL+hErHfSjSo3ysTXsYfYl8sfrDZWqCxuLr1W5NtUtq0jNqx++abkFvVK11smuHqxPxn0iyXYdN62S/O9k8=@vger.kernel.org
+X-Gm-Message-State: APuU4Z90H/ELVuk22XpCkTgzr+IDDgq+RgNDfqRYq0NOQq6uD4dMQxEi
+	DoU+jfX2HHsbOzO0QeoFEp7gI2uHxhp3TVl2cJdh3fFyf8nlG0qILYUf
+X-Gm-Gg: AYBFou3A9vfnD2vmCrtzJr/CVCazsoC7wxtyXr+s+1/ijhsQotw/QpKJPUKvkUIlTGq
+	Aa160SKYoPElLaoSkpclwtQTjS1klvh9UkgkJB+BZROj9EpQO2xKfs1ZKoI6w5M+LI7Nn4rxqrK
+	NQwkVGAK4kKZegZeDRGOxzso/c5SErRjz3LJ46J2kH5glpNbuO1xE14VY0ynJ52cmGxlorYjzlk
+	dAsO5nRGYgHAlmUhr7gql0euULXoKg+dc3mAqIuRjZTPmEJrEk1zn+e65oUH0UGi5TmNbg3qIAU
+	hbF/e2pGqJSsHOeAIoUs8QkiS2yuZeJ1BEwJVokPH+7jgc/Fi58ptCHYHvbSD1dY6VNLwm7TsY6
+	9s53KPDHtGL+97dh5V2SbsphWVWQY39Y6663spc/kwWyP+/LSOD1lxJRSWHsy9vxWAveNVOpIyp
+	Mqlb8dhr53SA1Ez87BbGPY+AP5U1GkUR//Is1uyKSww6ZjKLX4xCe32aOHuG3Xdsqql+AKRx7nO
+	zkUl4UFVnMnOgWKgBcFfyCdifIfLxZgTMWdn1DRazEym9UE9qxg5ybgWp5TJ6Bk+FYEoTSbSt7a
+	l2KaWIVR/wLVaxa5mrfgCyoRHl6effrf6KRgTbkv6l3Khj+Pcgxqc47458w/AU+iVUYjo64=
+X-Received: by 2002:a05:701a:c919:b0:166:af48:a2ba with SMTP id a92af1059eb24-1b39fdaf74fmr6537059c88.0.1794239870114;
+        Mon, 09 Nov 2026 07:57:50 -0800 (PST)
+Received: from localhost.localdomain ([125.166.179.225])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b3757214cbsm13020828c88.13.2026.11.09.07.57.45
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 09 Nov 2026 07:57:49 -0800 (PST)
+From: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+To: Jonathan Cameron <jic23@kernel.org>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Igor Korotin <igor.korotin@linux.dev>,
+	Danilo Krummrich <dakr@kernel.org>
+Cc: David Lechner <dlechner@baylibre.com>,
+	Alice Ryhl <aliceryhl@google.com>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Mark Brown <broonie@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Shuai Liu <847807867@qq.com>,
+	linux-iio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	rust-for-linux@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [RFC PATCH v7 0/4] iio: position: add Rust driver for ams AS5600
+Date: Mon,  9 Nov 2026 22:57:39 +0700
+Message-ID: <20261109155743.83740-1-muchamadcoirulanwar@gmail.com>
+X-Mailer: git-send-email 2.50.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -91,68 +106,98 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/3] Remove obsolete __MODULE_STRING()
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>,
- H Hartley Sweeten <hsweeten@visionengravers.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Rudolf Marek <r.marek@assembler.cz>, Andi Shyti <andi.shyti@kernel.org>,
- Chris Snook <chris.snook@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Andreas Noever <andreas.noever@gmail.com>,
- Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat
- <YehezkelShB@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>,
- Chas Williams <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
- Aaron Tomlin <atomlin@atomlin.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
- netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
- linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
- <2e88806e-57dd-47e0-a9ef-a8507d22aa3e@suse.com>
-Content-Language: en-US
-To: Petr Pavlu <petr.pavlu@suse.com>
-From: Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <2e88806e-57dd-47e0-a9ef-a8507d22aa3e@suse.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 10/14/26 11:36 AM, Petr Pavlu wrote:
-> On 10/2/26 10:31 AM, Petr Pavlu wrote:
->> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
->> MODULE_PARM support for older modules" [1] in 2002-12. That change also
->> moved it to the graveyard section at the end of linux/module.h
->>
->> Replace the remaining uses of __MODULE_STRING() with __stringify() and
->> remove the macro.
->>
->> Apologies for the wide distribution. Acked-bys are appreciated.
->>
->> [1] https://git.kernel.org/tglx/history/c/136839a1b4
-> 
-> I've queued the second patch ("drivers: Replace __MODULE_STRING() with
-> __stringify()") on modules-next for v7.4-rc1. Thanks for the Acked-byes
-> and reviews.
-> 
-> The first patch ("hwmon: Replace __MODULE_STRING() with __stringify()")
-> should go through the hwmon tree. Once these changes are in mainline,
-> I plan to pick up the final patch ("module: Remove obsolete
-> __MODULE_STRING()").
+This series adds a Rust driver for the ams AS5600 12-bit magnetic rotary
+position sensor. It also adds fallible I/O, SMBus access, and the IIO
+abstractions needed by the driver. The driver exposes raw angle and scale
+through IIO sysfs.
 
-v7.4-rc1 no longer contains any __MODULE_STRING() calls, so I've queued
-the final removal in patch 3 on modules-next for 7.5-rc1.
+Feedback on the I2C and IIO lifetimes, locking, and device teardown would
+be appreciated.
 
--- Petr
+The Region-based view models byte-addressed registers and is not a
+general model for command-indexed 16-bit registers. The standalone
+word-read helpers accept any SMBus command byte.
+
+The current interface is intentionally limited while a Rust regmap
+abstraction is unavailable. Feedback on whether this is an appropriate
+interim approach, or whether the work should wait for regmap, would be
+appreciated.
+
+Based on Linux v7.3.
+
+Thanks to Igor Korotin for the device ownership and bound-client lifetime
+rework used in patches 3 and 4:
+https://lore.kernel.org/all/179286358623.55649.5397316745104390556@linux.dev/
+
+Thanks to Shuai Liu for reviewing v6. This version addresses the Clippy
+warnings, replaces the ignored SMBus doctest, and moves repeated unsafe
+SMBus calls into safe helpers:
+https://lore.kernel.org/all/tencent_173B7731E90B9624F9F82613DC3031B70907@qq.com/
+
+---
+
+Previous versions:
+
+  v6: https://lore.kernel.org/linux-iio/20261004130303.65432-1-muchamadcoirulanwar@gmail.com/
+
+Changes since RFC v6:
+
+- Rebase on top of Linux 7.3.0.
+- Make register() return Device<T, Registered>, stored in the driver
+  data, so the IIO device is unregistered before its private data is freed.
+- Remove the bound parent parameter from IioDriver::read_raw(); the driver
+  now stores its bound I2C client reference directly.
+- Drop the parent lifetime parameter from UnregisteredDevice.
+- Use pin_init::raw_try_init() in Device::build_device().
+- Document sign conventions for IioVal::IntPlusMicro and
+  IioVal::IntPlusNano.
+- Add IIO=y and I2C=y dependencies to CONFIG_AS5600.
+- Use typed pointer casts and lossless integer conversion to fix Clippy
+  diagnostics reported by Shuai Liu.
+- Replace the ignored AS5600 doctest with a generic no_run example.
+- Move raw SMBus FFI calls and errno conversion into safe bound-client
+  methods, as suggested by Shuai Liu.
+
+Testing:
+
+Clippy and debug builds completed for ARM with Rust enabled, I2C built
+in, and AS5600 built as a module.
+
+Runtime testing was performed on a BeagleBone Black with an AS5600 on
+i2c-2 at 0x36. Raw angle and scale reads worked with the magnet detected,
+and reads returned ENODATA when the magnet-detected bit was clear.
+
+I2C errors were propagated when the bus was disconnected, and reads
+recovered after reconnection. Concurrent reads were tested with 10
+readers, including during 20 unbind/rebind cycles.
+
+Lifecycle testing covered 50 unbind/rebind cycles, 50 module load/unload
+cycles, module removal during active reads, module removal with an open
+sysfs file descriptor, and module removal while the I2C bus was in an
+error state.
+
+KFENCE, UBSAN, lockdep, and kmemleak reported no issues. KASAN was not
+enabled because 32-bit ARM selects HAVE_RUST only when KASAN is disabled.
+
+Muchamad Coirul Anwar (4):
+  rust: io: add FallibleIoCapable
+  i2c: rust: implement SMBus access via IoBackend
+  rust: add minimal IIO subsystem abstractions
+  iio: position: add Rust driver for ams AS5600
+
+ drivers/iio/position/Kconfig    |  11 +
+ drivers/iio/position/Makefile   |   1 +
+ drivers/iio/position/as5600.rs  | 186 +++++++++++++
+ include/linux/iio/iio.h         |   6 +-
+ rust/bindings/bindings_helper.h |   2 +
+ rust/kernel/bits.rs             |  29 ++
+ rust/kernel/i2c.rs              | 235 ++++++++++++++++
+ rust/kernel/iio.rs              | 463 ++++++++++++++++++++++++++++++++
+ rust/kernel/io.rs               |  62 +++--
+ rust/kernel/lib.rs              |   2 +
+ 10 files changed, 978 insertions(+), 19 deletions(-)
+ create mode 100644 drivers/iio/position/as5600.rs
+ create mode 100644 rust/kernel/iio.rs
+
