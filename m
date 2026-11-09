@@ -1,63 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.19
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794221066;
-	b=yvls/31K5KKYg9zvzRR2ov2ZKwraze6XoQtct5UV6nhSh9QZu3uGKvgSsNGnczIsOIvI
-	 j+aDyo6XqwbC6NvdU89HodALEklIjbmqGLro2voj75uE/2aJf6DEiOOQtrSRo7pMrXhOh
-	 XtmNSLua2y9qbNQ3teWqxhz9y79COsDG+FhNbPsYgLgqQmUFUDuT7mjWYHh6ZIKqBXsFX
-	 hgsAr+932RAsP2eHY1u6dwXqnxIQevmsvicTCwLsphKiHEoFFNt7DEYd+cEzi9Vw9CQL6
-	 0AiuiNrojiKg8C5Y20Yh2jyFFsqlPw4CX7Pd5BnHT1UpXM1oWjdsqqMzMoA9817ESPw==
+	t=1794221147;
+	b=UVscejRxEoYxREDYsDIOZoDy1azQPsBb2nCS+UB1VAd26hphTwNcLLcZm6SmIF9gGhWK
+	 f9HcpbXQuKWJgh1q6oNi5kA79PdCBbVDn4ECJQPLk7C/O3/rIkQmaA7bzsCJ+kt8+yLN1
+	 3kTPX4wp/XE4imJ8nwdXjOdsHZAVQeYNROm9rdAosCQIu9drKEtWkG7Wr0JvNmrEwIKEp
+	 MmzpEZAW6SyPnA/UQoQUYbiVU/TfnJJD+UizSUxcVhNqcjSgLdxJnBhirzcLlwJyNe+bG
+	 ERTTa6oX7zSLSYjKeMqQo+zpYgxCj6rtLTZ4esAlf4dOoaLOvFOex3q707BTR1V4dQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794221066;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=TXr2TKEYrIDqnyQ+02ZfHnpl8vf7msiDB6kAkQN1rZM=;
-	b=YbAVNSbzV1Q0G6YrutAEgs/EmYlf6QrVaqPDBh12Y9NmLhs7t2vYVnhwLOMzPVJn1F6u
-	 e4wTYf/jj/MAfRJvEoLP3d9Y1p0A8cYn98vxrXYUfg/95V6A9JljgG3lnotScOyjOjgkn
-	 4+Bqo9+JbjWnbs9AEtqlGqDYWdBpsSwIWKWkgMuSuv3BDCO/cfmMcWf77TeemzruzDql5
-	 Lgx9Dxq0a5gvH7UfMCULgW+f8SZx2r5KjbMQX32fxbF7OP/mFvP1Cid30uWveYLKgejSG
-	 EcQZOGRIXKTaYp00lKDK95qhGF9pmDHiy7h1KhLrMX4u0FJOdKHns/dMpV84VpiNeDQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794221147;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
+	bh=nl+/KralOh+dGROnNTooIdasnREF4uPn5x3o1Ua7Igc=;
+	b=2Tn+ACMUNmBKXNYZTlS704WYvbU1bkSJ42lGY7d2u/vQP+xJrBcF8FMJtEmAvSJSArDE
+	 nM9cPvoXVU0nWYFGNkfjeylyqE7aQncnMry9dLK8nKujIv4+Yrl0+cb0iZ7D4gTU7QYPl
+	 6SoXNtGRLai3rH/kcYj6mcZFOApIYAbtVmMfUGSmQ+PZ4SJm7Mz/sXHmr0KiVOfs4HLjX
+	 ZKXutjvwP1fizVaNyKHfzpYHS80xbzrr9J8Z58OTRoNdVH0merIW2fDmGwxG3TN8CuePy
+	 B9gDHyx22+1kgPpUjpuII+ixmxRNLHEG9pkgXmh7pf5vh/6C09YXAGpbs8KTi9y4x9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mfOpr55J;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nEBBO2wO;
+	arc=none smtp.remote-ip=198.175.65.19
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F1D606A31C;
-	Mon,  9 Nov 2026 10:44:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4C70606A31C;
+	Mon,  9 Nov 2026 10:45:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B4C70606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mfOpr55J
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34E151F0089F;
-	Mon,  9 Nov 2026 10:44:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794221066;
-	bh=TXr2TKEYrIDqnyQ+02ZfHnpl8vf7msiDB6kAkQN1rZM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mfOpr55JSOEAKsYIRwZlPYVVji4xFQLSCZnYgYFBPvHuYw5tqPT6lpcFI9qJa0aep
-	 VERbNONOWWRfHvh/4pt0kOHo5GTHTckTKsADwINYHKcBPYIEykbTiHYKFVvv6Iayco
-	 P56iKD/4w8gwEuVziu3200TNGNO+AhB2cOwaCB72Mkz71mMNHxSY5o0Mp5g7LawzBY
-	 /hqT65DQ7N9EF/R0bmufgMI1JGQVXsKSu8+Hb/tg6OQ6csPirqc+IoZQPamOaOwii6
-	 nfY5lMRBzsqXWKW0jlB2p3CN9fmRVT3ZMcVZGIxc577QjbgavPnbuP3Z9CnA+a/9r1
-	 tz7C6CPoEbMHA==
-Date: Mon, 9 Nov 2026 11:44:22 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Andrew Gigena <mail@andrewgigena.dev>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>, 
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
-	Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-phy@lists.infradead.org
-Subject: Re: [PATCH v3 2/7] dt-bindings: media: qcom,sm8150-camss: Add SM8150
- CAMSS
-Message-ID: <20261109-slick-transparent-ostrich-28ddad@quoll>
-References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
- <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nEBBO2wO
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794221145; x=1825757145;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=YVRlamkkZSozoLLTh5QkHe05MxLIm7RB7e8eWyXUKzg=;
+  b=nEBBO2wO+hlcPRE20lRKMoFJYF0njezqwL06BbqD32T8Mc1+kg+s1kXo
+   FHYEEQz3eXHxSU8U0Vf7Viqf8AItAjEB1dAhqxN6PhdRdjrYF2u6eijD1
+   jUc/xL2ZMN9WD2XyfwhmicxlM9I/lsFYCqx/dD9q4otbdYI3EoFxLt06k
+   3dPCwGG8Et+70kGCPA+i6i91q2rVo+jRq8DYEQqcji6xOUU71MsE+Qovj
+   p+ZG8gmZ6KpOuUdpjLrVvYyGgTzvGUGXljedOSeczx4uBq6rm2c9Isgfd
+   U3exYI0dhII5lraGqdIeQT4dDiSxWc+76lFBE7yC/V4F1ZCcDkS0CbRvD
+   w==;
+X-CSE-ConnectionGUID: blaZpK8wTDiPEmWwqPm8aQ==
+X-CSE-MsgGUID: M8+hGPvJQXCZMD+0fNX5GQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11960"; a="2979102"
+X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
+   d="scan'208";a="2979102"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2026 02:45:45 -0800
+X-CSE-ConnectionGUID: FTtmwNsNTFSGqLCPz16Y9A==
+X-CSE-MsgGUID: EVqy3W1nQDGL9YDZgIKh9g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,203,1787036400"; 
+   d="scan'208";a="8174231"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa008.fm.intel.com with ESMTP; 09 Nov 2026 02:45:44 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id A7BC199; Mon, 09 Nov 2026 11:45:42 +0100 (CET)
+Date: Mon, 9 Nov 2026 11:45:42 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: penhouse24@proton.me
+Cc: "westeri@kernel.org" <westeri@kernel.org>,
+	"andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Subject: Re: [BUG] i2c: acpi: Dell XPS 17 9720 ELAN 04F3:311C touchpad
+ (VEN_04F3) needs 100 kHz like DLL0945
+Message-ID: <20261109104542.GL176724@black.igk.intel.com>
+References: <CYQ1dYF3ZUj0L_VRzN490SfuHRaulkT_y5NWcIEIl8OtpIgWgXyOlwEyUqZD_uz9bmVBXM2uLOo8bkyzcR-qCxNObstCqFUlK6lUYXK5euE=@proton.me>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -69,70 +85,52 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CYQ1dYF3ZUj0L_VRzN490SfuHRaulkT_y5NWcIEIl8OtpIgWgXyOlwEyUqZD_uz9bmVBXM2uLOo8bkyzcR-qCxNObstCqFUlK6lUYXK5euE=@proton.me>
 
-On Fri, Nov 06, 2026 at 06:35:34PM +0000, Andrew Gigena wrote:
-> Document the Qualcomm SM8150 Camera Subsystem. The IP integrates four
-> CSIPHY, four CSID (two full and two lite), two VFE and two VFE-Lite
-> instances, with 19 clocks, 8 interrupts, eight IOMMU streams, four
-> interconnect paths and three power domains.
+Hi,
+
+On Fri, Nov 06, 2026 at 05:48:02PM +0000, penhouse24@proton.me wrote:
+> Hi Mika, Andi,
 > 
-> The CSIPHY I/O spaces are not part of the CAMSS container device: each
-> CSIPHY is driven by the dedicated qcom,sm8150-csi2-phy driver, so this
-> binding only describes the VFE and CSID resources. Each CSI input port
-> is described with data lanes starting at 1, as required by the CAMSS
-> PHY mode.
+> The ELAN 04F3:311C touchpad in the Dell XPS 17 9720 intermittently becomes
+> sluggish and sticky for several seconds to minutes, then recovers. I dual boot
+> with Windows and I do not experience this issue on Windows, only on Linux and
+> across multiple distros (Linux mint, Ubuntu and Pop_os). I'm not the only one
+> who experiences this issue; it seems to be widespread among Dell XPS users.
+> This looks like the excessive-smoothing issue fixed for the Precision 5560 by
+> commit 0b7c9528facd (“i2c: Force DLL0945 touchpad i2c freq to 100khz”). The
+> Precision 5560 uses the same 04F3:311C touchpad. On the XPS 17 9720, the
+> firmware exposes it with _HID “VEN_04F3” instead of “DLL0945”, so the existing
+> quirk doesn’t apply.
 > 
-> Describe SM8150 in a dedicated schema instead of reusing another SoC's
-> schema.
+> Forcing the bus to 100 kHz fixes it here. The DSDT already supports 100 kHz:
+> _SB.PC00.I2C1.TPD0._INI sets SPED from the TPDS NVS variable (0 = 100 kHz, 1 =
+> 400 kHz, 2 = 1 MHz), and this firmware uses TPDS = 1. To test it, I loaded an
+> SSDT through configfs that sets _SB.PC00.I2C1.TPD0.SPED = 0x186A0 and rebound
+> i2c_designware.1. After 5 days of use, including on AC power, the lag has not
+> come back. Without the override, it returns as randomly as before. 
 > 
-> Signed-off-by: Andrew Gigena <mail@andrewgigena.dev>
-> ---
->  .../bindings/media/qcom,sm8150-camss.yaml          | 285 +++++++++++++++++++++
->  1 file changed, 285 insertions(+)
+> System:
 > 
-> diff --git a/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml b/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml
-> new file mode 100644
-> index 000000000000..371ff1ce0bd2
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/media/qcom,sm8150-camss.yaml
-> @@ -0,0 +1,285 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/media/qcom,sm8150-camss.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Qualcomm SM8150 Camera Subsystem (CAMSS)
-> +
-> +maintainers:
-> +  - Andrew Gigena <mail@andrewgigena.dev>
-> +
-> +description:
-> +  The CAMSS IP is a CSI decoder and ISP present on Qualcomm platforms.
-> +
-> +properties:
-> +  compatible:
-> +    const: qcom,sm8150-camss
-> +
-> +  reg:
-> +    maxItems: 8
-> +
-> +  reg-names:
-> +    items:
-> +      - const: vfe0
-> +      - const: csid0
-> +      - const: vfe1
-> +      - const: csid1
-> +      - const: vfe_lite0
-> +      - const: csid_lite0
-> +      - const: vfe_lite1
-> +      - const: csid_lite1
+>   • Dell XPS 17 9720, BIOS 1.41.0
+>   • Touchpad: VEN_04F3:00 04F3:311C on i2c_designware.1 (_SB.PC00.I2C1.TPD0),
+>     touchpad firmware 0x000b
+>   • Kernel: 7.2.15-76070215-generic
+> 
+> Adding “VEN_04F3” to i2c_acpi_force_100khz_device_ids would fix this machine.
+> However, VEN_04F3 looks like a generic vendor ID rather than a model-specific
+> one like DLL0945, so it may need to be limited to this model with a DMI match.
+> I’m happy to test a patch.
 
-Seems you ignored my last review, so repeating:
+That VEN_04F3 is not even a valid ACPI/PNP ID. Have you checked if there is
+a BIOS upgrade for your system?
 
-From which binding did you copy such order of entries?
+It's odd that Dell would use identifier like this as they typically follow
+these pretty well. Anyways if there is no BIOS upgrade (or if it does not
+change anything) then I don't see much other option than adding a quirk. I
+do see there is one quirk added already for GPIO side on Dell system with
+VEN_0488 entry (drivers/gpio/gpiolib-acpi-quirks.c).
 
-Best regards,
-Krzysztof
-
+In that case we would need output of 'sudo dmidecode' to be able to add the
+DMI strings.
