@@ -1,61 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.90.104.144
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794316048;
-	b=0pwLXc5xB8LjjDH0r9ZJCmmKmZkVK5UoPzy3tNPUDt3E7uA+MgcH6wMhhH7SOBnBwL96
-	 XmuK8594qoFrKvByMh2j7T0nm8s+t0P8tHqGvTlHxu3t7iofnXwflVXQD6/beL3OEWiOf
-	 6P1iH5ieQxpooUO7KDrTkxWhmzbN+dqkrYj0iPzem4fjvbXBRV1cTylMybE0LyVbxXNy8
-	 nbJCQOj7xh8+Sr+wnMsc3YG5K8jP1S8Yq605ihV3Chy/gg7KAgSxGj2ZrLNjP8tNYnPTa
-	 Dj6mcRkTcFc5ni1t6f9gvmjWtqlL5VLDydzNQKinPwHrjC6ykG4RvknPVLLNH80TApw==
+	t=1794325402;
+	b=nu+rnHOY2FRhZkIKTk63HBmeZtYI6FhGDJ3DjKOlmHKncldc/geZr6fJi9G5tyMy6e/l
+	 xT+d9XdnMv38TZsjiyTFCRlLDfzcHPm+U9b8sdFA0LroAZn2Gi7tIueGBrSq5cJBfX33L
+	 EJV6Tcev+1d20GPCktH9Jll9pAN8TA5MFGOSfQDAVQo7Es1YXi5robr6mD184ld8wPcPr
+	 yJ8hSkPP0bRuFb96FOepC3IGBsB4k5hwCp5HP7CBcX3kVe6FhIq2Qn2KTpa7hLokISuw2
+	 B3Ju/c3vYZQuuIZgvboXquC1V4aKXXI8ezZEztiUKE3j2oVH7Z6mD6K8QCrDG1S1WSg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794316048;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-Amp-Result:X-Amp-File-Uploaded:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:Received:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer;
-	bh=ld7tlpB+QzKUKDfK4FSxy2dA1rDs18hbb1XMFoIOhuI=;
-	b=VSf4fTZes0veiLZ5dc4CaPVUDvj/T52zqcJdWyL+czO9ivAxZlt+vRazgWNEjirwtbp3
-	 TpCEEHOGq8iRS805SK83x46DpFb7+IcCKUJo6UzYUc+VCWk+lNQdr1IKGnenHyUIY48D/
-	 2hkqhQRecyaO0c9EcpGNC0c6os1BsEWDqVErnX2BKtfG82QC5wpI9rV0PNmROKVA0HaOP
-	 SO3cfsWiiB8FTdfZ4YbBV6mbRBEPqk4463DceDo48SBXvwYwFjS9HM5MyipaY2vYAVRjz
-	 Y3X3BEWsAhvSxI0BbTZvcFSQnXFPNzGEPVVtUHdizQpPxoX5UhdMwJwjSAJerQIluOg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794325402;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
+	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=TQtG4o/ML/2sB0MvTtvE7H8moOh6q/FDtaR4iqmNY1g=;
+	b=M86qT0QInyiSJH/FVKV2/AfZpi7C0GVGLjYOuUyG9sVcP27b7JtJ7lWiTPCHaPMbxlbq
+	 RKvpylzhzy5RDHZTQOmScK0F1MadfvzjnKPn/d1q2fk7iWESLdbPCtfR5/wEWG04jux9p
+	 PDiL2QU7ulHBGOpOZc+0608c0XpW1ayjQ6lPkZ/UzRxbbf+3GwxHawfRztGsVJEb+EysU
+	 rVj98lnyzxxNrX5athL+b+bVSGaRbLgrD5v9mGyrVIbrA3GYIudf71CiwnAwVckWNePDq
+	 DGXgOzjbJTZoTSRP9/qNiz082l1roNeHc1iK/xlYIRB6MwCb2AMob3utofTeHxUexNQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mobileye.com;
-	spf=pass smtp.mailfrom=mobileye.com;
-	arc=none smtp.remote-ip=23.90.104.144
-Received: from esa1.hc555-34.eu.iphmx.com (esa1.hc555-34.eu.iphmx.com [23.90.104.144])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 90556606A33E;
-	Tue, 10 Nov 2026 13:07:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90556606A33E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1794316052; x=1825852052;
-  h=from:date:subject:mime-version:content-transfer-encoding:
-   message-id:to:cc;
-  bh=FZcWkIhdyH5Ehmankjtvhx6cnha9ocIFxpZgxmcPbeA=;
-  b=QZcalDd8Mjf4tv7216mvRiZ7hk7+V1moeJd8xCME+NjZRvozihDHuCMr
-   LmhpZaYEbfGybqHuc73mJjFdDF2BXZk9hhpIe7OG5vVKTx4tgEXK91BHV
-   iLVTZ0jvto7TEm9KevBEZzaeDde3kGXqgxBxiwM43GQXYsAEQMHhQ/bNs
-   /9FZmiyoSF2H0Ooo0we5RLbYdsFD06nEfCK+QsmIHrY3huv15TpUhXwx8
-   jjEeroq0w5aKGIhzWaOddq6MsZy745z4/f08ZJP0if5ARAwQtQZ0etCxb
-   L4bdClvHohugYbcxl0ddIv46703ENUTetA7euZCMnn+4Z68rmJsfaQ3YH
-   w==;
-X-CSE-ConnectionGUID: oz70YvFpTLmcpvIlRBAtVw==
-X-CSE-MsgGUID: fNuTcHKpTeWL7Y0p/xkBOg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from unknown (HELO ces03_data.me-corp.lan) ([146.255.191.134])
-  by esa1.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 15:07:24 +0200
-X-CSE-ConnectionGUID: pPHsg/CST7OIaJsAEVnfQQ==
-X-CSE-MsgGUID: wg6sKAfvTLS91yli0OgcOw==
-Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.3])
-  by ces03_data.me-corp.lan with SMTP; 10 Nov 2026 15:15:11 +0200
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Tue, 10 Nov 2026 15:07:15 +0200
-From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-Date: Tue, 10 Nov 2026 15:06:16 +0200
-Subject: [PATCH] i2c: nomadik: handle pm_runtime errors
+	dmarc=fail header.from=andrewgigena.dev;
+	spf=pass smtp.mailfrom=gmail.com;
+	arc=none smtp.remote-ip=209.85.215.171
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F0860A260E
+	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 15:43:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36F0860A260E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=andrewgigena.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-cdb2893531bso1249526a12.1
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 07:43:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794325401; x=1794930201;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=TQtG4o/ML/2sB0MvTtvE7H8moOh6q/FDtaR4iqmNY1g=;
+        b=G+ApOjbPEHf+kXdrbCGGqE+xo6urKmH4DbkEDYZwQAbO0OAU+YU+2xyj6ctOGFJRJ3
+         6283w2ygEkxMmmHTnnLPOXZ59H/65IQqyYDgIcvaXpWzuWNUKz4pysZ2TEJxcCW9ZjAI
+         slxLrnimuZmmUiDlhaoJomSYFOr84sW5D4Ymb9QgtcMzXHXS8mXmwiOeqNqAHc/uHzy1
+         aZJesoxpIywqYwToOTHyody8aUIkRxeLcGvf8WTMOrks1PU6op9L1cfGJEwz0NkErniy
+         RP69qvS6ZCOAU5gFYlmI6t6+i/DiWDqTdgYZj1IOzvdMvM8MTZX8SfKwCNe1+YdnCLJZ
+         PQ2A==
+X-Forwarded-Encrypted: i=1; AL+hErGmOKjk6X6QcPP6DSEaMXGx5wSHcyvMuw1xfiPuz/SN3KheBNj2EMvieihQ6+oGy5DxYh0GihFuEto=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9bbIt0OZuLjjYUtGCy8pvswFVOynNnZH2NRYUZOFMgvlIEy7PL
+	gi0TbAVJYK8z5rfN0YcnGJCXR8tdM8INU7VvXFAGcAYeaYcgYLVCmIUd9/eIz+zr
+X-Gm-Gg: AYBFou1d/DXQqDyM2zeQeljute/bayIqHRR2YyvQ1EuBRUq+FeZGAvh/KEZNpEPDcOv
+	uHzNfRWcacZ0WEhwEQCLnjV1Op7PLwKoWrq3PKlTkvVe+WJRoIfvc/8FClpH6Qzk+lckQo6mg21
+	CoQNLS/Nt3N0dxS+Otq1n1MsWjqbRZVlo9p8oB5v0rdDzklMrj6hLeJUYLZW+N+6X/G9eC7zsS7
+	+o8BQiicwd2EIMosW6VchOj7dOKzIAS3GYMT3PP4WCry9VVIR441d8IjrXNUo2qta3A8WG8GqMe
+	7tVZFbBMvJqhDWe5GH5jtC5hZvpFzh9Eg1M9qedYw0XYeS0WpMQegDsiw39ZTMYXp1kwN+i9uvj
+	p8frE3h+791lnzEyd9BfocWIrBUSM1fpcwTTrI9pS/weQ1Ra2qZF2c0x3bfM1aFGTxB8goDaxXX
+	l4MTCfEYaG+dW3CyPnwiFCRXRkRLWGiu0MfpuSU+mJjYg1XAAFT/nXBxwV2UudmXLe5qhkaMohO
+	F6in3lf79wjBc4sDAwOUHcd78a8OctKKsO7zYYVJlSiA1EcpsVBXaKDi1ZzzgnKBy4UkgwEouo5
+	1MBgCvurqon4j9RKMyIZEd92E+vbxeZNDyF3cFMavxfihvGGmcDFWz+Nrpj6OpAduT/nnI9q
+X-Received: by 2002:a17:90b:288a:b0:3b0:a9de:9886 with SMTP id 98e67ed59e1d1-3b166cc035emr3111438a91.12.1794325401459;
+        Tue, 10 Nov 2026 07:43:21 -0800 (PST)
+Received: from ?IPV6:2800:a4:890:2c00:14b6:ffbd:f8b2:d9f2? ([2800:a4:890:2c00:14b6:ffbd:f8b2:d9f2])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cdd8d5e830dsm891469a12.4.2026.11.10.07.43.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Nov 2026 07:43:20 -0800 (PST)
+Message-ID: <987c1008-d0ab-4508-82a2-1a26104a47c8@andrewgigena.dev>
+Date: Tue, 10 Nov 2026 15:43:13 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -65,76 +75,55 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/7] dt-bindings: media: qcom,sm8150-camss: Add SM8150
+ CAMSS
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>, linux-arm-msm@vger.kernel.org,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-phy@lists.infradead.org
+References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+ <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
+ <20261109-slick-transparent-ostrich-28ddad@quoll>
+Content-Language: en-US
+From: Andrew Gigena <mail@andrewgigena.dev>
+In-Reply-To: <20261109-slick-transparent-ostrich-28ddad@quoll>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-i2c-nomadik-handle-pm_errors-v1-1-ea1ac92af8f4@mobileye.com>
-X-B4-Tracking: v=1; b=H4sIAMcW82oC/y2NQQrCMBAAv1L27EISmop+RUTSZKurNqmbVoTSv
- zdqjwPDzAyZhCnDsZpB6M2ZUyygdxX4m4tXQg6FwSjTaK0VsvEYU+8CP7AI4Uk49BcSSZKxPhj
- b2tpZtW+gJAahjj+//On85zy1d/Ljt7kZQq+pfMdNW5YVNuTAA5UAAAA=
-X-Change-ID: 20261110-i2c-nomadik-handle-pm_errors-4925b54a5076
-To: Linus Walleij <linusw@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-X-Mailer: b4 0.16.0
 
-In nmk_i2c_xfer(), pm_runtime_get_sync() is called on start and then
-the controller registers are accessed without checking the return value.
-If pm_runtime_get_sync() fails, access to the register of the device that
-was not correctly powered on may cause a bus fault or other unpredictable
-system behavior.
+Hi Krzysztof,
 
-Replace pm_runtime_get_sync() with pm_runtime_resume_and_get() that
-always return 0 on success and automatically restores PM usage counter
-on failure, and return immediately if it returns any error.
+First of all, apologies for the late reply and for not following your review
+advice earlier - that was my mistake, and I should have responded to your v2
+comments individually instead of letting them carry over.
 
-Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
----
-This is fixed version of patch #6 in a set of fixes in i2c-nomadik
-driver:
+I have now gone through your v2 and v3 comments again and addressed most of
+them locally in a v4:
+- reg/reg-names moved to the top, redundant minItems dropped, property order
+  aligned with writing-schema.rst, example cleaned up, ports use
+  patternProperties, bus-type dropped from the CAMSS binding, etc.
 
-https://lore.kernel.org/linux-i2c/20261103-i2c-nomadik-fixes-v1-6-655c6af2cb70@mobileye.com/
+Regarding your v3 question about the order of reg/reg-names/interrupt-names
+(vfe0, csid0, vfe1, csid1, ...): I took it from qcom,sc8280xp-camss.yaml,
+which uses the same paired VFE/CSID layout and is the closest reference for
+SM8150. The entries are also in ascending register-address order in the SoC DTS.
 
-Please replace that patch with this one.
-
-Changes in this version of the patch:
-
-- use pm_runtime_resume_and_get() instead of pm_runtime_get_sync() in
-  order to automatically restore the usage counter on failure and always
-get 0 on success (pm_runtime_get_sync() may also return 1 if the device
-is already active).
-- use variable `status` instead of `i` for its return value.
----
- drivers/i2c/busses/i2c-nomadik.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index c3878670da9c..74ecf188c9eb 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -713,12 +713,13 @@ static int nmk_i2c_xfer_one(struct nmk_i2c_dev *priv, u16 flags)
- static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 		struct i2c_msg msgs[], int num_msgs)
- {
--	int status = 0;
--	int i;
-+	int status, i;
- 	struct nmk_i2c_dev *priv = i2c_get_adapdata(i2c_adap);
- 	int j;
- 
--	pm_runtime_get_sync(&priv->adev->dev);
-+	status = pm_runtime_resume_and_get(&priv->adev->dev);
-+	if (status)
-+		return status;
- 
- 	/* Attempt three times to send the message queue */
- 	for (j = 0; j < 3; j++) {
-
----
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-change-id: 20261110-i2c-nomadik-handle-pm_errors-4925b54a5076
+If you would prefer a different grouping (e.g. all CSIDs then all VFEs, as in
+sm8250), I can reorder the binding, DTS and driver resource table. Please let me
+know which ordering you prefer. I would like to hear your feedback first so I
+can adjust anything needed before sending v4.
 
 Best regards,
---  
-Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-
+Andrew
