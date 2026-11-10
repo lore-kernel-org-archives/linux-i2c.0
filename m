@@ -1,80 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.154.119.183
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.14
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794343755;
-	b=DU2qAF0G8BbEqoITnboQvZSZj5JB5/18L7VOr7wy7VHo/D7ixt1TgYAnWEHVRJ6V3Aqq
-	 gRyBsQKfjtj3SjOvQvMlwhghse1U4WrcgXyVNp7aJa5jw5i6gaaoo6Z74DHwBplJT4GLl
-	 bHlKziK2308bjn/0h8Nq/Elki0MSdonG0VKPsyzxGgdZgw76C4WNsfj2+nsqy49ebogDm
-	 VABVYldRgiTp2HC5fKPPqpqU24pzOSeV9zPWNesKIsz3sRsdWExPt9T1nrsiUphLaXxbr
-	 e5w0TLmkQB3OrMFuZh6AeT9IZAY8e2qeTD+U9IPKO3HKmkGpTZ5T8ea6UurZZfRLbrQ==
+	t=1794344820;
+	b=gi2tEVPNRJ4XdoIzgpeYcde/g3AsTEs3jspGPXWPEvRcZF8ZdTX/KSTe0RQOEtjQxmsw
+	 t6flUU3ioEjPapY+gvRbO80S73q7CO/X2CNQw0pCDu95ax1gdn3KOjXiFgoKqjYKDcY+2
+	 jIrYoVWaLC5rMRrLC0H/wWo8GXluow7O+bnt1qq16sUz1Q44wF44NVglBSiSMYNo9v1VL
+	 WFjFKPRjxb7HS2gJ7aHpTjL59Q0ujMKVcuWEa8zmZtcKtAvHTNosf6URvvyIVJYedJofK
+	 hJN54j4fT7jJuD7IDGDDbqZ/F6pNJ+gZTOWAJRlSmgjEX70hsb53XnP9Wi9nD/DUYbw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794343755;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:User-Agent;
-	bh=Bf/AaZlKXJsIZfpfcnPrYCQ8TrA8wpK1qNvneo+qbhA=;
-	b=wvMcxkKj2SeVUqhoewku7ubUmoSi1xcjinl4RnMEep2r9HwmLB+qIOpvs4VVottk0QbH
-	 ecV8KlXugSlde4rpB0fm2NLl5zYyDMIZPrGZoN/pzFrZC37zzle1jUpxz0C/kCb5Vg9ho
-	 sTey5y1nbe0pDeQOiz9IbrxuJEYkcg9V0abat7a5FdoYbJYfJzjetfoUjsrx2GdC8Rgwf
-	 8pPWY24/726Sw6H+rEffTtk4xMiiRFdVJrxwkEOr0kHDVPe/JXVjT3YZ5NfYEUwt0j74W
-	 I6WqFrsFEzDTyCwsipZibXigwAzyDfYAooxvms8VyYyVllB2JjEVY87xrV6Ek6gfmPA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794344820;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:Organization;
+	bh=DpnP2Mak7ClK0iGLIA+5g0n2afYfskurGZa8VAsvA5Q=;
+	b=LQ0UKkoj3ctGT6BG5y1218JDbTuV15a8UpVrWrR+zLTILsI94m0Fjk/uaFHI3VSFYNMP
+	 lZ1T3a7Or5aEBaaRStIrIMAM7P8G0/5LOm6PnKv6rXFFKnlv2U6fqznP8jQbrm3hlNEr/
+	 XppU8PrZYCcKn6CdAnhZUd4Yyhl2jm2s07aVPUGPU1VGl4ISlCbejyojb5Kk/AObidM/r
+	 b28DVw8htTlOCQVf9C4xaPDSKxO4bv36d8D9xWXozvF8XKGlXC0Fnv0znKYW7Til2EXYR
+	 potTftiuXU/btGHCnTBxqz5dsu0BjV9FYuskKpsMaRGYLFYxthLOBCCbSV6eta7ZsLQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=aurel32.net;
-	spf=pass smtp.mailfrom=aurel32.net;
-	dkim=pass header.d=aurel32.net header.i=@aurel32.net header.a=rsa-sha256 header.s=202004.hall header.b=pmYBiPny;
-	arc=none smtp.remote-ip=195.154.119.183
-Received: from hall.aurel32.net (hall.aurel32.net [195.154.119.183])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Wx6NcXCp;
+	arc=none smtp.remote-ip=198.175.65.14
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4130606A31C;
-	Tue, 10 Nov 2026 20:49:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4130606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=aurel32.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aurel32.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E6F5606A320;
+	Tue, 10 Nov 2026 21:06:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5E6F5606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=aurel32.net header.i=@aurel32.net header.a=rsa-sha256 header.s=202004.hall header.b=pmYBiPny
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
-	; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
-	Subject:Content-ID:Content-Description:X-Debbugs-Cc;
-	bh=Bf/AaZlKXJsIZfpfcnPrYCQ8TrA8wpK1qNvneo+qbhA=; b=pmYBiPnySBBL4gRZjkA7D5oEG4
-	qsoLjT/oqrSpb2nB1K2BiwI7t+BYONzCkNvW/vYMaSImd9sOQHenUmUl4En53uLq8OhLPUfRFmWSK
-	ZiBhdv8Ihhfe4SUK1fnnM4aXnxQWIltfmsqdgMkzFVufirT+q6Tk6DYT6K4QIqZ1O35exzSFfq+dJ
-	iHhsnArmCOxOFTmplXA/boQc8H2a8T5+C4dTSCxPTcp7M8a7qYwfRnOT0wvIufmdXGVHTJI2lYsz/
-	xaqYynG2gonG3JUWoCGzcJDqmHWPHjYrzAV+HVzCG4Lxw9g/OSxqgl8/iKFqeguAmrwPlWUpyxeis
-	/Wvb8Oxw==;
-Received: from authenticated user
-	by hall.aurel32.net with esmtpsa  (TLS1.3)  tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <aurelien@aurel32.net>)
-	id 1xQsm8-00000006IgS-0eMv;
-	Tue, 10 Nov 2026 21:49:04 +0100
-Date: Tue, 10 Nov 2026 21:49:02 +0100
-From: Aurelien Jarno <aurelien@aurel32.net>
-To: Anand Moon <linux.amoon@gmail.com>
-Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Yixun Lan <dlan@kernel.org>,
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>,
-	Alex Elder <elder@riscstar.com>
-Subject: Re: [PATCH v1 1/2] i2c: spacemit: Avoid sleeping during bus reset in
- atomic context
-Message-ID: <avODPs8yytWCMxn3@aurel32.net>
-Mail-Followup-To: Anand Moon <linux.amoon@gmail.com>,
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Yixun Lan <dlan@kernel.org>,
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>,
-	Alex Elder <elder@riscstar.com>
-References: <20261110061429.2036-1-linux.amoon@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Wx6NcXCp
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794344819; x=1825880819;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=VepGlO4JaVIwZk/LYRXN0gv6O3En9kw6cam+UtiCf4Y=;
+  b=Wx6NcXCpkjSGnKK2eLLpzDP9XoMcTKRPsVHJh3/yyonHj16GDln2UL5j
+   MxgNub0hey1JaHxJ/zAQkidqzSyYQIxxq5LdD9V92k5EZgpnru2z4+Rbw
+   6c8WDer25uKfUfVhF0k127Zo2lgoGnlH+vThSKmEJS2Yqi1GURiRfb9QQ
+   EBBakHpchH449eNv/CSeD6dSBlwiYGPNkbEDPRaerpMcN6ObKjMJ9HSB3
+   2nL1mmw6RCu3M0y0oe1gSdI82YZGfKGNkHlahELWLRmcgeu+SmEFGf5yA
+   B+qO5zHwgcf6Q2Us3tcsfpJJX8q8Zv+7w69VPIjcvYASbbvqqeH4OouGt
+   Q==;
+X-CSE-ConnectionGUID: ON0iHAdwS8KalNUj+UqLvQ==
+X-CSE-MsgGUID: H7HFSmKhRjqxTOewE9brjg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11962"; a="3004963"
+X-IronPort-AV: E=Sophos;i="6.27,206,1787036400"; 
+   d="scan'208";a="3004963"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 13:06:11 -0800
+X-CSE-ConnectionGUID: ylWqEV9DSp62yHh3wXL4qg==
+X-CSE-MsgGUID: i0cp5d5LStKfGbjkkOZj0g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,206,1787036400"; 
+   d="scan'208";a="8341426"
+Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.78])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2026 13:05:22 -0800
+Date: Tue, 10 Nov 2026 23:05:20 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	"Rafael J . Wysocki" <rafael@kernel.org>,
+	Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	apais@microsoft.com, rlmenge@gmail.com, hargar@linux.microsoft.com,
+	Jarred White <jarredwhite@linux.microsoft.com>,
+	Jeff Kirsher <jeff.kirsher@microsoft.com>
+Subject: Re: [PATCH v2 1/1] i2c: designware: Add ACPI ID MSFT0006 for
+ Microsoft Cobalt SoCs
+Message-ID: <avOHEJxZG49tICa8@ashevche-desk.local>
+References: <20261109210146.57766-1-sidchintamaneni@gmail.com>
+ <avI7g14oGpFKlJnV@ashevche-desk.local>
+ <CAE5sdEg3VKZuGqpt1Sm22Dsuh8HUFi-9w2GWEAicALS4ECXQ_A@mail.gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -86,45 +89,41 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261110061429.2036-1-linux.amoon@gmail.com>
-User-Agent: Mutt/2.4.1 (2026-07-04)
+In-Reply-To: <CAE5sdEg3VKZuGqpt1Sm22Dsuh8HUFi-9w2GWEAicALS4ECXQ_A@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On 2026-11-10 11:44, Anand Moon wrote:
-> The spacemit_i2c_conditionally_reset_bus() function uses usleep_range()
-> to wait after triggering a bus reset request. However, this function can
-> be invoked during atomic I2C transfers (such as power-off or restart
-> handlers running in atomic notifier chains), where sleeping is illegal.
+On Tue, Nov 10, 2026 at 12:15:10PM -0800, Siddharth Chintamaneni wrote:
+> On Mon, 9 Nov 2026 at 13:30, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> >
+> > On Mon, Nov 09, 2026 at 09:01:46PM +0000, Siddharth Chintamaneni wrote:
+> > > Add the MSFT0006 ACPI ID for the DesignWare I2C controller integrated
+> > > on Microsoft Cobalt SoCs, along with its 300 MHz input clock description
+> > > in acpi_apd.c.
+> > >
+> > > Without an explicit MSFT0006 entry, ACPI device matching falls back to
+> > > its _CID (APMC0D0F), which configures a 100 MHz input clock instead of
+> > > the controller's actual 300 MHz clock.
+> > >
+> > > Acked-by: Jarred White <jarredwhite@linux.microsoft.com>
+> > > Acked-by: Jeff Kirsher <jeff.kirsher@microsoft.com>
+> > > Signed-off-by: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
+> > > ---
+> >
+> > Where is the changelog?
 > 
-> Replace the sleep operation with the driver's internal helper,
-> spacemit_i2c_delay(), which conditionally uses udelay() when running in
-> an atomic context, avoiding "scheduling while atomic" bugs.
+> Oh I just dropped cc tags.
 > 
-> Assisted-by: LLM
-> Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-> Cc: Alex Elder <elder@riscstar.com>
-> Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-k1.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> > Haven't I given a tag already?
 > 
-> diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-> index ff32876e24d3..f4b21d7efaaf 100644
-> --- a/drivers/i2c/busses/i2c-k1.c
-> +++ b/drivers/i2c/busses/i2c-k1.c
-> @@ -332,7 +332,7 @@ static void spacemit_i2c_conditionally_reset_bus(struct spacemit_i2c_dev *i2c)
->  		writel(FIELD_PREP(SPACEMIT_RCR_FIELD_RST_CYC, 1),
->  		       i2c->base + SPACEMIT_IRCR);
->  		writel(SPACEMIT_CR_RSTREQ, i2c->base + SPACEMIT_ICR);
-> -		usleep_range(20, 30);
-> +		spacemit_i2c_delay(i2c, 20);
->  	}
->  
->  	/* check sda again here */
-> 
-> base-commit: b3dfbde62cf1981c4638939c159dfd087b7a72e9
+> no, I thought you were suggesting that I repost it.
 
-Reviewed-by: Aurelien Jarno <aurelien@aurel32.net>
+Okay, it's fine to me
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 -- 
-Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-aurelien@aurel32.net                     http://aurel32.net
+With Best Regards,
+Andy Shevchenko
+
+
