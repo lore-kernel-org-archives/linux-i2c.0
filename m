@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794307332;
-	b=MC+cxRgQRYJ+KT9dK0D8etr8ntk5zyH+gMKMmM0kGQZUFHTadqeTnO3l5rhe8KvkXrUZ
-	 oZc9Pu/cHzh537xw46FoOLv9nI2cyPtu1AHpbW89kjVJs9ALcdDKqlc8Mjq7MxWi6ztHb
-	 0Tnkj4247+q0JneapocVsRvvOpcGdxMstB48iNEWFGDZTrYTAuEy/2wuJssbEsDlJCxyA
-	 SDi8H6+u7dFp8fafYWXh/bUA8dSSZNDOJyB0k3tHPqQfhe20K6PA0euGRnLGPB5vMB7R1
-	 Y6AzqLbL0GYySj7ZXyTXOuJbeFzgtzb7W54CJd5Jq/2zxtDGMoiT9yZHfimA9jU1E3w==
+	t=1794307674;
+	b=Mms9nhuyyz+yog4L9eLj4BCljzQtWzlYp/BQIO9dBf5Nk5Ofk9WxBSYFAJ2inZJ2ixLc
+	 Ba+1ScTMDiJO9oWIxjdt/uhvEuMNyJd3MTMG9Ia39iqoy3aJREESNgvQQF+2GQqCmqIv/
+	 B+Zo85/mpW8v40aqGN25Zz8WLrssOHxaSVKZXQkumBjlJFgJ2aTcMgzYnORhSdZQIv/2d
+	 cSx26YWhs05JyjLYZYHhwn/DMGrBZFlBl2CIjIJAUwoq0UWQE3qS9QqVI0QBbyDxJaN94
+	 uINr7Au8fLJgCK9m28D1HQgu8buGA5LHj00UGPV/dehZIp7s5WYrJVDZZ0GGmkmN8RQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794307332;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794307674;
 	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=SqMVErT0RX3B9p3yGNJGtQhfVv+xf3ufJRjus6WWjU8=;
-	b=kh5k5i84A/T9XR/QSBoepQZetzu6i79Rze3h31+Q+JtopdjtW0aBaVv2Jth0Retti8cd
-	 6NMtKFuxsHKBYb3ZJmVFgs+o7GZuCOSvOrKQ+8ojnNlg0nLEtenG8E97aCNTfYK9MRIYB
-	 tZPxtxhlKI6qSOpEgxy1Bwi6SDJzRzhzVjrZ86Muuqr+1Q/+hplRV52rS/uR0s3jSv8TZ
-	 mfT+xy4cWQWTpFLqLmce/GH2Rc/GfodpFJN+80O1cCpSolDpgWF471bhvOM+cy+Y3yoHE
-	 k1NwsN78nelAfVFlsArjm13DtA1cdYguaUr52MIEm0tVcLXRYFLowlwscHvXaJcCdqQ==
+	bh=ZWIVM6tG5A2WF1SayFxe4exG8xdz+gKhA6LhjdeSoRs=;
+	b=U898BVd8K+bh8xRXs3ujq3nJZA77WmTMesN4XYSubeDGFzdblZ5LrGT411WxPTw9wXlR
+	 DhtkuqlIL+bsJ1/BO0dMqrSNduUA4DyhGDIoIppdPmKXWkbo4SHEiFpq8kZ0swDE42Zm2
+	 6VEhgTbBgin1fJgK4EB45TJNp7zXYbPyUaXOl/+D46fHo0rT47bRkKRDtcFgi0C0ZEHDx
+	 vlwA1RzeoJCgP0yTbe7jz8Iuky6oDvgh4OLXlu5z9rnHIcJMHst4s9cwl2gxUFiTRMq7g
+	 84T9YlSVXxoQ8zVv66A+eWlW47nsUbPGU3IN8YMB+U7X+6VuAJ8DKoLQojzoWpqQkJA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ML7va1sY;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LoA6wm8G;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DE6A606A32E;
-	Tue, 10 Nov 2026 10:42:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 183A7606A333;
+	Tue, 10 Nov 2026 10:47:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ML7va1sY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D06251F0089F;
-	Tue, 10 Nov 2026 10:42:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LoA6wm8G
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFA51F0089F;
+	Tue, 10 Nov 2026 10:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794307331;
-	bh=SqMVErT0RX3B9p3yGNJGtQhfVv+xf3ufJRjus6WWjU8=;
+	s=k20260515; t=1794307673;
+	bh=ZWIVM6tG5A2WF1SayFxe4exG8xdz+gKhA6LhjdeSoRs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ML7va1sYZb31nR4ymQtKjfOAVeRNJ+rt92Pz23nfvoYb5vZampC7XjUWAGAA5PAFS
-	 ux6URa8ArMSsZ20kVCKCp8XsSH12qza9fRuOfpLe+6qgpTEoXZNw8UdXkMZ/MnGvRc
-	 O3eaL2PAlY/ZQ2R1zhqZAj9/2SocTH1leC+ljZUoCezqoiZpYvcXi1TXV4uaGNNEX8
-	 fijAnlGG17ZLCz5VfM9x9xHTy+xkELzJRPOwS2IHo4IEJ0hAYtMzGGh1Rh/XlrCIgv
-	 TVgqrd/qm3RWLn53a59ko4zn7DxNqu2om9ofJbNSEnwFzs335FAgN+K6VSVD/FQXVL
-	 AgBHJnfliXlEQ==
+	b=LoA6wm8GUyWUL3HEjZWsX3/jKbn25d+HXkJZVESkJ0+AIHov+TIc12Rw4I3CwtfFi
+	 cWXpC5xrjAP8JjV5HfehbYSXFkoIlnyzwzQgcMkGP/72BOHlJyXspzTzZJz1INEmVg
+	 1MjtvDfDFrPDdLRw9WXDVx+CrjRLGeYV0X1Z00+k43MC/7dSns7J9NKa3l8e+tghi6
+	 6++3BXO05Ja/hP3nDFDOaqP1HOkapUuv2pp4myjbNaAuZLafpAtX/SHlUzyA6XN92O
+	 kBtp/f20AJOuJhn3QidohgrcKcRCUcaNSZJTfCustsoPVJVuRaDtymTP3KAxSBD1rQ
+	 JjmHWlQKpt2fQ==
 Received: from johan by xi.lan with local (Exim 4.100.1)
 	(envelope-from <johan@kernel.org>)
-	id 1xQjIn-0000000AmcJ-0cLA;
-	Tue, 10 Nov 2026 11:42:09 +0100
-Date: Tue, 10 Nov 2026 11:42:09 +0100
+	id 1xQjOJ-0000000AmhB-0u4b;
+	Tue, 10 Nov 2026 11:47:51 +0100
+Date: Tue, 10 Nov 2026 11:47:51 +0100
 From: Johan Hovold <johan@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
@@ -55,11 +55,13 @@ Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Bartosz Golaszewski <brgl@kernel.org>,
 	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev,
 	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/8] swnode: fix device_add_of_node() kernel doc
-Message-ID: <avL1AQr1XkFhEU1K@hovoldconsulting.com>
+	linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Subject: Re: [PATCH v2 5/8] driver core: platform: warn on bad fwnode
+ assignment
+Message-ID: <avL2Vxi7PADCNio2@hovoldconsulting.com>
 References: <20261110085125.2535508-1-johan@kernel.org>
- <20261110085125.2535508-4-johan@kernel.org>
+ <20261110085125.2535508-6-johan@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -71,17 +73,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261110085125.2535508-4-johan@kernel.org>
+In-Reply-To: <20261110085125.2535508-6-johan@kernel.org>
 
-On Tue, Nov 10, 2026 at 09:51:19AM +0100, Johan Hovold wrote:
-> Software nodes added to a device by device_add_software_node() are
-> always secondary firmware nodes even if they may be stored in the
-> dev->fwnode pointer.
+On Tue, Nov 10, 2026 at 09:51:21AM +0100, Johan Hovold wrote:
+> Commit e6054f410c97 ("driver core: platform: amend the API contract for
+> fwnode setters") added a warning to platform_device_set_fwnode() in case
+> the current firmware node pointer points to a software node as that may
+> prevent software_node_notify_remove() from being called.
 > 
-> Fix the kernel doc which incorrectly claims that a software node added
-> using this interface "could become the primary node".
+> This is only an issue if the platform device has been registered however
+> as software_node_notify() is only called for registered devices. A
+> bigger issue is that a secondary firmware node assigned before the call
+> may be silently lost (and leaked in case of software nodes) as these
+> helpers do not use set_primary_fwnode().
+> 
+> Replace the current software node check with a warning in case the
+> device already has a primary or secondary firmware node assigned to
+> catch any (hard-to-debug) issues due to a secondary node being assigned
+> before the call.
+> 
+> Note that this also avoids making claims about the device firmware node
+> pointing to the primary firmware node, which is not the case when the
+> device only has a secondary node.
+> 
+> Fixes: e6054f410c97 ("driver core: platform: amend the API contract for fwnode setters")
+> Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/base/platform.c | 24 +++++++++++-------------
+>  1 file changed, 11 insertions(+), 13 deletions(-)
 
-Subject was supposed to refer to device_add_software_node() (as noted by
-Sashiko).
+>  void platform_device_set_fwnode(struct platform_device *pdev,
+>  				struct fwnode_handle *fwnode)
+>  {
+>  	/*
+> -	 * If we call this function for a platform device whose primary
+> -	 * firmware node is a software node, we'll never end up calling the
+> -	 * symmetric software_node_notify_remove(). There are no users for this
+> -	 * right now in the tree so just disallow it.
+> +	 * A secondary firmware node may be lost as set_primary_fwnode() is
+> +	 * not used here, warn for now if a node has already been set.
+>  	 */
+> -	WARN_ON(is_software_node(dev_fwnode(&pdev->dev)));
+> +	WARN_ON(dev_fwnode(&pdev->dev));
+
+Sashiko points out that this may trigger a warning on probe deferral in
+an ASoC driver due to a new user of platform_device_set_of_node()
+currently in linux-next.
+
+Will revisit.
 
 Johan
