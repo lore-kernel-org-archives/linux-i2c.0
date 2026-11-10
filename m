@@ -1,52 +1,52 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794309103;
-	b=QyfLE46jC7zM9M4F3VJcBUIIPhOOqYISuOZlLGceZXRjdqf9AWzWgitOMqerxNKJPycv
-	 Y+7FPCH8f3hE3J+HVpJz/yvqBf6O9e/eHtBwg7Ow5KKtWLjTvKhkdwPRcOIdME9JQFczQ
-	 ni7nGR1ws85iW/2t9ljBkL6pQ5YoQ5cpaOnBI1RzAvQ0owhYUC2IDuPgf+6BIfiqaHIKH
-	 8TgHyeRaeSdb05Jb3zFTw+CIxXW4Cx3AxzcaUF107iATbEzfOe1/RotcqqJZjaQkoR1rW
-	 eVjqVO8pTlBh5l0Z/eqDzy2HMxNFC8DvHy1lNI8KIlXvxJ2+hjr0tTLJH7/cfsAytFQ==
+	t=1794309117;
+	b=pBuuSdI/Q1H4bg2RcGXA5dBUc4DQnvu9PGsPlFKLBDZO46SvTWL1WhHTzrCqS915BYO6
+	 NUuj84LaBADmsJ/76CvFm4cv2NrMTpDC0icmcEB7zKFsYfOEPuJZXfU4//1MVDMEjLEOq
+	 4D4xJhgWSYPpc9eqB+UdE/Wl+iqTRKXW9H2L5KAB1bOP7zWNjxhdCmxHXKWS7oCslVE6k
+	 c1oE8YUJ+iy9z6zO2sNpFGKC5E3V93S35IqmKOgS4PgJckxNlxbuk9gL1nesule+uGjqk
+	 LVqbyi+l3QIo57TrnBxCNPED7Pb/ka17MHcamHFY7jpoYe8WbkZA27YBE0p9IYjwEuw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794309103;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794309117;
 	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
 	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
 	 Content-Disposition:In-Reply-To;
-	bh=URNm3AaV7OhkF+44lQ7GzK8Lve00n5qQDwL4NE/x4Rs=;
-	b=x9LQOqSbUPYl+uMU3GsNH5ZpvXI/WY37sHp48n35aGcFmKB6qrB43gugV29NRMKT9B8u
-	 UtxaOYSpNlhq7/infFaeJWaDXyPxa8DOd/A5Rf14y9FdUaX33ybfvuCplRDiEiusgEVcq
-	 FsbuCKtcoPnGymjG0QYEm8gHI9Lk5WR6E/pGu3YWlXX918LX1gXSGxdV90CwdYeiOLNeV
-	 MBlK9pogYbNUpbOBFFP+RlGkIcivZM9bhu2fuxpjuybI04HAvPsWuSDq5XbChihGCiilz
-	 GM+ZOe2is9JIRKfAr03TU0ZPYELHstv/u4IU7WaxqZOUUUaXA1xhO9xqg9k7cTTBbzQ==
+	bh=KwOMqReEGh0Ih1HTKwwC8fhh61cTvDF88ZgrH8p/zw0=;
+	b=0fqIFpV3NlfVJTxuQKDpPuopPlILa/5S2r8BSxFzxuQmtVQMK7raOiGFPRc5+xKyFIUi
+	 1T77GfuKGRm0j4tNnhDl7mcufGneWfdDGJL5J5CVl+AOmCTVy/3SnYsIeFXULQo1ICGhD
+	 iP/pXrDlgRxuMLKqiYTarWF4ZHQH6QygVMdExugPJ5wR499M0MePT8Vug7ZaxasoVpOaU
+	 EEj80lfICSOIMxnG/XJtl5Eu8c1CuhSKxrXJ2pcyp6GXrIoIMTes8IA4/Y8E69VJQKzaQ
+	 blhz96RobDTUqrE8UithU4HOVj2u0GQIUSEnAqrPWpFUmReX9wJjx7tBHUQ6ieoSOQQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=sang-engineering.com;
 	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=i02rXB+p;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=QYXnx+aS;
 	arc=none smtp.remote-ip=194.117.254.33
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F5F0606A32A
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 11:11:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2F5F0606A32A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6CDF606A326
+	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 11:11:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A6CDF606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=i02rXB+p
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=QYXnx+aS
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=URNm
-	3AaV7OhkF+44lQ7GzK8Lve00n5qQDwL4NE/x4Rs=; b=i02rXB+p+ezyY+T9IzNM
-	Qg2/TbI2j1IeV/mdj4IIhfjWhMyv16kR7h8KHBe7WvPbbRwzqIAO6kKL5kZt7SZu
-	l8RDOCA24sMzfes2GshnBEOLdXameStP3o59qX/+Fe3mhbk1zso39dc/Sz8KGEof
-	d6Tmlb+fvXpfodwK581vA53aIjzj/iPeIiTOeeDAWbIVodLaK6Z50EozW3xTO8Yv
-	6vH01sByRlmBMYbHfbO9bvonGnvVwVkUCFwaKQ4DH5v6bDS7JWuys49PF+PFul4g
-	zt2GzSbpMy7NGESJRKYoTmp0GnbAX9IreOiLjSNgpHp4jU1Wr2ZC+7GibPjFCJ7g
-	RA==
-Received: (qmail 205301 invoked from network); 10 Nov 2026 12:11:40 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Nov 2026 12:11:40 +0100
-X-UD-Smtp-Session: l3s3148p1@FtiBJOpfzIQujnsO
-Date: Tue, 10 Nov 2026 12:11:39 +0100
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=KwOM
+	qReEGh0Ih1HTKwwC8fhh61cTvDF88ZgrH8p/zw0=; b=QYXnx+aSkafOzcSvfg84
+	+n0fhAQDf3znURYRalx2f6M7bcGzQ1rO+qluar0Ep4W2h6OFl8gOwAewJx0+Pan3
+	dPMe1MxRPZ7GptCOkWB1qxv3al+97t/CtWcAQd2rwNK4SN31coneVoF7c4Adg3Yt
+	gjPiWxmJyiCiFCkRcntx1RMZz0fGxk07DTTb4IAKaA7cT1NrtdjpMpnEl3n9yj75
+	TXCQEDCNmNc4ZChAPy/JbPan56r3xGYqrQEs4/6b+bgCYhCzmpY7L5AvzDCfczxV
+	v/NUt5zgVO5JIccXDh7wM/ajsOEbKxNgEWYNGFRUPkrAGbfokTDlSZfJf19fcT6O
+	Zg==
+Received: (qmail 205390 invoked from network); 10 Nov 2026 12:11:54 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Nov 2026 12:11:54 +0100
+X-UD-Smtp-Session: l3s3148p1@u8pgJepf4p8ujnsO
+Date: Tue, 10 Nov 2026 12:11:54 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: Christian Marangi <ansuelsmth@gmail.com>
 Cc: Stefan Roese <sr@denx.de>, Andi Shyti <andi.shyti@kernel.org>,
@@ -58,10 +58,11 @@ Cc: Stefan Roese <sr@denx.de>, Andi Shyti <andi.shyti@kernel.org>,
 	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: mt7621: Document an7581
- compatible
-Message-ID: <avL76_zF5NizIRMK@shikoro>
+Subject: Re: [PATCH v3 2/2] i2c: mt7621: limit SCL_STRETCH only to Mediatek
+ SoC
+Message-ID: <avL7-gfNNvO0s_gw@shikoro>
 References: <20261103210542.15965-1-ansuelsmth@gmail.com>
+ <20261103210542.15965-2-ansuelsmth@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -73,17 +74,16 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261103210542.15965-1-ansuelsmth@gmail.com>
+In-Reply-To: <20261103210542.15965-2-ansuelsmth@gmail.com>
 
-On Tue, Nov 03, 2026 at 10:05:40PM +0100, Christian Marangi wrote:
-> Airoha SoC implement the same Mediatek logic for I2C bus with the only
-> difference of not having SCL_STRETCH bit.
+On Tue, Nov 03, 2026 at 10:05:41PM +0100, Christian Marangi wrote:
+> The same I2C driver is also used for Airoha SoC with the only difference
+> that the i2c_reset should not enable SCL_STRETCH for Airoha SoC.
 > 
-> Add a dedicated compatible for the Airoha AN7581 SoC to account for this
-> minor bit variant.
+> Introduce a new compatible for Airoha and limit the SCL_STRETCH only to
+> Mediatek SoC.
 > 
 > Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-> Acked-by: Rob Herring (Arm) <robh@kernel.org>
 
 Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
