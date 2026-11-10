@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794302568;
-	b=Mj4BXcQ6Aet6q/URnnWOUkYhYxxB6TWezvq8AjFjUK6se88supXSpg6rKOYe/AwCaCX+
-	 HoBMY9A5DbvX/4pnqSmxwO+qC/BoqhfDfCfRnGgH8VGZ3d0nnM5jPDBtI7nUkgnK9k7EE
-	 uoZS6qOPIq09Bn7V0EHcjc1VWV6TFm8XX1G0XFpyr7Fg3MxJr8oAe/scClF6sjaxqYpe7
-	 NxUviYfYGGjL+5hH8GTpz4Bv3yHerbIdP1Rwgtc9tLtWTMF7H7j2J00V6pBjLuGaU4f4V
-	 iPeGJLi7Sl/tNaQlwopmn9L1MP9/XI8gO3nufG82tENLQximksvFVz3BncqAswlVfwQ==
+	t=1794302636;
+	b=mOZgPNIuZ7Dcl7QHtgNrlR2Utc4UG33ksgZvq7iJUseMbuluuvXxRvo9YwNia9etBYoy
+	 R0eY09Qkrz2V/S4KUjDEFygGZOou0ZHd7OwWwT3G9D7P2K0C6jb1QKwTEw6xOsxND60Jz
+	 jNFnjjCdLUYdCSO434RGAjtG//ckuZFsfhHgooZI5NOlUvwvVQzpW4dGDXR/m54Jvq9+K
+	 X3I5ngYQ0hm+byz4NRkGZuUmziYiPm6sayXuCK49mIOKIYETHkNrlBxSd1ofhaDaY0TqT
+	 pFhf9k1ZzbQpAumuYz3NCLFEHTgsvgTirLaZXnv4cHWJ06RbHBRKSIkzdGhOCoGLulg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794302568;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794302636;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=T/00q7GdXxYhOSi56pmqRGTBfomrbHHL5rHo9nrPOFY=;
-	b=KkdAx62x1ziSXtEcemre7MNFAG3qIZwsjSHcnkfU8odBS7KYfvNYF9x+DK7NIvOM1ch/
-	 /gUGfI/EFyGvNdKKx80oGCzb/36U8RtNpWFri+9iZ7qbL0/Jj911LvdUWqKC3AR7AJ4Ua
-	 k3Lnae0d9sS3MyQeM3hRdSj6TKr2OH3fv7d0T7CkW/MxQKKDxl8EYMeHNZzXIlJAU8Gmj
-	 JZmu23T3zawWVGxE7u4EFc6e2ry1RqRWgXwHXs8qROSAq4j5frjPfj0HaEJxIWojItZmF
-	 0LRGCiLDyLCbAPCMcNujoG8WyK20wmf8oC6YOIND526oyFjl9vi8utGONbkbJB3+T2w==
+	bh=Bld72ze3MCWiaLBGA3XPtCKyhfXQPBGjgO3Es6jtm0o=;
+	b=0AAwhTq4ecDZZORO6P6VciTgiMk4MGQsdUrKThc7pnky0/l65F8+RSJ/YmUjaKTtMv60
+	 Xmm+kGw5VUMvw6HKccpkPMirRSuwrJuC6dfe7kycL/h7bXnDNgoNrclo5omWjuh19pXUn
+	 nHFuydj//nItvU2+efc1Y2zZU88z6tqRpXUwC8tCWmXcw6rMewz1Jt9taA6+LpGWDz9R+
+	 Z6bJUhHRFnliNTgkAas3Es1rQp0RYLO/hZYLUU9XE5peYHpk5Lg0WNwOdE2JfgqlbDMK8
+	 Ve200u84sBTyNrbdUWruZw2kkNnMW07tEVORjfv297PRFYUlcGclE/avh65OcKezp0A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=To4KO2RE;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X8WqXunE;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C8C1606A904;
-	Tue, 10 Nov 2026 09:22:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EFBE606A335;
+	Tue, 10 Nov 2026 09:23:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=To4KO2RE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 783711F008A3;
-	Tue, 10 Nov 2026 09:22:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=X8WqXunE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C67381F0089F;
+	Tue, 10 Nov 2026 09:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302568;
-	bh=T/00q7GdXxYhOSi56pmqRGTBfomrbHHL5rHo9nrPOFY=;
+	s=k20260515; t=1794302635;
+	bh=Bld72ze3MCWiaLBGA3XPtCKyhfXQPBGjgO3Es6jtm0o=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=To4KO2RE5ArLiLQdHwpN0YGmIrAUshdpjNAcFC8N55W+7Cl21i6FQdzHNYkTiHvF9
-	 w2xx1Oi6muL1FIpjd9/8C9xnVFaxS3Uz8dkzONJq4kwQx52lzTkDs3qJrES5rvTw/H
-	 6cj9UeZVauM9fk3abfcKyDFvRg7Lzu8hTe0g3nU8sIc/K4DzJg6XjPb2wCJaNlPbZW
-	 CxxjAPCBMtWgKHwcRwD1Vi+NBHNW6SG8sXTrzAnZJTcgzFGS4Wyo/EOTExribpuygA
-	 80StOXQeaGJgNwWcCHP69f9os5wT5HKzj1rbkLV3w0NQLPATTLv1J3QM2xwY+V78KZ
-	 iMa7u2MwHqA6A==
-Date: Tue, 10 Nov 2026 10:22:45 +0100
+	b=X8WqXunE/TvBHbIZTYLmqLtMciaQDDJhhDVwJoYkQvcjyE2pVMhVhXPxGtRfI7WS8
+	 CmaLxf2EOuNcVCXftUD11ImJs0lFmU95NaKcGgB3GDUine0NEbUWh86YpQ5X0irJKD
+	 g010juDmaF/0x0RsELQq2aqnkYFVplIaeQnfJw87pL89DDY1mbKjPaYeHvXhg0N68J
+	 e3QoVFakJ6i5kb3ZC6J/qqSkCTZ9kLSmJxlVW9mytVV5Q7a8iJiyRniMCkBzLMiTqS
+	 6R82lCRciBEnRgyO+HSGtUUzHAdwSAMdgf/RHn+E0isNCjOdFRuuWP4KlhC+Y7Lm8I
+	 5pztixN+Xu/VA==
+Date: Tue, 10 Nov 2026 10:23:52 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
 Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
@@ -53,11 +53,11 @@ Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
 	linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, linux-phy@lists.infradead.org, linux-media@vger.kernel.org, 
 	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v4 2/6] dt-bindings: phy: qcom,x1e80100-csi2-phy: Add
- Hawi and Maili compatibles
-Message-ID: <20261110-cordial-gecko-of-trust-c864dd@quoll>
+Subject: Re: [PATCH v4 1/6] dt-bindings: i2c: qcom,i2c-cci: Add Hawi
+ compatible
+Message-ID: <20261110-friendly-chipmunk-of-variation-eef4cd@quoll>
 References: <20261106-hawi-maili-camss-v4-0-d528c7a797b4@oss.qualcomm.com>
- <20261106-hawi-maili-camss-v4-2-d528c7a797b4@oss.qualcomm.com>
+ <20261106-hawi-maili-camss-v4-1-d528c7a797b4@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -69,27 +69,25 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261106-hawi-maili-camss-v4-2-d528c7a797b4@oss.qualcomm.com>
+In-Reply-To: <20261106-hawi-maili-camss-v4-1-d528c7a797b4@oss.qualcomm.com>
 
-On Fri, Nov 06, 2026 at 12:20:43PM +0530, Nihal Kumar Gupta wrote:
-> Hawi and Maili integrate the same CSIPHY IP as Kaanapali with an
-> identical register interface. Add qcom,hawi-csi2-phy and
-> qcom,maili-csi2-phy falling back to qcom,hawi-csi2-phy.
+On Fri, Nov 06, 2026 at 12:20:42PM +0530, Nihal Kumar Gupta wrote:
+> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 > 
-> Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> Document the Camera Control Interface (CCI) compatible for the Qualcomm
+> Hawi platform. Like other recent platforms it requires two clocks, so
+> add it to the corresponding clocks constraint as well.
+> 
+> Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
+> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-How my tags could appear before this signed off by:
+How could my tag go back in time?
 
-> Co-developed-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 > Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
-
-? Are you sure you used b4 to collect the tags?
-
 > Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-> ---
->  Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml | 5 +++++
->  1 file changed, 5 insertions(+)
+
+Who received the tag and what was happening with this patchset in
+between?
 
 Best regards,
 Krzysztof
