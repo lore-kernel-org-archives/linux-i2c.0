@@ -1,47 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794300727;
-	b=d5yTGz+/XSC5nQ9ca1wPgv55xQw1wqd6I9lPxGuiNI/sN8pySfrEPvfreyVdogCaznK6
-	 Zz+6qUM/ngkxjrtLvfL+z/rinRr0XnqEYone1e/LGdYSNZ8LiqxFGrB3kCnz6CWmbxevx
-	 oEIfM3F+xIWwpESB5/OOnFMnkmGwUooM7En+NvgOTsSGI3Iv9Ae5MSyx+7W5YHTQqN+xa
-	 zwvHQ1EZysJrSrRvQoY8nUxF78gtjjbu4pmMfrCkimEqN5AIgAqNyDg4BtweZbopiepAB
-	 LQbhG23xSnXXbcJYfH5NMVVLGMjZbyKABX17R2RamfwUl1Ym1EebFm8NSsLxFym4Yiw==
+	t=1794300728;
+	b=P3WGMPgNZEcgGBqm0S88DFs+BxdI5Mxdj4GP21pPj98IoWAZltBSdvvtQiWrDPwmtzVJ
+	 oHmNwoqhATeq3hpn2iqPdvFagydL9iVTBDyzwy1K+SVxt0rte1eYjZJzh67n29Oz2LWx3
+	 83piI5fu/L1aOaH8om33c8QTQ3Q27FUOkvYU9wvds41dLE+f++oG1TWu8LwHhqQm93doW
+	 fMHh7DXH8qztUBZjJHtNMIBCFRIh6QRtmGjS4AYszXlP0PLwo/xILoo5o1BtnxQbD0LUR
+	 vINXqAVWQePPHlJnchcneZOj6CJpLGiEBJ73/fSplNeRjistoxYJ9GecrwlgsglQNkQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794300727;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794300728;
 	h=Received:DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=Lp0SW5xrHs/eDGwsq61fIfxOKUA5MYfMP207ooVp0bI=;
-	b=i/4iFWMtugxjyCbbxZ6DuvHnF9suhRFXsXFNw8ChlhqG8ODFdZ4P221mL8uOYE3JV6wK
-	 OsPXv9v2jrkZHRkuQfklV8enXoQ41HCNhd9ZshN+r84FRoscRHml9qbNPc35/lflvCq8V
-	 UJEE8Iy4EVYgaVAYRWLYIoevI79W8oBvlIC6E7+0LPYqPOOxuujdnF4nsKyrPc1RxBgXV
-	 k0Rp2NWpHmNk1FUEVd76YF270dkAumXoqATpowbuDeNAJ57f7+ePYzKiPulwRu7LKYRSm
-	 lfM14n7LukB1MUvocm2o5WhyxLmWh8DEzg8pz/Ky67wmL067uqz0aSCmkWItJzvnDxw==
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=R+e3kpbpPde9VoezRbcL7JxDyHszt965T/owVz7GYhE=;
+	b=jv5YltHoLCaB0Yoa5WAbZWYx1uhEiM9XyQG5BRbKMuicWILFDE7Wuyl++gKFcIOnx+QY
+	 YpS8K5NF1HG2n2j71EJP+bjHaFZnlp3j5No8HstK6gjH7P5haf4FASimh/JA+ExhaR6rB
+	 Z3JR6p1Hxp8Lqw9u0uPU4UrHUON/b1zQR75wlLQgW7wkpEGQMefu4xzUNB9LWSPr2RExE
+	 5UmeRtGCNwYpCQVWByP8FnXnV0C+41QcXB7GFuC3wiplkaos/5/WuLsQv7929FrZCd1co
+	 CwCjgE94x9OeotAz2VDBc1KBWB8RC7j15eUkbwK2+ws2faBz0PPdeSOy8MfbVzSZE9g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mIqzksC0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oenIbExN;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E87A606A334;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E788606A332;
 	Tue, 10 Nov 2026 08:52:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mIqzksC0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92ACB1F008A3;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oenIbExN
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966251F008A4;
 	Tue, 10 Nov 2026 08:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1794300726;
-	bh=Lp0SW5xrHs/eDGwsq61fIfxOKUA5MYfMP207ooVp0bI=;
-	h=From:To:Cc:Subject:Date;
-	b=mIqzksC0fLiGMhbr+BfEbtyqcHcr2bxF3oeb/Z5wEu4Er4PkfqcDwYDJd5M6MRH9A
-	 4DtE3bm4Bx/DP1HZbOHww/SoSwhXaQf3j3H2jnBeneUiFWaAS3SK45KFyo9p7yXk6X
-	 kC1Wbokf0CU1EY9mX0VJ89jMQ7qGvOTPrBpoWeObTHKSElbTSDeOYl2Pp50V08FLls
-	 D3NkP7njO4t8TgbA2KlyVCtft5sm4656L7I3bTQk9hfU+//19vgu647j9lLF6qcqmj
-	 wxY2ELrH1J9zPRahv9su2xfuNOTsuDDF4/yxT3UM5s7jEexZLGhYJbVHeX244FM6S8
-	 FET31TcK33u4g==
+	bh=R+e3kpbpPde9VoezRbcL7JxDyHszt965T/owVz7GYhE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=oenIbExNIT2iO7aDPRfI4ai6ipJqLPbC/frxda06e2Dtu0SmeDoavXbaXoaHauHVq
+	 XzA+FV7Pf/2fV0lzV/jbQjlN1kSCOesEwkXujnIH/zgWAOJRXe/JIjsmbyToxCNrHs
+	 ci39SkcHEGfEiSccwwOuirTgWg4m6VMYH8uaSUIRCKJsYj9D4haFLsP4psvN+qdsvh
+	 4cyQCPcZlyqwtdjlc52CSQpoJhdNQlSYLGo6vcoRzm0N2xwPruLuMjuSaOoezZdUvA
+	 wKO8ByrWLfr3WUwiyL7s1TGy7R3muHrxVHy0ox7lSQFZINwupCj6siu5zMCHzFxF+A
+	 L0F5EGiPJZbTw==
 Received: from johan by xi.lan with local (Exim 4.100.1)
 	(envelope-from <johan@kernel.org>)
-	id 1xQhaF-0000000Adc4-49hu;
+	id 1xQhaG-0000000AdcK-0QT2;
 	Tue, 10 Nov 2026 09:52:04 +0100
 From: Johan Hovold <johan@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -57,11 +58,14 @@ Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	driver-core@lists.linux.dev,
 	linux-acpi@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/8] driver core: platform: fix swnode use-after-free on device release
-Date: Tue, 10 Nov 2026 09:51:16 +0100
-Message-ID: <20261110085125.2535508-1-johan@kernel.org>
+	linux-kernel@vger.kernel.org,
+	Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH v2 8/8] device property: fix fwnode_get_next_child_node() comments
+Date: Tue, 10 Nov 2026 09:51:24 +0100
+Message-ID: <20261110085125.2535508-9-johan@kernel.org>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261110085125.2535508-1-johan@kernel.org>
+References: <20261110085125.2535508-1-johan@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -73,63 +77,46 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When fixing a use-after-free regression in 7.3, I noticed that the
-software node implementation is internally inconsistent.
+The parent pointer in fwnode_get_next_child_node() may not point to a
+primary firmware node so update the comments to reflect that.
 
-Specifically, the firmware node pointer of a struct device may point to
-either a primary or secondary firmware node, but in several places
-kernel-doc and comments suggests that the firmware node pointer always
-points to a primary node (cf. [1][2]).
+While add it, fix an indefinite article in an earlier comment.
 
-This series fixes the 7.3 regression along with a similar issue in i2c
-core due which are both stem from the fact that
-device_remove_software_node() happens to drop a reference to a primary
-software node that was never added by device_add_software_node().
+Fixes: 190069255582 ("device property: fix infinite loop in fwnode_for_each_child_node()")
+Cc: Xu Yang <xu.yang_2@nxp.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/base/property.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-The next two patches clarify that device_remove_software_node() should
-only be used to remove nodes added by device_add_software_node() and
-stops touching primary nodes.
-
-The rest of the series addresses further inconsistencies.
-
-The first two fixes could go into 7.4 and the rest (which depends on the
-fixes) into 7.5. And with an ack from the i2c maintainer for patches 2/8
-and 4/8.
-
-Johan
-
-
-[1] 97badf873ab6 ("device property: Make it possible to use secondary firmware nodes")
-[2] 3f7bddaf5d5a ("device property: add description of fwnode cases")
-
-
-Changes in v2
- - rename temporary variable and amend comment as dev->fwnode is not
-   always a primary node (patch 1/8)
- - fix related UAF in i2c core (patch 2/8, new)
- - fix inconsistencies in interfaces, kernel-doc, and comments (patches
-   3-8, new).
-
-
-Johan Hovold (8):
-  driver core: platform: fix swnode use-after-free on device release
-  i2c: core: fix swnode use-after-free on client deregistration
-  swnode: fix device_add_of_node() kernel doc
-  swnode: ignore primary nodes in device_remove_software_node()
-  driver core: platform: warn on bad fwnode assignment
-  driver core: platform: tests: fix swnode reuse test description
-  swnode: fix software_node_notify() primary node comment
-  device property: fix fwnode_get_next_child_node() comments
-
- drivers/base/core.c                      |  3 ++-
- drivers/base/platform.c                  | 32 +++++++++++-------------
- drivers/base/property.c                  |  6 ++---
- drivers/base/swnode.c                    | 20 ++++++++-------
- drivers/base/test/platform-device-test.c |  5 ++--
- drivers/i2c/i2c-core-base.c              | 10 +++-----
- include/linux/device.h                   |  1 +
- 7 files changed, 39 insertions(+), 38 deletions(-)
-
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index 51109794d727..32df0c6724ac 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -810,7 +810,7 @@ fwnode_get_next_child_node(const struct fwnode_handle *fwnode,
+ 
+ 	/*
+ 	 * If this function is in a loop and the previous iteration returned
+-	 * an child from fwnode->secondary, then we need to use the secondary
++	 * a child from fwnode->secondary, then we need to use the secondary
+ 	 * as parent rather than @fwnode.
+ 	 */
+ 	if (child) {
+@@ -822,12 +822,12 @@ fwnode_get_next_child_node(const struct fwnode_handle *fwnode,
+ 	if (IS_ERR_OR_NULL(parent))
+ 		return NULL;
+ 
+-	/* Try to find a child in primary fwnode */
++	/* Try to find a child in parent */
+ 	next = fwnode_call_ptr_op(parent, get_next_child_node, child);
+ 	if (next)
+ 		return next;
+ 
+-	/* When no more children in primary, continue with secondary */
++	/* When no more children in parent, continue with any secondary */
+ 	return fwnode_get_next_child_node(parent->secondary, NULL);
+ }
+ EXPORT_SYMBOL_GPL(fwnode_get_next_child_node);
 -- 
 2.56.0
 
