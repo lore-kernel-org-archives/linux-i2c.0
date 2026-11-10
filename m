@@ -1,51 +1,130 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=88.99.165.17
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794331193;
-	b=gi0gj+NnMN6SCOEZaadun7ju7qryPgbc4NBuq4C9TZXFiNpmfL6hPi+MKhhh/yo244/g
-	 0L9ThO/1DeaMji+S1AenAg3nBKeMmlXW2VmQmWHC+wzx5irwaUFttO/QFi3d1S3TkXQPl
-	 GYuubnfaw1aQVZRE4V3wI83+ehUMwxBELjcaHT7j9yMgB1t3Shh17gzJvb3pXTaZBaARO
-	 h3U/acecDcdDrja8nT0ZfC+jPuFP5npxQoKAHkZmpFJ8DDSppDpSR4Eos8h+5f4Gqcqib
-	 3ajQGqFPNRLplSwTt/OOPGcH36A+vuHdu7TLrjbCrZePzr8NKpY1qKD3D7p1sl9uSig==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794331193;
-	h=DMARC-Filter:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=p/zlLp2/5CvVaOiuLTK2bSnJUqlCd8S9f8F1xwWFe60=;
-	b=eaB3KYsMyWi/3SFBF3xJ7Yzk6wzqoxNvhdy2b41J34TniCKnjX/iCqThCtpay2N19t6W
-	 XLkUfas1FuloiL6QIFE+Kopa2kkCoLGxCFXDx/U5EfiDa4ueKPIj/LOHLLTROpYW9xwUA
-	 rqG45uZgXpO/1dQhelbyasaVBD2BB4Rygupl/TyzM6zmtti22WuG3e8fqKwBK+g3YlbQT
-	 ByW9kXAY10fMMZuVGABWjUCn1VtlGZ7yIkrg9mLUsiRXEF/JGDyadO6fVTUWPdEUaXoqD
-	 wRrzRJN4bPxKj2dx7AYyFaaLWA7vNYTQmTWvBPA3e14Zvqe8E5h4S467xxPHxddT85A==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=octaplex.net;
-	spf=pass smtp.mailfrom=octaplex.net;
-	arc=none smtp.remote-ip=88.99.165.17
-Received: from cloud.octaplex.net (cloud.octaplex.net [88.99.165.17])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=148.163.154.28
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794334237;
+	b=YqUhVvOhIbrPaVfkfOgJHTNylQOV2754r04oXWYTvUIP89K+tDk9sdfBzdx5TY/fAaSl
+	 78rlK6/di2ngiBjJ9siqk0gABqBd1S2cEmkk7eUraqsAZTuAIKjlKZPs8GGt04pCha1Qk
+	 ziRCKbjfdbZCdOYMbTIZj3hoFd0dicz+kQBFtUGO1pQgwGkvAhWxzOqhaXsFchnCl9vv7
+	 Lgz7f3m+Hg/YdKL9oYjwD/hzKY063aReOaMZNPXs/ainS5TSHXLzRWudPU/yuwkYo6MBN
+	 MvPwvEoYAG7L6sUdajm+1FStgphejfRqk7CgpMlvGsFRygLBkylxZvHVnbkh1TXlSBg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794334237;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:DKIM-Signature:
+	 Received:Received:X-MS-Exchange-Authentication-Results:Received-SPF:
+	 Received:Received:Received:Received:Received:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:To:CC:References:Content-Language:
+	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 X-EOPAttributedMessage:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-Exchange-RoutingPolicyChecked:
+	 X-OriginatorOrg:X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:
+	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=dgtKLNtOFZA/T2Oadxwz9RiJm0XyuZlVr+ybRYgN+3M=;
+	b=CSe7tWc9D3IFFEF7BnSPD3RYaK3fVgg1jTLXy4EyYtCvVjy5lTPoaE1jX1o2nB7l153f
+	 maTI/GIGbgyFyf8kfGgYCLNlX/Wj4pHBcYp91FkCzCUnC8eYbrKcTSE93kO6lnJFJ/vFS
+	 snXogdWF6UiB3U8jJ4hn0zVwOh1cRW1cFt3DDLBj7OfFrkV135iLcck1eBPSoWjUbb3XO
+	 GOT0or92lZxd9WYS7SH5w+EhMqb0gyDYFLNjySOILHJTywguekUrnJWwIgjTw+0654C89
+	 kCBF4G3N+cKTZrve6Qjx580SCjaTB4M5Q2w7nVmh+VBu9psqz0rhp8Zto6mY67ZSFLQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=ti.com;
+	spf=pass smtp.mailfrom=ti.com;
+	dkim=pass header.d=ti.com header.i=@ti.com header.a=rsa-sha256 header.s=proofpoint-05-2026 header.b=HTh7et7s;
+	dkim=pass header.d=ticloud.onmicrosoft.com header.i=@ticloud.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-ticloud-onmicrosoft-com header.b=RiX7i7rm;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=148.163.154.28
+Received: from mx0b-0002e601.pphosted.com (mx0b-0002e601.pphosted.com [148.163.154.28])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAABA60A2612;
-	Tue, 10 Nov 2026 17:19:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CAABA60A2612
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=octaplex.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=octaplex.net
-Received: from localhost (ip-178-027-246-237.vkd86.pools.vodafone-ip.de [178.27.246.237])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by cloud.octaplex.net (Postfix) with ESMTPSA id E4E13A0071;
-	Tue, 10 Nov 2026 18:19:49 +0100 (CET)
-Date: Tue, 10 Nov 2026 18:19:49 +0100
-From: Tobias Dyckerhoff <tobias.dyckerhoff@octaplex.net>
-To: linux-input@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>
-Subject: Re: i2c-hid: Synaptics 06CB:CD97 (Dell Latitude 7300) - touchpad
- failure modes: post-resume/mid-session IRQ storm, silent idle stall,
- coordinate jumps discarded by libinput; wedge captured at the raw-HID level
- (2026-11-10)
-Message-ID: <avNR8dKtLhw7g5f4@ferret>
-References: <avNI9_rElXTp48Mn@ferret>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212D5606A323;
+	Tue, 10 Nov 2026 18:10:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 212D5606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=ti.com header.i=@ti.com header.a=rsa-sha256 header.s=proofpoint-05-2026 header.b=HTh7et7s;
+	dkim=pass (1024-bit key, unprotected) header.d=ticloud.onmicrosoft.com header.i=@ticloud.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-ticloud-onmicrosoft-com header.b=RiX7i7rm
+Received: from pps.filterd (m0374956.ppops.net [127.0.0.1])
+	by mx0b-0002e601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AAEwGHM1618227;
+	Tue, 10 Nov 2026 12:10:30 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	proofpoint-05-2026; bh=dgtKLNtOFZA/T2Oadxwz9RiJm0XyuZlVr+ybRYgN+
+	3M=; b=HTh7et7sNreQB74qo13U07eBRBEB1D2JnewxmMktVsbKGg+XY1AiD4VLW
+	Olk8KHHof6sfoktbFGHyRLTejUtAG/VKWsNDwRl5i/aX3K8b9rTiurigzwvOjz0m
+	8opAd0445Ib0Go86j0Kj8iwGSzi/bN7Yt0XL3ROmaX0vCB9GVu0xekx7n7SMmeqF
+	TLRRfLz9b1dvJsWL1HjDEjR6SLIpTjaJW506UxanSfpYeVwq5cCa7xjDMNnZH9HA
+	YrGt6MiC0ac3oT9UE3tD+ijAqbRceC+M4DoevYbeDPFfctp+9TXOqJRhAUbt0+iF
+	wF3TwsR+y6/3NoaiuPZ0KOfOgidPg==
+Received: from mw6pr02cu001.outbound.protection.outlook.com (mail-westus2azon11012011.outbound.protection.outlook.com [52.101.48.11])
+	by mx0b-0002e601.pphosted.com (PPS) with ESMTPS id 4hv0kstyma-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 10 Nov 2026 12:10:29 -0600 (CST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=hmlg3+5KigfYPIKQTzlDLryA6t8/o6NRaKevJAIIex/ya2pS2+w3CeFxM5EW4LHRDWwa2i21rlD1peYrd/cT8rJMqCWg3xbhMNbwiwT30Q/V6wsZFdXKE8cUY0U6QkhNVdqetj7viBkhHv5TZQ1zZStd3YIYlwRL9SQ0UaSGRtGXYDFkZ2WO+PLf1zq1bvG4+YFRHyb3vjHD11zgMhYPgNekAoyoRN9OrnNQGiuG5iCzXKp7VCn+gj4R/xq34M7v0AwS85qvgBxKrYw47IcEzbt1Pn8k7AkBU56E2fkbBkazipAN4SY0zDEWDuiM3gf1H8MN7EItgGUJFfQWVP/iWw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dgtKLNtOFZA/T2Oadxwz9RiJm0XyuZlVr+ybRYgN+3M=;
+ b=PzIloEhfDuOutbO6Pf9II2NKPBBDzlxc+Qkb5hoKbVIsiV6enRvJclUDFqgmqZDkdfa6uYNaUg86wZSabIsh+cYFBiX/kbRuRffRltWf6MthhLe1Meg6PuTYzE/LmpEfBbREdL3WvQ6JYaHTzfrPT26By8QB4OL1a5Afmk4FipQZWi+UQR1N2lNl1jYxl/NQFqjnSILeGWjsspgJqKHbcmEBxfEs9OOH277lZtjZfR5XiUNHrPnRIlkdx3te7IohsDPmIKqbqMGQUEV4gybZ6SdvNchHoX/09d/maQ6CzXuDVcE9aYwwAa9h1Eftd2nFhfniNBGMDHt7PyiMXWUzUQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 198.47.21.195) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=ti.com;
+ dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=ti.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ticloud.onmicrosoft.com; s=selector1-ticloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dgtKLNtOFZA/T2Oadxwz9RiJm0XyuZlVr+ybRYgN+3M=;
+ b=RiX7i7rmRZyaIyMma61W6+t7LsVUzKe3vmhXC9ylVF6/kwWR/JW6T7SPWLHFYp27imjnkh3i++vWix481StpSYlIpUcknRFUd7ILZsSblNxWacaW145UHN1Ow41Xhprec4htshTDo8S8qWwU7HsKAFZqrpyUKeUYl1AWBTVHtGY=
+Received: from CH0PR04CA0012.namprd04.prod.outlook.com (2603:10b6:610:76::17)
+ by DSAPR10MB648043.namprd10.prod.outlook.com (2603:10b6:8:51d::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.8; Tue, 10 Nov
+ 2026 18:10:25 +0000
+Received: from CH01EPF000BE940.namprd02.prod.outlook.com
+ (2603:10b6:610:76:cafe::71) by CH0PR04CA0012.outlook.office365.com
+ (2603:10b6:610:76::17) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.615.8 via Frontend Transport; Tue, 10
+ Nov 2026 18:10:25 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 198.47.21.195) smtp.mailfrom=ti.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=ti.com;
+Received-SPF: Pass (protection.outlook.com: domain of ti.com designates
+ 198.47.21.195 as permitted sender) receiver=protection.outlook.com;
+ client-ip=198.47.21.195; helo=flwvzet201.ext.ti.com; pr=C
+Received: from flwvzet201.ext.ti.com (198.47.21.195) by
+ CH01EPF000BE940.mail.protection.outlook.com (10.167.244.132) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.615.4 via Frontend Transport; Tue, 10 Nov 2026 18:10:24 +0000
+Received: from DFLE20.ent.ti.com (10.64.6.57) by flwvzet201.ext.ti.com
+ (10.248.192.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Tue, 10 Nov
+ 2026 12:09:51 -0600
+Received: from DFLE200.ent.ti.com (10.64.6.58) by DFLE20.ent.ti.com
+ (10.64.6.57) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Tue, 10 Nov
+ 2026 12:09:51 -0600
+Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DFLE200.ent.ti.com
+ (10.64.6.58) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45 via Frontend
+ Transport; Tue, 10 Nov 2026 12:09:51 -0600
+Received: from [10.24.51.24] (psdkl-workstation0.dhcp.ti.com [10.24.51.24])
+	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 6AAI9mKN2308008;
+	Tue, 10 Nov 2026 12:09:49 -0600
+Message-ID: <71014ac2-6108-4d06-a1a2-54b2ee5435c7@ti.com>
+Date: Tue, 10 Nov 2026 23:39:48 +0530
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -55,186 +134,136 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <avNI9_rElXTp48Mn@ferret>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] i2c: designware: preserve invalid SMBus block count
+To: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>, Andi Shyti <andi.shyti@kernel.org>
+CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg
+	<mika.westerberg@linux.intel.com>,
+        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20261107081108.1046163-1-pocj8ur4in@gmail.com>
+Content-Language: en-US
+From: Aniket Limaye <a-limaye@ti.com>
+In-Reply-To: <20261107081108.1046163-1-pocj8ur4in@gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH01EPF000BE940:EE_|DSAPR10MB648043:EE_
+X-MS-Office365-Filtering-Correlation-Id: e5bfa145-4eb2-41cd-11d0-08df3f55e42d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|376014|1800799024|82310400026|36860700016|261022075727099003|261026140227099003|261021123027099003|261028144727099003|261009223027099003|261021121427099003|261022105027099003|10067099003|261102123227099003|56012099006|6133799003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	RPqjBGo48eRgCN7eT/oNM6THJJrKmttRwF/SV+wtxWOjpL3XAt5iIkJI8C5jc42hBSjbHER1O4YVY03mpdWJC/RyVqgl71zJ5T7/GlYRV3bgIxHty6GBtBp1Rw/sYpzDXkTfux6AJ9hWeyp3T6s2Aym8ck4WdB6jr3WpECZOuNRSAou4gtdOc03Tv24rm2EVgM1O35h+h56DkoyPmOzJD02v4grGxVWNSBKH9vRvuR95ry+y68Lma8CsMqaatflwpzw9mbwNwpxRKN4N2au+TsaGv8FODG2hBvnq68qMhBhkf26dDagrEzGOye9bFstUs1Bz1pj5HZn8mFexhqR8HESPej73jyHtLx+CKdgtG0o+2Z6V4hi1Vu8v5AJTX6uOT/FwAubD/QFyoFDRBoNDOBEHuYg1F7flgujR4ZBhC1jlFDIZmL+x9QoBfBTR7PIXUm8oHZve7PZucaHinAyzQgU+x0kMrt7kxY6s8rLJdkQHOc1gJ6p3nLmPNk9TsyS8LjhPvQpANO8+ILVH+NgwOaF6LHonqbIAEIu1i6uGUcDe5QjBBjIKtyPcH9hdPHreB8RX09/X+o2SXrzCt5KYlZYEk0zLW1Cx2vh3psl5IarAsPusHah+wPvoYSf83IQ7nY7Amg0MOwNY/QY84L1j1A==
+X-Forefront-Antispam-Report:
+	CIP:198.47.21.195;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:flwvzet201.ext.ti.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230040)(23010399003)(376014)(1800799024)(82310400026)(36860700016)(261022075727099003)(261026140227099003)(261021123027099003)(261028144727099003)(261009223027099003)(261021121427099003)(261022105027099003)(10067099003)(261102123227099003)(56012099006)(6133799003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	OQppbgX7bZMZs6RS+rn3bCo08rsZC7s5JI1kzyfNjUSqIg32Il4iv3lVdTvxD1BHMCqp3S7h5N7oQP9lPeiHnfDjtmmin7tZKTfNKltjbY6BJqU7PRxczCcgPbrb+hgOvH+0mhMZ7JpMFKufMArlYe6NtyKdkpCCX7IdwhOpd4rN+c6/B63cl63+prhPtZQzaLoAZkzfa0RmcIX78jSPNxLBHkOCwKfHd7e0nV087oeDo42EKHLsqSvIOebuHLzZEHS+vpb4/NwDYt0ZAt2oXJpkAeUC+fq4tQxrQJNMNjuFuVrdKWFx7g/P6lPoxOnucvFxsRcN1CdflCJnwlPrLekPrC7gbFd/+d+WMtdCEy8dwAZEN0fraMusunLMGFhpY111uNTU4NNsi9OMGDmt2ZBSYr62rwkbQp+9fIiGSxadhpXotWFVb57TUw9R4kBm
+X-Exchange-RoutingPolicyChecked:
+	Zs+WgaSCbbfeQX6wy8ONrwOVa++8ue/20mNysZlXb2RdRC2eSZEMcQUUX6g34xWjFkBlV8JovbIYrvJcyXzaEpF/I7fE6lAm5hPNkRej/5MZm/9ARnlQVbkeL7Kj9I8rcs/y5N3G+Y/nwxLdyfeHGsZg5N3v8y3IhJTZcILBf5gTTWiUVaYhXvkBEonu6veWpa7yyGoK77MP8IVvLf/D/adTG889fpsJW/qDNqYzBOCVv8N+pY8E42kfFzzA9Odmnaeweazt/zJwRkXmp7ZB0Nmkj2PmFZG2sq42a/3a4u+1E6zNz6EFZ3GslOwC0IEWPFi4Z1I67QCQ8M253fMyRQ==
+X-OriginatorOrg: ti.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2026 18:10:24.1798
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e5bfa145-4eb2-41cd-11d0-08df3f55e42d
+X-MS-Exchange-CrossTenant-Id: e5b49634-450b-4709-8abb-1e2b19b982b7
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e5b49634-450b-4709-8abb-1e2b19b982b7;Ip=[198.47.21.195];Helo=[flwvzet201.ext.ti.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH01EPF000BE940.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DSAPR10MB648043
+X-Proofpoint-ORIG-GUID: uNiZ7ynU5_UR5oL6i3InvMESQBZ-XLk1
+X-Authority-Analysis: v=2.4 cv=bcH+w+PB c=1 sm=1 tr=0 ts=6af35e15 cx=c_pps
+ a=AgKHDJP192gAOy1PpHj/Qg==:117 a=tJyPKKxUohctrY4NYmUjkA==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10
+ a=AlMIdn_sM9wA:10 a=VkNPw1HP01LnGYTKEx00:22 a=Z8NIEmU8O1QQgoT56wFK:22
+ a=jwouBfj2j3NM8CExmVVE:22 a=gu6fZOg2AAAA:8 a=pGLkceISAAAA:8 a=sozttTNsAAAA:8
+ a=5crRq0VK4Bkkj3JbUuMA:9 a=QEXdDO2ut3YA:10 a=2RSlZUUhi9gRBrsHwhhZ:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTEwMDA3MiBTYWx0ZWRfX6y2jWsmcANdx
+ lp2u5fvWTeVx9Qt9Uga8LNorKfE8L6Du3+ZIahSC9k8bYM0QstxDq6si30068+3tX3WdWV5ati/
+ Rkw+UEDRZyziXCVdky+gytsA3vP5clqcfzwNdlfDeZD4tT6jjsNqX1JCuXiFbASiMP3RsjzL9r4
+ sPUQH+GpEsnq041XJ7yNSbNRm9chLlyPyIINLaxcrLuP3hUNEWgXAhEhy/LI6xfR1w0eCtaekDu
+ 4/UX2KdtO23N5TWZXp7HZCj4Xw4Msut7EMOvkrdmyxPXCBDvwj3s61dWE5de6sIjN3pmPVD8jgn
+ Z0qD3QJhGjVYcfNmXh+SbW5zzCS6W8yiVu3WZ/Kcq7wY1QlXajsYtIb4jboKuUnPdmUXxjGSq0d
+ fSm4lpHuD7892XcwN1canI6dZqQhxqnYp2DfBmUO3f01OS8UNw/YFuf6sM0d7vvIzFG8kOXX0As
+ VFM8TVnyve5PTkyyxOA==
+X-Proofpoint-GUID: uNiZ7ynU5_UR5oL6i3InvMESQBZ-XLk1
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTEwMDA3MiBTYWx0ZWRfX1Z1IRP1WAllX
+ 4jCNeUMtAT84W1QuoEidZHArmHZiAJqE4XfgiKPPt/PmtB13fkVCY231wQXHwW3RULJJGrc6w6s
+ +zGIchBGjO60A1QcMnVAqjuyGCyphmQ=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-10_05,2026-11-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 suspectscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ impostorscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611100072
 
-All evidence referenced above (raw hid-recorder + evemu traces of both
-wedge captures, environment and recurrence data) is attached to:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=222255
 
-On Tue, Nov 10, 2026 at 05:43:22PM +0100, Tobias Dyckerhoff wrote:
-> Hello,
+On 07/11/26 13:41, Baek Kyu, Kim wrote:
+> When a slave reports an invalid SMBus block count, i2c_dw_read() uses
+> one extra read to reach STOP. It currently replaces the received count
+> with 1 for scheduling and also stores 1 in the message buffer. A count
+> above 32 is therefore exposed as a valid one-byte response.
 > 
-> recurring touchpad failures on a Dell Latitude 7300, Synaptics I2C-HID pad,
-> HID v1.00:
+> Keep the received byte in the buffer and limit only the count passed to
+> i2c_dw_recv_len(). This preserves the extra read for STOP while retaining
+> the invalid count for the caller to reject.
 > 
->     vendor 06cb product cd97  ("DELL08E0:00 06CB:CD97 Touchpad")
->     bus: i2c_designware.1, IRQ 17 (shared idma64.1 + i2c_designware.1)
->     Dell BIOS 1.43.0 (newest LVFS release; Dell's Synaptics touchpad
->         firmware utility does not list the Latitude 7300)
->     userspace: xf86-input-libinput, libinput 1.25 (Ubuntu noble)
+> The DesignWare receive functions were exercised with stubbed register
+> input for block counts 0, 1, 32, 33 and 255, with PEC both off and on.
+> The original code replaced invalid counts in the message buffer with 1;
+> v2 retains the received byte while scheduling the same extra read.
+> The arm64 i2c-designware-master.o build passed with W=1.
+> No physical controller or end-to-end SMBus result was measured.
 > 
-> The behaviour is identical on 6.8.0-147 (Ubuntu noble base),
-> 7.0.0-42 (noble HWE) and 7.3.1 mainline (currently running, 6.5
-> days up).  There is no 06CB:CD97 entry in any i2c-hid quirk table through
-> v7.4-rc1 (RESET_ON_RESUME currently covers only the ALPS_JP
-> any-product and SYNA2393 cases).  This is not a regression - it
-> behaves the same on every kernel I have run on this machine.
+> Fixes: 69f035c480d7 ("i2c: designware: Handle invalid SMBus block data response length value")
+> Signed-off-by: Baek Kyu, Kim <pocj8ur4in@gmail.com>
+
+Reviewed-by: Aniket Limaye <a-limaye@ti.com>
+
+> ---
+> Changes in v2:
+>    - Use a separate count variable for the extra read, as Mika Westerberg suggested.
 > 
+> Link to v1: https://marc.info/?l=linux-i2c&m=179344386454087&w=2
 > 
-> Three distinct failure modes
+>   drivers/i2c/busses/i2c-designware-master.c | 9 +++++----
+>   1 file changed, 5 insertions(+), 4 deletions(-)
 > 
-> (1) IRQ storm.  IRQ17 fires at hundreds to thousands per second with
->     no usable input events.  First seen after a partially-failed
->     suspend + resume; later occurrences mid-session with no power
->     transition involved (measured via /proc/interrupts deltas:
->     ~480/s on one occasion, ~900/s, and ~3400/s on others).
->     Driver state looks healthy otherwise.  Recovery: unbind/bind of
->     i2c_hid_acpi (i.e. a HID RESET) restores the device within
->     seconds.  One occurrence was rebind-resistant (the rebind ran,
->     the pad re-probed, but the storm intensified); a full
->     suspend/resume cycle recovered that one.
+> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+> index a1bcc3797e4ff..49e9e36340c84 100644
+> --- a/drivers/i2c/busses/i2c-designware-master.c
+> +++ b/drivers/i2c/busses/i2c-designware-master.c
+> @@ -542,8 +542,9 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+>   		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
+>   			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
+>   			tmp &= DW_IC_DATA_CMD_DAT;
+> -			/* Ensure length byte is a valid value */
+>   			if (flags & I2C_M_RECV_LEN) {
+> +				unsigned int count = tmp;
+> +
+>   				/*
+>   				 * if IC_EMPTYFIFO_HOLD_MASTER_EN is set, which cannot be
+>   				 * detected from the registers, the controller can be
+> @@ -553,10 +554,10 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+>   				 * another byte with STOP bit set when the block data
+>   				 * response length is invalid to complete the transaction.
+>   				 */
+> -				if (!tmp || tmp > I2C_SMBUS_BLOCK_MAX)
+> -					tmp = 1;
+> +				if (!count || count > I2C_SMBUS_BLOCK_MAX)
+> +					count = 1;
+>   
+> -				len = i2c_dw_recv_len(dev, tmp);
+> +				len = i2c_dw_recv_len(dev, count);
+>   			}
+>   			*buf++ = tmp;
+>   			dev->rx_outstanding--;
 > 
-> (2) Silent idle stall.  After some minutes of idle, the pad stops
->     responding; IRQ17 goes completely silent while touching (zero
->     interrupts over seconds of finger contact) while the driver
->     still considers the device healthy (X-level props normal).  No
->     kernel log message at all.  Recovery: unbind/bind as above.
->     This matches in shape the 2026-04 report for 06CB:CE65
->     (Latitude 7420, unsolicited 0x0c sleep-notify report suspected;
->     I have no hidraw trace of my device doing the same - analog,
->     not confirmed for CD97).
-> 
-> (3) Coordinate-jump discard state.  IRQ17 fires at normal touch
->     report rates, the kernel delivers events, but libinput discards
->     every motion event:
-> 
->       (EE) event5 - DELL08E0:00 06CB:CD97 Touchpad: kernel bug:
->       Touch jump detected and discarded.
-> 
->     (84 occurrences in the current Xorg.0.log as of 2026-11-10, up
->     from 71 on Nov 8 and 31 the day before; libinput rate-limits the
->     message to 5/24h, but every user-space recovery re-opens the
->     evdev stream and re-arms the limit, so the true frequency is
->     higher).
-> 
->     The pad is functionally dead.  Recovery:
->     `xinput disable <id>; xinput enable <id>` - i.e. merely
->     reopening the evdev stream - restores motion in ~1 s, no kernel
->     rebind needed.
-> 
-> Recurrence is multiple times per day. The local recovery log counts
-> 53 user-side resets since the mitigation was installed on Nov 2
-> (7/6/0/6/6/15/11/1/1 per day, Nov 2 through Nov 10), eight of them
-> within one hour on Nov 8 - roughly one wedge every seven minutes.
-> (Full log in the evidence bundle; a one-day follow-up snapshot with
-> re-measured counters, evidence/03-persistence-20261108.txt, is part
-> of the bundle; the Nov-10 episode below was captured end-to-end.)
-> 
-> 
-> An odd baseline observation
-> 
-> On the current boot (6.5 days, mostly idle desk work) /proc/interrupts
-> shows 97.2 million interrupts on IRQ17 - a sustained ~173/s average -
-> while the sibling i2c_designware controllers sit at 0-2 interrupts
-> each, and the pad works normally meanwhile.  An early re-measurement
-> (89.2M at 4.9 days, then ~430/s over the previous 31 h) first read as
-> an accelerating baseline; a further 39-hour follow-up on the same boot
-> disproved that: the counter only rose to 97.2M, ~56/s across those 39
-> hours despite one wedged episode inside them.  The background rate is
-> episode-coupled: near zero while the pad sits untouched and healthy,
-> and erupting during wedge states (captured at ~1.2 kHz wedged but
-> idle, see below).  dmesg for this boot contains ZERO i2c-hid errors
-> (no "incomplete report" lines at all) - including during the captured
-> storm.  So even in its "working" state the device keeps the IRQ line
-> far busier than its siblings do.
-> 
-> 
-> Instrumented episode (2026-11-10; all traces in the bundle)
-> 
-> After an unremarkable s2idle suspend 09:24 -> resume 10:18 (no
-> i2c-hid messages at all) the pad wedged again within ~20 minutes.
-> Captured BEFORE recovery, twice, six minutes apart:
-> 
->   * IRQ17 while touching the dead pad: 2421/s then 1598/s
->     (capture I), 3142/s then 3606/s (capture II); wedged but not
->     being touched it sustained ~1.2 kHz - that is roughly 20-30
->     interrupts per delivered report.
->   * hid-recorder on the wedged device ran flawlessly: the full
->     669-byte report descriptor plus 3,812 raw input reports (16 s
->     + 18 s captures).  Every single one is a standard 48-byte
->     ReportID 3 touch report: smooth coordinates (max step 57 of
->     1196 x-units = ~5 mm per 7.2 ms report), monotonic device
->     scan-time.  No truncated reports, no error reports, no
->     vendor report 0x0c.
->   * evemu-record shows the kernel delivering that same stream
->     (~80-140 reports/s) as perfectly normal MT events.
->   * Yet Xorg logged three fresh "Touch jump detected and
->     discarded" lines in those same minutes, and the cursor stayed
->     dead for the user throughout.
->   * Recovery was, once more, the evdev reopen alone (xinput
->     disable/enable).  Minutes later, idle, IRQ17 read literally
->     0 interrupts per 10 s.
-> 
-> So during this wedge the I2C transport, the HID layer and evdev all
-> look healthy and quiet - zero kernel errors - while IRQ17 storms at
-> ~25x the report rate and userspace discards every motion event.
-> 
-> 
-> What works / what I could not fix
-> 
->   * unbind/bind (HID RESET): reliable for (1) and (2), except the
->     one rebind-resistant case described above
->   * evdev reopen (xinput disable/enable): reliable instant fix for (3)
->   * BIOS 1.15.1 -> 1.43.0 upgrade: did not change anything
->   * no Dell touchpad firmware update exists for this device
-> 
-> 
-> Questions
-> 
->   1. Would an
->         { I2C_VENDOR_ID_SYNAPTICS, 0xCD97, I2C_HID_QUIRK_RESET_ON_RESUME }
->      entry be the right direction (cf. the Sep 2026 SYNA32A4 06CB:CE17
->      post-resume IRQ-storm discussion, where that quirk was proposed)?
->      The Nov-10 episode struck ~20 min after a clean resume, which
->      would fit that trigger.  I'm happy to build and test such a
->      patch for a week of real use.
->   2. The bundle now contains hid-recorder and evemu traces of a live
->      wedge (Nov 10, see above).  Is a deeper capture worth adding at
->      the next occurrence - i2cdump of the designware controller, an
->      i2c trace via ftrace, or something else?  Failures recur daily
->      here, so follow-ups are cheap.
->   3. The interrupts-per-report mismatch during a wedge (~25x, all
->      reports well-formed) - where would you want that looked at:
->      driver, controller, or firmware?  I can measure in whatever
->      form is useful (ftrace, i2c trace points, counters).
-> 
-> References to threads with the same signature family (other
-> Synaptics 06CB devices):
-> 
->   * Sep 2026, linux-input: "i2c-hid: IRQ storm from Synaptics
->     SYNA32A4 (06CB:CE17) after resume"
->   * Apr 2026, linux-i2c: 06CB:CE65 (Latitude 7420) - touchpad dies
->     after ~6 min idle, unsolicited report 0x0c suspected, driver
->     never answers, firmware locks up; rebind recovers
-> 
-> Evidence bundle (happy to send inline or as attachments, tell me
-> what you prefer):
-> 
->   environment       DMI, kernel config of the running 7.3.1, device
->                     stanzas, IRQ snapshot + counter math
->   recurrence        local reset log (53 resets over 9 days), plus a
->                     one-day persistence follow-up snapshot (IRQ17
->                     re-measured; episode-coupled, see above)
->   libinput-jumps   all "Touch jump" lines of the current boot
->   journal-samples   dmesg excerpts of the probe + one storm night
->   wedge-traces      the full Nov-10 instrumented episode: report
->                     descriptor + 3,812 raw reports + 2,812 evdev
->                     records + IRQ deltas + clean kernel logs
->                     (evidence/wedges/20261110-*/)
-> 
-> Best regards,
-> Tobias
-> 
+
