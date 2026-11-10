@@ -1,99 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.174
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794291285;
-	b=ro+UrTE1G8Ai8q3Q+OOaO64cE6/0sXdpNey9CMewUy2VQWiaxLD1nZQTLNxxFndKkIir
-	 WJX5DdeIlcdINCLaQkM5stKsZniMLdd9MiH1u8YJKV03gthpVQa163vc2TX6YyqrNbdZO
-	 mPlffcVkyT5CpJmaS3z2iEK6vEUxtLOboFrFy28lGRVKRW65tL22DCSEJ9k95giwBmg8h
-	 NXooMNLfH30M1vYjpSX5UcHWmYj5tG6pGZO3oehDAHY96k31WippZ7+e3Jrm2+J/Vc/Cb
-	 caeRHUly/Mez9Y6+nJHrttNMCGUZctmVJT3fEC6t5micxQWKZ5S+x7S6V7+yLyEFnrA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794291285;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=+HOH7O4j20KDfBtKxtSGJ323bTE8G0lrShsobfiCmIU=;
-	b=fgdYq6L5SjJcBwEyvlzuPEimNi5iIpYwliOFn18/rYxfZ4SOrbCocV/0TmQAUpVzCzNq
-	 /OTVSPT1CimMfCNLAQbuvWynOkO28aI0nFRNxbXURpsEitSfudrw17rvLUkY+UN6jC27B
-	 78C04QcFf7CADCfw2yvlC6+XGI4VGFAp7Q+oD4HoCUGun4cTDQXU6XfPMBtQ3ElHFtu1/
-	 ubR6izxF4JlYTDipC/dhq1+uDtHwaH9MnwbZnFYx2Ai9JiUqaoY9tPowYqq4a3ATxfKvm
-	 wwEfcu8X2k362rgaSMZ50r33wqOPCImj/uqyGXS6S+tjbyEoxxfd2mGa62znT8OaFKg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="YHum3B/j";
-	arc=none smtp.remote-ip=74.125.82.174
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=81.169.146.165
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794292333;
+	b=p4Y1MnJ6Hz1iFx8TqlnPK29XsU/X8IMmwUOSrDbzyis5tsP/jBhDEI6aaMiKaoQEU57J
+	 JLSAZt7+dOZjftZxPkwtDwpRv2vpNj3rlvWI65Q5ZgkVZvpUQbzURYywTUwZKdageRdpB
+	 cRqhpkicHQVFFTB2dI2lRnb7g2ODXX8LuWMtg7HvQLl5J2MIQlS1BZLx3VXMLcLmt7g+c
+	 hHmthE6Px3rjSumO/oGHLLMUDXP0xb09wCmHRifF6uuUKObAi6xCc3wqQhXJJOvdpR6j9
+	 puAzhUBDHwu4cy2t70PIqlL98Ss+KLxc1StjKI2eEio8CSsGE97UQ/iQH3qypWSE86A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794292333;
+	h=DMARC-Filter:X-RZG-CLASS-ID:DKIM-Signature:DKIM-Signature:X-RZG-AUTH:
+	 Received:Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Content-Transfer-Encoding:Message-Id:References:To:X-Mailer;
+	bh=zIeUCbrWL2otG3jWvVxAJl75ky18Wd1uPMPZj3Tbo5Q=;
+	b=ZwIxJKPIQ+1+PsA3gOZXT7mRbjAAIygd9Bl/cClHbICMvR8wRPc1ebDsmNzUBuCEFWUO
+	 rjAORtnRQf3rfN+wFCsbJz8Jl5sA+DLk91n3d6L2QeKmVRPC8VKyt+vu23ae6lc3NhkzT
+	 BBjkw1qpxNC4yVbLsCLtbh7HhqGtzZSkigO5hniUBSSPSyxnX0uCxxXRi2YzfKsSs8K33
+	 rrOGfkGUv84lfJ8eOy7bpmxhoRn/WVFeFHrJ9p1noa8bW9DK0ADkFc7YhMYYjb5POHOUb
+	 tNZqI3nVHwglvXhudvE+rbzzuMfSi6OYevFXtxIXSrhLt7Oob3Mp++mxesuXlKsgHPg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=goldelico.com;
+	spf=pass smtp.mailfrom=goldelico.com;
+	dkim=pass header.d=goldelico.com header.i=@goldelico.com header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=ClFyTW6r;
+	dkim=pass header.d=goldelico.com header.i=@goldelico.com header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=Xjo64+AO;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=81.169.146.165
+Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [81.169.146.165])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FDED606A32A
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 06:14:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FDED606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECB9A606A325;
+	Tue, 10 Nov 2026 06:32:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ECB9A606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=goldelico.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goldelico.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=YHum3B/j
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-33fb4680717so381491eec.1
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Nov 2026 22:14:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794291284; x=1794896084; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+HOH7O4j20KDfBtKxtSGJ323bTE8G0lrShsobfiCmIU=;
-        b=YHum3B/jKzFxCesg7+Ct7CPnwxHr0nrJAYz+jcYt1wC41y/pqChO3cemGyDqaU0WYi
-         ZhrHQHR+K1Da9LhsBEUrVWbvL2gWmaQdaMgYKWqh17gYHHUD8+DkzHB+ntUDF2lRwVzs
-         s3WQRy31A++D4hh081Nmn/QvCHW1XCaCsx0pWfJUmlKICljEo9YCuXefvQoUVmAznqfX
-         gBPwUs7cOtjvTU37V6rBUVifr67VxETH4kcmTT6f4dl7uN1zLFST7CCg8pH8JgBgOZTh
-         OZJffn8MWCr83MlMWrkJPuslh8yd5fuOebAj5cmk1UXJ6Gzb4JrryKbSpoGgyuaduvmw
-         EzVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794291284; x=1794896084;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=+HOH7O4j20KDfBtKxtSGJ323bTE8G0lrShsobfiCmIU=;
-        b=lRvn2Zztrj1qJL+SjjyEeUyE4ejKXGI9iN+lcbQCxnCiXC+Z3SyUXEsfMS1j+bXT4N
-         291VIriABADyJkvs8O1D4FetrY+uSwhekBqMXdDqgZIjLwD1ljOCP64pUkNoaROGvSSs
-         RtplSgAAPejEKePNTrSWKhvtJdRYyRCmWDwTOKoDHmiySbDS/eASAVCW87vv/gjA2XZN
-         zZ0XpmdUruqcuQrTP2FLqP2QxXTrxai0rTrD+9eXmrtfp/w/uvOJlKb6CB6/cdxCbPfF
-         eys452qSy2wMs6YOW8LxX0Ukg42gJ7ekm/JbrC6hIXydaESsm8lCFDP7aYHjto/Xwa8p
-         1Hmw==
-X-Forwarded-Encrypted: i=1; AL+hErGOyUn1i3ReKCBQ9zkjNrux5+4vuxZttR/T6FpFyO98tHtggtnK1Q+6jZJdOjggjrrsS+yIa8Q8QUs=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+E5Tzmq0kRJyRDr+VQOkYLKaFOZYKjDz2U/k7g90CnhKPG6Jch
-	/WsiCZ0FDPyftI583NgHN/munjmYd1Wqdpaii2SFMKC8iqRWxs7ZI6jE
-X-Gm-Gg: AYBFou0Bbbe8sbNPTn3CoVZ/uqqP0+97lUUzfZ3GjDw1+DyoOKQchWbqE02FHG7e92s
-	h2jmubnmxrm7BsJRTkI5/q1rFKWdqNihyP3cbJC6/3vxCQ7fGVLHAIzTUvQJZ9+b223we/MZDMu
-	az5nDv27px2SkWGdEtnmQtcaMvELcqmjp68pPDhJcfmN+jueN5514IfZgGqMoA1kzWHDXc8WI0M
-	LA8zIOjo7H30+/Zo97hKYsHdp3WQxxnmIC1KUJ0RUtFN/k+4XE89sQzRsf2th8yBAzc/QJdiBSe
-	ULplHg0Yw9/zlD22vzUjSDOCkBZq8ap9f9kR5t6e7F2j9Cfx+T/RdRJddCaruzSAeokNU/R7qAt
-	MXlqqeRP2h5v3HoPNNY0zqpaLE6rOG1Qy6U//byPz0141K81dZ6mRCJCm1gVDhfdkPttFE/+NCH
-	0aDEMsJN32pC+7q6PwhzifPwuJc9JYR8htYR9bajyG2Rd1HTSaF6InEoBIcVV2/2qXQcnCeuLbc
-	690pszLnZAC+OJ5VMyPe7vb43Y7mA+Zo0faZBqTGxdE9cvX616HHtCEiMDrQpV3/eoI2jXJGZkb
-	PYI8SYnK+UNshH3hXKMAy92qzFbfsc8l
-X-Received: by 2002:a05:7301:488b:b0:36a:1e0c:e28d with SMTP id 5a478bee46e88-3751c53546emr2305164eec.4.1794291284219;
-        Mon, 09 Nov 2026 22:14:44 -0800 (PST)
-Received: from archl-rock5b ([45.112.0.182])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-375218c863csm3802316eec.28.2026.11.09.22.14.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 22:14:43 -0800 (PST)
-From: Anand Moon <linux.amoon@gmail.com>
-To: Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Yixun Lan <dlan@kernel.org>,
-	Aurelien Jarno <aurelien@aurel32.net>,
-	linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS),
-	linux-kernel@vger.kernel.org (open list),
-	linux-pm@vger.kernel.org (open list:SYSTEM RESET/SHUTDOWN DRIVERS),
-	linux-riscv@lists.infradead.org (open list:RISC-V SPACEMIT SoC Support),
-	spacemit@lists.linux.dev (open list:RISC-V SPACEMIT SoC Support)
-Cc: Anand Moon <linux.amoon@gmail.com>,
-	Alex Elder <elder@riscstar.com>
-Subject: [PATCH v1 1/2] i2c: spacemit: Avoid sleeping during bus reset in atomic context
-Date: Tue, 10 Nov 2026 11:44:26 +0530
-Message-ID: <20261110061429.2036-1-linux.amoon@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=goldelico.com header.i=@goldelico.com header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=ClFyTW6r;
+	dkim=pass header.d=goldelico.com header.i=@goldelico.com header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=Xjo64+AO
+ARC-Seal: i=1; a=rsa-sha256; t=1794292320; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=QPAQkbaQzTsdjgKdlzRRC8KGCRND6s6ght+Xfv3xNz/whL7snq7wksYlW5oRxjeI7N
+    cVyMALkVngdtJ2vVfeBdPIf6JV2/VoEUOX+3qk1RtZ3bYrnr2HEAxUYjvZ0J5tXJ9hZw
+    lWzehFTI5MV0TYKLFgVtjQczgTTq6wzSnse6Pakt+oppGBA7ojRDTRPmujM7YmOMo6gA
+    pJe4UTImP9RNEpEaxhY0CRolJCN3kJ0ToP90zIWw30V3UFRqMsQJr3/1i77CFiicJtxL
+    czMHp8iFedkjbjoNDnv6kZY19lW9WssMi2bZPacC8h1NHKvvldn5K/GKMcwCehJShFHi
+    A/fg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1794292320;
+    s=strato-dkim-0002; d=strato.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=zIeUCbrWL2otG3jWvVxAJl75ky18Wd1uPMPZj3Tbo5Q=;
+    b=jUSWHBah2R8OU1JrSK7ofZ70Cr2srslHtf/IbMBLlmSR5LqVfWpPGluxC7sAGtQ/3P
+    B14SCP+hvRnFJgotDBOHtE6lCq+J5memm6wQVse+Ibt7UTqatBq2UEn6+GANgOU5+CmP
+    CE+MefAYQZ8dGjntUMgcrLEla2ye1MW3Er+gO+kDTNd3njsw5ZhVQyM0JFUw3JOdEkD3
+    Kz8+Dg3yoMeV8syUuNQjxfMgCR1xi7IRfd1vbPKDm9JAfYIFVL96U153pwT2HcS3+ozC
+    0BveaFkBltAK1vQlwtL/DfaljaiPZTK9Tf0TO51PDGRncjz7C6KlZeyg3s+Nvphijl0U
+    GbHA==
+ARC-Authentication-Results: i=1; strato.com;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo01
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1794292320;
+    s=strato-dkim-0002; d=goldelico.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=zIeUCbrWL2otG3jWvVxAJl75ky18Wd1uPMPZj3Tbo5Q=;
+    b=ClFyTW6rFAShb2ZEZTRyTL88MdUoFU8PB6YTkg7aAuc1avwCjdjjgoaCSsoHtLqC4z
+    /qGEDCCt9sHkclyPYihKIfZzhXV7Rpyr8DuQ4I6i10i4NJQiL5xFdaP4ewyWnmPSZy/M
+    0DFMV0a/iOuEaC28cTRe0NwUc617hzwpWb/zuL9rWtlnzjk5w0AlIfBml6c3YYnuQ+Wm
+    Zok4N83x3+9lZsMye3HW6bJ+nq20SYThidGFCcgDoi+7c7Tzh7//y/dlSxuvjvjGzrzy
+    q78oauLe92RoRd25l70inWAz491HdY7nZM0hJ/hVlNfTdVHUAUbarG/zHuama7HBLxsN
+    wuQA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1794292320;
+    s=strato-dkim-0003; d=goldelico.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=zIeUCbrWL2otG3jWvVxAJl75ky18Wd1uPMPZj3Tbo5Q=;
+    b=Xjo64+AOfGqMUYgW2NM37V+kCo5lPlDWaHKMX24Ixjl1ZjGzPvIewVloiQ+FWUF14e
+    O/II7zE5X71F8cyMa7Aw==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9qVpwcQVkPW4I1HrQ25pZm8iNLlWLhMfIu14x/UU8X8YOyRO3gSBU"
+Received: from smtpclient.apple
+    by smtp.strato.de (RZmta 55.6.3 AUTH)
+    with ESMTPSA id Qb56a22AA6W00Fm
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+	(Client did not present a certificate);
+    Tue, 10 Nov 2026 07:32:00 +0100 (CET)
+Content-Type: text/plain;
+	charset=us-ascii
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -102,41 +93,47 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81.1.10\))
+Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: ingenic,i2c: Add the X1600
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <20261109190345.61480-1-olivier@mgcrea.io>
+Date: Tue, 10 Nov 2026 07:31:29 +0100
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Paul Cercueil <paul@crapouillou.net>,
+ Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org,
+ linux-mips@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <384F58FF-41C4-46AC-8B2A-1B6ABCDA6981@goldelico.com>
+References: <20261024212520.91401-1-olivier@mgcrea.io>
+ <20261024212520.91401-3-olivier@mgcrea.io>
+ <33b5ee36-e293-4356-9906-54e99ba3557e@kernel.org>
+ <at8jCGfp9dKjieoo@zenone.zhora.eu> <20261109190345.61480-1-olivier@mgcrea.io>
+To: Olivier Louvignes <olivier@mgcrea.io>
+X-Mailer: Apple Mail (2.3826.700.81.1.10)
 
-The spacemit_i2c_conditionally_reset_bus() function uses usleep_range()
-to wait after triggering a bus reset request. However, this function can
-be invoked during atomic I2C transfers (such as power-off or restart
-handlers running in atomic notifier chains), where sleeping is illegal.
+Hi Olivier,
 
-Replace the sleep operation with the driver's internal helper,
-spacemit_i2c_delay(), which conditionally uses udelay() when running in
-an atomic context, avoiding "scheduling while atomic" bugs.
+> Am 09.11.2026 um 20:03 schrieb Olivier Louvignes <olivier@mgcrea.io>:
+> 
+> Hi Nikolaus,
+> 
+> On Mon, Oct 26, 2026 at 10:54:49AM +0100, Andi Shyti wrote:
+>> I'll wait for Nikolaus ack/r-b for applying the patches.
+> 
+> Could you have a look at v2 when you have a moment? It is the version
+> after your review of v1: the spike filter programmed on the X1000 and
+> later, and the X1600 falling back to ingenic,x1000-i2c. It still applies
+> on i2c-host and on v7.4-rc1.
 
-Assisted-by: LLM
-Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-Cc: Alex Elder <elder@riscstar.com>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
----
- drivers/i2c/busses/i2c-k1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, it is not forgotten.
+I just have to solve another issue before.
 
-diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-index ff32876e24d3..f4b21d7efaaf 100644
---- a/drivers/i2c/busses/i2c-k1.c
-+++ b/drivers/i2c/busses/i2c-k1.c
-@@ -332,7 +332,7 @@ static void spacemit_i2c_conditionally_reset_bus(struct spacemit_i2c_dev *i2c)
- 		writel(FIELD_PREP(SPACEMIT_RCR_FIELD_RST_CYC, 1),
- 		       i2c->base + SPACEMIT_IRCR);
- 		writel(SPACEMIT_CR_RSTREQ, i2c->base + SPACEMIT_ICR);
--		usleep_range(20, 30);
-+		spacemit_i2c_delay(i2c, 20);
- 	}
- 
- 	/* check sda again here */
-
-base-commit: b3dfbde62cf1981c4638939c159dfd087b7a72e9
--- 
-2.56.0
+BR,
+Nikolaus
 
