@@ -1,68 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794309311;
-	b=5LkZ3RctDaOQqsNL5Km+dOLoao7luC6OM7S1H6Z9gkTz6hkSpIqokJK9/4RETFwdymGc
-	 oBsrRvqXqc6nsDtp5H2ER3ON23YmunD2cs4NPnfn10dg6Rgm2400gMG78g5jgE26WTREE
-	 oG8OFlJPO8FZxcKwH0I68RVxNYLf4QUf3/vngc92aFCAq1Al9VoAcDfFgBCB78bCzzVt0
-	 hd71AKztnx83yiDNvaZq/77UWgYe6Ny0iiEnHeDnt6cA8nNulOGwP9XyUJocLOYyKGgWm
-	 HJksl/uVhohXLVpiY+3/l70+vtp4v0qN74vJTSCdx75wWpN1uaRB+hDCsG34Lx9eBIA==
+	t=1794309524;
+	b=gYAUYtmYN1a6Eo9fKFi7pmM+0q5EAT6+NarvZ5qhmK3GJs8JCb0LFZHd/7QZ679YQHVz
+	 FT53rsT/kqdLCVrkbvZJCV4zltq6Rrjgh2M8+TMQO85LEodRniy/QAmCuiL/D3i26ATpq
+	 2PCJy/RhUydsy4TSzAB+59ZaPh0mCGKeCqMC7pmwNOjsTLso4GrKYHQteNFlgmFBCsSuv
+	 AJTJJFj4aCuKzZpKOhZqEacxpKC1Iul3JrJnlNFAhE2h66hf1XYAdju3sEdiVvJQciweu
+	 HhrFeRIH2AD0F83fkrg/HAMc5BZmFHLWjqBLs7ifswBFLIH4sV9Le/WPXwelQAWczLQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794309311;
-	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=FdOVbvcKdFgkXdU4BMS1bRcFn7D8v8NDtVISXLeDPZI=;
-	b=VIjon5Z8SQE37wNkpiNx9HzSyL9UI6yeFCS0GMCAu5lRHtRswibJNLG1NmfEP4TQRmQq
-	 jll3ypextmErZ9w1kCWrmQ+hitsL/MFoAvAcehXdQYds3T2qsFrja1ly306bZUBPgBW8P
-	 Vk93dIv4fZMyaPJJ5Ur4ojtztcCw3RRclKyThzzaij+aak37v9LMnkpvo6h8m56AMpWfi
-	 CHW5ZI+XynNZHw1DxUr54P+lekS4zokNQ2YfGqGBdhoG8g7XbwjbVNmO7MGos/33j8FQt
-	 IJm0lIXW6+0qJw1CBaauKN+PLHuQa7h8fyiKwTzL5eTKIy8AlWIkjyPFJzcfEU3yZqg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794309524;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
+	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=lihVjw0iJrxJh6yjkrGWB0Po4chCl0P+JcexEjDc7sk=;
+	b=v+2NHnwNXQTutcDBv2tTauta9nuSRHFh2yMfDSOOQ728KZtxsvRbM+1+M2f83ATLApUZ
+	 y29tGMFwhKfEb2OYl8gELLuEHIBsZ7y6L+idWdQ5Yp2Jktr0EjngQ7/vztVjq/mhUcrJO
+	 Fp/4kH52o6ijKzJtwTlAXdgbUbi3nZX2Cqa1aT7nGEdgAkp9YtAvQEA1qRcv4n2sLW5lq
+	 owDypETOC/qViGHWHUtFi0kcL7y8hHxsgC89beev+8sBsUR3ZydSr0kVf17+DFLZkG0E9
+	 OUf8+hy7UZkYG4CYySbmr4lcgMwIT8lvkIwdY/cTNags3QemVRY07F7SvuzlptGfd2Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="DmSzA/cc";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=sang-engineering.com;
+	spf=pass smtp.mailfrom=sang-engineering.com;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=L0AxKEyb;
+	arc=none smtp.remote-ip=194.117.254.33
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FC45606A325;
-	Tue, 10 Nov 2026 11:15:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E7B2606A32A
+	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 11:18:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0E7B2606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DmSzA/cc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D131F0089F;
-	Tue, 10 Nov 2026 11:15:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794309311;
-	bh=FdOVbvcKdFgkXdU4BMS1bRcFn7D8v8NDtVISXLeDPZI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=DmSzA/cccKoAot6OoPurM2eGxFwrqjl3PNn6sOlcK4MuqbckjFlQ+1BWNuMwZ18uV
-	 8DxrZdxy3xkHKQtR+GuKDIG6/gqLfvYi/nbSqPKwnoa2J6XxxZFPKHoZ2a4z148+Lw
-	 d3AQuWQeisrRNd5ySpoaq5vg/sMal+rztXbpjzUb861zOUxtMiXQNXFG+JdEV7Y69V
-	 zeisfrr1LV3CrtP5aRnQKZmY0Dy6fnp+A/R20vGrLJHgd3zlz065lQCiucM10Ut0ML
-	 EBvsuSkeX/ZGI/JJhQFqLr/Vah+kHGVoai9NPIqWgzpAZQsw1OG6uJVtXtZgDJ3P/b
-	 g7/meQIMiZCzg==
-Received: from johan by xi.lan with local (Exim 4.100.1)
-	(envelope-from <johan@kernel.org>)
-	id 1xQjoi-0000000AuCa-2Gte;
-	Tue, 10 Nov 2026 12:15:08 +0100
-Date: Tue, 10 Nov 2026 12:15:08 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev,
-	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-	Hans de Goede <hansg@kernel.org>
-Subject: Re: [PATCH v2 2/8] i2c: core: fix swnode use-after-free on client
- deregistration
-Message-ID: <avL8vNRJdZric-mu@hovoldconsulting.com>
-References: <20261110085125.2535508-1-johan@kernel.org>
- <20261110085125.2535508-3-johan@kernel.org>
- <avL4x_clSegBu-Qi@ashevche-desk.local>
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=L0AxKEyb
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=lihV
+	jw0iJrxJh6yjkrGWB0Po4chCl0P+JcexEjDc7sk=; b=L0AxKEybWkmefJenw1/5
+	GOwYwRPx7FDgD5MoJWlqaukVneLVPMhHPtn3AdfrzaD5ofYYEj5cy0hYs0/48xyt
+	tegSOwrpyhSPVqlmwmH2jdvuYfY4gVWKOGbkb2skD1RQTm7fkIWuos62F7DDWRBa
+	73wO3RlVpJ2Wt/Stb+EZ9MYbcX9Zejm6L3vyFr/iOvVQMVaqk0og/PUQCMsDiS2P
+	osIExAKNuD8WgrxS/QCdnrtpDI6JRlWWZHdvaAkIbnYoaYta3++Js5YpWg6Zg9EU
+	EJcy7MFQ92/mLjDHXl8Ht8bpj47Wjq/zBGjAiXqtmURL5ni8R8qn6mrGFmO4uoif
+	ng==
+Received: (qmail 207679 invoked from network); 10 Nov 2026 12:18:40 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Nov 2026 12:18:40 +0100
+X-UD-Smtp-Session: l3s3148p1@cOeOPepfdIsujnsO
+Date: Tue, 10 Nov 2026 12:18:39 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	naresh.maramaina@oss.qualcomm.com, linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] i2c: qcom-geni: Clear stale TX/RX buffer pointers
+ after GPI cleanup
+Message-ID: <avL9j9GS565kip8A@shikoro>
+References: <20260902-i2c_double_free-v1-1-0f582ef32e55@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -74,57 +69,26 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <avL4x_clSegBu-Qi@ashevche-desk.local>
+In-Reply-To: <20260902-i2c_double_free-v1-1-0f582ef32e55@oss.qualcomm.com>
 
-On Tue, Nov 10, 2026 at 12:58:15PM +0200, Andy Shevchenko wrote:
-> On Tue, Nov 10, 2026 at 09:51:18AM +0100, Johan Hovold wrote:
-> > If a client has both a primary and a secondary firmware node, the
-> > secondary node is accessed via the ->secondary pointer of the primary
-> > node.
-> > 
-> > Use a temporary variable to track whether the firmware node is a
-> > software node and remove any software node before dropping its reference
-> > to avoid a use-after-free in device_remove_software_node() when
-> > accessing the secondary firmware node.
+On Wed, Sep 02, 2026 at 08:15:13PM +0530, Aniket Randive wrote:
+> The TX and RX buffer pointers are reused across messages in a GPI
+> transfer. After a buffer is unmapped and freed, the pointer is left
+> unchanged. A later message can reuse the stale pointer in the cleanup
+> path, causing a double unmap and double free.
 > 
-> ...
+> This can happen when a READ message is followed by a WRITE message,
+> leaving a stale RX buffer pointer behind. A similar issue can occur for
+> the TX buffer when a mapping or allocation failure prevents the pointer
+> from being updated before the error path runs.
 > 
-> > Fixes: df6d7277e552 ("i2c: core: Do not dereference fwnode in struct device")
-> > Fixes: 1c24e5fc0c70 ("i2c: core: Fix double-free of fwnode in i2c_unregister_device()")
-> > Cc: stable@vger.kernel.org	# 6.16
+> Clear tx_buf and rx_buf after unmapping and freeing them. This ensures
+> later iterations and error paths only see a valid buffer pointer or
+> NULL, preventing double unmap and double free issues.
 > 
-> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Cc: Hans de Goede <hansg@kernel.org>
-> 
-> Can we keep these two Cc out of the commit message?
+> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
 
-I prefer to highlight the authors of the commits mentioned in the Fixes
-tag this way.
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
+Applied to for-andi, but maybe this should go to i2c-fixes first?
 
-> > @@ -1066,14 +1067,14 @@ void i2c_unregister_device(struct i2c_client *client)
-> >  	else if (is_acpi_device_node(fwnode))
-> >  		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
-> >  
-> > +	fwnode_is_software_node = is_software_node(fwnode);
-> > +	device_remove_software_node(&client->dev);
-> >  	/*
-> > -	 * If the primary fwnode is a software node it is free-ed by
-> > -	 * device_remove_software_node() below, avoid double-free.
-> > +	 * If the firmware node is a software node, its reference count
-> > +	 * was decremented by device_remove_software_node().
-> >  	 */
-> > -	if (!is_software_node(fwnode))
-> > +	if (!fwnode_is_software_node)
-> >  		fwnode_handle_put(fwnode);
-> 
-> Do I understand correctly that this is a dup with the platform device case? Can
-> we make a helper (on swnode API level) to cover any other existing or potential
-> case to avoid similar issues in the future?
-
-The bug is different, but the fix is the same. This all gets cleaned up
-in patch 4/8.
-
-Johan
