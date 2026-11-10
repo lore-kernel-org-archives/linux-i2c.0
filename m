@@ -1,76 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.181
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794297823;
-	b=Bil8s0/ypKwEWzVsz5JsVaaGNv3ev0XFhSS843+CSZPZ+KGDiYlPrpDndyZnyUm1ywmY
-	 /6vPQVtRZfIKgtvgWqp4BIZPJ5ll6pPdqJ37xfIOryqnUAJO+XOeA1j78oL4bJAzcgznn
-	 Oaed6yl2PczZz48jvKIvhSAmY9BiH0tLAEFdZ1IjHJieOvjDrHlPAtfwFHwhp2xa/WmkT
-	 9hz9FysB8y1GB77oqTCBZsl8+w9eqTueuXtLj5bdNirb1UgdSBIsEjeVwWYNtzSKkK85b
-	 NLgahlsF+crBfCSqBYFSYQMiGvbtjMhrJv7EgisIOQs66XqNFaKtohjwUYf0pLVMK6A==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794297823;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Received:
-	 X-Forwarded-Encrypted:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type;
-	bh=Bh9PLp3fsMYJMJTRrDf+gKXw1r5bvWitb4XoPWpFjfU=;
-	b=WD0Yb/rC40znwmwz1XVoD542x47S8CjiTyLmNYX/grvDdeuQpHzPheeptxNlZFvPOASX
-	 7IgVw7EXWJ67uE79n6tU+7Jc72mAG/uGgkPZhiZDh1Ct4I4vvq7EAZlW3sB0SE59+OpsT
-	 s8SKb2p/P7YipFpPt/Dl0DoDFdFCMwC4w6TZk0+qCIwW4tbUXEYRUHDJLJxvSTl0cThLx
-	 5Yw34Eee3igUTlpcK8Lu8Sz/kLT79FEv/3HEB/6hi8Ns3fIAGqWamjt3/bv12hnz5hDlC
-	 wTXljFFnFmj7VGg5ZVWAL80bIGygHU/XpZKcUrDBvnsMShpVNgiicklUfecVMvFq3Zg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-m68k.org;
-	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=209.85.210.181
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794298780;
+	b=qpqIurZEUGjuBn4uJJhJywCVaaqYaPDEiWmh05EQMNr4zcyA7i0hWcRLCAnVjderTPrY
+	 hPOh1y98DNNDOcUR2qbdKxplk9lVbJZ9xbXSAHV8xxjGdhFEno0qd7/f4/0bcPSLNiQyY
+	 uL6keLeXUCQ57F+sQHNY0CsJb84XhDrlCRJs/Bslc/tlh96S9NaiPv5Gaco9VJhnU3e6T
+	 wvYHEzsDwEmWJFMODbpd0NBPmDzDevQxCq+TSOp4U73BA+FxthUIr5VLmS0sLrYjVp8EA
+	 4bqiACMN0cFLWcDT36qc+gVYa5KI2japgUfFvihzTfXMLBZZZK3Vn5qqAjxeFYQs7Gw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794298780;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
+	b=O09NN9Fl8xwJASuV/TjjH+JgtvZufnzjTYXR3+Y5Mseb9X04XPN/1tb0ZqECYeg8ekFE
+	 5C+VFLbnmwlElfTbXRLA3E/vxmor4187W+zf0H+8/guzI2RdfGVkWuIgAYZ6fA35luDi1
+	 KKTbkXH5oOfjpq2I2669B/9P+7wnK7Po9LryHYP82f3JG4Bu5pfTOCEt9TiwO+VmxHno5
+	 M6XMAWIQZNbEACuBAhtCdJEiTRlM3DtKv+LiDpuMQn3A0c6S/iuWEzLXzn/sleSc+Wykz
+	 zH63nPTtQSO8KyeLNIEcmsc0tbuUicWCAsYmkAp39SR9zPC1//Z5OBA8wM7lBE9MHRA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ZAFdKLh/";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D90C60A2622;
+	Tue, 10 Nov 2026 08:19:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZAFdKLh/
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794298780;
+	b=W8d8Y0jCZRqBmBDtgfrtNupf9PZ1cc2druSV/QTRUVo4ZpPUS2KuO06G3VG+sKhvzOmi
+	 axyJtK3jXEgYZNu6y3TaAvKA0jxliZg7beoJ4P08x4c+fdqwij02x/HGDn6RXMyRXzYo/
+	 DIC7O1gzt1PmSJ/j1PmID8s5hsAdOHWXc+tgVbNMUq8E6y4MxJHk5+cGv5MuK3v1cQJvS
+	 YKLca/s9IGYMCIOFkOTJ6DEr3U1+OTQIiPjQBgC/BdFIpPupro/KHsGGj4JIqe6OlyFnN
+	 N+fwzbFTNXpEJjGvBPIyvcJ4njp8seb3HAm5HYzFdynAqpCwn61DL5BPQ8v8BkFbqiQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794298780;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
+	b=S76XXbJ27MVyhzUfzbAS0AKZ0zC1AOyPS1H4Etpu5yJNyUZzjGc0KMGndv01kE6hKU+Y
+	 a2ThD3WLBaBKo9oBeOKWp+T9VeYeJUtxtQVdolJ4nQcv4oGX2jNpf0sTw2vJXqVmzqgXl
+	 ZgtfgfVl1RF0cNBsg1+jnm0WwwSwqTuvhLBfqY8BM98Fnz3Fx5jGsOg5Nk7thRr5qJigb
+	 zvIMSXnZJybEvD4Utc5pMVdKXOLaY4TUOlBnCCZOtCBTdlmu1OQX0pwjILzzptmGN+vB6
+	 q274qlEMuCGKO1V2k9Emowhd49wf8CLeO6isu+kSgTfaNipogO0K4TIdgN+ZmuJMKgg==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ED60606A724
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 08:03:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6ED60606A724
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8b2f59de176so1275797b3a.2
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 00:03:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794297823; x=1794902623;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Bh9PLp3fsMYJMJTRrDf+gKXw1r5bvWitb4XoPWpFjfU=;
-        b=v3wSfddbvAWHBGbiiz4SxI2NaILW8AX/wImVjfXH8KCyu5TVn6i8Saap1Bp+ow60yG
-         M0lrwSUP1f0q9B2txtX2KMRUkmWI9Se8IFT4fEhm2ufD+I17Ak+ezHK5io5rla5kMw+U
-         CNJlj42Bcxb9c8D817tNpLVwVq1emgq2bCHbq844n2kLrCvXe74Fy7BDfD7vNVJ3NE+y
-         SCMNA6tukqOC1jULFeTh25Y/JE9BVZdCOwet7oNZqsHRe2MUEZJadys2eEvCKGRxdoeV
-         /sGLSAnYT+2CioX0Ci75uEm1Wj0DjWlkR4h67REaQQyjn2S5NUBO0KrCiDYrqgUNcqZn
-         d41g==
-X-Forwarded-Encrypted: i=1; AL+hErGE/6UWjSbBbcQR42muueFNBTpEWwBDHdfAFgGoUzntvSnu88sFlLpAumO2xv0DWfmWIWzKRldqGf0=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9NrVicJAQbPwiHwCNx6noKcpwQbNSYDMAHt4+CTwkvRT/V4sdq
-	Y2+U6UaTU9yU4Jt9gE4Iv5uUbEtwo7Onqja7YSTljfvZTXlyt9bd+A0FryQZahRol08=
-X-Gm-Gg: AYBFou2YypEqYLMErJbd1kP4b8oyt9R4cM/e0F2i0IZ3ALhHhcLEdpALeDgIJf3Cu6D
-	biKJSxFv6nj/igDha7tdP0BbN/65anKKvllxWo1yoz2QsKG8jCk18sSHioHImVKzKnvvc2ep1/l
-	KXgJCeF0zY9qxX1UH1d7xOinewRJtcFcfSOYyVClyJdHoWUOHayqG0foCF/U9332q3kyPib2+Gf
-	/xDEeaA32LhOEhcJkXlK+A81+hTF3hJmF3fAHwZhDUfHIVfapIiTd90SQGq1DYCHWf1RL0fvIvd
-	zjh5CKKzIUKYaFIMSB5oual9aiQlvevlEnDr/HLw4XS/1kvTta+3iTCFCQkTX+49OhwNEbUSbnI
-	oW/QYbRj2w1nmC3ut7XdzWLeq7xdo4Vmwoa91Cv/zdvjpSl67f0jBnsrEbNjjW0PwjayPEPzaG+
-	c5R4fKHDIZdOxX7MJ8AaEVNvkoYNrM0rLLQ7w6ert+AIYGPptd5khgxcKmkbtZ7UoAejN+rcN1L
-	Pp4efyrAj7GYTAq2xkXmyKfvw3HBmcLv38ghZWQPfM0E9iZJYzLCOm2qvz9/jJyUtOcIVJnNZ5q
-	b2bBrUlFVJfyVxcEMvYSjiRbep8fpI2QiSaNp6RbnH4f1AH1Wj+trfvRFDk95gPNVg==
-X-Received: by 2002:a05:6a21:3b46:b0:3e2:a849:64bc with SMTP id adf61e73a8af0-3f18c1166aemr1436718637.9.1794297822604;
-        Tue, 10 Nov 2026 00:03:42 -0800 (PST)
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com. [74.125.82.44])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8baaae3e582sm573283b3a.39.2026.11.10.00.03.42
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Nov 2026 00:03:42 -0800 (PST)
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-1931ff67a29so840788c88.1
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 00:03:42 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErEnDd7TwMXMnIJ1l8ytpufdmzyLr5gxi0snuHRBNraGBZfMdoTBOtkdZIDQBdaVp8zNMYiFYbxqSMs=@vger.kernel.org
-X-Received: by 2002:a05:6102:4190:b0:7c3:2b19:6266 with SMTP id
- ada2fe7eead31-7d301bfd9b1mr443049137.22.1794297471476; Mon, 09 Nov 2026
- 23:57:51 -0800 (PST)
+	by smtp.kernel.org (Postfix) with ESMTPS id 25AEC1F008A2;
+	Tue, 10 Nov 2026 08:19:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794298780;
+	bh=kNMpvUIklLoqq2U8w19NKhZcvl6ucrqllQnFyuCL2rA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=ZAFdKLh/wRJff2Fnpc6k5eMvaWOa7/vQVd1K3hf/7zuEm/6m4GqUCQZuCPc+yEM/h
+	 wI1qFu1Fd7HA6vfju9yq/epde++kzNOKBtjEzABK2LlmItNg65b9utrHnhm6jhmDvQ
+	 HZlcgVjC5vR/N/nDmyFSPbzGdbIzDOb4j6IfkQGPSpk6+lMXxR9hQlrDPDZdfB7xRj
+	 spJehndg1V2vJroHXIpxjsYVJ5+DE3A02ru5fdS0JjH6tbkR7G15uXLJg3WtLzuLSp
+	 aXuuEC0Oi0j3ay9sKSmJZ+nadhZi2XoqiR4XIiuxl2zM7sf8q0QINqL6ZjviWhC84s
+	 mqRl0ve3uZ6zw==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 91DDE48A36;
+	Tue, 10 Nov 2026 08:19:38 +0000 (UTC)
+From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
+Date: Tue, 10 Nov 2026 08:19:33 +0000
+Subject: [PATCH v8 1/2] dt-bindings: i2c: add Amlogic A9 I2C controller
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -80,46 +82,107 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
- <20261109-i2c-remove-dont-use-autosuspend-v1-4-49a08b8daf36@kernel.org>
-In-Reply-To: <20261109-i2c-remove-dont-use-autosuspend-v1-4-49a08b8daf36@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 10 Nov 2026 08:57:40 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdV-2XT7Npksv2om+ZRxOAQJfc92VpLD4sPeoj8AgKUU=w@mail.gmail.com>
-X-Gm-Features: AclHuK9JsEgh5r73zJDHAyGi1UgY8FApv7iweIjEvmBZD0LvfpJpCmquM1eWYd8
-Message-ID: <CAMuHMdV-2XT7Npksv2om+ZRxOAQJfc92VpLD4sPeoj8AgKUU=w@mail.gmail.com>
-Subject: Re: [PATCH 4/6] i2c: riic: remove redundant pm_runtime_dont_use_autosuspend()
- calls
-To: Joshua Crofts <crofts@kernel.org>
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Oleksij Rempel <o.rempel@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Chris Brandt <chris.brandt@renesas.com>, 
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, Alain Volmat <alain.volmat@foss.st.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, imx@lists.linux.dev, 
-	linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261110-a9-i2c-v8-1-1e9d2682f86b@amlogic.com>
+References: <20261110-a9-i2c-v8-0-1e9d2682f86b@amlogic.com>
+In-Reply-To: <20261110-a9-i2c-v8-0-1e9d2682f86b@amlogic.com>
+To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Xianwei Zhao <xianwei.zhaol@amlogic.com>
+Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, linux-i2c@vger.kernel.org, 
+ linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794298777; l=1772;
+ i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
+ bh=Sz+UB7O1ObrX0Ep7OtBMUUtSVaLagIleTbf9GlXMQy8=;
+ b=ZemSN64rnYCKJWWftuWVcVw2dywgjig/XExYyS9+5LJceYpktptJw38F1NZyXTzvxNDbcJdKD
+ 1h6l7HWg7+OALX6OJwKgGWECZZ1BlBqbZg9mZefeOZY/m8c+2d0Zq68
+X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
+ pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
+X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
+ auth_id=578
+X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Reply-To: xianwei.zhao@amlogic.com
+Content-Transfer-Encoding: 7bit
 
-On Mon, 9 Nov 2026 at 21:51, Joshua Crofts <crofts@kernel.org> wrote:
-> Since commit d1706f9da9f4 ("PM: runtime: call pm_runtime_dont_use_autosuspend() on reinit()"),
-> driver core is now responsible for undoing any
-> pm_runtime_use_autosuspend() calls on driver exit.
->
-> Remove the redundant function calls.
->
-> Signed-off-by: Joshua Crofts <crofts@kernel.org>
+From: Xianwei Zhao <xianwei.zhao@amlogic.com>
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Add a Device Tree binding for the I2C controller found on the
+Amlogic A9 SoC.
 
-Gr{oetje,eeting}s,
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+---
+ .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    | 56 ++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
-                        Geert
+diff --git a/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+new file mode 100644
+index 000000000000..31ddc6d23732
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
+@@ -0,0 +1,56 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/amlogic,a9-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Amlogic A9 I2C Controller
++
++maintainers:
++  - Xianwei Zhao <xianwei.zhao@amlogic.com>
++  - Junyi Zhao <junyi.zhao@amlogic.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    const: amlogic,a9-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  dmas:
++    items:
++      - description: DMA controller phandle and request line for RX
++      - description: DMA controller phandle and request line for TX
++
++  dma-names:
++    items:
++      - const: rx
++      - const: tx
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c@3a4400 {
++        compatible = "amlogic,a9-i2c";
++        reg = <0x3a4400 0x3c>;
++        interrupts = <0 164 1>;
++        clocks = <&clkc_periphs 11>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++    };
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.52.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
