@@ -1,79 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.154.119.183
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794345947;
-	b=ZapVumOhs7PVLA+TNTeRUk5R998XvRVECxheaIVzFMwyLXHoZKdMHgkbAOq/vNc46nR2
-	 go9B1UZb/7HjNJPJN6+9xdhJRR9vbVH3ZbgtoOCRN2JJDOm0BhZYkqPXoW02lMD5Ot4xz
-	 lZ8gck3KxxLhLJ1NPVv6YGcPKNpUWx7W3Q0vxlJP+0g0JZ3ubkmctdqWsVtYH3h66GIzn
-	 +aFDXpVQ9vVvn/nuNrsqfdIFjCWF86dUMt18gwxr9Kxd958LFmp+hmAjI27h4pemM7yXb
-	 Lgr4WHNqjgqnUHPLQHNyHEwGY0FS6KF5XIh0NfZa556YNQ98EOR8hQgBcWUxuGvwC5Q==
+	t=1794354378;
+	b=X28oySxXMCEaY2hDkVxTsC/aeoUwrbqHL08fBpNe+6ik5brmWnO46IXqZj8o/40K9faM
+	 rGlgPAWdw3yVedPNLp2RPMVZYu/dX+O/DZMc+tsgqeKLh7pK5dgjMRTymVS2WwoAD9cjQ
+	 MhQZe/qC7QYzQFLRGMxrOKtyub9iyhxuu2J86+/rtqQX9DiVoyK+JYHL1EPeb1NVVHwV2
+	 kiYu7aDFDl5YCPUktbj14H6HacsTtXVxR34znA9fFNfpxzUUfGgrE5IeJLuytAguFGYDI
+	 0jfyMhmv0z1RnamE6M8JQgVXrXbn2pbSAy0kISLRCrhsLmrBQCBeMbwfkheXP4fujKA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794345947;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:User-Agent;
-	bh=EdPrvIoeQkOKljOBokRv+hpyTWHif36ZDAjxUxoFpUA=;
-	b=qlvWhRTebzxOD8LP73o8PrEw04yM4BO2BsazwnoUU5Rm+f1tLU3+xvkB7HM+QV4UBAbU
-	 W1vRqP0u2g++wpRQ6+YoE4xKvcZPGT2TchYtgBdSzTHSNBA5VXlRDqsrEluvBr4k7ZOmb
-	 Pwx3MkrBJokJbWI5DUOYjNuT+v8qXQ3eGlF1FajwxsDVIHSwdfq1y8zi6GSfZutCcRsom
-	 KShPsU16KsAKFBhbhvYyUG6M9JhbeFU+H/8azOPuVVtx+DBYR3vipI/jWf3KW9AfEWMw5
-	 9J6Tx0Vmx0e7KHw1uTu8A5LJ8xO9hA7ydD4P2x8nyvI+RBCQ3Y7ommJ9jSLqKA31Esw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794354378;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
+	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=WCdKUUEAMgyuIUvweS/CVZqWS7quwtCy3Zzak2dFXXY=;
+	b=TLu7KNUnThI3HSP9ILapfJw7RxDCtDXg7qKGPzAoRWcE2bNoVSr2BT03qyvrvPPjsGpt
+	 Y+0qi7YIoQuBUMXCq2R5SVA4JB/rgYS4wzOhXtMdoQuRfeDYK1CcF0FJLZ//KeB4Gu5m0
+	 Ks438SO7VZ2AF3gptXze6qB2MabnGZ9Tg5N8ULuRqL7O7blPFLF79tQ98ta+qlJiWfGY5
+	 pwDrFazA270BsnfyVQ6EW9GRhZbUwNMXmmkpWIdf6XIIYhajt6lM3jhaPizfC/OWOyz9/
+	 WcLCV56/a26Xk9JEn9CH4oSekv7bEb9Lbj5ISJaBiVRoXM3IcrPBz/zxIGCvF9IEx4w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=aurel32.net;
-	spf=pass smtp.mailfrom=aurel32.net;
-	dkim=pass header.d=aurel32.net header.i=@aurel32.net header.a=rsa-sha256 header.s=202004.hall header.b=bhBtXJ6g;
-	arc=none smtp.remote-ip=195.154.119.183
-Received: from hall.aurel32.net (hall.aurel32.net [195.154.119.183])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=fail header.from=andrewgigena.dev;
+	spf=pass smtp.mailfrom=gmail.com;
+	arc=none smtp.remote-ip=209.85.128.179
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA627606A320;
-	Tue, 10 Nov 2026 21:25:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA627606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=aurel32.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aurel32.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aurel32.net header.i=@aurel32.net header.a=rsa-sha256 header.s=202004.hall header.b=bhBtXJ6g
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
-	; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
-	Subject:Content-ID:Content-Description:X-Debbugs-Cc;
-	bh=EdPrvIoeQkOKljOBokRv+hpyTWHif36ZDAjxUxoFpUA=; b=bhBtXJ6g8peGt6aBT/og1oe/b/
-	/ldqn7fRO1oFAdW7RZz2uJqaAGB3ufJBSlbIgwlACxaY//0iQUVtys0GbXgvr+eSZe74pacn3YEZd
-	SMzYVU1dk2TAMKHGBBH0Si9JnUrfJRsvjTaR06OO4+d+kGWPvWe+2Iqyz1ORL4RUgm7+WURelWuz3
-	05fQR6RpTzQbZkx1InA26LPWzKrfNBszNxzQ/D9Hh0yAWwIxmtpIez7B2GOjz4Ffsr5mPcuaB+Ljm
-	6hlwP0gRT17/jKMitePEYdcpqXhe/abx8lzM3sJ3rBoXMV/olZlJHUe05p0Tw6CoUxOPdC0wAPnIQ
-	R79+LVqg==;
-Received: from authenticated user
-	by hall.aurel32.net with esmtpsa  (TLS1.3)  tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <aurelien@aurel32.net>)
-	id 1xQtLb-00000006KxL-0RIA;
-	Tue, 10 Nov 2026 22:25:43 +0100
-Date: Tue, 10 Nov 2026 22:25:42 +0100
-From: Aurelien Jarno <aurelien@aurel32.net>
-To: Anand Moon <linux.amoon@gmail.com>
-Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Yixun Lan <dlan@kernel.org>,
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-Subject: Re: [PATCH v1 2/2] power: reset: spacemit-p1: Use atomic I2C
- transfers for power-off and restart
-Message-ID: <avOL1mCkI4YSaDeO@aurel32.net>
-Mail-Followup-To: Anand Moon <linux.amoon@gmail.com>,
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>, Yixun Lan <dlan@kernel.org>,
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-References: <20261110061429.2036-1-linux.amoon@gmail.com>
- <20261110061429.2036-2-linux.amoon@gmail.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91CF6606A320
+	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 23:46:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91CF6606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=andrewgigena.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-8b335ef6441so23931857b3.3
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 15:46:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794354376; x=1794959176;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=WCdKUUEAMgyuIUvweS/CVZqWS7quwtCy3Zzak2dFXXY=;
+        b=nmHHF/+DJHmsBcAQwDoye7pHQUTaozYLonC1dttlMs3KsrLg64Z9OMjnRhcM8e+mDa
+         t+ftWR2m2oSaj+8oRBU2ST4oxsk7l6pFejUmAID9sCCHXhnqV3j3nPDBP16Sl/3lwtGk
+         Ffvd4e7klJxg+HF+59tsAzw/t9Kvcu2T9h4zvy/JZDqfTAhdwQEnxitMJvUnCifSteSJ
+         uPsT7hEuCIfSwLJlC9+HFTtOg4+ywRJe06CwZz32KC44T8ksdhO28r/rBXEEe6bhvalr
+         7CuMfIVqq9Ozbg9B0619or/494vjGm/IBeOjgL7da5DD7CWQ1jvrRjiDignmCdbkR4YM
+         p9EQ==
+X-Forwarded-Encrypted: i=1; AL+hErH+6QMODbnk7Ov1x8jA718qLtFLAE6WoD3rDl/Pnpl8RdEsXde6SvgdWtKaOBiqKqHAtz3cdoAvVCs=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/HJjqIkP4idgjepnvF3ImYHHDdtHwxaIKZOklFcP2U5Q/wCGXG
+	26VXoeLhUYlZdbzfAsp9Ra03TUKPPSFeGwnHLa+Vp8+BjseNtF2WDkonOiG1VN4I
+X-Gm-Gg: AYBFou24q7n8e+G031Ymsbq4miDpLh5Rr5i4LswWmVmh5I30tIxcB0drs01ZSFRYzyN
+	a/1GTyK7mGU96MHIlrNIogfwDkFeaf6hwEEo7INhhtHVTu8MeWxmNiL2qgHeeJb9K1wbQXull9y
+	Q6H6VZWPOt6548iAiF95P+QdWLR1cwaSluhe+em/gC88TVsQanZP6PUBPc1ELz4AexRYhSMrNQv
+	o9WJ98FvurvyMaKxHt6g9gqsyl96RE3+5ZRTz3Wb5fMSH6v5fvk674pJLQHIk+yerrdRxx+Hj0M
+	UYAmxVY/tI6TKSn9K5wqLXxjGszX6BUro7rISiFe2CfQLp4qbWrh8+eYMH5eHf7ybfQO2deivVo
+	DHkwlLO6HOpE5rf8oRgI6T22KMpeY5IR5S6zdDHo9J7eXyyYNZM8CA0PG0NkU0SYIkLMQMRGJ+d
+	GTrEv9VN9+sY5ejVSGxSsVmDCFDvhUId5ra8TuTqc8P9GlsvoG7phuV/JKEqPM8qe3g46Aj3ceZ
+	IlTCzVMp+lPQNktCMPRyPCLbkYS5qKuob/I8zShI0tXN8EZi9yCSSN9fS9yKDb75XXMEpifO6+Z
+	jeWH3za56Z9wDGbEpwvDaluLROdUyRPfR5ce9NuHbeioLx/uXFD05xMzqwTOvUD5i92/qU+8
+X-Received: by 2002:a05:690c:e3ea:b0:8b3:15c2:24a6 with SMTP id 00721157ae682-8b3a7ff3419mr7031107b3.17.1794354376630;
+        Tue, 10 Nov 2026 15:46:16 -0800 (PST)
+Received: from ?IPV6:2800:a4:806:ef00:2f77:7097:372d:6d14? ([2800:a4:806:ef00:2f77:7097:372d:6d14])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-8b3933c59cfsm31871827b3.17.2026.11.10.15.46.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Nov 2026 15:46:16 -0800 (PST)
+Message-ID: <ab79818e-4b4c-4b58-bd2f-57d9ae4cddc3@andrewgigena.dev>
+Date: Tue, 10 Nov 2026 23:46:06 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -83,59 +75,61 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261110061429.2036-2-linux.amoon@gmail.com>
-User-Agent: Mutt/2.4.1 (2026-07-04)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/7] dt-bindings: media: qcom,sm8150-camss: Add SM8150
+ CAMSS
+To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
+ <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-phy@lists.infradead.org
+References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+ <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
+ <21be3761-9da9-48c6-aaa1-b56f8625167a@linaro.org>
+Content-Language: en-US
+From: Andrew Gigena <mail@andrewgigena.dev>
+In-Reply-To: <21be3761-9da9-48c6-aaa1-b56f8625167a@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Anand,
+Hi Vladimir,
 
-On 2026-11-10 11:44, Anand Moon wrote:
-> The SpacemiT P1 power-off and restart handlers use regmap_set_bits()
-> to access the PMIC. However, these handlers run in an atomic notifier
-> context (specifically within an rcu_read_lock() critical section), while
-> the I2C-backed regmap uses a sleepable mutex.
-> 
-> This triggers a "WARNING: suspicious RCU usage" warning due to an illegal
-> context switch in the RCU read-side critical section during shutdown on the
-> Banana Pi BPI-F3:
-> 
-> [  563.803475] WARNING: suspicious RCU usage
-> [  563.807813] 7.3.1-ARCH-RISC-V #1 Not tainted
-> [  563.816614] ./include/linux/rcupdate.h:387 Illegal context switch in RCU read-side critical section!
-> ...
-> [  563.841445] locks held by shutdown/1: 2, last CPU#0:
-> [  563.846694]  #0: ffffffff8404fb20 (system_transition_mutex){+.+.}-{4:4}, at: __do_sys_reboot+0x230/0x29e
-> [  563.856806]  #1: ffffffff84167860 (rcu_read_lock){....}-{1:3}, at: atomic_notifier_call_chain+0x4a/0x1c2
-> 
-> Replace the regmap operations with atomic I2C transfers to avoid sleeping
-> in an atomic context. Preserve unrelated register bits through
-> read-modify-write operations and check for atomic I2C support before
-> registering the handlers.
-> 
-> Obtain the I2C client from the parent device and verify that the adapter
-> supports atomic transfers before registering the handlers.
-> 
-> Tested on the Banana Pi BPI-F3 (SpacemiT K1).
+> That's an intermix of names, and you will get a review comment from
+> Krzysztof about it, I stand aside.
+>
+> Here too.
 
-While the patch looks correct, I am not sure this is the correct 
-approach, as opposed to the one proposed by Troy [1].
+Krzysztof did comment. I kept the vfe0/csid0/vfe1/csid1 order from
+sc8280xp-camss.yaml in reg-names and interrupt-names, and asked him if
+he prefers another grouping.
 
-Indeed bypassing regmap and using i2c atomic transfers needs to be done 
-by all affected drivers. For instance the VisionFive 2 board, which use 
-an axp15060 PMIC is also affected by this issue. And the corresponding 
-driver is shared between architectures, which make this kind of change 
-more difficult.
+> Drop 'gcc_axi_sf'.
 
-For the BPI-F3, note that with OpenSBI 1.9, the reboot is handled 
-through the SBI SRST extension, preventing this issue to happen. On the 
-long term, I am not sure we should keep this driver.
+Downstream sm8150-camera.dtsi feeds GCC_CAMERA_SF_AXI_CLK to CPAS and
+x1e80100-camss.yaml has gcc_axi_sf, so it is used. Can you explain why it
+should go?
 
-Regards
-Aurelien
+> Drop 'cam_' prefix and 'cam_sf_0_mnoc' also.
 
-[1] https://lore.kernel.org/linux-riscv/20261104-v7-0-rc1-rv-dis-int-before-restart-v5-1-956ec09c900d@linux.dev/
+Prefix dropped. I kept sf_0_mnoc because SM8150 has a CAMNOC SF path.
+Should I remove it too?
 
--- 
-Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-aurelien@aurel32.net                     http://aurel32.net
+> Or C-PHY, right?..
+> In fact you shall drop bus-type from here, because the link between
+> CAMSS and PHY's output is not a CSI-2 bus, it makes it inapplicable.
+
+Agreed, bus-type is gone from the CAMSS ports. It only exists on the PHY
+sensor input now.
+
+Best regards,
+Andrew
