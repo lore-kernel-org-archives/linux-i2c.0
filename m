@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794300727;
-	b=pQZfNIj8TjcLjDiJT7tIusGhDUkj3r3TglObQzvpBEuT1LuA/AGIS8cG0ZpCyQZFLpSw
-	 sKJllmndltjJga/7GtkMHM3VdMuiGpmyPU7XV/VN9G0rPxJbXfm0FkClL8jGWPTCx4ym4
-	 Q9CuvJexxkQUvkVqYTE0j//Ze3Pr2xwodcCEBaYgJXRntN+enEivh64pO4b+inrfGUnBa
-	 WK4nnf70NJoFO9tKuFvP2j9KIF61slQrHAZxfcVvPbyCBklFbZcKeO5KmNwe8GE1CtiHV
-	 QvbEVGQ5Qd5ySimrpooSEu/Muwsjh8TKo7HH2CERkQUZ1JskLe35OEokFlrfghIVMig==
+	b=2yItPcXNeakSG1nHKksU33dEbnerd96Xfx9rAgisUokLcD0cMJMyFgxoD8p61/Fqu4M0
+	 826lprXlD7XCGy+CCzLlC98i95442PNr9uJDXr2Tl9j7XsNsThoPbLowFrOq3m01+dNgj
+	 JHKpKb8RK6PQQigSHtBmA+QJaSoheZygKk1LgDhys1Bmipg/Fy7xGub+FQ305p6InruW4
+	 7NdkcsITTENBIjaUvv3cPfG/weOsfd9q1AL8zX7y+vOJznoMmQPvuWdnBVEIwKfxE6xTm
+	 /jefISxoqH/5S2v4dUSS3hVkHoQ9zF1gqwybRCRomxpdQ6OLextj3NAQ9JVfz+sQBtA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794300727;
 	h=Received:DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=d5D9gpQbjcvMZ67GL0qNxbnaUW9mk3vSJgCblRAk37o=;
-	b=pFZZZiWSCDxBHUUX5faLphPgcoO7HBAlZqGthCIXZ9Prr/ENL/27FMpJCQPD4/tXqwkC
-	 WKlkzaczG9G8RZ8/mWgM485N2ULeAO4TNU1lnaqXj1mFaH0aogWAp0kw2j2K3wImfzH27
-	 yLoMJVCKMyItlrIgxJb/EcydNwSwi/1DENqbTHB1ERUGWLKu7QMxd6hVWPrCpnwFHh45z
-	 S6zVkicYheQxP4k4R6Tkco5HIbrzu9rOyuuoaDN+td0MJFJSC8BTT0S/tOQ27rJQAmcoy
-	 RIVfh7eZURhlWTo57bG+d4VFUKaydAPBfdnV+2WifxtE1W2RowLRboMawHq96Xxv7rA==
+	bh=9t/1gR8KavWYeBWqAJEIDuTt1eoBfUo24N/S3F7N+WY=;
+	b=dXUHwHw94Y+Z3/D8TpP8Gok1Wrjo+MO5kv8uk2YaVmgQgdt71fGGlYMX9n0sE++yOpZ8
+	 aNo1+/MxC99nliOB+syHu1xrnkbN9Yo/ykLTtFzaRgYqnIciAWzqEFbHdGJT0hhXhrNZM
+	 3bbeJ0K6XrYv0+Xo8SBqjplO37+JXByqqqKWZOUT6dALwiQx/z0E8HM8dUr6KRQie4TfL
+	 LDbuW1TmIL/deblM3aJjINS9QOwowoFS2lr8BXcXvAxsbtw2Ct7f32894ZE+HkYoi4E77
+	 zBcf/xiZhzd7giJ/m2aXywBz4AZUdZYLipS8HagrZjwuRxeSgzz1vFTyvAaN5XK0yjQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cSLeLu0O;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BHhFmKkQ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E923606A335;
-	Tue, 10 Nov 2026 08:52:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E76F606A331;
+	Tue, 10 Nov 2026 08:52:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cSLeLu0O
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9EA71F008AB;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BHhFmKkQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996921F008A5;
 	Tue, 10 Nov 2026 08:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1794300726;
-	bh=d5D9gpQbjcvMZ67GL0qNxbnaUW9mk3vSJgCblRAk37o=;
+	bh=9t/1gR8KavWYeBWqAJEIDuTt1eoBfUo24N/S3F7N+WY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=cSLeLu0OaYIf7z1JFrvxmM5DcaB2YxeXeyQe6q07WYjBpwmbzFwoER4QX9Kta9Rs6
-	 pfy5Idc5rE//MhueULqcB6/+AgXgZnS80L0XHJLkd30mTuEqi8BrLCAO57yq2CjraH
-	 20ycrfdGfXldAgwPmyY9n0BU9696COZ+H1/YT/Wcohc04W1/bkb4si03msJatM2UGz
-	 o7m4p6xkvM62Ynd25tEgBDfFXge5uMbpJRXQmqKiUkS/Ft81jx7WbzOvnEfL2tP8x3
-	 aF5ZZajRnEnhbDqbC3MbUGU08xHM317t7krG7PCVLR/RTFMgUt2cXnYZdEgTrVPOEd
-	 A5PDPI/OqAi0g==
+	b=BHhFmKkQPZ5XOH29Z74GRI5SzGLDvQ/rqidJtt21tT4ZkPPi3iCI73CKy5yB8UFLz
+	 XlcU7ZVOd9G5wKC2VPSnjGMj6LgzmmyUJByqC9Lb5jz16r0B6W6o9GCF1oDlBC+H/D
+	 GfJzcaca4jR8elAjcc8TZMkrZJU0vlayORL8+lKLbki+tLGR2AQwigegTm0QNr8DLr
+	 Nq8MEcfMgTjvHnFpqwUPDFICNtr3l7/3bqLHEreBQYqxKXB4xSek8ZMOmMt3IcN30N
+	 8w8KWA+PJPli2+7i/WEKDEJ7StVSXZavnnEb7foNEIzuXZ7Ubh17dpbleG04o0Bct5
+	 H0Hoy+20RScUg==
 Received: from johan by xi.lan with local (Exim 4.100.1)
 	(envelope-from <johan@kernel.org>)
-	id 1xQhaG-0000000Adc8-089A;
+	id 1xQhaG-0000000AdcG-0KTT;
 	Tue, 10 Nov 2026 09:52:04 +0100
 From: Johan Hovold <johan@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -59,11 +59,10 @@ Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	linux-acpi@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Hans de Goede <hansg@kernel.org>
-Subject: [PATCH v2 2/8] i2c: core: fix swnode use-after-free on client deregistration
-Date: Tue, 10 Nov 2026 09:51:18 +0100
-Message-ID: <20261110085125.2535508-3-johan@kernel.org>
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Subject: [PATCH v2 6/8] driver core: platform: tests: fix swnode reuse test description
+Date: Tue, 10 Nov 2026 09:51:22 +0100
+Message-ID: <20261110085125.2535508-7-johan@kernel.org>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261110085125.2535508-1-johan@kernel.org>
 References: <20261110085125.2535508-1-johan@kernel.org>
@@ -78,57 +77,38 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-If a client has both a primary and a secondary firmware node, the
-secondary node is accessed via the ->secondary pointer of the primary
-node.
+The description of the software node reuse test is misleading as a
+software node being registered does not prevent it from being reused
+(e.g. as software nodes can be shared).
 
-Use a temporary variable to track whether the firmware node is a
-software node and remove any software node before dropping its reference
-to avoid a use-after-free in device_remove_software_node() when
-accessing the secondary firmware node.
+Fix the description by clarifying that the test would fail if the
+secondary software node is not removed from the device so that the
+reused primary firmware node still points to the software node.
 
-Fixes: df6d7277e552 ("i2c: core: Do not dereference fwnode in struct device")
-Fixes: 1c24e5fc0c70 ("i2c: core: Fix double-free of fwnode in i2c_unregister_device()")
-Cc: stable@vger.kernel.org	# 6.16
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hansg@kernel.org>
+Fixes: 397f0a3958c9 ("driver core: platform: tests: add test cases for correct swnode removal")
+Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/base/test/platform-device-test.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 81603317b64d..c55ca14eaad9 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1056,6 +1056,7 @@ EXPORT_SYMBOL_GPL(i2c_new_client_device);
- void i2c_unregister_device(struct i2c_client *client)
+diff --git a/drivers/base/test/platform-device-test.c b/drivers/base/test/platform-device-test.c
+index 9ce563f76aad..b0cc37d166ff 100644
+--- a/drivers/base/test/platform-device-test.c
++++ b/drivers/base/test/platform-device-test.c
+@@ -273,9 +273,10 @@ static const struct software_node platform_device_test_swnode = { };
+ /*
+  * Check that reusing a software node works correctly. If the call to
+  * platform_device_register_full() fails after adding the secondary firmware
+- * node, the software node must be unregistered in the device's release()
++ * node, the software node must be removed in the device's release()
+  * callback or the subsequent call to platform_device_register_full() will fail
+- * with -EBUSY due to the software node already having been registered.
++ * with -EBUSY due to the primary firmware node still pointing at the
++ * secondary software node.
+  */
+ static void platform_device_swnode_add_twice(struct kunit *test)
  {
- 	struct fwnode_handle *fwnode;
-+	bool fwnode_is_software_node;
- 
- 	if (IS_ERR_OR_NULL(client))
- 		return;
-@@ -1066,14 +1067,14 @@ void i2c_unregister_device(struct i2c_client *client)
- 	else if (is_acpi_device_node(fwnode))
- 		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
- 
-+	fwnode_is_software_node = is_software_node(fwnode);
-+	device_remove_software_node(&client->dev);
- 	/*
--	 * If the primary fwnode is a software node it is free-ed by
--	 * device_remove_software_node() below, avoid double-free.
-+	 * If the firmware node is a software node, its reference count
-+	 * was decremented by device_remove_software_node().
- 	 */
--	if (!is_software_node(fwnode))
-+	if (!fwnode_is_software_node)
- 		fwnode_handle_put(fwnode);
--
--	device_remove_software_node(&client->dev);
- 	device_unregister(&client->dev);
- }
- EXPORT_SYMBOL_GPL(i2c_unregister_device);
 -- 
 2.56.0
 
