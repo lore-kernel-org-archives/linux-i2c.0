@@ -1,111 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.43.68
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794327857;
-	b=oVcr9guZTV3Gjl1krQ4ROoo4gn/qFGuKsMBwGcp4+8bMS4x8829sPuMZY2iS+nfoYhGx
-	 8bvSFkpGjOb2dTe7HiYkNTL9p2JFvpWo8AWxjqx0rmIj02JAkbC81DMi7HyHN6kxWpC4u
-	 HTet+7jB/vtuMYut/d0v4Y5NOXaa5DPlPk2KEMrzdOloUV8AenUAy4e3sDm6RopD6S/+B
-	 cq+u5YCkXty8veKcNcD/2dAQGl0MDJioiSpY0FZH7Gbz8IwViBEHYmtkc6JhxlV0tT5/G
-	 3AfMIqCuTYP+erqvzRJMw0Ku8xF7/3YFqIhNP/UvU8E6XZ7FROz1Xh3TDUiQHti0wnQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794327857;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:
-	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
-	 Received:Received:From:To:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding:Content-Type:
-	 X-NV-OnPremToCloud:X-EOPAttributedMessage:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=gRcGKbZ92GvagMHn2VgxQWrtt0qmTIZU87aMWYQmf/w=;
-	b=1LzzGDRLu/5v1owGn1qnRwONHoIZTL8NsHE0+4+p1LPXQTKkbWGZnX9+Zb32s0s2XIDw
-	 AkgAZmLCAfT14BZ5d8oPrT1bNWSAQUb8l3kmoCvRz1l7J4paQCTBeGDDoaZbuTJr/tiij
-	 9usOE0Q8K2h3dMktEuVzK/jVc7QONAmvGI3M79B+uNs72fDF6CUhHzu81FHC+lFRr97y3
-	 pXZ+jItiSWRWFWscvVTEZPnOwjvT5xtsnc97iQeRhtW9gD2Q3KAcp6LKNy9qyEs+qt2CR
-	 iJWvDofzIFDmR6wWsVNKvnOlBj78X8ytpdp/COpOGPJXG+uU0gdEG/2b2kADcBpGPDA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=RzYd28xc;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.43.68
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012068.outbound.protection.outlook.com [52.101.43.68])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=88.99.165.17
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794329006;
+	b=2enhPpp+pzArdJeIhFgBNli2To6+FzsOCtdTRRX5Lu0aen7XftreeSKytBm9JJPPOKIi
+	 Wpffva4imd3cx0qqf433rsQwUlgLIb2aeJjM11pP+kLShLyyP96eG7aYiquvUgUl+LOIR
+	 VgWTNeBF0lgQ1Q6sASaSOPxG2hzRGtbngPmC3OAB0gR+sQ2kSY4US4w19op9ZOons92NW
+	 Xgf/nbHyjWooUAWNgQclWHtHS1Anh7glTc9jRxAjXAYqWpGMl2wUsO+NgKHotxkh4HZM1
+	 uFYGpW0+DWFwKkmtR0gRxhxbIIrjF9Ol+la4F4zLfOvGyY07dcHveDxDM+mTmAEuudQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794329006;
+	h=DMARC-Filter:Received:Date:From:To:Cc:Subject:Message-ID:
+	 MIME-Version:Content-Type:Content-Disposition;
+	bh=bLbK4RyTHrGaMTL/mYzTyoq/LlxoNjEHqJkmXP8R00E=;
+	b=m75UBFQJ3viFRtyKXQQjNClzkYua3SH5vKh8F9Cpd4c6b8mMLTl2SU7hUPp8gOiqVqKB
+	 WKJoN8J6SJH3PoBlfuwpR0FIpRoK7bQwa/WFYrlVMlXUQT0sBypahGzgh2KakpOLh55uG
+	 bq12p3gkme2UkOcSI7EYkwV9AR144mbh4EDB76TtClvKruRNBrqi13OIzND4gDwGqAxP6
+	 Cwc6BzfVLd8c2YXgv4I7M9JcTIiFvgbHjnTQdEqbtPFI1SVkSV46Omwf6DuChwaHKPwPz
+	 IyCiBxQZjvLSPunHMST0BdlqKDpJSUo475OYvYMzeyOQV1jQUKU0Alz5Vlji49FR61Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=octaplex.net;
+	spf=pass smtp.mailfrom=octaplex.net;
+	arc=none smtp.remote-ip=88.99.165.17
+Received: from cloud.octaplex.net (cloud.octaplex.net [88.99.165.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FFD3606A31C;
-	Tue, 10 Nov 2026 16:24:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4FFD3606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=RzYd28xc
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BalP0Yla+6lLNE3eG3HIlFLJUMyJDIM9FwB5xLNvWTpoC5kp+Aop1P7VO9ZeAeWHOl2U+cBzX/qXkg7tl3yl7zNgRq/bXH6KZYnLF0oJN+LrBGSqsQ3mSs8jMGx1t7jM7Uo6tV8JcLI1ASGkpMt3Po6fHx6HGt4csPPy4i9+cFFgxEQGPGEzgYy7DDVoT9/f3hH9tM/OHy7I53kuHmftmFE0b2bGCTTOy+o9q7q73Jh1mJhGo/43XPm0tOsTP3GMo11OdANZwONauE6Zcyx5lTkOo2rU4PMEilRu1cJbdoJy02wknVZrUAAIAeLxwe6IgVHOeE5vkizzMOxj4whdQw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gRcGKbZ92GvagMHn2VgxQWrtt0qmTIZU87aMWYQmf/w=;
- b=aYAmORKV7vXGnMHjvWs+2GKkJukjRGw0vlun/WDKVDWAaE/oQOC7FdmshnX3IrhvGtODEdf9WHVzzHlklCKZSf5oRsboIawKPrVoUOtf5Y32+BHVQMuaRWqMnhwEbNZ9i56l7Bt4tGO0+ia0g2bGwMJp0eiDYLjMdXOq1HFuaKaLedJfF4DmD3FiQUlHpehReGboK+2Y267IWTLKNmYALZ9L34wwIlFUTmjF4shID+6eQFUrxBEhBL+0r/iUIyAH02xt0qLPNpp2+sunoCUUvKGlMcVBPj4YCtMy+bliZbxVOqG9U05GTx/27aUAorJInloHdfletylDVdLBOZEYJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.233) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gRcGKbZ92GvagMHn2VgxQWrtt0qmTIZU87aMWYQmf/w=;
- b=RzYd28xcidj5vW0AeVC72oXaLMTAyPr1+9CblgZjsFgywnKn0rGsiT0OaP2O5ZJxwqL7X87fgWsV5z1GtEqM3dmRXs5P1yxcDhVSnMA/0UN0hdzMWDdmkeQSwh0cXwV5Y4vz+U1xQnz7InXWyyf+64S/Ik1i2Y70F0WBcMJ24Btb/8CnwrMGnLgkeUDOt19xJfVxYrfQE7G5CTyCQyiwqGmOVfM4qUq5MHHBL85SYs1UPlFxdtVZkiCkxBhXUluNOZFtdrp0j8q3kqZ6DhRegs5+Wk2uFD4yVdyEks7Bxf/f+/XS7qRjbUt4YBdXGlN6zVbRFdhFyDG2lA/kEnzwrA==
-Received: from DS3P220CA0011.NAMP220.PROD.OUTLOOK.COM (2603:10b6:8:45f::19) by
- LV2PR12MB5941.namprd12.prod.outlook.com (2603:10b6:408:172::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.592.13; Tue, 10 Nov
- 2026 16:24:07 +0000
-Received: from MN1PEPF000793FA.namprd05.prod.outlook.com
- (2603:10b6:8:45f:cafe::a3) by DS3P220CA0011.outlook.office365.com
- (2603:10b6:8:45f::19) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.615.8 via Frontend Transport; Tue, 10
- Nov 2026 16:24:07 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 216.228.118.233) smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.233) by
- MN1PEPF000793FA.mail.protection.outlook.com (10.167.249.196) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.615.4 via Frontend Transport; Tue, 10 Nov 2026 16:24:07 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
- (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.56; Tue, 10 Nov
- 2026 08:23:45 -0800
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.56; Tue, 10 Nov 2026 08:23:44 -0800
-Received: from build-akhilrajeev-noble-20260927.internal (10.127.8.11) by
- mail.nvidia.com (10.126.190.180) with Microsoft SMTP Server id 15.2.2562.56
- via Frontend Transport; Tue, 10 Nov 2026 08:23:42 -0800
-From: Akhil R <akhilrajeev@nvidia.com>
-To: Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko
-	<digetx@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, Thierry Reding
-	<thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, "Wolfram
- Sang" <wsa+renesas@sang-engineering.com>, Kartik Rajput <kkartik@nvidia.com>,
-	Akhil R <akhilrajeev@nvidia.com>, <linux-i2c@vger.kernel.org>,
-	<linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i2c: tegra: Use non-HS timings for clock divisor
-Date: Tue, 10 Nov 2026 16:23:00 +0000
-Message-ID: <20261110162300.3834584-1-akhilrajeev@nvidia.com>
-X-Mailer: git-send-email 2.43.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17452606A31C;
+	Tue, 10 Nov 2026 16:43:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17452606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=octaplex.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=octaplex.net
+Received: from localhost (ip-178-027-246-237.vkd86.pools.vodafone-ip.de [178.27.246.237])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by cloud.octaplex.net (Postfix) with ESMTPSA id DC241A0071;
+	Tue, 10 Nov 2026 17:43:22 +0100 (CET)
+Date: Tue, 10 Nov 2026 17:43:22 +0100
+From: Tobias Dyckerhoff <tobias.dyckerhoff@octaplex.net>
+To: linux-input@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Subject: i2c-hid: Synaptics 06CB:CD97 (Dell Latitude 7300) - touchpad failure
+ modes: post-resume/mid-session IRQ storm, silent idle stall, coordinate
+ jumps discarded by libinput; wedge captured at the raw-HID level
+ (2026-11-10)
+Message-ID: <avNI9_rElXTp48Mn@ferret>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -115,74 +54,179 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN1PEPF000793FA:EE_|LV2PR12MB5941:EE_
-X-MS-Office365-Filtering-Correlation-Id: 680dec15-f11f-4c38-8a41-08df3f470b2a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700016|23010399003|376014|18002099003|10067099003|921020|11063799006|56012099006|261021123027099003|261009220027099003|261009221727099003|261021121427099003|261009223027099003|261009221227099003|261009223327099003|261102123227099003;
-X-Microsoft-Antispam-Message-Info:
-	dYm6xwsCkCvR1EaiAOT0nTFO/iEdgSTytEwm23nXzqJVXmIyFrMnuGyri+M8tsiKCGHTTlbX0+z4Er1GTfiWu+W05hHBvGcJQrjsJm6V3QBa/heXiOd3qtZz3StQlLVU8a1j+ttL8aTEkLeD0oAc8eZ0jXp4Y4Z8asuEHXXcoepl53sre8+6iNeqMZJ60SnhnHyGASGKM4z3xJ/WMtGBYmFEyelkSkqPTpKxdUWAljd5dhh/R5MFg7apG9iQ/MMTMj3HqWfwoCOFjo49FYfmI0Xzwxoqq8KpCnLJucCkrjvYcrUshM6zlBoWRXOAfxs87vH02YJ96A7gx8itXiwUXDdN5FFGpUZEmu3Bbqltdc0kjdbAmr94Jnu97tTRdx+G1KnGNMuxmVQ66NPmX50mys9ilp34XKfhVA4VPrWJZWrwKavel/4E23QkAuSyqOyn+jS3d647NjxIezi9W7wuZdrn+/KVUooZStzuLM0iUAi6+4sQLYzTFRkXpZYDGbspqyblrgCCpPtM/JFz4F+p0rVkGuseP+h72KpO4Gpa1XULrkPps9UaArC2r/Vk1gPwBKuDCgNvvbWa8IZTmlLD/tDAZl12NdLYS39Jci9CIY4tuKuM/Tku7y8RxMbdCPN+S20h3BtJ9nYx0p1AjPNVhEX4ZugmeYW7R3/T+NkhMxIZfvphcHzLrWk+tTJX2yKZNaWXTr9+yC915pNvRZ4n4DF80QFd8k689L0f/zRrJB1hdW8+2KI4zp9UpuLjwidb
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700016)(23010399003)(376014)(18002099003)(10067099003)(921020)(11063799006)(56012099006)(261021123027099003)(261009220027099003)(261009221727099003)(261021121427099003)(261009223027099003)(261009221227099003)(261009223327099003)(261102123227099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	n4XQKnmjHx+aWipfR7Wbed2ZsYaXYqF5ffmIKapn8T8EPNsOrkEEDR1FpUpM/0vZAAYye+VV32TzAAnGd6QzG5CekluXugXFkd9sbAUnxKvHiFIovoRYbpKVAnub3tsbfN+KBTubaOxDHSsRzIBkGR+4wK/xVuhgD4aqN+CUa3QqgAMkIIhiuFfJdOvJl0AQPiXhanGD263UKwNtGhyY4AZzyhrmS5wvbMSAAEMfniRoWUISG3YidhA+khPmV42/lU3v1j7jhgPEIqoQXnPAsyg5VR1H8rd3YRo6YybAJps3ZMjYudzmGwrIBn3qv53NNH+bAThW9D48HAMyZR/uO9GrNGL74Br31NsVZoNhbzO8nCThrbKaD5irhccvscoxfEZT3Y6lvP1IXAs2ibmudObEZDHPsDrSP11n7xDhKvliNvRVrx/Mc+wE83F3bYjj
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2026 16:24:07.0488
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 680dec15-f11f-4c38-8a41-08df3f470b2a
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MN1PEPF000793FA.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5941
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Programming the HS timing registers overwrites the local tlow and thigh
-values before they are used to calculate the controller clock rate. On
-controllers with HS support, this mixes HS timings with the clock divisor
-calculation and sets an incorrect clock rate.
+Hello,
 
-Calculate the clock multiplier before the HS register setup overwrites
-the selected non-HS timings.
+recurring touchpad failures on a Dell Latitude 7300, Synaptics I2C-HID pad,
+HID v1.00:
 
-Fixes: 978b3ccbbac3 ("i2c: tegra: Add HS mode support")
-Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+    vendor 06cb product cd97  ("DELL08E0:00 06CB:CD97 Touchpad")
+    bus: i2c_designware.1, IRQ 17 (shared idma64.1 + i2c_designware.1)
+    Dell BIOS 1.43.0 (newest LVFS release; Dell's Synaptics touchpad
+        firmware utility does not list the Latitude 7300)
+    userspace: xf86-input-libinput, libinput 1.25 (Ubuntu noble)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 76d21bc51c618..6a98432734d37 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -976,6 +976,8 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 	if (i2c_dev->hw->has_interface_timing_reg && tsu_thd)
- 		i2c_writel(i2c_dev, tsu_thd, i2c_dev->hw->regs->interface_timing_1);
- 
-+	clk_multiplier = (tlow + thigh + 2) * (non_hs_mode + 1);
-+
- 	/* Write HS mode registers. These will get used only for HS mode*/
- 	if (i2c_dev->hw->enable_hs_mode_support) {
- 		tlow = i2c_dev->hw->tlow_hs_mode;
-@@ -988,8 +990,6 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 		i2c_writel(i2c_dev, tsu_thd, i2c_dev->hw->regs->hs_interface_timing_1);
- 	}
- 
--	clk_multiplier = (tlow + thigh + 2) * (non_hs_mode + 1);
--
- 	err = clk_set_rate(i2c_dev->div_clk,
- 			   t->bus_freq_hz * clk_multiplier);
- 	if (err) {
+The behaviour is identical on 6.8.0-147 (Ubuntu noble base),
+7.0.0-42 (noble HWE) and 7.3.1 mainline (currently running, 6.5
+days up).  There is no 06CB:CD97 entry in any i2c-hid quirk table through
+v7.4-rc1 (RESET_ON_RESUME currently covers only the ALPS_JP
+any-product and SYNA2393 cases).  This is not a regression - it
+behaves the same on every kernel I have run on this machine.
 
-base-commit: 7649ba73f9e7e1e04d0b46213e39c79ae09dd55c
--- 
-2.43.0
+
+Three distinct failure modes
+
+(1) IRQ storm.  IRQ17 fires at hundreds to thousands per second with
+    no usable input events.  First seen after a partially-failed
+    suspend + resume; later occurrences mid-session with no power
+    transition involved (measured via /proc/interrupts deltas:
+    ~480/s on one occasion, ~900/s, and ~3400/s on others).
+    Driver state looks healthy otherwise.  Recovery: unbind/bind of
+    i2c_hid_acpi (i.e. a HID RESET) restores the device within
+    seconds.  One occurrence was rebind-resistant (the rebind ran,
+    the pad re-probed, but the storm intensified); a full
+    suspend/resume cycle recovered that one.
+
+(2) Silent idle stall.  After some minutes of idle, the pad stops
+    responding; IRQ17 goes completely silent while touching (zero
+    interrupts over seconds of finger contact) while the driver
+    still considers the device healthy (X-level props normal).  No
+    kernel log message at all.  Recovery: unbind/bind as above.
+    This matches in shape the 2026-04 report for 06CB:CE65
+    (Latitude 7420, unsolicited 0x0c sleep-notify report suspected;
+    I have no hidraw trace of my device doing the same - analog,
+    not confirmed for CD97).
+
+(3) Coordinate-jump discard state.  IRQ17 fires at normal touch
+    report rates, the kernel delivers events, but libinput discards
+    every motion event:
+
+      (EE) event5 - DELL08E0:00 06CB:CD97 Touchpad: kernel bug:
+      Touch jump detected and discarded.
+
+    (84 occurrences in the current Xorg.0.log as of 2026-11-10, up
+    from 71 on Nov 8 and 31 the day before; libinput rate-limits the
+    message to 5/24h, but every user-space recovery re-opens the
+    evdev stream and re-arms the limit, so the true frequency is
+    higher).
+
+    The pad is functionally dead.  Recovery:
+    `xinput disable <id>; xinput enable <id>` - i.e. merely
+    reopening the evdev stream - restores motion in ~1 s, no kernel
+    rebind needed.
+
+Recurrence is multiple times per day. The local recovery log counts
+53 user-side resets since the mitigation was installed on Nov 2
+(7/6/0/6/6/15/11/1/1 per day, Nov 2 through Nov 10), eight of them
+within one hour on Nov 8 - roughly one wedge every seven minutes.
+(Full log in the evidence bundle; a one-day follow-up snapshot with
+re-measured counters, evidence/03-persistence-20261108.txt, is part
+of the bundle; the Nov-10 episode below was captured end-to-end.)
+
+
+An odd baseline observation
+
+On the current boot (6.5 days, mostly idle desk work) /proc/interrupts
+shows 97.2 million interrupts on IRQ17 - a sustained ~173/s average -
+while the sibling i2c_designware controllers sit at 0-2 interrupts
+each, and the pad works normally meanwhile.  An early re-measurement
+(89.2M at 4.9 days, then ~430/s over the previous 31 h) first read as
+an accelerating baseline; a further 39-hour follow-up on the same boot
+disproved that: the counter only rose to 97.2M, ~56/s across those 39
+hours despite one wedged episode inside them.  The background rate is
+episode-coupled: near zero while the pad sits untouched and healthy,
+and erupting during wedge states (captured at ~1.2 kHz wedged but
+idle, see below).  dmesg for this boot contains ZERO i2c-hid errors
+(no "incomplete report" lines at all) - including during the captured
+storm.  So even in its "working" state the device keeps the IRQ line
+far busier than its siblings do.
+
+
+Instrumented episode (2026-11-10; all traces in the bundle)
+
+After an unremarkable s2idle suspend 09:24 -> resume 10:18 (no
+i2c-hid messages at all) the pad wedged again within ~20 minutes.
+Captured BEFORE recovery, twice, six minutes apart:
+
+  * IRQ17 while touching the dead pad: 2421/s then 1598/s
+    (capture I), 3142/s then 3606/s (capture II); wedged but not
+    being touched it sustained ~1.2 kHz - that is roughly 20-30
+    interrupts per delivered report.
+  * hid-recorder on the wedged device ran flawlessly: the full
+    669-byte report descriptor plus 3,812 raw input reports (16 s
+    + 18 s captures).  Every single one is a standard 48-byte
+    ReportID 3 touch report: smooth coordinates (max step 57 of
+    1196 x-units = ~5 mm per 7.2 ms report), monotonic device
+    scan-time.  No truncated reports, no error reports, no
+    vendor report 0x0c.
+  * evemu-record shows the kernel delivering that same stream
+    (~80-140 reports/s) as perfectly normal MT events.
+  * Yet Xorg logged three fresh "Touch jump detected and
+    discarded" lines in those same minutes, and the cursor stayed
+    dead for the user throughout.
+  * Recovery was, once more, the evdev reopen alone (xinput
+    disable/enable).  Minutes later, idle, IRQ17 read literally
+    0 interrupts per 10 s.
+
+So during this wedge the I2C transport, the HID layer and evdev all
+look healthy and quiet - zero kernel errors - while IRQ17 storms at
+~25x the report rate and userspace discards every motion event.
+
+
+What works / what I could not fix
+
+  * unbind/bind (HID RESET): reliable for (1) and (2), except the
+    one rebind-resistant case described above
+  * evdev reopen (xinput disable/enable): reliable instant fix for (3)
+  * BIOS 1.15.1 -> 1.43.0 upgrade: did not change anything
+  * no Dell touchpad firmware update exists for this device
+
+
+Questions
+
+  1. Would an
+        { I2C_VENDOR_ID_SYNAPTICS, 0xCD97, I2C_HID_QUIRK_RESET_ON_RESUME }
+     entry be the right direction (cf. the Sep 2026 SYNA32A4 06CB:CE17
+     post-resume IRQ-storm discussion, where that quirk was proposed)?
+     The Nov-10 episode struck ~20 min after a clean resume, which
+     would fit that trigger.  I'm happy to build and test such a
+     patch for a week of real use.
+  2. The bundle now contains hid-recorder and evemu traces of a live
+     wedge (Nov 10, see above).  Is a deeper capture worth adding at
+     the next occurrence - i2cdump of the designware controller, an
+     i2c trace via ftrace, or something else?  Failures recur daily
+     here, so follow-ups are cheap.
+  3. The interrupts-per-report mismatch during a wedge (~25x, all
+     reports well-formed) - where would you want that looked at:
+     driver, controller, or firmware?  I can measure in whatever
+     form is useful (ftrace, i2c trace points, counters).
+
+References to threads with the same signature family (other
+Synaptics 06CB devices):
+
+  * Sep 2026, linux-input: "i2c-hid: IRQ storm from Synaptics
+    SYNA32A4 (06CB:CE17) after resume"
+  * Apr 2026, linux-i2c: 06CB:CE65 (Latitude 7420) - touchpad dies
+    after ~6 min idle, unsolicited report 0x0c suspected, driver
+    never answers, firmware locks up; rebind recovers
+
+Evidence bundle (happy to send inline or as attachments, tell me
+what you prefer):
+
+  environment       DMI, kernel config of the running 7.3.1, device
+                    stanzas, IRQ snapshot + counter math
+  recurrence        local reset log (53 resets over 9 days), plus a
+                    one-day persistence follow-up snapshot (IRQ17
+                    re-measured; episode-coupled, see above)
+  libinput-jumps   all "Touch jump" lines of the current boot
+  journal-samples   dmesg excerpts of the probe + one storm night
+  wedge-traces      the full Nov-10 instrumented episode: report
+                    descriptor + 3,812 raw reports + 2,812 evdev
+                    records + IRQ deltas + clean kernel logs
+                    (evidence/wedges/20261110-*/)
+
+Best regards,
+Tobias
 
