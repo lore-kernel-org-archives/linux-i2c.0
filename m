@@ -1,71 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.223
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794409108;
-	b=x4fuFp5HUK0FMmUNPlP+Vx589/Sd266DjVcnlNoeVKSWyjcotr5rsRF2yuWj1uFUi4FV
-	 3J8NkJZr+BLVQS4dBIyJm5W/eTAnFBrsPokysGgR95CVjM0qFkdKuVqy2+Xgi3orASpX0
-	 hCX52t+zDBoaC4rLbtKcNKZHmhnOwLz0W2FRfgoUsE3O/+e0bH4Pm9z4em0BOKRwiltFC
-	 jVMiUoTJPnGz6D/pq0XNEMPTbkuC6w2qQIWXF8Ldpz+Cw4l8WdM4EJ0szJgTslk/7uJ+v
-	 gMXW3qTCtyuj5zClqj7g6Jgu/qqCTuExTq+z6LKIuKtNfDrfUaqZzZKj5iCF9OBIp5Q==
+	t=1794418081;
+	b=WHN1yZCdqjWG8tmn4SdvtCp38E0ZshaHP2amYAPDWnQV3PzbFfqPoPmUfOiSjffUtWdv
+	 RWRfgMJ3uQH7jm89QIh/6Bawe+f+aJ62mEWCrHKM4hO5l71213325FlQb6OM5Qn7wfrWz
+	 GJfdyI2ohSMBVaDDOf66wYs3XhNixx6FPZfnEykl+ls4ihbdsbJVp4hKi+9+0z4wMLWbG
+	 kbRXNvfT2B86RvzeYZ2UFiyBl3UV4me9LAMR+A+Usq8UxL+gahg4qXTJ93XDGbCAzqixl
+	 BN3Y++r/txIkcKnXJOINWAfp7ZCmNa+uJ9spskMZxfDMXC0fF+lsryJOZQgvrrhjELQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794409108;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 MIME-Version;
-	bh=byL/9IM6xgjdPi5Ss/cz8AdXkgWexIzqBw9kg9a3atE=;
-	b=2ujyoSXRg2KTWITNg3QqVobAnrkAo4wrFuGlfNy35KzKzLZ0/i3Sy7vB8HZE0SUcf0ge
-	 iytnz/mpZSKckyCO5tPCz8MXXmnVOeZklLfplhJW0Hn+p851yseRAKTGJ1WQ5ecc7gAG1
-	 zsDUCUtxOxwT4g8PDhFQCtpGlg+kOAKNNmS/MiLixqC2cVKZ5tMTyXlVkOX6DjtcnCkPo
-	 svPomXLnxUuUjAGCQcQzVRFZMDVHaGeq3Qe4G4FZwtW0FIcIh9HRfRadQLOzarbrvrish
-	 wOXUTDFY7FrIF1jZ2JHVoPCppDup9l6NXjVaz/tRKqFr54ucpV91XCjbYdyG2LvyF8A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794418081;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=57R6AFZNjX3IvkWqFL/eA5eFodZe26hJrX2j6VH/P2I=;
+	b=LntbQujlpS5WsjkWLbLrjoGi3M6tF229/+ajt05ayTvbo2N7rkWvChjGocbD7zt1rHjA
+	 tnje+EzIvt7UOaGvfaTLa0BVDqBTctI7QY2BUtAdb9fGuQwynHFcKd3yDjZCJ/0/0r8op
+	 UT5GBTmLqhrZ1kv/S+djTNPSPn4y+Rzv1zgxkZqMz12KSqZBp9QECNvkp66NVijXZcs4A
+	 3XRMUgX5JK8pYqec4MNWow3AMAxhrVCbiKOgjo8x3DGrLYhtV6c8t9hz5MeCMEryO8qof
+	 fCj0AsXiJmzheNZctzBGJxgMi+TP9Pi0EUFWk0GNeFOctjCjgJ7rQ7Ru369hrFdkd1w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=bT+MHnvQ;
-	arc=none smtp.remote-ip=95.215.58.223
-Received: from mta1.migadu.com (out-223.mta1.migadu.com [95.215.58.223])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="j/yvgPWr";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D191B606A88C
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 14:58:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D191B606A88C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51696606A8AC;
+	Wed, 11 Nov 2026 17:28:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=bT+MHnvQ
-X-Envelope-To: linux-i2c@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=byL/9IM6xgjdPi5Ss/cz8AdXkgWexIzqBw9kg9a3atE=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794409105; v=1; x=1795013905;
- b=bT+MHnvQe9RepUohkjLvksKWNYTiu9JXdRJihGeN0HMqqisGTdqqZcz1xNgKsA827RcFkb63
- WWt7b7ifDkmoOv7E7hf3vlPcmr4Ka76BCwQiGJ5voaBXLUz/iOaS6VnoGyAitgfo1xVgJYMgtDC
- SYvUJDspR7Ee94EHcIQFUxyg=
-X-Envelope-To: linux-i2c@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 36196609946a065f;
-	Wed, 11 Nov 2026 14:58:08 +0000
-X-Mizu-Trace-ID: 36196609946a065f
-X-Migadu-Flow: FLOW_OUT
-From: Igor Korotin <igor.korotin@linux.dev>
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Cc: Danilo Krummrich <dakr@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
- Miguel Ojeda <ojeda@kernel.org>, Gary Guo <gary@garyguo.net>,
- Alice Ryhl <aliceryhl@google.com>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- Lars-Peter Clausen <lars@metafoo.de>, Mark Brown <broonie@kernel.org>,
- Brandon StJohn <branstj@gmail.com>, linux-iio@vger.kernel.org,
- linux-i2c@vger.kernel.org, rust-for-linux@vger.kernel.org,
- driver-core@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH v6 0/4] iio: position: add Rust driver for ams AS5600
-Date: Wed, 11 Nov 2026 14:58:08 +0000
-Message-ID: <179440908805.1963.3189482737225975976@linux.dev>
-In-Reply-To:
- <CAO26r3RofEz-YCnaUfTTb+7phdEzUqG5iwVObuho_EgW5Ep44Q@mail.gmail.com>
-References: <20261016154819.17936-1-muchamadcoirulanwar@gmail.com>
- <CAO26r3RofEz-YCnaUfTTb+7phdEzUqG5iwVObuho_EgW5Ep44Q@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=j/yvgPWr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D93F21F00A06;
+	Wed, 11 Nov 2026 17:28:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794418081;
+	bh=57R6AFZNjX3IvkWqFL/eA5eFodZe26hJrX2j6VH/P2I=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=j/yvgPWrbwE0QZSqkKi6PQOZnzLCWCFLZZojRWPSDLZdX7ipzVj9jUlLsyJjhO9QG
+	 10J81aP+p0nwG/1IjCGKn4KYhAtxoowQsmtBFcgDr+YKJ6fRhfDUXVhCYIoA6Q/NNB
+	 8g6LpMZJJvQdxFJYlp2uxkfOqGZzxEhbtyqiIGgXEuqLOIWGQhHedR+UJZiOyM7/9m
+	 D+2lKu++l1YtgVEOmMNeJvpIgRrD+Xqv1CaOq1tl5PMX9Cm9A6a9ozTZS89xvR56MR
+	 iKxZRjweZauAm4ZXdkc8PSYIm3EfzbSfpkCbnP1XztxwYy+S/j3ar7mujy2TwTm3vw
+	 HdlAkAIui6Bvg==
+Date: Wed, 11 Nov 2026 11:27:58 -0600
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	devicetree@vger.kernel.org,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [PATCH] MAINTAINERS: Update I2C Designware driver maintainer
+Message-ID: <179441807837.73144.5244188045735801589.robh@kernel.org>
+References: <20261111122808.1302491-1-mika.westerberg@linux.intel.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -75,11 +59,23 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261111122808.1302491-1-mika.westerberg@linux.intel.com>
 
-Hi Coirul,
 
-Sorry for the slow reply. Co-developed-by/Signed-off-by is fine with me
--- your call either way, I don't mind.
+On Wed, 11 Nov 2026 13:28:08 +0100, Mika Westerberg wrote:
+> My @linux.intel.com address will be going away soon and I won't have
+> access to the Synopsys datasheets anymore. Heikki kindly agreed to take
+> over this driver.
+> 
+> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 2 +-
+>  MAINTAINERS                                                    | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
 
-Cheers
-Igor
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
+
