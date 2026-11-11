@@ -1,71 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.224.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794354981;
-	b=Yv1drjDzvj7abWC6VI7pBvuyArSXKnOma80GTXUmieF/t/o4T4nNApS8nBfct6eL2pO+
-	 kwrUPqKfBre+f9p8BAOucvqnP6PCyFe9Gf4xImBFYnXQjdlcSda1nsixzRBkGeM/zfRUr
-	 65Tkdcn4uER1lTpXp/+OPeSeiiV7dxfKCq+JhcGsjrpOoaR8ElZmKcTmwH7MAh4ndWSK9
-	 3IHEHQZfdLxnclRcQl4uibCRpY5UUdS1WDzkYTELxlPxpbkZ5Z6zBx1bZu6QmcYZ4tAgv
-	 zvQM+eMuuEV/3m3tlhvCQcbtbm6DDBwQw2VcsSzjtZQRI4CcOzT0+eJSxM7RlZir99w==
+	t=1794355520;
+	b=P+aGVG8g4Au6Yylfpbg9nBsqsKInnNfhKpHnL6Y9TMwk25sTG5z2wQHUQmLmt1Em0UwC
+	 y5wcXRc1X/ouodWOZxNIS1H66CCp6VVZzWcuSNRsqDpydUa7nnXb+Sn1Vckqc+lQ16epX
+	 EEwcP0rHjS2bm5e7eSEkZKooIPHX6SCaY6+oBcqgxtYjPmhqC2SQdZgtidNZ+HimYFFsq
+	 L77fPqM2bRNb/2Nn1G+JSkmU20N/SVp6L/ef6HeHu81KyvxOvml9sxco+jlFVmVjcbI3C
+	 RxjceyfGXtJy32FQ5ASsJMWwCx+2g9Sltw9h7Fqzpithpr1xlo/S4zqam5RB1G5RDrA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794354981;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Date:
-	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
-	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=TbgkfmRSlQR0RSZaLLsWqAT5L9ZTG2kkyMrzBfuV6Vk=;
-	b=K6dT68jJUo1slAHWi+wRSfBcMxqNd8b3nlZZ3Iv07ZRsSmqoAk0lYUkxZ6549jtnIPXQ
-	 mYEmRg8dkPZ5Og8iMqCthiZlkMSKlKYm67TPmMlVaYE3oJy4+su86aRatvbESVXvyc/BQ
-	 JzG26aq3FsZwLLzYE6TdqChZCbwNX+Zi2mw5KsUvmrELtdGRj7vDA7pabHpZQdIyu67TD
-	 XRCvw10xc3ZblBIeuj1G4d9Cm7IGH7o3qqPDTA0ca1Rewe/YhmeLyq+jWmL/NIw5/4vyG
-	 ZV7bvyDa8WVT/NTRtIvxI62J81NL5I3otMY2wYBIdqANlDlq843BUlYWvOGNYdWKhSQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794355520;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
+	 X-Cookie;
+	bh=PXbYI6MlYY1muC/lFaSpTeRJoJh9HX4zq5mEJ+4vdSs=;
+	b=YynS3vxsVRzw3wpf5TmcQcvN3MSlcpVfbCqCBNUb0QoGPTcy6ykMIwtXXQdJanaoVZlD
+	 e3acl8XG9QelxEKS1nUZ2VQcmw+QApRmBWWhgJ1Pd60C5iPDXsDkeIghHoMUGC3AsmCut
+	 ouOTx6Tva5wY9g85Iqv/557tkX1c6aPIiXMucIDshhHjQZVVEewu8xcrpILrzBm/zYa7G
+	 Lpg6/tBl7r8ejVC6N/QuQfxWfbZq4hWKJVBaMy/o/evmcBw0nQL91payMylYu1o8Op3bX
+	 q4H69iGfuZz6O5Bzq5KNDZEgG5oUf/mTlYCWLr1dS85XxyTR+Gu/pBAhcfg68NSsLOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=fail header.from=andrewgigena.dev;
-	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=74.125.224.44
-Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bs2LSUIY;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 734EB606A321
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 23:56:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 734EB606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=andrewgigena.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-67c08c7adadso2183938d50.0
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 15:56:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794354980; x=1794959780;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=TbgkfmRSlQR0RSZaLLsWqAT5L9ZTG2kkyMrzBfuV6Vk=;
-        b=DvMT1lhYtHhIS0Qhx3bXlBswYbB1+IGQndW7kZmoWhwFhKowhl0gmbRR36dTSm63/3
-         ftBlx20C9ZlxWozNCs0XcxKLe9ceIar2TBmR7RDp1xFJiqKyBkEqtpSXRKOKF7y1Sv3/
-         1nD/AEAnpPli/NWTXV9aN7M/9vtQXk0cNnyb/b7rIAJ4TQhL3Lp6RxYqdrrIo6ktRaGw
-         X5ugD6r6fLNJHpXj1qYTsmqRnzAJ/eRlmhZYKAQuaie/zzvYw4c+qjzrdFuS/T9sCJn6
-         WUSV9VfHUt+sFZ4ge8RlVYA0HMKsWPpm/YPccEml1tiZuZ7qITzCgL+eqqhTzVr1MZ10
-         zkuQ==
-X-Forwarded-Encrypted: i=1; AL+hErGlk6wg1GCNJokx3Rifz3KvTDzPVQbQa/+9P+39V8RlZmoXnzQ4bRqJk4Qd07yeYtm5yzn6+M9/KMc=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8ZrPxCeUFvDVzgMzQKUl1sb3RNcoCuD5xEdg1IHICr2CcHtkJk
-	5kCfB3SEEkOoOrQqYuzUc+NMBIszzThhUyxckKSazdDiklr3nBs0ZMgy
-X-Gm-Gg: AYBFou3OvspeB7CukeEJjDbo5hNEu9gQob/XlD+JOdH1KXqO9Q7eclLgehLbZDYRa74
-	VPk5hbAnWs5xLblMGKAbpO+NYickRiu3GOs+4eMaLm8nxhjxRl5m3MMv0fs6IcpOTYbZFxBcF7b
-	gM6WSOx8ieO5RVUdtK+c31yqPp6CC/EuquFNYuJaYnvJTDX2EWHjWtsXjS1dWqyrDVNnqS41vMZ
-	/2JHdOJKT9wrfGCwExdamzDV4cjj7u/hzzQvJGlSW+iNwnAN+it7AakoSr0gl1Lgf8L+VIUHA7f
-	ipavY5QZXUg+fasl9ZVeqLE99Tf4xI1EgGUkXxmzNmNnYAmgUBqqLAMvNRLwHjEEZb8sdNhNpny
-	bikVnHh5SXj+zs40vV2dYLOvNzpEMkVhHSHIJj72zS50k/MSP67y9M2mboTVwdTbOiI0xAaXHCK
-	jFEeiTqoaM2/L0mD4zWXXIKH7Y+vNnFc9lwlhu+loskJICSijgx0d6lU0Njk8t7IALRjNRYWzQa
-	Hnpm//5AxO0ystK7mrwyTPjoxlUicBfS81efML4TmeP4k8BY1BP0a+9UXTOgoSUowMr8rOIgivF
-	QcOBRl/+FYpfzNczFoKUjeT1M6OKwH7UkI3wgHVnk2HdBXssqYb+8EOcio5go0G/8NMjGZoF
-X-Received: by 2002:a53:ec04:0:b0:679:4176:47e4 with SMTP id 956f58d0204a3-67c6811a961mr389098d50.99.1794354980450;
-        Tue, 10 Nov 2026 15:56:20 -0800 (PST)
-Received: from ?IPV6:2800:a4:806:ef00:2f77:7097:372d:6d14? ([2800:a4:806:ef00:2f77:7097:372d:6d14])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-67c58a294ffsm3158931d50.23.2026.11.10.15.56.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Nov 2026 15:56:19 -0800 (PST)
-Message-ID: <fb65a7d2-5656-4659-bd96-17fc5bea2b84@andrewgigena.dev>
-Date: Tue, 10 Nov 2026 23:56:13 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B7B6606A320;
+	Wed, 11 Nov 2026 00:05:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bs2LSUIY
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8BA91F0089F;
+	Wed, 11 Nov 2026 00:05:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794355520;
+	bh=PXbYI6MlYY1muC/lFaSpTeRJoJh9HX4zq5mEJ+4vdSs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Bs2LSUIYrnXDBy9KP6A4Ah9OjiB02FXR/mBGUrgswdaCiBPzxDgk16VX6a8VvQrw8
+	 uVA3Dg2d4qFRredHPlwU+JkX8+ETCvSmDkcad0HYvTOjvvlYvQlpUpwjWnwydWQYv9
+	 /sNuJCBv3IsA2OLb1LJM1YZxZxpA9eaFFD3aPpOAAh5PPzF+RdYlmSYAs7fjuauFro
+	 Lr0WzGAD6CtLn/P8hXSw8grj9gnYYwy4XI4dYnjMPtdjQvXrDU5ApdKpUfZNWqD1wc
+	 DAgaPnWb5rnt2PyYIqrotNHBNglpURgMWlYSmMx+JktSNtrJwxJg8sBPlTJQIGmBts
+	 SXChEA79+C/nQ==
+Date: Wed, 11 Nov 2026 00:05:15 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Aniket Limaye <a-limaye@ti.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	lianfeng.ouyang@starfivetech.com, s-jain1@ti.com,
+	andriy.shevchenko@linux.intel.com
+Subject: Re: [PATCH v5 1/2] dt-bindings: i2c: Add Synopsys DWC_i2c controller
+Message-ID: <fc1fe51e-952c-4c8f-8dc1-fb832b03943b@sirena.org.uk>
+References: <20261111-tda54-upstream-i2c-v5-0-280a4a779b24@ti.com>
+ <20261111-tda54-upstream-i2c-v5-1-280a4a779b24@ti.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -75,65 +63,45 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 6/7] phy: qcom-mipi-csi2: Add SM8150 CSI2 DPHY support
-To: Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
- Bryan O'Donoghue <bod@kernel.org>,
- Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
- <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>,
- Neil Armstrong <neil.armstrong@linaro.org>,
- Manivannan Sadhasivam <mani@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-media@vger.kernel.org, linux-phy@lists.infradead.org
-References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
- <C4VI5PNThYmwD0VGOO9DvvHRRydBUz2k5DOLjkianYgYaz4G3-El6cDpnQh2siR4mMwjeiL4_Yp2xEAYeJDJ2Q==@protonmail.internalid>
- <20261106-sm8150-v7.4-rc1-camss-v3-6-0103e8a0bbcd@andrewgigena.dev>
- <88407f72-0c6e-4e46-b97b-7031c237dac7@kernel.org>
- <83c6281f-1887-4481-8c63-957b4bc856b9@linaro.org>
-Content-Language: en-US
-From: Andrew Gigena <mail@andrewgigena.dev>
-In-Reply-To: <83c6281f-1887-4481-8c63-957b4bc856b9@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ZnJIa65ka55OZZWa"
+Content-Disposition: inline
+In-Reply-To: <20261111-tda54-upstream-i2c-v5-1-280a4a779b24@ti.com>
+X-Cookie: You can't take damsel here now.
 
-Hi Bryan,
 
-> What you could do to unblock your series and not have a dependency on
-> another series is cherry-pick the necessary patch.
->
-> https://patchwork.linuxtv.org/project/linux-media/patch/20261102213936.1251316-1-anusha.nandi@oss.qualcomm.com/
+--ZnJIa65ka55OZZWa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I took Anusha's approach and dropped the dev_pm_domain_detach() hack.
-Single power-domain SoCs now use dev_pm_domain_attach(dev, 0) and the
-loops check for a NULL pd_list. I folded it into the PHY patch with
-Co-developed-by and Signed-off-by for Anusha, so the series has no
-dependency on another series.
+On Wed, Nov 11, 2026 at 02:05:48AM +0530, Aniket Limaye wrote:
+> Add documentation for the Synopsys Advanced I2C (DWC_i2c) controller, as
+> found on the TI TDA54 SoC.
 
-On your other points:
+> The block cannot work on its own and needs SoC integration, e.g. the
+> FIFO depths are not discoverable from the IP. Do not add a generic
+> compatible and only list SoC specific compatibles. The file is named
+> after the IP so that other SoCs integrating it can be added here.
 
-> Is there really no AHB clock to be listed here ? Seems again suspect.
+I still think we should have a fallback compatible here, while we can't
+discover the FIFO depths all the uses have a programmed trigger and we
+know the minimum depth configurable in the IP so we can fall back to
+using that.  This would be useful for distro kernels, it's one less
+thing that forces using a kernel with specific SoC support.
 
-There is no separate AHB clock. The "core" clock is cam_cc_csiphyN_clk,
-whose parent is cam_cc_cphy_rx_clk_src at 400 MHz, and the second clock
-is the CSI PHY timer.
+--ZnJIa65ka55OZZWa
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> These are not the correct names
+-----BEGIN PGP SIGNATURE-----
 
-Renamed to vdda-0p9 and vdda-1p2 in the binding, the driver and the DTS.
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmrzsToACgkQJNaLcl1U
+h9COIAf+PDpfdHMLK/48qHqQU+3Uph29XftpKx+e+RAJX6N7kFljP/OaWHcG5TgS
+OzbkC29wWBFpbWCJYh4UvmlMMApF+gfshoSQFgM6HSOfJ5amTqy/71zo/a/uEKnT
+7nrzss1UBT/44UPuyfC1whhMqU1RQ/SQB+bhiDFFtzdzE80LIC1IENT5c3jPu3DM
+3Y+Rpdkn/uxGV/TxdoAZe9mnkCzzodUd+dYIoU5Q4ayXMqISgPCg0pTX+0DHpFCY
+jHpxG+6RAJDCdlH4+IHiozfWXr2KklhBYK4PEPAKoqPcYF8sFH+GiSiANblNqDs1
+3dmQO+rtr6kXHEfRIb6ChoTa9+Q5Hg==
+=ghwo
+-----END PGP SIGNATURE-----
 
-> But why ?
-
-The SM8150 timer RCG only has 19.2 MHz and 300 MHz. link_freq / 4 rounds
-down to 19.2 MHz and the settle count comes out zero, so the rate is
-pinned to 300 MHz through timer_rate_hz.
-
-Best regards,
-Andrew
+--ZnJIa65ka55OZZWa--
