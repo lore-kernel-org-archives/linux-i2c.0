@@ -1,88 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794394130;
-	b=mMCpF87O3b4UHjsUh8JPZFYl8/+YS+vXz3mAUfj8IeQO80o8eNKn4nmRsEEKnT5EJuEe
-	 BF5DVrsPjBdWqzrGF41RfbjLcVdSZetP1tk3w1Ps/3e1ZUuzvn3GpOigOBGjwXkNKxL5L
-	 LkNi8p3lDoWdJ4Z81BYyiIY28GMMbyBIM/xq49Ip+4GiEgyhg55ODJYanZJYf6cfL313O
-	 7KUPtdmjT/02yBy7gvLoKrJm/kc/lhnwChk+RcHjv7KN6c+/qBoS5UcFl9dKLIrAQfMLF
-	 aorFrRjKYTyeRYQVFDmxdDaJ2U/cDU4grpyFyf2eywpYKeAqrNJbtPua6ldW3Yn88eQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794394130;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.51
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794395152;
+	b=xcIV9yow/5RKox4Qt3MP1vAm27l8SP8G9m1bX+oHf00FfYyljDWRbbXsq25NFpJFQdh1
+	 Axq5lzZo2thppYhvTjKA579d1EvhJJgORP+Ap03/fxQy0hFVXvlcIZXoXbRrczA6SK1zV
+	 45wL6zoWq72SAFYhhRNLyBIpwvCQx2R56/nJ7buVFYqAeKwZu7AzrxHVHE9wj38pAfvrn
+	 sXACDmuy7Ei2ztZWevWD7HN5xiCh6rqbCFplbkE9AHXgemEp+RHTDciP77PguO/tLJJHv
+	 ZMfAHOzJ89dPW6XSWI4Tq1dy23ywkr+drkpLN/ejZY3bvVucJvZClxIbsW5Nhqfppww==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794395152;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:
-	 Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=SJE8c/dZm+CWhQbZBqBGTdaX2jwL8ZWmvduRU6X8Ew0=;
-	b=vFCOZ4xKqPkTjIES1oGe6fgI78hBI7T9rMP2vT5xdyGlLAywL/VghlWaKJ4ux8nOi8ma
-	 sVcc41507K074pHy2IES6IW0LIQwbQiMxpjW41QKAMrf/gurLceEkv6c9Xvyx656KfC+r
-	 IJVcJx34XoHHPcKpruI+is9aLtmTkHGK+JVI3Vwqes6uABoUM4DA23yQWcEHwXUFQZXkf
-	 PMLbonrOVOsVMTgj9jIV9JLFfUEJwYUPQySc+2hIOwizQLxepKHCfqci2OsMiBHFzQAUI
-	 DI1jH8j1fnroZkULdWcR3WLsHORhyFMx/zyRWMOg0e8SZNfy+LeScmn4vgKQL6b0sLw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=suse.com;
-	spf=pass smtp.mailfrom=suse.com;
-	dkim=pass header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=GBKkvpuR;
-	arc=none smtp.remote-ip=209.85.128.54
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Content-Type;
+	bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
+	b=ZzDqUqDc4f+EjUczNE/dWWGpTybi8pxM0GND5Qou8NH7+uQfsV7NtjZHEChInyNhSwK1
+	 bSASIR+wCRfj+7qq5JTnj6fAdvbrrp7yl92eTYBtef2hF9c1GOPVljUX5CMa1kxot1z9h
+	 BI0alWasnHDU5cw8gTgAG5Pws/CNbBnAOJ3o/tsoJs1Ukv/dc0c+ucT9aUhvDGJJuukv4
+	 uf7tSbd+9JSN/5vMzZAtQMSeLcyepggQ4uH1NvnCFxUT0k+fvjEhVsuE5I6VGFqYcOHcT
+	 +g2l/wmtalkNMsw2n/nOmEsvPpMnz6v5pOTpWfcR7UoMTgD/taQ9FuVIzTbkh9GhXKg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S9Oe343o;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.51
+Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7804606A32D
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 10:48:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A7804606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5DAD606A32A
+	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 11:05:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D5DAD606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=GBKkvpuR
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a2072b9832so17556515e9.1
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 02:48:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S9Oe343o
+Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-6b7221c0f2cso2498526a12.3
+        for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 03:05:51 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794395150; cv=none;
+        d=google.com; s=arc-20260327;
+        b=foytgrGE9B31l7elOjm5ZiDlqVrRz8EW1HCLTqpzS/d5OXurmP9bs+j4hWwbS9I3HS
+         eFmEKPWHrRvCOngicxzdV1S7f/PQ1IDpH/YWKmeD6B1jUh774z/zWFwi9TT8PkVpOt69
+         V8e96YZsfb0R+M7qxk5Mtdm+BGA5zbf/rK3VXrb1+RlxWzGqKNC+WOAuh2BGjAFv0ggM
+         tZ5n0U/94j9OiuAxMm4Vso3aVpuZ7vHimwdGugyJ4AdMjN8Iw1BVSkoiWGUQEEiq415h
+         CaXmBPOYSqGLT7KfhkAmAs4L46sgLbz/ei7ErDdM1RGYdga08T1PUkwuAv3/AhVXMZ28
+         QAGA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :dkim-signature;
+        bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
+        fh=aiVd9UAjELys0e0vdxXUxkWvkAgz80yftBD/rAyUgB8=;
+        b=TJ85bt4/hZ8P4I3wELt1+1yMufIab5BEHnGgJJ4hZpZGDWKZ+0ueecuZm5LCmxJSQ2
+         r8dyfxnZ0r3GHwTxTKKu/7znASGEZ/+e+qWRC1bIyNn761SCcLYi+Lud1qkRwuKLnrgZ
+         1LBQ/iRFYsg/jJZnDoiVFIVmUIpp6yZFIZ4wGwz71Uzr6/vcJy9D7SAhD4fc5gzp339/
+         91ZfIrokR3zArET5P5ehCxZtSoupoB5xa99eG6ZD+PaCutzt9Dai60RAnw+K/ZO4ixqt
+         cKGidPDszm0m7UFbLg3nm7NaHQkhMyfU9k1Zww8n0Ml17NzunOM/Uy6oKowpH/NGZzS/
+         BCUA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1794394128; x=1794998928; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20260707; t=1794395150; x=1794999950; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=SJE8c/dZm+CWhQbZBqBGTdaX2jwL8ZWmvduRU6X8Ew0=;
-        b=GBKkvpuR5r+JH+yFSCx2MRbxX6k1mn+PDhE0+d7qG4hyFMh2NoIazPozMTmQIzj+JD
-         9V8o/DugtUDYfrwFdXFHHxGzNFBYTu7e76oRigVpHZa80NBx+zbfSyUnBxDqxg3KoAOA
-         I2K6lq0c9BVy7Cbjw4IwNKTP+XHg7DTaHTxQbG5Nh6/cbrNOti3bTUOFGssN6RfM71le
-         ijhIsPf9Un9wqeCXlb5W6zgWPLYabiBOKuih/2tp/XV9plgnBLPIiy+2ydMVk2wWH3eO
-         jqtcIRFucEU87Lf0iApwLllYGg7Jt9b4puTC3EpxpXWCSs10ncEoku0H26XlqImr5k37
-         xJ9A==
+        bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
+        b=S9Oe343oExiTS2KfqhZKo8v9uzSzroybxuYjiW8R/Epw+w2UBG78inWqMxbr9l/twP
+         IDfc5RiZTs0v3oNc30kUYhmeFjo6joVPSdzWo9eDD2E56eKpbXMMggSFIt4pw/Xsh7Mp
+         jg0IQcZK/HSW3c4+/RwSwMF5/WeoGpyQ711u4rm/d46EmrPOT3AVokqdONUfWCXM7cW1
+         q+rx2pezIcC36mdu99xLYU03oreM5hPxRRJ/YkBoL8BKnLgshzid8AdfzXlBPvQ3sQVj
+         k0oTp68pmXdeJAwHt69hJ7KCvAKvvDtOy7E5283OJ7zKW4mHzxvEmTgAq4sQOs1gi8jI
+         HkVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794394128; x=1794998928;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1794395150; x=1794999950;
+        h=content-type:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=SJE8c/dZm+CWhQbZBqBGTdaX2jwL8ZWmvduRU6X8Ew0=;
-        b=TCFew8/KvxC8kqB2BZ124Yp8fnDC/tKvrjxj8aaFi8tMdG5FQXt3nnN6/tCUWf0Ya3
-         hdKtldXzlcHX8Mu5J4UeNjP08b2sih51V6cJp02+PTcJCKO0Q/sssYn2PTekC7FiQhjx
-         oiUBFVJJDhrFgCtQSS3TJq9+pbw1q21va+d+YPME5UdyNlSkXQ/umXHW+hQsWM+NCua5
-         8dbGYD3jgeg9CslhV8oRsXw+ECL2wMjGH9Ff5WU5FLGc5c2RgqkEwdJec3KKuYyXB4p7
-         LOXDsQL7xfuePL8G4QMhNaFhVcrarBuRDS0BlHRh0Ckdv42auWAgRv/McJ81XPrrfVof
-         egMg==
-X-Forwarded-Encrypted: i=1; AL+hErEawn9ARCjsJDkz9frcv59M6dJuc7qKpazzBgo+Sn9aC1LmFW+ICRDTSfLH9eYn01F5fu7/YzX8FZc=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/xO/yTRP/M0AFVNEOeoElr+jtdpeTNPYUqhg6SNfkIqkX5krQ3
-	HNpHVzt/NOfPeZeYeNK6xxM7HGcCDju+6VzhPZ1477GeoyqtnGeY7lFWbu8gHfBAejY=
-X-Gm-Gg: AYBFou2EiV93wixY/2o1ISGwwULXrQ6+t1zbGhXDkyi6xySLjwjIq0YOj6IlcQJXMuZ
-	OnD6WcvVNSDK3SxgdTg5vBWs+uxWYF4GB3NVFC5QbHkga4z0rce6umNFN3SzLVJv+e1Gte2um5G
-	U/7eNps7E0e4bsCaIXp298/T5eM1GQEoNouKCK9kWCTJQIDKoQab1BPabkDjvthme4EUV6/Jspt
-	TvL9FNel2d1amiWlLsNvpyfQ2CXUoKTZXPayYYvdEXlsCodm7ir8J1CPfHDOniMljBUtxt0Dwv4
-	8MQ2Z6MTxdvoVlaBNz0DmU7lenHFp9re7F/Seto7ftW8qycS5uOJDaLmaVVoDkvb+ZXIsuIiave
-	FoLPP6WQJOeNo8HvbFHCe7X+f1L2iMHMyxInMs9n9tgW4c/v6kN0n3bcm3MD2f7rezcdydFmRgt
-	lPgBk/+942h4pghimhyNj6mcKJmrjoEmv+WOAo648Sbk52vR6a664SZVkwiAqL2urSAIVA/d+Yn
-	sWl4CE7SMuw3LcttUvuAj611tTee1LtBgn3r1Z2oaWfq36Deyb6tKpZrsW54H1rJB9Jadqhakf6
-	Pk3tC/S676BQQAi3hxZOoo1RBM4sUtWRqIVBuWkNYCCy4Wj/6Krr04gHfrodZ14JFg==
-X-Received: by 2002:a05:600c:1f93:b0:4a0:20b4:ba93 with SMTP id 5b1f17b1804b1-4ba0938124fmr41926975e9.16.1794394127955;
-        Wed, 11 Nov 2026 02:48:47 -0800 (PST)
-Received: from ?IPV6:2a07:de40:8100:0:89a9:fd0e:583d:4a53? ([2001:af0:8000:1409:193:86:92:181])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4ba0951fe22sm54693255e9.3.2026.11.11.02.48.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Nov 2026 02:48:47 -0800 (PST)
-Message-ID: <2e392c2b-3fde-42fd-82e0-8130d2de48d2@suse.com>
-Date: Wed, 11 Nov 2026 11:48:45 +0100
+        bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
+        b=aLOutHZeIlA2HsHMSZZZb9i1aPvs16a/Q/oRaDGJrpJ5z154ovyG43XyWis/gMLhc6
+         aNCvob8xauzPkVd8Dc9EUMyiZfQGVdbO91rTwoBtcwyWFZnMYZBU7wuewtm6fJYGGDga
+         PxHCEEaRUVTMp2XOLtOHvUREwP4UySzz8YDI/sdEfeabDsaHWqPvz5wZEwNBJGR08MCH
+         KQT6u7gOfjTmJbCGosPsKtpfjX2aEQjBFdufcG3yj+v/wxTMjM1sNhP0ldl5pi6H8/Ad
+         ECtnTz6l/8DXJ3uxSLUnqA20MCNh7UiW1PZ9bx5QeSZVR8N7asH3X/QOp9x6s4iM1GLg
+         Kf3w==
+X-Forwarded-Encrypted: i=1; AL+hErFUA/5LRewDrGHiQUGTm+8er3ItdQjf7Ln3dGZPA5DfEr0nbytjHCbU4FCUvxSbm4v0/avC+Zjsl9M=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+u/gyLPsME0mk40gBFyWfQFj7wozOjEEaa+HUfV2oXkWVX1ZkV
+	jrRsXboiBdMZ41NxE0Go2TvjqrXec7wFgek1CTiHXdS+UR6UE6c6SBoRePMTU+q6YcYZ0BgUAzN
+	7rooo1gg62R2qCCEuRZ7Am7nxdAX4CZBVFDTM
+X-Gm-Gg: AYBFou0uXp9WAc09QCCtLcv4KERoygdGTcKlG1u8j5SOiDXen79FfOlW3RGdGaA9cb0
+	86eiAVGosq12mPIDNsJDepQayJZB6PqxZA86rKUQyt8YItpVfK27rmdxcJhbC/AeNUb8XoUpOMO
+	XH+kTxnr/WjPiRyxUNmN3yk0fe+NRNyhSsizmZM4DfKoip3CRKsMYVhvn/PfK+qwgAwEw1JxBCw
+	mloAp05zmb2T8QNV3S+kLpV+M0zXjZWE/sG6TCrEHHcU1HgJ745miQ9pZTIng8N24DC9kCenD/G
+	9jMEPloFMp4xpjcm3jSjfVsE+N/T9C2fqny5nQg3e347ZxaiWZh5swo7R4L6GQY4KWBs0G6ZmWz
+	XQIcWseA3GQQnWjT1tj/nUeuwPD1yItytcAc=
+X-Received: by 2002:aa7:cd5b:0:b0:6b4:87b8:1348 with SMTP id
+ 4fb4d7f45d1cf-6b77780f23fmr1150131a12.27.1794395149944; Wed, 11 Nov 2026
+ 03:05:49 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -92,77 +103,193 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/3] Remove obsolete __MODULE_STRING()
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>,
- H Hartley Sweeten <hsweeten@visionengravers.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Rudolf Marek <r.marek@assembler.cz>, Andi Shyti <andi.shyti@kernel.org>,
- Chris Snook <chris.snook@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Andreas Noever <andreas.noever@gmail.com>,
- Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat
- <YehezkelShB@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>,
- Chas Williams <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
- Aaron Tomlin <atomlin@atomlin.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
- netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
- linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
- <2e88806e-57dd-47e0-a9ef-a8507d22aa3e@suse.com>
- <a190f981-d668-4208-8148-f4e50adb31a6@suse.com>
- <6c00fc009f4e61e87895eb2dd3d77c5dfb28183d@intel.com>
-Content-Language: en-US
-From: Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <6c00fc009f4e61e87895eb2dd3d77c5dfb28183d@intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20261110061429.2036-1-linux.amoon@gmail.com> <20261110061429.2036-2-linux.amoon@gmail.com>
+ <avOL1mCkI4YSaDeO@aurel32.net> <DMRZGMGRLD4S.KT6VEU28902E@linux.spacemit.com> <avQ1kVTvdCmS1MxN@aurel32.net>
+In-Reply-To: <avQ1kVTvdCmS1MxN@aurel32.net>
+From: Anand Moon <linux.amoon@gmail.com>
+Date: Wed, 11 Nov 2026 16:35:27 +0530
+X-Gm-Features: AclHuK9H8LcNFBf6OiW50_NDYDV5SRfOSw_9EFpDafFKu57Cw77PmBIsH4iiL2Y
+Message-ID: <CANAwSgQgtEvgEfkBMC6meDzT4O28oEX-R16STeiUnP77UOQe_Q@mail.gmail.com>
+Subject: Re: [PATCH v1 2/2] power: reset: spacemit-p1: Use atomic I2C
+ transfers for power-off and restart
+To: Troy Mitchell <troy.mitchell@linux.spacemit.com>, Anand Moon <linux.amoon@gmail.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Sebastian Reichel <sre@kernel.org>, Yixun Lan <dlan@kernel.org>, 
+	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
+	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>, 
+	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>, 
+	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
+Content-Type: text/plain; charset="UTF-8"
 
-On 11/9/26 7:07 PM, Jani Nikula wrote:
-> On Mon, 09 Nov 2026, Petr Pavlu <petr.pavlu@suse.com> wrote:
->> On 10/14/26 11:36 AM, Petr Pavlu wrote:
->>> On 10/2/26 10:31 AM, Petr Pavlu wrote:
->>>> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
->>>> MODULE_PARM support for older modules" [1] in 2002-12. That change also
->>>> moved it to the graveyard section at the end of linux/module.h
->>>>
->>>> Replace the remaining uses of __MODULE_STRING() with __stringify() and
->>>> remove the macro.
->>>>
->>>> Apologies for the wide distribution. Acked-bys are appreciated.
->>>>
->>>> [1] https://git.kernel.org/tglx/history/c/136839a1b4
->>>
->>> I've queued the second patch ("drivers: Replace __MODULE_STRING() with
->>> __stringify()") on modules-next for v7.4-rc1. Thanks for the Acked-byes
->>> and reviews.
->>>
->>> The first patch ("hwmon: Replace __MODULE_STRING() with __stringify()")
->>> should go through the hwmon tree. Once these changes are in mainline,
->>> I plan to pick up the final patch ("module: Remove obsolete
->>> __MODULE_STRING()").
->>
->> v7.4-rc1 no longer contains any __MODULE_STRING() calls, so I've queued
->> the final removal in patch 3 on modules-next for 7.5-rc1.
-> 
-> Perhaps send it for v7.4-rc3 to prevent *new* __MODULE_STRING() users
-> from cropping up between now and v7.5-rc1?
-If I need to send an earlier pull request for the module loader, I'll
-include this patch as well.
+Hi Troy. Aurelien,
 
--- Petr
+Thanks for your review comments.
+
+On Wed, 11 Nov 2026 at 14:59, Aurelien Jarno <aurelien@aurel32.net> wrote:
+>
+> Hi Troy,
+>
+> On 2026-11-11 01:16, Troy Mitchell wrote:
+> > Hi Aurelien,
+> >
+> > On Tue Nov 10, 2026 at 9:25 PM GMT, Aurelien Jarno wrote:
+> > > Hi Anand,
+> > >
+> > > On 2026-11-10 11:44, Anand Moon wrote:
+> > >> The SpacemiT P1 power-off and restart handlers use regmap_set_bits()
+> > >> to access the PMIC. However, these handlers run in an atomic notifier
+> > >> context (specifically within an rcu_read_lock() critical section), while
+> > >> the I2C-backed regmap uses a sleepable mutex.
+> > >>
+> > >> This triggers a "WARNING: suspicious RCU usage" warning due to an illegal
+> > >> context switch in the RCU read-side critical section during shutdown on the
+> > >> Banana Pi BPI-F3:
+> > >>
+> > >> [  563.803475] WARNING: suspicious RCU usage
+> > >> [  563.807813] 7.3.1-ARCH-RISC-V #1 Not tainted
+> > >> [  563.816614] ./include/linux/rcupdate.h:387 Illegal context switch in RCU read-side critical section!
+> > >> ...
+> > >> [  563.841445] locks held by shutdown/1: 2, last CPU#0:
+> > >> [  563.846694]  #0: ffffffff8404fb20 (system_transition_mutex){+.+.}-{4:4}, at: __do_sys_reboot+0x230/0x29e
+> > >> [  563.856806]  #1: ffffffff84167860 (rcu_read_lock){....}-{1:3}, at: atomic_notifier_call_chain+0x4a/0x1c2
+> > >>
+> > >> Replace the regmap operations with atomic I2C transfers to avoid sleeping
+> > >> in an atomic context. Preserve unrelated register bits through
+> > >> read-modify-write operations and check for atomic I2C support before
+> > >> registering the handlers.
+> > >>
+> > >> Obtain the I2C client from the parent device and verify that the adapter
+> > >> supports atomic transfers before registering the handlers.
+> > >>
+> > >> Tested on the Banana Pi BPI-F3 (SpacemiT K1).
+> > >
+> > > While the patch looks correct, I am not sure this is the correct
+> > > approach, as opposed to the one proposed by Troy [1].
+> > >
+> > > Indeed bypassing regmap and using i2c atomic transfers needs to be done
+> > > by all affected drivers. For instance the VisionFive 2 board, which use
+> > > an axp15060 PMIC is also affected by this issue. And the corresponding
+> > > driver is shared between architectures, which make this kind of change
+> > > more difficult.
+> > >
+> > > For the BPI-F3, note that with OpenSBI 1.9, the reboot is handled
+> > > through the SBI SRST extension, preventing this issue to happen. On the
+> > > long term, I am not sure we should keep this driver.
+> > >
+> > That only covers restart. The SBI restart handler is registered at
+> > priority 192 and runs before the P1 one at SYS_OFF_PRIO_DEFAULT. Power
+> > off is the other way around: sbi_srst_power_off() goes through
+> > register_platform_power_off(), i.e. SYS_OFF_PRIO_PLATFORM, so the P1
+> > power-off handler still runs first and still hits this on shutdown,
+> > even with OpenSBI 1.9.
+> >
+
+I had previously tested the OpenSBI P1 PMIC driver in a Yocto-based environment:
+
+[1] https://lore.kernel.org/all/20260419150857.2705843-3-aurelien@aurel32.net/
+
+With this driver registered in OpenSBI, Linux can delegate reboot and power-off
+operations to firmware through the SBI SRST extension.
+
+The power-off sequence is:
+    Linux kernel_power_off()
+      -> RISC-V machine power-off
+      -> SBI SRST shutdown
+      -> OpenSBI system_reset()
+      -> SpacemiT P1 PMIC
+      -> Power off
+
+I have now rebuilt the Linux kernel with:
+
+ # CONFIG_POWER_RESET_SPACEMIT_P1 is not set
+
+Both reboot and power-off work correctly on the Banana Pi BPI-F3,
+and I have not observed any issues.
+
+alarm@k1:~$ sudo poweroff
+
+Broadcast message from root@k1 on pts/1 (Wed 2026-11-11 10:34:03 UTC):
+
+The system will power off now!
+
+[ 1744.735287] systemd-shutdown[1]: Sending SIGTERM to remaining processes...
+[ 1745.071304] systemd-journald[245]: Received SIGTERM from PID 1
+(systemd-shutdow).
+[ 1745.504595] systemd-shutdown[1]: Sending SIGKILL to remaining processes...
+[ 1745.790159] systemd-shutdown[1]: Unmounting file systems.
+[ 1745.822902] (sd-umount)[658]: Unmounting
+'/run/credentials/systemd-journald.service'.
+[ 1745.861214] (sd-remount)[659]: Remounting '/' read-only with options ''.
+[ 1746.079291] EXT4-fs (mmcblk1p7): re-mounted
+ccb95ca0-2804-4ade-938f-23116f90c193 ro.
+[ 1746.272104] systemd-shutdown[1]: All filesystems unmounted.
+[ 1746.272471] systemd-shutdown[1]: Deactivating swaps.
+[ 1746.273712] systemd-shutdown[1]: All swaps deactivated.
+[ 1746.273956] systemd-shutdown[1]: Detaching loop devices.
+[ 1746.464867] systemd-shutdown[1]: All loop devices detached.
+[ 1746.465346] systemd-shutdown[1]: Stopping MD devices.
+[ 1746.471149] systemd-shutdown[1]: All MD devices stopped.
+[ 1746.471417] systemd-shutdown[1]: Detaching DM devices.
+[ 1746.476047] systemd-shutdown[1]: All DM devices detached.
+[ 1746.476377] systemd-shutdown[1]: All filesystems, swaps, loop
+devices, MD devices and DM devices detached.
+[ 1746.533569] systemd-shutdown[1]: Successfully changed into root pivot.
+[ 1746.533862] systemd-shutdown[1]: Entering exitrd...
+[ 1746.686127] shutdown[1]: Syncing filesystems and block devices.
+[ 1746.701832] shutdown[1]: Sending SIGTERM to remaining processes...
+[ 1746.934370] shutdown[1]: Sending SIGKILL to remaining processes...
+[ 1747.164219] shutdown[1]: Unmounting file systems.
+[ 1747.203935] (sd-umoun[662]: Unmounting '/run/credentials'.
+[ 1747.232643] (sd-umoun[663]: Unmounting '/oldroot/sys/kernel/config'.
+[ 1747.269882] (sd-umoun[664]: Unmounting '/oldroot/sys/kernel/tracing'.
+[ 1747.298218] (sd-umoun[665]: Unmounting '/oldroot/sys/kernel/debug'.
+[ 1747.327488] (sd-umoun[666]: Unmounting '/oldroot/dev/hugepages'.
+[ 1747.359053] (sd-umoun[667]: Unmounting '/oldroot/dev/mqueue'.
+[ 1747.387798] (sd-umoun[668]: Unmounting '/oldroot/run'.
+[ 1747.425939] (sd-umoun[669]: Unmounting '/oldroot/proc'.
+[ 1747.473927] (sd-umoun[670]: Unmounting '/oldroot/sys/fs/bpf'.
+[ 1747.527910] (sd-umoun[671]: Unmounting '/oldroot/sys/fs/pstore'.
+[ 1747.588367] (sd-umoun[672]: Unmounting '/oldroot/sys/fs/cgroup'.
+[ 1747.630489] (sd-umoun[673]: Unmounting '/oldroot/sys/kernel/security'.
+[ 1747.664244] (sd-umoun[674]: Unmounting '/oldroot/sys'.
+[ 1747.704716] (sd-umoun[675]: Unmounting '/oldroot/dev/pts'.
+[ 1747.755218] (sd-umoun[676]: Unmounting '/oldroot/dev/shm'.
+[ 1747.791652] (sd-umoun[677]: Unmounting '/oldroot/dev'.
+[ 1747.826501] (sd-umoun[678]: Unmounting '/oldroot'.
+[ 1748.451336] EXT4-fs (mmcblk1p7): unmounting filesystem
+ccb95ca0-2804-4ade-938f-23116f90c193.
+[ 1748.643359] shutdown[1]: All filesystems unmounted.
+[ 1748.643640] shutdown[1]: Deactivating swaps.
+[ 1748.644512] shutdown[1]: All swaps deactivated.
+[ 1748.644722] shutdown[1]: Detaching loop devices.
+[ 1748.732490] shutdown[1]: All loop devices detached.
+[ 1748.732764] shutdown[1]: Stopping MD devices.
+[ 1748.754002] shutdown[1]: All MD devices stopped.
+[ 1748.754286] shutdown[1]: Detaching DM devices.
+[ 1748.759617] shutdown[1]: All DM devices detached.
+[ 1748.759885] shutdown[1]: All filesystems, swaps, loop devices, MD
+devices and DM devices detached.
+[ 1748.770510] shutdown[1]: Syncing filesystems and block devices.
+[ 1748.791699] shutdown[1]: Powering off.
+[ 1749.009246] reboot: Power down
+
+Given that OpenSBI already handles both operations,
+I agree that the Linux P1 power-off and reset driver may no longer be necessary,
+at least on systems using firmware with the appropriate SBI SRST support.
+
+> > So until this driver goes away, BPI-F3 still needs the arch fix [1]
+> > for power-off.
+> >
+> > Link: https://lore.kernel.org/linux-riscv/20261104-v7-0-rc1-rv-dis-int-before-restart-v5-1-956ec09c900d@linux.dev/ [1]
+>
+> We also need a more global fix for the other boards like the VisionFive
+> 2, so definitely we need the above fix instead of patching the drivers.
+>
+Maybe we need an opensbi driver for VisionFive 2 dev boards; any thoughts
+> Aurelien
+>
+> --
+> Aurelien Jarno                          GPG: 4096R/1DDD8C9B
+> aurelien@aurel32.net                     http://aurel32.net
+
+Thanks
+-Anand
