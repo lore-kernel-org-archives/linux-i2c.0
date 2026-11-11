@@ -1,55 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.254.200.128
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794359863;
-	b=ORTXaZrdQPnAkkKiLQOP2CyJ7pcttFlrwm/OlA8iUvawWEaOhIyVKmuK1hOl6mPQD7FK
-	 Q5Z5GtAi3+2Fq/Od6sUYzE7PiFhlB1cuzOw4kCEQyaxjZ4Vox3jROBWqqbmAMbgl3OKAe
-	 ksQVup+vU1bes+5ZFJnahW/O0zpr1f9up4/6YHY//YbmfvyJ2qGREeptyhTKrnMtlJyqk
-	 ITcnsWQ2bt3sCHKVOUm9iMZLmoqFdVyaU7Tvs/hYXkjsgGc6/+HRZcKfcS0FjbsR1dYzD
-	 AGiGLsHlWTY2mN6WZoBN0DbamrtPr3hVStv1yw5RnV1xg9VeLBX8Eiwb87kwA3lAwPQ==
+	t=1794360444;
+	b=TjjaCjnSEbtf7z/K+bZrtOVh0/8rfjcylQ/DMSW8K2r3DQxD1NvacTrpurKo8YR6BFEY
+	 vF4mtGI9L9omW5RzsSyuXzhQXhvRk5gcPilp68X4Gj4g01yod62H9YW9Mp1bwd5I+fNi4
+	 UkFT2FQ+kesKguCHIgAN2sp6aHPdfdkTffvsNZ1+/QpNry2AJuNE2vAmiE5wHzYszZ4rt
+	 CPOs7B1OSw5/vJqlQjOjepWCmJSOSeyzGYWoZTA55H6Yzxwn4HLV+HY5hi7e4z1oT//PU
+	 stO9JzzRNiKAOLtKzGXtHHIqo/mZv+QluMUmurQoZ/VlaEat0dl+YxAm58z8tLBhUuw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794359863;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
-	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:Mime-Version:
-	 Content-Type:Date:Message-Id:Cc:Subject:From:To:X-Mailer:References:
-	 In-Reply-To:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:X-QQ-XMRINFO:
-	 X-QQ-RECHKSPAM;
-	bh=lM7X7fxngXPk+eDICso8sUtsp/OwQONHWclMf0C8lHc=;
-	b=tuRGHWWfbYSWDGHoGCyPJAfzNOcP9cPHlJeArLkJ02V9dkdlx1YJ9Zgyv1TRupdWw693
-	 VEm8bjEjVqWixKkzJycbJZ5t2VkNGR0q5pMkdv2uFxEWgz0qhvZAHNO59Br4Gueg/gDOJ
-	 cIeMiieWBx9D8o+ZBxSrPx/8YZlP4uOfjgYmJpKdRjndPLulJDSxocdUSWf5nSy5/Ads3
-	 kv3EfaZRlFHQfvKkUP5+TBMhGW8+muZnBvXw577JmXohlHSmnSSzcVUZPN9ZeEJ9mdKv6
-	 TuO3LTNDu8YD9hOxWQJ5eEqPRb93BDednACb4YwXLP5n5KcvixZDbqBQDwVKAmFkHuw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794360444;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
+	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=BLSB0jc+PDfoGDhBATE5rNyu65P6DKBdBa7UuDK+sb4=;
+	b=E8Vuuux6SUdB7w3Aj1ZtWGsWBFyhwl/ZUKW9jiTNO2ujbReb9GXHQLhtXKRcHSDMgkZD
+	 v4I+qGpXK7P4dAqzc2HNxgFg5e3FuoLxu5EWVkuPRk9i0VskWPLyNCvS2b02pXM/Q2ocY
+	 eMis/KYZaI6bJtNRaejhh9NyB4WMLDm+jF/yBA1D2HyhdghwhH6s5QF6c74VBUDzZ/rC7
+	 js1uvWRbEUqh3TlGrXic8ApscM/KaJF+FwdI7Pj1DQsyKszCL8t6IRCccY3JMVE/i8+D6
+	 +Wsl5naWPoHMmo2ec001R7DNSvVtfJ6ZS9c1Yj2o7vGaSpVT2GZglcbovz5/IUort9g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux.spacemit.com;
-	spf=none smtp.mailfrom=linux.spacemit.com;
-	dkim=pass header.d=linux.spacemit.com header.i=@linux.spacemit.com header.a=rsa-sha256 header.s=mxsw2412 header.b="Vt/70HQd";
-	arc=none smtp.remote-ip=54.254.200.128
-Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=fail header.from=andrewgigena.dev;
+	spf=pass smtp.mailfrom=gmail.com;
+	arc=none smtp.remote-ip=74.125.82.182
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35164606A31C;
-	Wed, 11 Nov 2026 01:17:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 35164606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.a=rsa-sha256 header.s=mxsw2412 header.b=Vt/70HQd
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1794359806;
-	bh=lM7X7fxngXPk+eDICso8sUtsp/OwQONHWclMf0C8lHc=;
-	h=Mime-Version:Date:Message-Id:Subject:From:To;
-	b=Vt/70HQdVY+paZcPt1cDcawCd1TkEK6nCXrWfiD4DpmQISy/xcMds3zmrUv/CSBYr
-	 c3LKaCYBHBdUORt9eWfpbsTZq62h18ZFJS3hlVUbEo0Dz9jPKuU+vW8aKxdqzxxW9F
-	 UoHezvI3o2a/mt3HrM636+01tkk5jOnzbMiw1FQo=
-X-QQ-mid: esmtpgz14t1794359799teb8f1d41
-X-QQ-Originating-IP: +kWDJtfHflgoOFufqb5Vc65dmmJeFNZ5FXCZp5/CqWE=
-Received: from = ( [183.48.246.46])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Wed, 11 Nov 2026 09:16:37 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 16278285784164575929
-EX-QQ-RecipientCnt: 11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4C3D606A31C
+	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 01:27:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E4C3D606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=andrewgigena.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-36f6295304dso3518254eec.1
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 17:27:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794360443; x=1794965243;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=BLSB0jc+PDfoGDhBATE5rNyu65P6DKBdBa7UuDK+sb4=;
+        b=1uXHA7/2obSPKJ3kcDIe5CURbgkNM830I/wywkLnTyaaEUmUvr04GeNTcVKkw3zoyh
+         b/uyhDvu6DIT0/Az/xqLIoiCZ4dXI44EpUli5LNrGBLJ2oaqOhqGHgpzEg7J8E+O8pm6
+         sO85QXr7zGM8nvW/nPls2svUROe+CnJ3MhfXQC/STqibHuvPGzUMUCU/z1sDTwxFZhdE
+         2ld4s6DADM+g79KyotIHc2HIoNoocfHurXSCk0xMQi+BxtExNL0zw7e9HOdK6YnnsleF
+         pJDCpppfu72muRAi300Or7FXAFYZ28nz0ec3ej0IShH/T+AhekQcCJhCtG+El7xdypzg
+         //iA==
+X-Forwarded-Encrypted: i=1; AL+hErFg5gGMojJICSdz3PSGFDYqu8yZOxjrI9WnjFNwSoIuU/cvMdobmKJ3TcDeKdYAfLWOgTTw3y0w+QI=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+qyTB8SbRzlgb6X/TYdvXNN/X4R3l6EUUehoV0GuZz3juFHyIl
+	46W1OeCXVaYZQQcgMXJv4QY2uxYuFPhhSYZdqRO+RH51fOSROD2qGJn6
+X-Gm-Gg: AYBFou31krLU0vFmSNm1PVkPCdSon41AEwvvi7cW8ovrt9WLGFNblraV8qSrX9KANTx
+	QvBffC0Xf0ywkiHIIW0z+aCWzvutAr8Dma8PRAUjIqh+ZRvKy6ED1RNzdOuarYSmb4T6MaDG3FY
+	kVgea//6jM3ufKq0BmdZboyE3prVIIvaZz+C++FMKq6BQ3J6uwKRrncI/f1tMwKpr42ZmKAeRSB
+	ZXCE8TIwFoF7ij6Kxl3Hoeh/7OkXZJMvIWAOVvji8yRal6O3UlIiFE7dEcAQSWOV8w6Gwwq3fs7
+	HJr+QGtYTSOqxJkVUVU4q85wMuimkCptWm2JV8egmq/WwYl2BfMC1Sx6mww4KVRacnf5R+lwKH/
+	wBHZXz/1kiCeEytc/AxvMb5GeI3u60Wbdj/XaG34K1aRT2CKfPc5piK7eEVYdL6FDEfYteOB3FW
+	k6nHD8c2JQrx7rwWMrB8+xA+qkEchSWGPJxoRQFAeUMVbhGNVMLmb+6RkDCoiCDdIHplfPSpswF
+	6zkah8bHi4WFBzjjS7CInx6IdnWLUwtUQ0aPpUiZGtnrdyQglqBc1I/9tPrioTdCJpJPpq5guKr
+	KgkATwbGwS+k/TzaK9OX1fkNqCvofTRuoBGbzUyan/T0J24vRwiUkRhXnt3wmxzMEsAjR+Hy
+X-Received: by 2002:a05:693c:8219:b0:36a:1008:5815 with SMTP id 5a478bee46e88-3768385dee6mr1611656eec.5.1794360442766;
+        Tue, 10 Nov 2026 17:27:22 -0800 (PST)
+Received: from ?IPV6:2800:a4:806:ef00:2f77:7097:372d:6d14? ([2800:a4:806:ef00:2f77:7097:372d:6d14])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-375212e7d24sm16548467eec.22.2026.11.10.17.27.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Nov 2026 17:27:22 -0800 (PST)
+Message-ID: <9988b8c2-547e-405a-9c76-a4e6a59c7dbb@andrewgigena.dev>
+Date: Wed, 11 Nov 2026 01:27:15 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -58,139 +74,55 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=11646ab292b69992658ecbc426bd320fb3756d48584897919a6b53c3f3eb;
- micalg=pgp-sha512; protocol="application/pgp-signature"
-Date: Wed, 11 Nov 2026 01:16:36 +0000
-Message-Id: <DMRZGMGRLD4S.KT6VEU28902E@linux.spacemit.com>
-Cc: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>, "Andi Shyti"
- <andi.shyti@kernel.org>, "Sebastian Reichel" <sre@kernel.org>, "Yixun Lan"
- <dlan@kernel.org>, "open list:I2C SUBSYSTEM HOST DRIVERS"
- <linux-i2c@vger.kernel.org>, "open list" <linux-kernel@vger.kernel.org>,
- "open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>, "open
- list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>, "open
- list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-Subject: Re: [PATCH v1 2/2] power: reset: spacemit-p1: Use atomic I2C
- transfers for power-off and restart
-From: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>
-To: "Aurelien Jarno" <aurelien@aurel32.net>, "Anand Moon"
- <linux.amoon@gmail.com>
-X-Mailer: aerc 0.21.0-reader-ipc4
-References: <20261110061429.2036-1-linux.amoon@gmail.com>
- <20261110061429.2036-2-linux.amoon@gmail.com>
- <avOL1mCkI4YSaDeO@aurel32.net>
-In-Reply-To: <avOL1mCkI4YSaDeO@aurel32.net>
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: NL3fB1gebWXoD6SwPos3DavG4+/U/Hq9X0DSCCB6vebTon8xktnh62yd
-	qvB+PSzAM/40yzcvXSvzLfrXAeCUQpiAShEBkdXJCo9Ff/fcYYUWVxFa6ovCSU1DKcy2Vgf
-	ElJV+07G3N+wk2fxX8Mo/Z6J9Eg997xRJahsJLxXK3O5Hgf40xRoP1MwEuuDcoNWZ1IpxNC
-	Cpl16bep2gosSlEUYaQ62tcBqVxS0n9PAY766kRtpBuTiBpzaarTYLImQ2o2W+cmFKGdAXj
-	Y1ipN8rN8TBskpkQqlDk+wTRmuKopyQ1IAHdRm/nS0qqePu0i5bZ3ZcRYKTJyPQOiJ1JWLK
-	WFhG6/HjrDmRFl7XoQR0AH8yfLAB6Qgv+Owq6cvEfTrid9/oP/kFLH6lKD15KHaoFeYBrSA
-	hzFjBNRF8ExFolTiq9+N7EM4/yDw1cjr7HlIBWMh0frH+hlR7/T4yQJznZVnVZfTLVxfgcE
-	3pobZ6wcze93ErX2joI1FAg8eiZUpUgq9gGxJ/PYd6gU83vmzcrdhGjeo6le6IbfSI50Lsp
-	yvJbNnqHuw0KSSDfaNpIOqtLNamM2E0IwJbSvJHe2m3OA1Lrzg+LvBhyitA8Zyry13Qvgth
-	P7RhZ4oD6Vf5mn43N7ucLLppXgwTVnqoaa6o02BjouqC11D/TWVo2V6MZHUYATkx8wYR4yk
-	aaYhEOY4qBJB7XP9/DkH8Jkh54+LXGhE0bO0zKD3w4BQHlvy/8if9Wn2jEacqw+sYTi5uOd
-	L7EkqdnrwH0mp1xQ2F1i2CIW5CjPiMtzKrcYXxmVdxlcYBDxBqLCfJB2oYGCbDAOIzUwFt8
-	8nqMW4aG0fO5fqJ3wkAGZybOX1C0SpADqJPw//SsusYIIEkRtA1ok8gKOJh6jrgtYUUmWAM
-	/2+HhXaFy2o7QKnza2hmJiEL5J9Jh08PLWSvXjSPuayBFVIVAf1kByEN66Ycvh31lBE9imc
-	H7z4jaNC6XaxNQFHueFFBeVXz8Ms1O1fIph7B1DVdStft9tSFJ5P28Vks4A9nZfM7Vy9FRI
-	OQqUqMIQB4DEo6fgPlQrx/9DQLPsfS1unLaMleCv+jHPdvsewqnyRvQSGPScmMFTH/ScEpk
-	ETLXVJ4KBuJfucAXJfhJkmYsDc65Slla4/YKekAG28QbYbU+IgEgpI0rEx4bq3bntYJpv+n
-	NO9hwc904o+qMkp1Ypm+SvtBDkzr6RVDYzrL
-X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
-X-QQ-RECHKSPAM: 0
-
---11646ab292b69992658ecbc426bd320fb3756d48584897919a6b53c3f3eb
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 5/7] media: qcom: camss: Add support for SM8150
+To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
+ <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-phy@lists.infradead.org
+References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+ <20261106-sm8150-v7.4-rc1-camss-v3-5-0103e8a0bbcd@andrewgigena.dev>
+ <160aa94c-c726-4cfe-b8cc-b1f974b32f13@linaro.org>
+Content-Language: en-US
+From: Andrew Gigena <mail@andrewgigena.dev>
+In-Reply-To: <160aa94c-c726-4cfe-b8cc-b1f974b32f13@linaro.org>
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Aurelien,
+Hi Vladimir,
 
-On Tue Nov 10, 2026 at 9:25 PM GMT, Aurelien Jarno wrote:
-> Hi Anand,
+> Drop csiphy_res_sm8150[], and pull this:
 >
-> On 2026-11-10 11:44, Anand Moon wrote:
->> The SpacemiT P1 power-off and restart handlers use regmap_set_bits()
->> to access the PMIC. However, these handlers run in an atomic notifier
->> context (specifically within an rcu_read_lock() critical section), while
->> the I2C-backed regmap uses a sleepable mutex.
->>=20
->> This triggers a "WARNING: suspicious RCU usage" warning due to an illega=
-l
->> context switch in the RCU read-side critical section during shutdown on =
-the
->> Banana Pi BPI-F3:
->>=20
->> [  563.803475] WARNING: suspicious RCU usage
->> [  563.807813] 7.3.1-ARCH-RISC-V #1 Not tainted
->> [  563.816614] ./include/linux/rcupdate.h:387 Illegal context switch in =
-RCU read-side critical section!
->> ...
->> [  563.841445] locks held by shutdown/1: 2, last CPU#0:
->> [  563.846694]  #0: ffffffff8404fb20 (system_transition_mutex){+.+.}-{4:=
-4}, at: __do_sys_reboot+0x230/0x29e
->> [  563.856806]  #1: ffffffff84167860 (rcu_read_lock){....}-{1:3}, at: at=
-omic_notifier_call_chain+0x4a/0x1c2
->>=20
->> Replace the regmap operations with atomic I2C transfers to avoid sleepin=
-g
->> in an atomic context. Preserve unrelated register bits through
->> read-modify-write operations and check for atomic I2C support before
->> registering the handlers.
->>=20
->> Obtain the I2C client from the parent device and verify that the adapter
->> supports atomic transfers before registering the handlers.
->>=20
->> Tested on the Banana Pi BPI-F3 (SpacemiT K1).
->
-> While the patch looks correct, I am not sure this is the correct=20
-> approach, as opposed to the one proposed by Troy [1].
->
-> Indeed bypassing regmap and using i2c atomic transfers needs to be done=
-=20
-> by all affected drivers. For instance the VisionFive 2 board, which use=
-=20
-> an axp15060 PMIC is also affected by this issue. And the corresponding=20
-> driver is shared between architectures, which make this kind of change=20
-> more difficult.
->
-> For the BPI-F3, note that with OpenSBI 1.9, the reboot is handled=20
-> through the SBI SRST extension, preventing this issue to happen. On the=
-=20
-> long term, I am not sure we should keep this driver.
->
-That only covers restart. The SBI restart handler is registered at
-priority 192 and runs before the P1 one at SYS_OFF_PRIO_DEFAULT. Power
-off is the other way around: sbi_srst_power_off() goes through
-register_platform_power_off(), i.e. SYS_OFF_PRIO_PLATFORM, so the P1
-power-off handler still runs first and still hits this on shutdown,
-even with OpenSBI 1.9.
+> * https://lore.kernel.org/all/20261026224957.1115370-4-vz@kernel.org/
 
-So until this driver goes away, BPI-F3 still needs the arch fix [1]
-for power-off.
+Done in v4: csiphy_res_sm8150[] is gone and sm8150_resources.csiphy_res
+is NULL, so SM8150 goes through the PHY-API path and clocks, regulators,
+registers and interrupts are owned by the dedicated CSI2 PHY driver.
 
-Link: https://lore.kernel.org/linux-riscv/20261104-v7-0-rc1-rv-dis-int-befo=
-re-restart-v5-1-956ec09c900d@linux.dev/ [1]
+I folded your change into this patch instead of carrying it as a
+separate commit, and credited you with
+
+  Co-developed-by: Vladimir Zapolskiy <vz@kernel.org>
+  Signed-off-by: Vladimir Zapolskiy <vz@kernel.org>
+
+ahead of my own Signed-off-by, plus a line in the changelog saying the
+fallback comes from your patch. If you would rather have it as a
+separate commit, or want the attribution worded differently, tell me and
+I will adjust before resending. I am not enterely sure if this is the
+correct way to cherry-pick commits since this is my first kernel contribution.
 
 
---=20
-Troy Mitchell
-
-
---11646ab292b69992658ecbc426bd320fb3756d48584897919a6b53c3f3eb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iJcEABYKAD8WIQSL4Ay2cExaPXAQcU2YCe+A+TM0LwUCavPB9CEcdHJveS5taXRj
-aGVsbEBsaW51eC5zcGFjZW1pdC5jb20ACgkQmAnvgPkzNC9XhQEA+/SZQ0K1nCjc
-8q38r5D4Ar8hTMv6yyEbHYBA2OMfpHUBAP1Swga5o1WjexDHDtlaytztw5gGTAjg
-LybIUoMHS0wE
-=4Yt0
------END PGP SIGNATURE-----
-
---11646ab292b69992658ecbc426bd320fb3756d48584897919a6b53c3f3eb--
+Best regards,
+Andrew
