@@ -1,71 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794360444;
-	b=TjjaCjnSEbtf7z/K+bZrtOVh0/8rfjcylQ/DMSW8K2r3DQxD1NvacTrpurKo8YR6BFEY
-	 vF4mtGI9L9omW5RzsSyuXzhQXhvRk5gcPilp68X4Gj4g01yod62H9YW9Mp1bwd5I+fNi4
-	 UkFT2FQ+kesKguCHIgAN2sp6aHPdfdkTffvsNZ1+/QpNry2AJuNE2vAmiE5wHzYszZ4rt
-	 CPOs7B1OSw5/vJqlQjOjepWCmJSOSeyzGYWoZTA55H6Yzxwn4HLV+HY5hi7e4z1oT//PU
-	 stO9JzzRNiKAOLtKzGXtHHIqo/mZv+QluMUmurQoZ/VlaEat0dl+YxAm58z8tLBhUuw==
+	t=1794370752;
+	b=LZWzjA/aNf9w/jX5GvrVnjggyS7sn7/hpwU1pX3W+VFCS3I8sOs9HyQC7QVZuIThDBSJ
+	 S4p163mmPOaeYJaR2XOshP5TUrTXOCn94p0CycTs4zTOJHj1U3l97CFg+BtGgJSOzElJO
+	 RIu9gtnr6IyDZPwrI5/6JvsyexPf5L9q8fVw9sqQaGXMDqxLrgdHb7vsB43J9LSOZvZWs
+	 FqFC7toT9uRoUtEGQFU2TlwiYhc8hUak8jKPi1fONxphSDa3+AmVsj2Hqs9jB3GoVt83C
+	 a7k1V5jcDaV9DuGUtALv7rMtw7AAR9bmPQWLK9shrMDwHF0rlsYSsa5WXzM8QwdvzQw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794360444;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Date:
-	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
-	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=BLSB0jc+PDfoGDhBATE5rNyu65P6DKBdBa7UuDK+sb4=;
-	b=E8Vuuux6SUdB7w3Aj1ZtWGsWBFyhwl/ZUKW9jiTNO2ujbReb9GXHQLhtXKRcHSDMgkZD
-	 v4I+qGpXK7P4dAqzc2HNxgFg5e3FuoLxu5EWVkuPRk9i0VskWPLyNCvS2b02pXM/Q2ocY
-	 eMis/KYZaI6bJtNRaejhh9NyB4WMLDm+jF/yBA1D2HyhdghwhH6s5QF6c74VBUDzZ/rC7
-	 js1uvWRbEUqh3TlGrXic8ApscM/KaJF+FwdI7Pj1DQsyKszCL8t6IRCccY3JMVE/i8+D6
-	 +Wsl5naWPoHMmo2ec001R7DNSvVtfJ6ZS9c1Yj2o7vGaSpVT2GZglcbovz5/IUort9g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794370752;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=vu++8Ba/Bm4EE7sdE3e4HVCSisYhXOFP70NUkQ2QJtY=;
+	b=QcFqdth6dJcirHAbU/rDSMgvHAtquwXvqHjDFLmoOKttbmL34npO+SwyEaq3ktDpW84j
+	 SfCk2uq08EhScwUE6vBSW7j4BqbTgnJd3WhRzHYnwCWYYaI+JdCeUv1/BobK9g2pv7YCH
+	 goS/O9yUkf8IyN09P84DBlBiFddAnKlcOyz3UxUbiBVmSnfLm/D6szbSNTH16Y/9pAmb9
+	 nDdmYECeiA8tsxxO/qAC/mWelFqkcKPmpfuM/v1p4+3/9k+xvH3Vee5O/sc3e7satXNHw
+	 ymNS2TQCZRhnFXuaX7r7/bHZGoAObh7nLcyIHpNELK4yKoDrnPM+aC4dBTIC4Xi019w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=fail header.from=andrewgigena.dev;
+	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=74.125.82.182
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=btOAr4KX;
+	arc=none smtp.remote-ip=74.125.82.171
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4C3D606A31C
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 01:27:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E4C3D606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=andrewgigena.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284AE606A31C
+	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 04:19:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 284AE606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-36f6295304dso3518254eec.1
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 17:27:23 -0800 (PST)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=btOAr4KX
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-3720addb068so5037880eec.1
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2026 20:19:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794370751; x=1794975551; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vu++8Ba/Bm4EE7sdE3e4HVCSisYhXOFP70NUkQ2QJtY=;
+        b=btOAr4KXKOXZYd6QGYDneGd727rwdK3NisYiebGEWByer2tQ7AqTluKE+W1Q+0bZ43
+         og52mf+TCcVjX7LTOzJDiXB3C62cdthQEUjUnucOLOfz0o+wLrt+wcxRFjPzkjT89fD/
+         WhuEb0DqxKH0IKhe0Fq5b8MFiJsKe1UfWfJJJhuMdFAbAgnPkRGLyTadSc3AosrmW5W/
+         704YQv9/F5ogaXmMWjYgIVdyxhIO+TsGXqp+aBbZfu4ZK1KdOuAjVQPXBvy73R0PGFCg
+         DeTNbbpBGInZHIB9lUJa4yX2pb9vh0Q5FipvPAaWd7JQJjwDGTP0heYOvcSPPRQ6LGzE
+         Y3Vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794360443; x=1794965243;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1794370751; x=1794975551;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=BLSB0jc+PDfoGDhBATE5rNyu65P6DKBdBa7UuDK+sb4=;
-        b=1uXHA7/2obSPKJ3kcDIe5CURbgkNM830I/wywkLnTyaaEUmUvr04GeNTcVKkw3zoyh
-         b/uyhDvu6DIT0/Az/xqLIoiCZ4dXI44EpUli5LNrGBLJ2oaqOhqGHgpzEg7J8E+O8pm6
-         sO85QXr7zGM8nvW/nPls2svUROe+CnJ3MhfXQC/STqibHuvPGzUMUCU/z1sDTwxFZhdE
-         2ld4s6DADM+g79KyotIHc2HIoNoocfHurXSCk0xMQi+BxtExNL0zw7e9HOdK6YnnsleF
-         pJDCpppfu72muRAi300Or7FXAFYZ28nz0ec3ej0IShH/T+AhekQcCJhCtG+El7xdypzg
-         //iA==
-X-Forwarded-Encrypted: i=1; AL+hErFg5gGMojJICSdz3PSGFDYqu8yZOxjrI9WnjFNwSoIuU/cvMdobmKJ3TcDeKdYAfLWOgTTw3y0w+QI=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+qyTB8SbRzlgb6X/TYdvXNN/X4R3l6EUUehoV0GuZz3juFHyIl
-	46W1OeCXVaYZQQcgMXJv4QY2uxYuFPhhSYZdqRO+RH51fOSROD2qGJn6
-X-Gm-Gg: AYBFou31krLU0vFmSNm1PVkPCdSon41AEwvvi7cW8ovrt9WLGFNblraV8qSrX9KANTx
-	QvBffC0Xf0ywkiHIIW0z+aCWzvutAr8Dma8PRAUjIqh+ZRvKy6ED1RNzdOuarYSmb4T6MaDG3FY
-	kVgea//6jM3ufKq0BmdZboyE3prVIIvaZz+C++FMKq6BQ3J6uwKRrncI/f1tMwKpr42ZmKAeRSB
-	ZXCE8TIwFoF7ij6Kxl3Hoeh/7OkXZJMvIWAOVvji8yRal6O3UlIiFE7dEcAQSWOV8w6Gwwq3fs7
-	HJr+QGtYTSOqxJkVUVU4q85wMuimkCptWm2JV8egmq/WwYl2BfMC1Sx6mww4KVRacnf5R+lwKH/
-	wBHZXz/1kiCeEytc/AxvMb5GeI3u60Wbdj/XaG34K1aRT2CKfPc5piK7eEVYdL6FDEfYteOB3FW
-	k6nHD8c2JQrx7rwWMrB8+xA+qkEchSWGPJxoRQFAeUMVbhGNVMLmb+6RkDCoiCDdIHplfPSpswF
-	6zkah8bHi4WFBzjjS7CInx6IdnWLUwtUQ0aPpUiZGtnrdyQglqBc1I/9tPrioTdCJpJPpq5guKr
-	KgkATwbGwS+k/TzaK9OX1fkNqCvofTRuoBGbzUyan/T0J24vRwiUkRhXnt3wmxzMEsAjR+Hy
-X-Received: by 2002:a05:693c:8219:b0:36a:1008:5815 with SMTP id 5a478bee46e88-3768385dee6mr1611656eec.5.1794360442766;
-        Tue, 10 Nov 2026 17:27:22 -0800 (PST)
-Received: from ?IPV6:2800:a4:806:ef00:2f77:7097:372d:6d14? ([2800:a4:806:ef00:2f77:7097:372d:6d14])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-375212e7d24sm16548467eec.22.2026.11.10.17.27.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Nov 2026 17:27:22 -0800 (PST)
-Message-ID: <9988b8c2-547e-405a-9c76-a4e6a59c7dbb@andrewgigena.dev>
-Date: Wed, 11 Nov 2026 01:27:15 +0000
+        bh=vu++8Ba/Bm4EE7sdE3e4HVCSisYhXOFP70NUkQ2QJtY=;
+        b=h5y+S+wm5ga8WFfdV1RbP/Zd1uiuJSQ239CcQ3g0/o+omfcRKEhVmYAxwwYNWEWXCl
+         ubeeq1VpZjc2JkMgKd0VNOeKMVAH7NLXb93nsNy4b6JojiBCD0d+jPcyJpGiMDjTTdsC
+         WxW1KIuCOB0S+YWkbt2H5PX2+cuNSh+Rbl7U7vAcAf2RqsZvVT/+iFoUtBfi5ieNvojc
+         /Lif0Mu4TWmM6j60ESLF76de7ckM3vuKfYXYvboiSMD6z8Ln3T2Y/6LIKfqn3xWHJcDP
+         7uKOeY3TW0YoAV65vdb+Prq7gj+X1t9GTf/w7Cg7/ojCIJyMIN4oBZ5y63v+U0cn+eBc
+         5y7g==
+X-Gm-Message-State: APuU4Z98e5rz0R8jrKYGBMwxTiDHVsvnaa2PAvMy1omrnpgSlzdiGdh7
+	/OQgkGhqMut1m8ZVl7i2DcUx6pUDQs4+DblNzR/bJoLAWwoZkgySFJdZ
+X-Gm-Gg: AYBFou1SL3HfLM1149S4hLrBeMRo3HW709RGkhwPJgv9yFajjpWgRS/Ctw5bvvLvC+w
+	Ls+ZqrPB8F0brubKstfZa1vGXxedww7Hcz9PJPwjBsqYHalpBC5GRrUmEqzCJTibYRU9gmr4EY4
+	TqklH0GCjYSwcOL8KQDzyXgruvGJx8tZ+4grAbljha04OgKy/Ioc6Of6T1jYDqOa/ufKn5nx0zI
+	UIXONy0MOZu+fw4i2LrKTbTqXXcs3ihV2t6/q3t2IvAJDCliJyXfPv0kg+cE7B4yq17iK7hIaM0
+	pxrw9lyRZsNw5ZaRNbdS0aCNCG1KpQASBBZankSKz55X79XHUJtwvPMY0MpUoxcauttYUkMQWfc
+	9Zzrp3vQq45nohGaeaOeXOwoGua4sNtds/nvB8gDC1fEzgSSI3Y9Kr99rzrXQcgmmCvOmdXUSss
+	xU+lcA7T3TRqjcrswArogMPu/YBZS292Jrtr5YE87Urm/5nevkbamNomL9QJtLeQYuMRenUOKZF
+	JCRtfckvqo6SL7TI1TEFWidBTSREeYuZELDSYBtQdUJDJA0Cv0FFAouhV44E7GBoiRisme3F85s
+	lGD5AFmhVkV8yFHcWDy8+TnQ3s0coPUh9gle+ZK6BKr0zFQiVNuS8P2mZKFoQBRB9xL/SZ2dt7e
+	GcE09aG1FKZ0bAqrpMAYhdjVGLhgG2sqIaRV8uV2p8LgiMjme4rt6kRempSoKoCKXuqtK+YygZ6
+	LBhVGYodKlqzaLLqhcGg==
+X-Received: by 2002:a05:7300:6dac:b0:369:f9da:a70f with SMTP id 5a478bee46e88-37685b7f916mr2766572eec.17.1794370750970;
+        Tue, 10 Nov 2026 20:19:10 -0800 (PST)
+Received: from Mac.localdomain (198-27-228-154.fiber.dynamic.sonic.net. [198.27.228.154])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3752060c4b6sm11820704eec.15.2026.11.10.20.19.09
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 10 Nov 2026 20:19:10 -0800 (PST)
+From: Ahmad Byagowi <ahmadexp@gmail.com>
+To: netdev@vger.kernel.org,
+	vadim.fedorenko@linux.dev,
+	andi.shyti@kernel.org
+Cc: linux-i2c@vger.kernel.org
+Subject: [PATCH net-next 0/3] ptp: ocp: support the WiWi production Time Card
+Date: Tue, 10 Nov 2026 20:19:00 -0800
+Message-ID: <20261111041904.48916-1-ahmadexp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -75,54 +95,48 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 5/7] media: qcom: camss: Add support for SM8150
-To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
- Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
- <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>,
- Neil Armstrong <neil.armstrong@linaro.org>,
- Manivannan Sadhasivam <mani@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-media@vger.kernel.org, linux-phy@lists.infradead.org
-References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
- <20261106-sm8150-v7.4-rc1-camss-v3-5-0103e8a0bbcd@andrewgigena.dev>
- <160aa94c-c726-4cfe-b8cc-b1f974b32f13@linaro.org>
-Content-Language: en-US
-From: Andrew Gigena <mail@andrewgigena.dev>
-In-Reply-To: <160aa94c-c726-4cfe-b8cc-b1f974b32f13@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi Vladimir,
+The WiWi 2163:1008 card has a Celestica-compatible register map behind
+a LitePCIe bridge, but subword MMIO can cause a machine check. Teach
+XIIC to use aligned word accesses on request, test both access modes,
+and bind ptp_ocp only to the verified 0x800f production layout.
+Other boards retain their existing access modes. WiWi devlink flash
+updates are deliberately unsupported.
 
-> Drop csiphy_res_sm8150[], and pull this:
->
-> * https://lore.kernel.org/all/20261026224957.1115370-4-vz@kernel.org/
+Patch 3 consumes the platform-data field from patch 1. Can the I2C
+maintainers Ack patches 1 and 2 for the series to go through net-next?
 
-Done in v4: csiphy_res_sm8150[] is gone and sm8150_resources.csiphy_res
-is NULL, so SM8150 goes through the PHY-API path and clocks, regulators,
-registers and interrupts are owned by the dedicated CSI2 PHY driver.
+On the hardware-tested base (4dd16e31135e), the driver bound with
+64 MSI-X vectors and registered the PHC, PPS and three UARTs. The PHC
+advanced 3.000429460 s over three one-second reads, within the host
+monotonic brackets. SPI NOR and two at24 devices bound. The card was
+UNSYNCED at probe; no PPS lock or UTC accuracy is claimed. Rebasing
+onto the base below did not change the driver sources or patch IDs.
+The rebased series passed x86-64 module/built-in and i386 module
+object builds and four XIIC KUnit cases in x86-64 QEMU.
+Full W=1 allmodconfig and allyesconfig builds encountered the same GCC
+format-truncation error in lockdep_proc.c on this series and the clean
+base. Neither full configuration is reported as passing.
 
-I folded your change into this patch instead of carrying it as a
-separate commit, and credited you with
+Codex assisted with the driver changes, tests and changelogs from
+the supplied board layout and crash evidence. The net-next series
+does not include a firmware update or front-panel LED policy.
 
-  Co-developed-by: Vladimir Zapolskiy <vz@kernel.org>
-  Signed-off-by: Vladimir Zapolskiy <vz@kernel.org>
+Ahmad Byagowi (3):
+  i2c: xiic: allow platforms to require 32-bit register accesses
+  i2c: xiic: add KUnit coverage for register access modes
+  ptp: ocp: add WiWi Time Card production image support
 
-ahead of my own Signed-off-by, plus a line in the changelog saying the
-fallback comes from your patch. If you would rather have it as a
-separate commit, or want the attribution worded differently, tell me and
-I will adjust before resending. I am not enterely sure if this is the
-correct way to cherry-pick commits since this is my first kernel contribution.
+ Documentation/networking/devlink/ptp_ocp.rst |  35 +++-
+ MAINTAINERS                                  |   1 +
+ drivers/i2c/busses/Kconfig                   |  14 ++
+ drivers/i2c/busses/i2c-xiic.c                |  60 ++++--
+ drivers/i2c/busses/tests/i2c_xiic_kunit.c    |  88 +++++++++
+ drivers/ptp/ptp_ocp.c                        | 198 ++++++++++++++++++-
+ include/linux/platform_data/i2c-xiic.h       |   3 +
+ 7 files changed, 374 insertions(+), 25 deletions(-)
+ create mode 100644 drivers/i2c/busses/tests/i2c_xiic_kunit.c
 
 
-Best regards,
-Andrew
+base-commit: 97ced2c090bfc2156db31fca9f52cf253e4bc186
