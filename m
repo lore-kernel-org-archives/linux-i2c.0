@@ -1,66 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=46.4.11.11
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794389996;
-	b=NkcIgHYPwOPfyT4r4a0eHYmktkVXL3iU87ScX2X/OYjj5PEIz67us2cKlHfqt8YafCXY
-	 hsvR0GsuN5CS0bCtxzvaKMqRQ1UD5GQ4J9Bbz0X+b2KZY+OR9IsHZBQ0HJOt/XOGJTk+2
-	 dFb272lii9pfBaXsfc9atBxBjzmuB3Doe6InEIrdY4yj5pnOC78iW/BGMFxFSBIbl8vmF
-	 ggWQBVr9kbedFKK+wYxDzCA4xEyB6xqLWm5hqMQtxwBB/bt3AljxGqq8E1wySkVZtmIW4
-	 gBZKyKyfg5cWg85QiXmpA7OJseaMBZ61hhjFA+z6NGHyHcGzWsENHOhoMmMdPFybxAA==
+	t=1794391257;
+	b=WFQVp7PMeqUJ4enUigugBzoGEB/CVJhfxa5bLrFPzIAQlByalNA4EtAu/MWT61XOjNtJ
+	 ef+HdypxQp3dp51Zg2vwza0dqj1TbuBqAYT6uvcG0Jr4jpUWJaa92jgNSAAvAW6P3x24x
+	 J4yZQBxIu7QHuZIuXKsl3+ZKvUZSmrTSbMuCnwHtfg7TJWmh/zyh7EEM27JQLhxkaMhzQ
+	 UsFY/FTqjGhOtIeqKq2xxWeqtb0mdpmEXGQip073GAN+nYCQMjxrsnH1vYUqcLJ2UUQvQ
+	 7YHmm3edUH3yJDQTNatwOCgKD3Y4JaazdOrj44kJ6dQ00DU6LCFg3gtwetGfn6bj5mQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794389996;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=sOmg8pF/82dquPMd4rQf73eaB6QpmmTcPKl4uD99Q8U=;
-	b=V8pNztEMeoLYfzNv7N7Mjvu6Z1kg2miiJaKnJyYz6IP6TAWs5DIliSHmxuqiebarytzZ
-	 stQhqSMv12tvT1Wncnhv/LHo/6xh/pp66JXsiX8FUVugC49aHrW2UWS5r1GzmsYo04JpQ
-	 ySxNwkuX3J67cEBhevx8QgR9CxY2Anv9Ros91CVuZLWbefRQ0tQA6mpQM1Cj4xSTOKf45
-	 KlqyJDbC367d8oHrfPIx9JWKcZzh4RK7NQYs1xekWbt2L9dJaLP+JcI+k2j/LVKuWe6DD
-	 GLZwvpwj9EfWLwdjNlrmo51+gcrgFFICa8Dt6DNr692bJeqH6OxJZREDt/RIgkIMjFg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794391257;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
+	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=GdUKNDib9XPzffYgYMRXTLPTfVOcK09Ll0AhFILzf0M=;
+	b=KYgYtX0xpWbQU6eU5PCFRT2ZMps4x6GG4VipmZI6xxpqUdEi1zP2paGYQXJJV0CtTnbv
+	 LjdIcjT/1UOGMV2r6ygfXKCJcLqBIVfDQc+1b9/9iapPcAdxdkvk8IQ1U22vAMEnbwC+N
+	 YtAiAAEPQh+5cWnQX4fa9luE6rZ9U9ePbfNz1TZUn1nzU9OsDpTsVzXWwYz78kY7Ud4z2
+	 sViBRHV2oRUGpR8D3Y6sPfJZcfJdSQnOgeyPPFEbEyEq2qjzmQYwhUEHRovXK9gTli9p8
+	 5HDlVCtWAhAvxIc39+aYL7oA8Is51+LOJmF6zu6E2WjibDlf4B0HbmbYQ4i628ZIOqA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=phrozen.org;
-	spf=pass smtp.mailfrom=phrozen.org;
-	arc=none smtp.remote-ip=46.4.11.11
-Received: from nbd.name (nbd.name [46.4.11.11])
+	dmarc=none header.from=sang-engineering.com;
+	spf=pass smtp.mailfrom=sang-engineering.com;
+	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=GsOr1M1m;
+	arc=none smtp.remote-ip=194.117.254.33
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E944160A2610;
-	Wed, 11 Nov 2026 09:39:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E944160A2610
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=phrozen.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phrozen.org
-Received: from [2a04:4540:1401:33fc:b262:f9a8:847e:6650] (helo=bertha10..)
-	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <john@phrozen.org>)
-	id 1xR4nz-001U9u-28;
-	Wed, 11 Nov 2026 10:39:47 +0100
-From: John Crispin <john@phrozen.org>
-To: Stefan Roese <sr@denx.de>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: Christian Marangi <ansuelsmth@gmail.com>,
-	devicetree@vger.kernel.org,
-	lei.dong@airoha.com,
-	Linqi.zhang@airoha.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	Rajeev.kumar@airoha.com,
-	upstream@airoha.com,
-	Weifeng.xu@airoha.com,
-	zhengping.zhang@airoha.com
-Subject: [PATCH 2/2] i2c: mt7621: add support for Airoha AN7589
-Date: Wed, 11 Nov 2026 10:39:41 +0100
-Message-Id: <20261111093941.691801-3-john@phrozen.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20261111093941.691801-1-john@phrozen.org>
-References: <20261111093941.691801-1-john@phrozen.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA935606A31C
+	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 10:00:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AA935606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=GsOr1M1m
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=GdUK
+	NDib9XPzffYgYMRXTLPTfVOcK09Ll0AhFILzf0M=; b=GsOr1M1mhTGoWUW9/JZe
+	lbF+uUA8UdX5ZP223BAW3B6wzUy06KcaNBRWIJ50d3LQ4AC9DtEZC5e1Of31J6wE
+	Dq2S2EvbMDmysSBd5CdtuVjsPoLjy5lOnrqFFz5NPi70egStvEDXY0A6suUhqcCZ
+	PG2DWmbn2167UiV+TXsgTwvjRj2VX3YVRn4rK71FYloWuMSqVnXYs4zxU8JPAG6L
+	8My1LMRQZBCxX6gd7OKh9fLzQsCWCaCH4g2VwyB2t8isGRLc2FwcMaZAP3ufxaML
+	5NuzHQ+LJjvtEuij+EfQnZ4iF5q7EgxBPu4k+rgC2TWfBNvOTaZHqWVIkvtQ4nBD
+	vA==
+Received: (qmail 560195 invoked from network); 11 Nov 2026 11:00:51 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 11 Nov 2026 11:00:51 +0100
+X-UD-Smtp-Session: l3s3148p1@VLMbRf1f/IMujnun
+Date: Wed, 11 Nov 2026 11:00:51 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: aiyengar1990@gmail.com
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: slave-eeprom: Add an OF match table for module
+ autoload
+Message-ID: <avQ8z7jFK3T4uZ_1@shikoro>
+References: <20261110-i2c-slave-eeprom-of-match-v1-1-8f762bf06205@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -70,156 +64,40 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="Vyq6EiQGiyJAgcJC"
+Content-Disposition: inline
+In-Reply-To: <20261110-i2c-slave-eeprom-of-match-v1-1-8f762bf06205@gmail.com>
 
-The Airoha AN7589 carries this controller with a second control
-register at 0x68. It holds a 16 bit clock divider selected by
-SM0CTL2_SCL_DIV_SEL, wider than the 11 bit field in SM0CTL0, and SDA
-wait control. The AN7589 also runs without SCL stretching.
+--Vyq6EiQGiyJAgcJC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Describe the variants as match data: whether to set SCL_STRETCH, and
-whether to program the extended divider. With the extended divider the
-bus frequency is clamped to the range from standard mode to fast mode
-plus instead of the fixed divider bounds of the MT7621.
 
-Signed-off-by: John Crispin <john@phrozen.org>
----
- drivers/i2c/busses/i2c-mt7621.c | 58 ++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 8 deletions(-)
+> The slave backends have no DT binding (they are debug devices, as
+> Documentation/i2c/slave-testunit-backend.rst says)
 
-diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
-index 9ea5e3f9a763..37524bae1f8b 100644
---- a/drivers/i2c/busses/i2c-mt7621.c
-+++ b/drivers/i2c/busses/i2c-mt7621.c
-@@ -10,6 +10,7 @@
-  * (C) 2014 Sittisak <sittisaks@hotmail.com>
-  */
- 
-+#include <linux/bitfield.h>
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-@@ -18,6 +19,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/reset.h>
- 
- #define REG_SM0CFG2_REG		0x28
-@@ -28,6 +30,7 @@
- #define REG_PINTEN_REG		0x5c
- #define REG_PINTST_REG		0x60
- #define REG_PINTCL_REG		0x64
-+#define REG_SM0CTL2_REG		0x68
- 
- /* REG_SM0CFG2_REG */
- #define SM0CFG2_IS_AUTOMODE	BIT(0)
-@@ -54,13 +57,25 @@
- #define SM0CTL1_MODE_MASK	(0x7 << 4)
- #define SM0CTL1_TRI		BIT(0)
- 
-+/* REG_SM0CTL2_REG */
-+#define SM0CTL2_DATA_WAIT_SDA	BIT(18)
-+#define SM0CTL2_INIT_WAIT_SDA	BIT(17)
-+#define SM0CTL2_SCL_DIV_SEL	BIT(16)
-+#define SM0CTL2_CLK_DIV_EXT	GENMASK(15, 0)
-+
- /* timeout waiting for I2C devices to respond */
- #define TIMEOUT_MS		1000
- 
-+struct mtk_i2c_soc_data {
-+	bool scl_stretch;
-+	bool ext_clk_div;
-+};
-+
- struct mtk_i2c {
- 	void __iomem *base;
- 	struct device *dev;
- 	struct i2c_adapter adap;
-+	const struct mtk_i2c_soc_data *soc;
- 	u32 bus_freq;
- 	u32 clk_div;
- 	u32 flags;
-@@ -83,6 +98,7 @@ static int mtk_i2c_wait_idle(struct mtk_i2c *i2c)
- 
- static void mtk_i2c_reset(struct mtk_i2c *i2c)
- {
-+	u32 ctl0;
- 	int ret;
- 
- 	ret = device_reset(i2c->adap.dev.parent);
-@@ -93,8 +109,16 @@ static void mtk_i2c_reset(struct mtk_i2c *i2c)
- 	 * Don't set SM0CTL0_ODRAIN as its bit meaning is inverted. To
- 	 * configure open-drain mode, this bit needs to be cleared.
- 	 */
--	iowrite32(((i2c->clk_div << 16) & SM0CTL0_CLK_DIV_MASK) | SM0CTL0_EN |
--		  SM0CTL0_SCL_STRETCH, i2c->base + REG_SM0CTL0_REG);
-+	ctl0 = ((i2c->clk_div << 16) & SM0CTL0_CLK_DIV_MASK) | SM0CTL0_EN;
-+	if (i2c->soc->scl_stretch)
-+		ctl0 |= SM0CTL0_SCL_STRETCH;
-+	iowrite32(ctl0, i2c->base + REG_SM0CTL0_REG);
-+
-+	if (i2c->soc->ext_clk_div)
-+		iowrite32(SM0CTL2_SCL_DIV_SEL | SM0CTL2_DATA_WAIT_SDA |
-+			  FIELD_PREP(SM0CTL2_CLK_DIV_EXT, i2c->clk_div),
-+			  i2c->base + REG_SM0CTL2_REG);
-+
- 	iowrite32(0, i2c->base + REG_SM0CFG2_REG);
- }
- 
-@@ -250,8 +274,17 @@ static const struct i2c_algorithm mtk_i2c_algo = {
- 	.functionality = mtk_i2c_func,
- };
- 
-+static const struct mtk_i2c_soc_data mt7621_i2c_soc_data = {
-+	.scl_stretch = true,
-+};
-+
-+static const struct mtk_i2c_soc_data an7589_i2c_soc_data = {
-+	.ext_clk_div = true,
-+};
-+
- static const struct of_device_id i2c_mtk_dt_ids[] = {
--	{ .compatible = "mediatek,mt7621-i2c" },
-+	{ .compatible = "mediatek,mt7621-i2c", .data = &mt7621_i2c_soc_data },
-+	{ .compatible = "airoha,an7589-i2c", .data = &an7589_i2c_soc_data },
- 	{ /* sentinel */ }
- };
- 
-@@ -259,11 +292,16 @@ MODULE_DEVICE_TABLE(of, i2c_mtk_dt_ids);
- 
- static void mtk_i2c_init(struct mtk_i2c *i2c)
- {
--	i2c->clk_div = clk_get_rate(i2c->clk) / i2c->bus_freq - 1;
--	if (i2c->clk_div < 99)
--		i2c->clk_div = 99;
--	if (i2c->clk_div > SM0CTL0_CLK_DIV_MAX)
--		i2c->clk_div = SM0CTL0_CLK_DIV_MAX;
-+	unsigned long rate = clk_get_rate(i2c->clk);
-+	unsigned long div_min = 99;
-+	unsigned long div_max = SM0CTL0_CLK_DIV_MAX;
-+
-+	if (i2c->soc->ext_clk_div) {
-+		div_min = rate / I2C_MAX_FAST_MODE_PLUS_FREQ - 1;
-+		div_max = rate / I2C_MAX_STANDARD_MODE_FREQ - 1;
-+	}
-+
-+	i2c->clk_div = clamp(rate / i2c->bus_freq - 1, div_min, div_max);
- 
- 	mtk_i2c_reset(i2c);
- }
-@@ -278,6 +316,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	i2c->soc = device_get_match_data(&pdev->dev);
-+	if (!i2c->soc)
-+		return -EINVAL;
-+
- 	i2c->base = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
- 	if (IS_ERR(i2c->base))
- 		return PTR_ERR(i2c->base);
--- 
-2.34.1
+So, why are you adding them then?
 
+
+--Vyq6EiQGiyJAgcJC
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmr0PM8ACgkQFA3kzBSg
+KbZKhA/8D4RU9YJt6iRvnmEvY4t9DPSJMpkouaoi36OTJGIHaLOALgEl0BJc2IjT
+c7SK7zpuO4U6VMZjOHcgzrihrDfycPeu7RcAamUG/vOnqVoH9+c8N3EDwoulx7wY
+4yljp8Ck6Clny0dDNqAfGDiydCfaqZThj3RvdFx5Gs1QE5Wbrr8KQeXkkXdi5+TW
+bXZ60Fmhua+1DAvGEp4ItLexCOFmJrEIjySTN4f7JBkn8zJVkK7RV9+yT18+mdCY
+YFbDPSaHbZc037tZJfjZ7wCnCaFoCgsONReQBypF3GJsd+A7gYIVgq7HxAUQtuPs
+0jAmmBLEh58e3Q3VI+QrFOLLwqkZQSWLTtdBSwrNraCP8QffFZvzEJYLjXZ4QYQ6
++omjVt/9rDuHayu6sHxe1BfqkK9Iwv30bnmoprgg+098v+oKxm0msNQ+tSs/HEKk
+3pT6rxjTcc36blKl82KJ6CreG7o+U+CaYT5rC6Sxgoj26Opjlm6WlhSLP8+ntxfQ
+wXpxe2LXpBIaY2MxHuhisAFmyNOjNVhcMkSNmWPzPQ9LKnKIUpBrGYLstvzfUvVg
+hB6/MOcNod2pwGOQ5JvjZuLgANcU2muOBa1lezO7D2AfMRZ2iuoWX5gq6QdHwRC6
+1Nz4JaMi21dyewjv+dBgrdgJ8wougHB3SPp0YrOgQ46FEFkVFHU=
+=kXIl
+-----END PGP SIGNATURE-----
+
+--Vyq6EiQGiyJAgcJC--
