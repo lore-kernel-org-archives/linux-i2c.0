@@ -1,99 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.51
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794395152;
-	b=xcIV9yow/5RKox4Qt3MP1vAm27l8SP8G9m1bX+oHf00FfYyljDWRbbXsq25NFpJFQdh1
-	 Axq5lzZo2thppYhvTjKA579d1EvhJJgORP+Ap03/fxQy0hFVXvlcIZXoXbRrczA6SK1zV
-	 45wL6zoWq72SAFYhhRNLyBIpwvCQx2R56/nJ7buVFYqAeKwZu7AzrxHVHE9wj38pAfvrn
-	 sXACDmuy7Ei2ztZWevWD7HN5xiCh6rqbCFplbkE9AHXgemEp+RHTDciP77PguO/tLJJHv
-	 ZMfAHOzJ89dPW6XSWI4Tq1dy23ywkr+drkpLN/ejZY3bvVucJvZClxIbsW5Nhqfppww==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794395152;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Content-Type;
-	bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
-	b=ZzDqUqDc4f+EjUczNE/dWWGpTybi8pxM0GND5Qou8NH7+uQfsV7NtjZHEChInyNhSwK1
-	 bSASIR+wCRfj+7qq5JTnj6fAdvbrrp7yl92eTYBtef2hF9c1GOPVljUX5CMa1kxot1z9h
-	 BI0alWasnHDU5cw8gTgAG5Pws/CNbBnAOJ3o/tsoJs1Ukv/dc0c+ucT9aUhvDGJJuukv4
-	 uf7tSbd+9JSN/5vMzZAtQMSeLcyepggQ4uH1NvnCFxUT0k+fvjEhVsuE5I6VGFqYcOHcT
-	 +g2l/wmtalkNMsw2n/nOmEsvPpMnz6v5pOTpWfcR7UoMTgD/taQ9FuVIzTbkh9GhXKg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S9Oe343o;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.51
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.10
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794400092;
+	b=rgDkHHiWdwdLHzZVjQ3AecZugoEP8BxM7p2n5sQxpe9TbfpBJ5FBnaODB67tB59RNEWi
+	 GlPDQRhRjhqrVOEpd8yisV7rGExWTdMJG69bMrHnDvbJgsyZCTsJ4FbJ7TVgO9drzmpSQ
+	 lKSGn2TRCIOF61lEIN3PeljOvvuL6WaMcgfzRAEk2JW8+CcWEaywJSsKTjSYHM8425bk3
+	 lj+YHr3qbmIsOzgvuWV6XpBQ5g8acTAPPQQ8DXpH/20okbHvl1MXybzjOOCCvfXzbOpH1
+	 F6BKjk/dsPmFxh+h0BKkMzo7eV1iiix8pLKUPMjHI4pwczki0vGaZ3wBx06coJw63SA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794400092;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=mzP/hD5ccS5HLOh6OXi3TMiX3x9RKtjHlgkh9vd9DqQ=;
+	b=QuapVrIgjg11DpiN9YalQ24qgY6nvz1ZmJxrX/6GJ/7tdohllUaHqemkHIwtHWh0FXDW
+	 VTQF5KbgXNCRe+s4oULjGU0IVX5tmXOEttdN+FBd2hvX1Ky6rLMOJ6Zpj9RqqlQ2HhzhA
+	 3rjNR3CDkPDREH4AWP3cbOzK3EeYiYoJ4S3a+tFwUKhDgiJXhgzQ45Zsk3QUdpZnLxNod
+	 0IA9sCu81Kf30iLAV4dPBy8Xi5C3M+zQFa0MoUeQCV+02eae0wt2H++sdqwLsPK+6Zxz7
+	 uDG78t/g8Pyvyi5Ldp54zMVDA6GWvI/Gwy8+rILNNUt4dImTmIyCWkOU79Fx0toi/Ew==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ViJR7wDB;
+	arc=none smtp.remote-ip=198.175.65.10
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5DAD606A32A
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 11:05:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D5DAD606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39913606A31C;
+	Wed, 11 Nov 2026 12:28:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39913606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S9Oe343o
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-6b7221c0f2cso2498526a12.3
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Nov 2026 03:05:51 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794395150; cv=none;
-        d=google.com; s=arc-20260327;
-        b=foytgrGE9B31l7elOjm5ZiDlqVrRz8EW1HCLTqpzS/d5OXurmP9bs+j4hWwbS9I3HS
-         eFmEKPWHrRvCOngicxzdV1S7f/PQ1IDpH/YWKmeD6B1jUh774z/zWFwi9TT8PkVpOt69
-         V8e96YZsfb0R+M7qxk5Mtdm+BGA5zbf/rK3VXrb1+RlxWzGqKNC+WOAuh2BGjAFv0ggM
-         tZ5n0U/94j9OiuAxMm4Vso3aVpuZ7vHimwdGugyJ4AdMjN8Iw1BVSkoiWGUQEEiq415h
-         CaXmBPOYSqGLT7KfhkAmAs4L46sgLbz/ei7ErDdM1RGYdga08T1PUkwuAv3/AhVXMZ28
-         QAGA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :dkim-signature;
-        bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
-        fh=aiVd9UAjELys0e0vdxXUxkWvkAgz80yftBD/rAyUgB8=;
-        b=TJ85bt4/hZ8P4I3wELt1+1yMufIab5BEHnGgJJ4hZpZGDWKZ+0ueecuZm5LCmxJSQ2
-         r8dyfxnZ0r3GHwTxTKKu/7znASGEZ/+e+qWRC1bIyNn761SCcLYi+Lud1qkRwuKLnrgZ
-         1LBQ/iRFYsg/jJZnDoiVFIVmUIpp6yZFIZ4wGwz71Uzr6/vcJy9D7SAhD4fc5gzp339/
-         91ZfIrokR3zArET5P5ehCxZtSoupoB5xa99eG6ZD+PaCutzt9Dai60RAnw+K/ZO4ixqt
-         cKGidPDszm0m7UFbLg3nm7NaHQkhMyfU9k1Zww8n0Ml17NzunOM/Uy6oKowpH/NGZzS/
-         BCUA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794395150; x=1794999950; darn=vger.kernel.org;
-        h=content-type:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
-        b=S9Oe343oExiTS2KfqhZKo8v9uzSzroybxuYjiW8R/Epw+w2UBG78inWqMxbr9l/twP
-         IDfc5RiZTs0v3oNc30kUYhmeFjo6joVPSdzWo9eDD2E56eKpbXMMggSFIt4pw/Xsh7Mp
-         jg0IQcZK/HSW3c4+/RwSwMF5/WeoGpyQ711u4rm/d46EmrPOT3AVokqdONUfWCXM7cW1
-         q+rx2pezIcC36mdu99xLYU03oreM5hPxRRJ/YkBoL8BKnLgshzid8AdfzXlBPvQ3sQVj
-         k0oTp68pmXdeJAwHt69hJ7KCvAKvvDtOy7E5283OJ7zKW4mHzxvEmTgAq4sQOs1gi8jI
-         HkVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794395150; x=1794999950;
-        h=content-type:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=1din0TNnBV2KJ8sSuRJVbvK1d3dMFjZgO4N2assoioU=;
-        b=aLOutHZeIlA2HsHMSZZZb9i1aPvs16a/Q/oRaDGJrpJ5z154ovyG43XyWis/gMLhc6
-         aNCvob8xauzPkVd8Dc9EUMyiZfQGVdbO91rTwoBtcwyWFZnMYZBU7wuewtm6fJYGGDga
-         PxHCEEaRUVTMp2XOLtOHvUREwP4UySzz8YDI/sdEfeabDsaHWqPvz5wZEwNBJGR08MCH
-         KQT6u7gOfjTmJbCGosPsKtpfjX2aEQjBFdufcG3yj+v/wxTMjM1sNhP0ldl5pi6H8/Ad
-         ECtnTz6l/8DXJ3uxSLUnqA20MCNh7UiW1PZ9bx5QeSZVR8N7asH3X/QOp9x6s4iM1GLg
-         Kf3w==
-X-Forwarded-Encrypted: i=1; AL+hErFUA/5LRewDrGHiQUGTm+8er3ItdQjf7Ln3dGZPA5DfEr0nbytjHCbU4FCUvxSbm4v0/avC+Zjsl9M=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+u/gyLPsME0mk40gBFyWfQFj7wozOjEEaa+HUfV2oXkWVX1ZkV
-	jrRsXboiBdMZ41NxE0Go2TvjqrXec7wFgek1CTiHXdS+UR6UE6c6SBoRePMTU+q6YcYZ0BgUAzN
-	7rooo1gg62R2qCCEuRZ7Am7nxdAX4CZBVFDTM
-X-Gm-Gg: AYBFou0uXp9WAc09QCCtLcv4KERoygdGTcKlG1u8j5SOiDXen79FfOlW3RGdGaA9cb0
-	86eiAVGosq12mPIDNsJDepQayJZB6PqxZA86rKUQyt8YItpVfK27rmdxcJhbC/AeNUb8XoUpOMO
-	XH+kTxnr/WjPiRyxUNmN3yk0fe+NRNyhSsizmZM4DfKoip3CRKsMYVhvn/PfK+qwgAwEw1JxBCw
-	mloAp05zmb2T8QNV3S+kLpV+M0zXjZWE/sG6TCrEHHcU1HgJ745miQ9pZTIng8N24DC9kCenD/G
-	9jMEPloFMp4xpjcm3jSjfVsE+N/T9C2fqny5nQg3e347ZxaiWZh5swo7R4L6GQY4KWBs0G6ZmWz
-	XQIcWseA3GQQnWjT1tj/nUeuwPD1yItytcAc=
-X-Received: by 2002:aa7:cd5b:0:b0:6b4:87b8:1348 with SMTP id
- 4fb4d7f45d1cf-6b77780f23fmr1150131a12.27.1794395149944; Wed, 11 Nov 2026
- 03:05:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ViJR7wDB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794400093; x=1825936093;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=blD4c5WFlJsGyIZkMK9gZUtiHG4pn/pmPvN73ciHboM=;
+  b=ViJR7wDBdfG6wPQ4gskkPk5q+Z8nP2pj0CVeNNDOmfyDnjfaThXykN4q
+   OA2mHZQ+/UQv1r+Ooy+h/QXN9sNxN5KgXlwG1XSqeuOzGZAbUajzjz90m
+   vONy2ESktrbkRA43jsOhzffys1lihwyTrvOeX8fHSIqtRv/RxjKKOKwA8
+   3ppn9dTANfooKLUfU7rqeGG2oMr0jnAqZnmnGBdb+UbhFFoD+PzE+XM9u
+   aJa5HLJCqShgDOHU5zSYG2ypkA20qIUWVthgdKOC2hGz107DKo/EqBlaS
+   9vOJbKe85OmEUCyR8IiuCSYFvJgCFYAzqDu0SSMbyEv67kOkfrkQjBrFz
+   Q==;
+X-CSE-ConnectionGUID: sTPmaFFsQmGqZRnWpkc03A==
+X-CSE-MsgGUID: sw2h0A5RQVypE08VZDlvZA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11962"; a="3077485"
+X-IronPort-AV: E=Sophos;i="6.27,207,1787036400"; 
+   d="scan'208";a="3077485"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2026 04:28:12 -0800
+X-CSE-ConnectionGUID: 9LbaeeEyS5qnfMXOfgEyMg==
+X-CSE-MsgGUID: AX7nRaYsSk2v+Ze6Fr1fTA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,207,1787036400"; 
+   d="scan'208";a="8984127"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa010.fm.intel.com with ESMTP; 11 Nov 2026 04:28:09 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 1E59C99; Wed, 11 Nov 2026 13:28:08 +0100 (CET)
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH] MAINTAINERS: Update I2C Designware driver maintainer
+Date: Wed, 11 Nov 2026 13:28:08 +0100
+Message-ID: <20261111122808.1302491-1-mika.westerberg@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -103,193 +85,45 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110061429.2036-1-linux.amoon@gmail.com> <20261110061429.2036-2-linux.amoon@gmail.com>
- <avOL1mCkI4YSaDeO@aurel32.net> <DMRZGMGRLD4S.KT6VEU28902E@linux.spacemit.com> <avQ1kVTvdCmS1MxN@aurel32.net>
-In-Reply-To: <avQ1kVTvdCmS1MxN@aurel32.net>
-From: Anand Moon <linux.amoon@gmail.com>
-Date: Wed, 11 Nov 2026 16:35:27 +0530
-X-Gm-Features: AclHuK9H8LcNFBf6OiW50_NDYDV5SRfOSw_9EFpDafFKu57Cw77PmBIsH4iiL2Y
-Message-ID: <CANAwSgQgtEvgEfkBMC6meDzT4O28oEX-R16STeiUnP77UOQe_Q@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] power: reset: spacemit-p1: Use atomic I2C
- transfers for power-off and restart
-To: Troy Mitchell <troy.mitchell@linux.spacemit.com>, Anand Moon <linux.amoon@gmail.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Sebastian Reichel <sre@kernel.org>, Yixun Lan <dlan@kernel.org>, 
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>, 
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>, 
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi Troy. Aurelien,
+My @linux.intel.com address will be going away soon and I won't have
+access to the Synopsys datasheets anymore. Heikki kindly agreed to take
+over this driver.
 
-Thanks for your review comments.
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 2 +-
+ MAINTAINERS                                                    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-On Wed, 11 Nov 2026 at 14:59, Aurelien Jarno <aurelien@aurel32.net> wrote:
->
-> Hi Troy,
->
-> On 2026-11-11 01:16, Troy Mitchell wrote:
-> > Hi Aurelien,
-> >
-> > On Tue Nov 10, 2026 at 9:25 PM GMT, Aurelien Jarno wrote:
-> > > Hi Anand,
-> > >
-> > > On 2026-11-10 11:44, Anand Moon wrote:
-> > >> The SpacemiT P1 power-off and restart handlers use regmap_set_bits()
-> > >> to access the PMIC. However, these handlers run in an atomic notifier
-> > >> context (specifically within an rcu_read_lock() critical section), while
-> > >> the I2C-backed regmap uses a sleepable mutex.
-> > >>
-> > >> This triggers a "WARNING: suspicious RCU usage" warning due to an illegal
-> > >> context switch in the RCU read-side critical section during shutdown on the
-> > >> Banana Pi BPI-F3:
-> > >>
-> > >> [  563.803475] WARNING: suspicious RCU usage
-> > >> [  563.807813] 7.3.1-ARCH-RISC-V #1 Not tainted
-> > >> [  563.816614] ./include/linux/rcupdate.h:387 Illegal context switch in RCU read-side critical section!
-> > >> ...
-> > >> [  563.841445] locks held by shutdown/1: 2, last CPU#0:
-> > >> [  563.846694]  #0: ffffffff8404fb20 (system_transition_mutex){+.+.}-{4:4}, at: __do_sys_reboot+0x230/0x29e
-> > >> [  563.856806]  #1: ffffffff84167860 (rcu_read_lock){....}-{1:3}, at: atomic_notifier_call_chain+0x4a/0x1c2
-> > >>
-> > >> Replace the regmap operations with atomic I2C transfers to avoid sleeping
-> > >> in an atomic context. Preserve unrelated register bits through
-> > >> read-modify-write operations and check for atomic I2C support before
-> > >> registering the handlers.
-> > >>
-> > >> Obtain the I2C client from the parent device and verify that the adapter
-> > >> supports atomic transfers before registering the handlers.
-> > >>
-> > >> Tested on the Banana Pi BPI-F3 (SpacemiT K1).
-> > >
-> > > While the patch looks correct, I am not sure this is the correct
-> > > approach, as opposed to the one proposed by Troy [1].
-> > >
-> > > Indeed bypassing regmap and using i2c atomic transfers needs to be done
-> > > by all affected drivers. For instance the VisionFive 2 board, which use
-> > > an axp15060 PMIC is also affected by this issue. And the corresponding
-> > > driver is shared between architectures, which make this kind of change
-> > > more difficult.
-> > >
-> > > For the BPI-F3, note that with OpenSBI 1.9, the reboot is handled
-> > > through the SBI SRST extension, preventing this issue to happen. On the
-> > > long term, I am not sure we should keep this driver.
-> > >
-> > That only covers restart. The SBI restart handler is registered at
-> > priority 192 and runs before the P1 one at SYS_OFF_PRIO_DEFAULT. Power
-> > off is the other way around: sbi_srst_power_off() goes through
-> > register_platform_power_off(), i.e. SYS_OFF_PRIO_PLATFORM, so the P1
-> > power-off handler still runs first and still hits this on shutdown,
-> > even with OpenSBI 1.9.
-> >
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+index a73e2a6e0833..56430a35e5d5 100644
+--- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ title: Synopsys DesignWare APB I2C Controller
+ 
+ maintainers:
+-  - Mika Westerberg <mika.westerberg@linux.intel.com>
++  - Heikki Krogerus <heikki.krogerus@linux.intel.com>
+ 
+ allOf:
+   - $ref: /schemas/i2c/i2c-controller.yaml#
+diff --git a/MAINTAINERS b/MAINTAINERS
+index efbef2cad7fd..c2a273dd2310 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -27261,7 +27261,7 @@ F:	Documentation/devicetree/bindings/media/snps,dw-hdmi-rx.yaml
+ F:	drivers/media/platform/synopsys/hdmirx/*
+ 
+ SYNOPSYS DESIGNWARE I2C DRIVER
+-M:	Mika Westerberg <mika.westerberg@linux.intel.com>
++M:	Heikki Krogerus <heikki.krogerus@linux.intel.com>
+ R:	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Supported
+-- 
+2.50.1
 
-I had previously tested the OpenSBI P1 PMIC driver in a Yocto-based environment:
-
-[1] https://lore.kernel.org/all/20260419150857.2705843-3-aurelien@aurel32.net/
-
-With this driver registered in OpenSBI, Linux can delegate reboot and power-off
-operations to firmware through the SBI SRST extension.
-
-The power-off sequence is:
-    Linux kernel_power_off()
-      -> RISC-V machine power-off
-      -> SBI SRST shutdown
-      -> OpenSBI system_reset()
-      -> SpacemiT P1 PMIC
-      -> Power off
-
-I have now rebuilt the Linux kernel with:
-
- # CONFIG_POWER_RESET_SPACEMIT_P1 is not set
-
-Both reboot and power-off work correctly on the Banana Pi BPI-F3,
-and I have not observed any issues.
-
-alarm@k1:~$ sudo poweroff
-
-Broadcast message from root@k1 on pts/1 (Wed 2026-11-11 10:34:03 UTC):
-
-The system will power off now!
-
-[ 1744.735287] systemd-shutdown[1]: Sending SIGTERM to remaining processes...
-[ 1745.071304] systemd-journald[245]: Received SIGTERM from PID 1
-(systemd-shutdow).
-[ 1745.504595] systemd-shutdown[1]: Sending SIGKILL to remaining processes...
-[ 1745.790159] systemd-shutdown[1]: Unmounting file systems.
-[ 1745.822902] (sd-umount)[658]: Unmounting
-'/run/credentials/systemd-journald.service'.
-[ 1745.861214] (sd-remount)[659]: Remounting '/' read-only with options ''.
-[ 1746.079291] EXT4-fs (mmcblk1p7): re-mounted
-ccb95ca0-2804-4ade-938f-23116f90c193 ro.
-[ 1746.272104] systemd-shutdown[1]: All filesystems unmounted.
-[ 1746.272471] systemd-shutdown[1]: Deactivating swaps.
-[ 1746.273712] systemd-shutdown[1]: All swaps deactivated.
-[ 1746.273956] systemd-shutdown[1]: Detaching loop devices.
-[ 1746.464867] systemd-shutdown[1]: All loop devices detached.
-[ 1746.465346] systemd-shutdown[1]: Stopping MD devices.
-[ 1746.471149] systemd-shutdown[1]: All MD devices stopped.
-[ 1746.471417] systemd-shutdown[1]: Detaching DM devices.
-[ 1746.476047] systemd-shutdown[1]: All DM devices detached.
-[ 1746.476377] systemd-shutdown[1]: All filesystems, swaps, loop
-devices, MD devices and DM devices detached.
-[ 1746.533569] systemd-shutdown[1]: Successfully changed into root pivot.
-[ 1746.533862] systemd-shutdown[1]: Entering exitrd...
-[ 1746.686127] shutdown[1]: Syncing filesystems and block devices.
-[ 1746.701832] shutdown[1]: Sending SIGTERM to remaining processes...
-[ 1746.934370] shutdown[1]: Sending SIGKILL to remaining processes...
-[ 1747.164219] shutdown[1]: Unmounting file systems.
-[ 1747.203935] (sd-umoun[662]: Unmounting '/run/credentials'.
-[ 1747.232643] (sd-umoun[663]: Unmounting '/oldroot/sys/kernel/config'.
-[ 1747.269882] (sd-umoun[664]: Unmounting '/oldroot/sys/kernel/tracing'.
-[ 1747.298218] (sd-umoun[665]: Unmounting '/oldroot/sys/kernel/debug'.
-[ 1747.327488] (sd-umoun[666]: Unmounting '/oldroot/dev/hugepages'.
-[ 1747.359053] (sd-umoun[667]: Unmounting '/oldroot/dev/mqueue'.
-[ 1747.387798] (sd-umoun[668]: Unmounting '/oldroot/run'.
-[ 1747.425939] (sd-umoun[669]: Unmounting '/oldroot/proc'.
-[ 1747.473927] (sd-umoun[670]: Unmounting '/oldroot/sys/fs/bpf'.
-[ 1747.527910] (sd-umoun[671]: Unmounting '/oldroot/sys/fs/pstore'.
-[ 1747.588367] (sd-umoun[672]: Unmounting '/oldroot/sys/fs/cgroup'.
-[ 1747.630489] (sd-umoun[673]: Unmounting '/oldroot/sys/kernel/security'.
-[ 1747.664244] (sd-umoun[674]: Unmounting '/oldroot/sys'.
-[ 1747.704716] (sd-umoun[675]: Unmounting '/oldroot/dev/pts'.
-[ 1747.755218] (sd-umoun[676]: Unmounting '/oldroot/dev/shm'.
-[ 1747.791652] (sd-umoun[677]: Unmounting '/oldroot/dev'.
-[ 1747.826501] (sd-umoun[678]: Unmounting '/oldroot'.
-[ 1748.451336] EXT4-fs (mmcblk1p7): unmounting filesystem
-ccb95ca0-2804-4ade-938f-23116f90c193.
-[ 1748.643359] shutdown[1]: All filesystems unmounted.
-[ 1748.643640] shutdown[1]: Deactivating swaps.
-[ 1748.644512] shutdown[1]: All swaps deactivated.
-[ 1748.644722] shutdown[1]: Detaching loop devices.
-[ 1748.732490] shutdown[1]: All loop devices detached.
-[ 1748.732764] shutdown[1]: Stopping MD devices.
-[ 1748.754002] shutdown[1]: All MD devices stopped.
-[ 1748.754286] shutdown[1]: Detaching DM devices.
-[ 1748.759617] shutdown[1]: All DM devices detached.
-[ 1748.759885] shutdown[1]: All filesystems, swaps, loop devices, MD
-devices and DM devices detached.
-[ 1748.770510] shutdown[1]: Syncing filesystems and block devices.
-[ 1748.791699] shutdown[1]: Powering off.
-[ 1749.009246] reboot: Power down
-
-Given that OpenSBI already handles both operations,
-I agree that the Linux P1 power-off and reset driver may no longer be necessary,
-at least on systems using firmware with the appropriate SBI SRST support.
-
-> > So until this driver goes away, BPI-F3 still needs the arch fix [1]
-> > for power-off.
-> >
-> > Link: https://lore.kernel.org/linux-riscv/20261104-v7-0-rc1-rv-dis-int-before-restart-v5-1-956ec09c900d@linux.dev/ [1]
->
-> We also need a more global fix for the other boards like the VisionFive
-> 2, so definitely we need the above fix instead of patching the drivers.
->
-Maybe we need an opensbi driver for VisionFive 2 dev boards; any thoughts
-> Aurelien
->
-> --
-> Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-> aurelien@aurel32.net                     http://aurel32.net
-
-Thanks
--Anand
