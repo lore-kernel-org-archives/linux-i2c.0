@@ -1,64 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.70.43.22
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794420671;
-	b=syMlqGyArOS6cil0t07yhhxFcgAXtsq7Kjs9H7wwepmh5CojNFqsg3xybqhsTOLG5LSZ
-	 zHVvKqX9gnCAZdA2mg2pn7SGrvcUPVmERQ8dqLYaT5TDnRdMPLN/uiInSNCLJt8QCFYTF
-	 lPZDEl8yUNzFBAjCeQi7XGjJNlvSQ6qrwcc/zBLnVjitf/mOxoC2+SJJqWpIAC/lXcNC7
-	 a1r36YTrO27bt/WkNot/Ud9vWM76fmR6uEfwB+/gWeu+sCZz8a0WkK526boLTtlpedQzA
-	 ez5pEysqoUWaP7FTaynBLxou/4rz1ogvZnJMOUW1xRu66ifu57nGDp7Y/vTwdvgiwNA==
+	t=1794449924;
+	b=BplQ31FkvO5R3vrOmOgwXATGJMAdd6tAor7H2yQIKBAvuXxBClzfz2vQ9nucFrfWxrB+
+	 wFdya/M68qlBFAOcemXYGMBZ9AEWDJBhfA8nYyw0tAaUrRJi4A4lqQCI1T5UeWgNb6AAj
+	 e9xzQUGXWTncZbltZXKSvvE0913PZ7EuYZWd9NT9yVrSacte2jJ7Lc/9tMw9l5yisV+py
+	 ZTq054omkNv4OULT4MGN/uIKUzBDxlHbMPa/CpPPft6aic303mEvDoFQk7Ev0zu1h5Rkd
+	 E1fCYvUPtqeSKQoKCWRy28YFCyFcmSOCd5+iRft6/Hy/SciLMYaWCnrnB7pmA8zQsJg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794420671;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=yMBHhxbvHmek25iNNzt/fSW9M/YAXtODnCUwnhn31Yw=;
-	b=R0n0jZuq4qoGjYztT5iv6uJzyXU2U6yd0yEDwtLLjyOznH5A4oFKANVo2HkNAumSRdhn
-	 hR0pS934EO566WYT6Vv6Ll4e0WkiagpBQw6Zt2an7RaAMxp7qmO3/6fBDQ8ItTlYb+RQ1
-	 9NX/xb2JjWW3xl2SQWcz5rSv0H/rdaFzrF0moX23IKXNbT3RSnbm+CQGk1sg8EPnefHSA
-	 pTUDdlSR8h0gyB4dgK87n4QeZctN5MMwdBGaVxWD5GIfpe+17XWfGNbxY0NF7CVFLJN6P
-	 PEWecALaH7Kis2BFp2KyHUfGCfEGtCsP7YF3I/YIt1Rtv2jeFwTyz/3p/KgXJroariA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794449924;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=VOYcCcAR5BaO17AihNTISMUFMiS2g+MRrRsWRCv0bFQ=;
+	b=BKc9PZ/txX0lRmRYqqCFEZQZQoqlfEZZoAOpXpqjxA85rhGImULsKEv1ZcpKlQWfL3p8
+	 VO6kOGmPA0f3x1GVdTQFdxS4K8OQWvycU3GLxcOI7VYN/1RtCwGA3sVW9A73/vKUj6tN5
+	 yrPqNthLuUyo1uo6kNc0eNO0QDImlNTspz3bcAjbuQTiQsBAwEDGb8/Ys8/2v4B8ju25d
+	 pRt8P1QxnCoqGQNiT6yAYDIjnBUm97yrBUybuMDOjqMJFIcLcZW3QAYVd1J03YXy8Xrr6
+	 AZuB4vvoHWbV76eJKcIIAtPYzKY2mLIIIYmOwEIyLiTRMbGjsaBALf63E7Bhfig8Kvw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hla1Zo5f;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=proton.me;
+	spf=pass smtp.mailfrom=proton.me;
+	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=xhkicw7qovbovaejxwtcxvp22q.protonmail2 header.b=YiZ4hAOa;
+	arc=none smtp.remote-ip=185.70.43.22
+Received: from mail-4322.protonmail.ch (mail-4322.protonmail.ch [185.70.43.22])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72AF0606A8B6;
-	Wed, 11 Nov 2026 18:11:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAA69606A331
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 02:18:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EAA69606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hla1Zo5f
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44EC31F00AC8;
-	Wed, 11 Nov 2026 18:11:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794420670;
-	bh=yMBHhxbvHmek25iNNzt/fSW9M/YAXtODnCUwnhn31Yw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=hla1Zo5f8KHVEC2e6ZsF8gZqra+uYUowhu6Eu/gSJ2vXpqE2Q5bYCTJlwBBJf2lgQ
-	 ETuuVgjzc+C5tDTcVWvAe9w+N7G51+gwaMCUw7Q67qohNsMZPf3XKr2razL2HxcHM1
-	 gA5futdg0YSFb26D3qbD2OwYa3pIiyoA2Qehw1nBYQMidrEWNGMemoeHcHBmXAM+3r
-	 7zWnpX7OJbKzCJt5nM1GHKncWIio18r9H+X/PwyDG04GF5hFjpgo1dT3GxZE5YGTt8
-	 D5iKF+QJ0SHIuLPdLAVztasxRVvnvvmv5lpv8GAfnlKRLdxlkFms5nnmXdXcELFvf5
-	 CXZpFymY8TLMw==
-Date: Wed, 11 Nov 2026 18:11:05 +0000
-From: Conor Dooley <conor@kernel.org>
-To: John Crispin <john@phrozen.org>
-Cc: Stefan Roese <sr@denx.de>, Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Christian Marangi <ansuelsmth@gmail.com>,
-	devicetree@vger.kernel.org, lei.dong@airoha.com,
-	Linqi.zhang@airoha.com, linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org, Rajeev.kumar@airoha.com,
-	upstream@airoha.com, Weifeng.xu@airoha.com,
-	zhengping.zhang@airoha.com
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: mt7621: add Airoha AN7589
-Message-ID: <20261111-federal-pleat-191852ed2822@spud>
-References: <20261111093941.691801-1-john@phrozen.org>
- <20261111093941.691801-2-john@phrozen.org>
+	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=xhkicw7qovbovaejxwtcxvp22q.protonmail2 header.b=YiZ4hAOa
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=xhkicw7qovbovaejxwtcxvp22q.protonmail2; t=1794449919;
+	x=1794709119; bh=VOYcCcAR5BaO17AihNTISMUFMiS2g+MRrRsWRCv0bFQ=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=YiZ4hAOavOrw9A3dspvgcbGZZ0xrEzbPu5UwU77kV+cx8xK1k8ke0jA1/5YOzMzT3
+	 uNIo60oD/EzUiepWM7kLpqGjWk5JI4D4I2TA8Vz938g7k67iWtsHYL5ezXHwHjBB3f
+	 OacH1wTsVjg6KFq4vV14fzC5y/zk52aKtLC0sRi+R9JOU8Dwl+OXldQpKgyZDkCWs1
+	 pLEOd/YE6O676tKLzB07UduNM7OTFlGxM5X9IRIVdPoJJ3xufUTbQ5LruG9FBZBUJA
+	 n2RWvSv1hSJR7r4/hvLa+ABg4ThLV+DkxjJxNvKwFLFpf8vZwHlVVfv+gZq9gPtr8y
+	 F5g83S7FKxo7A==
+Date: Thu, 12 Nov 2026 02:18:35 +0000
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: penhouse24@proton.me
+Cc: "westeri@kernel.org" <westeri@kernel.org>, "andi.shyti@kernel.org" <andi.shyti@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Subject: Re: [BUG] i2c: acpi: Dell XPS 17 9720 ELAN 04F3:311C touchpad (VEN_04F3) needs 100 kHz like DLL0945
+Message-ID: <iZI_luLf6KPDE7sZSzG-aRF3V1fJFh7moD99YLp6nXVGLKgHTGMY_fnseRx1glU4YXGKNN3zKxSkitJW1MxfxR8WWGb1fegxZnOmq4VArTo=@proton.me>
+In-Reply-To: <20261111075931.GG259790@black.igk.intel.com>
+References: <CYQ1dYF3ZUj0L_VRzN490SfuHRaulkT_y5NWcIEIl8OtpIgWgXyOlwEyUqZD_uz9bmVBXM2uLOo8bkyzcR-qCxNObstCqFUlK6lUYXK5euE=@proton.me> <20261109104542.GL176724@black.igk.intel.com> <lGd7ChJVtwyvhMVkRinryqLG3Lx32U7xoSjT4_inKH1pBNoAd4dvBKV1A4i9MOIVLKmgx8sVg98gfK-iUwb5Uoy0wX1CM2_c7I1vdTr2tYU=@proton.me> <20261111075931.GG259790@black.igk.intel.com>
+Feedback-ID: 217801480:user:proton
+X-Pm-Message-ID: fca8eeead4ee04356d57caeb6ca1968a1c244614
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,68 +64,142 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="PMGK6tzsdZTya8NZ"
-Content-Disposition: inline
-In-Reply-To: <20261111093941.691801-2-john@phrozen.org>
-
---PMGK6tzsdZTya8NZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 11, 2026 at 10:39:40AM +0100, John Crispin wrote:
-> The Airoha AN7589 carries the MT7621 I2C controller with a second
-> control register holding a wider clock divider. Give it a compatible of
-> its own so the driver can tell the variants apart.
+Hi Mika,=20
 
-I assume a fallback is not suitable here because setting this wider
-divider is a requirement?
 
+Tested on top of v7.4-rc2 (067c5c24cef2) on a Dell XPS 17 9720, BIOS 1.41.0=
+, without the SSDT override.
+
+The quirk is applied at boot.
+
+I've been using my laptop all day and the touchpad lag has not come back so=
+ far including on AC power. On the unpatched kernel it returns as before.
+
+Interestingly enough, I did use an off-brand AC charger for my laptop and t=
+he touchpad lag returned on the patched and unpatched Linux kernels AND Win=
+dows. When I used the Dell AC charger, the lag was gone on the patched kern=
+el and Windows, but remained on the unpatched kernel. Perhaps the root caus=
+e of this problem, on Linux relative to Windows is that Windows aggressivel=
+y filters noise without smoothing? Not sure, just a thought
+
+One question about the DMI match: does it need DMI_BIOS_VERSION? The VEN_04=
+F3 ID check already makes the quirk stop applying if a future BIOS switches=
+ to a proper ACPI ID. The 400 kHz problem also seems to be in the touchpad =
+itself, since the same 04F3:311C part is affected on the Precision 5560. Ma=
+tching only on sys_vendor and product_name would also cover users on older =
+BIOS versions, and any newer BIOS that still reports VEN_04F3.
+
+Dell also ships the same BIOS image for the Precision 5770, so it likely ex=
+poses the same ID, though I can't test that model.
+
+Thanks for the quick patch!
+
+
+
+On Wednesday, November 11th, 2026 at 2:59 AM, Mika Westerberg <mika.westerb=
+erg@linux.intel.com> wrote:
+
+> Hi,
 >=20
-> Signed-off-by: John Crispin <john@phrozen.org>
-> ---
->  .../devicetree/bindings/i2c/mediatek,mt7621-i2c.yaml      | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
+> On Mon, Nov 09, 2026 at 08:57:13PM +0000, penhouse24@proton.me wrote:
+> > Hi Mika,
+> >
+> > Thank you for the response (I honestly wasn't expecting anyone to respo=
+nd for this niche issue---so a welcome surprise).
+> >
+> > Yes my BIOS version (v1.41.0) is up to date. Currently, there are no up=
+dates available through Windows or from fwupd. I have received BIOS updates=
+ many times via Windows since purchasing this computer in 2022 and have had=
+ 0 change to this problem.
+> >
+> > For what it=E2=80=99s worth, the DSDT has a valid default ID. TPD0 star=
+ts with Name (ITPN, =E2=80=9CDELL0AFF=E2=80=9D), and _INI then overwrites i=
+t from the BIOS-provided TPHD variable, which yields =E2=80=9CVEN_04F3=
+=E2=80=9D.
+> >
+> > Please find attached the output of 'sudo dmidecode'.
+> >
+> > Thank you for helping me fix this.
 >=20
-> diff --git a/Documentation/devicetree/bindings/i2c/mediatek,mt7621-i2c.ya=
-ml b/Documentation/devicetree/bindings/i2c/mediatek,mt7621-i2c.yaml
-> index 118ec00fc190..28659bdd72f5 100644
-> --- a/Documentation/devicetree/bindings/i2c/mediatek,mt7621-i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/mediatek,mt7621-i2c.yaml
-> @@ -9,12 +9,18 @@ maintainers:
-> =20
->  title: Mediatek MT7621/MT7628 I2C master controller
-> =20
-> +description:
-> +  The same controller is used on Airoha SoCs. The AN7589 variant adds a
-> +  second control register with a wider clock divider.
+> Can you try the below patch?
+>=20
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 84841ed13487..bed9260056b3 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -7,6 +7,7 @@
+>=20
+>  #include <linux/acpi.h>
+>  #include <linux/device.h>
+> +#include <linux/dmi.h>
+>  #include <linux/err.h>
+>  #include <linux/i2c.h>
+>  #include <linux/list.h>
+> @@ -356,6 +357,17 @@ static const struct acpi_device_id i2c_acpi_force_40=
+0khz_device_ids[] =3D {
+>  =09{ }
+>  };
+>=20
+> +static const struct dmi_system_id i2c_acpi_dell_xps_17_9720_dmi_ids[] =
+=3D {
+> +=09{
+> +=09=09.matches =3D {
+> +=09=09=09DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +=09=09=09DMI_MATCH(DMI_PRODUCT_NAME, "XPS 17 9720"),
+> +=09=09=09DMI_MATCH(DMI_BIOS_VERSION, "1.41.0"),
+> +=09=09},
+> +=09},
+> +=09{ }
+> +};
 > +
->  allOf:
->    - $ref: /schemas/i2c/i2c-controller.yaml#
-> =20
->  properties:
->    compatible:
-> -    const: mediatek,mt7621-i2c
-> +    enum:
-> +      - airoha,an7589-i2c
-> +      - mediatek,mt7621-i2c
-> =20
->    reg:
->      maxItems: 1
-> --=20
-> 2.34.1
+>  static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] =
+=3D {
+>  =09/*
+>  =09 * When a 400KHz freq is used on this model of ELAN touchpad in Linux=
+,
+> @@ -377,6 +389,14 @@ static const struct acpi_device_id i2c_acpi_force_10=
+0khz_device_ids[] =3D {
+>  =09{ .id =3D "ELAN0678" },
+>  =09{ .id =3D "ELAN06FA" },
+>  =09{ .id =3D "ELAN1300" },
+> +=09{
+> +=09=09/*
+> +=09=09 * Some Dell XPS 17 9720 is not using standard ACPI IDs
+> +=09=09 * so we need to match also via DMI strings.
+> +=09=09 */
+> +=09=09.id =3D "VEN_04F3",
+> +=09=09.driver_data =3D (kernel_ulong_t)i2c_acpi_dell_xps_17_9720_dmi_ids=
+,
+> +=09},
+>  =09{ }
+>  };
 >=20
-
---PMGK6tzsdZTya8NZ
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCavSvuQAKCRB4tDGHoIJi
-0iz2APoC+/pL38Hhk9ni7vQnB5Jy70F+PVBfryx7CexSJbVGKQEA33Dx/8Km+2K1
-X4AQByWlXEYYC/jmyQC/C8Qz3rjeRgw=
-=Pjb8
------END PGP SIGNATURE-----
-
---PMGK6tzsdZTya8NZ--
+> @@ -385,6 +405,7 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle =
+handle, u32 level,
+>  {
+>  =09struct i2c_acpi_lookup *lookup =3D data;
+>  =09struct acpi_device *adev =3D acpi_fetch_acpi_dev(handle);
+> +=09const struct acpi_device_id *id;
+>=20
+>  =09if (!adev || i2c_acpi_do_lookup(adev, lookup))
+>  =09=09return AE_OK;
+> @@ -398,7 +419,9 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle =
+handle, u32 level,
+>  =09if (acpi_match_device_ids(adev, i2c_acpi_force_400khz_device_ids) =3D=
+=3D 0)
+>  =09=09lookup->force_speed =3D I2C_MAX_FAST_MODE_FREQ;
+>=20
+> -=09if (acpi_match_device_ids(adev, i2c_acpi_force_100khz_device_ids) =3D=
+=3D 0)
+> +=09id =3D acpi_match_acpi_device(i2c_acpi_force_100khz_device_ids, adev)=
+;
+> +=09if (id && (!id->driver_data ||
+> +=09=09   dmi_check_system((const struct dmi_system_id *)id->driver_data)=
+))
+>  =09=09lookup->force_speed =3D I2C_MAX_STANDARD_MODE_FREQ;
+>=20
+>  =09return AE_OK;
+> 
