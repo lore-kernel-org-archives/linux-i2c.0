@@ -1,75 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794495161;
-	b=3RGi770whLdDU7xciXWRLwXCwyl1DygKjD6Ta4x1ryhR7QEB8xa5y2VeS0eP9dhOUv1g
-	 FozNn+OFat4ryJ+nQWwFUpQK70bQltZh4BcnvuTWyDyp8K/els5KvAiOFrfEs0pQwZoF8
-	 wiHFs8CpngDZaCKp75A+vhnAVInLt1tYfBFXWyM3rRU9+YLAB0D+7NHjyrIypNxpPWfOV
-	 fCYPKRL/BzW2o6hWTCLioZFkVQmmeu0sNPzIgHHG/97Mkt7msuFNZtiBVgSleQ7A2E4W8
-	 kBMw2LFcd0Zc8RiT8yvmusOShhcCfz/d7dI0A3GjwtijIKrPYzcD1O3ACmKZqRI3QoA==
+	t=1794501220;
+	b=xjZlnFeDa/U8Z4A1RFRS5n6K0xft8w9frnzKecUjNDJO1a0UV79XzZf6dKQxr6SnFEAX
+	 GPeZEXGnML9VmwwtmKb8mdR0BOwTAPeoNdjtmrwU2rOqRqdcIXltBrWmFkYYKieSAxYRm
+	 QGU8FD4yL/H8Go/kcY0ld5ckYir/JCqV0imZ6KTHploBQkLcZehg+AjP2yFhzBbpdcs/U
+	 1ovn9s4xF/FN7FYFLku/L8fRWKjNDTsOziGRZ5ufr/S1CIJjyZ5FMznojhvGAL6B90uQK
+	 SSoEnF77fjuKUsBSo1m7V6tdI1yW0BZbhZUg3SqsBZTJvWg+0+fR7/NdFE0WmeuplNw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794495161;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794501220;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
-	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
-	 Content-Type;
-	bh=Q7Giv0YbZtbuh6pswUgbBS7Tjhq3TZVDrjjmxy0wKk8=;
-	b=JGdHFKezKwN6qJnC255ydkOh+IsShXCMcJNvzrDs5GJOGkc6lL/5h/rAI2YCyl5VO5yG
-	 duGM0eAHA599rIOwjw2+u3xvsl8woIa+SCuF/0YaMUlaDziqyN3I+Z8TzvwIk6+5ezwVY
-	 JYqVd1deEawRVlMeAC3ZPxhqi+ZxSNjk8FiM9dL/f+QMaxpdBfq5zR3xrRfFvsk7emYt7
-	 hanCCiRe8cRw5hr1i9QWkwjXXBmNw7AgAG3UzfcjzxiofErfwvBQCwQpaCWESt4nB5wjL
-	 HR3J3vaUo847aqPThrWJog6eyE2da5un5w3jchE+vkVkuSrZVgfwCtDgVXJEol9tr0g==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=fTf5xwUaVqhCGYlOB3/ivLsxy/QQjCllvG43X3tVGp0=;
+	b=xCHnOLKnblzuTNaAyWHRXHjQg8zDofyk5g9hgVIS1oqTGucDNY2wDNvLzrpG5TE3LqyM
+	 ufw039bIVXR8jSV+Y21WxlG6ISwQjwBsVAYhnORjRJupqkOIOf5R4AOS+SGEaTT9baJX0
+	 zBlddKBHIjtj4ZTAqi+uBR032WH84iG4z51OMG4Zaw+PEhmGUS/qC4/4Cfeq+3E5qT8Gi
+	 dARRORwNxwt46AsCFW12NR7F8LhE3yCKK2LUQa5wf7mQKxmYXJi934XvNJXMlRVgCRZlH
+	 bUUc+yJhvoGJuB9JsS56Eqaqup8gyyfxDkeWy5ewMEULygxIFWo7fPdw9X4119/jfHQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--atifashhar.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="XylA/s0o";
-	arc=none smtp.remote-ip=209.85.215.199
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bOOolabN;
+	arc=none smtp.remote-ip=74.125.82.53
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1420960A2607
-	for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 14:52:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1420960A2607
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--atifashhar.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADA6260A382B
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 16:33:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ADA6260A382B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=XylA/s0o
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cc1ca15334cso4570554a12.1
-        for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 06:52:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bOOolabN
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-1b3b4944abeso1420475c88.1
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 08:33:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1794495160; x=1795099960; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Q7Giv0YbZtbuh6pswUgbBS7Tjhq3TZVDrjjmxy0wKk8=;
-        b=XylA/s0o/lm/yXiTzWdUkyKQ31nCiof9Ms5vJJZ8uKmBohwgsVRAmIirqxOWVkb6zB
-         KzVWNIQjDfsOmZtKmblI9prPr1S3XIvZs947aBjSLP+mSu0ljJ3IOf2AlBDNAHKpUPSa
-         jmGyHiqifPoTt+q0T/sFb3ff6X3pB0IfMRGgWpUXCyfoccoOnnvYLk0HneelkVoMRQ8Y
-         1WU0FI5SFneA5xZ1WcWsCGzQXwJSegBJDYaakvYsr7Z+f6Avxs7nnPOdAAU4l+6F/znJ
-         /liMfuW1AuAyp0vcfTZbQRTnCJDBx69T3vjDL6ac0PK+aToJBV0YLPNYnH84wSeZcImj
-         QsSw==
+        d=gmail.com; s=20260707; t=1794501219; x=1795106019; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=fTf5xwUaVqhCGYlOB3/ivLsxy/QQjCllvG43X3tVGp0=;
+        b=bOOolabNHffCQAuwLQ0DkkrmI/0xfrlO3ZGMi4uEqUSA/ruC8Kgzg3IfqETXANiCSc
+         nE5XTUMOGB8+pm3D1vOJLl2dghi+dV6+Vf8rRysaZFAcqdtvPVkoe6QXZX87YeIv7qG7
+         lfylAT9DyUHn+4Eh7Ynj4HzZCeDttzszv+l+bobVFsJjNhRSkAE3y5pQNLVCbqsXZfvX
+         0sFEpdUsLOmCJy7pb/Wb5YJ0zdceVdrQpVM+F7Q5aHZisnn6mlBxmXh9varoskvH9SSU
+         ko83HninfW0bnflBqx4NP0nlDvUvEjXEhUVdASmv8xP0a8g+0Ska9Eos+DzE6V4AAGlQ
+         ELAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794495160; x=1795099960;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1794501219; x=1795106019;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Q7Giv0YbZtbuh6pswUgbBS7Tjhq3TZVDrjjmxy0wKk8=;
-        b=CI/tmHGfKB8GcA5gTxsdJgTmu0oSGwTQyV6HDSzpKtybAjvaqtNQt2O071D9p6WXhq
-         z9u97BnH0q0SyIXrkJSygPyHRKKyFp4deOv/EVRW3qSR+2wdduYFfK5POt8RfyalEgdO
-         a0vQqlWDa9kshWwcR+F6KRjrDf6rfGhaHIfP81kEi0zMb6D7Yjt99Vvmkrslg+iZ2Zu9
-         dNsTR0QBX4yi84TulRkMMbgy+eZYnlC4/o3UJfiVpASEmlXh3g3555emU/JiHh6o38K3
-         pEU351k2TAegZL/Hj+kvCP2WBzPjfioRl29QjtlQBQoMLUz4S2b643Sg6pZn8Lzz4Ey+
-         ogrQ==
-X-Forwarded-Encrypted: i=1; AL+hErH1jo3/KoBiabNbYgF6NJ3mOW0Yau2/RSOeAyX9SOzsd+9ew2mAq0c0Ep3KLsSBh0nn+v74oasQDrM=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8bD4lD7Uubnudcv//UsST5wNuaUD7ht6ht7nIaEIik4FeTcuYc
-	qCSvQU2WPMSgphAz5aUy4PenPcmWHpHM+bK/yfAt7FgfZP6cNI4OUOzgYczH0qPLHGceb/Hv+ZH
-	LN8RUskzslwQjuYwNGp38+Q==
-X-Received: from pgtl16.prod.google.com ([2002:a65:6810:0:b0:cdd:aaa7:beae])
- (user=atifashhar job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6a21:138c:b0:3ed:bdfd:23a8 with SMTP id adf61e73a8af0-3f2fedddad3mr6395544637.61.1794495159901;
- Thu, 12 Nov 2026 06:52:39 -0800 (PST)
-Date: Thu, 12 Nov 2026 14:52:38 +0000
-In-Reply-To: <20261104133745.1432212-1-atifashhar@google.com>
+        bh=fTf5xwUaVqhCGYlOB3/ivLsxy/QQjCllvG43X3tVGp0=;
+        b=JJ60I/O0kMIQ/prIn3tUe7ma6lfYI7PR3Rc/aOTDKwLoi3R3FBGV+YdB1vacE+ciPa
+         zFq7aGRLbNowJ91MDKmX6RVJZJ5AjHao3adcUmXh+WPjn4Pgnrg8CndhbWK+2hM5eiaB
+         sslZjubPhQm2F081mxpC5LhYqqy755/vc1KL4YzRk61kra2G1foULA9FQXaBzdS7B6WC
+         Kk9IuJFRODqdUyi6SzlcOeuKZB25MY5E0vGfEnsqX5jHE3vjoHy2DB6DcQ5dkeVd2Dxm
+         kJz90BuVZpHnisH6LFeuATfK9W/SnSjKTeWUZYosUI3qo9qA011HAvVN6DVokfq4RE0l
+         Iv3w==
+X-Gm-Message-State: APuU4Z/mP9JNbsNRNGzwDIHRYNIw09VR5DuF2c/qTOINu0k/O3GTrjIZ
+	3tOXERwWxWUmJJJ8TLw4bt2etRyrRMrGWQnZQWaKyJ6cKp6YVJqfEaMm
+X-Gm-Gg: AYBFou1PK9bTPdGB6QAGHDKkB13uEl/1OMbvjZemdc+I9Khq/7XpgNRai3qxq4Yy5o5
+	v9RxV9oZWeXW+QsmABmDfI4LW1u0DbrY0uglYwpEweaiGkFg8e53j+sqPObPJtK1Hd+Lz9UUkax
+	5W1+Uv9yS5T5EqJxbrriJF0au5fq8umR17EIkC61usrqUFjmwa4KpX4IlMawcxRZeDtJk6ZVI8S
+	DsR6qHJ9JQgT+IF3oKNwJ73Zo3CAMppMHLbqzBmVkgqUI+41vHPfYfznefODnYagFdfwIm63HxY
+	uDCjf/QiGLv3EGyb6e6q8OPBlcWaQmUsnXegsjLkWT5kadymUPYMZGgt2ixXGNLyCjX2+LMFoQC
+	IHHaOqgvFWolgrJG6FegegJ2fcYdTyQ34Te62B8hTneMOY2QukkfQ4qYfR7B8g5Uk1pTrrmctBH
+	wv9+dxIIO4e4KfDbtH+b+lpoqqncOxRh5BllUT40h1pdIKabwMhOhQp0j3m3LSHf8bEh6tgAO8/
+	vgArC0wOKrERSxiH5IKn6Og5fCtjepNiv5wEVSFJRzt2HR+VFMEG62+5FIqcaNZUBydVlpnt55O
+	MoI66qmT3IsYtzut+Inj2mHtQcNFUn63FMRVF6HBixcCwbHmtS3S3IWowIEgr6aiy6FMHzlNG9M
+	AxmF03iVmUJp+FE/zRqLR+vwtsRUL8betuH+uSYK7btR6/blki1s4AXIGZC7h37n8LoAajGR/
+X-Received: by 2002:a05:7022:409a:b0:1b2:3b5b:b80b with SMTP id a92af1059eb24-1b5030d7a9dmr70385c88.8.1794501218632;
+        Thu, 12 Nov 2026 08:33:38 -0800 (PST)
+Received: from Mac.localdomain (198-27-228-154.fiber.dynamic.sonic.net. [198.27.228.154])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b50300e5dcsm230248c88.0.2026.11.12.08.33.36
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 12 Nov 2026 08:33:37 -0800 (PST)
+From: Ahmad Byagowi <ahmadexp@gmail.com>
+To: netdev@vger.kernel.org,
+	vadim.fedorenko@linux.dev,
+	andi.shyti@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	Jiri Pirko <jiri@resnulli.us>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Michal Simek <michal.simek@amd.com>,
+	Richard Cochran <richardcochran@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH net-next v2 0/3] ptp: ocp: support the WiWi production Time Card
+Date: Thu, 12 Nov 2026 08:33:29 -0800
+Message-ID: <20261112163333.12523-1-ahmadexp@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -78,155 +108,65 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-References: <20261104133745.1432212-1-atifashhar@google.com>
-X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
-Message-ID: <20261112145238.3736264-1-atifashhar@google.com>
-Subject: [PATCH v2] i2c: designware: Release slave SCL hold in __i2c_dw_disable()
-From: Atif Ashhar <atifashhar@google.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@kernel.org>, 
-	Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
-	Atif Ashhar <atifashhar@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-When an external I2C master initiates a read to the Synopsys DW_apb_i2c
-adapter in slave mode during kexec teardown, runtime suspend, or driver
-unbind, the slave hardware stretches SCL low (0V) waiting for TX data,
-setting DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY.
+The WiWi Time Card (2163:1008, subsystem 10ee:0007) uses a
+Celestica-compatible register map behind LitePCIe. Its bridge does not
+support the subword MMIO used by the XIIC driver. Add an opt-in word
+access mode, exercise both modes with KUnit, and enable ptp_ocp on the
+revision 02 interface. Other cards retain their existing access modes.
+The series does not enable WiWi flash updates or change LED policy.
 
-In master mode, __i2c_dw_disable() issues DW_IC_ENABLE_ABORT to release
-the bus. However, according to the Synopsys DW_apb_i2c Databook, the
-ABORT bit applies only to master transfers and has no effect in slave
-mode. Because the slave cannot disable while stretching SCL,
-__i2c_dw_disable() times out, leaving DW_IC_ENABLE_STATUS[0] = 1 across
-kexec or rebind. Subsequent writes to DW_IC_SAR are write-protected and
-silently dropped by hardware, wedging the slave and blocking any other
-devices sharing the physical bus.
+Patch 3 uses the platform-data field from patch 1. Could the I2C
+maintainers review patches 1 and 2 for an Ack to take the series
+through net-next?
 
-Fix this by:
-
-1. In __i2c_dw_disable(), if DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY is
-   set while disabling, temporarily re-enable the controller so the APB
-   interface accepts data commands without racing with the slave ISR,
-   clear pending RD_REQ/TX_ABRT interrupts, write a dummy 0xff byte to
-   DW_IC_DATA_CMD to release the SCL stretch, and immediately request
-   disable via __i2c_dw_disable_nowait(). Also drain the RX FIFO if RFNE
-   is set during SLAVE_ACTIVITY.
-
-2. In i2c_dw_reg_slave(), replace __i2c_dw_disable_nowait() with
-   __i2c_dw_disable() to ensure the controller is fully disabled before
-   calling i2c_dw_set_mode(), which programs DW_IC_SAR and DW_IC_CON.
-
-Fixes: 9f3e065c54b0 ("i2c: designware: add SLAVE mode functions")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atif Ashhar <atifashhar@google.com>
----
 Changes since v1:
-- Use lowercase 0xff instead of 0xFF in regmap_write(), comments, and commit
-  message (Mika Westerberg).
-- Explained on the v1 thread why writing a dummy 0xff byte to DW_IC_DATA_CMD
-  does not generate unintended bus traffic when immediately followed by
-  __i2c_dw_disable_nowait().
+ - 1/3: Drop five explicit inline annotations in the C file and
+   shorten the platform-data comment. No access semantics change.
+ - 2/3: Wrap the offsets and expectations flagged by checkpatch.
+   The four test modes, register offsets and expected values are unchanged.
+ - 3/3: Follow NetTimeLogic's PCI revision convention. Replace the exact
+   image ID and per-core version checks with a revision 02 gate. Reject
+   unknown revisions before FPGA MMIO and retain the BAR/MSI-X checks.
+   Report the full build ID in devlink; select capabilities by interface
+   revision. Update the documentation and wrap overlength lines.
 
-Link: https://lore.kernel.org/linux-i2c/20261104133745.1432212-1-atifashhar@google.com/ [v1]
- drivers/i2c/busses/i2c-designware-common.c | 46 ++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-slave.c  |  2 +-
- include/linux/designware_i2c.h             |  1 +
- 3 files changed, 48 insertions(+), 1 deletion(-)
+The revision 02 driver was tested on a physical card running build
+0x0000800f under Secure Boot. It bound with 64 MSI-X vectors; the PHC
+advanced 3.000441080 s over three one-second sleeps. SPI NOR and both
+EEPROM clients bound. The PHC was UNSYNCED at probe; this test does not
+establish PPS lock or valid UTC. Only that firmware build was tested on
+hardware. Subsequent edits to the tested drivers remove inline hints or
+change formatting and comments.
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index a1eca6cd4b75..46866baa9d9c 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -619,6 +619,50 @@ static int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
- 	return ret;
- }
- 
-+/*
-+ * DW_IC_ENABLE_ABORT only aborts master transfers. If the adapter is acting
-+ * as a slave and holding SCL low waiting for TX data (SLAVE_HOLD_TX_FIFO_EMPTY),
-+ * hardware refuses to disable (IC_ENABLE_STATUS[0] stays 1) until a byte is
-+ * written to DW_IC_DATA_CMD.
-+ *
-+ * Mask interrupts and temporarily set DW_IC_ENABLE_ENABLE so the APB interface
-+ * accepts writes to the TX/RX FIFOs without racing with the slave ISR, clear
-+ * pending RD_REQ/TX_ABRT interrupts, feed a dummy 0xff byte to release SCL
-+ * (or drain any pending RX byte), and immediately request disable again via
-+ * __i2c_dw_disable_nowait() so the controller initiates disable upon
-+ * completing the current byte.
-+ */
-+static void i2c_dw_release_slave_hold(struct dw_i2c_dev *dev)
-+{
-+	unsigned int status, dummy;
-+	bool tx_hold, rx_pending;
-+
-+	if (!IS_ENABLED(CONFIG_I2C_DESIGNWARE_SLAVE) || dev->mode != DW_IC_SLAVE)
-+		return;
-+
-+	regmap_read(dev->map, DW_IC_STATUS, &status);
-+
-+	tx_hold = status & DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY;
-+	rx_pending = (status & DW_IC_STATUS_SLAVE_ACTIVITY) &&
-+		     (status & DW_IC_STATUS_RFNE);
-+
-+	if (!tx_hold && !rx_pending)
-+		return;
-+
-+	regmap_write(dev->map, DW_IC_INTR_MASK, 0);
-+	regmap_write(dev->map, DW_IC_ENABLE, DW_IC_ENABLE_ENABLE);
-+
-+	if (tx_hold) {
-+		regmap_read(dev->map, DW_IC_CLR_RD_REQ, &dummy);
-+		regmap_read(dev->map, DW_IC_CLR_TX_ABRT, &dummy);
-+		regmap_write(dev->map, DW_IC_DATA_CMD, 0xff);
-+	}
-+	if (rx_pending)
-+		regmap_read(dev->map, DW_IC_DATA_CMD, &dummy);
-+
-+	__i2c_dw_disable_nowait(dev);
-+}
-+
- void __i2c_dw_disable(struct dw_i2c_dev *dev)
- {
- 	struct i2c_timings *t = &dev->timings;
-@@ -676,6 +720,8 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
- 		if (!(status & 1))
- 			return;
- 
-+		i2c_dw_release_slave_hold(dev);
-+
- 		/*
- 		 * Wait 10 times the signaling period of the highest I2C
- 		 * transfer supported by the driver (for 400kHz this is
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index 0abcc7757b23..e51a6b60292a 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -40,7 +40,7 @@ int i2c_dw_reg_slave(struct i2c_client *slave)
- 		return ret;
- 
- 	pm_runtime_get_sync(dev->dev);
--	__i2c_dw_disable_nowait(dev);
-+	__i2c_dw_disable(dev);
- 	dev->slave = slave;
- 	i2c_dw_set_mode(dev, DW_IC_SLAVE);
- 
-diff --git a/include/linux/designware_i2c.h b/include/linux/designware_i2c.h
-index 53f37f18a722..113a9d84e34d 100644
---- a/include/linux/designware_i2c.h
-+++ b/include/linux/designware_i2c.h
-@@ -100,6 +100,7 @@
- #define DW_IC_STATUS_MASTER_ACTIVITY		BIT(5)
- #define DW_IC_STATUS_SLAVE_ACTIVITY		BIT(6)
- #define DW_IC_STATUS_MASTER_HOLD_TX_FIFO_EMPTY	BIT(7)
-+#define DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY	BIT(9)
- 
- /* DW_IC_SMBUS_INTR_* bits */
- #define DW_IC_SMBUS_INTR_ALERT			BIT(10)
--- 
-2.56.0.567.gdb80ae8cd5-goog
+On the rebased v2, the XIIC and ptp_ocp objects built on x86-64 with
+W=1 under allmodconfig and allyesconfig. Four XIIC KUnit cases passed
+in an isolated x86-64 QEMU boot. Fixtures exercised all 256 PCI
+revisions, bad PCI layouts and multiple image IDs. These are not
+additional hardware tests. No full allmodconfig or allyesconfig build
+is claimed for v2.
 
+Codex assisted with the changes, tests and changelogs using the board
+layout, machine-check evidence, vendor revision rule and v1 CI reports.
+
+v1: https://lore.kernel.org/netdev/20261111041904.48916-1-ahmadexp@gmail.com/
+
+Ahmad Byagowi (3):
+  i2c: xiic: allow platforms to require 32-bit register accesses
+  i2c: xiic: add KUnit coverage for register access modes
+  ptp: ocp: support the WiWi revision 02 Time Card
+
+ Documentation/networking/devlink/ptp_ocp.rst |  36 +++-
+ MAINTAINERS                                  |   1 +
+ drivers/i2c/busses/Kconfig                   |  14 ++
+ drivers/i2c/busses/i2c-xiic.c                |  60 +++++--
+ drivers/i2c/busses/tests/i2c_xiic_kunit.c    |  91 +++++++++++
+ drivers/ptp/ptp_ocp.c                        | 163 ++++++++++++++++++-
+ include/linux/platform_data/i2c-xiic.h       |   3 +
+ 7 files changed, 341 insertions(+), 27 deletions(-)
+ create mode 100644 drivers/i2c/busses/tests/i2c_xiic_kunit.c
+
+
+base-commit: 368fbf5d82da9ebce309449c74fc0b128f7d0219
