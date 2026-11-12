@@ -1,64 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=46.4.11.11
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794508857;
-	b=UZE7R8E1OICYvW2DyEfyWUGg2VhMBJiMlCIaOWotft+ENFviEf8PLeqWb5NEplbixVYr
-	 7xL/Ebalxy/rts086OwqCyG/MAlShhmMxWwvYBG6sir24dPP8iC0ga1iFsNGw8D/Ya9xZ
-	 Zinu937ikpdnTZs9VmUMGgsPuyk/7uXais49XS/rWn8cpa8CzEhl2Np0xIte37PM1KaMr
-	 XuWjwkcI2ho36V0nQ+V+KNcOnfivj/ENxPqNqhtMAQ4a+7igdk8oluuxJKz+7KU/Kg17D
-	 nI12+1q4L0J5M3X2nonhOS544sSQOUZrKcD3FB/DRLTy6JI9xWnsS2B7pxATrSzgOoA==
+	t=1794509914;
+	b=1SHmIOBrqbscNv2J0W5Bm3LiiS7FMkKS6X03uAOP8iGKpK3eOKEpGnYRbO8CUjAEz2n/
+	 4wrsv7v09LwcU0sNXm8h/6Un5fTR1rYBnCaWa6EzYc3siox1IZWYmP2VqIM+q0wzuj5uJ
+	 WnkR3Gou/J52Dy29eA62XEQWMLF6E46nur2C4rvI5vv73I6QSjtMAbwXowDhjyqewob9o
+	 EsiBpy8A2KkCjPHUhraNManP4eCpbqltE/EyF+UIdUO5pi+8aG91MpHDXrziX9Pl5qmZp
+	 9WthXd5PfpS+YwAXko4UkRpmfAwy9r6EXeXG6O5Q0d3wdEIBbebK4l90GUiPCe/cAkQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794508857;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
-	 X-Cookie;
-	bh=8HwKy2Ni3hhvlhPAIbhLgQPBiXHFM2JdTyPuEE7hnDI=;
-	b=xqHiY19XpJ1f5GojgNzt3SfNs7ZPlTV/nChA/Ev1gPfHRZZ8OTDjugiacG4HNaAKBq/P
-	 XaBeMdBUFNq04SpxxJhw0B12e7KCxkw72Ujons2o7tBVocNrgrIbnq9fzog9lkTSFBZlo
-	 dQiDEyN5dQ0cFa8zZZ/EFHSzSv9PCl9dKBwVzZ0U5YMXMRuN6RYa51Q8QTsLlGyxlGEoj
-	 GBOJXOGFYobrSdA8SHzZS99x3VDmAZ9YUMQ9yq1LfTOAJlsRos+f/jfOZCPP7aCepqaWr
-	 /PSSWJQNluOhqCgzeKEhIHheu5RvYJ0DQTCV5IZJicIFQDqmBgIF0P/frmix1/3sQ5Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794509914;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=Wh6e5KCC0TYqtKn5VL+37AXMoQzEPx5YcWH45hh6xlg=;
+	b=ghh0TCoghmSEZDLSbT6N5OSN11yANmIqV5XRwh7WM6yZ3QJtR/zejjkV/hSXw4vo//kN
+	 arBiSohRcl3etXUjQIuP9e8g69MFR6UiIicN+ct8hQ+n1eS7U041a+kLsNIRNBq/T3gFH
+	 7wCaf0srVlIjXbzvOhzgxGJPVYmZU+bFtQf+uLni8JK5nVNynsQRg8HO4hWbc4hS1sxoH
+	 4x0jcLJUYqbzFUQvmJbsTf412yi6Awz6vfLucbr8mndiMFRLBmr+20B2Pxj4T4wC4DONY
+	 LV7jebPvCUrYTmOVNMVb3SyMLI9al1vflqFxpQG7nB/vzs/gDVuYp/Jb+MKdzkmwuYQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I2XFml4V;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=phrozen.org;
+	spf=pass smtp.mailfrom=phrozen.org;
+	arc=none smtp.remote-ip=46.4.11.11
+Received: from nbd.name (nbd.name [46.4.11.11])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C557606A330;
-	Thu, 12 Nov 2026 18:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I2XFml4V
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E9D01F000C4;
-	Thu, 12 Nov 2026 18:40:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794508857;
-	bh=8HwKy2Ni3hhvlhPAIbhLgQPBiXHFM2JdTyPuEE7hnDI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=I2XFml4VnUd9hWL11SqonT3UQ7RpFiGf2jFkNpay7r2Rvn2MCvt70KsIsO/IbOQAE
-	 hsHQKymF4/2AXgmKyL2diX1kUmzfaMaOYZXHypct6PAtJqfbiBN4zULMmqqLaqNdvU
-	 UG5V10GX8F/oUPWwlAb9eozaPJDTHFrXLVk5HnfHn6wLOwNV0h7Rz7q5dEgWku/WqD
-	 vWEzIyrsrby3B36UvvpiKHwRyTr2uVr8Q8AMVTJZg0bnkun3NNeftex1CVFT4W0+aQ
-	 2IbUsxxCfgnY/AAYU00WDi4MbAW9ixXH4RJ1SPQuw9dU5kXfohsIbiciSM2Ct1pelz
-	 UcJ6Xav1JgT6A==
-Date: Thu, 12 Nov 2026 18:40:51 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Aniket Limaye <a-limaye@ti.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B7F606A323;
+	Thu, 12 Nov 2026 18:58:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77B7F606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=phrozen.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phrozen.org
+Received: from [2a04:4540:1403:f2fc:83ce:6656:246:c906] (helo=bertha10..)
+	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <john@phrozen.org>)
+	id 1xRa0B-002Xe4-0W;
+	Thu, 12 Nov 2026 19:58:27 +0100
+From: John Crispin <john@phrozen.org>
+To: Stefan Roese <sr@denx.de>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	lianfeng.ouyang@starfivetech.com, s-jain1@ti.com,
-	andriy.shevchenko@linux.intel.com
-Subject: Re: [PATCH v5 1/2] dt-bindings: i2c: Add Synopsys DWC_i2c controller
-Message-ID: <77286fa5-5952-4e02-9c4d-040b047cc2b5@sirena.org.uk>
-References: <20261111-tda54-upstream-i2c-v5-0-280a4a779b24@ti.com>
- <20261111-tda54-upstream-i2c-v5-1-280a4a779b24@ti.com>
- <fc1fe51e-952c-4c8f-8dc1-fb832b03943b@sirena.org.uk>
- <20261111-smooth-meerkat-of-judgment-dbe8bc@quoll>
- <34533daa-7eb9-4674-a288-e8d87a8bf29f@sirena.org.uk>
- <fdeee43b-9a27-43b2-9193-7b2db468e9c0@ti.com>
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Christian Marangi <ansuelsmth@gmail.com>,
+	devicetree@vger.kernel.org,
+	lei.dong@airoha.com,
+	Linqi.zhang@airoha.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mediatek@lists.infradead.org,
+	Rajeev.kumar@airoha.com,
+	upstream@airoha.com,
+	Weifeng.xu@airoha.com,
+	zhengping.zhang@airoha.com
+Subject: [PATCH v2 1/3] i2c: mt7621: assert and deassert the reset line
+Date: Thu, 12 Nov 2026 19:58:18 +0100
+Message-Id: <20261112185820.1315718-2-john@phrozen.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261112185820.1315718-1-john@phrozen.org>
+References: <20261112185820.1315718-1-john@phrozen.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -68,42 +71,66 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="JPShpkDOxa7X/GR9"
-Content-Disposition: inline
-In-Reply-To: <fdeee43b-9a27-43b2-9193-7b2db468e9c0@ti.com>
-X-Cookie: Baby On Board.
+Content-Transfer-Encoding: 8bit
 
+The driver resets the controller with device_reset(), which needs a
+.reset operation in the reset controller. The EN7581 reset controller
+implements assert and deassert only, so there every call fails, logs
+"I2C reset failed!" and leaves the controller as it is, also after a
+transfer timeout.
 
---JPShpkDOxa7X/GR9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Get the optional reset line at probe and assert and deassert it. The
+MT7621 and MT7628 reset controller does the same in its .reset
+operation, with no delay in between, so nothing changes there. A board
+without a reset line no longer logs an error, and a reset controller
+that is not ready yet defers the probe.
 
-On Thu, Nov 12, 2026 at 11:46:27PM +0530, Aniket Limaye wrote:
+Suggested-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: John Crispin <john@phrozen.org>
+---
+Changes in v2:
+- New patch. It replaces "clk: en7523: add a reset operation" from
+  the clk series (Philipp).
+- Link to the discussion: https://lore.kernel.org/r/0c96f978571c569de6552fc11131e45b55cada1b.camel@pengutronix.de
 
-> So if I understand it correctly,
-> 1. you'd rather the driver have a generic compatible such that we can have
-> distro kernels not requiring specific SOC support for this driver.
-> 2. AND it is possible to have a *sane* fallback by using the IP's generic
-> minimum fifo depth. The DWC_i2c manual specifies IC_TX_BUFFER_DEPTH and
-> IC_RX_BUFFER_DEPTH as 2..1024, so using depth of 2 as a fallback would be
-> functional on any integration, just slower.
+ drivers/i2c/busses/i2c-mt7621.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-Yes, exactly.
+diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
+index 9ea5e3f9a763..7a31cc8b89ce 100644
+--- a/drivers/i2c/busses/i2c-mt7621.c
++++ b/drivers/i2c/busses/i2c-mt7621.c
+@@ -65,6 +65,7 @@ struct mtk_i2c {
+ 	u32 clk_div;
+ 	u32 flags;
+ 	struct clk *clk;
++	struct reset_control *rst;
+ };
+ 
+ static int mtk_i2c_wait_idle(struct mtk_i2c *i2c)
+@@ -85,7 +86,9 @@ static void mtk_i2c_reset(struct mtk_i2c *i2c)
+ {
+ 	int ret;
+ 
+-	ret = device_reset(i2c->adap.dev.parent);
++	ret = reset_control_assert(i2c->rst);
++	if (!ret)
++		ret = reset_control_deassert(i2c->rst);
+ 	if (ret)
+ 		dev_err(i2c->dev, "I2C reset failed!\n");
+ 
+@@ -288,6 +291,11 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2c->clk);
+ 	}
+ 
++	i2c->rst = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
++	if (IS_ERR(i2c->rst))
++		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->rst),
++				     "Failed to get reset\n");
++
+ 	i2c->dev = &pdev->dev;
+ 
+ 	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+-- 
+2.34.1
 
---JPShpkDOxa7X/GR9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmr2CDIACgkQJNaLcl1U
-h9DFUgf/ZgGPRM6nv1tMqke3XXhd8qi2gi9+yWd7tFmhD377HQAi6oU+E2oF4jmc
-Bm1f/14MWdfgUCgYwjHidMCLRjeHac8RCbon5z4Gl7izfHr8PN4Ip6//xLFvvGzf
-IG93Ly2yhILFrvD92uYo6f/4D2V32FDNleCGBii7JbcdFqfxQQCZ6VqsAHiHCpll
-RS0ovnSur0GnFjd9MDD/cH01f/Y5SN822CkpPgpU/2cAtI+LE46dmcAvnobExdIx
-1nWUaOoyoKgu1sad9S+TaVYV+T90zF1uPeD2F9yR+Ma9bqryLbIxFpx8D41gXPJR
-ixBMreAecmQuPPAl2lYN2ZdBIy6oAQ==
-=NxGe
------END PGP SIGNATURE-----
-
---JPShpkDOxa7X/GR9--
