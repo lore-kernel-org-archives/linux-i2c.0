@@ -1,52 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=101.71.155.101
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.199
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794491955;
-	b=BdtcQSur9As4CdQxPORbjWlQfCSC9m9oQVTvftxS9rKS0VNte8JSmBGF1FHnDgu1mSIz
-	 06KxeS+xdCq/5PnkntMru88islGpK64Mxhq881xO43zEWarSqoF12G4AZeGO9aV4lKoQ3
-	 O612kuYWbby0oRw9ekSxP6qdiRni7hBVCl9FFUD49mbBsydTGJwRqJi1bt/nTSeMT7Tft
-	 Ry0gvAK4uHRULQkya2zOg587+PlSuUuqERCn3nahyvUXkJ8xCsacJPmQjBkc5HalxqlwL
-	 pl8FrF5ZtDwiUIMjrTcsooaYfqNJvow51aX/uNb6w0utoBBZ+9d6eagVr36jPNGfNFw==
+	t=1794495161;
+	b=3RGi770whLdDU7xciXWRLwXCwyl1DygKjD6Ta4x1ryhR7QEB8xa5y2VeS0eP9dhOUv1g
+	 FozNn+OFat4ryJ+nQWwFUpQK70bQltZh4BcnvuTWyDyp8K/els5KvAiOFrfEs0pQwZoF8
+	 wiHFs8CpngDZaCKp75A+vhnAVInLt1tYfBFXWyM3rRU9+YLAB0D+7NHjyrIypNxpPWfOV
+	 fCYPKRL/BzW2o6hWTCLioZFkVQmmeu0sNPzIgHHG/97Mkt7msuFNZtiBVgSleQ7A2E4W8
+	 kBMw2LFcd0Zc8RiT8yvmusOShhcCfz/d7dI0A3GjwtijIKrPYzcD1O3ACmKZqRI3QoA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794491955;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-HM-Tid:
-	 X-HM-MType:X-HM-Spam-Status:DKIM-Signature;
-	bh=/4QK2VEVaNUR4dD+Jet/7ljypHn8xGKD/HMMFXFMLhE=;
-	b=YaGOtYj6OvOm1cbgZukRVGOIabyvEak3uUsFWETsruQqxM/r1P+B+77y53xuYASMgxNG
-	 NJyyEdkduf2tB+F18q2YDG2ejCyn2tm6caEECbkdmOdQmRNSEzgdTrU8dpsFrrJXac6HK
-	 60h+eaOJ5Oae4bruNDCOFRozchvVruEOQLmLUdDfE2UAGExbjuDuYDof5QmZeXrQ057DH
-	 HJi+z9t1uIEZCDCSIVsGVbDCYJXXGWDoPWVjQPyPoKYgTdt4a2qkTbBhcGR9GWMObJKPo
-	 6MVuZB/bkzZMgoRK7/qk+EbNJReVI3W2G39KbHifMmvalNuiWjKM4ZrCOI9rIUaN9MA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794495161;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
+	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
+	 Content-Type;
+	bh=Q7Giv0YbZtbuh6pswUgbBS7Tjhq3TZVDrjjmxy0wKk8=;
+	b=JGdHFKezKwN6qJnC255ydkOh+IsShXCMcJNvzrDs5GJOGkc6lL/5h/rAI2YCyl5VO5yG
+	 duGM0eAHA599rIOwjw2+u3xvsl8woIa+SCuF/0YaMUlaDziqyN3I+Z8TzvwIk6+5ezwVY
+	 JYqVd1deEawRVlMeAC3ZPxhqi+ZxSNjk8FiM9dL/f+QMaxpdBfq5zR3xrRfFvsk7emYt7
+	 hanCCiRe8cRw5hr1i9QWkwjXXBmNw7AgAG3UzfcjzxiofErfwvBQCwQpaCWESt4nB5wjL
+	 HR3J3vaUo847aqPThrWJog6eyE2da5un5w3jchE+vkVkuSrZVgfwCtDgVXJEol9tr0g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mail.sdu.edu.cn;
-	spf=pass smtp.mailfrom=mail.sdu.edu.cn;
-	dkim=pass header.d=mail.sdu.edu.cn header.i=@mail.sdu.edu.cn header.a=rsa-sha256 header.s=default header.b=G5U7PRNw;
-	arc=none smtp.remote-ip=101.71.155.101
-Received: from mail-m155101.qiye.163.com (mail-m155101.qiye.163.com [101.71.155.101])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--atifashhar.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="XylA/s0o";
+	arc=none smtp.remote-ip=209.85.215.199
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B472B606A31C;
-	Thu, 12 Nov 2026 13:59:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B472B606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mail.sdu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.sdu.edu.cn
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1420960A2607
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 14:52:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1420960A2607
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--atifashhar.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mail.sdu.edu.cn header.i=@mail.sdu.edu.cn header.a=rsa-sha256 header.s=default header.b=G5U7PRNw
-Received: from lgs.. (unknown [101.76.249.61])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 547738928;
-	Thu, 12 Nov 2026 21:59:04 +0800 (GMT+08:00)
-From: Guangshuo Li <liguangshuo@mail.sdu.edu.cn>
-To: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH] i2c: atr: Fix potential alias mapping leak on adapter removal
-Date: Thu, 12 Nov 2026 21:59:03 +0800
-Message-ID: <20261112-88a3a7ff32-i2c-atr@mail.sdu.edu.cn>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=XylA/s0o
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cc1ca15334cso4570554a12.1
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 06:52:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1794495160; x=1795099960; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Q7Giv0YbZtbuh6pswUgbBS7Tjhq3TZVDrjjmxy0wKk8=;
+        b=XylA/s0o/lm/yXiTzWdUkyKQ31nCiof9Ms5vJJZ8uKmBohwgsVRAmIirqxOWVkb6zB
+         KzVWNIQjDfsOmZtKmblI9prPr1S3XIvZs947aBjSLP+mSu0ljJ3IOf2AlBDNAHKpUPSa
+         jmGyHiqifPoTt+q0T/sFb3ff6X3pB0IfMRGgWpUXCyfoccoOnnvYLk0HneelkVoMRQ8Y
+         1WU0FI5SFneA5xZ1WcWsCGzQXwJSegBJDYaakvYsr7Z+f6Avxs7nnPOdAAU4l+6F/znJ
+         /liMfuW1AuAyp0vcfTZbQRTnCJDBx69T3vjDL6ac0PK+aToJBV0YLPNYnH84wSeZcImj
+         QsSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794495160; x=1795099960;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Q7Giv0YbZtbuh6pswUgbBS7Tjhq3TZVDrjjmxy0wKk8=;
+        b=CI/tmHGfKB8GcA5gTxsdJgTmu0oSGwTQyV6HDSzpKtybAjvaqtNQt2O071D9p6WXhq
+         z9u97BnH0q0SyIXrkJSygPyHRKKyFp4deOv/EVRW3qSR+2wdduYFfK5POt8RfyalEgdO
+         a0vQqlWDa9kshWwcR+F6KRjrDf6rfGhaHIfP81kEi0zMb6D7Yjt99Vvmkrslg+iZ2Zu9
+         dNsTR0QBX4yi84TulRkMMbgy+eZYnlC4/o3UJfiVpASEmlXh3g3555emU/JiHh6o38K3
+         pEU351k2TAegZL/Hj+kvCP2WBzPjfioRl29QjtlQBQoMLUz4S2b643Sg6pZn8Lzz4Ey+
+         ogrQ==
+X-Forwarded-Encrypted: i=1; AL+hErH1jo3/KoBiabNbYgF6NJ3mOW0Yau2/RSOeAyX9SOzsd+9ew2mAq0c0Ep3KLsSBh0nn+v74oasQDrM=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8bD4lD7Uubnudcv//UsST5wNuaUD7ht6ht7nIaEIik4FeTcuYc
+	qCSvQU2WPMSgphAz5aUy4PenPcmWHpHM+bK/yfAt7FgfZP6cNI4OUOzgYczH0qPLHGceb/Hv+ZH
+	LN8RUskzslwQjuYwNGp38+Q==
+X-Received: from pgtl16.prod.google.com ([2002:a65:6810:0:b0:cdd:aaa7:beae])
+ (user=atifashhar job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:6a21:138c:b0:3ed:bdfd:23a8 with SMTP id adf61e73a8af0-3f2fedddad3mr6395544637.61.1794495159901;
+ Thu, 12 Nov 2026 06:52:39 -0800 (PST)
+Date: Thu, 12 Nov 2026 14:52:38 +0000
+In-Reply-To: <20261104133745.1432212-1-atifashhar@google.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -55,60 +78,155 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0aa1d00e0cfa03a1kunm425011f329f5
-X-HM-MType: 10
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkZHU0dVkNOQ0tIT04eTUIYTVYeHw
-	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlKS0pVTE1VSU9CVU1KWVdZFhoPEhUdFFlBWU9LSFVKS0lCQ0
-	NMVUpLS1VLWQY+
-DKIM-Signature: a=rsa-sha256;
-	b=G5U7PRNwXp0pmXHBJLe7+5q5FGjsvbQ4GNSbwdqPeF/6u92EXhZuid39c9To/DVW6/bDDoc3ovjgnqlznvP4xhlhQt8cLGr7R8FEjm2N8N5ACG5u1jrBnQt4M7zWcExQuOlzXtlc38yfcKYa/PgwqUYIBYCj98iE5XFBjmGhKrY=; c=relaxed/relaxed; s=default; d=mail.sdu.edu.cn; v=1;
-	bh=/4QK2VEVaNUR4dD+Jet/7ljypHn8xGKD/HMMFXFMLhE=;
-	h=date:mime-version:subject:message-id:from;
+Mime-Version: 1.0
+References: <20261104133745.1432212-1-atifashhar@google.com>
+X-Mailer: git-send-email 2.56.0.567.gdb80ae8cd5-goog
+Message-ID: <20261112145238.3736264-1-atifashhar@google.com>
+Subject: [PATCH v2] i2c: designware: Release slave SCL hold in __i2c_dw_disable()
+From: Atif Ashhar <atifashhar@google.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+	Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@kernel.org>, 
+	Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+	Atif Ashhar <atifashhar@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Transfers to addresses without registered clients can create alias
-mappings. Removing the adapter generates no client removal notification
-for those addresses, so their mappings and alias reservations remain.
+When an external I2C master initiates a read to the Synopsys DW_apb_i2c
+adapter in slave mode during kexec teardown, runtime suspend, or driver
+unbind, the slave hardware stretches SCL low (0V) waiting for TX data,
+setting DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY.
 
-Detach any remaining mappings after deleting the adapter and before
-freeing its alias pool and channel.
+In master mode, __i2c_dw_disable() issues DW_IC_ENABLE_ABORT to release
+the bus. However, according to the Synopsys DW_apb_i2c Databook, the
+ABORT bit applies only to master transfers and has no effect in slave
+mode. Because the slave cannot disable while stretching SCL,
+__i2c_dw_disable() times out, leaving DW_IC_ENABLE_STATUS[0] = 1 across
+kexec or rebind. Subsequent writes to DW_IC_SAR are write-protected and
+silently dropped by hardware, wedging the slave and blocking any other
+devices sharing the physical bus.
 
-This issue was found by our static analysis tool under development.
+Fix this by:
 
-Fixes: c3f55241882b ("i2c: Support dynamic address translation")
+1. In __i2c_dw_disable(), if DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY is
+   set while disabling, temporarily re-enable the controller so the APB
+   interface accepts data commands without racing with the slave ISR,
+   clear pending RD_REQ/TX_ABRT interrupts, write a dummy 0xff byte to
+   DW_IC_DATA_CMD to release the SCL stretch, and immediately request
+   disable via __i2c_dw_disable_nowait(). Also drain the RX FIFO if RFNE
+   is set during SLAVE_ACTIVITY.
+
+2. In i2c_dw_reg_slave(), replace __i2c_dw_disable_nowait() with
+   __i2c_dw_disable() to ensure the controller is fully disabled before
+   calling i2c_dw_set_mode(), which programs DW_IC_SAR and DW_IC_CON.
+
+Fixes: 9f3e065c54b0 ("i2c: designware: add SLAVE mode functions")
 Cc: stable@vger.kernel.org
-Signed-off-by: Guangshuo Li <liguangshuo@mail.sdu.edu.cn>
+Signed-off-by: Atif Ashhar <atifashhar@google.com>
 ---
- drivers/i2c/i2c-atr.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Changes since v1:
+- Use lowercase 0xff instead of 0xFF in regmap_write(), comments, and commit
+  message (Mika Westerberg).
+- Explained on the v1 thread why writing a dummy 0xff byte to DW_IC_DATA_CMD
+  does not generate unintended bus traffic when immediately followed by
+  __i2c_dw_disable_nowait().
 
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index b98442ffff94..ebade2a000b2 100644
---- a/drivers/i2c/i2c-atr.c
-+++ b/drivers/i2c/i2c-atr.c
-@@ -903,6 +903,7 @@ EXPORT_SYMBOL_NS_GPL(i2c_atr_add_adapter, "I2C_ATR");
+Link: https://lore.kernel.org/linux-i2c/20261104133745.1432212-1-atifashhar@google.com/ [v1]
+ drivers/i2c/busses/i2c-designware-common.c | 46 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-slave.c  |  2 +-
+ include/linux/designware_i2c.h             |  1 +
+ 3 files changed, 48 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index a1eca6cd4b75..46866baa9d9c 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -619,6 +619,50 @@ static int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
+ 	return ret;
+ }
  
- void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id)
- {
-+	struct i2c_atr_alias_pair *c2a, *tmp;
- 	char symlink_name[ATR_MAX_SYMLINK_LEN];
- 	struct i2c_adapter *adap;
- 	struct i2c_atr_chan *chan;
-@@ -925,6 +926,9 @@ void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id)
- 
- 	i2c_del_adapter(adap);
- 
-+	list_for_each_entry_safe(c2a, tmp, &chan->alias_pairs, node)
-+		i2c_atr_detach_addr(adap, c2a->addr);
++/*
++ * DW_IC_ENABLE_ABORT only aborts master transfers. If the adapter is acting
++ * as a slave and holding SCL low waiting for TX data (SLAVE_HOLD_TX_FIFO_EMPTY),
++ * hardware refuses to disable (IC_ENABLE_STATUS[0] stays 1) until a byte is
++ * written to DW_IC_DATA_CMD.
++ *
++ * Mask interrupts and temporarily set DW_IC_ENABLE_ENABLE so the APB interface
++ * accepts writes to the TX/RX FIFOs without racing with the slave ISR, clear
++ * pending RD_REQ/TX_ABRT interrupts, feed a dummy 0xff byte to release SCL
++ * (or drain any pending RX byte), and immediately request disable again via
++ * __i2c_dw_disable_nowait() so the controller initiates disable upon
++ * completing the current byte.
++ */
++static void i2c_dw_release_slave_hold(struct dw_i2c_dev *dev)
++{
++	unsigned int status, dummy;
++	bool tx_hold, rx_pending;
 +
- 	if (!chan->alias_pool->shared)
- 		i2c_atr_free_alias_pool(chan->alias_pool);
++	if (!IS_ENABLED(CONFIG_I2C_DESIGNWARE_SLAVE) || dev->mode != DW_IC_SLAVE)
++		return;
++
++	regmap_read(dev->map, DW_IC_STATUS, &status);
++
++	tx_hold = status & DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY;
++	rx_pending = (status & DW_IC_STATUS_SLAVE_ACTIVITY) &&
++		     (status & DW_IC_STATUS_RFNE);
++
++	if (!tx_hold && !rx_pending)
++		return;
++
++	regmap_write(dev->map, DW_IC_INTR_MASK, 0);
++	regmap_write(dev->map, DW_IC_ENABLE, DW_IC_ENABLE_ENABLE);
++
++	if (tx_hold) {
++		regmap_read(dev->map, DW_IC_CLR_RD_REQ, &dummy);
++		regmap_read(dev->map, DW_IC_CLR_TX_ABRT, &dummy);
++		regmap_write(dev->map, DW_IC_DATA_CMD, 0xff);
++	}
++	if (rx_pending)
++		regmap_read(dev->map, DW_IC_DATA_CMD, &dummy);
++
++	__i2c_dw_disable_nowait(dev);
++}
++
+ void __i2c_dw_disable(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_timings *t = &dev->timings;
+@@ -676,6 +720,8 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
+ 		if (!(status & 1))
+ 			return;
  
-
-base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
++		i2c_dw_release_slave_hold(dev);
++
+ 		/*
+ 		 * Wait 10 times the signaling period of the highest I2C
+ 		 * transfer supported by the driver (for 400kHz this is
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index 0abcc7757b23..e51a6b60292a 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -40,7 +40,7 @@ int i2c_dw_reg_slave(struct i2c_client *slave)
+ 		return ret;
+ 
+ 	pm_runtime_get_sync(dev->dev);
+-	__i2c_dw_disable_nowait(dev);
++	__i2c_dw_disable(dev);
+ 	dev->slave = slave;
+ 	i2c_dw_set_mode(dev, DW_IC_SLAVE);
+ 
+diff --git a/include/linux/designware_i2c.h b/include/linux/designware_i2c.h
+index 53f37f18a722..113a9d84e34d 100644
+--- a/include/linux/designware_i2c.h
++++ b/include/linux/designware_i2c.h
+@@ -100,6 +100,7 @@
+ #define DW_IC_STATUS_MASTER_ACTIVITY		BIT(5)
+ #define DW_IC_STATUS_SLAVE_ACTIVITY		BIT(6)
+ #define DW_IC_STATUS_MASTER_HOLD_TX_FIFO_EMPTY	BIT(7)
++#define DW_IC_STATUS_SLAVE_HOLD_TX_FIFO_EMPTY	BIT(9)
+ 
+ /* DW_IC_SMBUS_INTR_* bits */
+ #define DW_IC_SMBUS_INTR_ALERT			BIT(10)
 -- 
-2.43.0
+2.56.0.567.gdb80ae8cd5-goog
 
