@@ -1,67 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.254.200.128
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=52.59.177.22
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794534064;
-	b=d+BTMT1xNLR7DJ11AAp8Kri5sNH3NPUl9Tu5Bgv4tNJSJ3R743NHR3yq6BahdfEcLjyK
-	 xqkJk5UORyqi7MQT3ajK5MMIdqaKEUDZfiFVkAGnqngLAq1HMlRidbm5d219uPnG8ETM4
-	 yGufVpCGa2/5MHaqXReAyGbRpZ/isnAOHp1Nv0Ujc02Pwx2Xe1/+eFi92ZKz6j49tchQq
-	 PFBJI3C6+WBy+5FtGjLci7h1uXaGIgdT//xKKohcU2/vlYYQjq1hMBwOFTqNpdJ/gXHNH
-	 ww4+/OtW0ZWj5xyylGYcEjvzbpys7RmPu/6FH97sSjakYoHj03c9qromyxk6EqAljXA==
+	t=1794534956;
+	b=Tei2ACfpP8oQBsvZQIhcNVG7FzeFi8SN3kosg+9ftKqhswUJ5Cd5MFijtiHnkoUL+b4n
+	 g5zxoThaJCu9rbt+cFh3QmJM7L8jhkDFpfvK//3l7aAH5mrnexg/w2Ao8xMwuxGClgw4w
+	 rLHydcOelZQzWDBvRXWB56Ybkg5aODquSurNgSKuFv97LXsm0ZuOGq3b6h0KUH7jciHHY
+	 V4bsUheCGUxRkZ394EhHbnK1P9eriW0Gm+GEXPKynywM7LHKGjnrlUcz10fYrtBUTzEqj
+	 GEmEwDcrK9ZSBK7RzeHCpF1GkUDaCdm+s6sHQ/VlvA7N9A+S078raqWICTzdEzWd+ig==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794534064;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794534956;
 	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
 	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
 	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
-	bh=/sxv1W5mYI9kgEdiDglDayCA4ww/8N3J4Do4OKuotNg=;
-	b=UUoEGCUOAkdqnGvMzzn4zqIk1c42+7nLSyUo6BojebYS1kYS7TKN1o1ioYfhxhp9gWts
-	 uRqcpfiqxuWCpS6/mJ84KIrOocdrQqnSrHtSmSqjCHa0Y8iRS/pFAsEs4FLIIcQfZVH5r
-	 Z/vE36eaQuUxkWj3pOoHSdblW8tO1h7SzdO+BNwSzt89YdneAIFQ7lCIw2HYisluYSZY1
-	 7bEwr6djHF3Q3FaRZhkMtv5Fv5z8q1xn8mAmyerNRuC6Oxwk43zFMeyX2nvn+P4k1hYIt
-	 TnXwo0DOh23fp4yLlXpyZa+MKvOT9Rs6f12aBQYHNbzt4Pgan53bryP6zLMTMwHGSLw==
+	bh=OPVnRqpTHebad2QkXGy3h5+QsenN8z5dT5kf8ubaV8k=;
+	b=ZdfVrcdYYngkdrXX6iSjdu6hdyeyNAJl50WBB535KUdAwSTFGCrCKH4UYGaWQ1VbqOaj
+	 8SH3588NFq1Jh0rBLuWklYGn/2jxxvJV0JRmOzpsjqt65lOLrdGxv21g2QMY51QAJpmMQ
+	 /Rdj5CBVujUCNlEPPSsnbmxF6Pp6lG7V7zI+NI6IBWFZDQHnFwI4lkYQQgU/FjnLfCnHO
+	 bM6FOvtR0hHEO7qkjS3wNV5SrgvbnR9qOCQDKspekxAA2gsq9IBolsTJGhfUEy7PPThhz
+	 VBdC9FkmA5M6VTEORpmPP+fVFGyEp5ciyGK1sIO4b6tcq1FbFn6zbl/5vHbsaNs0hHg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=uniontech.com;
 	spf=pass smtp.mailfrom=uniontech.com;
-	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b="X/swONvx";
-	arc=none smtp.remote-ip=54.254.200.128
-Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
+	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=I0avXFhw;
+	arc=none smtp.remote-ip=52.59.177.22
+Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3917606A327;
-	Fri, 13 Nov 2026 01:41:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F3917606A327
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D1B606A321;
+	Fri, 13 Nov 2026 01:55:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 92D1B606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=X/swONvx
+	dkim=pass (1024-bit key, unprotected) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=I0avXFhw
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1794534044;
-	bh=/sxv1W5mYI9kgEdiDglDayCA4ww/8N3J4Do4OKuotNg=;
+	s=onoh2408; t=1794534925;
+	bh=OPVnRqpTHebad2QkXGy3h5+QsenN8z5dT5kf8ubaV8k=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=X/swONvxBtUIm/r5HhI1m2upMWxH93O+HmrDD+iSKGw/RHz5en3DyDeI33S00S7Hp
-	 l2WFZ88rEdDzMWKHmx2a/ONzp/X20pr2DtyDF2P6jiGfZ0YqoS46pdp9HPHEITF86Q
-	 jUS2XO8hDF287Ya1D9fgNwk71Vgcq+P7iZ6zWxKA=
-X-QQ-mid: esmtpsz16t1794534040t9c73d950
-X-QQ-Originating-IP: gVonNnDY+kkctlVKChjkM8VaTZWWhDIg9Q6Ja4WaeBg=
+	b=I0avXFhwPlprgQRbmyMhrSQRARKj7Qk51780huf/b7+BQMpWSrYcWv1IE5Lnwdrab
+	 RYWsnULM9zodC8wljLr43FmmDEMM4WUwxhOvEM1wdukgwI+NChZ4DCLA747Dz681Ud
+	 WFGceSHWvOzgRCe6kH8uhaJ7KtdXjtEUJaqvH5ls=
+X-QQ-mid: zesmtpgz4t1794534921t09f7b086
+X-QQ-Originating-IP: BNbGlNhiX7t/CY6avIAYr07FoQmMU75+ALunTodvuL8=
 Received: from PEC004119 ( [113.57.152.160])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 13 Nov 2026 09:40:38 +0800 (CST)
+	id ; Fri, 13 Nov 2026 09:55:19 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 125834309167969925
-EX-QQ-RecipientCnt: 7
-From: tuhaowen <tuhaowen@uniontech.com>
+X-BIZMAIL-ID: 16852835858368441093
+EX-QQ-RecipientCnt: 8
+From: Haowen Tu <tuhaowen@uniontech.com>
 To: gupt21@gmail.com
 Cc: jikos@kernel.org,
 	bentiss@kernel.org,
+	dmitry.torokhov@gmail.com,
 	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	tuhaowen <tuhaowen@uniontech.com>
-Subject: [PATCH] HID: mcp2221: Keep IIO initialization retries per device
-Date: Fri, 13 Nov 2026 09:40:36 +0800
-Message-ID: <4861CDE55CCD8365+20261113014036.1430473-1-tuhaowen@uniontech.com>
+	Haowen Tu <tuhaowen@uniontech.com>
+Subject: [PATCH v2] HID: mcp2221: Keep IIO initialization retries per device
+Date: Fri, 13 Nov 2026 09:55:17 +0800
+Message-ID: <E306BF64E970F03A+20261113015517.1434489-1-tuhaowen@uniontech.com>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <4861CDE55CCD8365+20261113014036.1430473-1-tuhaowen@uniontech.com>
+References: <4861CDE55CCD8365+20261113014036.1430473-1-tuhaowen@uniontech.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -73,23 +76,24 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpsz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
-X-QQ-XMAILINFO: MAN6sKHDZ5xSD9tk7QxbYcR75IRqTHohPZ66XJ/LIHWx3WFSywMepV1F
-	vcaAmdp8Iw5XmE27GZ37DxEYpBCzlp6WXw78pNVWFh/Q94IbDmYYMRKe98qHAae3xOLlqAE
-	kYiLjd0vuRJQA8HwJOpssdpQCEyr4z7KTc0Kpf+WsRLf1GMGBJ+orAL0Vc1ArUIm5qD9sxi
-	PISlZvcLWzktizp2U5NssH9+MlYcSDvqLANYctsOp/1GL5LGukfeeB5Ud/DgDOMLsUdAvg3
-	YF7XM46jMQZgz6+sV6gUGQAbmqN/5mCxztaTreeNTODzYvKK8xIOsVHUq219ICUBNke5rt+
-	C7WpGPJ8z19ognlPOiqTC7favJ8b4OeRpiCtdszT5OcspzsF7wZsNe9UfVSMb5ij98p6Ut/
-	Zmc/dlT7U5s7gnmo2OISwoMO26AgsUE1JYaBCD+SFoLNCP0t9h4OuaRMth9wCBj5gV/v3Ni
-	QxNoqR2YDsZsc+NrdgrSX3pA0jwVXemSKRWQkqywnn4Gyusd/VLNLKMu2wDTDaoFi7agDzw
-	697Xm4Pqp4b68CcI+0AgdwTpUDlFVK5TJ3t42b2pPUaTXACBngM34EOVJ170RZsO2Mlewjv
-	2nuyt6TAhVbSVMQP9McmND9A756YBh1fzNuEc+/x3b/GbMAo1MBhmgOEFL7ZX80H7Pjovep
-	BJdMaBKbpHeN+2hc86vGFZdxAtmMM3xRoL09YOv6GVhcobehazy6Ckd9HNYbq8YGwldisSd
-	YTjvEHHXHREpo3sBjmOAkxZTnuU3r8Vak/twGiaQKb6Y+JoOuEOKteoaBUSw9w1O/qEFGE5
-	hWkioitSdzoZlN85qODiCnHWMxVTdjXLJKD3dDj6yeaGVcUldwdnVWhQtl1bPmfJpOGa/XJ
-	nx5j3aFqH/9l8p8bstViH0QCDZWQql12yP6NTbMS/FXaxUgSfjzhzdM88A8HQgZB38ODKR/
-	H6a+IG3IN9Y9NVb5JIFkHZyczF38v7FwGe8n5rgBA9rPq+bfSFXozvloRHFlLmEeeBgp07S
-	/R13nJd83+E/k0BelK8NEpbXSLsajRFn3KhGuv/QIJ1mqFmGkO/57WGvLb0VA=
+Feedback-ID: zesmtpgz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
+X-QQ-XMAILINFO: N+lcjVkupHXi+3DdIL5WC8FFj2T5DJD5fczTGw/ZrgdWDzk3rhXU8WdE
+	6tF/UWN3dhIf03O8iBnlfKEpFdb4NFg8LKCpLPcB/JlrB3XIDNgqD7o+MEhEKrqhUQVvlQt
+	Kx4NGwiu36MLTLKrcDwLfdcHc3OPGfqNR2EJtl4K+MZhKz6SwsfCyQvPJwUY9byV8omgT/S
+	a6A3dFduC0pkg6fQaGDOreNVHLwJnuT2doA8jG/9JMQU5F/lbrd8xZQWAU4xjzuG24yoJj9
+	fkLLzrNbALaTYTi/skmDblAGaLHP5MjyhDByIUBMluWwNAJamf4UdER3MiDurlGFsQOfbQg
+	ZfNCHJ3beXuL6cRq7IlfGjsT+D/oqVwN8ZmOgO/WLqfHgwPvgnKJnkeMXF9tJPJtpZ0c/kL
+	LYbfPJD4hrASUs78EPnLIyKYf2wqWMU3utVbT4DL1X2TYh1u1tPD4E4qQILCT7Lg9fYL48b
+	PWb4lfO4QYTcBHqdxbYtCto3hXb4upZ/uWRrRfv1CemCUdsAwMwwgs2YIihP7rwyG/Uplsb
+	AjIHFBOvjAl83I0TaNouYdFHPyHJVyX29hq12ou2qLO5z6IQAHCaartStxrs7V6Ksa3GMi1
+	ZY965DgYW38lNpji8Wl03aqaghrJF+WCgkksElVQtRLL7SQ2tpcArdoURYxBxB0yV7iKFuL
+	h30gKJUzA1EpSWmrzRCvPk///mSMUTLHVyUxZ3MwTQD7tMrvzH4O39K+UapAeiIY7J0GrMI
+	/J4U2iDV+j4BCfOckWDRj6ErwFqBR4u7yGqbSp4nDMhJQXEVvbZxzPzzUF4bvydd55/tRXy
+	Mwgl1gFJF47a+xjfC726D713kkHOOBg4WJhWVlbTkBwCOXhd9YjSLUSUK+K27NgfGw1K2fz
+	47oxY0yuvGXOenlIaFI0M/ALDSTmrPI5I/gzbNWJEpPX7j35aYvCt1ZGZmbepc2uRmuhxqv
+	OLSDuNpmNuaMfKlPDbLV4bKeX9CRPTQBqLia2WmMe3fJQp5uBjXIhLSu/kJ/ttmhYYTYEz4
+	kKo30xnpuFvchb5HPQn607KFOi6GCDqI/PbTj4nACVBnA3xDd2gp4Vq6Y7De3nUP8QmGnx9
+	2tvs7VPJdftaKQ23MtOcSACsVmzRwGJLvCl6uMJwmYG
 X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
 X-QQ-RECHKSPAM: 0
 
@@ -108,8 +112,14 @@ the IIO initialization work. Check for exhaustion before decrementing so
 the counter stays at zero once the retry limit is reached.
 
 Fixes: 960f9df7c620 ("HID: mcp2221: add ADC/DAC support via iio subsystem")
-Signed-off-by: tuhaowen <tuhaowen@uniontech.com>
+Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
 ---
+Changes in v2:
+- Correct the author's name and Signed-off-by to Haowen Tu.
+- No code changes.
+
+v1: https://lore.kernel.org/all/4861CDE55CCD8365+20261113014036.1430473-1-tuhaowen@uniontech.com/
+
  drivers/hid/hid-mcp2221.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
