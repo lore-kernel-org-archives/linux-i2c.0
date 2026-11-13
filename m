@@ -1,55 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794592208;
-	b=cU1vMCOcsDCqmD3htkAu0qRvrsDjtMN5mTofrA3id+neAGSWL5yV/oFnuRL1wqxaYmFf
-	 MciWbNnqwer6OUPXwi0FYJU1O7aOSk7fyyJpZuIsrQ4mJfjihMJnh7MrMnmAUOnOBP9xS
-	 8cxnKjCGO6wpjEbPoh7vorv+qFFlgzkL1CNgroSDfknzLRRrmqRPz4JMZ1G4zLuhDH25I
-	 RIbaNaj9AtwMjBKUo/3LOa799jj+iAq4kslfjYjypmmt2RHwf7VPX6bdXNOGxYQlWDB17
-	 jVtGxNlORgNmyWPdV/8+LUw61ihmpPPgJYy5w1c3aey4deoA/ubwcvoDrXi71mc1fPQ==
+	t=1794592254;
+	b=5o/ZDBlmeHw0JgQuBwyKcKkbugSqPwtK6aPZ9iazgn7t3Tz+lMA2soGUgwlL2yfF5sYx
+	 Hizh/cjJCFnx7sFOGJGD4aSu0RCUbD5yESLyPxJlJX4KcrDLwoZBTKvFsWR1jfYfOLvLs
+	 a3ApHi+C61h/yLCUagvhPX77/sLlccGSMbxOOFuzB5PK2oHHjdc3eiyT/imRl815RHEUC
+	 LxG418rJl5j45ix1A8nwqYC/MurNgrmxaT6ziyfZoidEnHGdoibyGjCM5AL+rxokPbovh
+	 vPi3bQ73iTScLYVWqJlhf6+Bt9MAa9Vp6QACa8/gKHU41BIAQW2cZL3NGhDkiX7WAiw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794592208;
-	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=EU1uYM/NmLFZaI8ig83tMQonoDZ93Lw71raJgl086sU=;
-	b=oZ+SqqD+0IYYPMLPlcgVh4K2q9/gpyDkwlbm2RYUzn7t475HH2QZxl39dB5dAcSerFhw
-	 vhDp1KQJSzMHM1PkPqoy6uJPIfh+744IL6K+H9cYbrKu1syyIXTZBcVDXmMpZE9vwQ7xi
-	 Imq45xn28t8pROQ+LfM0+t5R2sm+e4GFyUHZph7Wj4pr+0+oH4Z/qud50jBEzutpM8q3Q
-	 ZUdI66BZiLEsUxpTWkwx1dHx6NWwlQ5/XuieR06BEIyk+z9AAfmmSxTdrU4hC0WZmBsBt
-	 ihz6QaGDJbRUzYB+YDcASuStJRXc0UeGLTvMPHGKHagwIO/411GPZ44loVpvfxnyAFQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794592254;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=6h0Dqd6RFqs20ugxkWa0E6efevDQATF3OOGQG5vDX9E=;
+	b=H4UvJFmdf8ZCx1mDWMGYS2dHa9HaohhjbBXqEvVg8kn9J36E0K5flkdFJcLaAk94XcKi
+	 Yg6AV6qNRHDZAgFgwloV9BBslrM8Cy7n5W6ePNYtLUxhApSjpPEXUGtqEBe+eRVzHyJcu
+	 y3qKQJQatpdoDq2nTTYrZYK4Y563D9i0whOIzPVlJysvhqCb/Ls0MKB7rf3J2PnI5UbIb
+	 Uf3l5BUakG8WgLp+OLbluK8hllBscyjUWPauCYPweSXDN5BiY7DUhloonnUhfGoIpl9bS
+	 26PEo4xl2PwrWs7LUC/J3+3UYRjiVpBtY5UxID66PaFfc82IM5FG9S4f0XiLaCp2aAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Oe2bngzq;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=ibjhmY4D;
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4710A606E200
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 17:50:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90AB7606D484;
+	Fri, 13 Nov 2026 17:50:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90AB7606D484
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Oe2bngzq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D42AC1F000C5
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 17:50:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794592207;
-	bh=EU1uYM/NmLFZaI8ig83tMQonoDZ93Lw71raJgl086sU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=Oe2bngzq4C8gbD+i78EHwnVvNOgsuhw774fp5I4cEfe8PABs/x8esZV2Mm3DBh76r
-	 DeA2YUqWAJRoY5OBi0zbUJrroJ5+FutHwPbhSZzRhU8pNPSdMVtxnbOo3yzPU/aMD/
-	 b1kKzTSO6SI2Cge1RcTLVBA99PSYmbYGCbYQRW5l8MY1wZjud8QKAn8oylC2yHl99w
-	 Pc/9D3RfR157Mt8HtqMWkIFF6zUen49Mg+c+bHYKOTyqVYbyeldb7wCmUEBF5i7ScA
-	 FLLN55pbrEN+/NF5uP8/4Lgna+eWR5gcNKpde3XlAl0e0arWd/buXECd8KUQUoKMu2
-	 Pzv/mNxLeayig==
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5c1593fd141so1681609e87.0
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 09:50:07 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErGt78QYXATr5AW77+ewCPbKqA3JQAPC2WEFZCzkcdxfL84Krbyby6lw5/AkS3j6WnvjhBoV3oEOTpY=@vger.kernel.org
-X-Gm-Message-State: APuU4Z919S0B8Uh123dpjkmHv0NgRoRf/7m8nUQjgrtqdiLk19RxNLSC
-	/P5TWIX9oJLTZ22QpdKrHmP8nPKSaFpis/NzTrZzqRLat1OZ2I6q7EMHrZBsfDR108o7Hjw0BO5
-	o+TPahgM5cV3S1L6swl9TeONaBMViLGo=
-X-Received: by 2002:ac2:5683:0:b0:5bf:dd04:8d7f with SMTP id
- 2adb3069b0e04-5c17075c348mr1704210e87.11.1794592206322; Fri, 13 Nov 2026
- 09:50:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=ibjhmY4D
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 86189C4F76D;
+	Fri, 13 Nov 2026 17:50:54 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id A0D2F601F0;
+	Fri, 13 Nov 2026 17:50:51 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 561B311BC12A2;
+	Fri, 13 Nov 2026 18:50:25 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1794592247; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=6h0Dqd6RFqs20ugxkWa0E6efevDQATF3OOGQG5vDX9E=;
+	b=ibjhmY4Dn2tURhTrqtGtPu8gNw82Ui+RZy0Yt98PWN259aeg897IKBTUcITcGEvrW7wwn9
+	1fO5y4X0k0HqrmMMa7u8a+UJW3xl/JHWBIDW+LCgxMI0cJZAql0PuT6zK/Gomq/FdAYNn5
+	TqfhDwBA0EOu8JNSaFNINtgAg5raHVqeI/2l2LFC5EXi4oKCdfH4gEIIrIFYX/MT2B0uqt
+	wVVViFZh9M9znX2iKYCwGBQpRHbIbaIqJ/KJeVY9uA1Prk5Q8pvPAlqauPat1U1/4OisOZ
+	m4otyYcG125i7g5fWqP0e0N9DpGR7D4GUwQ0a5+qoo+oJBNQZ2g5lngk3Djtrw==
+Message-ID: <5a68f043-7c9a-44ef-b297-2821886bdcfe@bootlin.com>
+Date: Fri, 13 Nov 2026 18:50:22 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,84 +62,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110085125.2535508-1-johan@kernel.org> <20261110085125.2535508-9-johan@kernel.org>
-In-Reply-To: <20261110085125.2535508-9-johan@kernel.org>
-From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
-Date: Fri, 13 Nov 2026 18:49:54 +0100
-X-Gmail-Original-Message-ID: <CAJZ5v0g+X0etuZSoTrFr2OXgF9o0q+LLLTcQSfvo0A3dib9M4Q@mail.gmail.com>
-X-Gm-Features: AclHuK8FkWmm3X6Ez4fQpYts4d02b-gmJ11NIGOgqEPyiws4gYW8Iu7-IoWq1Cs
-Message-ID: <CAJZ5v0g+X0etuZSoTrFr2OXgF9o0q+LLLTcQSfvo0A3dib9M4Q@mail.gmail.com>
-Subject: Re: [PATCH v2 8/8] device property: fix fwnode_get_next_child_node() comments
-To: Johan Hovold <johan@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Daniel Scally <djrscally@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev, 
-	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Xu Yang <xu.yang_2@nxp.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 00/27] mfd: Assorted resource lifetime, teardown, and
+ error-handling fixes
+To: Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Andi Shyti <andi.shyti@kernel.org>,
+ Andreas Kemnade <andreas@kemnade.info>, Andy Shevchenko <andy@kernel.org>,
+ AnilKumar Ch <anilkumar@ti.com>, Arnd Bergmann <arnd@arndb.de>,
+ Binbin Zhou <zhoubinbin@loongson.cn>, Brent Casavant <bcasavan@sgi.com>,
+ Chong Qiao <qiaochong@loongson.cn>, Corey Minyard <corey@minyard.net>,
+ David Lechner <dlechner@baylibre.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>,
+ Gyungoh Yoo <jack.yoo@maxim-ic.com>,
+ Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+ Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+ Jonathan Cameron <jic23@kernel.org>, Joshua Kinard <linux@kumba.dev>,
+ Kai Svahn <kai.svahn@nokia.com>, Kevin Hilman <khilman@baylibre.com>,
+ Kumar Sanghvi <kumar.sanghvi@stericsson.com>,
+ Linus Walleij <linusw@kernel.org>, linux-crypto@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-omap@vger.kernel.org,
+ Mattias Nilsson <mattias.i.nilsson@stericsson.com>,
+ Mattias Wallin <mattias.wallin@stericsson.com>,
+ Matti Vaittinen <mazziesaccount@gmail.com>, mfd@lists.linux.dev,
+ Mika Westerberg <mika.westerberg@linux.intel.com>,
+ Milo Kim <woogyom.kim@gmail.com>, Ming Yu <tmyu0@nuvoton.com>,
+ =?UTF-8?Q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
+ Pantelis Antoniou <panto@antoniou-consulting.com>, Pat Gefre <pfg@sgi.com>,
+ Paul Burton <paulburton@kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+ Qunqin Zhao <zhaoqunqin@loongson.cn>,
+ Rabin Vincent <rabin.vincent@stericsson.com>, Rachna Patil <rachna@ti.com>,
+ Roger Quadros <rogerq@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Shi Hao <i.shihao.999@gmail.com>,
+ Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>,
+ Stanislaw Skowronek <skylark@unaligned.org>,
+ Stephen Warren <swarren@nvidia.com>, Sundar Iyer
+ <sundar.iyer@stericsson.com>, syed khasim <x0khasim@ti.com>,
+ Thomas Bogendoerfer <tbogendoerfer@suse.de>, Tony Lindgren
+ <tony@atomide.com>, Yinggang Gu <guyinggang@loongson.cn>
+References: <20261027093306.2812695-1-lee@kernel.org>
+ <179458365250.76424.12505088783548230611.b4-ty@b4>
+Content-Language: en-US
+From: Thomas Richard <thomas.richard@bootlin.com>
+In-Reply-To: <179458365250.76424.12505088783548230611.b4-ty@b4>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Tue, Nov 10, 2026 at 9:52=E2=80=AFAM Johan Hovold <johan@kernel.org> wro=
-te:
->
-> The parent pointer in fwnode_get_next_child_node() may not point to a
-> primary firmware node so update the comments to reflect that.
->
-> While add it, fix an indefinite article in an earlier comment.
+Hi Lee,
 
-s/While add/While at/
+On 11/13/26 4:27 PM, Lee Jones wrote:
+> [26/27] i2c: cgbc: Propagate hardware errors when polling read status
+>         (no commit info)
 
-> Fixes: 190069255582 ("device property: fix infinite loop in fwnode_for_ea=
-ch_child_node()")
-> Cc: Xu Yang <xu.yang_2@nxp.com>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/base/property.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/base/property.c b/drivers/base/property.c
-> index 51109794d727..32df0c6724ac 100644
-> --- a/drivers/base/property.c
-> +++ b/drivers/base/property.c
-> @@ -810,7 +810,7 @@ fwnode_get_next_child_node(const struct fwnode_handle=
- *fwnode,
->
->         /*
->          * If this function is in a loop and the previous iteration retur=
-ned
-> -        * an child from fwnode->secondary, then we need to use the secon=
-dary
-> +        * a child from fwnode->secondary, then we need to use the second=
-ary
->          * as parent rather than @fwnode.
->          */
->         if (child) {
-> @@ -822,12 +822,12 @@ fwnode_get_next_child_node(const struct fwnode_hand=
-le *fwnode,
->         if (IS_ERR_OR_NULL(parent))
->                 return NULL;
->
-> -       /* Try to find a child in primary fwnode */
-> +       /* Try to find a child in parent */
+I noticed you did not applied this patch. It conflicts with my ongoing
+series "Congatec Board Controller: Add storage devices support". For the
+V5 I rebased it on top of Krzysztof's series that you applied and this
+series.
 
-I'm not sure if this comment is still useful after the change, so
-maybe drop it altogether?
+I don't know what is your plan for this patch. Will you apply it? Should
+I pick it into my series, or should we have to deal with I2C tree?
+Please let me know.
 
->         next =3D fwnode_call_ptr_op(parent, get_next_child_node, child);
->         if (next)
->                 return next;
->
-> -       /* When no more children in primary, continue with secondary */
-> +       /* When no more children in parent, continue with any secondary *=
-/
-
-What about
-
-  /* Direct children exhausted, go to secondary */
-
->         return fwnode_get_next_child_node(parent->secondary, NULL);
->  }
->  EXPORT_SYMBOL_GPL(fwnode_get_next_child_node);
-> --
+Best Regards,
+Thomas
