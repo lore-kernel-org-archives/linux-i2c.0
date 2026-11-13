@@ -1,54 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.254.200.92
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.204.34.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794535029;
-	b=eTuH2OL6dAurpyxDrZ4RMuJEgOAi3Rx9CMBiLBWdm1Om96qKFO8OVUMZ7YCBFZIS5Stv
-	 VzuZiFB1NYFTUnA7HytzyvRmBwPGg0M29Vvlja4V/Ae+GQ7bsiW/YMy6EyFcUt0eqOHdt
-	 U/oBnf76gNqGS8QlLqQrgYG+CNxh9pAkfPB89UYtHEimQPH91CKe/vvE/ig6q1H+uk42d
-	 r5WaBb3T5G2PcwocpkkRGUYcVUg/rJyyqxipOW63CkyIPkxB3yVf0mH0jLM2UTR+WiorB
-	 fGMbEzLgnHJRzsnG0zh86r1HPwhHiFP6Y00Bk5jWKUIxKFoNamZ+l+kPiHa3IsB129Q==
+	t=1794553069;
+	b=wSfWZU+wa0PmYKMZc8PXPhM9tREFckZNpKzTbx1Vz3k94Gvi/Hd0XlU0RNUogASywFlZ
+	 6GZOrtyMXG509E4EJTKk8mg6eD9cu30uH1ZLfB/mcztLMQqUBN+fKxSE5EsnqXnQJ/T49
+	 Sv0wjhKLG1lqNO2YP9Dlg8iCbay/YAxYxoG7MsNjQ2hbk3+P7YJ7y4kYobAjfxdvtkOEa
+	 JT73Na7aNusBiGDBhHc7+KbywEHOdTRt40vxzoKm0Ka+wx5mPi74z9ylPkSZBfE27jWIN
+	 h/xtIXMLSS/B8nJEyb7PM22OoKW8eQP7F1hLnXvzk5myENYQmzG14x5z7EqGzV6d3jw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794535029;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794553069;
 	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
 	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
 	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
 	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
-	bh=P2rSFdeBefkG0QLlDX1VLlflCmYqSn5vGlcZaogrGcw=;
-	b=tTKykVusoR3x9UJtI9m6Ew9NQ0MmHr4ZwD5Fi/Ha2GrDig7h4kotk0nvKrluidwk55Mo
-	 J9jX+B6w7CTNz/ttHilAQI91qPK4c6Ln7oQaBWpbdSdyh8G5CflpCWkoLKuijjRzjpyPJ
-	 8L3klAnkPo5xC2V9e2hmtSEYERLDWCQlinhwxe0/s3oiYJOkEB7FGQNftVsb+roTHNg7x
-	 IBsOgpPau5PCorDFqeDsB4ElrL2zU5Akr580WKFzyuiBxjAdhsuqNsAUctLCJBx2afg+l
-	 se/gCy2xKkeNbkz8+HYxhSVu6PJXYT9RkG6w/l7xgqpy6cZLA1JbikpriVSQiy82gPQ==
+	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
+	b=OYZ381iWjhOGLYDTmWE13E1I0t93AH8nugGnpa+8btElAIDkb5qYKj+m9hlMdFdX18bf
+	 7ZAonwgVWLZF1fQcWU6f11Sd2vNIQEFQf/WNpIJIXZ9r9L00nrj2G/nJI9YLubJqYPQt6
+	 GkpVgTnozmCY+e93RP/ZS6D17yX+RIdSQoPKkXLuPBA46+gjAqiHsDuJfDpO+/Q3nWuNP
+	 7A2l+0Ukfm7wi9c5pvBQh1Tx0Vaikhqzhh2OTmxbz5o5CV7spQ/Ei3qaGS3652r2AtKQf
+	 T/xTyne1aOORQiDhQUis6izcLuaNeppNSaZsLHMq8PszVNRlvqz9fwJIYGs5a8OxMcQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=uniontech.com;
 	spf=pass smtp.mailfrom=uniontech.com;
-	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=alDlOphe;
-	arc=none smtp.remote-ip=54.254.200.92
-Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
+	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J;
+	arc=none smtp.remote-ip=54.204.34.130
+Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53E23606A31C;
-	Fri, 13 Nov 2026 01:57:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 53E23606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CA12606A321;
+	Fri, 13 Nov 2026 06:57:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3CA12606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=alDlOphe
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1794535011;
-	bh=P2rSFdeBefkG0QLlDX1VLlflCmYqSn5vGlcZaogrGcw=;
+	s=onoh2408; t=1794553051;
+	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=alDlOpheE8hUv+EOYxTlXbyUi5TplmLcrMOt/V3wwoBXHf2QodQvU0Ksy3XuoJn4M
-	 Obkve/lQOvdymRKnFcFn9zp+b/OWDWNXHncn58nqbMBE8Aqo5Yy5utBvcWZrMJ8/Y6
-	 fRA1ig66qRV8Cqi0848ViQbPKRE/F3SBsOLVFLIs=
-X-QQ-mid: esmtpgz13t1794535007td4ef3061
-X-QQ-Originating-IP: HBOPV/FUpPzU1qlk1cOuZV0M5JVK/q27eIwWJpFrfCI=
+	b=m+LB025JGdaSKwFFraY/SiA90prUTmMKtLCevddUz0a2HkM8pMQaC2Dw1HDLmaz6w
+	 R3NXs7w0qSf1OSGRu0VcspHQq3teA67u4aixQupsbTNe+4S+kKenegRJvKa7cSaUKc
+	 hOH0zf1zIcZn3QUVC+BYVecEOdvNospLTV2PzPhQ=
+X-QQ-mid: esmtpgz16t1794553046t2f118e79
+X-QQ-Originating-IP: wQ9qTzv5+oRDiWvSqKEsM2b3ogjsAG/eOGlRStq9y4w=
 Received: from PEC004119 ( [113.57.152.160])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 13 Nov 2026 09:56:45 +0800 (CST)
+	id ; Fri, 13 Nov 2026 14:57:24 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 15081137483030176273
+X-BIZMAIL-ID: 15401069445647339368
 EX-QQ-RecipientCnt: 7
 From: Haowen Tu <tuhaowen@uniontech.com>
 To: gupt21@gmail.com
@@ -58,9 +58,9 @@ Cc: jikos@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Haowen Tu <tuhaowen@uniontech.com>
-Subject: [PATCH] HID: mcp2221: Lock GPIO request preparation
-Date: Fri, 13 Nov 2026 09:56:43 +0800
-Message-ID: <A2AB87D20090642D+20261113015643.1435503-1-tuhaowen@uniontech.com>
+Subject: [PATCH] HID: mcp2221: Use the direction field for high GPIO outputs
+Date: Fri, 13 Nov 2026 14:57:23 +0800
+Message-ID: <0122335B0140275C+20261113065723.1514843-1-tuhaowen@uniontech.com>
 X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -74,133 +74,57 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
 Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
-X-QQ-XMAILINFO: Nj/O81qLKo2g4OfDGjpwuOAiSveEA2pSM7QzgSPvL6Y4JRp3gaxBBuya
-	bff1sLsEi0Op6YKZJVVqLSppBHPjgCTWk/5F5oBEHjtnhfs95Mw0FsUCabYsfyDoBCz7Sre
-	0uZMGy2GIzPKOYvdJ0LJviENvn8Ke2WlRKMAhbuHEZ7iVDULHyJTI9Q+eBQR3OE6ONRY4kT
-	AdMD2lEJIDjLf4jnej6/9ITSfq5jhQ+kFLpLtjyajR0QDig+ESz5v5qyNVH2GHp8qhKON5y
-	KhUbx91gAVa5R2fkmgFeE/ChE4CxNj9K1y799YZxsL/TeSMWxkjZLRSIiO/SEVaLIiL91bq
-	xLPo/z2g6Eyln/p0mjRd/jusM6BnORwUqSa5TdcUAvXd7CGPPlckFTCZsG0QxaxIzd6L7qc
-	Xv5rPFvH9ONgn1t4k3JtNELgbtf6oZBNne5bESSV3YxbNH6lY0RtUuxRU/a3jO0QQQf2GI0
-	NPWDF5Ic88DcdB7XnLgW5kS4YinS9CbOJHcTSfGMPEBV8VqMtYfqGZB5CFsN+6Io7xakRkC
-	Y82sq6p91x6xNZ6UfHXbei9O80xiUsjDI/hH15n6q8kI36GG0rWsy9UsX/Owoph4KAYcIFv
-	Jku/SGmE293mgf8BS8N5R5BoxuHoRdT7bdBhbgKqu9lTD+JKINsSP3Ssre66raMkd2Rv5Um
-	avkSokUDgUEUDKZ2fqZNtBN+oag2FvudoAqthPBz5rfPcCwg5tbbUxLZ51yrCeVfhNgq2bg
-	wtrXGyF619HxBrRfHbN2XduEsGvSN8Jrl/gMdIIsw0i0m9DGiiqa6pfKX5ZUKsLd3f10Fhq
-	mP3Q3ABZYQQU/FK80Jr8nQbfYubi7IjKukxScw6rJ5ms3jTupddGdM+h/HTOECcFZXERDog
-	C8E6e9DWxWkLO8LNUZMBLzKfiyQQMrgKzh3cgoG8NqVgAIdhgaZxXfdL6nGPZtGzJO7bBn5
-	PCzwWcap8Y+/pwUpZtDo6YrvJSAoypyutt9X5JcNWDjmdnOLKPK8aCvjBLhz2Yo/H397RGo
-	YQnyV/83ZeyyAMFR4WhzwxBTiInDvh3C5G6fD8F+4O5Qvgeqv4JDSylruOBy0ZbiyOHa5uK
-	R+mkeGTzPOW
-X-QQ-XMRINFO: OWPUhxQsoeAVwkVaQIEGSKwwgKCxK/fD5g==
+X-QQ-XMAILINFO: N3mvcAHX73MW1lnHX7MaOi6Iu0Nijpdo+ERygBWYDcKOSWpL1IP6PIhl
+	GhuGiTMlgf48MwjL/67WemBDQb0RcH51buoWCudDTPgIpIMUWAwFI+8VXyjbWL2deS/bs/5
+	YKlDH6BJJTMHU2cM8ON1ZIvOP4fTAuFxqKlVH8eNQTuH1SVVjhO/hdqzjGUgUpUVXkSrIAU
+	dMLI73ws9Vy9rbh4NhxX+28Swx2oielIOL0xHt4OsPwKxqa22Ay+qYiv44SNjMazSCXJ9Fx
+	GIMg1CMKwM1yCDjCI9ka+q+C6UW9278xODERxgPFYSFqc57+qH/mgwQABgLOciZDZUG9Fzc
+	vwDxqjGeSHlTJLtd3rRni77Bjv71r6P7pjPQZVEdbTozEr4AdQ8ykkUhVSlP4K4NuSDKwmQ
+	Qma6NZh1zOcyxQ+2E65lbzdw7Qubsrapyjl2Mt8MSVfp/QwvQKVaItioSJv/MHDccanXq9R
+	TVImKq5KqbeADWPiJ/plTm3QI7KMZ3VQEOjgCGAI22aP+Fys1G6BnzDeqCBs2iCdSSc1C6M
+	tDbcFKgg6Q622X/GyIxNPNQ4XV8rFKkagFO6bgI9rkOeweXG5D7pDGrxfAFbj+D2rA28Q5e
+	HWgCdxCaM/IMkeVht95URWXvFTrT0b5evjR6ldEaTstBEh3WZOSnk2Z5FSwLyy5BeSsZoCx
+	LZ0Y43TGbYzLT+GKNnS45vRBBQbnegoNB7U4srg82LeDlQnTKdNrBeVyzG7/1KVLHHst7tw
+	wFcZdn9IquA4pZbGWkPtb385vTOW+PFyXwNGUNO17AcrSWZZiHFBWnrd+reBmFJSmtsalc0
+	c8FXQWJFk4ymgeJ10iBChqaBlc4uj4HCdZXpYBhwNB8skTYIQ7VAX+2NZgL0Ln2OouosgLZ
+	NMHPs73pm1bAD5px4faEr2wRjyXE4958micgqvg7+MJgxI5hAAIhz29yWg1Dzliv37WOBvq
+	UQPVDtxgzb0bBAk/AK8Q9HL1KJjkifEYDeq/FbmLaP8Hp1pDul7ysA1SsYoLS7p79MwUmmT
+	k6vbcyhZPhc/JRl5e1faWnzSmhqM8=
+X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
 X-QQ-RECHKSPAM: 0
 
-GPIO requests share txbuf and gp_idx with other GPIO operations and with
-I2C/SMBus transfers. However, several GPIO paths modify these fields
-before acquiring mcp->lock. A GPIO callback waiting for an ongoing
-transfer can therefore overwrite its command buffer or change the index
-used to interpret the response, despite the transfer holding the mutex.
+The GPIO_GET response handler stores the pin value in mcp->status and the
+pin direction in mcp->gpio_dir. Consequently,
+mcp_send_data_req_status() returns either zero or one on a successful
+GPIO_GET request.
 
-Acquire the mutex before preparing GPIO get, set, direction and SRAM
-requests, and hold it through the response wait. Also snapshot the GPIO
-direction before releasing the mutex so another request cannot replace
-the result before it is returned to the caller.
+mcp_gpio_get_direction() treats any nonzero return as an error and returns
+it directly. For a high output this returns one, which means
+GPIO_LINE_DIRECTION_IN, instead of checking the output direction reported
+by the device.
 
-Fixes: 328de1c519c5 ("HID: mcp2221: add GPIO functionality support")
+Only return early for negative errors so both pin levels use gpio_dir to
+determine the direction.
+
+Fixes: ca6961d8a851 ("HID: mcp2221: fix get and get_direction for gpio")
 Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
 ---
- drivers/hid/hid-mcp2221.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/hid/hid-mcp2221.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 3f05d6e288f9..408c38828cc9 100644
+index 3f05d6e288f9..3358b7d0c5e4 100644
 --- a/drivers/hid/hid-mcp2221.c
 +++ b/drivers/hid/hid-mcp2221.c
-@@ -643,10 +643,11 @@ static int mcp_gpio_read_sram(struct mcp2221 *mcp)
- {
- 	int ret;
- 
-+	mutex_lock(&mcp->lock);
-+
- 	memset(mcp->txbuf, 0, 64);
- 	mcp->txbuf[0] = MCP2221_GET_SRAM_SETTINGS;
- 
--	mutex_lock(&mcp->lock);
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
- 	mutex_unlock(&mcp->lock);
- 
-@@ -682,6 +683,8 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
- 	if (!needgpiofix)
- 		return 0;
- 
-+	mutex_lock(&mcp->lock);
-+
- 	/*
- 	 * Set all bytes to 0, so Bit 7 is not set. The chip
- 	 * only changes content of a register when bit 7 is set.
-@@ -706,7 +709,6 @@ static int mcp2221_check_gpio_pinfunc(struct mcp2221 *mcp)
- 		}
- 	}
- 
--	mutex_lock(&mcp->lock);
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 64);
- 	mutex_unlock(&mcp->lock);
- 
-@@ -719,11 +721,12 @@ static int mcp_gpio_get(struct gpio_chip *gc,
- 	int ret;
- 	struct mcp2221 *mcp = gpiochip_get_data(gc);
- 
-+	mutex_lock(&mcp->lock);
-+
- 	mcp->txbuf[0] = MCP2221_GPIO_GET;
- 
- 	mcp->gp_idx = offsetof(struct mcp_get_gpio, gpio[offset]);
- 
--	mutex_lock(&mcp->lock);
+@@ -810,7 +810,7 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
  	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
  	mutex_unlock(&mcp->lock);
  
-@@ -735,6 +738,8 @@ static int mcp_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
- 	struct mcp2221 *mcp = gpiochip_get_data(gc);
- 	int ret;
- 
-+	mutex_lock(&mcp->lock);
-+
- 	memset(mcp->txbuf, 0, 18);
- 	mcp->txbuf[0] = MCP2221_GPIO_SET;
- 
-@@ -743,7 +748,6 @@ static int mcp_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
- 	mcp->txbuf[mcp->gp_idx - 1] = 1;
- 	mcp->txbuf[mcp->gp_idx] = !!value;
- 
--	mutex_lock(&mcp->lock);
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 18);
- 	mutex_unlock(&mcp->lock);
- 
-@@ -801,19 +805,22 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
- {
- 	int ret;
- 	struct mcp2221 *mcp = gpiochip_get_data(gc);
-+	u8 direction;
-+
-+	mutex_lock(&mcp->lock);
- 
- 	mcp->txbuf[0] = MCP2221_GPIO_GET;
- 
- 	mcp->gp_idx = offsetof(struct mcp_get_gpio, gpio[offset]);
- 
--	mutex_lock(&mcp->lock);
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
-+	direction = mcp->gpio_dir;
- 	mutex_unlock(&mcp->lock);
- 
- 	if (ret)
+-	if (ret)
++	if (ret < 0)
  		return ret;
  
--	if (mcp->gpio_dir == MCP2221_DIR_IN)
-+	if (direction == MCP2221_DIR_IN)
- 		return GPIO_LINE_DIRECTION_IN;
- 
- 	return GPIO_LINE_DIRECTION_OUT;
+ 	if (mcp->gpio_dir == MCP2221_DIR_IN)
 -- 
 2.50.1
 
