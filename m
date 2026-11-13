@@ -1,103 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.12
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794556926;
-	b=UFhwC7SEOxMFljRhGdlQeYigHdzupkxwpE1G0/018BrWgwt7p2PQ1W7bbUGcAyxGZKEg
-	 WT4/2sy5vlKp2EnMbx7kKb38ZBr43ZcP3EicxQXk8wIf57z7gNPoHDP2jqjsKWl007klf
-	 E9a3fD7ZOeKxkCwIUB+MPG01x9h2RRl7ZHfCa0Ahc51JtRzlh9hyk5q7MTlmC31d2WjPn
-	 ajT/VxSQVMMJZob+pS+NibXd8q1hjDXkjA+U9XT9K2hJ/lSCg42FsHtZF31APKYq1dQCX
-	 eTbGw9mPC0LW3BMiDrzKulLQMbCNJVAZCtEsQLuyz1TFO1/dnc6w9qqScPHJAjOTfLg==
+	t=1794559115;
+	b=qX2MhLLKOmVfc3PSrdztnoDadeYwec6/ivt7R+5gMXHa2BU12OYXh7wvXgS69E7m25Kr
+	 LBCCfhyhVMZb/sOYjjTGJKMGLxTFZEY5OIPd67tIDluYEhNIkHFJOORJVkh+zPJvnDlVV
+	 3wLdK0rPLfzkz1u0D7b8i5ro0DtjnfF0n7p4teytMVUlhRyC2gk+Ie6MHRmQomI9g63lv
+	 qCb8D5J9YkDBuncLoJ4vdRxvtN6JlirY2yAKPK/F+dXUStij01ovg3bN05uIt7bqtmIZL
+	 vZWEpBJw8PJB1dLJvqVgh7qKZvoC9Xt2r6Vr6/SpBqtfBsLiwhY9KoBSPcbzmFWN5aw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794556926;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=QJxalrHssAZhNnjpSDoFedeDiy/biVpvzIuN3reWEpI=;
-	b=joc1RVhtwP11o5vRGxUz4vG41D/vHI7/JLqHWHjTr8OgBxp5hxcq+8/6TSAyBS7YKrGJ
-	 bxqpdvRENmT7QximvdqIVcFxX2jCJy5kd6dXZAEGVcAntR649j8xD55MMJyJs0Pe4yM7Q
-	 R3dXVIfwAH7atjTA+QYxlEl8lNuLaAXKOASYXODLqbygMThQ/UWhv4YQLcj8EbXpzt2Do
-	 Vzm4FR85PQHZWEQt10bZb0Iab7zMee42b0/vdP8E2JvCvqFJNYROGzaBa9OXx0lispNwq
-	 VNUbcaE/AQFvsOCJfkfIbm5dC+GeAENYlhHQsqHFArvU/3q/p0V731OZg+PFwhJP/0Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794559115;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=jJPPmrgHvFi7FJRmblAVYAxltGeBo3M3QF8JnKerhoQ=;
+	b=5E/mpiLYnPAVIGtLXj3tzVol9EiLGa2ks+W6VUp42++LbBkHliZ/E5Yao8EXTrqVOqCU
+	 SRKFmYOYaclOciONZE+l2Vsx43nFOmdAZWS2lgR4veaJynpfOU/yXuSQFCIfRGZIXW4i/
+	 CTs3XCM/UKf4Xws8k8+cgSCoUOo2XgNeUi8xEZZIIIlhACrBZmTwvyqu3uj+WK46kE2A4
+	 hPZ6T5T2kFIJSE1cTyBJ4iAumZjUT2qSqHmr59kqJoEFoUphHMyTO2xGPTdJDdOrJ50dS
+	 hcPdJZEnZTkSC46slkkcOZ2JQD49J2SvErOKhlVBF6sEvBT08xf78oiiUUajXK8b+tQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zTIYH4qx;
-	arc=none smtp.remote-ip=209.85.128.50
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dL7mxt7t;
+	arc=none smtp.remote-ip=192.198.163.12
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86923606A331
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 08:02:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86923606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EAE5606A31C;
+	Fri, 13 Nov 2026 08:38:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1EAE5606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=zTIYH4qx
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4a35a60499eso3814415e9.0
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 00:02:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794556925; x=1795161725; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=QJxalrHssAZhNnjpSDoFedeDiy/biVpvzIuN3reWEpI=;
-        b=zTIYH4qxkd/UVxtwx/nA4llgh7bESZeGQaTm2prdn7irBT+NII+HvK+AbhWvy4rdyy
-         bYKhIfRmJ9GflhYQE4Nmct3m+qHljveeJJbUuliL3S8spo8t1HrXd2rQRIETLr2SDHu5
-         rlCHeYrkuksr7oUerEBI2GJebaIgDOaZUv7fYxsplA+DCFzWW7kM7wNsKY59ehJuaO9y
-         EwOcgpCz+aeujkXZGcwcKp3jPDVtnAEwCbkinfXL+hAYv6au+gBt75XxGINglZuKzWnY
-         RhucEJ7oA+h58Nlk5miFoKMfz8TFoOQ4Mn4cuxAqU8clBxCjhc65T1WK6xbgzu72gsFK
-         Wd4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794556925; x=1795161725;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QJxalrHssAZhNnjpSDoFedeDiy/biVpvzIuN3reWEpI=;
-        b=dd3P6g9Tb8TM4MyHXlaXHtVM+st/xO9bxvQgx+zQiF9ShO0QCuuXEwl9iMk9JHiKJX
-         RJ//qrqK8XWc3xemu/7q6gPVykgPDhPxNqRFhDkKqZ9I9N6E2L1CXxFdgs+rTkfif3F6
-         KbGIKR4P5VENDQ7s0AAcSYaCQrmwzlIByHUH87BcoSiWk8ypH5JhNSd15Py4KXt5M8kL
-         Z0xUqvPqLpBvOlQrG65KXM60sh34p2dQaBT/U8EaBd6XXM6BagxKaccslc43pkDR6vAJ
-         5ztyWCsUm5W65oCinekyUTxZu7pecbKMPqNmEsv2DKTkBZ6WP8SBLcX6a+5dYHFC1AxT
-         LxUw==
-X-Forwarded-Encrypted: i=1; AL+hErF56oEDalmjva1GhRXYIUXBKXAUDIqFNtbK4qSpl3qy4kbBJkK/RZ3TqJbPa5EvwZqOK98jJuKIzC8=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/tT0iUXq3F3UKx9qSZRUWkJx5fO7QeobsfsXCjmQ/SCArArczO
-	t1gP7YKL2ZVBKO9gPz/FMTYxqypaA4HOaeIEpGUMxL3aPDsNPNwZx7Dl
-X-Gm-Gg: AYBFou0GV6/KWA7nRkWQpHGu1lXa2IXDjSsngiwJGlUKQcOBKv/JTNtUEf+wcPBJgyU
-	7DQYlW65T/NOL1AGnmBQhdI1nORB3E+iGkESdZqsM23PwfRmB8rG1hXLBJa7v5NrFboqs5qwgnM
-	tbZHIyZnBgk09yC0SImdrfgqnskBWWe6jwcqhDU0lqv51yqenCVxj26bMf9PVT7m9zD8C9IhPIc
-	BUc9A5Fq+voOY0T+bfx49T0A9s5Vjj1FCfZ4fpkj49RLUTAJCmEaJeH6zhAHFWw05hm0SguFr7V
-	i4ep+74sfw4YBDl/3g1oako5lvoz4ScP5kcXZCX9qovw64qVmehCnGrNAMDWJO5h8MYrh1bIPI0
-	0K6LFe9pF6r5gAUAOf0g6UycUgSBUXLlFd0WbgYL4Vw+jZBtV4oeXZhMhXCpSPJNXlWTSxtaF9x
-	Zdama39B0CXGuAWqHZt/wy6zVZVBDYDM/Q1yS36g335aTW2Gddgr70Cp0xXOZ9vVjJefDqqFmd6
-	2BpcvabGyziLoamnu+3r5m5LfvtkhVFAcJYHztY1VcqmqrsOEt87UdWLo+hGI3ZeTJXX8VrRnkq
-	zGi9mqn++oTMB9OjaREJ+J00Kk446b2XxB3C
-X-Received: by 2002:a05:600c:c4a3:b0:4a1:9663:7639 with SMTP id 5b1f17b1804b1-4bb55ab5526mr35140005e9.34.1794556924633;
-        Fri, 13 Nov 2026 00:02:04 -0800 (PST)
-Received: from deb05.proceq.com ([213.160.61.66])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb4e2acf81sm121590835e9.14.2026.11.13.00.02.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 00:02:04 -0800 (PST)
-From: Mehmet Fide <mehmet.fide@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Yao Yuan <yao.yuan@freescale.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH 0/2] i2c: imx: two fixes for a DMA write that is not acknowledged
-Date: Fri, 13 Nov 2026 09:02:03 +0100
-Message-ID: <20261113080203.1046422-1-mehmet.fide@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261113073250.1037215-1-mehmet.fide@gmail.com>
-References: 
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dL7mxt7t
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794559114; x=1826095114;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=THoWPqTSk5fnke7XCzT4M9s/J2ey2Lfhv5W+Bhz1vIs=;
+  b=dL7mxt7tuNBbuksC+4Bc5pMyHnX7B8Cyu0/QvlwFGv/M0tprXHIa9PEj
+   QFhNfHLOm8QBTL6YI8Du+8W6uKX84W+8lFl2TrNByG2SDr8ZXPKMBbvez
+   /WWvAOZpbBP+Qd/5J9/ixz0CtJrzyEPoxUkahYjMKLH0YDN2NoBD4aTY0
+   +BJM5tT54Nr+kdHyoVakKTn7H8SA+y2dvOW37TRMpNl2JYDEh/2/OhT9W
+   pANp3MpnBcgEah8cRgF8rysHJ7br66sCSdH4/mLoDQIkMBaYMUid5ZdXv
+   FKF/+/IuSSUyI3f4iHlfC8Sato7KLZPsbPazBpY+7iqhJ3msi6OvWrp7s
+   g==;
+X-CSE-ConnectionGUID: Zwm6ywuVRNCOXEFKWYnOnw==
+X-CSE-MsgGUID: kp/4MkiXRJe56AOmMmRA+Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11964"; a="3259457"
+X-IronPort-AV: E=Sophos;i="6.27,211,1787036400"; 
+   d="scan'208";a="3259457"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Nov 2026 00:38:34 -0800
+X-CSE-ConnectionGUID: yySeRgJ4Q0yBYjW850LAuw==
+X-CSE-MsgGUID: hjfjjnXYTeKaSwXOOgKsCQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,211,1787036400"; 
+   d="scan'208";a="8890186"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa006.jf.intel.com with ESMTP; 13 Nov 2026 00:38:33 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id D59BF99; Fri, 13 Nov 2026 09:38:30 +0100 (CET)
+Date: Fri, 13 Nov 2026 09:38:30 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: penhouse24@proton.me
+Cc: "westeri@kernel.org" <westeri@kernel.org>,
+	"andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Subject: Re: [BUG] i2c: acpi: Dell XPS 17 9720 ELAN 04F3:311C touchpad
+ (VEN_04F3) needs 100 kHz like DLL0945
+Message-ID: <20261113083830.GP259790@black.igk.intel.com>
+References: <CYQ1dYF3ZUj0L_VRzN490SfuHRaulkT_y5NWcIEIl8OtpIgWgXyOlwEyUqZD_uz9bmVBXM2uLOo8bkyzcR-qCxNObstCqFUlK6lUYXK5euE=@proton.me>
+ <20261109104542.GL176724@black.igk.intel.com>
+ <lGd7ChJVtwyvhMVkRinryqLG3Lx32U7xoSjT4_inKH1pBNoAd4dvBKV1A4i9MOIVLKmgx8sVg98gfK-iUwb5Uoy0wX1CM2_c7I1vdTr2tYU=@proton.me>
+ <20261111075931.GG259790@black.igk.intel.com>
+ <iZI_luLf6KPDE7sZSzG-aRF3V1fJFh7moD99YLp6nXVGLKgHTGMY_fnseRx1glU4YXGKNN3zKxSkitJW1MxfxR8WWGb1fegxZnOmq4VArTo=@proton.me>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -107,16 +87,32 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <iZI_luLf6KPDE7sZSzG-aRF3V1fJFh7moD99YLp6nXVGLKgHTGMY_fnseRx1glU4YXGKNN3zKxSkitJW1MxfxR8WWGb1fegxZnOmq4VArTo=@proton.me>
 
-A correction to the test note in this cover letter.
+Hi,
 
-The v6.12.117 kernel I tested with is not plain stable. It carries a
-backport of commit 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non
-dma mode"), so its i2c-imx.c has the interrupt state machine of
-mainline. "The touched code is the same" is true for that tree only.
+On Thu, Nov 12, 2026 at 02:18:35AM +0000, penhouse24@proton.me wrote:
+> Hi Mika, 
+> 
+> 
+> Tested on top of v7.4-rc2 (067c5c24cef2) on a Dell XPS 17 9720, BIOS 1.41.0, without the SSDT override.
+> 
+> The quirk is applied at boot.
+> 
+> I've been using my laptop all day and the touchpad lag has not come back so far including on AC power. On the unpatched kernel it returns as before.
 
-For stable: both patches apply to 6.18.y and 7.3.y. On 6.12.y and older
-patch 1 applies with fuzz and patch 2 does not apply, as the interrupt
-handler is different there. I can send backports for those trees once
-the patches are in mainline.
+Thanks for testing!
+
+> Interestingly enough, I did use an off-brand AC charger for my laptop and the touchpad lag returned on the patched and unpatched Linux kernels AND Windows. When I used the Dell AC charger, the lag was gone on the patched kernel and Windows, but remained on the unpatched kernel. Perhaps the root cause of this problem, on Linux relative to Windows is that Windows aggressively filters noise without smoothing? Not sure, just a thought
+
+Indeed it can very well be. Someone should really investigate this properly
+by hooking I2C analyzer to the bus to see what is going on there. However,
+that is not trivial to do with form factor devices.
+
+> One question about the DMI match: does it need DMI_BIOS_VERSION? The VEN_04F3 ID check already makes the quirk stop applying if a future BIOS switches to a proper ACPI ID. The 400 kHz problem also seems to be in the touchpad itself, since the same 04F3:311C part is affected on the Precision 5560. Matching only on sys_vendor and product_name would also cover users on older BIOS versions, and any newer BIOS that still reports VEN_04F3.
+> 
+> Dell also ships the same BIOS image for the Precision 5770, so it likely exposes the same ID, though I can't test that model.
+
+I agree we can drop the BIOS version. I will send the updated patch soon.
