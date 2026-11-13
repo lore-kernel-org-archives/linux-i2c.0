@@ -1,67 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.204.34.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794553069;
-	b=wSfWZU+wa0PmYKMZc8PXPhM9tREFckZNpKzTbx1Vz3k94Gvi/Hd0XlU0RNUogASywFlZ
-	 6GZOrtyMXG509E4EJTKk8mg6eD9cu30uH1ZLfB/mcztLMQqUBN+fKxSE5EsnqXnQJ/T49
-	 Sv0wjhKLG1lqNO2YP9Dlg8iCbay/YAxYxoG7MsNjQ2hbk3+P7YJ7y4kYobAjfxdvtkOEa
-	 JT73Na7aNusBiGDBhHc7+KbywEHOdTRt40vxzoKm0Ka+wx5mPi74z9ylPkSZBfE27jWIN
-	 h/xtIXMLSS/B8nJEyb7PM22OoKW8eQP7F1hLnXvzk5myENYQmzG14x5z7EqGzV6d3jw==
+	t=1794555174;
+	b=VZL9ovsZN+kksH3BfNToc+da6XjbENF45hBRbHFJvxzoNgqO8f+ujC54lienJbNcBL/u
+	 CSMMsbknXEnwPbS781qCKzaGrPcFiy0o3qbUUrKjOBTl8QLyNzAvLGn/jd1iglAlvqLma
+	 udNYKt+891/DQzSrx4Nbb2YsgGTPCyckYr7wERo+ltVsENRuH2l/QHgK+bNkBU1yOCazB
+	 +I6CEFRekNVGFR5KlQPEGGIynC87hyXTdfNMega9d8kjBL3zwAkGFrHzVQONLu9PKWuIb
+	 tPF6F7ksjPArIGT0NixJDWJNZobe4eKw/O+7CCdMSPhbBuqMIOOllAI1ID9tzOFnq8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794553069;
-	h=DMARC-Filter:DKIM-Signature:X-QQ-mid:X-QQ-Originating-IP:Received:
-	 X-QQ-SSF:X-QQ-GoodBg:X-BIZMAIL-ID:EX-QQ-RecipientCnt:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding:X-QQ-SENDSIZE:Feedback-ID:X-QQ-XMAILINFO:
-	 X-QQ-XMRINFO:X-QQ-RECHKSPAM;
-	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
-	b=OYZ381iWjhOGLYDTmWE13E1I0t93AH8nugGnpa+8btElAIDkb5qYKj+m9hlMdFdX18bf
-	 7ZAonwgVWLZF1fQcWU6f11Sd2vNIQEFQf/WNpIJIXZ9r9L00nrj2G/nJI9YLubJqYPQt6
-	 GkpVgTnozmCY+e93RP/ZS6D17yX+RIdSQoPKkXLuPBA46+gjAqiHsDuJfDpO+/Q3nWuNP
-	 7A2l+0Ukfm7wi9c5pvBQh1Tx0Vaikhqzhh2OTmxbz5o5CV7spQ/Ei3qaGS3652r2AtKQf
-	 T/xTyne1aOORQiDhQUis6izcLuaNeppNSaZsLHMq8PszVNRlvqz9fwJIYGs5a8OxMcQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794555174;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=Jqp8TYr/BxJeYtd0GqFzJoVixzfcdiw2tIdD5ztXl7A=;
+	b=W8i0CwvOwZv387iYV2966/vMTWDQId0MunvRxzo1JfdnHmBKl1JZgCZjvu26e+YapE9N
+	 MidUQ9YNAHTdmoFfkwTOu7Mr26fuMVFwPO8TWNEbaQaT+/WTGHun2A3ZZ/T9N9u9nPGky
+	 ze5AfhvLunF7WjIxxZnpATx52f41FKeR3fsoCwCvSHk0VKsqzwXdrt9VHV7FH7FrsWkMa
+	 lz6kdnjESrL3jlI7omTNnMR5QSa7hDPnlfM5YfDpNi6CNghSeb32V48e0JiR7AS2I+200
+	 0AZ3kUpTrjYHmQhGCBuRdndsx/3CXWRXGANbMBQvHgiXru24eyV8N+gPMgbCnFRFF+Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=uniontech.com;
-	spf=pass smtp.mailfrom=uniontech.com;
-	dkim=pass header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J;
-	arc=none smtp.remote-ip=54.204.34.130
-Received: from smtpbguseast2.qq.com (smtpbguseast2.qq.com [54.204.34.130])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jW6XVipS;
+	arc=none smtp.remote-ip=209.85.221.41
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CA12606A321;
-	Fri, 13 Nov 2026 06:57:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3CA12606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FB9606A321
+	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 07:32:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40FB9606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.a=rsa-sha256 header.s=onoh2408 header.b=m+LB025J
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1794553051;
-	bh=LqcDjoJpZYd3Z1siuLQrffCZ2eBZqKukhyBi4gD1u2U=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=m+LB025JGdaSKwFFraY/SiA90prUTmMKtLCevddUz0a2HkM8pMQaC2Dw1HDLmaz6w
-	 R3NXs7w0qSf1OSGRu0VcspHQq3teA67u4aixQupsbTNe+4S+kKenegRJvKa7cSaUKc
-	 hOH0zf1zIcZn3QUVC+BYVecEOdvNospLTV2PzPhQ=
-X-QQ-mid: esmtpgz16t1794553046t2f118e79
-X-QQ-Originating-IP: wQ9qTzv5+oRDiWvSqKEsM2b3ogjsAG/eOGlRStq9y4w=
-Received: from PEC004119 ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Fri, 13 Nov 2026 14:57:24 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 15401069445647339368
-EX-QQ-RecipientCnt: 7
-From: Haowen Tu <tuhaowen@uniontech.com>
-To: gupt21@gmail.com
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jW6XVipS
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-49318428d98so189593f8f.1
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Nov 2026 23:32:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794555172; x=1795159972; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Jqp8TYr/BxJeYtd0GqFzJoVixzfcdiw2tIdD5ztXl7A=;
+        b=jW6XVipSXdMdRTxsiijSiJOltYY8enXMvCw0kLuEMKivD0O8Eam/rZsLu0qkRJmhMg
+         0gm77RI+ElgZgUSELzgGh6YYiZ3ekKa2Iuz3V9mzgQLTdzQ1er3kL+6npgfNMjUA3EOg
+         q7joZ8ii/JliPk8lGo3/CjkyjggwOpCH4MX048SSOnyj86C1TSRdGoOrVD4Tlp4TnR0C
+         nk7RjKDlnoCNZ8RN6LQKArv/horCrm2ZUhYVx8bFJKBCXmPCN1Ww1MgVtmpE+P7Q1q4Q
+         Rl+9xxVIEV5+xtc/WqOERzJsW1vxDTEHKmBw8t9dSspbCvVQHudFSzvWptu2E6uzTvLN
+         gxPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794555172; x=1795159972;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Jqp8TYr/BxJeYtd0GqFzJoVixzfcdiw2tIdD5ztXl7A=;
+        b=xFyP/zGIXv2DUH47uyOlWvBN+MYabSJY0MulJ8L8d9JDoyDx1ByPWzbQyvXMiSuZPy
+         Yy0TdWHBiFAOnOFJ150hKunp2M4INzI6A0R15b40w0VG7+nPjT/wgzI8EclP5JrZusw+
+         qSplThFKg7eZLmNuXdjuZc6MkNg+GVLYu0D+SQrFhdAENxH1Fb6d7Jp2xFfNHUiQuUpZ
+         rt5rosb4UkNWfQ5THa+g4K0ibuoKfl6x3CWag3HdiKKi2/8sOuvdPNaULw+trIEobpJg
+         H1U9bQntT5ln3C8z7dBc3dXsW8ZocY4BoqPN0+ZrKFyWFXouXQuj6A/mbTeBiWwdRu9R
+         QoLQ==
+X-Forwarded-Encrypted: i=1; AL+hErHcrZ6H+nWokndm18dBTOYCp1fsF426ZPuhYpfGqqU/RqS4r/f5pg/Sd7/TjpOK4dyOL6fpCaq3UlQ=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/VeGEOST86mTq2ANHS0D0CDf2SdfaNoMkMKRxiKz+euzz3wERE
+	rFeCLUUveHiY17Z4yLghPZ81OMjr+connpAfEq/megF8IcjbNEXgesPM
+X-Gm-Gg: AYBFou2XFyEBe87YSsaijsm/eggF+Y/mMK928Hpaqf08XJQoh450HKHE7vqSw/4XrA3
+	tOdQbJo23Fb9bzWsybKqEBRWNwQ+INtrQo/mbo6aVtSxZj6aoJoVDqTbOjUzsl19jVN7TLE/Qt4
+	IBF5IFKiJPb4bKy6fbt9m4nh+AdlyzVz1zNajG57/I1AZxs6FrOF6r+uNyQlVRbn/WFX+WvPqEj
+	VQWhqD326BFAX5u71L/LnGrVkFpn5KocnrVpRVmX0xkjnLIbrUW3KHbDJBTaze3FF0/ZoQuFLmP
+	CNFu07+/XJQgQHvEmT0IJHL2monBhnx8BB953JkPMl77F7VWx6xdFiNzWVKArBTpzBK/j3KFmFY
+	SpjPqH+fPEs0Pjk1Dk2uHi/YO8mww07Gc+pyii9fLRDq9wXCe7bd+oeEVUJHcolG2x+H8lYIUOs
+	SKjESH5gEMYFocJ+8goHKcqFCQiVD36khgazgd7N3MEefht8lpGuZ9rO+kLVaW86SW/ZkfuDRzc
+	lPlzFutj1VjIZLSh1m4n8kzSKzQLGFNTfZiPgJc3bT0EMhKsvdlxOOyfEfMioFuyIlIkyMevupK
+	m52ebEMaNgoA3lCiNlo508UzgleDktKKDQw=
+X-Received: by 2002:a05:6000:240b:b0:490:39ba:4359 with SMTP id ffacd0b85a97d-49c714a2db3mr3596058f8f.23.1794555172357;
+        Thu, 12 Nov 2026 23:32:52 -0800 (PST)
+Received: from deb05.proceq.com ([213.160.61.66])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c5d223a29sm3799903f8f.8.2026.11.12.23.32.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Nov 2026 23:32:51 -0800 (PST)
+From: Mehmet Fide <mehmet.fide@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Yao Yuan <yao.yuan@freescale.com>,
+	Wolfram Sang <wsa@kernel.org>,
 	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	Haowen Tu <tuhaowen@uniontech.com>
-Subject: [PATCH] HID: mcp2221: Use the direction field for high GPIO outputs
-Date: Fri, 13 Nov 2026 14:57:23 +0800
-Message-ID: <0122335B0140275C+20261113065723.1514843-1-tuhaowen@uniontech.com>
-X-Mailer: git-send-email 2.50.1
+	stable@vger.kernel.org
+Subject: [PATCH 0/2] i2c: imx: two fixes for a DMA write that is not acknowledged
+Date: Fri, 13 Nov 2026 08:32:48 +0100
+Message-ID: <20261113073250.1037215-1-mehmet.fide@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -72,59 +105,30 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrsz:qybglogicsvrsz3b-0
-X-QQ-XMAILINFO: N3mvcAHX73MW1lnHX7MaOi6Iu0Nijpdo+ERygBWYDcKOSWpL1IP6PIhl
-	GhuGiTMlgf48MwjL/67WemBDQb0RcH51buoWCudDTPgIpIMUWAwFI+8VXyjbWL2deS/bs/5
-	YKlDH6BJJTMHU2cM8ON1ZIvOP4fTAuFxqKlVH8eNQTuH1SVVjhO/hdqzjGUgUpUVXkSrIAU
-	dMLI73ws9Vy9rbh4NhxX+28Swx2oielIOL0xHt4OsPwKxqa22Ay+qYiv44SNjMazSCXJ9Fx
-	GIMg1CMKwM1yCDjCI9ka+q+C6UW9278xODERxgPFYSFqc57+qH/mgwQABgLOciZDZUG9Fzc
-	vwDxqjGeSHlTJLtd3rRni77Bjv71r6P7pjPQZVEdbTozEr4AdQ8ykkUhVSlP4K4NuSDKwmQ
-	Qma6NZh1zOcyxQ+2E65lbzdw7Qubsrapyjl2Mt8MSVfp/QwvQKVaItioSJv/MHDccanXq9R
-	TVImKq5KqbeADWPiJ/plTm3QI7KMZ3VQEOjgCGAI22aP+Fys1G6BnzDeqCBs2iCdSSc1C6M
-	tDbcFKgg6Q622X/GyIxNPNQ4XV8rFKkagFO6bgI9rkOeweXG5D7pDGrxfAFbj+D2rA28Q5e
-	HWgCdxCaM/IMkeVht95URWXvFTrT0b5evjR6ldEaTstBEh3WZOSnk2Z5FSwLyy5BeSsZoCx
-	LZ0Y43TGbYzLT+GKNnS45vRBBQbnegoNB7U4srg82LeDlQnTKdNrBeVyzG7/1KVLHHst7tw
-	wFcZdn9IquA4pZbGWkPtb385vTOW+PFyXwNGUNO17AcrSWZZiHFBWnrd+reBmFJSmtsalc0
-	c8FXQWJFk4ymgeJ10iBChqaBlc4uj4HCdZXpYBhwNB8skTYIQ7VAX+2NZgL0Ln2OouosgLZ
-	NMHPs73pm1bAD5px4faEr2wRjyXE4958micgqvg7+MJgxI5hAAIhz29yWg1Dzliv37WOBvq
-	UQPVDtxgzb0bBAk/AK8Q9HL1KJjkifEYDeq/FbmLaP8Hp1pDul7ysA1SsYoLS7p79MwUmmT
-	k6vbcyhZPhc/JRl5e1faWnzSmhqM8=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
-X-QQ-RECHKSPAM: 0
 
-The GPIO_GET response handler stores the pin value in mcp->status and the
-pin direction in mcp->gpio_dir. Consequently,
-mcp_send_data_req_status() returns either zero or one on a successful
-GPIO_GET request.
+From: Mehmet Fide <mehmet.fide@screeningeagle.com>
 
-mcp_gpio_get_direction() treats any nonzero return as an error and returns
-it directly. For a high output this returns one, which means
-GPIO_LINE_DIRECTION_IN, instead of checking the output direction reported
-by the device.
+A write of DMA_THRESHOLD bytes or more to an address that does not
+answer leaves the interrupt status behind, so that the next DMA read
+returns 0xff for every byte without an error (patch 1), and it blocks
+for DMA_TIMEOUT before it fails with -ETIMEDOUT instead of -ENXIO
+(patch 2). Patch 2 needs patch 1.
 
-Only return early for negative errors so both pin levels use gpio_dir to
-determine the direction.
+Tested on a Colibri VF50 (i2c0 at 100 kHz, DMA) with v6.12.117, where
+the touched code is the same; on this base compile tested only (W=1,
+sparse). 200 rounds of failed write, 32 byte read and acknowledged
+18 byte write: 200 times ENXIO at once, no wrong read, every write
+acknowledged.
 
-Fixes: ca6961d8a851 ("HID: mcp2221: fix get and get_direction for gpio")
-Signed-off-by: Haowen Tu <tuhaowen@uniontech.com>
----
- drivers/hid/hid-mcp2221.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Mehmet Fide (2):
+  i2c: imx: do not carry the interrupt status over to the next transfer
+  i2c: imx: return -ENXIO at once when a DMA write is not acknowledged
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 3f05d6e288f9..3358b7d0c5e4 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -810,7 +810,7 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
- 	mutex_unlock(&mcp->lock);
- 
--	if (ret)
-+	if (ret < 0)
- 		return ret;
- 
- 	if (mcp->gpio_dir == MCP2221_DIR_IN)
+ drivers/i2c/busses/i2c-imx.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+
+base-commit: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
 -- 
-2.50.1
+2.56.0
 
