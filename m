@@ -1,103 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.17
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794567920;
-	b=S9FGRKria46OurG/jscOrgjODaYEOhHgisg0i1R48CETAtJf78LTbym75unwn0kQaUS5
-	 0kIF5reCRXUvFsGuctq0hTtAJ9feARzmBKvlc6uDdD2LxIdilabxQLcn7rQAAk4aFxpyN
-	 vEDwv2FWgK6fdupqru1WTWxWniZH5hXMTI6ie4AB2PLe+L0RiNjBGjk/aloGe2NuN+LqF
-	 OwGyGgQ9WgJupFCx5dFiwIPsmM63E+3tzzljfo3rG100T001jcEe3gND1m6SozBysEvyc
-	 WpOLyLqeUz5V+889WcJ2T4jJfUCCBVnnpOdA8ltce9fnu+tAYqmqNiCcySwQWNxMitg==
+	t=1794568676;
+	b=wfFsw6Pib4PC3veOPWJgC6/bCWeJ/bdFbi8lBDS7RQrnPNR0IeZIFIcS6BkVGvHimFd7
+	 i5hE1wI8NeZvYXReQog5lg5GSM1JL3n7tgX31uG5UthtnZnfUlU3Y0/4ETD9u64pQ8Xvv
+	 +e4aeRLpLLS8XFNdCfKFOjy/uPhmNx4IDcjGCIOebo7W4R7nB3qkmW+ZEBSryNZj1FGkH
+	 0eNhbBzgSNzrRjbmizkf/jd6FzU9wahbHO8yfcTlE0+eKViOpbgtJUcR2QLFyoJQ6y6g8
+	 gq/UDk06d29kgQXH1Kf+wAtCSFDHGMtYPQBlxKeWpTow1bS2RbE3aJj1pQFOXLIzyfw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794567920;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=QftI3K44ZZiobTwr/u+4ZTOlGFkxNtcO4iEVZ0vgnek=;
-	b=KHYDHiFQL+74ghDaZ1LxysTyF1KNAh3GwjGS4+M+j2Rzl5WSEdEPhkQ8KIpMYtupx7vf
-	 /Y/KywiMwXFEr6evcAcr0n5I7PwPj5wB/EuIuzH/b4xK5RzzsJ01HqMtUSGXe+s1NVL4C
-	 dA3GBcb407QuRruT6iRh3EqMWyQz2oyu/zUdL1QkqPBTB969JUQUqMWSYSeg0J7mnfBNf
-	 Qtt7W8r5wke25ToL0MViMwIRmObPEw+kprYL5rIYUaEIj0Cpzv7EPwU1ltWlMkuNpJiXT
-	 SYk3/Ed6zTXsNn4Ws3ybMf/wJ7jRCUgO7Kpk2MKoP+op2w28v8cWRYgkM9kMTvEUeHg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794568676;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=e3vkd0LoqHP/Fs97PmOzot6zfXKBzyHOj1Xrx4U1Yg0=;
+	b=SAcA3PZGsdM6xhsgMDb4BVt93nG9r7vi3LfvOahITK1fgNCa0plknfgE/BISJNpC2ZzD
+	 BYgWfmqet7sQrIcutsmB4v87u+XMRmW2cGjhS55Tr9Wnp93mfgvAXTk3SLRBrPHwzvIFS
+	 6fPtDh5R/VcO4kjSAsKQobqZPrDxCtnMzii4ItznATjC+BYIO3yUxhTs7awKnarZOVTXX
+	 s8XrWv8goVaPMBq0O0OA/Xg/ANCBFiRs5O1dCNTwN8GVBwwSBHql7AgSZq9DAvc/hfyxF
+	 t5mOFuaeW6YYEgE3TYrACwmYchV2nhxOJMVbR7LpACfKFIOAYJluBbc0VNw4RVDH3DA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=A2OthWkM;
-	arc=none smtp.remote-ip=209.85.128.52
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=F8tWy5J1;
+	arc=none smtp.remote-ip=198.175.65.17
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A5F0606A327
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 11:05:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2A5F0606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19B75606A31C;
+	Fri, 13 Nov 2026 11:17:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19B75606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=A2OthWkM
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4a9a8d6cea8so8068335e9.1
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 03:05:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794567918; x=1795172718; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=QftI3K44ZZiobTwr/u+4ZTOlGFkxNtcO4iEVZ0vgnek=;
-        b=A2OthWkMGm0zsNyY35xrHT76UqK6yWeQ07k30O5+g0WUzIeRFNJnwKJFwe35vdk6ys
-         S90fiAwfr06xGkl5DyCyQNIe9Hc3nQGEUzV0L2VHa/BisCyvWruEdn+kR5fs4jxBE9nw
-         diyiyKH3d/3y8vz14vzsOwxj61a2tpSo5kO1dcbcxOA19SalILeuktA6zzlC/srIsA92
-         cd/vKip27+mkdz0CClhTTHy+w+opMEOcOvYTiaLB0/MPuKHKHhgToU4cUTeh+qccsO2/
-         c9VWqsSt1twsHNCavS31smcL9BgN7YH4LBlJP79RBf23eXug6pfS7V6wMyJAkoVHfr5B
-         A/0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794567918; x=1795172718;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QftI3K44ZZiobTwr/u+4ZTOlGFkxNtcO4iEVZ0vgnek=;
-        b=iTrLj3Gkse1Md0v0YzKe0boKE6NtJ6A9kgc2Z5TcNnN0LIbV+DGpIl4d46qbzUGobE
-         nkveBjYXUuo8hJxYAEfGrYxx1RalSorfnXnwO3qhemn9sEtSi2GTX3hlgv98vF7U8rqG
-         9aMJtSC39MReBiXN6L7EUqqpgg2vKo4LQkKU6wKpKx9PcgxNvkVE9vBWZDshdQZulmGU
-         Nam5+sJcozzo9fBnQjWhJhehipIIYKxB34AaxAh4SlGxsjVwjiY7Usgf7t10PbhHitpN
-         P9STlZuJ9Uc29c3ISUzlLNm9t9GOWbNp8AduD2oo9vxKyF8B3/IFo9qj1xln5XI7uure
-         NR0Q==
-X-Forwarded-Encrypted: i=1; AL+hErEtjirFtElSt8C61oUtAIk63iA3SxJYvijvM/VeoeZZIIeqTa76uvTXL9hkxaOJsTC4Nz8ajr3jYHU=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8aslLMC9k4QpBdE1p6B8GaZgLajQcuJcqpVDrkNa39NFQ+QZ2w
-	VAy9AQWHazR9ws+DAk1wbS6lAEfA2c3dKEBBLo2sTRJ5jZETI0XmdEyR
-X-Gm-Gg: AYBFou00k91NWQy5y2ZIbdGS1js0zCWt5sOhBTLlncyhq4BRD2FVxzQ+5OROeazBXYm
-	Trkvh4CfViaVKUYx2fGORCwu0571ToHYuJru9lRJOBB69L4rhiSgaYHBPrhutG4BO6BJDojs8NI
-	n4DILfRcGdsLc6Q/KfrEBtzbyNvr3hcm1A0+CKYnw8hpW26Uu36h3GPyWwRjCenjT2dvwF2ciqV
-	LTwmJtTQl7qNq2ZOUnSrCxzPEQ403qV7RkNMmqbyDvJeSQEjW4DoBIyUNwJv7Wkv5OopkUHlRtB
-	lSFxBtnEVPc20n8YX0WKocpCIJ7JkEMIZMUwR8hWqKeyrXlWaK04dJ3kqzVieh/z3HB046d0uxY
-	ewPxhBJH0SzG3W7NW+4pEvGFLSvoYFNQRNphr/XGtEbAQyWWywmLZml5bIv9UMZl8RyEvkLvvxA
-	I9GfYs1u1sMebOo1s4h5QAyGx0k+Qu0f4tlxeFl/OBCrIguLKPwb9LEPq2MDThW2o0Q/2FCw3kQ
-	p24sZNS96xbHTuUkGjLZQd+ux4s4C2er0Kuay+VklppIlUxQ+3THiyDfU9QewqQyCbGBsGLJwMT
-	m8rlzLjp+v3uGeYWACV8UeBLi7F7azrim1A=
-X-Received: by 2002:a05:600c:3b16:b0:4a2:1960:6fa with SMTP id 5b1f17b1804b1-4bb55a6116bmr46200125e9.4.1794567918385;
-        Fri, 13 Nov 2026 03:05:18 -0800 (PST)
-Received: from deb05.proceq.com ([213.160.61.66])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c605e4a2asm4788105f8f.39.2026.11.13.03.05.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Nov 2026 03:05:17 -0800 (PST)
-From: Mehmet Fide <mehmet.fide@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Yao Yuan <yao.yuan@freescale.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] i2c: imx: return -ENXIO at once when a DMA write is not acknowledged
-Date: Fri, 13 Nov 2026 12:05:16 +0100
-Message-ID: <20261113110517.1142293-1-mehmet.fide@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261113073250.1037215-3-mehmet.fide@gmail.com>
-References: 
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=F8tWy5J1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794568676; x=1826104676;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=kK8vLvJqU7y2J1PAYMjV1Io9/rALIf9hcDnjRm0rYBw=;
+  b=F8tWy5J10s4PAcll9513mykQCHWLBRU1bT0TjEvOujYyLTdvNlcCUcVx
+   shwbdOrjqwJRQIT4aChipcIjZNv8cCsgrvIa0YELLnRZXeEMvL5LxeXnm
+   rpYNhagJq27QFp6bOcM3NaJpxtpeH2OVwQ84CjioIh0zi9vfsUGOTyjEc
+   Nt/1DD3G2GGRezwb3q1hhjdaChKMJCZpl1QqqWLBlFpfuHAornK5jT7Ip
+   EHHthOmYuKX8sz28Xm0lH8QhWthndeJNqC8UGkocmD4Yp8JmRIfD8ZyKX
+   gkrJY89++sKu5r+oErIP25xPd62K3L4wqZpMPY9OYjasZE5vTTmmbUez4
+   g==;
+X-CSE-ConnectionGUID: kWto84LERBW6/IGJK0lCFw==
+X-CSE-MsgGUID: 4eUCWP6LQGaKxq5d/jkimw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11964"; a="3382331"
+X-IronPort-AV: E=Sophos;i="6.27,211,1787036400"; 
+   d="scan'208";a="3382331"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Nov 2026 03:17:55 -0800
+X-CSE-ConnectionGUID: 4oJaS+svSMWcrEUfOlB50Q==
+X-CSE-MsgGUID: 7DH7wN4wQ3iUSzTDlUdjRQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,211,1787036400"; 
+   d="scan'208";a="8996572"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa001.jf.intel.com with ESMTP; 13 Nov 2026 03:17:54 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id F19C099; Fri, 13 Nov 2026 12:17:52 +0100 (CET)
+Date: Fri, 13 Nov 2026 12:17:52 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Hans de Goede <johannes.goede@oss.qualcomm.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	penhouse24@proton.me, linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz
+Message-ID: <20261113111752.GR259790@black.igk.intel.com>
+References: <20261113083940.2583439-1-mika.westerberg@linux.intel.com>
+ <b47bcc52-b969-4337-bd86-890b9cd80c3d@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -107,12 +83,80 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <b47bcc52-b969-4337-bd86-890b9cd80c3d@oss.qualcomm.com>
 
-Please do not apply this patch as it is. Sashiko is right on both
-points: the new -ENXIO path leaves the DMA buffer mapped, as the timeout
-path does today, and a NACK of the last byte the DMA writes can be
-missed. v2 fixes both. Patch 1/2 is not affected.
+Hi,
 
-The block_data remark on patch 1/2 is a separate bug; I have sent a
-patch for it on its own.
+On Fri, Nov 13, 2026 at 10:52:09AM +0100, Hans de Goede wrote:
+> Hi,
+> 
+> On 13-Nov-26 09:39, Mika Westerberg wrote:
+> > The Dell XPS 17 9720 touchpad has the same lagging issue as with others
+> > when run at 400 kHz as the ACPI tables describe. This particular system
+> > does not use standard ACPI ID but it seems to use "Windows Device ID"
+> > VEN_04F3 for whatever reason. Add this one to the 100 kHz quirk list as
+> > well but since this is not a standard ACPI ID match it also via DMI
+> > strings just to be on the safe side.
+> > 
+> > Reported-by: penhouse24@proton.me
+> > Link: https://lore.kernel.org/linux-i2c/20261109104542.GL176724@black.igk.intel.com/
+> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> 
+> Thank you for your patch.
+> 
+> > ---
+> >  drivers/i2c/i2c-core-acpi.c | 24 +++++++++++++++++++++++-
+> >  1 file changed, 23 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> > index 84841ed13487..98a8d63e3fb8 100644
+> > --- a/drivers/i2c/i2c-core-acpi.c
+> > +++ b/drivers/i2c/i2c-core-acpi.c
+> > @@ -7,6 +7,7 @@
+> >  
+> >  #include <linux/acpi.h>
+> >  #include <linux/device.h>
+> > +#include <linux/dmi.h>
+> >  #include <linux/err.h>
+> >  #include <linux/i2c.h>
+> >  #include <linux/list.h>
+> > @@ -356,6 +357,16 @@ static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
+> >  	{ }
+> >  };
+> >  
+> > +static const struct dmi_system_id i2c_acpi_dell_xps_17_9720_dmi_ids[] = {
+> > +	{
+> > +		.matches = {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 17 9720"),
+> > +		},
+> > +	},
+> > +	{ }
+> > +};
+> > +
+> >  static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+> >  	/*
+> >  	 * When a 400KHz freq is used on this model of ELAN touchpad in Linux,
+> > @@ -377,6 +388,14 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+> >  	{ .id = "ELAN0678" },
+> >  	{ .id = "ELAN06FA" },
+> >  	{ .id = "ELAN1300" },
+> > +	{
+> > +		/*
+> > +		 * Some Dell XPS 17 9720 systems do not use standard
+> > +		 * ACPI IDs so we need to match also via DMI strings.
+> > +		 */
+> > +		.id = "VEN_04F3",
+> 
+> 04F3 is ELAN's USB/I2C-HID vendor ID and the commonality between all touchpads
+> with needs this seems to be them being from ELAN.
+> 
+> Also a quick grep through my DSDT collection shows 0 uses of VEN_04F3,
+> which makes me think this is pretty unique.
+> 
+> So all in all I think we can just add a match on "VEN_04F3" without
+> requiring / adding DMI matching ?
+
+Works for me. I'll do that in v2.
