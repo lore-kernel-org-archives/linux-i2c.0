@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794591146;
-	b=otyYnOq9e0VoYjFxAYvWBTndf1ojzYiIfb8KcE6VDZt/uChQd7IuEFM0ZL54c5AUUXuu
-	 GZspzMF6S+pFBpLvq4I+Qdp3zR4I1zxuxu5QybLsq6a4to4kno6jlcf1fA7QYNLdUkKJc
-	 ovfUoqS8VMdlu2Y8ByBczb6+0bUejOa3Za3yJHgt076OhIxmrNB4PMXkyTTdngIQeH/PM
-	 uTjL401inx8pHb64iGnf37NWhXrwk0pLM8hsvKKYzdPd3jABOqFyxRrDP55qf2lT/mEwz
-	 fiKU1RnotcVGkUh/O4GBhp9bzGNqOqgdzNAJfq4gtLKTOL9wtD4iWX6QEBgdY9uWHIA==
+	t=1794592208;
+	b=cU1vMCOcsDCqmD3htkAu0qRvrsDjtMN5mTofrA3id+neAGSWL5yV/oFnuRL1wqxaYmFf
+	 MciWbNnqwer6OUPXwi0FYJU1O7aOSk7fyyJpZuIsrQ4mJfjihMJnh7MrMnmAUOnOBP9xS
+	 8cxnKjCGO6wpjEbPoh7vorv+qFFlgzkL1CNgroSDfknzLRRrmqRPz4JMZ1G4zLuhDH25I
+	 RIbaNaj9AtwMjBKUo/3LOa799jj+iAq4kslfjYjypmmt2RHwf7VPX6bdXNOGxYQlWDB17
+	 jVtGxNlORgNmyWPdV/8+LUw61ihmpPPgJYy5w1c3aey4deoA/ubwcvoDrXi71mc1fPQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794591146;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794592208;
 	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
 	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
 	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=nSptiMb1CVuYUc/SgcCJgKBFQaoryOlduTQ9oVYzLTc=;
-	b=hbfJWV4WcxiABICkkvOI8iT/OiN4Nqm55jGDITaMYdrZJH3xTMxBuB9KDnNbfyQcg3a3
-	 PugFqXvo0MOd5CY1SKT54U5EUVOOo7iR6UxbTQE/TVDgopBFeesOWbJMcQFjyCtEnOYTY
-	 885tsAg1gSFNjVgTlYWeZwZGgMNJWQiiS1ne9exQGcUhTFKlK2FVpw48znuKIzOhkWXD3
-	 gSVLq1SLQtpJkTFtoRygYLbAxAiXBMyUeXf/efEcc0pj8N7miAdR1pTuj4vTo8w/7fIeF
-	 Xv8aAQXb9V7xcGX+0ZNnTRTK+zPoU5sQK8/vRxmo8UdPUAmE5fDR1A0jA74vqXlmZ+A==
+	bh=EU1uYM/NmLFZaI8ig83tMQonoDZ93Lw71raJgl086sU=;
+	b=oZ+SqqD+0IYYPMLPlcgVh4K2q9/gpyDkwlbm2RYUzn7t475HH2QZxl39dB5dAcSerFhw
+	 vhDp1KQJSzMHM1PkPqoy6uJPIfh+744IL6K+H9cYbrKu1syyIXTZBcVDXmMpZE9vwQ7xi
+	 Imq45xn28t8pROQ+LfM0+t5R2sm+e4GFyUHZph7Wj4pr+0+oH4Z/qud50jBEzutpM8q3Q
+	 ZUdI66BZiLEsUxpTWkwx1dHx6NWwlQ5/XuieR06BEIyk+z9AAfmmSxTdrU4hC0WZmBsBt
+	 ihz6QaGDJbRUzYB+YDcASuStJRXc0UeGLTvMPHGKHagwIO/411GPZ44loVpvfxnyAFQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fBwS4+YW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Oe2bngzq;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7036608435D
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 17:32:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4710A606E200
+	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 17:50:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fBwS4+YW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07CB1F000CD
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 17:32:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Oe2bngzq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D42AC1F000C5
+	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 17:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794591146;
-	bh=nSptiMb1CVuYUc/SgcCJgKBFQaoryOlduTQ9oVYzLTc=;
+	s=k20260515; t=1794592207;
+	bh=EU1uYM/NmLFZaI8ig83tMQonoDZ93Lw71raJgl086sU=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=fBwS4+YWYjlGM2XruT7oZuYziu8O0IeHH2cqLgir27v+6/kwOyMUls9MDQhorSVyr
-	 DvWqxw5rv00g8RoHKX/YBzAVPI2LxuhAuh090kBFMwxkOro1ooLHj3TOGXEVNw0Wbk
-	 toCAFS4YjLogX7VNoBpQZ8ppXgLeBwc5DdE81McOJIHEyYgtpUKpzBo8tNtzjn1CHB
-	 bvpfWwiIXkHn6UYXsx4mwLkpYaaSK0dj4NvLCCtB2amZJ97a6ncggTwMKancXO1qs4
-	 V4NCLHIGUzw/HkiOxMVq8KCroE30mT1iwLxW8aKwFe54M3a1EpH+SSFxq9QPPjgcjm
-	 rtvbNieDVCwjw==
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-3ab46699a09so17159171fa.0
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 09:32:26 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErG4CvQbRa5Ha6zMy0SXElqXrxF1GDToRTI11Oq7IyQZMkVOMFAUy1rGWvsPdtT/m2LEBhlKqJcXsnk=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8AHZYUyga2UeOBxm7qryj+TweJdsPK5Ul0Z3HpDNqBNWiOfHFY
-	eWXgxdCU5pQPkpspevfz8kEJK8aG+0GasLMQl2UFuK1qRdw2LHhxzRtddCvOrOkeumhx7r9oGnk
-	U6uBfTEyWeV8+blS6O72+dzJaYgapsJo=
-X-Received: by 2002:a05:651c:b2c:b0:3ad:fb2d:a757 with SMTP id
- 38308e7fff4ca-3ae2b5302cfmr9849351fa.24.1794591145071; Fri, 13 Nov 2026
- 09:32:25 -0800 (PST)
+	b=Oe2bngzq4C8gbD+i78EHwnVvNOgsuhw774fp5I4cEfe8PABs/x8esZV2Mm3DBh76r
+	 DeA2YUqWAJRoY5OBi0zbUJrroJ5+FutHwPbhSZzRhU8pNPSdMVtxnbOo3yzPU/aMD/
+	 b1kKzTSO6SI2Cge1RcTLVBA99PSYmbYGCbYQRW5l8MY1wZjud8QKAn8oylC2yHl99w
+	 Pc/9D3RfR157Mt8HtqMWkIFF6zUen49Mg+c+bHYKOTyqVYbyeldb7wCmUEBF5i7ScA
+	 FLLN55pbrEN+/NF5uP8/4Lgna+eWR5gcNKpde3XlAl0e0arWd/buXECd8KUQUoKMu2
+	 Pzv/mNxLeayig==
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5c1593fd141so1681609e87.0
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 09:50:07 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErGt78QYXATr5AW77+ewCPbKqA3JQAPC2WEFZCzkcdxfL84Krbyby6lw5/AkS3j6WnvjhBoV3oEOTpY=@vger.kernel.org
+X-Gm-Message-State: APuU4Z919S0B8Uh123dpjkmHv0NgRoRf/7m8nUQjgrtqdiLk19RxNLSC
+	/P5TWIX9oJLTZ22QpdKrHmP8nPKSaFpis/NzTrZzqRLat1OZ2I6q7EMHrZBsfDR108o7Hjw0BO5
+	o+TPahgM5cV3S1L6swl9TeONaBMViLGo=
+X-Received: by 2002:ac2:5683:0:b0:5bf:dd04:8d7f with SMTP id
+ 2adb3069b0e04-5c17075c348mr1704210e87.11.1794592206322; Fri, 13 Nov 2026
+ 09:50:06 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,15 +59,14 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110085125.2535508-1-johan@kernel.org> <20261110085125.2535508-7-johan@kernel.org>
-In-Reply-To: <20261110085125.2535508-7-johan@kernel.org>
+References: <20261110085125.2535508-1-johan@kernel.org> <20261110085125.2535508-9-johan@kernel.org>
+In-Reply-To: <20261110085125.2535508-9-johan@kernel.org>
 From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
-Date: Fri, 13 Nov 2026 18:32:12 +0100
-X-Gmail-Original-Message-ID: <CAJZ5v0gZQ1LL8ZizAK-kQdAUxyEL5uBLyzOOnMzi2DDVF4pRtQ@mail.gmail.com>
-X-Gm-Features: AclHuK9F5GTbS6yo98TrXJgh2sPuvWLUYJkvQopVJlBgnULLF0J572bpzAoTEkk
-Message-ID: <CAJZ5v0gZQ1LL8ZizAK-kQdAUxyEL5uBLyzOOnMzi2DDVF4pRtQ@mail.gmail.com>
-Subject: Re: [PATCH v2 6/8] driver core: platform: tests: fix swnode reuse
- test description
+Date: Fri, 13 Nov 2026 18:49:54 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0g+X0etuZSoTrFr2OXgF9o0q+LLLTcQSfvo0A3dib9M4Q@mail.gmail.com>
+X-Gm-Features: AclHuK8FkWmm3X6Ez4fQpYts4d02b-gmJ11NIGOgqEPyiws4gYW8Iu7-IoWq1Cs
+Message-ID: <CAJZ5v0g+X0etuZSoTrFr2OXgF9o0q+LLLTcQSfvo0A3dib9M4Q@mail.gmail.com>
+Subject: Re: [PATCH v2 8/8] device property: fix fwnode_get_next_child_node() comments
 To: Johan Hovold <johan@kernel.org>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
 	Danilo Krummrich <dakr@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
@@ -75,56 +74,69 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael
 	Sakari Ailus <sakari.ailus@linux.intel.com>, Bartosz Golaszewski <brgl@kernel.org>, 
 	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev, 
 	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+	linux-kernel@vger.kernel.org, Xu Yang <xu.yang_2@nxp.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Tue, Nov 10, 2026 at 9:52=E2=80=AFAM Johan Hovold <johan@kernel.org> wro=
 te:
 >
-> The description of the software node reuse test is misleading as a
-> software node being registered does not prevent it from being reused
-> (e.g. as software nodes can be shared).
+> The parent pointer in fwnode_get_next_child_node() may not point to a
+> primary firmware node so update the comments to reflect that.
 >
-> Fix the description by clarifying that the test would fail if the
-> secondary software node is not removed from the device so that the
-> reused primary firmware node still points to the software node.
+> While add it, fix an indefinite article in an earlier comment.
 
-LGTM
+s/While add/While at/
 
-Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
-
-> Fixes: 397f0a3958c9 ("driver core: platform: tests: add test cases for co=
-rrect swnode removal")
-> Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> Fixes: 190069255582 ("device property: fix infinite loop in fwnode_for_ea=
+ch_child_node()")
+> Cc: Xu Yang <xu.yang_2@nxp.com>
 > Signed-off-by: Johan Hovold <johan@kernel.org>
 > ---
->  drivers/base/test/platform-device-test.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+>  drivers/base/property.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 >
-> diff --git a/drivers/base/test/platform-device-test.c b/drivers/base/test=
-/platform-device-test.c
-> index 9ce563f76aad..b0cc37d166ff 100644
-> --- a/drivers/base/test/platform-device-test.c
-> +++ b/drivers/base/test/platform-device-test.c
-> @@ -273,9 +273,10 @@ static const struct software_node platform_device_te=
-st_swnode =3D { };
->  /*
->   * Check that reusing a software node works correctly. If the call to
->   * platform_device_register_full() fails after adding the secondary firm=
-ware
-> - * node, the software node must be unregistered in the device's release(=
-)
-> + * node, the software node must be removed in the device's release()
->   * callback or the subsequent call to platform_device_register_full() wi=
-ll fail
-> - * with -EBUSY due to the software node already having been registered.
-> + * with -EBUSY due to the primary firmware node still pointing at the
-> + * secondary software node.
->   */
->  static void platform_device_swnode_add_twice(struct kunit *test)
->  {
+> diff --git a/drivers/base/property.c b/drivers/base/property.c
+> index 51109794d727..32df0c6724ac 100644
+> --- a/drivers/base/property.c
+> +++ b/drivers/base/property.c
+> @@ -810,7 +810,7 @@ fwnode_get_next_child_node(const struct fwnode_handle=
+ *fwnode,
+>
+>         /*
+>          * If this function is in a loop and the previous iteration retur=
+ned
+> -        * an child from fwnode->secondary, then we need to use the secon=
+dary
+> +        * a child from fwnode->secondary, then we need to use the second=
+ary
+>          * as parent rather than @fwnode.
+>          */
+>         if (child) {
+> @@ -822,12 +822,12 @@ fwnode_get_next_child_node(const struct fwnode_hand=
+le *fwnode,
+>         if (IS_ERR_OR_NULL(parent))
+>                 return NULL;
+>
+> -       /* Try to find a child in primary fwnode */
+> +       /* Try to find a child in parent */
+
+I'm not sure if this comment is still useful after the change, so
+maybe drop it altogether?
+
+>         next =3D fwnode_call_ptr_op(parent, get_next_child_node, child);
+>         if (next)
+>                 return next;
+>
+> -       /* When no more children in primary, continue with secondary */
+> +       /* When no more children in parent, continue with any secondary *=
+/
+
+What about
+
+  /* Direct children exhausted, go to secondary */
+
+>         return fwnode_get_next_child_node(parent->secondary, NULL);
+>  }
+>  EXPORT_SYMBOL_GPL(fwnode_get_next_child_node);
 > --
-> 2.56.0
->
