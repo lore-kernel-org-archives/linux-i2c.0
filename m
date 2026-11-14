@@ -1,70 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=54.69.30.187
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794607531;
-	b=bptMWiRpwsPpuLuRNsbk6Ve+5R9UjhDnddwD2swEJEI438HcmvBOBoO9TxmuRaVwTfO5
-	 6LvmruW7RXtyzJM+0rwwM0y+s28NLUUjkX9oSb1I/61H3JK/bVOiydPjIM/eRZT/EWvQm
-	 LC8IG68Y8yedHyl9DttOBkjQctyg1bTFXq6c9gBPem2LKDUQpcR1WxnqBixnBFfV1iN7M
-	 wxi3aJB4Icd7HlrweupF5X+fACjgTXN1rSGOxy+VpxUZWmeozR196X1H+Y0uGnYH1A/RR
-	 RhrxmwOfZPIMB5JgB1S58xnm7vj8XMxNuBJLtzvCt0nlaZrbEXIQmTGkzvPpng0IuEg==
+	t=1794619961;
+	b=RsOidf0WibP1aQs36yZB3mvJei344EynmhjRVxVxNuuzfCmK+ex7yYJXA92QeevvQ4KF
+	 Be/gVUGSzQJilodkET9Iy5YzwcDzaIfcEZOKFe4ceByLeLFssRk7KzpcjpdEvcmIJd741
+	 lbX3OrQ9KH3E4HFOEFrqs+ZrffxwpK7oDeshdlhi8d3O0fXaCX1ftEO6QBH3O/3Fso639
+	 VD31+uX9NLvx0X+w+5u3cBb3Xxj9cfrfD16rfQlyfiGWCDaiInpBVEkKMXi4yHBUiyTOt
+	 ALm49eCAbMdFL/fulcLk6TaWhf7HRK1XvjCBQgMh1FraYWdw+aXzvGb4wiLesL13RkA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794607531;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:X-UD-Smtp-Session:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=KDBiAP/Ln+eH+FIXOmqjg3zWT6yseYeyvqpzRG5VDZo=;
-	b=388PWrN8VoaisC+2oRLZj5JcBhHp1Xc4VEhsGP6HOZ618gzAIscK1bR7zOVmwF8Ndu5g
-	 FkV+gw2xlo3rUrFj5qWzXupu/1L41rF6Eyq0TZyOGd8usX5fGV2he4k3bdKZrkkcbqZ94
-	 jJIxMXUdpIOV31+K6b4ZyGocZLxky2nhxUDnmjir6kePldWryp+IY8oSTx5Fq+eqF+SjL
-	 Y8M3q9lA+7RIVYbilYldITvKXJx/qy2A5lirPfRWxIiU/aI/3M1Aq+stPjbW+Ka0aZO2o
-	 it/B9pqD8D9TnTGsdQ7EckwzqrwYmnSTy5UFaJPdo/sEZ5fReiTaOyYQqIOHTbWOD3g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794619961;
+	h=DMARC-Filter:From:DKIM-Signature:To:Cc:Subject:Date:Message-ID:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=eRzF381QNOZkPq0trg2/WcC+oDPGrsVRqUo8LjDXywk=;
+	b=m5zkra+M4rj6XuMG6CPyPfpJH3g/mRiQpPqDq9pyMcYYIQ9v4VXfcjiely6NHLkLMKgV
+	 s/BwKnsN/EXFHTwrISlIO1a7KpSa1aIDd6Id87VLiTALaosjp51aRHQ+ysjpu+kxOXREZ
+	 qHi6xOKj2D69KAeNhA9gldDb/sxZbryMEQc0bdeu4v0XOuVreIPAv29qw6c4aBEdUe/N7
+	 96DpYYkR/NutwF5Y1ocYeMbS2K4+peypxtjwbAdej/SuDip5ZoUVv02SjmBHi0C4swJ+N
+	 85BuOWzZ1PNralIk10b7vVceMS48Os3eLJkMhnTRy/ZwAOQKNTxPtsv9WWqN1r2TO6A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=sang-engineering.com;
-	spf=pass smtp.mailfrom=sang-engineering.com;
-	dkim=pass header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=hUqpx+iO;
-	arc=none smtp.remote-ip=194.117.254.33
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	dmarc=pass header.from=freenixos.com;
+	spf=pass smtp.mailfrom=freenixos.com;
+	dkim=pass header.d=freenixos.com header.i=@freenixos.com header.a=rsa-sha256 header.s=mail header.b=wqBA6WON;
+	arc=none smtp.remote-ip=54.69.30.187
+Received: from mail.freenixos.com (mail.freenixos.com [54.69.30.187])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE865606A332
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2026 22:05:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AE865606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40809606A883;
+	Sat, 14 Nov 2026 01:32:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40809606A883
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=freenixos.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=freenixos.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sang-engineering.com header.i=@sang-engineering.com header.a=rsa-sha256 header.s=k1 header.b=hUqpx+iO
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=KDBi
-	AP/Ln+eH+FIXOmqjg3zWT6yseYeyvqpzRG5VDZo=; b=hUqpx+iODK6xqqqe+Zwm
-	OyRQqDEK4HcedhVFne6ZFKTdPAvqW9te4ZSCucAbh0/VBdqAEY49FnH1gOxtJNdj
-	uPKJ0eVO2myEhlU87lE2kfflwOyWulaCl5hxTaOWkOXyI/vwoyD5tBa9CIXbYEyI
-	L203NDNzD7DGMTxFAljA6akX75nAhVx8usF4LiQjiaEqAUR7pCuGKKjZBvDr8ly2
-	PNq4ipCKp4DTOPrSzCbDl4fY09TVjfWOpjsQtZZusp1gpsiimxSLVcVCM7ZGMKiL
-	hGCudkIGcrRyPMF2LxQhT1H+UIdo6vFRoFG8tXMtmvpoChav15C/KS1/kxa9KXX0
-	sQ==
-Received: (qmail 379548 invoked from network); 13 Nov 2026 23:05:28 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 Nov 2026 23:05:28 +0100
-X-UD-Smtp-Session: l3s3148p1@4908oC9guoAujntX
-Date: Fri, 13 Nov 2026 23:05:27 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Johan Hovold <johan@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev,
-	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
+	dkim=pass (2048-bit key, unprotected) header.d=freenixos.com header.i=@freenixos.com header.a=rsa-sha256 header.s=mail header.b=wqBA6WON
+From: Hex Lindqvist <hex@freenixos.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=freenixos.com;
+	s=mail; t=1794619957;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=eRzF381QNOZkPq0trg2/WcC+oDPGrsVRqUo8LjDXywk=;
+	b=wqBA6WONOSUlzyxvMy7c+WVThleiBphmKvGbiu1HTuokroWG+a3As8lYgpI4Uxn283gyHE
+	lATdwcSbOVgDOQgYiXP6rmmXnooXl7Xijw4iv1TZgABq1S0VZmhF6yCwfODH0O9iLpGTnW
+	6qKCxTB3PZGnicOznunSqpOHvQQrOei70GkvHN8g7ah6xS7brjLcI/XKYOItclp0SSfzGT
+	iSNjtG0py+Myc79YvR3CxYH09YUzZaS0TdH9fpLe28u6C1hexSBy8cu7yzB6FT1ItGrV/8
+	rus1n5zq0BRzIamcrK/i/iTU6VdSjgO1eGLdFzLO1T4dCi6icqrff7BhaVxyNQ==
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Ajay Gupta <ajayg@nvidia.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 4/8] swnode: ignore primary nodes in
- device_remove_software_node()
-Message-ID: <aveJp5-BqQ0E_X6f@shikoro>
-References: <20261110085125.2535508-1-johan@kernel.org>
- <20261110085125.2535508-5-johan@kernel.org>
+Subject: [PATCH] i2c: nvidia-gpu: Log transfer timeouts at debug level
+Date: Fri, 13 Nov 2026 17:32:35 -0800
+Message-ID: <20261114013235.1239905-1-hex@freenixos.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -74,48 +61,48 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="oHhREp/cCkpx5Oye"
-Content-Disposition: inline
-In-Reply-To: <20261110085125.2535508-5-johan@kernel.org>
+Content-Transfer-Encoding: 8bit
 
---oHhREp/cCkpx5Oye
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+GPUs without a USB Type-C port, such as the GTX 1660 Ti, have no CCGx
+controller behind the ccgx-ucsi client, so every transfer to it times
+out and logs:
 
-On Tue, Nov 10, 2026 at 09:51:20AM +0100, Johan Hovold wrote:
-> device_remove_software_node() should only be used to remove secondary
-> firmware nodes added by device_add_software_node() but will currently
-> drop a reference also if a device has a primary software node.
->=20
-> Bail out early if device_remove_software_node() is called for a device
-> whose primary firmware node is a software node and fix up the two
-> callers that currently work around this themselves.
->=20
-> Signed-off-by: Johan Hovold <johan@kernel.org>
+  nvidia-gpu 0000:01:00.3: i2c timeout error e0000000
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com> # I2C part
+The caller already gets -ETIMEDOUT and decides whether it matters. Log
+the timeout at debug level.
 
+Tested on an ASUS TUF Gaming A17 (FA706IU, GTX 1660 Ti): the error is
+gone, and the timeout still shows up with dynamic debug.
 
---oHhREp/cCkpx5Oye
-Content-Type: application/pgp-signature; name=signature.asc
+Assisted by LLM.
 
------BEGIN PGP SIGNATURE-----
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206653
+Link: https://lore.kernel.org/all/20200921180840.GA18032@ninjato/
+Signed-off-by: Hex Lindqvist <hex@freenixos.com>
+---
+The ucsi_ccg errors that follow are fixed by a separate patch to
+linux-usb. Wolfram suggested dropping this message in 2020; debug level
+keeps the status value.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmr3iacACgkQFA3kzBSg
-KbYVlA//eYVad2Zpmxh/QuRS+B/qbudGpoSMFDnHOBSXK6XupJ3PxzwBXAJmw/6Q
-akQkJ/g+CYk6/hQyCwLAJBzAYANuNIeWzOUhyqTJzAponfWe/d4RUPNbF6MFKCHI
-pm1lany0cAHzJt9LRx3EQakVUcooGfxxDPYilwEl1RNM13wpf7o8LWiTDVgLHTBz
-y9o0MvOg6hsCwYSnbu3gHRrhfYfyFJaeSoDioO9Ccdc++5RIcOK1UHD2PCmhg28I
-AhOHk00RirYjWnyntbT33lSMnXqqjqsioHPrDHUrUXJ1q1Z4PFx+cn4Ys5wLiWjJ
-KJnCIlyqZr8WiqZJtWAIjXCtbHHjLIm9Zd4Go/XMLqjNiZW2hUwEsJgEbgWKEpGe
-47Un8/oL3+N/MdYCQIBWBtnlEPE09f2Q/MWjG/3Zg01ghGDFfQ/U8ESuskvsB8cK
-WWjLc19kY855+WeUlX2i8jwazp1wKNXh7QNNEemvIFdHEyfRoigXVJqOCMlUj2PW
-oGruNTMZa/uHf3wegYlBx6vEQqhTq6yXW529cmxTbpBZLj1DK5AY0olawHWoPSua
-cD8cToEA2zk6LDaIRlnJeBJdDpP1nX273HslXo+AnO7x8uL4MhxlllJNwkpAXdE/
-P/+kLEtTdRCMnUuCan03TvAdX6ttm7qytczd6ZraA/dp0hQUXPw=
-=1BPw
------END PGP SIGNATURE-----
+ drivers/i2c/busses/i2c-nvidia-gpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---oHhREp/cCkpx5Oye--
+diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
+index 14c059b03945..987dd3edb0bb 100644
+--- a/drivers/i2c/busses/i2c-nvidia-gpu.c
++++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
+@@ -88,7 +88,7 @@ static int gpu_i2c_check_status(struct gpu_i2c_dev *i2cd)
+ 				 500, 1000 * USEC_PER_MSEC);
+ 
+ 	if (ret) {
+-		dev_err(i2cd->dev, "i2c timeout error %x\n", val);
++		dev_dbg(i2cd->dev, "i2c timeout, status %#x\n", val);
+ 		return -ETIMEDOUT;
+ 	}
+ 
+
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+-- 
+2.56.0
+
