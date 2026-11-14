@@ -1,76 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794660951;
-	b=dQ40LXTjCUpuTnq676wn9DHzt3Kh1uM0mqm4RS25dhRkV+plIBfc8mg5lBPMmcWtLuGx
-	 qhCCm9E9s5vLhsWP4rBhUm3ahKGg2u+D+Mu3aSSKo1LQaVEPmweotR6XR4hcze85R/LLf
-	 zVKG+uJ0TkHxh8gl84J0snJLeXHwIcRCjnZQSaBUTeOSY/dOwuxtTZmr7H9vAEoy3yeep
-	 gZSaVAxB+G3TOI6vYcVHxtC4x81Xplc776RCxbt+dI6iPceXXctLaMj2lQyXWnysU6Vq4
-	 KMTn8Pf8l5H7hMSVB1GaRz7EjLTSKp4CWLaaJaoeIGj03/49foJ+hGBegCHf74+q2Aw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794660951;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=smsm9ORhlPLDL5Nh8b0iZrku9Rm60/Khp9VarBhUFVE=;
-	b=lmY/VMVa9Emx1zhNMWq79ZDHlH4id32l+2fHI2/qexJh/Tyi+mIPpl0A7tHKuCPLD94J
-	 wPrY1Uusr9rwn9hU+AVrxWmNS3h2WMNg3ocZXDXguPsi2KLtv9Gf5MBTo/+9eNSRP+Azd
-	 e5PJALN8oODSEn3nxb1l+ht+PJodnQjJEXeXUOhXMI+xkH0ZTTO3n7Yge2tEiEuEo0eTm
-	 FOHqCc49KFoVq/iLKZdNFvzVg5H2+wheOEUqvyED0Q9uugSplYhKuadYHvKbjD2C93GZ0
-	 35yOg/qk/YAyjrN6qnLiV/mhncQPJP22ZFAPf9ygZVrfwOvO1H/84K1bpE2ifX1HIhg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HaRvVopr;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794664975;
+	b=ariTv1wkRaFP1c0TjbRHwstsv4v4Ujz5DsM5iT6chd1ZTnrs0EI85/3CjTIpnE2a5aQW
+	 Uzbr6L/kWGTRbjDQRrIXe6yuqOdGzRAkbK/MYHRbxzrG8IXpJHG06g5W/9TaIXUdo64X9
+	 ApTYxadzOp5DLkWtMHHbkvZffIc79zXn5WzbhfU6KY2vJKdnBVGoZkRScvIiUBXveujn6
+	 MPpIDMsJJo2aFRtFbnY3uBN/wv/S6uBn/u1L9o1qQoWPi0sHn7cVMIPTvSgoi+JO9GOXg
+	 b7VvTN/BNdrFmcXyicQcgWlhcr6oPM79+dQHaL3+SCq1QNkfJX8sP9SGC5agX/McY5Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794664975;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=hyjEvWjCmu9ZhqykLopS+0U4K+phVlInpXperM3Jliw=;
+	b=LxYWNyyPzoJMSxzKxegf6ySx9997VO3fx3IYqognDlSOWb5nsUOCToH3V8JY6hX6P3Hr
+	 EIEq+ARQElk6LJ4f3ltDIBzv1fyz+8F6RVhhnytXC5O+EU4mSkqb7coWnRx0hxt5Uot8P
+	 oMJZwi/25RlI5USCtvMGvAQ2UJcVzdJYzZeu3cMiLyL4N/yx+DbBMdSY3VKZsD5t/Q7Dg
+	 gBqRJprIzoDGRZkuxGDRIWtpVpe4GjcFtWiv+31RDF7IgQf9aX8N7QGwNdWGGeTsJF+MJ
+	 KHZ7Q7snFLi5bHzQIGlZwsj/F+70kif+lDfMAhfGZaNF4Ad4RJa7xAC77s7sk0wLlDA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WyfieUFo;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEC7F606A339;
-	Sat, 14 Nov 2026 12:55:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65169606A327;
+	Sat, 14 Nov 2026 14:02:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HaRvVopr
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999561F000C4;
-	Sat, 14 Nov 2026 12:55:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WyfieUFo
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1794664975;
+	b=du+zeb9dFdwa6PR3y0vU+JiHER4aEM/fWx89NDXpUhNoruxaG3JXmTgQJueDLXgrtrC0
+	 ZBaoM2BhlD6NPS+/kHFlfj3YUBSflUlsoSXwu11bXNIOhyYMyczIVfpLVwnW2vbqSqurt
+	 3Z+7r5gCNCGZ1Ka5uXtdipr5Daj8i3CseWQa9uyYPtM0cu7pcd+ELHRtm4GWmM8Opxx9y
+	 ZqyBKzWgFpn9U93haM443fUPl8CA6pZrcw1MLNEuLJPI0IwiEaW594KV3SFJVRh57pgDQ
+	 ErFjc1UPT9vZbTQzwtXXs3c3kNV2M30Wrpwd3xpu2Y4j+xZFz464z7xIyvFvvJLj1dQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1794664975;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=hyjEvWjCmu9ZhqykLopS+0U4K+phVlInpXperM3Jliw=;
+	b=HJEAGqAHU2mnTAQZO2rZBLtgZoAnPyLmUPlnDC7JtWSvcYdNqEj+1tWWCATQILUfTnok
+	 vjVR3fOmdktDYzP2Dg7q+noAYHPHsrxCFzCJCXS6ZqrmklswL1YS12aZQKn0b4YbpXYvz
+	 woP/nPbo7RMgc3BNAvBzNhpkaUyv9HtXUChLTWopdAYUbQxWwouP4zwYx1RKV3Jk21UQa
+	 nKRGJpht5B1vUdcwfSGkPHbFLLV7fqMgSEOyIBP+bWa43W24e6J6JRB152GT2SEVbLTl5
+	 kwEip0ri5B6wY+UH5ya6YmrAPQDk2e2Z+6zhyM6f8tMkTEGdjkLs7BFsAwFzVl76mMQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 6F92A1F000C4;
+	Sat, 14 Nov 2026 14:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794660951;
-	bh=smsm9ORhlPLDL5Nh8b0iZrku9Rm60/Khp9VarBhUFVE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=HaRvVoprCDXokhEvfXZunmRZ57OmBK16G+vrZvsktNqZvW7E/xHKpv36TJTsWKYT5
-	 tTMPncTJThx6q/vu9xmS01xlENgIj7cvILxowW59ARBvtu/gjo2TewkJsYVMyTorW8
-	 qtJztDUvKjpG8nHDxthKgjsvNqtB/fIUpqhMfY1qN2ViK1Q7vW3fJ4bL8XNtK7wYAY
-	 4a/jl1QUtSOCKf2HYMCt80ciwPqM9Di8KqOO88qAvNfB4Vc7Pxj7BbQNU0ujjGe6DP
-	 Oxp9cLMtLX6vNE2iQbiEkdJgFHw8+j5znujzqq5L83FIvIRJnGzg+/CQKoomalIMqm
-	 X9cCjnXmhtlJw==
-From: Sven Peter <sven@kernel.org>
-To: Janne Grunau <j@jannau.net>,
-	Neal Gompa <neal@gompa.dev>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Radu Rendec <radu@rendec.net>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Hector Martin <marcan@marcan.st>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
-	Sasha Finkelstein <k@chaosmail.tech>,
-	Linus Walleij <linusw@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Yureka Lilian <yureka@cyberchaos.dev>
-Cc: Sven Peter <sven@kernel.org>,
-	asahi@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-pwm@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v3 0/9] Initial Apple Silicon M5 device trees and dt-bindings
-Date: Sat, 14 Nov 2026 13:55:34 +0100
-Message-ID: <179466091298.20315.10220651986509721816.b4-ty@b4>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261106-apple-m5-initial-devicetrees-v3-0-cee55de54b2f@cyberchaos.dev>
-References: <20261106-apple-m5-initial-devicetrees-v3-0-cee55de54b2f@cyberchaos.dev>
+	s=k20260515; t=1794664974;
+	bh=hyjEvWjCmu9ZhqykLopS+0U4K+phVlInpXperM3Jliw=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=WyfieUFofS87Clr9a2qfL+fZnAK4XOSJu0lelpKoAcghXY7dym7+WfC0A/fwX4asQ
+	 OR/vWngKhde42mL3TT3dzH2d0Tl0Km1hB1NNStXUksulIYKQ3mQ1w8G2X6aC0MWQwg
+	 NtdTBq2iMwndGBGIB5jcnfZD8yGGrMFV9AdTALiykRpZEI/XCQglcFdTxpeycvuvjt
+	 oE8jcE+zdoRWGGKxunsIGZY780SjD3blu0cSv7u3ta64h5Fc++OJ2s1MmhxM+mKc0x
+	 4b+asMUyK5KKzOVciDmmq5HekJwsow3/TUQh+Y6JeQW7vmWKZJReHJ7fdvR772mrFx
+	 h/qVK8OaibV0Q==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id F29A049DC2;
+	Sat, 14 Nov 2026 14:02:53 +0000 (UTC)
+From: cookys via B4 Relay <devnull+cookys.gmail.com@kernel.org>
+Date: Sat, 14 Nov 2026 22:02:54 +0800
+Subject: [PATCH] i2c: qup: scale the transfer timeout with the transfer
+ length
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -81,40 +84,133 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Message-Id: <20261114-qup-timeout-v1-1-ab3be931d506@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMyw5AMBBA0V+RWWtiEBW/IhYtg5F49SES8e+K5
+ Vnce4Elw2Shii4wdLDldQnAOIJ2VMtAgrtgSJO0QMRc7H4TjmdavROFlirpykxqiRCKzVDP53e
+ rm9/W64la9y7gvh8wYiE2bwAAAA==
+X-Change-ID: 20261114-qup-timeout-6b7a0d837b71
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-arm-msm@vger.kernel.org
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1794664973; l=3701;
+ i=cookys@gmail.com; s=20261114; h=from:subject:message-id;
+ bh=zxianrKojbq9bic6+na8V+oRSupTcgwcBLkFgdWYgvE=;
+ b=x9S2ehW1Zf27K0+xaHExDuSiTdAXjX1Fkaef3wnZLrOUEFHb5ECZSiGELuPKVY00avdXYKso0
+ V4JMCGOiaA9AgE7PWsLO8h+pzBuFprYTVKWyWYQulhtB93iLr6YaoBk
+X-Developer-Key: i=cookys@gmail.com; a=ed25519;
+ pk=CR+HDlVDbzSn6HgGtSLe9WwOu5qDJieqaLN/LgFay6c=
+X-Endpoint-Received: by B4 Relay for cookys@gmail.com/20261114 with
+ auth_id=1525
+X-Original-From: cookys <cookys@gmail.com>
+Reply-To: cookys@gmail.com
+Content-Transfer-Encoding: 7bit
 
-On Fri, 06 Nov 2026 22:24:49 +0100, Yureka Lilian wrote:
-> This series adds initial device trees and dt-bindings for the Apple
-> Silicon devices using the M5 (t8142) SoCs.
-> 
-> This series covers only a minimal amount of hardware, which is useful
-> as a basis for future developments. The hardware added here has remained
-> largely unchanged from the earlier Apple Silicon generations.
-> 
-> [...]
+From: cookys <cookys@gmail.com>
 
-Applied to git@github.com:AsahiLinux/linux.git (apple-soc/dt-7.5), thanks!
+qup_i2c_probe() sets one transfer timeout for the adapter, sized for the
+largest DMA transfer: TOUT_MIN (2 s) plus MX_DMA_TX_RX_LEN (128 KiB)
+byte times. At the default 100 kHz that is 2 s + 131072 x 99 us, about
+15 s, and every wait uses it, even for a one-byte read. A transfer that
+never completes therefore stalls its caller for 15 s before -ETIMEDOUT.
 
-[1/9] dt-bindings: interrupt-controller: apple,aic2: Add t8142 compatible
-      https://github.com/AsahiLinux/linux/commit/d2ece48ec448
-[2/9] dt-bindings: arm: cpus: Add Apple M5 CPU core compatibles
-      https://github.com/AsahiLinux/linux/commit/29d432305187
-[3/9] dt-bindings: arm: power: apple,pmgr-pwrstate: Add t8142 compatible
-      https://github.com/AsahiLinux/linux/commit/a61030626ec1
-[4/9] dt-bindings: arm: apple: apple,pmgr: Add t8142 compatible
-      https://github.com/AsahiLinux/linux/commit/ca25b9f84383
-[5/9] dt-bindings: pwm: apple,s5l-fpwm: Add t8142 compatible
-      https://github.com/AsahiLinux/linux/commit/d60bedaceff2
-[6/9] dt-bindings: pinctrl: apple,pinctrl: Add t8142 compatible
-      https://github.com/AsahiLinux/linux/commit/d39d10bf2b37
-[7/9] dt-bindings: i2c: apple,i2c: Add t8142 compatible
-      https://github.com/AsahiLinux/linux/commit/b2755abb177e
-[8/9] dt-bindings: arm: apple: Add M5 based devices
-      https://github.com/AsahiLinux/linux/commit/33cfb254ebb8
-[9/9] arm64: dts: apple: Add minimal t8142 (M5) device trees
-      https://github.com/AsahiLinux/linux/commit/b9a12ab2c2d5
+On the Lenovo ThinkSmart View (APQ8053) the FT8201 touch controller
+sometimes does not complete the first read after power-up (about one
+boot in four). edt_ft5x06 probes asynchronously, so for those 15 s
+every module init waits in async_synchronize_full(), and boot stalls:
+
+  probe of 2-0038 with driver edt_ft5x06 returned 0 after 15343275 usecs
+
+Set the timeout before each wait from the bytes that wait covers: the
+message length on the FIFO and block paths (v1 and v2), the total of
+the messages in the batch on the BAM path. The probe-time value is now
+only the initial default. With this change the same failed read returns
+after about 2 s:
+
+  probe of 2-0038 with driver edt_ft5x06 returned 0 after 2353169 usecs
+
+Tested on the ThinkSmart View (msm8953-mainline 7.3 with this change),
+24 boots: touch probe 0.32-0.35 s, and 2.35 s in the one boot where
+the controller missed its first read.
+
+Assisted-by: Grok:grok-4.6
+Assisted-by: Claude:claude-opus-5-5
+Signed-off-by: cookys <cookys@gmail.com>
+---
+ drivers/i2c/busses/i2c-qup.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index a0e076fc5..cda78933e 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -439,6 +439,12 @@ static int qup_i2c_change_state(struct qup_i2c_dev *qup, u32 state)
+ 	return 0;
+ }
+ 
++static void qup_i2c_set_xfer_timeout(struct qup_i2c_dev *qup, unsigned int len)
++{
++	qup->xfer_timeout = TOUT_MIN * HZ +
++		usecs_to_jiffies(len * qup->one_byte_t);
++}
++
+ /* Check if I2C bus returns to IDLE state */
+ static int qup_i2c_bus_active(struct qup_i2c_dev *qup, int len)
+ {
+@@ -864,6 +870,7 @@ static int qup_i2c_bam_xfer(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
+ 	int ret = 0;
+ 	int idx = 0;
++	unsigned int xfer_len = 0;
+ 
+ 	ret = qup_i2c_vote_bw(qup, qup->src_clk_freq);
+ 	if (ret)
+@@ -900,6 +907,8 @@ static int qup_i2c_bam_xfer(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		if (ret)
+ 			break;
+ 
++		xfer_len += qup->msg->len;
++
+ 		/*
+ 		 * Make DMA descriptor and schedule the BAM transfer if its
+ 		 * already crossed the maximum length. Since the memory for all
+@@ -910,11 +919,13 @@ static int qup_i2c_bam_xfer(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		if (qup->btx.sg_cnt > qup->max_xfer_sg_len ||
+ 		    qup->brx.sg_cnt > qup->max_xfer_sg_len ||
+ 		    qup->is_last) {
++			qup_i2c_set_xfer_timeout(qup, xfer_len);
+ 			ret = qup_i2c_bam_schedule_desc(qup);
+ 			if (ret)
+ 				break;
+ 
+ 			qup_i2c_bam_clear_tag_buffers(qup);
++			xfer_len = 0;
+ 		}
+ 	}
+ 
+@@ -1054,6 +1065,7 @@ static int qup_i2c_conf_xfer_v1(struct qup_i2c_dev *qup, bool is_rx)
+ 	if (ret)
+ 		goto err;
+ 
++	qup_i2c_set_xfer_timeout(qup, qup->msg->len);
+ 	ret = qup_i2c_wait_for_complete(qup, qup->msg);
+ 	if (ret)
+ 		goto err;
+@@ -1432,6 +1444,7 @@ qup_i2c_conf_xfer_v2(struct qup_i2c_dev *qup, bool is_rx, bool is_first,
+ 	if (ret)
+ 		goto err;
+ 
++	qup_i2c_set_xfer_timeout(qup, msg->len);
+ 	ret = qup_i2c_wait_for_complete(qup, msg);
+ 	if (ret)
+ 		goto err;
+
+---
+base-commit: 04e9bf1648f846976b543e91c1838a712433772a
+change-id: 20261114-qup-timeout-6b7a0d837b71
 
 Best regards,
--- 
-Sven Peter <sven@kernel.org>
+--  
+cookys <cookys@gmail.com>
+
 
