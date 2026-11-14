@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794679884;
-	b=MaZdk6AZek+bBCrB+SyPcw29A5cEd0/VIRlN8FmXwvGFsmA6zIZDoss6GquEW8Gqs1Lh
-	 4e8PrDOV2jpt/Cz5MpqWwDUgZI/Xm+lEwfaaR4MXOD3qT325q718I4SZ3NRmNr5P68dPz
-	 Cz2ziMagZDaoYife+AzxkI8KGf3EChGS2wta60j8++LzC8JbFaTVjBSI5GpJ8ph5+EUzj
-	 OeKrf47cxMVK/WcAehDVwrEHJJRoN9ytV521EkpUR6Ym8ZT+1HpQjB+4XfRAWyGiBuJ2f
-	 PTfM90SGJja3kAFlcPrryWO68Rw2hih7EnwK9xp1soyEahEk5667K/fpG5K2QH4Yynw==
+	t=1794680059;
+	b=t1Um+LTl54Fr8/GZaFGJNfXROng40OHpJv7bM5x2kICUWweB+QFFyGSJnazWatZTZR43
+	 Ahjt+lNLXZHbY8DhnJQAwwWN9gomCu2HKBnZtjYhN/eNtWAOpvYf4fUhG7NoOGIQsfhn3
+	 lWTkH/SGowlJYqdVsjtliQJmQciFfPUEKTJ5mJIdP7MyioILLSLSFXG8jcbcwq72MRepJ
+	 aeEhdbF8RJscYBfDyiyaPHTb+s+oDVfZqh473dSWlHs5J225JYXrMJ5zm1+y+uxah7kIK
+	 /3GS21Mrmggy3XlgrT3nXKlGs4DwUoIF5u/Irr/nYVretGyQSY87VZzorGdwGlJ8q6A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794679884;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794680059;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=FCSaGjlxnw7pPlTl1Q+P/jOPDWEDl0aHm7WiAcU9bFQ=;
-	b=pujhxzQGqtXShlM3lYS4UCGZvQBBPPJL8JlirgSt1Serjhz401Z/CoSW8IqA8FtR8txi
-	 9QXYImSl7RGh1wtU2Wj/bJSN3lhClEeZ+FbsSr4A4I5NWOl4qpEgpMCYIt78MiATjySe3
-	 yZb6qlrMd7poWTDeLBGA+OcneVNnWVC23sB8A5shwJWzM+lFpZZElJjdlHOeSg+F/eabf
-	 vh6Q7dz4LRGTjn+nNjdArNY5ZJ8GuqIqlmIxSoS4EAgZo1lVJ6hsE2LvB1ISzSOFuylQR
-	 NK2rdoIEEBkQLscm+RVvyhhP/nLQ0cIUanD95aD1oaCjVPS3RQ8rAVywl77CgNcuydQ==
+	bh=6+Sauw6DJEUpvtWX2SFkG7bCwatCc5yOD4eI62wroEg=;
+	b=bqOmRT9akdkfegx690lZwUnpDGSvl9hBz6jBt+vKawGaUSbeRJ5FSZzxWH/c+Vhxf9Ls
+	 Xm2WmyJ0M9AhTwpfuZM9PTcR+LNeWeDSU1LrTY9AfeF2y1Sp/EVuU/RDr4goY5tIUVcNw
+	 ooT0W9xe0bHmjhtUPg7xyAcpXWPZJkulm0mMjp07qbKB8EWn6WyJv5Es7oJ68kWVFv06f
+	 l4VXjXHEm1l6NWe05zfbTlb9AEsOdzY4dquyakhCGc98O8YQ40DsEigkGqdIXLmtHeyx6
+	 R8Bt31rY4dWMp41tVGPNyfITtDKajKMl+DUz8wAQ9V/LrBVqbPtXGQ99/v3AntKSn9w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OG5tRoyl;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O31IDxaP;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00064606A323;
-	Sat, 14 Nov 2026 18:11:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D183F606A32D;
+	Sat, 14 Nov 2026 18:14:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OG5tRoyl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9659F1F000C4;
-	Sat, 14 Nov 2026 18:11:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O31IDxaP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9F51F000C4;
+	Sat, 14 Nov 2026 18:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794679883;
-	bh=FCSaGjlxnw7pPlTl1Q+P/jOPDWEDl0aHm7WiAcU9bFQ=;
+	s=k20260515; t=1794680059;
+	bh=6+Sauw6DJEUpvtWX2SFkG7bCwatCc5yOD4eI62wroEg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=OG5tRoylNjjrkMobibtdiUu8maLArQwAV74V85XHxh+yOoR3Kb1D5AqdQkBays/Hm
-	 eCD7n2uu7QW2yNYMQTEeCCLlbSZLszHKW/2/bxzbe6vqVn7dvNJONWiWsc2nk34WAd
-	 b82VWH6cSysj+/DUGP1PEV6LIzEVUsTRoF0Rs0gX+vfB2435QSMjLqs2cdkUSqH1zV
-	 OP/C8AtfG39eanJum79+d9KR4wAP4CNJSUnCTitVUeq+t5ovRrI5Hd7Su0kIkfjiNx
-	 uIhouxPxQUUKReYS+UrZ+b4v74OxsB/f8fYGr0w8Euz7F5V2Sz8rhK+gUtianlYX8K
-	 0ToWIJ2eFJ7tw==
-Date: Sat, 14 Nov 2026 19:11:19 +0100
+	b=O31IDxaPX1oWthba/bb0Wh2Dy6QOzeoJUK4PX+eHCWzEUhA+IEjMv8+HcKRMQ9/4R
+	 jtM6OOS8dVQktx6jnG+oljOYLXylqdF/1485ysuDcGSYy/3BwDsS2QaqsotaUpbuko
+	 lI/wwGeEmvmQlsr0kIr7QQ+byYfA5S/cryquWhl/71rx7uKD+jpK0bccmH1Bij3WIy
+	 aMc+mI5VPivNX7E3XmNuZR0UgYHrKA91qQPeYXmDY7wb9Z44LSPsN3/OF9DnXUiliE
+	 jou/+0dAXb61uk5NiETB7ZrYba6D5I59YqdQQb2mbf6Y3oZau4P6YsZZzRh7FBnkq7
+	 bfu7oqCRyirLw==
+Date: Sat, 14 Nov 2026 19:14:16 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
 Cc: Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
@@ -53,11 +53,11 @@ Cc: Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>,
 	Abel Vesa <abelvesa@kernel.org>, Frank Li <Frank.Li@nxp.com>, linux-phy@lists.infradead.org, 
 	linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v7 01/23] dt-bindings: phy: qcom,x1e80100-csi2-phy: Add
- SM8750 CSI2 PHY
-Message-ID: <20261114-voracious-capable-guan-99cacf@quoll>
+Subject: Re: [PATCH v7 02/23] dt-bindings: phy: qcom,x1e80100-csi2-phy: Add
+ Eliza CSI2 PHY
+Message-ID: <20261114-garnet-doberman-of-elevation-ca33e6@quoll>
 References: <20261114-add-support-for-camss-on-sm8750-v7-0-8ff2a11835f6@oss.qualcomm.com>
- <20261114-add-support-for-camss-on-sm8750-v7-1-8ff2a11835f6@oss.qualcomm.com>
+ <20261114-add-support-for-camss-on-sm8750-v7-2-8ff2a11835f6@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -69,23 +69,21 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261114-add-support-for-camss-on-sm8750-v7-1-8ff2a11835f6@oss.qualcomm.com>
+In-Reply-To: <20261114-add-support-for-camss-on-sm8750-v7-2-8ff2a11835f6@oss.qualcomm.com>
 
-On Sat, Nov 14, 2026 at 07:29:18PM +0800, Wenmeng Liu wrote:
-> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+On Sat, Nov 14, 2026 at 07:29:19PM +0800, Wenmeng Liu wrote:
+> Add "qcom,eliza-csi2-phy" falling back to "qcom,x1e80100-csi2-phy", as
+> Eliza integrates the same CSI2 PHY IP.
 > 
-> The SM8750 camera subsystem has six CSI2 D-PHY blocks. Describe them
-> with a standalone "qcom,sm8750-csi2-phy" compatible, so the CAMSS
-> binding can instantiate the CSIPHY nodes as separate phy devices.
+> Eliza has no MMCX and MXC rails: CX feeds the existing "mmcx" input and
+> MX the "mx" input, so only the power-domain descriptions need updating.
 > 
-> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 > Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
 > ---
->  Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml | 1 +
->  1 file changed, 1 insertion(+)
+>  Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
 
-Does not apply, so should be squashed with dependency. Why having it
-separate?
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
 Best regards,
 Krzysztof
