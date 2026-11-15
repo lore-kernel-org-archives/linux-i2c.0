@@ -1,54 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794735170;
-	b=Riy9dPKzmh4FX2Btgtnw/Ckw+Mn0Xtl/cRIb5Y8Esp2IsQr1oWUorSW3lN9KSel5Q0Q3
-	 EyYaD+ZGzghdLOVLQ8aQMTcrlgTIB/7I8bzYWQR9/DJ0pCKc3a5JiZsaXaNfbSXdgloaL
-	 wO5XlnnDgXHdupmwLvhjcG4Np7apn3bZ4pIVmU/BHNw6KdPBlsJIBRIJAs5XtV6DDQdPh
-	 9muEUwBkmaefIT0eSdG3XUBd0Lf8Vi8GxvKsao/iG8uVkdJIhjXqsiUH+SpIY9U/83TGb
-	 QFQcqbuHis7BjxUjUWUaNiEmdyesNE/tqF2ygi9WT6q9NdsC7uYjZtFQf2/hNZMwuCA==
+	t=1794744224;
+	b=WXRurFCr29oivcjQ4i3C0nUBa0nNFdbKAWfyYA1tWc038VhvemxaphqZsgu4DZ4mlNAI
+	 pGqqcIIgSrTeXL5pintcAKnVQhkPl591vVHZkoqmUgdQiU7NpMNhvywMT/Psv1H9AtyAa
+	 EYBiyaBgEO9jpNNLXlSeJT2dTXEMCrUTl1vQHT0kzBDKTS4Q3fYuqzX3EUks2AP5KjuI5
+	 eLbFroitZo030OwFo7X3kDErzoXdbJxF/XOsZqyOsHBllVld7eTcFOaekKHvFVMMEJCId
+	 rPYdEL5H/BBjpfRMJepogVbcpNWHVVb4OG0PLShtwb8+lxgNTeBuyOtFM/Q1q8Yhz+Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794735170;
-	h=DMARC-Filter:Received:X-Virus-Scanned:Received:DKIM-Signature:
-	 MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:X-Sender:Content-Type:Content-Transfer-Encoding;
-	bh=ausSrf1a5uQksXa58+FoiPtpbF6upiohM3cfazEgWz8=;
-	b=48TUte+aef9RKVosrI+0ei+zVsFTgfANHROrJcX1eJXf+O/lqHDNjGQ8HGKNe6FbHKM5
-	 8tDLk2PPfJFC5C9x6m7xfSu9yd4oHidGYaPzjSeQPWyzLxkMS6n0E3dxQVwgRe1YiFHoh
-	 b7gCThKagjEExOdEUWZ3W8wE/S5XFFW0T4ca00c679/r2bPPbOmKKqREeKUGzjkdcxwuT
-	 1NpvtpmC2tVQ+9sH12Oyq8Q3wHyW5v9aft509oVKXUqzjYp3JIMLc2v9hMX36XJuFeM3L
-	 FzdYcx8lcBtJbvc14lKrRxmd8Kb3B/V85kMlRj2Cv2JaQ+yNNcDqc2hWRYeWQgDsr+Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794744224;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
+	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=G2xfTStPsDXrBa4bi2OyO6+uMbuqPCiOosCTtZjhiB0=;
+	b=pL/IAz3Vnl7WA3wDWOtk+lJZMYxqr70a9xlVfr0Qd9ghZUiIlhXFxBEXg4mFogs+xxed
+	 tbzV4akwFRQYOldsfjq3mx8hbOglEXQFNxh5gGWnYOky4W7JRFOokA4Jrhkaj9CEl5dLs
+	 eugBqH3QYA42H1hrBbZit6j7FGTseFZtLPx9WzdqCoBTxARY6lf9fgywldS933ap2uyYJ
+	 FRRnTNBjl5e40+gT6NL8ArPR34IM97Xrym3y1AFXOYimvkxCbNt52ln8PmNpGC2UdjZwm
+	 k+mL7c3bPkgWutD54jEDNe3fNohwp6C0p8pMmwG+7RhG5wk4d7pnDL8105F8mSYd+Sw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=disroot.org;
-	spf=pass smtp.mailfrom=disroot.org;
-	dkim=pass header.d=disroot.org header.i=@disroot.org header.a=rsa-sha256 header.s=mail header.b=euOMCHKy;
-	arc=none smtp.remote-ip=178.21.23.139
-Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=linaro.org;
+	spf=pass smtp.mailfrom=linaro.org;
+	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=PUV0k4wi;
+	arc=none smtp.remote-ip=209.85.128.48
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C00CF606A31A;
-	Sun, 15 Nov 2026 09:32:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C00CF606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F9DD606A327
+	for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 12:03:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6F9DD606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=disroot.org header.i=@disroot.org header.a=rsa-sha256 header.s=mail header.b=euOMCHKy
-Received: from mail01.layka.lan (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id CBA6780622;
-	Sun, 15 Nov 2026 10:32:40 +0100 (CET)
-X-Virus-Scanned: SPAM Filter at disroot.org
-Received: from layka.disroot.org ([127.0.0.1])
- by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 7FupCPq1JdrQ; Sun, 15 Nov 2026 10:32:39 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1794735159; bh=tOKPWQw84xeK35cbZyEt4w6U/TkmvEGT7MzQBg+zbwA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=euOMCHKydbaHzW8GiIziU0x0YHH5fhMTlx61HHvCyiujQG5y0jF8OVYdjVtlIhpD1
-	 pA0JlZbccswwnORGSIsGdZUvtdVCdHwx9SN6pnPXi+DNqMgXNq00gJc+ZKMYdZTz1o
-	 MakLKiIpqrg1FBaLPVY+l2BJ/AfYfIbmzTsudiB05SqG5ehdQF3nNycY1eJF31Pu9T
-	 8wdeuCtjNSry8ozGkNAWqCbdn4VFvXRWw9h+duyud0ZjQlhwabovrEx/T61p9IGOI2
-	 ZWCELLnMAz/var//JvhChWcFOjeYDPzwfTgp8RHzPoLT8QYOS/kOtElquHssl5n+b2
-	 omgiAEZ+n99Dw==
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=PUV0k4wi
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4bb6057b333so3952255e9.3
+        for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 04:03:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1794744223; x=1795349023; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=G2xfTStPsDXrBa4bi2OyO6+uMbuqPCiOosCTtZjhiB0=;
+        b=PUV0k4wiuHhnC2t7Hsp/WAP5J+moB0hPEz1xgcSUOumUT/V74YrWQ+u4/kcDQAZZAI
+         FU1UcT4LA71zQaO4RNN3fDK58kEm0gyjmnHcM9RXVv/QQUcKWnFnRVFUJIN5LvgOmRbU
+         CdkX2MpZzMt3w1jVBaRwXSai8LXU3yenBkKD3eLHOTo7bbQWZTnRfd7OxqDr2Tm7aqgM
+         tqbEjAIs/onLiVZMqsDdlB+BeBjSC46vX/IUEnjCJMfCs4q473Yu0+LQXUWKpIUAmuWq
+         g5GqBSIfulUimYpqvkhkiTnwvyFlIbN6ai/HPSelBPAghTiFoksA7JqN58Ta6+eI4q4I
+         045Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794744223; x=1795349023;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=G2xfTStPsDXrBa4bi2OyO6+uMbuqPCiOosCTtZjhiB0=;
+        b=05Gb6mpWnlkUJq5VBZtwpF0LQjZqsyIVtvv6Rv6dRaEB54e755AxHcFaEPMoFZHRRx
+         HjhnASpuG8p0AyL0w+MmIV7+z5QL/uakhOe1/HlOdKKq59NtJ6OEwmDN9DMswI9NIZBf
+         dxtStiUo4WHc60aWZqcrH7YME19gXgGnoPtleDVHEASKWkt3SjJ09vLR9lNyeeAx+ejb
+         sQArFNzWvlJBn1QaCYxMIJEb9wSz+WqfIH66740eHiXFJHu6uoKyvFNagbMEoBSGQwHj
+         anUMoykve37ZTck/sVU4t3+kV9A0GyZZQcNf3cVZVjsKNjo4NJ0VYCtu6AxAMFuGsZsQ
+         KmDw==
+X-Forwarded-Encrypted: i=1; AL+hErFe/pFAfL1Y63puw5+n3Y9+flUkIQrssxIDQTLKMYkCP/NnTwMsxFpXCt7Jzupd7ZA0Z9A/Aw70xJM=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/2PRWEMfD46fB8OgacLQ/Mp5eHDNduNLNWAFoTeQpK4afo4Lep
+	kPdF3RbRVvpoB85z3kRMHo0OGbVC+l50mnd69UCy4NMNL44dPDxU4t7LJ/TEaz2vUso=
+X-Gm-Gg: AYBFou1o+FLhOodYUk39AIbulva6dXaRooVMC6Re2LupSgBlmCYQMhYd60XyOL6PHIg
+	m9lrnAy8R62g933SOn13JS8OeuLJwgflkmqWpiv+sAQjpuLZ5JD5Lkv5yZup5ibBdB3ksVKqbfo
+	+xF3IlckLF7MbWO+iTNqSQP5ApJqCZP/H6EDExzJIf938GM1+hvLPDaESqvuAm+6G7rz9fwhmoL
+	GUjBL+jerBfGaB/BiLgb48Sf3c6dXZRO0J+qbFbJotfd4rti3CZCLILUTLt/OxqC+yij4Shm9YH
+	LAt7bhvuWUNNmDEcXU3nB16/hgpH22DVwRnKDXrdSD/wMDnAkFUCJslauZSMIvzj3oe48ENwadm
+	zs4pp5+dvpqx35tVSxH/69iQcy20mLDz38ZvSYXzNqEtHoUglq8gOkwRx6liivowpq71Tolionn
+	h1rTeTFgQkbmZxsrQFkLgrj1p8K9I2xErfVrCqBw8/rMbcunmvH2yPhmOfwYK7Oazb64RhyvaIq
+	b3UzFgkHsq542HBZAtHb1+n/nNxF1Vr69UbRSAHVCFOD0YLW+DKZJ55YMjyq2e8GpsgdB6zBBIj
+	2R6rq5NJVFDkZn2hMDpZR4Wq81rFPYqPbSZDKFhFDUM=
+X-Received: by 2002:a05:600c:34d6:b0:4a8:f2ad:a9e5 with SMTP id 5b1f17b1804b1-4bb559f609cmr148644995e9.3.1794744222495;
+        Sun, 15 Nov 2026 04:03:42 -0800 (PST)
+Received: from [192.168.0.167] ([78.152.238.245])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c60021375sm15371401f8f.29.2026.11.15.04.03.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 15 Nov 2026 04:03:42 -0800 (PST)
+Message-ID: <31101889-9d4f-4863-afb7-0f884b50088f@linaro.org>
+Date: Sun, 15 Nov 2026 12:03:40 +0000
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -58,85 +90,70 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Sun, 15 Nov 2026 09:32:35 +0000
-From: Rustam Adilov <adilov@disroot.org>
-To: Michael Zavertkin <misha.zavertkin@mail.ru>
-Cc: linux-i2c@vger.kernel.org, Chris Packham
- <chris.packham@alliedtelesis.co.nz>, Andi Shyti <andi.shyti@kernel.org>, Rob
- Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor
- Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] i2c: rtl9300: add realtek,rtl9607c-i2c compatible
-In-Reply-To: <3012533a43fd32d1c526e5a90385457f8b46f111.1794728344.git.misha.zavertkin@mail.ru>
-References: <cover.1794728344.git.misha.zavertkin@mail.ru>
- <3012533a43fd32d1c526e5a90385457f8b46f111.1794728344.git.misha.zavertkin@mail.ru>
-Message-ID: <29914fda0f8aac515458d9f4d7862270@disroot.org>
-X-Sender: adilov@disroot.org
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 02/23] dt-bindings: phy: qcom,x1e80100-csi2-phy: Add
+ Eliza CSI2 PHY
+To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>,
+ Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Loic Poulain <loic.poulain@oss.qualcomm.com>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>, Robert Foss
+ <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Frank Li <Frank.Li@nxp.com>
+Cc: linux-phy@lists.infradead.org, linux-media@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20261114-add-support-for-camss-on-sm8750-v7-0-8ff2a11835f6@oss.qualcomm.com>
+ <20261114-add-support-for-camss-on-sm8750-v7-2-8ff2a11835f6@oss.qualcomm.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Content-Language: en-GB
+In-Reply-To: <20261114-add-support-for-camss-on-sm8750-v7-2-8ff2a11835f6@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2026-11-15 08:08, Michael Zavertkin wrote:
-> RTL9607C was already supported by realtek,rtl9607-i2c, which is
-> confusing, because there are another SoCs such as RTL9607F, RTL9607
-> (without letter) and a few more. So more correct compatible was added.
-
-Yeah, that makes sense. Yesterday i spent some time documenting the rtl960x
-tree [1] and rtl9607 falls into apollomp rather than rtl9607c family.
-
-We should ideally check if RTL9607 and RTL9607C have similar enough i2c
-controllers to use same compatible but maybe for another time. Cause if
-it turns out they are different then the rtl9607-i2c should not be
-deprecated? I don't know what the rules are for this particular case
-where due to lack of knowledge at a time we have been using a wrong 
-compatible all this time.
-
-[1] https://github.com/Anime4000/RTL960x#rtl960x-families-and-their-subtypes
-
-> New compatible doesn't use IO_MODE_EN register, leaving it to pinctrl
-> driver. Old one left for backward compatibility.
+On 14/11/2026 11:29, Wenmeng Liu wrote:
+> Add "qcom,eliza-csi2-phy" falling back to "qcom,x1e80100-csi2-phy", as
+> Eliza integrates the same CSI2 PHY IP.
 > 
-> Signed-off-by: Michael Zavertkin <misha.zavertkin@mail.ru>
+> Eliza has no MMCX and MXC rails: CX feeds the existing "mmcx" input and
+> MX the "mx" input, so only the power-domain descriptions need updating.
+> 
+> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
 > ---
->  drivers/i2c/busses/i2c-rtl9300.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
+>   Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml | 8 +++++---
+>   1 file changed, 5 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
-> index a9dd85a286d4..ae20fbdc307a 100644
-> --- a/drivers/i2c/busses/i2c-rtl9300.c
-> +++ b/drivers/i2c/busses/i2c-rtl9300.c
-> @@ -200,10 +200,12 @@ static int rtl9607_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_c
->  	if (ret)
->  		return ret;
->  
-> -	drv_data = device_get_match_data(i2c->dev);
-> -	ret = drv_data->select_scl(i2c, i2c->scl_num);
-> -	if (ret)
-> -		return ret;
-> +	if (device_is_compatible(i2c->dev, "realtek,rtl9607-i2c")) {
-> +		drv_data = device_get_match_data(i2c->dev);
-> +		ret = drv_data->select_scl(i2c, i2c->scl_num);
-> +		if (ret)
-> +			return ret;
-> +	}
->  
->  	i2c->sda_num = chan->sda_num;
->  	return 0;
-> @@ -494,6 +496,10 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
->  		scl_num = 0;
->  	i2c->scl_num = (u8)scl_num;
->  
-> +	if (device_is_compatible(i2c->dev, "realtek,rtl9607-i2c"))
-> +		dev_warn(dev, "Compatible 'realtek,rtl9607-i2c' is deprecated. "
-> +			      "Use 'realtek,rtl9607c-i2c' instead\n");
-> +
->  	platform_set_drvdata(pdev, i2c);
->  
->  	drv_data = device_get_match_data(i2c->dev);
-> @@ -652,6 +658,7 @@ static const struct of_device_id i2c_rtl9300_dt_ids[] = {
->  	{ .compatible = "realtek,rtl9312-i2c", .data = (void *) &rtl9310_i2c_drv_data },
->  	{ .compatible = "realtek,rtl9313-i2c", .data = (void *) &rtl9310_i2c_drv_data },
->  	{ .compatible = "realtek,rtl9607-i2c", .data = (void *) &rtl9607_i2c_drv_data },
-> +	{ .compatible = "realtek,rtl9607c-i2c", .data = (void *) &rtl9607_i2c_drv_data },
->  	{}
->  };
->  MODULE_DEVICE_TABLE(of, i2c_rtl9300_dt_ids);
+> diff --git a/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml b/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml
+> index 8ff3df1d0d2787b2af0499c1e4106b86f56ff82c..884984f6f6b9e595df9bb3b0027c0bcf285b8058 100644
+> --- a/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml
+> +++ b/Documentation/devicetree/bindings/phy/qcom,x1e80100-csi2-phy.yaml
+> @@ -22,7 +22,9 @@ properties:
+>             - qcom,sm8750-csi2-phy
+>             - qcom,x1e80100-csi2-phy
+>         - items:
+> -          - const: qcom,glymur-csi2-phy
+> +          - enum:
+> +              - qcom,eliza-csi2-phy
+> +              - qcom,glymur-csi2-phy
+>             - const: qcom,x1e80100-csi2-phy
+>   
+>     reg:
+> @@ -48,8 +50,8 @@ properties:
+>     power-domains:
+>       items:
+>         - description: Titan Top GDSC - Titan ISP Block, Global Distributed Switch Controller.
+> -      - description: MMCX voltage rail
+> -      - description: MXC or MXA voltage rail
+> +      - description: MMCX or CX voltage rail
+> +      - description: MXC, MXA or MX voltage rail
+>   
+>     power-domain-names:
+>       items:
+> 
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
