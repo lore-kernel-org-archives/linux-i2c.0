@@ -1,86 +1,50 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794744973;
-	b=hetDgnNwQM9mO3E226FYjXUHm1Lp6wl85tc7DEsrkmKYqR3nax6DMVn7sk1EiDjqCSMh
-	 Fc19sCgCbVF8fbe1TJyF/W+tw0/NAn6TYH21cCw4KfXWJji+/KGrZaEFFK2vFD68QIz5l
-	 aFu2b7ODlOifOaPchSXEehuE5s3sS7oS6H6fNihBxYDMkaOXWlt8vPyGi/uPLS7vld9C6
-	 irlH1WlZUVpHHD80rFwMezmbViw2Zw47nMy0YlUToL+1D9Uk3R8jmt9bH+wjM8OOFh+HC
-	 tHolo+pRHtr8VDiIR5IUBQ3LEiCmHMN6rkRKwLOB3cKNIY/X6+2AkxULKwK9u/4GqCw==
+	t=1794745152;
+	b=qwGEVUjpJ59sKpPk64KuIzd2p2Ng8uOb5xeXA6t/JlzbicCahOWa1KKjKrxUBS6P0d9j
+	 TxqYI45cfi4hCi9U5AUeuDaTQd/ylBckbS/XcRVVoL0yXqg/PmsGXio0eaqVFKpRpEU1T
+	 Zvp4+KTwbUwlLzMvkU2D+8PbwpwNu8De4uAFQqf4UW05+esBzOiNgyd4v5P2LY3A01L0E
+	 0++MmbICts2XHLTw7MO1vjRqNEAFjZXOA4sBEAHYIEVLif0GvHteuUo1sC4vAsuQfU0Uy
+	 AYZXvl36IW8rrYH1qiIG9nz+HLSdRxQByL5/m97Hf3RSEx01M1NRW7clqmiRcyMdHOg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794744973;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=Cze6EXMazudJouVIRWBezoVb+gMXv48f+e410Dy7G9s=;
-	b=AH6aoKtqi4PSxORFH29RFjXebCRWemXKFC9AxXHhnZeZCTsSOenQQ1ENeG4u7ggPntU9
-	 9Y6kosGD9l7wheVZuNZWVOUELCCeT2gSSulcFOiJr0Fb0J3UeJl1hKEtT+zODthCgysT4
-	 gEulH8mrToBx+GVR3qXCcsXjaFgOzAdhDD9Jx3rf0LKfqtEowHmNPK6EDlh+Ry2vd2TLi
-	 gK7MamsRwJU+9KCKCwzjkkGY7XWhjG+8DsXezi9+9jFH1IpqlhUbVeM/Xv2oxANhOHgTG
-	 +7z+7Px7DYni5Ooh0bOqXzW2jajlx/Hk50XFdIGhlJ3ZKJnCCXuHJOiCtVvtqG9VJaw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794745152;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 MIME-Version:Content-Type:Content-Disposition;
+	bh=Rm+8cuVfU4vLjGjzIoq38H8TGsPzpS50Zs25hBzyev4=;
+	b=ahw6LepIQ4dfqczS2VqK7gun/aFjQMcJAtEZQLbF/TL73NAzi2OprR7AM4bCfcgxI/o8
+	 zeruCiGSsgwkdR6LOuHwMVnu5kVaibAPy2JgCMC/qydtjabKNgv4D75UzN8R8OSM/hxdD
+	 Ei9/Le/eEdTXdloNMEANMX2rdhXHj0oy2xIHVhziRm2zmoaI5q6ggn5g1pCTXSbBplDKS
+	 FeQ07wY3JV3CGgwZbwh5DLupksxuhucRcmDAVzTwUOBWcxKtVnDfmY+IM1uD2jDcg1uSG
+	 d+I43kofHjHLB5ic8uDLb0oN3DA7l4VoYRSS2nZcy0Mx4PFtQsOoOQGSNx65bZwblFg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linaro.org;
-	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=UMWGuZNB;
-	arc=none smtp.remote-ip=209.85.221.41
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TNkxTg9L;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20142606A31F
-	for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 12:16:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 20142606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 331CA606A31A
+	for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 12:19:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=UMWGuZNB
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-48e46e449e8so2004568f8f.3
-        for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 04:16:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1794744971; x=1795349771; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Cze6EXMazudJouVIRWBezoVb+gMXv48f+e410Dy7G9s=;
-        b=UMWGuZNBsMnss2pwsw8rRFNOryhk6F4P5MsSQtbTOUSYf7p8ABU3vk4PaN1KFgXJ4m
-         sLw57i7wKveAJsqJXa81ii4bayts99u5hg3J+aNyMOI795yl24cB+IpfYz5/HXSDqzz5
-         8J81IXNBLkrq8pNuLrlDSWMlsmGEW+JxD6BDFcXHLBQjB+J9eOnH/escoFzz40YDBxpa
-         l4K4aqxKU+xhxj/c2gSNDaf+IV7G2FNCNjefQ2qzQHvzhnP9uPM67bTReYKQRNnzW10P
-         /U8EwovAUK3sCoJtrorcb/qNryT5hTEQM7Pctt8EMwGpw2KT7wD4z3gD8bIyUjh/OWZF
-         nvvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794744971; x=1795349771;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Cze6EXMazudJouVIRWBezoVb+gMXv48f+e410Dy7G9s=;
-        b=Ff6VVfmLRuNVpc16HP+fGrp+UN1pEMcbGPEhXmreBnF74HPtzwD5g1KX/+Hg1sLBXq
-         8c3rLYMNeBLPYEVC4Vf9clgivOSyqy58Grj3Zi1XuNUD5G1Og3gnPdYhlq7QBQ3TXsUK
-         9Jz3aGaOwfxsmoQCeBk2b/NKQ64eeys5VDajNDYK8UZ3x8cUWQOS9gbDIqDyIA9qJyS8
-         YKbcmWbJLeWobr+slJJ1stmWYRIaOEui9qNoiNWOiQGyDPcpgb7Wq4xHo85X288eVtPW
-         Da0gF6dIuQpeSy6sc3pGjkacR6OTag7uruL8e4jZS2fwtZ0zolGd3qVEVBujJhoQLMwt
-         BOhg==
-X-Forwarded-Encrypted: i=1; AL+hErHD/27C1Bkxdr7l0fCO+JN1AQ/B40tEG3Lwn67PQyfd+Ra82+cCgQ866SR/MKPP3t8UNTwcsdFEZFE=@vger.kernel.org
-X-Gm-Message-State: APuU4Z904G3irKVCwQMvw4E2deNnc9nWoFcZBkY3XTAiUUZ7ZvZ2UsIk
-	zAvz7o0P8kK8D/VOK1qin8FPncCDfSm77szUWHdSltmx61yo7APB9mhJTZR6SGg0WEc=
-X-Gm-Gg: AYBFou0Nc1Z5R4VbTLPh0Vg1q4yU1Vt2AEpWTwyZ+BT0SS+MZgjVwYSrUSSvuJa/KfJ
-	MSKl+TzgfV5FgiOlfo/YdPdgOTjPyGBFYbnF1MADbAdr/gcwk8U4dLdGaMCZk+7ibLWvf5lqbQ5
-	pHoGzVzS/VVh1s336v7gWPUZwiSLZf+YKj50vGRw8AURRb2ZiN6nLv3ljVRhPKxEi3S/n9RjxxJ
-	8f0eJeCNUHLUMF38JIks0+XJWpcVQXkTEqyKNJcGM7UdFEwfbFGzCXTtiIk/lnVAucLslH2DdsN
-	S08M/dScWKtyaPJv/4C0lYfDNxpIxn19lh0E3o58DcXVXUJNvwg4zQ3gmm0OU8Q2/bJgMloRT+D
-	T+jjc1x5fe8wSKS2CjjJHuRgmHPqGbvXLcyM6bOin3c9vluEc5IlEJAOIkJ8pd0QjqeGku/KZHY
-	mn4k8WlOvpiEguQwO5nxTV0oaxJqgKaAhaUVc2mEFtejrsEe6vt6EuIebrsV2jTW/+nBTKtpWu5
-	/0ih5di/YSQ7KHn80eaII0tzdNRU3mZQ3iMuj/uWmu9DsgtIt50Rgiwa+WsGALDhkWSTHSimAlj
-	Ays78EjoGB6cgX+PMVUSQuc/08r1ZnSugFN4sy1ANV8=
-X-Received: by 2002:a05:600c:8b0a:b0:4a1:da58:1ee with SMTP id 5b1f17b1804b1-4bb55a95dbamr161321305e9.31.1794744970969;
-        Sun, 15 Nov 2026 04:16:10 -0800 (PST)
-Received: from [192.168.0.167] ([78.152.238.245])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb65ce005bsm126726035e9.14.2026.11.15.04.16.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 15 Nov 2026 04:16:10 -0800 (PST)
-Message-ID: <ea2dea8f-e696-4e86-be9f-248cb6ec86b9@linaro.org>
-Date: Sun, 15 Nov 2026 12:16:06 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TNkxTg9L
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 615E81F000C4;
+	Sun, 15 Nov 2026 12:19:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794745152;
+	bh=Rm+8cuVfU4vLjGjzIoq38H8TGsPzpS50Zs25hBzyev4=;
+	h=Date:From:To:Cc:Subject;
+	b=TNkxTg9LRf2fEJWGBwJcK8y89TzejS+coH6XpAVjqdOjwi363uacAda5djHLOun2d
+	 pQ8lQRoat3PqbR9lb+RKSF5/dZn4n+JTBB4qX8EG8sRuqkiSGnGwmyqoHPx2I0WO6Q
+	 36x1PgWLZjYX7QdDTtvCe7PD7Fv7B5tyJ3lk+VjGbME+4EBxbcL6tQwLeuhZIsqVT2
+	 6lkOya1iPLXVmjWmYj4zAwXmGCYFKFB2DImdoV7CqQsLN6QdnLxZn1/hXsjZQ7eno1
+	 F3PdmCQhK2gG7KAX9ydkD4quRTF8e5rTZyDd2Gma823YBUlw6CdBbIRLUomHSnQYJl
+	 w+vp5M+2UKIGg==
+Date: Sun, 15 Nov 2026 13:19:08 +0100
+From: Wolfram Sang <wsa@kernel.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org
+Subject: [PULL REQUEST] i2c-andi-for-7.5-part1
+Message-ID: <avmjPNGM-m-glmTq@shikoro>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -90,50 +54,184 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 10/23] media: qcom: camss: csid: Add support for CSID
- 980
-To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>,
- Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>,
- Neil Armstrong <neil.armstrong@linaro.org>,
- Manivannan Sadhasivam <mani@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
- Loic Poulain <loic.poulain@oss.qualcomm.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>, Robert Foss
- <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Frank Li <Frank.Li@nxp.com>
-Cc: linux-phy@lists.infradead.org, linux-media@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
- Atiya Kailany <atiya.kailany@oss.qualcomm.com>
-References: <20261114-add-support-for-camss-on-sm8750-v7-0-8ff2a11835f6@oss.qualcomm.com>
- <20261114-add-support-for-camss-on-sm8750-v7-10-8ff2a11835f6@oss.qualcomm.com>
- <130fecb6-5372-44d9-8261-c3ac88248631@linaro.org>
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Content-Language: en-GB
-In-Reply-To: <130fecb6-5372-44d9-8261-c3ac88248631@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="zSnaKzCwJyA3EGlh"
+Content-Disposition: inline
 
-On 15/11/2026 12:14, Bryan O'Donoghue wrote:
-> On 14/11/2026 11:29, Wenmeng Liu wrote:
->> +            for (k = 0; k < CAMSS_INIT_BUF_COUNT; k++) {
->> +                __csid_addr_update(csid, i);
->> +                __csid_reg_update(csid, i);
->> +            }
-> 
-> Why does this run twice for the same index ?
-> 
-> ---
-> bod
+--zSnaKzCwJyA3EGlh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-"run CAMSS_INIT_BUF_COUNT" for the same index ?
+The following changes since commit 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4:
 
-You don't increment a buffer index. How can this be logical ?
+  Linux 7.4-rc1 (2026-11-01 13:26:31 -0800)
 
----
-bod
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-andi-for-7.5-part1
+
+for you to fetch changes up to e9b207e83347eaa99491a6ee6c2623019d506bbc:
+
+  i2c: dev: clean up registration (2026-11-12 12:01:34 +0100)
+
+----------------------------------------------------------------
+i2c-andi-for-7.5-part1
+
+Hi Andi,
+
+here are some patches I reviewed and think are good to go. Feel free to
+pull this branch or pick the patches individually or whatever.
+
+Happy hacking,
+
+   Wolfram
+
+----------------------------------------------------------------
+Aniket Randive (1):
+      i2c: qcom-geni: Clear stale TX/RX buffer pointers after GPI cleanup
+
+Christian Marangi (2):
+      dt-bindings: i2c: mt7621: Document an7581 compatible
+      i2c: mt7621: limit SCL_STRETCH only to Mediatek SoC
+
+Dmitry Guzman (9):
+      i2c: nomadik: optimize struct layout, change unsigned char into u8
+      i2c: nomadik: do not try to retransmit I2C message series on errors
+      i2c: nomadik: return proper fault codes
+      i2c: nomadik: change print level for fault messages to debug
+      i2c: nomadik: add quirks max_len=2047 and no_zero_len_read
+      i2c: nomadik: handle pm_runtime errors
+      i2c: nomadik: fix race condition with interrupt handler
+      i2c: nomadik: reduce FIFO flush timeout to avoid long interrupt handling
+      i2c: designware: return proper fault codes
+
+Frank Li (1):
+      i2c: use dmaengine_desc_set_callback()
+
+Guangshuo Li (1):
+      i2c: designware: amdisp: balance genpd on probe failure
+
+Hongliang Wang (2):
+      dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+      i2c: ls2x: Add clocks property parsing and adjust bus speed
+
+Jean Delvare (2):
+      i2c: designware: Use msgs[0] to validate the slave address
+      i2c: designware: Turn models back to enumerated values
+
+Johan Hovold (3):
+      i2c: dev: fix blocked adapter deregistration
+      i2c: dev: drop unnecessary sysfs device lookup
+      i2c: dev: clean up registration
+
+Tommaso Merciai (1):
+      dt-bindings: i2c: renesas,riic: Drop clock-frequency from required
+
+Umesh Kumar (1):
+      i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
+
+Wolfram Sang (1):
+      MAINTAINERS: add i2c-algo-bit to i2c-gpio driver
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      (Rev.) i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
+
+Bartosz Golaszewski (1):
+      (Rev.) i2c: dev: drop unnecessary sysfs device lookup
+
+Bin Du (1):
+      (Test) i2c: designware: amdisp: balance genpd on probe failure
+
+Binbin Zhou (2):
+      (Rev.) i2c: ls2x: Add clocks property parsing and adjust bus speed
+      (Rev.) dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+
+Geert Uytterhoeven (1):
+      (Rev.) dt-bindings: i2c: renesas,riic: Drop clock-frequency from required
+
+Huacai Chen (2):
+      (Rev.) i2c: ls2x: Add clocks property parsing and adjust bus speed
+      (Rev.) dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+
+Jarkko Nikula (2):
+      (Test) i2c: designware: Turn models back to enumerated values
+      (Test) i2c: designware: Use msgs[0] to validate the slave address
+
+Linus Walleij (7):
+      (Rev.) i2c: nomadik: reduce FIFO flush timeout to avoid long interrupt handling
+      (Rev.) i2c: nomadik: fix race condition with interrupt handler
+      (Rev.) i2c: nomadik: add quirks max_len=2047 and no_zero_len_read
+      (Rev.) i2c: nomadik: change print level for fault messages to debug
+      (Rev.) i2c: nomadik: return proper fault codes
+      (Rev.) i2c: nomadik: do not try to retransmit I2C message series on errors
+      (Rev.) i2c: nomadik: optimize struct layout, change unsigned char into u8
+
+Mukesh Kumar Savaliya (1):
+      (Rev.) i2c: use dmaengine_desc_set_callback()
+
+Praveen Talari (1):
+      (Rev.) i2c: qcom-geni: Clear stale TX/RX buffer pointers after GPI cleanup
+
+Wolfram Sang (9):
+      (Rev.) i2c: dev: clean up registration
+      (Rev.) i2c: dev: drop unnecessary sysfs device lookup
+      (Rev.) i2c: mt7621: limit SCL_STRETCH only to Mediatek SoC
+      (Rev.) dt-bindings: i2c: mt7621: Document an7581 compatible
+      (Rev.) i2c: designware: Turn models back to enumerated values
+      (Rev.) i2c: designware: Use msgs[0] to validate the slave address
+      (Rev.) i2c: designware: Enable SAR in slave mode for Multiple SAR controllers
+      (Rev.) dt-bindings: i2c: renesas,riic: Drop clock-frequency from required
+      (Rev.) i2c: use dmaengine_desc_set_callback()
+
+Xi Ruoyao (1):
+      (Test) i2c: ls2x: Add clocks property parsing and adjust bus speed
+
+ .../devicetree/bindings/i2c/loongson,ls2x-i2c.yaml |   3 +
+ .../bindings/i2c/mediatek,mt7621-i2c.yaml          |   4 +-
+ .../devicetree/bindings/i2c/renesas,riic.yaml      |   1 -
+ MAINTAINERS                                        |   2 +
+ drivers/i2c/busses/i2c-at91-master.c               |   6 +-
+ drivers/i2c/busses/i2c-designware-amdisp.c         |   6 +-
+ drivers/i2c/busses/i2c-designware-common.c         |  18 ++-
+ drivers/i2c/busses/i2c-designware-core.h           |   7 +-
+ drivers/i2c/busses/i2c-designware-master.c         |   8 +-
+ drivers/i2c/busses/i2c-imx-lpi2c.c                 |   3 +-
+ drivers/i2c/busses/i2c-imx.c                       |   3 +-
+ drivers/i2c/busses/i2c-ls2x.c                      |  44 +++++-
+ drivers/i2c/busses/i2c-mt7621.c                    |  25 +++-
+ drivers/i2c/busses/i2c-mxs.c                       |   3 +-
+ drivers/i2c/busses/i2c-nomadik.c                   | 108 ++++++++------
+ drivers/i2c/busses/i2c-qcom-geni.c                 |  10 +-
+ drivers/i2c/busses/i2c-qup.c                       |   6 +-
+ drivers/i2c/busses/i2c-rcar.c                      |   3 +-
+ drivers/i2c/busses/i2c-sh_mobile.c                 |   3 +-
+ drivers/i2c/busses/i2c-stm32.c                     |   3 +-
+ drivers/i2c/busses/i2c-tegra.c                     |   3 +-
+ drivers/i2c/i2c-dev.c                              | 166 +++++++++++++--------
+ include/linux/designware_i2c.h                     |   1 +
+ 23 files changed, 283 insertions(+), 153 deletions(-)
+
+--zSnaKzCwJyA3EGlh
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmr5ozwACgkQFA3kzBSg
+KbZyJg/+MH2cDXal8x6CH+ogvH+dLgWBCJFaF9h3ZcVyxcba41ouwG/JhK+Zwrk1
+t9hGxTS6bm7tgC8X+YvlmCEn7M2oBc8fOtsXVfkqgjjhlSiYqIMLt8Pv/Li/N3BH
+eBPS9IPj7rZ/LnqdlpN3iF28o5LT6NL8nhs4NVrpjsk5oZ2a0rq834RsY50DESvb
+6lHRisHjEuoupnXa0VoTrBIlP1FnIeyeEYDOhWv23vMpk3Fy7iw+WAxwdGMK3Kri
+rBvI+oEnu7sqCy50WYkEHjP1yEAmAed8Ar2L8g20Nj7BhewK6YFezdZ7Dvn434o/
+k3vVf7ndPJAj2Icu1Iid8xwJK7aEiMGlkMlQWTVd7FDISbHqBVfhhCfPZyMLaNt5
+n2rIfNDypi3vF5qH9HEAkjzP1rSo+r3mZNSW11gmbUDHHXdscFyVnjrrzooY7Xcv
+YAl0gxLFM2CPZoZYTX/LLmNSmmV4o2kYSmIbrILeKxowMCTxEfNsTB9h/dsux9OM
+lhebCxwybs6l4Kigyqo22BXbM7GJdub//wl8t7yB26jl538HRBD2GjzPqM6M9C7I
+Dw6KDXVm4uXFzUC1g4Gkf8F4WWtFdh183lwIYSMJzl2ZDc4aBHcJqJn77Vq5OTfR
+0EJNCSsYfDEpEcn6yeZgPKGZXomOYRC/10uTH+SPtkgbRuBxW6U=
+=CfMx
+-----END PGP SIGNATURE-----
+
+--zSnaKzCwJyA3EGlh--
