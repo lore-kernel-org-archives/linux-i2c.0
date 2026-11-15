@@ -1,91 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=212.227.15.15
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=212.227.17.20
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794775558;
-	b=a/NRbzcvfuPBB05we3n1AweqOiHETnNe0h9m6rMnlQBSkwRwvxduQQVaSBQi983pFlGp
-	 Ctd6On1TLBoJX2qQcoo48qinGObqvhffzh1SkuyIoxouYAMQ+d61ri/ZXzZ5H8kFiYuqO
-	 uh/qieR6c/shKAVHiwQOWawJal8fr2w3L/+10ywOcHa6C0oJdwfh0KDXziJe8YDbjHH5+
-	 /8iJfnfNijZ3QOUEykgfUkhaipMNlw4Dqv2+1YJBLMuyWH5PxAjiqYUrPY3t4EiNVF7V/
-	 iSnV4f3oAZDEGK5YJO1HrdJnOvFB+z3CKw8QOPE5+eQKGm1r8Y3k+IsQqz3sJwovQ5Q==
+	t=1794775733;
+	b=z7/riuZGbtnex5X2zLJw3fSC4O3EBNYBpglTTn4HdhfgAhOr6QoFktuH2tvrwIZAAWoq
+	 eQ4mDtN0pNq2L/2sC03hlh9VNiak/MnQLPX1whvKLTEISSH5MBCd1QUGVeDrODZinuyPM
+	 oERL/+p2zJDmRTm1gD0J7S/OxIqrIuManKq7hLvqIOl1j+G9U8QiOaMo6avzZNJfPRc2I
+	 TW3NbXS2fwbATPCfxn4d96wza7bmFv6AAbroPvFJC6ISsTcJWQPayO/KCzZXZXjxAGi+J
+	 20wvb0ZZCFgjyltk6PjnJbkPjIPquyyQwuDjG0pLjLTrMnkMvtc9PSEusiIWx4JXxTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794775558;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794775733;
 	h=DMARC-Filter:DKIM2-Signature:Message-Instance:DKIM-Signature:
-	 X-UI-Sender-Class:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Provags-ID:X-Spam-Flag:UI-OutboundReport;
-	bh=r5HTsltN3qKXHfYcwhZ0ejh/zJWetlORYjdsSgckopE=;
-	b=GbA++zbBB+MMc7mbdMjM79kaUsti9i01nzmp0TrbR7Gq70adS+joEUGcvJoYNygEGzVQ
-	 zkjZEGliRQoiOVo+Lqil2BhKjwtq7kBOc6hDUMXstKf2VRI4gOIr0ImT4AJm7UfkUUDCp
-	 pVstleN7DaQMOVpJbdPr18d6XIY3U56SyWttk8NjUy+HOtlw6lHewf34PfEVE4Nx3naEX
-	 2ZHcqjSlhfKMjdm6J1ioktrLhTPxSahLsndxIWR0m4OBSm2MW2knj6rAICxOCQNedpndX
-	 v/by3wAMdcQpMkdE1Mlx5r2oyBeBsU0az3/bC6v5HboXWOGiEheL3NCc9EpbHWM7qqg==
+	 X-UI-Sender-Class:Received:Date:From:To:cc:Subject:In-Reply-To:
+	 Message-ID:References:MIME-Version:Content-Type:X-Provags-ID:
+	 X-Spam-Flag:UI-OutboundReport:Content-Transfer-Encoding;
+	bh=kM2kpEA3QU8lMqDTonr8uO30HPQCQVnVUtKUbPAA8xs=;
+	b=GEJD/u9/9dyxmMbO0k4jaD5+6DFg8q46yzzVQdVVmUehcZEc6xRuLQ08q9XImQXQBXiR
+	 lI9MQwRD31KfoBbMTUlgIlNP/X47+QEqZrGUv2mOSkJZOFClrmYErhPZLQtAcezniaH7u
+	 hFNylBZh6qLHdWjoq8nqG3I9VgKAfeyBx/k839caNVA1BAnMvHOAjig9QzgcFpbPmOxLC
+	 GeKMTTTAov+gghhNcKFlDvxSVyi2diTEcg44hbQFL+Q5NF7qV23+H/W+y82sWix/T8ewy
+	 zwIFsqenbZ0I9HnqaJzCONIBTzSY9JQIf149bBoeTJwBjLNEENNWjYE8L10n5JvDZKg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmx.de;
 	spf=pass smtp.mailfrom=gmx.de;
-	dkim=pass header.d=gmx.de header.i=marvin24@gmx.de header.a=rsa-sha256 header.s=s31663417 header.b=g0pGVGqQ;
-	arc=none smtp.remote-ip=212.227.15.15
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
+	dkim=pass header.d=gmx.de header.i=marvin24@gmx.de header.a=rsa-sha256 header.s=s31663417 header.b="r02AUu/b";
+	arc=none smtp.remote-ip=212.227.17.20
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A532606A337
-	for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 20:45:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5A532606A337
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA968606A32F
+	for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2026 20:48:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EA968606A32F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=marvin24@gmx.de header.a=rsa-sha256 header.s=s31663417 header.b=g0pGVGqQ
-DKIM2-Signature:  i=1; m=1; t=1794775555;
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=marvin24@gmx.de header.a=rsa-sha256 header.s=s31663417 header.b=r02AUu/b
+DKIM2-Signature:  i=1; m=1; t=1794775731;
  mf=PG1hcnZpbjI0QGdteC5kZT4=;
  rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
  d=gmx.de;
- s=s31663417:rsa-sha256:ZQBI1ZjerVJwEcqcuxjRusMsNtLa
-   jOP9cU5t+whY4i6HHmZCJMxDbG/68jhKuUgGRYUB9mDu+RAKxttyQFmb+66QkOEOtI/ktKFRp6Z
-   b7+dHZuFtb56Z5EWJcdHO19lHjvyJDce2PEuoBYsYrHKi+16CYEsuArlJBB16LlQqyOvC5sW7pb
-   ZG8/YcY/oFXH59Do6fKg5au36T92y6Pv539uMSzH/Wyi33dkBWtr2Yd0mx13xGrhE/84upbtH3J
-   GRryvLoU62BIkL+89E3RTO6OSfFBQfBJm93+15lrxXFOnwBA9UAvHZ9cShL6xu8FN6bDVT6/ShM
-   O1YRSMaGtsp6KA==;
+ s=s31663417:rsa-sha256:MjbY8OsggNlqlVubx7GNu8XAJ0jq
+   3SOFaIp2+BW4GgrMV9KgM01DdJOugkowd74W/zI6z8HW9R6KCwt87mjkZb6rKYJdrP+MlRuBuqr
+   jkyimxmtMVREHKqc5XAoAZqnceK5BbET9TT6QvWNy5NtjfkgMUNy34eyQPbubppEDLZ4wCRfCaF
+   7C4YrritUsxDHAVSwbQvbdr2K1RxwBGGvMVFbVFZ8SqW7lB38Fe5XcnrAoNQeTprUL3HYskRyVn
+   qGJWLjYCo6pdsPlH5qYNe64q4mump0YRMO8ycX8a9u0JYfeo07DekZEjadKBhgPy6bGUSHUH9rF
+   QKJ7i6GUiqfQ2Q==;
 Message-Instance:  m=1;
  h=sha256:
-   bAnyGu1IiZR7qagn2ddH+pq2Z5jQsYGII7HM0S48U9w=:
-   Lb7Gnm9dTep3Rmpj+BZVhCNO8P3lHu7s/GqnV1VxBZI=,
+   jmUsr2uyz3L/KDMZpnXzzObmb2Gk+zMHR6hh9YdLX6I=:
+   vz/Dij3TLqDFdDnGtvK0VnAhoEXm4LdMK49AI7K1gzg=,
   sha512:
-   dyzqpZt01hGD1Kf21Dtk/yNsqNnkM0MPe90es5kjlU/k2b2sWc1zTTZMsH36nUrtPvBtXDX4EdZwC8SZKWbBGQ==:
-   XrZdonzAGX/dOfNOuB8yYlrftNGMUcXrNjRI7NNVejxoXqiN+OePgJuwQUum9qFS9IfcUEAWQq7RQFW1ORfznA==;
+   P10rqI6glE7Su+EktqeCyX7koljg15ez20Lbn6o0+jEM9O4lUSKA8JRGDM4othVk6ODNSnQJDAQj/6vZiOVAwA==:
+   c9ggIRudoiuFCHFlGC5WkCnTEHgdkwTJZyRFPol4a2TZ8lxki1tu6+qgbod0U5kK3lUXkm2V1DY60qa+JnIzEg==;
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1794775533; x=1795380333; i=marvin24@gmx.de;
-	bh=r5HTsltN3qKXHfYcwhZ0ejh/zJWetlORYjdsSgckopE=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
-	 References:MIME-Version:Content-Transfer-Encoding:cc:
+	s=s31663417; t=1794775707; x=1795380507; i=marvin24@gmx.de;
+	bh=kM2kpEA3QU8lMqDTonr8uO30HPQCQVnVUtKUbPAA8xs=;
+	h=X-UI-Sender-Class:Date:From:To:cc:Subject:In-Reply-To:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Transfer-Encoding:cc:
 	 content-transfer-encoding:content-type:date:from:message-id:
 	 mime-version:reply-to:subject:to;
-	b=g0pGVGqQNEawv4HJz2Sty1XaOzJwd7ptI+QfDX3+xj1eeHbKpz/3n5hTv5Xn1AbO
-	 vAJ+2f5NGkm3GdnuiJXgjhM6LX8E9+Kup+JqC9O+nadhRgykCcKwe+mGDUa34E0qC
-	 TPys2gQK1OdChgNLTsY57wVARGrLjG8tDcjATSfw7eKbwslqumLQsgS2/UWi6BN9i
-	 pN9uvlpe17OydFQSvYCaFlhDGV/Ix5LyP8ZLrEzE4zuTGq7O+Ksr5iT7qRrkVepPK
-	 PqLa1Gb7LAVf20IUQHhh+UAPP5WSBl/GFbG6Y6CAcfzAmDMnvFAfRMAUnqdyNY1c7
-	 yW9SyhnLIMcu/gKxEg==
+	b=r02AUu/bpF6vKbSz+IuspGWuAfbCTr0OZdE0hbIFV7QLw+2YwrqDyeHCikrgE1bL
+	 MQZWs0owCSkfCFCsqMjtexK03brJe0HbxPPiW8OHkjsJgiRFqwD5FxnZiualffhQr
+	 UbvEwfL1Dks2kTdA/o9lJQj4aDPN7t2Rvy7CoGfhsBc/k0P1+NU4C8om71EZWZLiL
+	 ueG2SRMJ1ArLXiEuvXBQueqFCA0fdwaqtwsOuJaFfs7YQD3l34ELEKqjQtPP5Y7NJ
+	 RK6fPLcHbk4zmdfwidCCMcmC/Z7+VkpBJOOvBgOI27MuwjzXZ1vcRXXxTadGPdz9j
+	 DUB4jQ2UmyxHyeof5A==
 X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from client.hidden.invalid by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1N8GMk-1wOvAD20bA-012nCg; Sun, 15
- Nov 2026 21:45:33 +0100
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mn2aN-1wlhIi0FpH-00gaen; Sun, 15
+ Nov 2026 21:48:27 +0100
+Date: Sun, 15 Nov 2026 21:48:25 +0100 (CET)
 From: Marc Dietrich <marvin24@gmx.de>
 To: linux-tegra@vger.kernel.org
-Cc: devicetree@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-	Marc Dietrich <marvin24@gmx.de>
-Subject: [PATCH v2 1/2] dt-bindings: i2c: Add Tegra20 I2C target controller
-Date: Sun, 15 Nov 2026 21:45:21 +0100
-Message-ID: <20261115204522.360063-2-marvin24@gmx.de>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261115204522.360063-1-marvin24@gmx.de>
-References: <20261115204522.360063-1-marvin24@gmx.de>
+cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, 
+    Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+    Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+    Thierry Reding <thierry.reding@kernel.org>, 
+    Jonathan Hunter <jonathanh@nvidia.com>, 
+    =?ISO-8859-15?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>
+Subject: Re: [PATCH 1/2] dt-bindings: i2c: Add Tegra20 I2C target
+ controller
+In-Reply-To: <20261115182616.354580-1-marvin24@gmx.de>
+Message-ID: <aa962cbe-3b1a-c0c2-6aa3-dbc18184494d@gmx.de>
+References: <20261115182616.354580-1-marvin24@gmx.de>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -95,182 +91,186 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:c8gOTKzplcBZNfI/YcM1AvR2IotD2zAupLJSmNmWvqZH5ca/Jnj
- G6G45TldoV2CsKD/CU/1hCYu+db3imqu3BDnJrFUgMkqRgaY1z/IMdc/62ZdCHLkLW/iGwn
- yRn4WiX7RlQlMGOuHHUeF8X+Qs6duBhMyXrHGuZzqz4EpVMLcXAQz2345Ddu1kcDPEkT3JE
- o3OvFN9ey+8BGzBbNesFg==
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+X-Provags-ID: V03:K1:FKIobQW4T926FqSmsTZRaRWTAi2ifcShaA7ujUHChLDtSLRAO9A
+ M8y4wn6DAmwoshv6RMS0/HRxS/gTn8KQk1b/HwNZBFFFqb7KpTbfi1KTCgI97NuPQVdXLpH
+ uNXYK/AHUaPyN2WI80+jir0P+wPfzUEBuasCBCfdIfxyso/gbWEUO0O8gvWEvll2hdp/eTe
+ t5/jH/uwWNRrv7YQjAnfQ==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:n8pdtzEe+II=;9ksKAa3n79MTaDLsaWMr+u2KWlB
- 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
+UI-OutboundReport: notjunk:1;M01:P0:BBkNYLql+As=;GoW8Mh6EcAz/+F0SYjvrtIL1a6E
+ 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
+Content-Transfer-Encoding: quoted-printable
 
-Tegra20 SoCs supports 3 instances of an I2C target controller. They share
-ressouces with the I2C controller instances and are introduced here via an
-additional compatible.
+Sorry, please ignore this patch. I accidentally sent the initial series=20
+again.
 
-Signed-off-by: Marc Dietrich <marvin24@gmx.de>
-=2D--
- .../bindings/i2c/nvidia,tegra20-i2c.yaml      | 27 ++++++++++++++++---
- 1 file changed, 23 insertions(+), 4 deletions(-)
+Marc
 
-diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml=
- b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
-index 51241c1293e3..2d7ee8e8750d 100644
-=2D-- a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
-@@ -13,11 +13,15 @@ title: NVIDIA Tegra I2C controller driver
- properties:
-   compatible:
-     oneOf:
--      - description: Tegra20 has 4 generic I2C controller. This can suppo=
-rt
--          master and slave mode of I2C communication. The i2c-tegra drive=
-r
--          only support master mode of I2C communication. Driver of I2C
--          controller is only compatible with "nvidia,tegra20-i2c".
-+      - description: Tegra20 has 3 instances of a generic I2C controller.
-+          It supports controller and target mode of I2C communication.
-+          The i2c-tegra driver only supports master mode of I2C communica=
-tion.
-+          Driver of I2C controller is only compatible with "nvidia,tegra2=
-0-i2c".
-         const: nvidia,tegra20-i2c
-+      - description: The i2c-tegra-target driver supports the target mode=
- of
-+          the generic Tegra20 I2C controller. Driver of the I2C target
-+          controller is only compatible with "nvidia,tegra20-i2c-target".
-+        const: nvidia,tegra20-i2c-target
-       - description: Tegra20 has specific I2C controller called as DVC I2=
-C
-           controller. This only support master mode of I2C communication.
-           Register interface/offset and interrupts handling are different=
- than
-@@ -222,3 +226,18 @@ examples:
-         #address-cells =3D <1>;
-         #size-cells =3D <0>;
-     };
-+
-+  - |
-+    i2c@7000c500 {
-+        compatible =3D "nvidia,tegra20-i2c-target";
-+        reg =3D <0x7000c500 0x100>;
-+        interrupts =3D <0 92 0x04>;
-+        clocks =3D <&tegra_car 67>, <&tegra_car 124>;
-+        clock-names =3D "div-clk", "fast-clk";
-+        clock-frequency =3D <80000>;
-+        resets =3D <&tegra_car 67>;
-+        reset-names =3D "i2c";
-+
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+    };
-=2D-=20
-2.55.0
+On Sun, 15 Nov 2026, Marc Dietrich wrote:
 
+> Tegra20 SoCs supports 3 instances of an I2C target controller. They shar=
+e
+> ressouces with the I2C controller instances and are introduced here via =
+an
+> additional compatible.
+>
+> Signed-off-by: Marc Dietrich <marvin24@gmx.de>
+> ---
+> .../bindings/i2c/nvidia,tegra20-i2c.yaml      | 27 ++++++++++++++++---
+> 1 file changed, 23 insertions(+), 4 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.ya=
+ml b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
+> index 51241c1293e3..2d7ee8e8750d 100644
+> --- a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
+> @@ -13,11 +13,15 @@ title: NVIDIA Tegra I2C controller driver
+> properties:
+>   compatible:
+>     oneOf:
+> -      - description: Tegra20 has 4 generic I2C controller. This can sup=
+port
+> -          master and slave mode of I2C communication. The i2c-tegra dri=
+ver
+> -          only support master mode of I2C communication. Driver of I2C
+> -          controller is only compatible with "nvidia,tegra20-i2c".
+> +      - description: Tegra20 has 3 instances of a generic I2C controlle=
+r.
+> +          It supports controller and target mode of I2C communication.
+> +          The i2c-tegra driver only supports master mode of I2C communi=
+cation.
+> +          Driver of I2C controller is only compatible with "nvidia,tegr=
+a20-i2c".
+>         const: nvidia,tegra20-i2c
+> +      - description: The i2c-tegra-target driver supports the target mo=
+de of
+> +          the generic Tegra20 I2C controller. Driver of the I2C target
+> +          controller is only compatible with "nvidia,tegra20-i2c-target=
+".
+> +        const: nvidia,tegra20-i2c-target
+>       - description: Tegra20 has specific I2C controller called as DVC I=
+2C
+>           controller. This only support master mode of I2C communication=
+.
+>           Register interface/offset and interrupts handling are differen=
+t than
+> @@ -222,3 +226,18 @@ examples:
+>         #address-cells =3D <1>;
+>         #size-cells =3D <0>;
+>     };
+> +
+> +  - |
+> +    i2c@7000c500 {
+> +        compatible =3D "nvidia,tegra20-i2c-target";
+> +        reg =3D <0x7000c500 0x100>;
+> +        interrupts =3D <0 92 0x04>;
+> +        clocks =3D <&tegra_car 67>, <&tegra_car 124>;
+> +        clock-names =3D "div-clk", "fast-clk";
+> +        clock-frequency =3D <80000>;
+> +        resets =3D <&tegra_car 67>;
+> +        reset-names =3D "i2c";
+> +
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +    };
+> --=20
+> 2.55.0
+>
+>
+>
