@@ -1,107 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=89.221.237.154
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794697742;
-	b=vR2AWVWS63FtrsKdYHsOE1Br4V3jicbt5R2Pqu1ekwY8ZNeUcT1b37nepUP3a9ZSWV+H
-	 hvFE3PK/BOtnYiCS42sUfc6ktwwZP11DY8IHSbx/eYczEo4N6QKAkEO9OqFUFjDTOf2Dv
-	 twwuCpZ1IssynGzfVq8gjA3NPfk1qHdhqV1xlVGhAB8eZ75dLJJFD0xuANibUENrscnOO
-	 Bt1hpe8FEmZB8tI//+caNQ0fO+Ms/vFpMIts+64YhkhRd3wzY/HscnuYu89dKWwQoTPoH
-	 +iRUQVDbpwnT5WE2fROJ7wvj3nZWRP14BGH6We9GcYuCyPUs9e0QRsTH4rmj+MyaOFA==
+	t=1794730172;
+	b=5kYG2aNmLNa+dcajsDOl9uM+fO9beFE6ByBzH2lml/ld9wUX57tOJ319ZpWq5WJDblap
+	 pyn+SoEsRntPdPoYkLS9aodieH/yLcOHIyR44xxVur4rvvWFzjHcYYtw12DFJb09op0XO
+	 bnHJJ7gAy/GRf1Dkf8CAs8CxobfURCyT8tNh/P/tA82MoBekuMTaDhifbxCTtrtFoM3YP
+	 phM7GOUr49UCEKjZ0vvTd+dgmKGkekjbRU5hYq6EuAhb9rVcQE8Vt2/ypMmzxzyyfEGJ+
+	 HtJ6SsS7o849oyFmdnVDb3OowRbfW+1q2IP/zWWALAv5anPN2dqyLwXb37nljY8pV3Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794697742;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=7KNLoigtoy0jfCladEDEWIuBv0zL9CIOAkihifWiusU=;
-	b=RYcF0rIwpgOTJHDEO5c9C3O4oLA9a6LptFvdxZEHJoA0LeoUlkcZ+wnXczWjOh3FfD0n
-	 0C3OiFwuvw94Cm/E1kvzvma9620c5rpfhFZWWE+TPy9/M+37A0cS2jx4YQ1kuWS3DKF+A
-	 cSiIM2k4wcIQXF9cEpFuLhZTdCCubyxXPcS9bkBQm5L5K8RCFUF+ZqFXMBKQqVLqO2brS
-	 y5hSXVKGpflkym5BQwZPWDWvrEfAR9kKBtz/5hs2+3LX9KJn5RlpiRyj6PY+TRaxNqls5
-	 du727IFF7kTt6hxsjSc3xpiOecSq0LbYke8F4h3AvhGDKvFauXQPaeLxiVLmbCFFFnQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794730172;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-Mailru-Src:X-7564579A:X-77F55803:
+	 X-7FA49CB5:X-C1DE0DAB:X-C8649E89:X-D57D3AED:X-Mailru-Sender:X-Mras;
+	bh=4DMNu+zZJu014dWJwS8ga7RyCPClm5EMOFsEhE6v4e0=;
+	b=Zv2XN9r6KOKD1mdVUYD90oq1HNEDpVadnKs81O31/5AXpnwIHOcdsysr4ZqEavwGH3fR
+	 ALi2u7IlM2CXXXlQA9sNa/7JXXn2ANdyM5VCCcwbshZ4co9NUg4hY1WV3zK4+DV5ODIH1
+	 e0mG7vyv6RPWkFTCgXT5vv5bi91JNp1k7/YgI4597ET3TPrZ8TO6f3YJjAnGF7kO/C+ZE
+	 s16gVcxzSd4wlyWDrFkgak3ZF931PAy4ygIWuwn1XKXziiJCua9niPPtHYqdz0IknvnAV
+	 j01p2vZUYGk9GiSOZOkRrTvluUhEN01QjiBUChZwXsn9tH1FL8Pfzgw+wYlgtC5C1bg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kyNQ2rF4;
-	arc=none smtp.remote-ip=209.85.221.50
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=mail.ru;
+	spf=pass smtp.mailfrom=mail.ru;
+	dkim=pass header.d=mail.ru header.i=@mail.ru header.a=rsa-sha256 header.s=mail4 header.b=T+M+6rzd;
+	arc=none smtp.remote-ip=89.221.237.154
+Received: from send59.i.mail.ru (send59.i.mail.ru [89.221.237.154])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22DB360735D7
-	for <linux-i2c@vger.kernel.org>; Sat, 14 Nov 2026 23:09:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 22DB360735D7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECA49606A329;
+	Sun, 15 Nov 2026 08:09:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ECA49606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mail.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kyNQ2rF4
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-49465892f7bso1894695f8f.1
-        for <linux-i2c@vger.kernel.org>; Sat, 14 Nov 2026 15:09:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794697740; x=1795302540; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=7KNLoigtoy0jfCladEDEWIuBv0zL9CIOAkihifWiusU=;
-        b=kyNQ2rF4lJx/Ubp5k5Q/wpqc7NV0R5F+OuJaxcTguVFzatNBI0XJKa2ESUv+AmGmIw
-         dcz2oJoBgziLIXal2jv3nBj1ntIzXB1Wfqwn4VR+TNyCrUN7EkPbV9EmfTzB+NexJmJ5
-         iV/RBlYiuN1MRJ1gN0ig+euLqQSWHCWdKx4J4bIbm1346axGIJGfa+Q3e6zRSUCuRamB
-         MmaNicsYr/12Aq0IJovaJKNC34LpPjOwNyBjrakp7OGBaf7RE3FyDstC+Eh0IxZ2ONnr
-         tCe0kt/3z5ApAGHKzSstA/sMGK5AYRH2ZXQi/runCek1JR5t+583Sv6S5evujxULtj0Y
-         N6PA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794697740; x=1795302540;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7KNLoigtoy0jfCladEDEWIuBv0zL9CIOAkihifWiusU=;
-        b=dmnAYd9D+iGBh0peFDo8l/mKTaAXuM42lj89NklRB23vEZHAV5Lo3YlN/xwiJBnPDU
-         aFnZY3ka3XcDbpWe+b0etiaFm1WiddSyyGOYKfM/teGYc5D9YRmhgcr8nFaTEQ6mpvKm
-         hdb129bQICe8nQ9ml3QKNT/ScQGja1ZRBJd55qjrAvGEFoXMSd4ObyyvlpYBLO+X7eSj
-         oyDiAuwTZTeH7SZ4+3HMRhBR61EJ3qOarbspg/Sl8m7Rywj1L26CK0r5nEIELbqYPoO2
-         bvYhiiAIiP9PDNk3AmEz7sLo29Z2huyh1xebxMfPsc46GON/Dml4l29csFl/z4OKys0y
-         xGAA==
-X-Forwarded-Encrypted: i=1; AL+hErE8Zp4AedzPgHJg20ysOUZ4SVE/5HdEowid72ImwF4+zFf9hg+fyHEnyuTwFarM6lq1okn9wD3WeF0=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+MrauA4XFEYpqqgTvMJVwHxYidKIcb1juxgyrByEW67+uyFpo7
-	+V0+8mFoRAcssZBHsp8glNFi7MrjLxUl4fUMpQISEcucNIp1Q9KM/6kn
-X-Gm-Gg: AYBFou08rPrNNllebRADeltAHRoeLumpZFr3GSmmL+0JDSefHBPmTRPWkpf/2kbvHon
-	IESV7I5TrfYgYFt575gxF9hmlROBliyVbIJifwjsjPCbgvyXsMucHrklF8q76Dotr7k53gbQOp8
-	VDcCF2fBFiVJmRdn3HN5PhRQeKFx33512XKPa7ZlxTYrkNEhQxzMXjzwXNvMAE41guiTO1lt9LY
-	SmGK3M7MA1aPF4kdzda6Uz03tGQDV0jnfT/UNp2iup2W5JKhQI8pMDFwnVEvwP/4+nsYqeGzYjP
-	DCMH/kdE+i59W/u+C0CxYCelkTkEP5DgGnsCS1OB5BPqzhq96kevzmZeL9nISdJl0QLjJVA+uY4
-	qtSQlWedOZPdoyqYu7+wcLLDTtDzIyOcVo0pPscvqzsXL1EnPnYtJCVZLPcS6ogis4UwLuUyMfo
-	lGEf0o1/jRhi3hj6kkf3vCTc62Rc8Ziezhh9Z5MjO+fH9AUR4xipKlCZS1TqoyyzklmCP7CNPyA
-	FJv1xzweuqaAaLu/3G8aRUxk/IUv7d8UV8aDwnK0x9QhA4ErvOpsrPrkpF4ETCPk6+E+t2L0u1a
-	QNEDF3ktMqZAfDNP/F3Zl/OQjXSR3bB0N5ZquQwJYlM+eLc25g==
-X-Received: by 2002:a05:6000:1841:b0:48e:2108:4d28 with SMTP id ffacd0b85a97d-49c70de3881mr15657253f8f.13.1794697739565;
-        Sat, 14 Nov 2026 15:08:59 -0800 (PST)
-Received: from m2.. ([37.142.149.161])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-49c5d03b10fsm14910018f8f.1.2026.11.14.15.08.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 15:08:59 -0800 (PST)
-From: Michael Zaidman <michael.zaidman@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
-	Germain Hebert <germain.hebert@ca.abb.com>,
-	Christina Quast <contact@christina-quast.de>,
-	Rio Liu <rio@r26.me>,
-	Bruno Giacomazzi <brunoceg1@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=mail.ru header.i=@mail.ru header.a=rsa-sha256 header.s=mail4 header.b=T+M+6rzd
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mail.ru;
+	s=mail4; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	Message-ID:Date:Subject:Cc:To:From:From:Sender:Reply-To:To:Cc:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:
+	X-Cloud-Ids:Disposition-Notification-To;
+	bh=4DMNu+zZJu014dWJwS8ga7RyCPClm5EMOFsEhE6v4e0=; t=1794730171; x=1794820171; 
+	b=T+M+6rzdbf6Syh3xMxa/Rwu/KFfO2iXbwYguEvDhVFihCBUBGyQGpI78sjKZS7PiRuIllCQYcSD
+	+e0ncmxI2NbhwcU6rKTTe9kTM2M/Jmx6WH/vBXjxcVbHe29fEPaSCJUc4IMhEWzyI0dSLn1RrhWNE
+	wM+8BWDU/32aQqcwOV37nz1Sd5yrKaY9JPBxBwh2ejbm6MWY1GSlbs6Ev7OKHndBCkYV/seQ1QTMW
+	Ss0b9WHOhTq2DqNkNzC6X3Ny/TC+mvz6K8Lf8ADjpkox4vTLQfLVBBSldZmReX4d4tJUabTnGhiZh
+	z4d8sQTvFXXOK+o+ME8t/51IaAS0yrJIx+Wg==;
+Received: by exim-smtp-canary-10-844c8fc8c7-wvbxd with esmtpa (envelope-from <misha.zavertkin@mail.ru>)
+	id 1xSVIh-00000000Nd7-1uGp; Sun, 15 Nov 2026 11:09:23 +0300
+From: Michael Zavertkin <misha.zavertkin@mail.ru>
+To: linux-i2c@vger.kernel.org
+Cc: Rustam Adilov <adilov@disroot.org>,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH v3 16/16] HID: ft260: use lock guards
-Date: Sun, 15 Nov 2026 01:08:00 +0200
-Message-ID: <20261114230800.1344401-17-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261114230800.1344401-1-michael.zaidman@gmail.com>
-References: <20261114230800.1344401-1-michael.zaidman@gmail.com>
+	Michael Zavertkin <misha.zavertkin@mail.ru>
+Subject: [PATCH v3 1/2] i2c: rtl9300: add realtek,rtl9607c-i2c compatible
+Date: Sun, 15 Nov 2026 15:08:54 +0700
+Message-ID: <3012533a43fd32d1c526e5a90385457f8b46f111.1794728344.git.misha.zavertkin@mail.ru>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <cover.1794728344.git.misha.zavertkin@mail.ru>
+References: <cover.1794728344.git.misha.zavertkin@mail.ru>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -112,409 +76,69 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Authentication-Results: exim-smtp-canary-10-844c8fc8c7-wvbxd; auth=pass smtp.auth=misha.zavertkin@mail.ru smtp.mailfrom=misha.zavertkin@mail.ru
+X-Mailru-Src: smtp
+X-7564579A: B8F34718100C35BD
+X-77F55803: 4F1203BC0FB41BD93F98A09C3FD4AFA267E9C197542936F1D72816242C8E930F182A05F538085040486696E6EA9CE6A83DE06ABAFEAF6705871AC31A245F945F2D3D455C7CCA3DF1B939BEC6D9612482
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE7AED985C8E545F588EA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F7900637F28F4AF03526AA8F8638F802B75D45FF914D58D5BE9E6BC1A93B80C6DEB9DEE97C6FB206A91F05B2032D0CEA763FFAD32E070BE324C7D3C4E6AD3CB6CAE017FBBB0A4F435E46E6718B35066C979671628AA50765F7900637D0FEED2715E18529389733CBF5DBD5E9D5E8D9A59859A8B62B7ABF3321926E07CC7F00164DA146DA6F5DAA56C3B73B237318B6A418E8EAB8090A508E0FED6299176DF2183F8FC7C0CCA08DC4F53F8CD1CD04E86FAF290E2DB606B96278B59C421DD303D21008E29813377AFFFEAFD269A417C69337E82CC2E827F84554CEF50127C277FBC8AE2E8BA83251EDC214901ED5E8D9A59859A8B67899CB738160EFA0089D37D7C0E48F6C5571747095F342E88FB05168BE4CE3AF
+X-C1DE0DAB: 0D63561A33F958A56C826C03668A64535002B1117B3ED6968795445F64BC9AC98D59E407A97E9958823CB91A9FED034534781492E4B8EEADEEA082C9A12FE455C79554A2A72441328621D336A7BC284946AD531847A6065A17B107DEF921CE79BDAD6C7F3747799A
+X-C8649E89: 1C3962B70DF3F0AD73CAD6646DEDE191716CD42B3DD1D34C77DD89D51EBB774225B6776AC983F447FC0B9F89525902EE6F57B2FD27647F25E66C117BDB76D659E86BFE6EF337F57692B4AE3FA24244259438892C293E82947809D27D96408ECE4F4AAB18A5DC1D6DB8341EE9D5BE9A0AC8EF0EF4D127450221A060B3207E88920085755F7A009B4E52EE4E5D9E54FDA427302E973F6434AB8511FE41C8941D68F571C199C4BE91E79E69A34BD5DD98C9F0A6D2C91ED28CB6
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu53w8ahmwBjZKM/YPHZyZHvz5uv+WouB9+ObcCpyrx6l7KImUglyhkEat/+ysWwi0gdhEs0JGjl6ggRWTy1haxBpVdbIX1nthFXOcIETfglQORZ0zpDET4Zrk3igikrdHlWJlWF3x/5SjG3KofJT2Itw4=
+X-Mailru-Sender: FD65D7C492470CAE44AF3B5ACDA31542B549799C38C167E8E693A2F4CD4B1000B0BACEB96EA8D8D8100CBC36EE59ED45F767ED260C4F5E398B67290C0B8F2C0D0ACA136676B1AD1C82BADC8C81B40964835B6B713A4867D9C77752E0C033A69E3453F38A29522196
+X-Mras: Ok
 
-Convert the mutex_lock() and mutex_unlock() pairs to guard(mutex) from
-linux/cleanup.h. The lock is released on each return, so the goto
-labels that only unlock a mutex are removed, and the error paths
-return directly.
+RTL9607C was already supported by realtek,rtl9607-i2c, which is
+confusing, because there are another SoCs such as RTL9607F, RTL9607
+(without letter) and a few more. So more correct compatible was added.
 
-ft260_uart_port_remove(), ft260_remove() and ft260_schedule_reset()
-take a lock for one or two statements in the middle of the function.
-They use scoped_guard(), which releases the lock at the end of the
-block. The two remove functions do not hold the lock over the tty
-hangup and the rest of the removal. ft260_schedule_reset() must not
-hold it when it calls ft260_chip_put(), which takes the same lock.
+New compatible doesn't use IO_MODE_EN register, leaving it to pinctrl
+driver. Old one left for backward compatibility.
 
-The i2c_exit and smbus_exit labels stay, because they also set the
-normal power mode with hid_hw_power().
-
-No functional change.
-
-Suggested-by: Bartosz Golaszewski <brgl@kernel.org>
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+Signed-off-by: Michael Zavertkin <misha.zavertkin@mail.ru>
 ---
-v3:
-New patch (suggested by Bartosz Golaszewski). It is the last patch,
-so the out-of-tree driver for kernels older than 6.5, which do not
-have linux/cleanup.h, can leave it out.
----
- drivers/hid/hid-ft260.c | 119 +++++++++++++---------------------------
- 1 file changed, 39 insertions(+), 80 deletions(-)
+ drivers/i2c/busses/i2c-rtl9300.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 53321c8d70fd..716b37cead7d 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -532,11 +532,11 @@ static struct ft260_chip *ft260_chip_get(struct usb_device *udev)
- {
- 	struct ft260_chip *chip;
- 
--	mutex_lock(&ft260_chip_list_lock);
-+	guard(mutex)(&ft260_chip_list_lock);
- 	list_for_each_entry(chip, &ft260_chip_list, list) {
- 		if (chip->udev == udev) {
- 			kref_get(&chip->kref);
--			goto out;
-+			return chip;
- 		}
- 	}
- 
-@@ -547,8 +547,6 @@ static struct ft260_chip *ft260_chip_get(struct usb_device *udev)
- 		mutex_init(&chip->gpio_lock);
- 		list_add_tail(&chip->list, &ft260_chip_list);
- 	}
--out:
--	mutex_unlock(&ft260_chip_list_lock);
- 	return chip;
- }
- 
-@@ -567,9 +565,8 @@ static void ft260_chip_put(struct ft260_chip *chip)
- 	if (!chip)
- 		return;
- 
--	mutex_lock(&ft260_chip_list_lock);
-+	guard(mutex)(&ft260_chip_list_lock);
- 	kref_put(&chip->kref, ft260_chip_release);
--	mutex_unlock(&ft260_chip_list_lock);
- }
- 
- static int ft260_hid_feature_report_get(struct hid_device *hdev,
-@@ -1034,12 +1031,11 @@ static int ft260_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
- 	struct ft260_device *dev = i2c_get_adapdata(adapter);
- 	struct hid_device *hdev = dev->hdev;
- 
--	mutex_lock(&dev->lock);
-+	guard(mutex)(&dev->lock);
- 
- 	ret = hid_hw_power(hdev, PM_HINT_FULLON);
- 	if (ret < 0) {
- 		hid_err(hdev, "failed to enter FULLON power mode: %d\n", ret);
--		mutex_unlock(&dev->lock);
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+index a9dd85a286d4..ae20fbdc307a 100644
+--- a/drivers/i2c/busses/i2c-rtl9300.c
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -200,10 +200,12 @@ static int rtl9607_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_c
+ 	if (ret)
  		return ret;
- 	}
  
-@@ -1063,7 +1059,6 @@ static int ft260_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
- 	ret = num;
- i2c_exit:
- 	hid_hw_power(hdev, PM_HINT_NORMAL);
--	mutex_unlock(&dev->lock);
- 	return ret;
- }
- 
-@@ -1077,12 +1072,11 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
- 
- 	ft260_dbg("smbus size %d\n", size);
- 
--	mutex_lock(&dev->lock);
-+	guard(mutex)(&dev->lock);
- 
- 	ret = hid_hw_power(hdev, PM_HINT_FULLON);
- 	if (ret < 0) {
- 		hid_err(hdev, "power management error: %d\n", ret);
--		mutex_unlock(&dev->lock);
- 		return ret;
- 	}
- 
-@@ -1190,7 +1184,6 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
- 
- smbus_exit:
- 	hid_hw_power(hdev, PM_HINT_NORMAL);
--	mutex_unlock(&dev->lock);
- 	return ret;
- }
- 
-@@ -1317,21 +1310,20 @@ static int ft260_gpio_set(struct gpio_chip *gc, u32 offset, int value)
- 
- 	ft260_dbg("offset %d val %d\n", offset, value);
- 
--	mutex_lock(&dev->lock);
-+	guard(mutex)(&dev->lock);
- 
- 	if (!(dev->gpio_en & BIT(offset))) {
- 		hid_err(hdev, "%s: wrong pin function %d\n", __func__, offset);
--		ret = -EINVAL;
--		goto exit;
-+		return -EINVAL;
- 	}
- 
--	mutex_lock(&dev->chip->gpio_lock);
-+	guard(mutex)(&dev->chip->gpio_lock);
- 
- 	ret = ft260_hid_feature_report_get(hdev, FT260_GPIO, (u8 *)&buf,
- 					   sizeof(buf));
- 	if (unlikely(ret < 0)) {
- 		hid_err(hdev, "%s: cannot get GPIO: %d\n", __func__, ret);
--		goto unlock;
-+		return ret;
- 	}
- 
- 	rep.report = FT260_GPIO;
-@@ -1357,16 +1349,11 @@ static int ft260_gpio_set(struct gpio_chip *gc, u32 offset, int value)
- 	ret = ft260_hid_feature_report_set(hdev, (u8 *)&rep, sizeof(rep));
- 	if (unlikely(ret < 0)) {
- 		hid_err(hdev, "%s: cannot set GPIO: %d\n", __func__, ret);
--		goto unlock;
-+		return ret;
- 	}
- 
- 	dev->gpio = rep.gpio;
--	ret = 0;
--unlock:
--	mutex_unlock(&dev->chip->gpio_lock);
--exit:
--	mutex_unlock(&dev->lock);
--	return ret;
-+	return 0;
- }
- 
- /*
-@@ -1383,12 +1370,12 @@ static int ft260_gpio_pin_set(struct ft260_device *dev, u32 offset,
- 	struct ft260_gpio_write_request_report *rep;
- 	struct hid_device *hdev = dev->hdev;
- 
--	mutex_lock(&dev->chip->gpio_lock);
-+	guard(mutex)(&dev->chip->gpio_lock);
- 
- 	ret = ft260_hid_feature_report_get(hdev, FT260_GPIO, (u8 *)&buf, sizeof(buf));
- 	if (unlikely(ret < 0)) {
- 		hid_err(hdev, "%s: cannot get GPIO: %d\n", __func__, ret);
--		goto unlock;
-+		return ret;
- 	}
- 
- 	rep = (struct ft260_gpio_write_request_report *)&buf;
-@@ -1422,20 +1409,16 @@ static int ft260_gpio_pin_set(struct ft260_device *dev, u32 offset,
- 	ret = ft260_hid_feature_report_set(hdev, (u8 *)rep, sizeof(*rep));
- 	if (unlikely(ret < 0)) {
- 		hid_err(hdev, "%s: cannot set GPIO: %d\n", __func__, ret);
--		goto unlock;
-+		return ret;
- 	}
- 
- 	dev->gpio = rep->gpio;
--	ret = 0;
--unlock:
--	mutex_unlock(&dev->chip->gpio_lock);
--	return ret;
-+	return 0;
- }
- 
- static int ft260_gpio_direction_set(struct gpio_chip *gc, u32 offset,
- 				    int value, int direction)
- {
--	int ret;
- 	struct ft260_device *dev = gpiochip_get_data(gc);
- 	struct hid_device *hdev = dev->hdev;
- 
-@@ -1446,17 +1429,14 @@ static int ft260_gpio_direction_set(struct gpio_chip *gc, u32 offset,
- 
- 	ft260_dbg("offset %d val %d direction %d\n", offset, value, direction);
- 
--	mutex_lock(&dev->lock);
-+	guard(mutex)(&dev->lock);
- 
- 	if (!(dev->gpio_en & BIT(offset))) {
- 		hid_err(hdev, "%s: wrong pin function %d\n", __func__, offset);
--		ret = -EIO;
--	} else {
--		ret = ft260_gpio_pin_set(dev, offset, value, direction);
-+		return -EIO;
- 	}
- 
--	mutex_unlock(&dev->lock);
--	return ret;
-+	return ft260_gpio_pin_set(dev, offset, value, direction);
- }
- 
- static int ft260_gpio_direction_output(struct gpio_chip *gc,
-@@ -1791,7 +1771,7 @@ static int ft260_i2c_clock_parse(const char *buf, unsigned int base, u16 *clock)
- 			rep.name = conv(name);				       \
- 			rep.report = id;				       \
- 			rep.request = req;				       \
--			mutex_lock(&dev->lock);				       \
-+			guard(mutex)(&dev->lock);			       \
- 			ret = ft260_hid_feature_report_set(hdev, (u8 *)&rep,   \
- 							   sizeof(rep));       \
- 			if (ret < 0)					       \
-@@ -1800,7 +1780,6 @@ static int ft260_i2c_clock_parse(const char *buf, unsigned int base, u16 *clock)
- 				func(hdev, req, name);			       \
- 				ret = count;				       \
- 			}						       \
--			mutex_unlock(&dev->lock);			       \
- 		} else {						       \
- 			ret = -EINVAL;					       \
- 		}							       \
-@@ -1975,7 +1954,7 @@ static int ft260_uart_add_port(struct ft260_device *port)
- 	if (kfifo_alloc(&port->xmit_fifo, XMIT_FIFO_SIZE, GFP_KERNEL))
- 		return -ENOMEM;
- 
--	mutex_lock(&ft260_uart_list_lock);
-+	guard(mutex)(&ft260_uart_list_lock);
- 	list_for_each_entry(dev, &ft260_uart_device_list, device_list) {
- 		if (dev->index != index)
- 			break;
-@@ -1985,7 +1964,6 @@ static int ft260_uart_add_port(struct ft260_device *port)
- 	port->index = index;
- 	/* Before the first gap, or at the end: the list stays sorted */
- 	list_add_tail(&port->device_list, &dev->device_list);
--	mutex_unlock(&ft260_uart_list_lock);
- 
- 	return ret;
- }
-@@ -2004,9 +1982,8 @@ static void ft260_uart_port_remove(struct ft260_device *port)
- 	timer_shutdown_sync(&port->wakeup_timer);
- 	cancel_work_sync(&port->wakeup_work);
- 
--	mutex_lock(&ft260_uart_list_lock);
--	list_del(&port->device_list);
--	mutex_unlock(&ft260_uart_list_lock);
-+	scoped_guard(mutex, &ft260_uart_list_lock)
-+		list_del(&port->device_list);
- 
- 	tty_port_tty_vhangup(&port->port);
- 
-@@ -2025,11 +2002,10 @@ static struct ft260_device *ft260_uart_port_get(int index)
- 	if (index >= UART_COUNT_MAX)
- 		return NULL;
- 
--	mutex_lock(&ft260_uart_list_lock);
-+	guard(mutex)(&ft260_uart_list_lock);
- 	port = ft260_dev_by_index(index);
- 	if (port)
- 		tty_port_get(&port->port);
--	mutex_unlock(&ft260_uart_list_lock);
- 
- 	return port;
- }
-@@ -2224,7 +2200,7 @@ static int ft260_uart_change_speed(struct ft260_device *port,
- 		  req.data_bit, req.parity,
- 		  req.stop_bit, req.breaking);
- 
--	mutex_lock(&port->lock);
-+	guard(mutex)(&port->lock);
- 
- 	ret = ft260_hid_feature_report_set(hdev, (u8 *)&req, sizeof(req));
- 	if (ret < 0)
-@@ -2232,8 +2208,6 @@ static int ft260_uart_change_speed(struct ft260_device *port,
- 	else
- 		ft260_gpio_en_update(hdev, FT260_SET_UART_MODE, req.flow_ctrl);
- 
--	mutex_unlock(&port->lock);
--
- 	return ret;
- }
- 
-@@ -2266,20 +2240,16 @@ static int ft260_uart_tiocmget(struct tty_struct *tty)
- 	 */
- 	int mask = FT260_GPIO_UART_MODE_4_SET;
- 
--	mutex_lock(&port->lock);
--	if (port->removed) {
--		mutex_unlock(&port->lock);
-+	guard(mutex)(&port->lock);
-+	if (port->removed)
- 		return -ENODEV;
--	}
- 	if ((port->gpio_en & mask) != mask) {
- 		ft260_dbg("Illegal gpio config %#02x != mask %#04x\n",
- 			  port->gpio_en, mask);
--		mutex_unlock(&port->lock);
- 		return -EINVAL;
- 	}
- 
- 	gpios = ft260_gpio_get_all(&port->gc, FT260_GPIO_VALUE);
--	mutex_unlock(&port->lock);
- 	if (gpios < 0)
- 		return gpios;
- 
-@@ -2301,26 +2271,22 @@ static int ft260_uart_tiocmset(struct tty_struct *tty,
- 	struct hid_device *hdev = port->hdev;
- 	int mask = FT260_GPIO_UART_MODE_4_SET;
- 
--	mutex_lock(&port->lock);
--	if (port->removed) {
--		mutex_unlock(&port->lock);
-+	guard(mutex)(&port->lock);
-+	if (port->removed)
- 		return -ENODEV;
--	}
- 	if ((port->gpio_en & mask) != mask) {
- 		ft260_dbg("Illegal gpio config %#02x != mask %#04x\n",
- 			  port->gpio_en, mask);
--		mutex_unlock(&port->lock);
- 		return -EINVAL;
- 	}
- 
--	mutex_lock(&port->chip->gpio_lock);
-+	guard(mutex)(&port->chip->gpio_lock);
- 
- 	ret = ft260_hid_feature_report_get(hdev, FT260_GPIO, (u8 *)&buf,
- 					   sizeof(buf));
- 	if (unlikely(ret < 0)) {
- 		hid_err(hdev, "%s: cannot get GPIO: %d\n", __func__, ret);
--		ret = -EIO;
--		goto unlock;
-+		return -EIO;
- 	}
- 
- 	rep.report = FT260_GPIO;
-@@ -2342,16 +2308,11 @@ static int ft260_uart_tiocmset(struct tty_struct *tty,
- 	ret = ft260_hid_feature_report_set(hdev, (u8 *)&rep, sizeof(rep));
- 	if (unlikely(ret < 0)) {
- 		hid_err(hdev, "%s: cannot set GPIO: %d\n", __func__, ret);
--		ret = -EIO;
--		goto unlock;
-+		return -EIO;
- 	}
- 
- 	port->gpio = rep.gpio;
--	ret = 0;
--unlock:
--	mutex_unlock(&port->chip->gpio_lock);
--	mutex_unlock(&port->lock);
--	return ret;
-+	return 0;
- }
- 
- static int ft260_uart_install(struct tty_driver *driver, struct tty_struct *tty)
-@@ -2733,9 +2694,8 @@ static struct workqueue_struct *ft260_reset_wq;
- 
- static void ft260_chip_reset_done(struct ft260_chip *chip)
- {
--	mutex_lock(&ft260_chip_list_lock);
-+	guard(mutex)(&ft260_chip_list_lock);
- 	chip->reset_pending = false;
--	mutex_unlock(&ft260_chip_list_lock);
- }
- 
- static void ft260_reset_and_rebind(struct work_struct *ws)
-@@ -2845,10 +2805,10 @@ static int ft260_schedule_reset(struct usb_interface *usbif)
- 		return -ENOMEM;
- 	}
- 
--	mutex_lock(&ft260_chip_list_lock);
--	pending = chip->reset_pending;
--	chip->reset_pending = true;
--	mutex_unlock(&ft260_chip_list_lock);
-+	scoped_guard(mutex, &ft260_chip_list_lock) {
-+		pending = chip->reset_pending;
-+		chip->reset_pending = true;
+-	drv_data = device_get_match_data(i2c->dev);
+-	ret = drv_data->select_scl(i2c, i2c->scl_num);
+-	if (ret)
+-		return ret;
++	if (device_is_compatible(i2c->dev, "realtek,rtl9607-i2c")) {
++		drv_data = device_get_match_data(i2c->dev);
++		ret = drv_data->select_scl(i2c, i2c->scl_num);
++		if (ret)
++			return ret;
 +	}
- 	if (pending) {
- 		ft260_chip_put(chip);
- 		kfree(rw);
-@@ -3092,9 +3052,8 @@ static void ft260_remove(struct hid_device *hdev)
- 		 * The hangup does not wait for a TIOCMGET or TIOCMSET
- 		 * that is running; they hold the lock while they use hdev.
- 		 */
--		mutex_lock(&dev->lock);
--		dev->removed = true;
--		mutex_unlock(&dev->lock);
-+		scoped_guard(mutex, &dev->lock)
-+			dev->removed = true;
- 		if (dev->chip_mode & FT260_MODE_UART ||
- 		    dev->chip_mode == FT260_MODE_ALL ||
- 		    dev->chip_mode == FT260_MODE_BOTH)
+ 
+ 	i2c->sda_num = chan->sda_num;
+ 	return 0;
+@@ -494,6 +496,10 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
+ 		scl_num = 0;
+ 	i2c->scl_num = (u8)scl_num;
+ 
++	if (device_is_compatible(i2c->dev, "realtek,rtl9607-i2c"))
++		dev_warn(dev, "Compatible 'realtek,rtl9607-i2c' is deprecated. "
++			      "Use 'realtek,rtl9607c-i2c' instead\n");
++
+ 	platform_set_drvdata(pdev, i2c);
+ 
+ 	drv_data = device_get_match_data(i2c->dev);
+@@ -652,6 +658,7 @@ static const struct of_device_id i2c_rtl9300_dt_ids[] = {
+ 	{ .compatible = "realtek,rtl9312-i2c", .data = (void *) &rtl9310_i2c_drv_data },
+ 	{ .compatible = "realtek,rtl9313-i2c", .data = (void *) &rtl9310_i2c_drv_data },
+ 	{ .compatible = "realtek,rtl9607-i2c", .data = (void *) &rtl9607_i2c_drv_data },
++	{ .compatible = "realtek,rtl9607c-i2c", .data = (void *) &rtl9607_i2c_drv_data },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, i2c_rtl9300_dt_ids);
 -- 
-2.43.0
+2.55.0
 
