@@ -1,68 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.136.65.226
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794837917;
-	b=uPIxg3JMoVErTG+mZHnP/503sgv7xnWXp0+uRLVlCv29kLatMP6c8aPcNy0p9vTN/xZJ
-	 ulheHP4JEmcLIxDydVRnxYnQp6AKPA5F2hO6noBKWZXHSiC9PIjQLEm+IdhPRe4kwzNrU
-	 izsLPONyTGybOmnnuDaRC+7qfY/0eu7makbIzBqqwOtmVLOKlMQVp5mJF+K+6AyUVyexh
-	 xpsMyYcWLp/oSLr5SxdOmJLEKIcZwiP2WfayyUFfDEIeSxCrQ/YB22piC7pv2lWxpGS4C
-	 EAAhZjUsB+HKw8J7exA2hYBLEkUySkXZCiB1a3V+ndqq8h/avTLW/PeDPMtaGH+VcEg==
+	t=1794839037;
+	b=UfvGXisU/T2eSnpNgA2Kuiz1Uq3MlGMdzYKOdimkYA5PpAWKMWlKkzP4CmNxvBB5d0OL
+	 UiR+F4I4xFKPIIhhunztxlU9amlXeyotLPUdtAW8gcEyFUd/mnr1Iwh3XGUYhEBbaNr1z
+	 TBGAthbKT3YHMM1+GqizcnnuFxsSKry7e3eKoplggbfL5/zWnS3ZRM5GNdiuMQbDQHKn9
+	 kxdwA2BepghexyVhTVKl4b5hhJ5QQIj9+l9Ebw8WVT+O9tyAjHIsn6c4Mv6MAqSIhuB9u
+	 44zGYiQItKL9wo0D76FMhMRC/Sh7CYKQ/eVJAupaARCgMcwsd2y5vAbgqvAM3PqDN0Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794837917;
-	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=Byvh61MN0MbiLvUlZBmzTzm7zuau0rQaTUqOwJ377E8=;
-	b=rJ98qzzoTQu5kI/MYTE5crk/pelmoAx2yk6h+6hoeBoenDZHSZnQ6SDlls72CSTxeZ3n
-	 O7t6HA20LaMj4nF+04VusYB80irV9nh9OUFZwupdamYKFBexEd2LddKJrdCSYyrSvvDiK
-	 MoLCOwSI6lMLVLb5Qp0dEn6YCAksUv/hyCpSTvEWiByjK/3xbc+QuBcSmIxpymjIg4sIG
-	 DUXIWzZvPR4x6lRL2B1pxbMRZUXlvFrSkNGawpEEgY0diWJp0zSzB0uSHB43TRwEXVSwX
-	 VCnX+4Q8rFPFWz7oJOPEuHJhPR+EJp67SJAmcdnINPJCmChw9EJNn9BUxOGIkYJIA2g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794839037;
+	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
+	 Message-ID:MIME-Version:Content-Transfer-Encoding:
+	 X-Flowmailer-Platform:Feedback-ID;
+	bh=ddEhTbfvQPyKSOzq6hatj6Y2eqBZl6lG5KHY2ccF3Mk=;
+	b=xlZsCKmM8KXggJQc4xYrGNUdu/5p35JlPHNUrX0e7+wytKUF0whlRiVp+7KOaPpUqSiw
+	 9U4+WnzezfZ87U0mhJNb+OYyp9KWFFIcn8zWeFp06FMWYLLksFAeD4xCSYPWe9HGHtYhk
+	 PXUtCRWGONGK2fR6QtoWF3oWxSd1StM5dkkrkdi/FzPYWVj4a1OG/ocbv2NR1FmK9jIX2
+	 eIZPZV1mzXELOf8ykcadHrFnfdRmzjhTjsVLxNpVhX+SJFmyosMag/lWHq8/g+4TXDa+I
+	 0EU8o+N30n5zvNt7DhuknCg9ekpLtY/5ynqWWWng6F7GP82ER1QlWv3KgimkPeMAHaw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GQfgaZyH;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=siemens.com;
+	spf=pass smtp.mailfrom=rts-flowmailer.siemens.com;
+	dkim=pass header.d=siemens.com header.i=benedikt.niedermayr@siemens.com header.a=rsa-sha256 header.s=fm1 header.b=BwtL7XL5;
+	arc=none smtp.remote-ip=185.136.65.226
+Received: from mta-65-226.siemens.flowmailer.net (mta-65-226.siemens.flowmailer.net [185.136.65.226])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D821606A330;
-	Mon, 16 Nov 2026 14:05:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22EC0606A32A
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 14:23:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 22EC0606A32A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GQfgaZyH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC141F000C4;
-	Mon, 16 Nov 2026 14:05:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794837916;
-	bh=Byvh61MN0MbiLvUlZBmzTzm7zuau0rQaTUqOwJ377E8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=GQfgaZyHlEu1c7IL+votGEDox83/s1BWmI+iI09vqvBd15+aaOLhvqfUlSx+GW63K
-	 yl+LYiBLFsuYhqteu8S/ZPaeuXO1kn+CM5ZIMbuwRkfXmGMV2se8yLiVpuPRzKQTf4
-	 uIvf8CLT+Hc4fmMpxeWTbsHj0n438IS4Mb08mPvj6Ye3UC141mWBcYq490Bb4+tRO+
-	 bzo6gsBF+Zl6fGiDqEtZOqP5cudS5/EcZk5icLbTvcGnq9nXr1rcbIjYpC1IpKWS6S
-	 gN0WQy47Lz2yNvK3mFkWKP8n79zRysyfMIMkYr0RqURKmecpmbLPahcw6Rh/cYZqUN
-	 bSfvkrzkutj8g==
-Received: from johan by xi.lan with local (Exim 4.100.1)
-	(envelope-from <johan@kernel.org>)
-	id 1xSxKc-00000003UZw-1GNK;
-	Mon, 16 Nov 2026 15:05:14 +0100
-Date: Mon, 16 Nov 2026 15:05:14 +0100
-From: Johan Hovold <johan@kernel.org>
-To: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev,
-	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 4/8] swnode: ignore primary nodes in
- device_remove_software_node()
-Message-ID: <avsNmv-BQ_BkLMuP@hovoldconsulting.com>
-References: <20261110085125.2535508-1-johan@kernel.org>
- <20261110085125.2535508-5-johan@kernel.org>
- <CAJZ5v0gjPPrHOy6iwWt_BubH+QvekgWQYrA+Y7GkvittHU10DA@mail.gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=siemens.com header.i=benedikt.niedermayr@siemens.com header.a=rsa-sha256 header.s=fm1 header.b=BwtL7XL5
+Received: by mta-65-226.siemens.flowmailer.net with ESMTPSA id 20261116142352a824c770190002077b
+        for <linux-i2c@vger.kernel.org>;
+        Mon, 16 Nov 2026 15:23:52 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
+ d=siemens.com; i=benedikt.niedermayr@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
+ bh=ddEhTbfvQPyKSOzq6hatj6Y2eqBZl6lG5KHY2ccF3Mk=;
+ b=BwtL7XL55IQJXRFPlbiL6Pd19VXP8izD8IwXc3VW8TJxbK4KDmCK3QV21S9XOmWrqaJTge
+ ctGrqv+pxAlsiksoUC3k+J9IajFAdbpaMA/SSKnhGKBiGldHTCotSFkjCQ4P/EEZBLMjGkmk
+ xdoPCv77NFN8fK0CvpNOZR7G8QAQSjIpPKbxSrdAfLTBoR2vyWaTTNQ+DMwiLMcmFWA0ftLj
+ Skf4SCWO0KFghYsMr99ti17bmOZOSjgvZL8GrYvfcXABI/URKiIAlokaul/deKmObrm/2YhA
+ i/6KLST6CMnRu6P9jtpj4k5/YfAByKH88+zwyjZPGwBvMnpuVUI+PSfQ==;
+From: Benedikt Niedermayr <benedikt.niedermayr@siemens.com>
+To: andi.shyti@kernel.org,
+	hansg@kernel.org,
+	ilpo.jarvinen@linux.intel.com
+Cc: baocheng.su@siemens.com,
+	tobias.schaffner@siemens.com,
+	linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org
+Subject: [PATCH v3 0/3] Enable fan monitoring support for Simatic IPC BX-59A
+Date: Mon, 16 Nov 2026 15:23:48 +0100
+Message-ID: <20261116142351.1228943-1-benedikt.niedermayr@siemens.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -72,23 +65,88 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJZ5v0gjPPrHOy6iwWt_BubH+QvekgWQYrA+Y7GkvittHU10DA@mail.gmail.com>
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-1323861:519-21489:flowmailer
 
-On Fri, Nov 13, 2026 at 06:29:41PM +0100, Rafael J. Wysocki wrote:
-> On Tue, Nov 10, 2026 at 9:52 AM Johan Hovold <johan@kernel.org> wrote:
+Hi,
 
-> > -static inline bool fwnode_is_primary(struct fwnode_handle *fwnode)
-> > +bool fwnode_is_primary(struct fwnode_handle *fwnode)
-> >  {
-> >         return fwnode && !IS_ERR(fwnode->secondary);
-> >  }
-> > +EXPORT_SYMBOL_GPL(fwnode_is_primary);
-> 
-> Not used in modules as Andy said, so need not be exported AFAICS.
+I need to add this basic platform enablement for Simatic IPC RW-548A. Since a lot
+of time went by, this enablemend piled up for a different patchset, which I
+currently prepare for the HWMON subsystem, and i would like to route it through this
+tree (since it would conflict with it).
 
-Yes, I'll drop this and move the declaration to base.h as you suggested.
+I hope this is ok.
 
-Johan
+
+Changes since v2:
+
+- Added basic platform enablement for Simatic IPC RW-548A
+
+Changes since v1:
+
+- Refactored commit message of Patch 1/2 (Removed "TODO:")
+- Use SZ_32 and include required header
+- Use include for BIT() (linux/bits.h)
+- Fix inconsistent spacing all over the code and use reverse xmas
+  tree ordering
+- Replaced BIT(0) with appropriate and meaningful define
+- Check via IS_ALIGNED for smbus master base address
+- Remove verbose info message (success path should be quiet)
+- Use iopoll.h instead of own polling implementation
+- Simplify struct nct6126_pdev pointer assignment (just use a simple
+  single pointer)
+
+Regarding the write access during initialization I would like to add what I
+already answered in the original submission:
+
+Regarding this specific point, I'm not entirely sure. I wasn't considering
+that during implementation because I was leaning heavily on the
+gpio-f7188x.c driver, which implements the GPIO part of this chip.
+It performs the probing/init in a very similar way.
+Since the driver **must be loaded explicitly** by the user or by other platform
+detection mechanisms (like the simatic-ipc.c detection driver in this case),
+I felt safe copying this logic.
+
+I'm not sure if using DMI_MATCH tables would be the right choice here?
+
+While it would restrict write access to only whitelisted platforms,
+it wouldn't scale well as the number of supported platforms increases.
+
+The request_muxed_region() call at least helps by locking against other drivers
+already using this region.
+The critical scenario would be if no other driver has gained access to the
+region yet, but that would generally only happen if the user intentionally
+loaded the driver.
+
+Using ACPI-based detection seems impossible on this platform
+(no proper ACPI table support for this chip).
+
+IIRC, these Super I/O chips generally aren't suitable for probing via ACPI if
+they need to be shared across different drivers, as ACPI detection would
+exclusively occupy the I/O port region [1].
+
+How should I proceed here?
+And in case this is a no-go, what about the *gpio-f7188x.c* approach, which is
+mainline?
+
+[1] https://lore.kernel.org/linux-watchdog/df8d53db-0056-434d-953b-991025e6cd34@roeck-us.net/
+
+Benedikt Niedermayr (3):
+  i2c: i2c-nct6126: add support for NCT6126D Super I/O
+  platform/x86/siemens: simatic-ipc: add fan monitoring support for
+    BX-59A
+  platform/x86/siemens: simatic-ipc: enable support for RW-548A
+
+ MAINTAINERS                                   |   5 +
+ drivers/i2c/busses/Kconfig                    |  11 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-nct6126.c              | 441 ++++++++++++++++++
+ drivers/platform/x86/siemens/simatic-ipc.c    |  17 +-
+ .../platform_data/x86/simatic-ipc-base.h      |   2 +
+ include/linux/platform_data/x86/simatic-ipc.h |   1 +
+ 7 files changed, 471 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-nct6126.c
+
+--
+2.43.0
