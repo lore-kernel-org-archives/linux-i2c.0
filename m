@@ -1,100 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.50
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794822685;
-	b=WeyksHl8B1TeLxEYjRPdNkqtIY0TnpUv0WENBVpabY+Rnss5EzC/YJnfEELSD052geux
-	 eEq0lhxnzrRD4N6AABpyaisZtllDLPZbXpADpj9Q0KorKGNe7QUYrS9y7C0+JtLuiBzCZ
-	 Gi1D+APbr6zP8SZjmazDIDWxsGbGyQz30eLh8yMVPXto4sJnVIaQcOb4gjsOazVdeyYDr
-	 8CqaeSUxzRADVSZXgtKpP4P7VcNzB2n3VaO8QUzYb4VUNNaCyCMyXHnAr6onAl/txYOW4
-	 1/Prhv2KN94V1Lt3KrQk1QOX0lVwVWMdwGm98IK1gkMDzEyVxWjsuZFwzJ8LEHEsYlA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794822685;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=N+fImhJ1pc1ohPywlDOVCLfSXbIN+d12UyWza3WFBhk=;
-	b=D35tJ3Udz3lvODbR7D3jL7+CCD/ivMSIacb6jvs+WV7lxqW+oK5BMRFYOY39wxYqoJ/Y
-	 c3dv7Xxp3MPUhrIXkIM769+SoWPUsxxra6QEpqsPys2cfsgNojiOyn2aDA3OaMkeu7Fk0
-	 k/E9YO1izg+csDCS49qPspqZ5sseHhg0bOytm2eFDHBobI0GhilVv3k34l0xVju0NvqnQ
-	 Voj9iMPbNBJaatvLZ23y9rMOH50zUyYDAbuDGI9/ATzPhiWyzs9s1O9al8qUYV7rMHcyN
-	 FiH2baf7IHN4sDoVAD85Cpea8z7DFhdYx3IGNhQct8G+hknYujyIA0duMsTmJ3+umlw==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EeFkAcdf;
-	arc=none smtp.remote-ip=209.85.221.50
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794823094;
+	b=kzINhVeM7lsRDl0UlmJiZCez5Hlb3xTpOM+1VpUQ5OCzWDgOUTnMMEIt30A2oedlHzii
+	 J0QhRQSJ2AZEiZ5LOLz8ThzeKwd9yUKQpve7FHmFCQrJ/m5rUlgFg5Jcy/BVhTrpualPd
+	 MxxAF/ms2fsWPOd3kQrPl+k09oLPtzgBabPWd+d6OxeXFe7eD4NObVUOAIV2hVqsk4SET
+	 jEGELZhM5ho+N4qJs2a8zWJvQJpzhUtCcS2aCveV9m5LgW09XqHfj5pyNwgcRI188BV8q
+	 i6QcH2Vtf1YZcp6dzdoEzrzOpBfqOXVObLQJDTQGh9zR+/Ah7yK7lEpi5Fr+4zA6wKQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794823094;
+	h=DMARC-Filter:Received:DKIM-Signature:Message-ID:Subject:From:To:Cc:
+	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
+	 User-Agent:MIME-Version;
+	bh=uhSDJq8Wyhd+N3+fjmtrEANcukfKqwNL8O8VlAwpkNQ=;
+	b=1sVTm2GJio8yhovCN7kY9z0sDLhyzlXsUS5fKZOK0H/W1weQ0xaX2CKanQjKfcClKnKQ
+	 7tbfY5NYBsemfNj/MOLuIkOn4dDrx6Oflw4K5GRIzRF1aTqazR6s8Vvq5t5l7u4GeAwTK
+	 8fs731TNUGXEoBk5nG/cWZLc02KXc/G/4ontZP9KFs3/aCcTVX6eGjHz/yvnvNc2jElFg
+	 +5QLW4nz13bCBcdOPd9kISk6ZIp6DcsxC8ZetyDaY/ZyejFSFcqpm3vFC1QhC3f6cOAGT
+	 IZk4vRDrrWrA0/i62c9tdLUbCkJNCsEBz6eR7DnfFqpLYQPv5WbG4lLhxSuuFPYYqRw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=pengutronix.de;
+	spf=pass smtp.mailfrom=pengutronix.de;
+	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=Nfj9yFHs;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60977606A32A
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 09:51:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 60977606A32A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2F7E606A31C;
+	Mon, 16 Nov 2026 09:58:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D2F7E606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EeFkAcdf
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-49318428d98so1275765f8f.1
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 01:51:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794822684; x=1795427484; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=N+fImhJ1pc1ohPywlDOVCLfSXbIN+d12UyWza3WFBhk=;
-        b=EeFkAcdfmpM/alg861PlAN3DrjF1bRj9ji0oDldUfaZv3j2CudELa/V0lrOC2gOkAG
-         JGNkG9Blg/e5dnyx2OH4OuiMCYhFr9l99Ysf8YzZ/ks2aAc2KVLu4vH1KnHaNiDJd2E6
-         uQ/myF+6CEQL7AlIAfTFXYZ/tDTPmqRORayOJm+JLmOFKYXRlMt7O52H2VceZUp/QiKA
-         Xn3+0Z/DALpAQexSUr1ikDhJBCi0+kUKJIUwJ4e1WU/rwlPDlz4YYqJ0htdnv7ic21x0
-         H+QfTC6+EUtcg7wTqdg6ULdakSYDXtVnUpK61Z30ZOur/uD9OitvzhOo06AZYJYQeLCL
-         EVwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794822684; x=1795427484;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=N+fImhJ1pc1ohPywlDOVCLfSXbIN+d12UyWza3WFBhk=;
-        b=COZexVjpOkM3EnicybGVzAwHbtuec9NOsP6JmD6e5MBAZblyWH2MV7p2BvgjOzb09/
-         ptBgqgizB2RDu/Irpioxyte1LacJTi4Kcerigt7xblRFivtJ8RYvfpng+9u+wnSA4xDY
-         rn16USGF+cAyZa4G8eGF7hzSVV6htPyjSAY12CPVgnEDMd2GI8Ber3w5p5ACZ8+wqkRx
-         Ud4GNhERcatPv40DDTSIsLaotZS6E90kPN6F3DWevP2XCk3L3qpuccIiES2frkzumeq4
-         d1nAjqL/lkkb9mkNuoj3ckecoVZbnxblM7DZahKNLVXmFrk+cnkjeE/YaNiNoUQVOS2A
-         DTRA==
-X-Forwarded-Encrypted: i=1; AL+hErGGyivTi2ApTfwsaJVR8wihcyN9ju6BunKTRAmw8lugbrh7EHnw2oNmCirESsjYOQfBUggT//qIG3E=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9dyR++NlPHV7am6O54Q5+owOSgIMkls50lDPvSaBIe587pJH5K
-	kNvYl7uYf2IE+9TvXjPBhh3Vg419K9LCTk4qcrIBOWWFJ5/hUkdXZOIb
-X-Gm-Gg: AZFdTZealGkpmylx31aon3LF3/oPd7AL22e0gtJ6PyBO/1asM2T5V+yj8rmJmiljpsK
-	Wtoz7kVquLwYdHB/CdV0luZJskmR26JSnbgaTK5kl0mq61e1xMf7I1yJbw7r1xx23CUVIRqfrMZ
-	7PFQjGeoCnrl5qo5yw+nlJcQCYsCt9KGOiGv+YCvfxqvjoY7K0M+Wj92U0825xxh+jg+NmKmMTJ
-	m0Vd689xSEUuG2kEsP66PPDaZrdPXWywBziCN54/R+M5KW9rqAib/+HXHgg7LUnKDKqT7HKTvrE
-	3EGjDUh4dMkw6NzscPAeKEmuVZMyxILc16QAxlmd/VLRw4644jIFaJI9UCqsIPCrePLlv8HD5x+
-	A05ARkdncdScyz2i3jA/oKufb2S7lmmPF8r39mn/opAut9xXospaEYAMIXKiPeoOeEk5dI/Fg3k
-	6Iy3uyBxrG/89sdfX6eT9TNw2dLzZM5qbpX/7XJ7CcpNZSxTFZhGdtHo5iYnvq8kW/ytl9vGmbd
-	oyys6f+RZHCpRlukm4oxlv9gPbu50PAPi6esVgW07EoKdZPGe17azQEEE+5kWX0ahg9QePkxV38
-	kze+SD8=
-X-Received: by 2002:a05:6000:2584:b0:49d:a36c:2d66 with SMTP id ffacd0b85a97d-49da38ab522mr16399232f8f.27.1794822683448;
-        Mon, 16 Nov 2026 01:51:23 -0800 (PST)
-Received: from eichest-laptop ([2a02:168:af72::cb4])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c5f1c1968sm21517792f8f.10.2026.11.16.01.51.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 01:51:22 -0800 (PST)
-Date: Mon, 16 Nov 2026 10:51:21 +0100
-From: Stefan Eichenberger <eichest@gmail.com>
-To: Mehmet Fide <mehmet.fide@gmail.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: imx: test the block read flag of the message that
- is read
-Message-ID: <avrSGehp4JX4aQ5L@eichest-laptop>
-References: <20261113110501.1142036-1-mehmet.fide@gmail.com>
+	dkim=pass (2048-bit key) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=Nfj9yFHs
+Received: from [IPv6:2a0a:edc0:0:900:1d::4e] (lupine.office.stw.pengutronix.de [IPv6:2a0a:edc0:0:900:1d::4e])
+	(Authenticated sender: pza@pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id D7F6820067C;
+	Mon, 16 Nov 2026 10:58:11 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1794823091;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uhSDJq8Wyhd+N3+fjmtrEANcukfKqwNL8O8VlAwpkNQ=;
+	b=Nfj9yFHsKUQv4cHudGDJEL+q3z8JZRRr9ANqmBM7EW/79T7CxGm8Drh0XCJJI/wa1hmohw
+	T3+rSTCXWTF8YvPo2yLIDRo5/TqDZ4N0KFPGXhb/bv3xIhw+I450FTf8xCgCI4bEL9H5sO
+	WmPZGGbYyUp/K+lolD4ZY9YgeQfBTYDjCYvDyF/jbF769GjzwT0mXVglmup/olPnDvqeGd
+	QygsLgOKBdgyo3IgmUUiXvLj3js2zj1kcM4QS/pCTSFhlGBMFpuMHTHrbp+u13s0/eoN6P
+	PrxF2za+Xv791qmU2cHnlLUz8rTUfcw2s6jW0uKEvshgIKyAcBZBh6Z06VrXgg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1794823091;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uhSDJq8Wyhd+N3+fjmtrEANcukfKqwNL8O8VlAwpkNQ=;
+	b=QozebcUAt/4IMf/YCQjsdk73VG3/GsHIei8rxaKdBJbS5aXwv3vuF9xisKEIqD0pIX7eEb
+	NuinsMemnUuEL3xZQg6ujIIhHRLeJvrw8P24UNnGEAqk5ogdhvfzGiu0V6bcLN1Z9FD2BG
+	bw0fbTkzYJ5rqsIW6rySLYk8albeiTgry8Pcw+LXH5mXNOGJNDJwmDiKRpR8IlKuv2PJ+i
+	vt5Hf/gaGioWpDAUNKMe7pG64YrVyJEuN3a808o41wjNot/G+uSQV5tDfavEvaRPhRAM2F
+	ijq20Q8vmFg+iX4t2OC4geVbf7Eo6KyJmYg7ue1iKgNCSxvmRo39z1aOGS4Uqg==
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1794823091; a=rsa-sha256;
+	cv=none;
+	b=fIC3DWTY5n+ooj0zrJfsLtukqPmNMEUK+BVrmHdsPJlrOPWL0TZzUH14N6iawtAiw8+IhP
+	3Oo7/nSvu+rDv8CC4ui3xYAxuIoxOU7+YCf/I49smR4mR1y8dXwNmw6JACMVx/gqJ4sOYg
+	X27YskizZJANXVpMuXiKePA3ghDRzhdfGe/lmj8Xughb+eGVybR6eDtygiLdCL8OOzhO2k
+	DGfEvX9+B2oR0/EoTp9vxpTsgby0rPXOOzTL97CGVjEPS8foZwMyQzcF6hfefX7xhkA9lj
+	nt2+Bkdvwbp8Ckrd14Oa14LsvaVcMmYy0t5mUbW2jV7SBq8lVlqOxFOtZhkrKQ==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=pza@pengutronix.de smtp.mailfrom=p.zabel@pengutronix.de
+Message-ID: <5ea675380093047ea19951a31005e3c1e5ca0e04.camel@pengutronix.de>
+Subject: Re: [PATCH v2 1/3] i2c: mt7621: assert and deassert the reset line
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: John Crispin <john@phrozen.org>, Stefan Roese <sr@denx.de>, Andi Shyti	
+ <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
+	 <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Matthias Brugger
+	 <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno	
+ <angelogioacchino.delregno@collabora.com>
+Cc: Christian Marangi <ansuelsmth@gmail.com>, devicetree@vger.kernel.org, 
+	lei.dong@airoha.com, Linqi.zhang@airoha.com, 
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, 
+	Rajeev.kumar@airoha.com, upstream@airoha.com, Weifeng.xu@airoha.com, 
+	zhengping.zhang@airoha.com
+Date: Mon, 16 Nov 2026 10:58:11 +0100
+In-Reply-To: <20261112185820.1315718-2-john@phrozen.org>
+References: <20261112185820.1315718-1-john@phrozen.org>
+	 <20261112185820.1315718-2-john@phrozen.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-0+deb13u1 
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -104,59 +101,24 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261113110501.1142036-1-mehmet.fide@gmail.com>
 
-Hi Mehmet,
+On Do, 2026-11-12 at 19:58 +0100, John Crispin wrote:
+> The driver resets the controller with device_reset(), which needs a
+> .reset operation in the reset controller. The EN7581 reset controller
+> implements assert and deassert only, so there every call fails, logs
+> "I2C reset failed!" and leaves the controller as it is, also after a
+> transfer timeout.
+>=20
+> Get the optional reset line at probe and assert and deassert it. The
+> MT7621 and MT7628 reset controller does the same in its .reset
+> operation, with no delay in between, so nothing changes there. A board
+> without a reset line no longer logs an error, and a reset controller
+> that is not ready yet defers the probe.
+>=20
+> Suggested-by: Philipp Zabel <p.zabel@pengutronix.de>
+> Signed-off-by: John Crispin <john@phrozen.org>
 
-On Fri, Nov 13, 2026 at 12:05:01PM +0100, Mehmet Fide wrote:
-> From: Mehmet Fide <mehmet.fide@screeningeagle.com>
-> 
-> i2c_imx_xfer_common() decides between the DMA and the interrupt driven
-> read with I2C_M_RECV_LEN of the first message of the transfer instead of
-> the message at hand. A block read of DMA_THRESHOLD bytes or more that
-> follows another message is therefore done with DMA, which reads the
-> initial length and does not look at the count byte.
-> 
-> Fixes: b460b15b3cc2 ("i2c: imx: separate atomic, dma and non-dma use case")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mehmet Fide <mehmet.fide@screeningeagle.com>
-> ---
-> Reported by the Sashiko review of another i2c-imx patch:
-> https://sashiko.dev/#/bug/linux-f62df5ed-ad96-43f2-872a-ae2c0100b73f
-> 
-> Tested on a Colibri VF50 (i2c0 with DMA) with a v6.12.117 kernel that
-> carries the i2c-imx changes of v6.13 and later as backports; on this
-> base compile tested only. An I2C_RDWR transfer of a one byte write
-> followed by a read with I2C_M_RECV_LEN and an initial length of 16:
-> without the patch 16 bytes are read and the count byte is taken as data,
-> with it the count byte is evaluated (here -EPROTO, the device answers
-> with 0x25).
-> 
-> The line is from v6.13, the patch applies to 6.18.y and 7.3.y.
-> 
->  drivers/i2c/busses/i2c-imx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index ccf08cd63151..9abe0a26c877 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1713,7 +1713,7 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
->  			msgs[i].flags & I2C_M_DMA_SAFE &&
->  			!(msgs[i].flags & I2C_M_NOSTART);
->  		if (msgs[i].flags & I2C_M_RD) {
-> -			int block_data = msgs->flags & I2C_M_RECV_LEN;
-> +			int block_data = msgs[i].flags & I2C_M_RECV_LEN;
->  
->  			if (atomic)
->  				result = i2c_imx_atomic_read(i2c_imx, &msgs[i], is_lastmsg);
-> 
-> base-commit: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
-> -- 
-> 2.56.0
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 
-Thanks a lot for the fix, it makes sense to me.
-
-Reviewed-by: Stefan Eichenberger <eichest@gmail.com>
+regards
+Philipp
