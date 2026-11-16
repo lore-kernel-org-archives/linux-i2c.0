@@ -1,104 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794837050;
-	b=xCilvMCwKqs7fcRAyIuJmaySimK3EeFMlod8PxvhBcgZxMcHnzpetSTS02BU5ETSBWRh
-	 QSYt9fvCNOrcctVGOTHTUo5uvPISPMuKvtr5RUKYeChR6YMUx0VRBcySqZ+GXLbmjKUke
-	 DtgKQu3hA+jqphWXepe7DWhWZIZ1DTpEw9M2e3fpOBZm3QyHjvoeycdQmVIrXCzymJY08
-	 mLhzPlUjE/OI8CIq+7wboYpZBjo34tDEeR4ca6wHkLG3RwXESTq3OVyG0M60lnPZ3xjZa
-	 hQwdgxBRy0Z1qmT2IAthHhuXzvLOaK0FHiasyuQ6rJzIXAGl2RNkexNuG3BXuaccayg==
+	t=1794837333;
+	b=CS6buQvCBWpWOa+fvwE3nWvZ0kI5LFjQAnUzYXn4HftiXBoOfQrolGmv0FD1TykKkIFn
+	 C8k/VnBe1dM3hI37uqGYFYZPCw7ygtu46+bRhAHJKb91lImjfrnHghdigXwWvi/TOKz2A
+	 zdEMZ1ckiDCDw7wSKLeVXnilSog1WnSJ0VqfoYECRKG16laZTmmc38iuwOcgLQ9VxHnNd
+	 GbOxoKTNz4EUtoowUEH+SRSbsbOnKn6CQFyCJDx5kyaqhDQR0/7F7bJFuBC02PZg03ljN
+	 gKu7FsLAUII/56GCiDqh/F/GFn1h+98A7/WgAzzZ6WLK22Y70W7GOU5RIR+9tkUetog==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794837050;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=OfHQHM3R+bJudBxYYvhr0hB1WtSESOcSRLIVPlqiZOs=;
-	b=koOUfJAX77yQoKCLWOAOp0OEqgtgahtRVXvGj8fWtQtiuLdm+WGYkA5K0KTYB/S36Qbx
-	 Ec2SnUhqI/9oFQve6e/UJYRf2OdtnsXniVNqj4r+ufcu0AFichyXzoL4asY4MvLUV/Cqv
-	 hGLwWuM5PzvhchS3ActOMqH6O7tNHkN/hnqwA5lWOKVzsG2CCF3vlTGT92XW60gQn1koF
-	 E1DmO4nMMRXsv6bwwrPfp1C0sfY4Ahwj77fkCnNuxLPUBev3cIBn5UTQMDjmgYdfHmLL5
-	 RzCxwIwV9jN0Zp7tJYqoh6b/7M6LzbeZ4P1jf9bAoKcoN/LTZAiiujYKhgZkhsuKqUQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794837333;
+	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=MZh4/pjUJrlLflOCFgWTJgTXrPaS+o+7/yqR1yLHp+I=;
+	b=h2U7a4gY5ZRlFpVzUrgeXm825qBB4w7JpSdXnvmp8Sj4ORAegMydevB46uo3VNtBHTnU
+	 6C6CYjhJp64c/dUZ6e9xrssUW0jODwwFyNQCY6bnkPTW6KGwMUsuXTbPMH2JsjEWVsC2r
+	 vSFD9INCS6MeUUqpikgGti0brqI2TMY4wO304mvUw/qcYBsd4O+2R0OXK3w7x3WPSsClY
+	 pn7Witi9LxcBtodqW5mLX4aeGmK1nxv+upHd1knaZFy0JvB2rgmxYedG0AtiIuOXgtDcp
+	 TbSDgtCQy02dK0JRGQ66t6SPZD6jxXyi4DJOD3qX5eCAFo3cNXiaLqqDW2u/zNXvIBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SBF+4URO;
-	arc=none smtp.remote-ip=209.85.128.53
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L8XLfhfC;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DA9260A6F59
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 13:50:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7DA9260A6F59
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C0D606A8B4;
+	Mon, 16 Nov 2026 13:55:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SBF+4URO
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4a2000d5fb1so17168005e9.1
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 05:50:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794837049; x=1795441849; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=OfHQHM3R+bJudBxYYvhr0hB1WtSESOcSRLIVPlqiZOs=;
-        b=SBF+4UROMOUEWTue8WdlvuLI4sdVC24pYGuePfawZCeckwbe10Zs25hmSgoLcmjmWV
-         fsf1P3RG5a9gydngTRd/PZ1fa5sYiUVR6SIAhHxjVJdlrQCwFMLyg9MPZLuNJLK7iIMD
-         DeWTz3Nu/SegJ4Ar66nKt2JFG6+Jbmyackm5qcLK9om7fJXT21X53YYMcIGCjbaGZNKs
-         xIpf1GbjjBGeaPDOQFrVQEgLWg/ke85kDJSjMKhR08cQKmLxXSKLAS5O6Fkk/3K2dLS4
-         EmnMwWCpW6KloDHc6S8mtURRIBSjxSg8BjH4U7H2kRug9y4y+/5M3ogdTs5ckW0oHZKm
-         voeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794837049; x=1795441849;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OfHQHM3R+bJudBxYYvhr0hB1WtSESOcSRLIVPlqiZOs=;
-        b=stD+xFoXebbSNKvT9xi+7CUc2HBwPiSVm2PkuazWSumufy7LgRDkJf696mjcHisJAv
-         HaxDXETYAYJZfV7y6lFgHjLfhBvtU4VOUsrwmPwlXvxH5Y9KiJQjcOoMrb1N32ss4hjl
-         jKNbzYToDCXjnCmQgud/aP+D3C+it3wPgj77ClY1+pl6qIvxCzlT5H6z7v0/9e8Eh0vN
-         fR7mEn/CSFmo78JmDvv54Ob2qKlPhS777A7vaDORBejxV+RpNDhIyPx8Zq00E1YwHXb9
-         btAlttGKRb7dNAd3NmuWwtJvOWYTHVvoHNUXNeRovNr/C9lO84VJ0pO4tqIzfxadKrfa
-         Sohg==
-X-Forwarded-Encrypted: i=1; AL+hErEp2TOfuTHOlHg+QUSo+LQxu0kcKHkrICtC0Buf3otTfrwWGw+acegfvzqpFs/3ldO/fbR82JRYt1o=@vger.kernel.org
-X-Gm-Message-State: APuU4Z82Zk3bSVVKoXo/eB5lXWUrLgQzJfYuKZ22gVo5HheWB3WHAt9/
-	c9Ohqh9CrlWdNvQZudR3WvaMUGMJNMUiY8MRs1Gx02KdaUuRkrnY2Ccl
-X-Gm-Gg: AYBFou3TgFMfp0hWABEWohG3o6p8hP1a3jCjEK2ifww4gVDEEY9GTGbLsDmpKnvqD78
-	76XL/4fVl+nm+eTpKZlVaLlvh6ZYvfOKyOB2CRbunCsiesKQPajvZnfpRInRiflw/dWsnrLOQx0
-	we5p+d6n9v3NMaAQuzKq5n52xnsZ4u3Ht68WXo6uW68LVrVfjEzJzJSVPzSTtQhYgsL3RqxRfHD
-	shS7d0w7LSgmz3StGB1FUxzx6RJYQPFtdyvAFTLP//hRyKnN1qHKbwHp+mxzdRByl/kae/8WvFA
-	+6ZEaW8a3mUKN2AM39EjB599QBcaJVkZxpKy7X0VvCYBMnjNRwdwDllFWnggidSqI1R49Y2T7Tj
-	6upTWwlz1R5QHXDilNxBPGXD9lb1arouMMHdi0l8xJG6IyUBHJfBVPsABlG8G6qaxeQR4E2E+Ff
-	Ws/kSDV6MmGBZ4gLvRut091pLfqWNk2m9PI/wh6IdZfpygn7dT0UDff6zVjSBD7YWFq561DuMtu
-	249iGtaxU4UCh0IZQLRZsgtTP/u+nWKUPPv9zYkRpuTEyZFEjjh3jJSAalYACYRdX7MQb/h103m
-	zHxSinlkYz3jiqRRzxMnLCbbVt4Qi509Aq8GOaELcN23Y/7ObYmJheas
-X-Received: by 2002:a05:600c:1d0e:b0:4a1:d459:db4b with SMTP id 5b1f17b1804b1-4bb55abaef4mr221596805e9.24.1794837048913;
-        Mon, 16 Nov 2026 05:50:48 -0800 (PST)
-Received: from deb05.proceq.com ([213.160.61.66])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb6fb45a32sm69904235e9.1.2026.11.16.05.50.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 05:50:48 -0800 (PST)
-From: Mehmet Fide <mehmet.fide@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-	Stefan Eichenberger <eichest@gmail.com>,
-	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	mehmet.fide@screeningeagle.com
-Subject: Re: [PATCH] i2c: imx: do not acknowledge the last byte of a block read of one byte
-Date: Mon, 16 Nov 2026 14:50:47 +0100
-Message-ID: <20261116135047.1379330-1-mehmet.fide@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261116124430.1358948-1-mehmet.fide@gmail.com>
-References: 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L8XLfhfC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACDA01F000C4;
+	Mon, 16 Nov 2026 13:55:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1794837333;
+	bh=MZh4/pjUJrlLflOCFgWTJgTXrPaS+o+7/yqR1yLHp+I=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=L8XLfhfCXlngIYKLLzcM3uDI3QzUP1Q4if6EfjndViiGOQP/GqSDlHdioEFKqmXhS
+	 t1Pup16RC+v1Ic8iiDNMRvSPyu3mNm5D898VdN6UKq7VeS//tSIfAq3bMXFHdTfR/Y
+	 sCFb6Hhl3DywEsyKW1qRGwOsxhLzcWA5g3aOqEfMReh0ceeXDyO5ria/LYWdEhe3qT
+	 MLFuoMhWwHF48V8NB0Amalx0dda4dckelmzPxL+Ort4zwJAWmWMifEItbkj58najIH
+	 RRInuB7AiUcq2Tr76yL9QbEjkenKUf8HUtqDCeF+hLx2bvLN8+GMHQXdVNtL3dYGGR
+	 TWGduksf2jGoQ==
+Received: from johan by xi.lan with local (Exim 4.100.1)
+	(envelope-from <johan@kernel.org>)
+	id 1xSxBC-00000003NoG-3fD5;
+	Mon, 16 Nov 2026 14:55:30 +0100
+Date: Mon, 16 Nov 2026 14:55:30 +0100
+From: Johan Hovold <johan@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Daniel Scally <djrscally@gmail.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev,
+	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 3/8] swnode: fix device_add_of_node() kernel doc
+Message-ID: <avsLUsKE333kAMiA@hovoldconsulting.com>
+References: <20261110085125.2535508-1-johan@kernel.org>
+ <20261110085125.2535508-4-johan@kernel.org>
+ <avL5Mz5BiDRHUkMt@ashevche-desk.local>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -108,9 +70,40 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <avL5Mz5BiDRHUkMt@ashevche-desk.local>
 
-Sashiko is right: with PEC this NACKs the data byte. v2 will test
-i2c_imx->msg->len == 2 instead.
+On Tue, Nov 10, 2026 at 01:00:03PM +0200, Andy Shevchenko wrote:
+> On Tue, Nov 10, 2026 at 09:51:19AM +0100, Johan Hovold wrote:
+> > Software nodes added to a device by device_add_software_node() are
+> > always secondary firmware nodes even if they may be stored in the
+> > dev->fwnode pointer.
+> > 
+> > Fix the kernel doc which incorrectly claims that a software node added
+> > using this interface "could become the primary node".
+> > 
+> > Also clarify that device_remove_software_node() should only be used to
+> > remove software nodes added by device_add_software_node().
+> 
+> ...
+> 
+> >   * @dev: The device the software node is meant for.
+> >   * @node: The software node.
+> >   *
+> > - * This function will make @node the secondary firmware node pointer of @dev. If
+> > - * @dev has no primary node, then @node will become the primary node. The
+> > - * function will register @node automatically if it wasn't already registered.
+> > + * Register @node if it was not already registered and make it the secondary
+> > + * firmware node of @dev.
+> 
+> While at it, please add a missing Return section (as kernel-doc complains about).
 
-Mehmet
+None of the swnode kernel-doc comments have a Return section so that is
+better done separately for the whole file.
+
+> >   */
+> >  int device_add_software_node(struct device *dev, const struct software_node *node)
+> >  {
+
+Johan
