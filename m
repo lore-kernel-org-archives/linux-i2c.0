@@ -1,101 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.46
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794833080;
-	b=FkFnsKs3ZHSobIpJ6BLVv1Bq8htVOiATIfAcMEYjIvwd9rasQvINxQiNkOESBTMAtQvr
-	 p8kQnUmQ7gd4HgdoguTlUeFYKbQdSR9OtskpbOhMnDL1Ml4uVvmS5I9+0SXGfTMTi/Wo1
-	 mBQ+iVLl3NcWdQY+izkQi89SRGbEW6y5dSbVwr8RK/MLyzx80d1PVaviXS3oJnI/E/4b/
-	 kMW7dKtF0jYkcYseeJkG7Orp8N5vcVIC9Er3pjwPmmQVvO6UcwthnAhhHxMOqBafGDhy7
-	 MjyZ4TwnqJKN1UU2Hj4oegN9xmHdoywPcvmK8OdqqEN0GLxtN2i/BO3hP4nTiUiXpRw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794833080;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.181
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794833713;
+	b=whhjXxbhgRTUqeHqCI6oGt9YzHcHWvGP4c3PbHQtNfbOfgmqII5zQTSLsIEvJ8jgo46b
+	 53394v30VeEW7wo2aRtVdoA35grVUsP0BmbKALvB1g0e+YUYiuc9o+GXgeMIGNfi9I7mJ
+	 kd7QJ04R7QKvWw7qTzyCQP8Jk7ZtZdh7aHFvifTQmBGBhLv3tYkWF97hkf7H80u8B8/oW
+	 Xbx93Fazqb1/A3lUuOJNwirgdCoZeKjzi+SBjehYKXFRH33Mm0fgSNoHyyewOuSLXubUB
+	 MmNP1NU1bBNjyt1UrNAuWjlVvPmabxNBzUORXBuWF/CayGKkiweo7FVT1tefqG0cZtw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794833713;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=3CMJxVv9/aaz1Nd1h5S+aoZPa6Wsq51r76/7Qk+jCcU=;
-	b=knCYZ6/9nfnEOGtYEtRioyfWpIKDVmGRGX0vJpz+pV8ODH35pK3x+MGy/chU6zNgCDjO
-	 khe0uaGD6DULr1d+5y06I4JbMJFdqVVRIkPCAjH/zHxZS6/SFdKq2T6MzkZExOF0/wCaa
-	 W7v+qdbRSvOaxZMGZqKajh8s1rN2RIoXAmC9G0YoeY1CAzxlvZfe/tlJOMTIdR4BhVYqI
-	 V51tZ3XBkg8ahOzCVKRSu0WolfTK2bQ3HfbIdUvuL9Kcek9YGXdyc9hba8Q3EdnxW7ZQ7
-	 1Ovq6Kxa1Pr02goVhUVEpPH7tNu7F/jF8lEiSD72I37Nhgg03axBF4fZvnZYy17wX0g==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type;
+	bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+	b=aWG1Jj8TfUwm8aQKUv2JvAk9Lgl4S5IngQeqOqOnshkJkVNR1Q2iRSbwzB5VGTZiT2jK
+	 PLYS11f5NvSsFZ724g/5zSBlC0QSCEzhQ662sXivFvCnATqneCDVoqbZgk0kWPJmNIMQF
+	 1TSmINiiOyFE2nKjqzq5nDjfewW73rdCFFvT4J04THZt3+wt2rXo+ZADZEBmCHkrBrvbh
+	 x2ROokTVH5JV2nk5Nn4HEauQsz28Zjw6otaw3HgO8pbf1rCdPuIgfqhtZrV4fXq5MKizH
+	 jzOXCwm8qKlgQBMo9qGgJr4Nh19MH3kcRygn2CWfdy6seA+yRPS4OmS/9UQKjTeyGdQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="XFKY5V/o";
-	arc=none smtp.remote-ip=209.85.167.46
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rDUdkIEF;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.181
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D289606A32C
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 12:44:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2D289606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F583606A31C
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 12:55:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1F583606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XFKY5V/o
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5c151178f0cso3252868e87.0
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 04:44:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=rDUdkIEF
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-3ae25dcbd81so32644641fa.3
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 04:55:12 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794833711; cv=none;
+        d=google.com; s=arc-20260327;
+        b=fBvy7YV9jpZGx1UGHkKmdc/isNiNLVUjPyfVauMP4S+Dn2JrFyVr8GiXgmPwahosmC
+         z0xhJvR1zjYMt/5zljp2kg/Omr7GiON2pRuRnc+k3Qfjb14AFEriCohfuikj8/m0E7e1
+         rkifJZCL4WcNGMmVWo4ok+5sb1BuKgT+4OzCsmApTcaOLGot4HztO2Lu+xjjmyPsRVNe
+         f2hII0VKVRgmUtTjwgbfDlMEC8gMUfxjg0XS4HMhboRpgfLim1k74uDUbL+MqwnNVg14
+         K5Tb4wLYXgU7+vMMQaFeQqcGnolIO8LGT0zOvePajHtXvt1PDmsfDmQ/g6xSg6xdBJBK
+         dYqw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+        fh=wUAOkfvSzAcjKVFcfaeoDb/sSFN0hZjB06Jjs1G2FmA=;
+        b=ZorZitTG7TGRv0FxNXq9H4fCH1kkIlhZYlr5/TASSjqgBKxdkWgA9k3fE7aMfftKSz
+         KS/X2s9JFAFwgbm7/B/2AwlHLnhAq7ynYQhywG5Jmf+0uCShfe8GDUiK4hGO90w5TuMo
+         lSRh4OHKG1Wtvf/F9dmXzPU07phCP6cBIs8XmX+F9lg0CRLxDuxgNDrx1UwtUfFP0S38
+         zo08QhLMLquDNf3RVN24alh+DEY5wtZbwOVmB2UczC2qIQxRk5GVdPUFExhgNAr8E1eO
+         CC7xwt+ngdXl9a2aAAFqeLXEk5JCObXx1dLcaUJ2GMXG0MLbPHA4wcMLFsrnMRKSA627
+         RCXQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794833078; x=1795437878; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=3CMJxVv9/aaz1Nd1h5S+aoZPa6Wsq51r76/7Qk+jCcU=;
-        b=XFKY5V/o0fvV9QZehP/l7g9fPYmKxqllsHjCT4DOfQMJYCPmzEbnz4qijBwT1XfN++
-         gkWRWUv8CIxs6o/FJG7TaSM7iSeaFEunze0I2ugQX9/GDWxNl9i43YgB8aLp9qRpCGjL
-         40x9jm3XWiS0JY3g/th95mcIQvgU6/tr5Li/PgwrBHqu4cIBBJtuN3jzMYwJI5W3ufOO
-         cH8MiltsSDXpKpE8JtEBKuCpKhAsAa37nCvAJ8NjE+GKWMOcDJrIjaON6HuzozE4BqjK
-         VeDTJF7NqblpFZmYkI7Lpxdp1fegmQV1nWPJ+OvjSOK4zKPhZGNoKWSpOpPE7+IXana0
-         aAkQ==
+        d=gmail.com; s=20260707; t=1794833711; x=1795438511; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+        b=rDUdkIEFHrVKOz8Yvn2/z37kQHYyt/RDgEnYYDsxPf9B3RCtONXGSL5Hx8JluI2Y0N
+         BURT4yQEt1oJMuQWNuXyF1iDH5LeQX7hyGplVkJ47E35SMjNM6B2+7LsFZM6bhI6VZsE
+         pfrnsYnz69WuHbP4ykHal2SGhvXiGjMN3qzopwCsZITjeoE8p10L9OgThc575Wmy/iBe
+         hgFZXxHyN85hNo6AstzNv7QuQNwcVveoOFP1qqUH2yB7rAqFGoQpOauS9Ht7+hYcnBVF
+         iYlXG4Yi/iih2ptmiLjZWQ8t9hI9qtTjEDjHLvfLTtD/wCTC+bTOcRbXqyTA3FCliXGK
+         Alvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794833078; x=1795437878;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=3CMJxVv9/aaz1Nd1h5S+aoZPa6Wsq51r76/7Qk+jCcU=;
-        b=J5TLPuCufrI2q/yfISFD2GdU3upNEpM26PlkF5SqaLLzTOXnnkbrmTOuzAs3ivwDSo
-         zJBbYWzTWXlgSEmuUHDtMfb9/3Cjih9sNi/DuCP/WtSQyWOyVdCGgiy3m1G3hDlGq4ff
-         po0Peb+a9al+ivwd+3MYgO12g1/BZHTAnRccsA49F5REcrEr1v8sUVOpnTzdahnIjsLn
-         /ArZjE4cm91PIJbz9A5t0iOiv51sodRnkRIWyIGnTTK9j8cDWgXYI3pQ6GhpK1nprpYW
-         ePh7QOHq7v8E22V6Ed3hqk3GWqrx1TiK5jvixxXN0gz1C/0pfWxM73tGdy8OA4w2jvoJ
-         DfXg==
-X-Forwarded-Encrypted: i=1; AL+hErHjew1M1KVLC7dz3C3asxXB2qe2SYnqqsMvyNe3wSkMff7j56VU0xe/y+SpgVx/FD7rvF3k8igevnM=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8xf7QnM61n+OAy5UVONDQC9iGn7FR5eXpZBXMX+POEQoqEl9Mz
-	egIPUHq8foo1UTnXbp14t44vf9Aqd8YkpuV1wFOr9W5Hl8XIgdD7L9x9
-X-Gm-Gg: AYBFou3dTUKS2QI03/IdLGtVfQtIcUaB6wnkr4wjUJz+mXp58TLVEngm3PEB/ZTc2Ml
-	YKKivLHmHT498mHVIvlT48oplSAJZjbuVjTG6r83usmR2bCoqqRaPc9ZFhL04FtSkcmDmHDmJQT
-	abwpUEHHF10Zsf4vZOdTXPrxkwC85wtIABT/5TTvyQGXtKCPglxVeldPQcyUVHn9uFinqLPPEPA
-	gPh5XndNWzHLgFhTfSsxwcMLCy/RLF4b4b7AymtKWo5SwQYEdT7wEOx3SHQ2lrQBy0lMffN4+fB
-	RJSvrzgl6jhadIoVl+PDuCtYYfeG4xx6MVqhT0ieN5jKbVUism/li0FfKHmngCJASXDOGAE2mi0
-	meqMnNw0ygOcp/pg/xMHsvN2cqBBcJcAwia36gdDSWNFB03/rm9ZcSXHKqmedrWHLVbk9+S5s7K
-	MnSYaKDOK18bs2ycbAar5pozwCIGnwcL8trn6Ej2BeA684gk5XzN2Zzg0ve7qy6WOWRBI4nFci+
-	svLmMY3xsQcIddknhOqTZSrbxy+troNkaujjHkZj4eNmuw47iaIamq7LWQjQf9xaReOrFj9KsJ5
-	ywWjiS26KL82W4urVzhLh4aq73AbdOxsvVw=
-X-Received: by 2002:a05:6512:3a8a:b0:5c1:5715:bd00 with SMTP id 2adb3069b0e04-5c170b1c313mr3742145e87.18.1794833078067;
-        Mon, 16 Nov 2026 04:44:38 -0800 (PST)
-Received: from deb05.proceq.com ([213.160.61.66])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5c171348078sm3201870e87.57.2026.11.16.04.44.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 04:44:37 -0800 (PST)
-From: Mehmet Fide <mehmet.fide@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-	Stefan Eichenberger <eichest@gmail.com>,
-	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	mehmet.fide@screeningeagle.com
-Subject: [PATCH] i2c: imx: do not acknowledge the last byte of a block read of one byte
-Date: Mon, 16 Nov 2026 13:44:30 +0100
-Message-ID: <20261116124430.1358948-1-mehmet.fide@gmail.com>
-X-Mailer: git-send-email 2.56.0
+        d=1e100.net; s=20260707; t=1794833711; x=1795438511;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=gd9XtUgGdbpQCXe75iKwK693Tr2E/Bj4YogDW8Ivi8w=;
+        b=vKzHkxfxD/wFC0A25EGv+i6KZQ+1lmIG9l/al19JD3AFDJBOb4L6dq6hUjgbIkToNj
+         6gNR7ZhK3UBNcWK0JKsnPxwN6Xm1I8DRVMmJ3vTeq1v/LbL7zI2J+SgOFmRhnRCrKi86
+         QswohuSelKvIgd8vm11cYcKbkcU4PuiHfUdtIIBH3N8yd3dMjhldeMsfz3/u2+TY5d+3
+         sBvz4nXlwZtj1pSjPKw8vCKG1qKYLohjn4jiHWUFKiWP8Qkm4ZTyvw7qOfQQkEI06LgR
+         RoRv3ssAlY+5RmCaCER0xTc9GawMIGTJ+wQixcAOeRhO5JG/Y2Jazjq9RlKM08gQUjt2
+         /iZA==
+X-Forwarded-Encrypted: i=1; AL+hErGxcH3ii8HtRERU+8eHWfnlB5L1Hp6cK9HEZJBzmp3S+NdEXvCMcqcofeoevQCr34+vRlJ+TM3Ox+U=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8PmmYz/M9T6lPyYamtHvKqxZtoNG8XzAXzgn74U1fovAywrVuB
+	EnjoEghvjcZ+p2tAZBDrUCw0qoKbCPBPdI5CbccQE7jMH2Anx993B4Qq/UX4HOmkKyefwjEf3I7
+	Ba5pC9qlzGJPqSvgH/L0CtIW+bpytvLE=
+X-Gm-Gg: AYBFou0noa0NX2oCVOSEtoO/RNWPa3w/9gk+QcwJlIO3tMBvcW1wd9qwTWkbOZNJwxP
+	rFsu/s34deFPKvp5hVlNUZDxp7eP2StLtPKxoNK2KESTG0z0N+TrlSJ3q2gQJFynOKTjU/WFaDY
+	zHWn1GOb8Be90nxk1Z0rsAJyrgXFlIlQZm6bstoTwDVwz9JTZTP+WObe1uC5HyZ+zQnmzIrYMWL
+	Actd8sm7HRend4LqfcUw8fu1mxY8SloWnS/9pLBKIaJWAZnyE7vYxITRWR+sAjGxvrnLGX+jAEQ
+	ADA5G2DBcWC1jy4HCOCX1XZevUsod/GSGhRrQWbvHzDNBm/rzSmYqO1LWACuwRtOLj9zktTJWo9
+	HxCFaXZcLiKlP9gebuaGFijl/4KLSmkB+ehUTDE2cI3ORo4HsA06pmVPh7jXQ9rVIDp2BqKUdqD
+	Kbez1Q+99PMx5lpi+ycTI=
+X-Received: by 2002:a2e:ab07:0:b0:3ae:25c8:dc84 with SMTP id
+ 38308e7fff4ca-3ae2b53a651mr28470961fa.15.1794833710970; Mon, 16 Nov 2026
+ 04:55:10 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -105,59 +102,51 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: A Kishki <alaa6394@gmail.com>
+Date: Mon, 16 Nov 2026 13:54:34 +0100
+X-Gm-Features: AclHuK_wKENosxNMnjaz2CMZgmvlOpLLh8FDu5SjExkjedGch4987GIiOjTGO0s
+Message-ID: <CAO6oLZEsN5gkaDvS97i_7bgPFOE-5eX8WjmGcWCcYHvTMQm9Kw@mail.gmail.com>
+Subject: Re: [BUG] HID: i2c-hid: ELAN 04F3:30FD touchpad reset race causes
+ -EREMOTEIO on HP Pavilion Gaming 15-ec1xxx
+To: testyiprywatnosc@gmail.com
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, 
+	linux-input@vger.kernel.org, lovekeshsolanki00@gmail.com, 
+	linux-i2c@vger.kernel.org, mika.westerberg@linux.intel.com, 
+	andriy.shevchenko@linux.intel.com
+Content-Type: text/plain; charset="UTF-8"
 
-From: Mehmet Fide <mehmet.fide@screeningeagle.com>
+Hi,
 
-In the interrupt driven read, the read of I2DR that takes the count byte
-of an SMBus block read starts the reception of the next byte. With a
-count of 1 that byte is the last one, but I2CR_TXAK is only set in
-i2c_imx_isr_read_continue() for the byte after it, so the last byte is
-acknowledged and the target goes on sending. The read fails with
--ETIMEDOUT, the bus stays busy and the following transfers on it fail
-too.
+I found the cause on the same laptop. It is the SDA hold time of the
+touchpad's I2C controller, not a reset race in i2c-hid.
 
-Set I2CR_TXAK after taking a count of 1, as the read before the
-interrupt driven state machine did and the atomic read still does.
+Machine: HP Pavilion Gaming Laptop 15-ec1xxx, board 87B1, BIOS F.25
+(08/18/2021), Ubuntu kernel 7.0.0-43-generic.
 
-Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-Cc: stable@vger.kernel.org # v6.13+
-Signed-off-by: Mehmet Fide <mehmet.fide@screeningeagle.com>
----
+IC_SDA_HOLD of AMDI0010:03 (0xfedc5000 + 0x7c):
 
-Notes:
-    Tested on a Colibri VF50 on the Iris carrier, kernel at this base plus
-    "i2c: imx: acknowledge the count byte of an atomic block read", with the
-    M41T0 RTC at 0x68. A test-only hook passed the messages that
-    i2c_smbus_xfer_emulated() builds for a block read to the adapter, alone
-    and followed by a one byte read. Register 0x05 (0x01) as count byte:
-    without the patch 40 of 40 failed (35 -ETIMEDOUT, 2 -EAGAIN, 3 -EINVAL),
-    after which the RTC driver could not read the time any more; with it
-    01 01 and, in the second case, the byte after it, 200 of 200. A count
-    of 0x13 (register 0x04) reads the same bytes as before.
+  normal boot, touchpad dead:         0x00010001
+  boot via HP startup menu, works:    0x00010048
 
- drivers/i2c/busses/i2c-imx.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+The ACPI tables give no hold time for this controller, so
+i2c_dw_set_sda_hold() keeps the value it finds ("Keep previous hold
+time setting if no one set it"). After a normal boot that is the reset
+value, a TX hold of one clock, so the touchpad NACKs its address. The
+startup-menu path leaves 0x48, which is why the F9 and UEFI-setup
+workarounds help, and probably why the live ISOs worked, if they were
+booted from the F9 menu.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index ccf08cd63151..0a59ebe70eb0 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1095,6 +1095,12 @@ static inline void i2c_imx_isr_read_block_data_len(struct imx_i2c_struct *i2c_im
- 	}
- 	i2c_imx->msg->len += len;
- 	i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = len;
-+
-+	if (len == 1) {
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		temp |= I2CR_TXAK;
-+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+	}
- }
- 
- static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx, unsigned int status)
+To confirm, in a failed boot I unbound AMDI0010:03 from i2c_designware,
+wrote 0x00010048 to the register through /dev/mem and bound it again.
+The touchpad probed at once and works with hid-multitouch. A rebind
+without the write changes nothing, because the driver reads the same
+value back.
 
-base-commit: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
--- 
-2.56.0
+I run this as a boot-time workaround:
+https://github.com/AhmedKishki/hp-pavilion-15-ec1-touchpad-fix
 
+A real fix probably belongs in i2c-designware, for example a DMI quirk
+that sets the hold time for this model. I'm happy to test patches.
+
+Thanks,
+Ahmed Alkishki
