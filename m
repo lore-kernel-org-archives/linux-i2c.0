@@ -1,54 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794837333;
-	b=CS6buQvCBWpWOa+fvwE3nWvZ0kI5LFjQAnUzYXn4HftiXBoOfQrolGmv0FD1TykKkIFn
-	 C8k/VnBe1dM3hI37uqGYFYZPCw7ygtu46+bRhAHJKb91lImjfrnHghdigXwWvi/TOKz2A
-	 zdEMZ1ckiDCDw7wSKLeVXnilSog1WnSJ0VqfoYECRKG16laZTmmc38iuwOcgLQ9VxHnNd
-	 GbOxoKTNz4EUtoowUEH+SRSbsbOnKn6CQFyCJDx5kyaqhDQR0/7F7bJFuBC02PZg03ljN
-	 gKu7FsLAUII/56GCiDqh/F/GFn1h+98A7/WgAzzZ6WLK22Y70W7GOU5RIR+9tkUetog==
+	t=1794837917;
+	b=uPIxg3JMoVErTG+mZHnP/503sgv7xnWXp0+uRLVlCv29kLatMP6c8aPcNy0p9vTN/xZJ
+	 ulheHP4JEmcLIxDydVRnxYnQp6AKPA5F2hO6noBKWZXHSiC9PIjQLEm+IdhPRe4kwzNrU
+	 izsLPONyTGybOmnnuDaRC+7qfY/0eu7makbIzBqqwOtmVLOKlMQVp5mJF+K+6AyUVyexh
+	 xpsMyYcWLp/oSLr5SxdOmJLEKIcZwiP2WfayyUFfDEIeSxCrQ/YB22piC7pv2lWxpGS4C
+	 EAAhZjUsB+HKw8J7exA2hYBLEkUySkXZCiB1a3V+ndqq8h/avTLW/PeDPMtaGH+VcEg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794837333;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794837917;
 	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=MZh4/pjUJrlLflOCFgWTJgTXrPaS+o+7/yqR1yLHp+I=;
-	b=h2U7a4gY5ZRlFpVzUrgeXm825qBB4w7JpSdXnvmp8Sj4ORAegMydevB46uo3VNtBHTnU
-	 6C6CYjhJp64c/dUZ6e9xrssUW0jODwwFyNQCY6bnkPTW6KGwMUsuXTbPMH2JsjEWVsC2r
-	 vSFD9INCS6MeUUqpikgGti0brqI2TMY4wO304mvUw/qcYBsd4O+2R0OXK3w7x3WPSsClY
-	 pn7Witi9LxcBtodqW5mLX4aeGmK1nxv+upHd1knaZFy0JvB2rgmxYedG0AtiIuOXgtDcp
-	 TbSDgtCQy02dK0JRGQ66t6SPZD6jxXyi4DJOD3qX5eCAFo3cNXiaLqqDW2u/zNXvIBw==
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=Byvh61MN0MbiLvUlZBmzTzm7zuau0rQaTUqOwJ377E8=;
+	b=rJ98qzzoTQu5kI/MYTE5crk/pelmoAx2yk6h+6hoeBoenDZHSZnQ6SDlls72CSTxeZ3n
+	 O7t6HA20LaMj4nF+04VusYB80irV9nh9OUFZwupdamYKFBexEd2LddKJrdCSYyrSvvDiK
+	 MoLCOwSI6lMLVLb5Qp0dEn6YCAksUv/hyCpSTvEWiByjK/3xbc+QuBcSmIxpymjIg4sIG
+	 DUXIWzZvPR4x6lRL2B1pxbMRZUXlvFrSkNGawpEEgY0diWJp0zSzB0uSHB43TRwEXVSwX
+	 VCnX+4Q8rFPFWz7oJOPEuHJhPR+EJp67SJAmcdnINPJCmChw9EJNn9BUxOGIkYJIA2g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L8XLfhfC;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GQfgaZyH;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C0D606A8B4;
-	Mon, 16 Nov 2026 13:55:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D821606A330;
+	Mon, 16 Nov 2026 14:05:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L8XLfhfC
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACDA01F000C4;
-	Mon, 16 Nov 2026 13:55:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GQfgaZyH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC141F000C4;
+	Mon, 16 Nov 2026 14:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794837333;
-	bh=MZh4/pjUJrlLflOCFgWTJgTXrPaS+o+7/yqR1yLHp+I=;
+	s=k20260515; t=1794837916;
+	bh=Byvh61MN0MbiLvUlZBmzTzm7zuau0rQaTUqOwJ377E8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=L8XLfhfCXlngIYKLLzcM3uDI3QzUP1Q4if6EfjndViiGOQP/GqSDlHdioEFKqmXhS
-	 t1Pup16RC+v1Ic8iiDNMRvSPyu3mNm5D898VdN6UKq7VeS//tSIfAq3bMXFHdTfR/Y
-	 sCFb6Hhl3DywEsyKW1qRGwOsxhLzcWA5g3aOqEfMReh0ceeXDyO5ria/LYWdEhe3qT
-	 MLFuoMhWwHF48V8NB0Amalx0dda4dckelmzPxL+Ort4zwJAWmWMifEItbkj58najIH
-	 RRInuB7AiUcq2Tr76yL9QbEjkenKUf8HUtqDCeF+hLx2bvLN8+GMHQXdVNtL3dYGGR
-	 TWGduksf2jGoQ==
+	b=GQfgaZyHlEu1c7IL+votGEDox83/s1BWmI+iI09vqvBd15+aaOLhvqfUlSx+GW63K
+	 yl+LYiBLFsuYhqteu8S/ZPaeuXO1kn+CM5ZIMbuwRkfXmGMV2se8yLiVpuPRzKQTf4
+	 uIvf8CLT+Hc4fmMpxeWTbsHj0n438IS4Mb08mPvj6Ye3UC141mWBcYq490Bb4+tRO+
+	 bzo6gsBF+Zl6fGiDqEtZOqP5cudS5/EcZk5icLbTvcGnq9nXr1rcbIjYpC1IpKWS6S
+	 gN0WQy47Lz2yNvK3mFkWKP8n79zRysyfMIMkYr0RqURKmecpmbLPahcw6Rh/cYZqUN
+	 bSfvkrzkutj8g==
 Received: from johan by xi.lan with local (Exim 4.100.1)
 	(envelope-from <johan@kernel.org>)
-	id 1xSxBC-00000003NoG-3fD5;
-	Mon, 16 Nov 2026 14:55:30 +0100
-Date: Mon, 16 Nov 2026 14:55:30 +0100
+	id 1xSxKc-00000003UZw-1GNK;
+	Mon, 16 Nov 2026 15:05:14 +0100
+Date: Mon, 16 Nov 2026 15:05:14 +0100
 From: Johan Hovold <johan@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
 	Danilo Krummrich <dakr@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Daniel Scally <djrscally@gmail.com>,
 	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
 	Sakari Ailus <sakari.ailus@linux.intel.com>,
@@ -56,11 +57,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Andi Shyti <andi.shyti@kernel.org>, driver-core@lists.linux.dev,
 	linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/8] swnode: fix device_add_of_node() kernel doc
-Message-ID: <avsLUsKE333kAMiA@hovoldconsulting.com>
+Subject: Re: [PATCH v2 4/8] swnode: ignore primary nodes in
+ device_remove_software_node()
+Message-ID: <avsNmv-BQ_BkLMuP@hovoldconsulting.com>
 References: <20261110085125.2535508-1-johan@kernel.org>
- <20261110085125.2535508-4-johan@kernel.org>
- <avL5Mz5BiDRHUkMt@ashevche-desk.local>
+ <20261110085125.2535508-5-johan@kernel.org>
+ <CAJZ5v0gjPPrHOy6iwWt_BubH+QvekgWQYrA+Y7GkvittHU10DA@mail.gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -70,40 +72,23 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <avL5Mz5BiDRHUkMt@ashevche-desk.local>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJZ5v0gjPPrHOy6iwWt_BubH+QvekgWQYrA+Y7GkvittHU10DA@mail.gmail.com>
 
-On Tue, Nov 10, 2026 at 01:00:03PM +0200, Andy Shevchenko wrote:
-> On Tue, Nov 10, 2026 at 09:51:19AM +0100, Johan Hovold wrote:
-> > Software nodes added to a device by device_add_software_node() are
-> > always secondary firmware nodes even if they may be stored in the
-> > dev->fwnode pointer.
-> > 
-> > Fix the kernel doc which incorrectly claims that a software node added
-> > using this interface "could become the primary node".
-> > 
-> > Also clarify that device_remove_software_node() should only be used to
-> > remove software nodes added by device_add_software_node().
-> 
-> ...
-> 
-> >   * @dev: The device the software node is meant for.
-> >   * @node: The software node.
-> >   *
-> > - * This function will make @node the secondary firmware node pointer of @dev. If
-> > - * @dev has no primary node, then @node will become the primary node. The
-> > - * function will register @node automatically if it wasn't already registered.
-> > + * Register @node if it was not already registered and make it the secondary
-> > + * firmware node of @dev.
-> 
-> While at it, please add a missing Return section (as kernel-doc complains about).
+On Fri, Nov 13, 2026 at 06:29:41PM +0100, Rafael J. Wysocki wrote:
+> On Tue, Nov 10, 2026 at 9:52 AM Johan Hovold <johan@kernel.org> wrote:
 
-None of the swnode kernel-doc comments have a Return section so that is
-better done separately for the whole file.
-
-> >   */
-> >  int device_add_software_node(struct device *dev, const struct software_node *node)
+> > -static inline bool fwnode_is_primary(struct fwnode_handle *fwnode)
+> > +bool fwnode_is_primary(struct fwnode_handle *fwnode)
 > >  {
+> >         return fwnode && !IS_ERR(fwnode->secondary);
+> >  }
+> > +EXPORT_SYMBOL_GPL(fwnode_is_primary);
+> 
+> Not used in modules as Andy said, so need not be exported AFAICS.
+
+Yes, I'll drop this and move the declaration to base.h as you suggested.
 
 Johan
