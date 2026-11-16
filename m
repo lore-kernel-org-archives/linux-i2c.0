@@ -1,100 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794833985;
-	b=y/y8DOYM14GFtZ3GvEfwkyqSjO1dZslEPQrBzj0C7StJcfRHR/kaDcFuRviYKvSk/KQN
-	 vbRGyBmjqid+Hsvvb+y0vuafqSdRnWv/iH4vv5nnqpdc4WnvVo3aFs8ghaLKa9U4b/ZNx
-	 qODFH+9J4Fz5q5eUfJyv+xOzT31uhRTF0Qz7FDGEPhZJ/fHyz6mMqIirmidHmIJ/XEkdY
-	 3vYTK2b/XofWKT3rMiE6bloksfz271aBoFtaprUchGZD5ENujiToohEx5KudUaOJQjTMe
-	 BeKU8WhHlUBk3UQigzrE7gYc5gWkU8AIVmHPixQel8VQcqY7g32pfmzNjmEH60fX9oA==
+	t=1794836145;
+	b=eE29HQZJlDKxMLwtu2hVURf7MW+kjzJr6Us5Ld6Pa7NiMNEkRoauzDzWbB2tjy/pBRd1
+	 iYYfY1yL7xshH2Ru125R6E5HHjGAp2fi1SHJWsJWQSsuRvX6QcMzOC8FNbgxzZCAbnKYa
+	 j6tjs4XiVckutDQvysnSNIalujBT3vvJQA/U5IJp0HqbWwUOUY6kjHApMHLkqfJl+VHic
+	 uemRY9uYfn+pwNtqieyM3WUm3/mC3FEOTkaaVG2j3ikhYuughbiIBsgUjCWXZLLD1yEAu
+	 kqyGqZlY23cyaTKPNpVCpacPs4eKPVWlb8X+pVP2Ay8f9e/8ECMbtGuo5XSTpps0SXw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794833985;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=xcfNxQDKaTxKC3WY7d0/shn84qbuxfAl2J/mE8lsllI=;
-	b=YKSL0Qf+MWsLc0AOXXazqs/vdcmN8GBnTxzaONUwxudBo2groz91ZXkt2JxiLqo9YhCY
-	 kV9DQHM1+ETc4AouU0e7LxeJDXmqmHfa54xN5uwi2Ursszfo7dWmEo4C86e/DBroeP/gt
-	 lDijbjfF2b1WrDmj9J61XKghp0fvsBjl9MBd9ymROwyQSWvgePlg/YuglMVYeJMEMFZGB
-	 ESPDF7QtBIL4z208Ml1taOvKIBgfJes87B/YXwfjGQ31TQaZEQK2lnAVvywL3wIAGDuhl
-	 JGZYzqGCe41KUvwd+/VgKRRITcn9Sy+YQV+Ex9AqGoTn3LrTxn5MvoRda99Hcvpk2CA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794836145;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=Vcx9KzmvnNYkPSs4VQKPwTuksU5sZnTHAg7TtizLtvE=;
+	b=Nizn0I+B1uNGyyJJrKeluuSgJWinAFLuCpL6zmwvo2bpNDNAs18uEmfc6qBekklyj0Aa
+	 3phNcppCUhwxtJdqoxGHkljf5EXGBzt+SawQRO9wLRVgcHFIsW7h+myx3i4it84xQ5Pq1
+	 LQRr5k1o5EbAkqvyJ+0ns1DqOv80vWTZtPMi9ZlSplwtJCsh+F76scE8m+QJJ9OTrn8+I
+	 VgQ6Gq/Zr9NlzsU+dMC1dIXA/FssWu0WzY4l7rd7uU/eQc+ROFKcJGbn11U6bde9uMZtL
+	 loa1jwuBxPJEtpnc6N5s94EQwNqQCQ95faDkXujahsCtc6ez08pwwp8n0JMtC2eB1IA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=D9gPU+Cy;
-	arc=none smtp.remote-ip=209.85.128.41
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=ioEkh3ts;
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B7260A2623
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 12:59:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A6B7260A2623
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73BE0606A329
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 13:35:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 73BE0606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=D9gPU+Cy
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4bb64ef5a00so10481805e9.3
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 04:59:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794833983; x=1795438783; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xcfNxQDKaTxKC3WY7d0/shn84qbuxfAl2J/mE8lsllI=;
-        b=D9gPU+CyjJQ6g+iJIUplUYc2NJyLCwP/xrnG9ifrsvPZM8auQZpcDpMeMePZsImhPx
-         uch0qXkdu9GGb3N7/uULQRL+Q8eSB1ZxgT95QxupeXT4QTetsnuv7zarGytHzVgEsrRj
-         7wdmq7MZ++aZ/9O+sqsfDbTZQmBHTM+Sgm5tNCXUAE5B+bv6eZjRHNfOlI7C7B5Nzfsu
-         uLrzBPObBZcwyy6cjzJFuXhVDYxGhEp8V/GTKstbJSMNBbdhcwLUv/Kq2v5aw/9ehM/g
-         Nu68huMWr/T3MwiIAkRsdd01eJWAOyXozTy2dxrTyQUyVnIKpMqH4XzKtmJbTvkc0O/q
-         2tTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794833983; x=1795438783;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=xcfNxQDKaTxKC3WY7d0/shn84qbuxfAl2J/mE8lsllI=;
-        b=dmYeoh1k9eRreuqF6DvOR7xqLROWUckw0+VodBPK9lB2qAgDmW8JlZPTuKLqpcCAbt
-         xTdLVvhJOmu9eHMuqU91K2EIzDoCxdyEjrsg9pwrjuRh5GRkCqs1iR5Rso0XvQFar/+e
-         xegZmnHg95Fq9mhbd+mVOEBYIoL4MydLpC4yjALAxwyWsWefGz2yBpFEqAUX/25P6bxi
-         o725dRWnbl4wLnN74ovoqb5F05MDwrdBD+kI9PAqhHXAdf749Qp/zWXsrKXi3X0/8F/+
-         OTJ8G3HCrvKVke5OzkrNtWF+Y4pkPnC+JUiyEa2t9NnMPfIdrI8qALUhJ8OgrtNnRmHK
-         PmxQ==
-X-Forwarded-Encrypted: i=1; AL+hErFZW7Bq3cPkvI7xoGPDw7xSKP7XRWoc3PNMIumPa1Sukq2yRjCDEvGxoR02GlDpnvBDxvLl0fLk65s=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9EEG+2NFzBGpg1DubwmaoY0Zc8hXPknsol3YZgo+kj4khdpL0+
-	kXcWn4C+Ftw9yyn0UsN3RwNnBz/+GJb2oWXOlbmjgkdg1gKlBnz+Q2GE
-X-Gm-Gg: AYBFou3xY+KO0vN5keDmuJyFDU9xAvIlnQYPaljfLGdnDxVNd03u1Q70zXMHFe7tmw0
-	EtRZPCVdZNsieUTUCehiPPFbPB92OaJYHAE7jeorW2P3K4K2uzQpwB3xmuwcLbHXjGq8rzZyVpf
-	8qdgnbwtosIlN1/DpZTwGPcl36H03xiL67EMePKddhSPRzu1NWJYhgAMq1c8DTGpoKVVpWhk58D
-	xE3ZxYjMzdlzO3CoiKFpclIOuG02JIKyR94N0AsjA0GkiJsPsP1MbXhHl1hF6igMi+nS/xBkMFO
-	KnCDyZjC8OeHZWE1OJitknGAYTYzNRQhruiRkDzBxEj5s9hePV+o2c2xJr+487Zj4kh/RYY3Lmz
-	V3ef9g2hw5I8chwM/Vuj08vxnMW2rjQSEfqNk4PEmGd2kk3nROleBANRW2KvVLF/rQjwM5FA0qn
-	e4fRlQ5k0DZrsJ/fxojLUQfLnZiL4tgR6v2JOjLndAkSBZp0rzEz7ZuQ8p11B4IasbU3GeVu52x
-	fqpCygiNHNmYsGbeELnS0gUwbeunmgugGbbuHjxMQjPb+DejFIsiis4PndvgH+SldUKb15jMcsr
-	78XV/6qr4CioHL857ojcfjxc8373sICFfY4=
-X-Received: by 2002:a05:600c:8708:b0:4a6:30c3:1114 with SMTP id 5b1f17b1804b1-4bb55a7ece6mr231511055e9.12.1794833982968;
-        Mon, 16 Nov 2026 04:59:42 -0800 (PST)
-Received: from deb05.proceq.com ([213.160.61.66])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb65ce005bsm205471805e9.14.2026.11.16.04.59.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 04:59:42 -0800 (PST)
-From: Mehmet Fide <mehmet.fide@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-	Stefan Eichenberger <eichest@gmail.com>,
-	linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	mehmet.fide@screeningeagle.com
-Subject: [PATCH] i2c: imx: keep the error of a failed read
-Date: Mon, 16 Nov 2026 13:59:40 +0100
-Message-ID: <20261116125940.1368194-1-mehmet.fide@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=ioEkh3ts
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id A6C071A1114;
+	Mon, 16 Nov 2026 13:35:42 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 72F9D6023F;
+	Mon, 16 Nov 2026 13:35:42 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 364D011BC02CF;
+	Mon, 16 Nov 2026 14:35:40 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1794836141; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=Vcx9KzmvnNYkPSs4VQKPwTuksU5sZnTHAg7TtizLtvE=;
+	b=ioEkh3tsLe2NF6NNv4sEdmBgaZvBUu9PSfy9XNfzagsjXMUZ/rEq6DAgQ7l3MYDt301sBD
+	7y9KHYjJQOaIDVp2EJpx1g/26pMZ0imn/g7o0U3cyH31zqVF5O2UUwpJRc/otrNQdC29f2
+	n77jkhSrh4zuy7FEQt60+/VZIAtX86i4o6ianzl/Q6eU6EVBp/Sa4PqBc0tHevHG0/dqEy
+	/Q4og2XtZdtHtu2qhxbFItonKaxej5/4pmNX1UTgKKphQNmTKcdy67nz+1MaEwH8JTGELK
+	ehBOEwq8192YHBdN8RbZe82tgHhm/hInBs2J5RaZ8pwtM5NhOl0RVQ/Mxxzs0w==
+Message-ID: <78cf973d-3434-4f81-82be-a22f4abcfe0c@bootlin.com>
+Date: Mon, 16 Nov 2026 14:35:39 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -104,56 +62,195 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 4/9] i2c: cgbc: Use plateform data to get bus ID and
+ adapter name
+To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+ Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20261103-cgbc-i2c-storage-devices-support-v5-0-ac11f23fae51@bootlin.com>
+ <20261103-cgbc-i2c-storage-devices-support-v5-4-ac11f23fae51@bootlin.com>
+Content-Language: en-US
+From: Thomas Richard <thomas.richard@bootlin.com>
+In-Reply-To: <20261103-cgbc-i2c-storage-devices-support-v5-4-ac11f23fae51@bootlin.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-From: Mehmet Fide <mehmet.fide@screeningeagle.com>
+Hi Lee,
 
-When the count byte of an SMBus block read is larger than
-I2C_SMBUS_BLOCK_MAX, i2c_imx_isr_read_block_data_len() sets -EPROTO and
-fails the read. The read of I2DR that took the count byte has started
-the reception of one more byte, and its interrupt comes in while the
-state is IMX_I2C_STATE_FAILED. i2c_imx_master_isr() has no case for
-that state, so the default case replaces -EPROTO with -EINVAL.
+On 11/3/26 5:49 PM, Thomas Richard (congatec GmbH) wrote:
+> Obtain the bus ID (from the BC point of view) and adapter name from
+> platform data. This allows the specific definitions to be removed, leaving
+> only a generic adapter definition.
+> 
+> Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+> ---
+>  drivers/i2c/busses/i2c-cgbc.c | 68 ++++++++++++++++---------------------------
+>  1 file changed, 25 insertions(+), 43 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-cgbc.c b/drivers/i2c/busses/i2c-cgbc.c
+> index ac23435b731b..40ffab4fd0bc 100644
+> --- a/drivers/i2c/busses/i2c-cgbc.c
+> +++ b/drivers/i2c/busses/i2c-cgbc.c
+> @@ -12,9 +12,6 @@
+>  #include <linux/module.h>
+>  #include <linux/platform_device.h>
+>  
+> -#define CGBC_I2C_PRIMARY_BUS_ID	0
+> -#define CGBC_I2C_PM_BUS_ID	4
+> -
+>  #define CGBC_I2C_CMD_START	0x40
+>  #define CGBC_I2C_CMD_STAT	0x48
+>  #define CGBC_I2C_CMD_DATA	0x50
+> @@ -60,11 +57,6 @@ enum cgbc_i2c_state {
+>  	CGBC_I2C_STATE_ERROR,
+>  };
+>  
+> -struct i2c_algo_cgbc_data {
+> -	u8		bus_id;
+> -	unsigned long	read_maxtime_us;
+> -};
+> -
+>  struct cgbc_i2c_data {
+>  	struct device		*dev;
+>  	struct cgbc_device_data *cgbc;
+> @@ -73,6 +65,8 @@ struct cgbc_i2c_data {
+>  	int			nmsgs;
+>  	int			pos;
+>  	enum cgbc_i2c_state	state;
+> +	u8			bus_id;
+> +	unsigned long		read_maxtime_us;
+>  };
+>  
+>  struct cgbc_i2c_transfer {
+> @@ -115,10 +109,9 @@ static unsigned int cgbc_i2c_reg_to_freq(u8 reg)
+>  
+>  static int cgbc_i2c_get_status(struct i2c_adapter *adap)
+>  {
+> -	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
+>  	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
+>  	struct cgbc_device_data *cgbc = i2c->cgbc;
+> -	u8 cmd = CGBC_I2C_CMD_STAT | algo_data->bus_id;
+> +	u8 cmd = CGBC_I2C_CMD_STAT | i2c->bus_id;
+>  	u8 status;
+>  	int ret;
+>  
+> @@ -132,7 +125,6 @@ static int cgbc_i2c_get_status(struct i2c_adapter *adap)
+>  static int cgbc_i2c_set_frequency(struct i2c_adapter *adap,
+>  				  unsigned int bus_frequency)
+>  {
+> -	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
+>  	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
+>  	struct cgbc_device_data *cgbc = i2c->cgbc;
+>  	u8 cmd[2], data;
+> @@ -144,7 +136,7 @@ static int cgbc_i2c_set_frequency(struct i2c_adapter *adap,
+>  		bus_frequency = I2C_MAX_STANDARD_MODE_FREQ;
+>  	}
+>  
+> -	cmd[0] = CGBC_I2C_CMD_SPEED | algo_data->bus_id;
+> +	cmd[0] = CGBC_I2C_CMD_SPEED | i2c->bus_id;
+>  	cmd[1] = cgbc_i2c_freq_to_reg(bus_frequency);
+>  
+>  	ret = cgbc_command(cgbc, &cmd, sizeof(cmd), &data, 1, NULL);
+> @@ -170,7 +162,7 @@ static int cgbc_i2c_set_frequency(struct i2c_adapter *adap,
+>  	 * can be read by a command is CGBC_I2C_READ_MAX_LEN.
+>  	 * Therefore, calculate the max time to properly size the timeout.
+>  	 */
+> -	algo_data->read_maxtime_us = (BITS_PER_BYTE + 1) * CGBC_I2C_READ_MAX_LEN
+> +	i2c->read_maxtime_us = (BITS_PER_BYTE + 1) * CGBC_I2C_READ_MAX_LEN
+>  		* USEC_PER_SEC / bus_frequency;
+>  
+>  	return 0;
+> @@ -200,7 +192,6 @@ static unsigned int cgbc_i2c_xfer_to_cmd(struct cgbc_i2c_transfer xfer, u8 *cmd)
+>  
+>  static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
+>  {
+> -	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
+>  	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
+>  	struct cgbc_device_data *cgbc = i2c->cgbc;
+>  	struct i2c_msg *msg = i2c->msg;
+> @@ -210,7 +201,7 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
+>  	u8 cmd_data, data_len;
+>  
+>  	struct cgbc_i2c_transfer xfer = {
+> -		.bus_id = algo_data->bus_id,
+> +		.bus_id = i2c->bus_id,
+>  		.addr = i2c_8bit_addr_from_msg(msg),
+>  	};
+>  
+> @@ -268,7 +259,7 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
+>  
+>  		ret = read_poll_timeout(cgbc_i2c_get_status, status,
+>  					status != CGBC_I2C_STAT_BUSY, 0,
+> -					2 * algo_data->read_maxtime_us, false, adap);
+> +					2 * i2c->read_maxtime_us, false, adap);
+>  		if (ret)
+>  			goto err;
+>  
+> @@ -282,7 +273,7 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
+>  			goto err;
+>  		}
+>  
+> -		cmd_data = CGBC_I2C_CMD_DATA | algo_data->bus_id;
+> +		cmd_data = CGBC_I2C_CMD_DATA | i2c->bus_id;
+>  		ret = cgbc_command(cgbc, &cmd_data, sizeof(cmd_data),
+>  				   msg->buf + i2c->pos, len, &data_len);
+>  		if (ret)
+> @@ -350,44 +341,35 @@ static const struct i2c_algorithm cgbc_i2c_algorithm = {
+>  	.functionality = cgbc_i2c_func,
+>  };
+>  
+> -static struct i2c_algo_cgbc_data cgbc_i2c_algo_data[] = {
+> -	{ .bus_id = CGBC_I2C_PRIMARY_BUS_ID },
+> -	{ .bus_id = CGBC_I2C_PM_BUS_ID },
+> -};
+> -
+> -static const struct i2c_adapter cgbc_i2c_adapter[] = {
+> -	{
+> -		.owner		= THIS_MODULE,
+> -		.name		= "cgbc-i2c0",
+> -		.class		= I2C_CLASS_DEPRECATED,
+> -		.algo		= &cgbc_i2c_algorithm,
+> -		.algo_data	= &cgbc_i2c_algo_data[0],
+> -		.nr		= -1,
+> -	},
+> -	{
+> -		.owner		= THIS_MODULE,
+> -		.name		= "cgbc-ddc0",
+> -		.class		= I2C_CLASS_DEPRECATED,
+> -		.algo		= &cgbc_i2c_algorithm,
+> -		.algo_data	= &cgbc_i2c_algo_data[1],
+> -		.nr		= -1,
+> -	},
+> +static const struct i2c_adapter cgbc_i2c_adapter = {
+> +	.owner		= THIS_MODULE,
+> +	.class		= I2C_CLASS_DEPRECATED,
+> +	.algo		= &cgbc_i2c_algorithm,
+> +	.nr		= -1,
+>  };
+>  
+>  static int cgbc_i2c_probe(struct platform_device *pdev)
+>  {
+> -	struct cgbc_device_data *cgbc = dev_get_drvdata(pdev->dev.parent);
+> +	struct device *dev = &pdev->dev;
+> +	struct cgbc_device_data *cgbc = dev_get_drvdata(dev->parent);
+> +	struct cgbc_i2c_platform_data *pdata;
+>  	struct cgbc_i2c_data *i2c;
+>  	int ret;
+>  
+> -	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+> +	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+I was ready to send you the v6 (with your I2C patch) based on mfd-next,
+but I noticed an issue with this line. In v7.4-rc2 devm_kzalloc() has
+been replaced by devm_kzalloc_obj() (commit
+4dd10fbbeb9c33709edc89916e19c03c780a0751). I guess this will conflict
+during the merge. So I don't know how to proceed. Please let me know
+what to do.
 
-Ignore interrupts in IMX_I2C_STATE_FAILED so that the first error is
-returned.
+Best Regards,
+Thomas
 
-Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-Signed-off-by: Mehmet Fide <mehmet.fide@screeningeagle.com>
----
 
-Notes:
-    Tested on a Colibri VF50 on the Iris carrier, kernel at this base plus
-    "i2c: imx: acknowledge the count byte of an atomic block read" and
-    "i2c: imx: do not acknowledge the last byte of a block read of one
-    byte", with the M41T0 RTC at 0x68. A test-only hook passed the messages
-    that i2c_smbus_xfer_emulated() builds for a block read to the adapter,
-    alone and followed by a one byte read. Register 0x03 (0xae) as count
-    byte: without the patch -EINVAL 40 of 40, and a print in the default
-    case showed state IMX_I2C_STATE_FAILED with -EPROTO each time; with it
-    -EPROTO 100 of 100, as the atomic read returns. Count bytes of 0, 1 and
-    0x13 read the same bytes as before, and the bus works after each
-    failed read.
-
- drivers/i2c/busses/i2c-imx.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index ccf08cd63151..c7fef98934d4 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1142,6 +1142,9 @@ static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx, unsigned i
- 		wake_up(&i2c_imx->queue);
- 		break;
- 
-+	case IMX_I2C_STATE_FAILED:
-+		break;
-+
- 	default:
- 		i2c_imx->i2csr = status;
- 		i2c_imx->state = IMX_I2C_STATE_FAILED;
-
-base-commit: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
--- 
-2.56.0
 
