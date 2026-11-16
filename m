@@ -1,57 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794844177;
-	b=CkxQW07OW6GDVSXzaCopFUEWYYQ3vzk07E9cK1Bi+CBWosskhsoXbJoRtI0/NQtKjw3q
-	 pYoSQpBAzllJRvJo1XXnW/UrKvbUWIe4luUcjrUGwILE4tPBnmLzOxN5bVq1NYZCdDl5f
-	 DFCbLZkbBZij6De3ALrIrOiXf6/ISQZlVn5T6zgAmQcdZafFLeHjaZvaceIh7n22Av7Yi
-	 d4YX6/aRc27w8sWcyr1prMv7+56PANZPhli/P4Fjl6krO7ST4OS+BKZnAN4T3lbFGE+zJ
-	 U/6OoeW14vNg2WctirIhzylKpLI+kNKQR1WGFJKFwc4wiiQuCXbYyFvCB6MHg36N2RQ==
+	t=1794846818;
+	b=nlCN0QTLXsBxGCtBwmxqJAyQXpgBwBq1daHNl0l/q6/VZv+U5l4TxWsIir1SL6mi0OTZ
+	 gqhtJ2CIedys3CtXFIJXEPW72TR5j1tWfbZa9yFHwXOaw8GAfmmAq/cnnpjys5FS9j0vh
+	 sjz9ib3IAzyw6vPgRa/WQuT0GHPGAhRksb9k2mBhv6tHhAef3dv9ojyfDBAIP1WZHiLc7
+	 7tVlsy85YaFmmi5GcyQuGMTAfluwEDuXTFpHxEyU3A7lVbmRtkW/rwdPh2zaCDtj6lWaV
+	 Y4XYKat6dkLoYu17eLHLUj10zky1cKI9X4BKfrUiAk3RY936Y9HTB9BWZMBiOJ3ECCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794844177;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=9LPqHJ7+1oVkvrwe5gK+4+RwocL1Gh6Vu3hJ8plLtpc=;
-	b=Dal6y1JXsA3OMhjIxomMExBgwIRgThS+pGSnve6nJkqQs7/C0Bru2Gv6jwZnpdsO90o+
-	 NqQkVFMAhHjhASGE9BXxDY+g7kEg8k1QE3jkHh2uWIY8HDw5oIH6iqyrZ2Y6XD7Jd8/39
-	 hTo2tyO8qNKosyqQrb3SvkX0tWHZGbPwA/qd/QOBBwuo9wuuArJjVbPjH0tqpeh92TnrH
-	 t0AA8CDI1+RM/BZu+VdKTKuP3iIrOTBESD3f1Pnm+Apx6UY0jUcHMm8R/2CsPK6MIcjns
-	 d6DOcddPhqOnobI4rb8NhJiXjcqZ2tgfsXV0vvrmeweEjlycLlwrEFoYFdTyLG2PmhA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794846818;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=lAsf+sMMq5bVx/eFBObeO8BbOzzotZiN0ESA48dI7mg=;
+	b=ET2QjEUkQuQwN8CXNibcmp54zRsEQenhVRcUpb9qOG8LqaEmtzrB5oVGKu5Ekw0YVodx
+	 9iADqns0fEUGI7bC8U1/xSQv3WEpdHPyhal9kOtPsGV0hdscvVlhqq132gQ6xmRGGeHHI
+	 40jehYAp9UkHP+AOFZUGRRK1htL0yOx56REuK4KMDqomIb6ZoHgxNVzL7Xd+eXgrbjqjb
+	 WPr9wEurcCH4Ouo5OClTKMdlnY/qd9UWIhfAkQI8iGeOBlmLvfn1sdbUN2BRHVwgb8ESS
+	 ng/gH5l4pn8B1Lbr4JopJ4r9i3MBtCLbVEZ3Csms3ABevym6KStoH0vQo7SXYnO/5SQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IC+bJO5H;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NS5mYxsJ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE0CC606A333;
-	Mon, 16 Nov 2026 15:49:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C931E606A31C;
+	Mon, 16 Nov 2026 16:33:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IC+bJO5H
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9DF91F000CD;
-	Mon, 16 Nov 2026 15:49:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NS5mYxsJ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9BF81F000C4;
+	Mon, 16 Nov 2026 16:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794844177;
-	bh=9LPqHJ7+1oVkvrwe5gK+4+RwocL1Gh6Vu3hJ8plLtpc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=IC+bJO5HUXPPRjfFNoVDEPS6n3cyhDdWgaeENHn/BaxaCvGr5Rhi0vtoxhG4RV9uC
-	 elU9xOd4Mx+DFTSdNTcgsOsmncba3S/wt/wQhhsBwCHUOdaEB4ef8ECh/UJeJUf8KA
-	 /8W1FrYIanntePWIvLYohIWcz9/90xE0LmTilcqLvJZz+1A4JgayGhxmi43I6VwimX
-	 Xak7oTi2LH+YfFCKD1xdgSvxF4ea7q6NOnJhHy2vOgYqsL93FKE5IQS6hPu5Iqxgb0
-	 h8YUSKS6aRCe1Dk66+btrlLQehaf8v69iosXEob/ytswjX+IO7uH/2HQD8+qHgTQGJ
-	 XmqYesdB7iXrA==
-Date: Mon, 16 Nov 2026 15:49:32 +0000
-From: Lee Jones <lee@kernel.org>
-To: Thomas Richard <thomas.richard@bootlin.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v5 4/9] i2c: cgbc: Use plateform data to get bus ID and
- adapter name
-Message-ID: <20261116154932.GA97865@joneslee-macbookpro.roam.internal>
-References: <20261103-cgbc-i2c-storage-devices-support-v5-0-ac11f23fae51@bootlin.com>
- <20261103-cgbc-i2c-storage-devices-support-v5-4-ac11f23fae51@bootlin.com>
- <78cf973d-3434-4f81-82be-a22f4abcfe0c@bootlin.com>
+	s=k20260515; t=1794846818;
+	bh=lAsf+sMMq5bVx/eFBObeO8BbOzzotZiN0ESA48dI7mg=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=NS5mYxsJUyb5qdQX2jRqFMtqo8hreun+NiWu2e7s4itUbj4RgMszUIL/B4VIGMvnJ
+	 LkNL0gnC54IReO6iiL/Rj4H609ggPT3pMbZGfp6gdSHjzNjXaTH7SueYJe//3IHINV
+	 uGe5cq12+pSAye5OSZWbo4i/29l9WPUCZlOKRbCtZ0jwsMunyvQzVRpA1pja0vElWu
+	 oLApev6cmdh6e4kmXc9Yi40gVQtmYxVpywSeK75BwcwfZeWGvf5o08FmWX6OYp+qUG
+	 3h84P+2QT4qP67HTYmh7Em10WgPaLrjFBufa68BQ5Fk6m7yVbEFxGR4VaaG6Rw92cN
+	 Pbo7D9gQI6rKw==
+Subject: Re: [PATCH net-next v2 2/3] i2c: xiic: add KUnit coverage for
+ register access modes
+From: netdev-bot+sashiko@kernel.org
+To: ahmadexp@gmail.com
+Cc: netdev@vger.kernel.org, vadim.fedorenko@linux.dev, andi.shyti@kernel.org,
+ linux-i2c@vger.kernel.org, michal.simek@amd.com, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, kuba@kernel.org
+Date: Mon, 16 Nov 2026 16:33:37 +0000
+Message-ID: <179484681740.3136.17781028072212776292@kernel.org>
+In-Reply-To: <20261112163333.12523-3-ahmadexp@gmail.com>
+References: <20261112163333.12523-3-ahmadexp@gmail.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -61,184 +63,140 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <78cf973d-3434-4f81-82be-a22f4abcfe0c@bootlin.com>
 
-On Mon, 16 Nov 2026, Thomas Richard wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-> Hi Lee,
-> 
-> On 11/3/26 5:49 PM, Thomas Richard (congatec GmbH) wrote:
-> > Obtain the bus ID (from the BC point of view) and adapter name from
-> > platform data. This allows the specific definitions to be removed, leaving
-> > only a generic adapter definition.
-> > 
-> > Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
-> > ---
-> >  drivers/i2c/busses/i2c-cgbc.c | 68 ++++++++++++++++---------------------------
-> >  1 file changed, 25 insertions(+), 43 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-cgbc.c b/drivers/i2c/busses/i2c-cgbc.c
-> > index ac23435b731b..40ffab4fd0bc 100644
-> > --- a/drivers/i2c/busses/i2c-cgbc.c
-> > +++ b/drivers/i2c/busses/i2c-cgbc.c
-> > @@ -12,9 +12,6 @@
-> >  #include <linux/module.h>
-> >  #include <linux/platform_device.h>
-> >  
-> > -#define CGBC_I2C_PRIMARY_BUS_ID	0
-> > -#define CGBC_I2C_PM_BUS_ID	4
-> > -
-> >  #define CGBC_I2C_CMD_START	0x40
-> >  #define CGBC_I2C_CMD_STAT	0x48
-> >  #define CGBC_I2C_CMD_DATA	0x50
-> > @@ -60,11 +57,6 @@ enum cgbc_i2c_state {
-> >  	CGBC_I2C_STATE_ERROR,
-> >  };
-> >  
-> > -struct i2c_algo_cgbc_data {
-> > -	u8		bus_id;
-> > -	unsigned long	read_maxtime_us;
-> > -};
-> > -
-> >  struct cgbc_i2c_data {
-> >  	struct device		*dev;
-> >  	struct cgbc_device_data *cgbc;
-> > @@ -73,6 +65,8 @@ struct cgbc_i2c_data {
-> >  	int			nmsgs;
-> >  	int			pos;
-> >  	enum cgbc_i2c_state	state;
-> > +	u8			bus_id;
-> > +	unsigned long		read_maxtime_us;
-> >  };
-> >  
-> >  struct cgbc_i2c_transfer {
-> > @@ -115,10 +109,9 @@ static unsigned int cgbc_i2c_reg_to_freq(u8 reg)
-> >  
-> >  static int cgbc_i2c_get_status(struct i2c_adapter *adap)
-> >  {
-> > -	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
-> >  	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
-> >  	struct cgbc_device_data *cgbc = i2c->cgbc;
-> > -	u8 cmd = CGBC_I2C_CMD_STAT | algo_data->bus_id;
-> > +	u8 cmd = CGBC_I2C_CMD_STAT | i2c->bus_id;
-> >  	u8 status;
-> >  	int ret;
-> >  
-> > @@ -132,7 +125,6 @@ static int cgbc_i2c_get_status(struct i2c_adapter *adap)
-> >  static int cgbc_i2c_set_frequency(struct i2c_adapter *adap,
-> >  				  unsigned int bus_frequency)
-> >  {
-> > -	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
-> >  	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
-> >  	struct cgbc_device_data *cgbc = i2c->cgbc;
-> >  	u8 cmd[2], data;
-> > @@ -144,7 +136,7 @@ static int cgbc_i2c_set_frequency(struct i2c_adapter *adap,
-> >  		bus_frequency = I2C_MAX_STANDARD_MODE_FREQ;
-> >  	}
-> >  
-> > -	cmd[0] = CGBC_I2C_CMD_SPEED | algo_data->bus_id;
-> > +	cmd[0] = CGBC_I2C_CMD_SPEED | i2c->bus_id;
-> >  	cmd[1] = cgbc_i2c_freq_to_reg(bus_frequency);
-> >  
-> >  	ret = cgbc_command(cgbc, &cmd, sizeof(cmd), &data, 1, NULL);
-> > @@ -170,7 +162,7 @@ static int cgbc_i2c_set_frequency(struct i2c_adapter *adap,
-> >  	 * can be read by a command is CGBC_I2C_READ_MAX_LEN.
-> >  	 * Therefore, calculate the max time to properly size the timeout.
-> >  	 */
-> > -	algo_data->read_maxtime_us = (BITS_PER_BYTE + 1) * CGBC_I2C_READ_MAX_LEN
-> > +	i2c->read_maxtime_us = (BITS_PER_BYTE + 1) * CGBC_I2C_READ_MAX_LEN
-> >  		* USEC_PER_SEC / bus_frequency;
-> >  
-> >  	return 0;
-> > @@ -200,7 +192,6 @@ static unsigned int cgbc_i2c_xfer_to_cmd(struct cgbc_i2c_transfer xfer, u8 *cmd)
-> >  
-> >  static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
-> >  {
-> > -	struct i2c_algo_cgbc_data *algo_data = adap->algo_data;
-> >  	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
-> >  	struct cgbc_device_data *cgbc = i2c->cgbc;
-> >  	struct i2c_msg *msg = i2c->msg;
-> > @@ -210,7 +201,7 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
-> >  	u8 cmd_data, data_len;
-> >  
-> >  	struct cgbc_i2c_transfer xfer = {
-> > -		.bus_id = algo_data->bus_id,
-> > +		.bus_id = i2c->bus_id,
-> >  		.addr = i2c_8bit_addr_from_msg(msg),
-> >  	};
-> >  
-> > @@ -268,7 +259,7 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
-> >  
-> >  		ret = read_poll_timeout(cgbc_i2c_get_status, status,
-> >  					status != CGBC_I2C_STAT_BUSY, 0,
-> > -					2 * algo_data->read_maxtime_us, false, adap);
-> > +					2 * i2c->read_maxtime_us, false, adap);
-> >  		if (ret)
-> >  			goto err;
-> >  
-> > @@ -282,7 +273,7 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
-> >  			goto err;
-> >  		}
-> >  
-> > -		cmd_data = CGBC_I2C_CMD_DATA | algo_data->bus_id;
-> > +		cmd_data = CGBC_I2C_CMD_DATA | i2c->bus_id;
-> >  		ret = cgbc_command(cgbc, &cmd_data, sizeof(cmd_data),
-> >  				   msg->buf + i2c->pos, len, &data_len);
-> >  		if (ret)
-> > @@ -350,44 +341,35 @@ static const struct i2c_algorithm cgbc_i2c_algorithm = {
-> >  	.functionality = cgbc_i2c_func,
-> >  };
-> >  
-> > -static struct i2c_algo_cgbc_data cgbc_i2c_algo_data[] = {
-> > -	{ .bus_id = CGBC_I2C_PRIMARY_BUS_ID },
-> > -	{ .bus_id = CGBC_I2C_PM_BUS_ID },
-> > -};
-> > -
-> > -static const struct i2c_adapter cgbc_i2c_adapter[] = {
-> > -	{
-> > -		.owner		= THIS_MODULE,
-> > -		.name		= "cgbc-i2c0",
-> > -		.class		= I2C_CLASS_DEPRECATED,
-> > -		.algo		= &cgbc_i2c_algorithm,
-> > -		.algo_data	= &cgbc_i2c_algo_data[0],
-> > -		.nr		= -1,
-> > -	},
-> > -	{
-> > -		.owner		= THIS_MODULE,
-> > -		.name		= "cgbc-ddc0",
-> > -		.class		= I2C_CLASS_DEPRECATED,
-> > -		.algo		= &cgbc_i2c_algorithm,
-> > -		.algo_data	= &cgbc_i2c_algo_data[1],
-> > -		.nr		= -1,
-> > -	},
-> > +static const struct i2c_adapter cgbc_i2c_adapter = {
-> > +	.owner		= THIS_MODULE,
-> > +	.class		= I2C_CLASS_DEPRECATED,
-> > +	.algo		= &cgbc_i2c_algorithm,
-> > +	.nr		= -1,
-> >  };
-> >  
-> >  static int cgbc_i2c_probe(struct platform_device *pdev)
-> >  {
-> > -	struct cgbc_device_data *cgbc = dev_get_drvdata(pdev->dev.parent);
-> > +	struct device *dev = &pdev->dev;
-> > +	struct cgbc_device_data *cgbc = dev_get_drvdata(dev->parent);
-> > +	struct cgbc_i2c_platform_data *pdata;
-> >  	struct cgbc_i2c_data *i2c;
-> >  	int ret;
-> >  
-> > -	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-> > +	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-> I was ready to send you the v6 (with your I2C patch) based on mfd-next,
-> but I noticed an issue with this line. In v7.4-rc2 devm_kzalloc() has
-> been replaced by devm_kzalloc_obj() (commit
-> 4dd10fbbeb9c33709edc89916e19c03c780a0751). I guess this will conflict
-> during the merge. So I don't know how to proceed. Please let me know
-> what to do.
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
 
-Rebase your set onto v7.4-rc2 or -next.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [Medium] The new KUnit test in
+  drivers/i2c/busses/tests/i2c_xiic_kunit.c (xiic_register_access(),…
+
+--
+
+i2c: xiic: add KUnit coverage for register access modes
+
+This commit adds a KUnit suite that runs the xiic driver's private
+xiic_setreg*() and xiic_getreg*() accessors against kmalloc-backed memory
+instead of MMIO. It covers both byte orders, with native-width and forced
+32-bit access. The test file is included directly into i2c-xiic.c and is
+enabled by a new I2C_XILINX_KUNIT_TEST bool option that requires built-in
+KUnit.
+
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 275aaa7f35833..014281fa2be5c 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -1322,6 +1322,20 @@ config I2C_XILINX
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called xilinx_i2c.
+>  
+> +config I2C_XILINX_KUNIT_TEST
+> +	bool "KUnit tests for Xilinx I2C register accesses" if !KUNIT_ALL_TESTS
+> +	depends on I2C_XILINX && KUNIT=y
+> +	default KUNIT_ALL_TESTS
+> +	help
+> +	  Test the Xilinx I2C driver's register accessors with both byte orders
+> +	  and with native-width or forced 32-bit accesses. KUnit is a kernel
+> +	  unit testing framework. These tests use memory-backed registers and
+> +	  do not require an I2C controller.
+
+[ ... ]
+
+> diff --git a/drivers/i2c/busses/tests/i2c_xiic_kunit.c b/drivers/i2c/busses/tests/i2c_xiic_kunit.c
+> new file mode 100644
+> index 0000000000000..b4c818d8bac78
+> --- /dev/null
+> +++ b/drivers/i2c/busses/tests/i2c_xiic_kunit.c
+
+[ ... ]
+
+> +static void xiic_register_access(struct kunit *test)
+> +{
+
+[ ... ]
+
+> +	i2c = kunit_kzalloc(test, sizeof(*i2c), GFP_KERNEL);
+> +	KUNIT_ASSERT_NOT_NULL(test, i2c);
+> +	mem = kunit_kmalloc(test, 0x200, GFP_KERNEL);
+> +	KUNIT_ASSERT_NOT_NULL(test, mem);
+> +	/* Aligned RAM stands in for MMIO. No hardware is accessed. */
+> +	i2c->base = (void __force __iomem *)(mem + sizeof(u32));
+
+[Severity: Medium]
+Is it safe to push kmalloc memory through ioread*() and iowrite*() here?
+xiic_setreg32(), xiic_getreg32() and the 8/16-bit helpers call
+iowrite32(), ioread32be() and similar directly on i2c->base. Those
+accessors are only required to work on cookies returned by ioremap() or
+pci_iomap().
+
+On x86-64 this works, because the generic iomap code treats these
+addresses as plain MMIO. But I2C_XILINX_KUNIT_TEST only depends on
+I2C_XILINX && KUNIT=y and defaults to KUNIT_ALL_TESTS, and I2C_XILINX only
+needs HAS_IOMEM. As a result, the option can be enabled on architectures
+where RAM can't be accessed this way.
+
+On UML, tools/testing/kunit/configs/arch_uml.config sets
+CONFIG_KUNIT_UML_PCI=y. That pulls in UML_PCI -> UML_IOMEM_EMULATION ->
+INDIRECT_IOMEM and enables HAS_IOMEM. The accessors then end up in
+lib/logic_iomem.c:
+
+lib/logic_iomem.c:get_area() {
+    ...
+	if (WARN_ON((a & IOREMAP_MASK) != IOREMAP_BIAS))
+		return NULL;
+    ...
+}
+
+INDIRECT_IOMEM_FALLBACK is never selected, so the fallback
+real_raw_read*() and real_raw_write*() helpers WARN a second time, return
+~0 and drop the writes.
+
+Wouldn't that mean two WARNs per accessor call? Across 22 offsets and 4
+parameters that is about 2100 WARNs per run. Every expectation would fail,
+and with panic_on_warn=1 the kernel would panic. A plain kunit.py run with
+--kconfig_add CONFIG_I2C_XILINX=y looks like it would hit this.
+
+On s390 with PCI, __raw_readl() and __raw_writel() map to zpci_read_u32()
+and zpci_write_u32(). The test would then issue real zPCI load and store
+instructions on a heap address. Without MIO, the address is decoded as an
+iomap index plus a PCI offset:
+
+arch/s390/pci/pci_insn.c:zpci_load_fh() {
+    ...
+	struct zpci_iomap_entry *entry = &zpci_iomap_start[ZPCI_IDX(addr)];
+	u64 req = ZPCI_CREATE_REQ(READ_ONCE(entry->fh), entry->bar, len);
+	return __zpci_load(data, req, ZPCI_OFFSET(addr));
+}
+
+Could this fail with zpci errors, or reach an unrelated function's BAR if
+an iomap entry happens to match?
+
+On sparc64, __raw_readl() in arch/sparc/include/asm/io_64.h uses lduwa
+with ASI_PHYS_BYPASS_EC_E. That treats the kernel virtual pointer as a
+physical address and bypasses the caches.
+
+Because of this, the "No hardware is accessed" comment, the
+"memory-backed registers" Kconfig help text and the changelog only hold
+on architectures like x86-64. The rest of the series doesn't seem to
+change this Kconfig entry or the test file.
+
+There seem to be two ways to fix this. One is to restrict the option by
+architecture, for example depends on !UML && !S390 && !SPARC64, or an
+allow-list. The other is to route register access through a hook that the
+test can replace with a memory-backed implementation. With either one, the
+comment and help text should be updated to match.
+
+> +	i2c->endianness = param->endianness;
+> +	i2c->force_32bit_access = param->force_32bit_access;
+
+[ ... ]
 
 -- 
-Lee Jones
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261112163333.12523-1-ahmadexp%40gmail.com
