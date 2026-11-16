@@ -1,100 +1,107 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.180
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.181
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794853245;
-	b=okfSDspcN8xDgafwOOSZMTWIAuMXqOr3ojfRJ7YOhu45NGYipn/MWx8VJGCiIv7gNZr9
-	 CYirvzKpomv7ne7N2S8ZvyOE0KP/9J2yFMUdUx5R0JnlNLHmJvnU1F/38tHsSnVPQ6uFH
-	 KZi8mqMlKqPHErcMU4PU4oUWgy2Vx144PsTwkj6cFYhf+taExeJwZgjTcW1Zu3OdmXy9V
-	 orAd84TCWRKetYGSZVaoF2Uv9ONuQkkaj8AtKrNm6vzmi4ZHASLEVqI0mM4SmHXLrx2t4
-	 V1mo2aHbdZMIVe6/UHNAVcm4LS3ST/u7Zr5JukHcgXcz7YaZ4i7BPfOh4wpKU2OU+6g==
+	t=1794853249;
+	b=fbcgVpzqE/oGtIsvMtnDhrPOFNz/7aR49JjFdN1Ys6LF1900NW3xSwrUTEtkHCMOeQ+j
+	 vk8gvqx28XZdCFhbJ4NoSFr29E9vuzdRgKYz1GYN2ZExY4nUGWNfOKTrtRACekqkEe9V8
+	 texydH8dWca/gCs3iobNnTeeOT1H6ZwczLKQErqMhzCd92XbumEdQsdcWwDfz9m7wqUso
+	 oycA4BztW6jwl+cKlVPYPUp0rvdjD6dHFOvaz8rqO+4AXJFSPoDkYAjFcFrcfiWyhI4RK
+	 OMHL3UIEj48zbXAS94NUwRIlnMWaLUPbuf2THgbAOoqu0uqrmpvCeZZTFblriEAlMww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794853245;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794853249;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=focnNfHFlWYzCF1G01fF7j20QFYjF7BQNefzQKj/yZ4=;
-	b=FL784SGP2RNNZq1Vh69yp03chFZx2icFbMEjVaq9iqtAziLF2dbB2g49h2Vo7x50zKn9
-	 FuczlH7zND/3IlAWdud60LU5/7sOgZLiTU1PAWCYyiZolhAzSFb1TGiA0b8qq3bYZqn3m
-	 cwm1U04o3rbnQNTBTASsVTHGA3pFzOlXk0bYH+eqwQnA75Cc6ltYkMO0xwOcc68NmsBKy
-	 zKRvAm0ZahBHHJR79rDllevmQHWVmkyP8KEvddd+gOhNzevaXOoek/mXYp/lK64ETykm0
-	 GwMxQwYOsRpyqAAsO5YoVFWLMvLHQe9W5TgYcjsav+o5f+LuCm+ffoa+5dm2+UYpJyA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=gmcXc8PpLN8Y0P2f1bs8epH6lji2dvrS3zcd2mdMtMA=;
+	b=c030uY0Y6YhJ2iLkoMZYGTsmrTRyCzwA87Car2j1h4of3fuRcAwW7aKjptpJr/tMMF/9
+	 ziNKoF+4Y61689plky+ltMsXmmAGovtgFu3SwOHnlJKi/jyOXsHAhG+KRNXtzMR70mlHR
+	 d5heMaKFhErm8dgquEAToSo0jqgl7j7i9ovbnQFxDWEnoWN1WNsMqlSNvSSHj6YcALK1S
+	 8bNJA2LzDbePyPnnI2B7KVHOzr/o8Z+jQkzhnws9pkE8UmrLFCGmaM8TSrbx1uZ5mjWb0
+	 9hBxZOYlcGCwvk7JT8xwripfGIwqsJMvE238pbFPRVoKWm7OyiUUZkwzZQeXJ/8PMPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PbE+QY5R;
-	arc=none smtp.remote-ip=209.85.210.180
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="eqpuz/BN";
+	arc=none smtp.remote-ip=209.85.210.181
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F08606A31C
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 18:20:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 34F08606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B063606A329
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 18:20:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B063606A329
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PbE+QY5R
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-8a05b210703so1623247b3a.0
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 10:20:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=eqpuz/BN
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-8a0673d9bd2so2875671b3a.3
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 10:20:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794853244; x=1795458044; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=focnNfHFlWYzCF1G01fF7j20QFYjF7BQNefzQKj/yZ4=;
-        b=PbE+QY5R3gAv+sYo3vO4FqrcWA9jOXrUvOcbmg9EYAQynHF4FO7hCLYUhuIvMqadF8
-         n2g8wQW9PGrmSRIqRKSlWRCwU9OoiZ1WFo++fTlqbVNUvLJwEwx1K6Ec3T58rSnd6LhS
-         TWG9QtNKzuv2Rd9E/lbY/BxvhPvaYEWA9eFYiNTguVtNeSVYuG8I7Rn0ZNYJWGjKvpWN
-         ksZEDD+cE+0kEK8U9PIS7UMsN1O/fQUvVA3MfWAUsOwn0eX87opkU3vbGgpOjuo9Gs8b
-         DxH8zh84SZrnFgeon4dUM4JOVmi/xnOFfYLml5SK/qrSvStAG6rqhgK+X4bc3rHdK+7A
-         jFbw==
+        d=gmail.com; s=20260707; t=1794853248; x=1795458048; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gmcXc8PpLN8Y0P2f1bs8epH6lji2dvrS3zcd2mdMtMA=;
+        b=eqpuz/BNRewwnqPR7Lwmmdgpfh+V3P3GN1xkaOj9TGIfVxlvvUaeb+b61A4lFcZakD
+         HKNV7dYJ5vMNhJg2Jtbs+B/yB+qpMSvukXDC7F3N2y0KoPs7/Y2DMUDHjToOQFC0fBAL
+         1F3WSIjqXrRakyePJsE5t1QMuZKR/a/3H2nsMYW3k+MBDY+ry39LkA5DOakoRD0blMH+
+         UWilVCKHWpXJjoyXUTyAaA94q1v22loBGudWyAzccXQGLvpgst0Jk3lXv2X7lCgf5XTq
+         fQG8FEsdOvc+d50IF/heXA51aqJrZ3ReT2LM4/3aaH00qUJSwsxvMTXEuVGJP6gKVyvS
+         e8rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794853244; x=1795458044;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=focnNfHFlWYzCF1G01fF7j20QFYjF7BQNefzQKj/yZ4=;
-        b=G0D17n6HRe9d9CmPMrH3Xi9zmTImOdetCXDiaWdOnhxbaK9WFs7BekiPmjAttciE4w
-         I0XNRTnKGrxUBCdjXCU31z38BnbGqr3IRFsMAkZP+D/bV+KzxP/OdMT5UfwF6vEbYpKT
-         hKLZrCDSCFPYEuBFQ4e2PyMDyp1K28LbZtFMVaYPo0unMxn12yrRPxRRlSOk+RcgT+fr
-         phESYZqa2w1w8gtqw+xUOGvZkRjHvUiepkaTJJDUBgoe6sUKkZYE2sGuubyvscohrxO1
-         0Z2qWA9AGWOu+wPbNy+HlDXosjCFvTmpngKfCY3skcOyCOLbhY3AE3us0mlYYB93xqyl
-         6PIQ==
-X-Forwarded-Encrypted: i=1; AL+hErGiQJ4grDOQ516R8jfBfORR3w+NeSIFdzk0qk1c1izkNIdW59juGjhjYSvGSHjQMOErDQ1g8Xp2nIk=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/BzMKY1JQEFAx0Azac8Qn8ilZxe1/p9tu0quhA7jmd0F8xnz44
-	3s9CE0PGMeeIbya6mLvSHDS7WwtAIiVR/rzJ3/ladUpHhXLzeMVRc3Ih
-X-Gm-Gg: AZFdTZfxC2xlFUtwdQk6biBKT32CSsnp5TqJfLhA83MYU7uPpgKm6SDnT73H7ci67dk
-	uYJYvZePGJAygOUOIVEQTUpmmcy5EgLP1h+TLHGNKUtCQTXdgEr9w3Bg4RsNaQEft1dFDWFPphS
-	kJk1cVhETPlfqrTCmpHewfJ/ChAyG8Shrvah4h4IJ1c+Evqh+fUqH+rv0U4Mc98x2QADLX2Cj8v
-	E/ZGazz306rIACGZQUpRTMSP51LY0AL73qRNIgsWUu25vgDyOx4pRBuCgf5HxKmI0Va09QplWnD
-	a7NXYNyHUZu1NqIvUfRJ8NtSjbtD5Bz563T7GB/qJWe4RoqxORdaDADUTpT8nWvf851xjpRT8/z
-	jL96cPiDtfHlEkYpWJWALmqlCGyKdJyqU+25QOniA6K4tKMwr0UR3RQ1EJjYpHVV8Jnt7/D7z0f
-	055r4embe1r71a6kFZGJ6tzxFNCQXRWMWDUz2m2H7+CMNlgKd/bh58KNb+x53ituOWGJs1QXa+E
-	psK2n30LxDQaAFogod/IO1/J+5hO89E4L0uaxDMH06TcqxUGoZl55nd7Oc5ZcL6w/7aQVej55HV
-	LANGyprVza/3XCX46oKdsQRbI6kgrN/jdWli8JWXKXDs2Jg9kZs5XSrmycNcimrTXm+IuoBTKVH
-	rmqKE6Iz9mTAtb9MY/y7Q2w4GWfjmkS0DAZmW
-X-Received: by 2002:a17:903:4b0e:b0:2ed:4c7a:31e4 with SMTP id d9443c01a7336-2ee0d65e7a6mr107391405ad.1.1794853244283;
-        Mon, 16 Nov 2026 10:20:44 -0800 (PST)
+        d=1e100.net; s=20260707; t=1794853248; x=1795458048;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=gmcXc8PpLN8Y0P2f1bs8epH6lji2dvrS3zcd2mdMtMA=;
+        b=CFqYvaqaxr0FfaeE2jXYNLvpxYbuk7I9xn7CJhPHJlryKzzmUlfe/Q5ZmaWRnh4R2Z
+         B/YxHpEBx1jZH7xN9Q4GsbL1HuU05pyg/Ngp5WIIGhK93CK2ri4sbEaMUodOp3gODk1d
+         QcW0jzTnicCz+5jiMysLjdjbFgfTXUldYOAml3hZm4ab1jyu2HFYoEhtFLbzO09D7kM8
+         HE9mrR+QQ+9wD9zQwA29HZbAhyQtArEt3itYUJEKNo9Q0VhaPtHQPlYVabOXOmAYL8xw
+         tQ9S4rw6cdY/tKZr8TMAwGLyeNcfEHoUSGl8bjPXyQgnWMvgqZO/GXwKEJdkwFw5O5fy
+         Xgpg==
+X-Forwarded-Encrypted: i=1; AL+hErHXg6an3TeSTWgTKmelLFSVR+aghKjTawVela/4WnFyabWPaxWViwqLbA8mlLHXHjGAOuPsrvbXfgg=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8vApRr4uM2L0U+KMWe5DTLHNbeu5OVxOfdABn0PoM7+VFrI898
+	OkPR4vZmq2QxfD+kWt8/9mNcHy3BJiCpfODSsnw+lVF1Mv76r6jz/NTb
+X-Gm-Gg: AYBFou1Pc+Z+wXlRXfyDB9W6XP3Bp/yVhh3BovjYS3+dT8KaJ0rlj7oClJds82V1TOD
+	vd2DuYrALPYAPoFtDS4JFvdvGL5mor/HokcuwcJWwOUhhq/xUQwYS2f8tTilyKewaT2XtZR4V0c
+	6OIV0fLL5+nud7pxKWtQ+fYd4fOZHpu+br9g6RWZX+RN1CVScJ7B93Y4iVpcmEhUvv5B+IEgmfV
+	z7cCUtBSW78d7aWGJlJvxzYyY7Mc4c9z8tn6RcwCK/1EF7p6MfxLvkP99tFDY+RjKCT37C5h4Ne
+	5p7yhv4/9r1mQOHSpae7dU7Z+r4BG00gpm6SaPKINF5KKP2qBulDTvBG/y78GPFhOw+j1wROroF
+	NH/AK/L0knrm1x7nyuA9CxNbyjLWbl1nFsU8FkOkDobVQ9IYKTKsvpu1KnkkaaArKtRUSP4lNJ4
+	yJC0hA6whz7gGC2XQfxn2c4h5jPrLF7qTEXmvXVR3uiB18cpf1m5gres7zCKBTnSsyk5jPvd7vN
+	ucckw7DfEtNEY9ZEkXwP6cghVO8W7dif2ZQU/5AkJS8f4klZhzIkoTCeqM2xMU457VHMdd/KNe+
+	RZucoozXYqap7mxOTL2UdEZ/4009Ik7FtRO8705IEwwbXFlF1u95pJ3i+yp1h4n6YzJlzIml5ep
+	WcjZv5fqtg4DbhprnfokdiQKr3do64DVFQEhtjnwNT+iBzKSegLM5BcgYgQ==
+X-Received: by 2002:a05:6a20:9e4e:b0:3e2:827b:2b7e with SMTP id adf61e73a8af0-3f7a6ea143cmr11038256637.28.1794853247994;
+        Mon, 16 Nov 2026 10:20:47 -0800 (PST)
 Received: from localhost.localdomain ([12.162.234.74])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2efd76db8acsm3076325ad.11.2026.11.16.10.20.40
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bececce013sm4235466b3a.6.2026.11.16.10.20.45
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 16 Nov 2026 10:20:41 -0800 (PST)
+        Mon, 16 Nov 2026 10:20:47 -0800 (PST)
 From: Ahmad Byagowi <ahmadexp@gmail.com>
-To: netdev-bot+sashiko@kernel.org
-Cc: andi.shyti@kernel.org,
+To: netdev@vger.kernel.org,
+	vadim.fedorenko@linux.dev,
+	andi.shyti@kernel.org
+Cc: andrew+netdev@lunn.ch,
+	corbet@lwn.net,
+	davem@davemloft.net,
+	edumazet@kernel.org,
+	horms@kernel.org,
+	jiri@resnulli.us,
 	kuba@kernel.org,
 	linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	michal.simek@amd.com,
-	netdev@vger.kernel.org,
-	vadim.fedorenko@linux.dev
-Subject: Re: [PATCH net-next v2 2/3] i2c: xiic: add KUnit coverage for register access modes
-Date: Mon, 16 Nov 2026 10:20:38 -0800
-Message-ID: <20261116-wiwi-v3-87afa10a8-r1-ahmadexp@gmail.com>
+	pabeni@redhat.com,
+	rdunlap@infradead.org,
+	richardcochran@gmail.com,
+	skhan@linuxfoundation.org
+Subject: [PATCH net-next v3 0/3] ptp: ocp: support the WiWi production Time Card
+Date: Mon, 16 Nov 2026 10:20:44 -0800
+Message-ID: <20261116-wiwi-v3-87afa10a8-0-ahmadexp@gmail.com>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <179484681740.3136.17781028072212776292@kernel.org>
-References: <20261112163333.12523-3-ahmadexp@gmail.com> <179484681740.3136.17781028072212776292@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -106,11 +113,51 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Agreed. A RAM buffer is not a portable MMIO mapping. The proposed v3
-enables the RAM-backed test only on X86_64 with neither UML nor
-INDIRECT_IOMEM. The XIIC driver itself gains no architecture restriction.
-All four cases passed in an x86-64 QEMU guest. With XIIC and
-KUNIT_ALL_TESTS enabled, explicitly requesting the test on arm64, s390,
-SPARC64 and 64-bit UML with indirect I/O left it disabled.
+The WiWi Time Card (2163:1008, subsystem 10ee:0007) presents its timing
+peripherals behind a LitePCIe interface that requires aligned word MMIO.
+Add an opt-in access mode for XIIC, test both access modes, and support
+the revision 02 PCI interface in ptp_ocp. Patch 3 consumes patch 1.
+Could the I2C maintainers review patches 1 and 2 for an Ack to take
+them through net-next?
 
-pw-bot: cr
+Changes since v2:
+ - 1/3: Identify patch 3's WiWi XIIC child as the first user.
+ - 2/3: Restrict the RAM-backed test to direct x86-64 MMIO. Exclude
+   UML and indirect I/O; do not restrict the driver.
+ - 3/3: Match the board by its PCI IDs, validate revision and geometry
+   separately, and select typed XIIC data from the static board match.
+   Do not expose the SPI flash through MTD or devlink. Omit unsupported
+   GNSS2 interfaces, preserve external PPS2, and clarify firmware build
+   reporting. Refuse timing enables until the interrupt gate is open.
+   Distinguish WiWi's PCI interface from legacy Celestica.
+
+The driver objects build for x86-64 allmodconfig with W=1. All four
+XIIC KUnit cases passed on x86-64 QEMU with the same two I2C patches.
+An earlier revision of the driver on a revision 02 card confirmed
+64 MSI-X vectors and an advancing PHC. The new board policy and timing
+guard have not been run on that card. No claim of PPS lock, UTC accuracy
+or masked-event replay is made.
+
+Codex assisted with implementation, tests and changelogs using the
+board evidence, vendor revision rule and mailing-list feedback.
+
+v2: https://lore.kernel.org/netdev/20261112163333.12523-1-ahmadexp@gmail.com/
+v1: https://lore.kernel.org/netdev/20261111041904.48916-1-ahmadexp@gmail.com/
+
+Ahmad Byagowi (3):
+  i2c: xiic: allow platforms to require 32-bit register accesses
+  i2c: xiic: add KUnit coverage for register access modes
+  ptp: ocp: support the WiWi revision 02 Time Card
+
+ Documentation/networking/devlink/ptp_ocp.rst |  47 +++-
+ MAINTAINERS                                  |   1 +
+ drivers/i2c/busses/Kconfig                   |  15 ++
+ drivers/i2c/busses/i2c-xiic.c                |  60 +++--
+ drivers/i2c/busses/tests/i2c_xiic_kunit.c    |  91 +++++++
+ drivers/ptp/ptp_ocp.c                        | 242 +++++++++++++++++--
+ include/linux/platform_data/i2c-xiic.h       |   3 +
+ 7 files changed, 422 insertions(+), 37 deletions(-)
+ create mode 100644 drivers/i2c/busses/tests/i2c_xiic_kunit.c
+
+
+base-commit: 6964ff21c5d8b75649211a52dbfd92753e605649
