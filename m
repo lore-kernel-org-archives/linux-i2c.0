@@ -1,65 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=46.4.11.11
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794851641;
-	b=swpCrMnBwSuy90JUG5XWGNKzE/57C5JLVjIi42XxjwjTPeR1O4LPI3amXdrgqhil6whw
-	 yb+37RSOZhgR3pxTpZoIOgZ/Q/mUWmkMR2o7k7NKcZ2HFxBPKQjjDe1kEMKISCi9h9zQR
-	 SQMfMiGo52J2hhD8JyRdblOeOAy2XaJqF3wMI80p/4jghf7MB33NU9etja8P80CzpPSi9
-	 XHsImTT8jvCJlv6lHaqgk0eQv3N2y6SETPZSqNVu3yvjrl1Kq/4mstuHAdUNrPQGgkWhU
-	 2BFfuBeDmxD3ls/65gyr23P4r+seAg8PcOTP8+6b4xra5DjjyXUcJwF53ppja9Pbwzw==
+	t=1794851976;
+	b=J5Vm3OdT8PEB+/xD9KduRfUyV8cvMhHwm7QUwJmRxnBenAGJLp9VLoBiUe3PnioAEnav
+	 1vIYCZKf38ZYZhCmEZve1Jn7rFZYTid7MPaMZME7+V+LPG+BAItdHdkDcP4+/+ZWwP+FY
+	 +rvlx7dTfFw6FT6bVdAGqlkLc5Ygznu5/nHNZov8ARDx0hy8vmH3cf1njBen+PnzFfHgU
+	 CkWZmb/0lWgO5YOykEo3zJAtAKewZ9a4vbcQPJB3y7GALZnVc6hc5M27C+zkj1abxy5bB
+	 1NqRY5+hpKOwFG4MMoxwP8m2GrF0++kTB/dxMctEUmKy+Nni6uLTkR+VSf0tbBQKr4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794851641;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=d6JNnFfoaeyGY+wbe6iG5ANoRSPTTnQEghBDjZz1BM8=;
-	b=igwuEnuWutcTDm2holN+sHMuevYijOr6Fyumqk0pGJpe7IN5elPzJyTzM+xGSXhLfIU/
-	 Swbg8lGqh+/U6IFtx8JsKTloN4FTr5bWYbHX9q09a88Mps0JubL0LFZvidVYgfpcvt8UH
-	 IFvEj7SK0CP5oziUldmzG0KEGRJ0KM73Y4dTj01OmBc1ct/V3+aaYnmnUuOymBJpIm2Gx
-	 005yJh7nzmH1Y7r/WOHTLDCNUOTWZKcADWi0BR9HWVhoZo8Q6GdQdIOvRKsOmyj9oiADc
-	 fZnEuUrTtD0/bN2YH8j7McuEt6WR9St4Im3cQXEfRyCQLppkeIV/6J0j1Rak8XVNNJg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794851976;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=+nvE593UQ9d0U2IPo3a1ExhnUFrCrkM14breEsOZj/U=;
+	b=bauQLTyIn4Jlb7W6j0nWERRvx1+eI5HzXwKsaxAruoO7mhXbyUx7sU+eFj49+EKCwatj
+	 deD2azRjC2yS3Ni7ePOAz45Xon5YB1ZEpQ3j6OM3CIeEptCprF/BIV6/bxblTULpzmUvW
+	 QJwSUZqVMweS7rpeiA6rG7y27Io/ZYtgLCMB3xvI83ZhJiyfpACob3wtWDPmd+J/q31+2
+	 b1kjhhhIKfziFCUaMruOI2zBgpwxxmD+r+3TOuzBB8GX+N8Rjo1X8ofPGK9kiygQAN80H
+	 AzQ6cDT4kpVh9uFQfyaO9hbBBLFHgPK5JDsLbjLRs68idoJYM+3WrbZYKpQT6f+60lA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=phrozen.org;
-	spf=pass smtp.mailfrom=phrozen.org;
-	arc=none smtp.remote-ip=46.4.11.11
-Received: from nbd.name (nbd.name [46.4.11.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tUGhZBRQ;
+	arc=none smtp.remote-ip=209.85.128.49
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC15606A886;
-	Mon, 16 Nov 2026 17:53:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1DC15606A886
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=phrozen.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=phrozen.org
-Received: from [2a04:4540:1403:e6fc:5f71:2c1e:7d62:945f] (helo=bertha10..)
-	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <john@phrozen.org>)
-	id 1xT0tp-004GoI-1y;
-	Mon, 16 Nov 2026 18:53:49 +0100
-From: John Crispin <john@phrozen.org>
-To: Stefan Roese <sr@denx.de>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Christian Marangi <ansuelsmth@gmail.com>,
-	devicetree@vger.kernel.org,
-	lei.dong@airoha.com,
-	Linqi.zhang@airoha.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	Rajeev.kumar@airoha.com,
-	upstream@airoha.com,
-	Weifeng.xu@airoha.com,
-	zhengping.zhang@airoha.com
-Subject: [PATCH v3 0/3] i2c: mt7621: add Airoha AN7589 support
-Date: Mon, 16 Nov 2026 18:53:40 +0100
-Message-Id: <20261116175343.344425-1-john@phrozen.org>
-X-Mailer: git-send-email 2.34.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C837E606A33D
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 17:59:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C837E606A33D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=tUGhZBRQ
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4a9a8d6cea8so1237375e9.1
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2026 09:59:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1794851973; x=1795456773; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=+nvE593UQ9d0U2IPo3a1ExhnUFrCrkM14breEsOZj/U=;
+        b=tUGhZBRQZ0lPiurakct8TUDeJCPJwiKNmIgg2g/8DtVBDzVQERlreUcHlb2e73VL1+
+         BpVMRbdh6Zwu/OaPuoEyYeuaJWsRqfAztKK6tmEwC51Qa+g0WzfNa+L4zs8s7xc58Yqa
+         g6vb/aU20b86L4c88uA+mzwEeKNAjmQx5xlqNJAQeD6Q0eB+ntYHiYWMTUS+fUDXWlNP
+         PGaVITVZgITbxk9Tu4dZaf2e1eBJIVK5mMvVx/QmerATJ5dqXyWtvjqwPjaa2p4J5X9K
+         kHusHaMDMztT9Dj05Xck3P5pAK+aFlRvhVmnveaMZQHGmhNdO7UqRVojyfKHALpJ1VkA
+         pcXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794851973; x=1795456773;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+nvE593UQ9d0U2IPo3a1ExhnUFrCrkM14breEsOZj/U=;
+        b=NNQ/bJmsZPcSr5d+fpU1CH44xr14bR2zKoeXZBqfSvs5bnmcqsn52s+e81BiZhucrS
+         WtqKj2NlEzyQTp52UKm26/EfVOVhA4TZ6CMcJOgBhs0tqnywNfIemHY8jDb+gx0ng5r5
+         rfLEhUweP9eEtyJv+ataI0Q6sPSeaKyDKnyJPIIfnTaa8UL6VpzzH5TCMgJa1B34FV/I
+         PRuP9XrlL9sxG4c8QmkpI9c/1mUjYraz7ZGY1mTbRGYWsArBw7VohEvGjykg7aKuaX2y
+         VVKO7npKVZnRzSjTBCmkAscNwOSxWYPEaYbHSzau5UrxopvAgZ0xLIvVg88LKuBUx1dy
+         Fwww==
+X-Forwarded-Encrypted: i=1; AL+hErFVKFd8mk24czHZe5590uJcfBBFpwegq1rdj5jHjP9OWY4AUVVbDJi0Y7Nj1484tXJmQRPqc0FrOMA=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/iYTUckdUgS7lGdLo6U9nyuPps9diuDrK+Z4UxhuTmAyplAH0A
+	tBBMKEn5ZH1PPgWkhJ3cD06DK4p9B8RD1eLp7ursw8i2kRuXY0kzDo/8
+X-Gm-Gg: AYBFou3yhDmPEkyrIkahysO+bIyDYQ5rgiDBUSeD7Pu+wXPX9Mp6yjEseyAOIUN5uGl
+	Wb5qLd7CWXwwHJBcDMVN3ii44aEBfUxq6/qMdgOsdtzasepYKztXezZ7EYHeCPslQQ8VZvGa38F
+	Dn4tY4noQAzTGYXbTMSMrtsF54pfVMpsVEKMiNI7tGd0Sz3Lhp9y6uX5xKGMLcZcHrTgp+xbMU3
+	Cix9Gc1AojYdVeZ2BlvmwP0FTJzsAEyFGnQkJf3YJpF/OOGtiWR8IsV6QVFQXXZVNul4gPo7Qy+
+	TtIjNn9G5QEMb4Hp/E9XINTuOs2P+dJLVRP+H5qV7dlWCTS2mOQuQ5d4FMdu5cXx7aJGsMSNopZ
+	IsCUPTX8T8LWdI1RZO6bzXU1n4eZA6m8qMsjxDsBZyjb9ZujGRsED17gc7teplhsUFO4CQVQLnY
+	qegScmqnD56t4aqeYvg0uFRSSX5MZ/XC7qrB6liOhYx8URa0LxdtDxyaoHJ8Kzc1CxvUfuCpklq
+	Px68FA8eI0iYM34qwNrSNOIxEZvUPM6J2EVZUeQCtRDOsBUTwzX9xpg24oTyiHc7iQu
+X-Received: by 2002:a05:600c:678a:b0:4a1:d49e:9ce with SMTP id 5b1f17b1804b1-4bb78372a20mr8533235e9.2.1794851972940;
+        Mon, 16 Nov 2026 09:59:32 -0800 (PST)
+Received: from eichest-laptop ([2a02:168:af72::cb4])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c5f5972a7sm22431108f8f.21.2026.11.16.09.59.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Nov 2026 09:59:32 -0800 (PST)
+Date: Mon, 16 Nov 2026 18:59:30 +0100
+From: Stefan Eichenberger <eichest@gmail.com>
+To: Mehmet Fide <mehmet.fide@gmail.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Oleksij Rempel <o.rempel@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, mehmet.fide@screeningeagle.com
+Subject: Re: [PATCH] i2c: imx: acknowledge the count byte of an atomic block
+ read
+Message-ID: <avtEgpw9YpIzCj5p@eichest-laptop>
+References: <20261116122707.1349139-1-mehmet.fide@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -69,47 +103,64 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261116122707.1349139-1-mehmet.fide@gmail.com>
 
-The Airoha AN7589 carries the MT7621 I2C controller with a second
-control register that holds a 16 bit clock divider. It runs without
-SCL stretching.
+On Mon, Nov 16, 2026 at 01:27:06PM +0100, Mehmet Fide wrote:
+> From: Mehmet Fide <mehmet.fide@screeningeagle.com>
+> 
+> i2c_smbus_xfer_emulated() sends the read message of an SMBus block read
+> with a length of 1 and I2C_M_RECV_LEN. i2c_imx_prepare_read() clears
+> I2CR_TXAK only for a message longer than one byte, so the atomic read
+> does not acknowledge the count byte. The target stops sending, the rest
+> of the block is read as 0xff and the transfer reports success.
+> 
+> The test for I2C_M_RECV_LEN was dropped when the read was split into
+> i2c_imx_prepare_read() and its callers. Commit a5d0b9e32745 ("i2c: imx:
+> fix emulated smbus block read") added it back to the interrupt driven
+> read only. The DMA read never gets an I2C_M_RECV_LEN message.
+> 
+> Fixes: b460b15b3cc2 ("i2c: imx: separate atomic, dma and non-dma use case")
+> Cc: stable@vger.kernel.org # v6.13+
+> Signed-off-by: Mehmet Fide <mehmet.fide@screeningeagle.com>
+> ---
+> 
+> Notes:
+>     Reported by the Sashiko review of "i2c: imx: test the block read flag of
+>     the message that is read":
+>     https://sashiko.dev/#/bug/linux-09e3015b-fc03-4410-809b-82964cdfac9c
+>     
+>     Tested on a Colibri VF50 on the Iris carrier, kernel at this base, with
+>     the M41T0 RTC at 0x68. The core takes the atomic path only after
+>     SYSTEM_RUNNING, so a test-only hook called xfer_atomic() with interrupts
+>     disabled, with the two messages that i2c_smbus_xfer_emulated() builds
+>     for a block read. Register 0x04 (0x13) as count byte: without the patch
+>     0x13 and then 0xff (50 of 50, return 2); with it the next registers,
+>     the same bytes as the interrupt driven read (50 of 50). With a count
+>     byte of 1 (register 0x05): 01 ff before, 01 01 after (50 of 50 each).
+> 
+>  drivers/i2c/busses/i2c-imx.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index ccf08cd63151..1a3fc245d6ba 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1283,7 +1283,7 @@ static int i2c_imx_prepare_read(struct imx_i2c_struct *i2c_imx,
+>  	 * Reset the I2CR_TXAK flag initially for SMBus block read since the
+>  	 * length is unknown
+>  	 */
+> -	if (msgs->len - 1)
+> +	if ((msgs->len - 1) || (msgs->flags & I2C_M_RECV_LEN))
+>  		temp &= ~I2CR_TXAK;
+>  	if (use_dma)
+>  		temp |= I2CR_DMAEN;
+> 
+> base-commit: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
+> -- 
+> 2.56.0
 
-Patch 1 resets the controller with reset_control_assert() and
-reset_control_deassert() instead of device_reset(), as the EN7581 and
-AN7589 reset controller has no .reset operation. Patch 2 adds the
-compatible, with mediatek,mt7621-i2c as the fallback. Patch 3
-describes the variants as match data and uses the wider divider for
-bus rates down to about 3 kHz.
+Thanks for the fix.
 
-The series applies to next-20261105 and has no dependencies.
-
-Changes in v3:
-- Patch 1: add the Reviewed-by of Philipp.
-- Patch 2: add the Acked-by of Conor.
-- Patch 3: compute the AN7589 divider with constant limits, so a clock
-  rate below 1 MHz cannot wrap it (kernel test robot, sashiko).
-- Link to v2: https://lore.kernel.org/r/20261112185820.1315718-1-john@phrozen.org
-
-Changes in v2:
-- Add patch 1. It replaces "clk: en7523: add a reset operation" from
-  the clk series, as Philipp suggested.
-- Patch 2: add mediatek,mt7621-i2c as the fallback compatible (Conor).
-- Patch 3: the extended divider supports bus rates down to about 3 kHz.
-  Set it up before the controller is enabled.
-- Link to v1: https://lore.kernel.org/r/20261111093941.691801-1-john@phrozen.org
-
-John Crispin (3):
-  i2c: mt7621: assert and deassert the reset line
-  dt-bindings: i2c: mt7621: add Airoha AN7589
-  i2c: mt7621: add support for Airoha AN7589
-
- .../bindings/i2c/mediatek,mt7621-i2c.yaml     | 10 ++-
- drivers/i2c/busses/i2c-mt7621.c               | 70 ++++++++++++++++---
- 2 files changed, 70 insertions(+), 10 deletions(-)
-
-
-base-commit: ddfe51b0a0f5dc9e415cc2c8ad8db17532dd426b
--- 
-2.34.1
-
+Reviewed-by: Stefan Eichenberger <eichest@gmail.com>
