@@ -1,98 +1,77 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.127.101
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794909692;
-	b=2Yx4Fux65XoR6XobyO7zV7iYytk7rZHtxGQUsa6svpcBGo8x2ZQY7sddogOmsYIDq2bP
-	 F05DB62yEj22hJSotCd12Q0yBc0Fq8jooEzUVEwgXzgj/CF3+IFlrlUMU5Kom8u9KwPay
-	 dGItP+ulYAzr0dL3piKKeg0MPddVfBR2j4CyPYysv85wu9KKyxzXKE9+ZbSChAzblAmoE
-	 lpeT13skazNW4bxJQ8jtm/lBUgyEHbReZenhse4UGFi5A62sIaZC/gP3ipjJNdJjCCSXw
-	 aeNoRhhnfDg0HBIgWHRfLDnjenkdnGryDED9xQqQ00yMT7GbRhXU0ZL+7L3TAyUgAfA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794909692;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Subject:Content-Language:To:Cc:References:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=wd+q+q1B0EpOsj8l3RfyiGN4m0aqjMHCrU1KbhR9sZs=;
-	b=hwuHGhhqNQ7432StY5mdIl66dEjO0OmD2heClPG3fjTVokbazaYkZY/slFB1D0PVEUmk
-	 X5RnEXN65WlUZjQAcLvMhxCRqV+jBKrWbO52rBmgDXkE01qagsIti6GlBZAwBZT8DzgE+
-	 Nd5aAZ1R6ql69ptRNrsWlivQUVrJoBtz54sbHU5arCqG7upLBA4QYNf+/YJJDZjeYkMgv
-	 y3PxykPp/2bUXRkx1S3g5Y44D2L+7RJoEUr3QoqTYTNbwHd85HL7fDV7wpTBmOVvPveLR
-	 NC3ugVetOL9rJ6iQGiPOkjsewxAgAHe7RzZ4V7g6kUwXzoCKoQKjkuKDgxrAVd2LsUA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=amlogic.com;
-	spf=pass smtp.mailfrom=amlogic.com;
-	dkim=pass header.d=amlogic.com header.i=@amlogic.com header.a=rsa-sha256 header.s=selector1 header.b=BZs4uXTB;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.127.101
-Received: from TYDPR03CU002.outbound.protection.outlook.com (mail-japaneastazon11023101.outbound.protection.outlook.com [52.101.127.101])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=212.227.15.3
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794910012;
+	b=gD2w60DY73AteYh8mY3fs8FpHk1PB+J6hLIAe80KEFnRrwROf7IdJnUukLLG1fO9UG+3
+	 1dUmjjfGfq22aXY860kqRh5Y0jhrFSiMKS7TKu/Yy4dzlgP1Gf2tCDRB6g64jAMdfMK/q
+	 KpjmrJLQluhXoOaCJd43O3O9wvCGg8iu7p3gsdklQky2UqHUVoZIgUdx4aRYQSAxlQ0mX
+	 3k1Pe4uHyPZmdgguixAxD5tJmaw2g38cm+iOsIsDzHz3rVD3UgTe2iJGh3oPaSoY4+vWA
+	 3LBtTjUJGyxqTGAn5dx4O5UWSJEnO9h8NR2id6SK8Hk0vA0kWkBYzpdvZGhJK9D6cog==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794910012;
+	h=DMARC-Filter:DKIM2-Signature:Message-Instance:DKIM-Signature:
+	 X-UI-Sender-Class:Received:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Provags-ID:X-Spam-Flag:
+	 UI-OutboundReport;
+	bh=Ntr8PEGmlRO3PYN06EGTXmyLQ8vwRW6LTHIMnPTPO0s=;
+	b=rEyA+JFDZwEyjTSBo8nPAMkfeDYnxJEKuBpFXwdHBXYuXoM9kUACo3JI+kjYO/DqYchC
+	 ZRvcxehnuVhVXCZl9+ZyYJ6awOaPDf5nbjUwL/eN8KDdkCU+kri6EjQb83u7WSQCyODLD
+	 dXs9X1ySdXNZXxjg4+hk+mrKXSkTZhoOQTalExutT+nKOAUBoVJgjMsdQuwPnE3daVpCJ
+	 qIiQtZmQxEJ4UQ6aQ6UidFAWdJKUWkbvLMvEIneSVZZGkZIO7OqsFJ48xNW9Eg8Bdj8wL
+	 359Ni7j1GE0sJ5n7LrqnIqglBoVO2W0Zelr2n74VmYPc5PUVZU1KeKj8epZr2fou4Sw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=web.de;
+	spf=pass smtp.mailfrom=web.de;
+	dkim=pass header.d=web.de header.i=markus.elfring@web.de header.a=rsa-sha256 header.s=s29768273 header.b="JhC/bJcM";
+	arc=none smtp.remote-ip=212.227.15.3
+Received: from mout.web.de (mout.web.de [212.227.15.3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11685606A323;
-	Tue, 17 Nov 2026 10:01:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 11685606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amlogic.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amlogic.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03BE9606A323
+	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 10:06:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 03BE9606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=amlogic.com header.i=@amlogic.com header.a=rsa-sha256 header.s=selector1 header.b=BZs4uXTB
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=s5UOQNoB/zXC2Zevlzz6xdyrxj/UiDflmUVNcH366bY5QRl9ar3mLy8UBWB979mO6OSGQGcfL5TJfS5fITHn6Siw+I18Qf/742bunBgzINy+kqrB6Je/A5WpknYJwXS51miCFwh0c3FcbAh5zISdvrTLFhCTDOi7IiOwdc4ApZWW30UDbpKRPw6bJr3aFaiIhsCk3J1fGNO1/jIfOSWxKQg1D3EAzSgpFWd+x6qjb0rKatUJ6Zd2YHdy173311xmog0R8Yn5aUjfIaSo9cnLLqKrmj6m6c+e/HYc/5x1kLoyieszRbF0CWGkyWEQj9SWNznSJAAS/GyqguBHv16tNA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wd+q+q1B0EpOsj8l3RfyiGN4m0aqjMHCrU1KbhR9sZs=;
- b=e2aSkCyExQuQzPVyVZiRBhs2KeO2g7f6YH2mDVusKoHdzl9b7bUW7Luf1BwNk/jp1fo26xKdbPuncT5lQrrx3mtHrSHjXfAFhaNtNtp3AvlVIj7n6uhDW8Xyka4KGmzhLt0/l2V6I9BjUUFgXo29jjrrepaxagvNUvpQh1igO7arYWpnIoXhcqiKiI2u5SqpzyoMWhIzNe4zyW6DD9An2w4EXG6MREBTb8yG3DB/H1X0bFO6320h6v+Slzu0S9YIvmrEmBQOje4BtMo7bnP/w7JbD0L75Kch5QW5gETnVGZUZ4w2BV4JuhnQYS5ddzLTifFOz6efmHe+gql1NbzARQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amlogic.com; dmarc=pass action=none header.from=amlogic.com;
- dkim=pass header.d=amlogic.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amlogic.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wd+q+q1B0EpOsj8l3RfyiGN4m0aqjMHCrU1KbhR9sZs=;
- b=BZs4uXTBn1eLFDDkhp4HTBkXyb6/UrRIsyF3UqywAsdLFOnwdviGudF2jBfFUYsZCqJSfIywEJSgRWyRsR30LN4J7BfbPsyHtDF8yVPqmpi3AUC3kUzLif22veR1cmLkVsZuYMXD5TSF3WPe7GUpWWw1zvazm9WEuOPjkkc0lT3atOBhF2p3BzFfQGa8Z2mi+Sz2ErtbvBeY2fKtM3riebzCQV4R8T1PTvGcKie4hsLp3nUEaxpA6H1f6n7oB+gxxBJE7sHUhasneSf/l9reFuzDtW0YSfnyIPHUgesGalLAld8JBhQ8zuQVwpll/MIh2lxzWO5zxa/S66rzenaPPg==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amlogic.com;
-Received: from TYZPR03MB6896.apcprd03.prod.outlook.com (2603:1096:400:289::14)
- by KUXPR03MB9438.apcprd03.prod.outlook.com (2603:1096:d10:4d::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Tue, 17 Nov
- 2026 10:01:29 +0000
-Received: from TYZPR03MB6896.apcprd03.prod.outlook.com
- ([fe80::78d4:9dee:2e32:d1e4]) by TYZPR03MB6896.apcprd03.prod.outlook.com
- ([fe80::78d4:9dee:2e32:d1e4%7]) with mapi id 15.21.0615.013; Tue, 17 Nov 2026
- 10:01:29 +0000
-Message-ID: <cd3d821b-1cc7-4134-b902-1f05ca2526dc@amlogic.com>
-Date: Tue, 17 Nov 2026 18:01:24 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 2/2] i2c: amlogic: Add Amlogic A9 I2C controller driver
-Content-Language: en-US
-To: Markus Elfring <Markus.Elfring@web.de>,
- Junyi Zhao <junyi.zhao@amlogic.com>, linux-amlogic@lists.infradead.org,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <20261117-a9-i2c-v9-0-7b303c894fea@amlogic.com>
- <20261117-a9-i2c-v9-2-7b303c894fea@amlogic.com>
- <7026e0f7-5d7a-4756-8783-4d8558f420d1@web.de>
-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
-In-Reply-To: <7026e0f7-5d7a-4756-8783-4d8558f420d1@web.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SI2P153CA0026.APCP153.PROD.OUTLOOK.COM
- (2603:1096:4:190::18) To TYZPR03MB6896.apcprd03.prod.outlook.com
- (2603:1096:400:289::14)
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.a=rsa-sha256 header.s=s29768273 header.b=JhC/bJcM
+DKIM2-Signature:  i=1; m=1; t=1794910009;
+ mf=PE1hcmt1cy5FbGZyaW5nQHdlYi5kZT4=;
+ rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
+ d=web.de;
+ s=s29768273:rsa-sha256:g+qFO2SHejJTQl4kHVaMp2i9/x5C
+   8jrngzpVYdFqT9vV4Ci1YnlzOswSU4wM3D7RVqBdfvcTsuDS0dXgrQYPpHxOsF6NNjYuuC6+iLt
+   GNHtQtODDKYpvRakIsJjZvubCIgt5Jn7I8XdF3Iy8tmuUwUQOsOW+pXGs9Efw8PESQEeID/Lt1k
+   6mVaVpxrDA/kDNj0COgm2hNEy7MdjfbPjzljEwV2hLhvQ2lbr4NnvptAth+Qhn978SQ0OwShCTK
+   VlNnn59uAJvWIm4cc5nPLFkPlRdahle4wrp0+P6crP1L40J8G1CQAWcMyyp7Ki3uylo8oTMkC/t
+   BzyTIiEYY5qoQQ==;
+Message-Instance:  m=1;
+ h=sha256:
+   NKwsYXHmqn45NZOrpyyw14aRH7lfrzYfSuBhd2u1XrE=:
+   Ntr8PEGmlRO3PYN06EGTXmyLQ8vwRW6LTHIMnPTPO0s=,
+  sha512:
+   +K4LXoqaAUHdqNUnq7IWYxJswHnHQOsEjNgcQSPIqkwNcEMYzuaR7HvXKPJVf5LF+onQ5RZ/tgNw2x7HcwEx7A==:
+   /KGLbByOwim0rlrxRqe9NvMW8BXKk72i6ciKjnbFhNtZ1jxjhiWpGYus6CgthVxcTy+TTHUP06kZuKZwMdmEPA==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1794909975; x=1795514775; i=markus.elfring@web.de;
+	bh=Ntr8PEGmlRO3PYN06EGTXmyLQ8vwRW6LTHIMnPTPO0s=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=JhC/bJcMb0R/bGRDiJmM+ffSrmcNwTFQRG0c+1JUpC069/8riRDsqbxaOlJqtVkG
+	 XEDBRg/bf4DM43ikshlBPYwJUMZLUN5a5+P1OBuH6LHzDq4qyTq+0QITY1B+ymjPn
+	 0utOMalClBwKD6rNN+TwO8270NoLOaJgYWhNxICRlB0qY20seAbJ9qYqgo5vCL2tw
+	 sHxg0fMxcNsH0c7+IuG3QeYIYYgrO4mGMbnRJWgSZ8tx0d5ZKqa8hg5xoXJIVsU4F
+	 IpKtJHKISTxBBBH9MbEBqcmn4dRzrtIxYi2MF7DAAGhbI9UF5J5RM/4np7EV8CkVK
+	 1jgUzT8e1UbDhySHxQ==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from client.hidden.invalid by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1MJnrh-1x9oLv1R7p-00LpF8; Tue, 17
+ Nov 2026 11:06:14 +0100
+Message-ID: <54461ef0-033d-4ea4-b160-7da5afd34a43@web.de>
+Date: Tue, 17 Nov 2026 11:06:12 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -102,146 +81,141 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: TYZPR03MB6896:EE_|KUXPR03MB9438:EE_
-X-MS-Office365-Filtering-Correlation-Id: d34ff406-4659-46f6-be8c-08df4491c010
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|23010399003|366016|1800799024|4143699003|11063799006|56012099006|261026121527099003|261026135527099003|261026140227099003|261028144727099003|10067099003|261022115727099003|261021130227099003|261021135927099003|261021133027099003|261022075727099003|261021123027099003|261022113327099003|261021121427099003|261022105027099003|261026130827099003|261102123227099003|261009223027099003|18002099003|22082099003|6133799003;
-X-Microsoft-Antispam-Message-Info:
-	l3HnYdkiGf7E1+sKKUqjlkLC6MPjvufG1ZYA93ZUtSbhnQnh21HLwFelIGF0vL8I4VJzUkjcOzXMYxMqtwsS2U+twp09sMHAuC6JL9A0R8sTsd+Tl57apAI4m3O5EJqEfj/u5g+Pwa8lX0ULm2swSPQc88lNan17auZQNXNa/Sl49tklyZwMizjNY4+G1+dXWIxwpeKgu57PiCIsCyP6xGjkUuQj6Fp5n3DPW0RlAc9GkB1urhJM7R3RUe04NlUZmsprw0Uh7dbmgF1Zdij8P0ewWDHFIUZIq54tUkr4fjltnA0VkG9wwr2Gru/ad6MfFjy9QHNwKdZN9G5IFgXgm2Sd1HyNFoazToJssyIlCQhYfg84xjMzukKPf8dKhMVRc75Pt7eQCBvDN7qfW0Ti1GwdNcVr1zgk7dO7AxpWaLJ5q9RGWie+OzgyK2gf4RN/zUWzW8HnoC7uaDm7xWzxeACnHjNuUdfoxYpCYfRXJTR1yNy43pJXpbv1xS9o7YqjO5+9I9rlKiFcMbd2niiMk7CR+naZVlHs8M16gRMDHidwM5rackqe3yPrUZWaH0XFupTGOl0kHJ27jA+vTBJ8lAjJFWxRkmUk4jFBWB8CCjfVj7hS58d5UY6bG58kt0Jf
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYZPR03MB6896.apcprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(366016)(1800799024)(4143699003)(11063799006)(56012099006)(261026121527099003)(261026135527099003)(261026140227099003)(261028144727099003)(10067099003)(261022115727099003)(261021130227099003)(261021135927099003)(261021133027099003)(261022075727099003)(261021123027099003)(261022113327099003)(261021121427099003)(261022105027099003)(261026130827099003)(261102123227099003)(261009223027099003)(18002099003)(22082099003)(6133799003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?bDBvUUtpam9hL25OQlRVNFJ5RmpDa0ExZW1KSjhnT2Y1M0hEcTNzcjV3eHNq?=
- =?utf-8?B?dE9QYjJGVGM4Wm43aDFTUXBpSEpsMG5MTldCNmd3ckFFbHBzQkp2Zzd3dk1N?=
- =?utf-8?B?NUl4dUhGWHJBZ1VRTWE2SmJ3bkFmV1l1OFNhOG1Nd0NvVmYvcE5aWXppY1J2?=
- =?utf-8?B?R2lLcm1QZU1QcXVta2p3WEE1cElTTWlpK0JyYkg2VVczN1V2NlpyQ2VFYjRH?=
- =?utf-8?B?cFNldTRLVUg4cDZxZEY0VktzeWFjdkF3K0N0MXNtOU9CMlZvaXAyRGxvWlM2?=
- =?utf-8?B?S2FOaVFpYkF4YTFKSWV5WWZOWXYxV3dNMURwOTNGUDJOMXVhd2l2bnBacW9z?=
- =?utf-8?B?NFJwVm9PbVVsaHlodFlWZDhDclE2OVZ1ZFVjbGJtZTczS2o2K2svYmhJWjdN?=
- =?utf-8?B?dkRBN2JkYlNENG5XZHE1RjBzdGluMjJBVjZGWnZVdEpZMkNDNHU1RjBlMGZR?=
- =?utf-8?B?K2RXcFU2bmVnc1d2bHphbzRPTlhPTFFDTnJxV0thMmFpb29hU0ZZVmZWdGN4?=
- =?utf-8?B?UFZlMTJSV2FIa3NrWlplWnJZNVRHZUcwUzhzRWU5YldVb0duNS9DbUNJeU1B?=
- =?utf-8?B?TFkyNDNkSnNLL2lOMEdhSk1CV01yV2JGbWU0Y0NieksweUhkbHJiUXdTM1RM?=
- =?utf-8?B?NDlXd0VNbU85aEx1dFFNdW9jRDRLYjhBdWpFYW9VbmpnRHNwTHA1UllmS1BB?=
- =?utf-8?B?aE9sUVl3ZWplY2lQS3BrdWRiZms2Z3Q3L3l3aktHa3hJN0p4WkNoVTNmeUhT?=
- =?utf-8?B?d1FxMGdNVVJhSndaMzVqaHFPWWw4aWpxWU9pR0tGdlI2eTE2YTBiczl0V0lm?=
- =?utf-8?B?SmFNVTRramFMKy9ET29Rbk9IdVEwM0FPMkh5V2hVWUVLK1pEODVJWC9qdWdV?=
- =?utf-8?B?YTZ6bFp6WSs4ejhTVVNUc0E0QWRYY3Rsc3RhcEJ5clltUWVvc05jQ3lleDJ5?=
- =?utf-8?B?QzFnTWhENUY3bURsWUZPb1h5YUEyRENMM3lmWmU2ejVFUzJoSVVLQm9JYnov?=
- =?utf-8?B?UEYrSk5Kb1MzZ2JOQ1YwRElOb1hLSDZ0aXgvOWduU2hXVHJuM1VNRG5HRkN6?=
- =?utf-8?B?NnQzZ0pFajN0M0JuZTdkcERqeWg1SDhVQkpzdjl3VytnOFhva09Rd3o2bUJG?=
- =?utf-8?B?T0FlV2FlOHJDRFRoQ0ZBcnYycnNjaGo4RUxkT2dWek5hU3Nsb3BUNFdSVWhS?=
- =?utf-8?B?Ym1UOUphSWdLVzdTckt3OVFOdVZ6Vk0yWjN6TnRMZU1MR2dMYmFocHN4RVFs?=
- =?utf-8?B?NHgwam5oamxrN3JkNFAxai8rOTh2alNSTWNlRVp1NlBJQTRSY3FTK3hySWo0?=
- =?utf-8?B?Y2hqeURYbElJSzNad2sxMXVPMkhYRlJwNjRuQ2xoUzg5aSs1M1RQdS8zZGMz?=
- =?utf-8?B?WjUyaUk5Y2JOaTBsT28vaHhFUkd2cmE1U2lKUkw3dFlPVEIyS1lPZ0RUUVB6?=
- =?utf-8?B?N2lENHZLNlBlTUlSOWlYRjU5azJTQWJ1R2twTTV0Y0dpckhSVi9zSXI4T2tB?=
- =?utf-8?B?MmNZbTFLa1AwOWRmaHA0QzU2ci84dEhWRW4rUGh3dFRrbW53VkNXTUpoS2RL?=
- =?utf-8?B?dUJNSENnNFZkS29KVEFidXUwNE0vQVA2aWxoTCtpWHREM0MxNnRwV2pIbisw?=
- =?utf-8?B?QU80MEp4V3JjQitzRmZKTU5QT3V2SFUvbVJ6MEdCeDRaQ0JHY3hjYjRHd0FY?=
- =?utf-8?B?cGMxZEpTTmwyQlFXT0l5enkyY1htalRnb3JBU2hYeFZFb096N2JuZzFhQ1Ew?=
- =?utf-8?B?YVZ4SGZCOGJ4amhFQy9rRWFZdy8vK0xTb25TWkg3a0paUEtrNWwrSUxpUXFL?=
- =?utf-8?B?cy80RlB2MVJqem1ldWROVmVSS282cTdyUk42VWFFVE1KK0FBT1VVQmtYcmVV?=
- =?utf-8?B?RjUxcFdJbGg1MEVJcTM2N2VBZWJja0FVNWl3VVk5MXRDU2xqLzMyRUNzN0NQ?=
- =?utf-8?B?T2FsYkpLdVhkSEVqMFB3bjVIQkZiaElRdFF2NndiaUJQOHRMWVR4b0dqYTB2?=
- =?utf-8?B?dGhkT2dzT25QbDZWUUNxL1cwVGsvZjVqc3I0THZlbVgraGRpV1pQTCtHWTBN?=
- =?utf-8?B?WENFb2EvUWdsQk5pSVNYaXBGZnZDdzA2eGswQTFzdlBybEpUYjFYQjhvSlNY?=
- =?utf-8?B?dkJnNnljajNvdklQVlMrZk1lcTJMN05EK2dwS1E3dWJ2WGVQTnJBQ0JBb3dX?=
- =?utf-8?B?OVJYYnoyMHo2amtkQ3djNGRQUExhczcvcW1JWFJyd3NlSjdDUEdYdlc5SmU4?=
- =?utf-8?B?WmlPWWpIZlorVkM3N2ZkTWNqNVpmL0dSRXpwTmRZdWoyL3Y3WXRkVzJwS2U1?=
- =?utf-8?B?bHE4WXFqSmt5S1hSaHdpNUhhelhGRDZVQkNaRVJ2Wkk0SFZiVW9MUT09?=
-X-OriginatorOrg: amlogic.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d34ff406-4659-46f6-be8c-08df4491c010
-X-MS-Exchange-CrossTenant-AuthSource: TYZPR03MB6896.apcprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Nov 2026 10:01:29.4898
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0df2add9-25ca-4b3a-acb4-c99ddf0b1114
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tnD1jhQIk0uA/ARh7EocX/DE6njS1xxg9bj6aMWGc0YJ/imzWhL0oa0bjMJbKxM8rQLDWKzHSuRWn8LUvIhBQFv9OjpF4InNPJjq+UGmNKc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: KUXPR03MB9438
+User-Agent: Mozilla Thunderbird
+Subject: Re: [v9 2/2] i2c: amlogic: Add Amlogic A9 I2C controller driver
+To: Xianwei Zhao <xianwei.zhao@amlogic.com>,
+ Junyi Zhao <junyi.zhao@amlogic.com>, linux-amlogic@lists.infradead.org,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski
+ <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>
+References: <20261117-a9-i2c-v9-0-7b303c894fea@amlogic.com>
+ <20261117-a9-i2c-v9-2-7b303c894fea@amlogic.com>
+ <7026e0f7-5d7a-4756-8783-4d8558f420d1@web.de>
+ <cd3d821b-1cc7-4134-b902-1f05ca2526dc@amlogic.com>
+Content-Language: en-GB, de-DE
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <cd3d821b-1cc7-4134-b902-1f05ca2526dc@amlogic.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:crGa4K7MsRhzUbJBxp8Ypw3rq1AOPWH2iznSBYKf4fNdq4wDBJ4
+ UYZhuLGjiu5LIZ7CSYScYUnJLgLvdjk47lC6vHRLJADfPfwOQhH9BNvoKB05fZ9Mb3hwRI9
+ ysfLQjbtVMHQngFhEo0LLjjTVgPYp0V7t27Wket/eJJZw0MrItacect57x1xLP6y9QjzHHG
+ K1NFCKaoidZlu+C1HNdsg==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:ajIHWB4FTEM=;2N2RvmtFDsr4MXt+swrX2YDyXGc
+ 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
 
-Hi Markus,
-    Thanks for your review.
+>> =E2=80=A6
+>>> +module_platform_driver(aml_i2c_driver);
+>>> +
+>>> +MODULE_DESCRIPTION("Amlogic I2C Bus driver");
+>>> +MODULE_AUTHOR("Junyi Zhao<junyi.zhao@amlogic.com>");=E2=80=A6
+>> Would another macro call =E2=80=9CMODULE_AUTHOR=E2=80=9D become helpful=
+ here?
+>> https://elixir.bootlin.com/linux/v7.4-rc1/source/include/linux/module.h=
+#L233-L236
+>=20
+> Do you mean put MODULE_AUTHOR in front of MODULE_DESCRIPTION?
+No.
 
-On 2026/11/17 17:36, Markus Elfring wrote:
-> …
->> +++ b/drivers/i2c/busses/i2c-amlogic-a9.c
->> @@ -0,0 +1,429 @@
-> …
->> +static irqreturn_t aml_i2c_irq(int irqno, void *dev_id)
->> +{
-> …
->> +     if (!(irq_state & A9_TRANS_DONE) ||
->> +         (i2c->state == A9_STATE_READ && i2c->pos < i2c->msg->len)) {
->> +             return IRQ_HANDLED;
->> +     }
-> …
-> 
-> How do you think about to omit curly brackets here?
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/coding-style.rst?h=v7.4-rc3#n197
-> 
-Will do.
-> 
-> …
->> +static int aml_i2c_xfer_msg(struct aml_i2c *i2c, struct i2c_msg *msg, bool last)
->> +{
-> …
->> +     spin_lock_irqsave(&i2c->lock, flags);
->> +     i2c->state = (msg->flags & I2C_M_RD) ? A9_STATE_READ : A9_STATE_WRITE;
->> +     aml_i2c_prepare_xfer(i2c, A9_FIFO_FILL_FULL);
->> +     reinit_completion(&i2c->done);
->> +
->> +     aml_i2c_set_mask(i2c, REG_CFG_BUS, BUS_NO_STOP, (last ? 0 : BUS_NO_STOP));
->> +
->> +     /* Start the transfer */
->> +     aml_i2c_do_start(i2c, msg);
->> +     spin_unlock_irqrestore(&i2c->lock, flags);
->> +
->> +     time_left = msecs_to_jiffies(I2C_TIMEOUT_MS);
->> +     time_left = wait_for_completion_timeout(&i2c->done, time_left);
->> +
->> +     /*
->> +      * Protect access to i2c struct and registers from interrupt
->> +      * handlers triggered by a transfer terminated after the
->> +      * timeout period
->> +      */
->> +
->> +     if (!time_left) {
->> +             spin_lock_irqsave(&i2c->lock, flags);
->> +             i2c->state = A9_STATE_IDLE;
->> +             aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE,
->> +                              A9_RX_THRESH_READ | A9_TX_THRESH_WRITE, 0);
->> +             clear_irq_status(i2c, IRQ_ALL_MASK);
->> +             reset_fifo_pos(i2c);
->> +             spin_unlock_irqrestore(&i2c->lock, flags);
->> +             return -ETIMEDOUT;
->> +     }
->> +
->> +     return i2c->error;
->> +}
-> …
-> 
-> What did hinder you to apply further lock guards for such a function implementation?
-> https://elixir.bootlin.com/linux/v7.4-rc1/source/include/linux/spinlock.h#L642-L645
-> 
-> 
-Will do.
-> …
->> +module_platform_driver(aml_i2c_driver);
->> +
->> +MODULE_DESCRIPTION("Amlogic I2C Bus driver");
->> +MODULE_AUTHOR("Junyi Zhao<junyi.zhao@amlogic.com>");…
-> Would another macro call “MODULE_AUTHOR” become helpful here?
-> https://elixir.bootlin.com/linux/v7.4-rc1/source/include/linux/module.h#L233-L236
-> 
+I suggest to call this macro multiple times (on demand).
 
-Do you mean put MODULE_AUTHOR in front of MODULE_DESCRIPTION?
-
-> Regards,
-> Markus
+Regards,
+Markus
