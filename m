@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1794910435;
-	b=LLIrpn5xtZo5o4xqXYtsV/FJKKvuTxYVUpT9kXGXSGc5lm8hd7Gl/1B9J9gipt3dJ0qP
-	 uJSZ3BaYbDepcEL3OqZbIQLSSAIV8guDQ9h5qs3o6Nf7v+4uAgB66PeCjsfAjADbUB9oK
-	 5Lfyzc1POnYQzo2+pv9yxi4JGnYXhvMXUEcQ69I1lUxwCEP2StBPWF6KvXZf6bJKumvet
-	 nmelwiTOHvBO8yBV3L3CEafKbWPnglV1ZyOtRmwFqvGt+Pa3w5NkprVtsAf5hu6aUHSjQ
-	 0ozTszRR5JqvvkpH//z0JnsO91qOQh7ICE3pWy1ZXyrsZGj6sNkA27MG8UROUCdcR7Q==
+	b=xtfzgVP40+9+uhxaa3G96ayr7Hdl5fLZ+0qw8ofImQw7EXS/ec2/SB1YhObSpNdsN7Ys
+	 efrXQSK78FjDggVO87xoA8/FsbJeSD0qyuPKuKmDqj9CY1v7Cz/fJXKDBM96vujyX4v8g
+	 CEKem4WQxbElJZTjoD7CQ1fAOuzoRmBNKE/XV68GOI283rV8zMv0s5n7WXeNbnl4MlxGi
+	 dvcWmENVGrQpaxyn3CXW5VwfS/RpX8XyM0xPfCjyUJ7eXcrotGto7PYT5G0lYDbI1AEwN
+	 bUdLxUTEE6nI+9gK0+Rxrl3I7qQS6DmqbAmBBu5tLwl0lkDeeT48ZSbZdstHJw9xEtw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1794910435;
 	h=Received:DKIM-Signature:Received:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=Uqr0RsAzwR704VqAsb1fcnnG192uX0RBTlwymj9VnQ8=;
-	b=DQrp3FB6GhPySHMZTtgYKBHe1yhN5UBpH3287kd8LI1TXH4VwzcVvNbV6vwAJpbuDRI9
-	 gYlTHRRnS3vbEHV8NJkbNg4GGLf5CjyktFMWhkTw3QHeX/KI5CUfi0vocT7fcl0Lg1Sch
-	 9wjl7nbe9uXJ6Atgoc4zuSEnssjN8FLeOjwVgtl/4cjsiQawk5FgjpFwb9OnSlBBp9c/9
-	 sG/CwiN/BmFi2PaJq6AC56jNLoqiT/uFCJ8KUbwh5kfvTrbO2bbFzdITxJWhWzlm219g+
-	 DkRA2Qq1EnWV2eaIJRI9qXrOiLEiUww9FO80YKAdMTv2gX2mx44dvc0W/DXPlK5vt8A==
+	bh=+AvY6l4TVQAIrt+wlRFj1JYgfNH3aPt0auvD3+miYgA=;
+	b=qYe85ZZXvDaqfJIUtgHTl7bgROlg8ckckp9DuGkHiIjJ4WyeAC3Wws7GbwEXlTe219xZ
+	 fj9L4MZHwdpkIXEoBPkjcN+xZ0Vc7/wXwDzw93MuNSRyWY3LuN0oAgVQQ8r0/nd9mLOnv
+	 E2nt5RQViSSGq2QNvjzozAjY0zZ3m/csz6NTVKFk7w4uo20w0RGoibcvwRDjJ4802iaVW
+	 xn7StHtnxdrZNiOxqNTUJT9vVLKRwLUarGYNymB3otv70XtZ2mGsfRUtNRJw4h4g0DSrh
+	 b9UuK7Z0skRwkGW26KwJVzYDdBQJjaoi6wMuL3kZ2Xw4HpgwJAfczJlGunBu0/oKQ2A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VfrfYdv8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aVaAus7a;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59EBC606A337;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5925A606A334;
 	Tue, 17 Nov 2026 10:13:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VfrfYdv8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070E31F000CC;
-	Tue, 17 Nov 2026 10:13:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aVaAus7a
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4421F000CE;
+	Tue, 17 Nov 2026 10:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1794910435;
-	bh=Uqr0RsAzwR704VqAsb1fcnnG192uX0RBTlwymj9VnQ8=;
+	bh=+AvY6l4TVQAIrt+wlRFj1JYgfNH3aPt0auvD3+miYgA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=VfrfYdv8VQOrLMzD7fZ3dxk5i00YnKbKtVsWidxqYL1qRaVpdI6O2GBVUg2H6hsmj
-	 EEDXyJ1CnHZ9r/scqGR/3h9EAnr5scdIKMRe3U1le/dvh9ucDBaC4iK+n1pOdexZbh
-	 sOWP96m+EdfCe30q/h2FAIZxcfr/hNydZJUAmKFf56XM83yAbRFNcLrwjFJwUHHbc0
-	 pGPtiqUtSfShMTBCMEr7sIbNVRDEvkBXxUgmlCL6mM+yN8ePgW5cfmwhpLdLAtKBGP
-	 +JQ86p08sQVFwPZa1SxJanPcqL5/KrGYYlYmGn0cP5sL6oAN4UtH+0f8zT2RQKF6Dm
-	 2nM1j2XQ3rULw==
+	b=aVaAus7akpb6X9I7BAoNUth/Ftw2HAz+8LdFx8GEUwH97KEnrGSfNo7Kv6e8RBf1m
+	 auYkKOXllxswJ2V8VtQWn/W1hdGYwQLYkY4pqXFCbuDgw3wzl/4Hcas3maetKvvz5B
+	 cmauZgABI8mYJKnBeZbqaMzH9dN24utdf6+DEVQMKlwdAmJmsghvobUwUyNRlApR7q
+	 8XVG2gY+ZHyvXgq6te4YcOl+qKyT/KreszVOpps0XXahK+I21mEZKuCQy5JN1EIbK8
+	 li+G3S5haflOBVl5rHf4aIB9hnIKE6Bf/VG3GoSYJVCWE5QSEfFRurtIxEc0ydNAx9
+	 dDHlcVvKQi5Rw==
 Received: from johan by xi.lan with local (Exim 4.100.1)
 	(envelope-from <johan@kernel.org>)
-	id 1xTGCG-0000000470j-1Ixn;
+	id 1xTGCG-0000000470h-1EdT;
 	Tue, 17 Nov 2026 11:13:52 +0100
 From: Johan Hovold <johan@kernel.org>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -61,9 +61,9 @@ Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: [PATCH v3 7/8] software node: fix software_node_notify() primary node comment
-Date: Tue, 17 Nov 2026 11:13:35 +0100
-Message-ID: <20261117101336.980216-8-johan@kernel.org>
+Subject: [PATCH v3 6/8] driver core: platform: tests: fix swnode reuse test description
+Date: Tue, 17 Nov 2026 11:13:34 +0100
+Message-ID: <20261117101336.980216-7-johan@kernel.org>
 X-Mailer: git-send-email 2.56.1
 In-Reply-To: <20261117101336.980216-1-johan@kernel.org>
 References: <20261117101336.980216-1-johan@kernel.org>
@@ -78,48 +78,39 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The firmware node pointer in struct device may point to either a primary
-or a secondary firmware node and driver core sets the dev pointer of
-that node when registering devices.
+The description of the software node reuse test is misleading as a
+software node being registered does not prevent it from being reused
+(e.g. as software nodes can be shared).
 
-Fix the comments in software_node_notify() and
-software_node_notify_remove() which incorrectly suggest that driver
-core only sets the dev pointer of primary firmware nodes.
+Fix the description by clarifying that the test would fail if the
+secondary software node is not removed from the device so that the
+reused primary firmware node still points to the software node.
 
-Fixes: 37e586675993 ("software node: add fw_devlink support")
+Fixes: 397f0a3958c9 ("driver core: platform: tests: add test cases for correct swnode removal")
 Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/base/swnode.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/base/test/platform-device-test.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
-index 95283d8bda26..78e224539b02 100644
---- a/drivers/base/swnode.c
-+++ b/drivers/base/swnode.c
-@@ -1162,8 +1162,8 @@ void software_node_notify(struct device *dev)
- 		return;
- 
- 	/*
--	 * When the software node is the device's secondary firmware node,
--	 * the core only records the owning device on the primary fwnode
-+	 * When a device has both a primary and a secondary firmware node the
-+	 * core only records the owning device in the primary node
- 	 * (see device_add()). fw_devlink resolves a supplier device through
- 	 * fwnode->dev, so without this a consumer referencing the software
- 	 * node could never find the supplier device and would defer forever.
-@@ -1198,9 +1198,8 @@ void software_node_notify_remove(struct device *dev)
- 	sysfs_remove_link(&dev->kobj, "software_node");
- 
- 	/*
--	 * Drop the device pointer mirrored onto a secondary software node in
--	 * software_node_notify(). For a primary software node the core owns
--	 * fwnode->dev and clears it in device_del().
-+	 * Clear any device pointer set in a secondary software node in
-+	 * software_node_notify().
- 	 */
- 	if (!device_match_fwnode(dev, &swnode->fwnode) && swnode->fwnode.dev == dev)
- 		swnode->fwnode.dev = NULL;
+diff --git a/drivers/base/test/platform-device-test.c b/drivers/base/test/platform-device-test.c
+index 9ce563f76aad..b0cc37d166ff 100644
+--- a/drivers/base/test/platform-device-test.c
++++ b/drivers/base/test/platform-device-test.c
+@@ -273,9 +273,10 @@ static const struct software_node platform_device_test_swnode = { };
+ /*
+  * Check that reusing a software node works correctly. If the call to
+  * platform_device_register_full() fails after adding the secondary firmware
+- * node, the software node must be unregistered in the device's release()
++ * node, the software node must be removed in the device's release()
+  * callback or the subsequent call to platform_device_register_full() will fail
+- * with -EBUSY due to the software node already having been registered.
++ * with -EBUSY due to the primary firmware node still pointing at the
++ * secondary software node.
+  */
+ static void platform_device_swnode_add_twice(struct kunit *test)
+ {
 -- 
 2.56.1
 
