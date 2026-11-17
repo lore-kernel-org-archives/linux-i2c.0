@@ -1,83 +1,151 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.154.119.183
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794954390;
-	b=QKY7GjY2fqwuA+gqJ2guohR2dY1M0TzgoKx6Bg4Ndrg/FyqzuQQ3LAn0E4Xd/ZBmC+us
-	 NtgDcYlsXJY9AnrR9IZwkUF0UPmaXv4aTiw6oyAkexC7SZyg3KD2BeKXsLx7tUaoxIxfn
-	 TBv35BsBISx3TKNZkU01TDJJ9hWj+AAfQVDvtEyrJWfIPrmBGOalIHqylNo97dLjs5dCU
-	 kKmt7otb1hHA9Ca7cxBt5f58GHJN5xglsTIjbLH2PWCV4UOHxI9lbV2V++psRJVdetkJr
-	 t2FFIasMbgQDVSH+poVyzs1xs612wwE5dCNrbp/xJ3J/vex8H9ei+gXUYuPMhJXgFyw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794954390;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:Mail-Followup-To:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:User-Agent;
-	bh=r2D5y0TucYSUwiHZr4B77hB+E7SQhof22iJyDH7secY=;
-	b=4ydamyLrwWqYyWQo9Fg8yiXQyfG0LzV9db0sEE6BO60b4wYFLKuDEC2mv3T58C2JeRMT
-	 pr8I2IP4FRbhw1mUYShVrpDO4XwZJbKTZ71yQOgD6i9KX8y4aLsMKgDIlqJpQYfxOv/Fa
-	 xlGeEDynV2uWb8aBMNGboYiZOZ6MPPa0pSfRvy85i3dHDL6n6tz1172bhCBIkc84CwX8D
-	 nXHZR6pAl/OX7hmS6nCQrfqPtUL1d/uFBk9tXB2w8JYuXS/d1rE+Bdf5PJx9efcZvice6
-	 VP/nH93NHt9oXD1ccGBHSXusywG/Sb79D0t68cMUwZULo94Wf/hPFZ9St6CKVm8BKKA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=aurel32.net;
-	spf=pass smtp.mailfrom=aurel32.net;
-	dkim=pass header.d=aurel32.net header.i=@aurel32.net header.a=rsa-sha256 header.s=202004.hall header.b=iq9RgePl;
-	arc=none smtp.remote-ip=195.154.119.183
-Received: from hall.aurel32.net (hall.aurel32.net [195.154.119.183])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.84.81
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794959805;
+	b=DkNQme8mXBYR6P5NbX6ige1MrruLmfdMSZhC3PgsBU7Q2GhD/CZjqiKeM7sTo5ftQbPR
+	 e2To7voTMvdMTY/Eo0foL3TILvuQm9SUT/g89TsXtkJB4+8ePRx6WgOLW88FuJVrftKjK
+	 3nd96E6p5VVpiTtxTFZvl0giD9x4PbsYMl805lTtgBH1jEcI9xnGbVctX3NAR47VDhjMv
+	 t+RNZqaDcSVi5vSSGx+6ZMiiSBDUNtkjHw4CK72swExHZUDPq/Ra8N68aiohpLAcW612J
+	 aXudwZIlbtomgkNsIIYCOdcqsOeEEKDtNVzKMrEzr+T8froaXS/sadprKQzcxbn38TA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794959805;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:
+	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
+	 Received:Received:From:To:CC:Subject:Thread-Topic:Thread-Index:Date:
+	 Message-ID:References:In-Reply-To:Accept-Language:Content-Language:
+	 X-MS-Has-Attach:X-MS-TNEF-Correlator:Authentication-Results-Original:
+	 x-ms-traffictypediagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam-Untrusted:
+	 X-Microsoft-Antispam-Message-Info-Original:
+	 X-Forefront-Antispam-Report-Untrusted:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:
+	 X-Exchange-RoutingPolicyChecked:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-CodeTwo-MessageID:
+	 X-CodeTwoProcessed:X-EOPAttributedMessage:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStripped:
+	 X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id-Prvs:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=1xhRt6jnbrigBlglIjtYFEImhiKoamW6qHZL4VZFyYE=;
+	b=cpAQSfvrJSf/VzCEWMg5Ahs8CSGLU7MD8t0fdCGD+OXvmpbBRn+ntKJ5k64Udaenifzs
+	 sMerYwysN3bfg51mRCRmi/GFb3v6OLZ+sJ7t7Nj9xzw2eL9CV3X86qTUznhgP6Ggreo29
+	 hbiZrepY54YfPSFVwhpjT+7vK7zCcc4ZC3CDPkhnh537yUMC61rrWj761MQvIrSr+o4m+
+	 rKqRCUpjrQssWe+D6ON++jRcARtI5iCbyTiWdqFrvOtw1bJ5FnIErjWstM1CfuLaUFTr8
+	 5YUJkgb4N1STyeDA4gopM52o3bcilvkgF+MuRLxsZ074PzpjwugzsdxpVGRD/rNL8bQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=sttls.nl;
+	spf=pass smtp.mailfrom=sttls.nl;
+	dkim=pass header.d=sttls.nl header.i=@sttls.nl header.a=rsa-sha256 header.s=selector1 header.b=mj4K3nlZ;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.84.81
+Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11020081.outbound.protection.outlook.com [52.101.84.81])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4060C606A31C;
-	Tue, 17 Nov 2026 22:26:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4060C606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=aurel32.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aurel32.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0291A606A31C;
+	Tue, 17 Nov 2026 23:56:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0291A606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sttls.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sttls.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=aurel32.net header.i=@aurel32.net header.a=rsa-sha256 header.s=202004.hall header.b=iq9RgePl
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
-	; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
-	Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
-	Subject:Content-ID:Content-Description:X-Debbugs-Cc;
-	bh=r2D5y0TucYSUwiHZr4B77hB+E7SQhof22iJyDH7secY=; b=iq9RgePlfoRm2/Rn/figPr5cci
-	0M9Cel/iQ1ZPTKWizBnjAgnX9MT83uto5w979hbcwm/ohp4AuL/KY0Ow76i6g1svUCE3SGrcJkJBn
-	asLiX9l81U4OL9wbkiykhO57N0CSkOYItcWh9U2tqkHyNmFTahFvusQP7R4l0xivd6eCOnSp9BF9O
-	hC4x72cLSOYYs0WSv2zDqL36XqB2mGSoG1FmtEvJciqbVZuEaeWuGRWlLutMLBzyxsKJOzlczsMlB
-	2BAtE1fBoWTEU6CgcAgolkhSsFPdmaivlJxEe67JIQS91M3MNanGk1BTwj34JzqTt/38znLb8s9/Q
-	NdNc1Urg==;
-Received: from authenticated user
-	by hall.aurel32.net with esmtpsa  (TLS1.3)  tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <aurelien@aurel32.net>)
-	id 1xTRd9-0000000GdbW-2P8h;
-	Tue, 17 Nov 2026 23:26:23 +0100
-Date: Tue, 17 Nov 2026 23:26:22 +0100
-From: Aurelien Jarno <aurelien@aurel32.net>
-To: Anand Moon <linux.amoon@gmail.com>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.com>,
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Yixun Lan <dlan@kernel.org>,
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-Subject: Re: [PATCH v1 2/2] power: reset: spacemit-p1: Use atomic I2C
- transfers for power-off and restart
-Message-ID: <avzUjsZzhky4krEV@aurel32.net>
-Mail-Followup-To: Anand Moon <linux.amoon@gmail.com>,
-	Sebastian Reichel <sebastian.reichel@collabora.com>,
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Yixun Lan <dlan@kernel.org>,
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>,
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-References: <20261110061429.2036-1-linux.amoon@gmail.com>
- <20261110061429.2036-2-linux.amoon@gmail.com>
- <avpN-gFOvTBAMY6G@venus>
- <CANAwSgT_k35_waHL-+iU93f=k3fjFAPXhk=exRz-XHMm2MqREA@mail.gmail.com>
- <avvnRkK9agPSdzac@aurel32.net>
- <CANAwSgSXP1bZVVrX71jfgi1iR9AY4TpM0pk07ke+oeLvcX1fEQ@mail.gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=sttls.nl header.i=@sttls.nl header.a=rsa-sha256 header.s=selector1 header.b=mj4K3nlZ
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=aX5uWYR+1IPq7U/DoZJgZZQBgGKLr0JzRvDrXXRZc8rcMQ4dcBjN4O1DIqlIXyIhSp15plgohh+F7PEZwngz5KTTptNCOlK3XX5aYZUaRFZj6lA+WIt++5zosaRtMgeHwXXBo7SdyCaNfJnjcJ6t0o2M3bgOq7+UWum4Vcg9SnU8u9GsqDf5JVad9EdoQOZ6uTFvTojSGQP+G26p7U9mNftHYkzvd+Xvqu9/Qw5JQ2TJjNMkU4jD8eulxPC1PUGqDvFI6mBolCytnRieCnmj94L7CB/7tL0fwJSO8wIvYo5ddUZx59LsnWXPiwTfXLOPAh3BMxUNBM3cjHDFupqesQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1xhRt6jnbrigBlglIjtYFEImhiKoamW6qHZL4VZFyYE=;
+ b=xW8S5ijUYb66bsRa2mbH3VLZJAnMKG0g3cLxYy03ik/+mN1HmSSQyofDlynRw8jw6A+GGoQQcu7MwU3R9SfIBxbejVPBh5za+Q3jDQkr95gZK6VJv1OTqFdEB9jczFLS94OngiNVaaZ8Gb7QzvRSTnvyJC8F3AOboqnf7LeKuUPbXReoDcfc9KHCxUixYvO71hQE05Fti8j7m+mM1SNQLMcmBp85MqUOEXWlzgy5AkvQh6Wu3781v3IgzN4v7joGU1rlxcrtwiqkG6LpMC8lA0I728Nfo2kvQY38BidUOsQavYWhNhJ7oAzG98m5/avuu0wi/m5VoFtmmM9a4zNBxw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 20.93.157.195) smtp.rcpttodomain=gmail.com smtp.mailfrom=sttls.nl; dmarc=pass
+ (p=none sp=none pct=100) action=none header.from=sttls.nl; dkim=none (message
+ not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sttls.nl; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1xhRt6jnbrigBlglIjtYFEImhiKoamW6qHZL4VZFyYE=;
+ b=mj4K3nlZrD39d9OcziZKNqIvqOMBbe57kQ4tVrjEHiRrvLxjrxkQI4FJs4SJZtpmQV+lrTJphz93J3Q7BRodrCa6qrLEZabzjyadnQs02C+faz80B562ivgOtdKjcBBfcQd8PQczsyJhsOfJapGxXBJrYysk4h2phWTPJWozNyiGcpDUGQDBLPxwOGAJLB45GZ6nZqukc1kLeSLw5H7/rumSfZ3saqGMjiqK96WfkYo1kysSJfmuvRxNdM1Fj17Uff4Ad59sxnAwYNYp11VvbX2pi03B/bH0DeSalar/g1Ai44urDzchy5VsBsH6W201Ub4imLvNGxpim+B0xhIjcw==
+Received: from PA7P264CA0080.FRAP264.PROD.OUTLOOK.COM (2603:10a6:102:349::10)
+ by PA4PR05MB8969.eurprd05.prod.outlook.com (2603:10a6:102:2a4::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Tue, 17 Nov
+ 2026 23:56:41 +0000
+Received: from MAD0EPF000008C5.eurprd05.prod.outlook.com
+ (2603:10a6:102:349:cafe::12) by PA7P264CA0080.outlook.office365.com
+ (2603:10a6:102:349::10) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.615.14 via Frontend Transport; Tue,
+ 17 Nov 2026 23:56:41 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 20.93.157.195) smtp.mailfrom=sttls.nl; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=sttls.nl;
+Received-SPF: Pass (protection.outlook.com: domain of sttls.nl designates
+ 20.93.157.195 as permitted sender) receiver=protection.outlook.com;
+ client-ip=20.93.157.195; helo=westeu11-emailsignatures-cloud.codetwo.com;
+ pr=C
+Received: from westeu11-emailsignatures-cloud.codetwo.com (20.93.157.195) by
+ MAD0EPF000008C5.mail.protection.outlook.com (10.167.241.201) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.615.4 via Frontend Transport; Tue, 17 Nov 2026 23:56:40 +0000
+Received: from DB6PR07CU003.outbound.protection.outlook.com (40.93.64.90) by westeu11-emailsignatures-cloud.codetwo.com with CodeTwo SMTP Server (TLS12) via SMTP; Tue, 17 Nov 2026 23:56:39 +0000
+Received: from BR0PR05MB049132.eurprd05.prod.outlook.com
+ (2603:10a6:2c8:48::23) by DB9PR05MB8984.eurprd05.prod.outlook.com
+ (2603:10a6:10:36c::16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Tue, 17 Nov
+ 2026 23:56:36 +0000
+Received: from BR0PR05MB049132.eurprd05.prod.outlook.com
+ ([fe80::9b49:1b04:b999:aba0]) by BR0PR05MB049132.eurprd05.prod.outlook.com
+ ([fe80::9b49:1b04:b999:aba0%7]) with mapi id 15.21.0615.013; Tue, 17 Nov 2026
+ 23:56:36 +0000
+From: Maarten Brock <Maarten.Brock@sttls.nl>
+To: Michael Zaidman <michael.zaidman@gmail.com>, Jiri Kosina
+	<jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+CC: Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby
+	<jirislaby@kernel.org>, Raman Varabets
+	<kernel-linux-20260610-80b7ab08@raman.v1.sg>, Germain Hebert
+	<germain.hebert@ca.abb.com>, Christina Quast <contact@christina-quast.de>,
+	Rio Liu <rio@r26.me>, Bruno Giacomazzi <brunoceg1@gmail.com>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+	"linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v4 08/16] HID: ft260: uart: add modem pins control via
+ ioctl
+Thread-Topic: [PATCH v4 08/16] HID: ft260: uart: add modem pins control via
+ ioctl
+Thread-Index: AQHdds79cU1GT6gjGEm4sASFfuICtrcy5tAg
+Date: Tue, 17 Nov 2026 23:56:36 +0000
+Message-ID: <BR0PR05MB0491322068606AA1720DCE14C0837B2@BR0PR05MB049132.eurprd05.prod.outlook.com>
+References: <20261117200423.19561-1-michael.zaidman@gmail.com>
+ <20261117200423.19561-9-michael.zaidman@gmail.com>
+In-Reply-To: <20261117200423.19561-9-michael.zaidman@gmail.com>
+Accept-Language: en-US, nl-NL
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Authentication-Results-Original: mx.microsoft.com 1; dkim=none (message not
+ signed) header.d=none;dmarc=none action=none header.from=sttls.nl;
+x-ms-traffictypediagnostic:
+	BR0PR05MB049132:EE_|DB9PR05MB8984:EE_|MAD0EPF000008C5:EE_|PA4PR05MB8969:EE_
+X-MS-Office365-Filtering-Correlation-Id: b671038d-383b-43c1-0d74-08df45066cd5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam-Untrusted:
+ BCL:0;ARA:13230040|10070799003|1800799024|376014|23010399003|7416014|366016|22082099003|18002099003|3023799007|56012099006|4143699003|261102123227099003|261026140227099003|261021121427099003|261022105027099003|261028144727099003|10067099003|38070700021;
+X-Microsoft-Antispam-Message-Info-Original:
+ EVTudnNwcKltH8kFXy7TZVHcaK9vtmceCBFmAmclu4Pz4PnRRh61RAZ6m1DkLtM3clQxBG3kH8aVlXej9xBk+l8vTkBMTws4HCc2/F7vjAo/u5jJWEMS36KTFKJ1WimbjNfrpPCgeS+ai/49DtsTLPyGDWv++cKaKPEpZhw5FlyjHPPtLD6sGMaJgvzmxflAGdQseLasjIkeGVex5bsTs1nnIcD96i2cM3vXLlLaEMY5B5EZe/8sMFbVG6LnHObJDcZZYXMU6SH4vmws5S+1WIAhpYbEgkQwN5+uUX8yUOAUWmKlQQAcf5N/gDsNvVuOmTSKi9H8HmCa4Tx9J6eSel8B53oV0uEV/Z4LSnknNKNjY9bR5cBZtu5l2vJ80ZIGEVGImdT0v8E1Q4rBOkxxiJYj7Nozt1ZdtbNTEbSXDwGKC7QPr7DctREbDWN+/viThuwy/M/5tC/8lPFvnYLE30U6dkM2qZFtnAOzAyClAIz0tW354M1yqp1V8H1XcTBbUffk7S5U89y24MkDGvxVKGmcBV+v0TY6YegKlCU9cD1JujBtluRJUCeaJFDAk7P/6zBaWJejhuelfDyYcZKH/oBGptcWiH4bMFcfUi6AgJxTq4+DbLfXO0tar6CWgpS6HrL/fz9W2HXMsFQ5LSVUPi4ydSiK5dY93jG/zTXdE1CIlm2WqiGM6GQZDToFDfFM7POP8WvsPeBnDWbN6DenFlXTT5WmclcCTLZy0G0SIK4=
+X-Forefront-Antispam-Report-Untrusted:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BR0PR05MB049132.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(1800799024)(376014)(23010399003)(7416014)(366016)(22082099003)(18002099003)(3023799007)(56012099006)(4143699003)(261102123227099003)(261026140227099003)(261021121427099003)(261022105027099003)(261028144727099003)(10067099003)(38070700021);DIR:OUT;SFP:1102;
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -87,256 +155,48 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANAwSgSXP1bZVVrX71jfgi1iR9AY4TpM0pk07ke+oeLvcX1fEQ@mail.gmail.com>
-User-Agent: Mutt/2.4.1 (2026-07-04)
+X-Exchange-RoutingPolicyChecked: 1qSjekdxOuhsJSB1DfEwBbFUrWBsfgRIezZ+Vrsm9QIJ/ooW3Dd9F8Q3V8csuoxq8YuXfyXWJ1qOak9vsbCJxYy1WiiQI+9VGGexL2y/5XZvQzvn8Ha0763zSw5jIumwxBeg0fzsRSKSe9ljNOjKuEbhZDU2Nf9oR1JZnS1lG+vA6q+3S9hjrBwqnfUIYfIGx39VElvUjve8TvNJnXh7ft9QIUlEr4j77xT0cQ5zC4hHeEgH/bdK7h+4bwPNq0wlcEBWAUjyM/Xduhv3XZGAcgrBV6TAX9lppbDADKe77STi4i3mblRRp9ArR+qUKDAPDsrrS9yLfObfcmFiM810hQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR05MB8984
+X-CodeTwo-MessageID: 7cd046a6-af3f-433f-a35a-337926dda9fb.20261117235639@westeu11-emailsignatures-cloud.codetwo.com
+X-CodeTwoProcessed: true
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Transport-CrossTenantHeadersStripped:
+ MAD0EPF000008C5.eurprd05.prod.outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id-Prvs:
+	2c359ad0-0749-4a72-1c34-08df45066a42
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|23010399003|36860700016|14060799003|35042699022|1800799024|7416014|376014|22082099003|18002099003|3023799007|56012099006|4143699003|261026140227099003|261102123227099003|261022105027099003|261021121427099003|261028144727099003|10067099003;
+X-Microsoft-Antispam-Message-Info:
+	ulqnwcW824DfvBUhGZ4D/u/nm85fNWLR411V1lbvTMT/Br3z0LA7bsBuW86AZH7+f+hd0+0HpuNQPbwXx42q+EJ5R1KyKvhpv3Hr7RNfSY3s51llEY5yeaTxcjQ5Xt0uIdyln8ocGx3YpY3RuBTvJQxlnNU1WX2HTxfO91sZAaZF8qUZaSI3UiIo7rf5lfpBn9PaFzHlAOUsgurd0i3IvPHq4Dy/cD8GSwp+iL9k2lTr2fVdG/SE2EyvX8uE1sHvHyE5ss6d4WP4whi4VhyQUA5MoFbiNVV6Zt9mSXgnTruE+ontIQ7SYY4O6C2n2sddG1QZm8zdErufAMmbePHs6QnHvIuA1C63Q98Kz+9yBw+E0eQFH4/ngdCczYoP68xVW5CoAD0+35iiKKr9I/gtOuM4SvenV3RYlrWS4ENtU63u80Bt2/WHMOJmB/Nzl5Xv+7rIAPPYANUtA9NOWZ3oR/Vq/Nao7QnUHB0qNt/ZjGz29DHmIMCb+nWs/L2fDBZRZn8FdNl1n88NGLF3PSSlLlKDV37shUbzu1JRy8NY84mP3wiwOp5QmeV/TmL1F8DyS4AGLHoflKKrOZ4yopjGktCaJoSu0MewC6Jrc36/uAKxga/yqulvz+jAel9MAVA+w2XJoLkeAgFZh/Z4kULCK/eNgYuidPj7dy34qsr+59nzcpKYMyZ2uq1yyns3RXi0iBuQV8A6PxFssBWVTu8hNA==
+X-Forefront-Antispam-Report:
+	CIP:20.93.157.195;CTRY:NL;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:westeu11-emailsignatures-cloud.codetwo.com;PTR:westeu11-emailsignatures-cloud.codetwo.com;CAT:NONE;SFS:(13230040)(82310400026)(23010399003)(36860700016)(14060799003)(35042699022)(1800799024)(7416014)(376014)(22082099003)(18002099003)(3023799007)(56012099006)(4143699003)(261026140227099003)(261102123227099003)(261022105027099003)(261021121427099003)(261028144727099003)(10067099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	grjo/vWGSHY0T0QjJc8JIlpVmc5A2LtgSYXuIdw5LUp7hNswCCEpj/R4GtxcvYv0e8jbnysILRMtBT0aal/Gwc2t68ITytCQYCAKq2aIvjZLB6itHgug5veFECZo1TxOgnvuSQn27IRPZ3GeRY8aTRP/eCv/N63IVYCMu54WyhJ2rBgyz8y+7CZ4I6/nOxwRdTG+nMttRS6TpJ/URa0jJBwJeCxJuBtohfwew8DiFubLWQxlUoSvL7a397adAhW6einMiZ9osyaGvikRoC55O81l96iJq5cx+x02TRzpedpvq8IbSYkXtwDVmbH1tvIr2geUKUPLSbm9Dc2G7Ah1dQUJd/Muc0kx6MX5tuHxCOwOzed2pvGo+VdcniXC3CYoDWNbx+qQrjYAEvspfWN2JHLTsI2AxhOcZr9eFFe2XSRc9rRtyrBd5btvdbLbRF9j
+X-OriginatorOrg: sttls.nl
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Nov 2026 23:56:40.2225
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b671038d-383b-43c1-0d74-08df45066cd5
+X-MS-Exchange-CrossTenant-Id: 86583a9a-af49-4f90-b51f-a573c9641d6a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=86583a9a-af49-4f90-b51f-a573c9641d6a;Ip=[20.93.157.195];Helo=[westeu11-emailsignatures-cloud.codetwo.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MAD0EPF000008C5.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR05MB8969
 
-Hi Anand,
-
-On 2026-11-17 18:04, Anand Moon wrote:
-> Hi Aurelien,
-> 
-> On Tue, 17 Nov 2026 at 11:04, Aurelien Jarno <aurelien@aurel32.net> wrote:
-> >
-> > Hi Anand,
-> >
-> > On 2026-11-16 13:06, Anand Moon wrote:
-> > > Hi All,
-> > >
-> > > On Mon, 16 Nov 2026 at 11:33, Sebastian Reichel
-> > > <sebastian.reichel@collabora.com> wrote:
-> > > >
-> > > > Hi,
-> > > >
-> > > > On Tue, Nov 10, 2026 at 11:44:27AM +0530, Anand Moon wrote:
-> > > > > The SpacemiT P1 power-off and restart handlers use regmap_set_bits()
-> > > > > to access the PMIC. However, these handlers run in an atomic notifier
-> > > > > context (specifically within an rcu_read_lock() critical section), while
-> > > > > the I2C-backed regmap uses a sleepable mutex.
-> > > > >
-> > > > > This triggers a "WARNING: suspicious RCU usage" warning due to an illegal
-> > > > > context switch in the RCU read-side critical section during shutdown on the
-> > > > > Banana Pi BPI-F3:
-> > > > >
-> > > > > [  563.803475] WARNING: suspicious RCU usage
-> > > > > [  563.807813] 7.3.1-ARCH-RISC-V #1 Not tainted
-> > > > > [  563.816614] ./include/linux/rcupdate.h:387 Illegal context switch in RCU read-side critical section!
-> > > > > ...
-> > > > > [  563.841445] locks held by shutdown/1: 2, last CPU#0:
-> > > > > [  563.846694]  #0: ffffffff8404fb20 (system_transition_mutex){+.+.}-{4:4}, at: __do_sys_reboot+0x230/0x29e
-> > > > > [  563.856806]  #1: ffffffff84167860 (rcu_read_lock){....}-{1:3}, at: atomic_notifier_call_chain+0x4a/0x1c2
-> > > > >
-> > > > > Replace the regmap operations with atomic I2C transfers to avoid sleeping
-> > > > > in an atomic context. Preserve unrelated register bits through
-> > > > > read-modify-write operations and check for atomic I2C support before
-> > > > > registering the handlers.
-> > > > >
-> > > > > Obtain the I2C client from the parent device and verify that the adapter
-> > > > > supports atomic transfers before registering the handlers.
-> > > > >
-> > > > > Tested on the Banana Pi BPI-F3 (SpacemiT K1).
-> > > > >
-> > > > > Assisted-by: LLM
-> > > > > Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-> > > > > Cc: Aurelien Jarno <aurelien@aurel32.net>
-> > > > > Fixes: 28124cc0fb8c ("driver: reset: spacemit-p1: add driver for poweroff/reboot")
-> > > > > Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-> > > > > ---
-> > > >
-> > > > regmap runs i2c_transfer itself and thus also uses the atomic I2C
-> > > > transfers. The problem here is regmap itself. But instead of moving
-> > > > away from regmap, the atomic use case should be supported properly
-> > > > in regmap.
-> > > >
-> > >
-> > > On  RISC-V platform, poweroff and reboot are already handled by OpenSBI
-> > > through the SBI System Reset (SRST) extension. Linux delegates these
-> > > operations to firmware using SBI_SRST_RESET_TYPE_SHUTDOWN for poweroff
-> > > and SBI_SRST_RESET_TYPE_COLD_REBOOT or SBI_SRST_RESET_TYPE_WARM_REBOOT
-> > > for reboot, depending on the supported reset type.
-> > >
-> > > Therefore, there is no need for an additional Linux PMIC poweroff/reboot handler
-> > > on this platform, as it duplicates functionality already provided by firmware.
-> > >
-> > > While supporting atomic operations in regmap may be useful more generally,
-> > > it is not necessary to address this platform's shutdown and reboot requirements.
-> > >
-> > > I tested this on the SpacemiT K1 Banana Pi BPI-F3 after removing this PMIC
-> > > poweroff/reboot driver.
-> > >
-> > > OpenSBI commit which handles this extension
-> > >
-> > > d9637d00bf47 ("lib: utils/reset: add SpacemiT P1 PMIC support")
-> > > b10e18ec854a ("lib: utils/i2c: add minimal SpacemiT I2C driver")
-> > >
-> > > Similarly, on the StarFive VisionFive 2, poweroff is handled by
-> > > OpenSBI through the
-> > > AXP15060 PMIC, so there is no need to register an additional poweroff
-> > > handler using
-> > > devm_register_power_off_handler().
-> > >
-> > > OpenSBI commit which handles this extension
-> > >
-> > > 568ea49490d9 ("platform: starfive: add PMIC power ops in JH7110
-> > > visionfive2 board")
-> > >
-> > > -----8<----------8<----------8<------
-> > > diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-> > > index 50df66de24e06..069259f7d7c15 100644
-> > > --- a/drivers/mfd/axp20x.c
-> > > +++ b/drivers/mfd/axp20x.c
-> > > @@ -1458,8 +1458,14 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
-> > >                 return ret;
-> > >         }
-> > >
-> > > -       if (axp20x->variant != AXP288_ID)
-> > > -               devm_register_power_off_handler(axp20x->dev,
-> > > axp20x_power_off, axp20x);
-> > > +       /*
-> > > +        * The VisionFive 2 handles AXP15060 poweroff through OpenSBI.
-> > > +        * Avoid accessing the I2C PMIC from the atomic poweroff path.
-> > > +        */
-> > > +       if (axp20x->variant != AXP288_ID && !(axp20x->variant == AXP15060_ID &&
-> > > +                               of_machine_is_compatible("starfive,jh7110")))
-> > > +               devm_register_power_off_handler(axp20x->dev,
-> > > +                               axp20x_power_off, axp20x);
-> > >
-> > >         dev_info(axp20x->dev, "AXP20X driver loaded\n");
-> > >
-> > > Please let me know if this works on your board?
-> >
-> > Yes, that works, but I don't think this is the correct solution to
-> > disable here. Also this won't scale for future boards which might use a
-> > different existing PMIC driver with poweroff support and that will also
-> > need to be patched.
-> >
-> No changes needed over here, reboot and power-off priority will
-> work fine.
-> > As pointed out by Troy in an earlier mail, the real problem is the
-> > priority at which the handler is registers, 192 for the reset and -256
-> > for the poweroff one. I wonder if the SBI SRST extension should also
-> > register the poweroff one at 192. It seems it's about replacing the call
-> > to register_platform_power_off() by register_sys_off_handler(), which
-> > supports using a priority value. And maybe SYS_OFF_PRIO_FIRMWARE = 224
-> > should be used there instead of 192.
-> >
-> Thanks for your input; with the changes below.
-> It works fine on Spacemit k1 and Starfive Vision 2 for reboot and power-off.
-> 
->  arch/riscv/kernel/sbi.c | 51 +++++++++++++++++++++++++++++++----------
->  1 file changed, 39 insertions(+), 12 deletions(-)
-
-Thanks for this patch. It sounds good overall, and it's always good to 
-switch to the newest API.
-
-I have been able to test it successfully on VisionFive 2 and Banana-Pi 
-F3. Please find a few comments below.
-
-> diff --git a/arch/riscv/kernel/sbi.c b/arch/riscv/kernel/sbi.c
-> index af1ccea222f1..32a3d2df9032 100644
-> --- a/arch/riscv/kernel/sbi.c
-> +++ b/arch/riscv/kernel/sbi.c
-> @@ -512,23 +512,55 @@ static void sbi_srst_reset(unsigned long type,
-> unsigned long reason)
->                 __func__, type, reason);
->  }
-> 
-> -static int sbi_srst_reboot(struct notifier_block *this,
-> -                          unsigned long mode, void *cmd)
-> +static int sbi_srst_reboot(struct sys_off_data *data)
->  {
-> -       sbi_srst_reset((mode == REBOOT_WARM || mode == REBOOT_SOFT) ?
-> +       sbi_srst_reset((reboot_mode == REBOOT_WARM ||
-> +                       reboot_mode == REBOOT_SOFT) ?
->                        SBI_SRST_RESET_TYPE_WARM_REBOOT :
->                        SBI_SRST_RESET_TYPE_COLD_REBOOT,
->                        SBI_SRST_RESET_REASON_NONE);
-> +
->         return NOTIFY_DONE;
->  }
-> 
-> -static struct notifier_block sbi_srst_reboot_nb;
-> -
-> -static void sbi_srst_power_off(void)
-> +static int sbi_srst_power_off(struct sys_off_data *data)
->  {
->         sbi_srst_reset(SBI_SRST_RESET_TYPE_SHUTDOWN,
->                        SBI_SRST_RESET_REASON_NONE);
-> +
-> +       return NOTIFY_DONE;
-> +}
-> +
-> +static bool srst_power_off;
-> +static bool sbi_srst_available;
-
-Not sure we want global variables for this, as they are not used anymore 
-once the initialisation is done.
-> +
-> +static int __init sbi_srst_sys_off_init(void)
-> +{
-> +       struct sys_off_handler *handler;
-> +
-> +       if (!sbi_srst_available)
-> +               return 0;
-> +
-> +       handler = register_sys_off_handler(SYS_OFF_MODE_RESTART,
-> +                                          SYS_OFF_PRIO_HIGH,
-
-I think you should use SYS_OFF_PRIO_FIRMWARE for both entry. It 
-corresponds to the reboot provider.
-
-> +                                          sbi_srst_reboot, NULL);
-> +       if (IS_ERR(handler))
-> +               pr_warn("Failed to register SBI SRST restart handler: %ld\n",
-> +                       PTR_ERR(handler));
-> +
-> +       handler = register_sys_off_handler(SYS_OFF_MODE_POWER_OFF,
-> +                                          SYS_OFF_PRIO_FIRMWARE,
-> +                                          sbi_srst_power_off, NULL);
-> +       if (IS_ERR(handler)) {
-> +               pr_warn("Failed to register SBI SRST poweroff handler: %ld\n",
-> +                       PTR_ERR(handler));
-> +       } else {
-> +               srst_power_off = true;
-> +       }
-> +
-> +       return 0;
->  }
-> +device_initcall(sbi_srst_sys_off_init);
-
-Any reason to use a device_initcall as opposed to just calling the 
-fuunction from the sbi_init function below? If so, please provide the 
-reason in the commit message when submitting the final patch.
-
->  /**
->   * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
-> @@ -643,7 +675,6 @@ int sbi_debug_console_read(char *bytes, unsigned
-> int num_bytes)
-> 
->  void __init sbi_init(void)
->  {
-> -       bool srst_power_off = false;
->         int ret;
-> 
->         ret = sbi_get_spec_version();
-> @@ -677,11 +708,7 @@ void __init sbi_init(void)
->                 if (sbi_spec_version >= sbi_mk_version(0, 3) &&
->                     sbi_probe_extension(SBI_EXT_SRST)) {
->                         pr_info("SBI SRST extension detected\n");
-> -                       register_platform_power_off(sbi_srst_power_off);
-> -                       srst_power_off = true;
-> -                       sbi_srst_reboot_nb.notifier_call = sbi_srst_reboot;
-> -                       sbi_srst_reboot_nb.priority = 192;
-> -                       register_restart_handler(&sbi_srst_reboot_nb);
-> +                       sbi_srst_available = true;
->                 }
->                 if (sbi_spec_version >= sbi_mk_version(2, 0) &&
->                     sbi_probe_extension(SBI_EXT_DBCN) > 0) {
-
-Regards
-Aurelien
-
--- 
-Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-aurelien@aurel32.net                     http://aurel32.net
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBNaWNoYWVsIFphaWRtYW4gPG1p
+Y2hhZWwuemFpZG1hbkBnbWFpbC5jb20+DQo+ICtzdGF0aWMgdm9pZCBmdDI2MF9ncGlvX291dHB1
+dF9jZmcoc3RydWN0IGZ0MjYwX2dwaW9fc3RhdGUgKmdwaW8sDQo+ICsJCQkJICB1MzIgb2Zmc2V0
+LCBpbnQgdmFsdWUpDQo+ICt7DQo+ICsJaWYgKG9mZnNldCA8IEZUMjYwX0dQSU9fMF81X0NPVU5U
+KSB7DQo+ICsJCWdwaW8tPmRpcnMgfD0gQklUKG9mZnNldCk7DQo+ICsJCWlmICh2YWx1ZSkNCj4g
+KwkJCWdwaW8tPnZhbHMgfD0gISF2YWx1ZSA8PCBvZmZzZXQ7DQoNCk9kZCBjaG9pY2Ugb2YgYXN5
+bW1ldHJ5OiAhIXZhbHVlID09IHRydWUsIHRoZW4gY29udmVydGVkIHRvIGludCBhbmQgc2hpZnRl
+ZCB1cC4NCg0KPiArCQllbHNlDQo+ICsJCQlncGlvLT52YWxzICY9IH5CSVQob2Zmc2V0KTsNCg0K
+QW5kIGhlcmUgeW91IGNob29zZSB0byB1c2UgQklUKCkuDQoNCj4gKwl9IGVsc2Ugew0KPiArCQlv
+ZmZzZXQgPSBvZmZzZXQgLSBGVDI2MF9HUElPXzBfNV9DT1VOVDsNCj4gKwkJZ3Bpby0+ZXhfZGly
+cyB8PSBCSVQob2Zmc2V0KTsNCj4gKwkJaWYgKHZhbHVlKQ0KPiArCQkJZ3Bpby0+ZXhfdmFscyB8
+PSAhIXZhbHVlIDw8IG9mZnNldDsNCg0KSWRlbS4NCg0KPiArCQllbHNlDQo+ICsJCQlncGlvLT5l
+eF92YWxzICY9IH5CSVQob2Zmc2V0KTsNCj4gKwl9DQo+ICB9DQoNCktpbmQgcmVnYXJkcywNCk1h
+YXJ0ZW4NCg0K
