@@ -1,99 +1,77 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.45
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794918872;
-	b=Z0fVNjSz1PuiMZezFkIFkR90ZjJ+NFtfV4zpixgUuSxpgpykQGg/+uA2Sj0Zv2cJcDCb
-	 8QAGf2l/jD9LVB0ItCkqcP0s56VTdd3sgax3ocVHAwpR1yEsM/vTBg8R8kNGngKj6DqYX
-	 zzuLj8M6Zsi6lPfvz4xkRWy3/rA0VTCKJGY6Tz0gpwQ3XJ3uxZk8GtyaRg4MIMj7OgJnU
-	 9N0IZRGJ/cvSPAGoh/F9gNNg68wiRTX0nUA7I2Jd7DI5dWLbuz1eM0a3qTPinBXRiH7G1
-	 x/CfMjIjgfiryNctO+Tr40GSJ7b11oAI/e7DmiOHR0zRcMNDFUZKTXMq0cYeSChBIVA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794918872;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Content-Type;
-	bh=R0C1suA4SxiusRHiawiUCOcPgTxU2RpEnv1XCXIekfM=;
-	b=Vc3d7i1lH1U2jE8QRNt1HZCeFwIU/rdoyXHxeYDeYqa76P/mt6MTpucFSqWAqNIfLQPP
-	 cE9UMKAMX4NsN6MDFARbhwLwuxtmqtMBx1tf9ttcsg7d3q/RioVT2ohnFa0WuN5Szu+yW
-	 5+j1tG6Z/zXBM2IonNz8iv6jf7Aw4gPJC/E0Mft/qwR5nKbjrx+LRa/ybUlynjbHu68Yc
-	 PQn1SfHHYT1dS2IVSJbmYf8tnbdmtQF69hh2Y6iW9ngCTv36ga7WyyoJZlP+kqNKeRC+N
-	 BIyvIlxcYFNaXM5HF6j+hd3Jj7TF4NXQDm6T6IPLjU9Pl3LLEebm28QJLu+msOEbjig==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=N1rjWLSk;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.45
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=212.227.15.14
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794921680;
+	b=Rzglfijd78+1SYqHKjoIiHmTBEAwmuL314dyqZQnTJ0Lp5lwGX2EetsWIFJtaWnChWiS
+	 l9FpTPghvF0UC8nmN5Fj4CU4LnAp3r18IFwIbS+z9IIrYmzAoCzew5vgcJE4kOJwXSUfU
+	 owKbC/Q6802v4VlTcRB+oVivp/X6dbZ/PE65yJU08LxW9X9+/BbspkEVWnF7238Z7KSKD
+	 mcZNZY2ik48fKytcJG7Ya980t8qwI6ndZ9AaMZsrTum9pT1gqNnYZH+hy9vjsrC71urir
+	 Q76y0ChHnw0D3c61JVfFfsWDrpB6KZ1U0UfXvskF2CZi6h4F/RATQhFb9ryRA0tR1JA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794921680;
+	h=DMARC-Filter:DKIM2-Signature:Message-Instance:DKIM-Signature:
+	 X-UI-Sender-Class:Received:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Provags-ID:X-Spam-Flag:
+	 UI-OutboundReport;
+	bh=O15KmHjK/IjChmIg1MswoAKQRe54mKR/YNVKMpoI2GE=;
+	b=xaZxUT4IKv3jnJz5EILuXtEG/VlF5Bs8Wy9FURDKGr4zDGZYBEvtGjMOJqPiQOA4/vFm
+	 wvYCGD5qMsKkZOjTgbXq0wrISgclDKFDYwXHiLHgulf4f7jcbkAFJBOlzPUM0YL7ZG3P+
+	 ocDk+h4JwPKwR8UGh5n74aFGjGOjlsyAylG3N/370tWSIENbM35ifD4VKXeJvPIAXuhkd
+	 mHKx17qLLbUTLVFDXjGqcRJhGE2t05V7RwzF+01OFMCB7eIdQdBag+zwx17B58BVqfNvv
+	 /VLb+WTjrhiuvpoFSL/tRGDoabnEjygRsmRHS0rzn5lBFzRoIC6v3fZLnBNirQkngBg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=web.de;
+	spf=pass smtp.mailfrom=web.de;
+	dkim=pass header.d=web.de header.i=markus.elfring@web.de header.a=rsa-sha256 header.s=s29768273 header.b=aPLpo4Y8;
+	arc=none smtp.remote-ip=212.227.15.14
+Received: from mout.web.de (mout.web.de [212.227.15.14])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B11F606A8A1
-	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 12:34:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3B11F606A8A1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF47606A323
+	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 13:21:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5AF47606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=N1rjWLSk
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6b757029223so5606908a12.0
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 04:34:29 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794918867; cv=none;
-        d=google.com; s=arc-20260327;
-        b=aYBZCyCwmGvQbLVYTZF1raRc9QA2itBBRlurjYclHoXf1K8q+hIANkKUzzXPd7hsiv
-         NBP6MaiCVQNxx2X8x/ZoNtmaYra5oKCbnzJj2up2/l8N7L4egRuS9fd6tXzsuE8Li6ub
-         m7gLen3uDo//NIywjw55GuRAuY3CJr47YN0PMvRSr6BWOMbaEl1EekX2YfiTpFLPjkLr
-         sIgLEDFZNhBdybDQ6snV0x3VIZc1YZNHFr5a+o6vOBReZm3efy2LBw68JHyG4nPW/y+a
-         YeoIFe7Tg2gKYy4Hd75dxhMnVEvq//ZFHerkhP0Y7pGfCJl0eGRG59VWrRAkYGhXFZGI
-         ww7w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :dkim-signature;
-        bh=R0C1suA4SxiusRHiawiUCOcPgTxU2RpEnv1XCXIekfM=;
-        fh=cvH5/f2D65vUFFDq/kE1EOztfm4cflVXjuVrL8lZs4Q=;
-        b=k6sZ8Dc1Z6tl9xSacv/GPOS1EgceWr6tiC/2a56b+ExyCXnv3dLRgiWmiF4qIa1fmx
-         9f1ObQEHT2y3QIXJJ+BFvFS4bmGluNpi2rM21HJFgr0aJ9pP91IoOodcjNLqtvMYXGx4
-         x8xIBoqYaeFUMEcl5uHRifAiOf6lvDel9lukQpztmhtaNdCTMJSbUW24nzzNlAsqsvN9
-         TMnXqe49Vt0IVT9GlPsTZFdzuaAp9wz8RvQTDqkieAXOKcTFgns9infoIAQ/pptQywL9
-         CVL9JekISoqS8EwpFt86a5UueMtGU/tR6TxzFsOoZy7TLI15LjpScV1WibuDrNxfdrjI
-         /jwg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794918867; x=1795523667; darn=vger.kernel.org;
-        h=content-type:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=R0C1suA4SxiusRHiawiUCOcPgTxU2RpEnv1XCXIekfM=;
-        b=N1rjWLSkLdwh0E7jWov8qkbMBi8fHXFij6VQGin1fve9HGSVlL92toijae487NzqSo
-         2Jhg7fsgyvwTLCMi+6kNvqyKMZV/izFeJSzay8sKEBz1xmQ66VEjcusd5mPlpWstyEZk
-         EMs9vkPxN94nrL2On8FF8j9r/n32yxkwz7uGZyN6noLo6p+CQiL3/u1sQ0wYaKkgvgDI
-         YKomDRWoIK1PssDkqvpNyuOWWDjUh7BrhBLivziEtKM+zBzV1EC5eWgrfRZ83GnDXbOn
-         g4kOW2fhlAY/idqM0ueK905XFwWWs/OzrLc14WR3LOedUBJ949nfxKhT7nALtLQSg0cf
-         S/pg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794918867; x=1795523667;
-        h=content-type:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=R0C1suA4SxiusRHiawiUCOcPgTxU2RpEnv1XCXIekfM=;
-        b=VG6PIvdFGYKqSckbR07KN4NckxeB5On3kc3KszG7jEa7sd2j9JNtHnyGZg2+orNclH
-         fR5VoEurWBvaWmGJvX8po0njCxBf0ykDa7jh+Fdfyf8CQPyPFb4L5rgqAjWCaO/TkVE5
-         Zz/XQRuSNx2hXmXitJPfesVceH2bv2PxAE2u5WsuhqTJ/t0ia+SZwbOA6fZEZieDhnJA
-         CedqKJ948A4wZ12y7bEtMvgqkKGqYf2BUeg0YjkAUA+z07ym9g/QoLutTeL6CrJlQB0C
-         526fsJzqmP/L0PjCHAqpmT6IKudIn/L7eYerm8hnM2qqnfbPkp33+ReBvRY5dhAHtpSC
-         U1Jw==
-X-Forwarded-Encrypted: i=1; AL+hErHztPRR9tcM9lkaMojkB5C6ybl2E9+M2ZJUiiOKiB2J6z5KbjOSMkn9TbP28nn/MusiE6Mhb+RtIH8=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9NJXR+YETFIB2OETW3vqJFI559nk3z4pk9lF/IAMvJIqKuTn/F
-	F/SlffQcdRlRa544mn/t8rn0BW6DsVDsE93p3heaSZUod9QRvhqOdQeZORmyhtoOTDslbuwTeE7
-	FXqHhh7LPBSpfJ5tngo40MtFF2OaD6EmB3DZm
-X-Gm-Gg: AYBFou1OVQFo8GC7ET/NsLV+I8wg4vTxRT6J4ad5Gp6nPpOYJOFCOzw/KQxGTANJyUQ
-	jhRoQGi90Y2Rq78aSkCWK+PEFw7479Z57CDB/S3aOVVo33Zz9qUU7rMEz/PkJSTQGhfX7ro9GRN
-	C6maBADkLPrdfPnoMKezhM4+fPlyGa/JD9JklzSVhFoizEImLXNLvQD3EMYD346ImOXjfuPxZ0T
-	wnuzAPsQ5aQmaAwo1Wk56/GgeDhMDOtHMQw6uderJ1CYgZoXr9sh2YOQG5T28ZOwU6P+iMv7oPS
-	6ZfVPyzW5Us6MlXoAR7BooG0mGQni4qHHuiVu1Q/h0nKdZNuLOC2tHdvsEnKQe5uz1H4YTvipNJ
-	g0huzrQgAFDtUnjAS93dmEIodyzcQswbKM0s=
-X-Received: by 2002:aa7:d14a:0:b0:6b7:b872:2799 with SMTP id
- 4fb4d7f45d1cf-6b7c0998ba4mr7830416a12.19.1794918867146; Tue, 17 Nov 2026
- 04:34:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.a=rsa-sha256 header.s=s29768273 header.b=aPLpo4Y8
+DKIM2-Signature:  i=1; m=1; t=1794921677;
+ mf=PE1hcmt1cy5FbGZyaW5nQHdlYi5kZT4=;
+ rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
+ d=web.de;
+ s=s29768273:rsa-sha256:pWU9Flf8757X3U7HtdnwYcWocJ45
+   AwS5tSxlLyV0cTpENOQ6aPZKykv/lH0ynRP2cA4cl+6/endMsbDQuG/C8845/qEpQCwzpfA5J3T
+   ayKl1j62xNuo/dY/10eZYpA1jpIgx5Hnh7URle3rM2un2seLuHCV4xgtnxEGGr0mnNmCyLEqGgc
+   noPjAvAhySRcSNS74PsGK5Pj45xO1jiGmRLms28PsXK6szKsUT2KlWz3AkOe54IWmls7jV67VLT
+   hCi17Upranbu6o73RdBMnkT8ZenDvoJZy20CvTmkoJFNC7mdPNZrQtgbJV+ix5BQ890Ck/Prv/d
+   t95wBbJd4ymeMA==;
+Message-Instance:  m=1;
+ h=sha256:
+   wk8Ebnxj9+uopn4oAfe8XpNBl4GkL+Ot7cX4DU6EhPY=:
+   S8Svh5yjcoWGeKVpnzI1TFn8gCquX/Z15gpJRqPt1ZA=,
+  sha512:
+   8eXnFb3w2Nkab4Z+20FZIBTTnw0F9c+jvS27XhdGtw7lliSG6/ZuKQxlxjGaeXBQIHAKAn2souTmbnt1zZeCdA==:
+   UMcSWdpUjOx21yU3m9ZtF4VAL4Bhqao2FLpjla4ft5MnND5cAUB0Goe3D2UTUhc6WdqxmI2fGmu2nIV3tvqpPg==;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1794921668; x=1795526468; i=markus.elfring@web.de;
+	bh=O15KmHjK/IjChmIg1MswoAKQRe54mKR/YNVKMpoI2GE=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=aPLpo4Y8DtSyFl7Mthdr+W+ylySNgZTQrZ58sb5NGgqFj++PK30a++2re0BR5bNi
+	 kHyq963u5ID0J6uvg7/xalaJlbmaWR4P+kMmZWo487/b9e6jYpRqpejAYvU69fGGB
+	 xHDPZCjO06OTE71k8ng6BCFoqaaOpHYr0b1u8HO6U6aPKlSB3TI/VLD2YqqXLKDb7
+	 FWJ5mGL57y4lVWyAScHYHhXHO4aoyhShuqgsn7ZysVCgc7wYYaA1MYLg8w82FKnXL
+	 OyvUEyydaGWYpRBSlJQbwK7WdV7Vt6dIVAQLEtxNPXnNd0oMMCXVj9ApjVJscIG/7
+	 DN7ewQI4V+tOv4vHHg==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from client.hidden.invalid by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1MNwjc-1x520i1eFU-00Puxo; Tue, 17
+ Nov 2026 14:21:08 +0100
+Message-ID: <23a72c5e-7eb7-4a4e-9f06-fdc4976b05bc@web.de>
+Date: Tue, 17 Nov 2026 14:21:06 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -103,256 +81,164 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261110061429.2036-1-linux.amoon@gmail.com> <20261110061429.2036-2-linux.amoon@gmail.com>
- <avpN-gFOvTBAMY6G@venus> <CANAwSgT_k35_waHL-+iU93f=k3fjFAPXhk=exRz-XHMm2MqREA@mail.gmail.com>
- <avvnRkK9agPSdzac@aurel32.net>
-In-Reply-To: <avvnRkK9agPSdzac@aurel32.net>
-From: Anand Moon <linux.amoon@gmail.com>
-Date: Tue, 17 Nov 2026 18:04:12 +0530
-X-Gm-Features: AclHuK_kx8zawYGaheU3obBfG0RSjShsNOB5FZzf0Hf2ULzVFDROSleg0QHq__c
-Message-ID: <CANAwSgSXP1bZVVrX71jfgi1iR9AY4TpM0pk07ke+oeLvcX1fEQ@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] power: reset: spacemit-p1: Use atomic I2C
- transfers for power-off and restart
-To: Anand Moon <linux.amoon@gmail.com>, 
-	Sebastian Reichel <sebastian.reichel@collabora.com>, 
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Yixun Lan <dlan@kernel.org>, 
-	"open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:SYSTEM RESET/SHUTDOWN DRIVERS" <linux-pm@vger.kernel.org>, 
-	"open list:RISC-V SPACEMIT SoC Support" <linux-riscv@lists.infradead.org>, 
-	"open list:RISC-V SPACEMIT SoC Support" <spacemit@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v10 2/2] i2c: amlogic: Add Amlogic A9 I2C controller
+ driver
+To: Junyi Zhao <junyi.zhao@amlogic.com>,
+ Xianwei Zhao <xianwei.zhao@amlogic.com>, linux-amlogic@lists.infradead.org,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20261117-a9-i2c-v10-0-33ea9aefce20@amlogic.com>
+ <20261117-a9-i2c-v10-2-33ea9aefce20@amlogic.com>
+Content-Language: en-GB, de-DE
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20261117-a9-i2c-v10-2-33ea9aefce20@amlogic.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:yeW+56fcqwFFgnUzBcgflsIOb76VlxacHTsho9siUjw90d9mZHr
+ dxav4ru3MrzMawKzrlfhN95X+hCUY5BaAYCNL8np5RMU0dDbKHJcmS2wbMebvFXgONnUlOV
+ B3Qfk5dh/HntvJU5BUcxq5/6A6Zrgk02MbN3K4POWPqD4Zpr/bwhUeXE+EXmNUn5+dWgeWD
+ QkocangnXLGbMPiABL3uQ==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:HIpqy9YjjqI=;apDQbC5a7Xs5fGXisT7dSxx9Hdl
+ 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
+ F/mz2v8wPPH2F566/h+HFA=
 
-Hi Aurelien,
+=E2=80=A6
+> +++ b/drivers/i2c/busses/i2c-amlogic-a9.c
+> @@ -0,0 +1,428 @@
+=E2=80=A6
+> +static int aml_i2c_xfer_msg(struct aml_i2c *i2c, struct i2c_msg *msg, b=
+ool last)
+> +{
+=E2=80=A6
+> +	spin_lock_irqsave(&i2c->lock, flags);
+> +	i2c->state =3D (msg->flags & I2C_M_RD) ? A9_STATE_READ : A9_STATE_WRIT=
+E;
+=E2=80=A6
+> +	/* Start the transfer */
+> +	aml_i2c_do_start(i2c, msg);
+> +	spin_unlock_irqrestore(&i2c->lock, flags);
+=E2=80=A6
+> +	if (!time_left) {
+> +		guard(spinlock_irqsave)(&i2c->lock);
+=E2=80=A6
+> +	}
+> +
+> +	return i2c->error;
+> +}=E2=80=A6
 
-On Tue, 17 Nov 2026 at 11:04, Aurelien Jarno <aurelien@aurel32.net> wrote:
->
-> Hi Anand,
->
-> On 2026-11-16 13:06, Anand Moon wrote:
-> > Hi All,
-> >
-> > On Mon, 16 Nov 2026 at 11:33, Sebastian Reichel
-> > <sebastian.reichel@collabora.com> wrote:
-> > >
-> > > Hi,
-> > >
-> > > On Tue, Nov 10, 2026 at 11:44:27AM +0530, Anand Moon wrote:
-> > > > The SpacemiT P1 power-off and restart handlers use regmap_set_bits()
-> > > > to access the PMIC. However, these handlers run in an atomic notifier
-> > > > context (specifically within an rcu_read_lock() critical section), while
-> > > > the I2C-backed regmap uses a sleepable mutex.
-> > > >
-> > > > This triggers a "WARNING: suspicious RCU usage" warning due to an illegal
-> > > > context switch in the RCU read-side critical section during shutdown on the
-> > > > Banana Pi BPI-F3:
-> > > >
-> > > > [  563.803475] WARNING: suspicious RCU usage
-> > > > [  563.807813] 7.3.1-ARCH-RISC-V #1 Not tainted
-> > > > [  563.816614] ./include/linux/rcupdate.h:387 Illegal context switch in RCU read-side critical section!
-> > > > ...
-> > > > [  563.841445] locks held by shutdown/1: 2, last CPU#0:
-> > > > [  563.846694]  #0: ffffffff8404fb20 (system_transition_mutex){+.+.}-{4:4}, at: __do_sys_reboot+0x230/0x29e
-> > > > [  563.856806]  #1: ffffffff84167860 (rcu_read_lock){....}-{1:3}, at: atomic_notifier_call_chain+0x4a/0x1c2
-> > > >
-> > > > Replace the regmap operations with atomic I2C transfers to avoid sleeping
-> > > > in an atomic context. Preserve unrelated register bits through
-> > > > read-modify-write operations and check for atomic I2C support before
-> > > > registering the handlers.
-> > > >
-> > > > Obtain the I2C client from the parent device and verify that the adapter
-> > > > supports atomic transfers before registering the handlers.
-> > > >
-> > > > Tested on the Banana Pi BPI-F3 (SpacemiT K1).
-> > > >
-> > > > Assisted-by: LLM
-> > > > Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-> > > > Cc: Aurelien Jarno <aurelien@aurel32.net>
-> > > > Fixes: 28124cc0fb8c ("driver: reset: spacemit-p1: add driver for poweroff/reboot")
-> > > > Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-> > > > ---
-> > >
-> > > regmap runs i2c_transfer itself and thus also uses the atomic I2C
-> > > transfers. The problem here is regmap itself. But instead of moving
-> > > away from regmap, the atomic use case should be supported properly
-> > > in regmap.
-> > >
-> >
-> > On  RISC-V platform, poweroff and reboot are already handled by OpenSBI
-> > through the SBI System Reset (SRST) extension. Linux delegates these
-> > operations to firmware using SBI_SRST_RESET_TYPE_SHUTDOWN for poweroff
-> > and SBI_SRST_RESET_TYPE_COLD_REBOOT or SBI_SRST_RESET_TYPE_WARM_REBOOT
-> > for reboot, depending on the supported reset type.
-> >
-> > Therefore, there is no need for an additional Linux PMIC poweroff/reboot handler
-> > on this platform, as it duplicates functionality already provided by firmware.
-> >
-> > While supporting atomic operations in regmap may be useful more generally,
-> > it is not necessary to address this platform's shutdown and reboot requirements.
-> >
-> > I tested this on the SpacemiT K1 Banana Pi BPI-F3 after removing this PMIC
-> > poweroff/reboot driver.
-> >
-> > OpenSBI commit which handles this extension
-> >
-> > d9637d00bf47 ("lib: utils/reset: add SpacemiT P1 PMIC support")
-> > b10e18ec854a ("lib: utils/i2c: add minimal SpacemiT I2C driver")
-> >
-> > Similarly, on the StarFive VisionFive 2, poweroff is handled by
-> > OpenSBI through the
-> > AXP15060 PMIC, so there is no need to register an additional poweroff
-> > handler using
-> > devm_register_power_off_handler().
-> >
-> > OpenSBI commit which handles this extension
-> >
-> > 568ea49490d9 ("platform: starfive: add PMIC power ops in JH7110
-> > visionfive2 board")
-> >
-> > -----8<----------8<----------8<------
-> > diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-> > index 50df66de24e06..069259f7d7c15 100644
-> > --- a/drivers/mfd/axp20x.c
-> > +++ b/drivers/mfd/axp20x.c
-> > @@ -1458,8 +1458,14 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
-> >                 return ret;
-> >         }
-> >
-> > -       if (axp20x->variant != AXP288_ID)
-> > -               devm_register_power_off_handler(axp20x->dev,
-> > axp20x_power_off, axp20x);
-> > +       /*
-> > +        * The VisionFive 2 handles AXP15060 poweroff through OpenSBI.
-> > +        * Avoid accessing the I2C PMIC from the atomic poweroff path.
-> > +        */
-> > +       if (axp20x->variant != AXP288_ID && !(axp20x->variant == AXP15060_ID &&
-> > +                               of_machine_is_compatible("starfive,jh7110")))
-> > +               devm_register_power_off_handler(axp20x->dev,
-> > +                               axp20x_power_off, axp20x);
-> >
-> >         dev_info(axp20x->dev, "AXP20X driver loaded\n");
-> >
-> > Please let me know if this works on your board?
->
-> Yes, that works, but I don't think this is the correct solution to
-> disable here. Also this won't scale for future boards which might use a
-> different existing PMIC driver with poweroff support and that will also
-> need to be patched.
->
-No changes needed over here, reboot and power-off priority will
-work fine.
-> As pointed out by Troy in an earlier mail, the real problem is the
-> priority at which the handler is registers, 192 for the reset and -256
-> for the poweroff one. I wonder if the SBI SRST extension should also
-> register the poweroff one at 192. It seems it's about replacing the call
-> to register_platform_power_off() by register_sys_off_handler(), which
-> supports using a priority value. And maybe SYS_OFF_PRIO_FIRMWARE = 224
-> should be used there instead of 192.
->
-Thanks for your input; with the changes below.
-It works fine on Spacemit k1 and Starfive Vision 2 for reboot and power-off.
+Will development interests grow also for the application of another scoped=
+ lock guard?
+https://elixir.bootlin.com/linux/v7.4-rc1/source/include/linux/cleanup.h#L=
+325-L328
 
- arch/riscv/kernel/sbi.c | 51 +++++++++++++++++++++++++++++++----------
- 1 file changed, 39 insertions(+), 12 deletions(-)
-
-diff --git a/arch/riscv/kernel/sbi.c b/arch/riscv/kernel/sbi.c
-index af1ccea222f1..32a3d2df9032 100644
---- a/arch/riscv/kernel/sbi.c
-+++ b/arch/riscv/kernel/sbi.c
-@@ -512,23 +512,55 @@ static void sbi_srst_reset(unsigned long type,
-unsigned long reason)
-                __func__, type, reason);
- }
-
--static int sbi_srst_reboot(struct notifier_block *this,
--                          unsigned long mode, void *cmd)
-+static int sbi_srst_reboot(struct sys_off_data *data)
- {
--       sbi_srst_reset((mode == REBOOT_WARM || mode == REBOOT_SOFT) ?
-+       sbi_srst_reset((reboot_mode == REBOOT_WARM ||
-+                       reboot_mode == REBOOT_SOFT) ?
-                       SBI_SRST_RESET_TYPE_WARM_REBOOT :
-                       SBI_SRST_RESET_TYPE_COLD_REBOOT,
-                       SBI_SRST_RESET_REASON_NONE);
-+
-        return NOTIFY_DONE;
- }
-
--static struct notifier_block sbi_srst_reboot_nb;
--
--static void sbi_srst_power_off(void)
-+static int sbi_srst_power_off(struct sys_off_data *data)
- {
-        sbi_srst_reset(SBI_SRST_RESET_TYPE_SHUTDOWN,
-                       SBI_SRST_RESET_REASON_NONE);
-+
-+       return NOTIFY_DONE;
-+}
-+
-+static bool srst_power_off;
-+static bool sbi_srst_available;
-+
-+static int __init sbi_srst_sys_off_init(void)
-+{
-+       struct sys_off_handler *handler;
-+
-+       if (!sbi_srst_available)
-+               return 0;
-+
-+       handler = register_sys_off_handler(SYS_OFF_MODE_RESTART,
-+                                          SYS_OFF_PRIO_HIGH,
-+                                          sbi_srst_reboot, NULL);
-+       if (IS_ERR(handler))
-+               pr_warn("Failed to register SBI SRST restart handler: %ld\n",
-+                       PTR_ERR(handler));
-+
-+       handler = register_sys_off_handler(SYS_OFF_MODE_POWER_OFF,
-+                                          SYS_OFF_PRIO_FIRMWARE,
-+                                          sbi_srst_power_off, NULL);
-+       if (IS_ERR(handler)) {
-+               pr_warn("Failed to register SBI SRST poweroff handler: %ld\n",
-+                       PTR_ERR(handler));
-+       } else {
-+               srst_power_off = true;
-+       }
-+
-+       return 0;
- }
-+device_initcall(sbi_srst_sys_off_init);
-
- /**
-  * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
-@@ -643,7 +675,6 @@ int sbi_debug_console_read(char *bytes, unsigned
-int num_bytes)
-
- void __init sbi_init(void)
- {
--       bool srst_power_off = false;
-        int ret;
-
-        ret = sbi_get_spec_version();
-@@ -677,11 +708,7 @@ void __init sbi_init(void)
-                if (sbi_spec_version >= sbi_mk_version(0, 3) &&
-                    sbi_probe_extension(SBI_EXT_SRST)) {
-                        pr_info("SBI SRST extension detected\n");
--                       register_platform_power_off(sbi_srst_power_off);
--                       srst_power_off = true;
--                       sbi_srst_reboot_nb.notifier_call = sbi_srst_reboot;
--                       sbi_srst_reboot_nb.priority = 192;
--                       register_restart_handler(&sbi_srst_reboot_nb);
-+                       sbi_srst_available = true;
-                }
-                if (sbi_spec_version >= sbi_mk_version(2, 0) &&
-                    sbi_probe_extension(SBI_EXT_DBCN) > 0) {
---
-2.56.0
-
-> Regards
-> Aurelien
->
-> --
-> Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-> aurelien@aurel32.net                     http://aurel32.net
-
-Thanks
--Anand
+Regards,
+Markus
