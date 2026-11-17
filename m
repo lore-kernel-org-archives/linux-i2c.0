@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794945913;
-	b=hAyAzIBgBvaAgXgacxNkPQxbngaL1LvsSdgIZ36JZ+xdwQI/GbsN66hmdzr/hcNUsCT5
-	 GHOJ578nmSKDjB7Mopkqti6rMo5NFQEmLrrnqe+3B0KcCUGUH13Me3W30cOdha7EIL0GI
-	 cqZqXx77qZrBYZVkzFH3C8nZYv4fRetdEmg7C59zhy0s6/Sm+zBdqGcVE2OBHO8RNK6Ha
-	 Rk/VKdbFtmFDOTLx8T1yva5XekeAlYJj8uC7KiPh4JaOvTtfma04eEQnR5LvQAlAD/9r6
-	 Xgt7o/Pga1SRjZ7R++BYtCGujcLh0ywCqwP2ujDEFtkThMPzn5NS5bEckluxzwdsMDA==
+	t=1794945915;
+	b=UtIF70NerxIphwxkVToiV3+ZXos8TXNzRHqAmHXKVBQPRbVw2MR+CJRrXR9QxK4FqiD2
+	 wFj3LMGFJegQVIafSZjrfyJ1xi5yZl7ruyo9GO4YSttKtxF6XhLHHcyXyCFyXm5zvzrEK
+	 w8xTA0UFpiYHZQ/qvLgoHW/lrhTks1V1VpXWdgNNOJEggugyh9V/1BkEVzUrH6prb6bRT
+	 WCBi762hzy1U3WxeV3ce1B/5LwHyOwYZ0nmlHrL0Tb6ZxaQwbvbUms9x+zqi1aR04M4ql
+	 AX4sRN7gZ8DNNUPlHt2tL/hK7MIBqBnd/vxjtMcsfKhYDlS2+qawUMs7ZJbUARejR8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794945913;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794945915;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=TCa0RnoydsxVLT03DHyYOZOOaLc5gZ6BJdmvsECF/XY=;
-	b=jYo3PpYCPbfijBNJH2Vg/ROLy6A1iG0nd9vtcFBFVByM+kN4EbEHL640HrN7ng5F/bJi
-	 T0IJReclwfA3wYz8Pg4xR5rNxUsqCQJFPIS8nTy447l5y48nqRydZ+RGHqRm/vsvU9ubJ
-	 pBtAiO7YCl3Id24OehVrZZ/GP17V4BdpNeDbKrxQUkZYY9OnvXyC1de5m1tPdtfOJDr7n
-	 QArzMMktWPsz8JyWTWcT6HZKquJlH/2JlzV6voyIvs2PeBROM0CUcdchTWx6zyKzvZtcA
-	 1qIu+aaMrwueLpbEdC/DHAitTQj2l6JHmmhvenddZ08vXRZranF5Fs2gOdzcnd0OP1A==
+	bh=I4V/mFDPpkUiPU517GUo/F8CChNGX/URZfOCzHfy5Ek=;
+	b=t0Nies6ZDN81lEr+ydI4Sx4VW7cOWLv3/5yc9J1Pc/Ky1GzfRA15lqK6AtDmbLstgd14
+	 DQTX9GQlWN1g1yJHsVPoPUU4FQnoItk6fgSJRliqKyCdc2NeplxVrr+CuS4P7Wx1tnlnk
+	 DJZ/kFfsrDK9e/QC33ur6lajBc++BqJm4dzocPVxxkIW0MAwTcsFgg9m6Qr6zJmguXp0+
+	 q/9eetUEe6LuhC/govVG7lwjmGdYp+UIa9XUYnF4hyLIrFImcrDkUde3o998OpGaoz/MM
+	 VIT8w57CP8VeDhpkR+Tt2D+h9rv9OVcZjv5saSpS0lWgOUwzswg9mqhB5g5WZ005/Qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yqUGQQpu;
-	arc=none smtp.remote-ip=209.85.128.41
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SMpoD2pQ;
+	arc=none smtp.remote-ip=209.85.221.43
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E33D60A383B
-	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 20:05:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6E33D60A383B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B754060A5BDF
+	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 20:05:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B754060A5BDF
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yqUGQQpu
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4bb6ba3b244so2847735e9.3
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 12:05:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=SMpoD2pQ
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-492690dd5daso135705f8f.1
+        for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 12:05:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794945911; x=1795550711; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1794945913; x=1795550713; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=TCa0RnoydsxVLT03DHyYOZOOaLc5gZ6BJdmvsECF/XY=;
-        b=yqUGQQpuFJfvOn1h42r+LKmqo0q175gJjUF3epjGfvLDK5HX26guRRThmenDneYDkC
-         9sThMksbVW4v5LHTnhemmT3QBDdgqwZIcfrAzbxN5CSp4OSD7fmvjTeY/a43YIMkfDII
-         RI9UGb6JQxo7G5y8LapHWcLjjoJLO8VQnk533f2krl1DgWNJVCRabC7hRQvvXrTLK/rI
-         sv9/S+OybdFtEWsteLjFYS97fnZHOGu/ns78MjRvAQpB7VeeInOtZBxOkyBp2yghk1gf
-         FP0Dod+NFxC4hVsgZTaC0/8aTqe4qPVfz/F88mzAWdyjzx3ltItTmMyy1tq2kgHVyIjD
-         tvTA==
+        bh=I4V/mFDPpkUiPU517GUo/F8CChNGX/URZfOCzHfy5Ek=;
+        b=SMpoD2pQjaA/cYwragUAoL2cukgsQqAGoTUGPepWYe3flBwQMPJYr2+y+F+Ut7Kz+E
+         OtvViQ4W7x5E7+e5G5fCm0nKIraG+qRrtUI6HMDdyQeh7FKYXzyp/7AaQw9uMl7kFF6S
+         mqOpcHdDv35O2pRw8ttbgzFzyxpcUQGPxGB2Ge2naeMbBTSEJOxnvf8liWSxYvtEsIL1
+         75McRy04KBF+kNYieEZr07EBSyz00zguoprTeNdA2cJn/deMAz6fQ2eS/bk5G91FkAe0
+         hFeXUG9iDIzGHafEklmHwTxURZbJFyTqF5ghJztE9wemZNwf4wZeyNM272S2hPY6rvc+
+         GZgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794945911; x=1795550711;
+        d=1e100.net; s=20260707; t=1794945913; x=1795550713;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TCa0RnoydsxVLT03DHyYOZOOaLc5gZ6BJdmvsECF/XY=;
-        b=eYHEKtGT8aW1YjN61E2X4Pv+zOQqg6KPdlvHiLH0UafABA1qZ9VeD11HZMCeRyzcSV
-         7dAJMrIU5Mq3UCUqZAjmo0G/Y72LzjaT/djUh92SRR+O5zTToFq7VAC3y/B61mxVLiT0
-         BALC1dF2gINXQ8o97XEEWP7apBB9hmURE1/nR42VXF+KSR57PX7TU7UpMTkou6ITJH8l
-         eOQjuee61e57SEoJtK5Px2k5h+PMLZ7I4CoB8Q/CTz5ZT70xoqd8joybDrol3azKqidO
-         H8G9lZpuv4i7/F9ZGNw83OppkUnnXNg++vCSVRYFQKkJSJRKSGnH7yievd7O3DbPt3fp
-         WMdw==
-X-Forwarded-Encrypted: i=1; AL+hErFa1cCpZJ31/Al9vneXup5/Ve+fFfJlLU0mkI4LcpjRCLP38ooPlfxnEeg/HKlni5kALMB/DWKcD4Y=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+4O/QNG8GABaBhhtmjWfhvM8CfrQvtqig2cBDVxByBjfffPAkr
-	LbwoCmnV7hGrIena/D7fVpGoy3ZOJQlxn0Y6V0iMs1cfI/LqXrdxIXm6
-X-Gm-Gg: AYBFou2yuia1gHxZRBhg33VoaPl0JFl85CIN+E4ms7sw01h6Cy3mmAYRdPGcodA4Asc
-	BauihuHUho2/S+Kg3xoez6IXG7i7qxtKxHfM9TGD+HiKKDRkRU4iPGLe+XjeDc4XWkkGsiC9Q4J
-	R6q7XFpDfUX5Sii3/HoLgzIyNLPz+PvaOue9LJZp1mu6s7E09OcCnbJoFq8j05Dd4bYlvCindgn
-	/brAJJEVPIcq5dq2U3Fu/cndCWbxSuMVIGfIyN5hgHwqoQow+Fq1KOLjmXM5kur/5mKKm72O+Av
-	QkWZvCLSCWHmrM52R2iSvRRn5j/HIrbCf5qh17OpolWTPyzU7MB+3O7R27OvYJpbtLHCfrw2TFe
-	V9np7aHp0soaZbTIihhLYubFOnX9ybNeHWwjvjwOfSCgqy+6ssS1EcLXMR5yt2uXIsnw+GaPei5
-	SO9IqD2IKgQ88E0eorJ6eAU9wYwzwNrfLyOWpOOfWX4TazkRA1KzJ8FZuzgkChwqs7tyO6+nqbX
-	FaqvBfU2rcbWehoIj8grqw3Uka5U7iiIPO8KAOnL8bDHZF9OI2lpvTiTJIc6sprVdYNRMm/YjGs
-	VCQ6J0vgbBBgCtiJVSbPsjbz/2jTVg6w854OtNIPL1zJO4YTLQ==
-X-Received: by 2002:a05:600c:3107:b0:4a1:825a:56fd with SMTP id 5b1f17b1804b1-4bb7da47d19mr4644125e9.32.1794945910693;
-        Tue, 17 Nov 2026 12:05:10 -0800 (PST)
+        bh=I4V/mFDPpkUiPU517GUo/F8CChNGX/URZfOCzHfy5Ek=;
+        b=NvSdGmpEuBJ9gjuN26SkglVD4HhCT759r7pJbNwYfpSM/U+oN6az7nekPi8Z99iL64
+         94nLF3eBrtGvJs+DLItdcwbCH8I3ZbkrFgERuSgNho3OfepurGPPm/qfXwCbdAuJC0o1
+         8z5eEmUp/85+wuSYVAkkMYqhdglDtXPQGA331qW/3cNkCZ8W2IbDIzFItIkJ3sxBkyx9
+         fUHGibgxnGJP4JBubOi5KE7x3zpLu1AM/KJx3gaLmq/SoH5I8DabZFrUOkllhcZmYG+P
+         auK75Saa0NwXT2RIe0onwNWWfmz4MvI2zqZ+f9AOkiEW4Cd/A1a24ReGe8rXdeqshwiU
+         EREw==
+X-Forwarded-Encrypted: i=1; AL+hErFeFF1VDXNhBtMlqAl1vYkMUKqf9uKKUqanaPd7yy6vE88C8vedZtxiMJcrGRBpzF6FUxqP7k+yDPE=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9eC1zdDld3oyMiHGNOYwzqNRRpaoUKkLFuPiUgLEdVS0tm6eq+
+	9x6Aej99Rq80NnNYtE/uvpHe21uuNddov6fwXx8qB6JKukjG8lMKt88J
+X-Gm-Gg: AZFdTZeMXIrc1jxOIt2Iylul1MZp0QxFJChEuO54rFc21Bevyd1eZs7jR1zox9hL2E3
+	z04YqnQo6dlKbxsPndoNZ4Icg1TLrhW9OE5z/7cv8V1eo+rQNqW419SUcVjXcFofLnNKAz1XVnz
+	lRfnhnt49ABVZRYCT3efjCqsPfB2uomgxLEho+TIwsAcu34UAyC7CbXiCnJSgposDJyoWmvrWlx
+	JoYpy1dNlApMqu5XHi6Q4u2iEDmq0hrGvI/2BzKCe9LQsB56/GCUICVYV2Gd9AAJgPoG4IzaM6g
+	DIzGpVSVeyn/29V1ZAtd8niqLYbv+4AolWZgMWz//uja4CXIU5leoW5JTNB6Df8WBrC6iMIZLU+
+	fZDfUIOJ2+0lfNZ5rNUrARU815AZ2fF1ZsstkfBcM2BF6fPC94dCjGrMloQkhnfAPO7jR+9jL8b
+	xfIeTYR0kOZi1ZJjaENZ2hnW7wMWZno9jTcrHAJBPTyi3rRROA2etM8Lgy2v9Hsv+mu9aAusMfL
+	P7MuG4O8pr1HqmSdO/NqLUwARKMFlUhqqqJ8WiQJJKrSlQ5gyDm0skyzWRVPD0j55wehQodQGYK
+	fWyntIn7wMm3j3EcT4XOZTb9PwvM
+X-Received: by 2002:a05:6000:184b:b0:48e:3df8:74cb with SMTP id ffacd0b85a97d-4a6334a76d3mr1304109f8f.6.1794945912888;
+        Tue, 17 Nov 2026 12:05:12 -0800 (PST)
 Received: from m2.. ([37.142.154.208])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-4a64b60940csm625528f8f.0.2026.11.17.12.05.08
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-4a64b60940csm625528f8f.0.2026.11.17.12.05.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 12:05:10 -0800 (PST)
+        Tue, 17 Nov 2026 12:05:12 -0800 (PST)
 From: Michael Zaidman <michael.zaidman@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -96,9 +96,9 @@ Cc: Linus Walleij <linusw@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH v4 04/16] HID: ft260: i2c: reduce driver module loading time
-Date: Tue, 17 Nov 2026 22:04:10 +0200
-Message-ID: <20261117200423.19561-5-michael.zaidman@gmail.com>
+Subject: [PATCH v4 05/16] HID: ft260: fix sysfs store failure notice for big numbers
+Date: Tue, 17 Nov 2026 22:04:11 +0200
+Message-ID: <20261117200423.19561-6-michael.zaidman@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261117200423.19561-1-michael.zaidman@gmail.com>
 References: <20261117200423.19561-1-michael.zaidman@gmail.com>
@@ -113,103 +113,114 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The HWMON class I2C client drivers register the address range to scan
-during the I2C master module probing. For example, the lm75 module
-registers eight bus addresses scanned during the ft260 module loading.
+FT260_ATTR_STORE returned the feature-report transfer length from
+ft260_hid_feature_report_set() instead of the sysfs write size. For
+values like 1000, userspace writes more bytes than the HID report
+length, so the VFS retries the remainder and reports "Invalid argument"
+even though the attribute was applied correctly:
 
-In the case of ft260, the bus is scanned by ft260_i2c_read, but due to
-an excessive read completion timeout, it took about 40 seconds for the
-ft260 driver to scan the lm75 address range before exiting the probe
-function.
+  $ echo 1000 > .../clock
+  bash: line 1: echo: write error: Invalid argument
+  $ cat .../clock
+  1000
 
-Adjust the i2c_read timeout so it depends on the amount of data to
-read, reducing the lm75 address range scan time to about 200ms.
+Return count when the feature report succeeds, so the full write is
+consumed, and the error when it fails.
 
-The 25 ms per-report budget was checked on a UMFT260EV1A with a 24LC512
-EEPROM by shrinking the timeout until reads began to fail: a 60-byte
-read still completes at 9 ms and times out at 7 ms, against 5.4 ms of
-wire time at 100 kHz, so the fixed USB, HID and scheduling overhead
-costs a few milliseconds. At the chip's slowest 60 kHz clock that chunk
-needs about 9 ms on the wire and a 180-byte chunk about 27 ms. Scale
-the wait by 25 ms per 60-byte HID payload so a last chunk of 61..180
-bytes gets 50..75 ms, not the single-report 25 ms budget.
+Parse a 16-bit attribute, such as clock, into a u16 and convert it with
+cpu_to_le16(), because the report field is little endian. Before, the
+value was parsed straight into the __le16 field, which is wrong on a
+big-endian CPU.
 
 Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
 
 ---
 v2:
-Fix for the issue reported by Sashiko: the timeout of the last I2C
-read chunk is computed from rd_len, so a chunk of 61..180 bytes gets
-50..75 ms, not 25 ms.
+Fixes for the issues reported by Sashiko:
+- A failed feature report is not reported as success.
+- A 16-bit attribute is converted with cpu_to_le16(), so it is correct
+  on a big-endian CPU.
+
+v3:
+Subject reworded after the original out-of-tree commit, "Get rid of
+sysfs store big numbers failure notice". The v2 subject read as if the
+patch hid big values. No i2c: prefix, because FT260_ATTR_STORE serves
+all store attributes, not only the I2C ones.
 ---
- drivers/hid/hid-ft260.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/hid/hid-ft260.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index acd92248256f..1b31b484a11b 100644
+index 1b31b484a11b..bdd55b35df9a 100644
 --- a/drivers/hid/hid-ft260.c
 +++ b/drivers/hid/hid-ft260.c
-@@ -17,6 +17,7 @@
- #include <linux/serial_core.h>
- #include <linux/kfifo.h>
- #include <linux/tty_flip.h>
-+#include <linux/math.h>
- #include <linux/minmax.h>
- #include <linux/unaligned.h>
- #include <linux/bits.h>
-@@ -49,14 +50,20 @@ MODULE_PARM_DESC(debug, "Toggle FT260 debugging messages");
-  * The ft260 input report format defines 62 bytes for the data payload, but
-  * when requested 62 bytes, the controller returns 60 and 2 in separate input
-  * reports. To achieve better performance with the multi-report read data
-- * transfers, we set the maximum read payload length to a multiple of 60.
-+ * transfers, we set the maximum read payload length to a multiple of
-+ * FT260_RD_ONE_REPORT_MAX.
-  * With a 100 kHz I2C clock, one 240 bytes read takes about 1/27 second,
-  * which is excessive; On the other hand, some higher layer drivers like at24
-  * or optoe limit the i2c reads to 128 bytes. To not block other drivers out
-  * of I2C for potentially troublesome amounts of time, we select the maximum
-  * read payload length to be 180 bytes.
-  */
-+#define FT260_RD_ONE_REPORT_MAX 60
- #define FT260_RD_DATA_MAX 180
-+
-+/* Time in ms to wait for a single HID input report at ONE_REPORT_MAX */
-+#define FT260_RD_ONE_REPORT_TO 25
-+
- #define FT260_WR_I2C_DATA_MAX 60
- #define FT260_WR_UART_DATA_MAX 60
- #define FT260_GPIOCHIP "ft260_gpio"
-@@ -726,8 +733,8 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 			  u16 len, u8 flag)
- {
- 	u16 rd_len;
--	u16 rd_data_max = 60;
--	int timeout, ret = 0;
-+	u16 rd_data_max = FT260_RD_ONE_REPORT_MAX;
-+	int timeout, timeout_jiffies, ret = 0;
- 	struct ft260_i2c_read_request_report rep;
- 	struct hid_device *hdev = dev->hdev;
- 	unsigned long irqflags;
-@@ -752,6 +759,8 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 		} else {
- 			rd_len = rd_data_max;
- 		}
-+		timeout = FT260_RD_ONE_REPORT_TO *
-+			  DIV_ROUND_UP(rd_len, FT260_RD_ONE_REPORT_MAX);
- 		rd_data_max = FT260_RD_DATA_MAX;
+@@ -1486,56 +1486,60 @@ static void ft260_attr_dummy_func(struct hid_device *hdev, u8 req, u16 value)
+ 	}
  
- 		rep.report = FT260_I2C_READ_REQ;
-@@ -776,8 +785,8 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 			goto ft260_i2c_read_exit;
- 		}
+ #define FT260_SSTAT_ATTR_SHOW(name)					       \
+ 		FT260_ATTR_SHOW(name, ft260_get_system_status_report,	       \
+ 				FT260_SYSTEM_SETTINGS, u8, ft260_byte_show)
  
--		timeout = msecs_to_jiffies(5000);
--		if (!wait_for_completion_timeout(&dev->wait, timeout)) {
-+		timeout_jiffies = msecs_to_jiffies(timeout);
-+		if (!wait_for_completion_timeout(&dev->wait, timeout_jiffies)) {
- 			ret = -ETIMEDOUT;
- 			ft260_i2c_reset(hdev);
- 			goto ft260_i2c_read_exit;
+ #define FT260_I2CST_ATTR_SHOW(name)					       \
+ 		FT260_ATTR_SHOW(name, ft260_get_i2c_status_report,	       \
+ 				FT260_I2C_STATUS, __le16, ft260_word_show)
+ 
+-#define FT260_ATTR_STORE(name, reptype, id, req, type, ctype, strtou, func)    \
++#define FT260_STORE_NATIVE(v) (v)
++
++#define FT260_ATTR_STORE(name, reptype, id, req, type, strtou, func, conv)     \
+ 	static ssize_t name##_store(struct device *kdev,		       \
+ 				    struct device_attribute *attr,	       \
+ 				    const char *buf, size_t count)	       \
+ 	{								       \
+ 		struct reptype rep;					       \
+ 		struct hid_device *hdev = to_hid_device(kdev);		       \
+ 		struct ft260_device *dev = hid_get_drvdata(hdev);	       \
+ 		type name;						       \
+ 		int ret;						       \
+ 									       \
+-		if (!strtou(buf, 10, (ctype *)&name)) {			       \
+-			rep.name = name;				       \
++		if (!strtou(buf, 10, &name)) {				       \
++			rep.name = conv(name);				       \
+ 			rep.report = id;				       \
+ 			rep.request = req;				       \
+ 			mutex_lock(&dev->lock);				       \
+ 			ret = ft260_hid_feature_report_set(hdev, (u8 *)&rep,   \
+ 							   sizeof(rep));       \
+ 			if (ret < 0)					       \
+ 				hid_err(hdev, "%s: failed!\n", __func__);      \
+-			else						       \
++			else {						       \
+ 				func(hdev, req, name);			       \
++				ret = count;				       \
++			}						       \
+ 			mutex_unlock(&dev->lock);			       \
+ 		} else {						       \
+ 			ret = -EINVAL;					       \
+ 		}							       \
+ 		return ret;						       \
+ 	}
+ 
+ #define FT260_BYTE_ATTR_STORE(name, reptype, req, func)			       \
+ 		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
+-				 u8, u8, kstrtou8, func)
++				 u8, kstrtou8, func, FT260_STORE_NATIVE)
+ 
+ #define FT260_WORD_ATTR_STORE(name, reptype, req, func)			       \
+ 		FT260_ATTR_STORE(name, reptype, FT260_SYSTEM_SETTINGS, req,    \
+-				 __le16, u16, kstrtou16, func)
++				 u16, kstrtou16, func, cpu_to_le16)
+ 
+ FT260_SSTAT_ATTR_SHOW(chip_mode);
+ static DEVICE_ATTR_RO(chip_mode);
+ 
+ FT260_SSTAT_ATTR_SHOW(pwren_status);
+ static DEVICE_ATTR_RO(pwren_status);
+ 
+ FT260_SSTAT_ATTR_SHOW(suspend_status);
+ static DEVICE_ATTR_RO(suspend_status);
+ 
 -- 
 2.43.0
 
