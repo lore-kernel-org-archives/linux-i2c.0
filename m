@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794929158;
-	b=4UfsJbVSmJ/JSb32RU6kewv0Dc+OxA3SqSmJWnTQ+BHe//QUGj+AZCJnURQcg81jwuYx
-	 zThY9x01LsyEHbTTTT1/85iip/0N1NrgbC5MqzRp22rjj9vVsiUDkV07XR5w3pTokkqLO
-	 wybjtYsb/shBAhMXLa7MNAaU5+KXmOGooqZRwxhsF1X4HSlMOysPVk6dIDWBRm4In7600
-	 hJlDYRW2Ub6bzDmaH/CXuiY4aLw1SpcDg/VQ2C5Con5JlAHydANxVzjqUOpPpLEgT1NUJ
-	 6AW3lIP6iSJtZUJ8fWs31Q5VLMZ2SALUqS7HlsRdxNRX4kT8ZQRwigDyNFsZkAMRo0g==
+	t=1794929185;
+	b=eOVlcr4fukgcX0QXxil5s1Yy+pH+GxLEd2w1VrsCFQQSZm50JBfEC4cwIpiDMWLcL+iu
+	 QVt7Mm+1BZRSywZQ7N1Gqb2IytG6vBrNX3oT2C7f9bGKxai1EFCduamhE37hazBmhPByr
+	 zc834EXiGQC7O0VPhjjJKdl+mfnR3MMSS9aeUXQ9B/eTjXFj1mEG9yK23GXIxY03utqpz
+	 9nqK0ZpaYIPFEoIy74ISTdfYRR9LSmMlj7aTtPAQpFpt5GSXALeBg300zVN7sCdVbHV6z
+	 hG+UQlxlWil4QJbt6lxSIPzaxr1I1Zz4EdLgADecGzYyCzDoWQ+EUN/0iRnZh8lPGkQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794929158;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794929185;
 	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
 	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
 	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
 	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=KBdVW29HVJ4wR0PbCoFLY5q8sXCExkR+hunNaQ0mJo8=;
-	b=lvPMExMQSGPyhoHJ5XCUnFkcMyLbGosJHWhvaVycFFowFNdrte+AHobaE7i1gVbixWA4
-	 bvGG8ZSOZKWHoM3hXVFmNJ+aQ9Ked/SnRsddtTpcqglWtKgM5ilFi3PO/dL2mxvjAJ38F
-	 jDebw3Vz+8YY0oOFRUSiBh9tkUqh6U/HPMFIbUjEiAN/Wt0TQFIGcP7imxJGGMVS94jO/
-	 XTQnF0n7bfhomzycOELb2q5vnIXsfoxbl8FAgEY4/5kGpv5IFrv6yrRUDzcGCcqmsShQ3
-	 nO5s16WY81JpCrFJm6l6MGGJB+cXdAAZDjqYaOT6i2/dzd9Hreg1e1Jt3XeFuCY2c6Q==
+	bh=++06PQJflKig+6hQln7vv+bAUJFdci8/kWBunR+qCrE=;
+	b=XfYR4u0BKhTZyFrdW+u8rJIcNN/0eKQVSLW5jUIN3Wc5UmZhX87ZcDPzMXxtP8Lr4hCw
+	 JQLuJcq50FnycN9HcvImer/JscfIcTXZ7Ab47y3vsJDnsg0+vZ+Y5H3L1LpZMhCwTy3L5
+	 31VSk3LOgkvn98AKPyqHVxjh/JAP4b3R0Ed0oZo0kLTaN18ubVw3x+acAzqqKh4gfGIbL
+	 Kju8gdhwvapCWe2kN0xjCvr/GdQaB4Pg2n0szgXWxevNk6PES4V1gIUxarM14tO+9JiNZ
+	 RuQk8IXtaRs66aMg3wW719uQO5vNSg0l4GPyFP/wZ+nMwH+fdtZefDHdKFaSpxFBdMg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CnIRjXwR;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="fDiYjYi/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00FAD606A330
-	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 15:25:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0287E606A333
+	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 15:26:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CnIRjXwR
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D29861F000CE
-	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 15:25:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fDiYjYi/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16B11F000CF
+	for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 15:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794929157;
-	bh=KBdVW29HVJ4wR0PbCoFLY5q8sXCExkR+hunNaQ0mJo8=;
+	s=k20260515; t=1794929184;
+	bh=++06PQJflKig+6hQln7vv+bAUJFdci8/kWBunR+qCrE=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=CnIRjXwRpNVUgqYvQWE4WOgRijmCokWzHFBLSjBGVSNTb8cHLqhJGaC8kBn8ZRi7A
-	 6cXpGyWmj2XAp0X/TQi1kD2I1ZHD8R1y5slWiBHHHLk/iqBzmZedeXzjKPuTsYikWt
-	 /9PaMJGaJhRf3y9xLHljY7HtWOOu1/T/xuvn6/Q+sWpu9ORWo4ncMpsl69W9HNloAV
-	 XUe2L6gt4MR/hgoMamFRE8FEJ+SshFmoi3dnkuTE9wAXTjKDNe/WF5x8dc4RZAR8OW
-	 0TvSt473tr+zU0I2BCYNcfkNbaMPkGq9KC7zrb4IM2uaXQ2erNsn8G0F2oZYU0TjOj
-	 ZGPCzjAqwnpcg==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5be53e5fce1so4751450e87.1
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 07:25:57 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AL+hErFZ7pmr5tiGInTb8Sl2nImum7wd5ZkV4Vw8Qj/92oa9qy5P+t2jGHR/c3VgtqFvEpfPTOrQEOAgbmE=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+OuRMaNMMM6YOUF/ukVKMHZKXNQEZFDTIw1l2Dx+K9zCbXaAxr
-	sKIBm7HVwc0bRjQXUmYSliEbRAlHJEj5RMV6gpRrQVwSLZfHrepNNM8k5QxGaWIAEt8tzCM8KP2
-	utkGcxcFSODEkg0J+iCEwyCw59/NH8u0=
-X-Received: by 2002:a05:6512:3c9b:b0:5bf:d54c:1fb6 with SMTP id
- 2adb3069b0e04-5c170b669a5mr5364150e87.44.1794929156283; Tue, 17 Nov 2026
- 07:25:56 -0800 (PST)
+	b=fDiYjYi/FXrZfOf7lvpYHSAFwq4OjV9SzMBCOyo2K4WmqTSeimz6j1Tx1tIRCxepQ
+	 mCvUm3tXyn40runumrRvF5U9+SaLcr25EIDkyei+b2NJxIFhpeGYX9ceM3xFsDDiuM
+	 7mkq8Cu0w4nk/tuIJo923Gb81kHrTArg2fHdcNQsgp+y6dXaw1bi0yLGiQJGlWu2l0
+	 /brXR7qNzzzlZW3+dgjUFFYxQ0gwhi/v2hm2o1+KioIgw3wVwQ8HXZcaNS6DVGJQnf
+	 lQ3Lu8TQ8C8rb6wG22bN5RgxCEqYQUyUTK0szeg1V23W7N7QrYYocAn3taegaCuWyQ
+	 RFcMQv7Ci0NQg==
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5c126f80426so4381128e87.1
+        for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2026 07:26:24 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErHQHpBmwqYw7vxdtXp7Mp1ip5tHMJOhKEDNfZLkV/+a0f1rCyHMAJwusPjyzYEs8aL27TieayliyDE=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+aYlsIfswycFoNUUP54n+5V9GfWgGBvBja0gBeF4XqhiO9VUFj
+	SFBXtWcvrsy2mf4hUa2CQyKg1mO4So7BDOxydOHOhRhbvB15ZI93SRhgWRFi1fPvK22GCcu93om
+	pjexcgChcTAAP5O1W9U3+8vW2VUHV74Y=
+X-Received: by 2002:ac2:4bd3:0:b0:5c1:4f8a:8f5 with SMTP id
+ 2adb3069b0e04-5c170771fbamr6263013e87.25.1794929183274; Tue, 17 Nov 2026
+ 07:26:23 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -59,15 +59,14 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261117101336.980216-1-johan@kernel.org> <20261117101336.980216-8-johan@kernel.org>
-In-Reply-To: <20261117101336.980216-8-johan@kernel.org>
+References: <20261117101336.980216-1-johan@kernel.org> <20261117101336.980216-9-johan@kernel.org>
+In-Reply-To: <20261117101336.980216-9-johan@kernel.org>
 From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
-Date: Tue, 17 Nov 2026 16:25:44 +0100
-X-Gmail-Original-Message-ID: <CAJZ5v0j2DAPFBPA206VmWEiyUub7yuXFQeAvUtg95J=DwmKTDw@mail.gmail.com>
-X-Gm-Features: AclHuK-hF4u064HXJHyD_Ul8WiKkjgi6nackBFOWJTHQRR2q8VH5bYUJg9XjRV0
-Message-ID: <CAJZ5v0j2DAPFBPA206VmWEiyUub7yuXFQeAvUtg95J=DwmKTDw@mail.gmail.com>
-Subject: Re: [PATCH v3 7/8] software node: fix software_node_notify() primary
- node comment
+Date: Tue, 17 Nov 2026 16:26:08 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0ipadLX1yUwi6Ei4o8+b9YtsyXsprXfA-8xDaE5uY4+7A@mail.gmail.com>
+X-Gm-Features: AclHuK9P-eL5qUVo7UHG-qeLLKO9_Qsiw7_oDS5I9OT8qh0o6GqsYRVlxAXrvE4
+Message-ID: <CAJZ5v0ipadLX1yUwi6Ei4o8+b9YtsyXsprXfA-8xDaE5uY4+7A@mail.gmail.com>
+Subject: Re: [PATCH v3 8/8] device property: fix fwnode_get_next_child_node() comments
 To: Johan Hovold <johan@kernel.org>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
 	Danilo Krummrich <dakr@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
@@ -76,23 +75,21 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael
 	Andi Shyti <andi.shyti@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
 	driver-core@lists.linux.dev, linux-acpi@vger.kernel.org, 
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+	Xu Yang <xu.yang_2@nxp.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Tue, Nov 17, 2026 at 11:13=E2=80=AFAM Johan Hovold <johan@kernel.org> wr=
 ote:
 >
-> The firmware node pointer in struct device may point to either a primary
-> or a secondary firmware node and driver core sets the dev pointer of
-> that node when registering devices.
+> The parent pointer in fwnode_get_next_child_node() may not point to a
+> primary firmware node so update the comments to reflect that.
 >
-> Fix the comments in software_node_notify() and
-> software_node_notify_remove() which incorrectly suggest that driver
-> core only sets the dev pointer of primary firmware nodes.
+> While at it, fix an indefinite article in an earlier comment.
 >
-> Fixes: 37e586675993 ("software node: add fw_devlink support")
-> Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> Fixes: 190069255582 ("device property: fix infinite loop in fwnode_for_ea=
+ch_child_node()")
+> Cc: Xu Yang <xu.yang_2@nxp.com>
 > Signed-off-by: Johan Hovold <johan@kernel.org>
 
 LGTM
@@ -100,45 +97,41 @@ LGTM
 Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
 
 > ---
->  drivers/base/swnode.c | 9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
+>  drivers/base/property.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 >
-> diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
-> index 95283d8bda26..78e224539b02 100644
-> --- a/drivers/base/swnode.c
-> +++ b/drivers/base/swnode.c
-> @@ -1162,8 +1162,8 @@ void software_node_notify(struct device *dev)
->                 return;
->
->         /*
-> -        * When the software node is the device's secondary firmware node=
-,
-> -        * the core only records the owning device on the primary fwnode
-> +        * When a device has both a primary and a secondary firmware node=
- the
-> +        * core only records the owning device in the primary node
->          * (see device_add()). fw_devlink resolves a supplier device thro=
-ugh
->          * fwnode->dev, so without this a consumer referencing the softwa=
-re
->          * node could never find the supplier device and would defer fore=
-ver.
-> @@ -1198,9 +1198,8 @@ void software_node_notify_remove(struct device *dev=
-)
->         sysfs_remove_link(&dev->kobj, "software_node");
+> diff --git a/drivers/base/property.c b/drivers/base/property.c
+> index 51109794d727..bfc424a193b8 100644
+> --- a/drivers/base/property.c
+> +++ b/drivers/base/property.c
+> @@ -810,7 +810,7 @@ fwnode_get_next_child_node(const struct fwnode_handle=
+ *fwnode,
 >
 >         /*
-> -        * Drop the device pointer mirrored onto a secondary software nod=
-e in
-> -        * software_node_notify(). For a primary software node the core o=
-wns
-> -        * fwnode->dev and clears it in device_del().
-> +        * Clear any device pointer set in a secondary software node in
-> +        * software_node_notify().
+>          * If this function is in a loop and the previous iteration retur=
+ned
+> -        * an child from fwnode->secondary, then we need to use the secon=
+dary
+> +        * a child from fwnode->secondary, then we need to use the second=
+ary
+>          * as parent rather than @fwnode.
 >          */
->         if (!device_match_fwnode(dev, &swnode->fwnode) && swnode->fwnode.=
-dev =3D=3D dev)
->                 swnode->fwnode.dev =3D NULL;
+>         if (child) {
+> @@ -822,12 +822,11 @@ fwnode_get_next_child_node(const struct fwnode_hand=
+le *fwnode,
+>         if (IS_ERR_OR_NULL(parent))
+>                 return NULL;
+>
+> -       /* Try to find a child in primary fwnode */
+>         next =3D fwnode_call_ptr_op(parent, get_next_child_node, child);
+>         if (next)
+>                 return next;
+>
+> -       /* When no more children in primary, continue with secondary */
+> +       /* When no more children, continue with any secondary node */
+>         return fwnode_get_next_child_node(parent->secondary, NULL);
+>  }
+>  EXPORT_SYMBOL_GPL(fwnode_get_next_child_node);
 > --
 > 2.56.1
 >
