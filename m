@@ -1,54 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795009191;
-	b=TwrxPPPDEwRs6Y+uUVNhHyzO0Y/gqEI+E+XWlytn4dyFpeoY6R5mGviBmGfwMBciVfT4
-	 mM92oZgjAkO2KX++PuYYWzJU1c7q6Y0525MuJ1KpARor1D4RRTlOePEfZ744mgXewT8q9
-	 FQR0XxaUP0svRJgERHIdloAh8AeWydPeRgRduXRolnGMSUDVnynfyj0jRCcDet4bM6pji
-	 xng01EtsLFC6WhRJMvuc/4/npleJmRCVtzaNb/l8dUcU+0lBseuWR80rPcvULSlrxqygA
-	 qdedz8Zl/oGUeV0ez0G5iWCbIzlK2nzDcVHxL9MkCVAg+mrLpjuExQQPRe6TohS5EKQ==
+	t=1795009247;
+	b=1spue5RFh8RSQ4ghhCAOUfm90W4CcNICqun1j0LaAt0+gWtXiZE31s6eMD4BeDPeuXhB
+	 n83/gS6EIWr/M0gWvlXfS1uJwTh7rfRlen5J1Ecg6+ctabF/4HDLK21+4E/Ivc3kKKmWT
+	 macQ939X+ceeUwomzb6i8W/vxP4dDn7T/zHg2/ZrJ2hhNYt6iV/hFBe9R9hAc2eB3MjeT
+	 KjHzgUmS1xbHb9JXj8sNRXd2dY8ccr9g6mqpDm3baMjFU6uCpOl6j1m0fGA0TeaQOiyXR
+	 xS96UP3wm/cM/q3dNd4CTAxlPpLvm1h3EAPFE80tthiJ3Y00tLCTIjkmSNVLxG/gOgg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795009191;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795009247;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=n/xNnljAIoTpSIonTUtPSuIAXIf9DvOLWxzsuQnFSHo=;
-	b=Ht+YUcPKRdIVm4k+3sp2BO/FUzDGAyybd7ONWlTWpIFrQuVOKKIm8IrVhkSs2MRSFW8u
-	 nWiY0Th8gp9pbqNDid12tBc1KA3QSOK1RdmNyaYSv89nsl8iuqKYs5QXtCYISC69Cz4I9
-	 eCV2NSonDXnLKOKKF+zVJCxi0tSZmC3zLiBYposTzCK7l0T0Uoec7XHCn51wH9ZjSYzzT
-	 wSL0vQ6ug7V0YCfrv5XrtawK9JkZAuvJPtTW6MCngRA2m9dsQ3vmq7YssdNgT7WKg6z/M
-	 /T/r43MdlIFnEZxqAxOUMiRnGtJouaR7RbOEi+hQhBdmvqQl5hJJKO1+1esLHYE/hFA==
+	bh=2qVAOETeikmfZ9XOZTrGBSYB6uryKL0euE5eUgu0EAw=;
+	b=u1QQ6SNJauZQgLxI/5cYUahUwAvaIGOnstOhQeQmT11tYkYp/g/jROnE7lz00FMrNKYz
+	 vpJ97SikJpjwMI5PXeJtxwJJuHDoya/eTLpyoJf3NqkXmSYz98W7DfaIf43eC1cPpJz0i
+	 OXVNBNcBnpRtLN0vRjFQuNtuRF3/U2+X4uux0CdzSP46i1obHLDhLSl5cKMt1b34LeM3k
+	 xuAf5KOnfDHdiArc5SZ4rTyh5NN7keZvR2S+bYHYUXd10Wqm/G65E4SsuAm6Y/BFQTCPH
+	 1i4CelwNQHKrR6H/b3TqWHBZLbw6KfMlwxI1uxzuHupWBSo3nwZyqN0XYMGdaKgx8pA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=YkjZItOj;
-	arc=none smtp.remote-ip=185.246.84.56
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=RlL5Ebr8;
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D91E2606A31C
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 13:39:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D91E2606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 733C5606A31C
+	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 13:40:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 733C5606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=YkjZItOj
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=RlL5Ebr8
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id AF26F1A16D9;
-	Wed, 18 Nov 2026 13:39:49 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id EFEFEC4CBD9;
+	Wed, 18 Nov 2026 13:40:49 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 7CCD45FE9B;
-	Wed, 18 Nov 2026 13:39:49 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9EBE311BC2086;
-	Wed, 18 Nov 2026 14:39:37 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 1EBE35FE9B;
+	Wed, 18 Nov 2026 13:40:45 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4F66611BC209F;
+	Wed, 18 Nov 2026 14:40:36 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795009183; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=n/xNnljAIoTpSIonTUtPSuIAXIf9DvOLWxzsuQnFSHo=;
-	b=YkjZItOjnKrvUNQqGwfyVQDndORZx7f2ZBPqGS+E23ES7+QUG3XwwROwBKolYxAvgMNi3I
-	yAXrUFn91oCVAqdkEKuVcfoo0hRBi0eRPaynPINZgJNHxgcqIR5LHt3lX0ycBFx7r4C+UY
-	IGkmqueyDXyO8N8GEB6TFUvhd0KZW1mebwpVOYP5xNtKgraNT4sG37sUZYLTIKUhqZy+eP
-	ITDLhrf2bxGY27yx7umEFIkOIBMmaLVjax8tGT0rHzfqgPgpCbXH1WFWlxeze1zBqJd8t+
-	7/pMmlWphALzrrRe3rmrwScJ96FnwJh62qp2XvYfZWyLHm5w1LruFdazQfRKzg==
+	t=1795009240; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=2qVAOETeikmfZ9XOZTrGBSYB6uryKL0euE5eUgu0EAw=;
+	b=RlL5Ebr8lJ/Zs6rK0GvCXL8/1oNAm5sQA6NVYDu6fuUaLzXNpcVAl4oM136GigLbBBLCwN
+	rNFTXjaXxawWwLVr9HgtiTuJlj8iCBSVxoJUnCl0dbN46x1WEXdC9BTeOcjDmgf7mbf7+F
+	C+Zx/7mlcfVMqRXiABr7+Vy9rdDxYg1BqGCnTT6C4mfcpk7JABpweBdMPFpAFdDOXS4ogw
+	5WGRUarH3Xi5wg5kQc4vl1oatarZIZZ+4dxfT6HYrHhX5q88GM1kguWBLfi0FraheTAAM0
+	9eQaDC5dCoYmo3MNdn5Qgsl/qQ/m5qsxlfemNMO5LRhvNdzelADsGLq128CIFQ==
 From: Herve Codina <herve.codina@bootlin.com>
 To: Andrew Lunn <andrew@lunn.ch>,
 	Rob Herring <robh@kernel.org>,
@@ -68,10 +69,12 @@ Cc: linux-i2c@vger.kernel.org,
 	Steen Hegelund <steen.hegelund@microchip.com>,
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	Herve Codina <herve.codina@bootlin.com>
-Subject: [PATCH v10 0/6] lan966x pci device: Add support for SFPs, i2c part
-Date: Wed, 18 Nov 2026 14:39:09 +0100
-Message-ID: <20261118133927.366482-1-herve.codina@bootlin.com>
+Subject: [PATCH v10 1/6] media: rtl2832: Use I2C client device as mux device
+Date: Wed, 18 Nov 2026 14:39:10 +0100
+Message-ID: <20261118133927.366482-2-herve.codina@bootlin.com>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261118133927.366482-1-herve.codina@bootlin.com>
+References: <20261118133927.366482-1-herve.codina@bootlin.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -81,138 +84,40 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-Hi,
+rtl2832_probe() currently passes &i2c->dev, the driverless parent adapter
+device, to i2c_mux_alloc().
 
-Previously, I sent a big picture series adding support for SFP ports
-available on the LAN966x PCI device [0].
+This leads to the mux device set to this adapter device instead of the
+physical device handling the mux, the rtl2832 device.
 
-In this series patches touch several parts and sub-system in the kernel.
-Reviews have be done and it makes sense to split the series and send
-parts separately.
+This is an issue when consumer/supplier devlink are involved. Indeed,
+the physical device with a driver attached need to be pointed to by
+devlink.
 
-This current series is the extraction of patches related to issues in
-the I2C subsystem. It has to be seen as a continuation of the big
-picture series but related to this specific I2C part.
+Use the rtl2832 device &client->dev instead, as done by the other DVB
+demodulator drivers.
 
-Those patches are related fw_delink issues specific to I2C muxes and
-atrs.
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+---
+ drivers/media/dvb-frontends/rtl2832.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-They purpose is to correctly set a link between an adapter supplier and
-its consumer. Indeed, an i2c mux/atr adapter's parent is not the i2c
-mux/atr supplier but the adapter the i2c mux/atr is connected to. Adding
-a new link between the adapter supplier involved when i2c muxes/atrs are
-used avoid a freeze observed during device removal.
-
-[0] https://lore.kernel.org/all/20260325143555.451852-1-herve.codina@bootlin.com/
-
-During the previous iteration, Sashiko reported some issues [1]. This
-new iteration takes them into account.
-
-Also, previously, modification done on muxes and atrs were done in the
-same patch. This new iteration split them in several patches. Even if
-modification are similar, commit logs are not. For instance, serializer
-and deserializer related to issues reported by Sashiko are present in
-atrs but not muxes. With that in mind, having specific commits for muxes
-and atr makes sense.
-
-[1] https://sashiko.dev/#/patchset/20261104135324.492692-1-herve.codina%40bootlin.com
-
-Still worth noting that I tested modifications done in mux but not in
-atr. Indeed, I don't have any atr devices on the different boards I have
-to perform a test.
-
-Best regards,
-Hervé
-
-Changes:
-
-v9 -> v10
-  v9: https://lore.kernel.org/all/20261104135324.492692-1-herve.codina@bootlin.com/
-  Sashiko's review: https://sashiko.dev/#/patchset/20261104135324.492692-1-herve.codina%40bootlin.com
-
-  Patch 1 (new patch in v10)
-  - Update rtl2832 driver to pass &client->dev instead of &i2c->dev
-    (issue reported by Sashiko).
-
-  Patch 2 (patch 1 in v9)
-  No change
-
-  Patch 3 (patch 2 in v9)
-  - Split v9 patch 2 (mux part)
-  - No specific mux change
-  - Keep 'Reviewed-by: Andy' tag
-
-  Patch 4 (patch 3 in v9)
-  - Split v9 patch 3 (mux part)
-  - Handle issues reported by Shashiko (possible NULL parent_physdev,
-    possible parent_physdev == mux->dev)
-  - Handle DVB bridges issue reported by Sashiko (client->dev.driver
-    NULL pointer dereference). Fix it avoiding the link creation when
-    the consumer is an i2c client attached to the same adapter as the
-    supplier.
-
-  Patch 5 (patch 2 in v9)
-  - Split v9 patch 2 (atr part)
-  - Use desc->parent for chan->adap.physdev (serializer/deserializer
-    issue reported by Sashiko).
-
-  Patch 6 (patch 3 in v9)
-  - Split patch 3 (atr part)
-  - Use desc->parent for the devlink consumer (reported by Sashiko)
-  - Avoid a dangling pointer in atr->adapter[chan_id] (reported by
-    Sashiko)
-  - Take into account possible NULL parent_physdev (idem mux)
-  - Take into account the parent_physdev == desc->parent case (idem
-    mux).
-  - Avoid link creation when the consumer is an i2c client attached to
-    the same adapter as the supplier (idem mux).
-
-v8 -> v9
-  v8: https://lore.kernel.org/all/20260630103010.413688-1-herve.codina@bootlin.com/
-  Rebase on top of v7.4-rc1
-
-  Patches 2 and 3
-  - Add same modifications in i2c-atr.c than the ones done in i2c-mux.c.
-  - Update commit logs accordingly.
-
-v7 -> v8
-  v7: https://lore.kernel.org/all/20260605083158.28ac874f@bootlin.com/
-
-  Rebase on top of v7.2-rc1
-  No other changes
-
-v6 -> v7
-
-  Rebase on top of v7.1-rc1
-
-  - Patch 1, 2 and 3
-    No changes
-
-Older iterations:
-  Patches 14, 15 and 16in the big picture series
-  https://lore.kernel.org/all/20260325143555.451852-1-herve.codina@bootlin.com/
-
-Herve Codina (6):
-  media: rtl2832: Use I2C client device as mux device
-  i2c: core: Introduce i2c_get_adapter_physdev()
-  i2c: mux: Set adapter physical device
-  i2c: mux: Create missing devlink between mux and adapter physical
-    device
-  i2c: atr: Set adapter physical device
-  i2c: atr: Create missing devlink between ATR and adapter physical
-    device
-
- drivers/i2c/i2c-atr.c                 | 47 +++++++++++++++++++++++++++
- drivers/i2c/i2c-core-base.c           | 16 +++++++++
- drivers/i2c/i2c-mux.c                 | 45 +++++++++++++++++++++++++
- drivers/media/dvb-frontends/rtl2832.c |  2 +-
- include/linux/i2c.h                   |  3 ++
- 5 files changed, 112 insertions(+), 1 deletion(-)
-
+diff --git a/drivers/media/dvb-frontends/rtl2832.c b/drivers/media/dvb-frontends/rtl2832.c
+index b31cdb44b383..57707d84701b 100644
+--- a/drivers/media/dvb-frontends/rtl2832.c
++++ b/drivers/media/dvb-frontends/rtl2832.c
+@@ -1075,7 +1075,7 @@ static int rtl2832_probe(struct i2c_client *client)
+ 		goto err_regmap_exit;
+ 
+ 	/* create muxed i2c adapter for demod tuner bus */
+-	dev->muxc = i2c_mux_alloc(i2c, &i2c->dev, 1, 0, I2C_MUX_LOCKED,
++	dev->muxc = i2c_mux_alloc(i2c, &client->dev, 1, 0, I2C_MUX_LOCKED,
+ 				  rtl2832_select, rtl2832_deselect);
+ 	if (!dev->muxc) {
+ 		ret = -ENOMEM;
 -- 
 2.56.0
 
