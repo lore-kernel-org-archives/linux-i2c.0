@@ -1,109 +1,110 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795032338;
-	b=M/YWbDyyJ7ueJLfzNRH1yNglzgaswWF8sY6o75ubN74vbhXJxQrbVorPitqr77FXuOdX
-	 ERNM098UNdkbHfXCt/MtkfRCAkoUsNPKkViawd6B5M4+DJcfYVylY8h9VU976HsociIFI
-	 NNdU4fVMZim0EcOGodvUf7W4TkUvCiypk/J1MCJj5RbvclVrSItUVSTHz5t/SIMJQ1dPy
-	 IkTQdVW/vTe8wcXpGpn9SFqYNFRrxT59t8i3eU7HEbGAmE0xQn1unSZI8Tc/62unlyq3f
-	 8kPZ3MxSRhi54LrK4CD2e0xvi+nSUgEQlNTpOQRnDyF3cVx/GK9+gI/spXRcX1hrfRA==
+	t=1795035171;
+	b=Q2CGDapDN5fJfTh14q6ZCDOFjs6HrcBPpiRAvVjnszOGzU39BO9hb9Hcf6nSUAxJw+vP
+	 EZuLfbjCGtxE9V8J3VJgixCLEUpfMH2qm3jjOZ0hSclB+oOPvYXELy5W3o81UADLVe+rd
+	 SZ4W6fGWkKgPeSWaFqRSbKxzEtQ9KKsUOHpOqd1d0hPkZ1/QQDGhl+eTBJqTRMIC9ODMZ
+	 Kr1Jn+JSyHuZZLZtq2NsXLMGHlCNwrjOIdz2TsVb9Socjb3sm4A1lBXyjwv5kOUhqqJZT
+	 Jv7eLnNo3WOQMve8cEOahzU9j9Ru6EzUTh8DyLcoF6rSRTbwZQKQQnXSUqc/VYuTFHA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795032338;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795035171;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=sT8BXmWr3ZtRZWaM79NQqvkyqTyjCTuzoolorXg8m8g=;
-	b=BhZp/nvJOav8rE2U7xwm0oBCGxRclrwgQlA15LJ3IbxAywGBe/LPrkvQpuFPR6WCiTf0
-	 yHsPil10ud00xHRJfZK2v7M2addhXhAw2e2yv00sJQd7AVe30Pzs03anRXp3EB+N1fQDI
-	 QHeApXcJywaAQygQFh9FQN1Q6CpxDPaaCDzSY8gyAYmCDPgKBhlWSLyyo2yirjdbYCK3y
-	 gOtgFw0ahCgndHn7jayyaJ+8GROWdEsUU42xJg8HsTRFkwrjidFxJOk/2Vi0dK+o5bYCc
-	 R/sIkWp6ysrcomYbdT44TLu6hPsabMvB5woyMAH9PxJ1nb+N8AreWbJYig0X+CQaGAA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=a5MhG98OmxdXqTOc5Xluyx99XKwhYZJ2KKliQ9c2OkM=;
+	b=Xl0YMvrJBlLRCfnVBe7uyvJYZPdMKbxFe5JHfT7923paDi96B/HemX4utrfC/F0I281G
+	 6tiJDXr+L3lGPsIOCZ5/rjBhvouaqqe5Oy2EGyo/NsDDztxEL4UsAshkyMyEgy9NpxCnw
+	 dlY3qNJevdLJSemC20fu7OYpFN9NdldLpLKn24bOrQy8y8KIPZ0wwSMX5xmiXqiycZhFg
+	 I0P1bwZS2gXb3gUO2Aa/59RTuj93k+rtV2EugSBzj5oFZ758jpts5cpb//hjuuDkRaGHq
+	 86EEUTU2Q/LMa4IZE8i8ycpHVv27CgoPi4ZTJ3ofs0xGIqfcDz6zRGPW6d4y1SCmVYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="XlcqI/WD";
-	arc=none smtp.remote-ip=74.125.82.173
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jlxGHW+k;
+	arc=none smtp.remote-ip=209.85.218.50
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E350660A380F
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 20:05:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E350660A380F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7442606A331
+	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 20:52:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A7442606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XlcqI/WD
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-382c3c9671fso1728843eec.0
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 12:05:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jlxGHW+k
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c4203bbb1e9so216459366b.3
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 12:52:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795032337; x=1795637137; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=sT8BXmWr3ZtRZWaM79NQqvkyqTyjCTuzoolorXg8m8g=;
-        b=XlcqI/WDSL40sFhRfuRWgVgFbUDcqd4dc89nkRX5hq+S6M8QdNcniDdhvF5vb59JR9
-         +24b2dBI34OdoIn/aYyBvSwB9tz2lynON+qJxamsUAXHpVmYD/3ZKBFhNp3ecyO+jlfH
-         yLH7pY8+TH7FTvuT5+ik8N0FN9+di52g35SX1/oNpSBHggxVrH/KYVnpZPxnnGG7tPAK
-         ijRQX/dWp/4oznE3o52u/IE1GSe+QjU5+euXF7w4YEyxGh1/eE5NSDL7B9b1dtmhE3RB
-         XHUDBQWdTuTfQpILYYqp1x29wahndXSFG4yJo9XWSRArReOv4M9bjUoseDYx8yWpnopP
-         7jSQ==
+        d=gmail.com; s=20260707; t=1795035169; x=1795639969; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=a5MhG98OmxdXqTOc5Xluyx99XKwhYZJ2KKliQ9c2OkM=;
+        b=jlxGHW+kRyHFaEMpeXR4BNALXPsNplbIhzII6rNliHUbcX6NmABOnQ8XTqgppKQz/0
+         jnpx4OD9SPT6Kr4gK+6e7zltezYlXyxXT2NfU5Odo31hxeQDHI1/oRoHWTSOtpxIboeQ
+         FH3N84C6KLj2Igb3KbWBC2z49+iRGJvp0vB6BJ0/VWt5XCdgR97RAz5PXJN+PoywAORY
+         xte54o9ByrMsQ2uilazjjngyPJdALuFEoOaJiHVqDv/lnXYuJF66BDqjNusCCR1GMXJe
+         eOgd9Vlih01Qr/4o+siFo0v2a4oF4APKzmmYHrhLbqFeAgDBI043ZSqUkY6x4nruS+yR
+         J75w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795032337; x=1795637137;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=sT8BXmWr3ZtRZWaM79NQqvkyqTyjCTuzoolorXg8m8g=;
-        b=BEP0dkaIiVxBBgxBq8rp42RE1Z3chRiITEhUZkM0RyGU2F1RmgkYVDQ/+R/UTy9Kha
-         yj/wImWz7beKGpzIa66aRHv+BjGUdv1vEe6upB/ZYb7SPM3pKozj6fDM0u/hxCM0Q/iD
-         U09Uub6uwkRZf9128HbfT3gCI5rtaEtQpddeNqSIurQrc9x91cCogw66bFTjI+W8MLoN
-         oyzR2HbgizY74VG33TQALYPsv4JRlDzHoP/sT5q7MbKvvdqVYbZ+D48N85Durd3Xzbj5
-         /2xHAFzHomRjW5mwq3nHdM679d+Wo2iE72EuRjJMadPlWTKtMd3C+5EIF53Q5ZwpYuBQ
-         6aUw==
-X-Forwarded-Encrypted: i=1; AL+hErG8E/YynawVDh1kjxXsFyrG5WcR9B0OmL5CmjOHBd2gRKEV6WdmnTFJ3BSJxQo5nJbMZHGJpmDY9Hw=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8UgbjduRFnYHYmmhs2jNrQjpfCTtIFbJETDLSFwApvgDihYS/2
-	ysxsIpOM6/lnd46U9FYHrdiNPk7kl2npY+ByVjzRplam3zCFZGymtACT
-X-Gm-Gg: AZFdTZd0/kgAtNrczbWlzumNUxZT9k8KvwBg9r6pKEXE2JQ0kUct+OcHrPBIWh/X+cz
-	ycHbZd+p0QzwyYr7m7IpyqERcywBfMEUnKXra1mBZ6h1zidNxRWdDvtVoYoAqDSTS7zCHO74lqC
-	6ToUvMr36ScWggT2fcCtA3mH1WuChEOOSPRDJBuQdY9V9DbdtCs3uGte20gtZCYLVxejL1RkqHw
-	UwpxCoZ35MSwYKk7lqvHR0PEFMQdusBkYm6KFzpApKvl2DHpZ34C7xmToJSD1z/7ZnUVZ7DlmJx
-	btSV7+/DlNC7CtdfKuKQJvmKfN06mqaDi77PtF0qGr3UhOFGqI6FdgpJ31ot3z0266blSVkdTDh
-	eGOc5d9FTTQyqyTz1oENCPP36JNgXqSV2MDvVP/TecNVBGRJ9rvmHXM6HdSVcPn/biXXctsHFE8
-	bws0k2Qa6ZxXaIaBm5ZSkgBzkj7olJBhhtACxDEj2++sNhA2jWn/zko/lZoRMKjZi4j6xBIvMIF
-	Cvdvcv6QpB2/eootrITRbqCjg9OVFfTorsKrVEtfpiPpPRpmf8Dvo78HlUsBSexlEQPffd61tWc
-	UuI1ryto08v9q082f6AhO5jFrkGAIY/MtZMG0qIomCNe+PZ8EveZW8msnDjLPC2vgWBgHQOR4LS
-	vbCKTozeq+OhmlWMQioSRvEDaldsN
-X-Received: by 2002:a05:693c:83d4:10b0:36a:5126:a8aa with SMTP id 5a478bee46e88-38281025978mr3395503eec.27.1795032336889;
-        Wed, 18 Nov 2026 12:05:36 -0800 (PST)
-Received: from Mac.localdomain ([12.162.234.74])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-382a72eb2f3sm11752204eec.18.2026.11.18.12.05.35
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 18 Nov 2026 12:05:36 -0800 (PST)
-From: Ahmad Byagowi <ahmadexp@gmail.com>
-To: netdev-bot+sashiko@kernel.org
-Cc: andi.shyti@kernel.org,
-	andrew+netdev@lunn.ch,
-	corbet@lwn.net,
-	davem@davemloft.net,
-	edumazet@kernel.org,
-	horms@kernel.org,
-	jiri@resnulli.us,
-	kuba@kernel.org,
-	linux-doc@vger.kernel.org,
+        d=1e100.net; s=20260707; t=1795035169; x=1795639969;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=a5MhG98OmxdXqTOc5Xluyx99XKwhYZJ2KKliQ9c2OkM=;
+        b=lzFq2qhqXjIBe+42mRL8cxdUkgJnj/49VhQe7q+dlUpjEd4Dc7jeG5H9Udcc9SMmFP
+         HKcn5okt+R0i75Wdl/CnYRXLNtoYN42H4SQDV4A6/h8s7v5oc5cE/XAn7HJ3BEaHF5NW
+         XWbcv+ahW/AgMV0/kdsz9zJczdn+QJdQB/+A3FT3kc53sQoi9ydBO3vsAXqapb6v9WpN
+         sT3z63MsWp9pI4w3fKSRPq2VRTo0h4BiSV7fY2mwlGTYeDaDmKhRjdrIjhBX1bwXo8hA
+         RHGjqfZdvpUyuJHRlbB/D2h6OQM2PLZHmfmC18jzf2sFytSGwgjT4EH08kHhoHpv9o9A
+         CsMw==
+X-Forwarded-Encrypted: i=1; AL+hErED6Xo3mHmWPe01pncnw9RebTCN3bGzWVF0IU/aa6nn/HXT/PWN3D2rBhRpKRvN0ZfmRyQq0RAsRwA=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9Dur++OSqDFDvapBWJ8EklZA/HJF/5h0JZNEcj4hytIG8tkAQf
+	3QIPnE2mWlcKtUfQMjr4o4ed4tnkmmeQGQsvJxkO+jkr5LbMuTK6m4Nu
+X-Gm-Gg: AYBFou3Ew3tjZfwF9hLz+AmUc8ZgXGw2mhS2S2Itk+on/rDFjsCVIrr7tTEQ1nDerwa
+	TLQvstzHEkwxBVZJrSrFcP0Wd5YRZXqToJllrFq2osjIghpF5mr0kgxSYanrpyI9vjqOSjD1e/8
+	rtTAez6hbFAj1KVrnxpRL/5brG+It2sUxDq7mMnH+09mP891MC+/hjtjLcMSSIIOq3NRbfX+kI1
+	MAvDXBtpYeY4udiVqo5ll4a+gdz94wF/mxP/jJxTd0PP0MJjuowukuYN+qE0+QPXRPA5Cu5Iuc7
+	FZUhmrTAR+lcm8KItd5Ds4hyoXp0Ac+9K82zJsyaWZMYcN+OPXwTYwMQ59JOOUfIJS1R5cl32ri
+	QZubewcLgU4BFw+o6AVY8VNhYrCNyysyCQyoI792BKXL8VbGxd1wl2od410ELkaEvrpD2oCzULp
+	ZjI2Y0jxMFdZuSlfETJLQqoNBv4uiAllyD8Cix1RzzwF129Lyh4p5+kxoOo0zmsbeDGrudy1TMT
+	Hngj5TGH7Djs5WkcbSoRWKBx0cj8vHxvj6yLt0IUHo1Kt33QCus73Wyvxm1zdmxZedsJXLr3CPH
+	u9GhAyllDUncx9QqzAvZ4PH+iZDcS6G6Gqt5EhSvIUAfy+GuDooOutUAerjYb54HQm++tzDIrzW
+	5Xaz+LNA=
+X-Received: by 2002:a17:907:1ca6:b0:c50:ac4e:3770 with SMTP id a640c23a62f3a-c510e516a2dmr391250066b.34.1795035168876;
+        Wed, 18 Nov 2026 12:52:48 -0800 (PST)
+Received: from antoniarch (84-40-238-230.cgnat.inetia.pl. [84.40.238.230])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5123421612sm35303166b.41.2026.11.18.12.52.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Nov 2026 12:52:48 -0800 (PST)
+From: Antoni Pokusinski <apokusinski01@gmail.com>
+To: vigneshr@ti.com,
+	andi.shyti@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	aaro.koskinen@iki.fi,
+	andreas@kemnade.info,
+	khilman@baylibre.com,
+	rogerq@kernel.org,
+	tony@atomide.com,
+	jmkrzyszt@gmail.com,
+	sumit.semwal@linaro.org,
+	christian.koenig@amd.com,
+	phasta@kernel.org
+Cc: linux-omap@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	rdunlap@infradead.org,
-	richardcochran@gmail.com,
-	skhan@linuxfoundation.org,
-	vadim.fedorenko@linux.dev
-Subject: Re: [PATCH net-next v3 3/3] ptp: ocp: support the WiWi revision 02 Time Card
-Date: Wed, 18 Nov 2026 12:05:34 -0800
-Message-ID: <20261118-timecard-common-301f823ddd-r3-ahmadexp@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <179502617840.3136.12704245716223038161@kernel.org>
-References: <20261116-wiwi-v3-87afa10a8-3-ahmadexp@gmail.com> <179502617840.3136.12704245716223038161@kernel.org>
+	linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	Antoni Pokusinski <apokusinski01@gmail.com>
+Subject: [PATCH v2 0/4] i2c: omap: add support for DMA
+Date: Wed, 18 Nov 2026 21:52:03 +0100
+Message-ID: <20261118205213.88778-1-apokusinski01@gmail.com>
+X-Mailer: git-send-email 2.56.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -115,46 +116,39 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Thanks. I have prepared separate common-driver fixes and a WiWi v4 draft.
+Hello,
+This patchset introduces support for the TX & RX DMA transfers in the
+am335x/omap I2C controller. I tested this implementation on AM335x 
+(Beaglebone Black) and things seem to work fine.
+Also, I noticed some unused arguments in the receive/transmit_data()
+functions, so I added a small cleanup patch.
 
-The common fixes use tbl[i].value for all boards, mask SMA_ENABLE on
-frequency readback, report disabled inputs through the None/0 Hz entry,
-and correct the common DCF output frequency to 77500 Hz. The selector,
-disabled-input and frequency fixes carry Fixes: 09eeb3aecc6c.
+Kind regards,
+Antoni Pokusinski
+---
+Changes since v1:
+* new patch "i2c: omap: remove unused is_rdr and is_xdr ..."
+* probe: added `goto err_dma_free` instead of `return`
+         in the case of failed `i2c_add_numbered_adapter()`
+* changes in XRDY/RRDY, XDR/RDR interrupts management:
+  - init: do not enable the above-mentioned intrerupts
+  - xfer_msg: enable the interrupts before any non-DMA transfer
+  - xfer_msg: disable the interrupts after any non-DMA transfer
+* xfer_msg: added checks on `omap->cmd_err` to catch
+            NACK or AL error occured during DMA transfers
+* general: moved scheme-related macros to the top of the file
 
-The WiWi table also uses 77500 Hz. Its new init replaces unsupported
-output selections, including GNSS2, with the connector's default output.
-It leaves valid outputs, inputs, directions and neighboring mux fields
-alone. The normal sysfs read therefore names a supported signal. If an
-unsupported output value appears later outside the driver, the read
-returns -EIO; the ABI document describes this instead of adding the
-unwritable "unavailable" token.
+Antoni Pokusinski (4):
+  dt-bindings: i2c: ti,omap4-i2c: Add DMA properties
+  ARM: dts: am33xx-l4: Add missing DMAs for I2C controllers
+  i2c: omap: remove unused is_rdr and is_xdr function arguments
+  i2c: omap: add DMA support
 
-The removal concern is real at the source level. An EXTTS request can
-rearm a channel after detach disables it but before the POSIX clock is
-revoked, without assigning a PTP_PF_EXTTS pin. Clearing readiness alone
-does not serialize an enable that has already passed the check.
+ .../devicetree/bindings/i2c/ti,omap4-i2c.yaml |  12 +
+ arch/arm/boot/dts/ti/omap/am33xx-l4.dtsi      |   4 +
+ drivers/i2c/busses/i2c-omap.c                 | 363 ++++++++++++++++--
+ 3 files changed, 350 insertions(+), 29 deletions(-)
 
-The separate teardown fix uses a mutex shared by timestamp enable and
-disable. Detach sets a permanent stopping flag under that mutex, then
-disables and synchronizes all timestamp IRQs before unregistering the
-clock. New enables return -ENODEV; an enable already in progress must
-finish before stopping is published. Disables remain available to the
-PTP core. The IRQ handler does not acquire the mutex. This is a common
-fix with Fixes: 627366c51145, not a WiWi-only gate change.
+-- 
+2.56.1
 
-A source-derived pthread/MMIO harness reproduces the rearm window with
-the old code. The revised code passes late-enable, in-flight-enable and
-active-IRQ-drain cases for timestamps and combined PPS/EXTTS requests.
-The tests run under ASan/UBSan; DPLL and routing tests also pass, including
-negative controls. Both driver objects compile with W=1 and -Werror.
-These are software tests with stubbed I/O, not an in-kernel UAF or a
-physical removal test. The card is currently reserved for Windows HLK.
-
-I have sent the four common fixes to net as a separate series:
-https://lore.kernel.org/r/20261118-timecard-common-301f823ddd-0-ahmadexp@gmail.com
-
-WiWi v4 remains unsent. I will rebase it after the fixes reach
-net-next, so the feature series will not duplicate them.
-
-pw-bot: changes-requested
