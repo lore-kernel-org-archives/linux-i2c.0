@@ -1,80 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794987371;
-	b=oOuf5PzxC0AoOBk9idP5Zk8FjPGg6EhwsVG5uDdc53p6gRZgaJqNAtrmnuaASW6aGxNe
-	 hUPAVW9I4SitJPt53FVomQItNWTKBR9vjdzVNKrDYd/DIdHuXGFF3/v+gZaerUpdHqTs7
-	 3tM1gI0bDIoZ3JAM0EaHZq9pL3lb+6Pq0a7EaLg5BbvjTdq0cDxToTfir7+KKw3O0qGv3
-	 hUB3whRF3CX1Qy22T/lOGtFRgI8srthMKoBCJ18mckckyp671V50rsAJ72U3EX+w75Udr
-	 Mzd2k36RCsyj0keOwExmMtTdc+TwyQQbreMsbLd1SHUN0nHqthStrmKaPcqtO/fr/wg==
+	t=1794987819;
+	b=bzu/XnlNJ8PcwebDPZbNto+dilcdYAp13rL7tkRBkpw85Gi1ZH5FQFF55QHAmQwXvpW+
+	 A1z8dHORntSKHgSZOmiFUVaASddh7F5vOGS65Xs2ucPmXVuNTZ3ZYq2V/rJ7GDedYljvs
+	 DaSoeZLfUzeY0EAGHGD9ueHWc31QTNZLrzM/g3IrfhtcAeRz/ORj3rx6Va034U4Jc+RS2
+	 81NFpNJU48ftRW929R8uEkFW9i6ing5Wy/8WovCJ8Seh790igRZnbdIcZ0mz/aiLEuSyZ
+	 7NI6Hy4g4WXQKoPzILCaRMio+B/483ceveYYG4fPds1pkGR17KUYr7EtPINBsbrqJ6A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794987371;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=A/0mal1gT23ax1jt3F7xiJrs4nTpR6/OVOgvxOsqvC4=;
-	b=UUJWWDOrv/4dQ7oXD4wUBqq3NaJGdRJfSAa1CQb6SyFTlOussyFIqZRFEGZI1OXF8lZO
-	 bbxyyJb5LRia5xDiWDg5+9234rk7XQcKoP6yEzj1Z+1Vvbh2uNubD9bXmGcf2zigSB0ji
-	 a2qmGQ5QQwrYJNfTSi7h0cdNhvj4/+ZbXqAt0s0VqPrYfSU2i93rzrzTkg9+u8wEw166M
-	 XG7XPw0HYIy6d/wOGeVDnRq7WTR7j0VWnN2RdTQP9y+0aCAYtf2SAlMdcAR2WZTHNMq73
-	 BMWL3Hpa9c+evXUm6qEIeZSKI/XC8IHfy6TESTD35CcrBQHgB8aR5GmJn2O/Drwm4fQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794987819;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
+	 Cc:Subject:Message-ID:In-Reply-To:References:Organization:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-Last-TLS-Session-Version;
+	bh=5tdOi87MUQVrh0lDnm0y5zaT0nPUT+qlg7v5xkEiqMk=;
+	b=Y77l071AeE0+HrJttYAqL7qxo7gbW9M2bhDp5FLh9ShYrAKiMxwwxuuHdM21jo4C5Ivj
+	 ZT8pnlMgzxIKdhgsAEmWDD6pNCqaAuTPOh1LZpZ6asvGtOcy0X6hH4MH8k2U9C5wx1jE8
+	 KyJ/pasQD/G2pJun0xjjU1OvUbu9ukhe4DSZ8WBv2NnHePZ3Rjru+ebvyI+6/GrfoWuY9
+	 l7q1SJqdIh7EsmBIel3OyOxASwbTcRbGUjTtY67E48oPwSbA3YgGpUCvbnMp4WZQSx3FM
+	 80L5Ob0dqaFjU9ke0oyJyCYUby779EGBC1GrV3MYhSOW2Wr7vRgMcKaQJdyBf1QgX2A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=njtDk+O8;
-	arc=none smtp.remote-ip=192.198.163.7
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=lvlw2APD;
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE06606A31C;
-	Wed, 18 Nov 2026 07:36:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1AE06606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 885C8606A337;
+	Wed, 18 Nov 2026 07:43:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 885C8606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=njtDk+O8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794987371; x=1826523371;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=7O8vwd748uW90ZUv245wY3k+3x5RFIy1aPNSpj3UM3A=;
-  b=njtDk+O8nkzYYrV3qTa4FKNkMUt3qAMfr5Eiz9ZTQlw2AvLbfX1vf7r7
-   ZV+sIh2D31ER7dO3jIucRXEborCj8f1gb1d/KH9qiezX/3OWvbi9xj8Di
-   ds/hsii1cTRxCY+Fvtogh1GesNEuqu7XkK9Whxvl7nY0YL/bkHvXgiitI
-   o6GOn8sYqJhpcTfMBFNKaLwc2crv/YvHXSYSH4vEMfXzguJTECGfGVZ3b
-   TKtt0Fx6ZzkwAbFW5IAnrLHKZgF4zL9omeY6bzt/+0e9swvm/293lRnjH
-   jHH6l2dNiF5IhtO9RT530+lrEPjQn032s7HBd9e5ZuThQeJ+2BPpwLiii
-   w==;
-X-CSE-ConnectionGUID: zlCDpq3SQT+h+gz4tfsg+w==
-X-CSE-MsgGUID: 9B1oLtBaSz+FYg2gUg4srQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11969"; a="3646005"
-X-IronPort-AV: E=Sophos;i="6.27,219,1787036400"; 
-   d="scan'208";a="3646005"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2026 23:36:11 -0800
-X-CSE-ConnectionGUID: w/Ee51MOTqyfwTmxDZlI3g==
-X-CSE-MsgGUID: NiqgeGByRVCVemUOBavqGA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,219,1787036400"; 
-   d="scan'208";a="10071718"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa002.jf.intel.com with ESMTP; 17 Nov 2026 23:36:08 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 8646F99; Wed, 18 Nov 2026 08:36:07 +0100 (CET)
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Hans de Goede <johannes.goede@oss.qualcomm.com>,
-	penhouse24@proton.me,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz
-Date: Wed, 18 Nov 2026 08:36:07 +0100
-Message-ID: <20261118073607.297350-1-mika.westerberg@linux.intel.com>
-X-Mailer: git-send-email 2.50.1
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=lvlw2APD
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 0A448C4CBD9;
+	Wed, 18 Nov 2026 07:43:40 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 2820E5FFAF;
+	Wed, 18 Nov 2026 07:43:35 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 77C8D11BC076C;
+	Wed, 18 Nov 2026 08:42:47 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1794987811; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=5tdOi87MUQVrh0lDnm0y5zaT0nPUT+qlg7v5xkEiqMk=;
+	b=lvlw2APDkLOsWdPZXrcTGO0SBvJt5AeVKx0Z42miklOsc8vPctTcjUfLvtwVkHahSrHPLo
+	CGkq45BFyuEH8fedQgM6HJ/XMbau2Rz9aKP/PJ7PtvuBj2hMJXvtJKDgvO7p6Q3pjLfN6i
+	0Ut1+LTYYEyg77hZo16dxZxUGEgStz4MKBFw9hj/2Tiw4koxWXy5yQ8yIHNJQ0YwvKbt02
+	l/18CHS5c8YF9Wb/y9UNTxVZrOZMCPnkOtQCGZPI3/uD2p7Qv4dv6TVs+LHq5iTBVHSMvU
+	434h8Tsq1BRLh2Btis1Fush6eJ7xmbr9hxqVcPbs2tV0AeddsTbxh0K8Mz1lOg==
+Date: Wed, 18 Nov 2026 08:42:46 +0100
+From: Herve Codina <herve.codina@bootlin.com>
+To: Peng Fan <peng.fan@linux.dev>
+Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Peter Griffin
+ <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, Andrew
+ Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>,
+ Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Ryan Chen
+ <ryan_chen@aspeedtech.com>, Benjamin Herrenschmidt
+ <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery
+ <andrew@codeconstruct.com.au>, Billy Tsai <billy_tsai@aspeedtech.com>, Tan
+ Siewert <tan.siewert@9elements.com>, Eddie James <eajames@linux.ibm.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
+ <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Broadcom
+ internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Caleb
+ James DeLisle <cjd@cjdns.fr>, Marc Zyngier <maz@kernel.org>, Miodrag Dinic
+ <miodrag.dinic@mips.com>, Frank Li <Frank.Li@nxp.com>, Sascha Hauer
+ <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+ Vladimir Zapolskiy <vz@mleia.com>, Piotr Wojtaszczyk
+ <piotr.wojtaszczyk@timesys.com>, Anup Patel <anup@brainfault.org>, Paul
+ Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Samuel Holland
+ <samuel.holland@sifive.com>, Qin Jian <qinjian@cqplus1.com>, Changhuang
+ Liang <changhuang.liang@starfivetech.com>, Maxime Coquelin
+ <mcoquelin.stm32@gmail.com>, Alexandre Torgue
+ <alexandre.torgue@foss.st.com>, Chen-Yu Tsai <wens@kernel.org>, Jernej
+ Skrabec <jernej.skrabec@gmail.com>, Nishanth Menon <nm@ti.com>, Tero Kristo
+ <kristo@kernel.org>, Santosh Shilimkar <ssantosh@kernel.org>, Linus Walleij
+ <linusw@kernel.org>, Michal Simek <michal.simek@amd.com>, Anirudha Sarangi
+ <anirudha.sarangi@amd.com>, Tushar Nimkar <tushar.nimkar@amd.com>,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+ openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org,
+ linux-rpi-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+ imx@lists.linux.dev, loongarch@lists.linux.dev,
+ linux-riscv@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-sunxi@lists.linux.dev, git@amd.com, linux-arm-msm@vger.kernel.org,
+ Peng Fan <peng.fan@nxp.com>
+Subject: Re: [PATCH] irqchip: Convert chained handlers to
+ guard_chained_irq()
+Message-ID: <20261118084246.5b5bf203@bootlin.com>
+In-Reply-To: <20261114-irqchip-cleanup-api-v1-1-4a9d598b0bdb@nxp.com>
+References: <20261114-irqchip-cleanup-api-v1-1-4a9d598b0bdb@nxp.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,45 +107,31 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-The Dell XPS 17 9720 touchpad has the same lagging issue as with others
-when run at 400 kHz as the ACPI tables describe. This particular system
-does not use standard ACPI ID but it seems to use "Windows Device ID"
-VEN_04F3 for whatever reason. Add this one to the 100 kHz quirk list as
-well.
+Hi Peng,
 
-Link: https://lore.kernel.org/linux-i2c/20261109104542.GL176724@black.igk.intel.com/
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=214597
-Reported-by: penhouse24@proton.me
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
-v2: Drop the DMI match, add bugzilla link.
+On Sat, 14 Nov 2026 23:06:15 +0800
+Peng Fan <peng.fan@linux.dev> wrote:
 
-v1 can be found here:
+> From: Peng Fan <peng.fan@nxp.com>
+> 
+> Use the scope-based guard_chained_irq() helper in all chained handlers
+> under drivers/irqchip/ so that chained_irq_exit() is always invoked when
+> the handler returns. Handlers that duplicated the exit call on an error
+> path or jumped to a common exit label simply return now and rely on the
+> guard.
+> 
+> No functional changes.
+> 
+> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> ---
 
-https://lore.kernel.org/linux-i2c/20261113083940.2583439-1-mika.westerberg@linux.intel.com/
+For the irq-lan966x-oic driver:
 
- drivers/i2c/i2c-core-acpi.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Reviewed-by: Herve Codina <herve.codina@bootlin.com> # irq-lan966x-oic.c
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 84841ed13487..64fdf8ffb5ff 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -377,6 +377,12 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
- 	{ .id = "ELAN0678" },
- 	{ .id = "ELAN06FA" },
- 	{ .id = "ELAN1300" },
-+	/*
-+	 * This is non-standard ACPI ID used by some Dell XPS 17 9720
-+	 * systems. They do have the same issue when used with 400 kHz so
-+	 * force 100 kHz.
-+	 */
-+	{ .id = "VEN_04F3" },
- 	{ }
- };
- 
--- 
-2.50.1
-
+Best regards,
+Hervé
