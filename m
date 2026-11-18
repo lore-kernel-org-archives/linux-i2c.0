@@ -1,78 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.198.3
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794995964;
-	b=JW50x8tvFLffiOdIupso94NHxYVW/9bHVFLLmsJipsJqK3GbW50apmKc089mRbIrC3l3
-	 4c06PJNRt2BHdaCEv5Lh/6ntWWYIQ+EV9soXNgjkYska8fRwqLluzAYeuIw0r7S6hQHRf
-	 VX8rUfiRPONJLEC4ZgXz5+FZwLLwVH9BBcbf9JSZOBaXEfYstB3mDHMyIdaAOXVRC4ro7
-	 0jYUfBEr/PAkJizyFEf4aXVdpQW6EvBHhRofXqIcwuPqKCJPyPbUfinkJpQ533hzI7+HO
-	 ZiAYj/NScxkpi/NAP72lTLfc5e3/Xkmy8N0b4VyY5mEYV7+0yOMguZydbOV1gnJn6JA==
+	t=1794996170;
+	b=aIDO94JWpPpGr3QAl/gwsPNsfTjzLIKdFkCXvdsPkCBCmNRF19fvwKTaxLyOhdYQm+Fq
+	 iiHBDX/7f3W1jhxiD2FsbgAx+pTSr4Uz7rTmAuM+hItj7nEWBVHoWr75kY+IYEp0Oe14j
+	 pWE8IoAQriRMd/FSlhoKE4ely+L6tGuEJEo+FBn6fBqbUCZhlY6hcojKL3MwuknmMdSUi
+	 xTj9cy52X13bxqJBkdzMfT/1RmbDf0IFY1zLcNBOTFA37VgaInbDriJ45yCn4uoOnE+t7
+	 WlKUOM0D07ndUgWG+Ht3VQE/p9ZmlTOv+wI7sFFSU9lCdFBjkfQIrY6SeO7FzMB3Y6A==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794995964;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=+L71C7gUMgJPhYI06KI06++fd/xyfAtYZP/u/0p8NlM=;
-	b=c8E4h/rMhnr5f33w7oDHBJSOqdPk3PAwpY6jo/AacYluZ5sDot4p7mFTMFenAaZZ7MQI
-	 S2B+R/48zpw/3SXPMfA7ThX6/Q79DhP0kqa+qDU0eRPEOmAyz8N552K/dIJIJ8eNqWRZ5
-	 HCgLN45UONJ0VrP22F80o/FHyyDsnk6p8T9ex90lhV/rx3DlcWkUKhNVDEkoRznZylTX8
-	 3XUcHh6lygLGlkBa5KrnTkvAbojW979eeyBVA1JW9C6Zwe11wzRO3UcFm2J17ITxTKrYF
-	 Et9jlt7RO6pAMtTG28OYrc/mtCLBzjxOHZ5TSK0mJ8aNmux9v03W2Nqli4annl+jxPQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794996170;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:
+	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
+	 Received:Received:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:Content-Type:
+	 X-EOPAttributedMessage:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-Id:
+	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=ENPt05YGqRAXsgKJh9rtY4AHJQW34kaLlJ2l5YpTub0=;
+	b=Gjx1yUUpvRNTo7HPaNLa87SkGK1JY61fIpEB0eBbyfv9WDO36V9nb4GuXGgSxpAyDaDx
+	 8H2FfhmpUCfMjh4veVRidrkeCQqx5/5HUbmB7AZm49wyzSi9jj7hWIwcqst5Bnyn+8V2W
+	 QqPFGn/g8lVnAqu1vu1r4S+CwJbZHZgbSVxFY6AWLV7dRWfpqgJxYbb4s+OU22Sm1jiwl
+	 IePm11kCeQK2sbq51keG8NJQT6Bhb+ErMsfltrbjnQU28C5U70LMIiD1tme8H0P1gg9R5
+	 MTad6p//gOTCP9pOEatXFHN2HDqS+FiKWIW7v/6P+Hd43igDLSZXOh5a97xtmJJoWig==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gBIwFvLb;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=jabil.com;
+	spf=pass smtp.mailfrom=jabil.com;
+	dkim=pass header.d=jabil.com header.i=@jabil.com header.a=rsa-sha256 header.s=selector1 header.b=nwGGoSAJ;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.198.3
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010003.outbound.protection.outlook.com [40.93.198.3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5DB3606A334;
-	Wed, 18 Nov 2026 09:59:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE4E8606A325;
+	Wed, 18 Nov 2026 10:02:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE4E8606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jabil.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jabil.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gBIwFvLb
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1794995964;
-	b=kNYFYpqMbRGCmSAp/EtY15CCJF9GI1nUjV0kSoR76VZgYvoedSqAb8MQlUEcmPyW0mO4
-	 XdklSlhTINf/Hh+56bGa+5jzkcGj9dJjXrCZYp2uQD/URn0buTQ4sZP2PHeszSJXgAq/H
-	 CezmRwVi969eTmLzQWb0+0r4h73/u6+nJVGXq/xRIf1xVAY6HFj+iR7KxptaOqILAObuu
-	 7TfiCOOQQpmuBcUqAD0zcXQxGAI5kFyXnONuLzkY7CfmOYUqQJIfhW/av4owolXMa60vf
-	 UF/xvX8jxFOMb5fUgTs7qGEYN041FdlDU3on5Fsv7OlIEzWt5rT4Vi6IYw+uyfsDleQ==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1794995964;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=+L71C7gUMgJPhYI06KI06++fd/xyfAtYZP/u/0p8NlM=;
-	b=BShjcQZv381kO3tgvwkR6bBWlZnb/mNEOeHLvDrWvrIlBfmHZIUAjSkM6X0XQa7u3vfE
-	 5umdLY8zsUokBZgJiYRfT/3pvhAF9pWoD2Gav1JGfqT65msry4oOb6HIC7ZKzWgBfX2fX
-	 JOdPQMsNILXJA1Ji6k2ezAh/wWwlJWMTEeRAB/h/JeBA3/u1t/sYlSq6w+mc/TnVkO8D4
-	 ahQd7G6+aUq2WmWRDPpnxPlJX3Jzt33GfdkIydNdRkHDUOht2eyvRX71dVpx6eHZpZVzG
-	 Yxi3hFOGwlKxXbbETgcSFRZgP01E7sY1MB8aJkeR5G5CgVu8PlVx9OprxUUwg8Vj8lQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 482521F000C6;
-	Wed, 18 Nov 2026 09:59:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794995964;
-	bh=+L71C7gUMgJPhYI06KI06++fd/xyfAtYZP/u/0p8NlM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=gBIwFvLb1I1HZs0a6FkbTUHA3pJAxo3gh6pEJyGXuIkcdnc2G7Esfg2v4b8ufF4ph
-	 /82hArcf8Ctk6obrhCuNWbYOnjyNvcQBYfkDdHpOheiYwVuAHkXervsH1Kt3dWN2+c
-	 EJkn3oy1Y3JC3ZYpTokVeuA5geT61CiiS+LKS0ONgvYmGRxX/hRDW5mOyI8uyqch3K
-	 pIZFGBGV5/nA4fxpp+IbbwTui/81ayws8W6S+PRLzm4tDQvMUQtq1WNM9/Dk659Jl2
-	 Jwa37BkR3zDSwEFaIZGxYIQJLlIq/ZEiSXY+LnJ7nehjEzT5PxRBh1HwpyNueTrOWB
-	 sYm7FBYxDhtLQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id C866A4ACF3;
-	Wed, 18 Nov 2026 09:59:22 +0000 (UTC)
-From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
-Date: Wed, 18 Nov 2026 09:59:19 +0000
-Subject: [PATCH v12 2/2] i2c: amlogic: Add Amlogic A9 I2C controller driver
+	dkim=pass (2048-bit key, unprotected) header.d=jabil.com header.i=@jabil.com header.a=rsa-sha256 header.s=selector1 header.b=nwGGoSAJ
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=hoO2ujyQXbcvIxvYZCb8+riiDb+XT63Tkr1nUyoi+80+IicyVGAz7+Yv6FS/10Ol9rb7Xs/r0srn3BQ8lF2Hh9wZ7qQqbzXsyuWlquJLl+utPoxg3NyYxH4WDoJWiuUZxvxQz2EGhaKZ89UtXVTHdNz6XrHJj/AC5WEeFeqSuBxp+i4asJ7hqo2Z5Zk78hmaoHgVH723Nte1UwxPZ4/o4juDKkSfc9kh9U2ca1UVYdEDMYqsyGJki463c5U8xHIlFy+f9e9KkZeGwXbdTs9iqk3Q6JJGePtdRv7t0uafV+PydFJl/pe89pj16NwycVVEfwarUUyA6p92Suvi9ninhg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ENPt05YGqRAXsgKJh9rtY4AHJQW34kaLlJ2l5YpTub0=;
+ b=XEfXQn3K5zKKjntTwS+qseLY9/oia7puCLhUJddUpNsWSv0wPA5om+QDgoGBkJboOU5zRwH9GoIZqS2a8d7RFQPAJQgtEeNNQE7wieEpMt8g5qqDBhM8y2OzB1GI1KLpO3rztuYlkneUDbwWE22F1rGt7vLPqmCzW82g84ODMwLdLeTqV73AaeEFEqbh68HyexhMpRADXAFIjlUY87Qds7ow0MuQhSqF/aqy3OQ9Ao6tFmE1FSl4je0bEOnnSxXLkimWMns7Rye94KU+bvseckylLFIzMEX5RhtqW8x/xH5DYWPsAzmm/zQfW5G/BYiVSeX6BjzmIUxAxSNRRFfRHQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 69.31.5.41) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=jabil.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=jabil.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jabil.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ENPt05YGqRAXsgKJh9rtY4AHJQW34kaLlJ2l5YpTub0=;
+ b=nwGGoSAJOKcmeNxvmmMs3POpDLyhvRQcpqOuJ/DY5ipfINRskPGjQ38hitiXalZ8Vtl48MCiL6DRdeLAcjSznoeqxS3t+IAu2R/kghvFRBmUSGog3WcIkdHBqCqnIQJ2vRtxoHwemdhAHuz5fkGIXbT388OZPrLEMXfYG5pgZGfHiCE1UnqzzDNSU5L0f/hM9EzBcvSYYj5P+LesSx3OiE7df4rUmJ+N8HEshMkzFthKxu4O5ydEgHDCDvBT9z0i+q+dyOjSqdebpkC8Kk5Vtc2rUFpecQv70lJc6tTXclIar+/3O6EkORplO9oPyhE7fvtKHiAOTxERSg9kU2TkrA==
+Received: from CH0PR03CA0071.namprd03.prod.outlook.com (2603:10b6:610:cc::16)
+ by EA8PPF12B131AFC.namprd02.prod.outlook.com (2603:10b6:30f:fff5::8c7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.14; Wed, 18 Nov
+ 2026 10:02:46 +0000
+Received: from BL2PEPF000352D5.namprd02.prod.outlook.com
+ (2603:10b6:610:cc:cafe::87) by CH0PR03CA0071.outlook.office365.com
+ (2603:10b6:610:cc::16) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.615.10 via Frontend Transport; Wed,
+ 18 Nov 2026 10:02:46 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 69.31.5.41) smtp.mailfrom=jabil.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=jabil.com;
+Received-SPF: Pass (protection.outlook.com: domain of jabil.com designates
+ 69.31.5.41 as permitted sender) receiver=protection.outlook.com;
+ client-ip=69.31.5.41; helo=jabil.com; pr=C
+Received: from jabil.com (69.31.5.41) by
+ BL2PEPF000352D5.mail.protection.outlook.com (10.167.254.4) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.615.4 via Frontend Transport; Wed, 18 Nov 2026 10:02:45 +0000
+Received: from USPLND0HUB81.staging.JABIL.ORG (10.11.24.250) by
+ USASHC0HUB01.corp.JABIL.ORG (10.11.24.130) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.2.2562.49; Wed, 18 Nov 2026 05:02:41 -0500
+Received: from USASHC0HUB01.corp.JABIL.ORG (10.11.24.130) by
+ USPLND0HUB81.staging.JABIL.ORG (10.11.24.250) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Wed, 18 Nov 2026 04:02:40 -0600
+Received: from 0BMCAMI.corp.JABIL.ORG (10.11.27.252) by
+ USASHC0HUB01.corp.JABIL.ORG (10.11.24.130) with Microsoft SMTP Server id
+ 15.2.2562.49 via Frontend Transport; Wed, 18 Nov 2026 05:02:37 -0500
+From: Kenny Hsieh <kenny_hsieh@jabil.com>
+To: <netdev@vger.kernel.org>, Jeremy Kerr <jk@codeconstruct.com.au>, "Matt
+ Johnston" <matt@codeconstruct.com.au>, Andi Shyti <andi.shyti@kernel.org>,
+	Peter Rosin <peda@lysator.liu.se>
+CC: Andrew Lunn <andrew+netdev@lunn.ch>, "David S . Miller"
+	<davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski
+	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	<linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH net-next v3] mctp i2c: add sysfs control for mux child netdevs
+Date: Wed, 18 Nov 2026 18:02:31 +0800
+Message-ID: <20261118100231.3827609-1-kenny_hsieh@jabil.com>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -82,536 +116,294 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261118-a9-i2c-v12-2-fc83c53121e6@amlogic.com>
-References: <20261118-a9-i2c-v12-0-fc83c53121e6@amlogic.com>
-In-Reply-To: <20261118-a9-i2c-v12-0-fc83c53121e6@amlogic.com>
-To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Xianwei Zhao <xianwei.zhaol@amlogic.com>
-Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, 
- Markus Elfring <Markus.Elfring@web.de>, linux-i2c@vger.kernel.org, 
- linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1794995960; l=14802;
- i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
- bh=jsCW4dwzFuQmcaQ2kn1GHkx8Agf3DFHisqoV/udTC2w=;
- b=nf++Bv+VTXFEahpLXK6fBJ6CeR2nkiIktrmKU2551y/vw5zuJvXL+q2Jtuo6S8jBVKtKL9WiG
- ypjFwhMcWSJB6Hae6nYBNyqIDKpi6Oxc23JJjy2BJOtmTCD0Qt8LQM2
-X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
- pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
-X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
- auth_id=578
-X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
-Reply-To: xianwei.zhao@amlogic.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL2PEPF000352D5:EE_|EA8PPF12B131AFC:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4fa920d0-b7aa-4ce5-7c3c-08df455b1803
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|36860700016|376014|7416014|23010399003|1800799024|30052699003|18002099003|13003099007|5023799004|11063799006|10067099003|261022105027099003|261022113327099003|261026140227099003|261028144727099003|261022075727099003|261022115727099003|261026121527099003|261021123027099003|261021121427099003|56012099006|261009223027099003|261102123227099003;
+X-Microsoft-Antispam-Message-Info:
+	+XH5sVW5JB/7PUl/j7sw1brBnsoCdblQh04MFkTvLoBbPOGF9NukfWCL0lLhXns8g/rAAcF/n3wzZGRdxbKv1VJic7VeC/w2OkxPiR0e55yvhNbba8ZwAf8Gq1iCKBv7p1na2g4++JZ2fyreTiMKP6Z27cAZp0ON4mrV993BF8+nWUIhpP1/iWGiqHt2SP7sz8DjZdlIZLyxDmRUKUi6Qb/E1WVdG8MGBJHcVCQtZt8ZLXY9g93w3GPxrNZfA1sMu3mOb5hMYCiiZXd6H59ckx1Uw9bUf5s/gnNbB2KK5wmWKf2+e9cXIqAqD5tupcKsRypWSUf292HHyaLSN+k5nOv3ri55CzWMRT3bohEwE8Atg9KkgN6ckaFZ2N/CEwIQh3Pm7Vie6gTkmjuqwCQTwjKfoUtRJwUT3QrJ/IQp5veJL3v+qir3yHch+V2Sagoey9mm6iztJX5/d2VCjf1eZ0zh4Dj5QpA1DyktR82YDBCX8svoXiOuvWI337hFuR5TvF15p44EoUZcdytH/bXlJXi4GwXNRRPMNLq1c4bbvqU8mpl+deRxNialfCPDvyGXTHepu9K47ebYn4zn/86QxPKrApR4mRh9SXuPt65yJBhrbW5wa2r7cJp4zR/A1izJBu4Ma3oVb2w6Fe4Te9XJwdItiax1wLlAHUHZPEFYagU=
+X-Forefront-Antispam-Report:
+	CIP:69.31.5.41;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:jabil.com;PTR:ErrorRetry;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(376014)(7416014)(23010399003)(1800799024)(30052699003)(18002099003)(13003099007)(5023799004)(11063799006)(10067099003)(261022105027099003)(261022113327099003)(261026140227099003)(261028144727099003)(261022075727099003)(261022115727099003)(261026121527099003)(261021123027099003)(261021121427099003)(56012099006)(261009223027099003)(261102123227099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	EtNVqwSFZ/vPiTuIEIA5i1Z0O8eMlXGH6HzFx7Kr91fNzqFBZ+W63f+HjgsRFPVcxKnP36uPm5Z7beDC3Ex2LbSl5U6MUYCSdDZwAk/bFdqvJNAArTdmMgcf5PCTOgnkdQ7TKobocIYI6Y/sgtpbEhvxBDQr0hKOQjPzjNUHELaC6QgCjGslPGEDLDDRWh1HGhNtJkGilRWUngM4OhqVCUnzcCwW2z08BupSrFklwDKQnPqjqxPjCdsSZkY4VUrJ148zrd2HeDb7c4FmgTsEuCjLqI/DQvzQpXJQwOuNahoGuOHMTJojCUgyyE6sc18LK/KD3u2w88gOeBxImOQzI1WWbVWu9AQUd9s7ElkznU83S6DGYwPY9k+ZnZqnGuUmBNx1864XvS5qKE+f+fY6OTKBzszyi4tSde9ltH0tf60GfB5Qj1xeIJdzxL7r/yDI
+X-OriginatorOrg: jabil.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Nov 2026 10:02:45.6757
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4fa920d0-b7aa-4ce5-7c3c-08df455b1803
+X-MS-Exchange-CrossTenant-Id: bc876b21-f134-4c12-a265-8ed26b7f0f3b
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=bc876b21-f134-4c12-a265-8ed26b7f0f3b;Ip=[69.31.5.41];Helo=[jabil.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL2PEPF000352D5.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: EA8PPF12B131AFC
 
-From: Junyi Zhao <junyi.zhao@amlogic.com>
+An MCTP netdev is created for an I2C bus, root or mux channel, that
+carries the "mctp-controller" devicetree property. A mux created at
+runtime through the I2C sysfs interface has no devicetree node, and
+neither do its channels, so they can never get a netdev.
 
-Add support for the new I2C controller used by Amlogic A9 SoCs.
+This matters when the mux topology is only known at runtime. A BMC
+that ships one firmware image across several chassis cannot describe
+every chassis's mux tree in its devicetree, so userspace creates the
+muxes it finds over I2C sysfs instead.
 
-Add a dedicated Kconfig option and Makefile entry for the A9 I2C
-controller driver. And add Amlogic I2C controller entry to MAINTAINERS
-to clarify the maintainers.
+Add two write-only attributes to the mctp-i2c-controller device:
 
-Signed-off-by: Junyi Zhao <junyi.zhao@amlogic.com>
-Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+  echo i2c-30 > /sys/bus/i2c/devices/9-1010/add_mctp_controller
+  echo i2c-30 > /sys/bus/i2c/devices/9-1010/remove_mctp_controller
+
+Writing the name of a bus in the controller's mux tree creates or
+removes the netdev for that bus.
+
+The attributes belong to the driver, through dev_groups, so they exist
+only while the controller is bound. Netdevs added through them are
+removed on unbind and are not restored on rebind. The devicetree
+property keeps working, and both can be used on the same mux tree.
+mctp_i2c_add_netdev() now skips an adapter that already has a netdev,
+so a probe walk or an add notifier that reaches an adapter a second
+time no longer fails on the duplicate mctpi2c name.
+
+The netdev is created in the writer's network namespace, and a write
+requires CAP_NET_ADMIN there, as for a netdev created over rtnetlink.
+
+Tested on an AST2700 BMC with a two-level mux tree: add and remove on
+a channel without the devicetree property, unbind and bind of the
+controller, and a loop of both while MCTP traffic runs on the channel.
+
+Signed-off-by: Kenny Hsieh <kenny_hsieh@jabil.com>
 ---
- MAINTAINERS                         |   9 +
- drivers/i2c/busses/Kconfig          |   8 +
- drivers/i2c/busses/Makefile         |   1 +
- drivers/i2c/busses/i2c-amlogic-a9.c | 428 ++++++++++++++++++++++++++++++++++++
- 4 files changed, 446 insertions(+)
+v3:
+  - Moved the attributes to the mctp-i2c-controller device, as Matt
+    suggested. The driver core handles their lifetime now, so the
+    tracking list and the races Sashiko found with it are gone.
+  - Repeated add returns -EEXIST, remove with no netdev returns -ENODEV,
+    per Matt.
+  - Also remove on BUS_NOTIFY_REMOVED_DEVICE, so a write racing an
+    adapter delete can't leave a netdev behind.
+  - Dropped the stored netns, since get_net() kept it alive while the
+    controller was bound. The netdev goes in the writer's netns now, as
+    with rtnetlink, so there's no same-netns check anymore.
+  - Dropped the midev = NULL change, the double free is fixed separately:
+    https://lore.kernel.org/netdev/20261118090515.3390034-1-kenny_hsieh@jabil.com/
+  - Rewrote the ABI doc, rebased on current net-next.
 
+v2: https://lore.kernel.org/netdev/20261015081341.1262695-1-kenny_hsieh@jabil.com/
+v1: https://lore.kernel.org/netdev/20261002073156.759005-1-kenny_hsieh@jabil.com/
+
+ .../ABI/testing/sysfs-bus-i2c-devices-mctp    |  24 ++++
+ MAINTAINERS                                   |   1 +
+ drivers/net/mctp/mctp-i2c.c                   | 110 ++++++++++++++++--
+ 3 files changed, 124 insertions(+), 11 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp
+
+diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp b/Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp
+new file mode 100644
+index 0000000000000..4ee96254f57a4
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp
+@@ -0,0 +1,24 @@
++What:		/sys/bus/i2c/devices/<bus>-<addr>/add_mctp_controller
++What:		/sys/bus/i2c/devices/<bus>-<addr>/remove_mctp_controller
++Date:		December 2026
++KernelVersion:	7.5
++Contact:	Kenny Hsieh <kenny_hsieh@jabil.com>
++Description:
++		Write-only, on each bound mctp-i2c-controller device.
++
++		Writing an I2C bus name such as "i2c-30" to add_mctp_controller
++		creates an MCTP network device for that bus, and writing it to
++		remove_mctp_controller removes it. The bus must be the
++		controller's root bus or a mux child below it. Adding a bus
++		that already has a network device fails with EEXIST, and
++		removing one that has none fails with ENODEV.
++
++		This covers busses instantiated at runtime, which have no
++		devicetree node for the "mctp-controller" property. Network
++		devices added here are removed on unbind and not restored on
++		rebind.
++
++		Example::
++
++		  # echo i2c-30 > /sys/bus/i2c/devices/9-1010/add_mctp_controller
++		  # echo i2c-30 > /sys/bus/i2c/devices/9-1010/remove_mctp_controller
 diff --git a/MAINTAINERS b/MAINTAINERS
-index a2d702919ef3..a56bdfefabad 100644
+index 7d8b59ae6ea6c..ca07689318285 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -1371,6 +1371,15 @@ F:	Documentation/devicetree/bindings/perf/amlogic,g12-ddr-pmu.yaml
- F:	drivers/perf/amlogic/
- F:	include/soc/amlogic/
+@@ -16093,6 +16093,7 @@ M:	Jeremy Kerr <jk@codeconstruct.com.au>
+ M:	Matt Johnston <matt@codeconstruct.com.au>
+ L:	netdev@vger.kernel.org
+ S:	Maintained
++F:	Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp
+ F:	Documentation/networking/mctp.rst
+ F:	drivers/net/mctp/
+ F:	include/linux/usb/mctp-usb.h
+diff --git a/drivers/net/mctp/mctp-i2c.c b/drivers/net/mctp/mctp-i2c.c
+index b02476d338bbf..61dd4a9e72545 100644
+--- a/drivers/net/mctp/mctp-i2c.c
++++ b/drivers/net/mctp/mctp-i2c.c
+@@ -857,6 +857,24 @@ static int mctp_i2c_ndo_open(struct net_device *dev)
+ 	return 0;
+ }
  
-+AMLOGIC I2C DRIVER
-+M:	Junyi Zhao <junyi.zhao@amlogic.com>
-+M:	Xianwei Zhao <xianwei.zhao@amlogic.com>
-+L:	linux-i2c@vger.kernel.org
-+L:	linux-amlogic@lists.infradead.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/amlogic,a9-i2c.yaml
-+F:	drivers/i2c/busses/i2c-amlogic-a9.c
-+
- AMLOGIC ISP DRIVER
- M:	Keke Li <keke.li@amlogic.com>
- L:	linux-media@vger.kernel.org
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 275aaa7f3583..50e031d97ed3 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -885,6 +885,14 @@ config I2C_MESON
- 	  If you say yes to this option, support will be included for the
- 	  I2C interface on the Amlogic Meson family of SoCs.
- 
-+config I2C_AMLOGIC_A9
-+	tristate "Amlogic new I2C controller"
-+	depends on ARCH_MESON || COMPILE_TEST
-+	depends on COMMON_CLK
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C interface on the new Amlogic family of SoCs.
-+
- config I2C_MICROCHIP_CORE
- 	tristate "Microchip FPGA I2C controller"
- 	depends on ARCH_MICROCHIP_POLARFIRE || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index e5440de0fe14..343eec4b0889 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -82,6 +82,7 @@ obj-$(CONFIG_I2C_LPC2K)		+= i2c-lpc2k.o
- obj-$(CONFIG_I2C_LS2X)		+= i2c-ls2x.o
- obj-$(CONFIG_I2C_LS2X_V2)	+= i2c-ls2x-v2.o
- obj-$(CONFIG_I2C_MESON)		+= i2c-meson.o
-+obj-$(CONFIG_I2C_AMLOGIC_A9)	+= i2c-amlogic-a9.o
- obj-$(CONFIG_I2C_MICROCHIP_CORE)	+= i2c-microchip-corei2c.o
- obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o
- obj-$(CONFIG_I2C_MT65XX)	+= i2c-mt65xx.o
-diff --git a/drivers/i2c/busses/i2c-amlogic-a9.c b/drivers/i2c/busses/i2c-amlogic-a9.c
-new file mode 100644
-index 000000000000..d25bd50e78f6
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-amlogic-a9.c
-@@ -0,0 +1,428 @@
-+// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
-+/*
-+ * Copyright (C) 2026 Amlogic, Inc. All rights reserved
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/completion.h>
-+#include <linux/cleanup.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+
-+/* Amlogic I2C register map */
-+#define REG_CFG_RDY		0x00
-+#define REG_CFG_I2C		0x04
-+#define REG_CFG_START		0x08
-+#define REG_CFG_BUS		0x0c
-+#define REG_TX_RD_ADDR		0x10
-+#define REG_TX_WR_ADDR		0x14
-+#define REG_RX_RD_ADDR		0x18
-+#define REG_RX_WR_ADDR		0x1c
-+#define REG_CFG_TX		0x20
-+#define REG_CFG_RX		0x24
-+#define REG_CFG_IRQ_STATE	0x30
-+#define REG_CFG_IRQ_ENABLE	0x34
-+#define REG_SHAKE_BLK_CNT	0x38
-+
-+/* CFG RDY fields */
-+#define RDY_TEE_ONLY		BIT(1)
-+#define RDY_IF			BIT(0)
-+
-+/* CFG I2C fields */
-+#define I2C_RX_THR		GENMASK(23, 16)
-+#define I2C_TX_THR		GENMASK(15, 8)
-+
-+/* CFG BUS fields */
-+#define BUS_NO_STOP		BIT(18)
-+
-+/* SCL = clk/b_ratio	if b_ratio<=8, SCL = clk/8 */
-+#define BUS_RATIO_MASK		GENMASK(11, 0)
-+
-+/* CFG START fields */
-+#define START_START		BIT(31)
-+#define START_LEN		GENMASK(23, 12)
-+#define START_LEN_SHIFT		12
-+#define START_SLAVE_ADDR	GENMASK(10, 1)
-+#define START_SADDR_SHIFT	1
-+#define START_READ		BIT(0)
-+
-+/* CFG TX_RX fields */
-+#define TX_RX_DATA		GENMASK(7, 0)
-+
-+/* CFG IRQ fields */
-+#define IRQ_ALL_MASK		GENMASK(15, 0)
-+#define A9_NCK_ERROR		BIT(0)
-+#define A9_RX_THRESH_READ	BIT(5)
-+#define A9_TX_THRESH_WRITE	BIT(6)
-+#define A9_PHY_DONE		BIT(7)
-+#define A9_TASK_DONE		BIT(8)
-+#define A9_ALL_DONE		BIT(9)
-+
-+#define A9_TRANS_DONE		(A9_PHY_DONE | A9_NCK_ERROR)
-+#define A9_TRANS_ERROR		(A9_NCK_ERROR)
-+#define A9_ENABLE_IRQ_BIT	(A9_NCK_ERROR | A9_PHY_DONE)
-+#define THRESH_MODE		(A9_RX_THRESH_READ | A9_TX_THRESH_WRITE)
-+
-+#define A9_I2C_FIFO_DEPTH	32
-+#define A9_I2C_HALF_FIFO	(A9_I2C_FIFO_DEPTH >> 1)
-+
-+#define A9_I2C_MAX_XFER_SIZE	0xfff
-+
-+#define I2C_TIMEOUT_MS		500
-+
-+enum {
-+	A9_STATE_IDLE,
-+	A9_STATE_READ,
-+	A9_STATE_WRITE,
-+};
-+
-+enum fifo_fill_mode {
-+	A9_FIFO_FILL_FULL,
-+	A9_FIFO_FILL_HALF,
-+};
-+
-+/**
-+ * struct aml_i2c - Amlogic I2C device private data
-+ *
-+ * @adap:	I2C adapter instance
-+ * @dev:	Pointer to device structure
-+ * @regs:	Base address of the device memory mapped registers
-+ * @clk:	Pointer to clock structure
-+ * @msg:	Pointer to the current I2C message
-+ * @state:	Current state in the driver state machine
-+ * @pos:	Current position in the send/receive buffer
-+ * @error:	Flag set when an error is received
-+ * @lock:	To avoid race conditions between irq handler and xfer code
-+ * @done:	Completion used to wait for transfer termination
-+ * @clk_rate:	Clock source rate of I2C module
-+ * @frequency:	Operating frequency of I2C bus clock
-+ */
-+struct aml_i2c {
-+	struct i2c_adapter	adap;
-+	struct device		*dev;
-+	void __iomem		*regs;
-+	struct clk		*clk;
-+
-+	struct i2c_msg		*msg;
-+	int			state;
-+	int			pos;
-+	int			error;
-+	/* protect reg access */
-+	spinlock_t		lock;
-+	struct completion	done;
-+	unsigned long		clk_rate;
-+	unsigned int		frequency;
-+};
-+
-+static void aml_i2c_set_mask(struct aml_i2c *i2c, int reg, u32 mask, u32 val)
++static struct mctp_i2c_dev *mctp_i2c_find_dev(struct mctp_i2c_client *mcli,
++					      struct i2c_adapter *adap)
 +{
-+	u32 data;
++	struct mctp_i2c_dev *midev = NULL, *m = NULL;
++	unsigned long flags;
 +
-+	data = readl(i2c->regs + reg);
-+	data &= ~mask;
-+	data |= val & mask;
-+	writel(data, i2c->regs + reg);
-+}
-+
-+/*
-+ * SCL = clk/b_ratio. if b_ratio<=8, SCL = clk/8
-+ */
-+static int aml_i2c_set_clk_div(struct aml_i2c *i2c)
-+{
-+	unsigned long clk_rate = i2c->clk_rate;
-+	unsigned int div;
-+
-+	div = DIV_ROUND_UP(clk_rate, i2c->frequency);
-+
-+	/* clock divider has 12 bits */
-+	if (div >= (1 << 12)) {
-+		dev_err(i2c->dev, "requested bus frequency too low\n");
-+		return -EINVAL;
-+	} else if (div < 8) {
-+		dev_err(i2c->dev, "requested bus frequency too high\n");
-+		return -EINVAL;
-+	}
-+	/* CFG_BUS reg:11 - 0 bits */
-+	aml_i2c_set_mask(i2c, REG_CFG_BUS, BUS_RATIO_MASK, div);
-+
-+	return 0;
-+}
-+
-+static void reset_fifo_pos(struct aml_i2c *i2c)
-+{
-+	writel(0x00, i2c->regs + REG_TX_RD_ADDR);
-+	writel(0x00, i2c->regs + REG_TX_WR_ADDR);
-+	writel(0x00, i2c->regs + REG_RX_WR_ADDR);
-+	writel(0x00, i2c->regs + REG_RX_RD_ADDR);
-+}
-+
-+static void clear_irq_status(struct aml_i2c *i2c, u32 irq_bits)
-+{
-+	writel(irq_bits, i2c->regs + REG_CFG_IRQ_STATE);
-+}
-+
-+static int aml_i2c_init(struct aml_i2c *i2c)
-+{
-+	clear_irq_status(i2c, IRQ_ALL_MASK);
-+	aml_i2c_set_mask(i2c, REG_CFG_BUS, BUS_NO_STOP, BUS_NO_STOP);
-+	aml_i2c_set_mask(i2c, REG_CFG_I2C, I2C_RX_THR | I2C_TX_THR,
-+			 (A9_I2C_FIFO_DEPTH << 16) | (A9_I2C_HALF_FIFO << 8));
-+	reset_fifo_pos(i2c);
-+
-+	return aml_i2c_set_clk_div(i2c);
-+}
-+
-+static void aml_i2c_prepare_xfer(struct aml_i2c *i2c, enum fifo_fill_mode mode)
-+{
-+	bool write = !(i2c->msg->flags & I2C_M_RD);
-+	int i, count;
-+
-+	if (!write)
-+		return;
-+
-+	count = min(i2c->msg->len - i2c->pos,
-+		    mode == A9_FIFO_FILL_FULL ? A9_I2C_FIFO_DEPTH : A9_I2C_HALF_FIFO);
-+
-+	for (i = 0; i < count; i++)
-+		writel(i2c->msg->buf[i2c->pos++], i2c->regs + REG_CFG_TX);
-+}
-+
-+static irqreturn_t aml_i2c_irq(int irqno, void *dev_id)
-+{
-+	struct aml_i2c *i2c = dev_id;
-+	u8 *buf = NULL;
-+	u32 rd_len, i;
-+	u32 rd_val;
-+	u32 irq_state;
-+
-+	guard(spinlock)(&i2c->lock);
-+	irq_state = readl(i2c->regs + REG_CFG_IRQ_STATE);
-+	if (i2c->state == A9_STATE_IDLE) {
-+		dev_warn(i2c->dev, "i2c irq triggered abnormally, irq_state:0x%x,irq_en:0x%x\n",
-+			 irq_state, readl(i2c->regs + REG_CFG_IRQ_ENABLE));
-+		goto irq_trans_out;
-+	}
-+
-+	if (irq_state & A9_TRANS_ERROR) {
-+		i2c->error = -ENXIO;
-+		goto complete_irq_out;
-+	}
-+
-+	switch (i2c->state) {
-+	case A9_STATE_READ:
-+		buf = i2c->msg->buf;
-+		rd_len = min(i2c->msg->len - i2c->pos, A9_I2C_FIFO_DEPTH);
-+		for (i = 0; i < rd_len; i++) {
-+			rd_val = readl(i2c->regs + REG_CFG_RX);
-+			buf[i2c->pos++] = rd_val & TX_RX_DATA;
++	spin_lock_irqsave(&mcli->sel_lock, flags);
++	/* List size is limited by number of MCTP netdevs on a single hardware bus */
++	list_for_each_entry(m, &mcli->devs, list)
++		if (m->adapter == adap) {
++			midev = m;
++			break;
 +		}
-+		/* Rx must clear thresh after read fifo */
-+		clear_irq_status(i2c, A9_RX_THRESH_READ);
-+		break;
-+	case A9_STATE_WRITE:
-+		aml_i2c_prepare_xfer(i2c, A9_FIFO_FILL_HALF);
-+		if (i2c->pos == i2c->msg->len)
-+			aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE, A9_TX_THRESH_WRITE, 0);
-+		/* Tx must clear thresh after write fifo */
-+		clear_irq_status(i2c, A9_TX_THRESH_WRITE);
-+		break;
-+	default:
-+		break;
-+	}
++	spin_unlock_irqrestore(&mcli->sel_lock, flags);
 +
-+	if (!(irq_state & A9_TRANS_DONE) ||
-+	    (i2c->state == A9_STATE_READ && i2c->pos < i2c->msg->len))
-+		return IRQ_HANDLED;
-+
-+complete_irq_out:
-+	i2c->state = A9_STATE_IDLE;
-+	reset_fifo_pos(i2c);
-+	aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE, A9_RX_THRESH_READ | A9_TX_THRESH_WRITE, 0);
-+	complete(&i2c->done);
-+irq_trans_out:
-+	clear_irq_status(i2c, IRQ_ALL_MASK);
-+
-+	return IRQ_HANDLED;
++	return midev;
 +}
 +
-+static void aml_i2c_do_start(struct aml_i2c *i2c, struct i2c_msg *msg)
+ static int mctp_i2c_add_netdev(struct mctp_i2c_client *mcli,
+ 			       struct i2c_adapter *adap)
+ {
+@@ -876,6 +894,9 @@ static int mctp_i2c_add_netdev(struct mctp_i2c_client *mcli,
+ 	}
+ 
+ 	WARN_ON(!mutex_is_locked(&driver_clients_lock));
++	if (mctp_i2c_find_dev(mcli, adap))
++		return 0;
++
+ 	snprintf(namebuf, sizeof(namebuf), "mctpi2c%d", adap->nr);
+ 	ndev = alloc_netdev(sizeof(*midev), namebuf, NET_NAME_ENUM, mctp_i2c_net_setup);
+ 	if (!ndev) {
+@@ -920,19 +941,10 @@ static int mctp_i2c_add_netdev(struct mctp_i2c_client *mcli,
+ static void mctp_i2c_remove_netdev(struct mctp_i2c_client *mcli,
+ 				   struct i2c_adapter *adap)
+ {
+-	struct mctp_i2c_dev *midev = NULL, *m = NULL;
+-	unsigned long flags;
++	struct mctp_i2c_dev *midev;
+ 
+ 	WARN_ON(!mutex_is_locked(&driver_clients_lock));
+-	spin_lock_irqsave(&mcli->sel_lock, flags);
+-	/* List size is limited by number of MCTP netdevs on a single hardware bus */
+-	list_for_each_entry(m, &mcli->devs, list)
+-		if (m->adapter == adap) {
+-			midev = m;
+-			break;
+-		}
+-	spin_unlock_irqrestore(&mcli->sel_lock, flags);
+-
++	midev = mctp_i2c_find_dev(mcli, adap);
+ 	if (midev)
+ 		mctp_i2c_unregister(midev);
+ }
+@@ -1077,6 +1089,79 @@ static void mctp_i2c_remove(struct i2c_client *client)
+ 	mutex_unlock(&driver_clients_lock);
+ }
+ 
++/* Returns the named adapter in mcli's mux tree, with a reference held */
++static struct i2c_adapter *mctp_i2c_find_named(struct mctp_i2c_client *mcli,
++					       const char *name)
 +{
-+	unsigned int reg_val;
-+	unsigned int trans_len;
++	struct i2c_adapter *adap = NULL, *root = NULL;
++	struct device *dev;
 +
-+	trans_len = msg->len;
-+	reg_val = (unsigned int)(((msg->addr & 0x7f) << START_SADDR_SHIFT) |
-+				((msg->flags & I2C_M_RD) ? START_READ : 0) |
-+				((trans_len & 0xfff) << START_LEN_SHIFT) | START_START);
-+	aml_i2c_set_mask(i2c, REG_CFG_START,
-+			 START_START | START_SLAVE_ADDR | START_READ | START_LEN, reg_val);
-+	clear_irq_status(i2c, IRQ_ALL_MASK);
-+	/* enable thresh mode */
-+	if (trans_len > A9_I2C_FIFO_DEPTH) {
-+		reg_val = (msg->flags & I2C_M_RD) ? A9_RX_THRESH_READ : A9_TX_THRESH_WRITE;
-+		aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE,
-+				 A9_RX_THRESH_READ | A9_TX_THRESH_WRITE, reg_val);
++	dev = bus_find_device_by_name(&i2c_bus_type, NULL, name);
++	if (!dev)
++		return ERR_PTR(-ENODEV);
++
++	adap = mctp_i2c_get_adapter(dev, &root);
++	if (!adap || root != mcli->client->adapter) {
++		put_device(dev);
++		return ERR_PTR(-EINVAL);
 +	}
++	return adap;
 +}
 +
-+static int aml_i2c_xfer_msg(struct aml_i2c *i2c, struct i2c_msg *msg, bool last)
++static ssize_t mctp_i2c_controller_write(struct device *dev, const char *buf,
++					 size_t count, bool add)
 +{
-+	unsigned long time_left;
++	struct mctp_i2c_client *mcli = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_adapter *adap;
++	int rc = 0;
 +
-+	i2c->msg = msg;
-+	i2c->pos = 0;
-+	i2c->error = 0;
++	if (!ns_capable(current->nsproxy->net_ns->user_ns, CAP_NET_ADMIN))
++		return -EPERM;
 +
-+	scoped_guard(spinlock_irqsave, &i2c->lock) {
-+		i2c->state = (msg->flags & I2C_M_RD) ? A9_STATE_READ : A9_STATE_WRITE;
-+		aml_i2c_prepare_xfer(i2c, A9_FIFO_FILL_FULL);
-+		reinit_completion(&i2c->done);
-+
-+		aml_i2c_set_mask(i2c, REG_CFG_BUS, BUS_NO_STOP, (last ? 0 : BUS_NO_STOP));
-+
-+		/* Start the transfer */
-+		aml_i2c_do_start(i2c, msg);
++	mutex_lock(&driver_clients_lock);
++	adap = mctp_i2c_find_named(mcli, buf);
++	if (IS_ERR(adap)) {
++		rc = PTR_ERR(adap);
++		goto out;
 +	}
 +
-+	time_left = msecs_to_jiffies(I2C_TIMEOUT_MS);
-+	time_left = wait_for_completion_timeout(&i2c->done, time_left);
-+
-+	/*
-+	 * Protect access to i2c struct and registers from interrupt
-+	 * handlers triggered by a transfer terminated after the
-+	 * timeout period
-+	 */
-+
-+	if (!time_left) {
-+		guard(spinlock_irqsave)(&i2c->lock);
-+		i2c->state = A9_STATE_IDLE;
-+		aml_i2c_set_mask(i2c, REG_CFG_IRQ_ENABLE,
-+				 A9_RX_THRESH_READ | A9_TX_THRESH_WRITE, 0);
-+		clear_irq_status(i2c, IRQ_ALL_MASK);
-+		reset_fifo_pos(i2c);
-+		return -ETIMEDOUT;
-+	}
-+
-+	return i2c->error;
++	if (add && mctp_i2c_find_dev(mcli, adap))
++		rc = -EEXIST;
++	else if (add)
++		rc = mctp_i2c_add_netdev(mcli, adap);
++	else if (!mctp_i2c_find_dev(mcli, adap))
++		rc = -ENODEV;
++	else
++		mctp_i2c_remove_netdev(mcli, adap);
++	put_device(&adap->dev);
++out:
++	mutex_unlock(&driver_clients_lock);
++	return rc < 0 ? rc : count;
 +}
 +
-+static int aml_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++static ssize_t add_mctp_controller_store(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count)
 +{
-+	struct aml_i2c *i2c = adap->algo_data;
-+	int i, ret;
-+
-+	for (i = 0; i < num; i++) {
-+		ret = aml_i2c_xfer_msg(i2c, msgs + i, i == num - 1);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return i;
++	return mctp_i2c_controller_write(dev, buf, count, true);
 +}
++static DEVICE_ATTR_WO(add_mctp_controller);
 +
-+static u32 aml_i2c_func(struct i2c_adapter *adap)
++static ssize_t remove_mctp_controller_store(struct device *dev,
++					    struct device_attribute *attr,
++					    const char *buf, size_t count)
 +{
-+	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
++	return mctp_i2c_controller_write(dev, buf, count, false);
 +}
++static DEVICE_ATTR_WO(remove_mctp_controller);
 +
-+static const struct i2c_adapter_quirks aml_i2c_quirks = {
-+	.max_read_len = A9_I2C_MAX_XFER_SIZE,
-+	.max_write_len = A9_I2C_MAX_XFER_SIZE,
-+	.flags = I2C_AQ_NO_ZERO_LEN,
++static struct attribute *mctp_i2c_attrs[] = {
++	&dev_attr_add_mctp_controller.attr,
++	&dev_attr_remove_mctp_controller.attr,
++	NULL,
 +};
++ATTRIBUTE_GROUPS(mctp_i2c);
 +
-+static const struct i2c_algorithm aml_i2c_algorithm = {
-+	.xfer	= aml_i2c_xfer,
-+	.functionality	= aml_i2c_func,
-+};
-+
-+static int aml_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	struct aml_i2c *i2c;
-+	struct i2c_timings timings;
-+	int irq, ret;
-+
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(struct aml_i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	i2c_parse_fw_timings(&pdev->dev, &timings, true);
-+	i2c->frequency = timings.bus_freq_hz;
-+
-+	i2c->dev = &pdev->dev;
-+	platform_set_drvdata(pdev, i2c);
-+
-+	spin_lock_init(&i2c->lock);
-+	init_completion(&i2c->done);
-+
-+	i2c->regs  = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(i2c->regs))
-+		return PTR_ERR(i2c->regs);
-+
-+	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
-+	if (IS_ERR(i2c->clk))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk), "can't get enable clock\n");
-+
-+	i2c->clk_rate = clk_get_rate(i2c->clk);
-+	if (i2c->clk_rate == 0)
-+		return dev_err_probe(&pdev->dev, -EINVAL, "failed to get clk rate\n");
-+
-+	ret = aml_i2c_init(i2c);
-+	if (ret < 0)
-+		return dev_err_probe(&pdev->dev, ret, "fail init i2c\n");
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return dev_err_probe(&pdev->dev, irq, "can't find IRQ\n");
-+
-+	ret = devm_request_irq(&pdev->dev, irq, aml_i2c_irq, 0, dev_name(&pdev->dev), i2c);
-+	if (ret < 0)
-+		return dev_err_probe(&pdev->dev, ret, "can't request IRQ\n");
-+	/* Enable error & done irq */
-+	writel(A9_ENABLE_IRQ_BIT, i2c->regs + REG_CFG_IRQ_ENABLE);
-+	strscpy(i2c->adap.name, "Amlogic I2C adapter",
-+		sizeof(i2c->adap.name));
-+	i2c->adap.owner = THIS_MODULE;
-+	i2c->adap.algo = &aml_i2c_algorithm;
-+	i2c->adap.quirks = &aml_i2c_quirks;
-+	i2c->adap.dev.parent = &pdev->dev;
-+	i2c->adap.dev.of_node = np;
-+	i2c->adap.algo_data = i2c;
-+
-+	return i2c_add_adapter(&i2c->adap);
-+}
-+
-+static void aml_i2c_remove(struct platform_device *pdev)
-+{
-+	struct aml_i2c *i2c = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&i2c->adap);
-+}
-+
-+static const struct of_device_id aml_i2c_match[] = {
-+	{	.compatible = "amlogic,a9-i2c",},
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(of, aml_i2c_match);
-+
-+static struct platform_driver aml_i2c_driver = {
-+	.probe   = aml_i2c_probe,
-+	.remove  = aml_i2c_remove,
-+	.driver  = {
-+		.name  = "amlogic-i2c",
-+		.of_match_table = aml_i2c_match,
-+	},
-+};
-+
-+module_platform_driver(aml_i2c_driver);
-+
-+MODULE_DESCRIPTION("Amlogic I2C Bus driver");
-+MODULE_AUTHOR("Junyi Zhao <junyi.zhao@amlogic.com>");
-+MODULE_AUTHOR("Xianwei Zhao <xianwei.zhao@amlogic.com>");
-+MODULE_LICENSE("GPL");
-
+ /* We look for a 'mctp-controller' property on I2C busses as they are
+  * added/deleted, creating/removing netdevs as required.
+  */
+@@ -1090,6 +1175,8 @@ static int mctp_i2c_notifier_call(struct notifier_block *nb,
+ 		mctp_i2c_notify_add(dev);
+ 		break;
+ 	case BUS_NOTIFY_DEL_DEVICE:
++	/* A sysfs write can add a netdev after DEL_DEVICE */
++	case BUS_NOTIFY_REMOVED_DEVICE:
+ 		mctp_i2c_notify_del(dev);
+ 		break;
+ 	}
+@@ -1116,6 +1203,7 @@ static struct i2c_driver mctp_i2c_driver = {
+ 	.driver = {
+ 		.name = "mctp-i2c-interface",
+ 		.of_match_table = mctp_i2c_of_match,
++		.dev_groups = mctp_i2c_groups,
+ 	},
+ 	.probe = mctp_i2c_probe,
+ 	.remove = mctp_i2c_remove,
 -- 
-2.52.0
-
+2.50.1
 
