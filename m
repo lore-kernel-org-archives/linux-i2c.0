@@ -1,88 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.12
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794991699;
-	b=2xEECGuQtpJo7Y4zG/IRWGecXZC3VVYimfxElqbk8P5GAc2rokN8NnKuaUszG2hC3bn0
-	 sTEoUEwCZ/XOnoRLCq7tSl+CnOZlIBtJsRKYXyvtBsWWEinKY7OoENcpuohxECaSMorKB
-	 AYVX8+ztrzhVRQU8sjli5v0m5WAGZTENn1fl5bTfdNaoI9J+xZ7MFv4xlh7w9R0dFdXBc
-	 J5oesA0xNoxs58jyitFxnvCwz8TVxZZZL7d28cG1rX3L6A+cI/nWnCbp+Twu5dthRe2by
-	 0im15ZjO3g7v/HRgful/DiTMWv4OiGO+Yxi3pkx5F8f9mNsseAI2NeI21f+uSnbhwwQ==
+	t=1794991913;
+	b=eim/WjZFn+xBGs0Gzn1W5RLlQBh0vlQEPc37ULXbvxAnFzhAIeq0Qm9uImf/59crtf+n
+	 groUJ2iB49Y8eci0gfT5f8qeSZE9149Pdry2C+o6T3S0aXTk+IhR5qXzOUtvmLRYyhlJA
+	 ncEul/VPWLdGYyrsnW/H52TeFKumF/cNzfh4ulFfz4VN6P3NPhHDmKLWU7kaxTDzPr1zK
+	 QlL+WGvTdVtlyxPZdx5sWglMGJ12LOOBK+KQC8XVfAfRHf15CNOE4cnoopA/9VOkcujwg
+	 gsfyGgALO6HP56XvWziEgc8RJHP5j+zUlAW6OpI1jW0MVC+TrlY4nsUcLmfZnTiUxYw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794991699;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794991913;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
 	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
 	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To:
-	 Organization;
-	bh=vJGcGSSjcKVHc6b8pVWGQNzThgXfLhxChnkSyknWbOs=;
-	b=S40muIj386MFmaK11+NcMvcYSthAGjW2U+ZuPdoNpop6BMJE98M4JM7OefoF8thfNk2O
-	 ebpIj6CsCwFDdkOt9QgcfPmMiTtVYKDXzt+Tl34H0eJZ5IfpU3XQMf+hzaF0KU5vKkty7
-	 QiOjIvI+v8SfQTf3B+5trdXV3pHb+09JRghwwZ5rqsOx8LaXXh3zwwhKT7hKaPg61ybXk
-	 Utdr/RXH9AH+7lOB6NIEIWMp1OHqKv28hLbirUR0Pap1d15xzgnW0OWKbWa/qizI2Hj3E
-	 gqfcqwute2yRO9WA0cayRBmUJKzEqaf0wHugBKXU1QBoSxI9AtuRFbrSrA1WXNgS4hg==
+	 Content-Disposition:In-Reply-To:Organization;
+	bh=t4vR+WC8rFJbXlWlq1Q6jj0G26iR3wDkfdA7X6eirWY=;
+	b=hqGL7H5CkwzLkQFjzff2/z3YIEk53U3DsrYimUjW9UJQwLeL/+O/CKb/8QR/msxt1Ghs
+	 rKM4DUxRNhjQ5gLC02U8sVUtFT3/PGYe5jRheJfVCxWP9ni/yGPERrUbhhd/52imfwiEz
+	 Ntk1RHnM/9PiZ8R1LHCkPJJRc98ezKwyxnRrut9pK82XLpUbULzwl/wDKReM+xnG7GOy0
+	 tv2jxJqVgcuwncuzDKC7rIXSzlymioTkG9iPbpr3WA3lBsgzXVRS1uy7ZpnqFpTIxC30z
+	 pYSXZZ6Ntig/io2jrR2iH0UqvhY4Wv4Ri7lzrzPhN7Et7LRP2EKCidpbm3y/E3L2gKQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.intel.com;
 	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Ysm2arwL;
-	arc=none smtp.remote-ip=192.198.163.18
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YizacNon;
+	arc=none smtp.remote-ip=192.198.163.12
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B62D5606A31C;
-	Wed, 18 Nov 2026 08:48:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B62D5606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33DAD606A31C;
+	Wed, 18 Nov 2026 08:51:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 33DAD606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Ysm2arwL
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YizacNon
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794991699; x=1826527699;
+  t=1794991914; x=1826527914;
   h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=69uAnuF7duZcZRgShYJQb+omDDGQbvMHTSaXAjeuHeM=;
-  b=Ysm2arwLc4yWJtrS3jJm8EPD7bXmdSsJ3l2Tn4yOSCuOBh28Kgm7s3py
-   ChZKKirumDYCbXQU+QVeXVE/4Dm5n8q1mBFasAfJSAGUryjGSL5nwDvr6
-   CExDUXQdSJTg1l82RRiJHnfx/262f/HA85g9dq4e5IJXdz3LSyR25uZPo
-   /XlqXTYGEBV+nrfYzPKXBQgaAEdjM/TtW8IGTk2WFFopmN2nnq1MoXWPC
-   JIl585spQE4kr0IfWMbAYgeI8+Wo9ez3vKwM21K5gpHAKH0FS0Vhj9Pxi
-   HFUvJNLb/7Ye0Fzrjlzi0kS95zL4WfLhLz7z5YModvt7JptQAczZSsavq
-   Q==;
-X-CSE-ConnectionGUID: r5F1zIk0SxO9q8kw28rdBw==
-X-CSE-MsgGUID: 1ATpYjD2Sm2esOOfVuS1Ew==
-X-IronPort-AV: E=McAfee;i="6800,10657,11969"; a="3816789"
+   mime-version:in-reply-to;
+  bh=2h19q6YC68qXoxv5iA6/HRp6oHZLC86lJHld5ZlvhTY=;
+  b=YizacNontEeqroPFGBTCHzbAx6NqxBc5hMrmwCaAOOBwNFbJb+amrzWE
+   H4hC941QZ9q7/ZmQGeBimT1RSYq9CFt2a3EF3h1tsYKaOeUoABhT1E+rz
+   HYpsCbWBnlrIVgV9ecuf3vHeeTPAnJuOXljC4tgCrQgUJmOzN7FpqLoXq
+   Cvq6L5qYMi9Dx+/PaiGYEp15vZm3miJ+xTkfsaCrRL2Whdkkbn3WVpDEY
+   oicKPgvUwny34pb7sZ329VKpMd6NYk5VYjT3zrD4APDIebHkgOMj/dplu
+   CyszMB2akBLWsIlK5Zoyr49DL2qlF0Z4hg3X/rn0ojcHJXswJtYdGy98M
+   g==;
+X-CSE-ConnectionGUID: FeIlJH3oTpKA+UzhbYzQ8Q==
+X-CSE-MsgGUID: U+zmLr2tQoecaHKHKygnBw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11969"; a="3691351"
 X-IronPort-AV: E=Sophos;i="6.27,219,1787036400"; 
-   d="scan'208";a="3816789"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2026 00:48:19 -0800
-X-CSE-ConnectionGUID: 7OikgetmSnmgLK4gxGWkzg==
-X-CSE-MsgGUID: wD5IT/7YQQWIqN7+H0Q0Fw==
+   d="scan'208";a="3691351"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2026 00:51:53 -0800
+X-CSE-ConnectionGUID: Uhe02HQBTOKxewEgdIY2lA==
+X-CSE-MsgGUID: 8ohxJE7ASvW7Wb7VqIz51A==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.27,219,1787036400"; 
-   d="scan'208";a="10097320"
+   d="scan'208";a="9988069"
 Received: from mkosciow-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.157])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2026 00:48:14 -0800
-Date: Wed, 18 Nov 2026 10:48:12 +0200
-From: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>
-To: Ryan Chen <ryan_chen@aspeedtech.com>
-Cc: "jk@codeconstruct.com.au" <jk@codeconstruct.com.au>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>,
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: Re: [PATCH v33 0/5] Add ASPEED AST2600 I2C controller driver
-Message-ID: <av1mTEtWCf8zFbjp@ashevche-desk.local>
-References: <20260623-upstream_i2c-v33-0-6d5338fc56ed@aspeedtech.com>
- <TYZPR06MB79202A00572E81CBC29399F4F27A2@TYZPR06MB7920.apcprd06.prod.outlook.com>
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2026 00:51:50 -0800
+Date: Wed, 18 Nov 2026 10:51:48 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Hans de Goede <johannes.goede@oss.qualcomm.com>,
+	penhouse24@proton.me, linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz
+Message-ID: <av1nJE9cbXoTrpJu@ashevche-desk.local>
+References: <20261118073607.297350-1-mika.westerberg@linux.intel.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -92,68 +80,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <TYZPR06MB79202A00572E81CBC29399F4F27A2@TYZPR06MB7920.apcprd06.prod.outlook.com>
+In-Reply-To: <20261118073607.297350-1-mika.westerberg@linux.intel.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
  krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Wed, Nov 18, 2026 at 08:14:51AM +0000, Ryan Chen wrote:
-> Hi Andy,
-> 
-> This patch series has been stable in our testing on AST2600 hardware,
-> and we have also received positive feedback from customer testing.
-> The issues identified by Sashiko have also been addressed.
-> I plan to rebase the series onto the latest upstream kernel and submit v34.
-> Before doing so, I would appreciate your feedback on whether there are any
-> remaining concerns or blockers that we should address.
-> 
-> If there are no outstanding issues, I hope the series can be considered for
-> merging after the next review.
-> 
-> Thanks for your time and support.
+On Wed, Nov 18, 2026 at 08:36:07AM +0100, Mika Westerberg wrote:
+> The Dell XPS 17 9720 touchpad has the same lagging issue as with others
+> when run at 400 kHz as the ACPI tables describe. This particular system
+> does not use standard ACPI ID but it seems to use "Windows Device ID"
+> VEN_04F3 for whatever reason. Add this one to the 100 kHz quirk list as
+> well.
 
-Are you asking me or Andi Shyti?
-If it was to me, I have no time for this right now, sorry.
+LGTM,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-> > Subject: [PATCH v33 0/5] Add ASPEED AST2600 I2C controller driver
-> > 
-> > This series adds support for the AST2600 I2C controller “new register set”
-> > implementation.
-> > 
-> > The AST2600 I2C controller introduces a revised register layout which
-> > separates controller and target functionality into distinct register blocks, and
-> > extends clock divider configuration and packet-based transfer support
-> > compared to the legacy mixed register layout used on earlier ASPEED SoCs.
-> > 
-> > The current driver implementation for the AST2600 I2C peripheral is through
-> > the hardware's "compatibility mode", which exposes a register set that
-> > matches the previous generation hardware (AST2500 and earlier).
-> > 
-> > Instead, add a driver that works in new-register-set mode, to allow the new
-> > features, and will provide support for future hardware that will not implement
-> > compatibility mode.
-> > 
-> > In order to support the new mode, we need a DT binding change to reflect the
-> > reference to the global register set. Since the binding still represents the same
-> > (AST2600 SoC) physical hardware, we continue to use the existing compatible
-> > string of "aspeed,ast2600-i2c-bus".
-> > 
-> > However: since we're changing semantics for an existing binding, we allow
-> > backwards compatibility by selecting on presence/absence of the newly-added
-> > properties, and fall back to the old driver (ie., in compatibility mode) when we
-> > detect a DT using the old binding spec.
-> > 
-> > Specifically:
-> > 
-> > - ast2600-i2c-bus nodes that provide the `aspeed,global-regs` property
-> >   (present in the new binding and absent in the legacy binding) will be
-> >   successfully probed by the new driver
-> > 
-> > - ast2600-i2c-bus nodes without `aspeed,global-regs` continue to use the
-> >   existing driver (in legacy register mode), ensuring that platforms
-> >   with the current DTBs remain functional
+> Link: https://lore.kernel.org/linux-i2c/20261109104542.GL176724@black.igk.intel.com/
+
+Unreferred link tag. What I read on it sounds like also a candidate for Closes
+tag rather than Link.
+
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=214597
+> Reported-by: penhouse24@proton.me
 
 -- 
 With Best Regards,
