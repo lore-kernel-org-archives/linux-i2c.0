@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795026177;
-	b=b0XLLYR2gnwzmQHPg2SdjIApjWyG0O8CLshYmq9bhVYWgeGxpL+7adGNFLLnM5vqO1ZX
-	 8ENmnE6TZhomQfh8DnzF0XJrWCykg78087QGYN3dhx9wMYbD1uOi0dcg43ZYnEZrrmECe
-	 pWVlpYz50BHOXCD6njh2YgPehJj1W/3B/ufnY2f1xINwX496ilm8/G4fDI/dk8/3PLj/e
-	 gKunmRauFYORq5Jt7Cu0j1f16cs/3VHmkY8+CfEz913Suc+D1jF1u7gfe5qeS/0XXVxn+
-	 Tmf8W+pce3wRNNDpyGWwjPcMpnhzIh5wCPEUmQrcMmgXJX94XNUxDlzpE5G8a4UXnaw==
+	t=1795026178;
+	b=oJ+LKH5dSpZLyAlyCPlHKw6YvmAF/nSp1H2mxPBx7WWNBV3gn4ZChgtZCLLd5rIIK3gJ
+	 Goj9nJUjiwEWgYNbFfGb4INet7SX5EyqIotBrIka2maIk54/B4WPcTGeaghlcNJ0IMw8n
+	 Gt9Bg2gDzxnXjMZbf7a5Z1nZUfgyUl3Gc14PW15gU0PfxCRGVMbpzA1taCvUPIGTJryh9
+	 Nv34v1tfKJniiw+89IIUEM0eWczMlFvyeEwkYZ8HNKxxW3mWIeBf3J1TSTbtY7fgAJMBD
+	 v9u7ldmHjcDQ1/uj/lbqeUn0lPnPcNShjtShZjlLOHAgrt4x6BemWRsQO2YvF9oy8hg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795026177;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795026178;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=h61PfhcBe+DMs3O1zi49O1Oj5TJ4u6zGftAUCUm0Yw4=;
-	b=HUVJr36Q8/R5eXSzI6PFdjBqreOOg3qE9J8aZ3OvAkaAgyYBypgupbLbaRDljaee7b/r
-	 otXQzhEZhZCuTRhYbONKqsEfExYDTKAlfwawuXrUzSO/kZzNVEj0wA9Ur3iqWr4V1laWE
-	 bxVUsKC0NirfcU3T8tYWrUNr5uaQbiC6VonrtW26h0VkcUNt4DBoU0C/H3ZTKUhWlOEFc
-	 /HKh/M7PxBTiSNS3nvUR2IwTOvwrtgYzdwOIurUaBEu3RXlBfh4gyog+oWQIzl1kZZSMf
-	 bLYT4gH+Chci+QrcGy4iKDO8PxfP9pV0x3/ymXKQgdFYaF8OMtl/XwpqYqZ2riA83zQ==
+	bh=83nStTpRlBCM/kV50VhrxEdv2aiG0+hQRKw/q7fknCY=;
+	b=URuyACSULoXRK0FTp8zSFSAhNeoieo2KHrK/X1hISJNywIKK8/QJKLK2cl2uCBW88eHu
+	 KRDWsJxB0kyDX/pUBCQEzt11l1ORq72yousCYgZGcWpkL2gCPWV3QLspa9fm2YklfmO6W
+	 PFZ0UnzIzWbBI82DX5dxkr/bJSLQEuQ5z+pBD9qct5JDlOXFwkC+DJPGQuJqHsHgJpPZT
+	 qBijFNu/EyhYwVwAOR0Uc1txO297hkcqPsP9h18mLbI2wLexIZ0sYfjXqldjGD/kfQmkP
+	 hAoaHpM1FQBtbNmWB4VvJv9tao+oHqmS7CoINCAaTVIYG+kr/HcbCN+DrPVhJop7Ksg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Iasr3mdk;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eII3R7u7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C3C606A339;
-	Wed, 18 Nov 2026 18:22:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DE4460A261E;
+	Wed, 18 Nov 2026 18:22:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Iasr3mdk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4BC1F000C4;
-	Wed, 18 Nov 2026 18:22:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eII3R7u7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7DF1F000C8;
+	Wed, 18 Nov 2026 18:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795026176;
-	bh=h61PfhcBe+DMs3O1zi49O1Oj5TJ4u6zGftAUCUm0Yw4=;
+	s=k20260515; t=1795026178;
+	bh=83nStTpRlBCM/kV50VhrxEdv2aiG0+hQRKw/q7fknCY=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=Iasr3mdk0AKFIO3+dZ2tvHrk79f/1jiQx0zK4tVnYkfDbEF6b5MvBIgjqbLa8LW0z
-	 9GjhOAa3uspo/P3kXqzq1V+qh7dCNV8LanDx+1KAFEeBmR5nrNdt2Ev2ArwQZ/6Vgn
-	 ur/VetQwgpTfPvwnRox30OYgzJiXT9U8sIZcxS2C42TEZk7A3jLh5X24jeEy/c3Yzb
-	 9tkU/5T2xh6K27wUdyJQrOrKLtQgkFPGikU16AOKsxGuiwMY1l9YKAX9MuWxOAiCMv
-	 w5fp5kjoIQdpnT5tmjVcyWu0lTRVSmyZc7Vagrr7/OkwIHfASgW9HEP1ho2Cd78o5Y
-	 FIJf0UuHqFDdQ==
-Subject: Re: [PATCH net-next v3 1/3] i2c: xiic: allow platforms to require
- 32-bit register accesses
+	b=eII3R7u7v+X2x1cFXYrljudcwtferg62bDURLm2cIFnu3j5CNP2STMqyzoGsWjLhD
+	 CTenu2E6o1AeSniswhlkMZ47mbHlieoKultgsbf2CzFFqdeXnpft66Pj8fybn0Ccox
+	 fAHyHVBu4ZAr6eDacCmoEH51jTb5N/uxQrvfA2zkZKldHZ10s1elkrjfhuL6gXsYeE
+	 tR5YVe7Dn3DOdNEtL8eAh+mVp19AIZSzgEiZOmdfUgsWSUX4+4UjNZWZ3tol3MWHJ1
+	 OktnGuoWQgsQwzmQzw2xwfwDjKmdWN3mY0MElmnwYO69H+z8GbtoV4eqRrBlxUn4u9
+	 rZPekT8TuIzdA==
+Subject: Re: [PATCH net-next v3 2/3] i2c: xiic: add KUnit coverage for
+ register access modes
 From: netdev-bot+sashiko@kernel.org
 To: ahmadexp@gmail.com
 Cc: netdev@vger.kernel.org, vadim.fedorenko@linux.dev, andi.shyti@kernel.org,
@@ -50,10 +50,10 @@ Cc: netdev@vger.kernel.org, vadim.fedorenko@linux.dev, andi.shyti@kernel.org,
  linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org,
  linux-kernel@vger.kernel.org, pabeni@redhat.com, rdunlap@infradead.org,
  richardcochran@gmail.com, skhan@linuxfoundation.org
-Date: Wed, 18 Nov 2026 18:22:55 +0000
-Message-ID: <179502617544.3136.16911407487347494512@kernel.org>
-In-Reply-To: <20261116-wiwi-v3-87afa10a8-1-ahmadexp@gmail.com>
-References: <20261116-wiwi-v3-87afa10a8-1-ahmadexp@gmail.com>
+Date: Wed, 18 Nov 2026 18:22:56 +0000
+Message-ID: <179502617695.3136.6995182814188526026@kernel.org>
+In-Reply-To: <20261116-wiwi-v3-87afa10a8-2-ahmadexp@gmail.com>
+References: <20261116-wiwi-v3-87afa10a8-2-ahmadexp@gmail.com>
 X-sashiko-severity: Low
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -73,61 +73,92 @@ you want to address the nit picks below when you respin.
 
 Low priority / nit picks for your consideration:
 
-- [Low] In drivers/i2c/busses/i2c-xiic.c, this patch extends the block
-  comment above the register accessors (lines 281-290), but the…
+- [Low] The new KUnit suite cannot catch a regression in the forced
+  32-bit read path of xiic_getreg8().
 
 --
 
-i2c: xiic: allow platforms to require 32-bit register accesses
+i2c: xiic: add KUnit coverage for register access modes
 
-This patch adds a force_32bit_access flag to the xiic platform data. When
-the flag is set, the byte and halfword register accessors issue aligned
-32-bit accesses, still in the detected endianness. The first user is the
-WiWi Time Card, whose LitePCIe bridge cannot handle subword MMIO.
+This adds a KUnit suite that is compiled into i2c-xiic.c and tests the
+driver's private register accessors against RAM-backed registers. It
+covers native and forced 32-bit accesses in both byte orders across 22
+register offsets. It only builds on direct x86-64 MMIO.
 
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index ab7916745ad39..edb5e271c8cde 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 275aaa7f35833..0a7a2aeb78909 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -1322,6 +1322,21 @@ config I2C_XILINX
 
 [ ... ]
 
-> @@ -282,52 +284,68 @@ static int xiic_i2c_runtime_resume(struct device *dev)
->   * Only the least significant byte [doublet] of the register are ever
->   * accessed. This requires an offset of 3 [2] from the base address for
->   * big-endian systems.
-> + * Some bridges only support aligned 32-bit accesses. For these, access the
-> + * entire register in its detected byte order, without a read-modify-write:
-> + * reading or writing a FIFO register must perform exactly one transaction.
->   */
+> +config I2C_XILINX_KUNIT_TEST
+> +	bool "KUnit tests for Xilinx I2C register accesses" if !KUNIT_ALL_TESTS
+> +	depends on I2C_XILINX && KUNIT=y
+> +	depends on X86_64 && !UML && !INDIRECT_IOMEM
+> +	default KUNIT_ALL_TESTS
+> +	help
+> +	  Test the Xilinx I2C driver's register accessors with both byte orders
+> +	  and with native-width or forced 32-bit accesses. The tests use
+> +	  allocated RAM in place of registers. This relies on the direct
+> +	  x86-64 MMIO accessor implementation; no controller is required.
+
+[ ... ]
+
+> diff --git a/drivers/i2c/busses/tests/i2c_xiic_kunit.c b/drivers/i2c/busses/tests/i2c_xiic_kunit.c
+> new file mode 100644
+> index 0000000000000..1b691de7e9250
+> --- /dev/null
+> +++ b/drivers/i2c/busses/tests/i2c_xiic_kunit.c
+> @@ -0,0 +1,91 @@
+
+[ ... ]
+
+> +	for (i = 0; i < ARRAY_SIZE(offsets); i++) {
+> +		reg = offsets[i];
+> +		memset(mem, 0xa5, 0x200);
+> +
+> +		xiic_setreg8(i2c, reg, 0xc0);
+> +		expected = param->force_32bit_access ? 0xc0 : 0xa5a5a5c0;
+> +		KUNIT_EXPECT_EQ(test, (u32)xiic_getreg32(i2c, reg), expected);
+> +		KUNIT_EXPECT_EQ(test, xiic_getreg8(i2c, reg), (u8)0xc0);
 
 [Severity: Low]
-This isn't a bug, but the first sentence of this comment now contradicts
-the new mode. It still says only the least significant byte [doublet] is
-"ever accessed", using a +3 [+2] offset on big-endian.
+Would this check, or any of the other xiic_getreg8() checks in
+xiic_register_access(), catch a regression in the forced 32-bit read path?
 
-When i2c->force_32bit_access is set, xiic_setreg8() and xiic_setreg16()
-zero-extend the value and write the whole 32-bit register at the base
-offset, with no +3/+2 adjustment:
+In xiic_getreg8(), the forced path is:
 
-    if (i2c->force_32bit_access) {
-        xiic_setreg32(i2c, reg, value);
-        return;
-    }
+	if (i2c->force_32bit_access)
+		return xiic_getreg32(i2c, reg);
 
-In the same mode, xiic_getreg8() reads the full register through
-xiic_getreg32() and truncates the result.
+Without it, the function does ioread8(base + reg) for LITTLE and
+ioread8(base + reg + 3) for BIG.
 
-Could the first sentence be changed so it only describes the default
-accessors?
+In the word_little_endian and word_big_endian cases, every value is first
+stored as a zero-extended 32-bit word. With RAM-backed registers, the byte
+at reg + 0 (LE) or reg + 3 (BE) is always the low byte of that word. The
+native 8-bit read and the truncated 32-bit read therefore return the same
+value (0xc0, 0xff, 0x78, 0xef).
 
-The comment also doesn't say what the new mode relies on. The registers
-written through xiic_setreg8() and xiic_setreg16() (XIIC_CR_REG_OFFSET,
-XIIC_RFD_REG_OFFSET, XIIC_DTR_REG_OFFSET) now get zeros in their upper
-bits. Should the comment note that those upper bits must be reserved or
-ignored on write?
+So it looks like the force_32bit_access branch could be removed from
+xiic_getreg8() and all four parameterized cases would still pass.
 
-[ ... ]
+The write side is covered, because the upper bytes (0xc0 vs 0xa5a5a5c0)
+would catch a subword store. The read side is the one behind the machine
+check from ioread8() in xiic_clear_rx_fifo(). That machine check is what
+motivated "i2c: xiic: allow platforms to require 32-bit register
+accesses".
+
+The changelog says "These tests do not validate physical bus transaction
+widths". The Kconfig help text above, however, says the accessors are
+tested "with native-width or forced 32-bit accesses", and does not mention
+that read width can't be observed.
+
+Could that limit be documented in the Kconfig help or in a test comment?
+Alternatively, the accessor could be instrumented so the read width can be
+checked.
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261116-wiwi-v3-87afa10a8-0-ahmadexp%40gmail.com
