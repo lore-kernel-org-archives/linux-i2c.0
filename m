@@ -1,97 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.228.74
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.12
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794996738;
-	b=QX3PAjcJSR2IIxMynsTZsv+GAbRBHFHh7fwmgYIFSErX1aeEy5JnIfgQDSsIWLJ7Z6pa
-	 PVnKWuALBNvUaRwxm3m+oUkSDLnDJzDRb1907k3JGMKkI8wDRJ8PyeBCoJVcgPUApwGbK
-	 CmPU6Z45LLJcvuY30y5XWwzt5o5x+qhrHibLFfdlYrjEP2MSRTPYFQLmusrECVrGkyPFX
-	 72Funk3LwSD4qE+OeakQ597jrcT/ByUSqwflb3CpSS6LTUUnB6v26HjxtSlwutzyeDLYa
-	 rVzuWTXLt6yOOK/1Qk0PsGlcCBh7hk/6gThJAay74W4U7jg8fM4JT/P+CbdykfuX9wg==
+	t=1794997847;
+	b=kZqJ3AWHsiX+1F2vfhXTJwzHKJQN0FftehScStUc2M1K5sBmzIhPNFusH1veXAM4G9Q/
+	 7HU24ZKZ2GJ1x0Z0WPhPiaNyTK4OEr9v3F/7SHgEsjuJbLdjOVpPRkhmFGP1rljNwQTyS
+	 ah93FyECbFoAD8+HvCiRMnKDmAPCBsjtDbOCoSbzAYuzAhh3Lr1mgBFoS9VkBa0p7lqlA
+	 PrJDJI/1r2VQw4+rYGZhxQijh4vzsDVtRL4W/BAI8Yr+Uv19fa/X+L2BWH8VQA6cWHcWw
+	 EOauRoDHIH7rWskJg1vqbTmE2iY/8hilw9niy8KDc7tOnsAaP5uKaSSkt33cnHvjshw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794996738;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=eX+gYgE+oCqAhhfCHZGXtaEXZcvdSf5VXn9A/wbFEZ0=;
-	b=mkL9pk8/sh9z0+9RfRQ0en0dlExlR9Vi9Kh5Z6KRGhXm2KakI4+dX6iEMQ2z4adMYl67
-	 WI3GlTLCkO7I5GH2nIj0vcKHCvKI6Zxk7ptOoeYzJhPbqqOIeyCOLms1iiXkEU+BRarvo
-	 htwRfgru3CU3rppu2oHDhXX1tYVXEHivjX+e8TKEmF6s/YXoJUyMK1B80f30qoD4dQ6lB
-	 4ALNbUVn0YRlIeyBYvwf4aqLBVC+cddygr6b6sUkPZ326K5/IeDiS9kx/xcxiy0BdsZl0
-	 R+6qcOT0uN8AjZ0RTPPy1yv/ootIZfWnxbshBKxgmIeV2lpR6K/iELXGZo++SaPC7lQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794997847;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To:
+	 Organization;
+	bh=nH5gEdl3D5/4uObgUP9+ggGHh8o+1reBAcP3hqYWwcI=;
+	b=RLbjG/629PcfhIZIiAgI81y3ueWQYBsADCZuOMZqoLsnTUGE2umH8r3k6qA2YzNHFtsi
+	 nPGGnzlWFA5WiFySuI8/cpNhfVrqDd4YzD6dGN8LZcZhBXK7HQakSd51llGoCbk+Huh76
+	 2ZyjLnsaZmM6qSjtybQlvuPgL1VKcg2ErUR5azajyAvJteulBQiyeb933RCr2fQR4fzHx
+	 EiT1Hb+/xA2eFsNBfyr1tbFveYQoA985Ooj+JKHgkzSvkSh32bXFuA0Q54R/mHyayaxTx
+	 OciSTSPkbnork69SCFF9XEwocD3JM/fp3dZTnSLHYeTUd1f9fjql3Tj/vbKr+dxtsqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wAmvKmgc;
-	arc=none smtp.remote-ip=74.125.228.74
-Received: from mail-ed2-f10.google.com (mail-ed2-f10.google.com [74.125.228.74])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=EF+Hzi+X;
+	arc=none smtp.remote-ip=192.198.163.12
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE552606A880
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 10:12:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE552606A880
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B710C606A320;
+	Wed, 18 Nov 2026 10:30:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B710C606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=wAmvKmgc
-Received: by mail-ed2-f10.google.com with SMTP id 4fb4d7f45d1cf-6b85f086202so391028a12.1
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 02:12:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794996736; x=1795601536; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=eX+gYgE+oCqAhhfCHZGXtaEXZcvdSf5VXn9A/wbFEZ0=;
-        b=wAmvKmgcySfA1/6DZJLDxhW3fn61N1O/dX1OSSFhxKQfcArXR7Fg7+74pdtKc8+tOH
-         cGhzn5eqKIolmDUnaRbHZTC4jKq0NuYg6dBKujlrZYSsDcl91gMGcRlVDLrU+1Ahsu/5
-         zaJzROR2qS31KdMQdohlECSGcH9GBkLjxaIpD3JBmvxY3MqNEG0TmieYc8rs11vNZaqW
-         XgeU98Z5c2kVlOxvsFIb60KzKCtb9muNDFLLJ80p7IEIvmbFwkJqsLD+H+R2/lBAfcLQ
-         icFOPhqWd7HiWuBmfgmAzIn/3siu5/889YRPC1su2uDn+Ib6mZPVf0VfVCcr4pYAoVPz
-         A9Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794996736; x=1795601536;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=eX+gYgE+oCqAhhfCHZGXtaEXZcvdSf5VXn9A/wbFEZ0=;
-        b=kIFiT60+lh7gdQ6dKF+gYDbm46g8Ldz/CE98UWgtG2vbZnHkfX1pZ+HyqYPnJz6Yw7
-         DxQIaVQuyNsVPG+1YJAFoPwlyTQFPvzTc6vKLPsX7TZYetktae7L786lBPOgEnRQ3tnL
-         LqC0sMRp4kWot/inp4ArqitoDfLtR7ow2g0QluywULVUNUvcU1fndBYpVckOUS5zl5lV
-         3L+5+moCdZx4zDq93Tb6keIa0dcX7jSknp1XS1hr2o1kzyCuxqKcQcCOOtZVrQmLlbN1
-         jN5GEPtFLluWXONlp1XVg7bx2/GSDwVqjjJ8j7KJ2Yq+JRloI+mhIbi+v4DIW5ZOFKVc
-         wk6g==
-X-Forwarded-Encrypted: i=1; AL+hErHAb7xRegmg/BpkApoNG6c1jmmpfbaDKvAgLNgSQvhx3egtijlOhw8kdfDbLMDNUt5BtiouqSoGkm0=@vger.kernel.org
-X-Gm-Message-State: APuU4Z/onAh2lYQARKIzTQgkIuKqvIO2bxfFA6fw/9PVAvCUbCE1xnpa
-	Vh+EJNAuq/cszqSnQz9YBdVb+jF8CEcwfbsEh88A3/6DdLzye3FJp3kp
-X-Gm-Gg: AYBFou1VOQLoT1Go8YtSkJbJswU3jxQdPHo55BCTPT0/qMM/9zELWc7+u0J74MUkHUx
-	R1xs6XXZa7knpXt0YfqekRckFUP5zRlXUcv3ybf96Ns+pAgdkwCtkXGgMrDf1tkmeHKDOM2cdY2
-	cJXdNkpj6HDRAhdutl9vPbZ0IfLUBFSdwwxs6htxDGkFvuTZR9iyb1t59wwtS59bRyMV93J/iEE
-	UnJ2LaFeyLGYJ4K/JNlm4NwTozh93iUuIEy3XuPSpj5/ohyqWWGaL/OlfofiaN44Fn3S1RCAmGI
-	Fz0BhyEwO3DcIRwBxavABA4ZCC/uMThkHrjv/gHe29m7hfPluT4iLCDWXmJGGMrfRKBJ6R+DZzd
-	vlYRKAjfGrz1Mao2v3Vl2Cx7rDgcninHDZ9vUGzfOlOsexduxih7Ahrb5VCiMs1ijhLRwbJT0bg
-	dL8U+5A6kfd/s2oN7AUUQYmF8kMPH3O04WkKFGuaoYZ2F6JgRHXtiZ4uamiQP6TsJa2iKBudV2b
-	Pw7A1oU9vCEES3+p0ownpsg6aTj8y3PokvZebju9oLgGORE0H41p6ROOARIUtSdjLw4U8pwd5mO
-	7Azh5rf0+Us5qseYpXRsAYta0cvahda40VD1qsMeZovIu4QtLqkUkhJkccLXxmyfr35f6XMozKT
-	PtDUobxVmBsIbJiqV7jALZKWTsrU8pnm+f30GgFocvouiyvYEnTGE6G9c
-X-Received: by 2002:a17:906:f5a5:b0:c46:6a50:40c2 with SMTP id a640c23a62f3a-c510e5024c3mr167941566b.39.1794996736224;
-        Wed, 18 Nov 2026 02:12:16 -0800 (PST)
-Received: from thi-server.fritz.box (dslb-092-076-089-226.092.076.pools.vodafone-ip.de. [92.76.89.226])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c510c83f332sm78436366b.7.2026.11.18.02.12.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2026 02:12:15 -0800 (PST)
-From: Thilo Zirnstein <thi.zirnstein@gmail.com>
-To: michal.simek@amd.com,
-	andi.shyti@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Thilo Zirnstein <thi.zirnstein@gmail.com>
-Subject: [PATCH v4 2/2] i2c: i2c-xiic: fix waiting/clearing while atomic
-Date: Wed, 18 Nov 2026 11:11:47 +0100
-Message-ID: <20261118101147.3350796-3-thi.zirnstein@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261118101147.3350796-1-thi.zirnstein@gmail.com>
-References: <20261118101147.3350796-1-thi.zirnstein@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=EF+Hzi+X
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1794997847; x=1826533847;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=Uowatdy9kwN6q0cDgYxR39/boEiV8TiNmIQ/16Ndc6c=;
+  b=EF+Hzi+Xx/XNUJu03mgc+SsUdTC9x6zh7j4u+X7CL/Hnv3fFKjJ7BoEX
+   2Zl/0WQW/RAmAtSi/aQOrFIIrbkc8Ap2JeTnpEbTp+7Vs3PHWdedzIhW0
+   r0OZeeQoOKUlF9/4pMDsgF9/Ns5MhWoeCOLgBPiUF+xGyRwgJEkXAGsTl
+   DE5tZDDJ38PujTY3cjWbvMz8HE/+znsbhT/ahVh5qpVA8WFeIiwKeDSA6
+   Vld/6BCauOkqYgQm54v8q4LkN2oirmyGamhVaXkHzomRuRjH8uo2UwyFt
+   Efdy2x1sGmFYup6LhfPuNmHvk8hEcTTpYxV7v7zWV+ai9vz8J96qL3yfb
+   w==;
+X-CSE-ConnectionGUID: wzOp00OsQvaLBsnarlN6Gg==
+X-CSE-MsgGUID: 4UcHLOhoTWCdNsPT6Wqgxw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11969"; a="3701492"
+X-IronPort-AV: E=Sophos;i="6.27,219,1787036400"; 
+   d="scan'208";a="3701492"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2026 02:30:46 -0800
+X-CSE-ConnectionGUID: jSpDPBd2RUuwCG2wexdIbg==
+X-CSE-MsgGUID: sgEv5KGrQ3SzCnCFRq3NGw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,219,1787036400"; 
+   d="scan'208";a="10351746"
+Received: from mkosciow-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.157])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2026 02:30:42 -0800
+Date: Wed, 18 Nov 2026 12:30:40 +0200
+From: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>
+To: Ryan Chen <ryan_chen@aspeedtech.com>
+Cc: "jk@codeconstruct.com.au" <jk@codeconstruct.com.au>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: Re: [PATCH v33 0/5] Add ASPEED AST2600 I2C controller driver
+Message-ID: <av1-UNzN0bwW2Oo6@ashevche-desk.local>
+References: <20260623-upstream_i2c-v33-0-6d5338fc56ed@aspeedtech.com>
+ <TYZPR06MB79202A00572E81CBC29399F4F27A2@TYZPR06MB7920.apcprd06.prod.outlook.com>
+ <av1mTEtWCf8zFbjp@ashevche-desk.local>
+ <TYZPR06MB7920EE43F93A37A61E139CD4F27A2@TYZPR06MB7920.apcprd06.prod.outlook.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -101,77 +94,113 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <TYZPR06MB7920EE43F93A37A61E139CD4F27A2@TYZPR06MB7920.apcprd06.prod.outlook.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Use non jiffies based waiting functions,
-if in atomic context.
+On Wed, Nov 18, 2026 at 08:53:36AM +0000, Ryan Chen wrote:
+> > On Wed, Nov 18, 2026 at 08:14:51AM +0000, Ryan Chen wrote:
+> > >
+> > > This patch series has been stable in our testing on AST2600 hardware,
+> > > and we have also received positive feedback from customer testing.
+> > > The issues identified by Sashiko have also been addressed.
+> > > I plan to rebase the series onto the latest upstream kernel and submit v34.
+> > > Before doing so, I would appreciate your feedback on whether there are
+> > > any remaining concerns or blockers that we should address.
+> > >
+> > > If there are no outstanding issues, I hope the series can be
+> > > considered for merging after the next review.
+> > >
+> > > Thanks for your time and support.
+> > 
+> > Are you asking me or Andi Shyti?
+> > If it was to me, I have no time for this right now, sorry.
+> 
+> Thanks for your response.
+> Would you happen to know anyone else who might have time to review it?
 
-Suggested-by: Andi Shyti <andi.shyti@kernel.org>
-Signed-off-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
----
- drivers/i2c/busses/i2c-xiic.c | 30 +++++++++++++++++++++++++-----
- 1 file changed, 25 insertions(+), 5 deletions(-)
+Not of my knowledge. The general practice is to help maintainers to review
+their queue(s) and in response somebody else hopefully reviews yours. If you
+completely rely on maintainer to allocate a time to review your stuff, you
+might wait for months these days (mostly because tons of AI slops attacking
+the LKML). I might be mistaken, but I haven't seen match of @aspeedtech.com
+in the Reviewed-by: tags. Probably that's what you should do better?
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index e68e17bdf0ba..6bb8d66e8969 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -237,6 +237,8 @@ static const struct timing_regs timing_reg_values[] = {
- #define XIIC_BB_TIMEOUT_US	1000
- /* timeout waiting for the controller to respond */
- #define XIIC_I2C_TIMEOUT	(msecs_to_jiffies(1000))
-+/* timeout waiting for the controller to respond in micro seconds */
-+#define XIIC_I2C_TIMEOUT_US	1000000
- /* timeout waiting for the controller finish transfers */
- #define XIIC_XFER_TIMEOUT	(msecs_to_jiffies(10000))
- /* timeout waiting for the controller finish transfers in micro seconds */
-@@ -359,16 +361,28 @@ static inline void xiic_irq_clr_en(struct xiic_i2c *i2c, u32 mask)
- 	xiic_irq_en(i2c, mask);
- }
+That's what I got for the entire history of Linux kernel
 
-+static int xiic_poll_rx_empty(struct xiic_i2c *i2c)
-+{
-+	if (xiic_getreg8(i2c, XIIC_SR_REG_OFFSET) &
-+	    XIIC_SR_RX_FIFO_EMPTY_MASK)
-+		return 1;
-+
-+	xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
-+	return 0;
-+}
-+
- static int xiic_clear_rx_fifo(struct xiic_i2c *i2c)
- {
--	u8 sr;
-+	int rx_empty;
- 	unsigned long timeout;
+$ git log --no-merges --oneline --grep 'Reviewed-by:.*@aspeedtech.com'
 
-+	if (i2c->atomic)
-+		return read_poll_timeout_atomic(xiic_poll_rx_empty,
-+				rx_empty, rx_empty, 10, XIIC_I2C_TIMEOUT_US,
-+				0, i2c);
-+
- 	timeout = jiffies + XIIC_I2C_TIMEOUT;
--	for (sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
--		!(sr & XIIC_SR_RX_FIFO_EMPTY_MASK);
--		sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET)) {
--		xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
-+	while (!xiic_poll_rx_empty(i2c)) {
- 		if (time_after(jiffies, timeout)) {
- 			dev_err(i2c->dev, "Failed to clear rx fifo\n");
- 			return -ETIMEDOUT;
-@@ -383,6 +397,12 @@ static int xiic_wait_tx_empty(struct xiic_i2c *i2c)
- 	u8 isr;
- 	unsigned long timeout;
+51d0f5020dee crypto: aspeed - Use memcpy_from_sglist() in aspeed_ahash_dma_prepare()
+dba7567c2fbb usb: gadget: aspeed_udc: fix device address configuration
+aba59ce109de peci: aspeed: Clear clock_divider value before setting it
+4dc44aec28c8 crypto: aspeed-hace - Use device_get_match_data()
+9ee8fbc05ef0 spi: aspeed: Use helper function devm_clk_get_enabled()
+eb33108858b6 crypto: aspeed - Fix modular aspeed-acry
+7484a5bc153e drm/ast: Fix start address computation
+aaf16cdca641 crypto: aspeed - change aspeed_acry_akcipher_algs to static
+f104b2169e68 crypto: aspeed - Replace zero-length array with flexible-array member
+83045e19feae usb: gadget: aspeed: fix buffer overflow
+70513e1d6559 crypto: aspeed - Fix check for platform_get_irq() errors
+dc377e013bec crypto: aspeed - fix return value check in aspeed_hace_probe()
+efc96d43ec38 crypto: aspeed - Fix sparse warnings
+31b39755e325 crypto: aspeed - Enable compile testing
+9deb10cf160e ARM: dts: aspeed: ast2600-evb: Update I2C devices
+70cdb930f7e9 usb: gadget: aspeed_udc: fix handling of tx_len == 0
+3d393f0303b5 usb: gadget: aspeed_udc: fix missing spin_unlock_irqrestore in ast_udc_ep_queue
+6fd45e79e8b9 net: ftgmac100: Disable hardware checksum on AST2600
+fea289467608 ARM: dts: aspeed: Add secure boot controller node
+8812dff6459d soc: aspeed: socinfo: Add AST2625 variant
+d0ec795c8c27 ipmi: kcs_bmc_aspeed: Optionally apply status address
 
-+	if (i2c->atomic)
-+		return read_poll_timeout_atomic(xiic_getreg32, isr,
-+				isr & XIIC_INTR_TX_EMPTY_MASK, 10,
-+				XIIC_I2C_TIMEOUT_US, 0, i2c,
-+				XIIC_IISR_OFFSET);
-+
- 	timeout = jiffies + XIIC_I2C_TIMEOUT;
- 	for (isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
- 		!(isr & XIIC_INTR_TX_EMPTY_MASK);
---
-2.43.0
+But even them are "aspeed" cases, so you looked at the code written inside your
+company which does NOT count as help to the maintainers with their queues
+(okay, it counts, but with low priority as these are not 3rd party reviews).
+
+
+> > > > This series adds support for the AST2600 I2C controller “new register set”
+> > > > implementation.
+> > > >
+> > > > The AST2600 I2C controller introduces a revised register layout
+> > > > which separates controller and target functionality into distinct
+> > > > register blocks, and extends clock divider configuration and
+> > > > packet-based transfer support compared to the legacy mixed register
+> > layout used on earlier ASPEED SoCs.
+> > > >
+> > > > The current driver implementation for the AST2600 I2C peripheral is
+> > > > through the hardware's "compatibility mode", which exposes a
+> > > > register set that matches the previous generation hardware (AST2500 and
+> > earlier).
+> > > >
+> > > > Instead, add a driver that works in new-register-set mode, to allow
+> > > > the new features, and will provide support for future hardware that
+> > > > will not implement compatibility mode.
+> > > >
+> > > > In order to support the new mode, we need a DT binding change to
+> > > > reflect the reference to the global register set. Since the binding
+> > > > still represents the same
+> > > > (AST2600 SoC) physical hardware, we continue to use the existing
+> > > > compatible string of "aspeed,ast2600-i2c-bus".
+> > > >
+> > > > However: since we're changing semantics for an existing binding, we
+> > > > allow backwards compatibility by selecting on presence/absence of
+> > > > the newly-added properties, and fall back to the old driver (ie., in
+> > > > compatibility mode) when we detect a DT using the old binding spec.
+> > > >
+> > > > Specifically:
+> > > >
+> > > > - ast2600-i2c-bus nodes that provide the `aspeed,global-regs` property
+> > > >   (present in the new binding and absent in the legacy binding) will be
+> > > >   successfully probed by the new driver
+> > > >
+> > > > - ast2600-i2c-bus nodes without `aspeed,global-regs` continue to use the
+> > > >   existing driver (in legacy register mode), ensuring that platforms
+> > > >   with the current DTBs remain functional
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
