@@ -1,101 +1,109 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.44
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795012972;
-	b=3d44gbe/mzZpuEMsaDoJpJqzNE4hXF/GcOWeuv764veoXUvQZZ7C5PL/48X89MtRyhOK
-	 r1SFof3Mcy9pxK+iGW6px6YddlcxJe0edRLiLpTOJ9RrPlMmQnCcSIrrBFauEeImhpuNz
-	 +MjE9risEISbC2tOo+f8BGoCH0VNnO05rxmeifuSnhefW0bLOG3ZLegd2KSJqWYInm0eq
-	 f1BdoM2xs7mcwsWj25Jzkj1wtFJLMrvq9ylSSzWHyM7enAF2a+Cj1+NIn4XWN6QXp28sp
-	 5Z1TOk2LOj1h2QCpJigZkfDyu5yUyBBQ6hVF+QxHJtNML7uCjwXNPnrV5cF/68QgXSQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795012972;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.53
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795019986;
+	b=inpT8KuDfwpJnXSp4AJS3b4uCD34pRIUk2BKuE066IvQ/po9Zo6vIOahISgt2Hb1+0kF
+	 oh/8Or2QpgyySlqeVRm3ndGK/ZWjutqaIElwoXo8nUCaV5tH1ZlcI2p3+ygPIRClYVMgY
+	 ap1xn17Rp/4pIVsFlWNb3lao+mI3fx48/e+OAuiVz8HeEYzfku7o2iabI4aGULKncHNrf
+	 9hglhZnS3VfCECd09kd8dBZED4KcmuzqLTLm8vmFHEnXiG4quV+414w0iVtp1jdisa/rg
+	 02BJ+A+FjPWA+jCuioI7e4qVMoa90zxbYUUYNE1Cojfd9aXHVeFl38/FbzNiDaLtIKA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795019986;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=XUoJPQ+bQcBMLjchQg2sOom+qhVfJBoy/IZRsgGe9ys=;
-	b=kfbpwHDHegJmqNwuOvtB74Hyl2R8tsmNU2ybStB19v3XtVSiF9EEnWhqn3D1uj/7uFCa
-	 bDsuAsp6OBeR/Oz/sswlerrqYHMSV4G9Q7cEvmQkyxc8Ni7qnHHJEvyAso2Tzksu3Jr7c
-	 lUdKGXgKwSuk7P2tvTINyHTpjsXPdTG8jchpaCmzyO/O1GjS2Zrk+WgVXhX7mc23Duj52
-	 UKdoxX2Mi6gNZ99gr7Pk59Z1tcyFRCjcCb1mM5qi5thuVjmMYtBZVSbEcve5WHFWDic6N
-	 Ro3JQES07ei1svCjoGqAqjfIoyO0RU7EpIRc/5M3QBA8bA25yB4kWzZJA69U+kIiJyg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=bSJ+G4tJP1ziQCyl9adMQoFUq25zcxEzpQxCBYIzK6k=;
+	b=2qRPdoVcQyr9PbDUVI5ePiyY2XJV8tuU8SNVco3Mbbm0bW9siQxKylxHHPtisgZZvRag
+	 zs9BE4DejH/Uy7X/AEQ7BDw/FiNIrfmbGtTEjeYColnHUj4hirVzvhZccYl/PMpOVzdp8
+	 dvHH/j2+JSjLDKzilqQi4PsTm0vSou1l7fP6CoeQ8gBG50ekdmLgwrVxFtyke00U52AcS
+	 vVFtlwv1F7Yrt6B7gow2lDI+AMgPEKw5tZ12MyaBh+buelDrcnjixwOtLn47nF/si4DLt
+	 +Vw4CKMo9xDDwOuiTfFulQuqHEotQ2oB3wJxMTmglEmvumHIb4cl3vuCGjUOykC8CvA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="jTiQDbi/";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.44
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WJ3ZlJkG;
+	arc=none smtp.remote-ip=209.85.221.53
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4790606A31C
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 14:42:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A4790606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D60B606A32F
+	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 16:39:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1D60B606A32F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jTiQDbi/
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-6b8784a3284so19470a12.1
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 06:42:51 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795012970; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SXnaQ26kgI1wV6+9UliOaZKMUyAiqgzxotrm5fK6a8utsb7wdRQwUOrDZEOW9RmC5y
-         RiX50JQVG6JgYpLSujgDK1wchoF4U63EF82lW4kH8jUk2ezDnOrxuM6s6BrTj80iGE6r
-         wYuFbmCfc5a0BneYu8xt+TnbJsIHj14eeJAHPk6EPI2exDQOzUue9zpDN/4pPDM/GRTk
-         JsE+gskRm2VnLPsKQrQdcplO38e1W7m0/GwmeMu/uYSUZF/slmwnzyr1qbh7FxofwsZS
-         HVBRxSI6WQvpTdnKi9pgZWIhDCJjmWvepuiqqaPr/K76zgjS9d1ihsrY/GXQ6VzOP+fA
-         TaoQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=XUoJPQ+bQcBMLjchQg2sOom+qhVfJBoy/IZRsgGe9ys=;
-        fh=PVzq7sg2tHemA5A0b8op+4cLnvQe0nc+4+PJcpwuAYA=;
-        b=rU8VYQvbBn166XgP+Mp8MYY5r0gN1wB/TfDuCDJbgeUlElzRUneHXavrhSq8PfRtkA
-         si251etWlEf3qlKnkX3tyOFkKzaSwuYzIeu1J1FHddAXEmGDy3httyNXrUL9lPtuAKqx
-         x4t7FYTM5mqKmjjEso0QtRDu4rxmyPLPTM/KjcV/dtdzrWff7ANamwjlvhucBp2OSjgS
-         PZancSKvrRt9zs1BdWwOkl2soK+PmE1GUhfgPPgsI3SUmkNb0DnN4QwZbXqi6b5LpJvd
-         jA4sa0U91oizcVwF6yaZ8cz2ZeG+LPz1HtrkazQjWrqZ7q4K9+rzxshox5Y4QU8lWsV5
-         /8uA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=WJ3ZlJkG
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-4a358881793so624671f8f.0
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 08:39:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795012970; x=1795617770; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+        d=gmail.com; s=20260707; t=1795019984; x=1795624784; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=XUoJPQ+bQcBMLjchQg2sOom+qhVfJBoy/IZRsgGe9ys=;
-        b=jTiQDbi/ZtDF9t7SdZiTQkBZF6ofbKF1K/q0w7e3sDchHSUAOksiNycNOD7xKOPLqg
-         zhnYNkawYM2wCk380hedn5Rd00ZQCh4tOqAUmiix3gR+AyyaiA+eDJ/E3PlvsFYJYzC3
-         BE5HqaDLzWfvWJS3Hry0BVCbMDMI5JnmBMXQHsPnZUpnpwRYbt/Inu1lk5gxec8XS/tJ
-         RgIcD4ZkSKHPIeYSAzprNwYjsKa6lt2s/20I5DNtB+ZNJC/bEB1+JGDUHI75kO2qkRK+
-         jsqtJb/tW9GUrFzizei7Y9LEWjJjsSv3KmCtAV9m1v0QIPJwfAItP6FbSgZWRCz/WfjH
-         PTpg==
+        bh=bSJ+G4tJP1ziQCyl9adMQoFUq25zcxEzpQxCBYIzK6k=;
+        b=WJ3ZlJkGwMnNkvsIqG4plTgvw2A+K2rreocPB2CyyiOWrntgd8SDOOMIY+k94X7C6L
+         3ORbkuquBSAjI3lhCF+xnkq6wSwOLZo/IcB0XcROOd2DMyh2hz6i50GfRkpLOGZOiNO/
+         DXKJBfnJo5pBt5QeslY+HpaOcub9ZeCSUhS5eRT6Mk+liiHG63meMM0ckJGfe6mr2XUq
+         eTG5RLmaOFICTkX/WNnRmEOoF6cLzuZkFr/Elx3+9+2S113zfbhvZ6ycZdLSmSffQfv4
+         zFWNp74W64SQJFS7CaFSQXdwYUAqxsCYL1IQiOlSKtKVh/4kopk1WabQdRZWf3DpZt/Z
+         tOHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795012970; x=1795617770;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1795019984; x=1795624784;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=XUoJPQ+bQcBMLjchQg2sOom+qhVfJBoy/IZRsgGe9ys=;
-        b=IzoVqbVpZvVkHGIY7Lzvo+y1CaDtxoahIVQW5JPRKRnYJvHJwdMZFsZ/uKnEMu3GJz
-         MbeYIFHTjG14nVd1/rpbLraSUaxKu/YUSt7DtKasygBvIrNQw2pbS/kUaBdEvO119mR9
-         A7om1HSSnz9BA6zQZHRID89NRlPa/nEKfr3AzyLZDIglArRSZ5NR5LTyF0eATKO1PmUo
-         X2smguZoJiL3ruh86Z5sU84NjuXoRomkkijL5fR9+ZnOPEZPgeXrrR9XepJ5Fh/3Aw+r
-         UqfdJk0e8VGfOqzqeap203JRKXHWzLGWLnUZE2L89dNuilUQaiYLHXsLLbie1XundZS/
-         RN7Q==
-X-Forwarded-Encrypted: i=1; AL+hErHaQ/vOU5Uyf1jqhDJ7Fn43ZPq99emisjuq55wgp2LuUhxYrLv9iXRc+thwVWY1ckVkOlxIUMGdxLc=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8cGinkvg+Pggu/beiVTjt9VHMBWtlP89RnTXz7ifmik0kLIPLe
-	HkbmGiK5YXGGUzDqwkoNeT5mBIaTGRK/UkLgAfeeJwraodKh8qXfL65rjyHpfcKFxFNwjqRiVV7
-	9uQX7jRgwWLD0s985H5+gfh1aMNqVQTs=
-X-Gm-Gg: AYBFou2ny/WUBkJxDo72FvRo3VBpfkTdV2kipERLFvPuUWPDNIAtwnzQ+gGiHTAgwla
-	wOJ/8HbOds5Xmk5XjLtamsinRNzWAS+6kZj8dbH2lyk7ZTXl3C5YqX5LWglCdOgIAYv3wkKzuN/
-	F2ysOHo/n6j84DTfiBdfGRGd5kBoY5daSe2LyqhwZPP7m77B022jtkiG0V/uSaAhAGL4gjgOh5w
-	/5W5ehvyUMyGNfGcQe+b41/ELOZIj6KLGFK1g1nYcyGTKzi9Zb43s/jLIh9npEKIsr6BcMyJ8pe
-	S5LJkcab8CscfqVBoWdzhnGvyF3Oip5/4BnqzQZ0FsXG1GqkIUiRIx4ea0c+VixxkxXyHUM3Hlg
-	mrcmQ4fHFVPrYyTbd2W2WrmfGv/TkIh4icEhAb0L4AorAO0rzfKrxheAKaxlizVP9imS1t2mjdY
-	gHzymPMPSdi8apLzulP1Koo5Se3TaYYQ==
-X-Received: by 2002:a17:907:940b:b0:c29:f5d8:9c73 with SMTP id
- a640c23a62f3a-c510e324a07mr241805366b.34.1795012969839; Wed, 18 Nov 2026
- 06:42:49 -0800 (PST)
+        bh=bSJ+G4tJP1ziQCyl9adMQoFUq25zcxEzpQxCBYIzK6k=;
+        b=SU8ZTebHjpuru5bW5VQVWOx1g3dSyMWyvD+98tJHg7Fb7A6H7/Q9DbOF1k86f1hBgp
+         4dSPV+iU0zPPxdWwDn9dJXbQHq0y5MO/Lup6XBhwgVYhjPzmIIQbPJ+8ymON5GoBMCgp
+         k9tCrSXlMsPbkNILlnMqXfFHwzLOo5YSAsJlP13TogCIWaOq/eSq+mj82x9V4vNvGjRx
+         TmceCVq7PACNDVZdbX0zETwXh+BwJWgbKPPFD0frTIOX78aDgNAmt4rU8Gggh3z/3uYR
+         pn/NymPHJLV+aCq3T+NIBL/m5FbuWP3m7m9oBrEALH4grCkgGa5+5989Lw/LrAi6revM
+         NSKg==
+X-Forwarded-Encrypted: i=1; AL+hErF+HBp3/cLAN57qRtWruoEx+YxTexKE6QGHuWKjEJ7PWpy9AOfiU3c3QPQa3g/AGaAjrhz22tTZZl0=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/Q8aUGtuSp/DKCdeeyU6bKYZ0YdZ9f+sVtSGoitzC9y+PQxF6q
+	vj/jDxiYvf7or16ySOuS59JiFjEiL837h3lXS65bF+vnbQws7TYbgOWN
+X-Gm-Gg: AZFdTZcLfSgcRisIpo326ZCgg+FuVUQvhXeIgYzX9MUNQ3FHIEZj43Nynryoz39XF8Q
+	wQa3624Zqn6ntJgyI5Yz/qPZQ3munBnKwBa6ks4CXRstPamfOJvembuDPquarkiX9oeom9Gl6e0
+	IOShU9bKEfKyCQd00BeyryijdypPPXeo1A3VI0W+9KkOFNZu46wCrKkKzp4aNTEUS6yDweqHk6q
+	RXSoIHQdmqNkMP4gpUPZYcyIUx3iZLHDoj80fikd9QgML/9nJG7AuyB8lCF90bsjikzrl8KUGnQ
+	P3R0YeHG4fIKf3sGpwnlD/kExISdZ0WO8MmGB364so5TlM14XaAcbE3VqHDZiOezkj7ILx2RBgq
+	Tjfa3T77bUXPAkT26XDKneE/nbXISFsSvjKVJ62Dcty4ntnv0dWditzzAt+m+iRiC5Zxk9BrgYK
+	Z2hJO68BK1T+sjlSCzN2Sz6URJsTz9aSbyyTSOAMJvr83oCpnHk7Hm8CikoaBT//7I5hnmEKYRT
+	YFaEhDHdRQ3L1obT1qT0qqttjcH6Xpll6x5C0OLmOGke1deSJwdnPmp2onaPOsVIPa5B+n4HEEA
+	3YEqV3V0s+mhfvKWfZI5IG+dXuJ5Nw==
+X-Received: by 2002:a05:6000:24c7:b0:4a4:ee9f:a3d2 with SMTP id ffacd0b85a97d-4a63eac5b4bmr6887128f8f.55.1795019984273;
+        Wed, 18 Nov 2026 08:39:44 -0800 (PST)
+Received: from m2.. ([37.142.154.208])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-4a65560ab64sm5420535f8f.25.2026.11.18.08.39.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Nov 2026 08:39:43 -0800 (PST)
+From: Michael Zaidman <michael.zaidman@gmail.com>
+To: Jiri Slaby <jirislaby@kernel.org>
+Cc: Michael Zaidman <michael.zaidman@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
+	Germain Hebert <germain.hebert@ca.abb.com>,
+	Christina Quast <contact@christina-quast.de>,
+	Rio Liu <rio@r26.me>,
+	Bruno Giacomazzi <brunoceg1@gmail.com>,
+	Daniel Beer <daniel.beer@igorinstitute.com>,
+	linux-input@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 01/16] HID: ft260: add serial driver
+Date: Wed, 18 Nov 2026 18:38:50 +0200
+Message-ID: <20261118163935.28515-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <0c96e0ee-55e7-4999-922e-bc52aa516d2e@kernel.org>
+References: <0c96e0ee-55e7-4999-922e-bc52aa516d2e@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -105,59 +113,220 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261118134555.195479-1-clamor95@gmail.com> <20261118134555.195479-2-clamor95@gmail.com>
- <av24x_dcu2hggP5y@shikoro>
-In-Reply-To: <av24x_dcu2hggP5y@shikoro>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Wed, 18 Nov 2026 16:42:35 +0200
-X-Gm-Features: AclHuK93fhxoBlMqicbFK9Gc1HJyqVV4hippm2euH0OtywPbIka7CYKr7EMAras
-Message-ID: <CAPVz0n2jSrZ+ya=7JgARDRTFZ8-cu=209GGiOK8KYAwph1hGDg@mail.gmail.com>
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: Document ASUS Transformer's Dock
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Hans de Goede <hansg@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-=D1=81=D1=80, 18 =D0=BB=D0=B8=D1=81=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 16:4=
-0 Wolfram Sang
-<wsa+renesas@sang-engineering.com> =D0=BF=D0=B8=D1=88=D0=B5:
->
->
-> >  .../bindings/i2c/asus,transformer-dock.yaml   | 56 +++++++++++++++++++
-> >  1 file changed, 56 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/i2c/asus,transfor=
-mer-dock.yaml
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/asus,transformer-doc=
-k.yaml b/Documentation/devicetree/bindings/i2c/asus,transformer-dock.yaml
-> > new file mode 100644
-> > index 0000000000000..5f4a40539c2b4
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/i2c/asus,transformer-dock.yaml
->
-> This is not an I2C controller, so "i2c" is not the proper directory, I'd
-> say. "connector" maybe? DT maintainers may have another suggestion.
->
+On Wed, Nov 18, 2026 at 08:21:18AM +0100, Jiri Slaby wrote:
 
-I have placed it here arbitrary. I am perfectly fine with any place
-schema maintainers point to.
+Thank you for the review.
 
-> > +allOf:
-> > +  - $ref: /schemas/i2c/i2c-controller.yaml
->
-> Hmm, this bindings only uses "i2c-parent" which is not even described in
-> the above file. Not your fault / problem, but we should describe it
-> somewhen somewhere central maybe? I guess the above $ref could be
-> dropped still.
->
+First a question about where the fixes go. Patch 1/16 is Christina's
+v4 serial driver [1], ported to the current kernel. It also has a few
+fixes to her code; its commit message lists them. Patch 2/16 is my
+own patch. It has the fixes her code needed on hardware and the fixes
+for the review of the patch 1 code. Jiri Kosina agreed to this layout
+in June; "As agreed with Jiri" in the cover letter means him. The goal
+is that Christina stays the author of the code she wrote, and the
+fixes on top of it are mine.
 
-Child nodes too. IIRC i2c-controller.yaml covers those.
+Some of your points are already fixed in patch 2. The others I will
+fix in v5. Are you fine with the v5 fixes for the patch 1 code also
+going in patch 2? Patch 1 then stays as it is, except for the two I2C
+hunks that you asked to move out (see below).
 
-> No comments on the general approach, I'll leave this to DT and Asus
-> platform maintainers.
+[1] https://lore.kernel.org/all/20231218093153.192268-1-contact@christina-quast.de/
+
+>> +#include <linux/serial.h>
+>> +#include <linux/serial_core.h>
+>> +#include <linux/kfifo.h>
+>> +#include <linux/tty_flip.h>
+>> +#include <linux/minmax.h>
+>> +#include <linux/unaligned.h>
 >
+> Sort these.
+
+Will do in v5. Patches 3, 4, 8 and 11 also add includes out of order.
+Patch 2 sorts the list, and the later patches add their includes in
+order.
+
+>> +	struct kfifo xmit_fifo;
+>
+> Why not to use port.xmit_fifo?
+
+v5 uses port.xmit_fifo, with tty_port_alloc_xmit_buf(). More on the
+size below.
+
+>> -		hid_err(hdev, "%s: failed to start transfer, ret %d\n",
+>> +		hid_dbg(hdev, "%s: failed to start transfer, ret %d\n",
+[...]
+>> -		pr_info("%s: off %#x rlen %d wlen %d\n", __func__,
+>> +		ft260_dbg("%s: off %#x rlen %d wlen %d\n", __func__,
+>
+> There should be likely a separate patch with the above two hunks.
+
+Agreed. In v5 both hunks leave patch 1. The pr_info() to ft260_dbg()
+change goes in patch 6, which lowers the severity of other I2C
+messages. The hid_err() stays: patch 6 keeps it for transport
+failures.
+
+>> -static int ft260_is_interface_enabled(struct hid_device *hdev)
+>> +static int ft260_get_interface_type(struct hid_device *hdev, struct ft260_device *dev)
+>
+> Switch int to the enum then?
+
+I would like to keep int. The function also returns the negative errno
+of ft260_get_system_config(). The enum has no negative values, so GCC
+gives it an unsigned type, and a "ret < 0" check in the caller would
+not see the error.
+
+>> +static DEFINE_MUTEX(ft260_uart_list_lock);
+>> +static LIST_HEAD(ft260_uart_device_list);
+>
+> Is IDR or IDA not a better fit?
+
+Yes, an IDR. The driver needs the lowest free index and also the port
+for an index, so an IDA alone is not enough. v5 uses idr_alloc() and
+idr_find() in place of the list walks, as cdc-acm does.
+
+>> +	spin_lock_init(&port->write_lock);
+>
+> Should this be initialized when the port is allocated. This is confusing.
+
+In v5 it moves to ft260_uart_probe(), next to the other UART setup
+(INIT_WORK(), timer_setup(), tty_port_init()), before the port is
+added. The other choice is ft260_probe(), where the port is
+allocated. But ft260_probe() allocates the struct for each
+interface, I2C or UART, and only the UART code uses this lock.
+
+>> +	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
+>> +		return -ENOMEM;
+>
+> tty_port_alloc_xmit_buf() then? Is PAGE_SIZE too much? Then refactor
+> tty_port_alloc_xmit_buf() to allow size to be passed ;).
+
+Yes. Patch 2 already sets the FIFO size to PAGE_SIZE, so
+tty_port_alloc_xmit_buf() fits as it is, and tty_port_destructor()
+frees the buffer.
+
+>> +	mutex_lock(&ft260_uart_list_lock);
+>
+> guard()
+
+Patch 16 converts all mutex_lock() calls in the driver to guards, this
+one included. The guards are in the last patch on purpose: I also
+maintain an out-of-tree version of this driver for kernels older than
+6.5, which do not have linux/cleanup.h, and it can leave that patch
+out.
+
+>> +	mutex_lock(&ft260_uart_list_lock);
+>> +	list_del(&port->device_list);
+>> +	mutex_unlock(&ft260_uart_list_lock);
+>> +
+>> +	tty_port_tty_vhangup(&port->port);
+>> +
+>> +	spin_lock(&port->write_lock);
+>> +	kfifo_free(&port->xmit_fifo);
+>> +	spin_unlock(&port->write_lock);
+>
+> scoped_guard() × 2.
+
+Patch 2 moves the list_del() to the port destructor, and patch 16
+puts it in scoped_guard(). The spin_lock() pairs on this lock, now
+xmit_fifo_lock, are not converted yet. In v5 patch 2 makes all users
+of the lock take it with irqsave: a line discipline can call ->write
+from softirq (ppp_async does, from a tasklet), and ->write takes this
+lock. Patch 16 then puts them in guards, together with the other
+spinlock of the driver, read_lock.
+
+>> +	tty = tty_port_tty_get(&port->port);
+>
+> scoped_guard(tty_port_tty)
+
+Will do in v5 in patch 16, here and in ft260_uart_change_speed().
+These are the only two tty_port_tty_get() calls in the driver.
+
+>> +	len = kfifo_in_locked(&port->xmit_fifo, buf, count, &port->write_lock);
+>
+> So you put it into kfifo, and:
+>
+>> +	ft260_dbg("count: %zu, len: %d", count, len);
+>> +
+>> +	ret = ft260_uart_transmit_chars(port);
+>
+> remove it from the fifo immediately? What's the reason to do this double
+> copy?
+>
+> Oh, the fifo can have more than fits into the HW fifo? Did I miss where
+> ft260_uart_transmit_chars() is called to send the remaining bits?
+
+Patch 2 changes this. In patch 1, ft260_uart_transmit_chars() sends
+the rest in a loop in the same call, but the send sleeps, and ->write
+must not sleep. From patch 2 on, ft260_uart_write() only copies the
+data into the kfifo and schedules tx_work. The work sends the kfifo in
+reports of up to 60 bytes until it is empty. So the copy is needed:
+the data waits in the kfifo until the work sends it.
+
+>> +	seq_printf(m, "ft260 info:1.0 driver%s%s revision:%s\n",
+>> +			"", "", "");
+>
+> Does HID require wrap at 80 cols? This should be on one line these days.
+
+Patch 2 puts it on one line.
+
+>> +		if (port) {
+>
+> Perhaps invert the condition, add a "continue" and save one indent level?
+
+Will do in v5.
+
+>> +	// FIXME: Do I need that if I have cancel_work_sync?
+>> +	// FIXME: are all kfifo access secured by lock? with irq or not?
+>
+> YOU FIX then :).
+
+Patches 2 and 3 remove both comments. The answers:
+
+The reschedule_work flag is needed. cancel_work_sync() runs only when
+the device goes away. The flag switches the wakeup workaround on and
+off while the port is in use, when the chip has power saving enabled:
+it is set above 4800 baud and cleared at port shutdown. The timer
+arms again, and the work sends its report, only while the flag is
+set.
+
+No. Even at the end of the series, ft260_uart_write_room() and
+ft260_uart_chars_in_buffer() read the kfifo with no lock, and four
+paths take the lock with spin_lock(). In v5 every access takes it,
+with irqsave.
+
+>> +	/* We cannot used devm_kzalloc here, because port has to survive until
+>> +	 * destroy function call
+>
+> multiline comments are introduced by /* on its own line.
+> "used" -> "use".
+
+Patch 2 fixes both.
+
+>> +	hid_info(hdev, "chip code: %02x%02x %02x%02x\n",
+>> +		 version.chip_code[0], version.chip_code[1],
+>> +		 version.chip_code[2], version.chip_code[3]);
+>
+> Is this dump useful?
+
+I would like to keep it. It was in the driver before this series, and
+it is the only place that prints the chip version.
+
+>> +	if (!dev->ft260_is_serial) {
+>
+> Inverting the condition would make more sense for me.
+
+Already done in patch 2.
+
+>> +		pr_err("tty_alloc_driver failed: %d\n",
+>> +			(int)PTR_ERR(ft260_tty_driver));
+>
+> Why the cast? Use %ld.
+
+Will do in v5.
+
+Thanks,
+Michael
