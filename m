@@ -1,80 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795009267;
-	b=3TLE7CN+3KD6/jAad2vrN/ZROFHathLUlxp4lozzBpQFSKMkG2z8zrHnrjgL2r0IhaCh
-	 xmGHRzJgrarBL84RzUKKfspOp4am5FPu0CIey20pnNbMY7P8c7+mJN+yRDA1eAaH9G3bH
-	 H+sAxOWsKX4Ly/or+LKSjdV0FGiG88ghgnuHRs7fdO1rlTpl0dHfIIsUaeN/oGpkE7n4P
-	 WGxHJnk6E7VC1B+G73u1uQxKD8Cw0on/Rv/CjPPSZZgFqMQ4oItPJ5ZlGiH7CJczDffzy
-	 8sg9abHgYMyBMmgnJnhhOMQ59biIDAzrb9IOnFGrjwUGTqYQNWwKmQedTyD6jUAyVxQ==
+	t=1795009518;
+	b=euT9ZKBZd/NjDyrw3gzvqFOrA1bfH5sSSIHjVZPhE81mw8QkOFWcQEKrUpIkIYHMKIqA
+	 MZ5DiYqgHbAeggn/3EI8Ipzn+RCfAmwz7E6c+qFTGCitxm4UTltv29mI1EnCWZx4T7TfB
+	 kmrqBvF+Z/x/rCBoLFj+Ky5cWibeSbE//0lVgx9qyFZJz6zjrggwMbOMhF7YngTE8caqR
+	 J8h6lJXs7Ckj+UwXbNB3TTHQFHbKkUPGiy9VzhEA46DF2bL6ouZBBseM628ASwby4SX4o
+	 /C+5F2KmZJNbDZ5CGNzdstPj/g4reFs/HUf6GWbRE985kEMyhKgoysCblBOp1Fy0u6Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795009267;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=D9V4WkGeE1gNbwV0EuTSccb8kH3ZkT64phRaT3tM55k=;
-	b=0f6eF6hbPefZ+uJVNN2GIrqfz36ks6whY/IdJRg3N575wt+Ohga3e5/JIFfydqahzoBj
-	 rfQtNDc/LulN/1znwc+QxOEOMBVTspW2Ah3FKp8NTASvkms3JP+QgYJbRj6ahUOh7oaiL
-	 E6Zb0VZePon9TM2m+3zTgWvIwbDKXkJdMebe4PKmKeFEv9wLV5O8HoGuinrN3XpwaLD+6
-	 aF4/k2bSgmY+okDig78SZCvqduKqZChv3KtjELbfj/OkfmIrux92FJFo9mEF/xY1b5u0F
-	 emnshDL44hk+Tlu1LN9UM5UODbYeGMzxsgNHjJxNflf4Mp4/zx9VudUnClshyD4M9lA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795009518;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=zbYI8uP1li72NzJh/wjWDJ72bmhe8G4M88p9Kdrkgp4=;
+	b=xN+EUjhMdBytiTMRyLhfbvnxrcJIBlWUxM30V4KZPtAR2FvJaO5v8VREnrCCbfKmjrmW
+	 6B+neWFZ/yTLTtyqDOMN+XMbAaMg6wvd5yLUEgclx2PPm+8qi80c/H0ye1uCMzfwLgjql
+	 tawTgvAWEDND72akpHDvaKdSop1xZuVor0h5aDG7o2ixteb8L7ObqDpLuRGR4/8gdzBW4
+	 /sOiV/ZNc0u87Z0L8AA4mZw1lD/OA10a1oTyMTAVS6jOpnG1N007m87xwqZ+z12GqKw7h
+	 GedsNcAwOvejteHNjKSC8r/r1eoDiA2tHIbedpMNu01+tnyWM22M6Hc1hDO29b+Omkg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=QxPwFnlB;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RxwDW1Jg;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B65D60A2610
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 13:41:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B65D60A2610
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15C2606A333
+	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 13:45:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=QxPwFnlB
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 74F96C4CBD9;
-	Wed, 18 Nov 2026 13:41:09 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 9F9635FE9B;
-	Wed, 18 Nov 2026 13:41:04 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E7DB711BC20A9;
-	Wed, 18 Nov 2026 14:41:00 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795009263; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=D9V4WkGeE1gNbwV0EuTSccb8kH3ZkT64phRaT3tM55k=;
-	b=QxPwFnlBQzMJjMVMjLqYccma9uxQ7cISONOrB1G0WNBWLYWpAakFpuyFkVPcXuP9TByPH4
-	T7U8pFhv8dy6Dpee17NiN2L7rqEIASFVfL1o2avGDdpP7gzInaCQcVDvHTDM8yQ5JZraG/
-	RhGx/Xoh1XaNr6NsSIlu1MwsJg4SpDZCTnIQ46gHJC/mb5SxpbzTNYvzO4lIfkE4dqt4TP
-	BEx9DZiusYe5YKCW15Q+RPM8IVLNdIOPIXL/kaNPkQBdgCiRxnVVrSwx1AsH7sMkrXrbKY
-	r2Z5uhT3RN/Dp+u9d84cRH+KvF/I62FBUTotXCH+Oz/FVyP42BDg+Vvk5p092w==
-From: Herve Codina <herve.codina@bootlin.com>
-To: Andrew Lunn <andrew@lunn.ch>,
-	Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Peter Rosin <peda@lysator.liu.se>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	Allan Nielsen <allan.nielsen@microchip.com>,
-	Horatiu Vultur <horatiu.vultur@microchip.com>,
-	Daniel Machon <daniel.machon@microchip.com>,
-	Steen Hegelund <steen.hegelund@microchip.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Herve Codina <herve.codina@bootlin.com>
-Subject: [PATCH v10 6/6] i2c: atr: Create missing devlink between ATR and adapter physical device
-Date: Wed, 18 Nov 2026 14:39:15 +0100
-Message-ID: <20261118133927.366482-7-herve.codina@bootlin.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261118133927.366482-1-herve.codina@bootlin.com>
-References: <20261118133927.366482-1-herve.codina@bootlin.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RxwDW1Jg
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E02B1F000CE
+	for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 13:45:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795009518;
+	bh=zbYI8uP1li72NzJh/wjWDJ72bmhe8G4M88p9Kdrkgp4=;
+	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
+	b=RxwDW1JguCDucDNsShayzwrpopd1ZL9Qf2ZCAagnmVvg0zW+stUUkU79tiVnQB/Zo
+	 Pmp7J5O40OKniL5gftISQKy3xeMQgqfUbNtMIYx/OgRyH5+WyU2VySZ2IsBbRbmLyD
+	 Lcv2pp9ib1bXBYNArl1iETwXLKN6wdgElDCYFpz/BMJc+rZuNQ37QytMx+d2WMCe0H
+	 FOrOeLU8pFP47A4NCAla2ZZdXV5MbYDeQMlL1zoWCPwvU6TpWK/+ZlW3NnD/6hU3zj
+	 TjvzFKfPvmXqp86SHZoCLdg9t9YdEaZ5DJG81/QUfM4q8+rzPhOD6DXr9sxVvO3l1m
+	 hi3EWHj5PIRRg==
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-3ae417eb235so9180651fa.3
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2026 05:45:18 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AL+hErHCm57M7paNSrg/UjHzl1QefbxiUqX6Mf9b4oeND3ErS0ea7ffyZDc36ilixe+AMKidDEcBul75YV0=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/+DLVrQdM5aNEJqQsmnd9MJ9IJDho6E5my1sWGetPuX2xwMQIn
+	GzzTI8xUJ9aMJuRUjDF9FOVsalG3XDHLeX4GbptwdCDFJuJJ0qxhj6FZ7OUFfEa/nKGzyaBUSZ5
+	jr6rSdLKSjoxoDBkZ9au+cWmlqlZWvdo=
+X-Received: by 2002:a05:651c:b27:b0:3ab:3b73:4560 with SMTP id
+ 38308e7fff4ca-3ae670b2ef1mr8658421fa.11.1795009516447; Wed, 18 Nov 2026
+ 05:45:16 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,139 +59,122 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20261114-irqchip-cleanup-api-v1-1-4a9d598b0bdb@nxp.com>
+In-Reply-To: <20261114-irqchip-cleanup-api-v1-1-4a9d598b0bdb@nxp.com>
+Reply-To: wens@kernel.org
+From: Chen-Yu Tsai <wens@kernel.org>
+Date: Wed, 18 Nov 2026 21:45:03 +0800
+X-Gmail-Original-Message-ID: <CAGb2v65uyYnE-sryit44oXBwstxkG7HRtYWip5nyuHeZ034TbQ@mail.gmail.com>
+X-Gm-Features: AclHuK_Ko1utGgb-Cp6pja7wJidoLs_raftCWPKZ3OajYizpg1rSK6L9ElxDv8s
+Message-ID: <CAGb2v65uyYnE-sryit44oXBwstxkG7HRtYWip5nyuHeZ034TbQ@mail.gmail.com>
+Subject: Re: [PATCH] irqchip: Convert chained handlers to guard_chained_irq()
+To: Peng Fan <peng.fan@linux.dev>
+Cc: Thomas Gleixner <tglx@kernel.org>, Radu Rendec <radu@rendec.net>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Peter Griffin <peter.griffin@linaro.org>, 
+	Alim Akhtar <alim.akhtar@samsung.com>, Andrew Lunn <andrew@lunn.ch>, 
+	Gregory Clement <gregory.clement@bootlin.com>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Ryan Chen <ryan_chen@aspeedtech.com>, 
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, 
+	Andrew Jeffery <andrew@codeconstruct.com.au>, Billy Tsai <billy_tsai@aspeedtech.com>, 
+	Tan Siewert <tan.siewert@9elements.com>, Eddie James <eajames@linux.ibm.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui <rjui@broadcom.com>, 
+	Scott Branden <sbranden@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Caleb James DeLisle <cjd@cjdns.fr>, 
+	Marc Zyngier <maz@kernel.org>, Miodrag Dinic <miodrag.dinic@mips.com>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Herve Codina <herve.codina@bootlin.com>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Jiaxun Yang <jiaxun.yang@flygoat.com>, Vladimir Zapolskiy <vz@mleia.com>, 
+	Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>, Anup Patel <anup@brainfault.org>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Alexandre Ghiti <alex@ghiti.fr>, Samuel Holland <samuel.holland@sifive.com>, 
+	Qin Jian <qinjian@cqplus1.com>, Changhuang Liang <changhuang.liang@starfivetech.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Nishanth Menon <nm@ti.com>, Tero Kristo <kristo@kernel.org>, 
+	Santosh Shilimkar <ssantosh@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Michal Simek <michal.simek@amd.com>, Anirudha Sarangi <anirudha.sarangi@amd.com>, 
+	Tushar Nimkar <tushar.nimkar@amd.com>, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, 
+	linux-aspeed@lists.ozlabs.org, linux-rpi-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, imx@lists.linux.dev, loongarch@lists.linux.dev, 
+	linux-riscv@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-sunxi@lists.linux.dev, git@amd.com, linux-arm-msm@vger.kernel.org, 
+	Peng Fan <peng.fan@nxp.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When removing an i2c controller device handling an i2c bus where an i2c
-ATR (address translator) is connected to, the removal process hangs and
-is stuck in the wait_completion() call done in i2c_del_adapter().
+On Sat, Nov 14, 2026 at 11:06=E2=80=AFPM Peng Fan <peng.fan@linux.dev> wrot=
+e:
+>
+> From: Peng Fan <peng.fan@nxp.com>
+>
+> Use the scope-based guard_chained_irq() helper in all chained handlers
+> under drivers/irqchip/ so that chained_irq_exit() is always invoked when
+> the handler returns. Handlers that duplicated the exit call on an error
+> path or jumped to a common exit label simply return now and rely on the
+> guard.
+>
+> No functional changes.
+>
+> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> ---
+> With [1] now merged in irq/drivers, convert the chained IRQ handlers in
+> drivers/irqchip/ to use guard_chained_irq(). This removes the explicit
+> chained_irq_exit() calls and the gotos that only existed to reach them,
+> reducing boilerplate.
+>
+> I use a script to do the job, and after that, do mannual checking.
+>
+> No functional changes.
+>
+> [1] https://lore.kernel.org/all/179417458323.2093942.14330197609841896598=
+.tip-bot2@tip-bot2/#t
+> ---
+>  drivers/irqchip/exynos-combiner.c          | 7 ++-----
+>  drivers/irqchip/irq-aclint-sswi.c          | 4 +---
+>  drivers/irqchip/irq-armada-370-xp.c        | 4 +---
+>  drivers/irqchip/irq-aspeed-i2c-ic.c        | 4 +---
+>  drivers/irqchip/irq-aspeed-scu-ic.c        | 8 ++------
+>  drivers/irqchip/irq-ast2700-intc1.c        | 4 +---
+>  drivers/irqchip/irq-ath79-misc.c           | 5 +----
+>  drivers/irqchip/irq-bcm2836.c              | 4 +---
+>  drivers/irqchip/irq-bcm6345-l1.c           | 4 +---
+>  drivers/irqchip/irq-bcm7038-l1.c           | 4 +---
+>  drivers/irqchip/irq-bcm7120-l2.c           | 4 +---
+>  drivers/irqchip/irq-brcmstb-l2.c           | 4 +---
+>  drivers/irqchip/irq-dw-apb-ictl.c          | 4 +---
+>  drivers/irqchip/irq-econet-en751221.c      | 4 +---
+>  drivers/irqchip/irq-gic.c                  | 6 ++----
+>  drivers/irqchip/irq-goldfish-pic.c         | 4 +---
+>  drivers/irqchip/irq-idt3243x.c             | 4 +---
+>  drivers/irqchip/irq-imx-intmux.c           | 4 +---
+>  drivers/irqchip/irq-imx-irqsteer.c         | 7 ++-----
+>  drivers/irqchip/irq-imx-mu-msi.c           | 3 +--
+>  drivers/irqchip/irq-ingenic-tcu.c          | 4 +---
+>  drivers/irqchip/irq-lan966x-oic.c          | 3 +--
+>  drivers/irqchip/irq-loongarch-avec.c       | 4 +---
+>  drivers/irqchip/irq-loongson-eiointc.c     | 4 +---
+>  drivers/irqchip/irq-loongson-htpic.c       | 3 +--
+>  drivers/irqchip/irq-loongson-htvec.c       | 4 +---
+>  drivers/irqchip/irq-loongson-liointc.c     | 4 +---
+>  drivers/irqchip/irq-loongson-pch-lpc.c     | 3 +--
+>  drivers/irqchip/irq-lpc32xx.c              | 4 +---
+>  drivers/irqchip/irq-ls-scfg-msi.c          | 4 +---
+>  drivers/irqchip/irq-ls1x.c                 | 4 +---
+>  drivers/irqchip/irq-mmp.c                  | 7 ++-----
+>  drivers/irqchip/irq-mscc-ocelot.c          | 4 +---
+>  drivers/irqchip/irq-mvebu-pic.c            | 4 +---
+>  drivers/irqchip/irq-mvebu-sei.c            | 4 +---
+>  drivers/irqchip/irq-pruss-intc.c           | 4 +---
+>  drivers/irqchip/irq-realtek-rtl.c          | 7 ++-----
+>  drivers/irqchip/irq-riscv-aplic-direct.c   | 4 +---
+>  drivers/irqchip/irq-riscv-imsic-early.c    | 4 +---
+>  drivers/irqchip/irq-sifive-plic.c          | 8 ++------
+>  drivers/irqchip/irq-sp7021-intc.c          | 4 +---
+>  drivers/irqchip/irq-starfive-jhb100-intc.c | 4 +---
+>  drivers/irqchip/irq-stm32-exti.c           | 4 +---
 
-The i2c_del_adapter() tries to removed the i2c adapter related to the
-i2c controller device and the wait_completion() is waiting for the i2c
-adapter device release. This release is performed when the device is no
-more used (i.e. refcount reaches zero).
+>  drivers/irqchip/irq-sunxi-nmi.c            | 3 +--
 
-When an i2c ATR is involved in an i2c path, the struct dev topology is
-the following:
-
-    +----------------+                   +-------------------+
-    | i2c controller |       atr->parent |   deserializer    |
-    |     device     |      +----------- |      device       |
-    |   (supplier)   |      |            |    (atr->dev)     |
-    |       ^        |      |            +-------------------+
-    |       |        |      |
-    |  dev's parent  |      |            +-------------------+
-    |       |        |      |            |    serializer     |
-    |   i2c adapter <-------+            |      device       |
-    |     device    <------------------- |  (desc->parent)   |
-    |   (no driver)  |      i2c client   |        ^          |
-    +----------------+                   |        |          |
-                                         |   dev's parent    |
-                                         |        |          |
-                                         | i2c adapter chanX |
-                                         |     device        |
-                                         |   (no driver)     |
-                                         +-------------------+
-
-When an i2c ATR channel adapter is created, a reference is taken to its
-adapter dev's parent. This parent is the device owning the channel
-adapter (desc->parent), not necessarily atr->dev.
-
-No relationship exists between the device owning the ATR channel adapter
-and the i2c controller device (physical device) in order to have that
-device calling i2c_del_adapter() to remove its downstream adapters and
-so, release references taken to the upstream adapter.
-
-This consumer/supplier relationship is typically a devlink relationship.
-
-Also, i2c ATRs can be chained and so, the upstream adapter can be
-supplied by either an i2c controller device or an other i2c ATR or mux
-device.
-
-In order to get the physical device of the adapter an ATR is connected
-to, rely on the newly introduced i2c_adapter_get_physdev() and create
-the missing devlink between the device owning the ATR channel adapter
-(desc->parent) and the physical device of the adapter the ATR is
-connected to.
-
-With that done, the device owning the ATR channel adapter is removed
-before the device handling the upstream i2c adapter (i2c controller
-device or i2c mux/ATR device). All references are released and the
-i2c_del_adapter() call performed by driver handling the upstream adapter
-device is not blocking anymore.
-
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
----
- drivers/i2c/i2c-atr.c | 46 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
-
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index 7c599d2d09c4..5bc7e31ba998 100644
---- a/drivers/i2c/i2c-atr.c
-+++ b/drivers/i2c/i2c-atr.c
-@@ -788,9 +788,12 @@ int i2c_atr_add_adapter(struct i2c_atr *atr, struct i2c_atr_adap_desc *desc)
- 	struct fwnode_handle *bus_handle = desc->bus_handle;
- 	struct i2c_adapter *parent = atr->parent;
- 	char symlink_name[ATR_MAX_SYMLINK_LEN];
-+	struct device *parent_physdev;
- 	struct device *dev = atr->dev;
- 	u32 chan_id = desc->chan_id;
- 	struct i2c_atr_chan *chan;
-+	struct i2c_client *client;
-+	struct device_link *dl;
- 	int ret, idx;
- 
- 	if (chan_id >= atr->max_adapters) {
-@@ -864,6 +867,49 @@ int i2c_atr_add_adapter(struct i2c_atr *atr, struct i2c_atr_adap_desc *desc)
- 		chan->alias_pool = atr->alias_pool;
- 	}
- 
-+	/*
-+	 * There is no relationship set between the device registering the ATR
-+	 * channel adapter and the physical device handling the parent adapter.
-+	 * Create this missing relationship so that the consumer device (the one
-+	 * owning the ATR channel adapter) and the downstream adapters attached
-+	 * to it are removed before the supplier (the physical device handling
-+	 * the ATR upstream adapter).
-+	 */
-+	parent_physdev = i2c_get_adapter_physdev(parent);
-+	client = i2c_verify_client(desc->parent);
-+	if (!parent_physdev) {
-+		dev_warn(dev,
-+			 "no physical device for the parent adapter, skip device link\n");
-+	} else if (parent_physdev == desc->parent) {
-+		/*
-+		 * The parent physical device is the parent adapter itself
-+		 * itself. Skip the device link
-+		 */
-+		put_device(parent_physdev);
-+	} else if (client && client->adapter == parent) {
-+		/*
-+		 * The device owning this ATR channel adapter is an I2C
-+		 * client on the parent adapter. i2c_del_adapter(parent)
-+		 * will unregister it and remove the channel adapters it
-+		 * owns before waiting for the parent adapter to be
-+		 * released. No device link is needed, and adding one
-+		 * would make the driver core unbind it before the parent
-+		 * physical device's .remove() callback.
-+		 */
-+		put_device(parent_physdev);
-+	} else {
-+		dl = device_link_add(desc->parent, parent_physdev,
-+				     DL_FLAG_AUTOREMOVE_CONSUMER);
-+		if (!dl) {
-+			dev_err(dev, "failed to create device link to %s\n",
-+				dev_name(parent_physdev));
-+			put_device(parent_physdev);
-+			ret = -EINVAL;
-+			goto err_free_alias_pool;
-+		}
-+		put_device(parent_physdev);
-+	}
-+
- 	atr->adapter[chan_id] = &chan->adap;
- 
- 	ret = i2c_add_adapter(&chan->adap);
--- 
-2.56.0
-
+Acked-by: Chen-Yu Tsai <wens@kernel.org> # sunxi-nmi
