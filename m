@@ -1,59 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=141.14.17.11
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795098792;
-	b=S+zWX9qcuNPjTqoPFFuliUho97UTE63ICHv/lsCdkaR4fLvYuiQHBsRX1H+/t38MQMQC
-	 jRLA7yZ17j9qcwNZxmdOv4EjCFZxC2JWKo55aMScUckHm9ytWoW5Fz2uuwR6NVFevnMAe
-	 GyJ4oMIBIp7ffQdmdzI/UL74i9npan5f9w4crsYOlmfjhvE+CBqgaBOiYdC2zsHSZCpSO
-	 HB/u2OTBWU9D+AqRr968m/AThDX2156SzIpjdM4KQ3BoqF3h7dK/Ip11s32UFdAYwSlZe
-	 1EtgkekNrsz6viqX1YV3rwsVxK4jyvUCNydBnTvR7myduXxx2tXjvHVKWvSg0D22V5w==
+	t=1795104188;
+	b=StAKRsouO2YlH/sPYHqKt5VvDtA7/EVDKvZwhjWYwu0XbPaIHel09bMb0+3FgwuG0vOo
+	 EPsKO2FAC6IKCiM39cCdIctjGoRaxV7N+uB75Sk5zVrilaD/lmUUEXDJK1ej25F+ROfvN
+	 2y/0ox8RpkrMMxqTvm2xUNi1uE3Bpl45MW+xiUWohxGETgVKaXIRj6Xjo2GtI10Q8psed
+	 WrGfE1AgEEppLcZbWdl9XHj8szh9ow6ttTXbLi53S2EJDB886ey9HKjMzzSPOOuRShuj2
+	 I17FNOvfcF8mHhzeLPVhjrNGBfumpJj8rUR648asz1272Grm7y1bqKroEdhYcAspLPQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795098792;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:DKIM-Signature;
-	bh=8P9Uj6WkP9gTrQOhvS5In3IHrSdQLFFO/QDLraiTJ6Y=;
-	b=RBwO4/20BjuaBv3SRUG/FC3+uAuEasC40NXdBWslSbTi9BEzm7HdZZ2AXYkHfyhjAlw/
-	 xgF1rCp+m3H/9V7P2IZjKbCyp1e6xTyUve1pYHNa9LiX4OEM7a7gpU+1rKIINWQ2IVfLT
-	 c2K8ajiAQ1B/vc8G1G/MjCpYKisLZLMAy99IuiMEreWS1QmA2+cN1zk8u3ENfAigy/96D
-	 EfL/GLwWcg6UCqUM0izdTRACgauaftR8HLAmBPaoMTftpX/VqvCjEaGiv2ectCj5cazuE
-	 mS5BkxxqN+St98U3ZntH8fkgITwQSHs4nTrfhb007j8vAOfar078fITcd19kxJ33HwQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795104188;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:
+	 In-Reply-To:References:Subject:Message-Id:Date:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-Mailer;
+	bh=4zi2JWHeWfDfX39NlxX3oX9HxXWlhyFS95IVW8A7s5g=;
+	b=tbnEo19vYvGIH4nFbojHi+IdMuUGJ+eUu27kLhI0ZfSADieu/hajuavxgplKE0rUAwcf
+	 D1LzZeUrEBQDvURh8vRQ8RqoagNBb4Wm7iYM+/vlMb8IJl+29r2bnPhC3/5/Vton0Jz8E
+	 8ledknDJzjIj286hAq4rUNqEP6Hrw2DQsYxI1f47DLhopjMPZpD5C1P2EAmohd9NxEcG5
+	 rzuTXI5m4oo/DWRYhbX++AJffD94NWY1dsKF9gc2WToX3QKUV57U5584vDA3Fiiu9c1a9
+	 WNag2/xLIdH0Jpkft//EWCn3AUr00YiPc0xRFbIz7zYZm2O4K8brflRhN0jtYKKqu3Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=molgen.mpg.de;
-	spf=pass smtp.mailfrom=molgen.mpg.de;
-	dkim=pass header.d=molgen.mpg.de header.i=@molgen.mpg.de header.a=rsa-sha256 header.s=20260906 header.b=iKsyc8x2;
-	arc=none smtp.remote-ip=141.14.17.11
-Received: from mx3.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=N5giJBrI;
+	arc=none smtp.remote-ip=192.198.163.13
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AF5606A334;
-	Thu, 19 Nov 2026 14:33:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 85AF5606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=molgen.mpg.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=molgen.mpg.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C8C8606A325;
+	Thu, 19 Nov 2026 16:03:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C8C8606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=molgen.mpg.de header.i=@molgen.mpg.de header.a=rsa-sha256 header.s=20260906 header.b=iKsyc8x2
-Received: from abreu.molgen.mpg.de (g42.guest.molgen.mpg.de [141.14.220.42])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: pmenzel)
-	by mx.molgen.mpg.de (Postfix) with ESMTPSA id B2D5A4C2F3FFBE;
-	Thu, 19 Nov 2026 15:32:31 +0100 (CET)
-From: Paul Menzel <pmenzel@molgen.mpg.de>
-To: Mika Westerberg <westeri@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	"fangzhong.zhou" <myth5@myth5.com>
-Cc: Hans de Goede <johannes.goede@oss.qualcomm.com>,
-	Dell.Client.Kernel@dell.com,
-	Paul Menzel <pmenzel@molgen.mpg.de>,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: acpi: Limit DLL0945 100 kHz quirk to Dell Precision 5560 and XPS 15 9510
-Date: Thu, 19 Nov 2026 15:32:16 +0100
-Message-ID: <20261119143218.586632-2-pmenzel@molgen.mpg.de>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=N5giJBrI
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795104188; x=1826640188;
+  h=from:to:cc:in-reply-to:references:subject:message-id:
+   date:mime-version:content-transfer-encoding;
+  bh=r0qzl1l2ZjBbaSVw+4tulftWf87xepvCgmvPesxSJqU=;
+  b=N5giJBrIl4oTng7dIlXEDzaIMfdioMAdVrKAJkt5tqF4XzHsWSaqgS/9
+   yxYhhgqeEs+bj7TvDjZfbgF566tM4qa9cUvHu1xytGmFameEnRxiK68in
+   1u9K0M4IHgtmj9ZTfXznwCRgakka1snTIJ5epX2sabf49MU4hlRBqmxIo
+   RXWpon2Cl0x4OFAXZ4WMuaWTP43clpK1BUGDtWHxLVyBnSSvsXsER4Rh7
+   CRFjgchoUxAxc70cyBZh1Yl4iUdoRP/9rhGH7srF2xU/U4CDJIepis5qd
+   gW3nkiAho1tgF5HbEpkb0d2VX9VsPF5HYfaQ2f7OBsf5PiuCTG0SlbeEk
+   Q==;
+X-CSE-ConnectionGUID: mno0lg49QGOicspK9uizig==
+X-CSE-MsgGUID: kzF60MdMRvqu2B5O/awMUg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11971"; a="3951233"
+X-IronPort-AV: E=Sophos;i="6.27,221,1787036400"; 
+   d="scan'208";a="3951233"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 08:02:55 -0800
+X-CSE-ConnectionGUID: jJS52iEIT6iakYqFwr1/AQ==
+X-CSE-MsgGUID: mQv+4zpvTbeL+TTVy1a05g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,221,1787036400"; 
+   d="scan'208";a="10459450"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.132])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 08:02:50 -0800
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To: Mika Westerberg <westeri@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, Corey Minyard <corey@minyard.net>, 
+ Hans de Goede <hansg@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+ openipmi-developer@lists.sourceforge.net, 
+ platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
+In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
+References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
+Subject: Re: [PATCH 0/8] i2c: convert i2c_smbus_read_block_data() users to
+ pass buffer length
+Message-Id: <179510416419.21358.12676315877277601381.b4-ty@b4>
+Date: Thu, 19 Nov 2026 18:02:44 +0200
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -63,156 +85,51 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=molgen.mpg.de; s=20260906; 
-	t=1795098752; 
-	h=from:from:subject:date:message-id:mime-version:content-type:content-transfer-encoding; 
-	bh=8P9Uj6WkP9gTrQOhvS5In3IHrSdQLFFO/QDLraiTJ6Y=; 
-	b=iKsyc8x254LdwPUEyvAmsaK/DyXj9YZ1r6LVjhm8HW889bQYl6o/CfDxuyxKznyEPuZ3aGy5BXhQ
-	S7ErQguuWVWRZzhqql0myre/055dG1Uv/wk6sJ54El4tfwzPoNyHqkPLyYUxAdsF0SbZYKg5TgrnZq
-	OSirMikb7Rj2XhxE9SSz7OqrdDb9C+5KoTxtcd+s35WZ1CjjOTI/AG/odcqjYqqlNjZdcDjfW9xIUB
-	GwIntWy5zjrP12Qg8SuzoGBC4FZuqTzUzlPl69kv9hxeWV0XpRFCdlvtpixslymyiIVQNjniunQ7XU
-	8YK8fawsMbg2sM7KqssUegWya2A2QdZA==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15.2
 
-Commit 0b7c9528facd ("i2c: Force DLL0945 touchpad i2c freq to 100khz")
-forces the I2C bus to 100 kHz for all devices with the ACPI ID DLL0945 to
-work around a sluggish cursor on the Dell Precision 5560. But DLL0945 does
-not identify a touchpad model. Dell uses it for touchpads from different
-vendors:
+On Sat, 24 Oct 2026 19:48:40 -0700, Dmitry Torokhov wrote:
 
-    System                Touchpad
-    Dell Precision 5560   ELAN 04F3:311C
-    Dell XPS 15 9510      ELAN 04F3:311C (bugzilla #214597)
-    Dell XPS 13 9310      Synaptics 06CB:CDE6
+> Convert callers of i2c_smbus_read_block_data() across input, ACPI,
+> IPMI, platform, and power supply drivers to pass destination buffer
+> sizes, adopting the 4-argument form introduced in commit 68f382641f8c
+> ("i2c: smbus: make i2c_smbus_read_block_data() safer").
+> 
+> Because the prerequisite commit 68f382641f8c is in mainline now,
+> subsystem maintainers are encouraged to pick up their respective
+> patches directly into their trees.
+> 
+> [...]
 
-The ELAN touchpads are the ones known to need 100 kHz, but the Synaptics
-touchpad of the Dell XPS 13 9310 is slowed down without need. Its DSDT
-specifies 400 kHz, and Linux logs:
+Thank you for your contribution, it has been applied to my local
+review-ilpo-next branch. Note it will show up in the public
+platform-drivers-x86/review-ilpo-next branch only once I've pushed my
+local branch there, which might take a while.
 
-    i2c_designware i2c_designware.0: [Firmware Bug]: DSDT uses known not-working I2C bus speed 400000, forcing it to 100000
+FYI [if applicable to your patch], as per Linus' policy change, also
+fixes are mostly routed through for-next unless the fix is for a
+commit introduced in the most recent cycle or is clearly a regression
+fix.
 
-The touchpad scans every 7.1 ms (scan time field in the input report), and
-i2c-hid reads wMaxInputLength (64 bytes) for each report. Tracing the I2C
-transfers for 30 seconds of moving a finger on the touchpad shows:
+The list of commits applied:
+[1/8] i2c: acpi: use 4-argument i2c_smbus_read_block_data()
+      (no commit info)
+[2/8] i2c: docs: update i2c_smbus_read_block_data() prototype in writing-clients
+      (no commit info)
+[3/8] Input: cyapa - use 4-argument i2c_smbus_read_block_data()
+      (no commit info)
+[4/8] Input: elan_i2c - use 4-argument i2c_smbus_read_block_data()
+      (no commit info)
+[5/8] Input: synaptics-rmi4 - use 4-argument i2c_smbus_read_block_data()
+      (no commit info)
+[6/8] ipmi: ssif: use 4-argument i2c_smbus_read_block_data()
+      (no commit info)
+[7/8] platform/x86: x86-android-tablets: use 4-argument i2c_smbus_read_block_data()
+      commit: 2a1d56a31ce503ee12bcf6d76bde99f2aab7c7d6
+[8/8] power: supply: sbs-battery: use 4-argument i2c_smbus_read_block_data()
+      (no commit info)
 
-                             100 kHz   400 kHz
-    read time (median)        7.3 ms    2.5 ms
-    bus busy                   87 %      36 %
-    reports per second          111       140
-    frames lost                18.6 %     0 %
-
-At 100 kHz the host cannot keep up with the touchpad, and every fifth frame
-is lost. At 400 kHz all frames arrive, and no sluggish cursor was noticed.
-
-So, only apply the DLL0945 entry on the Dell Precision 5560 and XPS 15 9510
-by pointing the entry's driver_data to a DMI table, which can be used to
-restrict other entries in the same way.
-
-Tested on the Dell XPS 13 9310.
-
-- The `[Firmware Bug] … forcing it to 100000` line is gone from dmesg.
-- Re-probed the touchpad’s I²C controller with debug output on, and it
-  reports `Bus speed: Fast Mode (400 kHz)`. The touchpad came back up
-  under hid-multitouch.
-
-Fixes: 0b7c9528facd ("i2c: Force DLL0945 touchpad i2c freq to 100khz")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214597
-Cc: Hans de Goede <johannes.goede@oss.qualcomm.com>
-Cc: Dell.Client.Kernel@dell.com
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
----
-
-Notes:
-    Based on andi/i2c/i2c-next (9c19b1c07854) with Mika Westerberg's
-    "[PATCH v2] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz"
-    <20261118073607.297350-1-mika.westerberg@linux.intel.com> applied, as
-    both change the same table.
-
-    https://lore.kernel.org/linux-i2c/20261118073607.297350-1-mika.westerberg@linux.intel.com/
-
-
-    Claude Opus 5.5 (Claude Code) helped analyze the I2C traces, write the
-    code and draft the commit message.
-
- drivers/i2c/i2c-core-acpi.c | 36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 64fdf8ffb5ffe..8feb3cb205fdd 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -7,6 +7,7 @@
- 
- #include <linux/acpi.h>
- #include <linux/device.h>
-+#include <linux/dmi.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/list.h>
-@@ -356,6 +357,31 @@ static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
- 	{ }
- };
- 
-+/*
-+ * Dell uses DLL0945 for touchpads from different vendors. The ELAN 04F3:311C
-+ * touchpad of these systems needs 100 kHz, but for example the Synaptics
-+ * 06CB:CDE6 touchpad of the Dell XPS 13 9310 works fine at 400 kHz.
-+ */
-+static const struct dmi_system_id i2c_acpi_dll0945_dmi_ids[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Precision 5560"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 15 9510"),
-+		},
-+	},
-+	{ }
-+};
-+
-+/*
-+ * If driver_data is set, it points to a DMI table, and the entry only applies
-+ * to the systems in that table.
-+ */
- static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
- 	/*
- 	 * When a 400KHz freq is used on this model of ELAN touchpad in Linux,
-@@ -373,7 +399,10 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
- 	 */
- 	{ .id = "ASUE140D" },
- 	{ .id = "DELL0A86" },
--	{ .id = "DLL0945" },
-+	{
-+		.id = "DLL0945",
-+		.driver_data = (kernel_ulong_t)i2c_acpi_dll0945_dmi_ids,
-+	},
- 	{ .id = "ELAN0678" },
- 	{ .id = "ELAN06FA" },
- 	{ .id = "ELAN1300" },
-@@ -391,6 +420,7 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
- {
- 	struct i2c_acpi_lookup *lookup = data;
- 	struct acpi_device *adev = acpi_fetch_acpi_dev(handle);
-+	const struct acpi_device_id *id;
- 
- 	if (!adev || i2c_acpi_do_lookup(adev, lookup))
- 		return AE_OK;
-@@ -404,7 +434,9 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
- 	if (acpi_match_device_ids(adev, i2c_acpi_force_400khz_device_ids) == 0)
- 		lookup->force_speed = I2C_MAX_FAST_MODE_FREQ;
- 
--	if (acpi_match_device_ids(adev, i2c_acpi_force_100khz_device_ids) == 0)
-+	id = acpi_match_acpi_device(i2c_acpi_force_100khz_device_ids, adev);
-+	if (id && (!id->driver_data ||
-+		   dmi_check_system((const struct dmi_system_id *)id->driver_data)))
- 		lookup->force_speed = I2C_MAX_STANDARD_MODE_FREQ;
- 
- 	return AE_OK;
--- 
-2.54.0
+--
+ i.
 
