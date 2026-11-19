@@ -1,97 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.228.138
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795080899;
-	b=ENe+1njeZZfXdEWJA6XYhF3nbgm4oYPekNX/mL0lbeGRkwR1e9mk4gUp0gqfJu0rtX+G
-	 yeI5Ou1FH7PcnwpOTyEFpyOMdjb3+3lTQx+5O9h/GUINxYNpsEhYgZBUMtcZ9hzT5lpyj
-	 BaxHbfTXCEREElxQPDcxODBpuuW3l2jTsNjjuRxqmtG6RATX9gXHmRFN3486bJ4XKoOPz
-	 qRgYp9qAFJ8gU2BfkZyVvRUvrV8nHH1rY2FkEJRID5pcekcZ5HKHFZY67lK+/sO7NtK/H
-	 2c9UTOVrGXt4lUlYhpqNpU4zQ1FB1VWBUmskyLZZv10bZcsXw/uJVb4q1VnkyX60VBA==
+	t=1795093546;
+	b=DhWe6RSsPbFutz+NH5LaClytma3LbHqhGzCmgeEsKadcRgwtOX9KaD5Ik6rLhjLHnc+m
+	 rvVJEB5hgFAyTHNHtsOVc2fZfrHb+pKrohfh7w2305a7vr0Ze6CfEv91Rf0HUL+SB84xr
+	 vnvsn7Hiy6M4dqMoBvVhJhqNTdGgQ+LTTH7QhM1zbB/mSxitOu+i+7SYZS/kKWeqhiMBX
+	 TutIfmpJbK/whBqscCe0Om8ufkFNxtAsW20gRkMs9RIio9hMougYVyslxoZr73Hdbf9j9
+	 5Mh5Ep8QdCSkvptS8BGJIuHFl6gy+Vdt/vesXr5Y0i8y3Ydsjw3wHQ5TbYbho2bX80Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795080899;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795093546;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
-	 In-Reply-To;
-	bh=BfuQOTrbBgGM1H6IV66t9dZSuCArSgWVXq1IwDlbWkM=;
-	b=A5jc5HQKQhNNi0cvy2yUu3AGaJ6jx5z5GO0qAs34PHJ7zaSVK7sjAxRJwAaaXfWj/zAA
-	 fGYb1RMW6H6CKueT4ykwH7Fc99zJVBmLL9aleMfTz8d3qfrrMYPKHWzsSUdurQnlmOYTW
-	 peN3NM0POhhMnIcKFisuSj0ARuebdW2vDzYuDs3P2ufG1S410oyrww8JOCctZUSw0k2Bo
-	 t6D37WECy8ogeuiXbZlScDKvGTK6gActp+W9ABJdOnqELDYRtCQvsSgUpkg1cregaRubH
-	 hqFxHyu2yCxXnJf27EJ7JOGdgPfhm0K0B2ZAQUNyKXJO5bGUjqRaP8My3ms2holuEQA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=DUHaQOoN9eliMKXTBs8DaDAMBqFWvPB/4qsL3rM7sCY=;
+	b=H5es81e/a6Le/Prjq66LIjVcn4CQmMgiIX9PnA9pvBRNT5auhWwxTuBhgilxs+CEiS/w
+	 U0mDAzYCg6PhgwJhpCgvKm/6RazyaEsMJcYOlaxx6eFzDPHYtbGYvM6CH++3NRCtFxTNg
+	 QFclzMVuenJFz+D40dWv5DoAEXUtFslG/4gGAYuVrKsK986V7hKDpv6jlEImQDXy1xvkJ
+	 TfGfvw24T83CC30pYIjGFyD2M3XjAHFDTGiptvc6BehXt1BfS5K2d91HZxAwgey5pFY87
+	 sUjZOJwxAppUX36Xg21kY3MJCvc9JJwmXZj4HsTcjKrJS3oFMcWWCsAMvn8iqnVTOiQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mqxw3sXJ;
-	arc=none smtp.remote-ip=74.125.228.138
-Received: from mail-ej2-f10.google.com (mail-ej2-f10.google.com [74.125.228.138])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d+P2nS2E;
+	arc=none smtp.remote-ip=209.85.128.50
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB63360A2600
-	for <linux-i2c@vger.kernel.org>; Thu, 19 Nov 2026 09:34:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB63360A2600
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0EFE606A325
+	for <linux-i2c@vger.kernel.org>; Thu, 19 Nov 2026 13:05:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A0EFE606A325
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mqxw3sXJ
-Received: by mail-ej2-f10.google.com with SMTP id a640c23a62f3a-c506defeb1eso63803866b.0
-        for <linux-i2c@vger.kernel.org>; Thu, 19 Nov 2026 01:34:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=d+P2nS2E
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4a214c5c4c0so23033145e9.3
+        for <linux-i2c@vger.kernel.org>; Thu, 19 Nov 2026 05:05:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795080897; x=1795685697; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BfuQOTrbBgGM1H6IV66t9dZSuCArSgWVXq1IwDlbWkM=;
-        b=Mqxw3sXJNtOeYUpyxS6zeblK2hzEmxEDcP8q5cgMGE0sn6TgRcI1x5niSLviXjCdP/
-         7EpdntYjEGx/fTKehBBDY8r/JFWX+xu2VbjU/sJBDEaj09siuHE9J7i230iXP5Qy4hM5
-         lH2ScX1lQV956ku9mM+rNCyQSaneTlkKTzv/Wn2YdOUqdgLq3JGGGyNCgi8E6WYphFim
-         0RoZTC2Q7Vfjh+vYBmW2OFxn6zaBjZnsE5YgoKHo71iy714h5ija9aUMttjfUgbRDcME
-         DzN/tgTNgSPR4d/sdf+tOa1ZEWJF5uJAmK89HxbAV4GQOlNgy9jeL9q9K8vhYFaJeKN0
-         31yg==
+        d=gmail.com; s=20260707; t=1795093544; x=1795698344; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=DUHaQOoN9eliMKXTBs8DaDAMBqFWvPB/4qsL3rM7sCY=;
+        b=d+P2nS2EjsY+eEi7OdOaWLHvGqCBToe6CKePpe8AIaLlkeEMMnUf76H9Z8f4+J9Ec9
+         uGkatbfy7qj0Ou5ygc7/rO4siZdrDrHNehinVgm2hUnVEPu/yzxFifWi4+Q74ziGXC/M
+         49rBEs6lJc8S8+UGnNDjlfTdJX5rz4O5Lvbtzuq78ReT4SnBowNt1gFdWVQwSBHGUCPC
+         1RRdrjtHI1cznfLQhURsP5c9e5GBNHELhbKn/k2s7CEkKKN7Unw8DAmsFS+GDfPvhBcG
+         H8iUG+31DsrqGza6a8TxMWykPivwhI64HlhqVDbrdqTU4dX8O6HBa4ZyqokhWt0ObKsy
+         3UgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795080897; x=1795685697;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=BfuQOTrbBgGM1H6IV66t9dZSuCArSgWVXq1IwDlbWkM=;
-        b=jatzsijFPsNhZRD4qzx1OwuklyJm1i7tRT2WPoD71T5F7MxRik3bH4pBnEkGDi8vD6
-         4+Yo7dAwQQTmgnJfcr/Jop+D1VlpL/92rUvnUJzpxG0o9C6TXqlp7smQNTj7sknFxpfM
-         7gDf+ub/JIwhbW6O6R9KdwAhozz895wYfulxk9IhfUoAwTGA4zWPYB6hAdZnU3Ek0Uvx
-         JgskWiwpJdaWUd8noVd0sOYdrP55FdD5IqUc5exI7DsuypFyfCiV0VRXqLKolJPPOrt4
-         RFjzHR5x9WpasJjhv5LIyVfvmjuE1/Y9askKwQcwrELwLBgPaCXl1UjYT/LfhxFQ+FKc
-         fJAA==
-X-Forwarded-Encrypted: i=1; AL+hErEu8kOn8DK+PRUa/IvgmuAjYNXWOXWx0h6QlBOHiSJGrhY+/Vx5Mas6my53hXxzYu95Bp2WOLGumBU=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+QHtkt/1dT8WXn96uDECfNxyn194UUxYx90b4SA5l38mJ0Aedh
-	FHAQQqRzVQdRVw2oujNf/oC4PwvVW89sn/8CS9u5jix8aSHYYAuUdCnJ
-X-Gm-Gg: AYBFou2vEnLk4Prc94x7XtNRDjkcCXyKowbK5ohhOy9bjWW93jY9EKvCOeecQ40DiLT
-	nnuXouucqxIfL9YfARyguXlQWc5QG7xfES4cssAxicALn3OQgH3B/EQMv2FWxVsBBGkmxlBzDFH
-	8s51EkHpe6G6BLFJBAjrLQLvUdXoOn9DxfyltY8EACRKXgVV2UGt3zJhGbneiKsJ/v30W+d9rg/
-	zl9DhwsxRvaNu/ePcivHgP2YYP3HaUYYqmASpMvGQqoHA0tgV+UWKAZo6S98HhRAAk8wynT8i8j
-	IIWg/JwZVCLVQP0xCxbE1N7XfYLGlA0giWihbtoc3wPRYUzy5mP9P6vQmHUrqz2F6r1YZA4S18K
-	I/9KmlIfYhlfF4L2K6WO/pFkRQm+B8wU6fXi4ctwpquLFJPmqKXU7wPyuy7hyldZHfS/+ksjNfv
-	a5rmli/NVReAcS0KenqQm8U0zI9cmg7yPDF6WlQ6D2PWtXDGll/pv9O1omXOa+prfg4po0Fr+GA
-	ZgmpfHoKQQCcLUBgcUztyvQwrP0G1unAATW5SL6aXKHTpW0sP3Dpz3HeRv80CK0eAbmiMsUmvAv
-	sWM3eyuQrkZykt4PlbTbOppkBZl11T+VUch/sqYT2ZHQKC5jFClG5wMMgaF4U4vQPSeFXw0ak8O
-	2UF2FWqnXVrG1CfzJ3jmsKv0yK26T+CGJYC5bXgv7Wa9uVeIwdhq3/JC3
-X-Received: by 2002:a17:907:6d13:b0:c3f:7e8:235d with SMTP id a640c23a62f3a-c510dec35a4mr480605066b.5.1795080897118;
-        Thu, 19 Nov 2026 01:34:57 -0800 (PST)
-Received: from thi-server.fritz.box (dslb-092-076-089-226.092.076.pools.vodafone-ip.de. [92.76.89.226])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5122e68675sm93767366b.0.2026.11.19.01.34.56
+        d=1e100.net; s=20260707; t=1795093544; x=1795698344;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=DUHaQOoN9eliMKXTBs8DaDAMBqFWvPB/4qsL3rM7sCY=;
+        b=bvN8ZmVpL2nEucYr5zoXb4m9vtAjBWbtAHD7ckPxDoox/uye6UiUdbSeM6OJhKuy6w
+         xY92XRoB3ygOzXbIU9hNqExfQ9ouW2Uw7nrT5iNxAMrlfRWVGkkN0M1wBxOILc6eAROU
+         q9qwzhBI7QZzQWiisIsPkr6jcRbMOBERBwAk0oFcTKDrYLe6v88l8NipT/pGzrfojqDI
+         ptcX9qQdq5GD9kTBNxp8Cv+T/yuG8tWmhYVJ+mVYwQYhIjQHhQj2YOE5jaRaqy6HJGKJ
+         sqTCdh5Ju/RwXGTd+OPZaxhN6xL0vHjuMIxjujufVgUnm7jiqLfDK+LP/9FXwHWXljca
+         inYw==
+X-Forwarded-Encrypted: i=1; AL+hErGC5Avtv/zdMJN4eYay1DBaDDDYOh99mhwPxBGEcoWOkReVv9uId8R6MZfdbnjeE/K4sc+RfJN1jRE=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+0ZoN0/FLIm2D1TBtAg+292SO6S5uKNVp9hqAmnlXWs03XUOTj
+	1MBpXvkFRsat3YPMrLI36YCRJnqBxCycJHD4P6GxbKhlQxpWlXO1ZaHp
+X-Gm-Gg: AYBFou1MRyj6bUpAMsACJ6kaCXggMz1meyC837ACZhcOkRvYIRNm+UvpCwbrx3+3y6n
+	ty5vj89b9WbdugAhebTgsuD2iHqXSEWvbxHXSv+cW7e1eT45SuPGsjDeAJzwpeZ8jzT6ZCww+U9
+	Oruie8VMPSQvj8WUMK1PPnyEt4A8A49rnXLSCUZh3zQHdysZs3dvQSKicjBdvSPCD8i198rkx/2
+	C0P+ualOFXuvdNVPj/8dAYC+Bp8PvyzhMCWbOZyc5VT8jhXcwxCe1vZnLDwjy/mNZJdN08UXYXo
+	IPes3+c22/lNYrL8VxnCsNMXVJXsY/GF8FucIY1PV2IiNuY8y/u9hF2RbNg9oP72MtOdJ/Fhlyx
+	ArDWhhSqrlCe+VMJDWkfx2ZNxQ2i4243zBv6ui7JzAEeJmXHDXgEMuaCk2gihF5HZVO0FOX4z/M
+	QfSLeX32QmCrey+RTK8GGcELgw7LiytDlZdvH29j2qnRh8n9cuVJS3uMV7UikQ/FUIaM7oedZQ7
+	PcofpSJT2gThPdBF/0u0mcjb27+0C77eCXIZPoYP5m98HE6R3RvY1WEZH9JXlyY9QQP3RrbEaJ2
+	ALgdN5102R17NPl/mkVR4Bz9xQEMsVmiFYM=
+X-Received: by 2002:a05:600c:4e44:b0:4a1:fba8:b13d with SMTP id 5b1f17b1804b1-4bb7da12957mr112752995e9.9.1795093543797;
+        Thu, 19 Nov 2026 05:05:43 -0800 (PST)
+Received: from deb05.proceq.com ([213.160.61.66])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb8538b3a7sm42546305e9.3.2026.11.19.05.05.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2026 01:34:56 -0800 (PST)
-Date: Thu, 19 Nov 2026 10:34:54 +0100
-From: Thilo Zirnstein <thi.zirnstein@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: michal.simek@amd.com, linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
-Subject: Re: [PATCH v4 1/2] i2c: i2c-xiic: fix clearing of bnb irq
-Message-ID: <av7CvgS20rBjsJHx@thi-server.fritz.box>
-References: <20261118101147.3350796-1-thi.zirnstein@gmail.com>
- <20261118101147.3350796-2-thi.zirnstein@gmail.com>
- <av2jSyTFI1VoyGSU@zenone.zhora.eu>
+        Thu, 19 Nov 2026 05:05:43 -0800 (PST)
+From: Mehmet Fide <mehmet.fide@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
+	Stefan Eichenberger <eichest@gmail.com>,
+	linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	mehmet.fide@screeningeagle.com
+Subject: [PATCH v2] i2c: imx: do not acknowledge the last byte of a block read of one byte
+Date: Thu, 19 Nov 2026 14:05:42 +0100
+Message-ID: <20261119130542.180192-1-mehmet.fide@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -101,53 +105,66 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <av2jSyTFI1VoyGSU@zenone.zhora.eu>
 
-On Wed, Nov 18, 2026 at 02:22:18PM +0100, Andi Shyti wrote:
+From: Mehmet Fide <mehmet.fide@screeningeagle.com>
 
-Hi Andi, 
+In the interrupt driven read, the read of I2DR that takes the count byte
+of an SMBus block read starts the reception of the next byte. With a
+count of 1 and no PEC that byte is the last one, but I2CR_TXAK is only
+set in i2c_imx_isr_read_continue() for the byte after it, so the last
+byte is acknowledged and the target goes on sending. The read fails with
+-ETIMEDOUT, the bus stays busy and the following transfers on it fail
+too.
 
-Thank you for your review and feedback
+Set I2CR_TXAK after taking the count when the message is then two bytes
+long, as the read before the interrupt driven state machine did and the
+atomic read still does.
 
-> Hi Thilo,
-> 
-> ...
-> 
-> > +	ret = read_poll_timeout_atomic(xiic_getreg8, sr,
-> > +			sr & XIIC_SR_BUS_BUSY_MASK, 0, XIIC_BB_TIMEOUT_US, 0,
-> > +			i2c, XIIC_SR_REG_OFFSET);
-> 
-> this is a bit of an overkill: you are forcing tight loops for
-> 1ms. If you consider that the minimum wait is 1ns, in 1ms you
-> will end up busy looping a lot of time. Please, don't set the
-> delay_us to '0', but calculate a proper waiting time between
-> reads.
-> 
+Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
+Cc: stable@vger.kernel.org # v6.13+
+Signed-off-by: Mehmet Fide <mehmet.fide@screeningeagle.com>
+---
 
-I also had doubts about whether this approach is too heavy. 
-I have general concerns about the busy-waiting in atomic context
-in this patches, though I noticed other I2C adapters wait 
-for relatively long periods there as well. 
-The tight loops in patch 2/2 are even longer.
-Those waits are longer because the code waits for the entire I2C transfer 
-to finish, but polling is unavoidable there since sleeping or scheduling 
-deferred work is not possible in atomic context—is that right?
-So this kind of builtin if doing i2c transfer in atomic context ?
+Notes:
+    Changes in v2:
+    - Test the length of the message instead of the count, so that with PEC
+      the data byte is acknowledged and the PEC byte is not (Sashiko).
+    v1: https://lore.kernel.org/r/20261116124430.1358948-1-mehmet.fide@gmail.com/
+    
+    Tested on a Colibri VF50 on the Iris carrier, kernel at this base plus
+    "i2c: imx: acknowledge the count byte of an atomic block read" and
+    "i2c: imx: keep the error of a failed read", with the M41T0 RTC at 0x68.
+    A test-only hook passed the messages that i2c_smbus_xfer_emulated()
+    builds for a block read to the adapter, alone and followed by a one byte
+    read, with the read message starting at a length of 1 or, as with PEC,
+    2. Register 0x05 (0x01) as count byte on the interrupt driven read: v1
+    read 0xff in the PEC position (40 of 40); v2 reads 01 01, and 01 01 00
+    with the PEC length (250 of 250). Count bytes of 0, 0x13 and 0xae read
+    as before.
 
-I will reduce the maximum poll timeout to 4 µs, 
-which matches the minimum I2C START condition hold time 
-in standard mode and seems reasonable.
+ drivers/i2c/busses/i2c-imx.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I will also increase delay_us. Out of curiosity, 
-what is the reasoning behind the delay interval? 
-I assume we want to avoid hammering shared buses
- or registers with continuous I/O reads.
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index ccf08cd63151..eabadeb47e2e 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1095,6 +1095,12 @@ static inline void i2c_imx_isr_read_block_data_len(struct imx_i2c_struct *i2c_im
+ 	}
+ 	i2c_imx->msg->len += len;
+ 	i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = len;
++
++	if (i2c_imx->msg->len == 2) {
++		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		temp |= I2CR_TXAK;
++		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
++	}
+ }
+ 
+ static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx, unsigned int status)
 
-> Andi
+base-commit: 25e7ab89f4774b0f842cee0e8a20c11f755924d5
+-- 
+2.56.0
 
-kind regards,
-
-Thilo
