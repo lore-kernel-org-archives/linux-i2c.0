@@ -1,72 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.62.57.137
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.228.138
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795059512;
-	b=Wc5fZvPW/9wEXR73gdinVviTxToEk0nJhxxyCyO931fMWssSa9vmc9pNtSQ0ioQQudtn
-	 MVDzCFx10E4ChBOkaxEY+pa8zhsnoW+/dai+JqNqiirCe1pC1/MI0XGiTHFhtm3xY/C/x
-	 gbI5ECZ1EUNvZPSBgmX2uNe5PkqWo5pWBxEzeeWcUIkCXHddk6msYTmrX2xnNzOuHW08b
-	 g+BCNEU5gyitVR7Mh1k9YvjHe9PgO91nqaaxS4ISNe+AXazq+H5FJmt7+tk2hHtgupj+U
-	 EmJPKjfZwkduuVSXL9tveR5ohbIuIU+Q7UJPO6r2olALdiBqpchxLWGo1EDcrLzrUJw==
+	t=1795080899;
+	b=ENe+1njeZZfXdEWJA6XYhF3nbgm4oYPekNX/mL0lbeGRkwR1e9mk4gUp0gqfJu0rtX+G
+	 yeI5Ou1FH7PcnwpOTyEFpyOMdjb3+3lTQx+5O9h/GUINxYNpsEhYgZBUMtcZ9hzT5lpyj
+	 BaxHbfTXCEREElxQPDcxODBpuuW3l2jTsNjjuRxqmtG6RATX9gXHmRFN3486bJ4XKoOPz
+	 qRgYp9qAFJ8gU2BfkZyVvRUvrV8nHH1rY2FkEJRID5pcekcZ5HKHFZY67lK+/sO7NtK/H
+	 2c9UTOVrGXt4lUlYhpqNpU4zQ1FB1VWBUmskyLZZv10bZcsXw/uJVb4q1VnkyX60VBA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795059512;
-	h=DMARC-Filter:DKIM-Signature:Received:X-QQ-mid:Message-ID:
-	 X-QQ-XMAILINFO:X-QQ-XMRINFO:From:To:Cc:Subject:Date:X-OQ-MSGID:
-	 Content-Type:Content-Transfer-Encoding:MIME-Version;
-	bh=BtYxiulsOyBJY1EU8iKU+3EwpnQFt8VhmayMvVzThrs=;
-	b=ymoqSRDe091ZCVEBmxPgs0T0QcvTplRnq96GKZlRGuCnuxup5g2EHMrjV+Aw0CuC7Kfi
-	 ZSTPbaT37ErpNL/MdTqkUuVroRcnRJPwyI+sZK26dHlXXjGNjBBeKB44rRqKRAmKpZHjz
-	 TehZuzg6jYeM3mzKSMSPd7Gt9vU0XXH4CEZt1JD/X6gKECwi9L3den1f218Zbs5rirMWW
-	 +rcmtdtu7vxk84KUJs+6fjUzWg+FjE+CPAnnAmlazccPNNq7zrWBQddlEDkEaMBHy0hZ4
-	 Mh3jGA26+X8V3P5oBxFCMaVleC77TzRIHNBVyVVQnzp68wSyp51pW0OjYPIYx6oyJoA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795080899;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
+	 In-Reply-To;
+	bh=BfuQOTrbBgGM1H6IV66t9dZSuCArSgWVXq1IwDlbWkM=;
+	b=A5jc5HQKQhNNi0cvy2yUu3AGaJ6jx5z5GO0qAs34PHJ7zaSVK7sjAxRJwAaaXfWj/zAA
+	 fGYb1RMW6H6CKueT4ykwH7Fc99zJVBmLL9aleMfTz8d3qfrrMYPKHWzsSUdurQnlmOYTW
+	 peN3NM0POhhMnIcKFisuSj0ARuebdW2vDzYuDs3P2ufG1S410oyrww8JOCctZUSw0k2Bo
+	 t6D37WECy8ogeuiXbZlScDKvGTK6gActp+W9ABJdOnqELDYRtCQvsSgUpkg1cregaRubH
+	 hqFxHyu2yCxXnJf27EJ7JOGdgPfhm0K0B2ZAQUNyKXJO5bGUjqRaP8My3ms2holuEQA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=yosoro.hk;
-	spf=none smtp.mailfrom=yosoro.hk;
-	dkim=pass header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=lkntVOJv;
-	arc=none smtp.remote-ip=162.62.57.137
-Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mqxw3sXJ;
+	arc=none smtp.remote-ip=74.125.228.138
+Received: from mail-ej2-f10.google.com (mail-ej2-f10.google.com [74.125.228.138])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4DD4606A325;
-	Thu, 19 Nov 2026 03:38:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A4DD4606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=yosoro.hk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=yosoro.hk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB63360A2600
+	for <linux-i2c@vger.kernel.org>; Thu, 19 Nov 2026 09:34:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EB63360A2600
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=qq.com header.i=@qq.com header.a=rsa-sha256 header.s=s201512 header.b=lkntVOJv
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1795059506; bh=BtYxiulsOyBJY1EU8iKU+3EwpnQFt8VhmayMvVzThrs=;
-	h=From:To:Cc:Subject:Date;
-	b=lkntVOJv87d2Q+Z4JvvmZIPjx2yGemuABHSkqzbITrl9Pay7zRwgUXYrXtVdQEQeI
-	 8rCuutUVYrec0VNpSz/nKxEz4xh79iWPagxhg4ZBuZiTEm/F/npvVtXjus3qzWLwrg
-	 2UAeFJ3rhWIvetl2whg5HsO1s+Y5RPCcTLWEi78c=
-Received: from [192.168.123.32] ([122.191.232.200])
-	by newxmesmtplogicsvrszc50-0.qq.com (NewEsmtp) with SMTP
-	id 99822AED; Thu, 19 Nov 2026 11:38:24 +0800
-X-QQ-mid: xmsmtpt1795059504t9de8oi75
-Message-ID: <tencent_6874806C455DB42610399513A0A95083C805@qq.com>
-X-QQ-XMAILINFO: MyIG+pWbYkorB3wJ0rDaZSFQUK2xcrQ7yuNfha0Dp8ODigdgZDM4Tdlj/4S9zV
-	 8UuFyEGHn+jCqBJYI6okoGVb+QqEIWBj+mQPkzQ+0r7ko9CZBg9vC0cdIekdJf7aN8oFVKAsdd/v
-	 f+c1/kB6AHPmLJew96/3s87zJA+fx1eSfR7ZUdtpVaB9pUSJ6CefcB7BTvhb8y+6OWkBzUlEbQ+g
-	 Uzbwb6C20HGtYMSQCTp4/Q2fEXSjyi1BhEE+36OlnBHu3LHDefgxbM/Ulv4vg1vhNqT9RZQln76W
-	 pqx/MfKFjT/vmNCq8OmGDuPVCrBY2R2an464Egw/VARjewe0ftJGabeSiDsLV9JgnBasxzMRImAF
-	 DlPtm4cQJk/yOYFmSk/M4R/SI97Doh6Sb1oJZmnm6BBD83X+NZWaIOBlPllA8vm0Cl2ArS9K1eec
-	 JhCXQZP54K5xoNZKnoFmKPmiyupx2MEnDge9DhyS4pm2/Mq4Tshe2F7ygbLew7GNGNiPxedYuBfi
-	 F3FH/chmBNBoD9G2QFAg3+HTK/ept+YftNuIyB0GBjYvmrP5FKv+c0m+TnoCswoAfeAka7CPfIeW
-	 K8OuyHOowIDmYZyQlUgbE/gDvWS+RoCg1avsB1b0HS0HCwc47iynSj7+DTtHYDLbxTk32yUcZldW
-	 ffQ/l1PhS7Vj7w0K1cZmXP7YvXTN+uyJUpPxQgmvNzXH/RH3kicZZ/vjyCA6ncu9Wi6nbNsFibNX
-	 ia5J9n+1UocHAw9xxE3fBt6MUhAS2wO7uBXNcVeQvvMvxWrK3si2pUqNHCulp3muLTTP8cHNwe3A
-	 +U+QwjQ9VN7guI7B3SkuV056ClOM2a6jJQEEhXvrs/lVgpnPIFKPHmLusWNg7682Jf45yRGBGdn7
-	 /CO3D1SxTlvSWk7xdCukD1uabgC7Z3ExSj46chzj/zp0fo5Sf365dJnw6hGa6BSgAPw1OgZLQGb7
-	 9TeH/59V+PVS9qKDfnlDtTUJMtWZRCNIn94Pw8ivxYaqS3CcitlKDGNzsGVOfSJ0Tk5axSFvtIsi
-	 Uy7/4AnfhGD9ldqdmfOThIKcmKWHpBdLLhYuJxbrnqmdBU/jBh6VJ/M8rsCM0=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
-From: NanamiKite <nanami@yosoro.hk>
-To: Jean Delvare <jdelvare@suse.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: i801: Add support for Intel Lunar Lake-M
-Date: Thu, 19 Nov 2026 11:37:46 +0800
-X-OQ-MSGID: <179505946684.28079.3328810702757371160@yosoro.hk>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mqxw3sXJ
+Received: by mail-ej2-f10.google.com with SMTP id a640c23a62f3a-c506defeb1eso63803866b.0
+        for <linux-i2c@vger.kernel.org>; Thu, 19 Nov 2026 01:34:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795080897; x=1795685697; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=BfuQOTrbBgGM1H6IV66t9dZSuCArSgWVXq1IwDlbWkM=;
+        b=Mqxw3sXJNtOeYUpyxS6zeblK2hzEmxEDcP8q5cgMGE0sn6TgRcI1x5niSLviXjCdP/
+         7EpdntYjEGx/fTKehBBDY8r/JFWX+xu2VbjU/sJBDEaj09siuHE9J7i230iXP5Qy4hM5
+         lH2ScX1lQV956ku9mM+rNCyQSaneTlkKTzv/Wn2YdOUqdgLq3JGGGyNCgi8E6WYphFim
+         0RoZTC2Q7Vfjh+vYBmW2OFxn6zaBjZnsE5YgoKHo71iy714h5ija9aUMttjfUgbRDcME
+         DzN/tgTNgSPR4d/sdf+tOa1ZEWJF5uJAmK89HxbAV4GQOlNgy9jeL9q9K8vhYFaJeKN0
+         31yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795080897; x=1795685697;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=BfuQOTrbBgGM1H6IV66t9dZSuCArSgWVXq1IwDlbWkM=;
+        b=jatzsijFPsNhZRD4qzx1OwuklyJm1i7tRT2WPoD71T5F7MxRik3bH4pBnEkGDi8vD6
+         4+Yo7dAwQQTmgnJfcr/Jop+D1VlpL/92rUvnUJzpxG0o9C6TXqlp7smQNTj7sknFxpfM
+         7gDf+ub/JIwhbW6O6R9KdwAhozz895wYfulxk9IhfUoAwTGA4zWPYB6hAdZnU3Ek0Uvx
+         JgskWiwpJdaWUd8noVd0sOYdrP55FdD5IqUc5exI7DsuypFyfCiV0VRXqLKolJPPOrt4
+         RFjzHR5x9WpasJjhv5LIyVfvmjuE1/Y9askKwQcwrELwLBgPaCXl1UjYT/LfhxFQ+FKc
+         fJAA==
+X-Forwarded-Encrypted: i=1; AL+hErEu8kOn8DK+PRUa/IvgmuAjYNXWOXWx0h6QlBOHiSJGrhY+/Vx5Mas6my53hXxzYu95Bp2WOLGumBU=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+QHtkt/1dT8WXn96uDECfNxyn194UUxYx90b4SA5l38mJ0Aedh
+	FHAQQqRzVQdRVw2oujNf/oC4PwvVW89sn/8CS9u5jix8aSHYYAuUdCnJ
+X-Gm-Gg: AYBFou2vEnLk4Prc94x7XtNRDjkcCXyKowbK5ohhOy9bjWW93jY9EKvCOeecQ40DiLT
+	nnuXouucqxIfL9YfARyguXlQWc5QG7xfES4cssAxicALn3OQgH3B/EQMv2FWxVsBBGkmxlBzDFH
+	8s51EkHpe6G6BLFJBAjrLQLvUdXoOn9DxfyltY8EACRKXgVV2UGt3zJhGbneiKsJ/v30W+d9rg/
+	zl9DhwsxRvaNu/ePcivHgP2YYP3HaUYYqmASpMvGQqoHA0tgV+UWKAZo6S98HhRAAk8wynT8i8j
+	IIWg/JwZVCLVQP0xCxbE1N7XfYLGlA0giWihbtoc3wPRYUzy5mP9P6vQmHUrqz2F6r1YZA4S18K
+	I/9KmlIfYhlfF4L2K6WO/pFkRQm+B8wU6fXi4ctwpquLFJPmqKXU7wPyuy7hyldZHfS/+ksjNfv
+	a5rmli/NVReAcS0KenqQm8U0zI9cmg7yPDF6WlQ6D2PWtXDGll/pv9O1omXOa+prfg4po0Fr+GA
+	ZgmpfHoKQQCcLUBgcUztyvQwrP0G1unAATW5SL6aXKHTpW0sP3Dpz3HeRv80CK0eAbmiMsUmvAv
+	sWM3eyuQrkZykt4PlbTbOppkBZl11T+VUch/sqYT2ZHQKC5jFClG5wMMgaF4U4vQPSeFXw0ak8O
+	2UF2FWqnXVrG1CfzJ3jmsKv0yK26T+CGJYC5bXgv7Wa9uVeIwdhq3/JC3
+X-Received: by 2002:a17:907:6d13:b0:c3f:7e8:235d with SMTP id a640c23a62f3a-c510dec35a4mr480605066b.5.1795080897118;
+        Thu, 19 Nov 2026 01:34:57 -0800 (PST)
+Received: from thi-server.fritz.box (dslb-092-076-089-226.092.076.pools.vodafone-ip.de. [92.76.89.226])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5122e68675sm93767366b.0.2026.11.19.01.34.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Nov 2026 01:34:56 -0800 (PST)
+Date: Thu, 19 Nov 2026 10:34:54 +0100
+From: Thilo Zirnstein <thi.zirnstein@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: michal.simek@amd.com, linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
+Subject: Re: [PATCH v4 1/2] i2c: i2c-xiic: fix clearing of bnb irq
+Message-ID: <av7CvgS20rBjsJHx@thi-server.fritz.box>
+References: <20261118101147.3350796-1-thi.zirnstein@gmail.com>
+ <20261118101147.3350796-2-thi.zirnstein@gmail.com>
+ <av2jSyTFI1VoyGSU@zenone.zhora.eu>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -76,76 +101,53 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <av2jSyTFI1VoyGSU@zenone.zhora.eu>
 
-Add the SMBus PCI ID (0xa822) for Intel Lunar Lake-M (Core Ultra 200V
-series).
+On Wed, Nov 18, 2026 at 02:22:18PM +0100, Andi Shyti wrote:
 
-Tested on an Intel Core Ultra 5 226V (Lunar Lake-M) laptop via dynamic
-new_id binding with FEATURES_ICH5 | FEATURE_TCO_CNL: the controller
-binds with PCI interrupt support, handles SMBus transactions cleanly
-(verified with i2cdetect), and initializes the version 6 iTCO_wdt
-watchdog at TCOBASE 0x0400 (verified with wdctl).
+Hi Andi, 
 
-Cc: stable@vger.kernel.org
-Signed-off-by: NanamiKite <nanami@yosoro.hk>
----
- Documentation/i2c/busses/i2c-i801.rst | 1 +
- drivers/i2c/busses/Kconfig            | 1 +
- drivers/i2c/busses/i2c-i801.c         | 3 +++
- 3 files changed, 5 insertions(+)
+Thank you for your review and feedback
 
-diff --git a/Documentation/i2c/busses/i2c-i801.rst b/Documentation/i2c/busses/i2c-i801.rst
-index bbbce90..2e7f3f0 100644
---- a/Documentation/i2c/busses/i2c-i801.rst
-+++ b/Documentation/i2c/busses/i2c-i801.rst
-@@ -53,6 +53,7 @@ Supported adapters:
-   * Intel Wildcat Lake (SOC)
-   * Intel Diamond Rapids (SOC)
-   * Intel Nova Lake (PCH)
-+  * Intel Lunar Lake (SOC)
- 
-    Datasheets: Publicly available at the Intel website
- 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 275aaa7..83d3f14 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -168,6 +168,7 @@ config I2C_I801
- 	    Wildcat Lake (SOC)
- 	    Diamond Rapids (SOC)
- 	    Nova Lake (PCH)
-+	    Lunar Lake (SOC)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 9d3cc70..63ac29c 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -86,6 +86,7 @@
-  * Wildcat Lake-U (SOC)		0x4d22	32	hard	yes	yes	yes
-  * Diamond Rapids (SOC)		0x5827	32	hard	yes	yes	yes
-  * Nova Lake-S (PCH)		0x6e23	32	hard	yes	yes	yes
-+ * Lunar Lake-M (SOC)		0xa822	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -269,6 +270,7 @@
- #define PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS	0xa2a3
- #define PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS		0xa323
- #define PCI_DEVICE_ID_INTEL_COMETLAKE_V_SMBUS		0xa3a3
-+#define PCI_DEVICE_ID_INTEL_LUNAR_LAKE_M_SMBUS		0xa822
- #define PCI_DEVICE_ID_INTEL_METEOR_LAKE_SOC_S_SMBUS	0xae22
- #define PCI_DEVICE_ID_INTEL_PANTHER_LAKE_H_SMBUS	0xe322
- #define PCI_DEVICE_ID_INTEL_PANTHER_LAKE_P_SMBUS	0xe422
-@@ -1069,6 +1071,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE_DATA(INTEL, PANTHER_LAKE_P_SMBUS,		FEATURES_ICH5 | FEATURE_TCO_CNL) },
- 	{ PCI_DEVICE_DATA(INTEL, WILDCAT_LAKE_U_SMBUS,		FEATURES_ICH5 | FEATURE_TCO_CNL) },
- 	{ PCI_DEVICE_DATA(INTEL, NOVA_LAKE_S_SMBUS,		FEATURES_ICH5 | FEATURE_TCO_CNL) },
-+	{ PCI_DEVICE_DATA(INTEL, LUNAR_LAKE_M_SMBUS,		FEATURES_ICH5 | FEATURE_TCO_CNL) },
- 	{ 0, }
- };
- 
--- 
-2.56.1
+> Hi Thilo,
+> 
+> ...
+> 
+> > +	ret = read_poll_timeout_atomic(xiic_getreg8, sr,
+> > +			sr & XIIC_SR_BUS_BUSY_MASK, 0, XIIC_BB_TIMEOUT_US, 0,
+> > +			i2c, XIIC_SR_REG_OFFSET);
+> 
+> this is a bit of an overkill: you are forcing tight loops for
+> 1ms. If you consider that the minimum wait is 1ns, in 1ms you
+> will end up busy looping a lot of time. Please, don't set the
+> delay_us to '0', but calculate a proper waiting time between
+> reads.
+> 
 
+I also had doubts about whether this approach is too heavy. 
+I have general concerns about the busy-waiting in atomic context
+in this patches, though I noticed other I2C adapters wait 
+for relatively long periods there as well. 
+The tight loops in patch 2/2 are even longer.
+Those waits are longer because the code waits for the entire I2C transfer 
+to finish, but polling is unavoidable there since sleeping or scheduling 
+deferred work is not possible in atomic context—is that right?
+So this kind of builtin if doing i2c transfer in atomic context ?
+
+I will reduce the maximum poll timeout to 4 µs, 
+which matches the minimum I2C START condition hold time 
+in standard mode and seems reasonable.
+
+I will also increase delay_us. Out of curiosity, 
+what is the reasoning behind the delay interval? 
+I assume we want to avoid hammering shared buses
+ or registers with continuous I/O reads.
+
+> Andi
+
+kind regards,
+
+Thilo
