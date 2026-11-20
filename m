@@ -1,79 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795157414;
-	b=wqa7prG5ZIhC2v6i5FsGKeSjqe0F82ijkMlpIc9hlJ6Bzxv7QQreGvSzrGbuW18bYOyB
-	 WoiAGseihSI29iSgi0GjSF/HPPS6nlzolkR/vOEfA5XOE8u6J+Vhz4rfDPTQQ8jDKWE+O
-	 c5IrfSGz98HTcQs/V4MpnUw/rtxk7pbop3LQuWH3U1w+9erISPgLVk4n9GXqnb9ochlrZ
-	 kk1UPM0oPgkz0zMvJgY7XMSf5tXIjn6ZZpFLQ7Zl6V78Djo4JG0zow+thcWyC8IhIeNmg
-	 RD/p1HCpDBK25E7uPr8eWBSchUUto2dLIZtP51okx22+ASpdw4REBs3VKQaHP53/MDA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795157414;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=tdYE7Lz1hXw9g041ObApzQfqyHIfgtC9mdpdQYGD1us=;
-	b=xTtyzx5b5XnAIE2GQQKpOJ07cfiupvn9io6CfMS7an93xldu1e85L72ldFD0rUmd5R78
-	 Hnti2SZvYf8rZNH3SDOxg61avFgmkymCh/7jpbFjFP2MUwgMevTqprEChzAQ0QGC1/iKt
-	 uCcx7zw28Qh9buJaYF2w6nR/i8nUaFZTeynIK3ja8xErW0FywkDjJQe0Wb/C36vfLHDtk
-	 siNElPQKsDzDDIeG1mIXnzr87FhKaJbBRL/Qj+K3L6QIvDu3EW+U8hYyZ6ihTrqaLf5eI
-	 HdMYYh8JeNybQh4A/9cN5fYlMLxLSWENCcSdTuSA3tYbEtm1Bxsrj4O3XYlcgSjbmlA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="dra/uNWN";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795159170;
+	b=AHkQMXQRGJaPLEhzczA7JXO2288GRHfHKA78EwEh+N4ylW7W2xCnmym/OdQvfsz69S7g
+	 Ow9eU5q5TmBvZRKiT1SHjQKmDSsP5h7kFqPpUep8UOWKBpzjlsiHr9eKYQjfzawbIGUve
+	 HZHad7trj6myoFyBmnrj1dRZ67XCYQ7HPxQccKhJLDTVOKORlIFDJ1sN5xIR3pAnnjax7
+	 Fn0uMzZMwUOlHN+qUaMF6cx4YFwcJbJhi2HOw+vogP3XycpVYiXPv61mkA877A1+WUcPO
+	 1mOzrM9kX8edn4SREMGMqVmqqpQBMhbuWwXp76lW4nPzPUE6tKqgvw0sVZmi/zL+zbA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795159170;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
+	bh=UCkJVInVpe45tTPUC1N8YCSud4itWnhph5HOVXhfzDc=;
+	b=ytvln8dA9YoNP7Ot7BUizTEdJw8F1/p6l09afI8ImAq/neSQaLbBTq2wzd9WHzhsgpN8
+	 Rwf4gVPoZDCiMoCkyAQapRlL58/0yvdl5JPp/6xPBCN2jxoAhFZpgnrzsyhXlpmmP9+yW
+	 ISUpiyplC7jEd6yciMoIY8suitiKE4mqtUZuvZnqRab+rnXO1CKRcL2ivYTPMRiPrMuZT
+	 N5dk+rP8/U+eJKRUzP97GOQeXoxTEdlJ9u7W1cyt8B19NlRlTF6lDNaflb3vTgUdsdTSy
+	 9AvZfyDtII9b6R7UHqeMzZDAXDi9v9AYKCd/dzeGC/6K4q/gt1m9adTqObAkm/QFHrQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TulpEHln;
+	arc=none smtp.remote-ip=192.198.163.18
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3398560A2602;
-	Fri, 20 Nov 2026 06:50:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C531606A325;
+	Fri, 20 Nov 2026 07:19:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6C531606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dra/uNWN
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795157414;
-	b=CooaHElJWqmk0iikafLjc0HGWVICwzHwhPibldhL3ECh0nmQ1Rq/V69hiIi6qfmy0k7R
-	 UgQWqq7jKYpK5FaIb1KjWUw5OAZ0J4qrCSY1NUH5FkkYCZ4d2nHkJ0CSNTgNhQOpIQXaJ
-	 TGo6i7iX2/lrm/x8VP2EuCklD8ojxV26QjvIvMFNr10154GtP9sDur2GF7iluEkpnEWUz
-	 3yF1sNoVkUn22ZLn45aryGJSH3rzTgXxDSB22QAnATPisLwRSBY/zlg0CYfmEwMhG9dov
-	 IiEMOH6XkqYF1zCmtlzgeTkHLUr/OgLj77GANZAk3seH2QBy67kPL5SOH9aEcPCLsHQ==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795157414;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=tdYE7Lz1hXw9g041ObApzQfqyHIfgtC9mdpdQYGD1us=;
-	b=3JtNKZ/IxjqH9AO+uG+T1EOUlP2UQjHnLUso64UHvODSDbzjy4WtFfjJ7bXuGeJBgCbt
-	 L42zfn4U6aWP872G1IOr+VKDMfFmEs5y0kBeEIt2A4XTVk7VzkAMi6lcEa94+9HLYuDj+
-	 WZ/n36bINaGIefsIY411FFkTaJFRG2IbRoVb9Ee2UcpANESZ4oSR8qb69uSQVKD4UVg5B
-	 GbaTegJjeooeKrGpizWWVDgZ/BMUlbrHmojxJz+bWpl5Eagi+i4X4xEu/1ZjFOC+/So0u
-	 rynZKsr2TuZ0EYFt+Pnu2hXEm3SjXmlV63jRmRCOE/Zc5PZTvJxlS/dHW9absIVfTWg==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id B454D1F000C6;
-	Fri, 20 Nov 2026 06:50:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795157414;
-	bh=tdYE7Lz1hXw9g041ObApzQfqyHIfgtC9mdpdQYGD1us=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=dra/uNWNe5Z3CNSqhank6iiwTlarX54Vlhp5Yv+vXqWGAT7CTpojeexhtNGonfto5
-	 SaZcACVhuYzmy1vITi8boOnoAlKvWTnTd7EtSFWcHFyLwL4Qf+/QFXt/wKi+uWmeBb
-	 mML/JF76Nh3zBtTajRWlycWz1XnkkJPauMXfT1mp+CA411k1QLIi2x+o6Bsgour4R3
-	 oqOBDkZb2/PsFJUvECq2IrBxmIGSj5ugFxsuvOb1fCCAe2IrqQYvjTK/s5FMnPbiux
-	 PwtfnCR05Wdjnxxq3Y4wJags4JWxGHvMC9+uyDlbr/bGw6kNNefWLZcZDe2lsQojKd
-	 0qZXOV9CD9UCQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 46AD749725;
-	Fri, 20 Nov 2026 06:50:11 +0000 (UTC)
-From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Fri, 20 Nov 2026 09:49:44 +0300
-Subject: [PATCH v5 1/2] dt-bindings: i2c: Add Cortina Systems CS7542 I2C
- controller
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TulpEHln
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795159170; x=1826695170;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=pukM0lbVTsObyCpMsg2GVxDX11Bwhn6NE596KFaKpts=;
+  b=TulpEHln4sJpyN4zXJABHLTsyJlCaU69qgztsfq2AF8PGCIUti+KC0d+
+   XULog541WM2atSAjRbmwiTvAXhGDfneHoZ7PYphEl95AiBIACa3jPPpgZ
+   xGQXrqvloxiPjYmeTJzWBl7L48TqEzCvTBwJGLyHj9ufYtsCt/BTWQoLM
+   efxouErEtF2BHYnoSz0f6ddZpr3limipRZMHgVXObnVK/M5HCPtwNKK2d
+   OIeV1GUWqu5Cbvm4hQfp16BEgEuuUC/q6EZrDoA5q7gqluzJBYi5dQcrl
+   taQ27o1DpWHiovkZ3BYw5yvsumsFHhSxblc9xSZyQKCVE+w/LJ03kz7Lo
+   g==;
+X-CSE-ConnectionGUID: UBM5oMpVSVGVtQYmxszYKw==
+X-CSE-MsgGUID: FG+u3SIIRrOgdAu98OBXDw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11971"; a="4065613"
+X-IronPort-AV: E=Sophos;i="6.27,222,1787036400"; 
+   d="scan'208";a="4065613"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2026 23:19:29 -0800
+X-CSE-ConnectionGUID: EwKkfr+qRTmS5uNY0L8ULw==
+X-CSE-MsgGUID: 19Ch2pzcQA6XqOrjY5dy/w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,222,1787036400"; 
+   d="scan'208";a="10633239"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa006.jf.intel.com with ESMTP; 19 Nov 2026 23:19:26 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id F24FD99; Fri, 20 Nov 2026 08:19:24 +0100 (CET)
+Date: Fri, 20 Nov 2026 08:19:24 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: Mika Westerberg <westeri@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	"fangzhong.zhou" <myth5@myth5.com>,
+	Hans de Goede <johannes.goede@oss.qualcomm.com>,
+	Dell.Client.Kernel@dell.com, linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: acpi: Limit DLL0945 100 kHz quirk to Dell Precision
+ 5560 and XPS 15 9510
+Message-ID: <20261120071924.GI229695@black.igk.intel.com>
+References: <20261119143218.586632-2-pmenzel@molgen.mpg.de>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -83,105 +86,64 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261120-cs75xx-i2c-v5-1-03bec242a549@gmail.com>
-References: <20261120-cs75xx-i2c-v5-0-03bec242a549@gmail.com>
-In-Reply-To: <20261120-cs75xx-i2c-v5-0-03bec242a549@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- Fil Dunsky <filipp.dunsky@gmail.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795157410; l=1877;
- i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=rtrtjfERWRSSEQV4SOw9IuyiDTovzANcBqx4f0A6z4M=;
- b=WvqxN3plu4y+ajpANgKaDHdLTTEp18Tm505MOL5RKfD2hymHMruyPXDqrxXVnrpTOJ7aGgFGq
- +gf6KUSfln7DILcKM6qAfRkasOiaMsLJWsd7lek3cY2M0YehdpSlvul
-X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
- pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
-X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
- auth_id=1085
-X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
-Reply-To: filipp.dunsky@gmail.com
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20261119143218.586632-2-pmenzel@molgen.mpg.de>
 
-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Hi,
 
-Add a binding for the I2C ("Bi-Wire") controller of the Cortina Systems
-CS75xx SoCs.
+On Thu, Nov 19, 2026 at 03:32:16PM +0100, Paul Menzel wrote:
+> Commit 0b7c9528facd ("i2c: Force DLL0945 touchpad i2c freq to 100khz")
+> forces the I2C bus to 100 kHz for all devices with the ACPI ID DLL0945 to
+> work around a sluggish cursor on the Dell Precision 5560. But DLL0945 does
+> not identify a touchpad model. Dell uses it for touchpads from different
+> vendors:
+> 
+>     System                Touchpad
+>     Dell Precision 5560   ELAN 04F3:311C
+>     Dell XPS 15 9510      ELAN 04F3:311C (bugzilla #214597)
+>     Dell XPS 13 9310      Synaptics 06CB:CDE6
+> 
+> The ELAN touchpads are the ones known to need 100 kHz, but the Synaptics
+> touchpad of the Dell XPS 13 9310 is slowed down without need. Its DSDT
+> specifies 400 kHz, and Linux logs:
+> 
+>     i2c_designware i2c_designware.0: [Firmware Bug]: DSDT uses known not-working I2C bus speed 400000, forcing it to 100000
+> 
+> The touchpad scans every 7.1 ms (scan time field in the input report), and
+> i2c-hid reads wMaxInputLength (64 bytes) for each report. Tracing the I2C
+> transfers for 30 seconds of moving a finger on the touchpad shows:
+> 
+>                              100 kHz   400 kHz
+>     read time (median)        7.3 ms    2.5 ms
+>     bus busy                   87 %      36 %
+>     reports per second          111       140
+>     frames lost                18.6 %     0 %
+> 
+> At 100 kHz the host cannot keep up with the touchpad, and every fifth frame
+> is lost. At 400 kHz all frames arrive, and no sluggish cursor was noticed.
+> 
+> So, only apply the DLL0945 entry on the Dell Precision 5560 and XPS 15 9510
+> by pointing the entry's driver_data to a DMI table, which can be used to
+> restrict other entries in the same way.
 
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
----
- .../bindings/i2c/cortina,cs7542-i2c.yaml           | 56 ++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+Yeah, we should really figure out how this works in Windows. I'm sure they
+don't have such a quirk list so maybe it's up to the vendor specific
+drivers to "tune" the bus to their needs whereas in Linux we obey the ACPI
+description.
 
-diff --git a/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml b/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
-new file mode 100644
-index 000000000..095e24379
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
-@@ -0,0 +1,56 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/cortina,cs7542-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Cortina Systems CS7542 I2C controller
-+
-+maintainers:
-+  - Fil Dunsky <filipp.dunsky@gmail.com>
-+
-+description:
-+  The I2C ("Bi-Wire") controller of the Cortina Systems CS75xx (Goldengate
-+  G2) SoCs. It transfers one byte per command and runs from the peripheral
-+  (APB) clock through a 16-bit prescaler.
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    const: cortina,cs7542-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  clock-frequency:
-+    maximum: 400000
-+    default: 100000
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@f00700e8 {
-+        compatible = "cortina,cs7542-i2c";
-+        reg = <0xf00700e8 0x28>;
-+        interrupt-parent = <&intc>;
-+        interrupts = <11>;
-+        clocks = <&apb_clk>;
-+        clock-frequency = <400000>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+    };
+> Tested on the Dell XPS 13 9310.
+> 
+> - The `[Firmware Bug] … forcing it to 100000` line is gone from dmesg.
+> - Re-probed the touchpad’s I²C controller with debug output on, and it
+>   reports `Bus speed: Fast Mode (400 kHz)`. The touchpad came back up
+>   under hid-multitouch.
+> 
+> Fixes: 0b7c9528facd ("i2c: Force DLL0945 touchpad i2c freq to 100khz")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=214597
+> Cc: Hans de Goede <johannes.goede@oss.qualcomm.com>
+> Cc: Dell.Client.Kernel@dell.com
+> Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
 
--- 
-2.53.0
-
-
+Acked-by: Mika Westerberg (Intel) <westeri@kernel.org>
