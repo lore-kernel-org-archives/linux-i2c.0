@@ -1,61 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=162.243.164.118
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795188502;
-	b=YftmBS6GO/Kk3lGig19CFItRhRCLs/9qQN1gNosS+xMTCvxO5t3EwPsQYlF3DzZoVWDf
-	 rDkch4TtZqchnyymAWF+luAF3hTI1PLrKjxPbZp6PBABlT3SxlwclvIs4rlTp4dmvdnfU
-	 s/wxD9Egpjdb3JJ5qJZD/Kd4rHrdjbXCx2odclmnsAvDOmAbRbiHoeVbiljR4o2VqD6Gi
-	 H+aWXQivY0r5aYsEfV4v0ToNkqvoI2Cq5n7LK7scr2FbUFvx6JCCq3OT3RuzO+fG7NGWy
-	 97OQbx7iVDo1wHJ6R9nMO+CzBNz0M6Dy1+b20zz0C9b/cR+6peZf/aRJjHslrD4whnQ==
+	t=1795188808;
+	b=FY023y8wUeGrDvUD//R6LulDjCvXY72+NyPGq2kYy6c+tEc2PKWRKjENEaZeCSr35+fc
+	 JQ8M7CoTU0dmuyKwTmFDCd1iLJZdZaGJ7HkakAsRUvPFk2EL9ys36KpLKydpsQ/UiKzsu
+	 XhERTAit5AmU0kLi1D4yU/xeFbkzDDN6QWBsdgSwUJhho5+4PP6Mrj6TanAodL5ofUfIv
+	 mZtyuXVS23azGjzhF3j0pZcKpMIDLfZ5BS0g0sUThXEXE8RTbdFGj/gaAGGX26qAgY5OL
+	 ZeBDfIGXaK+4omH+4ivZOpjlQB1aKgjp2zFlHKNczGe9Rr8IM/nCFWWkngoARnHrvKg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795188502;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-Id:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
-	 X-CM-SenderInfo;
-	bh=R5sS84RUuIsde6dtEZDQh6SjVzDhGMV4LOTpA/QBjDA=;
-	b=c3fQMWRGFlwNt6XdcRspFmwt6vJSmoZDcmfLtXqZA9dadx10UNhdv/GnzmfL1riiUaA6
-	 yVZLCHugnlKE8yicpj0NglzsIDJiKgw+ANtcahKETiFtD70uKLDZwhmyRm7GeGq+fW1VC
-	 bAsDZ7TNmATLlDCqusdF51n+5ovOArCA2/on7uzidCppwg+y2i+jqDz4RkevQgHAkynhL
-	 k/BBNQyHYpCplDgj1r8ZBgw6odydmj5uF/horaq0UPA8yXiAInIQdtZvMEvexP5xT50jv
-	 ELavmItyNc0otAsh5GFOLSMpYZzjmPbBcM9rHpxEr9/e+Cq1lh84jBOHsg6R8p3EDEg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795188808;
+	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=3Mz6w7UeEL+7CGNi0VN6+DRD/NzemXmTCBXkDh4Qctc=;
+	b=5Qk6nNSEqtSDBjUAxoW8/nllT160jAe/G1iHjy4Coj0PcdO1JvGEBRbIhx6Gx0NBMAE1
+	 vBhu+Wfqr6MzKLpOpQV/6UUD4GdQV+Q4udysW8YHwQe8fmkdX63i91a4bNHnlTSF2h2he
+	 tdVTdHoAhsfB4HIZdFPcilsT720OlAJwNg9oB7ZUgAoCR1vRTmO2cqOLE+Z9iOy6il9XV
+	 f/Lgavu7E9Ubi96hPHGlDHMaq6pPNEUC10DdvZ3CGmdPfqflBtSawOBMgXqsXXdeRk2WM
+	 jl/L3RQhRbXx0U5bV/p5COU7SfmAIgkKgBsIQlgUfeoSpNDSMCUHNWNjTEXTZ5wgVdQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=stu.xidian.edu.cn;
-	spf=pass smtp.mailfrom=stu.xidian.edu.cn;
-	arc=none smtp.remote-ip=162.243.164.118
-Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 65E7560A261A;
-	Fri, 20 Nov 2026 15:28:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 65E7560A261A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=stu.xidian.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
-	Message-Id:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=R5sS84RUuIsde6dtEZDQh6SjVzDhGMV4LO
-	TpA/QBjDA=; b=E9gLED9XYy9MWDcTvu+5Y0Vn5Y1NNAg3D2In+EI9SUdZPB89gB
-	Mhxw1ie42eaAodYQkwldlvOhLOiB1cRgGgTo1hHB0UCb/TZsxRtmzYn+ie3nITza
-	KKbDWauUXRpmjFfGTScLsrb3h4K2WEW/SpoWOXxKVCArwYW3usTY3oeSs=
-Received: from user-virtual-machine.localdomain (unknown [113.200.174.41])
-	by hzbj-edu-front-3.icoremail.net (Coremail) with UTF8SMTPA id BbQMCkCWnP_2ZgBreCzzAQ--.23017S2;
-	Fri, 20 Nov 2026 23:27:53 +0800 (CST)
-From: YuanZhe Liu <25031212351@stu.xidian.edu.cn>
-To: Israel Cepeda <israel.a.cepeda.lopez@intel.com>,
-	Hans de Goede <hansg@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>,
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PZHo8SXu;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF148606A320;
+	Fri, 20 Nov 2026 15:33:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PZHo8SXu
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163B21F000CF;
+	Fri, 20 Nov 2026 15:33:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795188808;
+	bh=3Mz6w7UeEL+7CGNi0VN6+DRD/NzemXmTCBXkDh4Qctc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=PZHo8SXuAGTP5QeLNm50UO1x70lqFU/S83DZrh1r7zKX7lQ0VsKlAZuhxJ5/E5sdY
+	 rOovFk0GrYpls6/011L/LKbvSGn2+U0PlHnpEUYT8/p47xTbLAybxHSayb6qGg4xMJ
+	 EApoBYHjR9gYbxY+o9wHymgFWFwOnuJn/72SVxRCgzLggIghTzkMxRGPBNy0cuqnV+
+	 1LJFvT0wAQFIU6tW9KiQT1G0DqCMqNbixZqIOlLaL07Qea/Pl2ljW5g5lB0nqw2InL
+	 RDU3zeHz9PWRZV+MpQ0hJxVYIpHbJ0iQGgpF+JrxUj/90W7mTM60AHYAROF/T+JU+3
+	 LPAg5rdod2EdA==
+Received: from johan by xi.lan with local (Exim 4.100.1)
+	(envelope-from <johan@kernel.org>)
+	id 1xUQc9-00000006S7K-0u9O;
+	Fri, 20 Nov 2026 16:33:25 +0100
+Date: Fri, 20 Nov 2026 16:33:25 +0100
+From: Johan Hovold <johan@kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Daniel Scally <djrscally@gmail.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Bin Yu <byu@xidian.edu.cn>,
-	Cheng Wen <wencheng@xidian.edu.cn>
-Subject: [PATCH v2] i2c: usbio: check the return value of usbio_acquire()
-Date: Fri, 20 Nov 2026 23:27:50 +0800
-Message-Id: <20261120152750.5497-1-25031212351@stu.xidian.edu.cn>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20261116020850.10526-1-25031212351@stu.xidian.edu.cn>
-References: <20261116020850.10526-1-25031212351@stu.xidian.edu.cn>
+	driver-core@lists.linux.dev, linux-acpi@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/8] driver core: platform: fix swnode use-after-free
+ on device release
+Message-ID: <awBoRYvZEdI40B_R@hovoldconsulting.com>
+References: <20261117101336.980216-1-johan@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -65,64 +70,45 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:BbQMCkCWnP_2ZgBreCzzAQ--.23017S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7tw13XFWrCr4DWFy8urWrGrg_yoW8GF1rpa
-	13GFWqka4DtF409an8JrWI9a45CanxXrWj9FW0kwn8ZFn8XasrArZrtF15uFn5CrW8Crs7
-	ZFWqqr9xCFyYkrUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBKb7Iv0xC_Cr1lb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I2
-	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
-	A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xII
-	jxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwV
-	C2z280aVCY1x0267AKxVW8Jr0_Cr1UM2vYz4IE04k24VAvwVAKI4IrM2AIxVAIcxkEcVAq
-	07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r
-	18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vI
-	r41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI0_Jw0_GFylc2xSY4AK67AK6r
-	yrMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_
-	Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x
-	0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8
-	JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIx
-	AIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8uMKtUUUUU=
-	=
-X-CM-SenderInfo: ysvqjiysrsjkur6v33wo0lvxldqovvfxof0/1tbiAQUDD2sAYlgFTQAAsR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261117101336.980216-1-johan@kernel.org>
 
-usbio_i2c_xfer() ignores the return value of usbio_acquire() and always
-calls usbio_release() on the way out.  usbio_acquire() fails once the
-bridge has been disconnected, and neither the transfer nor the release
-may be issued in that case.
+On Tue, Nov 17, 2026 at 11:13:28AM +0100, Johan Hovold wrote:
+> When fixing a use-after-free regression in 7.3, I noticed that the
+> software node implementation is internally inconsistent.
+> 
+> Specifically, the firmware node pointer of a struct device may point to
+> either a primary or secondary firmware node, but in several places
+> kernel-doc and comments suggests that the firmware node pointer always
+> points to a primary node (cf. [1][2]).
+> 
+> This series fixes the 7.3 regression along with a similar issue in i2c
+> core due which are both stem from the fact that
+> device_remove_software_node() happens to drop a reference to a primary
+> software node that was never added by device_add_software_node().
+> 
+> The next two patches clarify that device_remove_software_node() should
+> only be used to remove nodes added by device_add_software_node() and
+> stops touching primary nodes.
+> 
+> The rest of the series addresses further inconsistencies.
+> 
+> The first two fixes could go into 7.4 and the rest (which depends on the
+> fixes) into 7.5. And preferably with an ack from the i2c maintainer for
+> patches 2/8 and 4/8.
 
-Return the error instead.
+> Johan Hovold (8):
+>   driver core: platform: fix swnode use-after-free on device release
+>   i2c: core: fix swnode use-after-free on client deregistration
 
-Fixes: daf161343a39 ("i2c: Add Intel USBIO I2C driver")
-Cc: stable@vger.kernel.org
-Co-developed-by: Bin Yu <byu@xidian.edu.cn>
-Signed-off-by: Bin Yu <byu@xidian.edu.cn>
-Co-developed-by: Cheng Wen <wencheng@xidian.edu.cn>
-Signed-off-by: Cheng Wen <wencheng@xidian.edu.cn>
-Signed-off-by: YuanZhe Liu <25031212351@stu.xidian.edu.cn>
----
-Changes in v2:
- - Drop the mechanism paragraph and the crash log from the commit
-   message, as suggested by Sakari Ailus.
----
- drivers/i2c/busses/i2c-usbio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+I have applied these two for 7.4 now.
 
-diff --git a/drivers/i2c/busses/i2c-usbio.c b/drivers/i2c/busses/i2c-usbio.c
-index 259754e5fd05..232397efe8a4 100644
---- a/drivers/i2c/busses/i2c-usbio.c
-+++ b/drivers/i2c/busses/i2c-usbio.c
-@@ -178,7 +178,9 @@ static int usbio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int nu
- 	struct usbio_i2c *i2c = i2c_get_adapdata(adap);
- 	int ret;
- 
--	usbio_acquire(i2c->adev);
-+	ret = usbio_acquire(i2c->adev);
-+	if (ret)
-+		return ret;
- 
- 	ret = usbio_i2c_init(adap, msgs);
- 	if (ret)
--- 
-2.34.1
+>   software node: fix device_add_software_node() kernel doc
+>   software node: ignore primary nodes in device_remove_software_node()
+>   driver core: platform: warn on bad fwnode assignment
+>   driver core: platform: tests: fix swnode reuse test description
+>   software node: fix software_node_notify() primary node comment
+>   device property: fix fwnode_get_next_child_node() comments
 
+Johan
