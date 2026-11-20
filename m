@@ -1,45 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795175341;
-	b=kkjkphQJlZJ1zR+ercapaRb/YQbvVAsu+1K8HMXxNZWUqU1f7Is7fWLP5miHW1j2/Izg
-	 0o/vohmX7wlvRp4Vvlxt/PylXsbdAc2vtKQ1xeYXmZFjJf+3InNO6Dpx+17ZIWa3bDZDw
-	 gyzGKZErSNRQ93zD6waUma9Orj7P/gu/N2HUfh2LRw0r5m6kQB3FZU/w9RjOVCTS5gdWZ
-	 iPHNvxMLMOTtcWPLS18BfD8pWYlLPqu1nui0YRBL/rb/6CxPGz4AsDFhjggHWY8unnkN1
-	 Vv3dHOi45ZRfa4pv+czea3we4WCSo56RLIAaeBp47+ALHCZgZNxZ0xN5otuobluGnKw==
+	t=1795176197;
+	b=HxC+UqBwMJKTaRxMtuZlyGKP3OJCId02lcktpykH44GRG+hlxYS3lqCD3Y3dP48qpjwD
+	 yVxIEtRdH+vswt1vuznhrBoUR8ZvzQJf1uN5yUC8nRpzkLtlHL+WUQZ6YypiBcYPSqEKv
+	 dgDgwU7MPsFtWm3SxGX7dluoG5oIWAe1d2rFVtoyf+WVbj0PPTU5TnMhcmwU0zW1nnlHb
+	 wSBDPa+NWutyk5rz9SBqQffeCPmwXIWa++3+QQwdFCbKAiFgCWM6ODC8z61yJ+cJ0spNS
+	 uuNzUk9YMxwPWbl5Z8Sg8gMBRzg5C6C9Bwz5gBj+ET6RYqdfM31R2bBFfowbY247Xng==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795175341;
-	h=Received:DKIM-Signature:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Subject:From:To:Cc:In-Reply-To:References:
-	 Date:Message-Id:X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=u8l/U5OT/Y6CBEr80GX62yXAKFPyEQ4q4m7GqQI3+Nw=;
-	b=ylK4LNG9cakiR99B2NceVepfEtORs7s1kqvXxs9NTG5I0dleKZDYr6dEH9hoUfkoUsvr
-	 Ly3/2YL1vL5pA7x640bWzx5N2lrEUUUbkHsK57z8/rKR60XXxZh5Y53MfA24fzzJf/Y+R
-	 nfX0LBB6LF1rD2/mH1DSvEKmknYvqJqYSFq/5T/zpjlkkCEHl62fIs6alUOWPzIVhy3cN
-	 MCZFrR6EE1xbwttWS7dxQ7RqqZd9+N4sCB3qDhLPar0EHZH5sqUXe07pYejX9WRpO16Q6
-	 ibn0rxfkoi0PmiF2I3AmaFpfEqRgUzTujiBm0gnqAP6deInFNq9ilAqnn/BM+VI9MGA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795176197;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:
+	 Organization:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=NdHy/rwYUEq++mkyLWvRUCOO+WKgIjcITiwS2xyhgio=;
+	b=fOrMxForojenDdlwlHnyqeY5ac+dn5CkuT9ROS3ke3XEsLLj6LtMgQ4La7aNm2p7tLSO
+	 sxikeEOkz+iK9U3uRuiNflkSWrwPrkkbkOuX9UiZQJZ7RnOdX8kURfTIR4djAut9eqU+Y
+	 oSACo8Bv0FUgfaDxVlq78dkogYfW2tYjXYx39DKmi361Bb5ApImxzS4auzzpoXDrCtshp
+	 Djk8KfvClSdp8R5tYH6rVr6SIjb/xXc1g+l4PONd8ASEBiKaGStGWtuVPtNh0FvP+wxfe
+	 Oiso3Dkp+3bRzSjR/5JkJbsJYktGd2JWmEgnhYApEkY5ss3di7rofZHwRXCn6w1qpNQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hcBexOHU;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MzC0waTw;
+	arc=none smtp.remote-ip=192.198.163.13
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9681E606A32A;
-	Fri, 20 Nov 2026 11:49:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE9F9606A320;
+	Fri, 20 Nov 2026 12:03:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE9F9606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hcBexOHU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCCE61F000C0;
-	Fri, 20 Nov 2026 11:48:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795175340;
-	bh=u8l/U5OT/Y6CBEr80GX62yXAKFPyEQ4q4m7GqQI3+Nw=;
-	h=Subject:From:To:Cc:In-Reply-To:References:Date;
-	b=hcBexOHUMQkhXRpw6J2YlBW+kBBvPm7QrGDW4CGU5mAlWg6twGFJxe1ZqttaN07tn
-	 sd4v+OROeVivVIw16xj/TXH5XCZ3S4hypUxgMbynLKxKBLD5ixIPy8UZ2ZY6c8FfvN
-	 pyEvQ5W9YO3DkgIPSor/3yhPOnVYGx7M6onSbyAdoqBvBckgNjBsqwJkBnm8ubbjQi
-	 0B57FJlZiBSaL/jud64G3ooz9IpjTTrMV2bj11E/eRbqZI0FUBT3ZQpTi1rjTRAmRl
-	 amccNZt1lXknyuG962K39swBEJNao4rwh3irNCNf0J1rhrkcIFw7AE5bnWnweHROJy
-	 wQanlKSiR+cfQ==
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MzC0waTw
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1795176198; x=1826712198;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=pRHMxUiP6iGLsO/OyWGbqEeX2MfXfIYhkJEzMCE5raI=;
+  b=MzC0waTwIRF4HKlj2bIhlklUJwZrWjo3ztSjoCN4A4uD0avpYLsYLgD9
+   c1Dg6OKidI+kPEqR68KIbG2YOiIUQjhFmsPWOHJwvi3A5lpcXTA4lM8Bt
+   pkixl9vWA/FxhqOBWgN2k+dfy6WojcuTavzyPLnbTey+AWvrOV8oN6OWv
+   UTHBE3fdiVYxVZmsLz/XB7ugpG+H6uOfKi89OTHHySZpk8a2RdL1V8gKq
+   I1gkewLWFqAbuZUe+LIWlSETy4LF/TT5O26naIgXRs/HovhciYBhN9snd
+   jIkbARnePZfXybPSstxlJGic33JYwvJtU+p5KVfp/F9CML0Yz27r0ds6D
+   A==;
+X-CSE-ConnectionGUID: mPKgkLaDQ3G+GYBqcgH15w==
+X-CSE-MsgGUID: mAL2u3EaQNilCao1V0VHFA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11971"; a="4040592"
+X-IronPort-AV: E=Sophos;i="6.27,222,1787036400"; 
+   d="scan'208";a="4040592"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2026 04:02:16 -0800
+X-CSE-ConnectionGUID: 5CswuKtJT8aM+cIuX6Rg/w==
+X-CSE-MsgGUID: yVe4Xg9MSIyt73Afpgu5aA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,222,1787036400"; 
+   d="scan'208";a="11024252"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.245.253])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2026 04:02:07 -0800
+Received: from kekkonen.localdomain (localhost [IPv6:::1])
+	by kekkonen.fi.intel.com (Postfix) with SMTP id 4D05C121B79;
+	Fri, 20 Nov 2026 14:02:06 +0200 (EET)
+Date: Fri, 20 Nov 2026 14:02:06 +0200
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+To: YuanZhe Liu <25031212351@stu.xidian.edu.cn>
+Cc: Israel Cepeda <israel.a.cepeda.lopez@intel.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, Bin Yu <byu@xidian.edu.cn>,
+	Cheng Wen <wencheng@xidian.edu.cn>
+Subject: Re: [PATCH] i2c: usbio: check the return value of usbio_acquire()
+Message-ID: <awA2vjN8yD19R3Oj@kekkonen.localdomain>
+References: <20261116020850.10526-1-25031212351@stu.xidian.edu.cn>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -49,64 +88,82 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH v7 08/23] media: qcom: camss: Add PM clock definitions
- for SM8750
-From: bod@kernel.org
-To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
-Cc: Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
- Neil Armstrong <neil.armstrong@linaro.org>, 
- Manivannan Sadhasivam <mani@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
- Loic Poulain <loic.poulain@oss.qualcomm.com>, 
- Mauro Carvalho Chehab <mchehab@kernel.org>, 
- Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>, 
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
- Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
- Frank Li <Frank.Li@nxp.com>, linux-phy@lists.infradead.org, 
- linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-i2c@vger.kernel.org
-In-Reply-To: <20261114-add-support-for-camss-on-sm8750-v7-8-8ff2a11835f6@oss.qualcomm.com>
-References: <20261114-add-support-for-camss-on-sm8750-v7-0-8ff2a11835f6@oss.qualcomm.com>
- <20261114-add-support-for-camss-on-sm8750-v7-8-8ff2a11835f6@oss.qualcomm.com>
-Date: Fri, 20 Nov 2026 11:48:53 +0000
-Message-Id: <179517533369.2846709.4822429145839216229.b4-reply@b4>
-X-Mailer: b4 0.17-dev-e3fc9
-X-Developer-Signature: v=1; a=openpgp-sha256; l=487; i=bod@kernel.org;
- h=from:subject:message-id; bh=uMJapb3KunetUf6a8hwO+z88+IfyEVucqVVMO3w/uh0=;
- b=owEBbQKS/ZANAwAKASJxO7Ohjcg6AcsmYgBrADOl2MX4yKVTxDhvZxr+pGfmeAH85hqm4xuZY
- psAiCfBz8aJAjMEAAEKAB0WIQTmk/sqq6Nt4Rerb7QicTuzoY3IOgUCawAzpQAKCRAicTuzoY3I
- Or65EACi218HD1FId3P5PiL3Jtf7fowZziKnMcsHHdroi69/H0q1YecJ6AxAF2bQU5s3/mlLynt
- MR9oVqbVOPwuFepOAFcq61n91ec/R5we+PVfA/3K0ku7nDnlKYnZywZx/9IcBLPRKRny9joAFvL
- AP2/YOg4vZWJDenNUtPp1CJNVR2vfzb2g422cPV91MKrTY1r+KcNHQ5Cfzz7Vf8Y0XLG3Hb3oy/
- PPHTz+/MGr2IradSx2J+/v9LUGcHjeZCxq5KDnM9ItPu0FwKqgzNcdbnSS/F2xB/UUr9YqAS4aw
- oCOvsZiveZufw0dGn3tmKqPpojUbEVC2urFqQyU0iIUZA3YQPGIafwqJFvY0eOrsrbI3TnSpiSF
- tVHeBRUjL9Drd8GMdVKy0zDnyxdYPs18SLPZyM1eEblBeJ+hcPS2AtRCs8gf1vMYZrupqTkHdiY
- T7uRSTzUSMGmPuzap3oh5pU4O39ccURtuy33xZdhQR/2dm+i3PwK/feD2R2XjC+vIK9rxuy0Y3T
- qz9DPscI1ogkiJEUlxVKJwY8w/iZo7uJ8swEc0ajLl90Uzgo8y6e0b2LR4GOFPrP00/EkVDUH6r
- zzq+XIzjGLGPOKleLiyQYPqoZ6th0YnWQIv8STVZxD1EbcNA0MuckMgYkFo3VbG/WpTJP0XlCvD
- fdkdjXePKPFPEWg==
-X-Developer-Key: i=bod@kernel.org; a=openpgp;
- fpr=E693FB2AABA36DE117AB6FB422713BB3A18DC83A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261116020850.10526-1-25031212351@stu.xidian.edu.cn>
 
-On 2026-11-14 19:29 +0800, Wenmeng Liu wrote:
-> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+Hi YuanZhe,
+
+On Mon, Nov 16, 2026 at 10:08:50AM +0800, YuanZhe Liu wrote:
+> usbio_i2c_xfer() ignores the return value of usbio_acquire() and always
+> calls usbio_release() on the way out.
 > 
-> Add cpas_fast_ahb, cpas_ahb and gcc_axi_hf to the PM clock list for
-> SM8750. The CAMSS core enables them through the shared PM clock helper
-> when the device is probed.
+> usbio_acquire() returns -ENODEV once the USBIO bridge has been
+> disconnected: usbio_disconnect() sets client->bridge to NULL, and
+> usbio_acquire() then only drops client->mutex and returns without
+> taking usbio->bulk_mutex or the runtime PM reference of the USB device.
+> The transfer is nevertheless issued.  usbio_bulk_msg() dereferences the
+> NULL client->bridge in its packet size check and the kernel faults on
+> usbio->txbuf_len.  The matching usbio_release() then drops a runtime PM
+> reference that was never taken, which is reported as "Runtime PM usage
+> count underflow!", and unlocks a mutex that nobody holds.
+
+The patch seems fine but I think the commit message could be improved. The
+code is simply missing a check for errors, after all. The above paragraph
+could be just dropped.
+
 > 
-> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
-> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
+> Propagate the error instead, so that a transfer racing with the
+> disconnect returns -ENODEV without touching the bridge.
+> 
+> A NULL pointer dereference in usbio_bulk_msg() was observed when the
+> bridge was unplugged while i2c-dev was reading from the adapter:
+> 
+>   usbio-bridge 1-1:1.0: Bulk out failed: -19
+>   usbio-bridge 1-1:1.0: Runtime PM usage count underflow!
+>   usb 1-1: USB disconnect, device number 3
+>   general protection fault, probably for non-canonical address
+>   KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
+>   RIP: 0010:usbio_bulk_msg+0xce/0x9f0
+>   Call Trace:
+>    usbio_i2c_init
+>    usbio_i2c_xfer
+>    __i2c_transfer
+>    i2cdev_read
+>    vfs_read
+
+While this may well be true, the bug being fixed is rather simple so I'd
+drop this as well.
+
+> 
+> Fixes: daf161343a39 ("i2c: Add Intel USBIO I2C driver")
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Bin Yu <byu@xidian.edu.cn>
+> Signed-off-by: Bin Yu <byu@xidian.edu.cn>
+> Co-developed-by: Cheng Wen <wencheng@xidian.edu.cn>
+> Signed-off-by: Cheng Wen <wencheng@xidian.edu.cn>
+> Signed-off-by: YuanZhe Liu <25031212351@stu.xidian.edu.cn>
 > ---
+>  drivers/i2c/busses/i2c-usbio.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-usbio.c b/drivers/i2c/busses/i2c-usbio.c
+> index 259754e5fd05..232397efe8a4 100644
+> --- a/drivers/i2c/busses/i2c-usbio.c
+> +++ b/drivers/i2c/busses/i2c-usbio.c
+> @@ -178,7 +178,9 @@ static int usbio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int nu
+>  	struct usbio_i2c *i2c = i2c_get_adapdata(adap);
+>  	int ret;
+>  
+> -	usbio_acquire(i2c->adev);
+> +	ret = usbio_acquire(i2c->adev);
+> +	if (ret)
+> +		return ret;
+>  
+>  	ret = usbio_i2c_init(adap, msgs);
+>  	if (ret)
 
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
----
-bod
+-- 
+Regards,
 
+Sakari Ailus
