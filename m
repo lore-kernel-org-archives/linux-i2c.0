@@ -1,82 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795201197;
-	b=4srMvZKJEERVOEC9ktXGSiuglvMyvqgf9I2Z+UvxLsQaH1PRFocmGmLj5+LwzfqOrWYt
-	 gFJDhnTiwu3wdlNmpjAIvW+zRLooMtkkRci+wTeaavFFXgpX0JrwFkSgOQr1vVSyIWvZ4
-	 ekq9YpONg9p/3CrC/vGtkd416iUBh5xPshxecsHgHIOCt+tJ41yKiuzPVsmUMnurVbinn
-	 rJve7gnB3RC/8qS+n+Zbt+gq2wDfjH+4UHf3D6TpZMDF+tchZkjoYJpqzsDCg/OStg3Dm
-	 UKyBskaFIQLKo1nRAsgD9sx8lFePj7cDax8JlR3DiFP3ItsZLcBDwHH6+X3GBk4zX5A==
+	t=1795201204;
+	b=MVIm4aQIg0d7V53CpbLZjjfHf9pSpe+wx97tJ7XGpDOnBqrBY5c/XsLx010yQ2ucfMY3
+	 FboNCCS9d2s4Wms0/jgLOvxF9wXSnSSSFTQE7n9333ilFuW8lWGB6CUDu/i88A9Fj3XHa
+	 iRxbGUBnc+XN8TFv+ERNPuY8ejv8q9hiqazMktUxgPcsCrT/Pwu7QWyg+V/tXOWUp2zO8
+	 PBaAFIIYjHGmPxFDT+xQ0MX1rRbH7F+5cmO5Gg8kHVBLjE4vXZ/JC1oMdvaYrbhzYLrRl
+	 BomRbQ6KEPa4thNCx7/HBtOIeijIJOWHZUrcrc2aCwqTWlTSuKSNiq+hgbbMSWXEzRA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795201197;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795201204;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=y+xG+koXTgpyKRztQQCKLUQgqoHofBaalUCYpzlKwFk=;
-	b=G2MpL6oWXjXS3CUwgo+GFSDsz9WZ4vWtQTPlPtCn56ZJdglluSkKniIV9BD/8FNTJKOP
-	 YKBP1C4tMMqf77YquwwOjiBHRWiT8mk07wHp5nlHpF/NYFc++1mLX31jPfa3DbtQ2jWWI
-	 Is/dGaclxhGtxnsQulouqipkXQblyEU51AlJSXGnPsU/BEN5kY46cWiajPdTBmjWE1aiS
-	 TNvSGNEJVlMG03pK4AkFC+TkIUaTax567vfZgVvv1Ko909T2D6ajA9HjGvCMX9Ue1MFuN
-	 Bkl6Hbj5tVtfXIDJ3I49oBvSBACbQNtFSEkFO9kIBiaTueH/sw8YXq2xPS52nxeu+cw==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=qZzqOZMHjh3060GmVtwACfTN6uo2AblJxld9EvhqTEA=;
+	b=Vb9OKmYkcN+QIPhtBKSgFtyaKyqzxZud2c+zIAmdiBFBtlhDLSzD4EV/8w7hJ0q020/v
+	 ECCX5sKZxku8dt4gIEQ//6+38Uy9WmKzgbm0rAsWcIkV3EMxTsdRupREhYmcO44YSSwIK
+	 +5XEHKMrxIIBsqYbQ6N9uJ0kCce2fUFXV1RwOltEEIwTGbKyaAGbRzzikxptHZ9FHFYzD
+	 JcckmWtjvNBq7iKT2ZBvcTTte3OkAWd5is4FtT55wzfsnHjhLJ21UL4/SCNO1AGsNL15Y
+	 I+WhzeacWXFXeIYsn4H4sdR8kCPht6tpeHOeDFawmwRpZ7FkDarpuN7duMvScmjzPMg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="ZwJ3I/gf";
-	arc=none smtp.remote-ip=209.85.218.45
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oxw9BZnw;
+	arc=none smtp.remote-ip=209.85.218.53
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14B9160A2633
-	for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 18:59:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 14B9160A2633
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D990E60A2601
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 18:59:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D990E60A2601
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ZwJ3I/gf
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c40e30c26a4so506207566b.0
-        for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 10:59:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oxw9BZnw
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c505186727fso219967766b.3
+        for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 10:59:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795201186; x=1795805986; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=y+xG+koXTgpyKRztQQCKLUQgqoHofBaalUCYpzlKwFk=;
-        b=ZwJ3I/gfafwZiWA5aZDcO+609t3J7/x+kBEjaZHwXFdrLDUlZmBT8ZKqFYEwEX7Ob8
-         ykNW7FobzosPR+C6Sz0Fdw5qJiQq/GIeyyFcKZxvMxXR+Mka6M74WbVWT45oTZIUatIV
-         8qtng2vGdvk7OiLUYXL9BKQD8WEfaxScKpXsHREyR1kMEYzXCPF0d4vlUq426eD23JQO
-         UtO4CDbwI/qfXZaOZoj9CxO3BVYjizp3+kddEc0R8JHtenCT8+yKt+elCXEWaNirbrEE
-         03HYg0t7D/tzdeAPq1IF2ALgqzNFdFwBod+xSdSg0rTQRrJPksXrmsInAitjjot9hPYn
-         cC6g==
+        d=gmail.com; s=20260707; t=1795201191; x=1795805991; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=qZzqOZMHjh3060GmVtwACfTN6uo2AblJxld9EvhqTEA=;
+        b=oxw9BZnwiV3EigbV/QVmoOiC/vTTe0gez77Iv6H1mF7RXK+iFM0Eip4Pi5dppRcfT+
+         4H/DGJ+X16riOz6J95S/aaDQ97XtxsS7z0XbG0P+4mcBFvM9z1etZx1YDQGkO0Srgb4P
+         9zvTLKWMRPrNNViAFJEu4hHz9iUMMdTQyrFqnl0cNiGxCWbeGMM4RPym/s/+QSWWrZO/
+         kpyKIXOHz5JsBzNdjxXdQ/2wUUL3BVvJdWCNbZ2zmX2egAylPNR97Ij54WwDsyAPL7tA
+         9z7SYPSvDWArH4OlOOzQ7jEnkyvO1lXTiA3my8kx1kVcQ2aG4gO3udNsTFIbzW7toF7L
+         ewwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795201186; x=1795805986;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=y+xG+koXTgpyKRztQQCKLUQgqoHofBaalUCYpzlKwFk=;
-        b=svlXAotzz9SGRsmtNTaOtjQ9h5zEMGew0EZV7ToKbzwL39csyZJAJ69TFYX6nH7PA8
-         wOMvf11OzUZwtvAEFtusOmm7v54TPgfY4jzTFK1PxqdMq2+lgAeGdqn3qrzIhfS2csNo
-         6JxEYiwtyZVgFRsE7aL41joURZBj4TYb/tWZouLYY9EfuNrPtGynwpX1nig1Udsh9fPI
-         ZWgwJ5m+e8LMSWEYp+DjhTsO3zKSnXVd01YkWf/WIU/0l7DBWJliijGR8M+l86HNDaCt
-         D6Pu6ykSUn1l+VVZ5lTywVpe4AUSiM2EtfjXsTq/C/h1NbHzaM3UGNOOo7sl9XlUaZxJ
-         GDLA==
-X-Forwarded-Encrypted: i=1; AL+hErHbPxODe30kNfYZ9W0ajYlshIUIiI7UcdGxM+elY61b1KOKDuLVOSunXna1b7a5XGr30nh/yn4nAtU=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8GrTAGJEX4OYRvAkgPv4f2w1BFJ8Z8LfqQeWQj1wE0jtW57DMm
-	nf6QEQ8Qpznw9P5E8N2Auh0M6yP3UhpD96PgMccZhkK9GN2IlbD7tBDV
-X-Gm-Gg: AYBFou1ODmA/QS381JcJOXVlWkLUg/LmNwlJxmrWXe2asRSxFkcLQsHwlXO1aKZCU6d
-	pNpo2APl777I30KsBFKBn04NjFxu4xpHNn+NY8f+QtmuvseZuU6k5J/CIc0dLbKl3dAZxxFypCn
-	DvjEMZOiy1p5WDn+0DsTh68lDjQ2pB6Z0QC9pHYRGy3IrNpEfalDPNkFZK7M6TLs2u+PfzKgH3d
-	WZUHeQTYlKN+hZFkmVZDVNdDjHzpjXjgqmRBmur1LjkLX97qg5gL6K99fmb/CnlmipLqwEUgbjr
-	6E7doHS9hV3Cd6OpOxbl3yU/wLVwOubwY9JBOcuu9LX/KFy3iTKxrSP0qGPGdveDFTbnXMC1BlC
-	1XvAIB+NBqNqs0ZPAakVYQhmx4A0Y9BM8ixHvUgftWfnnyb4ZAYYs/RszjeX1mhwkZ1ba09ZY7g
-	PVU+r/Bq/BcVXZPqoB9Gz2SQgHWErug8NDWqlyLEZgA1sUSvKlutA9kayBd9jXcJYC5RBlSWRw9
-	vxDbBFjsL+VY3x7Mdr6fX+Nvk9SZVcZtaA972vcXA/svZ7wigPJb9kktTGvSHYlz077UR+hvAHa
-	HXt/KIarUuIKOSU2e/Sa4FwKp8QT6F5J+rxFv8GjlIl94EyKOPpZ+/kN5TSWmtM=
-X-Received: by 2002:a17:907:2d23:b0:c40:2439:4d9a with SMTP id a640c23a62f3a-c51319c24fcmr565365066b.28.1795201186217;
-        Fri, 20 Nov 2026 10:59:46 -0800 (PST)
+        d=1e100.net; s=20260707; t=1795201191; x=1795805991;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qZzqOZMHjh3060GmVtwACfTN6uo2AblJxld9EvhqTEA=;
+        b=1C/I7lry+WcU1MjswzmCRQXd0K3Lc9d72Rhrzb7sJu3eMHDkBy5rvH+gRWoFo+7s3l
+         5OdN3WEDb3ElsLvW9qsphrK50cQeNaxmaQC8W5XWlSTuYRVzDWHBbvz0Do7ODV86+zpo
+         jNPToJakmxR6h6XPPzkTWfgOJBb4tuybuIQ0gXQcIqoD52f1BE24guqBPLfafBuiOpnz
+         khYDJvkJQYEbgqBOrmFS3ngylEBiTxa16BZsoEM1OXQO3SvVnBvHYQ/R9wUVZspE9HM/
+         hdxQxh4umFhQrPs9lv7LqJu2I7GDFJWKTnaG1fPRN/cOKfOsG1745tBZuRwKxaZ0frHd
+         BJ4g==
+X-Forwarded-Encrypted: i=1; AL+hErGiSINTzrPOrojN52izbcTjzZrxgPIAHMedSaTxLcPhc1Nzj2rc4gFJjawW6IFeXzK8yYlQpbhpuWE=@vger.kernel.org
+X-Gm-Message-State: APuU4Z88joofa4JvOUU05ePoOVeJRwL7NiRzWryk1w+wlC44hDwcWUIR
+	wK/l4bwWoZqDJ7AJ5GrS2RFK66vqo54G563VXh/D7EPt3vZR2iir+lpu
+X-Gm-Gg: AYBFou1CjcTFag9kIMTZTdHXm+CDN6ft24mgNWQkfy8zPYQLRpX0UaBp+HYWUhJT1Xr
+	0NLhRqvXJbqHffWAm701WePJ+ImhFsuxsmA0WJbiZSjUua3pUeHnTdkLRfDaRiah7D5qW56cEzG
+	ao9vIftLwl+yMWsMvuO7fc0X/T1YMxs1wiYkv8+VB1STSoRlMWD5SXHIPQKOu4IbzxPd90MIxT/
+	WjVpucbxn8nSrCEF7Isbnm8/VqrTSk5vp0LwDDToUC2Dbumm38Cm9TI9aZC6mStoDEJvmAIYQxn
+	yFMgY3cdHniZThcjBZLiY7p4Pc5l/yHkHGYcDijJsQW48VoTVjzPHzoCT8zukXMZXgwdi4ZYjpn
+	mJ1iDRWDfqL5CjR2phUmMEMkozsFwPsal+YViYoDM5FCKhI+L3ydlO2XgnanADwVdowRD3yIoJL
+	GnrhxAbQwiRS22WIIsQsCuwXr2KyCe0ynu6zWX3R6S8K1mguCFEcG+sTtph4BdjVSDpBOoovPBs
+	ewMBaAwnyXnWvFyL+krGXkN43jBNxRrJD/weiFPlp+i7OGO9Go1gRF9onESvqd9yLUCqMGn97/u
+	AEaC9Qglq9+DtlPa2pjHQIBAAR45JnuapUwa6ffx99ZVcyMPKwBeexQfWiZzpw==
+X-Received: by 2002:a17:906:18e1:b0:c50:5996:5b89 with SMTP id a640c23a62f3a-c513a84944amr317779466b.23.1795201191025;
+        Fri, 20 Nov 2026 10:59:51 -0800 (PST)
 Received: from antoniarch (84-40-238-230.cgnat.inetia.pl. [84.40.238.230])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513b02de1dsm125205266b.85.2026.11.20.10.59.44
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513b02de1dsm125205266b.85.2026.11.20.10.59.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 10:59:45 -0800 (PST)
+        Fri, 20 Nov 2026 10:59:50 -0800 (PST)
 From: Antoni Pokusinski <apokusinski01@gmail.com>
 To: vigneshr@ti.com,
 	andi.shyti@kernel.org,
@@ -100,10 +102,12 @@ Cc: linux-omap@vger.kernel.org,
 	dri-devel@lists.freedesktop.org,
 	linaro-mm-sig@lists.linaro.org,
 	Antoni Pokusinski <apokusinski01@gmail.com>
-Subject: [PATCH v3 0/3] i2c: omap: add support for DMA
-Date: Fri, 20 Nov 2026 19:59:10 +0100
-Message-ID: <20261120185915.150228-1-apokusinski01@gmail.com>
+Subject: [PATCH v3 3/3] i2c: omap: add DMA support
+Date: Fri, 20 Nov 2026 19:59:13 +0100
+Message-ID: <20261120185915.150228-4-apokusinski01@gmail.com>
 X-Mailer: git-send-email 2.56.1
+In-Reply-To: <20261120185915.150228-1-apokusinski01@gmail.com>
+References: <20261120185915.150228-1-apokusinski01@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -113,48 +117,574 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Hello,
-This patchset introduces support for the TX & RX DMA transfers in the
-am335x/omap I2C controller. I tested this implementation on AM335x 
-(Beaglebone Black) and things seem to work fine.
+Add support for the TX and RX DMA requests of the OMAP I2C controller.
+The DMA transactions are dispatched only if the I2C message size is
+a multiple of the configured FIFO threshold and is greater than a
+predefined threshold of 8 bytes.
 
-Kind regards,
-Antoni Pokusinski
+Support for DMA transactions that are not a multiple of the FIFO
+threshold can be added in the future using the draining feature.
 
+Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
 ---
-Changes since v2:
-* dropped patch "i2c: omap: remove unused is_rdr and is_xdr function arguments"
-* added `omap_i2c_disable/enable_pio_irqs()` helper functions
-* probe: added `if (omap->dma)` before the DMA free
-* xfer_data: signal DMA completion in the case of NACK interrupt
-* complete_cmd: signal DMA completion in the case of bus error (e.g. AL)
-* xfer_msg: removed incorrect checks `if (!omap->cmd_err)`
-* xfer_msg: added handling of DMA/IRQ cleanup in the `b_hw && stop` path
+ drivers/i2c/busses/i2c-omap.c | 373 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 352 insertions(+), 21 deletions(-)
 
-Changes since v1:
-* new patch "i2c: omap: remove unused is_rdr and is_xdr ..."
-* probe: added `goto err_dma_free` instead of `return`
-         in the case of failed `i2c_add_numbered_adapter()`
-* changes in XRDY/RRDY, XDR/RDR interrupts management:
-  - init: do not enable the above-mentioned intrerupts
-  - xfer_msg: enable the interrupts before any non-DMA transfer
-  - xfer_msg: disable the interrupts after any non-DMA transfer
-* xfer_msg: added checks on `omap->cmd_err` to catch
-            NACK or AL error occured during DMA transfers
-* general: moved scheme-related macros to the top of the file
-
-Antoni Pokusinski (3):
-  dt-bindings: i2c: ti,omap4-i2c: Add DMA properties
-  ARM: dts: am33xx-l4: Add missing DMAs for I2C controllers
-  i2c: omap: add DMA support
-
- .../devicetree/bindings/i2c/ti,omap4-i2c.yaml |  12 +
- arch/arm/boot/dts/ti/omap/am33xx-l4.dtsi      |   4 +
- drivers/i2c/busses/i2c-omap.c                 | 373 +++++++++++++++++-
- 3 files changed, 368 insertions(+), 21 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index f02d294db42a..650d1cce05c7 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -5,6 +5,7 @@
+  * Copyright (C) 2003 MontaVista Software, Inc.
+  * Copyright (C) 2005 Nokia Corporation
+  * Copyright (C) 2004 - 2007 Texas Instruments.
++ * Copyright (C) 2026 Antoni Pokusiński
+  *
+  * Originally written by MontaVista Software, Inc.
+  * Additional contributions by:
+@@ -13,10 +14,13 @@
+  *	Juha Yrjölä <juha.yrjola@solidboot.com>
+  *	Syed Khasim <x0khasim@ti.com>
+  *	Nishant Menon <nm@ti.com>
++ *	Antoni Pokusiński <apokusinski01@gmail.com>
+  */
+ 
+ #include <linux/module.h>
+ #include <linux/delay.h>
++#include <linux/dma-mapping.h>
++#include <linux/dmaengine.h>
+ #include <linux/i2c.h>
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
+@@ -50,6 +54,8 @@
+ /* timeout for making decision on bus free status */
+ #define OMAP_I2C_BUS_FREE_TIMEOUT (msecs_to_jiffies(10))
+ 
++#define OMAP_I2C_DMA_THRESHOLD	8
++
+ /* For OMAP3 I2C_IV has changed to I2C_WE (wakeup enable) */
+ enum {
+ 	OMAP_I2C_REV_REG = 0,
+@@ -57,6 +63,10 @@ enum {
+ 	OMAP_I2C_STAT_REG,
+ 	OMAP_I2C_IV_REG,
+ 	OMAP_I2C_WE_REG,
++	OMAP_I2C_DMARXENABLE_SET,
++	OMAP_I2C_DMATXENABLE_SET,
++	OMAP_I2C_DMARXENABLE_CLR,
++	OMAP_I2C_DMATXENABLE_CLR,
+ 	OMAP_I2C_SYSS_REG,
+ 	OMAP_I2C_BUF_REG,
+ 	OMAP_I2C_CNT_REG,
+@@ -176,12 +186,37 @@ enum {
+ 
+ #define OMAP_I2C_IP_V2_INTERRUPTS_MASK	0x6FFF
+ 
++#define OMAP_I2C_SCHEME(rev)		((rev & 0xc000) >> 14)
++
++#define OMAP_I2C_REV_SCHEME_0_MAJOR(rev) (rev >> 4)
++#define OMAP_I2C_REV_SCHEME_0_MINOR(rev) (rev & 0xf)
++
++#define OMAP_I2C_REV_SCHEME_1_MAJOR(rev) ((rev & 0x0700) >> 7)
++#define OMAP_I2C_REV_SCHEME_1_MINOR(rev) (rev & 0x1f)
++#define OMAP_I2C_SCHEME_0		0
++#define OMAP_I2C_SCHEME_1		1
++
++struct omap_i2c_dma {
++	struct dma_chan		*chan_rx;
++	struct dma_chan		*chan_tx;
++	struct dma_chan		*chan_using;
++	struct device		*dma_dev;
++	u8			*curr_msg_buf;
++	struct i2c_msg		*curr_msg;
++	dma_addr_t		dma_buf;
++	unsigned int		dma_len;
++	enum dma_data_direction dma_data_dir;
++	struct completion	complete;
++	dma_addr_t		phy_addr;
++};
++
+ struct omap_i2c_dev {
+ 	struct device		*dev;
+ 	void __iomem		*base;		/* virtual */
+ 	int			irq;
+ 	int			reg_shift;      /* bit shift for I2C register addresses */
+ 	struct completion	cmd_complete;
++	struct omap_i2c_dma	*dma;
+ 	struct resource		*ioarea;
+ 	u32			latency;	/* maximum mpu wkup latency */
+ 	void			(*set_mpu_wkup_lat)(struct device *dev,
+@@ -242,6 +277,10 @@ static const u8 reg_map_ip_v2[] = {
+ 	[OMAP_I2C_STAT_REG] = 0x28,
+ 	[OMAP_I2C_IV_REG] = 0x34,
+ 	[OMAP_I2C_WE_REG] = 0x34,
++	[OMAP_I2C_DMARXENABLE_SET] = 0x38,
++	[OMAP_I2C_DMATXENABLE_SET] = 0x3c,
++	[OMAP_I2C_DMARXENABLE_CLR] = 0x40,
++	[OMAP_I2C_DMATXENABLE_CLR] = 0x44,
+ 	[OMAP_I2C_SYSS_REG] = 0x90,
+ 	[OMAP_I2C_BUF_REG] = 0x94,
+ 	[OMAP_I2C_CNT_REG] = 0x98,
+@@ -462,10 +501,7 @@ static int omap_i2c_init(struct omap_i2c_dev *omap)
+ 		sclh = fclk_rate / (omap->speed * 2) - 7 + psc;
+ 	}
+ 
+-	omap->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+-			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
+-			OMAP_I2C_IE_AL)  | ((omap->fifo_size) ?
+-				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0);
++	omap->iestate = OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK | OMAP_I2C_IE_AL;
+ 
+ 	omap->pscstate = psc;
+ 	omap->scllstate = scll;
+@@ -655,6 +691,168 @@ static void omap_i2c_wait(struct omap_i2c_dev *omap)
+ 	} while (!(stat & mask) && count < 5);
+ }
+ 
++static void omap_i2c_dma_callback(void *arg)
++{
++	struct omap_i2c_dev *omap = (struct omap_i2c_dev *)arg;
++
++	complete(&omap->dma->complete);
++}
++
++static int omap_i2c_dma_xfer(struct omap_i2c_dev *omap, struct i2c_msg *msg)
++{
++	int ret;
++	struct dma_slave_config dma_sconfig = {0};
++	struct omap_i2c_dma *dma = omap->dma;
++	struct dma_async_tx_descriptor *txdesc;
++	struct device *dev = &omap->adapter.dev;
++
++	dma->curr_msg = msg;
++
++	dma->curr_msg_buf = i2c_get_dma_safe_msg_buf(msg, 1);
++	if (!dma->curr_msg_buf)
++		return -ENOMEM;
++
++	if (omap->receiver) {
++		dma->chan_using = dma->chan_rx;
++
++		dma_sconfig.src_addr = dma->phy_addr +
++				(omap->regs[OMAP_I2C_DATA_REG]
++					<< omap->reg_shift);
++		dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++		dma_sconfig.src_maxburst = omap->threshold;
++		dma_sconfig.direction = DMA_DEV_TO_MEM;
++	} else {
++		dma->chan_using = dma->chan_tx;
++
++		dma_sconfig.dst_addr = dma->phy_addr +
++				(omap->regs[OMAP_I2C_DATA_REG]
++					<< omap->reg_shift);
++		dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++		dma_sconfig.dst_maxburst = omap->threshold;
++		dma_sconfig.direction = DMA_MEM_TO_DEV;
++	}
++
++	ret = dmaengine_slave_config(dma->chan_using, &dma_sconfig);
++	if (ret < 0) {
++		dev_err(dev, "DMA channel config failed: %d\n", ret);
++		goto err_map;
++	}
++
++	dma->dma_len = msg->len;
++	dma->dma_data_dir = omap->receiver ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
++
++	dma->dma_dev = dmaengine_get_dma_device(dma->chan_using);
++
++	dma->dma_buf = dma_map_single(dma->dma_dev, dma->curr_msg_buf,
++				      dma->dma_len, dma->dma_data_dir);
++	if (dma_mapping_error(dma->dma_dev, dma->dma_buf)) {
++		dev_err(dev, "DMA mapping failed\n");
++		ret = -EINVAL;
++		goto err_map;
++	}
++
++	txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
++					     dma->dma_len,
++					     omap->receiver ? DMA_DEV_TO_MEM :
++							      DMA_MEM_TO_DEV,
++					     DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++	if (!txdesc) {
++		dev_err(dev, "Not able to get desc for DMA xfer\n");
++		ret = -EINVAL;
++		goto err_desc;
++	}
++
++	reinit_completion(&dma->complete);
++
++	dmaengine_desc_set_callback(txdesc, omap_i2c_dma_callback, NULL, omap);
++	ret = dma_submit_error(dmaengine_submit(txdesc));
++	if (ret < 0) {
++		dev_err(dev, "DMA submit failed\n");
++		goto err_submit;
++	}
++
++	dma_async_issue_pending(dma->chan_using);
++	return 0;
++
++err_submit:
++	dmaengine_terminate_sync(dma->chan_using);
++err_desc:
++	dma_unmap_single(dma->dma_dev, dma->dma_buf, dma->dma_len,
++			 dma->dma_data_dir);
++err_map:
++	i2c_put_dma_safe_msg_buf(dma->curr_msg_buf, msg, false);
++	return ret;
++}
++
++static void omap_i2c_dma_cleanup(struct omap_i2c_dev *omap, bool xferred)
++{
++	struct omap_i2c_dma *dma = omap->dma;
++
++	dma_unmap_single(dma->dma_dev, dma->dma_buf, dma->dma_len,
++			 dma->dma_data_dir);
++	i2c_put_dma_safe_msg_buf(dma->curr_msg_buf, dma->curr_msg, xferred);
++}
++
++static void omap_i2c_dma_enable_req(struct omap_i2c_dev *omap)
++{
++	u16 w;
++
++	w = omap_i2c_read_reg(omap, OMAP_I2C_BUF_REG);
++	if (omap->receiver) {
++		w |= OMAP_I2C_BUF_RDMA_EN;
++		omap_i2c_write_reg(omap, OMAP_I2C_BUF_REG, w);
++
++		omap_i2c_write_reg(omap, OMAP_I2C_DMARXENABLE_SET, 1);
++	} else {
++		w |= OMAP_I2C_BUF_XDMA_EN;
++		omap_i2c_write_reg(omap, OMAP_I2C_BUF_REG, w);
++
++		omap_i2c_write_reg(omap, OMAP_I2C_DMATXENABLE_SET, 1);
++	}
++}
++
++static void omap_i2c_dma_disable_req(struct omap_i2c_dev *omap)
++{
++	u16 w;
++
++	w = omap_i2c_read_reg(omap, OMAP_I2C_BUF_REG);
++	if (omap->receiver) {
++		w &= ~OMAP_I2C_BUF_RDMA_EN;
++		omap_i2c_write_reg(omap, OMAP_I2C_BUF_REG, w);
++
++		omap_i2c_write_reg(omap, OMAP_I2C_DMARXENABLE_CLR, 1);
++	} else {
++		w &= ~OMAP_I2C_BUF_XDMA_EN;
++		omap_i2c_write_reg(omap, OMAP_I2C_BUF_REG, w);
++
++		omap_i2c_write_reg(omap, OMAP_I2C_DMATXENABLE_CLR, 1);
++	}
++}
++
++static void omap_i2c_enable_pio_irqs(struct omap_i2c_dev *omap, u16 mask)
++{
++	if (!mask)
++		return;
++
++	if (omap->scheme == OMAP_I2C_SCHEME_0)
++		omap_i2c_write_reg(omap, OMAP_I2C_IE_REG,
++				   omap->iestate | mask);
++	else
++		omap_i2c_write_reg(omap, OMAP_I2C_IE_REG, mask);
++}
++
++static void omap_i2c_disable_pio_irqs(struct omap_i2c_dev *omap, u16 mask)
++{
++	if (!mask)
++		return;
++
++	if (omap->scheme == OMAP_I2C_SCHEME_0)
++		omap_i2c_write_reg(omap, OMAP_I2C_IE_REG, omap->iestate);
++	else
++		omap_i2c_write_reg(omap, OMAP_I2C_IP_V2_IRQENABLE_CLR,
++				   mask);
++}
++
+ /*
+  * Low level master read/write transaction.
+  */
+@@ -663,8 +861,8 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ {
+ 	struct omap_i2c_dev *omap = i2c_get_adapdata(adap);
+ 	unsigned long time_left;
+-	u16 w;
+-	int ret;
++	u16 w, pio_irq_mask;
++	int ret, use_dma;
+ 
+ 	dev_dbg(omap->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
+ 		msg->addr, msg->len, msg->flags, stop);
+@@ -672,6 +870,14 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	omap->receiver = !!(msg->flags & I2C_M_RD);
+ 	omap_i2c_resize_fifo(omap, msg->len, omap->receiver);
+ 
++	/**
++	 * REVISIT: If the message size is not a multiple of the threshold,
++	 * the draining feature must be used.
++	 */
++	use_dma = !polling && omap->dma && msg->len >= OMAP_I2C_DMA_THRESHOLD &&
++		  !(omap->flags & OMAP_I2C_FLAG_NO_FIFO) &&
++		  msg->len % omap->threshold == 0;
++
+ 	omap_i2c_write_reg(omap, OMAP_I2C_SA_REG, msg->addr);
+ 
+ 	/* REVISIT: Could the STB bit of I2C_CON be used with probing? */
+@@ -692,6 +898,23 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 		reinit_completion(&omap->cmd_complete);
+ 	omap->cmd_err = 0;
+ 
++	if (use_dma) {
++		ret = omap_i2c_dma_xfer(omap, msg);
++		if (ret) {
++			omap_i2c_reset(omap);
++			__omap_i2c_init(omap);
++			return ret;
++		}
++
++		omap_i2c_dma_enable_req(omap);
++	} else {
++		pio_irq_mask = OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
++			       ((omap->fifo_size) ? (OMAP_I2C_IE_RDR |
++						    OMAP_I2C_IE_XDR) : 0);
++
++		omap_i2c_enable_pio_irqs(omap, pio_irq_mask);
++	}
++
+ 	w = OMAP_I2C_CON_EN | OMAP_I2C_CON_MST | OMAP_I2C_CON_STT;
+ 
+ 	/* High speed configuration */
+@@ -727,6 +950,17 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 			if (time_after(jiffies, delay)) {
+ 				dev_err(omap->dev, "controller timed out "
+ 				"waiting for start condition to finish\n");
++
++				if (use_dma) {
++					omap_i2c_dma_disable_req(omap);
++
++					dmaengine_terminate_sync(omap->dma->chan_using);
++
++					omap_i2c_dma_cleanup(omap, false);
++				} else {
++					omap_i2c_disable_pio_irqs(omap, pio_irq_mask);
++				}
++
+ 				return -ETIMEDOUT;
+ 			}
+ 			cpu_relax();
+@@ -742,8 +976,15 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	 * into arbitration and we're currently unable to recover from it.
+ 	 */
+ 	if (!polling) {
+-		time_left = wait_for_completion_timeout(&omap->cmd_complete,
+-							OMAP_I2C_TIMEOUT);
++		time_left = OMAP_I2C_TIMEOUT;
++
++		if (use_dma)
++			time_left = wait_for_completion_timeout(&omap->dma->complete,
++								time_left);
++
++		if (time_left)
++			time_left = wait_for_completion_timeout(&omap->cmd_complete,
++								time_left);
+ 	} else {
+ 		do {
+ 			omap_i2c_wait(omap);
+@@ -753,7 +994,18 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 		time_left = !ret;
+ 	}
+ 
+-	if (time_left == 0) {
++	if (use_dma) {
++		if (!time_left || omap->cmd_err)
++			dmaengine_terminate_sync(omap->dma->chan_using);
++
++		omap_i2c_dma_cleanup(omap, time_left && !omap->cmd_err);
++
++		omap_i2c_dma_disable_req(omap);
++	} else {
++		omap_i2c_disable_pio_irqs(omap, pio_irq_mask);
++	}
++
++	if (!time_left) {
+ 		omap_i2c_reset(omap);
+ 		__omap_i2c_init(omap);
+ 		return -ETIMEDOUT;
+@@ -855,6 +1107,10 @@ static inline void
+ omap_i2c_complete_cmd(struct omap_i2c_dev *omap, u16 err)
+ {
+ 	omap->cmd_err |= err;
++
++	if (omap->dma && err)
++		complete(&omap->dma->complete);
++
+ 	complete(&omap->cmd_complete);
+ }
+ 
+@@ -1082,6 +1338,9 @@ static int omap_i2c_xfer_data(struct omap_i2c_dev *omap)
+ 			omap->cmd_err |= OMAP_I2C_STAT_NACK;
+ 			omap_i2c_ack_stat(omap, OMAP_I2C_STAT_NACK);
+ 
++			if (omap->dma)
++				complete(&omap->dma->complete);
++
+ 			if (!(stat & ~OMAP_I2C_STAT_NACK)) {
+ 				err = -EAGAIN;
+ 				break;
+@@ -1255,16 +1514,6 @@ static const struct of_device_id omap_i2c_of_match[] = {
+ MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
+ #endif
+ 
+-#define OMAP_I2C_SCHEME(rev)		((rev & 0xc000) >> 14)
+-
+-#define OMAP_I2C_REV_SCHEME_0_MAJOR(rev) (rev >> 4)
+-#define OMAP_I2C_REV_SCHEME_0_MINOR(rev) (rev & 0xf)
+-
+-#define OMAP_I2C_REV_SCHEME_1_MAJOR(rev) ((rev & 0x0700) >> 7)
+-#define OMAP_I2C_REV_SCHEME_1_MINOR(rev) (rev & 0x1f)
+-#define OMAP_I2C_SCHEME_0		0
+-#define OMAP_I2C_SCHEME_1		1
+-
+ static int omap_i2c_get_scl(struct i2c_adapter *adap)
+ {
+ 	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
+@@ -1338,10 +1587,70 @@ static struct i2c_bus_recovery_info omap_i2c_bus_recovery_info = {
+ 	.recover_bus		= i2c_generic_scl_recovery,
+ };
+ 
++static struct omap_i2c_dma *omap_i2c_dma_init(struct omap_i2c_dev *omap,
++					      dma_addr_t phy_addr)
++{
++	struct device *dev = omap->dev;
++	struct omap_i2c_dma *dma;
++	int ret;
++
++	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
++	if (!dma)
++		return ERR_PTR(-ENOMEM);
++
++	dma->phy_addr = phy_addr;
++
++	init_completion(&dma->complete);
++
++	dma->chan_tx = dma_request_chan(dev, "tx");
++	if (IS_ERR(dma->chan_tx)) {
++		ret = PTR_ERR(dma->chan_tx);
++		if (ret != -ENODEV)
++			dev_err_probe(dev, ret,
++				      "can't request DMA tx channel\n");
++		goto dma_free;
++	}
++
++	dma->chan_rx = dma_request_chan(dev, "rx");
++	if (IS_ERR(dma->chan_rx)) {
++		ret = PTR_ERR(dma->chan_rx);
++		if (ret != -ENODEV)
++			dev_err_probe(dev, ret,
++				      "can't request DMA rx channel\n");
++		goto dma_tx_fail;
++	}
++
++	return dma;
++
++dma_tx_fail:
++	dma_release_channel(dma->chan_tx);
++dma_free:
++	devm_kfree(dev, dma);
++
++	return ERR_PTR(ret);
++}
++
++static void omap_i2c_dma_free(struct omap_i2c_dev *omap)
++{
++	struct omap_i2c_dma *dma = omap->dma;
++
++	dma->dma_buf = 0;
++	dma->dma_len = 0;
++
++	dma_release_channel(dma->chan_tx);
++	dma->chan_tx = NULL;
++
++	dma_release_channel(dma->chan_rx);
++	dma->chan_rx = NULL;
++
++	dma->chan_using = NULL;
++}
++
+ static int
+ omap_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct omap_i2c_dev	*omap;
++	struct resource		*res;
+ 	struct i2c_adapter	*adap;
+ 	const struct omap_i2c_bus_platform_data *pdata =
+ 		dev_get_platdata(&pdev->dev);
+@@ -1359,7 +1668,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	if (!omap)
+ 		return -ENOMEM;
+ 
+-	omap->base = devm_platform_ioremap_resource(pdev, 0);
++	omap->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 	if (IS_ERR(omap->base))
+ 		return PTR_ERR(omap->base);
+ 
+@@ -1478,6 +1787,22 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		goto err_unuse_clocks;
+ 	}
+ 
++	if (omap->scheme != OMAP_I2C_SCHEME_0) {
++		omap->dma = omap_i2c_dma_init(omap, (dma_addr_t)res->start);
++		if (PTR_ERR(omap->dma) == -EPROBE_DEFER) {
++			r = -EPROBE_DEFER;
++			dev_err_probe(&pdev->dev, r,
++				      "can't get DMA channels\n");
++			goto err_unuse_clocks;
++		} else if (PTR_ERR(omap->dma) == -ENODEV) {
++			dev_dbg(omap->dev, "DMA setup failed\n");
++			omap->dma = NULL;
++		} else if (IS_ERR(omap->dma)) {
++			r = PTR_ERR(omap->dma);
++			goto err_unuse_clocks;
++		}
++	}
++
+ 	adap = &omap->adapter;
+ 	i2c_set_adapdata(adap, omap);
+ 	adap->owner = THIS_MODULE;
+@@ -1493,7 +1818,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	adap->nr = pdev->id;
+ 	r = i2c_add_numbered_adapter(adap);
+ 	if (r)
+-		goto err_unuse_clocks;
++		goto err_dma_free;
+ 
+ 	dev_info(omap->dev, "bus %d rev%d.%d at %d kHz\n", adap->nr,
+ 		 major, minor, omap->speed);
+@@ -1502,6 +1827,9 @@ omap_i2c_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++err_dma_free:
++	if (omap->dma)
++		omap_i2c_dma_free(omap);
+ err_unuse_clocks:
+ 	omap_i2c_write_reg(omap, OMAP_I2C_CON_REG, 0);
+ err_put_pm:
+@@ -1523,6 +1851,9 @@ static void omap_i2c_remove(struct platform_device *pdev)
+ 	if (omap->mux_state)
+ 		mux_state_deselect(omap->mux_state);
+ 
++	if (omap->dma)
++		omap_i2c_dma_free(omap);
++
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0)
+ 		dev_err(omap->dev, "Failed to resume hardware, skip disable\n");
 -- 
 2.56.1
 
