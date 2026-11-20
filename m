@@ -1,98 +1,45 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795174152;
-	b=s1UsT3xTWFHD2ZhgGYLz2Wx4kjTuXb8P839Et8bhAcsWf3VBeTn6GDwPF1lspCpYNf4a
-	 GXfGwQ03vJ0fitq1kkp7GsnNASAm7JRojtYx+NjTblGsNB1PPucWyjfUhXVpEa57Oaq0A
-	 t98higBX5v56DKcgL5jKD8ussGiNBesuSkAif8GfJ1HwVJlTFMyIpkIitc7yo3ml5re1w
-	 nocgUVnvOP6fLKIWoNlmlRiTZYhITRCn2Lm2x/mnE92ifmW5uPGfJ/xJuu+2QDO1Q9gUp
-	 d6tebRq0Bjncjk3Tyt3m0C/qk74RgXTdRpjN66omSpDmoGZmTwyJqLYU9bh807Iaqmg==
+	t=1795175301;
+	b=N4qR1ZoMm3sPP3UWN0UtWHtaSfSQMEwJTJ8cHlpTO/jlNMMXOjwRRgftrXLtUrEYwPgU
+	 /tbUljLmX2SLWyR6j96RxJ/Jyg4mv9NyoxyaIVorPcMl5lL6zRXp8/NBf2HvjnrrAJf5r
+	 5WiNWMvALkj2PNU0Hyz7+nLeJhxZ7MV/scPU1+AW5RYxm6ayPhnFvIb50mqqubCKQNUrh
+	 3t2SnBnzlIoGBIK+h8Pp5mpIfRk1d1bqRUpnzRSvzxX+5uK2CtDHZgaghVL3noGPJsiy5
+	 G/F9mfwi8KTu+uPn9aeF3ED8RpF6qvh25Ne9ZrCrIbC62bmtQkTBCl84+TjLIgujK1g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795174152;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
-	bh=H2Y/M+dNCf7NZhZYEFajE482Mp/N89Yl/EG9+klpX5E=;
-	b=jU/l+gxAqke+LrXjQYHKAnpcWjZxeY9ntMCOm1q9ex2/Ne1aZvJeeeQT0tgpg74oi43j
-	 sey27jCv5dQZDYhuK0juIBBulZMwWvnRiUuwQdR7alCEujuy0hUeF6lZ3aWxVv20gCpWa
-	 wsLJNeOliZHRGlkBZSxC7UqEXtRVKJZuoOj+s1cNUGCS9m2JyHo71B3Ot2i8elRPySSNA
-	 CO/fj1HUgU2c6QxyZfaGImIgA99tC0Ap/cMtb9WDRPirqaR3jWiv467VfsCfRFgeC+GRU
-	 FIaSBCNP/qJGi4Zoi6Kac2HFANMNCP7KmIvzWJfB8HI+xnHc8c97C/y28j1PacKYL/A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795175301;
+	h=Received:DKIM-Signature:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Subject:From:To:Cc:In-Reply-To:References:
+	 Date:Message-Id:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=KCiZ+OPPiUqNo96uGTMFbWd85A/AQQGSdw1qgemTJ/w=;
+	b=bsga6sKOoS3VzzOOODgwlFqeqA7e59bEzlFU+6S7zaK1hyNvLgn7owyoaOiSUvOino1R
+	 DtGyE4uXU6nwVQMcY/ZzOZtMWuRZ0VLa71zErCC/JxJ6gETO6t6BFyjso3DLFqe0l3w9p
+	 UPGLAsNs3sRiP9OdQpXXrfXopCsjTRA8dT6Dx4E85tKwo2GFawxAF4GSYQUDv0x9GayVd
+	 Gh2X3suvJbunGk7/NH8ONQlrLLWGfsaAdsrThSrewKz0c/IT+74qWQABr5tEst1JaeTpz
+	 CzW95h+cVlf+xGUdJQuqNAkB1VAwDXOX1ZWcFcWF+ff4o010olVrZNEeSMmxtMG0XTQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="AfZM2/3R";
-	arc=none smtp.remote-ip=209.85.167.43
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g3FtLrEd;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77D42606A326
-	for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 11:29:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 77D42606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA9D0606A320;
+	Fri, 20 Nov 2026 11:48:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AfZM2/3R
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5c1465bbbdaso564910e87.3
-        for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 03:29:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795174151; x=1795778951; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=H2Y/M+dNCf7NZhZYEFajE482Mp/N89Yl/EG9+klpX5E=;
-        b=AfZM2/3RNZ29zxQPByoziHGRKOMClQenmiFL0HtRQqnRJm8YjZt5KhowLUD4NAVpxi
-         VYtq6CDWVgLbZa8gLAVBue0s5772hxY9T1MHhb9HJNKvF/5E67IhK7XYJywbs8MfJTL9
-         YC0aSjb73iUI/o2k9GGx5/TOc0yBrCF4OsIItWBdQxqPua+FahxNhIeK47QgBg3EEUpG
-         Wc9Ex3WHodxqhlkxJjcNDR6Vh0saHmUeh8ZnmFjd1ThIUjHakqYU9eCvp6NVY+L0FW67
-         O/zsy36PWX1QGc1iUfrH+P9WR5uvQYuavSw6dHeMwrECVfcF5xzls6nsX15RUYfFRnuU
-         1+ZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795174151; x=1795778951;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=H2Y/M+dNCf7NZhZYEFajE482Mp/N89Yl/EG9+klpX5E=;
-        b=lEEh3TdD7QFakbGWAbWU12Xg1WPsg6xJLYW1wNszFc4php0PGOAjblbIWqEyrTMCJI
-         8CyCHrGTuT21DdlGqHZMkW02CEJ1FLYK3bcTagwIXwqaDM36XRg1Zj0jv3LCNFWTcmNV
-         gZYvqemOA7Hg25G2nozL4e9at28b7kQ9vODX5lA429pJ3fEND73C6VNSWlfwuORs//qK
-         w9XIOQMlqm4aSDT62cGzAs/3Zyb5UxbB7wjNkHYGRxuWfr4kZOjOzJXd2DS8b9ho2Eek
-         xqmESWUiWYr7yAhRZ2WUdQMJTO0r2i8qmbOUD/Kg7DlKjDHohBLXiza0kn7wWEHkMEKv
-         Z3WA==
-X-Gm-Message-State: APuU4Z9Cv6cKx2Q+g6cIxVXWxyhCIoi4wRCrkAQEheOGjvoXRvlCvqp6
-	fBbmFowFK/5o+WMkBx+dQ1NZVenZF4UodzOrFLVtL43YAoei2XYzhU7KcZF+oUZM
-X-Gm-Gg: AZFdTZeKbWZk3e9KcTvJ0l4gIFb8IQIoPfm6hPeldpjduH2tVPv/JSA0bwCd3w8P41Y
-	GW8cg9aiauYuFw2RQeHCEr9hTx/KEz0VAJWlfjwnjspSUtxXiTWm72q3wt7ifERUoYBj8MqheEA
-	StkdlSyulkX4UrWYHGppuSQFcHJHBPMY0MdVdGZIK+cC1pKydm11q4iLij0mXG+ebTLqUQqZqu3
-	GqnQ2wLUhPc3ioLgXcS8F9OVtdZrA4MgSXJvMBfmWnOdlQY9N739+77NuPSGwKTPYOcmljTyrLa
-	++ECelrpMwUqikflIMNGfFvIdX38VgdJJV10/RDJz//lzsJhreC4O6Rqtof1bX97ik9xrmkM5xc
-	Xck14+KOyjyWQ7AiM1qosOrS062jk0wudjUx1S7XSfHA0QyXoTFEKkTpuDmAFc/ycNiH8E5mRoy
-	JUVhtMpDU0pJ0J0Ve7QuVGsLkYikU37OVZvia58ayLBc0s3ZApXwNUYLm7oDRxmrqPxMED+kfkJ
-	Gofqofbr3nMd+qR76dBHs1Y5sQ2Mzp1MxRqwLzSCItTtU3HDMi1NlVtevJIkWQ0CYIByAZxEqPY
-	dmv0pilSqH8uxtinwntPQw9Xslvv4iQDx0HHXZqMl7BF2GecmZysSuvQ7BoKZc0mpmzNlmTItQ=
-	=
-X-Received: by 2002:a05:6512:ba6:b0:5c1:ac5a:52e6 with SMTP id 2adb3069b0e04-5c1bc865878mr898897e87.24.1795174150406;
-        Fri, 20 Nov 2026 03:29:10 -0800 (PST)
-Received: from gmail.com (78-71-189-157-no2450.tbcn.telia.com. [78.71.189.157])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5c1bd0177f7sm491711e87.33.2026.11.20.03.29.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Nov 2026 03:29:08 -0800 (PST)
-Date: Fri, 20 Nov 2026 12:29:07 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Peter Rosin <peda@lysator.liu.se>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v13 0/8] I2C Mux per channel bus speed
-Message-ID: <awAvA1rSGwh0RaIW@gmail.com>
-References: <20261015-i2c-mux-v13-0-778a12cfe93b@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g3FtLrEd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A0521F000D2;
+	Fri, 20 Nov 2026 11:48:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795175301;
+	bh=KCiZ+OPPiUqNo96uGTMFbWd85A/AQQGSdw1qgemTJ/w=;
+	h=Subject:From:To:Cc:In-Reply-To:References:Date;
+	b=g3FtLrEdDCcx7zeFiksA1MQYSbIwpjOYCqyMb22iOuD1Kzfo2nH4UirJGUXFG+BeW
+	 9nksGUdMrH7NfSFyv5Zuipmumnckn+a3q0sMkc7pOJM+3e+F6f+cYFbrjzVsSXJD3M
+	 7Bpv1kEHdQc5B4OSIV1Td+lcOn6osFQuRK61tiqQHksevi42quuiGwZq3KS+zwRnbV
+	 Y15ZgS11PuI/91TsbvXB6rpn1DTO36ItmJ+HPinY95jEKd8KGbddMVr6NfPqyfwi5E
+	 0swLKxNq2DqmrM/FAjxhdCYdxtF+ZlH25SlI8hZY3KILrFnjFznbjundNzYdoo5VUw
+	 SiJLcWRdv3UHA==
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -102,48 +49,86 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20261015-i2c-mux-v13-0-778a12cfe93b@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v7 06/23] phy: qcom-mipi-csi2: Add SM8750 support
+From: bod@kernel.org
+To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
+Cc: Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
+ Neil Armstrong <neil.armstrong@linaro.org>, 
+ Manivannan Sadhasivam <mani@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, 
+ Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>, 
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ Frank Li <Frank.Li@nxp.com>, linux-phy@lists.infradead.org, 
+ linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-i2c@vger.kernel.org
+In-Reply-To: <20261114-add-support-for-camss-on-sm8750-v7-6-8ff2a11835f6@oss.qualcomm.com>
+References: <20261114-add-support-for-camss-on-sm8750-v7-0-8ff2a11835f6@oss.qualcomm.com>
+ <20261114-add-support-for-camss-on-sm8750-v7-6-8ff2a11835f6@oss.qualcomm.com>
+Date: Fri, 20 Nov 2026 11:48:14 +0000
+Message-Id: <179517529405.2846709.10906711375536299427.b4-reply@b4>
+X-Mailer: b4 0.17-dev-e3fc9
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1472; i=bod@kernel.org;
+ h=from:subject:message-id; bh=HkCiTy52VEw3U3iHmphqDHJaeM19p2HQlEUAvtfV7sM=;
+ b=owEBbQKS/ZANAwAKASJxO7Ohjcg6AcsmYgBrADN+rM7FGOD4L/bE61iccAJDLA1GBgvIi9K25
+ 7TFu2ta+NqJAjMEAAEKAB0WIQTmk/sqq6Nt4Rerb7QicTuzoY3IOgUCawAzfgAKCRAicTuzoY3I
+ OnXgEACgF/ZyF9GFxmZtzZJvXcWq0YAAS8WJq/XOHG+rnlzVjz+XuzVJHpQJWwk51LrOn/wfCjN
+ Nt0D2a1l3jpyVyHwVIk9NBEYITqU+lUUrHni4ZgtoFD+hL8a75/pVSxyy53QgYf39WiC9t3LxY4
+ AkxKrjSz0A8WZDxolJYT9xcQyaN6aO4WNV34z6YCaMHvgE8YvwIBuXuSGvTbhlCq7zaPtB/LzfC
+ gX67yae2iIeQ5TSqXPMhUHmDCpmVm7C1eSrkGO5lsdud5UQZ+jdTU73pJ85jB4URNwGFgPlY9tA
+ n0VYIicr3vkyPPIvoxYT4Yo9RA8noTgxNaPQnjpo1YZIQYuBek2QxpV+gr5mWdA0gv3mn6vDB8i
+ jal2FESfQqkgdWuymUDxCzbNoOVMb0LLQKSY9Lvs5ZqRl72ZKBDjuEc+rem5yK18DRHFdOUM2Sy
+ BGDzevkaaAMZ4A2liil0oGoKFwPb3uyWnBvwGSNLBHH6+UyoK2svjyqMJIL1KhegYWUM9M9xfKB
+ 5xPpB8joDxgPlSgB23rj0dtvbVbMKzkTXY/BD4tMgkRql9u7F3Y1Hi7c1dKgvDKjNo89+2+Pff7
+ y/0g6iYNGwK8VVUk6MPFrKnfMRmlMNdvCXjiemQe6U9jIso7tywrVuX3keqDelvK/YN35RHwWAz
+ KoYo4vdep5v594w==
+X-Developer-Key: i=bod@kernel.org; a=openpgp;
+ fpr=E693FB2AABA36DE117AB6FB422713BB3A18DC83A
 
-On Thu, Oct 15, 2026 at 01:01:47PM +0200, Marcus Folkesson wrote:
-> This was a RFC on how to implement a feature to have different bus
-> speeds on different channels with an I2C multiplexer/switch.
-> As no major complaints on the design came up during the review, I
-> decided to submit the series without the RFC tag.
->=20
-> The benefit with this feature is that you may group devices after
-> the fastest bus speed they can handle.
-> A real-world example is that you could have e.g. a display running @400kHz
-> and a smart battery running @100kHz using the same I2C controller.
->=20
-> There are many corner cases where this may cause a problem for some
-> hardware topologies. I've tried to describe those I could think of
-> in the documentation, see Patch #5.
->=20
-> E.g. one risk is that if the mux driver does not disconnect channels
-> when Idle, this may cause a higher frequency to "leak" through to
-> devices that are supposed to run at lower bus speed.
-> This is not only a "problem" for changing bus speed but could also be
-> an issue for potential address conflicts.
->=20
-> This patchset has been used and tested heavily the last months
-> on a custom board based on a da850 (DaVinci) platform.
->=20
-> The implementation is split up into several patches:
->=20
-> Patch #1 Introduce a callback for the i2c controller to set bus speed
-> Patch #2 Introduce functionality to adjust bus speed depending on mux
->          channel.
-> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
-> Parch #4 Implement set_clk_freq for the i2c-davinci driver
-> Parch #5 Update documentation with this feature
->=20
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+On 2026-11-14 19:29 +0800, Wenmeng Liu wrote:
+> From: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+> 
+> Add the SM8750 CSI2 DPHY compatible to the match table, using the 3nm
+> DPHY configuration.
+> 
+> The SM8750 CSIPHY nodes only carry "qcom,sm8750-csi2-phy" with no
+> fallback compatible, so without this entry no driver matches them and
+> the PHYs stay unbound.
+> 
+> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
 > ---
+>  drivers/phy/qualcomm/phy-qcom-mipi-csi2-core.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/phy/qualcomm/phy-qcom-mipi-csi2-core.c b/drivers/phy/qualcomm/phy-qcom-mipi-csi2-core.c
+> index 165e3d026872db85e54a99c5dd25ca68a1a4e450..a672bf318487b16aacd1ecf165554cde3f38e292 100644
+> --- a/drivers/phy/qualcomm/phy-qcom-mipi-csi2-core.c
+> +++ b/drivers/phy/qualcomm/phy-qcom-mipi-csi2-core.c
+> @@ -444,6 +444,7 @@ static int phy_qcom_mipi_csi2_probe(struct platform_device *pdev)
+>  
+>  static const struct of_device_id phy_qcom_mipi_csi2_of_match_table[] = {
+>  	{ .compatible	= "qcom,kaanapali-csi2-phy", .data = &mipi_csi2_dphy_3nm_kaanapali },
+> +	{ .compatible	= "qcom,sm8750-csi2-phy", .data = &mipi_csi2_dphy_3nm_kaanapali },
+>  	{ .compatible	= "qcom,x1e80100-csi2-phy", .data = &mipi_csi2_dphy_4nm_x1e },
+>  	{ }
+>  };
+> 
+> -- 
+> 2.34.1
+> 
+> 
 
-Gently ping on this series.
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+---
+bod
 
-Thanks,
-Marcus Folkesson
