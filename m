@@ -1,21 +1,22 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=37.205.14.76
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795179890;
-	b=eYHq0T2X5hEeBF9R10KAN+JYKCa7L4dMhwnRCqXx2WbiYjOBNWhxAvbysZnUYG22OjCP
-	 J8wkjLaDIL66SOYLBnQpee1IWf+aJWEsTyzv0fZqfGV+C3IA9k8+eijxqkfL4UblXydDg
-	 wpnbJPiStkUx46tzYSpL3mNoQLRZCS/eWZkLv6qcu85+LLamgCaX6GwZdRlyzMGg1RC1M
-	 HsPcPn1zl0qoo+vQXBABorjxcnG5E3Tn4mChdvXsq6a2GAD0LUpA78ZaZkXBfNhdTzWEv
-	 K6ngwiFEKqL1oNTsjmQA4/k+lOIT5atxVGyqKNJfiCr3bzgyRizmEHfY6E42pRfalpQ==
+	t=1795181304;
+	b=olytr/ALaLeLAk+IPD8xUcGXoD1AjkJt/ozqQVEBLJMpKEqHsm1/12JDf8Wwh3HkMGYu
+	 Pa0VNVprtSKKuZGdjusBkHWd1vNJptHGxJOFBTx4hRpOYQrv5BQVM+4FHuF+QpIc9pQ2r
+	 WrhuXH3UYES4el0jh58BiQLibDtmyDtNmoN8gntua1DotfI0bhz76015NaY6s3GYneDYY
+	 xyPa1z6VZ72y//Oj8+nOpJ7wY+o9UXiAv/SOZ+DLG8GnkdRE+BclhqIIdJ7H/1aJUd94J
+	 pzQjCcWZj5aexjJOlFczF8XDaQF8b2TqpwwmGhtjqUNMJ+/mxLr3aDUhwwVQYmmZuKQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795179890;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795181304;
 	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=GILqxYb8p5yo19CosH6Owa5dDUz944tPztYWV+5Ez50=;
-	b=B8EhL0hLb6KkY51oxmCXfW5VmAarvD916RjfVCJ14JDqxC419KpPhE9lslN0ijRqxsc1
-	 DC0GtfsHtjPAdY57zkb1ilHc4d/jBnKx6g5RazOnCKsvCuxS3PKhNyA5dO1j35LakfoiT
-	 l0OUHcM4m/4axxTKEpR9fl6sKSgMxuqGwXWYaEZWgUDBwdzoK3jgSmP0zAHfUCd06hRAL
-	 MC6yeVVkvw8MlJbFL9tR0y4eARuaITfTu+r7yiDsuFKcqAMYZm1J6sG0oQAM10yedoyP8
-	 75+PdOv829UXjqpJXK0bwe+IrdR0z5q4Dc+PgP7w2EKzIAZ4rSgrbmUUXu5RNPQXjMg==
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=8jrFjvFHOFHsErCDesl0ZRM1ilUy1pTb0EYlRwMOlzA=;
+	b=GFNS0zFQ8w3HXTKtINEU4QLbl1sHa0MBgTj3Q0XhdEqtt4qHFPwidXhgdK9FluNv3xJC
+	 iriIjOuqhxtCAuT9nVgL+sj47RUigl4ifpc38yruyQDvQgvqqH3ETrNK5wwov/Y6hCKRN
+	 7z2eUG9r/ABn1iuzGPu4D42w9JAjUfIkm4HTZEHvuE0r808oGBSkl6MonXFwALFiOsmwW
+	 t+CJAMx1H5PecDaYMwHnSZ+2IeOuHdGaw5Rg5Jzh3KRBgjCcFXWi3KPnDX6zLXWTkNyJw
+	 KMOxYKArvQKexVCwhlGpbV+E8nipSGCAteq/8luh8NsxPDMLXbzMaMjRAlP+XT9mHKw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=gpxsee.org;
 	spf=pass smtp.mailfrom=gpxsee.org;
@@ -24,24 +25,26 @@ Received: from mx.gpxsee.org (mx.gpxsee.org [37.205.14.76])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EFC3606A320
-	for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 13:04:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9EFC3606A320
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D3E2606A326
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Nov 2026 13:28:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4D3E2606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gpxsee.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gpxsee.org
 Received: from localhost (unknown [62.77.71.229])
-	by mx.gpxsee.org (Postfix) with ESMTPSA id ABD95BD05F;
-	Fri, 20 Nov 2026 14:04:46 +0100 (CET)
+	by mx.gpxsee.org (Postfix) with ESMTPSA id C78DDC093D;
+	Fri, 20 Nov 2026 14:28:18 +0100 (CET)
 From: tumic@gpxsee.org
 To: Michal Simek <michal.simek@amd.com>,
 	Andi Shyti <andi.shyti@kernel.org>
-Cc: =?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org
-Subject: [PATCH] i2c: xiic: Fix broken PM suspend/resume
-Date: Fri, 20 Nov 2026 14:04:14 +0100
-Message-ID: <20261120130415.9262-1-tumic@gpxsee.org>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org,
+	=?UTF-8?q?Martin=20T=C5=AFma?= <martin.tuma@digiteqautomotive.com>
+Subject: [PATCH v2 1/1] i2c: xiic: Fix broken PM suspend/resume
+Date: Fri, 20 Nov 2026 14:27:31 +0100
+Message-ID: <20261120132731.9920-2-tumic@gpxsee.org>
 X-Mailer: git-send-email 2.56.1
+In-Reply-To: <20261120132731.9920-1-tumic@gpxsee.org>
+References: <20261120132731.9920-1-tumic@gpxsee.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -57,7 +60,7 @@ Content-Transfer-Encoding: 8bit
 From: Martin Tůma <martin.tuma@digiteqautomotive.com>
 
 Add the missing PM suspend/resume callbacks that properly reconfigure
-the XDMA HW on PCIe suspend/resume.
+the xiic HW on PCIe suspend/resume.
 
 This is required in cases where the HW is on a PCIe card connected using
 one of the Xilinx PCIe cores (e.g. XDMA) like in the case of the Digiteq
@@ -118,8 +121,6 @@ index ab7916745ad3..fc122ceb5631 100644
  	SET_RUNTIME_PM_OPS(xiic_i2c_runtime_suspend,
  			   xiic_i2c_runtime_resume, NULL)
  };
-
-base-commit: 65e4fd942f72a9dba0e4e257290c4fa1aa756854
 -- 
 2.56.1
 
