@@ -1,79 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795278028;
-	b=d+wIHM6UxQgipKijoF7tZui9+mQwjZrC0+uGa4yeIH1lFSfbxznmkUfmX+xW3eawUtgX
-	 uE/TcBN4u78TZFY0RhVkZdGqJxzrcGrcBSPJ8Tp3KuUP40KprMzNfaSiQytRg07DZqT96
-	 H7wEHHA+3dvRm46zT6H4xoxO3KhNaclPpMcJq+kD8Kh0K1wyrI2HM2EGbbyhWrORmwguO
-	 MzCnQzHlYYPimwPIkTVBLy3GobHhyfGi65uYDSJdtgQjFe8OqDvOu0S8yWiDZNbvwoK1R
-	 0UDtcZPF0JZUmbHiTtJosHVmO3zVIwxDWJkjXIegvfUCOym0s1yTLOOjfZZIXDj5QBA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795278028;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=P8b51MoAA5S/ewoDjPx3DscZG+txaLOnVX8+xCfFlZo=;
-	b=UyWdZmnxU+l6Z0feHcn/I1EzLxbg0WGo6IfJfIZYXE6tXWrDLQgLrZ1N7r/NsMG3sNhr
-	 IoBSOKmfPCHDGC9RqBTOQt6tOu9ITdquVwZPWml9HfTlvkZgO/38nZvVufkYBBmoi810Q
-	 4rGX8NUzp+8EN1VmHDzmXAIDmNU8JFU83isl6lSMJtc6duLdiPXGD6QXemTNPxXenUSPJ
-	 DL9v4Dap8WyhN7EYY+Ro03apllmM5mJ+vsiAhBFtDSnX6qTwDuLn2r1QlQj8wnpYcO7TO
-	 6+QBGIuejqqbl/qejOBhD+CW01XLAXEHDt6sLX+vxKNxKRh734/uxDfOclo/6I53nCg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kJ1uGpPu;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795302178;
+	b=1xm8aGIH7JaBZqOFJ8oNhzaezgQ43p3hOjqmdoUJSwVG2TVdP/XEfGLk/AKnGkH4BmeO
+	 gfFXgX8DIdt/udCeTk1JXVeAb3wypmm8KilcQigRfYLoYbbt2rjxZMObFbmrNR2Utsk71
+	 hfnI8j8k1QhjZ4CYcYLuy+TA1vJKIduBi9uS5IFa5Y+k6l2z6SOn4BAL9TEm3mm8ul7n3
+	 mLgzZ74rkVULl4bvPGxiwXiWfxxdiSPzHDN99e8sW6y6lnmIbAuIuP/r4nmB84VzjHGOL
+	 DsdZqvYL5q6lE+K/QXRR+6wZZklXm9uF7u8yseV1ptFyk5ZLIbL5h08yVHU77Py8OTg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795302178;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=FK3dPssi5EMSDevwdCoFcG7tNlGhpdRScPG7jxoulKY=;
+	b=cGySHCq6HAc3v31QSCJ+GTaFF3qjB+n2DIVo/aJk7g2W4RAlMFo0Oy4/OcZf7+3TdLbb
+	 4G/5JJlJvRn8Zj1g+et9ZSDM8yzr47MIoq3kuA+MnvCwxqCrkKEXE3iTjC/6/7vR3PyVM
+	 BkNPYF/InS/EU34Sx/crt+DTrmjEpnG7rEI930WruQ7TugkD6Uj86xFlwVi1NVVdniWju
+	 GAN2Y3SDdHKnADdp04he8V/3JIOCtsTazG3bwfO1ChidS/5qCtaWZC2yZdNV8zRBYstat
+	 3wdT2qtHpdNn/w78WmNQCVY8mUUJ00GffgrUd0iwCwDVzA4gakBnR4wzmSjAftgbU0w==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bzuZIlaA;
+	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7326606A338;
-	Sat, 21 Nov 2026 16:20:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C38606A336;
+	Sat, 21 Nov 2026 23:02:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kJ1uGpPu
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795278028;
-	b=Sux70eqXfoxNm/NX/VMgzTiI7krD5bynkcg7JBK4oiM5vF1BH3taoERhMwbCh5ezZbRm
-	 cq0KWN/ztVNNzN59WzgReBekW7ZjKTAhuKSWHr/EDL29bg7EU07oFdcBxp7c285uUUV59
-	 SfkJvz/t3IvGM0GFQMDVZRSd2WTKMT1lsr6mnampYt0+u/jJaqz3glKpIzOLHRr0//gQd
-	 YO1wqBVi/Sq/DTkwbbJFNRA67LtZIShJ/KjG7E6WwzX4sIvxheNyaTSMDkX0FCrW0asqQ
-	 5Xa+yd0/lknn1fNcx/yOD7EoP14Kwar/t2yaAsxjTV0H+PldhMkD9D5vAmvXJXs1bug==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795278028;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=P8b51MoAA5S/ewoDjPx3DscZG+txaLOnVX8+xCfFlZo=;
-	b=k0qk6zP2j5+pgE21CQM0uDnz6ZWcdBqpuG7HsekLc1XHqxzr02IvgcLSNFwi0ANBZ+Kt
-	 qqPef/LVYvu5A8lsopK3Vr1X3XCUDMulElGFOyC3EfdR/QqCECZ2Mt1Q5+3Ii6s6JeDFu
-	 7Gfpg9Bt6hx9YR9lZfaearECWJ65tPRfim2LurYcwB1glRdkboded1vts9Jrk1Ib9o/nN
-	 jbnFOW2TqeyAhrU0jMYkexCNFhifFgN+9okGYcgCAwbBaNdylHj1ubAMKFM16+/PX8zwI
-	 lGH6HjON1LE5BOfvVlG6bsLGXzFxJpobEz8TlpqIZYwoOM8PARxg0SvphTFvqTyolcw==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id CF46A1F000C0;
-	Sat, 21 Nov 2026 16:20:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bzuZIlaA
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 656D91F000CF;
+	Sat, 21 Nov 2026 23:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795278028;
-	bh=P8b51MoAA5S/ewoDjPx3DscZG+txaLOnVX8+xCfFlZo=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=kJ1uGpPuPIKLffZcvp6bqvi/zlTT21dA8IzZt5Un3Z8yAsmt4wVmwt+04TUAA+ngY
-	 5mW1/onElvutu45MpzKppKLQ7upnhGNtoHO1WXIiJcwPLi04pg1By1xMWDEZyf3I3Z
-	 Hng3lQQZGdwbrZURQoYlzuYZQaYHdggXA4vp+Jz+N1dwfdKbTObeSQ+T+eQ9iYc7uR
-	 w99xMC3RpORZH5jB1HSL42r75uJBbMJVavTkgWj5gJTgLAObuZguJwZBY1WB6mr9z9
-	 rEhC3vxo+r9iht04clfqhf1YJswMYnuuk414hlpfRAG9pvFLoParxYKYxSN/eIEa+S
-	 3REk0aF9mSwnQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 2CEE34BCFB;
-	Sat, 21 Nov 2026 16:20:27 +0000 (UTC)
-From: Roman Vivchar via B4 Relay <devnull+rva333.protonmail.com@kernel.org>
-Date: Sat, 21 Nov 2026 18:20:20 +0200
-Subject: [PATCH] i2c: mediatek: fix probe when vbus supply exists in
- subnode
+	s=k20260515; t=1795302178;
+	bh=FK3dPssi5EMSDevwdCoFcG7tNlGhpdRScPG7jxoulKY=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=bzuZIlaADQAdLtJnqyhO0OWhrbu0Ley041xIUMxViHB1v4orYyXIdcXMXxjGUD2H9
+	 qnHFqwlX+1NMQ252j80Ig+hoNv+4W3tQwZQS9Upr6Nsn4A+/7jEXPlDbcyOx8HOJWR
+	 AAlPKn6yIcypfhdkFLIid7v7dodX3qm1fBrTUV0f08r/1p/yPyWoXVEjsd+pFTPMS3
+	 HIaWdX7s0tzN5AXHok1uNuQN0OkvhM6MbcpBeOcEv31ou6xT64QnPNI0u2fofjk2aN
+	 NVcx/LLc7QSMyTmBI71TU/RMn26AYttUDJ4M8jLZZGxeEHO+HxJary12pHFPktQtA3
+	 ez2i/Is3FU4fA==
+Subject:
+ Re: [PATCH net-next v3] mctp i2c: add sysfs control for mux child netdevs
+From: netdev-bot+sashiko@kernel.org
+To: kenny_hsieh@jabil.com
+Cc: netdev@vger.kernel.org, jk@codeconstruct.com.au, matt@codeconstruct.com.au,
+ andi.shyti@kernel.org, peda@lysator.liu.se, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Sat, 21 Nov 2026 23:02:56 +0000
+Message-ID: <179530217699.3135.2359467047069026979@kernel.org>
+In-Reply-To: <20261118100231.3827609-1-kenny_hsieh@jabil.com>
+References: <20261118100231.3827609-1-kenny_hsieh@jabil.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -83,104 +64,253 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261121-6768-i2c-v1-1-98d51691fd8d@protonmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMyw5AMBCF4VeRWWvSdjHKq4hFL4OxQFpEIt5ds
- fyS/5wLEkWmBE1xQaSDEy9zhioL8KOdBxIcskFLjUppJbBCI1h74WxNQZoejUXI+Rqp5/O7arv
- faXcT+e3dw30/VVDJVGwAAAA=
-X-Change-ID: 20261121-6768-i2c-ba9ed08f68a6
-To: Qii Wang <qii.wang@mediatek.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Matthias Brugger <matthias.bgg@gmail.com>, 
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
- Hsin-Yi Wang <hsinyi@chromium.org>, Wolfram Sang <wsa@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
- stable@vger.kernel.org, Roman Vivchar <rva333@protonmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795278019; l=2465;
- i=rva333@protonmail.com; s=20260510; h=from:subject:message-id;
- bh=YhzKgoIIxqqoXlohk7kgtxKoK2RDTSFs2xMuyiqhthw=;
- b=fHfVZgp/Esnl363UzJY2eHoY6j4V+b5/DJ2MTSVJbV40V9QK1dWxF5n4nr8xnbkMsti/UTtIr
- DINIFR8GHXTAmAX8PP2F2yTuL3XeyhLXtFNoFZJhsh2mLh5FPICt19y
-X-Developer-Key: i=rva333@protonmail.com; a=ed25519;
- pk=zww/nWjBGoQ4POXCG0BV6fx2iuXK6jx77rsKPA5YK5Y=
-X-Endpoint-Received: by B4 Relay for rva333@protonmail.com/20260510 with
- auth_id=777
-X-Original-From: Roman Vivchar <rva333@protonmail.com>
-Reply-To: rva333@protonmail.com
-Content-Transfer-Encoding: 7bit
 
-From: Roman Vivchar <rva333@protonmail.com>
+Thank you for your contribution! Sashiko AI review found 3 potential
+issue(s) to consider.
 
-Commit 9029b9b2ae13 ("i2c: mediatek: mt65xx: add optional vbus-supply")
-added an optional vbus-supply lookup in mtk_i2c_probe(). However, when
-the i2c controller node itself doesn't define vbus-supply,
-devm_regulator_get_optional() falls back to of_get_child_regulator(),
-which recursively searches all children nodes for a matching vbus-supply
-property.
+Critical: 0 · High: 0 (1) · Medium: 1 · Low: 2
 
-If a device on the i2c bus (such as a USB-C connector) defines
-vbus-supply, the i2c controller mistakenly binds to that regulator.
-When that regulator is provided by another device on the same i2c bus,
-probe fails permanently with a circular -EPROBE_DEFER dependency:
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-For example:
-&i2c7 {
-	charger@55 {
-		smb1351_otg_vbus: usb-vbus { };
-	};
+- [Medium] mctp_i2c_controller_write() (drivers/net/mctp/mctp-i2c.c)
+  checks permission with ns_capable(current->nsproxy->net_ns->user_ns,…
+- [Low] Two inaccuracies in the commit message.
+- [Low] Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp documents
+  only two errors: EEXIST (adding a bus that already has a netdev) and…
 
-	typec@60 {
-		connector {
-			vbus-supply = <&smb1351_otg_vbus>;
-		};
-	};
-};
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but the patch
+  makes it reachable from userspace.
 
-Ensure that i2c bus has its own regulator using of_property_present()
-before calling devm_regulator_get_optional(). This resolves the issue
-and makes both devices probe correctly.
+--
 
-Fixes: 9029b9b2ae13 ("i2c: mediatek: mt65xx: add optional vbus-supply")
-Cc: stable@vger.kernel.org
-Signed-off-by: Roman Vivchar <rva333@protonmail.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+mctp i2c: add sysfs control for mux child netdevs
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 45d0d7156d6e..042244c7d89d 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -1415,12 +1415,14 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	i2c->adap.quirks = i2c->dev_comp->quirks;
- 	i2c->adap.timeout = 2 * HZ;
- 	i2c->adap.retries = 1;
--	i2c->adap.bus_regulator = devm_regulator_get_optional(&pdev->dev, "vbus");
--	if (IS_ERR(i2c->adap.bus_regulator)) {
--		if (PTR_ERR(i2c->adap.bus_regulator) == -ENODEV)
--			i2c->adap.bus_regulator = NULL;
--		else
--			return PTR_ERR(i2c->adap.bus_regulator);
-+	if (of_property_present(pdev->dev.of_node, "vbus-supply")) {
-+		i2c->adap.bus_regulator = devm_regulator_get_optional(&pdev->dev, "vbus");
-+		if (IS_ERR(i2c->adap.bus_regulator)) {
-+			if (PTR_ERR(i2c->adap.bus_regulator) == -ENODEV)
-+				i2c->adap.bus_regulator = NULL;
-+			else
-+				return PTR_ERR(i2c->adap.bus_regulator);
-+		}
- 	}
- 
- 	ret = mtk_i2c_parse_dt(pdev->dev.of_node, i2c);
+This patch adds write-only add_mctp_controller and remove_mctp_controller
+attributes to the mctp-i2c-controller device. Writing a bus name to them
+creates or removes an MCTP netdev for that bus in the controller's mux
+tree, so muxes instantiated at runtime without a devicetree node can still
+get a netdev. It also makes mctp_i2c_add_netdev() skip adapters that
+already have a netdev, and it now handles BUS_NOTIFY_REMOVED_DEVICE in the
+bus notifier.
 
----
-base-commit: 909ef7a9a30fa139e69e555e3606680f5cca7726
-change-id: 20261121-6768-i2c-ba9ed08f68a6
+> diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp b/Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp
+> new file mode 100644
+> index 0000000000000..4ee96254f57a4
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-mctp
+> @@ -0,0 +1,24 @@
+> +What:		/sys/bus/i2c/devices/<bus>-<addr>/add_mctp_controller
+> +What:		/sys/bus/i2c/devices/<bus>-<addr>/remove_mctp_controller
 
-Best regards,
---  
-Roman Vivchar <rva333@protonmail.com>
+[ ... ]
 
+> +		Writing an I2C bus name such as "i2c-30" to add_mctp_controller
+> +		creates an MCTP network device for that bus, and writing it to
+> +		remove_mctp_controller removes it. The bus must be the
+> +		controller's root bus or a mux child below it. Adding a bus
+> +		that already has a network device fails with EEXIST, and
+> +		removing one that has none fails with ENODEV.
 
+[Severity: Low]
+Should this ABI description list the other errors the store can return?
+
+mctp_i2c_find_named() returns -ENODEV when bus_find_device_by_name() finds
+nothing, on both add and remove:
+
+	dev = bus_find_device_by_name(&i2c_bus_type, NULL, name);
+	if (!dev)
+		return ERR_PTR(-ENODEV);
+
+On remove_mctp_controller, ENODEV can therefore mean "no such bus" or
+"bus exists but has no netdev", and userspace can't tell which.
+
+It also returns -EINVAL when the name is an i2c client rather than an
+adapter, or an adapter outside this controller's mux tree.
+mctp_i2c_controller_write() returns -EPERM when the CAP_NET_ADMIN check
+fails.
+
+The text also doesn't say that a CAP_NET_ADMIN check applies, or that the
+netdev is created in the writer's network namespace.
+
+[ ... ]
+
+> diff --git a/drivers/net/mctp/mctp-i2c.c b/drivers/net/mctp/mctp-i2c.c
+> index b02476d338bbf..61dd4a9e72545 100644
+> --- a/drivers/net/mctp/mctp-i2c.c
+> +++ b/drivers/net/mctp/mctp-i2c.c
+
+[ ... ]
+
+> @@ -876,6 +894,9 @@ static int mctp_i2c_add_netdev(struct mctp_i2c_client *mcli,
+>  	}
+>  
+>  	WARN_ON(!mutex_is_locked(&driver_clients_lock));
+> +	if (mctp_i2c_find_dev(mcli, adap))
+> +		return 0;
+> +
+
+[Severity: Low]
+The commit message gives this reason for the skip:
+
+  mctp_i2c_add_netdev() now skips an adapter that already has a netdev,
+  so a probe walk or an add notifier that reaches an adapter a second
+  time no longer fails on the duplicate mctpi2c name.
+
+Can a probe walk actually reach an adapter twice? mctp_i2c_probe()
+allocates a new mcli with an empty devs list. It holds driver_clients_lock
+for the whole i2c_for_each_dev() walk, and bus_for_each_dev() visits each
+device only once. The dev_groups attributes are created only after probe
+returns, so a sysfs add can't come first either.
+
+The duplicates that can happen seem to be on the notifier side:
+
+- an adapter is already on the bus klist, so the probe walk picks it up,
+  and then BUS_NOTIFY_ADD_DEVICE fires for it;
+- a sysfs add lands before the ADD_DEVICE notifier.
+
+Could the commit message describe those cases instead?
+
+The commit message body also doesn't mention that mctp_i2c_notifier_call()
+now runs mctp_i2c_notify_del() on BUS_NOTIFY_REMOVED_DEVICE. That reason
+appears only in the v3 notes below the cut line and in a code comment. The
+v3 notes are dropped when the patch is applied.
+
+>  	snprintf(namebuf, sizeof(namebuf), "mctpi2c%d", adap->nr);
+>  	ndev = alloc_netdev(sizeof(*midev), namebuf, NET_NAME_ENUM, mctp_i2c_net_setup);
+>  	if (!ndev) {
+
+[ ... ]
+
+> +static ssize_t mctp_i2c_controller_write(struct device *dev, const char *buf,
+> +					 size_t count, bool add)
+> +{
+> +	struct mctp_i2c_client *mcli = i2c_get_clientdata(to_i2c_client(dev));
+> +	struct i2c_adapter *adap;
+> +	int rc = 0;
+> +
+> +	if (!ns_capable(current->nsproxy->net_ns->user_ns, CAP_NET_ADMIN))
+> +		return -EPERM;
+
+[Severity: Medium]
+Is a check against the writer's own netns user namespace strong enough
+here?
+
+Any task can do unshare(CLONE_NEWUSER | CLONE_NEWNET) and then hold
+CAP_NET_ADMIN in that namespace. So this check passes for anyone who can
+open the attribute, and the root-owned 0200 file mode is the only real
+gate. A privileged process could pass an open fd into a user-namespaced
+context, or an admin could chown the attribute to a delegated user.
+
+On add, mctp_i2c_add_netdev() does:
+
+	dev_net_set(ndev, current->nsproxy->net_ns);
+
+This puts the netdev for a physical I2C bus directly into a netns the
+writer owns. Moving a physical netdev out of init_net over rtnetlink needs
+CAP_NET_ADMIN in the source netns as well as the destination.
+
+On remove, the branch below never checks dev_net(midev->ndev):
+
+	else if (!mctp_i2c_find_dev(mcli, adap))
+		rc = -ENODEV;
+	else
+		mctp_i2c_remove_netdev(mcli, adap);
+
+A writer that has CAP_NET_ADMIN only in its own namespace can therefore
+unregister an MCTP netdev in init_net. That includes one created at probe
+time from the devicetree "mctp-controller" property. rtnetlink doesn't
+allow that.
+
+The commit message says "a write requires CAP_NET_ADMIN there, as for a
+netdev created over rtnetlink". That comparison seems to hold only for
+creating virtual devices.
+
+Would capable(CAP_NET_ADMIN) fit better here? mctp_serial_open() in
+drivers/net/mctp/mctp-serial.c already uses that check.
+
+> +
+> +	mutex_lock(&driver_clients_lock);
+> +	adap = mctp_i2c_find_named(mcli, buf);
+> +	if (IS_ERR(adap)) {
+> +		rc = PTR_ERR(adap);
+> +		goto out;
+> +	}
+> +
+> +	if (add && mctp_i2c_find_dev(mcli, adap))
+> +		rc = -EEXIST;
+> +	else if (add)
+> +		rc = mctp_i2c_add_netdev(mcli, adap);
+
+[Severity: High]
+This bug predates this patch, but the new store makes it reachable
+from userspace. Can a failed registration free midev twice on this path?
+
+mctp_i2c_add_netdev() calls mctp_register_netdev(), which reaches
+register_netdevice(). Several of its failure paths call ndo_uninit:
+
+- netdev_check_ops failure
+- pcpu stats allocation failure
+- a NETDEV_POST_INIT notifier veto
+- a netdev_register_kobject() failure such as ENOMEM
+- a NETDEV_REGISTER notifier veto, via unregister_netdevice_queue()
+
+The first four reach err_uninit:
+
+net/core/dev.c:register_netdevice() {
+    ...
+err_uninit:
+	if (dev->netdev_ops->ndo_uninit)
+		dev->netdev_ops->ndo_uninit(dev);
+    ...
+}
+
+For this driver that is mctp_i2c_ndo_uninit()->mctp_i2c_midev_free(). That
+function does list_del(&midev->list) and drops the get_device() references
+on the adapter and the client.
+
+The error then comes back to mctp_i2c_add_netdev(), which frees midev a
+second time:
+
+drivers/net/mctp/mctp-i2c.c:mctp_i2c_add_netdev() {
+    ...
+err:
+	if (midev)
+		mctp_i2c_midev_free(midev);
+	if (ndev)
+		free_netdev(ndev);
+    ...
+}
+
+The second list_del() runs on poisoned pointers. The adapter and client
+refcounts are also dropped twice, which can free those devices while they
+are still in use.
+
+Before this patch, only probe and the bus notifier reached this path. Now
+add_mctp_controller lets a writer trigger it repeatedly.
+
+The v3 notes point to a separate fix for this double free:
+
+https://lore.kernel.org/netdev/20261118090515.3390034-1-kenny_hsieh@jabil.com/
+
+That fix isn't in this tree yet, and the err: path above is unchanged.
+Should that fix land before this patch, or together with it?
+
+> +	else if (!mctp_i2c_find_dev(mcli, adap))
+> +		rc = -ENODEV;
+> +	else
+> +		mctp_i2c_remove_netdev(mcli, adap);
+> +	put_device(&adap->dev);
+> +out:
+> +	mutex_unlock(&driver_clients_lock);
+> +	return rc < 0 ? rc : count;
+> +}
+
+[ ... ]
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261118100231.3827609-1-kenny_hsieh%40jabil.com
