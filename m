@@ -1,107 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.61.46
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.172
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795204284;
-	b=o2I+KiQkbXvL3ieXCBVR/JCJsI4KtkHPho4lVADZbBP30zvg2FsgeFow9S5qDSdEwCP0
-	 XKv+/shG1S13pgWws7mcCwDusJo9QiD1Snz0Owtf09r9uCpd3Yd8Lw9dBR1h+XYCsIETN
-	 qN2lhTEaXtIDy6iOOWjkYtWFvJibwv428i80GIxX6hUaqmif7PmotZHxQdllemiUevE8+
-	 raz86jknZco5njpYD/Amm7GGU+/B+mymn+h2CQa6xl/d/vcxh+66PsTbMK42ob2Flgk+6
-	 QsFQrzJTbfBFb847uvBK8qPEXvkhZROqJ4LiO+TEtwukpY6NhIT+JQvUdMCNM6RAU1g==
+	t=1795252602;
+	b=5sRv8KbvotKrvb9uXANwCHjMUqAEJ9gNsP362Ms5k+idrKx2KxSMmDY/K52SwoWqicGX
+	 gNbLNYUgXf9syZq+520Zidl6HcQHoPtDTquFdTW+ZTUjsFfEF1dk6q45rQijn0Dow0QC0
+	 pF/5daSfZz1zdmPsZqjCvxDGuhDs+0sczb2ihs+gJwFdswMynhM76QfmFSHBRMcGk/AG8
+	 wBp112lCjzU3CEqzffsNg14XvGLWMXGRYbeMOORQAbsEMfOR+Nd3bmiMcnNg/n4uaTgXM
+	 s9Ox0qnKN8Xf7T5gF7UhvwqdhbtcJcFMgkABAln27e76QqRBl78RCWje8jMbwFdc23w==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795204284;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:
-	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
-	 Received:From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
-	 References:MIME-Version:Content-Transfer-Encoding:Content-Type:
-	 X-Originating-IP:X-ClientProxiedBy:X-EOPAttributedMessage:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=UE/flMYo83UrBj6n1lGeWe1JDSc6BsbIRxv927V6xys=;
-	b=A1m6GCA4uAvFhfsc/bh2tJHRFaKv9MHZg8+HZsiIN5txBkS1pzssetBDdslBfXCWsHSf
-	 6LZhU/Cj8mxLqlM32TMBgR4msjSO+R44xke1x2OKrw6CSdnNF0ypxVHLrj+YM0sQrwZHH
-	 +zs5sQF/YPdSemZme54sBK/BMhaIC1m/vHUVIhgNTW/7spMwDGnhdyragUdNFHkWngqL2
-	 K+qSO/n+ginISjm4vA+QnFNcVLI5yUTJb3wazcn6lnqgFKt+GpZ5kNYg/fYmZz3wNJ7ef
-	 sygix6DH61/5ed1XfhIOh9zeSHrYHbpiWsYoLMlxRBNgjQR41ggFAz2RRl2eJNBpD7w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795252602;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=tO+IQ5hYrrtUBsmyHcx1yxw352wTLtQe+MwwVJsglzo=;
+	b=rlYGcTjN7N18vPauVv/66lXdhbUegrkYobVobF0udV0Wr29u0zLXzO9hzm74dUxH++j6
+	 qm9Pn8GVoN6wEbdzKQHePOnabrSNgLnm6IxKfo8vWN+Q/Y/xIYAyXxmL5aDb2AkQswQBl
+	 xvfoN/fg+1f0n+ClQz58mv2Cr7tMOGHZ8UDHOcuQ/sTWucICt23GrXgsl9AbcJ2Se2IEv
+	 7wHbQRzW2wmEW75PWlNbabRoEQMrToaQ3H+NYRZ6gw/FxCSW+svIuMGavHJdw80mlKAFG
+	 0C06xqdYF4c+Z/VkummSs5edl63hi1ZGbmZL93Pysd17LngTDGDUaM3vN/pEkvE+r3A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=CtUG8fTQ;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.61.46
-Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazon11010046.outbound.protection.outlook.com [52.101.61.46])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="FrB49q/N";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.172
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06FFB606A6F9;
-	Fri, 20 Nov 2026 19:51:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 06FFB606A6F9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E687D606A320
+	for <linux-i2c@vger.kernel.org>; Sat, 21 Nov 2026 09:16:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E687D606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=CtUG8fTQ
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=dSnWRwWZ3VHx5GisEUjN1Pos2apR3mT0vEjcgsC/8XbuftkUNGOXN59gBuaAl2/hRuSRNWc5vFA6IY1SgPimpeYCuB/WfJ7ELTrXG1CvqbKbcsLR+zz0wxL34a7scbtbnAw4owht3WHH4NOUXMtYV8/s8UJXLc7EAinLxdk93HaEQ8FSpqlZThQ85BMKc5WvEVhYS05RyOtOg+CBHGwF3FNj7WKMdyNMLbPMyPNR9FKOQlnl6nQG1274NDRfI43LxHtFdqcYRkwGTNtD04ShL1jjE75iogL+dfm6dt1/UNxAi0SJWFzfKTawORmf/iUjb3O7YYZoVsakfwj4k2h5YQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UE/flMYo83UrBj6n1lGeWe1JDSc6BsbIRxv927V6xys=;
- b=uWD99ukjbllFX17vimITqiOWdrs+DFWSvDodxtOkZOWAW6tD9oT+r1v/ZuTqI2Uy7yvT2OdKG+mWU9H4YsrPYYTWXcxCsM2kWXZxPaxFNyFvXURpG/wvxuN53i6BQ8nfKTe3h74/S8/EbZWBSiWDlg+8kXWTL3CSiy1WG49IZHxof9VGTk8PMS02vP5dv0MPppdXYikknMPUAlRYIg1Xi5aOf/rJYGgO/3WXrRrEngrgU/2ytM2lXJJPZOr2OUXeCvfd9+ON7RkuUBZlc3cq8JaooVforx/jdZcCRytbq6oRl86bmZA7NgT4BDevYtwyABaF4qtcuQ0nlG7M55i+AQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UE/flMYo83UrBj6n1lGeWe1JDSc6BsbIRxv927V6xys=;
- b=CtUG8fTQUfCmmn1M08xknNrdF/MBVucb931Zn+cop2ZbkROhOuLtviLAQZzoI9P9GSsa5qrcXhDb4busvpz2tixi52KK/+UrlstczOT2oVEbzAr8h9KDOSnDnR+DpPKww375C/86jZbR1mb+WCMxiuNkKFw91YM62i0HBA9p4yFqGH8V3wbuT+GaJfU/3o1trbN7xyD3d0a5kNwSwu97sNx7XeS+Oe8NhcrxlSOLg3CjTAnSTwtgdqcr9hSOsrgsyfx8bGFWOkfY6K8S1tzyyqQp2L95Fb8hdAxlSUqqcTKAA61zjizebmWPrNZa5W2oJxluQae5ndRBPB8mD3vUKQ==
-Received: from MW4PR03CA0281.namprd03.prod.outlook.com (2603:10b6:303:b5::16)
- by IA0PPF95ABFC125.namprd12.prod.outlook.com (2603:10b6:20f:fc04::bdb) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.615.8; Fri, 20 Nov
- 2026 19:50:44 +0000
-Received: from SJ1PEPF000037AA.namprd03.prod.outlook.com
- (2603:10b6:303:b5:cafe::90) by MW4PR03CA0281.outlook.office365.com
- (2603:10b6:303:b5::16) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.639.12 via Frontend Transport; Fri,
- 20 Nov 2026 19:50:44 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 216.228.117.161) smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- SJ1PEPF000037AA.mail.protection.outlook.com (10.167.244.184) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.639.5 via Frontend Transport; Fri, 20 Nov 2026 19:50:44 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.57; Fri, 20 Nov
- 2026 11:50:23 -0800
-Received: from vdi.nvidia.com (10.126.230.37) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.57; Fri, 20 Nov
- 2026 11:50:22 -0800
-From: Chris Babroski <cbabroski@nvidia.com>
-To: <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC: <kblaiech@nvidia.com>, <asmaa@nvidia.com>, <andi.shyti@kernel.org>,
-	<cbabroski@nvidia.com>, <davthompson@nvidia.com>
-Subject: [PATCH RESEND v1 1/3] i2c: mlxbf: Fix master GW corruption from unmasked SMBus flags
-Date: Fri, 20 Nov 2026 14:50:06 -0500
-Message-ID: <326154d0c86433d5eef5aa2c4b937dbf2af1d8a6.1795203929.git.cbabroski@nvidia.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1795203929.git.cbabroski@nvidia.com>
-References: <cover.1795203929.git.cbabroski@nvidia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FrB49q/N
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-5366ae57896so18337811cf.3
+        for <linux-i2c@vger.kernel.org>; Sat, 21 Nov 2026 01:16:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795252601; cv=none;
+        d=google.com; s=arc-20260327;
+        b=EM50yi9flQcDNKdkRm7NwW+vQqzCscN/EG6wButhTT80VUzJs6qcBDLEFP1rPdoRgT
+         X6fM60s5GkTSqNMNeL+c/gGzjWTl1DnVX7mpmSqoDKMVnm5Qxh6+VMojPmxsrLyo+RGj
+         gGVoc+Th2FgC3EC0tihSQoXqbgx7tcZTuvnRe49+S/XDRp2PR+YO7eDr6hPiLcjON+0E
+         pou1h6XiY+ZpCcX06q5xF65oNMhLrucrwkzS/XxEecw6xoidCucanl6yyqNeIa4mKeBB
+         YtejRrW1P41pKiszctU2Ktr40QijIMmXZWqCvihTezoBxZk/HjsCMjDcKOgKg8hYYGrS
+         kzRQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=tO+IQ5hYrrtUBsmyHcx1yxw352wTLtQe+MwwVJsglzo=;
+        fh=H+KR/0/mm6esCvXDa4EXI4sper/t+xI8mbKRKSxKRao=;
+        b=FXjcYCMiIYUGfMoIL8lHBkmBCLnLwlxKaxNVmdy8shTVspBVOT5i3g2h/KTvSfqZwG
+         7ugILPsYov1lGNhxLdPypY2arQJm3tSv5V3vuPyUydc/WEcA5ZmC4WcD8VHm7xo03BHO
+         6MdS4528O5Ih4Be3clB4rtwhxbyMN7+ZKRt3EVowzqmsuCexxAc5dFcngESQIlJ4kKML
+         HmoRiUGIorWd3rxHDK/S886KNQFa9a/qOnVqZ9fINjFgWdHHE3nM3xnL/yfkHOB5OniX
+         Yr8eGIf0CiC4Xt3Z+wrNoUObHyigKpwyvB5EjsNjkl3m2D+EC/TArXwpUwIdBgB7QKlF
+         haGg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795252601; x=1795857401; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=tO+IQ5hYrrtUBsmyHcx1yxw352wTLtQe+MwwVJsglzo=;
+        b=FrB49q/NGInqbswWV4b5DupYEM1AOAsEXsFXaq+6sIXvhpWVXJFnJl8d5xh3I/wxDp
+         TZfvIeIxdg0RoU38W0pctgCPSH6htNH3LORCMQ/ifrkQgkMWLehXuycM9XFs8b12QZPE
+         lA/i9Dvw8QAci4N7jEZGXYAeJX3qErCdaBVkSUmpm5531/qa/i0Dnz6LCHiwFGPXVLYt
+         gpiOv+eEbb+s8WE4NpTkOMEZ06FOfCi9KbwpCiSbba3R8OqQtTDYS6rxPNUQBZEg+leF
+         Oa47L1RVYFB3Dl5bHqDv6nQrcvB0MMDqoiV0pnTMNQtohIgHkz+Do44dQ9RblRXou2n6
+         MTmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795252601; x=1795857401;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=tO+IQ5hYrrtUBsmyHcx1yxw352wTLtQe+MwwVJsglzo=;
+        b=oLKvGWpwWk8T+W7r8Xz+s526lT2T/cxr/NbkIix4FDDxgZg6uUKn3M/swIwM+/D1kS
+         y4jgbcHI3jaAOiQaCOG7ayJJP/yEK1annBKHmTdvSCi8G4+7TVBGFehsvz39qZNAuRCP
+         y14I3U8uC4U9fc7lllx2pCQLoWlVvIAdoOPiILwWLdu8UKrSKqaRRYXLgsKMw92vasNQ
+         cTPp0zXaNCegoNYgwNSAoytcbIj5F4kOhT9iFfccVdtj09sP+TU6Gz2D6iK3haxcacSE
+         5ePPIvmw3DNsSLx954aA2Rhh0x+8h5G1Lh14RCHL2g6lb3qHazCy4Z/+messZtWSb8vt
+         9ZgA==
+X-Forwarded-Encrypted: i=1; AL+hErEVAMbW0FY4GmANk1uzxFZo7or3Kz61EAJKjy4PUljepu7AHKEsbkcBZJ7T5NjUIfSQEnnOGrRPm5Q=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9nXkUH93evLVjIw2ONRdJ0q2oP6HsXqxU7x6dow7yWOql1NhWI
+	es2RHb5FVeGYkPLPX0Fh11G7xfBmHZgabDs9hNSpt19NbH/qlkmhD6PZVwSq5D7DjJseMIa94+O
+	A0ed/vrSQKeKH0h96QLhsu8uj3VPd5BY=
+X-Gm-Gg: AZFdTZdnG5oOcc5m1rKrLqs9sf/txRsAF2AM9idZIsd94+qwgnBh5nOvR3r6Hma2IPL
+	07ZViTdoDsIuT7HDZBAs1oRHyVU15isq3A9PVWaqAyoUXx7yzDv7YApK5fTaq44NfSK1phL5OBS
+	TZGL2ERQEn5TFtWWJRdfw0uKwi+zXsQG/gfgbAoonIqPb0Kbjcw1WBVFXCGoogTy5UBa9pWeLLq
+	8aYfGjoUOePACWaLfQYMPQI/rA0njmVWAGaaAwyMRbhZyJnWy8l2nXt+OEntu83WajkIgBncteV
+	PSBNQOS2bdfTBP+ANIUKTiHd9/hgjE6qGkT1deFO/9Fs7e6UPVLHqfttHg6JOuzBG7oiZ1F4BXU
+	A2URYQC8nMga3BXdaUFLtF7T9j1fst2TbMJxpOJ0hGFyG+MrgTKHMbWOFYU79zQ/JRJmPlQ==
+X-Received: by 2002:a05:622a:5815:b0:54b:f7a6:5354 with SMTP id
+ d75a77b69052e-55d76a27b40mr96605951cf.26.1795252600828; Sat, 21 Nov 2026
+ 01:16:40 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -111,66 +104,135 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ1PEPF000037AA:EE_|IA0PPF95ABFC125:EE_
-X-MS-Office365-Filtering-Correlation-Id: d4333683-31da-4521-ae93-08df473f9068
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|23010399003|82310400026|1800799024|376014|18002099003|22082099003|261009223027099003|261021121427099003|11063799006|10067099003|261021123027099003|261102123227099003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	BtEMidisOKvN3mGzz2IYPnLbQzDS9EnwQA2Sd8TcDi96an22OafPlnzKbLk6V1EZKpURYEdijiJIRU8Z1y4ybhWTtNwcz7a9010IbnsolGHmD77/lQ2e/Z+S8fo5TarQ9gUR1yFk677IOW7ZzImbPdtKYrUnxURYq/NeCVFCbb5/HzEk4VQOYvwP1xFx5wRgS0qcToI3tYSe5kHu+TinwM7rnxddX6Wjf93/8dkN6njkz1tYoNYRg5+13yTMNt0b0Y6RA8ZQUod0idPmtYQCPjWR5M60Jji6F1gHk+JGo+EiQP54b2eN15kUbK4tQ6BaEQXgnlRStAA30Pi45wwUj17S9rvEU3eFdlp7KTdmf15ZtZW9eXD9vW0gn7BJ3eeNaF4IXm5tBaYBLOkPZrFa9Bes2uisiwuX+iyKee+qPeu+G0ytQVE6jgzOIbM5Jxco+Vh4Lpy8AFvyS2HgAhfGFtHKd6vYimHcPPD9nrfMr+TCurHg1hTW3dF7ahuwNy0XIGzYkeKRkGqxfxsceQYOLamulp00A7fm4k/NY9GoVG/FCy2Tg1vpElYZfD4Vr9f6pIcGRMuEzpWMkdKw0EJEKTaSY/pej25K6PWhHn5+38C4Qeck3mMJe6vTq7GjrQTmMCMoxkR+argAiCf6+KjRY1syjYEcmDkNR1VVq2VkoiWZWUlsSQ59BuEPp2DdIVjHIbl2Y4Otjlh+uU2rQDjFCQ==
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700016)(23010399003)(82310400026)(1800799024)(376014)(18002099003)(22082099003)(261009223027099003)(261021121427099003)(11063799006)(10067099003)(261021123027099003)(261102123227099003)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	JW68jgpLpvSWYsDGJ5lgPPkaeoFz2rfpvQWCYx4VPz84FLCGmcOFM+xdmZExk36U+ScxMTwO/gifIpgsuQBMyNwBur/yvpCajgW7s7/3/vGW/zrvn8MWlriTgZz2QZQrOPA5qNJ1Z7Cy+zxs+p9NJzJzLt88f2hrsmA+1GV2GiHdDoxjMXFTsn0Uw35sxsI1TnJF3LKoJh3KfrUjhQfc1N5EO4rQHMlJMpUlLDDqbIppToxSyEdPxm472723keNxQVxJP+Y2mHI0f7kTF3CRNqOgur/d8L3w4wMozgPtT1Qw8GZmYDqvbYuVeATKz88hkjm8BgxpSkhHtUEyvvYXnu/hCicCbmvgcjDA0BQJlZP14nNDMAhf5DD0K3xsdVu8qig+wgZZTpQKF3QpWQTHH8kChsNZ+CL4tU2nfrX7gCTQ9pVrAAZwQcaj+LuX+tFK
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2026 19:50:44.0587
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d4333683-31da-4521-ae93-08df473f9068
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ1PEPF000037AA.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PPF95ABFC125
+References: <CAO6oLZF6OZmWeQWo07TJ+GpVPz_LGnwd2cyuiJWD-6JuuiJnZw@mail.gmail.com>
+ <CAO6oLZHcHxp0tfdgFNvX5WucVe9AOYM3mBNJHFOrEa3YC15faQ@mail.gmail.com>
+In-Reply-To: <CAO6oLZHcHxp0tfdgFNvX5WucVe9AOYM3mBNJHFOrEa3YC15faQ@mail.gmail.com>
+From: Adam <testyiprywatnosc@gmail.com>
+Date: Sat, 21 Nov 2026 10:16:30 +0100
+X-Gm-Features: Aa3M54ryWe-nia4M9Q1ukuyExKMCK8n9O_DYx5CThGSr8x6rSKTl5VXn1VRWliE
+Message-ID: <CAEru=6L_Z0bTENvObfQei7G3gMTR-ytdfr5pRPkALtbc+s4FFA@mail.gmail.com>
+Subject: Re: [BUG] HID: i2c-hid: ELAN 04F3:30FD touchpad reset race causes
+ -EREMOTEIO on HP Pavilion Gaming 15-ec1xxx
+To: A Kishki <alaa6394@gmail.com>
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, 
+	linux-input@vger.kernel.org, lovekeshsolanki00@gmail.com, 
+	linux-i2c@vger.kernel.org, mika.westerberg@linux.intel.com, 
+	andriy.shevchenko@linux.intel.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When the MLXBF_I2C_F_SMBUS_BLOCK and/or MLXBF_I2C_F_SMBUS_PEC flags are
-set, the flag bitmask values are shifted and written to the master
-gateway control register instead of the single-bit flag values. Shifting
-and writing the bitmasks can corrupt adjacent bits in the master gateway
-control register like the slave address used in read phases.
+Hi
 
-Convert the SMBus flags to boolean values before setting the master
-gateway control register.
+Thank you =E2=80=94 your SDA hold workaround also works on my laptop:
 
-Signed-off-by: Chris Babroski <cbabroski@nvidia.com>
----
- drivers/i2c/busses/i2c-mlxbf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+- HP Pavilion Gaming 15-ec1xxx
+- Board: 87B2
+- BIOS: F.35
+- Kernel: 7.3.4-arch1-1, Arch Linux
+- Touchpad: ELAN0718:00, 04F3:30FD
+- Controller: AMDI0010:03, base 0xfedc5000
 
-diff --git a/drivers/i2c/busses/i2c-mlxbf.c b/drivers/i2c/busses/i2c-mlxbf.c
-index 432d9588f32d..375cbbce0fad 100644
---- a/drivers/i2c/busses/i2c-mlxbf.c
-+++ b/drivers/i2c/busses/i2c-mlxbf.c
-@@ -740,8 +740,8 @@ mlxbf_i2c_smbus_start_transaction(struct mlxbf_i2c_priv *priv,
- 		 * submitted by the first operation only.
- 		 */
- 		if (op_idx == 0 && flags & MLXBF_I2C_F_SMBUS_OPERATION) {
--			block_en = flags & MLXBF_I2C_F_SMBUS_BLOCK;
--			pec_en = flags & MLXBF_I2C_F_SMBUS_PEC;
-+			block_en = !!(flags & MLXBF_I2C_F_SMBUS_BLOCK);
-+			pec_en = !!(flags & MLXBF_I2C_F_SMBUS_PEC);
- 		}
- 
- 		if (flags & MLXBF_I2C_F_WRITE) {
--- 
-2.34.1
+The controller had IC_SDA_HOLD=3D0x00010001. Changing it to 0x00010048
+and rebinding the controller allowed the touchpad to initialize and
+deliver input events.
 
+I installed a boot service using your approach, with additional error
+handling. After a normal reboot, the service logged:
+
+IC_SDA_HOLD=3D0x00010001
+IC_SDA_HOLD verified: 0x00010001 -> 0x00010048
+Controller rebound to i2c_designware
+
+The touchpad worked after that reboot. So far this is one confirmed
+successful reboot with the service; I will check further boots and
+suspend/resume.
+
+One detail on Arch: mapping /dev/mem while the controller was still
+bound failed with EPERM, despite Secure Boot being disabled and
+lockdown inactive. The kernel has CONFIG_IO_STRICT_DEVMEM=3Dy. Mapping
+after unbinding the controller worked.
+
+Thanks again for finding this. This provides an additional successful
+test on board 87B2 with BIOS F.35, which may help scope an upstream
+fix.
+
+Best regards,
+Adam
+
+On Mon, Nov 16, 2026 at 1:49=E2=80=AFPM A Kishki <alaa6394@gmail.com> wrote=
+:
+>
+> Hi,
+>
+> I found the cause on the same laptop. It is the SDA hold time of the
+> touchpad's I2C controller, not a reset race in i2c-hid.
+>
+> Machine: HP Pavilion Gaming Laptop 15-ec1xxx, board 87B1, BIOS F.25
+> (08/18/2021), Ubuntu kernel 7.0.0-43-generic.
+>
+> IC_SDA_HOLD of AMDI0010:03 (0xfedc5000 + 0x7c):
+>
+>   normal boot, touchpad dead:         0x00010001
+>   boot via HP startup menu, works:    0x00010048
+>
+> The ACPI tables give no hold time for this controller, so
+> i2c_dw_set_sda_hold() keeps the value it finds ("Keep previous hold
+> time setting if no one set it"). After a normal boot that is the reset
+> value, a TX hold of one clock, so the touchpad NACKs its address. The
+> startup-menu path leaves 0x48, which is why the F9 and UEFI-setup
+> workarounds help, and probably why the live ISOs worked, if they were
+> booted from the F9 menu.
+>
+> To confirm, in a failed boot I unbound AMDI0010:03 from i2c_designware,
+> wrote 0x00010048 to the register through /dev/mem and bound it again.
+> The touchpad probed at once and works with hid-multitouch. A rebind
+> without the write changes nothing, because the driver reads the same
+> value back.
+>
+> I run this as a boot-time workaround:
+> https://github.com/AhmedKishki/hp-pavilion-15-ec1-touchpad-fix
+>
+> A real fix probably belongs in i2c-designware, for example a DMI quirk
+> that sets the hold time for this model. I'm happy to test patches.
+>
+> Thanks,
+> Ahmed Alkishki
+>
+> On Sun, Nov 15, 2026 at 10:53=E2=80=AFPM A Kishki <alaa6394@gmail.com> wr=
+ote:
+>>
+>> Hi,
+>>
+>> I found the cause on the same laptop. It is the SDA hold time of the
+>> touchpad's I2C controller, not a reset race in i2c-hid.
+>>
+>> Machine: HP Pavilion Gaming Laptop 15-ec1xxx, board 87B1, BIOS F.25
+>> (08/18/2021), Ubuntu kernel 7.0.0-43-generic.
+>>
+>> IC_SDA_HOLD of AMDI0010:03 (0xfedc5000 + 0x7c):
+>>
+>>   normal boot, touchpad dead:         0x00010001
+>>   boot via HP startup menu, works:    0x00010048
+>>
+>> The ACPI tables give no hold time for this controller, so
+>> i2c_dw_set_sda_hold() keeps the value it finds ("Keep previous hold
+>> time setting if no one set it"). After a normal boot that is the reset
+>> value, a TX hold of one clock, so the touchpad NACKs its address. The
+>> startup-menu path leaves 0x48, which is why the F9 and UEFI-setup
+>> workarounds help, and probably why the live ISOs worked, if they were
+>> booted from the F9 menu.
+>>
+>> To confirm, in a failed boot I unbound AMDI0010:03 from i2c_designware,
+>> wrote 0x00010048 to the register through /dev/mem and bound it again.
+>> The touchpad probed at once and works with hid-multitouch. A rebind
+>> without the write changes nothing, because the driver reads the same
+>> value back.
+>>
+>> I run this as a boot-time workaround:
+>> https://github.com/AhmedKishki/hp-pavilion-15-ec1-touchpad-fix
+>>
+>> A real fix probably belongs in i2c-designware, for example a DMI quirk
+>> that sets the hold time for this model. I'm happy to test patches.
+>>
+>> Thanks,
+>> Ahmed Alkishki
