@@ -1,118 +1,110 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.67.36.66
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.47
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795354456;
-	b=HYvE/+nCJXDidp4xdNB0+EuIKQ7PiJNlL+Zed227Rc0csvY53XfF6V5sx7+omv9oyuI1
-	 Lkm0jKL6xIb9kEihavlRI9Bw8CgAjbGUEDXlP0PEhU2GBA/126i2K83f8KNnsqZZlbJ0+
-	 g6V1FNcpoQlwxu8N6MMw9fpzYgIrI/jiADbche8emaN4roJMBqpbvccaoITviXmd08UvE
-	 HLEqluTONZxrHivDlYa6jkWz+Hs1MqUxUTPX+QgWt9gWLKwTj5gqDUWSqCl7IDAUbWJz4
-	 4kSuMrvWeYdRmKmAxOV58E0oxstx5+Jq9EipIILPefXbeykIN7lpEbhHLZ1RpdpWM1A==
+	t=1795375126;
+	b=IZfKb7YiiaokhbgJ34KdP/ELuWbW67O7d7W70g1xvTA2M+lI2446MXcy3AbfMQA/oRhg
+	 tV2E2+2/5gdMVZFIzHKvyle/ZPdfcNwuzRefQCcVdGfwFgMvMMeqDZsAObjKWAjewV6bu
+	 LCdwd2q2cb/WbQdTPWV5ZvMQArWqxspZLSg/HRMnA07/MEIt8tR9/GYvD+ZHSokxRI0wT
+	 nT4NXDgyPIchEE7r0szFTk0bcOfv0qWrdBExHO1mzfNsonG3AYTgsiIbT/PVwWPpJyoC7
+	 GoBsoOipw5D9S8zsXvdWB0dJ/4N6vozOzL8Wv865qyfjxnbp+oDyPzgCwijD3JpfEoQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795354456;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Message-ID:Subject:
-	 From:To:Cc:Date:In-Reply-To:References:Autocrypt:Content-Type:
-	 MIME-Version:OpenPGP;
-	bh=B2YpqatDPSUl5On3Scqr15nRXXPYDlBJfIeTj6Aa2VI=;
-	b=LhqVfdTqqVY6pklxr789yrSZsao1yeLsYhFR4bTap5JMSTylBcP5i4IMLZacfL+WEobY
-	 ARcameOxBOK9bbHrVcUo3WAFRrFvROpbBnb0/TzWfwxcRs3avw0wiTC52fOUr7fsJQzsC
-	 2lWuJlMl6Dz+UQSebKGxdEV8Ubz44LBnnXi9HPOwTDA43iLx5zhL8gQetQo2zQuq47i1V
-	 FoYwxqUFVMeQV0l0nKpr2lC7UsJhic6XfKTCT4EO/CBEZKEv6lOEiZ2dPwAB/Deb66e1j
-	 mvIELs7ucBLhBvAQqHpCKr+SsRwsaLukBHekS4wKLigmHa/whgL9Qn/OmH7hOFwro6w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795375126;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=+Uqhop9ybLEnfZjiktNvan2dFW98Stkgcu+CDpZ9vF0=;
+	b=MKWlA4Z7pUJQrMS4YosA2Y19enNBaixZBP6QuUTCO9SYx1XTkvXpNtiqoxAr9lTPBivX
+	 nkZ+jy0BsE3jUa1EaiNpSCPYYeHYUKbFIrXuxB4t6rC593V0LIrvQ19NoniOFV0VfA+Kb
+	 uHrXNg9zJh8w4EN1ioftnqhJXNEA/Z4XSzSmjZammeUraxtZ1JqTsFJYUi8sM1ItJznxI
+	 cEUQB7ZFSBl6hjLhEmwu+Dr9AqgzoKv+CngAhwIyDRku8LRIRiKculguaP8Fyml/0+bEG
+	 g7aPcN6k8AW8zPHIZ7caoZbWgXsqRgDlW0/H7NmR9rrPJrthVR6H6CIybKXSYe8dYOw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=posteo.de;
-	spf=pass smtp.mailfrom=posteo.de;
-	dkim=pass header.d=posteo.de header.i=@posteo.de header.a=rsa-sha256 header.s=1984.8680eb header.b=IY6ejkA5;
-	arc=none smtp.remote-ip=185.67.36.66
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kTMlfTU8;
+	arc=none smtp.remote-ip=209.85.221.47
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDAE0606A335
-	for <linux-i2c@vger.kernel.org>; Sun, 22 Nov 2026 13:34:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DDAE0606A335
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B88E606A31E
+	for <linux-i2c@vger.kernel.org>; Sun, 22 Nov 2026 19:18:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2B88E606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=posteo.de header.i=@posteo.de header.a=rsa-sha256 header.s=1984.8680eb header.b=IY6ejkA5
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id C8AC0240106
-	for <linux-i2c@vger.kernel.org>; Sun, 22 Nov 2026 14:34:12 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1795354452;
-	bh=B2YpqatDPSUl5On3Scqr15nRXXPYDlBJfIeTj6Aa2VI=;
-	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
-	 MIME-Version:OpenPGP:From;
-	b=IY6ejkA5/suChshwsOezv6OLtBzqsbA4luOXxAO2vmgPZGdauXSSQwBbnx/yDYg5N
-	 hcrfKUP35jZntLnF/v3SHN6Fn4zDss8E0SrSyrFFnZEiny9NZqd8al2DgfXuhgtk1T
-	 D3a8cHq48JlTfE5+IWep3JlRy5uD6m1AQ4m5wzFJv9m76cmYFzTKUrxzehbSD0gwlv
-	 mj3YPZHbIcsc5kaTKv+frHzEjjFTIkOpKYQO3PdKgxR2mkASQvfxu6XunRQEfkyWIm
-	 6C/OrOC64go6r73eqcVnTCexZKyG8+OCC2+AxMkysS8d2zssXOA5XdAfWvNf/wpUUz
-	 RDurpIJPGoe9w==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4jXVR60WKDz6v0W;
-	Sun, 22 Nov 2026 14:34:10 +0100 (CET)
-Message-ID: <947615fd284c416891ac6de5d16cdd00ec5267ab.camel@posteo.de>
-Subject: Re: [RFC PATCH v7 2/4] i2c: rust: implement SMBus access via
- IoBackend
-From: Markus Probst <markus.probst@posteo.de>
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>, Jonathan Cameron
-	 <jic23@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Igor Korotin
-	 <igor.korotin@linux.dev>, Danilo Krummrich <dakr@kernel.org>
-Cc: David Lechner <dlechner@baylibre.com>, Alice Ryhl
- <aliceryhl@google.com>,  Daniel Almeida <daniel.almeida@collabora.com>,
- Mark Brown <broonie@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,  Shuai
- Liu <847807867@qq.com>, linux-iio@vger.kernel.org,
- linux-i2c@vger.kernel.org, 	rust-for-linux@vger.kernel.org,
- driver-core@lists.linux.dev, 	linux-kernel@vger.kernel.org
-Date: Sun, 22 Nov 2026 13:34:12 +0000
-In-Reply-To: <20261109155743.83740-3-muchamadcoirulanwar@gmail.com>
-References: <20261109155743.83740-1-muchamadcoirulanwar@gmail.com>
-	 <20261109155743.83740-3-muchamadcoirulanwar@gmail.com>
-Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
- keydata=mQINBGiDvXgBEADAXUceKafpl46S35UmDh2wRvvx+UfZbcTjeQOlSwKP7YVJ4JOZrVs93
- qReNLkOWguIqPBxR9blQ4nyYrqSCV+MMw/3ifyXIm6Pw2YRUDg+WTEOjTixRCoWDgUj1nOsvJ9tVA
- m76Ww+/pAnepVRafMID0rqEfD9oGv1YrfpeFJhyE2zUw3SyyNLIKWD6QeLRhKQRbSnsXhGLFBXCqt
- 9k5JARhgQof9zvztcCVlT5KVvuyfC4H+HzeGmu9201BVyihJwKdcKPq+n/aY5FUVxNTgtI9f8wIbm
- fAjaoT1pjXSp+dszakA98fhONM98pOq723o/1ZGMZukyXFfsDGtA3BB79HoopHKujLGWAGskzClwT
- jRQxBqxh/U/lL1pc+0xPWikTNCmtziCOvv0KA0arDOMQlyFvImzX6oGVgE4ksKQYbMZ3Ikw6L1Rv1
- J+FvN0aNwOKgL2ztBRYscUGcQvA0Zo1fGCAn/BLEJvQYShWKeKqjyncVGoXFsz2AcuFKe1pwETSsN
- 6OZncjy32e4ktgs07cWBfx0v62b8md36jau+B6RVnnodaA8++oXl3FRwiEW8XfXWIjy4umIv93tb8
- 8ekYsfOfWkTSewZYXGoqe4RtK80ulMHb/dh2FZQIFyRdN4HOmB4FYO5sEYFr9YjHLmDkrUgNodJCX
- CeMe4BO4iaxUQARAQABtCdNYXJrdXMgUHJvYnN0IDxtYXJrdXMucHJvYnN0QHBvc3Rlby5kZT6JAl
- QEEwEIAD4CGwMFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AWIQSCdBjE9KxY53IwxHM0dh/4561
- D0gUCaIZ9HQIZAQAKCRA0dh/4561D0pKmD/92zsCfbD+SrvBpNWtbit7J9wFBNr9qSFFm2n/65qen
- NNWKDrCzDsjRbALMHSO8nigMWzjofbVjj8Nf7SDcdapRjrMCnidS0DuW3pZBo6W0sZqV/fLx+AzgQ
- 7PAr6jtBbUoKW/GCGHLLtb6Hv+zjL17KGVO0DdQeoHEXMa48mJh8rS7VlUzVtpbxsWbb1wRZJTD88
- ALDOLTWGqMbCTFDKFfGcqBLdUT13vx706Q29wrDiogmQhLGYKc6fQzpHhCLNhHTl8ZVLuKVY3wTT+
- f9TzW1BDzFTAe3ZXsKhrzF+ud7vr6ff9p1Zl+Nujz94EDYHi/5Yrtp//+N/ZjDGDmqZOEA86/Gybu
- 6XE/v4S85ls0cAe37WTqsMCJjVRMP52r7Y1AuOONJDe3sIsDge++XFhwfGPbZwBnwd4gEVcdrKhnO
- ntuP9TvBMFWeTvtLqlWJUt7n8f/ELCcGoO5acai1iZ59GC81GLl2izObOLNjyv3G6hia/w50Mw9MU
- dAdZQ2MxM6k+x4L5XeysdcR/2AydVLtu2LGFOrKyEe0M9XmlE6OvziWXvVVwomvTN3LaNUmaINhr7
- pHTFwDiZCSWKnwnvD2+jA1trKq1xKUQY1uGW9XgSj98pKyixHWoeEpydr+alSTB43c3m0351/9rYT
- TTi4KSk73wtapPKtaoIR3rOFHLQXbWFya3VzLnByb2JzdEBwb3N0ZW8uZGWJAlEEEwEIADsWIQSCd
- BjE9KxY53IwxHM0dh/4561D0gUCaIO9eAIbAwULCQgHAgIiAgYVCgkICwIEFgIDAQIeBwIXgAAKCR
- A0dh/4561D0oHZEACEmk5Ng9+OXoVxJJ+c9slBI2lYxyBO84qkWjoJ/0GpwoHk1IpyL+i+kF1Bb7y
- Hx9Tiz8ENYX7xIPTZzS8hXs1ksuo76FQUyD6onA/69xZIrYZ0NSA5HUo62qzzMSZL7od5e12R6OPR
- lR0PIuc4ecOGCEq3BLRPfZSYrL54tiase8HubXsvb6EBQ8jPI8ZUlr96ZqFEwrQZF/3ihyV6LILLk
- geExgwlTzo5Wv3piOXPTITBuzuFhBJqEnT25q2j8OumGQ+ri8oVeAzx24g1kc11pwpR0sowfa5MvZ
- WrrBcaIL7uJfR/ig7FyGnTQ1nS3btf3p0v8A3fc4eUu/K2No3l2huJp3+LHhCmpmeykOhSB63Mj3s
- 3Q87LD0HE0HBkTEMwp+sD97ZRpO67H5shzJRanUaDTb/mREfzpJmRT1uuec0X2zItL7a6itgMJvYI
- KG29aJLX3fTzzVzFGPgzVZYEdhu4y53p0qEGrrC1JtKR6DRPE1hb/OdWOkjmJ75+PPLD9U5IuRd6y
- sHJWsEBR1F0wkMPkEofWsvMYJzWXx/rvTWO8N4D6HigTgBXAXNgbc3IHpHlkvKoBJptv6DRVRtIrz
- 0G0cfBY0Sm7he4N2IYDWWdGnPBZ3rlLSdj5EiBU2YWgIgtLrb8ZNJ3ZlhYluGnBJDGRqy2jC9s1jY
- 66sLA9rQZMHhJTzMyIDwweGlvMzJAcG9zdGVvLmV1PokCbQQTAQgAVxYhBIJ0GMT0rFjncjDEczR2
- H/jnrUPSBQJpa71VGxSAAAAAAAQADm1hbnUyLDIuNSsxLjExLDIsMgIbAwULCQgHAgIiAgYVCgkIC
- wIEFgIDAQIeBwIXgAAKCRA0dh/4561D0gKJD/9uOQKYlsDoQX65Gd0LiMT0C+5vXgr3VI0PHDOwcv
- 51fJ3A1vNyPZRFPGrz8+mDEXUQOF/INfnz5Tu1QHwf+iYcWcTGAN/FHgVR6ET6VBNU2hJaKhu+Ggo
- kjYyJTOvyX+3yNRUfSny0GjTjIPuPTErjqmHF+BtjXslpgwqnNMznf3lRIuUjRORupos6p3k1DndE
- 5vzUTmXSvMyXyOD2KhBl/kL76k0bHYyAQytZPag12pltrtFbA/r2phDGN2si8PooDT99bSTJjaM45
- MTAAHbHKJfvgfK41bNFD5mMtpWpL195XRtS0Nrxdg3PaYBxN5gtTG0RyZfpYRlkdEhm+jj/8RxuSG
- i/qdhRdbiI7K2IELWeQVHSNDi9JabR/UzlR4NSnhfAjRIVlRM+eFbUl8XwxwVrAkojF5IraH2qRvg
- VCmuFsHUW07FUlrDrzpjXsD73cKppoFGDCdDR0BHJepXbFLS9+AqkT+guRJlnCTg2p+TQtnbwPgKp
- Vj98JixovCl99zRYTsL2bRNU5+q8iET65VMJ1ydyNanvLd5vI/NqDkXhlXLsGmdaDTtu4R21PkToX
- dQNGrZ91M9nlIBKw8Y7c7xZ4098qX2b8JX/CxD+gC1r4C8vuA3GkhFLx+KlkON7LyiJPkrePp6Qky
- jfGillcaQOqFZ3WwVqyzG1BUfTow==
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-LlgQf4RobFMqc/n5pj36"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=kTMlfTU8
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-49412eb1474so1572769f8f.3
+        for <linux-i2c@vger.kernel.org>; Sun, 22 Nov 2026 11:18:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795375124; x=1795979924; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=+Uqhop9ybLEnfZjiktNvan2dFW98Stkgcu+CDpZ9vF0=;
+        b=kTMlfTU8geprJcn3SJfoU8Olz/H633H5rA98cCtRissMONe5M8J3YEH/E5oj67UV+I
+         fLcqmahmop+FsUy6WJEPQ2fHZm0tckySeUiMtBaEDjJ9lXKNqJ2/b2e/egAn6p4g7L2w
+         6N7+IMRqEKxPJaDCAnNHiWEBk2RuIc4THzlLdlbNNTmoX/RynpxEboaweYHUdfkbwC6O
+         vSUwArT6PYJsO1NFckFoyECFS/ynxv1H1yyQQ/EN2dgjq3Up43KmiFRnGLBBfzLvZnFU
+         kv6mO+lpVd/S1w06eivjWMTLr01IllIOwEKyOJ+hXmrvPJVEqj2Z+AlBzTnK9gTvuB/Y
+         Bprg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795375124; x=1795979924;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+Uqhop9ybLEnfZjiktNvan2dFW98Stkgcu+CDpZ9vF0=;
+        b=N1oXCY3mrDfD/zBwcst53JoPWJHhxg/MhNy4pG8vYFbsbrZ8tm8qHLlAIkR1xLS+1x
+         N4H0xc0N92ee0tS16U68BPun7gVnU8kGHX8VsG0ZeGfOxXHbb8kcf3iaj1ECiQlWw70L
+         wmaFUEL5oT8uWQV1/uMm8+Druh3fNmBIG9kvnYdpPRymCuBFTr/T3B9nX7NGyN5/RB8X
+         LQEPUTgUVTqaIVthwAP8o4csaTqeUSQM3SgMt2Z/Yk0VW229sHgm/i8EEmKaV7Zx7QO1
+         41jVXAYibK52dMeyIt9mXoW6PHtl8ZU/A7BLbuQq2ijU+wMWD0gzo9AW0DJK2GYQZKas
+         m9tQ==
+X-Forwarded-Encrypted: i=1; AL+hErETdoWGh9k6SXJdNHxF/zeWiHlch4EIpLua6OXh4IgjvpbKFkrQm8pxNeot1uD1FaVTuuRGmKuB0Cc=@vger.kernel.org
+X-Gm-Message-State: APuU4Z8VLG++k2GjT2f9DkmiKlh1kpkVPCI3QC8pK2/Y6p319sGiLKhU
+	msmeTwJS5ZvfD1o635iQywFnGZCROBTnEwSNcP82rr/r+b45YdKKdmnD
+X-Gm-Gg: AZFdTZdbaa+5o0bjMezT6yVo1UuuMrMgQ97J+eWZB6+mwkMvtYq1Rn1BOqQzm0FKFNK
+	0Eaj6+SdPMJcFvRZTq3pBcTaulZY9LAih1/RMoanPVIQqxT9jFK7Ntv90IpqlWg7KR4W44DrYJk
+	7Nz0HNbGiocASxIrikn0rROGPYFCEt4Q94uf5i1PVKcWZ5yNOIMt9qfjQ4kASoVIgXvONtFFl35
+	YD4rjPhbkso8xsvqakyzkC5RtF6+ijPx1O4IzaCPIgXC9i50MhyRgO0n98nPI1BTaFrfE1QV29I
+	adzte187xSWbtvSe5QwjKsFUWUiKgpVfNVNYt0mwVrw/lTw3JWA7BFeDeZaiuXacv3Xix/dtOqc
+	x1wp2Ckf0e7lXb41948Luc6wja4oH5KHa+xjbquYuC6a4VxyKvRj1pMBM6GcZsKYwfhIv7IgiBR
+	KAx+1ohDoJ6gCcHg5Gw3EIXMq9j0pMDyvci36PvkHIa+xGPMTHqtuXBspXAN9t/gS3FWXVf8NC0
+	YcT1MFy+USNpAqNDV7CsBJ0+X/Jzhf0dEpT1yVGROza4gTGiFU4joQfR4+nMvhxcJch4C7P4uej
+	VlUeiyVRr8rUWMLu+tAyYS+yWJ0uj1g3P0AfjaAvAmJ1
+X-Received: by 2002:a05:600c:4e0d:b0:4a5:e6fd:65e5 with SMTP id 5b1f17b1804b1-4bb88922a67mr196302675e9.31.1795375124413;
+        Sun, 22 Nov 2026 11:18:44 -0800 (PST)
+Received: from cachyos-x8664.aetlocal ([2001:bb6:e78e:9100:cdb3:c7ee:74a4:5189])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab69bf62f7sm19437148f8f.13.2026.11.22.11.18.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Nov 2026 11:18:44 -0800 (PST)
+From: Mervyn Pretorius <mervynpretorius.oss@gmail.com>
+To: Pinkesh Vaghela <pinkesh.vaghela@einfochips.com>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	Min Lin <linmin@eswincomputing.com>,
+	Yulin Lu <luyulin@eswincomputing.com>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Darshan Prajapati <darshan.prajapati@einfochips.com>,
+	Pritesh Patel <pritesh.patel@einfochips.com>
+Subject: Re: [PATCH v5 0/7] riscv: eswin: eic7700: Add support for clocks, resets, pinctrl, HSP bus, I2C and watchdog
+Date: Sun, 22 Nov 2026 19:18:42 +0000
+Message-ID: <20261122191842.2183685-1-mervynpretorius.oss@gmail.com>
+X-Mailer: git-send-email 2.56.1
+In-Reply-To: <20261015125454.1381941-1-pinkesh.vaghela@einfochips.com>
+References: <20261015125454.1381941-1-pinkesh.vaghela@einfochips.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -122,73 +114,52 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-
---=-LlgQf4RobFMqc/n5pj36
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2026-11-09 at 22:57 +0700, Muchamad Coirul Anwar wrote:
-> Implement fallible SMBus byte and word access for bound I2C clients
-> using the generic I/O backend infrastructure.
->=20
-> I2C transactions may fail due to NACK, arbitration loss, or timeout, so
-> use FallibleIoCapable rather than the infallible IoCapable interface.
-> Propagate errors returned by the I2C core to callers.
->=20
-> Provide smbus_io() for byte-addressed register access and standalone
-> word helpers for layouts not represented by the Region-based view.
-> Also provide smbus_read_word_swapped() for devices that transmit the
-> high byte of a multi-byte value first.
->=20
-> Restrict these operations to I2cClient<Bound> so bus I/O is only availabl=
-e
-> while the client remains bound.
->=20
-> Keep the raw SMBus FFI calls and errno conversion in safe bound-client
-> methods. Include a generic no_run example for the word-read helper.
->=20
-> Suggested-by: Shuai Liu <847807867@qq.com>
-> Link: https://lore.kernel.org/all/tencent_173B7731E90B9624F9F82613DC3031B=
-70907@qq.com/
-> Signed-off-by: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
 Hi,
 
-please add me to CC.
+I tried this series on a DeepComputing DC-ROMA RISC-V Mainboard II
+(FML13V03). It uses an EIC7702X, i.e. two EIC7700X dies, with 32 GiB.
 
-Could you make `I2cClient<device::Bound>` Sync in this patch?
+Setup: v7.4-rc3 (4843f6873f7c) + this series + a minimal local board dts
+that includes eic7700.dtsi and eic7700-pinctrl.dtsi and describes die 0
+(4 of the 8 harts, uart0, the firmware reserved-memory regions). Boot
+chain: OpenSBI v1.3, U-Boot 2024.01, GRUB (EFI); the kernel takes its
+memory from the EFI memory map, so it also uses die 1's RAM. Initramfs
+only, no storage.
 
-`I2cClient<device::Normal>` already implements Sync. Functions exposed
-only for `I2cClient<device::Bound>` should be thread safe.
+Config: defconfig + PINCTRL_EIC7700, DW_WATCHDOG and RISCV_SBI_V01 (the
+firmware's SBI is v1.0, so earlycon=sbi needs the legacy console call).
 
-I will need this patch (including the change mentioned above) for a
-future driver.
+With clk_ignore_unused, the non-I2C parts of this series probe cleanly:
+eic7700-clock, eic7700-reset, pinctrl-eic7700 (with a fixed 3.3 V vrgmii
+supply; no pinmux consumers yet), the four dw_wdt instances and the hsp
+simple-pm-bus. The console, interrupts, timer and SBI reboot work. I
+left the I2C controllers disabled, so patches 5/7 and 6/7 are only
+build-tested here, and for patch 3/7 none of the pinmux states in
+eic7700-pinctrl.dtsi were exercised. I'm therefore replying with
+Tested-by only to patches 1/7, 2/7, 4/7 and 7/7 rather than to this
+cover letter.
 
-Thanks
-- Markus Probst
+Without clk_ignore_unused, the board hangs during/after
+clk_disable_unused(). That looks like an issue in the already-merged
+drivers/clk/eswin/clk-eic7700.c rather than in this series (I don't
+have a single-die EIC7700X to see whether it is EIC7702X-specific), so
+I'm reporting it separately to linux-clk and the clock driver
+maintainers ("clk: eswin: eic7700: EIC7702X hangs when disabling unused
+D2D/PVT gates").
 
+One build note on patch 6/7: eic7700.dtsi now references i2c0_pins ..
+i2c11_pins, which are defined in eic7700-pinctrl.dtsi. A board dts must
+therefore include eic7700-pinctrl.dtsi too (as the P550 dts does),
+otherwise dtc fails with:
 
---=-LlgQf4RobFMqc/n5pj36
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+  ERROR (phandle_references): /soc/i2c@50950000: Reference to non-existent node or label "i2c0_pins"
 
------BEGIN PGP SIGNATURE-----
+Is that intended, or should eic7700.dtsi include eic7700-pinctrl.dtsi
+itself (or the pinctrl-0 properties move to the board files) so that
+the SoC dtsi stays self-contained?
 
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmsC70wbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPS2xMQAKDLB02pKK6mopiQyUo4
-Rw9Re4Hxwma6eGa1pfpDoTjkft+qnAjAoaZHb6hnGHojepz2FdRyVNxTARZnByFA
-VHnddeyhZxrK19kmKRSD/RF79bW9V6QEqouu90CXUE9glh9KlfnjsyLrk+heqxN4
-5p0n2lDo3DFczV1lhZPgkJnp+Wb8Xrys9SWX4aCC9vE5MMeQjRzJVxzlnpiQxY3z
-5SOCMbxu1mXnOnWGI1yWmBxbK1HRNhydPhwo/PkAz2KIeXFdaB1brMME+eck9fKl
-NxK40cAzmKgO6JWK2yG4qFMhWp+ZYcZiv/n4BR3aEeRuG+Akp8A+eUKWXV8aSqm6
-HPbBkU7yaugyyYqcq6wJw55dbde7Klbd7XKBWWK+7ol7ut7nAkTsi5HSh/zeX5b7
-I2OB5H+YKPCMy5vB6DCPhIN2gYO+V2N8qwfbbPcFkbLUNumfdk44ABk+Wds1Thu5
-vwagzVEu/aXOt0XT+aUmH5zzutzvwDXZKyHEuGt4wstKXHAlPyIjydM9St32l6QF
-L0H1XRxUAWHpr6GnlhxWAUAzu/UebGviaVAtAl1WDgrZQIWAwG1tevLVXkkju/J5
-euYBaeJ3yvKDBY+sm7TkbWH9iOCikShqAeA2ZNuAs/fE5H9TVMhyZd4pQSU0ifuw
-UZStFoSLiv1XrJYCjL/baqXI
-=u56D
------END PGP SIGNATURE-----
-
---=-LlgQf4RobFMqc/n5pj36--
+Thanks,
+Mervyn Pretorius
