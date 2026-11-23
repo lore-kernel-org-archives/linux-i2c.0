@@ -1,69 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795422685;
-	b=vzUZ42aua7bcoA0p9n4w69lKCAuy31Q/IPiC6CzKL1oqvI3DyU2rW2wudIA68tsfdcW+
-	 2vpaJTFrs5g2kGFWD2dVuC/REymEJ72m500RefkC4W7B2gR1YYqM4CA+K82MLig1vt7xI
-	 B5hXx3T5gmjr8QRNSDHdc26Gc2Q4rxq5Q5V6eus5U0aRZN0Z+oGOwC41+zS0JDBj/d3jj
-	 dJqv9FlW4yvJQP1iZ1RP5uwdPwN+yg1O9FgVbA457MH3QhwtDMLYPown1HVWlozDsWSwu
-	 Qe0r20T9Gp0V70vvL2WlzRz8FC5aRo9iO4eMkxfHzNn1QzOmpXgJUw47LWYTO3GJhlQ==
+	t=1795423271;
+	b=2t1rk7G+BDZopjk98ELbBqv72bgw6MXmjysJBt10GHty3j2T7g8Of0ZmVznZt7YTV1fG
+	 l0wuv9yKjaTiR1gjPqxk+vzWAy5p+B7j3pXrqsotXmm/3BvlgXwpS/XtHWemCmrw/S5p2
+	 BxgyDqs032n9dJOLjQgHrG3m/VNmiy9N1ZMgMm+IcXChzBavN9xjloWxkebsR52L0XQyL
+	 ZpcDKvbSZxmDTn2FYShaae94oOcBEuUOi1UizlJUXikLSD3p3USEfO1PVBiYA25iel0mJ
+	 AIb1i4jklabnCI/RYXcnm//S0fNwPDW09eFaaMFOZfNuE7SNSsK+WMqZtQVNEFm0aRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795422685;
-	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=huZFMXPlEFAERYY4QoxHcKSDEDN3CIy/5c365Kws/FY=;
-	b=t4NxsZyAPMq/DTEqgz+4shtlVUjsoeNQ5KyIasfGoCmm5e6xcyUcpaQ3W7KkXjnhAFFh
-	 BSEBmubC6KyFXR6m+rLr1+KqQqEs1AO2KfjI/s22cMUVIvVGTZa3CTjwIafynZMH8wIUp
-	 ljBKnbD4fxIwlaTGaJOaBbLvcCSp+uGsybNYYeXJBgzalBhRwyELDqCpGVn2ownm98TJB
-	 IMq+r/5bIjUqL6PdC05/zRp54DXxypdeh8ERHxSRgazXkt47/55sq+KH55nhxLFb95i/V
-	 pvNNtHCWjmxJfx3sFpOBRPIX/Q1f+RCZQAphAG7JhDVz4eglm+q3Bbfmnt5elFLsrNw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795423271;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=qW83tcu1nLaIvW9H5AFKzLtLc7tyDERd4OY7y1H/lAw=;
+	b=NwOwENlkbkx2BbrYDMNiP4wt5ioMFqfE4hqXWhb6A4L+fzTAVzU8kwnvhhGFA9KUls3K
+	 fF/fbfXCskM4UwfFTcvP3VaifuJpW9DTDWzpqTPjnUXyJRUAVpPAnvWlJNFG364Zqj0Nd
+	 L9Ri3116AXAlaSOh+LD+8g0RqugyPFW0d825pQgLjE3GgUK1f3ZsDDY6UV+R41TAV7xwD
+	 ELu47dQRoQeB47gnHzyRJ9jZowdEYTEJGmeCxSWBLw5eQOC0V/ELDCCKekMUlFFNRwPnH
+	 W4SvMfz/MEscm7xXy5zscyKbbvJz0ONlXVDbR6ymeDL74cewUa/ghacu6bJ+9W8RNNQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OMKkUOxD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ajeor/5M";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1A22606A330;
-	Mon, 23 Nov 2026 08:31:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F7E606A31F;
+	Mon, 23 Nov 2026 08:41:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OMKkUOxD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97181F000C4;
-	Mon, 23 Nov 2026 08:31:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajeor/5M
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2823D1F000EB;
+	Mon, 23 Nov 2026 08:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795422684;
-	bh=huZFMXPlEFAERYY4QoxHcKSDEDN3CIy/5c365Kws/FY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=OMKkUOxD7Y5XB3+u8VLbDvgi8U7JMR+kKyCuaSmaHfKq5qoOT+vdjceWw9LsjgjNN
-	 Xbr634gBhOrkwggxpzc394B4yECU9qLC33jsoMQwAOH4pbcojAeKUl32OCWSyvKO3U
-	 SlthnkpBRHRXWBdiEG/DeGCDiITsB8ugk3V46pltXxMOkDKn0ipazTD0jdgvv7Krzn
-	 uoFx8axdEYPNIBMMZl4B6bBCOtaRGJjLiH+v0Y9UqK4YmvczDwameo6D4LbQZBdcO3
-	 Ybl19dC0yVTy/3R7ROGrHrHUTZ6IYD35n3FkgGjFAOQFCW3CcFWZ/B9z0LnjPQ6DpR
-	 jH6nOivqj0lyA==
-Received: from johan by xi.lan with local (Exim 4.100.1)
-	(envelope-from <johan@kernel.org>)
-	id 1xVPSL-00000007bVd-3SGf;
-	Mon, 23 Nov 2026 09:31:21 +0100
-Date: Mon, 23 Nov 2026 09:31:21 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	driver-core@lists.linux.dev, linux-acpi@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 4/8] software node: ignore primary nodes in
- device_remove_software_node()
-Message-ID: <awP52WO7xlzhOMf6@hovoldconsulting.com>
-References: <20261117101336.980216-1-johan@kernel.org>
- <20261117101336.980216-5-johan@kernel.org>
- <avxeTnaEG_FnBhck@ashevche-desk.local>
- <av1xsrv8zNIEOtxg@hovoldconsulting.com>
+	s=k20260515; t=1795423271;
+	bh=qW83tcu1nLaIvW9H5AFKzLtLc7tyDERd4OY7y1H/lAw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=ajeor/5MmfIU6zEsUYcWnXAVwc5fK1+cstxm2Je/i/wUEpmUb8tnYqqVATLxWDaNh
+	 YzKKJco0hur5jU6bJhdPl1imMk4YqPTI0Jvn5vZD/Fj3DvrsF3tsXLuEPcG1I2Yfyk
+	 922JMAMS9Uhv0+Y2CA9+r8Fe09o057SZSwfyL5c5DECCkh3Ok+Y6QX5s79adsZJ37e
+	 TRdtiWfqoZfLOd/cf8580aWKfglYKjm3FnQh+0k6gfUuLBvRKcDtEbI6QbiDXydK9T
+	 y+DdJBp/QtAAMEamcP+NQMIDgBLH4UsUEDazLQrQbiiLxLIil4NcCeelLr6dwknM1g
+	 LnsbhbPFKfo9w==
+Message-ID: <316fe254-813f-4871-b0ac-428bf5bee6f7@kernel.org>
+Date: Mon, 23 Nov 2026 09:41:03 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -73,48 +51,60 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <av1xsrv8zNIEOtxg@hovoldconsulting.com>
+Subject: Re: [PATCH 0/6] i2c: remove redundant
+ pm_runtime_dont_use_autosuspend() calls
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
+ Oleksij Rempel <o.rempel@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>, Frank Li
+ <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Chris Brandt <chris.brandt@renesas.com>,
+ Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+ Alain Volmat <alain.volmat@foss.st.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org, imx@lists.linux.dev,
+ linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
+References: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
+Content-Language: en-US
+From: Joshua Crofts <crofts@kernel.org>
+In-Reply-To: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 18, 2026 at 10:36:50AM +0100, Johan Hovold wrote:
-> On Tue, Nov 17, 2026 at 04:01:50PM +0200, Andy Shevchenko wrote:
-> > On Tue, Nov 17, 2026 at 11:13:32AM +0100, Johan Hovold wrote:
-
-> > >  void i2c_unregister_device(struct i2c_client *client)
-> > >  {
-> > >  	struct fwnode_handle *fwnode;
-> > > -	bool fwnode_is_software_node;
-> > >  
-> > >  	if (IS_ERR_OR_NULL(client))
-> > >  		return;
-> > 
-> > > -	fwnode_is_software_node = is_software_node(fwnode);
-> > >  	device_remove_software_node(&client->dev);
-> > >  	/*
-> > > -	 * If the firmware node is a software node, its reference count
-> > > -	 * was decremented by device_remove_software_node().
-> > > +	 * Must be done after device_remove_software_node() which may have
-> > > +	 * freed a secondary firmware node and cleared the fwnode pointer.
-> > >  	 */
-> > > -	if (!fwnode_is_software_node)
-> > > -		fwnode_handle_put(fwnode);
-> > > +	fwnode_handle_put(client->dev.fwnode);
-> > 
-> > We have fwnode getter, so better use it
-> > 
-> > 	fwnode_handle_put(dev_fwnode(&client->dev));
+On 09-Nov-26 21:50, Joshua Crofts wrote:
+> Since commit d1706f9da9f4 ("PM: runtime: call pm_runtime_dont_use_autosuspend() on reinit()"),
+> driver core is now responsible for undoing any
+> pm_runtime_use_autosuspend() calls on driver exit.
 > 
-> I used the fwnode pointer directly here on purpose since that is the
-> pointer that gets cleared by device_remove_software_node() and which the
-> comment refers to.
+> Remove the redundant function calls.
 > 
-> This hopefully also reduces the risk of anyone introducing a UAF by
-> reusing the fwnode variable (or the compiler doing something silly since
-> dev_fwnode() returns the dev->of_node->fwnode when CONFIG_OF is
-> enabled).
+> NOTE: Some drivers in drivers/i2c/ still keep their calls because they either
+> rely on pm_runtime_dont_use_autosuspend() before pm_runtime_disable() to flush
+> pending autosuspend delays and trigger synchronous runtime suspension,
+> or operate on a parent device rather than the platform device itself.
+> 
+> Signed-off-by: Joshua Crofts <crofts@kernel.org>
+> ---
+> Joshua Crofts (6):
+>       i2c: cadence: remove redundant pm_runtime_dont_use_autosuspend() call
+>       i2c: img-scb: remove redundant pm_runtime_dont_use_autosuspend() call
+>       i2c: imx: remove redundant pm_runtime_dont_use_autosuspend() calls
+>       i2c: riic: remove redundant pm_runtime_dont_use_autosuspend() calls
+>       i2c: stm32f7: remove redundant pm_runtime_dont_use_autosuspend() calls
+>       i2c: xiic: remove redundant pm_runtime_dont_use_autosuspend() calls
+> 
+>  drivers/i2c/busses/i2c-cadence.c | 1 -
+>  drivers/i2c/busses/i2c-img-scb.c | 1 -
+>  drivers/i2c/busses/i2c-imx.c     | 2 --
+>  drivers/i2c/busses/i2c-riic.c    | 2 --
+>  drivers/i2c/busses/i2c-stm32f7.c | 2 --
+>  drivers/i2c/busses/i2c-xiic.c    | 2 --
+>  6 files changed, 10 deletions(-)
+> ---
 
-I've convinced myself that the compiler can't mess this up so I'll
-switch to dev_fwnode() in both places when applying.
+Hi, gentle ping on this series.
 
-Johan
+-- 
+Kind regards,
+Joshua Crofts
