@@ -1,47 +1,66 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795423271;
-	b=2t1rk7G+BDZopjk98ELbBqv72bgw6MXmjysJBt10GHty3j2T7g8Of0ZmVznZt7YTV1fG
-	 l0wuv9yKjaTiR1gjPqxk+vzWAy5p+B7j3pXrqsotXmm/3BvlgXwpS/XtHWemCmrw/S5p2
-	 BxgyDqs032n9dJOLjQgHrG3m/VNmiy9N1ZMgMm+IcXChzBavN9xjloWxkebsR52L0XQyL
-	 ZpcDKvbSZxmDTn2FYShaae94oOcBEuUOi1UizlJUXikLSD3p3USEfO1PVBiYA25iel0mJ
-	 AIb1i4jklabnCI/RYXcnm//S0fNwPDW09eFaaMFOZfNuE7SNSsK+WMqZtQVNEFm0aRg==
+	t=1795423393;
+	b=dSBTUwZNIflcEv5vUPtCt0Z6ZGkC4PUYWI7hO68Yh+yLFGyC45oIvuqEiBgwUS0TNRPy
+	 F09xwihIH3fP0XqzvNau9BSiOEj0uP7bOwO9N0t4cHq/s2sSWvNJRQEAbzh/UkDD0ZbCL
+	 J/e76F7LvRwwFHXIkFhhDFWcjWGNpQ14fkvqNg3wOaGO0k0HmrbGUWd2yHFot1I8lW0uK
+	 phBmQRjAG+BJMwAShXSa10kbmPXrHRO9KVoX2T2Mw6eQWXaz4NBcZDA0eTliyAvzTYEgO
+	 L9ECHt/8voe24meTMVScIwnvIFgwk440uHdvN/U4hsHFJ82q/bpsTD3b2Td13+vr9Lg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795423271;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=qW83tcu1nLaIvW9H5AFKzLtLc7tyDERd4OY7y1H/lAw=;
-	b=NwOwENlkbkx2BbrYDMNiP4wt5ioMFqfE4hqXWhb6A4L+fzTAVzU8kwnvhhGFA9KUls3K
-	 fF/fbfXCskM4UwfFTcvP3VaifuJpW9DTDWzpqTPjnUXyJRUAVpPAnvWlJNFG364Zqj0Nd
-	 L9Ri3116AXAlaSOh+LD+8g0RqugyPFW0d825pQgLjE3GgUK1f3ZsDDY6UV+R41TAV7xwD
-	 ELu47dQRoQeB47gnHzyRJ9jZowdEYTEJGmeCxSWBLw5eQOC0V/ELDCCKekMUlFFNRwPnH
-	 W4SvMfz/MEscm7xXy5zscyKbbvJz0ONlXVDbR6ymeDL74cewUa/ghacu6bJ+9W8RNNQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795423393;
+	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=rVUv/a91H2ubbfQJaXbwvWbI3OP4PfmSmlSUg7GAVY4=;
+	b=NT4cdGUehDZcnmK0mjUfxpaC4Fz/BD1y/Pp87qs5SuN8aTlwynEXvSwng74mux7eRqge
+	 QKLFyq8zL/8zgILf/35rcoHzJadhNp7hAREAPNexoS4YQFeET0BoYjmRJ+ZKLAsTA0ZHY
+	 qPYqxGbo/wcoHqzAhaxDqNM3kYYTjyyLeYnkDkHFVSjPNgEYOXGztgMGcq5jdovsVJZEV
+	 B+GK5fqcPgywdjtz6xAc3OUvkNBa/TgM/eDqjuAxdLWMJaYCkrS0G9242qdaLuOQCopUY
+	 9QOG4ci3oV5A90IVF8kDT1qW1BtUWL3RC55sDpzfmBEVuE/DbAf0aeydA11IR727G4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ajeor/5M";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LonkdIl1;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F7E606A31F;
-	Mon, 23 Nov 2026 08:41:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B14CC606A68F;
+	Mon, 23 Nov 2026 08:43:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajeor/5M
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2823D1F000EB;
-	Mon, 23 Nov 2026 08:41:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LonkdIl1
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F6571F000EF;
+	Mon, 23 Nov 2026 08:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795423271;
-	bh=qW83tcu1nLaIvW9H5AFKzLtLc7tyDERd4OY7y1H/lAw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ajeor/5MmfIU6zEsUYcWnXAVwc5fK1+cstxm2Je/i/wUEpmUb8tnYqqVATLxWDaNh
-	 YzKKJco0hur5jU6bJhdPl1imMk4YqPTI0Jvn5vZD/Fj3DvrsF3tsXLuEPcG1I2Yfyk
-	 922JMAMS9Uhv0+Y2CA9+r8Fe09o057SZSwfyL5c5DECCkh3Ok+Y6QX5s79adsZJ37e
-	 TRdtiWfqoZfLOd/cf8580aWKfglYKjm3FnQh+0k6gfUuLBvRKcDtEbI6QbiDXydK9T
-	 y+DdJBp/QtAAMEamcP+NQMIDgBLH4UsUEDazLQrQbiiLxLIil4NcCeelLr6dwknM1g
-	 LnsbhbPFKfo9w==
-Message-ID: <316fe254-813f-4871-b0ac-428bf5bee6f7@kernel.org>
-Date: Mon, 23 Nov 2026 09:41:03 +0100
+	s=k20260515; t=1795423393;
+	bh=rVUv/a91H2ubbfQJaXbwvWbI3OP4PfmSmlSUg7GAVY4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LonkdIl1udPhFwOvRcmtz3GmzDwpG5Vh/cHIF9Mu+DzOkJW8ceOvua+c6cCyEw1Ct
+	 zAM8RVmuSfmPb31Mo6iTZV23qmrZ6BXqVqSXPXY7q0HzMtkxg+OLTQXKrceNQCqb9n
+	 MlcKP0tXbiKb3tgzhw8uNAwb6+TQzExVPZxk11zRPYsC1w8I1czjkDuSKU9bS3symE
+	 G5PjyYXakRgwLSvqy9mwY3jxpdbz5EvUehpCBnzbomacjyA0aiiOgTPB8d8lzSwbaM
+	 qP9yAk1gnVNLQoIsEzte+xIMqi3NRwvqRGHYdwzvDSgTHjgDBeHUvzDKGbhh1p0AIR
+	 NhLuhB5lYVsDQ==
+Received: from johan by xi.lan with local (Exim 4.100.1)
+	(envelope-from <johan@kernel.org>)
+	id 1xVPdm-00000007bo5-1P66;
+	Mon, 23 Nov 2026 09:43:10 +0100
+Date: Mon, 23 Nov 2026 09:43:10 +0100
+From: Johan Hovold <johan@kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Daniel Scally <djrscally@gmail.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	driver-core@lists.linux.dev, linux-acpi@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 0/8] driver core: platform: fix swnode use-after-free
+ on device release
+Message-ID: <awP8nm3bs3dndsRW@hovoldconsulting.com>
+References: <20261117101336.980216-1-johan@kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -51,60 +70,47 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Subject: Re: [PATCH 0/6] i2c: remove redundant
- pm_runtime_dont_use_autosuspend() calls
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
- Oleksij Rempel <o.rempel@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>, Frank Li
- <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Chris Brandt <chris.brandt@renesas.com>,
- Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
- Alain Volmat <alain.volmat@foss.st.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, imx@lists.linux.dev,
- linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
-References: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
-Content-Language: en-US
-From: Joshua Crofts <crofts@kernel.org>
-In-Reply-To: <20261109-i2c-remove-dont-use-autosuspend-v1-0-49a08b8daf36@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261117101336.980216-1-johan@kernel.org>
 
-On 09-Nov-26 21:50, Joshua Crofts wrote:
-> Since commit d1706f9da9f4 ("PM: runtime: call pm_runtime_dont_use_autosuspend() on reinit()"),
-> driver core is now responsible for undoing any
-> pm_runtime_use_autosuspend() calls on driver exit.
+On Tue, Nov 17, 2026 at 11:13:28AM +0100, Johan Hovold wrote:
+> When fixing a use-after-free regression in 7.3, I noticed that the
+> software node implementation is internally inconsistent.
 > 
-> Remove the redundant function calls.
+> Specifically, the firmware node pointer of a struct device may point to
+> either a primary or secondary firmware node, but in several places
+> kernel-doc and comments suggests that the firmware node pointer always
+> points to a primary node (cf. [1][2]).
 > 
-> NOTE: Some drivers in drivers/i2c/ still keep their calls because they either
-> rely on pm_runtime_dont_use_autosuspend() before pm_runtime_disable() to flush
-> pending autosuspend delays and trigger synchronous runtime suspension,
-> or operate on a parent device rather than the platform device itself.
+> This series fixes the 7.3 regression along with a similar issue in i2c
+> core due which are both stem from the fact that
+> device_remove_software_node() happens to drop a reference to a primary
+> software node that was never added by device_add_software_node().
 > 
-> Signed-off-by: Joshua Crofts <crofts@kernel.org>
-> ---
-> Joshua Crofts (6):
->       i2c: cadence: remove redundant pm_runtime_dont_use_autosuspend() call
->       i2c: img-scb: remove redundant pm_runtime_dont_use_autosuspend() call
->       i2c: imx: remove redundant pm_runtime_dont_use_autosuspend() calls
->       i2c: riic: remove redundant pm_runtime_dont_use_autosuspend() calls
->       i2c: stm32f7: remove redundant pm_runtime_dont_use_autosuspend() calls
->       i2c: xiic: remove redundant pm_runtime_dont_use_autosuspend() calls
+> The next two patches clarify that device_remove_software_node() should
+> only be used to remove nodes added by device_add_software_node() and
+> stops touching primary nodes.
 > 
->  drivers/i2c/busses/i2c-cadence.c | 1 -
->  drivers/i2c/busses/i2c-img-scb.c | 1 -
->  drivers/i2c/busses/i2c-imx.c     | 2 --
->  drivers/i2c/busses/i2c-riic.c    | 2 --
->  drivers/i2c/busses/i2c-stm32f7.c | 2 --
->  drivers/i2c/busses/i2c-xiic.c    | 2 --
->  6 files changed, 10 deletions(-)
-> ---
+> The rest of the series addresses further inconsistencies.
+> 
+> The first two fixes could go into 7.4 and the rest (which depends on the
+> fixes) into 7.5. And preferably with an ack from the i2c maintainer for
+> patches 2/8 and 4/8.
 
-Hi, gentle ping on this series.
+> Johan Hovold (8):
+>   driver core: platform: fix swnode use-after-free on device release
+>   i2c: core: fix swnode use-after-free on client deregistration
+>   software node: fix device_add_software_node() kernel doc
+>   software node: ignore primary nodes in device_remove_software_node()
+>   driver core: platform: warn on bad fwnode assignment
+>   driver core: platform: tests: fix swnode reuse test description
+>   software node: fix software_node_notify() primary node comment
+>   device property: fix fwnode_get_next_child_node() comments
 
--- 
-Kind regards,
-Joshua Crofts
+Since we're now at rc4 and the platform device UAF would mostly affect
+module unload, the first two fixes can also wait for 7.5.
+
+Series applied to driver-core-testing.
+
+Johan
