@@ -1,73 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=79.135.106.30
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795438707;
-	b=gjfdxgvJkNkVaC6vOiX69m4BKN1hINL99UCqgMLclwm1gJ4MCF8MChF1dReu6e0fPRPG
-	 gvhJJ2VSsWNzwU0vGaiWbOQdj20eApOCPv2WGpfDLIwEnn/M2HO36eNNvGs/VuOXCSlhl
-	 2lsbExN0ZBtJcFTKJjOTe5xNDZeQi/bFg8Jood2CO29qMY7vB2zfZvl3ZVwq8ZYeA6GCb
-	 M71CRgWQGYw1gigVe8NHd2W7dJSwl3vNfLEl+fVlGc2KpdtrvDSghZrwgq8b3wpPyFdZQ
-	 7GNd+LE/9wFQxDbl/5i85iQ14QcovIy//n7iNYJlHA9pGhEcVc3ITMiSQ4DOzJdFDcQ==
+	t=1795446218;
+	b=y1g4K76sKsEOMmWcvdHXY0Gzaq7sgvWKZHpkRnbR/IgeIkGm7yqc+1FwmYJ02fm7Q1Kk
+	 OdQzSDCEizX8GKwmjwa+zGqF7VtSpP82lPhajVHIhpC0bR1pqPOGxp02unGGKGt5Z0oK3
+	 bh+L1cSIcLvBNrEFV6xzvvPHAyOgdRzvpZykkix0N+M1fEWDHQ5bvFIyQ99pBjc+ZVUav
+	 QKGUTulabJelduG3AqLIk0jKzvq2jM8g07rl/jwDTC5SqS8nD4sp9XXkAUQG/n5EX7J3I
+	 BMQuonc62VtBdu4tH0EqUiHkL0BRt8lfdYPj2I6P3gx7QicGvri8QyCPCLJOH4WVIWA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795438707;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
-	 Subject:From:To:Cc:Date:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:User-Agent:MIME-Version:
-	 X-Last-TLS-Session-Version;
-	bh=mzLYYjAmydjw3H3/oXbJ9XiThuY+ICSqgnzPmYbDz08=;
-	b=hVAVGRvDrXZscpKF6COdxCjaHinIEGtk5X70mo2C2NX2fnkUVvtz5Rxncm4664++aTht
-	 qwkig4dw/j35JNWqMfxm8wd61SLzN8ixnVS6VaLNui4UrijdEYfyJu21z8OrBKphFyk4q
-	 KQGPerKxe56SPSlwArlCXbgqQ2vaxvGbDHa7B4idMmuTaTQmHt87rKVYAlFmg/pUa6pM1
-	 CleDzsMdc9JmzsnHvHZ2SexYHIMqY2daoKqd1k9kBly4oeTdlK1ZZ9dtdOB41BaZbAUXF
-	 QlHP/Ad2ZgswlfufTULnS7xVQeW/n4Q72I+LcYSXz08BaksPH3C7TP5B3CTfG6jcohQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795446218;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=Hv1e4J9mZaDtpUBaC+0XrDwxU8XMKC697ozcM5Q6eUE=;
+	b=rFOM2wfjTO37hXIX34pZ+9TPFixTK6I9wxRDUWQ8Yh9nqp4SiTPgZMDHoqmuUhL/Q6Nu
+	 XEs/pamXuKX0f9CD3AGQICVIw6x0ptonqAOFVJkj5dviVUF5lgpqCSE4+L5fp4RIRhvye
+	 PxrEfyszB5ngtN9y+Wj+OSLfW1KHapI46TqO3Lz6m31wCyBfT5ihGkUezhp+oMKaYsYl1
+	 NIgZTKroykKwy9xlrIfqbNSUOPaiIrgMoZmCGK3mbQcC0ZTkgXIGkqSv0A8dVnzRhltgB
+	 P2894Y2hg0djc99fNw/PxinFFJczcRXpsUZeW9vglpzFpKLiDAYlC3n9VaL8A821uew==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=E2wByWoI;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dmarc=pass header.from=proton.me;
+	spf=pass smtp.mailfrom=proton.me;
+	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b="B/IayE/J";
+	arc=none smtp.remote-ip=79.135.106.30
+Received: from mail-10630.protonmail.ch (mail-10630.protonmail.ch [79.135.106.30])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E6D9606A31A;
-	Mon, 23 Nov 2026 12:58:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3E6D9606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E590B606A31A
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2026 15:03:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E590B606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=E2wByWoI
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 92D26C69149;
-	Mon, 23 Nov 2026 12:58:31 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 789EC601E1;
-	Mon, 23 Nov 2026 12:58:24 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id AC4DD11E6A3A5;
-	Mon, 23 Nov 2026 13:58:16 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795438699; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=mzLYYjAmydjw3H3/oXbJ9XiThuY+ICSqgnzPmYbDz08=;
-	b=E2wByWoIaY23R3puLatDPLo+z5PjWAi3kGCZP04B8GCWr6Dok1SfsugOIwgjs+AkYSKDyW
-	KNTYfB88hg0gjngpo3M7nMivD18NdaY3VhTAyZsKoF3juKCkcs7Z/exBx0ZmbaGByFSM7R
-	1dx/wKuXAqt5pUu0R09OV8nnvcKjifsRzeY9NK7vCLWKSZvFXndD7bmoXiptzSzj8+E9l2
-	PhPoAxhtguoqFKNS1DafeaB6+aSE+akKEXUcUrEVw6BfWExwvdRAiEHVPgE5C4neoG+/Bx
-	QAzh5nMAmFCgeO7/MfNmRuABYaLeph1JZZqCGfIw4wROAycRqoNMaBlD2xMDIQ==
-Message-ID: <5879612808355316fb7ac7a0a7749f6ea96484cd.camel@bootlin.com>
-Subject: Re: [PATCH v2 1/4] i2c: octeon: Fix infinite loop in clock divisor
- calculation
-From: Paul Cercueil <paul.cercueil@bootlin.com>
-To: Robert Richter <rric@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas
- Petazzoni	 <thomas.petazzoni@bootlin.com>, Sunil Kovvuri Goutham
- <sgoutham@marvell.com>,  Umesh Kumar <ukumar@marvell.com>, Shashank Gupta
- <shashankg@marvell.com>, Tanmay Jagdale	 <tanmay@marvell.com>,
- stable@vger.kernel.org
-Date: Mon, 23 Nov 2026 13:58:14 +0100
-In-Reply-To: <20261113134128.58826-2-paul.cercueil@bootlin.com>
-References: <20261113134128.58826-1-paul.cercueil@bootlin.com>
-	 <20261113134128.58826-2-paul.cercueil@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2-0+deb13u1 
+	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=B/IayE/J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail2; t=1795446216; x=1795705416;
+	bh=Hv1e4J9mZaDtpUBaC+0XrDwxU8XMKC697ozcM5Q6eUE=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=B/IayE/JJnRJXbC4nUgTCdXloEAZNr+GRF5dd1eJhzP/L0Z1y8YeQkt5mnc6oVywT
+	 ocHiWTOKX+BzHOF0SU8s5x7Sqoy71uNLDffy/RcYKujOW1vcZcHNnCV+y23E+c57/Y
+	 ZxGr6f3/xHXMuC13Exc1507ZaL+Rj1/3BKRWbfk9JgJfCpCJFOAzBUw3x9er8ZvQWT
+	 tANYFsIEtjZi/s3LLhx75CI6+LOlxb2dKrD5z197nMjG6stjNtNxS9VBwlAnngqsBn
+	 Ks1Kr+RUZHV7oo1nXNoIk+cJR9JRImB8BK6Z9du8xf3IoaqKX7bRca3FaV8fSRduYX
+	 AV0su0CHLPvdg==
+Date: Mon, 23 Nov 2026 15:03:29 +0000
+To: Hans de Goede <johannes.goede@oss.qualcomm.com>
+From: penhouse24@proton.me
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz
+Message-ID: <z-Mjt3eV50ZiycWjeVe9dfla5WKoCPC1UXZdFSx2V8YVhr77FH3eKc-WLQgGT_gu1l8NS_-IUcw_-ASU1x_al7IzQuW6FhccBUylTg0yZqM=@proton.me>
+In-Reply-To: <70618789-f82a-4cd7-953a-a97f555fa98d@oss.qualcomm.com>
+References: <20261118073607.297350-1-mika.westerberg@linux.intel.com> <70618789-f82a-4cd7-953a-a97f555fa98d@oss.qualcomm.com>
+Feedback-ID: 217801480:user:proton
+X-Pm-Message-ID: 82fefb8563f78b51c94ce8173912501dcdd98a0e
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -77,67 +64,73 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi Robert, Andi,
+Hi all,
 
-Le vendredi 13 novembre 2026 =C3=A0 14:41 +0100, Paul Cercueil a =C3=A9crit=
-=C2=A0:
-> From: Tanmay Jagdale <tanmay@marvell.com>
->=20
-> When mdiv_min is unsigned, the signed mdiv_idx variable is cast to
-> unsigned as well in the inner loop condition comparison, leading to an
-> infinite loop.
->=20
-> Fixes: 03240f826b02 ("i2c: thunderx: Support for High speed mode")
+Is it safe to say that this fix is going to get pushed to the main kernel?
 
-I get only one complaint from Sashiko on this patchset, which is that the F=
-ixes:
-tag should actually point to 114c69f4be3f ("i2c: thunderx: Clock
-divisor logic changes").
 
-Do you want a v3 with that addressed?
+Sent from Proton Mail for Android.
 
-Cheers,
--Paul
+-------- Original Message --------
+On Wednesday, 11/18/26 at 03:54 Hans de Goede <johannes.goede@oss.qualcomm.=
+com> wrote:
+Hi,
 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tanmay Jagdale <tanmay@marvell.com>
-> Co-developed-by: Paul Cercueil <paul.cercueil@bootlin.com>
-> Signed-off-by: Paul Cercueil <paul.cercueil@bootlin.com>
->=20
+On 18-Nov-26 08:36, Mika Westerberg wrote:
+> The Dell XPS 17 9720 touchpad has the same lagging issue as with others
+> when run at 400 kHz as the ACPI tables describe. This particular system
+> does not use standard ACPI ID but it seems to use "Windows Device ID"
+> VEN_04F3 for whatever reason. Add this one to the 100 kHz quirk list as
+> well.
+>
+> Link: https://lore.kernel.org/linux-i2c/20261109104542.GL176724@black.igk=
+.intel.com/
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D214597
+> Reported-by: penhouse24@proton.me
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+Thanks, patch looks good to me:
+
+Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
+
+Regards,
+
+Hans
+
+
+
+
 > ---
->=20
-> v2: New patch
-> ---
-> =C2=A0drivers/i2c/busses/i2c-octeon-core.c | 4 ++--
-> =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2=
-c-
-> octeon-core.c
-> index 93a49e4637ec..85e18ca2410e 100644
-> --- a/drivers/i2c/busses/i2c-octeon-core.c
-> +++ b/drivers/i2c/busses/i2c-octeon-core.c
-> @@ -823,14 +823,14 @@ int octeon_i2c_xfer(struct i2c_adapter *adap, struc=
-t
-> i2c_msg *msgs, int num)
-> =C2=A0/* calculate and set clock divisors */
-> =C2=A0void octeon_i2c_set_clock(struct octeon_i2c *i2c)
-> =C2=A0{
-> -	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
-> +	int tclk, thp_base, inc, thp_idx, mdiv_idx, mdiv_min, ndiv_idx,
-> foscl, diff;
-> =C2=A0	bool is_plat_otx2;
-> =C2=A0	/*
-> =C2=A0	 * Find divisors to produce target frequency, start with large del=
-ta
-> =C2=A0	 * to cover wider range of divisors, note thp =3D TCLK half period=
- and
-> =C2=A0	 * ds is OSCL output frequency divisor.
-> =C2=A0	 */
-> -	unsigned int thp, mdiv_min, mdiv =3D 2, ndiv =3D 0, ds =3D 10;
-> +	unsigned int thp, mdiv =3D 2, ndiv =3D 0, ds =3D 10;
-> =C2=A0	unsigned int delta_hz =3D INITIAL_DELTA_HZ;
-> =C2=A0
-> =C2=A0	is_plat_otx2 =3D octeon_i2c_is_otx2(to_pci_dev(i2c->dev));
+> v2: Drop the DMI match, add bugzilla link.
+>
+> v1 can be found here:
+>
+> https://lore.kernel.org/linux-i2c/20261113083940.2583439-1-mika.westerber=
+g@linux.intel.com/
+>
+>  drivers/i2c/i2c-core-acpi.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 84841ed13487..64fdf8ffb5ff 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -377,6 +377,12 @@ static const struct acpi_device_id i2c_acpi_force_10=
+0khz_device_ids[] =3D {
+>  =09{ .id =3D "ELAN0678" },
+>  =09{ .id =3D "ELAN06FA" },
+>  =09{ .id =3D "ELAN1300" },
+> +=09/*
+> +=09 * This is non-standard ACPI ID used by some Dell XPS 17 9720
+> +=09 * systems. They do have the same issue when used with 400 kHz so
+> +=09 * force 100 kHz.
+> +=09 */
+> +=09{ .id =3D "VEN_04F3" },
+>  =09{ }
+>  };
+>
+
+
