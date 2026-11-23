@@ -1,80 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
-	t=1795409494;
-	b=5rYF2MUvJqn/UMRJ2+E1z4vmgmE7kZdq5OMMiyqUmWFqnEjpxIzdCPj8L7TQ7M1i3ZjJ
-	 7lp9W+SZ4USKcXjABHQJ8m3PR1kVMtD2PetB4y49AWa1jCNEkW6dAQhu+0PMnUVY44euQ
-	 lsPLUzAGilbHcUWXBjNQMndVo2QohAfwL4MAU3dqWJTd9LYx+viI4SWHX9fwXhKOAJFLF
-	 AOZAWztaKk8+bPRCWuiQ3H820uOoN5ptL0f4t2z3Mr51xqS7JFYvcPg3Clz0Ekf2D99s4
-	 xHUWJyWFOD/KvrwDxbxbGigle30aO5JcflhdV0VkeJg6ZZcVVylmrgu7hq9TpfFS6ZQ==
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795410660;
+	b=y4nzEzF3y+fiR5IMJGe0zDc9/E2kkYpH8TeOK8I9yD4hyURlR2EohLw4Qcb/1zgh9yq9
+	 CI5rW9/M23YSjesidK3mEuQV9aYI8deFDCFk3DPKP5bUIqo7tTnyH2JCjm+cMFbW9H8oj
+	 JiIxbJbhqzbB1TBqFybE0i3IGznaXKsaktDyk8LUacQ3/w2dfhHWIyThtHMBBKSA8TAka
+	 j1KsdJp+u36FhOm7TFKLJaTrAmnKWlpTrqMLGgBEYlaARJkjqBRh1px8MeQpRc+6jOdrn
+	 ppuFTDrqsuNbzuH9hjXoDLMTBsBsyxeHFsMEnE7WAEHW2oX5yRvmWCvtDEQQNWbYgOA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795409494;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795410660;
 	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
 	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
 	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=XLg2hjZC1G2djzwWn8oQA+kDooRHaA9EI+qF4JhV/eM=;
-	b=p8nZxdAlf+QGRs+TSOmbU6HCIzpS9y3zjwrvb8Oyd2NLpr1yS6K/VlQxeiXS+6oc3hXy
-	 JvQtIa10cAWSTjT5zv1i663uxIy+DsENcDTS4Zl70BUt81ZuqrxkWUzgIle5TxnU8hDx8
-	 5C1uWKEkMzmTQp28G7b+uk5TMu98f4wbZNZVgG0tvU6c12BVbKG5QHU++XzWqvsBHWlZO
-	 ni2EG4LBzfj7C/l4IBKAH1WQUmVYC6NHdl6nN30+NuZN7ci9WaR8BwPAhgXxxkdQaFQ/1
-	 gqV1sNnyGDLebbt3HOwbdC4SzUDfLnimyGbVEp6IOtyUk7TRokv6yYTZXocjT8VYaHA==
+	bh=KpCVQm8sazBmaUxbSaoPtIvbUj/i9wYjIRteHG/i/IA=;
+	b=Kbn4/36g9lWbAnr6n53ReIYdbmX3StEM2cRWpbSoEngbdmoOGlVkfrYVQJ3C0mlQB3S3
+	 qusu74yL9vNxyBNhGhdxpm2QgJZ+0f4mwD1D1XAlAVYbxnJEwo9RnCZtz8qzv4s3MX3T5
+	 /PiY1ceNIWflwzrriVcg7pTNbzWdJ3pa+BH0ouAjNbe3ZskjuDuPLGxrP27pyVbWC6PuS
+	 uPTeqxe6CnNopTZg3UIstDnoWInX2zey9W5cV257dAzO3QPcowWI8k2Xgy9QSIRRwYItS
+	 9KAqDpsVL6RRCBFA3tB6ui0dWUFeF1T7Kjk91XdG+2D41jCz1I/eVaxh7RP/bzRxtYw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U6QGKoug;
-	arc=fail smtp.remote-ip=100.103.45.18
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YFLUVE4L;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5125F606A32C;
-	Mon, 23 Nov 2026 04:51:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48E65606A31A;
+	Mon, 23 Nov 2026 05:10:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U6QGKoug
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YFLUVE4L
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795409493;
-	b=1cRfAzti2ELit5mO7vK78g/JPJCoAV9RJGANFlCToM3KSayfKUXD99LP1v65DifS3EzX
-	 3YCQ+4iXvSVsWESsehlxyBCKSBua50uTP2BlFaFBPT54oilHzynF2ODDJiEKPBTm7IFzl
-	 jiEoHIsjX53Yllba4HaAazauCX3e7bdm0AZVhRM2+TXPliPuCkjHn8Sti4CqnUoSnb3zN
-	 A3qzmt/2x7bIQYPfr3I4S91gPlBvh6Ks40rf5j4mxTPO5CFNXnD/r+VRNH9LMgsHnsI/S
-	 3hRWQ0q3r4G+FvhaWXTxOe5Kdwl6V1OxkjZfQ9lv+SmnMWwLli+r2e+I0RW/o4busTA==
+	t=1795410659;
+	b=Ojs3TJTWYxfkI/PiQnP6VFE+IKhlFrRUrki0em0Q57hGHdWSiUb3tbAHi+X1224q1odY
+	 MHP99PZnocuryxaROjDuvB5RKAOTQ5jdeGtijkRo793Sc49ZL9t/bobLhKrXaZFOdeNeh
+	 PBTH2T7DawxNi7xjEITPJtQO688t+93vynPObwJcYx1goxku7l8Q1hgSw/vDxgYrwXrdV
+	 g3cJo1p9iC31gvZqqtn4aEDCR5Hj0zqade78Vn4GrLliDspuxCplpy7aeZRts/FLIVF1P
+	 0NlqkwXSmECiirsk4IeRTT/MKYbYeNRVhwf1BdAL+bX7Cq77gCbFQ0m7T0LpDM6YCuQ==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795409493;
+	c=relaxed/relaxed; t=1795410659;
 	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
 	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To;
-	bh=XLg2hjZC1G2djzwWn8oQA+kDooRHaA9EI+qF4JhV/eM=;
-	b=gV/n7PizDthgESwR1bdEUTIZnq9k5+v9vxVUb4anXRPWrRO2RWO1u+j3rCPrD1KWlr/M
-	 5NpnbT5tlSWTu9yI1QXp+Lie30LN+IofoNnTkZtPFTsUmZsXP7FDy5JRkGChuPHiYGwXX
-	 CLC7mVHs1LGad36/ZY5uxP3NbaaJEiHwjDb648/xB6I+bcHBUYdqlAjmJ/wvUgdMKvVFa
-	 W/9lBkt/Lr/5/OH2QsBfjKHPEMpPEg9p7K0ZnJc6R+JjLY0xOirArsW41uHZ4hGfC64pG
-	 brZZg36jcr5oFj+EH+TwkjB6x7hTbQy8IJITpgynXCXJm4dI/NbM62JwwvqCf1J2n5Q==
+	bh=KpCVQm8sazBmaUxbSaoPtIvbUj/i9wYjIRteHG/i/IA=;
+	b=FleIXvvkt+Y5IFvDxn8s+5o7c1MTqVHz/dij7ry9t0rfwXGjSxrEJTxahAUyqmdfJjsg
+	 xsD6+ro6t+ztwXIjgBXo9j8Ij2j3+lNt5ZKnslFW8B/HJD06rOuUA+sS1A2saGuGGoZGT
+	 XuKTFiw4Xf1YKNlgd3zB136IQJ61jKj8uM4vK97yqXz488KHgmkLvJmh/1odULVaex0NE
+	 Uaheji+1CR8/IXREjRyX508L/Vj+OYmFCbVr8mz2IsLuKDGRKy8XuouxP2ZwusiJ94LAd
+	 7NiB0ndBWXQbiYmyA0C3/7btAzpXcsJujUzCU57dapw7ovYvMrxoWWmdcLgsRdSloIg==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id E92BE1F000CF;
-	Mon, 23 Nov 2026 04:51:25 +0000 (UTC)
+	by smtp.kernel.org (Postfix) with ESMTPS id B7CB51F000C6;
+	Mon, 23 Nov 2026 05:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795409493;
-	bh=XLg2hjZC1G2djzwWn8oQA+kDooRHaA9EI+qF4JhV/eM=;
+	s=k20260515; t=1795410659;
+	bh=KpCVQm8sazBmaUxbSaoPtIvbUj/i9wYjIRteHG/i/IA=;
 	h=From:Subject:Date:To:Cc:Reply-To;
-	b=U6QGKougkOIYc0Ud81ynvLsQGfDr4UvwirSSpb/9fSJWI2J7Wn3bIjPFoLfbnLFpC
-	 k4euLqz3dih8VfuLswRt7zOxa1EGT2st8Nbh6aexxuAED5N30RFE3FD4wqdo2owrd4
-	 lgPJOX4zUn4tfGFYJOKiwcmNRnLakAEaG9p8L2xdoM3hgqeQ6riWDTS7i02Y+nQYTS
-	 NIHdH+jQy+2GEyPj77h0Pb8G4ZBpoIlBFNPsqZeZGHF5njbGuZYSN37ZsqJkSXVbS5
-	 jm40oW3MlfOtVzmLlja1C9I1HvOhjubKK0Y74YLRiQCBJGhF/BRSaBT7ou9HvKhopV
-	 9haOIPCdzyJ0g==
+	b=YFLUVE4LBFqd0GUNlmOjV0aW37+Y8fClIzuiCiSusKyJ2rWlMf0jWv9/49vH+grug
+	 JUI9qwuZmRY0Txgm+Eihh1PaNxe1wSgM2DvQZT2nArSQrfP5TuRV1avdfRgRNNnkKO
+	 7CRyXNSC+SR9no40J/k47B7yDsb9GDHGDaBw7GNsw91BFJOeKMIkD4/1X04vUdcBsg
+	 a52gc0P/l8+2QIUqZrBpYCyLRCxUdqVLMWllq5yYKEh0ZXOx3ZsP6CKXYNBt2kSDPL
+	 6NKrNQGTcjbAoLri6OIL3rNwZdsrQ3oNEDdIQQQKTaDf9RBHL9Chnoq22WDCJEIJWr
+	 27aJsqS8S9ZjA==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 4B38C4C34E;
-	Mon, 23 Nov 2026 04:51:25 +0000 (UTC)
+	by lkml.kernel.org (Postfix) with ESMTP id 1DD6E4C356;
+	Mon, 23 Nov 2026 05:10:53 +0000 (UTC)
 From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Subject: [PATCH v6 0/2] i2c: Add Cortina Systems CS75xx I2C controller
+Subject: [PATCH v7 0/2] i2c: Add Cortina Systems CS75xx I2C controller
  driver
-Date: Mon, 23 Nov 2026 07:51:07 +0300
-Message-Id: <20261123-cs75xx-i2c-v6-0-2504375e4342@gmail.com>
+Date: Mon, 23 Nov 2026 08:10:36 +0300
+Message-Id: <20261123-cs75xx-i2c-v7-0-42080ecf30be@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -86,10 +86,10 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/1WNyw6DIBQFf8WwLg0g+Oiq/9F0AXirt2m1AUtsj
- P9e0I0uJzkzZyYeHIInl2wmDgJ6HPoIxSkjttN9CxSbyEQwUXDGFbW+VNNEUVhaS9mIUuTcSEu
- i8HHwwGmN3e4b+695gh1TIS069OPgfutbkGm3hfkxHCRlVBpeAOi60mV1bd8aX2c7vEkKB7VTB
- TuoKqosN2CFFFrJeq8uy/IH5mddb/EAAAA=
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/13NQQ6CMBCF4auYrq1pp9NWXHkP46Ito9YoGIoEQ
+ 7i7BTfg8iXz/TOwRE2kxA6bgTXUxRTrKg+73bBwc9WVeCzzZiDASCE1D8nqvucRAi8QS7CgpMf
+ AMng1dIn9HDudfzu9/Z1COxWmi1tMbd185m8dTne/sFyHO+SCo5eGyBV7Z/fH69PFxy7UTzaFO
+ 72gIFZUZyqUpwAITmPxT82SqhU1mYIWqKwmVAhLOo7jFwFOIrAsAQAA
 X-Change-ID: 20261015-cs75xx-i2c-944d27231b4c
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -98,11 +98,11 @@ Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
  Fil Dunsky <filipp.dunsky@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795409484; l=4600;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795410652; l=5039;
  i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=GEyKhMRI/2+fxUWiuafhtbmysPTdFZ5xY723G1kKjF8=;
- b=7CSkes5p7tI36RifhQtdxRs7zr5ZzH0dCSmV0IruhuWCJuItknRbbk52rJEe7JM4wxcq8K9g7
- R/M4Hm0cqMXCH71XgwC/Eg+l9XQuKnr0aIMctaRd5cgrfnT0l1Xx7sF
+ bh=HT4fxKXmIukg5/BNp/RMBje9xBUThhOWmB92qEoAFKQ=;
+ b=uRX1jTG7oj+OjnSPYUUrB01WueEIZjGBHSX4UHbyT9N8qiTtw63DKYH6M9/pczNvXbyIkEVC5
+ jwS+NlWSeTwBzUK0uCQ3TH0Cg+q3FfCXPVok1XYfJWIYtD3zucatp+0
 X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
  pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
 X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
@@ -135,6 +135,13 @@ exercised on the board.
 [1] https://lore.kernel.org/all/20261122-b4-cs75xx-v9-0-1fc1b90bd097@gmail.com/
 
 ---
+Changes in v7:
+- binding: put clocks before interrupts in properties, required and
+  the example; keep clock-frequency next to clocks (sashiko-bot)
+- no change to the driver or to the schema constraints
+- Report: https://lore.kernel.org/all/sashiko-outbox-228684@kernel.org/
+- Link to v6: https://patch.msgid.link/20261123-cs75xx-i2c-v6-0-2504375e4342@gmail.com
+
 Changes in v6:
 - refresh the link to the independently posted platform series (v9)
 - remove the unused CS75XX_I2C_CTRL_DONE definition (sashiko-bot)
@@ -180,6 +187,8 @@ Changes in v2:
   of a write; enable the interrupt again after a reset on timeout; fail
   with -EBUSY when the bus stays busy (sashiko-bot)
 - Link to v1: https://patch.msgid.link/20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com
+
+AI assistance: Codex reordered the binding and ran the v7 checks.
 
 To: Andi Shyti <andi.shyti@kernel.org>
 To: Rob Herring <robh@kernel.org>
