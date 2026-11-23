@@ -1,66 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.228.134
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795423393;
-	b=dSBTUwZNIflcEv5vUPtCt0Z6ZGkC4PUYWI7hO68Yh+yLFGyC45oIvuqEiBgwUS0TNRPy
-	 F09xwihIH3fP0XqzvNau9BSiOEj0uP7bOwO9N0t4cHq/s2sSWvNJRQEAbzh/UkDD0ZbCL
-	 J/e76F7LvRwwFHXIkFhhDFWcjWGNpQ14fkvqNg3wOaGO0k0HmrbGUWd2yHFot1I8lW0uK
-	 phBmQRjAG+BJMwAShXSa10kbmPXrHRO9KVoX2T2Mw6eQWXaz4NBcZDA0eTliyAvzTYEgO
-	 L9ECHt/8voe24meTMVScIwnvIFgwk440uHdvN/U4hsHFJ82q/bpsTD3b2Td13+vr9Lg==
+	t=1795424069;
+	b=G7gt0R+I8dzgNm4IhQTrgZDJ7O7zBXaSx/luO+by77wuEN/eL2SwQLWo2VQtgemsRBP1
+	 sJJD4j0tOrasOkp7606vbCNttBchNYoc5AsoIecYXnJ0eWg7wQsImFL+B0cOBXFaoNp2P
+	 Fj2h9h6jdj419Ao2ypUTPlyQH/3mlEWenIAuA/Kr8cnTE+wLGb8uyEhD+sbEC/nptUkoC
+	 pfAzdpcBCkVmLnLciku0aHUWe/NW6DnUs0QBHD5gbAIRjadWeH71UA/MGlE/HBjAuGxo7
+	 tYzcXjq7oxktSgCF7Pzfy2CtQbzPbiwcaOG3oMtCY76Z6ovbTG3Bz6zp0jrL438qC0w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795423393;
-	h=Received:DKIM-Signature:Received:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=rVUv/a91H2ubbfQJaXbwvWbI3OP4PfmSmlSUg7GAVY4=;
-	b=NT4cdGUehDZcnmK0mjUfxpaC4Fz/BD1y/Pp87qs5SuN8aTlwynEXvSwng74mux7eRqge
-	 QKLFyq8zL/8zgILf/35rcoHzJadhNp7hAREAPNexoS4YQFeET0BoYjmRJ+ZKLAsTA0ZHY
-	 qPYqxGbo/wcoHqzAhaxDqNM3kYYTjyyLeYnkDkHFVSjPNgEYOXGztgMGcq5jdovsVJZEV
-	 B+GK5fqcPgywdjtz6xAc3OUvkNBa/TgM/eDqjuAxdLWMJaYCkrS0G9242qdaLuOQCopUY
-	 9QOG4ci3oV5A90IVF8kDT1qW1BtUWL3RC55sDpzfmBEVuE/DbAf0aeydA11IR727G4Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795424069;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=vnRwo/ZsMPpWSsncariS2yc/xAKn3Nxe+Kux6J8DtAg=;
+	b=rl6vRtS4RGU1ZGutNimQUvoUc4iUHpqtagy6aEkAWWXANcnNq2mdLcv3K8+HLQ8NlS6Y
+	 URu5CPkIJP+lPv809txJcEi7FlhbbPbYfng0NDlkRqWzqhxt8rDkcnGq+MC3pZaa7bqcz
+	 jws6rLavslFasbwy+0cmkBDjO0htgLSOJqa6YYpPuSgmFdMzPo+wxUZOEG262l+mOJQuV
+	 wEAiocdGEsduUsicAeDVUhd7j4dPS3XLJL/HphuuupRsNhCjbE3vWI7id696rqOfR9Upx
+	 fSkGmNDa/ze+QL0qRXPwHymUgtmXfYjokObjTmbVo6OlYxgelaqcXQcDND8Ac2CL76Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LonkdIl1;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dkd5DuMj;
+	arc=none smtp.remote-ip=74.125.228.134
+Received: from mail-ej2-f6.google.com (mail-ej2-f6.google.com [74.125.228.134])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B14CC606A68F;
-	Mon, 23 Nov 2026 08:43:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A5B8606A31E
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2026 08:54:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6A5B8606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LonkdIl1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F6571F000EF;
-	Mon, 23 Nov 2026 08:43:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795423393;
-	bh=rVUv/a91H2ubbfQJaXbwvWbI3OP4PfmSmlSUg7GAVY4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LonkdIl1udPhFwOvRcmtz3GmzDwpG5Vh/cHIF9Mu+DzOkJW8ceOvua+c6cCyEw1Ct
-	 zAM8RVmuSfmPb31Mo6iTZV23qmrZ6BXqVqSXPXY7q0HzMtkxg+OLTQXKrceNQCqb9n
-	 MlcKP0tXbiKb3tgzhw8uNAwb6+TQzExVPZxk11zRPYsC1w8I1czjkDuSKU9bS3symE
-	 G5PjyYXakRgwLSvqy9mwY3jxpdbz5EvUehpCBnzbomacjyA0aiiOgTPB8d8lzSwbaM
-	 qP9yAk1gnVNLQoIsEzte+xIMqi3NRwvqRGHYdwzvDSgTHjgDBeHUvzDKGbhh1p0AIR
-	 NhLuhB5lYVsDQ==
-Received: from johan by xi.lan with local (Exim 4.100.1)
-	(envelope-from <johan@kernel.org>)
-	id 1xVPdm-00000007bo5-1P66;
-	Mon, 23 Nov 2026 09:43:10 +0100
-Date: Mon, 23 Nov 2026 09:43:10 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	driver-core@lists.linux.dev, linux-acpi@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/8] driver core: platform: fix swnode use-after-free
- on device release
-Message-ID: <awP8nm3bs3dndsRW@hovoldconsulting.com>
-References: <20261117101336.980216-1-johan@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=dkd5DuMj
+Received: by mail-ej2-f6.google.com with SMTP id a640c23a62f3a-c410cdcab7dso90306566b.0
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2026 00:54:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795424068; x=1796028868; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=vnRwo/ZsMPpWSsncariS2yc/xAKn3Nxe+Kux6J8DtAg=;
+        b=dkd5DuMjnT1Zg0XpG6+AvbHgqKji7n8v+2tMSLraDoy9z9u7GIDQ5GX+/LUkq1svfS
+         zoVj4VWJRHLseKMmjRBn3rybbwpcEeBT62LGYFtJ8U/Q3dFbxSrt45GBzgPp/pWz92Da
+         sSp6pvMANDwhvmi3V8aNC3UWrQbQMPUH1Yx6j5nnjZJAgbS9CT9Xi/d/wdNU9prxwanZ
+         orwNq3KnNbdBV/7yJrETQbJub+HCBeLukgUMDuJET/B96xRQtwgB8RR9xSBWpPyL22I8
+         KaFfuFcuNtXYsxTIwbGNtPgFF7rrqH5kJOWNyReKT1e7nr5trS6Y1ebcZB7IT4BHge/K
+         UEMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795424068; x=1796028868;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=vnRwo/ZsMPpWSsncariS2yc/xAKn3Nxe+Kux6J8DtAg=;
+        b=MJ79NxG9z0qbJl5K9XdyqMnzoPfzuT42kXo88wHvelXFO+7/Gd2BQaUk0N8LDTiNuh
+         a7vQ5sYPc9WrJBqVYtOcJw1n4udBZ8yE+tRgmiimPdhbIxRoCbbIoY9hfNqLbjkR1p9O
+         2DDo/2YggXj9w4956VJwZ76VEaGx6VpziFQ2o7UH8gXD/IUEGCZ7Tps53GnioyRfl59W
+         eMhAPqicqZ4IzMMQlf+9nFBxJKPElSFTt0ddQlJ7YoumBO46CiTlyUP5a7os0xr2lU2H
+         szzw09nuXhL1PJOwHj0bsPJqxynZicUFBNLDtyYCOoSe9FIqPS/aTDTg7nLn5iHR5QRh
+         Kj+w==
+X-Forwarded-Encrypted: i=1; AL+hErHoj0JZzNC/ycScfDKXsXcQCAIE0+v15Amkg/rso1SqvAksU6c6Kc4BidTb24dAcK/MPY6fRyJLsrg=@vger.kernel.org
+X-Gm-Message-State: APuU4Z9+9t/xnCLXIfwPEQCuv4nOyguQ1tf+FpZhKggPjHMlU3q+8rll
+	Tu1lJdfJ2YGDAMYyY0qRZITqIrbADblu6WPdGHP+p4+oofhunXsqCGVe
+X-Gm-Gg: AZFdTZf3TZn9Au6tTzSp8Iyg6GEzyP0h3rVLTAI82TXZo9XDqk486QgZJonxEveKm3X
+	/O3GU0HFcUQb3nPZ+baqlhWCyl6avLpAMluzuAH8bYaHTIHckXs8IU94ULqHvuI+DQhWUDbNTtP
+	QGN6njnt3y4d9lzARjlY3JiXQ1dav6tweV8e+QOG4C/EkpSXYDIvDDPawTujzYpeZkswDfWpYjl
+	Wb4BsQ0LOtemrzl9v30fA9RRh4eGyarssfJo2qrC3wVHTQa8LbgfFvTOFLSS6xluYSgRKqZeUkb
+	LOTcywWt8WedbQYy4spWipRxzpzmaAX4iAjRdO5Lwyo7RaOOgNKRjHjRkSKxo2KAzMvOroNDqFQ
+	f7dwC+wVpdoOHBEsUHnu7HD2mc82uJZCOBwEB8WYXBLiUmbYVp6e3KEOUS2eDu5DQU92e7AnTCK
+	iWPcjjx8gwkQfKbB3wonrJmzF/4eXt4d0t7zD2ojmmVmbcxlCu63jPHKDRJ5WdaiII6SsrINk76
+	HDVVz3muM3G1pQkagVu8wHpIrzG0C38IgB1fBynRo427uF1g5gaIyW66t9huLczurf4Rq4w66hb
+	5IGO7HbDMsvLxVD9d7mIBimPFdlxflVx/AQ2Yk3pMq/GvZKTUBJYfS3DOmeBEZaZ8FVgtrFCJJ9
+	gAQMFnmk6YhziSvZkrCPkrp+kG6jTPzJTcIX/IPdDA97zINXqi3fpDiw=
+X-Received: by 2002:a17:907:da0c:b0:c50:5545:b66f with SMTP id a640c23a62f3a-c513a803353mr781995666b.23.1795424067352;
+        Mon, 23 Nov 2026 00:54:27 -0800 (PST)
+Received: from thi-server.fritz.box (dslb-092-076-092-047.092.076.pools.vodafone-ip.de. [92.76.92.47])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513afdf022sm377880166b.67.2026.11.23.00.54.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2026 00:54:26 -0800 (PST)
+From: Thilo Zirnstein <thi.zirnstein@gmail.com>
+To: michal.simek@amd.com,
+	andi.shyti@kernel.org
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Thilo Zirnstein <thi.zirnstein@gmail.com>
+Subject: [PATCH v5 0/2] i2c: i2c-xiic: fix clearing of bnb irq and waiting/ clearing while atomic
+Date: Mon, 23 Nov 2026 09:53:50 +0100
+Message-ID: <20261123085351.3415122-2-thi.zirnstein@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -70,47 +98,67 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261117101336.980216-1-johan@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 17, 2026 at 11:13:28AM +0100, Johan Hovold wrote:
-> When fixing a use-after-free regression in 7.3, I noticed that the
-> software node implementation is internally inconsistent.
-> 
-> Specifically, the firmware node pointer of a struct device may point to
-> either a primary or secondary firmware node, but in several places
-> kernel-doc and comments suggests that the firmware node pointer always
-> points to a primary node (cf. [1][2]).
-> 
-> This series fixes the 7.3 regression along with a similar issue in i2c
-> core due which are both stem from the fact that
-> device_remove_software_node() happens to drop a reference to a primary
-> software node that was never added by device_add_software_node().
-> 
-> The next two patches clarify that device_remove_software_node() should
-> only be used to remove nodes added by device_add_software_node() and
-> stops touching primary nodes.
-> 
-> The rest of the series addresses further inconsistencies.
-> 
-> The first two fixes could go into 7.4 and the rest (which depends on the
-> fixes) into 7.5. And preferably with an ack from the i2c maintainer for
-> patches 2/8 and 4/8.
+Dear all,
 
-> Johan Hovold (8):
->   driver core: platform: fix swnode use-after-free on device release
->   i2c: core: fix swnode use-after-free on client deregistration
->   software node: fix device_add_software_node() kernel doc
->   software node: ignore primary nodes in device_remove_software_node()
->   driver core: platform: warn on bad fwnode assignment
->   driver core: platform: tests: fix swnode reuse test description
->   software node: fix software_node_notify() primary node comment
->   device property: fix fwnode_get_next_child_node() comments
+This patch-series fixes the clearing routine for the bus not busy (bnb) irq
+plus the waiting and clearing routines while in atomic context.
 
-Since we're now at rc4 and the platform device UAF would mostly affect
-module unload, the first two fixes can also wait for 7.5.
+The bnb is used to indicate that the current transfer is done.
+A high level view of the software flow for tx:
 
-Series applied to driver-core-testing.
+* init i2c controller
+* prepare all registers ( fill fifo, enable irqs, ... )
+* start i2c txfer
+* clear and enable bnb
+* wait for completion
+* ( serve interrupts )
+* ( bnb interrupt ): complete completion
 
-Johan
+The datasheet ( pg090-axi-iic, Interrupt-Status-Register ISR)
+states that the bnb bit can only be cleared if
+the bus busy bit in the status register is set.
+So the iic controller must have recognized that their is some activity
+on the bus. ( Start condition )
+
+Currently the bnb bit is cleared without checking or waiting for this
+condition. This can lead to spurious bnb interrupts.
+
+Andi suggested to use an atomic-save function to wait for bnb.
+This was applied for other waiting/ clearing functions, too.
+
+Kind regards,
+
+Thilo Zirnstein
+---
+
+Changes in v5
+- Fix timeout for polling bnb bit, set to 4us
+- Link to RESEND v4: https://lore.kernel.org/all/20261118101147.3350796-1-thi.zirnstein@gmail.com/
+
+RESEND v4
+- Add Reviewed-by Tag
+
+Changes in v4
+- Fix timeout argument of polling in atomic context
+
+Changes in v3
+- Use atomic-save functions for waiting and clearing.
+- Fix intendation
+- Unintentional changes removed
+
+Changes in v2:
+- Unintentional changes removed.
+---
+
+Thilo Zirnstein (2):
+  i2c: i2c-xiic: fix clearing of bnb irq
+  i2c: i2c-xiic: fix waiting/clearing while atomic
+
+ drivers/i2c/busses/i2c-xiic.c | 70 ++++++++++++++++++++++++++++-------
+ 1 file changed, 57 insertions(+), 13 deletions(-)
+
+--
+2.43.0
+
