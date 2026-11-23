@@ -1,60 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=79.135.106.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795446218;
-	b=y1g4K76sKsEOMmWcvdHXY0Gzaq7sgvWKZHpkRnbR/IgeIkGm7yqc+1FwmYJ02fm7Q1Kk
-	 OdQzSDCEizX8GKwmjwa+zGqF7VtSpP82lPhajVHIhpC0bR1pqPOGxp02unGGKGt5Z0oK3
-	 bh+L1cSIcLvBNrEFV6xzvvPHAyOgdRzvpZykkix0N+M1fEWDHQ5bvFIyQ99pBjc+ZVUav
-	 QKGUTulabJelduG3AqLIk0jKzvq2jM8g07rl/jwDTC5SqS8nD4sp9XXkAUQG/n5EX7J3I
-	 BMQuonc62VtBdu4tH0EqUiHkL0BRt8lfdYPj2I6P3gx7QicGvri8QyCPCLJOH4WVIWA==
+	t=1795449108;
+	b=tTieSIaZw+WrsP9oO0HHTdRvFjPguc9mnFlqv7dAi5FL02oZxbLedufcu39sfkfn+exx
+	 Dz5j4Mm8IUNA07iit/tgChtZdAVO7Mwqm93xDOOeP9SanJ4VF8gJC3fJzuZ1w+xamzFfr
+	 MgbtH4aQpQQoZlrEOK4U5ktGdQebCD2Xx2ay1eWzgTY+SpTVWxZZSPHhkq/fwOFZ0Mpsa
+	 hLO9b9ve8yDU3F7thwaIGTXY/2dNdZL1kbSUb5cp6CgAeHJpYmrRCMLZhBKoY+7TaaaYs
+	 goHAhabU8cJl8Ney1JYJdt3MLKcYAwzxCaHkIYNE4KMXQJV+krNxSJtuRVfE0uutJMQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795446218;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=Hv1e4J9mZaDtpUBaC+0XrDwxU8XMKC697ozcM5Q6eUE=;
-	b=rFOM2wfjTO37hXIX34pZ+9TPFixTK6I9wxRDUWQ8Yh9nqp4SiTPgZMDHoqmuUhL/Q6Nu
-	 XEs/pamXuKX0f9CD3AGQICVIw6x0ptonqAOFVJkj5dviVUF5lgpqCSE4+L5fp4RIRhvye
-	 PxrEfyszB5ngtN9y+Wj+OSLfW1KHapI46TqO3Lz6m31wCyBfT5ihGkUezhp+oMKaYsYl1
-	 NIgZTKroykKwy9xlrIfqbNSUOPaiIrgMoZmCGK3mbQcC0ZTkgXIGkqSv0A8dVnzRhltgB
-	 P2894Y2hg0djc99fNw/PxinFFJczcRXpsUZeW9vglpzFpKLiDAYlC3n9VaL8A821uew==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795449108;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=UwQ48wOTLkO0bDqXN9a1jl6i0o7vHJe4bfY0WMjHxA0=;
+	b=Bg2ePhDJsxksI4GAIoVlH14EPQBsJ55PdFW0M4mNhmo/OZpAp0W/rPpYwU7IwVv7Cn4F
+	 iiRk39qJuqc/my+I8ew89GWQjUoGudrJMQ3Ge18ahW3KwtmtX86L1YZlTd6vkeej0R8kg
+	 GmfPNgNYQ9QRJYMrnbYu1cLn4IGEMLijldZ3xYb30FOjwvDyfYdXyOn3L0MnH0/6kz6/I
+	 OQELYeBhE50TgIaDVkX258Vi/ohyJLPPQileovzIrbSWU/BcYyiGJPEMn1KLYagTmt8zk
+	 Ev9EgCzgiwtGHUT305TET3fB8Rrstvkz1IKzpyZRSauxdAnvJ5MAOgPBHaGdxSFsOvQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=proton.me;
-	spf=pass smtp.mailfrom=proton.me;
-	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b="B/IayE/J";
-	arc=none smtp.remote-ip=79.135.106.30
-Received: from mail-10630.protonmail.ch (mail-10630.protonmail.ch [79.135.106.30])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ffEczR10;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E590B606A31A
-	for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2026 15:03:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E590B606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FCDB606A31A;
+	Mon, 23 Nov 2026 15:51:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=B/IayE/J
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail2; t=1795446216; x=1795705416;
-	bh=Hv1e4J9mZaDtpUBaC+0XrDwxU8XMKC697ozcM5Q6eUE=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=B/IayE/JJnRJXbC4nUgTCdXloEAZNr+GRF5dd1eJhzP/L0Z1y8YeQkt5mnc6oVywT
-	 ocHiWTOKX+BzHOF0SU8s5x7Sqoy71uNLDffy/RcYKujOW1vcZcHNnCV+y23E+c57/Y
-	 ZxGr6f3/xHXMuC13Exc1507ZaL+Rj1/3BKRWbfk9JgJfCpCJFOAzBUw3x9er8ZvQWT
-	 tANYFsIEtjZi/s3LLhx75CI6+LOlxb2dKrD5z197nMjG6stjNtNxS9VBwlAnngqsBn
-	 Ks1Kr+RUZHV7oo1nXNoIk+cJR9JRImB8BK6Z9du8xf3IoaqKX7bRca3FaV8fSRduYX
-	 AV0su0CHLPvdg==
-Date: Mon, 23 Nov 2026 15:03:29 +0000
-To: Hans de Goede <johannes.goede@oss.qualcomm.com>
-From: penhouse24@proton.me
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz
-Message-ID: <z-Mjt3eV50ZiycWjeVe9dfla5WKoCPC1UXZdFSx2V8YVhr77FH3eKc-WLQgGT_gu1l8NS_-IUcw_-ASU1x_al7IzQuW6FhccBUylTg0yZqM=@proton.me>
-In-Reply-To: <70618789-f82a-4cd7-953a-a97f555fa98d@oss.qualcomm.com>
-References: <20261118073607.297350-1-mika.westerberg@linux.intel.com> <70618789-f82a-4cd7-953a-a97f555fa98d@oss.qualcomm.com>
-Feedback-ID: 217801480:user:proton
-X-Pm-Message-ID: 82fefb8563f78b51c94ce8173912501dcdd98a0e
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ffEczR10
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E3B1F000D0;
+	Mon, 23 Nov 2026 15:51:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795449107;
+	bh=UwQ48wOTLkO0bDqXN9a1jl6i0o7vHJe4bfY0WMjHxA0=;
+	h=From:To:Cc:Subject:Date;
+	b=ffEczR10kkz6TwinqVlb2eqxN6YHZfPjHgTME+LIdeQFDnaJpfTfDbbKAxYyR8dkT
+	 C/KF29bpbofnjfmI+LyU5opbRTVKXHaYTqX3H9UJxU9XY/sL6OHFqYic1mAv5nZ7JD
+	 SSw02x/zrDSYJw7ootSjHsO4JJuZCWGv9ztWNARHSc5DHgJNO03wxWj69OxnbIl2+k
+	 2Pn5B1lFOaWmJi7OJgHHuB7f/a+1/NzWJyPKg67Kf4nNZhbYSHYCP9VydSTOFOf9pi
+	 dxGF0mA1uTGwyLyibjPY5K8qtP7wkDwFA2eEHvTn1TBcyXfEIlZvbJsmWUuFfT7IUX
+	 06xNE+qMx1lbw==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	bpf@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
+	=?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
+	=?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+	"He, Bo" <bo.he@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	"Zhang, Jun" <jun.zhang@intel.com>,
+	Andreas Gal <gal@cs.uni-magdeburg.de>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bastien Nocera <hadess@hadess.net>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Charles Wang <charles.goodix@gmail.com>,
+	Dexuan Cui <decui@microsoft.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiangshan Yi <yijiangshan@kylinos.cn>,
+	Jiri Kosina <jikos@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	linux-hyperv@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	Lopez Casado <nlopezcasad@logitech.com>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Vojtech Pavlik <vojtech@ucw.cz>,
+	Michael Bommarito <michael.bommarito@gmail.com>,
+	Michael Haboustak <mike-@cinci.rr.com>,
+	Pan Chuang <panchuang@vivo.com>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Rishi Gupta <gupt21@gmail.com>,
+	Roderick Colenbrander <roderick.colenbrander@sony.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Stefan Achatz <erazor_de@users.sourceforge.net>,
+	Tianchu Chen <flynnnchen@tencent.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Wei Liu <wei.liu@kernel.org>,
+	Zhang Lixu <lixu.zhang@intel.com>
+Subject: [PATCH 00/10] HID: Assorted bug fixes across HID core and drivers
+Date: Mon, 23 Nov 2026 15:50:44 +0000
+Message-ID: <20261123155138.2907049-1-lee@kernel.org>
+X-Mailer: git-send-email 2.56.1.750.gf70dc682cf-goog
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -64,73 +93,77 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi all,
+These issues were reported by Sashiko.
 
-Is it safe to say that this fix is going to get pushed to the main kernel?
+None of these changes have been tested on physical hardware.
 
+Cc: "Barnabás Pőcze" <pobrn@protonmail.com>
+Cc: "Benoît Sevens" <bsevens@google.com>
+Cc: "Filipe Laíns" <lains@riseup.net>
+Cc: "He, Bo" <bo.he@intel.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: "Zhang, Jun" <jun.zhang@intel.com>
+Cc: Andreas Gal <gal@cs.uni-magdeburg.de>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: bpf@vger.kernel.org
+Cc: Charles Wang <charles.goodix@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Jason Gerecke <jason.gerecke@wacom.com>
+Cc: Jiangshan Yi <yijiangshan@kylinos.cn>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: linux-hyperv@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-iio@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: Lopez Casado <nlopezcasad@logitech.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Vojtech Pavlik <vojtech@ucw.cz>
+Cc: Michael Bommarito <michael.bommarito@gmail.com>
+Cc: Michael Haboustak <mike-@cinci.rr.com>
+Cc: Pan Chuang <panchuang@vivo.com>
+Cc: Ping Cheng <ping.cheng@wacom.com>
+Cc: Rishi Gupta <gupt21@gmail.com>
+Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Tianchu Chen <flynnnchen@tencent.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Zhang Lixu <lixu.zhang@intel.com>
 
-Sent from Proton Mail for Android.
+Lee Jones (10):
+  HID: core: Protect hid->inputs traversal in hid_check_keys_pressed()
+  HID: mcp2221: Synchronise rxbuf access against raw_event callback
+  HID: logitech-hidpp: Synchronise send_receive_buf against raw events
+  HID: sensor-hub: Serialise synchronous read teardown under data->lock
+  HID: roccat: pyra: Resolve USB device from parent in actual_profile
+  HID: hyperv: Validate VMBus packet and payload bounds on receive
+  HID: hid-goodix-spi: Validate package sizes in goodix_hid_irq()
+  HID: wacom: Stop HID hardware before releasing resources on mode
+    change
+  HID: debug: Hold driver_input_lock while dumping raw report descriptor
+  HID: playstation: Cancel DualSense output worker on create failure
 
--------- Original Message --------
-On Wednesday, 11/18/26 at 03:54 Hans de Goede <johannes.goede@oss.qualcomm.=
-com> wrote:
-Hi,
+ drivers/hid/hid-core.c           | 16 ++++++---
+ drivers/hid/hid-debug.c          | 12 ++++---
+ drivers/hid/hid-goodix-spi.c     | 34 +++++++++++++------
+ drivers/hid/hid-hyperv.c         | 12 +++++++
+ drivers/hid/hid-logitech-hidpp.c | 58 +++++++++++++++++++++-----------
+ drivers/hid/hid-mcp2221.c        | 47 ++++++++++++++------------
+ drivers/hid/hid-playstation.c    |  1 +
+ drivers/hid/hid-roccat-pyra.c    |  9 +++--
+ drivers/hid/hid-sensor-hub.c     | 28 +++++++++++----
+ drivers/hid/wacom_sys.c          |  4 +--
+ 10 files changed, 149 insertions(+), 72 deletions(-)
 
-On 18-Nov-26 08:36, Mika Westerberg wrote:
-> The Dell XPS 17 9720 touchpad has the same lagging issue as with others
-> when run at 400 kHz as the ACPI tables describe. This particular system
-> does not use standard ACPI ID but it seems to use "Windows Device ID"
-> VEN_04F3 for whatever reason. Add this one to the 100 kHz quirk list as
-> well.
->
-> Link: https://lore.kernel.org/linux-i2c/20261109104542.GL176724@black.igk=
-.intel.com/
-> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D214597
-> Reported-by: penhouse24@proton.me
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-Thanks, patch looks good to me:
-
-Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
-
-Regards,
-
-Hans
-
-
-
-
-> ---
-> v2: Drop the DMI match, add bugzilla link.
->
-> v1 can be found here:
->
-> https://lore.kernel.org/linux-i2c/20261113083940.2583439-1-mika.westerber=
-g@linux.intel.com/
->
->  drivers/i2c/i2c-core-acpi.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index 84841ed13487..64fdf8ffb5ff 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -377,6 +377,12 @@ static const struct acpi_device_id i2c_acpi_force_10=
-0khz_device_ids[] =3D {
->  =09{ .id =3D "ELAN0678" },
->  =09{ .id =3D "ELAN06FA" },
->  =09{ .id =3D "ELAN1300" },
-> +=09/*
-> +=09 * This is non-standard ACPI ID used by some Dell XPS 17 9720
-> +=09 * systems. They do have the same issue when used with 400 kHz so
-> +=09 * force 100 kHz.
-> +=09 */
-> +=09{ .id =3D "VEN_04F3" },
->  =09{ }
->  };
->
-
+-- 
+2.56.1.750.gf70dc682cf-goog
 
