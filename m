@@ -1,61 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795449121;
-	b=2xEEGDQ1C/zLp04QUtoaC6aok4ToeGthr24jZ/hW5RnF+ECCgorK66HAJIOAGfYDiwRI
-	 wOFqMi0rgaaK+Md15iCSseXbj/STiu/NyqdM24nWGQ+ZieavDp0/hjdik3aodXN3mKfvU
-	 P38SHi/WbrgfUwegRbgzYulMx3awaI2vfwa85xelAknE0O4E109RWoeJVL95QIIo3RWnC
-	 T0rmB23VK/63LzcayL+qRk+qQVImuVVwKrPTsAFTrVIpBptBbwuxpaQE1jVF+YuMHRSWX
-	 6oczMT4PEHGjhb4T7sY2Q4yPO2ySbVbrlHZGoNgnCIMmdDveAwk+Si9GHB8vB7cDVJQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795449121;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=HIWKt/mCZ0SEXxBCu/is9mppEk5xPNF6rOOHsGh4Ff4=;
-	b=yklFyGPCMfU0fbjkFb0oBfD6mJDTbWwSpsqUuTplmMFIOuzH//k/vW1rdIpn0ykILo2m
-	 IuScuOwfbFk8pXWaJXymrlQubMAeNeaRW5IeE15Pbrl9YBbmY+OOYBaMRPhgLTN3cirJe
-	 N62pIqYHTEc6M0LnPSyfN5l6UvYvHN9qzRww26zmC8lbbH2qvZ7LTnVKugTvmA1y8/8QJ
-	 sgG4NLI4e7zql3Iqz+vBkhgo/J+Zcq35ui6WS8FGVjR2Foc46+23+gzlXdWFWmknA8IvG
-	 ZyuYUZrv0lhmJEDVCnLlaqmvIiTMmLfJQglUMzEwRPbGMtCa+ouaQ2lwhBYTXHhelHQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I7e78qLj;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795460783;
+	b=gMkp8Crr0XEkSCo5vJqIoYbsSN+R7MUngMyp3t/yn/R756kzjs6ZC5phVkHcRfp1FfrP
+	 kSJ3cjEevjOzugxrGwIbD1DKE2GOQTM4gmzhRZn6c6VRhyJNZ7S+OoGpDaYiFyU2jUgrR
+	 foG/zVGvNrPTKd1URkgWNvEaj2Y1s056/GnBYCEuiwF4nrTpSwcRqmE7dAdi/lzx/FbT7
+	 nGslZiQtoEqPRJ0TJxDjr1ZxVRgD1BnXX3QJ1F69qt6eduwgFDiNB9a4nXBucDksv28K+
+	 L33h+CF+rjWaV0ZJLQNr5pJHaGC5Ic1hhdsPt2asuIV5INV1KIyOzE+dV1pLuPhH7+A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795460783;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=ZXMGETsC9In5OHuZKA5+0j1fdxY6lC4P1HFXTVDB2us=;
+	b=QOg+5FUTDelFDaP1q6zTEWs1XM5UwqCzK9XjVSV3WrUpU4mRNsk2CJFMaCnEIsVdR76S
+	 iCcUNIFe9ZxyJwpzT/dIgBQxA1X9/giuzMvDPinv4dgHb6unSTnlhH6snq1eTinY936TL
+	 EbcK2tTY1F+R8eQV3yiS8QCBr5oE+c2gkelvC9pyRC95OAOCNOGUFiAlrWykXVS8CmJJF
+	 fHu72egZyp+bCQzBtxJq+mBdJbXPgoA9bzBcL1EoxmJxWSlxt87/KebuLjh5S7fIPe6t6
+	 jlFWCJ1NErBVY4nvxAxmqMpX3OKez3XGXom+8Pn0RFiwxVnvnXGWZ/U9nRejaUYPAuQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yG5ytjDk;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.224.53
+Received: from mail-yx1-f53.google.com (mail-yx1-f53.google.com [74.125.224.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5017D606A31A;
-	Mon, 23 Nov 2026 15:52:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C60606A31E
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2026 19:06:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 01C60606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=I7e78qLj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 330B61F000D4;
-	Mon, 23 Nov 2026 15:51:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795449120;
-	bh=HIWKt/mCZ0SEXxBCu/is9mppEk5xPNF6rOOHsGh4Ff4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=I7e78qLjpfUqqqBVT763Esjxqa0E6BSz3V/KvWD6H5OPpNWBgfuDyJ9bsAuNlK0Z3
-	 asiqAG9pIUpKTWtxN4/ou+BtdZwNhgDp6CKsBECicG8/ya4f6ly4DSp9ZQksD7/LXD
-	 bmA3owvsWyIxwuX6w2aDIdkiK5fUUytQvp0S4DdXry/7h0aHlfUiHLyd/HxQgbZsm1
-	 gru4EscVB74lArpld6KALH4DuON2c0s27NBurE3UmLeInOFn8KAioCvTMCj832nCCE
-	 jUkj9RXT2M6AjMRpEjC5W/17wUIYZ40VcDBdDGhXaf8BqW4LZBu4GK72u8kgtQyM6e
-	 kldDTYVUEm+hg==
-From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	Rishi Gupta <gupt21@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Jiangshan Yi <yijiangshan@kylinos.cn>,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Subject: [PATCH 02/10] HID: mcp2221: Synchronise rxbuf access against raw_event callback
-Date: Mon, 23 Nov 2026 15:50:46 +0000
-Message-ID: <20261123155138.2907049-3-lee@kernel.org>
-X-Mailer: git-send-email 2.56.1.750.gf70dc682cf-goog
-In-Reply-To: <20261123155138.2907049-1-lee@kernel.org>
-References: <20261123155138.2907049-1-lee@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yG5ytjDk
+Received: by mail-yx1-f53.google.com with SMTP id 956f58d0204a3-679a2b5fe87so3542727d50.3
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2026 11:06:22 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795460782; cv=none;
+        d=google.com; s=arc-20260327;
+        b=SjpWmfTxKW3q1Cf4j+/BvdnMTG0jCnidoA5+IhqVo+dzcr57m55AFUETqem1fqvZcr
+         VRQEpzoUyuw9qq+jsEgQGkuXSkaDHlplb+wM4GICD5z9VROHtEfgm5RM+7yZ68gmWCRX
+         GZRUoxE8RQAO5Q3PnS+GoU1CUTDXWFeigfQyGErSxcEA2oLLMhbC/XlC8QUuwbWpSZKc
+         Dq0UHQgntmiPVkMfSqyQ3Wy/Xjid5FB95q7Ll/gZq55C30QRciGqAXHbCvcPwWUsiNSU
+         Eu1EtOgjdVkjmtvgXuxN/I7/2OPd7saL5sY7N75QcFcLc3c71jTAXUfMqzAYk75t4GIq
+         ohlA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZXMGETsC9In5OHuZKA5+0j1fdxY6lC4P1HFXTVDB2us=;
+        fh=pxrXQwiraSS4FvsHPbmVzkNbNSqIKfjcpe0pqnRKnlM=;
+        b=KisLteIt0Wh6KKSKcavlUMMke/yHLfIy20wEySm8lQA2rjK+wUqe4TTDcURD9tFvD6
+         FsQ87FjnNAR4lZgest+lkd2jsmJ5SLWqCU9CyZb3I06CaDzdm//jZyaoLuh9UVccyKNj
+         nhlIwH9uDADBA0EXtJ1fJ9vI5hJpP3f4l7bRtGqLk+Ym/sCNRYDEoYnquEnkT+co59LK
+         wmVyoiThCOdu7+mVk7Eb7bD+6A9g29hVqlW4YYIdBFdAj5AdEPehsxl3sSKMZbkO0EI3
+         7bILPbd8ATNAvAoujJeJgQkX/xyLx+jYNR6BiX5co0S6Ow48mwLXafWlTjq7FaheO8Z4
+         vylg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795460782; x=1796065582; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ZXMGETsC9In5OHuZKA5+0j1fdxY6lC4P1HFXTVDB2us=;
+        b=yG5ytjDk3DBIOAAOhEEJ7a87ul/fSrNc4i2/k3//e5lkl5CyATwwvG15RJuHRs3Iwp
+         2o/ln5eQbsqXJ0S9URzbgrVgrMVANPn9G4H92UEKcinFuKe6lsZiE5/SrpXmKLvJP+yJ
+         h+06e8/bM/OytbmotVwaGrgWrBkEIr2JFIBkFRFtzQPl3zjvgBdu+3vPSoD7hKKfCnv+
+         8I25rMwBxDJd7UaPMjjn7QZxPPvrLEF+ACTEVd1XhqGNYCGj6qj3IxmoJpucaUDwIuOU
+         9iKyyiCb/WOic3G8LJ8L4X+Km3BCUtq9v7hfUcVtDtEO5S7F5XNXmk4xb9XxMa+38Vj0
+         derw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795460782; x=1796065582;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ZXMGETsC9In5OHuZKA5+0j1fdxY6lC4P1HFXTVDB2us=;
+        b=2ME6MEVylk+hcUPKu+laryfKH8U4mN9vmd/rp6/3+hs4YP++buWFChFMWYU86FMhc1
+         5pMOjKZfblp9CNm9OQVbqDY1Hbhwwzz02wbDEaUSEeDsFI/8hXsXlHuCmpvdm1rNR405
+         ucCA4TUyvVRru1SNinrI8culq76ckyrM2Q3J2FDFszoo81YZ9IQJriznBcahfGHIyjfu
+         qpQ3c1fi/PaK1R9JmWcjw4MN4XXow8n9Hpi2avkvR/KH4BkOat3aZoPbjzIlLjLJieC3
+         bcpVXCNViisnHzv+KDlRMK7t+GHlAXDO61yuhO+qsQ2tWxmBeA0XZlM3lR83sfcXnLmP
+         ty7g==
+X-Forwarded-Encrypted: i=1; AL+hErFfK/vp+8+lmDaGjoayaB/lGxmnySGZwKlNzexNQNG7NMmHu8ZBsW+6OSdLpIBMt8uPrRPGcHsUlLY=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/FrbKCEvEYvoJgkvPqa3aKjrHN5hiZ/VN8mEO4jGDvcUJ9U+Q7
+	noeoZ6hkNiJD/LhAi7oI0StrmksEkwcrOmCsxO9NAkQL541B1rYEJ5fKx589lzmsJnysiAxp7pd
+	7ggzbxku1HcTEcakl0c+Rof4hJFoAMD4=
+X-Gm-Gg: AZFdTZdBN5c+6cajH1bbrENoXaTY3XUM/O5Kamjoa91Ybt2NUIrOL4Q31zranNQ8IeR
+	1Ji0sxH4yKa5m7LEpj7jLoNongRaEQvc9em9nE2idv6w0ZN12R0hDIW9gD5Z4LV0Bfx5fks31ZR
+	mPpyQ5Gv2Keml0tG49IlILTKEQHTS2u9/eO6q1IY9XKkG/YLX+/Bwq36Umkvq98giqeiZlBM+Em
+	HZdqldL02I/roJ3I1zYRA8Ah0ApFMMGcZV7LqYDIAcaEDj9G5XjIQ5stMI2OlSnaIdU1ND04rym
+	MujUMS5/k1r8BahXAj4+SvxmVzdPr03L3zxPL0qJ424rl/PgMbYEZT0+0dnUMMsOHbo1YEefy7K
+	zIk8xL55rrAWxbafD1pt57lqQfh0eDCxWj8ugYyyy9GxR4KWQBMwtYWgwBTca
+X-Received: by 2002:a05:690e:168e:b0:67b:f3b8:aef2 with SMTP id
+ 956f58d0204a3-67df4425a32mr4425732d50.25.1795460781865; Mon, 23 Nov 2026
+ 11:06:21 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -65,151 +104,27 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20261123085351.3415122-2-thi.zirnstein@gmail.com> <20261123085351.3415122-4-thi.zirnstein@gmail.com>
+In-Reply-To: <20261123085351.3415122-4-thi.zirnstein@gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Date: Tue, 24 Nov 2026 00:36:10 +0530
+X-Gm-Features: Aa3M54q7qggItqO2nWN8m27kiDXSWPUp3jrrfb_cbuCo6wTR6DNactR6aMlLEKg
+Message-ID: <CAKfKVtFDez0kDJp0Kx4WbJ4BwqV8-0hb6eeRNjQ8YDFm917_UA@mail.gmail.com>
+Subject: Re: [PATCH v5 2/2] i2c: i2c-xiic: fix waiting/clearing while atomic
+To: Thilo Zirnstein <thi.zirnstein@gmail.com>
+Cc: michal.simek@amd.com, andi.shyti@kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-mcp2221_probe() enables incoming reports via hid_device_io_start(), so
-mcp2221_raw_event() runs concurrently in interrupt context without
-holding mcp->lock.  mcp_i2c_smbus_read() points mcp->rxbuf at caller
-buffers, including stack-allocated SMBus data in mcp_smbus_xfer(), and
-clears mcp->rxbuf at exit without synchronisation against
-mcp2221_raw_event().  If a transfer times out while mcp2221_raw_event()
-has already loaded mcp->rxbuf, memcpy() writes up to 60 bytes into the
-caller's destroyed stack frame or freed buffer.  In addition,
-mcp->rxbuf was published before initialising mcp->rxbuf_idx to zero.
-
-Introduce a spinlock to serialise mcp->rxbuf, mcp->rxbuf_size, and
-mcp->rxbuf_idx setup and teardown in mcp_i2c_smbus_read() against
-MCP2221_I2C_GET_DATA handling in mcp2221_raw_event().
-
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Fixes: db2333f88729 ("HID: mcp2221: clear rxbuf after I2C/SMBus transfer completes")
-Closes: https://sashiko.dev/#/bug/linux-4983b628-f605-439f-95bb-87560531ec95
-Cc: stable@vger.kernel.org
-Signed-off-by: Lee Jones <lee@kernel.org>
----
- drivers/hid/hid-mcp2221.c | 47 ++++++++++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 3f05d6e288f9..f3d14d5f11ab 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -20,6 +20,7 @@
- #include <linux/iio/iio.h>
- #include <linux/minmax.h>
- #include <linux/moduleparam.h>
-+#include <linux/spinlock.h>
- #include "hid-ids.h"
- 
- static bool gpio_mode_enforce;
-@@ -125,6 +126,7 @@ struct mcp2221 {
- 	struct mutex lock;
- 	struct completion wait_in_report;
- 	struct delayed_work init_work;
-+	spinlock_t rxbuf_lock; /* protects rxbuf, rxbuf_size, and rxbuf_idx */
- 	u8 *rxbuf;
- 	u8 txbuf[64];
- 	int rxbuf_idx;
-@@ -320,6 +322,7 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 				struct i2c_msg *msg, int type, u16 smbus_addr,
- 				u8 smbus_len, u8 *smbus_buf)
- {
-+	unsigned long flags;
- 	int ret;
- 	u16 total_len;
- 	int retries = 0;
-@@ -330,22 +333,22 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		mcp->txbuf[2] = msg->len >> 8;
- 		mcp->txbuf[3] = (u8)(msg->addr << 1);
- 		total_len = msg->len;
--		mcp->rxbuf = msg->buf;
--		mcp->rxbuf_size = msg->len;
- 	} else {
- 		mcp->txbuf[1] = smbus_len;
- 		mcp->txbuf[2] = 0;
- 		mcp->txbuf[3] = (u8)(smbus_addr << 1);
- 		total_len = smbus_len;
--		mcp->rxbuf = smbus_buf;
--		mcp->rxbuf_size = smbus_len;
- 	}
- 
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
- 	if (ret)
--		goto out;
-+		return ret;
- 
-+	spin_lock_irqsave(&mcp->rxbuf_lock, flags);
-+	mcp->rxbuf = msg ? msg->buf : smbus_buf;
-+	mcp->rxbuf_size = total_len;
- 	mcp->rxbuf_idx = 0;
-+	spin_unlock_irqrestore(&mcp->rxbuf_lock, flags);
- 
- 	do {
- 		/* Wait for the data to be read by the device */
-@@ -370,14 +373,17 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		} else {
- 			retries = 0;
- 		}
--	} while (mcp->rxbuf_idx < total_len);
-+	} while (READ_ONCE(mcp->rxbuf_idx) < total_len);
- 
- 	usleep_range(980, 1000);
- 	ret = mcp_chk_last_cmd_status_free_bus(mcp);
- 
- out:
-+	spin_lock_irqsave(&mcp->rxbuf_lock, flags);
- 	mcp->rxbuf = NULL;
- 	mcp->rxbuf_size = 0;
-+	mcp->rxbuf_idx = 0;
-+	spin_unlock_irqrestore(&mcp->rxbuf_lock, flags);
- 
- 	return ret;
- }
-@@ -925,22 +931,20 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 			}
- 			if (data[2] == MCP2221_I2C_READ_COMPL ||
- 			    data[2] == MCP2221_I2C_READ_PARTIAL) {
--				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 || data[3] > 60) {
--					mcp->status = -EINVAL;
--					break;
--				}
--				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
--					mcp->status = -EINVAL;
--					break;
--				}
--				if (4 + data[3] > size) {
--					mcp->status = -EINVAL;
--					break;
--				}
-+				unsigned long flags;
-+
-+				spin_lock_irqsave(&mcp->rxbuf_lock, flags);
- 				buf = mcp->rxbuf;
--				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
--				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
--				mcp->status = 0;
-+				if (!buf || mcp->rxbuf_idx < 0 || data[3] > 60 ||
-+				    mcp->rxbuf_idx + data[3] > mcp->rxbuf_size ||
-+				    4 + data[3] > size) {
-+					mcp->status = -EINVAL;
-+				} else {
-+					memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
-+					WRITE_ONCE(mcp->rxbuf_idx, mcp->rxbuf_idx + data[3]);
-+					mcp->status = 0;
-+				}
-+				spin_unlock_irqrestore(&mcp->rxbuf_lock, flags);
- 				break;
- 			}
- 			mcp->status = -EIO;
-@@ -1283,6 +1287,7 @@ static int mcp2221_probe(struct hid_device *hdev,
- 	}
- 
- 	mutex_init(&mcp->lock);
-+	spin_lock_init(&mcp->rxbuf_lock);
- 	init_completion(&mcp->wait_in_report);
- 	hid_set_drvdata(hdev, mcp);
- 	mcp->hdev = hdev;
--- 
-2.56.1.750.gf70dc682cf-goog
-
+On Mon, Nov 23, 2026 at 2:25=E2=80=AFPM Thilo Zirnstein <thi.zirnstein@gmai=
+l.com> wrote:
+>
+> Use non jiffies based waiting functions,
+> if in atomic context.
+>
+> Suggested-by: Andi Shyti <andi.shyti@kernel.org>
+> Signed-off-by: Thilo Zirnstein <thi.zirnstein@gmail.com>
+> ---
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
