@@ -1,80 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795527192;
-	b=XaR8SPtO3ifTQhYAkuMaOq4HgJcpr8woAPkZA+OpYFqQN9rUqyM/xeztpsoDq0ulp4vt
-	 jR6zgJ12HtT0wrAKqlebjArLOxof9y5wgZP7F1YL9rWqlGlvCEj2xyJkAQW2iQ/LAjVRJ
-	 7MQKOo4+fkzCAkYS/varnY5kxNKghcVBLPA3MLIZ+pSpC8VRFFnAxYf+eTIcqvKqQOtdN
-	 MQmzXWM5tMrp995T+VuGfK8mJ+PydcOESVvEYNgV46h0Q3pfFFtJZ0H+O/9iycnULr4TE
-	 BmLndkyLlereIWmBqlP7zxLGWxHpBytmr+emxwhKnbhQ+ukwNHW7ImK7yjm4JXPaSKA==
+	t=1795535221;
+	b=AFVwPplkD1CKOtZQPZLUOIq3Hjjv192D+hYkh7vsKcLCzPYBPrBVvkA70UhSADj9c7/X
+	 mG6f1lu8ntra4RroUjFURhTHbf9D1hDOvDeU/s0c1CWS+13Mgv7M0JzzltC2MhLOF5oPv
+	 YLNe8UT+QHnRZmqU6MX4P5l62lMeBNyeqdXZEpDEZhlneieOom7m3bdpTbf+JQ6c5UbE8
+	 p/waN+ssr783FWLQwWeG37dkGTO4fbzCjLc6tdk6PHzfKrqy8ZfKuCGZmzAfqifsciFiL
+	 YN+ZIuK3DJJlpnrCPQVRJEglwqBXdNDIepdggBH7S4H63+QyBNhH6jwiTrUQYjvUyLA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795527192;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=599vSAb1qpW+ivOrvJ5DYuGSGKJSCi2Fy0I3YlD0SOY=;
-	b=kH0ZpRhWEfteHWlibFy90RU3/sJLe94Kc/9Vyg+HjIe5Z/XWWda3Q79n4SGrMNZ8nPXF
-	 x4thsD3M139HeIVgOgrylf5lRFiqq2+FtZvbAxc4pVwXQuOmFDVxihsL6hmEaSW60+gUB
-	 SaitGmlMwsXLKwR0xrwyJc6vcOzuguQ9eFA5zAX9LyvvJVGa+Iw3nkKM/dSIANnl11bgy
-	 /SOr9N782uBHwAeiIM+b2RYAFni1iUhPNmIZP5OhCUTmKVg5LKYVreNypcCDyqrz3k6SU
-	 9HvxJeGbRVUfmTOiA3/mNp6UGm/qqjbpU24VqQ6GA4MV3+O42sFW0WosPIQOv+979Og==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795535221;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=HExStFKU+yesXM5jZRGUg6OOdPqU1Rp9r6cjv9ysj9I=;
+	b=Ab78TQ4M3p6TRI2KeY16KGVFHox3hXay7IlEUu4pXfd+DyefCgLPxAIQoRAi1ra3E5Mz
+	 bC6xvNU+JXAaMsrODp/CLYmdjX1iyiewxPjq7Ux8G6iaUC5iKr2O9tP4uutHSnr08ZZwX
+	 zoD6ITbphs+ZDVnsgnC1mxN6k4czoE+9YCuSs5YeSr5PBjF3ap3zOk2wtqd3gS68LWEcq
+	 b9eA7S7N/louvlS0TGsgxPNo1QCf4W/ee5JdVg9qJZXj2uxUwbGCsqIAbyq8mPS/rWXOK
+	 THtjJybdxJ02NIfMZdykmrmv31wnuQKMleQ4p/TFijFk9q4DKGf/mmnUIesIGWm387Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=JcxABt8m;
-	arc=none smtp.remote-ip=192.198.163.12
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P9NCGl3G;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECF77606A699;
-	Tue, 24 Nov 2026 13:33:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ECF77606A699
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB64B606A31E;
+	Tue, 24 Nov 2026 15:47:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=JcxABt8m
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1795527193; x=1827063193;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=599vSAb1qpW+ivOrvJ5DYuGSGKJSCi2Fy0I3YlD0SOY=;
-  b=JcxABt8mMpPSHRsnVhjaJIT/Vc/v5QwjU2yT5XxeLygHOKS/US4s0xwS
-   gggvtwzdstmImeAF1ER21G2b6vYSxz+pJ+GgzSPrxaqsg3hgzF841wGrW
-   0voWpIihtrYaglIDaDlpX+wlokGbw+8ylTXhHpYLBHsfdGO7iGMKH5HlH
-   7NAYmfy56IROcCYNBdJP43dwjwpMq64i1kYtN159ylScrnl8nd4cKGcq5
-   lNvCvQl8DGWFgTHNDnx3VyGqIMNAfcjrjqmBeYByDgVSusvd+PJd/HYUQ
-   5QGbtJYrTXiH6I26JpmdMFY3mf6c9uJlIlg0RsRmrIjG7mbR4Gi68Kkhk
-   A==;
-X-CSE-ConnectionGUID: Xd3dT05kT2C/g3/NCRfM5w==
-X-CSE-MsgGUID: qBDu2pdsT/KNCVWq//YNPQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11976"; a="4242995"
-X-IronPort-AV: E=Sophos;i="6.27,230,1787036400"; 
-   d="scan'208";a="4242995"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Nov 2026 05:33:12 -0800
-X-CSE-ConnectionGUID: acne9dIBRrufqDVaT4Aycg==
-X-CSE-MsgGUID: ihL9+qSLTqmuwiNpyfOShA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,230,1787036400"; 
-   d="scan'208";a="11920759"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa007.fm.intel.com with ESMTP; 24 Nov 2026 05:33:10 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id C584594; Tue, 24 Nov 2026 14:33:08 +0100 (CET)
-Date: Tue, 24 Nov 2026 14:33:08 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: penhouse24@proton.me
-Cc: Hans de Goede <johannes.goede@oss.qualcomm.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: acpi: Force Dell XPS 17 9720 touchpad to 100 kHz
-Message-ID: <20261124133308.GP229695@black.igk.intel.com>
-References: <20261118073607.297350-1-mika.westerberg@linux.intel.com>
- <70618789-f82a-4cd7-953a-a97f555fa98d@oss.qualcomm.com>
- <z-Mjt3eV50ZiycWjeVe9dfla5WKoCPC1UXZdFSx2V8YVhr77FH3eKc-WLQgGT_gu1l8NS_-IUcw_-ASU1x_al7IzQuW6FhccBUylTg0yZqM=@proton.me>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P9NCGl3G
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 788151F000C6;
+	Tue, 24 Nov 2026 15:46:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795535221;
+	bh=HExStFKU+yesXM5jZRGUg6OOdPqU1Rp9r6cjv9ysj9I=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=P9NCGl3G3Hl3Fv/VfqKAuWFxw3KqTiSNo4r6PPYrSKjXyBUXL8EXO5rIfc/7ySlmJ
+	 z7vQaKJKh8EsmQdgDIdvKOWD9knpVov9MCiXR4WbXEjb3UNhFZxvR+CDnMynVwnikT
+	 25Rs3a3tTr/2ckjyEvMsOEI6ehlNtrcQEL8fQIMaqot6P5OpdEyo7aEc9GeWGtGbY2
+	 dliIvUYs6T2XdGZWT/GuS/7QRasL+uurzl7kiC4Rj1Xx/d6RL17EhaEMqDpxJ2qcok
+	 L9xNu9kedrQ3F9YMfHb4UfysVH56E2+zy4lVsf/pAjC68tf/11CzwWR3NNe7vJmAwg
+	 X+jRQ+9a3CwuA==
+Message-ID: <6835fb3e-5f05-4f32-bf5e-85c5c5803459@kernel.org>
+Date: Tue, 24 Nov 2026 16:46:57 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,16 +51,97 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <z-Mjt3eV50ZiycWjeVe9dfla5WKoCPC1UXZdFSx2V8YVhr77FH3eKc-WLQgGT_gu1l8NS_-IUcw_-ASU1x_al7IzQuW6FhccBUylTg0yZqM=@proton.me>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: i2c: Add compatible for Seca SoC
+To: Yadu M G <yadu.mg@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Praveen Talari <praveen.talari@oss.qualcomm.com>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org
+References: <0439e03884c02c9edbec89132b526aaf8f54ae23.1795517696.git.yadu.mg@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <0439e03884c02c9edbec89132b526aaf8f54ae23.1795517696.git.yadu.mg@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On 24/11/2026 11:54, Yadu M G wrote:
+> Document QUP GENI I2C controller on Qualcomm Seca SoC which is
+> compatible with the SA8255P controller.
+> 
+> Signed-off-by: Yadu M G <yadu.mg@oss.qualcomm.com>
+> ---
+> The Seca SoC device tree using this compatible will be posted as a
+> separate series.
+> 
+> This series was prepared with help from an AI coding assistant
+> (Claude). It assisted with review on the device tree, bindings and
+> driver (formatting and alignment fixes), rewording commit messages,
+> and running the validation steps (checkpatch, dt_binding_check,
+> dtbs_check and W=1 builds). All changes were reviewed and tested on the
+> Seca Ride board.
+> ---
+>  .../devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml         | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml b/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+> index 04caf622b3ba..63895fdb51e2 100644
+> --- a/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+> @@ -16,6 +16,9 @@ properties:
+>        - items:
+>            - const: qcom,sa8797p-geni-i2c
+>            - const: qcom,sa8255p-geni-i2c
+> +      - items:
+> +          - const: qcom,secaau-geni-i2c
+> +          - const: qcom,sa8255p-geni-i2c
 
-On Mon, Nov 23, 2026 at 03:03:29PM +0000, penhouse24@proton.me wrote:
-> Is it safe to say that this fix is going to get pushed to the main
-> kernel?
+That's enum with previous entry. I am dropping all your patches from DT
+patchwork, to avoid repeated feedback.
 
-This still repends on Andi to actually pick it up. Once it is in his tree
-it is likely it hits the mainline as well unless something catasthropic
-happens.
+Best regards,
+Krzysztof
