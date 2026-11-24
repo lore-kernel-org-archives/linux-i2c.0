@@ -1,79 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1795509233;
-	b=0m0fpEvZsZxppi0qbEYZxwj5JmiNI8cQ8GfjVas+EXLsvsTAzRBzBtM0sVVpqB125nrK
-	 SgzNFgOoNZyNPxIzZ8CokF1nv9oZOUo6rclc+9Ko+EQ0IIgtnHlUzoArVqqglwc6CQexr
-	 lfEDPCoh6uDN/sPo9orUKUtnD1tnOcBm8uiwOJ/04BC9ujTquM0JvB5m6cEB7Ii6gzEzj
-	 Ip75KWbtdxt1JaII0gwopznrtxdhf4Bp9Xl/9F4pwdGHiv8dNb63uq8eOj/CFCSihmO0K
-	 SFWU28bdTqJO5eQ8aNMHP+Rp6O56Eqm0fI6ztFae/TVSPF4UzJ6JgwRAmhBYdHNA4/w==
+	b=ueD+j4vCkyzI9307ANiglRz174yEHcQRhMPlJIZnlBKaMso4EOAZE7nUZYL/LdVVT16l
+	 +dyNcyVWAu+5KpL3da269YM/HbIOJE9c81i2n1irxha5Wda/90tO5/qh9acnS+zlnhQiF
+	 vgo214zwmO2XsMSTz1aeL6sTrBl0QtL3Zu7GjsR2tJQir3IxHrf04J1jjj/HKwYzTJL6M
+	 G0HIE4rjP3W854xZ+PuGIXvPNajGLyg7FYjEyidihi2eCLFhCun+MFgrnm97Karz9dTsA
+	 CUlOT3Lauuvr0PdCUj1zP3SKdxciGs8nHPeHPWqdi4UPb4FldiYCUFoYDPsAY/dBfCg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795509233;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=iesDrvecprqj1brWwbrs25SuyK5gHClIHsr42f7gvQs=;
-	b=oKFLYor+9ZrhaShgXfGI+Fj70+sAbzDfMGPpIn45EySQWWsptn+xiHKoe/TYUSZD0ubJ
-	 DXhd5qgOwwqwY18l8G/5SdfE08dc3li06nku82ZSlvGs6KRkvrXfEn8AC5JD2B6aUffVD
-	 YVKNoS8RzXPkg1UALbagMVL2JBsA2v0BIZrbcT/3zrhWpwfH1wq6RfgJPMCe10hfMYP7t
-	 w+qwpZ69NjtyEPX2B4z0sUflpmpRgC31Gau6crDyJhXhp2Xb2A7WWE26bK69WFz1x/bgj
-	 5mruoMb1+lTf7aVG7MSEzfbBNDIMZKJervtFo9vS4tnKmabjWzHyCgOE4Awwf/d/Zew==
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=bMGutusCWizYXok4KAQ0DcRKoi01uW7e+2Ks5VTygpw=;
+	b=VleEU2W3zM7K0xw7bEvBf8+sPEOihlnmUkQZxfIRBcm8iDy5amTZlEZRXeKUqrYtmPGs
+	 xvUb7dmbEvRMW8e57yLzmuF1UMuBf178pek9upJiDyUVlxZ/Lyh63X6OHuaa2MLM8zYAB
+	 05FGdgFOcWhPCk2yNSNO2jibLx6bLbUPrqqEnZDNIaigh/7ovVnCDQpTnCmXFwGhtfhoP
+	 KjULYRj3de1ddINvGPPXqdOJKl69W794ddq6m2TL0ziFKBTqOgZ4Ksbs46LWiYjQyXqMq
+	 Y8IvudNLN1nLYH5fTxgOVzlcULJpfQQ7oaQImvOI9rhBsvOIM3D5gKdx2kjhjLKr/7A==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="U/9z5nEq";
-	arc=fail smtp.remote-ip=100.103.45.18
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SBbXOvbb;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDAB3606A33C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDB53606A33E;
 	Tue, 24 Nov 2026 08:33:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U/9z5nEq
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SBbXOvbb
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
 	t=1795509233;
-	b=Ds9SRDgSd5m5URYxUz+M6ypinE9wET3ioIOECpFVt3wnV4q9XiLpCPng3c8qYk9fb01x
-	 zxLBGl4dXg+65pWibK1XjD2Dr6T/QrHvThkVXdZ9JoT7NrUq8kT3fOSDSK4L+KyMqeL//
-	 +qX6RGCjNZc0hlLLmosU0aFTn4X+VBKN6peOj5PiROwtPpMHdqkTLP/yvDEMuwnPuysw1
-	 s15WRXFjd5HvkicpIkluwEq73x7tlNaZih/QRV18dP4Faxhditnsm4/dkrm+kikY5jL5F
-	 yC7//Oi+bpIdokBeDnyBlXByzHUNsnu7U87m14SfmtPEXFSMhGk7OcDDYKxjvW+B36A==
+	b=CC4bfturL8GBjrOPL85zrgzc6w3SI91jec+05P0PNxWQSgDvS8umlcEm5v+q8pJW1HeH
+	 y6nAjZfjmHjQw8ahHQeayzD5BAGNj3pUmxzRM5O4aUzjyp3izrlcItoEBQpSOaXcqGC5F
+	 FSX4yCSlXxt0UdQRtHzZ16tCRo2gFH3vILupS0KN8GFG11jaWNHc+rzrmMpJiSmU89VCN
+	 X9iS7tO9DyDg30U+2N7tzaq3HqmUY0xwION3eMu6lgpGIdahnkO0jT6Miczw0BtDswB1O
+	 zpINVmKFNPCm/ojYtBgL5DyZhsc/9FT4FpU/yTsE3+/17/nc8qiRkGEOEPZsYP2I39w==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
 	c=relaxed/relaxed; t=1795509233;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=iesDrvecprqj1brWwbrs25SuyK5gHClIHsr42f7gvQs=;
-	b=PYVRYiznC8iFxoMowl1MeQTyma0PUEZ8yeYJ7OT7iaTjokyNxIsbSmfOjxmN0h3XyyPS
-	 5qPJG1j9ksp3DvcAHCSs9x+5LAMReg+u7vqYtTNg3YjYDysvyT+px/IX54LAr2MtprNpK
-	 rtrTwI0H/APcjV3yQq6Ll040sPMloKQ4xMVmmSCCeaB8+mPa/MwnSjzakI3GxYDsesCRa
-	 2ey6L3VkUm2OIId0RXH5Un/8JASZMX0IbDIbYiXk1VW0UjlFBJ45ZiSTbmYCfTSmKJTKA
-	 IOXRalMoB/l3uwnlI3MtIAFNjwCWSIfSOk14inQKRlhvJSw6NzUv6l1/aqRR/mjFstw==
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=bMGutusCWizYXok4KAQ0DcRKoi01uW7e+2Ks5VTygpw=;
+	b=3DusnGzqGLsZFqlnZ5hGQECNy+n1PBemH22ZXrtypUBOwjcyjY5TPseYsEk7MDyQNrZR
+	 dTlRzAcIcFfkv2Pqx03o3Ht8yQa+YfpigQ4JhuTcbB/E7PlJfdA+NghOh42WvmTf7QJKc
+	 +A6+odFhzq2FXs9BXipt+43cbZBN2aQUrTENGGNM5hNdAIJOl02mWhG3nt1Ar8W6eWXRP
+	 CJEP2vlWBhPnfLREAZkNzV53Sd9iatDgUA+1z6kui3YcYyvOv0jiHui6wpcoR2ewAACsI
+	 IQv6hEOqGbF4d6YeKA9kWgAvAuprq8nQu1e4LqcB8W40KPTtdJK2Qqcx3ne0lnB7l4g==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 30E871F000C6;
+	by smtp.kernel.org (Postfix) with ESMTPS id 13FDE1F000C4;
 	Tue, 24 Nov 2026 08:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1795509233;
-	bh=iesDrvecprqj1brWwbrs25SuyK5gHClIHsr42f7gvQs=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=U/9z5nEqtLv3wy+sA92RkVC8I7ovn8vYYCiJ11Q4pZeI20SgdvB1GoGU+5dF40ey8
-	 6hgfwL09QY5lG5/DItt5LCx6QeYjSReyLUyeohBbJx6w8mP39n8lTaCXBLhUirRqn9
-	 310ZyiYmSVGWryruYjVI/m8I+qPNfrsey6+X36QZuczPVzK8EYxMtZv9rISEgZmufJ
-	 VAmntv3ZLBpBM1PkzVcErxfYQTBq65Wp1wDq77MVyZhDzQAWlRPMWYG2ay5XgsFUno
-	 edKsfElbunDbPWxo0Zt/LDFXXT250ap88Ymdr2unPwsqAA/sWRtumE7/lPeIVAKD9q
-	 Yk1NZu+t0/koA==
+	bh=bMGutusCWizYXok4KAQ0DcRKoi01uW7e+2Ks5VTygpw=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=SBbXOvbbeTD5+XjNWwmaXPj03rA5GxfBZzhjkqYOdZjrxS1MWgxM+vVheI48IaoFz
+	 UNFrhMkW2j5+RgtrBuhWXFq/09L5l+M3SHohDhFcABPKgjMfI/r7qcI93J503l0Fcw
+	 ZuWnYmaOGdE9fOwrtWXVH1lRoEt/ULmrd/40u7D4eNy/5YfumrB7U9FnAKeB1EH0XI
+	 hsUw08CkaGPOgEUppSuhV9IfmsxBlKzdSec6BZpV8fUeFjjHDDVRyxWQM/rfRTB/9/
+	 TaI66ohtCLIlB5nKjRb6hJNwgYFwiFEODwRCXTHQFkOG4bPpg6yZM66HyPW0Semhnd
+	 jPzqRhWBSaUKg==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id B44704C955;
+	by lkml.kernel.org (Postfix) with ESMTP id 9595E4C945;
 	Tue, 24 Nov 2026 08:33:42 +0000 (UTC)
 From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
-Date: Tue, 24 Nov 2026 11:33:42 +0300
-Subject: [PATCH v8 1/2] dt-bindings: i2c: Add Cortina Systems CS7542 I2C
- controller
+Subject: [PATCH v8 0/2] i2c: Add Cortina Systems CS75xx I2C controller
+ driver
+Date: Tue, 24 Nov 2026 11:33:41 +0300
+Message-Id: <20261124-cs75xx-i2c-v8-0-d0800b967886@gmail.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -84,103 +85,143 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261124-cs75xx-i2c-v8-1-d0800b967886@gmail.com>
-References: <20261124-cs75xx-i2c-v8-0-d0800b967886@gmail.com>
-In-Reply-To: <20261124-cs75xx-i2c-v8-0-d0800b967886@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XOQW7DIBCF4atErEM1DIOxs+o9oi4ATxKqxK5MY
+ rmKfPeCs7Ejdfmk+X54isRD5CQOu6cYeIwp9l0e9X4nwsV1Z5axzVsgYKVAGRmSNdMkIwbZELV
+ oUStPQWTwM/ApTkvs+PXa6eG/OdxLoVxcYrr3w+/y2kjl7hVW2/BIEiR5VTG7pna2/jzfXLx+h
+ P4mSng0K4qwoSZT0J4DEjpDzTut1lRvaJUpGiBtDZMmfKf2f2rLhxFq4HDS4HlN53n+A6Sd51d
+ nAQAA
+X-Change-ID: 20261015-cs75xx-i2c-944d27231b4c
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795509221; l=1877;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795509221; l=5461;
  i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
- bh=Mzt932NWHbMP6cNTGXOVF/25Jv1slV/2vvPLoA2toCU=;
- b=PTWJcxCX9zi3Rsxe6/EDc6NUx7zfYiCnBUQXEiRBJAgW9lUoCz8OY+KXJYvKPug2pCZoOfm78
- crfxOkclq5VCE8H8qPXAhAP9NQjPId7M9iEU9YkXfLwFiYLfTtfmwCh
+ bh=12oZJRAbn5pcMnzdV46XLYCoHoe0xUgOhjJv5sF0cBM=;
+ b=OW4c397SmskB8de/DOxAbl110UZ8MF5OmQzL3TsjN3RzlTv1I6pbkYF/U412bhqbVyQe9+v1e
+ STYqokLCsP5BguJU2dBUnhJZndndheNqa4zZ6ThEDhDXRLKwXtwYzy7
 X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
  pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
 X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
  auth_id=1085
 X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
 Reply-To: filipp.dunsky@gmail.com
-Content-Transfer-Encoding: 7bit
 
-From: Fil Dunsky <filipp.dunsky@gmail.com>
+The I2C ("Bi-Wire") controller of the Cortina Systems CS75xx
+("Goldengate G2") SoCs transfers one byte per command, with a command
+register much like the OpenCores one, and raises an interrupt when a
+command has completed. This series adds the binding and a driver for
+plain I2C and emulated SMBus, without quick commands (every message
+carries at least one data byte) and without 10-bit addresses.
 
-Add a binding for the I2C ("Bi-Wire") controller of the Cortina Systems
-CS75xx SoCs.
+The driver used to be part of a series with the interrupt controller,
+GPIO and watchdog drivers and the device tree changes. That series is
+now split per subsystem. The driver depends on OF and HAS_IOMEM and has
+no dependency on the platform series [1], which is under review
+separately. The device tree nodes will follow with the other CS75xx dts
+changes once the platform is merged.
 
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
+There is no public documentation; the register layout comes from the GPL
+vendor kernels. Tested on a Securifi Almond+ (CS7542) with the SX8650
+touchscreen controller at 0x48: reads are ACKed, an empty address returns
+-ENXIO without timeouts. The v5 late-interrupt change was checked with a
+host regression test of the transfer state machine; it has not been
+exercised on the board. Repeated START between messages has not been
+exercised on the board.
+
+[1] https://lore.kernel.org/all/20261122-b4-cs75xx-v9-0-1fc1b90bd097@gmail.com/
+
 ---
- .../bindings/i2c/cortina,cs7542-i2c.yaml           | 56 ++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
+Changes in v8:
+- Complete arbitration loss immediately with -EAGAIN rather than
+  submitting a STOP command after losing bus ownership. Keep the
+  existing STOP completion handling for NACK and other errors.
+- Exercise the actual state-machine code with recording MMIO mocks
+  and compile the updated driver as an ARM module on Linux7.4 and6.18.
+  No new multi-master hardware test is claimed.
+- Link to v7: https://patch.msgid.link/20261123-cs75xx-i2c-v7-0-42080ecf30be@gmail.com
 
-diff --git a/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml b/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
-new file mode 100644
-index 000000000..ef31284c1
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/cortina,cs7542-i2c.yaml
-@@ -0,0 +1,56 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/cortina,cs7542-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Cortina Systems CS7542 I2C controller
-+
-+maintainers:
-+  - Fil Dunsky <filipp.dunsky@gmail.com>
-+
-+description:
-+  The I2C ("Bi-Wire") controller of the Cortina Systems CS75xx (Goldengate
-+  G2) SoCs. It transfers one byte per command and runs from the peripheral
-+  (APB) clock through a 16-bit prescaler.
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    const: cortina,cs7542-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  clock-frequency:
-+    maximum: 400000
-+    default: 100000
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@f00700e8 {
-+        compatible = "cortina,cs7542-i2c";
-+        reg = <0xf00700e8 0x28>;
-+        clocks = <&apb_clk>;
-+        clock-frequency = <400000>;
-+        interrupt-parent = <&intc>;
-+        interrupts = <11>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+    };
+Changes in v7:
+- binding: put clocks before interrupts in properties, required and
+  the example; keep clock-frequency next to clocks (sashiko-bot)
+- no change to the driver or to the schema constraints
+- Report: https://lore.kernel.org/all/sashiko-outbox-228684@kernel.org/
+- Link to v6: https://patch.msgid.link/20261123-cs75xx-i2c-v6-0-2504375e4342@gmail.com
 
--- 
-2.53.0
+Changes in v6:
+- refresh the link to the independently posted platform series (v9)
+- remove the unused CS75XX_I2C_CTRL_DONE definition (sashiko-bot)
+- document that IRQ acknowledgement uses CTRL read/writeback, as in the
+  vendor driver; keep that tested sequence without a functional change
+- Link to v5: https://patch.msgid.link/20261120-cs75xx-i2c-v5-0-03bec242a549@gmail.com
+
+Changes in v5:
+- replace the dependency on ARCH_CORTINA_ACCESS || COMPILE_TEST with OF,
+  retaining HAS_IOMEM, so the driver can be merged without the platform
+- build built-in and modular on ARM and x86-64 with COMPILE_TEST=n,
+  without the platform series
+- ignore a late interrupt of a timed out transfer before looking at the
+  arbitration lost bit (sashiko-bot)
+- Link to v4: https://patch.msgid.link/20261115-cs75xx-i2c-v4-0-4b16eea98a78@gmail.com
+
+Changes in v4:
+- rebase on v7.4-rc1
+- split out of "Cortina Systems CS75xx: interrupt controller, GPIO, I2C
+  and TWD watchdog" so that each driver can go through its own tree; no
+  longer based on the platform series
+- binding: limit clock-frequency to 400 kHz instead of listing 100 and
+  400 kHz, which is what the driver accepts; I kept Rob's Reviewed-by
+  from v3 for this one-line change
+- collect Reviewed-by tags
+- use fsleep() and device_set_node(); sort the Kconfig and Makefile
+  entries
+- Link to v3: https://patch.msgid.link/20261013-b4-cs75xx-s2-v3-0-181bb0d23f4c@gmail.com
+
+Changes in v3:
+- rebase on v6 of the platform series
+- reset the controller with its interrupt disabled, check the prescaler
+  against the field width exactly, wait for a bus held by another master
+  up to the adapter timeout (sashiko-bot)
+- Link to v2: https://patch.msgid.link/20261013-b4-cs75xx-s2-v2-0-94f8c0a90cda@gmail.com
+
+Changes in v2:
+- rebase on v5 of the platform series
+- do not include <linux/mod_devicetable.h> (Uwe)
+- complete a failed transfer only once its stop condition is done, so
+  that the stop interrupt cannot race with the next transfer; take the
+  lock over the whole interrupt handler; report a NACK of the last byte
+  of a write; enable the interrupt again after a reset on timeout; fail
+  with -EBUSY when the bus stays busy (sashiko-bot)
+- Link to v1: https://patch.msgid.link/20261012-b4-cs75xx-s2-v1-0-8a7641b7b79c@gmail.com
+
+To: Andi Shyti <andi.shyti@kernel.org>
+To: Rob Herring <robh@kernel.org>
+To: Krzysztof Kozlowski <krzk+dt@kernel.org>
+To: Conor Dooley <conor+dt@kernel.org>
+To: Fil Dunsky <filipp.dunsky@gmail.com>
+Cc: linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+---
+Fil Dunsky (2):
+      dt-bindings: i2c: Add Cortina Systems CS7542 I2C controller
+      i2c: Add Cortina Systems CS75xx I2C controller driver
+
+ .../bindings/i2c/cortina,cs7542-i2c.yaml           |  56 +++
+ drivers/i2c/busses/Kconfig                         |  11 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-cs75xx.c                    | 393 +++++++++++++++++++++
+ 4 files changed, 461 insertions(+)
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261015-cs75xx-i2c-944d27231b4c
+
+Best regards,
+--  
+Fil Dunsky <filipp.dunsky@gmail.com>
 
 
