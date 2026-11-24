@@ -1,98 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795512133;
-	b=siXPhxygdSPUx/wp7NParv2Dp6d6vR271yN4/VipVkMx1fszrkapAYLC8NyWkVoKDxjx
-	 Gs8jKC0vTlBEHqX4uJ3jZSLkgSTbd6GeZ7QNAa+HMFtOEdkXHcyoffAqskUw0rmG9sTnF
-	 zVIZtQYhYxpDEyX8ZsyzFHWPJg/0sqVHJLDQtL3dRt+yTbiDJMTxaVe8+4G7dedV4TFQw
-	 JV2M5WkD0lWNHgpJU3PuMVws1OBy4gL7N0EW43hOeZeP8z7hHGB7+s/1ngcPHmjYMfmRn
-	 zKA3FZZPb76MYhRMNr1CPe4WepAhzGRh73AobnJpifUzt8cNBIYrcz30AERmTCD3U1g==
+	t=1795514219;
+	b=FKIx5Ih5gv9Hv1G5WLoCW1zqGyjwgA77s09JLsKZ3xAU8s52eGG69BxiASz77rI2Q/TT
+	 xpro1aoTqMl3lPTkY3SCaNm5wDCYrLn0tdtt2hkcD4rTO47JcKOcEyunbKbu6TqloSEZx
+	 F+p+l8VBhqS/9Sz0F8nQSSXNBJmDSJRj2yJ07ME+94e24MLx/hSsc0Pn+7aFMimU0p0Oa
+	 f0h08B3fKJ632PYhgbyNxBzOtYcY+LUhRvPJ2W+gNtVhtU+yXeEejgbEoJ1/siSKTHwMe
+	 Bh1MeQvNVInLAyNV8VH7ukHSkqGJNiAgu8zt85zgpejgBCjXvSDwKNbzRTUpVus8iWg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795512133;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795514219;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=jrYGP2NUS8MDFLO947LbBcMGV4wVMpRFW1toqHZsyiQ=;
-	b=pD0ZQTs0gZr4v6IfFWTtW35Vg50FC04PvbdDMsPod96RVJDOPYDyns2vhR0Kwf9SXrCi
-	 td7A5m/ENNEmNWUF6svgnlCH+wRo1Gle5ruElQTvswhUI1rH5qvi8cKZ+3BwkYrHRL+G/
-	 44XSjVcxiXyPKqS2VQqfa+TurVDbj7oaFxbzAzZLyN55e2sr/9XgcP8yFSdJtyc2gcNIK
-	 HQGj5K7h8gX3mJhtRRDbU0dGuqZTeV3MRxNCVevyEzDmM4BfEXr8BvQZWE0Eumbf5P8ec
-	 fR9eut5myoUMmlbtTAx7zDw+OSzbfrEor9JYWqQJj6jVklBJM5tjmuWbZ73YZN5TwUg==
+	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=Z7ixIHGB/x6muOCf12bPPxl1sG73TY3AqjMKZ2p7Iqw=;
+	b=0FdRg4qwBDUC8ZODcq5SnV645YegMakVinC7s4yR/pCbI0+gYtH5PsQUogO/WvOFXL8r
+	 53R12ypsgiJlnPgcnB8Y8ZhQzpLamuVmXNC4ep7X8DiAX4BtnvvRMF6Z9OSIQKSiOKI7c
+	 E0LsSJ7psTs/je18pxYP9uiir2kR7lr+2v1eDvMl6DIB4j9nQ0cThYqKWk89TMXJqgulI
+	 EamhWk+q6ZOW3fQaiexbLvisxKL5Hbc95E/nageGQwJT2R9BXcvmREybdiuXQP3RTSqwe
+	 PUH3Z0LHvCPOqIoyGNi7drm9i7l9L3BeHBYJkAPLy0tbIR8yOA7tP+Jcr2wuQvKBZ6Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yHelgFAX;
-	arc=none smtp.remote-ip=74.125.82.178
-Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	dmarc=pass header.from=linaro.org;
+	spf=pass smtp.mailfrom=linaro.org;
+	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=fmCLP9gt;
+	arc=none smtp.remote-ip=209.85.208.172
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D6E606A6A5
-	for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 09:22:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0D6E606A6A5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B366606A322
+	for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 09:56:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5B366606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=yHelgFAX
-Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-36a315ed211so5341167eec.0
-        for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 01:22:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=fmCLP9gt
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-3adfb744fa6so3515251fa.2
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 01:56:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795512131; x=1796116931; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=jrYGP2NUS8MDFLO947LbBcMGV4wVMpRFW1toqHZsyiQ=;
-        b=yHelgFAXHZlKvExHvczgHRjsBLUOzun6wvv98SQTI27ld6w0gqkFpdDqLZPkzojczO
-         Tlw/xOZqjwWcfDKs3kzRys1VVO4NdDw/PXwWSZH0JTk1QltoBrVwBrilicExolBya0Na
-         4m27JH0nxVIkJsCpvEZj+BVwq5kk98fyfFmjdlUt18W+ao1sUebf/QiW/Ap/10RSghII
-         XOfPl8vbmPQyLuAbklXzAwt5ucs96Pm9ipadzRAQsH6gE4u1wZB0aBPX263P/YqncJ+g
-         gD3bqiW9JTfzTN62bBJEeO7q9vVV/iA5EUGIPqwHG2WS5xxRkytsiJOUO2H35LpwKC0t
-         km0Q==
+        d=linaro.org; s=google; t=1795514217; x=1796119017; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=Z7ixIHGB/x6muOCf12bPPxl1sG73TY3AqjMKZ2p7Iqw=;
+        b=fmCLP9gtyFynzPpKhVinxN3fvX0HMhPJbqD1her/p9bj1TkyZMQ3CUW2x1K2iN6Q6x
+         wZ4W5yjzxqt3fzPs1oofjP/eOC6ezr++bplcBpOLgydsEwa/ibvh5ZgR4ciR1XPO9Nun
+         tJP8gaFyKB3uXo1JAq1nJVoyQ3d6zu2DJFMcAnm9FOJt6bYNI5jAISAfNXrcQZLMqqbS
+         XbcOsFJ/qBdpwrj8ya6lkp1s4F/MKwr8F9x6FTOxCEkFzlQMc66c57dzu5b4dZXrAyqU
+         sjyN/lSUSN7rV1QbdPFM53mzZAdsRIXj0FmSSgxsnNdCJIdXXBRN5ZSI4uvoC3MJhezY
+         xrHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795512131; x=1796116931;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=jrYGP2NUS8MDFLO947LbBcMGV4wVMpRFW1toqHZsyiQ=;
-        b=Quffm201pH7BkCBHtHj3KOMmwyplVrkmiHZKw1FOoR/598OFk0cl/hsMYXf185bNia
-         jPHugiKINRjPSiVJEyZR2tZYBODwCemf7slPBFlefirY1ljri8mM3zw1xzSePW4TPsxX
-         +9kjHzdLMsjKaRZBTP/+arkstV0mjzPe8/bgbbb6xvsVYyW8q55RIn6EmDp5yCckCSjm
-         GUdZaY43+LIJ2T/xS77cMWIEuUroLs5v7/NjmGVpSkIcohEHIWz3OXsvqWk679DwFW2J
-         rDHXcTG5TLWbU91sKIM9jywz+U6djEEvJOCE+WGhl59fEFUovyDpBjL3tfKifZKGxcT9
-         RCsw==
-X-Forwarded-Encrypted: i=1; AL+hErGoN6t/LHeRBtEWAszMrHZTyFDvOtXhhrQSnF7k8OwdiV0Fciv80OMDpzjMZV/Pjv2UFHg8nsFH7sE=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8Ud1EPhCzFi1p3iRx7fCjNdt5Jk14XafZ8fY8Gd0GKCRpPoRXE
-	HHnGObxm8ZD6w5yP6IooXS3WywuxvW+n4A9Vx9JwiKuBqLwjCK7Hx7zy
-X-Gm-Gg: AZFdTZftINK70YeEm0y6ZcpN6Yv12PJiErBlDq8b1Aa+mASUyq1sC6x+bFSQB5YAicA
-	Ua8kLRqe3/3Lr7Osw3yBJkyG3CHtPO81dA6yCT+vRORfl1zADedgrZi8BcYhGq/+Ij9gXF8t95+
-	TEQ9FBPr5lWeT4epZbe6jglG8IXSCcj5OdgIrcr2mehS8SRXWQkuoBrHD8O/5dAwL23Hwo1NyxU
-	pv02lpYn8L7IYE0gAT2JaGsljigic1lGim1F6edgUP5YYTFSRdA9Gm5NzrHKAz8sLygyQyasK9h
-	HCeGsbcZCtoEgjXcVndY41e3i9AERobbPupBNz+0VV6qDerBu3V3MfDo11P9/wHV6uvOeiw5Cfc
-	+o8Ty8dbkiS8lZMM5UGNM/+tKQsLLiu0YR9NgGmnKCVAXlLDRv6jlPe813iQvzJ5Foholb8eNiy
-	LucCRIfINLxXEZVagRIR+T0QC6ONs3o+MR8gtXlLWM98iF1+gIAdmLVrIMTnWjjCOJC8vlVLBM0
-	Ku4m54ql2YIdrQpD12JJlm68OeYWOX1Ghj3kgmHO9HdijMnM0ybisVEnYtDXbMA3W6EB7/aIpk1
-	vYpnzcjH1tPmSO/qrPrV/0gZ7rgcvOe53ofmxcwH6509uv8=
-X-Received: by 2002:a05:7301:7187:b0:386:bd8:7abb with SMTP id 5a478bee46e88-3860bd889c6mr13672914eec.11.1795512130689;
-        Tue, 24 Nov 2026 01:22:10 -0800 (PST)
-Received: from SGN-LDSENG.tasernet.com ([2405:4800:5cc3:11a:1ac0:4dff:fe8b:4a69])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385677c349csm45902545eec.22.2026.11.24.01.22.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Nov 2026 01:22:10 -0800 (PST)
-From: Cong Nguyen <congnt264@gmail.com>
-To: Vignesh R <vigneshr@ti.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Roger Quadros <rogerq@kernel.org>,
-	Tony Lindgren <tony@atomide.com>
-Cc: Josua Mayer <josua@solid-run.com>,
-	linux-omap@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: omap: do not deselect the mux-state twice in remove()
-Date: Tue, 24 Nov 2026 16:22:02 +0700
-Message-Id: <20261124092202.3766910-1-congnt264@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        d=1e100.net; s=20260707; t=1795514217; x=1796119017;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Z7ixIHGB/x6muOCf12bPPxl1sG73TY3AqjMKZ2p7Iqw=;
+        b=pJh+VAcLcPmn3wgZZsCkVlIeYI6vVlpYZQi6BlAnebCdUgkzrhba/dcU94cMTxlxPW
+         M0lZxxGJHcKRNarzqvkfRBQaIAu6TGk9iJmDrw+8UCot3f6nV1M2rxHUJtTN0DOYo1vr
+         I8DMk4V1rINPfTWHaZKsUBuQi+RVjsfUX4iAJ08XYHEVmbXmmW04pENmY2CRRYfOUxQL
+         9HZyGxB/JEACotfYxBzBXYp6RaoWtswgc6KYenMIihmY6Q5TUm8cQWv9JE7QvZzISuRm
+         kW0K06EdGem5dzh8b5vmsXMwvq5tOtJuOVS7UJDmmWUJGe/xw0dganPnB47CcjfE2VKX
+         1quQ==
+X-Forwarded-Encrypted: i=1; AL+hErHtT6d8ALXrrtdqeio0EXZG7NaqAdfZ5RKCC8Y6YqdhOQnDohrMGLzgsvcy1NRDGUWRMDMQ0wdPmp0=@vger.kernel.org
+X-Gm-Message-State: APuU4Z+w4eWmscbpoz7bXoF7ED4iADY6mI+dSS/++jmNNWitB67FmGC6
+	IsclTJX2Dzm1Kp5Nh1gUYdzES2FAcsC+7MfTfA3wSW8e15dXeniEfHVqL9S3oNcQsI26NOORmJA
+	0EtseFCQ=
+X-Gm-Gg: AZFdTZchDwK857Ni3gJcDQd32fqJFDam2NCu9xlqVxedc9aq6+BgU+x2bK9ODmY2nRg
+	M5ZF8y/3+ejuRMFFkreHFF5FtOQo3SG7kp5Dts/vR78E9wiOQQYC9k3qYccHbdx3yWInMgx6i3P
+	fRJg7LXKU+uoV9xKUvo/V0ftNckRGvd/q+6Z4+NiwTjOfzQ7WOmTPla/xcR6wcBn8W94u9Pf9YV
+	IMGqCR108APgHqwHSC9ij9VNSkkgK4qwI7hf3nrgf1X8yY+PiYsD9wls4UfMJOybh+N+14ocmqo
+	p2kO/jkO7RhDZL0VfwuKQ6COrNwoitrkk5ExVh9NDWGwPBXCQfuPkvIqDm4BT3XD2CZgk3EAKLL
+	tdObq+Pu64eOcmZ1GgKkol1RR83jY48v5UNLBj9mcqnn/9B2xoJNximq78SzaZt3KS99radquQ3
+	wyyccQnkpUGOK5M3sV4tBAXyrIXfvNKzG1SVWB8Esexo3O0Cwr6ZpQtwPX+e2ikgs9a4tywItOx
+	yyU6cVYuZjFi3DPDnd6rk1oAF8iYKJDtgeiGKkz7fCYDqfQncbcxhp/7+bvReIoELQvMJYKTziT
+	v7PG2YWdb2isUSF7GDebVjVKiidW3PtXXQjCt9QDdVtbKPAXcncswMxlLCBn68yq4jecPXQ8n7q
+	lEI/3l6c=
+X-Received: by 2002:a05:6512:b88:b0:5c1:5488:f57d with SMTP id 2adb3069b0e04-5c1bc85b735mr5132306e87.4.1795514217327;
+        Tue, 24 Nov 2026 01:56:57 -0800 (PST)
+Received: from [192.168.1.101] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5c1bcff86c4sm3570448e87.22.2026.11.24.01.56.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 24 Nov 2026 01:56:57 -0800 (PST)
+Message-ID: <da038528-5b25-4956-a14f-1827ffe2eef8@linaro.org>
+Date: Tue, 24 Nov 2026 11:56:44 +0200
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -102,37 +92,82 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/7] dt-bindings: media: qcom,sm8150-camss: Add SM8150
+ CAMSS
+To: Andrew Gigena <mail@andrewgigena.dev>,
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
+ <rfoss@kernel.org>, Andi Shyti <andi.shyti@linaro.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Bryan O'Donoghue <bod@kernel.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-phy@lists.infradead.org
+References: <20261106-sm8150-v7.4-rc1-camss-v3-0-0103e8a0bbcd@andrewgigena.dev>
+ <20261106-sm8150-v7.4-rc1-camss-v3-2-0103e8a0bbcd@andrewgigena.dev>
+ <21be3761-9da9-48c6-aaa1-b56f8625167a@linaro.org>
+ <ab79818e-4b4c-4b58-bd2f-57d9ae4cddc3@andrewgigena.dev>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+In-Reply-To: <ab79818e-4b4c-4b58-bd2f-57d9ae4cddc3@andrewgigena.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-omap_i2c_probe() gets the mux-state with
-devm_mux_state_get_optional_selected(). The helper selects the mux and
-deselects it again when the device is released.
+Hi Andrew.
 
-omap_i2c_remove() also calls mux_state_deselect(), so the mux is
-deselected twice for one select. Drop the call from remove().
+On 11/11/26 01:46, Andrew Gigena wrote:
+> Hi Vladimir,
+> 
+>> That's an intermix of names, and you will get a review comment from
+>> Krzysztof about it, I stand aside.
+>>
+>> Here too.
+> 
+> Krzysztof did comment. I kept the vfe0/csid0/vfe1/csid1 order from
+> sc8280xp-camss.yaml in reg-names and interrupt-names, and asked him if
+> he prefers another grouping.
 
-This issue was found by auditing the driver with an LLM coding assistant.
+Exactly.
 
-Fixes: 43c00f2bcff7 ("i2c: omap: switch to new generic helper for getting selected mux-state")
-Signed-off-by: Cong Nguyen <congnt264@gmail.com>
----
- drivers/i2c/busses/i2c-omap.c | 3 ---
- 1 file changed, 3 deletions(-)
+>> Drop 'gcc_axi_sf'.
+> 
+> Downstream sm8150-camera.dtsi feeds GCC_CAMERA_SF_AXI_CLK to CPAS and
+> x1e80100-camss.yaml has gcc_axi_sf, so it is used. Can you explain why it
+> should go?
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 4dd111f77ea0..d3c576ca7681 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1520,9 +1520,6 @@ static void omap_i2c_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&omap->adapter);
- 
--	if (omap->mux_state)
--		mux_state_deselect(omap->mux_state);
--
- 	ret = pm_runtime_get_sync(&pdev->dev);
- 	if (ret < 0)
- 		dev_err(omap->dev, "Failed to resume hardware, skip disable\n");
+There is no CPAS in the upstream CAMSS stack, and it makes it irrelevant,
+that's why I asked to remove it.
+
+I believe one day CPAS will be modelled as a separate device tree node and
+device driver, then it gets its SF AXI clock.
+
+>> Drop 'cam_' prefix and 'cam_sf_0_mnoc' also.
+> 
+> Prefix dropped. I kept sf_0_mnoc because SM8150 has a CAMNOC SF path.
+> Should I remove it too?
+> 
+
+Yes, please remove the interconnect, it adds nothing for upstream, and
+I believe your tests will show that the image streaming is not broken,
+if there is no 'cam_sf_0_mnoc'.
+
+>> Or C-PHY, right?..
+>> In fact you shall drop bus-type from here, because the link between
+>> CAMSS and PHY's output is not a CSI-2 bus, it makes it inapplicable.
+> 
+> Agreed, bus-type is gone from the CAMSS ports. It only exists on the PHY
+> sensor input now.
+> 
+
+Thank you so much for working on SM8150 CAMSS support, will be glad to
+review the next version of the changes.
+
 -- 
-2.25.1
-
+Best wishes,
+Vladimir
