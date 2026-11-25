@@ -1,87 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.171
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795613120;
-	b=HYnxfZW1wNhkgBRloRzgTlqT8YtTXjbUJH2WMOVpEi/uVQz5+N6js+kX76pFK7a4vMti
-	 4X5nEz1TkCWLmP2JH0tB8tFYjEuZ7GABtW9KJ/MoJ35aJLpTTbZOvWbcVmvvRArVYQfrT
-	 P5fd+mVqHeno0ctM9hnoRbwWMGfydpeqqKdZ4XC0hzm8oflaqS7qU3dnpUDZbSTMiOmgC
-	 cv/Zi5OeiovIZkPyf8gnPZ3RR6UKQPWJbcpHj2gaUInHb+uXJKoK1ugnUWGlde0Z5NlZ9
-	 /AkKevgM23AxnrETeI1aKRIyurGXfkthfYJcWMy0KQSjIazgoPjri7UjovnCWyVT4bA==
+	t=1795614208;
+	b=o8eY07Ubh8vk14fiEhu9pAbl7UlrjM8hxvh3qzcEEVZyn7+qwFmixtOp6wIhkHRc9H92
+	 eTxerYJ22e3U+S3iwxImzvbW7FlCSQTV5YqerrldkB/paVdSXC3H2NAvuAGk29/AaLkYb
+	 QKbSUqGUTFbNz4h6P90O8gJjbMpZdShI6j6AulhFhciqBRHxiajNLEr+xC+LzLYRllkoT
+	 Zua44Txq0PV+Rp4GO/I1x3KeeiHil2RcEhWjD7SOrVdPH2r0vXN1TjnenPCn2C2O1nrEC
+	 46JIaQJHatKNEYz1HtdRq5YSaZMtWtr/ue+OggDpflLD1xL/4uv6gCdBP0nQGVEL/7Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795613120;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795614208;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=NQLOwLKmQWGXVjYzEC+v5DF5B/Ubjo80CMy8M7QDT2k=;
-	b=2XDVuz7hQ9zljrE9TAUDOouykqTE2+k7eXPcoU3JmuBW9pMCDOczdPC60q5I5+Ize1wg
-	 ogVkO9b5g2vwLI9ROPlWFMs1mGWPvQUzBvAqqyr/Q2aMH0uvMJMa4fnhspLf4Ruwv9ZH4
-	 9itQMVRdxsV3WlxB/UezrRzeNO3CbAxULviClfsATRT0Ym9lDLdHwHy6V3qZ7HDYiPJyc
-	 qCEdg5Rz4nKY+irmBv5v2GnyI61hSLo5k9/RswwKERvRnlsL4v5c+1GFHVyHj/LO/8uPc
-	 kMtsK0vvy6ym7TNeVEccJomX+ZMDl4onN2NNcRBW//BCR/TjhadnrrWFdWpEADlir8Q==
+	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=lyPzL9qDgC5NPyyWRyU2xpYxCkn2FwWXZOnIDyXNGvw=;
+	b=nXgqNeJPhTGbVrXaQocU/VxFfQDH9HxA0sYy0T+4mgZ2k7iGYVwmv3KGZwHfgSJGTT2o
+	 jdNfAHwGr1lxa0ZnvOmR3/lHsOJkHWxg08cVX7g2y/dOb/4bbDxCXOsSMHlKbN5IkpCjh
+	 PPcbFUGd1NJCntPOypf+ZsSGVLYClrvqrEI78XUouvi5EU7YKOi8k9oofJXobP9xyNfQY
+	 BVL0KfeaWaLMwx6hQ6x+oeoldBPhd7dVmWCvzCAFPVXib2bXSvjdkAIHRIQU9lJFMy3Er
+	 Gki+xwkaROI81Iuy2/xCJ08tYvybIA9yhsNoxKaO2QANXmnEpfooerdgXsxj0gcV0+w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linaro.org;
-	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=n8vilfMw;
-	arc=none smtp.remote-ip=209.85.208.171
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com [209.85.208.171])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="S/ivv2sZ";
+	arc=none smtp.remote-ip=74.125.82.172
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61A53606A68E
-	for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2026 13:25:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 61A53606A68E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B956606A323
+	for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2026 13:43:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2B956606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=n8vilfMw
-Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-3adef2bf7acso4742721fa.1
-        for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2026 05:25:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=S/ivv2sZ
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-386c71feeeaso2059650eec.0
+        for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2026 05:43:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1795613116; x=1796217916; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=NQLOwLKmQWGXVjYzEC+v5DF5B/Ubjo80CMy8M7QDT2k=;
-        b=n8vilfMw95U7RGGQTrQ18OiIGt4lPTBlaA0eJ+bgBAaZd3duyIsAIQt3bBnTX2AY9h
-         x0BN648T4J359K6PAuYa3+NgtWG9EHGCut3jPu373XwMaFpFYdPV2sNsAwsnKCjAwnMC
-         fZLZsQmHOeVePSzrfQ4Az99IGPip7gEseXI+oExdXmqSsFXjoVOCMUVu3zN+EUiJ3k7t
-         0Ly4a70yYEiU0TPD31hTC0MbXvg0yZmGbLU4enOfgaO+c0wpQSz+33nibOR2MgehRzh9
-         odoMW8R2Sry5YZZzbfoUlv/anMH74EVSx252be9Len7WudNnOjJq+wCLSOOoWYf3ZTIa
-         Jsgg==
+        d=gmail.com; s=20260707; t=1795614207; x=1796219007; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=lyPzL9qDgC5NPyyWRyU2xpYxCkn2FwWXZOnIDyXNGvw=;
+        b=S/ivv2sZrFfQAn2czE8r/0ql5zt1R0HFKjY7C1HFMkpX2fSxKA32NOSiKQyRCaqQGD
+         GpgUqDytS/+Me5QztSNhy3TsSPhSLheEAKynuT7iFIeJs1qDRmpplUgp/PPySvn0G3h2
+         4hjfRd1L8xFQ0KwdvO3RTcXWWV3EhJdEK6+KxmYDZ8ZbjNVsQaz7Cxjeu5SvqEmxVZkt
+         ly7gBxHHpfW0GqGvYOdnSkOr2SFzm1pkiYBkof3w15AVQpxJA7gYtLufLzblG34X2hDY
+         lHpoBQ2L79mCPq/GZ03INg0FndsQ1Xl8EcoZhNh93VSOQ9JJzmwq2e+GAMYYlCHUnK09
+         8ltg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795613116; x=1796217916;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NQLOwLKmQWGXVjYzEC+v5DF5B/Ubjo80CMy8M7QDT2k=;
-        b=NwvffdWkN1NkxNsYjur2AWCIaqFnf4fvOx5XFrCe6C/odrtvB55myWurphV4dt3tO3
-         +nytIw6NMnW9hmUEVPlyoGua2bs+uo+o9WdPZ2JqW8wCCsa7N7SSsTqRe1dNPsD5Axea
-         Ybxctfli1XdoM/fVV18WIgMnZH+FayiaGdjZ0uyfD32Toz1dTcwhq4YydTuR65CWbltg
-         DggbpsCB0XZVfRIa/ypBMQjcKqFlbJ6YYEZtSeVJqTaC5jQaZtj9fA/x/TikWdH0D8ms
-         PKH3ujmhnd7Dr3d/CksYXZnXeb9EOucviCTZ8twWe5zUXv5p3ELgfngnYu/gXTRNQTMM
-         31RQ==
-X-Forwarded-Encrypted: i=1; AL+hErHwD+c1KGeKqCEbfVRDrv6B6zC2YJOz+PAgFVCWoZdlwVFhVDSHQV60ofY5qqRwckohmPUfnNISTBA=@vger.kernel.org
-X-Gm-Message-State: APuU4Z+R+gROh86RGpwfvY9ZUkNs2DPN6ANgCg89UfrDaeKpfKOavEDc
-	bMQYfQkqk4jNJAZRsemDbb8dYXTqhJpZqJm45BNRNYPtZakGgTfX0oecYdTpatKhuXM=
-X-Gm-Gg: AZFdTZfKaCOErkkIpW279ai3IFW3UUOg53LvjGjmwv0v4fq4CT7umH0tnJEydiShj2O
-	DbTw8h0pYjCNFOcgbfd2XC9J4pUl/FdecfzWTInQ5s5UKcmDsi8ZIxtb+N0/Gk6ZNFU30TQNE4H
-	UqQwYKfYyykRFwKpMEVD1SglnyFma7NpL3NhO65sjCS9g6vzSIkq/OV1mhocBio3jYiemjzdK4Z
-	llPeWMIfggWaZ9frx6AunH99+mVMEbEOIIGTEjNalRqEQx/Su6aAqN5J/pC4PTpSYgsSIZi6/Bx
-	L3r2tEnpQrai/xEC3S5U6Dafhbt2s0qEsg4jRxzWHYpzkZpGV+R1ufVSjDNOQOxAXJX1B/gINrf
-	9kMJaoHY2Gqzk70gW6gGY9oApOX3OYPPyU2kYIEH83F9aJVGx3enS5FvKW/MK/mgOfh3kbsWP0w
-	QDcv3rJEoNA+UEGqz02uD/iwZDOWgJ8uQpjLBQz3F40cQddd/M4tXBnyk8Auzl1inZmNSjXn4fk
-	yCiEhlVjM6T+3oIpWFl+nL4KGGaVfnywrngXHSzFx0SXH4e/fyrpu+CruteFHztoLY1gDXog8q4
-	scFVQhdxj+LxxcUU+wFZ0aexA4ykbKJ+XDsUoXRmgX4r659GjTpvddbpy0FehAIhVLULgAdIt54
-	K6cI2tZ8=
-X-Received: by 2002:a05:651c:a110:20b0:3ac:e540:987a with SMTP id 38308e7fff4ca-3ae7f7ccbccmr42034731fa.0.1795613116510;
-        Wed, 25 Nov 2026 05:25:16 -0800 (PST)
-Received: from [192.168.1.101] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ae8044e3c4sm47116791fa.4.2026.11.25.05.25.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Nov 2026 05:25:16 -0800 (PST)
-Message-ID: <38bdcad3-2c2f-4e55-9a3e-17047b9f486f@linaro.org>
-Date: Wed, 25 Nov 2026 15:25:15 +0200
+        d=1e100.net; s=20260707; t=1795614207; x=1796219007;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lyPzL9qDgC5NPyyWRyU2xpYxCkn2FwWXZOnIDyXNGvw=;
+        b=gLU7DNMGlHAnHLtehoXrVC52VETzfZ2frbhfTkoU5AhzSilFiHpnH0oae5X+oF16rj
+         6dFiQ0LXpH27DE4iWfSK4t3NPHmMMUsXV7tpa9WUS5NqpuvL3G0vH65XQGi+w6njEJNk
+         AtlqkXBbryCElPQ2Xn4mnJzjA37zt3SYqQdGBfc8quWKopIVIHkxr+AAoObM1GexvP3A
+         ieYm0PI+btO6+E4NAde0bmXR992b0njuyi90hGDbOseu8bNC4rikyMQrb/QUORic1Etb
+         rOwHNJ4DQ0cR72+dcT0srF1LBvWdXwNvV41y67+izKAoQSLyNPzzX94SO+3lFjnGv+J0
+         oywA==
+X-Forwarded-Encrypted: i=1; AL+hErEayy+PS8xlkxj3MWkc6yxwlWKueGPhGANzLLF+XDgQEmZ5F9XbxS66aw0srxy0Mo+trLCAmIfhB0k=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/a71EjbpXC5YDGTV4E80r1/okOjclyGZTM0wPSVGkOEnjoikNM
+	+GxOt/1VndFgBzGkH+m5B5wNd65C9p6YYDAbMvXI58yyHu2nmA7e6z5g
+X-Gm-Gg: AZFdTZeIJuM6VJCuFl3gxCuzKCW6pUwpMgwyRshKA5qDjz0pyaHAazQyKHe67GcrDvA
+	3+zCST5aSrmJw7eB3kIAgTXApdsUJFjOMDU2Hbtfr9wO6bCwcmU5VO6bBvujF7ohk8JsjyOmpZc
+	pzXdCD/8CIoq//gq9u/1EBgHXVqjm5c4jHqkLsW4s3hwFBgO21KFGmYtKDXTgRHWn1xlh1KDxA+
+	UqhsHyh4fvX6O8oSbIMGq4Hxb0S4npY63HgOza3HLdsCiGsD0wIRXlJlgashTB9Hn03fJQxmIeW
+	kwoGuwFsPfRj+DWDDmy3YtDBPFAqrwKW+BIvusfldlrlv/UZUhWTaIRno0rjD+H4GYXlzfmkUO8
+	ofG++h5GIuualzW/sLREKDGsKV1lpUqWxhO1e7J+Tn3k64giOEiPipZiJq56O+FtOeXZvsQTIeW
+	8J85G1JVZ6ddr4K+H/O+mdFAdKIo8MW0ALJ0nQtz478TkJZEHxgyW21BMU+UA33XAD9FW9OnkFH
+	DSrzOl/VkM23/SSW1GcY92gHCFa2hhL+m+TjMMIQzWH+Zu2S7O95k5wN9AK3wfmnvrjKiqK+HmD
+	9pyb1N3y9QDnVDPqQrDQeRmhsX9Fn8s+Y8QdWCKK4oJHJAM=
+X-Received: by 2002:a05:7300:1c95:b0:385:8851:fa4a with SMTP id 5a478bee46e88-385885211c2mr18419448eec.6.1795614207200;
+        Wed, 25 Nov 2026 05:43:27 -0800 (PST)
+Received: from SGN-LDSENG.tasernet.com ([2405:4800:5cc3:11a:1ac0:4dff:fe8b:4a69])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-38567daaf70sm56773511eec.28.2026.11.25.05.43.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Nov 2026 05:43:26 -0800 (PST)
+From: Cong Nguyen <congnt264@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Stephan Gerhold <stephan.gerhold@kernkonzept.com>,
+	linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: qup: release the DMA channels if getting the interconnect path fails
+Date: Wed, 25 Nov 2026 20:43:20 +0700
+Message-Id: <20261125134320.2701213-1-congnt264@gmail.com>
+X-Mailer: git-send-email 2.25.1
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -91,158 +96,42 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 23/23] arm64: dts: qcom: eliza-evk-imx577-camera: Add
- DT overlay
-To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>,
- Bryan O'Donoghue <bod@kernel.org>, Vinod Koul <vkoul@kernel.org>,
- Neil Armstrong <neil.armstrong@linaro.org>,
- Manivannan Sadhasivam <mani@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Loic Poulain <loic.poulain@oss.qualcomm.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>,
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Robert Foss
- <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Frank Li <Frank.Li@nxp.com>
-Cc: linux-phy@lists.infradead.org, linux-media@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-References: <20261114-add-support-for-camss-on-sm8750-v7-0-8ff2a11835f6@oss.qualcomm.com>
- <20261114-add-support-for-camss-on-sm8750-v7-23-8ff2a11835f6@oss.qualcomm.com>
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-In-Reply-To: <20261114-add-support-for-camss-on-sm8750-v7-23-8ff2a11835f6@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 11/14/26 13:29, Wenmeng Liu wrote:
-> Add an overlay for optional IMX577 integration on the Eliza CQS EVK,
-> shared by the eMMC and UFS variants. The sensor is on CCI0 I2C bus 0,
-> uses MCLK0 with its reset on GPIO8 and connects to CSIPHY0 over CSI-2.
-> The overlay enables CAMSS, CSIPHY0 and CCI0.
-> 
-> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
-> ---
->   arch/arm64/boot/dts/qcom/Makefile                  |  4 +
->   .../boot/dts/qcom/eliza-evk-imx577-camera.dtso     | 85 ++++++++++++++++++++++
->   2 files changed, 89 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-> index 64d2cfdb89c89f1c6eb0085e2bf5877ff980dbc4..a9374c54dd514f53b7aa97f5581c99cb6e75697d 100644
-> --- a/arch/arm64/boot/dts/qcom/Makefile
-> +++ b/arch/arm64/boot/dts/qcom/Makefile
-> @@ -16,6 +16,10 @@ dtb-$(CONFIG_ARCH_QCOM)	+= apq8096sg-db820c.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= apq8096-ifc6640.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= eliza-cqs-evk-emmc.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= eliza-cqs-evk-ufs.dtb
-> +eliza-cqs-evk-emmc-imx577-camera-dtbs := eliza-cqs-evk-emmc.dtb eliza-evk-imx577-camera.dtbo
-> +eliza-cqs-evk-ufs-imx577-camera-dtbs := eliza-cqs-evk-ufs.dtb eliza-evk-imx577-camera.dtbo
-> +dtb-$(CONFIG_ARCH_QCOM)	+= eliza-cqs-evk-emmc-imx577-camera.dtb
-> +dtb-$(CONFIG_ARCH_QCOM)	+= eliza-cqs-evk-ufs-imx577-camera.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= eliza-mtp.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= glymur-asus-zenbook-a14-ux3407na.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= glymur-asus-zenbook-a16-ux3607oa.dtb
-> diff --git a/arch/arm64/boot/dts/qcom/eliza-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/eliza-evk-imx577-camera.dtso
-> new file mode 100644
-> index 0000000000000000000000000000000000000000..08f2e3c62dbdaf23a2f6ca69a5c392054cb1c225
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/eliza-evk-imx577-camera.dtso
-> @@ -0,0 +1,85 @@
-> +// SPDX-License-Identifier: BSD-3-Clause
-> +/*
-> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-> + */
-> +
-> +/dts-v1/;
-> +/plugin/;
-> +
-> +#include <dt-bindings/clock/qcom,eliza-cambistmclkcc.h>
-> +#include <dt-bindings/gpio/gpio.h>
-> +#include <dt-bindings/media/video-interfaces.h>
-> +
-> +&camss {
-> +	status = "okay";
-> +};
-> +
-> +&camss_csiphy0_in_port {
-> +	camss_csiphy0_inep: endpoint {
-> +		data-lanes = <1 2 3 4>;
-> +		remote-endpoint = <&csiphy0_out_ep>;
-> +	};
-> +};
-> +
-> +&cci0 {
-> +	status = "okay";
-> +};
-> +
-> +&cci0_i2c0 {
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
-> +
-> +	camera@1a {
-> +		compatible = "sony,imx577";
-> +		reg = <0x1a>;
-> +
-> +		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
-> +		pinctrl-0 = <&cam_mclk0_default &cam0_reset_default>;
-> +		pinctrl-names = "default";
-> +
-> +		clocks = <&cambistmclkcc CAM_BIST_MCLK_CC_MCLK0_CLK>;
-> +		assigned-clocks = <&cambistmclkcc CAM_BIST_MCLK_CC_MCLK0_CLK>;
-> +		assigned-clock-rates = <24000000>;
-> +
-> +		dovdd-supply = <&vreg_l7b>;
-> +
-> +		port {
-> +			imx577_out_ep: endpoint {
-> +				data-lanes = <1 2 3 4>;
-> +				link-frequencies = /bits/ 64 <600000000>;
-> +				remote-endpoint = <&csiphy0_in_ep>;
-> +			};
-> +		};
-> +	};
-> +};
-> +
-> +&csiphy0 {
-> +	vdda-0p9-supply = <&vreg_l2b>;
-> +	vdda-1p2-supply = <&vreg_l4b>;
-> +
-> +	status = "okay";
-> +};
-> +
-> +&csiphy0_in_port {
-> +	csiphy0_in_ep: endpoint {
-> +		bus-type = <MEDIA_BUS_TYPE_CSI2_DPHY>;
-> +		clock-lanes = <0>;
+On QUP v2 controllers, qup_i2c_probe() requests the tx and rx DMA
+channels with qup_i2c_req_dma(), then gets the interconnect path. If
+devm_of_icc_get() fails, for example with -EPROBE_DEFER, probe returns
+directly. The channels are not devm managed, so they are never
+released and stay held after probe has failed.
 
-Here 'clock-lanes' should be dropped, it shall be implied, and I belive
-it is.
+Every other failure after the channels are requested goes to fail_dma,
+which releases them. Do the same here.
 
-> +		data-lanes = <1 2 3 4>;
-> +		remote-endpoint = <&imx577_out_ep>;
-> +	};
-> +};
-> +
-> +&csiphy0_out_port {
-> +	csiphy0_out_ep: endpoint {
-> +		remote-endpoint = <&camss_csiphy0_inep>;
-> +	};
-> +};
-> +
-> +&tlmm {
-> +	cam0_reset_default: cam0-reset-default-state {
-> +		pins = "gpio8";
-> +		function = "gpio";
-> +		drive-strength = <2>;
-> +		bias-disable;
-> +	};
-> +};
-> 
+Fixes: d4f35233a634 ("i2c: qup: Vote for interconnect bandwidth to DRAM")
+Signed-off-by: Cong Nguyen <congnt264@gmail.com>
+---
+ drivers/i2c/busses/i2c-qup.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 731bce9f9a92..53e74de5244b 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -1784,9 +1784,11 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 		qup->is_dma = true;
+ 
+ 		qup->icc_path = devm_of_icc_get(&pdev->dev, NULL);
+-		if (IS_ERR(qup->icc_path))
+-			return dev_err_probe(&pdev->dev, PTR_ERR(qup->icc_path),
+-					     "failed to get interconnect path\n");
++		if (IS_ERR(qup->icc_path)) {
++			ret = dev_err_probe(&pdev->dev, PTR_ERR(qup->icc_path),
++					    "failed to get interconnect path\n");
++			goto fail_dma;
++		}
+ 	}
+ 
+ nodma:
 -- 
-Best wishes,
-Vladimir
+2.25.1
+
