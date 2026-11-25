@@ -1,111 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.12.124.156
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795537104;
-	b=xo5Eq7AHMzDZqrt9HK2f8PHn+WQKIGKOPRufjG7qFlOkB/B+Zu5o8skWFUoYwDGeAyv8
-	 fW+lnIPoXR3HIRaq6+kIsu6D9cbcgFCa3shXSEG6fuplhsylanUQqhv7yv3Vw3VvPsC6H
-	 VahBgXLDjY7mcADKmhJN0l07wnjnhCw25eqvTPrvxVOh65ey0Oi3dae71xG5RM9ew0Mqz
-	 VnStno/Lj9hP2b/9fzHRGSlytlSZlqnz+II5oaIcZOjYRH9vELYrx5M5KLlh25cJ96WD0
-	 1jziaAs8D62PfaUuJTcd7n+fpai8QreFmEwBWlRBDATryzKNGNA+6eAkYCYcIJynDgA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795537104;
-	h=DMARC-Filter:Received:Received:DKIM-Signature:DKIM-Signature:
-	 X-DKIM2-Info:DKIM2-Signature:X-DKIM2-Info:Message-Instance:
-	 X-ME-Sender:X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type:Content-Transfer-Encoding;
-	bh=aKujtusrB6LzjVyUaPpb06mvTUym2bW2N3pWpSZYSks=;
-	b=awSkRQs3nkVksVJvTLBQ2OVUMNuXQXtroXAn7048Pv9plETy9yYtUd0ax3OTVpZudL3L
-	 PcAvxnWoAAGm7Zn5h80SKyU6uRaz/669HKJE/turS4I1cVDWScR0ELkXOpIL63Wz4ijrI
-	 bLxvYZAAuHWgOdHxMgQSvjiPrDOxa4ktx4WCVjIop5OLhf55pU5KwCPNtgxNb7DbzM+yq
-	 A4v4YjuE4ga3fPgy+PCenrp5gdtWSgB42ePGaIxaExvYqnDFtDHhBCyteY23oAbGIglCn
-	 bfWXAytQ7QJjDxRiX9KuVteJHxPuuNLbds4eS2YcQvV9a8Yhf6ntgL8+TgWhQdLhpTA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=howett.net;
-	spf=pass smtp.mailfrom=howett.net;
-	dkim=pass header.d=howett.net header.i=@howett.net header.a=rsa-sha256 header.s=fm3 header.b=f8dxeYFr;
-	dkim=pass header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=s0AC6Vcu;
-	arc=none smtp.remote-ip=202.12.124.156
-Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.174
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795573504;
+	b=ooJUHTY5wwxvWW4RqLCcsD1//4EdzouSdGwV+7+maVu5S+TxX5AbRxkBNBdd/4W0gpme
+	 7r3gUfIp51Iz3ui/r5fItiBguRdBYn3QxqhVBz292KC6csFCBLILByUV/qEsvSFOT1dgT
+	 SdKFjoc5263Lgnrr7DRXStzirwo6ZkxQJ6r4aUvcuzJrhnoZ6Qm3d7nJ73laT9xYgYLbv
+	 G3eIfd7oe9+r48OFpL4CP/iNHmrMfJw1roQzEWmJN6RZC2u5/J52XHVO6S2sJ9ET0pJ33
+	 cXYLSZdRUBF7d8cQgCA2Fiv+d3cIgxWqVLrWzlFIXVdY9RVpQ6VKI8PRPGLEQGQqeuQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795573504;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=RoVdVJuanm6IY9SbdoTW0HDKXtpUnzxojZdIdcKrd9Y=;
+	b=vLp13puU4yuB9zupFTfL3AGj3mLUvbYSLdjRUn9y7wmd+6Dy58n0u2bPKqORoV2AbMin
+	 G+8HtNVORza12BO5ZvVJKBpuHjfbsfHhWTIVmf82R/adixbbhN+Knt4bn/QHPbObLM5/y
+	 vojQ1clluQd79hxY8EVdtnZmRgt6AN4QDL+X3ybhLzyOlqx2jBap7Yl/ejzzpXZPqhT1N
+	 I8HrDcKXQtO+0ulSlV+833zUFei7DfQg6slDONl9g8HpWpUFhz5jef3aAHV8ApeLZmYZ3
+	 lYL8JOhwPwcbus7ebX/wRLkOp1IPzP4kHn8QR1Yy87wVifot9nx0dd4I9u2ZpOgtudQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RDPnUdSz;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.174
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 165BA606A32C
-	for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 16:18:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 165BA606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=howett.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=howett.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E271606A327
+	for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2026 02:25:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4E271606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=howett.net header.i=@howett.net header.a=rsa-sha256 header.s=fm3 header.b=f8dxeYFr;
-	dkim=pass (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm3 header.b=s0AC6Vcu
-Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 4967E7A0547
-	for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 11:18:23 -0500 (EST)
-Received: from phl-imap-10 ([10.202.2.85])
-  by phl-compute-03.internal (MEProxy); Tue, 24 Nov 2026 11:18:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=howett.net; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1795537102;
-	 x=1795623502; bh=aKujtusrB6LzjVyUaPpb06mvTUym2bW2N3pWpSZYSks=; b=
-	f8dxeYFrDuBK+y5p1a5v0yR28F533zCn+Nh1zgXMWze3Oy3rnPpvLE0j1OIyUMV8
-	aK5TTh2mlDAV5j7tCk4nwq8mUY4jlXNCAH4EouiIv6VcTZC4HUW4rwy80Yzj6FEN
-	X+8rYpmsWkhAibVCWgwuSuhRkDBCtY/J3LQi8R/LCU/bB4G3pgbblsZWK5iTfpcu
-	nLQMcUp9CeggznMYAMXomCVYX7RI7xovXUH0dBp9zgg/eTk3PLMgp6mLBACdjYD7
-	0PAhNTDBz8tBxVaZUIGvAhetunzPs350+X3dFliGzUh06UHv5uTlBdisREHkLEU/
-	PNYJ3Ijm/wbDI6078hRDtQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1795537102; x=
-	1795623502; bh=aKujtusrB6LzjVyUaPpb06mvTUym2bW2N3pWpSZYSks=; b=s
-	0AC6Vcu+vqLBVYKJNfocOw9BIzjC4qDFpmnrRBiElxbTwonlDuTzCBcGWArvSrm4
-	wEoGvNOv2LY2W0OZ/1XG0znngOKMl0YIDN36N339fTUac0lxBKpeNtJwTG1DJl1C
-	FE9MF9/E//tnlhvXycb4A8Kk0fQcbs0jdhx9OjC4dW+zRtiUiNTdd/cbfAzFbxYA
-	9uO79TFm/ZHcvh+SisUOTVPfx82PinyZ5/rqYd9FXGMGqw8uYlQ21gvTKCzLuEx1
-	k/2LFrLlt3/lol71bwgTpUlHViXMvepbHaepdURjSIaygTSW6aRvhQH5whXXdSPh
-	rMwX8GWI9GfTl3IWmf+Sg==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=sign d=howett.net a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1795537102; d=howett.net;
-	mf=PGR1c3RpbkBob3dldHQubmV0Pg==;
-	rt=PGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc+;
-	s=fm3:rsa-sha256:lywR8gGg6vMJa6mJ2dSKkBJVtRHr7NFyJ/RjsSDjI+JpHWV
-	pVfXw6otkMA/ax95QnFu0iqfWC2RmEphR7yEC1BKIE1sBHRgPge3E+1ZieMIfDV/
-	LycsPvZJMuz1M2823IHgbqUQcfztzddjsNUGvkkMromSiAy05SRqPUiHWVLHndvY
-	GsNPI87fisdeQHrKCg3ROQsDkBpuG5yLGWarULEaBQaIuEHpy9F8g69el+fvhbnk
-	PdIk1vcmuvC8wBMFPT0dEhoKN43x77/FwQ/TIRzgzVBFCw6r9R5T/+5rfgXuc5FI
-	tOXd5MpOApK4ZGRP7v1rO4mSV2yehEnSxM2xy/w==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-09;
-	repo=github.com/dkim2wg/interop; date=2026-11-03; sw=lmtpprox;
-	action=mi-m=1; hc=12;
-	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
-	from,in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:hmeEYVbfR0R4szuu4GrWSrce0j6br6om3Dk7NG9ijvg=:aKujtusrB6LzjVyUaPpb06mvTUym2bW2N3pWpSZYSks=;
-X-ME-Sender: <xms:zrgFa7T2dAsCMwnlL5If4bMWV0WHFN570zIXRskgewhCc_NBbVyduQ>
-    <xme:zrgFa3mW8VfjW9uzVUZbYLlcGB90_4iZruXkQtYz1X54X4SmmnJLLTYT-D1hPZ2UH
-    IDEsX7UJ3ogiJsP_7rHLtZ0llfD5jJd0gUMKACSlPpYsW1agUbtdhxW>
-X-ME-Proxy-Cause: dmFkZTEo2b6ZfN44Yjq87LvtOfWKBBrvsdf2ZOnuTN6UJz8zQwHQibE7E0BEY0RCrVRl/K
-    wp1X5/LJkVTyssAgXWVjP0gv3X2C9+9tJkcjEDcRurhah/vNaaUHH475goieaZ75533HGk
-    0wtM+mN6fetzaknjiu02GH0lP136Axek/pYD8nGZLRa8zxQOH4jvWPo7o/40CF7UzNK5Iy
-    hStCbbdLW66VJyZuHcfl4/r9KgD8GC2OB2+dxs7pnEmAsqUtXIsJBbyb3AJMoEyaTKx8O9
-    s+bksGvRwllzTnqsyBacAoa8EK8tgWsQb0PzXfoxNem7uNKf/5RBm7XIQQusseKHIxC9lh
-    U2lnZJpT249eLdxgInfgEiqHqRTDDb760Y7Oy9qJCDCZQq1UkQpsL54q/B/eWauxL8zkOz
-    G5fqkkqqQJ/EZFrxatDlXlrK+InNrLBYAe55ZWmMnm5yhojFqupfwdnuQUIdgrJAZYDe6u
-    3g5w4goO1u5x0sjljWPZ1tnPAnFIV/UDrkoRv/9Kst6Bet/1ESoWsQofcQf5nSBRsM9ad9
-    j5UqwWK0tckwmTSLM/tugUKaqk3uiu1RmwPES0SsEkj00BtxM+c385VMXVaYSx32JQhbnR
-    yd4vsHD7MPKOmwZn7I4EsAZphI9G7mio62GxPJOXVd1nwrBQzHB4bEM6tWDg
-X-ME-Proxy: <xmx:zrgFa2eZyz4nLq8T83L8Cy_8n2z1LjT0UyCw-uDft6vR3CI9R6SYxA>
-    <xmx:zrgFa5I0c2nmWIfVusb01UQjdRDtRPbQcaxVmzv8nEkl8sbZ0XtEuw>
-    <xmx:zrgFazHWGdCayByCLWXckinu8nHloXmVBLy0IAVzRANR0NmZDI-Tpw>
-    <xmx:zrgFa0B6DbynqDl7prYWBNvolKe2gVw57VyO79P6s802tODFcr3x4w>
-    <xmx:zrgFa-CeV5DR3Wkey1oY3ydFGvyezOCLVS1e2UNnFMVOMaAGAQEEnK92>
-Feedback-ID: i32264b73:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 5DC58216008A; Tue, 24 Nov 2026 11:18:22 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=RDPnUdSz
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-3adf9b1f5aeso54483791fa.0
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2026 18:25:03 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795573502; cv=none;
+        d=google.com; s=arc-20260327;
+        b=fCIFZH85QuG0iwxXijlc8f08yzpdRrZug6YWyjWVuPIQhQDScErCniWbQ4KsF7DZa6
+         9IALNK8xdg5MVFbJJRdUaNcX3rAU5rp+YEjkmvm1RA3rNkfXYTc43+tS3tPUHQCX2Raa
+         IerAbZRGpTJSAjL+f2dKSIZpIZklwsJgmms2I1imrhxs80ThFN6JrtG+z2rb1sQ1bfeI
+         GDCp46Lh8SMf8f23D06O+9MTRQctjZ0knXNAPN5FjoUlptnfCn2gjVLSC5vwYK/4X4Cd
+         yfT+FqgojhVJjSyCHRvBSSndqlfTupVznZIBGrYux0Tz1a3nvu86HzWtWpoXu8QoUMwB
+         KXTg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=RoVdVJuanm6IY9SbdoTW0HDKXtpUnzxojZdIdcKrd9Y=;
+        fh=S3x5/quLPmD0ghY3mBirmz6ZIMKE0OKgtbPe3M4PEcc=;
+        b=d43EkTub42Oyi9CWwG2gmXN3WiBok53IJBl8k385kfeql6SioE38V0HrVezmvKos/5
+         pI/e5bsxZ+inHb+17zqm50Gbpgg/kTeoAv7YjkQbQpG9sPk6Y+EskEqCaEp4XarXE5mX
+         T14qPbjKQgHBNOxiVUHBGqXjuXblTSVyYuXQYDfIztH73kPvXSLLSHja4IWMCXuOphK/
+         WpTa08yuz1pP0oNxbMz9JRXIRoauHpVpkXyIVkDfjNX0vKCx3VORnS7Ifg5Al5erBKup
+         KjfnJ6/Eo1ImGlRkJm8VcS1LR3P1z6VinI9c7Ivsbp5N16Zpm8nglZowa8gdQYEXDPVk
+         HS/g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1795573502; x=1796178302; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=RoVdVJuanm6IY9SbdoTW0HDKXtpUnzxojZdIdcKrd9Y=;
+        b=RDPnUdSzB/AhnrN//N+BqPMk9ZTTXTKqFwy8gyHKdHefO1PpfVCMR6aUyienTzJI8P
+         JQGcRjKX+MmaAJZP+B6NKdLw4K1FiiVv/6KY1f/KYSLS45C4rvQa4hna4gHfroEycXg9
+         5lJVhz6BETGdhwdNnDbEdLmmRORAdtJpV5iWI7e9M8rr6iI8DHjdVvwL2S2z1QPfiOUa
+         Pojb1nWft/8I7O5ZqDj5nnkxRhCwPDxrbDwItFQbwdO2Zaqcq0UY7r1w+tqo2Kg6hLcq
+         nCJypzIw9gh4ToZYIVblfw33S8GICrIljQcEyhLP8cllbNWTJ1sIVcj6ZIeQ6W73XNxJ
+         fwSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795573502; x=1796178302;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=RoVdVJuanm6IY9SbdoTW0HDKXtpUnzxojZdIdcKrd9Y=;
+        b=v9tKP7wYCOpdk1vDSpk9paHBje4kgVwdcN/RFK9wBqRqi+KcmZsiK0HuQOI43D0OEz
+         1BD5xleXECc/Lttta3xXMQLL8oexteP6MVAj7pHs1G9tW5eBH0vrudig1HMRgofbPl9V
+         /whKv0TYv4KaMBTcqFcPw6D0Z7gGOsPtJF/pqVzQBNuCBPJ5Hbcg+O5Chs8CfKMUu4Fr
+         2xEz/a9KFXM0cKE5jn1WO00S4R33yVF5g5pDdn4tuFU1ktoOva02vBsOfQaX7enN/iV+
+         ZfhgplVocvVrI9XsiLezh5dGoiQzVd4TRpTIGz6f++AgIwcI+7Vo6AUoISyx0Lc2Yfi8
+         CFtg==
+X-Forwarded-Encrypted: i=1; AL+hErHUUjRuZ8V0sRXPGcIOqLywLIPF66qspUkSnTaxMBSWHKAk0ItcaMWam/r7gj7cQVVfzxZ6k51zuSI=@vger.kernel.org
+X-Gm-Message-State: APuU4Z/H5KNJxkCFoy4T19HpyjWMHgIXF/9knB9iiEVMmEiIpt4qtdhD
+	w0bypHS/fWeviQ0oXb9T/H8TV27bn0bkO/W49z6oJI2FYahNojeRDkgLVii6x7ULTYXFQ7ziUxx
+	I4o0OYKKUqeqWYHf4FLqSMSSZD31wT+I=
+X-Gm-Gg: AZFdTZe+adjjlRqece8yN2OABBYTv5X3mJdsScIpmSrckcihPrjPsgkEdbfu2eh0jZD
+	C6SNoRkQdTyeYjxRlDmi5//X7hpbFOD551Clbxhx+QMT6Yog68JS8k3vRhH0mDOhv/UGuRqFiWI
+	dWmUJEXjeV4sBs3i83MJSWpmK6USn2yeDTlE2weYt0epI0TgSXW0XOBfvsqpKfEA0phJ1VOHyP8
+	vnV7ufAZejQPTfppPMegQ4gCyUJi/LmxUxTQG7zN3m7lWjOmz7vL6AcHsDd/7B+VnfQqvMR31TE
+	ufCF1EJ3fgnOq7h3aHdT5SKhQD2C5NvWcP5AYJ0bdB31gjhL/JyqwA1jRBvWz0BmqFiLPiR/z2D
+	Ui5jLTtEHWEHQ6hHk2IAU3sOvYDOQvnw25c/w
+X-Received: by 2002:a05:651c:160c:b0:3ad:ff5d:19b1 with SMTP id
+ 38308e7fff4ca-3ae7b7fbe41mr38238951fa.20.1795573502123; Tue, 24 Nov 2026
+ 18:25:02 -0800 (PST)
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -115,28 +103,45 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Tue, 24 Nov 2026 10:18:01 -0600
-From: "Dustin Howett" <dustin@howett.net>
-To: "Andi Shyti" <andi.shyti@kernel.org>
-Cc: Whinis <whinis@whinis.com>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, "Till Harbaum" <till@harbaum.org>
-Message-Id: <c3be081c-4b86-4587-938c-512681a22ac0@app.fastmail.com>
-In-Reply-To: <20261027-i2c-oops-electronics-v2-1-0601f2ebf579@howett.net>
-References: <20261027-i2c-oops-electronics-v2-1-0601f2ebf579@howett.net>
-Subject: Re: [PATCH v2] i2c-tiny-usb: add support for the Oops Electronics SFP Media
- Buddy
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20261109155743.83740-1-muchamadcoirulanwar@gmail.com>
+ <20261109155743.83740-4-muchamadcoirulanwar@gmail.com> <179538281024.9825.4132712997497273037@linux.dev>
+In-Reply-To: <179538281024.9825.4132712997497273037@linux.dev>
+From: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+Date: Wed, 25 Nov 2026 09:24:50 +0700
+X-Gm-Features: Aa3M54rxCZafdUbvRb9-vw6Ll7Se68ZBnBVHsI0xIW9ramLI50wU4YKTZItQkks
+Message-ID: <CAO26r3Tn95hm8SCEcP13wXE7p+iQpJ0O2n_tyhQvYUTkG813cA@mail.gmail.com>
+Subject: Re: [RFC PATCH v7 3/4] rust: add minimal IIO subsystem abstractions
+To: Igor Korotin <igor.korotin@linux.dev>
+Cc: Jonathan Cameron <jic23@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, 
+	Danilo Krummrich <dakr@kernel.org>, David Lechner <dlechner@baylibre.com>, 
+	Alice Ryhl <aliceryhl@google.com>, Daniel Almeida <daniel.almeida@collabora.com>, 
+	Mark Brown <broonie@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, Shuai Liu <847807867@qq.com>, 
+	linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	rust-for-linux@vger.kernel.org, driver-core@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Oct 27, 2026, at 9:35 AM, Dustin L. Howett wrote:
-...
+On Mon, 23 Nov 2026 at 04:26, Igor Korotin <igor.korotin@linux.dev> wrote:
+>
+> Clippy shows two issues in iio.rs:
+>
+> 1. Line 332 -- ..unsafe { zeroed() } in VTABLE. The SAFETY reasoning is
+>    already written above the const, but clippy's undocumented_unsafe_blocks
+>    wants its own comment immediately above that specific line.
+>
+> 2. Line 408 -- unsafe { (&*priv_ptr).channels() }, drop the &:
+>    unsafe { (*priv_ptr).channels() }. needless_borrow, no semantic change.
 
-> Changes in v2:
-> - Matching on interface class as well (thank you Andi)
+Hi Igor,
 
-Hey Andi,
-Any further concerns with this patch? No huge rush, just trying to clear off my
-"needs attention" list.
+Thanks for the review.
 
-Thanks,
-d
+I plan to use `pin_init::zeroed()` instead, since `iio_info` implements
+`Zeroable`. That removes the need for the unsafe block.
+I also removed the explicit borrow, as you suggested.
+
+Cheers,
+Coirul
+
+> Cheers
+> Igor
