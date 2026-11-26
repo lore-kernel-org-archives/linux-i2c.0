@@ -1,54 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795715273;
-	b=N3bQqhfVFv6X7RgFhlujBdgkoWSjKooXQEvrDg3tjQy7SgTv0UJzx9KywgBTjFxSN7/V
-	 PkLd4Jb+ww+uS+e+zR3Myv5ODzzAlhZKH74TtT+G4cEO4FYBQcslz0evroNs3SWxEdCfZ
-	 2AB4Eex3CZFAcyCxIHLYf0Jnkbuxp2tzwf3Wz3Kb57UoP5CWhAAh9v8hJ51cbJR2XPT7v
-	 YUhPA1/l+WlvbJSS8gYvNvmnz5XbQZr0qo2Isl/4x6BIzZRKW8cRK3fWw6zYvP2FvXs4k
-	 5nzyyC8NE8Q1+FFlDE5giVq+8YqRgnc0HEomUeAAHMNxM2SJqRpl1kGyEb0dAnSrMtA==
+	t=1795715390;
+	b=lgIjgLnNBcgP6bFazZ2acnSuy6MOdcLx7NJhFqx2or8tl34WAfXOwN0BhwdkDchQeNRb
+	 00Xpl8Ju5CeHXtdAgBUkzGn5/2XBFwv4WLzwe2EpEcFKLXEOdANWzwX80efoIkWV4w/ri
+	 3SCDCEM05sagLIgwWOtOX9bjfPJMESuqGLfCharDxKGi/AeQYvkkNTG4nIa7LWPLM7VUX
+	 bpgS0HNsLPcgao2zWZb654Lq8/ZlMtPu21JOQROPjNXuwjbx4m6JQxw1tr96CpmYcam7C
+	 CXSh6qF1AOGS/YQAoeZSFIHs9W3WqFhuKpruAsgCf7+hc0DMEKux9KKKDDFYBaBMcSA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795715273;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795715390;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=4RF2eH0e7xWbgvaos9fwTWu3mXTmWcfIqp3gKOpY418=;
-	b=n+7Qenj0PAXy0VhnNxpYHErgprphjYgsL92WFm/ydAW84HgJ46i1kZoMYi/yOEAybvCQ
-	 Uczwkq87W6a7v2bpaD05siKUDc7ltC6VMIgi/oTpCVm7Fcr5A0o+WuemSKAiSK8YfqlKU
-	 Z/B18PxlBtjNxRGVjNXHcx1/v4WiFNnB2Mza5wG1SBgCUR5dNoiq6+/bCePB9X0jwAmoe
-	 Fr/OwXXqnP9yOerMMPRAfrRaW6I+zm1y4vqIeLkWoK9vEVsJvfg/nRxlHzCNaGGOMSOzL
-	 d9/mxAFYudyZaAVoLnSgwOVPccEm8P3TdceFWmiPAmFHECiAyfP2HCc3AiR5dWaqZdA==
+	bh=ouBVtknwG+MP0jN8AhTfO47zIk3bNGvLbyRW2rgifEc=;
+	b=AoOePyDSx2A8bxeH1RQPKoIbQZ/+KF8tArt8ppteqJp2aL10aXSbKdvqZJ3xH5m+tdGf
+	 50zrKhAPfT082Q4TnSDid3woih/jIQlGsbNHXxc7aSYhQZzdRl4yY3Z7YNvrR9KStvn+F
+	 SrcMQ3arsDvVoUTKiOoe7ntVAmrA6+Hu0dK7+Ehy2d6XC1Zxad4qW4MUZcd02j0FnAA5X
+	 qI114BpYbTD7FY942sXlJ8XIXNwDNCHCpVf7e2GVhNBTL1JCgA62gAdxDXrb41yahS4EA
+	 fGLO0/P8VRXL0pumvCj6FhlJmTH32BoSa9GkO4NB/m+oS4Pscvh49NQUnHJc9dCm9WQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mrg5+hTX;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oPaF3KLd;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C4E606A31C;
-	Thu, 26 Nov 2026 17:47:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03095606A31C;
+	Thu, 26 Nov 2026 17:49:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mrg5+hTX
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFEB01F000C4;
-	Thu, 26 Nov 2026 17:47:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oPaF3KLd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A787E1F000C0;
+	Thu, 26 Nov 2026 17:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795715272;
-	bh=4RF2eH0e7xWbgvaos9fwTWu3mXTmWcfIqp3gKOpY418=;
+	s=k20260515; t=1795715389;
+	bh=ouBVtknwG+MP0jN8AhTfO47zIk3bNGvLbyRW2rgifEc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mrg5+hTX9HVLzhnrnl7ZzFK56BtlwoC9uSYStkvTSE4kME8V64xOd6ee0Sz+JorZP
-	 HL4/sIKP3eMyWE3DFl0T8PfjGLgh6eUOPo5hvBnmmI7qFfn/whhrFgsFc/zbWDI6YL
-	 cTgSAUJt+52+YMZbD9YrK2qU4zmtyKAskCBT7deqgclk9QkshlbjqH3MBlMPKtyXv7
-	 8sv1g++zANwOY0Sawtwpr0BvzO1tUD5wcIMcY8do/Tr/JykDgsmI1XYxi4rcNhix7D
-	 EDb2z3nXGEN68pcx6OR6HRNjxGo85oiMuOzaFauyFm9VQoeg1u2nAAo3hKFw87lCEb
-	 Th/3YnUdG9URQ==
-Date: Thu, 26 Nov 2026 18:47:49 +0100
+	b=oPaF3KLdlUtjc82qMAU9L96X3pShH/ohEB0DaOO+ZqbM/phFNVqyvO+ZAdu3kbRKm
+	 1L/kf/gmIVQ8VhxUG5a6SDSeFsR9lfznHcKMlMqwtagtwuiZiSTYsLfNMVNxzCnxac
+	 OiPNje8W/EYHotY8QRrcd4lDRVGIRjrygpspdcCfWHI9QRK/t3G/TFiKeXRWoWiq4h
+	 6Q0PPmepML/+790kwYwFnifPjwAxuavCM3pED0FZdWjqVbTU8SOMc4vTRRFukByP+m
+	 0Aj16geH6SdMaiQj4qItCnXnAO+OlQ21BBN2ucM/hyXmE0qEDn6kYI/NFoH8Eu3Rag
+	 ZxXx1vzuLwTaw==
+Date: Thu, 26 Nov 2026 18:49:45 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
 To: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Cc: Lee Jones <lee@kernel.org>, 
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Werner Gartner <Werner.Gartner@congatec.com>, 
-	mfd@lists.linux.dev, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v6 10/10] i2c: cgbc: Register known I2C devices on the bus
-Message-ID: <awhwiHGeUFnTvxzg@zenone.zhora.eu>
-References: <20261117-cgbc-i2c-storage-devices-support-v6-0-bb070ad3e9aa@bootlin.com>
- <20261117-cgbc-i2c-storage-devices-support-v6-10-bb070ad3e9aa@bootlin.com>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+	Markus Haberlander <markus.haberlander@rosenberger.com>
+Subject: Re: [PATCH] i2c: cgbc: Fetch the status of a write transfer
+Message-ID: <awhxAlhwF4QF3V6a@zenone.zhora.eu>
+References: <20261123-cgbc-i2c-write-status-v1-1-5b0fa0322b57@rosenberger.com>
+ <179568834099.302193.16315749597111506309.b4-review@b4>
+ <awgwO98qx3zX4MaY@zenone.zhora.eu>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -60,29 +61,31 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261117-cgbc-i2c-storage-devices-support-v6-10-bb070ad3e9aa@bootlin.com>
+In-Reply-To: <awgwO98qx3zX4MaY@zenone.zhora.eu>
 
 Hi Thomas,
 
 ...
 
-> @@ -385,7 +385,15 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
->  	if (ret)
->  		return dev_err_probe(i2c->dev, ret, "Failed to get I2C bus frequency");
->  
-> -	return i2c_add_numbered_adapter(&i2c->adap);
-> +	ret = i2c_add_numbered_adapter(&i2c->adap);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Add known devices to the bus */
-> +	for (i = 0; i < pdata->nb_devices; i++)
-> +		i2c_new_client_device(&i2c->adap, pdata->devices + i);
+> > Yes it conflicts (compile issue) with the series [1]. The possibilies are:
+> > - I pick this patch in my series and send a v7.
+> > - [1] is applied, an immutable branch is created, you rebase your patch on
+> >   top of it, and patch is applied in I2C tree.
+> > - [1] is applied, you rebase on top of mfd-next, and your patch is applied
+> >   in MFD tree.
+> > 
+> > Andi, Lee, what do you prefer?
+> 
+> Let's wait your patches to get in first and then Markus can
+> rebase on top of them.
 
-Please handle return values here.
+as you are going to resend your series, would you be so kind to
+include this, as well?
 
 Thanks,
 Andi
 
-> +
-> +	return 0;
+> I will now prioritize your series.
+> 
+> Thanks,
+> Andi
