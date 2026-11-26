@@ -1,54 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795714774;
-	b=gGqvSYz5NH7/7aKGZQooLLzGhwWV31Y9Wv3yMjeXlwnKrrGJMbB3kH7ZSiaQP30lBncf
-	 SCq/a86KZpihUj+l3Qqq68A/ZS2Xn3bi+652PoUfan6n3yad3ArilC73Lewh2iM6sGC3A
-	 AQ3fVmORW3q6QeVM3igX2t67qX6mzewMOyJh4RQhudaNM/5xyQF5h/RtIeS8ObNr4oshi
-	 Gg+aV3ugV72O0+nMfjYR5VEH0KOwU5RyTXF1vKvtyXiY3Dr55VfuwbmRf7MW6SeyDl63A
-	 4m1I5IJ1pBaWr6b/ailhT4brKum7jBcPKFdiYKapAgmAiyU301HBRVwYyT6mbckvUxQ==
+	t=1795715273;
+	b=N3bQqhfVFv6X7RgFhlujBdgkoWSjKooXQEvrDg3tjQy7SgTv0UJzx9KywgBTjFxSN7/V
+	 PkLd4Jb+ww+uS+e+zR3Myv5ODzzAlhZKH74TtT+G4cEO4FYBQcslz0evroNs3SWxEdCfZ
+	 2AB4Eex3CZFAcyCxIHLYf0Jnkbuxp2tzwf3Wz3Kb57UoP5CWhAAh9v8hJ51cbJR2XPT7v
+	 YUhPA1/l+WlvbJSS8gYvNvmnz5XbQZr0qo2Isl/4x6BIzZRKW8cRK3fWw6zYvP2FvXs4k
+	 5nzyyC8NE8Q1+FFlDE5giVq+8YqRgnc0HEomUeAAHMNxM2SJqRpl1kGyEb0dAnSrMtA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795714774;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795715273;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=C9sgm1CgEZ801Q+Y6Ntsh9N4G54PBN4x6AuEdyMRX2g=;
-	b=mnBaCg4E4T5nSDqtB7Hzyq+a3pffnsUkgliU7sFg5k6sCqQB8LOQAZUEA39rP2r61POw
-	 UmgDBASFEDphm1d/yCJWmKciawkE0Jfei7X4NesGlDiwGhXsR/K9hU1VVlKOgk5mWWagl
-	 NIBqrlIbmE1qopTopWTaoIgOCbjdRLYZyMZdx1dHtET7ctU/kWtz08arZRl6aQ7BCODD2
-	 bo5C1ywOAOSIJ5I7ZdEiUra3VwSadizhsUiJIsPmEYNOyd+vMQNb06+C57PKVz6o6fvGw
-	 cIMxhBSXNnL/lYCbKOLShTmtfckbG8RbVnzue/sWTUwvUU2n6dK0rMyGS89p3yiIxpQ==
+	bh=4RF2eH0e7xWbgvaos9fwTWu3mXTmWcfIqp3gKOpY418=;
+	b=n+7Qenj0PAXy0VhnNxpYHErgprphjYgsL92WFm/ydAW84HgJ46i1kZoMYi/yOEAybvCQ
+	 Uczwkq87W6a7v2bpaD05siKUDc7ltC6VMIgi/oTpCVm7Fcr5A0o+WuemSKAiSK8YfqlKU
+	 Z/B18PxlBtjNxRGVjNXHcx1/v4WiFNnB2Mza5wG1SBgCUR5dNoiq6+/bCePB9X0jwAmoe
+	 Fr/OwXXqnP9yOerMMPRAfrRaW6I+zm1y4vqIeLkWoK9vEVsJvfg/nRxlHzCNaGGOMSOzL
+	 d9/mxAFYudyZaAVoLnSgwOVPccEm8P3TdceFWmiPAmFHECiAyfP2HCc3AiR5dWaqZdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="mA7WnHT/";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mrg5+hTX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29C02606A31C;
-	Thu, 26 Nov 2026 17:39:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C4E606A31C;
+	Thu, 26 Nov 2026 17:47:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mA7WnHT/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78F3C1F000D3;
-	Thu, 26 Nov 2026 17:39:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mrg5+hTX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFEB01F000C4;
+	Thu, 26 Nov 2026 17:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795714773;
-	bh=C9sgm1CgEZ801Q+Y6Ntsh9N4G54PBN4x6AuEdyMRX2g=;
+	s=k20260515; t=1795715272;
+	bh=4RF2eH0e7xWbgvaos9fwTWu3mXTmWcfIqp3gKOpY418=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mA7WnHT/tBMh2456y7+xCAQH5gGHseMSf/+Uxl8CZl9ouBP4lBrd1UuypbzuW/DwM
-	 9uRz+MYwTn+jkQaRtiFCWB2OH37m/gdrSDJ0PzIrpf9n2crdAl8YddOgZlDnXzXB3U
-	 X3NgC5DlhY9Sw3xdyYevmYd5DRlIrQMs/MzcDHew+LOr4tZzcKigerai06tE6jXrtU
-	 wPbYaqs2hadugasuQNb23uppB3h2Md88+TbeQQDhT/7kyX3KlPagOvaocv4rpJhFbL
-	 Goy6VKR0hFayGsF1LeBUIJEf/ii/KSE1a1je3JtApsdx5xSwM4pqTolMwdCfW3mnVj
-	 XHxakazLvIDDw==
-Date: Thu, 26 Nov 2026 18:39:29 +0100
+	b=mrg5+hTX9HVLzhnrnl7ZzFK56BtlwoC9uSYStkvTSE4kME8V64xOd6ee0Sz+JorZP
+	 HL4/sIKP3eMyWE3DFl0T8PfjGLgh6eUOPo5hvBnmmI7qFfn/whhrFgsFc/zbWDI6YL
+	 cTgSAUJt+52+YMZbD9YrK2qU4zmtyKAskCBT7deqgclk9QkshlbjqH3MBlMPKtyXv7
+	 8sv1g++zANwOY0Sawtwpr0BvzO1tUD5wcIMcY8do/Tr/JykDgsmI1XYxi4rcNhix7D
+	 EDb2z3nXGEN68pcx6OR6HRNjxGo85oiMuOzaFauyFm9VQoeg1u2nAAo3hKFw87lCEb
+	 Th/3YnUdG9URQ==
+Date: Thu, 26 Nov 2026 18:47:49 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
 To: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
 Cc: Lee Jones <lee@kernel.org>, 
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Werner Gartner <Werner.Gartner@congatec.com>, 
 	mfd@lists.linux.dev, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v6 07/10] i2c: cgbc: Add support for fixed frequency buses
-Message-ID: <awhXXeFy-9vuqseH@zenone.zhora.eu>
+Subject: Re: [PATCH v6 10/10] i2c: cgbc: Register known I2C devices on the bus
+Message-ID: <awhwiHGeUFnTvxzg@zenone.zhora.eu>
 References: <20261117-cgbc-i2c-storage-devices-support-v6-0-bb070ad3e9aa@bootlin.com>
- <20261117-cgbc-i2c-storage-devices-support-v6-7-bb070ad3e9aa@bootlin.com>
+ <20261117-cgbc-i2c-storage-devices-support-v6-10-bb070ad3e9aa@bootlin.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -60,34 +60,29 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261117-cgbc-i2c-storage-devices-support-v6-7-bb070ad3e9aa@bootlin.com>
+In-Reply-To: <20261117-cgbc-i2c-storage-devices-support-v6-10-bb070ad3e9aa@bootlin.com>
 
 Hi Thomas,
 
 ...
 
-> +static int cgbc_i2c_get_frequency(struct i2c_adapter *adap)
-> +{
-> +	struct cgbc_i2c_data *i2c = i2c_get_adapdata(adap);
-> +	struct cgbc_device_data *cgbc = i2c->cgbc;
-> +	u8 cmd[2] = { CGBC_I2C_CMD_SPEED | i2c->bus_id };
-> +	unsigned int bus_frequency;
-> +	u8 data;
-
-as we are here we can fix a pre-existing small bug, by
-initializing data to '0' and...
-
-> +	int ret;
->  
->  	ret = cgbc_command(cgbc, &cmd, sizeof(cmd), &data, 1, NULL);
+> @@ -385,7 +385,15 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
 >  	if (ret)
+>  		return dev_err_probe(i2c->dev, ret, "Failed to get I2C bus frequency");
+>  
+> -	return i2c_add_numbered_adapter(&i2c->adap);
+> +	ret = i2c_add_numbered_adapter(&i2c->adap);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Add known devices to the bus */
+> +	for (i = 0; i < pdata->nb_devices; i++)
+> +		i2c_new_client_device(&i2c->adap, pdata->devices + i);
 
-... returning error (e.g. EIO) when !data. We avoid a potential
-division by '0' (a comment would help, as well).
+Please handle return values here.
 
+Thanks,
 Andi
 
-> -		return dev_err_probe(i2c->dev, ret,
-> -				     "Failed to get I2C bus frequency");
-> +		return ret;
->  
+> +
+> +	return 0;
