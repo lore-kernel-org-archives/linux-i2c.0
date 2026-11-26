@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795715598;
-	b=15LkKIj0tjxSewsiDACE9DUrGpGCLV9Ccp1OdgZdMyMZPsw4jyVtXypfx4uHtO02XFxd
-	 exbby0C35anNv8o6PN27X6ciRpko8EazpSFwVFEDy2pghxGAd+QPu3wqaBXGr4XbPjzLX
-	 YkmsMxze+zEz9d9oI+GUe3LIEddor5MTFEN1kzjIHNI4YLB6BOkDAez3jeLS1uETh//y8
-	 lWcROEEOicckhF7ACsk7KZS5c+qj76Qey9iL25mzqEtufHX4xc97jmPM5kWnh3ahbBrfA
-	 saRWXUvZndYpvCAQelP13aFqYH3Tg/gD3KZpSVIPEyaDHlJlZGXOEb0j1lVit0D/HyQ==
+	t=1795716271;
+	b=FzFS3ygexJZrFaW1je6CGWPBJE0VQERhYSv6b8BJ0hHugR/k/1YE6KQB7sGdTApjpAH2
+	 SnhLm7xEBp1JpgSsV3PqNkLs0pBort9z1eifHSy5dobWz7FZWjc+ZmUToVh4Kvpa26Run
+	 ArViGSf10x+Fk1ZSe3YqlxAwILvqYuF5KtAq+A3Bpg20ebqwc5gY//hFyyCrm52vebRYl
+	 6jpeF27RTwc0SgsLqRrQSSRY1Q7DGhakt+TPIiKsFi5kNQSMgu/eKH7o0jrL60C1qnrxb
+	 spbWriqqNKWTJj4yeQ2BD2ixBBqO0KdNCahCNK+jg0QdA8w4l58G6jHbladyS7bVHOw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795715598;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795716271;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
 	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
 	 Content-Language:From:In-Reply-To:Content-Type:
 	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
-	bh=/KXAZexVl3utDiHxnh/MFsXIKVO9hpcOSFWA1HjvC64=;
-	b=kqgJYPnu9XsyiGhWkKZsObRjPbClY28jtFQjtNSzZXHIrdZPiRPt/2K0NDiSIQIQq6jk
-	 Tete955VVu1LEOLQQ7PRdlDrHjOwGkRkuU+WuVmHY+ng2khDVEBtnInSXJ3cF2kUzt+22
-	 laQPqquZ52ttzFQz5pqfROM49CFBGjnyyzytlsoCg2JBCi/4AMa55eJYOGrcxuA08+02+
-	 3+SoCv4kwQQhV6yRaLZQmUPuXTfZlr8RNHGGYhhWaEUcdUGyhkABKQwGSGPtdlPKwIR/1
-	 XNWQ1U1BqR7qSTjpJz8oGEIw5H2xfnZAykE4VKbeF470aLFbf9qp0xFR/srKbHBgGkA==
+	bh=1c5PCbIwwV6vQj5//fN+ktrM/G6dDkpUjrvlgV4uuqc=;
+	b=cz0Op05ubAv0q7ASVPuyY1EOsb/a8oUPzqV1OZIPekyt/Q5vKXYJQNW6tvr1ZyYZ1YCX
+	 aOjWoroKLVKgVhyQVlmJdYax94xgw75o+N98LwitxpXyMy16jg+ccdpxY7SiAzlE7cnEV
+	 rlXgdravmHqcadjDPNgU5ZVP5EUJfdfd47+E1X0UyavkCKJ9CQ3hDtZTTEgbBk5FyIwjc
+	 LBqCSdwHp2rgXkFexFjzluCBrvAxWIhIFtgxv9zTWZ+CRnigUxhqzGbO4Er75NEgGFAY0
+	 je1oZ+t5YAib/NfbmKWStXLX7qsy9DaQEjzNfiLFrBbPi9S3WQQj3O9JA32PwkJFL3w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=kbp0vsa3;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="1yEXqF/A";
 	arc=none smtp.remote-ip=185.246.85.4
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 762FA606A31E;
-	Thu, 26 Nov 2026 17:53:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 762FA606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4B09606A31E
+	for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 18:04:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C4B09606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=kbp0vsa3
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=1yEXqF/A
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 08FF44E417A6;
-	Thu, 26 Nov 2026 17:53:17 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 630264E417AB
+	for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 18:04:29 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id B94B760558;
-	Thu, 26 Nov 2026 17:53:16 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id AACD411E691A4;
-	Thu, 26 Nov 2026 18:53:10 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 2981860558;
+	Thu, 26 Nov 2026 18:04:29 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id ED06F11E69016;
+	Thu, 26 Nov 2026 19:04:26 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795715592; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1795716268; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=/KXAZexVl3utDiHxnh/MFsXIKVO9hpcOSFWA1HjvC64=;
-	b=kbp0vsa3q3zacEyZtW1mbQ/6DX1UqhETrVlxikyhVwp9P2r6xyvG42OXQheDqdNQ7RUCwv
-	TnIbC7nsluNf5ehhSnwNcl9+cXAPEM0jRfb0UO/fW8Oqqt8ZwrMHeLMISsTkOgxw/MBkEj
-	ComCbUDlfIgHu/0etm1exw8KAKR5Te4/LIF4DOzbEl3lTxx8RFVUsX6InsBntqoS67gPIj
-	J/OtKnkNOlKxVZKh8082anXUPRtd93XyKKYZWJPpF3Yp8fXfUIXSmjpvmvKNTiBUJtSiES
-	Kh800PrW1pG9AjMhhpdyGViJVeTKZTgHgVfvUVdZShTXaw7synHaUQckI7zY3g==
-Message-ID: <2f73988d-95b2-40ed-bcd9-c93640d1b296@bootlin.com>
-Date: Thu, 26 Nov 2026 18:53:09 +0100
+	bh=1c5PCbIwwV6vQj5//fN+ktrM/G6dDkpUjrvlgV4uuqc=;
+	b=1yEXqF/AvWVGxDC80ZsqgZJgPjMtRtg+ger1/TeF3eFPH/8UyuB8f8Iwv0O3KAOVg4S8Kz
+	XdsUwf2RUkOy4OOTVrgJyCxjwPJQ/qBawTLHUupzmsi5YdlpTS5Qn6/MdCF4Aj4kgg1g5y
+	6HIUJTHqIYXGSCIM/S19bBjs5p9ac/OKPvqUag0+HImxb6JkcncYWfhPWwNIQKo9jskPdv
+	XTKnJDTESorub4cQtkPQcSOa58ZHZF0FgmpVcGkh2noaKSX9s6vgedl4W6EntEK2y0XjD5
+	VHjqRzbkzJ9gWKm65mXutWoAcihLNbDi1ds3BJfCibZ7LZzWP0ksotHJi1e0NA==
+Message-ID: <ef2953ba-1510-4bd8-85c1-81d4e45d2693@bootlin.com>
+Date: Thu, 26 Nov 2026 19:04:26 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -63,44 +63,42 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 10/10] i2c: cgbc: Register known I2C devices on the bus
+Subject: Re: [PATCH] i2c: cgbc: Fetch the status of a write transfer
 To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Lee Jones <lee@kernel.org>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
- Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-References: <20261117-cgbc-i2c-storage-devices-support-v6-0-bb070ad3e9aa@bootlin.com>
- <20261117-cgbc-i2c-storage-devices-support-v6-10-bb070ad3e9aa@bootlin.com>
- <awhwiHGeUFnTvxzg@zenone.zhora.eu>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org,
+ Markus Haberlander <markus.haberlander@rosenberger.com>
+References: <20261123-cgbc-i2c-write-status-v1-1-5b0fa0322b57@rosenberger.com>
+ <179568834099.302193.16315749597111506309.b4-review@b4>
+ <awgwO98qx3zX4MaY@zenone.zhora.eu> <awhxAlhwF4QF3V6a@zenone.zhora.eu>
 Content-Language: en-US
 From: Thomas Richard <thomas.richard@bootlin.com>
-In-Reply-To: <awhwiHGeUFnTvxzg@zenone.zhora.eu>
+In-Reply-To: <awhxAlhwF4QF3V6a@zenone.zhora.eu>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 11/26/26 6:47 PM, Andi Shyti wrote:
+On 11/26/26 6:49 PM, Andi Shyti wrote:
 > Hi Thomas,
 > 
 > ...
 > 
->> @@ -385,7 +385,15 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
->>  	if (ret)
->>  		return dev_err_probe(i2c->dev, ret, "Failed to get I2C bus frequency");
->>  
->> -	return i2c_add_numbered_adapter(&i2c->adap);
->> +	ret = i2c_add_numbered_adapter(&i2c->adap);
->> +	if (ret)
->> +		return ret;
->> +
->> +	/* Add known devices to the bus */
->> +	for (i = 0; i < pdata->nb_devices; i++)
->> +		i2c_new_client_device(&i2c->adap, pdata->devices + i);
+>>> Yes it conflicts (compile issue) with the series [1]. The possibilies are:
+>>> - I pick this patch in my series and send a v7.
+>>> - [1] is applied, an immutable branch is created, you rebase your patch on
+>>>   top of it, and patch is applied in I2C tree.
+>>> - [1] is applied, you rebase on top of mfd-next, and your patch is applied
+>>>   in MFD tree.
+>>>
+>>> Andi, Lee, what do you prefer?
+>>
+>> Let's wait your patches to get in first and then Markus can
+>> rebase on top of them.
 > 
-> Please handle return values here.
-> 
-Should the adapter probe return an error if we fail to add a new device
-to the bus?
+> as you are going to resend your series, would you be so kind to
+> include this, as well?
+Yes no problem. Thanks for the review!
 
 Best Regards,
 Thomas
