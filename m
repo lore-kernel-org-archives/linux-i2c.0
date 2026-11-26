@@ -1,111 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.194.38
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795674112;
-	b=AvNYXMlxwScMuMulA0exlfqC9ykZTjDUSv04T0aqmH/rDTDE8nNVQ2FSmFRnSjvT3i7W
-	 TVbCO4Iu6zD1oFZe9E08IibQ/CVQ+bW7spH6kjmb0J6vUCCOhvuEbOGceCSrQcGQAmEFH
-	 +g+zgu0qqsNw+1ceWErjETtk2/Th1bCKYiMUbYVSL/BTk8F38AV9UqRQoLD8B1XuvDr/2
-	 5xTGyBkWEwzod7d14H8xXbCsQWXbAo4jgvLhSF5uDgPhekExIdcfjsW1Pi7I4M/Hd/qQn
-	 u7w1J5KfRir8xdVPnzt5EfVou3TiQjIyJV6sxfGopXwln3fYdd+Kb1o25uqSNWKFK2Q==
+	t=1795674733;
+	b=xP/OGZDnn3loYJs3+cU6FFdvduXXHTjaYmjWiq8Bi3AbK+A9NtPc2CtHIyenlnjufPnI
+	 XC6HV05uw4VBJkUYTdR1KHVnK5Ii7KNbMfKZE6oQFsICTGbJ0fOKlAaSozFrs2AsfLIBo
+	 lL39KopfaQB8+hZGGHjr4yZYZGaZUwoahje39Xo/h8hQsMq+9lkrMV22SI4tRnt3AiIGw
+	 uObI+sPuVsY3DDFhC2E2iYQUBHpp1K2oIzt3DvMjdLJmRlrb2sYQgweP52CKpfEZvqCHa
+	 xNCbiKmDYM5AdxPvX6dRjIxB6XKWpJ1mZ9mDXrugm+PQKHK6dxDffkCKiDEVBP1YBbA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795674112;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:
-	 X-MS-Exchange-Authentication-Results:Received-SPF:Received:Received:
-	 Received:Received:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:
-	 Content-Type:X-NV-OnPremToCloud:X-EOPAttributedMessage:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=2mJslRzjBilNkDW6aK5CXBEADe+fFq691tx24B5f6Og=;
-	b=hs+v6p1STTyI2A+/xSLyUBLqu6fh/uGYtDNznRY8ov1ZQ7quHgN+1ozQAuNzSGU7yva6
-	 G/CpEC+yWnMv3cJ0Kl7uSRlajN7BBb5H4fKENYDJGwov652NxFHf3avkyMWzlStU3gwGY
-	 O/bCEmgneh+USJg/HWyCvnlR5yZKTMLhxp0Zu1SRPqWzOrJ3KBDq5ZreOqJfbrh6oYGfS
-	 7qsLOpVWibRAmDEz+IAGkIhuSIiYS8ORYFwm5LnbReShYP4ppogidnGyHlm6VuQUuabHE
-	 Sy9Y1uKSBazCQTn5+PFdKoeWeEisNHm45u5650JFfRK/uZCSq0uN+F4Wt3K2ZsFEn/A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795674733;
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=POwzoRZ+mEwbM1RA6LhR+VsE7K5I8yMuPMpUZQdbXKU=;
+	b=n/egfSk+hQlSDKoTxtzhDpdCY7xnhkaH9NhCoKEk2eG7/+OYLsXXOIT6w6XUIlWGg35H
+	 XF8hv8nFAgiY993Ph6J0/EpgdptR+TY81/6SqcpQFdNu4ujovQd/ZkyStJeJWKQyV/Hme
+	 XLLkUlbgqEcCMLDkXctqcAj2dxMkikEidz6CDd9szV+6VKMVeDu0SkiHbhodWZ7efMITp
+	 N5wyLAAtSexk6SSTZCz5ervlpwGTDcl118aZAs61Q73ItZ3NLvhHrW5IKQQSdd/ZHvRqD
+	 C5eoHyWBra2M46cI+QkZAHZT9HZ3UcL06k1XVtCK8RYHNcKpJSs0XIxLtTK5YrY4LKw==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=qhH8UeVQ;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.194.38
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011038.outbound.protection.outlook.com [40.93.194.38])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MsWXr00A;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20136606A31C;
-	Thu, 26 Nov 2026 06:21:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 20136606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F867606A68B;
+	Thu, 26 Nov 2026 06:32:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=qhH8UeVQ
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=nH9uKZu5fk3Hud5GeD7K8GmI9x5C+GeMbEKbJ+GCOArUQO8q/OydWxl/0UiicUQhl/QRFU4ByR8A8HpXM98I1cZ5HzkeZWz/lTC9NGhdlFRsfKqgkCw46lFyggQjtpiUm7k8MNfl+a04DzKNlI2AaDU+Qmyx5M4NGG38y3A/t+JNIhUuQLP04hEIq0WRaL84nNG75MzyP4tZ8jTuXPeMdYjF7pWWRzT7gs2juT6UcCalB34Zy5yMOGFgjkSjTMYzj5lX2pXuRCJ5DEyA8m9LCnSWmuOgaZh/MUc6G9oajRNqb84ZqW84pgbDrLjrdu/+MGDlgxA8jcxklVKN7/fVHA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2mJslRzjBilNkDW6aK5CXBEADe+fFq691tx24B5f6Og=;
- b=FK/ep8eBgMWWYRn39AOqrJr8aYddPI0WLA0xNdziSrkrnhp3ceY6SIe7VqFevLU9EzNtzRarQgAVYZW/cLsXGQF1SBcsA17/icDlPpLMgdC06p7dAnrcpXfk6iq0mgSmBMKDj80DJx9WXMxWRU3z5EphOJ6iSbtLlEUCX7Vtc25mCUlYO6QHVuwUb4t7MBvQVoCeChVoI04FnctFMkWgs3+Uvh8EP/RRIsNwyd5fKWetA0z/hZUN/WEwN5GiVIf6UNaz0RYJru1ad+W99OXCvb00QIbjAKo4SwKfYtzcE7UQzIscUxAPFBNrFgoyvvI1nRfPuwP4alpOhXwNF8pwKQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=linux.alibaba.com
- smtp.mailfrom=nvidia.com; dmarc=pass (p=reject sp=reject pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2mJslRzjBilNkDW6aK5CXBEADe+fFq691tx24B5f6Og=;
- b=qhH8UeVQOmrxC6IUWt4I0Idu7tVOluiaTi2qeY72RiJGhN111nj2BqD91cEPIQ6MMhuQ+GBYfxDRelcMUDAAlVidGZkM0GRD9kk0/67viUY5BAEIyDlmyJqhSoN1AQStRlKUdpULTKCnUpbxrE5nY/1Y4b2SEzg6M53PoJoPDTPCQa0BZCAwDggfDKdAq0o/1gmiD5AmLYRNHn9gk1VbxIIBMzbWPNBm8yZrLPiS+MuSXe3wiXqtWsmGnboInb5aPKF74X4rws0qI3bBKi7pfWEILBGN2cLK4s0gAsGusWUOGZXlkiIxSLJbd4vBykVigEmfPkJHzq0A84KQAxDDoA==
-Received: from PH0P220CA0004.NAMP220.PROD.OUTLOOK.COM (2603:10b6:510:d3::22)
- by PH7PR12MB7185.namprd12.prod.outlook.com (2603:10b6:510:201::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.662.6; Thu, 26 Nov
- 2026 06:21:47 +0000
-Received: from CY8PEPF0000005B.namprd21.prod.outlook.com
- (2603:10b6:510:d3:cafe::a8) by PH0P220CA0004.outlook.office365.com
- (2603:10b6:510:d3::22) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.662.7 via Frontend Transport; Thu, 26
- Nov 2026 06:21:47 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 216.228.117.160) smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- CY8PEPF0000005B.mail.protection.outlook.com (10.167.247.25) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.662.0 via Frontend Transport; Thu, 26 Nov 2026 06:21:47 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.57; Wed, 25 Nov
- 2026 22:21:30 -0800
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.57; Wed, 25 Nov
- 2026 22:21:29 -0800
-Received: from build-akhilrajeev-noble-20260927.internal (10.127.8.11) by
- mail.nvidia.com (10.129.68.6) with Microsoft SMTP Server id 15.2.2562.57 via
- Frontend Transport; Wed, 25 Nov 2026 22:21:26 -0800
-From: Akhil R <akhilrajeev@nvidia.com>
-To: <jiangtianfeng@linux.alibaba.com>, <andi.shyti@kernel.org>
-CC: <akhilrajeev@nvidia.com>, <digetx@gmail.com>, <jonathanh@nvidia.com>,
-	<kkartik@nvidia.com>, <ldewangan@nvidia.com>, <linux-i2c@vger.kernel.org>,
-	<linux-tegra@vger.kernel.org>, <thierry.reding@kernel.org>
-Subject: [PATCH] i2c: tegra: Fix HS mode clock calculations
-Date: Thu, 26 Nov 2026 06:21:25 +0000
-Message-ID: <20261126062125.45424-1-akhilrajeev@nvidia.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261126051207.3099199-1-jiangtianfeng@linux.alibaba.com>
-References: <20261126051207.3099199-1-jiangtianfeng@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MsWXr00A
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795674733;
+	b=j392bniUeJuUz5F0K5i7j0m1pe3BMuOB2bGr10oh/hocV6XjR/5Ga2ejcDE7OV2QXos3
+	 I/xt4ixwpvlvhUJ8hD3QYaVNXDz4bxUvBIc59B/klRlGfTxgJL1y3aXWvUhbAzT3yRmHo
+	 OuVDWHR3o5+guAAjtpkJ9sUwmyh3a/+OmyW5VNGk8sFh4cfWrMsVISmwhdm18tnTda+Eq
+	 k8v5lU3HdxzyF4Wmo+eTtNvgnzB5TgGSq6pkl6b3248rtkY2f77gFbsl8JzShlEfBfrT7
+	 /pHf6354k4hSJeO5pCvSc2iUQHh1iEWEPfR0d3alMKT1pInytRWTUEpGuZLttfglySg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795674733;
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=POwzoRZ+mEwbM1RA6LhR+VsE7K5I8yMuPMpUZQdbXKU=;
+	b=ACliwmyPl4H8C/su8f8UL0csbuChJRDQiAEZYZv5JLxu9me4EKp5FJtb3SIgu8mqjYJD
+	 e76AaNAsp9VtJP09xOvLwmhVx2dgh9c1DLvj90+qqtirBv0aOHD/akeWt4ZlY/z1Yx2k3
+	 oI6OaqTUluCDrOWwahtELJjHI6oquoLfyN3tVYbAKH1v38fbWTZpM4AEA6wOXvNCKzvmk
+	 jqfd3LZJ1/ety5143jCmvfmeluG/q9XZxhCVG/Hc6Qaf/dyMzWvX5hgjk4Y7EYhoa0ILb
+	 3ZoCLpM0pMlRaqzRlET0JxCvaJLqD7/aTr0WIonlOD0QAaD88cZ4rKqvp0mweJWCx1g==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 6E93F1F01567;
+	Thu, 26 Nov 2026 06:31:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795674733;
+	bh=POwzoRZ+mEwbM1RA6LhR+VsE7K5I8yMuPMpUZQdbXKU=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=MsWXr00A8XExV1mBgzLDZPwLipqjfi6lPQi+g1zQDztzSx4G/g7AjXwU6vE2k6uPr
+	 jD3S+sB/K0Fy0+4um0Tp7osl3B4WXnlHv4lfEeu93B6l3uEG6M2ayitPf7PrNCzSRx
+	 wjW2FoKX+qUM07xLtPllsYgNQ1Bey7Jo+iCUDpoe6yYMBzCiQTeBCmYO5lfZ0lSIGB
+	 IfUpCu4TeTrTYAd1l4TBMF+KgYr5KtgF3Q5RDXQji5XzexBLJSSgNaLo17/8p9YZFh
+	 C5qKpESQwP14n7RUMAvYSq+ZDlv/JpxrGpGkwhGNKcC9ND0bW+iXr2F9DGLFI94VIJ
+	 y184qOyBzkiNQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id AC8F94D275;
+	Thu, 26 Nov 2026 06:31:22 +0000 (UTC)
+From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
+Subject: [PATCH v13 0/2] i2c: Add driver support Amlogic A9 I2C
+Date: Thu, 26 Nov 2026 06:31:16 +0000
+Message-Id: <20261126-a9-i2c-v13-0-926e2072cc4f@amlogic.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -115,70 +83,125 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PEPF0000005B:EE_|PH7PR12MB7185:EE_
-X-MS-Office365-Filtering-Correlation-Id: adee7f81-6f9d-4527-7ae9-08df4b858cad
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|23010399003|30052699003|376014|82310400026|1800799024|5023799004|10067099003|11063799006|261028144727099003|261022105027099003|261021123027099003|261021121427099003|261026140227099003|56012099006|261022075727099003|261102123227099003|261009223027099003|18002099003|22082099003|13003099007;
-X-Microsoft-Antispam-Message-Info:
-	6NCQVWbNI7VbeKPE2euMfFU7VY1BUtooQMMNwO2nzyCb0qazdbJ/fDhfNua4remWu34ZmwU4y8octnkG5SbCe/Kmlo3fE8LyGVAAJf7iJTcLYpB7eeCkdF9aydF/15bkzH1+V0ne0CAymnGEsIEW32ywavB0cc3SqmCmAr2WVkCE0nCmG6gzyvbw2Uwxq/XIWMy3cb5zpJbfvOlbyk5jkbk/y0C0nKQw0hfWCOG03cl41LuA95yidz/+xNiDJX/ES5Ecb2paPQFwu2OufDps4YsX/rBkCfN1wxUWxIz+YqED0JD/xNWHPNpUJbLxahbA1rxDVXCWX+3qA3v32AcSu1xBUBuZ++GiN7Cybwf3ZIEP3SOZe89TdqsS1PSx6yiYD8STE2p3jSlWTAi36LOGcxnVaqu+J/cjgVZBLMOpYpNflqdtxqGLSEp+mfZP4OISbHGE0B+4cVfjKfbO6cO4Oud+nct9FbQj4iTTva8rc7x6MpmcHjLE8TCQFwWtcSsLVcDyHWtRRKBzZDKyzzDx8NCIamKqKDD+O4pBMYcYXcRZe6Udx0OupN00RBOrKGjj3DEsmMPW31Z9sQmsMKN32qvstFgh6v1IXxL4Hwg/5cDpiw06XOoWzJVSzuFWNDF1S2FLJufcm8KS0t7cXTcZqmuHqfHx0uI6oj633QwpWJTf7vl8kAWFOsQdbE/FXwCy29DRszLGlIYrfgGP8h/hqQ==
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700016)(23010399003)(30052699003)(376014)(82310400026)(1800799024)(5023799004)(10067099003)(11063799006)(261028144727099003)(261022105027099003)(261021123027099003)(261021121427099003)(261026140227099003)(56012099006)(261022075727099003)(261102123227099003)(261009223027099003)(18002099003)(22082099003)(13003099007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	HLVjWyRjtDfoS41HoUirpgkzbqI6R4djuDAo1+pjjJtzahQxo9PB/PU5ljxvsY5Cbid0NrXacNSyqoNh/x3MxYv1E0UfxdGhhBHcu7qId49Q2dgKW6+Ip9QfLlYB5fhHQulP0yKGxe8SP0q1A6T77y3KYcFxSYWsSHZIj4uaBIdOxI4jqnEfdP8pE8nYNOI6ACz46qWevqC5z46KasFJQ0wqh+X3Bo2dZy9lYto8gTOMoJgJBTboEEb35dPg8tiRwUE7RCdJgVKT1TL7+tiudgF6shato3yz6PhqVHY3nOyyeSbosKUyehNQDogRypFt4aFZ1CCH2Dckt+45Lo3nsLI9E1ZdfeEb2uUwx14SyM09ghKYvS8sEmMk9//LcIIn9DJzXUKsRCqwLTm2LCTiCCrLsA43ePSwTnmwuaT68svbkvNFYuP9kRy7h9lF0FCL
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Nov 2026 06:21:47.1753
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: adee7f81-6f9d-4527-7ae9-08df4b858cad
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CY8PEPF0000005B.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7185
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIADXSB2sC/3XSzU7DMAwH8FeZeqYQ2/nkxHsgDknqbJVYi9qpG
+ pr27iTT6IpajnH8y1+xfKlGHloeq9fdpRp4ase27/IB6GlXxYPv9ly3TS5UKFALB1B7V7cYa5T
+ SWEZkbanKzcGPXIfBd/FQ2nPLS2nr+Hwq118Dp/Z8C3r/yOdDO5764fuWO0Gp3hNQ/iZMUIs6W
+ N+4IHWS3r7542e/b+Nz7I9VeWTCGYJAnCFmKBVT5ARGhbSGtIRuhpShCSRijEIoojWUD5jlDGW
+ GyoN2CCpYdmuolpBmqDK0OmETGzCu2fijXsLHcHQZjvcaDCTUaQOabWgKpIyCouSTXEO7gCBma
+ DMEdg1qi8nqsIZuCc0M3X2qFK2Tif0agtiWOV3UROyd5xQZxQaFJbUPWrZHW09sXEqStlLxH1r
+ 2J0VLUREgsP5Lr9frDzN/CEE3AwAA
+X-Change-ID: 20260911-a9-i2c-24478e22e683
+To: Junyi Zhao <junyi.zhao@amlogic.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Xianwei Zhao <xianwei.zhaol@amlogic.com>
+Cc: Junyi Zhao <junyi.zhaol@amlogic.com>, 
+ Markus Elfring <Markus.Elfring@web.de>, linux-i2c@vger.kernel.org, 
+ linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Xianwei Zhao <xianwei.zhao@amlogic.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795674680; l=4011;
+ i=xianwei.zhao@amlogic.com; s=20251216; h=from:subject:message-id;
+ bh=VG38lz3bQkFtaNsrKv2JR7dmLOKBqQpIx9rJVzY1Afk=;
+ b=5sqqu0gv5XNxfbHLSA9rQFtAUzZA9aBqMeEWrU9YM/CmM+PtC2X4g4k0n2X1DRGUVXXTv1DjX
+ mk/BHLNpoj9AOe2TPn8aZTGmLn3eEqkGrdungW+oUJ47NjClJ8WhqiT
+X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
+ pk=dWwxtWCxC6FHRurOmxEtr34SuBYU+WJowV/ZmRJ7H+k=
+X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20251216 with
+ auth_id=578
+X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Reply-To: xianwei.zhao@amlogic.com
 
-Hi Jiangtian Feng,
+Add a device tree binding and driver for the I2C controller found on the
+Amlogic A9 SoC.
 
-On Thu, 26 Nov 2026 13:12:07 +0800, Jiangtian Feng wrote:
-> The HS mode support overwrites the selected non-HS tlow/thigh values with
-> HS timing before calculating clk_multiplier. This makes Standard, Fast and
-> Fast+ modes use HS timing with a non-HS divisor, while HS mode still uses
-> the non-HS divisor. The resulting div-clk is incorrect and can produce an
-> out-of-spec SCL frequency or make clk_set_rate() fail.
-> 
-> Keep the non-HS timing values unchanged when programming the HS registers,
-> and calculate the clock multiplier for the active mode. HS mode uses its
-> own timing and clk_divisor_hs_mode; other modes retain their original
-> timing and divisors.
-> 
-> The higher HS div-clk also affects the master code, which is sent using
-> Fast-mode timing. At 3.4MHz, the default Fast divisors on Tegra256 and
-> Tegra264 would result in master-code frequencies of about 457.7kHz and
-> 412.1kHz respectively. Increase the non-HS divisor when necessary to keep
-> the master code at or below 400kHz without changing the HS data rate.
-> 
-> Qoder, an AI coding assistant, helped analyze the issue, develop the fix
-> and arithmetic model, and draft this description.
-> 
-> Fixes: 978b3ccbbac3 ("i2c: tegra: Add HS mode support")
-> Signed-off-by: Jiangtian Feng <jiangtianfeng@linux.alibaba.com>
-> ---
+Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+---
+Changes in v13:
+- Fix commit message in the dt-bindings patch ("device tree" -> "Devicetree").
+- Clear pending IRQ status before configuring and starting a new I2C transfer.
+- Link to v12: https://lore.kernel.org/r/20261118-a9-i2c-v12-0-fc83c53121e6@amlogic.com
 
-Thanks for sharing the patch, but I had a different change which should fix
-the issue - 
-https://lore.kernel.org/linux-tegra/a3616176-ba50-45d2-a0d4-46fd5f6379c2@nvidia.com/T/#t
+Changes in v12:
+- Cancel the initialization of local variables "ret".
+- Link to v11: https://lore.kernel.org/r/20261118-a9-i2c-v11-0-68a3e79ff43a@amlogic.com
 
-Hi Andi,
-Did you get a chance to check the above fix which I posted a couple of weeks
-back? Please let me know if you see any concerns with that.
+Changes in v11:
+- Convert hand-rolled spin_lock_irqsave()/spin_unlock_irqrestore() pairs
+  to scoped_guard(), and drop the now unused  "flags" variable.
+- Link to v10: https://lore.kernel.org/r/20261117-a9-i2c-v10-0-33ea9aefce20@amlogic.com
 
-Regards,
-Akhil
+Changes in v10:
+- Convert hand-rolled spin_lock_irqsave()/spin_unlock_irqrestore() pairs
+  to guard().
+- Drop unneeded braces around the single-statement early return in the
+  IRQ handler.
+- Add MODULE_AUTHOR entry for Xianwei Zhao.
+- Fix commit message capitalization in the dt-bindings patch
+  ("Device Tree" -> "device tree").
+- Link to v9: https://lore.kernel.org/r/20261117-a9-i2c-v9-0-7b303c894fea@amlogic.com
+
+Changes in v9:
+- Use guard(spinlock) instead of spinlock according to Markus's suggestions, no logic change.
+- Link to v8: https://lore.kernel.org/r/20261110-a9-i2c-v8-0-1e9d2682f86b@amlogic.com
+
+Changes in v8:
+- Reserve complete(done) into lock, and adjust the code process in irq func.
+- Link to v7: https://lore.kernel.org/r/20261104-a9-i2c-v7-0-b31f2b53faf4@amlogic.com
+
+Changes in v7:
+- Move complete(done) out of lock, and when state = idle not complete(done) in irq func.
+- Link to v6: https://lore.kernel.org/r/20261104-a9-i2c-v6-0-baa6171f26f8@amlogic.com
+
+Changes in v6:
+- use xfer instead of master_xfer interface, and when div=8 remain valid.
+- Optimized the function.
+- Link to v5: https://lore.kernel.org/r/20261103-a9-i2c-v5-0-86f2dcd179d8@amlogic.com
+
+Changes in v5:
+- Mask out I2C_FUNC_SMBUS_QUICK and return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK).
+- Link to v4: https://lore.kernel.org/r/20261102-a9-i2c-v4-0-5a169215b8e9@amlogic.com
+
+Changes in v4:
+- Repocess xfer len equal 0 use I2C_AQ_NO_ZERO_LEN, and Optimized the function.
+- Disable A9_RX_THRESH_READ/A9_TX_THRESH_WRITE enables of irq when xfer timeout.
+- Use guard(spinlock_irqsave) instead for direct call spinlock in xfer timeout process.
+- Link to v3: https://lore.kernel.org/r/20261029-a9-i2c-v3-0-7b30ccc00533@amlogic.com
+
+Changes in v3:
+- Based on the questions raised by the robot, the data flow was reorganized.
+- Some processing was optimized according to Andi's and Markus's suggestions.
+- Link to v2: https://lore.kernel.org/r/20261022-a9-i2c-v2-0-45e3cef175bf@amlogic.com
+
+Changes in v2:
+- dtbinding: make some minor modifications, suggestted by Conor and robot.
+- driver: Make some adjustments, including macro definitions, format adjustments,
+          adding quirks, process optimization, and so on. According to Andi and robot's suggestion
+- Give up MAINTAINERS file the separate submission, make it together with the driver.
+- Link to v1: https://lore.kernel.org/r/20260924-a9-i2c-v1-0-b8ad9b46f4a8@amlogic.com
+
+---
+Junyi Zhao (1):
+      i2c: amlogic: Add Amlogic A9 I2C controller driver
+
+Xianwei Zhao (1):
+      dt-bindings: i2c: add Amlogic A9 I2C controller
+
+ .../devicetree/bindings/i2c/amlogic,a9-i2c.yaml    |  56 +++
+ MAINTAINERS                                        |   9 +
+ drivers/i2c/busses/Kconfig                         |   8 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-amlogic-a9.c                | 428 +++++++++++++++++++++
+ 5 files changed, 502 insertions(+)
+---
+base-commit: 4cd099f240b0b74101fde32b6e3b15ea6e26714c
+change-id: 20260911-a9-i2c-24478e22e683
+
+Best regards,
+-- 
+Xianwei Zhao <xianwei.zhao@amlogic.com>
+
+
