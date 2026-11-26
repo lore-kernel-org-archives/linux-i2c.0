@@ -1,96 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795699920;
-	b=FHTtA/lsACEh1oTGtliWvIA2LRHVgJzdsUdqjw9+59Y3ieFfGA67Cd7b8b+SzLj89kZB
-	 l2tcYmP1/wGXzEtv7RsgJkd6s8DmPKsr2c5ZV85kb7RrkEhoU8L7qvOL1eSyMscLNqDe7
-	 KteVBwyncnJOTdc9UJ9ApIAXlLp9JthMMeLvgQBVz6xWe2813TlKc+X63G4K2XMa+zt2m
-	 N0AfxxYSgwD6oySNoBsD9dpkOuCkKjPULqOn2NO8lLm5P+foL0bbJWqREqtrZkre0P/a9
-	 V9K59kNHUAjy/dig0FJY0lG+dELNXRIW7ekyzDcRlUDY2cP+pX2uPpqQnZcOjn0FtUQ==
+	t=1795700057;
+	b=ar+tCe0bUaWU7CBQub6bPvbOsmcztCchWvjX/BgecCIthAOy2pjjEoAGpRoYozRJs/la
+	 s57USgGJxDQ0IDE0gqA7L4TwkQkIio8mDzKxxvVyJ2YpKS9auLTVGVbnqsJ7tvJOijGAh
+	 RY0rg/p7hmt1d000QJI2eQmxn99xKs4TSGpYknH5w8D9fZAZB31V+50whNSMKvK5qC/Zb
+	 VKfoB1TFH0cetoQQ1Y2cXh2Qk0YhOBXGRsUx6UmVCz67PAwDAmmjZ7FeNiVQB90GOt6+T
+	 uOw8ysC4BpHw/VlyJAaE1HxwvhYfk5b6pynW60bODix0swYBnW6u8kYFJ0+INfl61NA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795699920;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=O61FDlwjHKBDnCTbb8aWwb1F9/n+IACrfnZVxf0Y28A=;
-	b=P7bcrSKnm4ZVjh4Dc+5azfTIMudHO4ZRHCvu5ptfrNRbNdEw0D69oYyUMruPqdQCGxxn
-	 xzP0yV8B/eIwT9Epp2P15iWDLx/6aO6icGfkKFH8JQlbPFw2xoATmeFSOfdqj8q5JVxPA
-	 bJdBQ+7Rz2io2D1iF1nx/q2zMl6DJOOqx1VYLIclTpbdnE5LHylgiBZaF+GiKybd7mr97
-	 1xpwE5L3eHARteF2e2rwtYCXwMt8DDo4zJSpaSOoJK5jl5ZTz+9aL8Mj6kgeenOj7OZdk
-	 ErtrYKZwkPthP6xf05dOCoGu+Mwrf4qrU4gxheooL7W3QhQHdrp++tu4X8SS1sN09rg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795700057;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=lGn8gCQyesHPSLILnAr3zm2fB6gk9T9OZV7xJjvX7CI=;
+	b=3Q6Si6OfsLh1LHLaHgctTS33zBcjVn84H7Zlq0JxoswHsD4Kelqxf6UG8YyIDO803Rne
+	 MWv+k6nDa3LZc2MlJNfjIsVfdntO8U8aK95kAOa4NywFWYBFtKQsbGP9BcmojbPS1n2wl
+	 J3HrWid6ks/yAagA4XpzTRvt16BiypXvHpyUPdKCwE5vMcDfFlR3mzUOvqHgjpjVvyCaN
+	 /K6QKO5eq9rc1GqvQfcTB1MdjeEzRNf6Y+SWRyGzCCDPSvT19NcKBiQS6vnMeNLmYL3Fx
+	 fsNbxYq4VIzUVEEg2IeKZUd6cPx3ynhQhLHT9dg9FGuEQFOlJ9gFKiXncsq8plYx/wA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=pdSwlU8B;
-	arc=none smtp.remote-ip=74.125.82.44
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g8HVky0A;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F0F1606A33D
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 13:31:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0F0F1606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 794F5606A31E;
+	Thu, 26 Nov 2026 13:34:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=pdSwlU8B
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-1a2af4c8d00so6656347c88.0
-        for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 05:31:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795699918; x=1796304718; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=O61FDlwjHKBDnCTbb8aWwb1F9/n+IACrfnZVxf0Y28A=;
-        b=pdSwlU8BdoCVHBBNrELrT0pqFgmmPZpC7zzITXacmHK/w/QFes/gumIDPg93npLdjh
-         W0f6aU0w7gB2faGLA/43zn9xB/CibYNQvB5Gggca4LYwEOQEnxhUvgiYAa6aor35j+Un
-         jJo4fl5fsax6zJXFwezfZoE/uVUMVjehew3PY26JadHcJy8a8UrO5ZJzRvxSYuZu4Z37
-         9e0gUUtck8cc1Ax45OZ9H97uq6SJgsQYNM1PJHwzT1wYoJZTapkquURbS/IamMHVawwA
-         Or+fX4lQbTr2qLguralc1DFjjh0f+u1jCVeEWzc5NySvxdjC9LGSgZbtLA54/tByKdNZ
-         +j7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795699918; x=1796304718;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=O61FDlwjHKBDnCTbb8aWwb1F9/n+IACrfnZVxf0Y28A=;
-        b=OnN+Xn3grvU1EKB9txtOezVN5FFlZJQsr1g9JpAh7R9ZMBJ2JdM8QBHQQkmSsqVmd+
-         181nrDAVmScLW2UA2r92aY1aWBALZGGhH6hxy3T6ge6+sjbRTTXyjXUmbLJidIgE97/u
-         BEImHjDrh9UnBdZ1SrvC3ZBlwUWZz/LC2yI0KZ0X6WKTdmvTm7ploV9c/W3qj6aPw7kU
-         hv38JM8nvr3NmV3ym5F4x/e+R5focdWx+hE6u8jbthon3mEAjq3mCorfptSA7CBccGfm
-         LKwb0Op/vX4J2whv97WlTJx1dGrza/Mya1QEwupsbBW6i3ctsTeH3BE2/wIM/FlG7ulB
-         AaFA==
-X-Forwarded-Encrypted: i=1; AL+hErHW26/rPG9ef0qtfMQ+FawJErtR8I6dDP1gKkCBoDP52KFSMsNAK7NcybWdu4M7EWVbqYtvP1xRMmE=@vger.kernel.org
-X-Gm-Message-State: APuU4Z8utbWb4zvsSyhPRTM/6RwbyLQEv7Ms+DjUxRtKhOPiTIhW5FxN
-	zEHTXXBjzIZ7fG+LeI3lcjopOMP4HltN4gxjnrOV/zvm3NGq6V/0ngE=
-X-Gm-Gg: AZFdTZcxr1hfIxYnzKmDiLI5Liv+x/I788yzM7i2X/VpoxE6M8eJFR3xoTXqocxyzul
-	npnOLBxvtKyiEavhZqSerAj8jsQYe3rC53Y6lpZV+oZPqC47JrrPazb1DlaILxT3ZtEWsL6+PE7
-	tdpA279DMJ3Z1q5cXvaQEzA7Jv+re6MAPn0sYs0edPgogopxn048kKt+iBo0KS/j/nOftRjcCYW
-	myb98R4uT9Qz+p42HcvtGdrpsGiVEG1zu+1rQshIzRV+kl13pZMFXDjJEmeh2lG9ZRp+MgTK0lf
-	BoPCFlT/Z3R0xwmtS8GRqfOKb/7Kf0aMFB1Wf2EcFzkNkRgza2EWRiVlc45tgaA3LUBWmMnVAsg
-	mKHl4ZItuB+erdh/6OdPaUW6cJNDyh5CZyzef6ZVWgClSMeQWiYn5qEYofRqZvma6UndwvggQPo
-	1zUdMjEZb0hpQrdo4TzDyMMOPacDGUuNdbHyTsJsm0PLtgQV80RUCQ5+CBXDP3XCYVPF22nw3I6
-	Xb5jYN+hZCYX5qfLMc7P4DYVbMUF1vnns7Kd3EtzB+u3hYioDRahHab4X0bOCy2cebe6aAKQbiq
-	CWqVNXe/sqDcIb6obFVCH6nzERALZWRVwyPn4fba+BWMv+71TStrqtBSPahfflBZ6oE=
-X-Received: by 2002:a05:7022:ed02:b0:149:50cb:2175 with SMTP id a92af1059eb24-1b5568fda53mr20186467c88.33.1795699918133;
-        Thu, 26 Nov 2026 05:31:58 -0800 (PST)
-Received: from localhost.localdomain ([2406:3003:2002:639c:a06e:23f:85ed:4cfe])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-386c7c62a91sm22321547eec.17.2026.11.26.05.31.55
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 26 Nov 2026 05:31:57 -0800 (PST)
-From: Yige Jiang <yigejiang86@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>
-Cc: Yige Jiang <yigejiang86@gmail.com>,
-	linux-renesas-soc@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g8HVky0A
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE0F61F000D8;
+	Thu, 26 Nov 2026 13:34:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795700056;
+	bh=lGn8gCQyesHPSLILnAr3zm2fB6gk9T9OZV7xJjvX7CI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=g8HVky0AV19iVhDw9k0ewwReuMW/2BKz4ID2ZI+i5+ggHiv8GXnMFm+zHAHEJcKfu
+	 djgMR85FeQUTJpc+jIF7PK6p3XXTPGannesswkfutGHBr+IWcDtNICWJnuYKNtmdc7
+	 1ccJc2oJzVS34+cV9IWJ2u3W8haNeuPcI6eFyVHClGtfMeCj7TsHKGFY8Evdyv+wIw
+	 kufgePSWSmVlzLq393NeXooyqUDNWY2W1j7FCROaWGf6P7UQ3SDOwFxsos//Tdb8jm
+	 K9raQ9aTlHhe7lBlxaQNtyXs8R3jsUYSEttJg6a+JFPvJspb9NZPO2fBPymwmOuuNe
+	 Px4sH0Ha14LLA==
+Date: Thu, 26 Nov 2026 14:34:12 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+Cc: Lee Jones <lee@kernel.org>, 
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Werner Gartner <Werner.Gartner@congatec.com>, 
+	mfd@lists.linux.dev, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
 	stable@vger.kernel.org
-Subject: [PATCH] i2c: rcar: release DMA channels when host notify setup fails
-Date: Thu, 26 Nov 2026 21:31:54 +0800
-Message-ID: <rc-b1-20261110-vc-182-eee62ef398fd@gmail.com>
-X-Mailer: git-send-email 2.50.1
+Subject: Re: [PATCH v6 02/10] i2c: cgbc: Propagate hardware errors when
+ polling read status
+Message-ID: <awg1RfdXHh3tVkpa@zenone.zhora.eu>
+References: <20261117-cgbc-i2c-storage-devices-support-v6-0-bb070ad3e9aa@bootlin.com>
+ <20261117-cgbc-i2c-storage-devices-support-v6-2-bb070ad3e9aa@bootlin.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -100,46 +60,37 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261117-cgbc-i2c-storage-devices-support-v6-2-bb070ad3e9aa@bootlin.com>
 
-rcar_i2c_master_xfer() requests the DMA channels lazily, on the first
-transfer that finds priv->dma_tx or priv->dma_rx still set to
-ERR_PTR(-EPROBE_DEFER). Clients probed while i2c_add_numbered_adapter()
-registers the adapter can already issue such transfers, so the channels
-may be held by the time rcar_i2c_probe() creates the host notify client.
+Hi,
 
-If i2c_new_slave_host_notify_device() then fails, the out_del_device
-path deletes the adapter but does not call rcar_i2c_release_dma(); only
-rcar_i2c_remove() does. The channels then stay allocated, together with
-their DMA engine references, after probe has failed and priv is freed.
+On Tue, Nov 17, 2026 at 10:47:42AM +0100, Thomas Richard (congatec GmbH) wrote:
+> From: Lee Jones <lee@kernel.org>
+> 
+> In cgbc_i2c_xfer_msg(), read_poll_timeout() uses the same ret variable
+> to store the polled return value of cgbc_i2c_get_status() and the
+> timeout result of the macro itself.  When cgbc_i2c_get_status() returns
+> a negative error code (such as -EIO on an I2C NACK), the loop condition
+> ret != CGBC_I2C_STAT_BUSY evaluates to true and read_poll_timeout()
+> overwrites ret with 0.  The driver then issues CGBC_I2C_CMD_DATA, which
+> completes with CGBC_STATUS_CMD_READY without populating msg->buf,
+> leaving uninitialised heap memory in the caller's read buffer.
+> 
+> Store the polled status in a separate variable, verify that it equals
+> CGBC_I2C_STAT_DAT, and check that CGBC_I2C_CMD_DATA returns the expected
+> number of bytes.
+> 
+> Fixes: 6894f640b8f3 ("i2c: Congatec Board Controller i2c bus driver")
+> Closes: https://sashiko.dev/#/bug/linux-66cbf4b1-a219-4012-969d-236417bf419a
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+> Tested-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+> Signed-off-by: Lee Jones <lee@kernel.org>
+> Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 
-Release the DMA channels right after deleting the adapter, in the same
-order as rcar_i2c_remove(). rcar_i2c_release_dma() skips channels that
-were never requested.
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 
-Fixes: c4651f11d09a ("i2c: rcar: add HostNotify support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Yige Jiang <yigejiang86@gmail.com>
----
-Based on linux-next next-20261109 (630059a5a632).
-Compile-tested: arm64, GCC 14.2.0, W=1, CONFIG_I2C_RCAR=m, CONFIG_COMPILE_TEST=y (object only; no new warnings).
-No hardware or runtime test was performed.
-Needs a pre-Gen3 R-Car I2C node with the "smbus" property and dmas, a client transfer during adapter registration, and a failing i2c_new_slave_host_notify_device() (e.g. a client already at 0x08); no in-tree DT sets "smbus" on an R-Car I2C node.
-
- drivers/i2c/busses/i2c-rcar.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index fcb15be59cb5..b5c964c367e7 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1241,6 +1241,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 
-  out_del_device:
- 	i2c_del_adapter(&priv->adap);
-+	rcar_i2c_release_dma(priv);
-  out_pm_put:
- 	if (priv->flags & ID_P_PM_BLOCKED)
- 		pm_runtime_put(dev);
-
-base-commit: 630059a5a632377b9b7b487baccde92b7ae1dd47
+Thanks,
+Andi
