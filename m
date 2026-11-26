@@ -1,92 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795701930;
-	b=zeF8BJnVCC6hpC+PCq40bwruZnuuIFc6gUmF8bnrJCnEgcDyonFZNeVZ8/0pUarw0a6X
-	 k8D2PYhOR4/neNDfeV4i6WvLlRaWkRlIT7+x6wosD+sNuVJt3tTQEgCoc4CQrjVklhwhe
-	 Mu3S/5y0fp1tfbqsrl4EZa7Lply6c2+57f+2agMh1v+stFlUZiSw/II9YAT96ovTHBzHI
-	 WM4tEKY+CB8zihDztupabcMAD90H9j+xRvDh5Wff9khi9B7cW6V36hzUkBEqwM4fWasr5
-	 ozLn8QhweB5s9gZsLcOnDZAfBW5LAUVt8kitGnAqW9kTCZBy1qcoeAH+bYiVNh3aDnQ==
+	t=1795702924;
+	b=i6Jky8Klf3l419pUt1etd7cqdpwXvqGYRVfJdiNRQf7BwO0zogu6behtPp0kjbjExkNW
+	 BrYF3s9MytZ1J/qs8GCvu+dCDOFNFB+C8ZvQOzGGSmM/lwTPlZO9DLO7u3Rg3xJj4tBEx
+	 Cj1m6KhebEaYHfcdNyTNDe5475Q6DHZoXnyOs2it+VSFAfSOUm4i2U4vQL+FJ7Jx0viti
+	 QRp+7jHcKIRX4m4NepSRkgmUZlPXM/i8DQEEWs3GV4ZN6ZAa/Lv7D535ftnBZFSKm+wpd
+	 3TYoYO0LKNEYKfanYkc3S/DUH6xA1tV9jYssfm4ya6SNWuZHiDjP+sT2I3RmJ7S1cfQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795701930;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=O/6YeVqDezPbtpzL6GKQeS19P8hKpEHC15hBz/pmg28=;
-	b=DDEf2k19/oJ/3YZyL5H/sL3SroTXLRi24whXK1PJYFfB2JJJ0SlIVP93hknmqJl+sh5P
-	 /939Kn533VgPgY6hzBtQfi9nhNpy7GU2fVc5JExNXaElNS2HzYbhmDEnnYI3HmQPdzM9S
-	 Ae7z27FujBthqDBPCkFa1HHK8rPxVzq5Ek8qNbIkWKd3+F13DyWeXiER/txOEDskbLOqb
-	 SoNiyj5Oz6swXUQHz7GAyPjuCa+U8CxJYcI5a4V2RvCTNaoYya7XT9y84cROGcgLWweai
-	 51yNUaySB1V8/Ix5EJ39LkQ55d5YnmfR7Ec6likh48CBL2998Jpvi2s/PY9JLmZCN9Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795702924;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=OvVAZTz69zThPSa7hVXEpLXSovgpYtvS4X1sc02ssSE=;
+	b=Yjaer3rpCVh7T2fZ75CjWzWdmNK4ccTjHbJjrA+Y6rvrG4DEYw4Ldpv0pyAP0jc82OHz
+	 +17SpmMtRdahUvN8M63B02YsnozzLsH0rWCQZS43HPrARo/W/aBTwb06n26v827FybjsA
+	 kBj5qR5qKKxcyFndrh+fPOMaiBHNlJfZ8T5mHUfZS2iDEGHe+bqvJ6dozfdmOqEVwg8d7
+	 f66Rha5rUj6A/Tt38cRo1VIlH3yQ/IXkVcdCwDzhGsxX+t1WPCqdTDHIJaE5yjPAvtGdS
+	 tvTkfRTzrbxqf2F2w0jgS3TEOP1fksOX0cG60i8PuXZNbkmfnju/CoC2Vg36X07/JpQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UhP76msW;
-	arc=none smtp.remote-ip=74.125.82.53
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=aoiNvRcF;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E118C606A323
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 14:05:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E118C606A323
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9242606A332;
+	Thu, 26 Nov 2026 14:22:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B9242606A332
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=UhP76msW
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-1a2761c69fbso9546082c88.0
-        for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 06:05:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795701929; x=1796306729; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=O/6YeVqDezPbtpzL6GKQeS19P8hKpEHC15hBz/pmg28=;
-        b=UhP76msWmdMp/KWrdrp+ClPjMaygBkOI06EyfKW7xEkyUX6Iozlom+4+mZA6oYQsoh
-         QTktd6l59/W6LUCaUSX5oxPGZ2rh1EpWxLnMOLO5lYAl4U9zfSBgPTyAQQfIF0t/9ZLu
-         JxW+t6dPL/UEfjF4aS3r1FmJbvcvzNMoEmuV/mM/z/CaTdg+XHpu1007h4+CTmiU77JX
-         fzJj26kLFw4tp4sgeaCpXK9l1kl1+VdnJVxqVP5teCbn2wjuQcJMuiiJd46GMg69FOlG
-         JLZ9B/0cZ5X1zmLPBxkF3cTBHtjc01H2dZpww0KPPVn+M33O8rq+D3XwAiWK7lcsbKp0
-         D2/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795701929; x=1796306729;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=O/6YeVqDezPbtpzL6GKQeS19P8hKpEHC15hBz/pmg28=;
-        b=2b9zFeH9x6xPngKCRYHjZv27qEhLIlbR0WhLMWraa11xJxke68SZ6RIBQyrAo/ljw1
-         YPh1xYip2gwN9WPnSER5P11ZjRT/U98MBHVa1ztLbae+KcLnw6oZuJRoB6+atF8J4Vh5
-         3L5UEZ476GBU3EP0eTtcKvgWIYcP39nArb7nJJtvfzgiJnupKi+u5/VYfV+d8ipgMTqi
-         /oJrz1wbGqxPAZsP/KgILh2koDbETya2xPousepXdxN+udFPZ58xgRabF2JPngy6B57b
-         o5qYquKOvPXtQLaNoPn34Kto7yXA3F+rrPsFhvkpuVhpoXIy0Af+C/4Irm3yL8wcLfw3
-         wdHw==
-X-Forwarded-Encrypted: i=1; AL+hErH7BxY1pihfYA2upb4nicJDQWdYhjCOWisoQjhVro5zxM98705ShchCERNmFksJtJ1k8t59y+WHwSE=@vger.kernel.org
-X-Gm-Message-State: APuU4Z9ZgRZqrEFbPcFHCOzBko4ip7REX5sqCY5Gs6gNyUlMUF9lP7ff
-	nsDh4ZdZ7DSm0HLXPx0yeD/OoxlRBUUmJzNQMyYZWUfebUq5B+JiyjOPvx32Lw==
-X-Gm-Gg: AZFdTZcMrmtuC2xzVZwgL/9xTT4tzdHGEAADaMuMZDKCbinPgsYShAQtKOODDBgaQeW
-	I8+NLBL4d2FtZRO24wSZPNH/gyFU5RKw3Bg5vBqgYt5zr5Am8tL0pb/IzDQ8tYbeArrGTyCQTO0
-	X+tg8JgOxdAoqB7dxE0+Gu+kK3134Gxdx9ZdTVBuzothPE9Va/fojsZSKa0xJyUBCjy1ks153tu
-	2H93+1XHKRsaRNAoIiyUoTd9bOvUAnSmNUyX4lf2I01EaDtG7KX321VmQu6YzJuuP7mbLdNlj7I
-	MqTvlWGqNoyXljfW6pXzPY0SLNFb0txbvnjqiQlZykl2BJJXZdbGnMhtBN+6Cc7bgrvhswPV1gP
-	FnSEiDVvBvoZ4aUxPFNquOutVx4HYC+dfrJdlbOvXFaxqKSxem6Je7J5MuV4c8BO1oEAX2XNbL0
-	Hjwu6G7cVh1zqjB3sDTyLdljXDayaosLXpKw7K6PtmkZtwmaLbNiJOPVAnRpdxJnnQ1P6w2IhRs
-	HOgVXSCyTQbjmlXUyIsxbwdpK5Z8ZHpIgFBDAEfKCM0xZ7DeBQV/mzV28sG57CSy0KmjeShNt7/
-	dlkfJuakNMpbYUkL+KRxHUIIfeOUSm40SAAqXlFaIGTvvRA=
-X-Received: by 2002:a05:701b:230d:b0:1b5:8a6e:8791 with SMTP id a92af1059eb24-1b58a6e8aaamr4752365c88.7.1795701928900;
-        Thu, 26 Nov 2026 06:05:28 -0800 (PST)
-Received: from SGN-LDSENG.tasernet.com ([2405:4800:5cc3:11a:1ac0:4dff:fe8b:4a69])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b5566c1142sm48644542c88.2.2026.11.26.06.05.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Nov 2026 06:05:28 -0800 (PST)
-From: Cong Nguyen <congnt264@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa@kernel.org>,
-	Ed Blake <ed.blake@sondrel.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: img-scb: disable the clocks when probe fails after init
-Date: Thu, 26 Nov 2026 21:05:22 +0700
-Message-Id: <20261126140522.3991135-1-congnt264@gmail.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=aoiNvRcF
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 3CEC14E417A5;
+	Thu, 26 Nov 2026 14:22:02 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 12490604ED;
+	Thu, 26 Nov 2026 14:22:02 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E40EE11E68014;
+	Thu, 26 Nov 2026 15:21:52 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1795702917; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=OvVAZTz69zThPSa7hVXEpLXSovgpYtvS4X1sc02ssSE=;
+	b=aoiNvRcF7GPO1yOrbbUy+hL+m8rUvoytuvmFiBT5vnJYRMObC6UfTH103FpcKeZR1yVX7k
+	95I57pM030VNwcOYTIv0fXoLgoMK8CzmqBQyOrFDhqfBkDCMQxy5w9H0oGM23ITRIZ4y0e
+	K9cckRyHdEX4xPC4iVInYC01liObmgSJALbXyN+HgM59fDbakqFs/NRcfKEZbmaMkYqLho
+	hYz4dPbVQTsHFmMUCRGaZn5u8hFDNy6+f9PeZY5UGIBW/clPHiQ1HcZ2wnenJeTIPzMbi4
+	dLSTpFpP29mZclQ0zhx6YLTpMIWMhlvpi9fWSFFO6u9ZCg/JZ2NwuF69ekBw/Q==
+Message-ID: <79b852d7-13b6-4535-915f-21c992e2ae67@bootlin.com>
+Date: Thu, 26 Nov 2026 15:21:50 +0100
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -96,51 +62,41 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 03/10] i2c: cgbc: Use real I2C bus names
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Lee Jones <lee@kernel.org>,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+ Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20261117-cgbc-i2c-storage-devices-support-v6-0-bb070ad3e9aa@bootlin.com>
+ <20261117-cgbc-i2c-storage-devices-support-v6-3-bb070ad3e9aa@bootlin.com>
+ <awg2_PLCeNgio_bp@zenone.zhora.eu>
+Content-Language: en-US
+From: Thomas Richard <thomas.richard@bootlin.com>
+In-Reply-To: <awg2_PLCeNgio_bp@zenone.zhora.eu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-img_i2c_init() resumes the device and drops its reference with
-pm_runtime_put_autosuspend(), so the device stays active with both
-clocks on until the autosuspend timer fires.
+On 11/26/26 2:41 PM, Andi Shyti wrote:
+> Hi Thomas,
+> 
+> On Tue, Nov 17, 2026 at 10:47:43AM +0100, Thomas Richard (congatec GmbH) wrote:
+>> The adapter names described the expected purpose of the buses ("General
+>> Purpose I2C adapter", "Power Management I2C adapter") on conga-sa7 board
+>> rather than their actual names on the Board Controller.
+>>
+>> Rename them to the real bus names "cgbc-i2c0" and "cgbc-ddc0", matching
+>> the naming used by Congatec.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 6894f640b8f3 ("i2c: Congatec Board Controller i2c bus driver")
+>> Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+> 
+> BTW, do we really need the Fixes tag here and the Cc stable?
+Not really, I can remove them.
 
-If i2c_add_numbered_adapter() fails after that, the rpm_disable label
-only suspends the device when runtime PM is not enabled, and
-pm_runtime_disable() cancels the timer. The clocks stay enabled after
-probe has failed.
-
-Disable runtime PM first, then suspend the device if it is not already
-suspended, as img_i2c_remove() does.
-
-Fixes: 93222bd9b966 ("i2c: img-scb: Add runtime PM")
-Signed-off-by: Cong Nguyen <congnt264@gmail.com>
----
- drivers/i2c/busses/i2c-img-scb.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 9d2ee449a40b..0fabc54ad572 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1324,6 +1324,7 @@ static int img_i2c_probe(struct platform_device *pdev)
- {
- 	struct device_node *node = pdev->dev.of_node;
- 	struct img_i2c *i2c;
-+	bool rpm_enabled;
- 	int irq, ret;
- 	u32 val;
- 
-@@ -1400,9 +1401,10 @@ static int img_i2c_probe(struct platform_device *pdev)
- 	return 0;
- 
- rpm_disable:
--	if (!pm_runtime_enabled(&pdev->dev))
--		img_i2c_runtime_suspend(&pdev->dev);
-+	rpm_enabled = pm_runtime_enabled(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	if (!rpm_enabled || !pm_runtime_status_suspended(&pdev->dev))
-+		img_i2c_runtime_suspend(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	return ret;
- }
--- 
-2.25.1
-
+Best Regards,
+Thomas
