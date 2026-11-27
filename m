@@ -1,57 +1,119 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.68
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.168.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795745678;
-	b=gb/wropfuUci0nYBcZGQBg0CaIzMo5liBaSobxMWf/ubSCT6lBw5lOjJZSFgwlJXM8/R
-	 QJcWzgp2GYBDAK40CXB+DrzpjK5SYBRK2+uZeQ0EGC8s0MT07f0AceWApMV4ky9oDv9s8
-	 4bAJJy6TBmt8GnUFkDILCcr70Dogwlsud7rJrVXzFt0VtKmHbEw0TWkSCtW0KhPU7DyM6
-	 BwcxDDeyDllb1tN5mQ/1W8m3Nq+EudYb2x06QecH5WYvRx0fkrlcPRE5Qa93DFy2I3dxM
-	 SWIqkb4d1WbdBf5SrV+K5zcAdmBxg1ueRAZxmQPrxbthMXOZzfsIy3SX7eUu5hk3rNA==
+	t=1795755597;
+	b=HeGFgKTfT/JLi1JHpPll7F07ge1U20rtDeEf/dTioQ6iQ4TNPPW1F8lcFBjaCAbu/x6t
+	 5i6N14XRKc/nVnNB1cVCrWMwoccqqRiGSeTcG0V4XvYGw04Amp4LK+iMywUSD5Msp+xic
+	 sQho8lLx57+S6qAhPxUu/lcpNFzgk1DEcfKBlQrLiuSa/Cz+nxsVHyfp7sTpAPeBORcUU
+	 sGIZpT1Bw6khsWshNtZM4ufg8cnkz+BTIkRfrJVPJolmMMZCxhItx93lsxuYES15wCd84
+	 vYj2SvKopDJ0Pxyr1tG/4PcHdnRfg+Dd3AKSTTwFWkbaG46dhfEJSXBDxGhnLTftV8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795745678;
-	h=DMARC-Filter:X-Alimail-AntiSpam:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=G1B15ny8r70aWtqYGkWccyTxg3wcjdom6IsqnICi+1E=;
-	b=aPIe/KPwy0RCh+nVvjeAp/1k5xhySsiSBy0+0qwk3pXRu8kQoTqowHSznqoIOhIlUwYo
-	 8ARc/JvdwrNhySxvvWsGlCB6ngYZ7By0cFzF5ExkU34JdqG+aQ8DEup3oUNwOs5+Dbg1+
-	 nvHuDnrzoOHKY3Sgqb9rG8RgL91hXJ7fG9FqBLMS++qQ7MsqGsjGo0oBSh7SWaKE4ZuPx
-	 +vr1UA7F6MWGOYPTDfZRR50G5Yf5XM7x0ccoWzSn0TVc9vndzf9+nQi9IVx6maHwRb/OH
-	 oPR2JA46sxROpROu0WityhQggVpQsgnSXI5Pk49+YMRzVmTtMBO8D9HaTpq7VAApEPw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795755597;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
+	 DKIM-Signature:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Date:From:
+	 To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=8nTARFLuF8rWdXWqUL0nOdf631KIqF6Aph8p2q65SnQ=;
+	b=Iio+9QIqiGx3XaOIggJpE+Sn/vg49VgeyomAUY/46Y3H+PyZxoiZNttd/MYHfApE0NV5
+	 U9hceDW+AwqBDf9CieoGjpyRVAI1YV1/wFis8/9Le0+MEVSWBBm7h8Dlw4w6YYzF5OyON
+	 IY+K1kbUBKHgmBha5ds8UCcQksC2kI9dmwecJvADZHM8j7zEApMlA1NmGQktOLwMQn+yb
+	 x+458jT9SRY/FsNlYJhICYa8fkRyy6N5a3Klefdsm5EKfnr0lGkPJjG2McwOnq1h97knQ
+	 I2phW6W4pc9Syu8Ql0uChlS0s7wjYGy/5RioDYzM6U0xyM5uVkICgPdNhtufDoVbveA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=myth5.com;
-	spf=pass smtp.mailfrom=myth5.com;
-	arc=none smtp.remote-ip=115.124.28.68
-Received: from out28-68.mail.aliyun.com (out28-68.mail.aliyun.com [115.124.28.68])
+	dmarc=pass header.from=oss.qualcomm.com;
+	spf=pass smtp.mailfrom=oss.qualcomm.com;
+	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=DsGhTixg;
+	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=bAPvYzNp;
+	arc=none smtp.remote-ip=205.220.168.131
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8840E606A31E;
-	Fri, 27 Nov 2026 02:14:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8840E606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=myth5.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=myth5.com
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.09420933|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.0179708-0.0136425-0.968387;FP=12537866024497197795|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033024148021;MF=myth5@myth5.com;NM=1;PH=DS;RN=11;RT=11;SR=0;TI=SMTPD_---.kB472c2_1795745656;
-Received: from precision-5560(mailfrom:myth5@myth5.com fp:SMTPD_---.kB472c2_1795745656 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Fri, 27 Nov 2026 10:14:25 +0800
-From: "fangzhong.zhou" <myth5@myth5.com>
-To: mika.westerberg@linux.intel.com
-Cc: "fangzhong . zhou" <myth5@myth5.com>,
-	Paul Menzel <pmenzel@molgen.mpg.de>,
-	Mika Westerberg <westeri@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Hans de Goede <johannes.goede@oss.qualcomm.com>,
-	Dell.Client.Kernel@dell.com,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: acpi: Limit DLL0945 100 kHz quirk to Dell Precision  5560 and XPS 15 9510
-Date: Fri, 27 Nov 2026 10:11:54 +0800
-Message-ID: <20261127021203.35477-1-myth5@myth5.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261120071924.GI229695@black.igk.intel.com>
-References: <20261119143218.586632-2-pmenzel@molgen.mpg.de> <20261120071924.GI229695@black.igk.intel.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFB25606A326
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2026 04:59:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AFB25606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=DsGhTixg;
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=bAPvYzNp
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6AQJw3Qw360960
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2026 04:59:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=8nTARFLuF8rWdXWqUL0nOdf6
+	31KIqF6Aph8p2q65SnQ=; b=DsGhTixgqrEWYjXjL+rE/8VtI9KguUuR9Lp8ntv8
+	QjsfHIWfQIgl7TlTwGcJwUoX71pSnrlQwlwqZohaMEFcT1zXipTCrKVeZ6Uup2N0
+	IEJXztbEr4FG2Niao8AVLIohrvPLY94FZ7Yt4Ke/fIf21Dg6+QWGQYtonyLmLK9k
+	H6ZuXXVV+V2FRB2x1lE52Y3euFJpB4VP25Cg42c67DFla1mu9/bwnMcOlekNm4zu
+	y2F1UYdqDpwLjd+aO3mjecFFbxTwgoWH8mmpagbCfBSyoWtkLxvavbvcmwrFrHeR
+	HwoaqB7y8NthaNcVnnBRa2xjqj2AioUCTqB7pHff6icE6w==
+Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4j6f8rkyub-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2026 04:59:55 +0000 (GMT)
+Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-386b8624cf7so6138996eec.1
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Nov 2026 20:59:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1795755595; x=1796360395; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8nTARFLuF8rWdXWqUL0nOdf631KIqF6Aph8p2q65SnQ=;
+        b=bAPvYzNppK38dDYGxIP6bmMJuj+MZDHXSi4C2wxX+IoTGMWDi4zXHI59dgjZOomlRV
+         FKpGDcaJmKyN2HtxqbrlfpV5+nPvg1vti4Tma5MvoW+o67+8jwH19WKZVhDgWxHEeqwE
+         fsi1H16njs5D1NUgICofmgg9OmtTJt0q384OSqOeMsHsGcVAAW1XBqqs2Ar8U+ss9v4u
+         CH43heW5jNKCwzoMVkkmS2vUsyT2QwNhHvEhH1N1ca+IsJ+lQ+rGvJm0U3MplJoKavA9
+         NQKzghwXq4mztF3E5ViXO2Bv+AcwmfogBFIcJ1aAMeuGCCP0mQKceOYCxcKkjPcUcfyP
+         0pPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795755595; x=1796360395;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8nTARFLuF8rWdXWqUL0nOdf631KIqF6Aph8p2q65SnQ=;
+        b=hH3CXWNimhYmdj7moNdtdJLJZbJ7BK7Zk3IL/sdyZKTJZUZLuZKYrE4z3YUEW/7j+y
+         7Ia6OhXTFODTZw64pc/qIJM5raXcfuuxrgzMXchlfYs+BxvIx+864pin65Sq4yGEEskv
+         zA6eZz0XKUb4vqpizbwr1ZjoH8k3AcOgQLfn/pCMR1IpJFLOdriZ17zkFBEDTNqzluz9
+         iCAJhKlxEwDf7qvkJr4oMh1w2sj9cJGh+j3nED/bxVLBEQoE8d4n3yw8Rl5CGfw4AVlZ
+         IEBNjPPOzFBj1FZkR5On25rOE4N6s9+SkAmIXcMkWWkZK6voiBzPq31KBsgAg9bt1Ris
+         Mttg==
+X-Forwarded-Encrypted: i=1; AL+hErGm3Pk3nSf3m02CKaFDYdFef/0hXzef6Cbw290uZF4s2I7PTldg5ZnoaBXrN+H/FWktMPJ8OmGqlBw=@vger.kernel.org
+X-Gm-Message-State: APuU4Z90PMayzQGEmZopTCbl2yxNmEkDw0vOKjZjFj/ZU/4T7s5KGP1B
+	dEh7vlDKK24TtdLgKN8hQQTt8rig6FRRKZyZp3uA7ysuwqzDtEe3fT/FbSyCIsZlJ33zHj8V3nZ
+	k7+tUf3hitccWdnLAjSPfLf4vu8sAVb4mcMZ3YptjNCZe6VPDrBfdLx7gH6aD7jI=
+X-Gm-Gg: AZFdTZctPCdNrdy6ZVIb1fnbWxaBCDYJUu44+He278sUOwTMP0r3RmqEHnrNX9UrnFN
+	zNzbcC/vgoyMnI77wyiYixGIE16Zj0ayEOVSqvjIKHy8aFne4DL3a9/VcOU4ncLILk22KMtZyey
+	wFPUAckBA2NdM9flYCKRbS4Pzb8wViThOT/hQTHPqLEOwi8HsR5sTnxtOPA3Wi2RVAesWKiE1mC
+	eO+qbNxFc6uHy4ddoAhsBAp/mexcs/1jWA8G+e4c9Gcf7KaF62WGapB4D/+TYnSRSR2IaU4Tetf
+	Ib4tQjCwQy9VdESFvuFh4Kx6zYIO1jsvD2KcBv20YSODCPyJ9HFeqShY4Z+UmvaKvGqhOlTTVP/
+	33jWJAAwO3HpUrQ3MmEV3caGoA/ccDg/5fjzbsaEY7KfomJVDDiyjqbNH3/KugdYiIcsNOMDYEX
+	plRcwRq/NbZNXnidtIwOuvEtoK5VWu4BHHUPfoyW/clSo46xLZXZIcE2cYrTvwhkux3Zh4HKYG0
+	8uJmQ==
+X-Received: by 2002:a05:7300:ce11:b0:384:fe97:8ccc with SMTP id 5a478bee46e88-3856fb58443mr25791400eec.29.1795755595316;
+        Thu, 26 Nov 2026 20:59:55 -0800 (PST)
+X-Received: by 2002:a05:7300:ce11:b0:384:fe97:8ccc with SMTP id 5a478bee46e88-3856fb58443mr25791376eec.29.1795755594682;
+        Thu, 26 Nov 2026 20:59:54 -0800 (PST)
+Received: from hu-varada-blr.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com. [103.229.18.19])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-385646633d0sm120946895eec.3.2026.11.26.20.59.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Nov 2026 20:59:54 -0800 (PST)
+Date: Fri, 27 Nov 2026 10:29:48 +0530
+From: Varadarajan Narayanan <varadarajan.narayanan@oss.qualcomm.com>
+To: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
+Cc: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH] i2c: qcom-geni: Allow minor deviation in clock rate for
+ clock map selection
+Message-ID: <awkORIPhj/xiG2NA@hu-varada-blr.qualcomm.com>
+References: <20261126-i2c-rate-v1-1-6b8c5731077d@oss.qualcomm.com>
+ <eeb651bf-a627-4442-b9de-da73f70c0e97@oss.qualcomm.com>
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -61,73 +123,102 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <eeb651bf-a627-4442-b9de-da73f70c0e97@oss.qualcomm.com>
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTI3MDAxOSBTYWx0ZWRfX8Rz1FNHY9H5y
+ lJKqZw3oupyUxQDLF4ewWlj7aXeJu1acpk5UEOiaHuUSbpRkCOmwbW3WioOVH0KL2ujxFtanQXi
+ HIYL5bbBIdJZ4rWC2BeggPEpfnlj0+BK9pFaHq5tCnjutQoMNGtbvTVJdwSPmasdyCt4OEfUuZP
+ 2Y+020iL1/iqUKg9jzpUNc05nSCDmuxD6/I182+ygiKJBPhhUSZxJVgR1eFF7FaZ1iATL/Q+CbD
+ HfaxkfQY1acimacNLsqanD9buoS5XGsz088Srj1KE2JyoXIGnXoGX7Yt9V5SP48zTPMxIkx9JyA
+ HKua7lLT8Di3EF725Vu0KhUtrh1K1D8sxM0DkVp/3AhMweIk2lxhKXczenkxHGmfTt2hUsJKKCb
+ MxXridd3p4mM9HmUREU3zbMg58uw/wxqZT35SVWjM8PahBfAA2NqYrYVScUWnBz+QSYxgeBsQmk
+ EzikbUjgSbXiMRy/Brw==
+X-Proofpoint-GUID: f64selZqgWEFRX0HqG2SdhMf630kQ7Ma
+X-Proofpoint-ORIG-GUID: f64selZqgWEFRX0HqG2SdhMf630kQ7Ma
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTI3MDAxOSBTYWx0ZWRfX1ADEP50g3yiq
+ ZC95NNLXfIiEYBR6gK6X0BujjQhDwwAB7/kyEax4v4xRnyYwleRZuynPMu/l03kCQ5gAWVQ6h9j
+ 04OFVDgVaWOzh8qeY48KwegpXG1CgTA=
+X-Authority-Analysis: v=2.4 cv=FuOQbGrq c=1 sm=1 tr=0 ts=6b090e4b cx=c_pps
+ a=wEP8DlPgTf/vqF+yE6f9lg==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=Um2Pa8k9VHT-vaBCBUpS:22
+ a=EUspDBNiAAAA:8 a=5qUGMcpEgxZBPV2CaegA:9 a=CjuIK1q_8ugA:10
+ a=bBxd6f-gb0O0v-kibOvt:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-26_05,2026-11-26_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 impostorscore=0 malwarescore=0 adultscore=0
+ suspectscore=0 phishscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611270019
 
-On Fri, 20 Nov 2026 08:19:24 +0100, Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
-> Hi,
+On Fri, Nov 27, 2026 at 01:12:38AM +0530, Mukesh Savaliya wrote:
 >
-> On Thu, Nov 19, 2026 at 03:32:16PM +0100, Paul Menzel wrote:
->> Commit 0b7c9528facd ("i2c: Force DLL0945 touchpad i2c freq to 100khz")
->> forces the I2C bus to 100 kHz for all devices with the ACPI ID DLL0945 to
->> work around a sluggish cursor on the Dell Precision 5560. But DLL0945 does
->> not identify a touchpad model. Dell uses it for touchpads from different
->> vendors:
->> 
->>     System                Touchpad
->>     Dell Precision 5560   ELAN 04F3:311C
->>     Dell XPS 15 9510      ELAN 04F3:311C (bugzilla #214597)
->>     Dell XPS 13 9310      Synaptics 06CB:CDE6
->> 
->> The ELAN touchpads are the ones known to need 100 kHz, but the Synaptics
->> touchpad of the Dell XPS 13 9310 is slowed down without need. Its DSDT
->> specifies 400 kHz, and Linux logs:
->> 
->>     i2c_designware i2c_designware.0: [Firmware Bug]: DSDT uses known not-working I2C bus speed 400000, forcing it to 100000
->> 
->> The touchpad scans every 7.1 ms (scan time field in the input report), and
->> i2c-hid reads wMaxInputLength (64 bytes) for each report. Tracing the I2C
->> transfers for 30 seconds of moving a finger on the touchpad shows:
->> 
->>                              100 kHz   400 kHz
->>     read time (median)        7.3 ms    2.5 ms
->>     bus busy                   87 %      36 %
->>     reports per second          111       140
->>     frames lost                18.6 %     0 %
->> 
->> At 100 kHz the host cannot keep up with the touchpad, and every fifth frame
->> is lost. At 400 kHz all frames arrive, and no sluggish cursor was noticed.
->> 
->> So, only apply the DLL0945 entry on the Dell Precision 5560 and XPS 15 9510
->> by pointing the entry's driver_data to a DMI table, which can be used to
->> restrict other entries in the same way.
+> On 11/26/2026 2:09 PM, Varadarajan Narayanan wrote:
+> > gi2c->se.clk rate is set to a value of 32MHz +/- delta by calc_rate().
+> > This results in the clock rate comparison against GENI_SE_CLK_32MHZ to
+> > fail, and the requested frequency is assumed as 19.2MHz.
+> >
+> > To avoid this allow for a +/- delta in the rate comparison.
 >
-> Yeah, we should really figure out how this works in Windows. I'm sure they
-> don't have such a quirk list so maybe it's up to the vendor specific
-> drivers to "tune" the bus to their needs whereas in Linux we obey the ACPI
-> description.
->
->> Tested on the Dell XPS 13 9310.
->> 
->> - The `[Firmware Bug] … forcing it to 100000` line is gone from dmesg.
->> - Re-probed the touchpad’s I²C controller with debug output on, and it
->>   reports `Bus speed: Fast Mode (400 kHz)`. The touchpad came back up
->>   under hid-multitouch.
->> 
->> Fixes: 0b7c9528facd ("i2c: Force DLL0945 touchpad i2c freq to 100khz")
->> Link: https://bugzilla.kernel.org/show_bug.cgi?id=214597
->> Cc: Hans de Goede <johannes.goede@oss.qualcomm.com>
->> Cc: Dell.Client.Kernel@dell.com
->> Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
->
-> Acked-by: Mika Westerberg (Intel) <westeri@kernel.org>
+> By How much ?
 
-From my subsequent testing, the cursor lag issue still appears when the
-laptop is under high load or any other reasons, so my earlier patch did 
-not fully resolve the problem.
+In my case it was '1' (i.e. 31999999 Hz).
 
-I then replaced the original touchpad with a brand-new unit. After more
-than one and a half months of continuous testing, the cursor lag has not
-reappeared.
+>
+> >
+> > Signed-off-by: Varadarajan Narayanan <varadarajan.narayanan@oss.qualcomm.com>
+> > ---
+> >   drivers/i2c/busses/i2c-qcom-geni.c | 9 ++++++++-
+> >   1 file changed, 8 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> > index ef48ab3e8b94..88b5b9aa4667 100644
+> > --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> > +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> > @@ -207,14 +207,19 @@ static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
+> >   {
+> >   	const struct geni_i2c_clk_fld *itr;
+> >   	unsigned long req_freq, res_freq;
+> > +	unsigned long rate;
+> >   	int ret;
+> >   	/*
+> >   	 * Use 32 MHz only if already selected, otherwise use 19.2 MHz.
+> >   	 * Preferring 32 MHz merely because DFS supports it breaks I2C
+> >   	 * transfers on X1E80100 CRD.
+> > +	 * The clock's rate may not exactly match 32 MHz. It is slightly off
+> > +	 * due to the calculation in mult_frac() in clk-rcg2.c:calc_rate().
+> >   	 */
+> > -	if (clk_get_rate(gi2c->se.clk) == GENI_SE_CLK_32MHZ) {
+> > +	rate = clk_get_rate(gi2c->se.clk);
+> > +
+> > +	if (abs_diff(rate, GENI_SE_CLK_32MHZ) <= HZ_PER_KHZ) {
+> It's like  +/- 1KHZ ? Can it deviate > 1Khz too ?
 
-I will keep testing to confirm whether the issue is completely gone.
+Not sure. But per LLM, it says for the applicable qcom related clocks
+it will not be more than +/- 1. However, the mult_frac() API can return
+bigger delta with numbers close to ULLONG_MAX.
+
+Thanks
+Varada
+
+> >   		req_freq = GENI_SE_CLK_32MHZ;
+> >   		itr = geni_i2c_clk_map_32mhz;
+> >   	} else {
+> > @@ -222,6 +227,8 @@ static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
+> >   		itr = geni_i2c_clk_map_19p2mhz;
+> >   	}
+> > +	dev_dbg(gi2c->se.dev, "rate: %lu req_freq: %lu\n", rate, req_freq);
+> > +
+> >   	ret = geni_se_clk_freq_match(&gi2c->se, req_freq, &gi2c->clk_idx,
+> >   				     &res_freq, true);
+> >   	if (ret)
+> >
+> > ---
+> > base-commit: 47588e4c16d8876d3058bcec030ed8a016794b9e
+> > change-id: 20261126-i2c-rate-da11bbe02b6f
+> >
+> > Best regards,
+>
