@@ -1,61 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795783638;
-	b=iP6pquek+JW2DHYBZzprsQ6IUH3RjvpDwjtIFQWNE7ircBraElQ5vQAuRp2qt3FKUHvx
-	 nbcEi7LYo1ZHVIh1vmYOPhplihA/2KbFFKBufs7nuhH72M2rO33n4itvfFXN7AhLiMZxE
-	 f0jra7d4cdPIJSh/4LlBXg8RxhzyWv9bu9uspWoGwnLXD+8+oK9W9YRy6/9MPk9iKw/Sa
-	 M6/tHGw3DX62IuSH1aXjm1XAnq9A/gooc60n7D0ilR2NbzmEb7TFtL/d7p8vSllTvHHxh
-	 SI1J4GmyKqWHi7pFFj1jMewt5Vs1sdwo61hRLVybYN6rA0kXhHwgqxg7SpgAUul6lsg==
+	t=1795799240;
+	b=p8dEukI1Nia8WHDTVZedPAmJ2HIDJoNbuKjp8bCr2p8WSii5hU5jPioX0TuIbNdD9RuH
+	 N+XNzSQezHMeR2nc9P62HcCV5ZbJiqnSWd1kYQrH+JfAt2OkFD4n2GOVIljGaq5RU0Vbl
+	 aAbaaElBFmS3sdtJg1o8UqZAIUi4NCJmG0y+CdxK2kCTCifpQ/ZEJ4PmH8QiC9B7F2S0y
+	 hWvkUzpzOG+VSv638VNvJfEdv7kT/PRJphjV8Mt1v0wTsH/OFiFlNF/h6MyqgWvkYFHoe
+	 TVKabnyd/B0LhjS30yi95hUsErYEGLog+XLKHDCl7WmNvltpq+1q2WftyoRv51Fl/iQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795783638;
-	h=DMARC-Filter:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:
-	 Content-Type;
-	bh=uPfpI50tb7D/+LMDNaFZyv1Wo1aup2sr8aIhOr5amnQ=;
-	b=mZ9dfPgTtiwC1KtIjbx8kPzgLbmL9uS24Ie8EYrcT3+7aS2sn/6il27VUqu/eWVq5I77
-	 8obvIrCmGe/zxBigo/M5qfbQ2M0wVXlpw1yCT3vCjeIaEX6dnJGriyGD/fGbVHcKyPuMY
-	 Abule14G16wylP7Dd8BRRbF+eAPu4yRn97ADufO5Lt10RhEa5wGPQ/A8WCQ/LLowJxmE1
-	 5eTdl/vYrGOHX36DHqZMbpdgp0Q93EplYQU5OlFf3QBbpWQCMIZRSzFNwrpWsPM5sQ0dy
-	 HpiPbMLZbOdF4/BqYlD/k7XT1ZPb21Q1pzPGaoFJEjr79Oi/WkNvz/7cEm1qZeGRXxg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795799240;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding;
+	bh=PdndVKJFo7cHXqOQ9mGDRu01U/lAdsSMeeFhNTaFFmY=;
+	b=s0NkcfWNMElWAHcWxFMT8ThA9+UblCaU730hecSk0REyGqYnO0Re0FWbTrFkXemO6BmA
+	 RDry1TGqMwadZg0Ih4cIBnofemSRl4ipY8Mt2N8wHh7KzPu/YkUiuYevLfZwPV1qt6LJt
+	 8szVLv8Eab2Dm+phswUGoHEgmRQRkqq/8T13VQa8DibUjNj59MfBIv15m6fbrY+fzqZZ/
+	 Dd48F6QCL4IrTE8zAjbGTo/XoZAVK9ruM0/tT9ifFVv+AWxmDFHJkSnjVVxsDEJMSbf4V
+	 fZC2KkR7GhAAr4Vo7VsJ/ba3rwhacmZWVQamyi78xonj7LBOUv8l8hQNsOtEDq1jtkg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=sntech.de;
-	spf=pass smtp.mailfrom=sntech.de;
-	dkim=pass header.d=sntech.de header.i=@sntech.de header.a=rsa-sha256 header.s=gloria202408 header.b=1qdLnggx;
-	arc=none smtp.remote-ip=185.11.138.130
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L4qceq45;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62523606A31F;
-	Fri, 27 Nov 2026 12:47:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62523606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sntech.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6202606A31C;
+	Fri, 27 Nov 2026 17:07:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sntech.de header.i=@sntech.de header.a=rsa-sha256 header.s=gloria202408 header.b=1qdLnggx
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
-	s=gloria202408; h=Content-Type:Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To;
-	bh=uPfpI50tb7D/+LMDNaFZyv1Wo1aup2sr8aIhOr5amnQ=; b=1qdLnggxochql+Dkqhr5X4AKRD
-	ReaGpAvcLsFO9OI3C56HicPRmLbXl3eXd1/sqiVFncFWPwPKnoga/OuBeqYpiib1YBYC0RiFVLSYl
-	I5l3hyzgouu29yGPhAYXlZMW/RESMaflKOWkPOjoAW4xYw4DqAxhqEwkNe/kuRgydtL+Ht/DanSSL
-	PoGUmkpIrjIIbMR+10d8dEG5+ktRJMrh0xxWm6GS/8GhlvGL5kxni1mueOiU2LX5vbFuWwvXJC9pt
-	hMwq0Ea/rxzEdqf5IwxjvofVeZbcgRTTiBULgeJ0zPI90Fs9ynXytIv4AhuvwowlA3rFKyaTRSBnF
-	GM2u+dRw==;
-From: Heiko =?UTF-8?B?U3TDvGJuZXI=?= <heiko@sntech.de>
-To: Andi Shyti <andi.shyti@kernel.org>, Wolfram Sang <wsa@kernel.org>,
- Jensen Huang <jensenhuang@friendlyarm.com>,
- Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-i2c@vger.kernel.org, kernel@collabora.com, stable@vger.kernel.org,
- Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: Re: [PATCH] i2c: rk3x: Do not sleep in atomic polling transfers
-Date: Fri, 27 Nov 2026 13:46:55 +0100
-Message-ID: <7m4BPz_aRRWlgAirQmmfoQ@sntech.de>
-In-Reply-To:
- <20261127-rk3x-atomic-transfer-fix-v1-1-076c94c07241@collabora.com>
-References:
- <20261127-rk3x-atomic-transfer-fix-v1-1-076c94c07241@collabora.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L4qceq45
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2F9A1F00893;
+	Fri, 27 Nov 2026 17:07:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795799240;
+	bh=PdndVKJFo7cHXqOQ9mGDRu01U/lAdsSMeeFhNTaFFmY=;
+	h=From:To:Cc:Subject:Date;
+	b=L4qceq45GDx6JcEele2BvYYX9U0rdgQfBfplZblCu5YdWd1L6v0kFvirUtFImlxpu
+	 OCcTKFys0pwxgL1sn+G+7Bw5EpCL1V+Zv+Lymqf/BHy2i1VAzYUDkX/oUM7VNXnwq+
+	 SchJWtXKEPIV/m++1/M/DweKe6hStcnw/X6KXl+K76uIZ1LD6GYsZt7ZBYh+mOmfa+
+	 tyuzhIo8iavebwVcD4dZ1i6Jl9hJq4yh1TYExb/bF4G9lTn0UOyVrNIcQz0uEDowP/
+	 HsP7lypu9lZwTi2R1zBBJRnTTEdkUgx3UQgYv990WfcWBeuGf1lFRgGt5LJgvqzMKL
+	 vsOcdf50dtv0A==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	bpf@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
+	=?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
+	=?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+	"He, Bo" <bo.he@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	"Zhang, Jun" <jun.zhang@intel.com>,
+	Andreas Gal <gal@cs.uni-magdeburg.de>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bastien Nocera <hadess@hadess.net>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Charles Wang <charles.goodix@gmail.com>,
+	Dexuan Cui <decui@microsoft.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiangshan Yi <yijiangshan@kylinos.cn>,
+	Jiri Kosina <jikos@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	linux-hyperv@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	Lopez Casado <nlopezcasad@logitech.com>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	message to <vojtech@ucw.cz>,
+	Michael Bommarito <michael.bommarito@gmail.com>,
+	Michael Haboustak <mike-@cinci.rr.com>,
+	Pan Chuang <panchuang@vivo.com>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Rishi Gupta <gupt21@gmail.com>,
+	Roderick Colenbrander <roderick.colenbrander@sony.com>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Stefan Achatz <erazor_de@users.sourceforge.net>,
+	Tianchu Chen <flynnnchen@tencent.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Wei Liu <wei.liu@kernel.org>,
+	Zhang Lixu <lixu.zhang@intel.com>
+Subject: [PATCH v2 00/10] HID: Fix race conditions, UAFs, and bounds bugs
+Date: Fri, 27 Nov 2026 17:06:18 +0000
+Message-ID: <20261127170712.3163443-1-lee@kernel.org>
+X-Mailer: git-send-email 2.56.1.839.g22a8290db9-goog
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -65,82 +93,83 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Am Freitag, 27. November 2026, 13:33:05 Mitteleurop=C3=A4ische Normalzeit s=
-chrieb Sebastian Reichel:
-> On the RK3576 Sige5 during shutdown the following trace appears on
-> kernels with multi-core support and lockdep enabled:
->=20
-> [  167.961946] WARNING: kernel/irq_work.c:296 at irq_work_sync
-> ...
-> [  167.963902] Hardware name: ArmSoM Sige5 (DT)
-> ...
-> [  167.972228] Call trace:
-> [  167.972445]  irq_work_sync+0xe8/0xf8 (P)
-> [  167.972796]  disable_irq+0x44/0x60
-> [  167.973101]  rk3x_i2c_xfer_common.isra.0+0x254/0x708
-> [  167.973544]  rk3x_i2c_xfer_polling+0x20/0xa0
-> [  167.973925]  __i2c_transfer+0x180/0x9d8
-> [  167.974269]  i2c_transfer+0xc4/0x180
-> [  167.974589]  regmap_i2c_read+0x64/0xc0
-> [  167.974924]  _regmap_raw_read+0x120/0x468
-> [  167.975283]  _regmap_bus_read+0x4c/0xa8
-> [  167.975626]  _regmap_read+0x6c/0x260
-> [  167.975945]  _regmap_update_bits+0x104/0x160
-> [  167.976325]  regmap_update_bits_base+0x5c/0x90
-> [  167.976720]  rk808_power_off+0x70/0x110
-> ...
->=20
-> Avoid waiting for a handler from another CPU to finish to fix the
-> problem. At shutdown time this won't happen as the other CPUs are
-> already stopped. Apart from that disable_irq_nosync() still prevents new
-> invocations of the handler, which is what avoids the spinlock recursion.
-> A handler already running on another CPU is serialized against the poll
-> loop via i2c->lock.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: 19cde9c92b8d ("i2c: rk3x: fix potential spinlock recursion on poll=
-")
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+These issues were reported by Sashiko.
 
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+This v2 series addresses Srinivas Pandruvada's review feedback on
+hid-sensor-hub and collects Reviewed-by and Tested-by tags from v1.
 
-With CONFIG_DEBUG_ATOMIC_SLEEP activated, this should also already
-already warn from the might_sleep() in disable_irq(), I think.
+v1 => v2:
+ - Drop kfree() from sensor_hub_raw_event() and clear hsdev->pending.status before complete() under data->lock in patch 04, per Srinivas Pandruvada's review.
+ - Add Hamza Mahfooz's Reviewed-by tag on patch 06.
+ - Add Ping Cheng's Reviewed-by and Tested-by tags on patch 08.
 
+Cc: "Barnabás Pőcze" <pobrn@protonmail.com>
+Cc: "Benoît Sevens" <bsevens@google.com>
+Cc: "Filipe Laíns" <lains@riseup.net>
+Cc: "He, Bo" <bo.he@intel.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: "Zhang, Jun" <jun.zhang@intel.com>
+Cc: Andreas Gal <gal@cs.uni-magdeburg.de>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: bpf@vger.kernel.org
+Cc: Charles Wang <charles.goodix@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Jason Gerecke <jason.gerecke@wacom.com>
+Cc: Jiangshan Yi <yijiangshan@kylinos.cn>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: linux-hyperv@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-iio@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: Lopez Casado <nlopezcasad@logitech.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: message to <vojtech@ucw.cz>
+Cc: Michael Bommarito <michael.bommarito@gmail.com>
+Cc: Michael Haboustak <mike-@cinci.rr.com>
+Cc: Pan Chuang <panchuang@vivo.com>
+Cc: Ping Cheng <ping.cheng@wacom.com>
+Cc: Rishi Gupta <gupt21@gmail.com>
+Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Tianchu Chen <flynnnchen@tencent.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Zhang Lixu <lixu.zhang@intel.com>
 
+Lee Jones (10):
+  HID: core: Protect hid->inputs traversal in hid_check_keys_pressed()
+  HID: mcp2221: Synchronise rxbuf access against raw_event callback
+  HID: logitech-hidpp: Synchronise send_receive_buf against raw events
+  HID: sensor-hub: Serialise synchronous read teardown under data->lock
+  HID: roccat: pyra: Resolve USB device from parent in actual_profile
+  HID: hyperv: Validate VMBus packet and payload bounds on receive
+  HID: hid-goodix-spi: Validate package sizes in goodix_hid_irq()
+  HID: wacom: Stop HID hardware before releasing resources on mode
+    change
+  HID: debug: Hold driver_input_lock while dumping raw report descriptor
+  HID: playstation: Cancel DualSense output worker on create failure
 
-> ---
->  drivers/i2c/busses/i2c-rk3x.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index 9ec3beced9f9..a07c60ab07b4 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -1096,7 +1096,7 @@ static int rk3x_i2c_xfer_common(struct i2c_adapter =
-*adap,
->  			time_left =3D wait_event_timeout(i2c->wait, !i2c->busy,
->  						       msecs_to_jiffies(WAIT_TIMEOUT));
->  		} else {
-> -			disable_irq(i2c->irq);
-> +			disable_irq_nosync(i2c->irq);
->  			rk3x_i2c_start(i2c);
-> =20
->  			time_left =3D rk3x_i2c_wait_xfer_poll(i2c);
->=20
-> ---
-> base-commit: eeb63983deb23d68ddc47e5d1944a7d64acdaf22
-> change-id: 20261127-rk3x-atomic-transfer-fix-23f2d43c38b6
->=20
-> Best regards,
-> -- =20
-> Sebastian Reichel <sebastian.reichel@collabora.com>
->=20
->=20
+ drivers/hid/hid-core.c           | 16 ++++++---
+ drivers/hid/hid-debug.c          | 12 ++++---
+ drivers/hid/hid-goodix-spi.c     | 34 +++++++++++++------
+ drivers/hid/hid-hyperv.c         | 12 +++++++
+ drivers/hid/hid-logitech-hidpp.c | 58 +++++++++++++++++++++-----------
+ drivers/hid/hid-mcp2221.c        | 47 ++++++++++++++------------
+ drivers/hid/hid-playstation.c    |  1 +
+ drivers/hid/hid-roccat-pyra.c    |  9 +++--
+ drivers/hid/hid-sensor-hub.c     | 29 ++++++++++++----
+ drivers/hid/wacom_sys.c          |  4 +--
+ 10 files changed, 150 insertions(+), 72 deletions(-)
 
-
-
+-- 
+2.56.1.839.g22a8290db9-goog
 
