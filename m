@@ -1,60 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1795802319;
-	b=S3kaKlQZ9Sjos0hO7dXM4Lb9w+eIF1+yynG636wRlQzW3ncdsp0M2qRgBr+0FM9LAr4e
-	 nGqHRTaUzVuNAhCgpnSAcofiBBwpK/RB5QwWl/VpiDx3u+ZmalHyRh8iOe74b1c3xx9jV
-	 Bp0igUgddjSuJzseulQpeoFM1d5rTISHFQAAhWn4wpcR4k5vgH81o+6wnl3oIBLTkcpjZ
-	 8YheHxUafWnH0+sRm5Ms46Ddr3h3orHey1JJ1s54PkLrFSv5yflM3i1M9P311e3niVvSd
-	 oGOkfrggM9ZuRSC9aSTQXY1gk5CxZ64PamrUI834dWlrMNCtFx7wpeNdtUAhp4JUx/A==
+	b=YfoerKjor7HDxC+KleQxLAE85pKJcRxqLni08Ly9lYUNHFR9rgNJRxSGj13op4viB/f9
+	 U6YW25b2bSOXfO+pAeWw8/PWuZIRz+EDKVvqQUwbP2a5C0oBENML3yeFaIbVPblWOFQJK
+	 JUeij0GmFZeRM7vbrHKgOH1mYEHIPczTbilBCd8ztxbWjF2yRRmkk6ghzAByTuHXZKo4Z
+	 ZWwXz7dbdfY5zVatcfvEPmS2GgpPvOA60xS4BPEQzwmKrfG4Gn4MN8Uz/wjYMZlZpgWYc
+	 UDvNwcbhIFkwLg6CErtU3EVK1KIASptKlub/DxzotwBbof70KKPsBQJg1/6j9U4eGrw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1795802319;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=QvMpBNnKTFpdOZUFpRu8p1F4ZLzqRGE8LkYnPnuvhRw=;
-	b=A5ffIWExEuY+mm7MIf8bwru201CZbCpIX4Uqs/LCCFKzJYGLc8249P2BZ+4u/HfU39pN
-	 2l6fttoJZlm2kkqMEpJAl8j47/7e1KjcuZT92JaUwpyb1AaYMBMzesp/ocIhL0CuThsGE
-	 oaxkvyRXlnBbuhpnXhtMRIVWUQ+jg7c8ogGmV1jO04iWi4obMeU04VCF6e2+AH3slmTsd
-	 xEeX8vLz3wgl3ucm5yaZQkrdHZGNG+CoZ08ugMsI6YEqGSKCHnmVblPWQUmEiFfj3eNEZ
-	 X+4jKYrMWK6f7sIzXjgfxMjo2DhrrooX8Cwg3cDpcmBaWB4adND4MWxQ1+0mmNE1aJw==
+	bh=gtvR9miBTva7s2ycJTQZotb4TSIDS9gAitRlfuCzzCk=;
+	b=iSFl1xm4OxTydkTV8Nnc6a4q5Iikkm8JvC2k2FNVncfMTWShC6cYP5DrIqeglfQIXHy5
+	 TOr68VSadQ0QYRWkrArORp3MVNFPV3BKIveLn51EN7KwUQAKa/gtM4cml8ki8od76cS6o
+	 tn0z8yI+wBEoaZLIOkzlFfheGNEd09lRR/3ADsSRcJc329F8dR29hxkrHFPHjNlH3Tdb1
+	 H+lt7WJBfdNNfp7IecMtj8T8AmMR5qrIpfm/Z1mXT1VyvVybioePQBnBRzRyjPEOgrrf0
+	 rlR7mLRN5oezMThIJPab2iY3HqxBlqCx+d4/jq57RFolOYxE4T4Eco9Ww3Mveimn+vw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=rVsj1LNH;
-	arc=none smtp.remote-ip=185.246.84.56
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IAcvTDOA;
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68251606A33A
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2026 17:58:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68251606A33A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58C90606A691
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2026 17:58:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58C90606A691
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=rVsj1LNH
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IAcvTDOA
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 23AB51A1842;
-	Fri, 27 Nov 2026 17:58:37 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id E266CC2AC4E;
+	Fri, 27 Nov 2026 17:58:46 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id E5E646049C;
-	Fri, 27 Nov 2026 17:58:36 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 8D77C104395A2;
-	Fri, 27 Nov 2026 18:58:35 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 154CD6049C;
+	Fri, 27 Nov 2026 17:58:38 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 8430310439571;
+	Fri, 27 Nov 2026 18:58:36 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795802316; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1795802317; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=QvMpBNnKTFpdOZUFpRu8p1F4ZLzqRGE8LkYnPnuvhRw=;
-	b=rVsj1LNHfVgAAUKS64ELq57t+KBGEk7zI4iHT1Kaw/SwRntpMtJWFRCNsXC2X49sKrRoyY
-	qDRlsWHwW6YkFgncD3yw3tGioraJBq6fS0h5d7FTG17qTCnlwbAq9YZCP3Eg1GxQ2jDV8h
-	nz7rfXctdej02pRk40NysyqD62pCXXk0+WLQV/qtFj+sFyDiueq4DxmOoDq5oXxMsUthKn
-	2wiHBFO3/1YY6AGhuQHvKRUxVLqpjAKJZXZkYTJKSvRj1tstZDmtrsMYbjNannsX0woKox
-	iGMwaGlPE1p32w2zEF9Da5rcEnoIbBH0VYftxrKxQOQCDkHSizNTzJRLH9/Z1A==
+	bh=gtvR9miBTva7s2ycJTQZotb4TSIDS9gAitRlfuCzzCk=;
+	b=IAcvTDOAFMCruGuz5uK8WsbglsjlUlyTPW2ADYBx3+FWf0565p3blavqsTeewnElJzVpDj
+	nI2IEN2F0m2a7wxsDAlOGivGPmrEx95Guek4XJpgsW5pXY6gwJ8QcmCPaiGK9p2R8MbaA2
+	xeCRvgCIbaQS5yMYLI5RICOSOXrfEMjdrJ9PlBJ6ZuhWUgSfgL075r63cICrhhdU8rDkjA
+	A1kjA1oS818IcD+Bj2VYamJTn+Z3wznMk/MT0qiONgxV3Vf7xQBgV/c726Fbv2RXV7mPKE
+	PBkHfIzbWw7prrr8jZMG/MXRRQ//raV5KESFkui6l9RF6xhBx6zQgSjK9gu6oA==
 From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Date: Fri, 27 Nov 2026 18:57:53 +0100
-Subject: [PATCH v7 09/11] mfd: cgbc: Add virtual storage devices on the
- virtual I2C bus
+Date: Fri, 27 Nov 2026 18:57:54 +0100
+Subject: [PATCH v7 10/11] i2c: cgbc: Register known I2C devices on the bus
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -66,7 +65,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261127-cgbc-i2c-storage-devices-support-v7-9-d0e70fc57879@bootlin.com>
+Message-Id: <20261127-cgbc-i2c-storage-devices-support-v7-10-d0e70fc57879@bootlin.com>
 References: <20261127-cgbc-i2c-storage-devices-support-v7-0-d0e70fc57879@bootlin.com>
 In-Reply-To: <20261127-cgbc-i2c-storage-devices-support-v7-0-d0e70fc57879@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
@@ -77,205 +76,49 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-Add support for virtual storage devices exposed by the Board Controller
-on its virtual I2C bus. There are two device types: EEPROM for persistent
-storage and RAM for non-persistent storage:
-- Secure Data EEPROM  (64 bytes, RO): static and dynamic board info
-- BIOS EEPROM         (32 bytes, RW): reserved for BIOS applications
-- BC EEPROM           (32 bytes, RO): Board Controller operational params
-- User EEPROM         (32 bytes, RW): user applications
-- BIOS RAM            (32 bytes, RW): reserved for BIOS applications
-- BC RAM               (8 bytes, RO): Board Controller operational params
-- User RAM            (16 bytes, RW): user applications
-
-Use the at24 driver with the 24c01 entry (the most generic one) for all
-virtual storage devices, customizing parameters via software_node
-properties (size, pagesize, read-only flag, label).
+Register any I2C devices defined for the bus at probe time.
 
 Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 ---
- drivers/mfd/cgbc-core.c  | 129 +++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/cgbc.h |   4 ++
- 2 files changed, 133 insertions(+)
+ drivers/i2c/busses/i2c-cgbc.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
-index db22674affbd..ce90d7315007 100644
---- a/drivers/mfd/cgbc-core.c
-+++ b/drivers/mfd/cgbc-core.c
-@@ -13,10 +13,12 @@
+diff --git a/drivers/i2c/busses/i2c-cgbc.c b/drivers/i2c/busses/i2c-cgbc.c
+index 85cbe709bcde..5105b920e919 100644
+--- a/drivers/i2c/busses/i2c-cgbc.c
++++ b/drivers/i2c/busses/i2c-cgbc.c
+@@ -364,7 +364,8 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
+ 	struct cgbc_device_data *cgbc = dev_get_drvdata(dev->parent);
+ 	struct cgbc_i2c_platform_data *pdata;
+ 	struct cgbc_i2c_data *i2c;
+-	int ret;
++	struct i2c_client *client;
++	int ret, i;
  
- #include <linux/dmi.h>
- #include <linux/iopoll.h>
-+#include <linux/i2c.h>
- #include <linux/mfd/cgbc.h>
- #include <linux/mfd/core.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/sysfs.h>
+ 	i2c = devm_kzalloc_obj(dev, *i2c);
+ 	if (!i2c)
+@@ -393,7 +394,20 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return dev_err_probe(i2c->dev, ret, "Failed to get I2C bus frequency");
  
- #define CGBC_IO_SESSION_BASE	0x0E20
-@@ -55,6 +57,131 @@
- 
- static struct platform_device *cgbc_pdev;
- 
-+static const struct property_entry cgbc_secure_data_eeprom_props[] = {
-+	PROPERTY_ENTRY_U32("size", 64),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_BOOL("read-only"),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-secure-data-eeprom"),
-+	{ }
-+};
+-	return i2c_add_numbered_adapter(&i2c->adap);
++	ret = i2c_add_numbered_adapter(&i2c->adap);
++	if (ret)
++		return ret;
 +
-+static const struct software_node cgbc_secure_data_eeprom_node = {
-+	.properties = cgbc_secure_data_eeprom_props,
-+};
-+
-+static const struct property_entry cgbc_bc_eeprom_props[] = {
-+	PROPERTY_ENTRY_U32("size", 32),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_BOOL("read-only"),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-bc-eeprom"),
-+	{ }
-+};
-+
-+static const struct software_node cgbc_bc_eeprom_node = {
-+	.properties = cgbc_bc_eeprom_props,
-+};
-+
-+static const struct property_entry cgbc_user_eeprom_props[] = {
-+	PROPERTY_ENTRY_U32("size", 32),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-user-eeprom"),
-+	{ }
-+};
-+
-+static const struct software_node cgbc_user_eeprom_node = {
-+	.properties = cgbc_user_eeprom_props,
-+};
-+
-+static const struct property_entry cgbc_bios_eeprom_props[] = {
-+	PROPERTY_ENTRY_U32("size", 32),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-bios-eeprom"),
-+	{ }
-+};
-+
-+static const struct software_node cgbc_bios_eeprom_node = {
-+	.properties = cgbc_bios_eeprom_props,
-+};
-+
-+static const struct property_entry cgbc_bc_ram_props[] = {
-+	PROPERTY_ENTRY_U32("size", 8),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_BOOL("read-only"),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-bc-ram"),
-+	{ }
-+};
-+
-+static const struct software_node cgbc_bc_ram_node = {
-+	.properties = cgbc_bc_ram_props,
-+};
-+
-+static const struct property_entry cgbc_user_ram_props[] = {
-+	PROPERTY_ENTRY_U32("size", 16),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-user-ram"),
-+	{ }
-+};
-+
-+static const struct software_node cgbc_user_ram_node = {
-+	.properties = cgbc_user_ram_props,
-+};
-+
-+static const struct property_entry cgbc_bios_ram_props[] = {
-+	PROPERTY_ENTRY_U32("size", 32),
-+	PROPERTY_ENTRY_U32("pagesize", 1),
-+	PROPERTY_ENTRY_STRING("label", "cgbc-bios-ram"),
-+	{ }
-+};
-+
-+static const struct software_node cgbc_bios_ram_node = {
-+	.properties = cgbc_bios_ram_props,
-+};
-+
-+static const struct i2c_board_info cgbc_i2c_i2cv_board_info[] = {
-+	{
-+		.type = "24c01",
-+		.addr = 0x40,
-+		.dev_name = "cgbc-secure-data-eeprom",
-+		.swnode = &cgbc_secure_data_eeprom_node,
-+	},
-+	{
-+		.type = "24c01",
-+		.addr = 0x48,
-+		.dev_name = "cgbc-bc-eeprom",
-+		.swnode = &cgbc_bc_eeprom_node,
-+	},
-+	{
-+		.type = "24c01",
-+		.addr = 0x50,
-+		.dev_name = "cgbc-user-eeprom",
-+		.swnode = &cgbc_user_eeprom_node,
-+	},
-+	{
-+		.type = "24c01",
-+		.addr = 0x58,
-+		.dev_name = "cgbc-bios-eeprom",
-+		.swnode = &cgbc_bios_eeprom_node,
-+	},
-+	{
-+		.type = "24c01",
-+		.addr = 0x60,
-+		.dev_name = "cgbc-bc-ram",
-+		.swnode = &cgbc_bc_ram_node,
-+	},
-+	{
-+		.type = "24c01",
-+		.addr = 0x68,
-+		.dev_name = "cgbc-user-ram",
-+		.swnode = &cgbc_user_ram_node,
-+	},
-+	{
-+		.type = "24c01",
-+		.addr = 0x70,
-+		.dev_name = "cgbc-bios-ram",
-+		.swnode = &cgbc_bios_ram_node,
++	/* Add known devices to the bus */
++	for (i = 0; i < pdata->nb_devices; i++) {
++		client = i2c_new_client_device(&i2c->adap, pdata->devices + i);
++		if (IS_ERR(client)) {
++			i2c_del_adapter(&i2c->adap);
++			return PTR_ERR(client);
++		}
 +	}
-+};
 +
- static const struct cgbc_i2c_platform_data cgbc_i2c_i2c0_pdata = {
- 	.name = "cgbc-i2c0",
- 	.cgbc_bus_id = 0,
-@@ -69,6 +196,8 @@ static const struct cgbc_i2c_platform_data cgbc_i2c_i2cv_pdata = {
- 	.name  = "cgbc-i2cv",
- 	.cgbc_bus_id = 3,
- 	.fixed_freq = true,
-+	.devices = cgbc_i2c_i2cv_board_info,
-+	.nb_devices = ARRAY_SIZE(cgbc_i2c_i2cv_board_info),
- };
++	return 0;
+ }
  
- static const struct mfd_cell cgbc_devs[] = {
-diff --git a/include/linux/mfd/cgbc.h b/include/linux/mfd/cgbc.h
-index 63fdf16fec95..46e8b583bdb8 100644
---- a/include/linux/mfd/cgbc.h
-+++ b/include/linux/mfd/cgbc.h
-@@ -46,11 +46,15 @@ int cgbc_command(struct cgbc_device_data *cgbc, void *cmd, unsigned int cmd_size
-  * @name:		I2C adapter name
-  * @cgbc_bus_id:	I2C bus ID (from Board Controller point of view)
-  * @fixed_freq:		I2C bus has a fixed frequency
-+ * @nb_devices:		number of devices to add when the driver is probed
-+ * @devices:		devices to add
-  */
- struct cgbc_i2c_platform_data {
- 	const char *name;
- 	int cgbc_bus_id;
- 	bool fixed_freq;
-+	int nb_devices;
-+	struct i2c_board_info const *devices;
- };
- 
- #endif /*_LINUX_MFD_CGBC_H_*/
+ static void cgbc_i2c_remove(struct platform_device *pdev)
 
 -- 
 2.53.0
