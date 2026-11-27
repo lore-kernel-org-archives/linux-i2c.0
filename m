@@ -1,59 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795802319;
-	b=YfoerKjor7HDxC+KleQxLAE85pKJcRxqLni08Ly9lYUNHFR9rgNJRxSGj13op4viB/f9
-	 U6YW25b2bSOXfO+pAeWw8/PWuZIRz+EDKVvqQUwbP2a5C0oBENML3yeFaIbVPblWOFQJK
-	 JUeij0GmFZeRM7vbrHKgOH1mYEHIPczTbilBCd8ztxbWjF2yRRmkk6ghzAByTuHXZKo4Z
-	 ZWwXz7dbdfY5zVatcfvEPmS2GgpPvOA60xS4BPEQzwmKrfG4Gn4MN8Uz/wjYMZlZpgWYc
-	 UDvNwcbhIFkwLg6CErtU3EVK1KIASptKlub/DxzotwBbof70KKPsBQJg1/6j9U4eGrw==
+	t=1795802321;
+	b=QDmyqK0GIJd/Lmn1Ct1Jl6eCB4X4UJGzbjTh2OSXpaJqefyh2w2h4/d0U3Mq0kBijj3y
+	 KAhqBA8F9l/kW+VztGVqpUzE0tKw8u5Ybs5Gy/cXbG+JnmS/UZGRWhlZABF8rTAO2QsdA
+	 4OpdYkhTsaoAfQEtax67sXwHmLwyKvLVlu1gGlXuAXLBRRESbrdfh0XChE6gR1QfA5wU4
+	 drtTushWJDq3Qhaq9fxDuQnL6h6YxBUvTjADnePPr4kF2g8SzKhWJI8a3Ta0IczlreDN/
+	 GylfpP6uhyrSTcHSCQ+EuYV2hiVE2A6SPIlB31UFpLFITmdt0EBEBrYr1IB2ai3e4Ug==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795802319;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795802321;
 	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
 	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Last-TLS-Session-Version;
-	bh=gtvR9miBTva7s2ycJTQZotb4TSIDS9gAitRlfuCzzCk=;
-	b=iSFl1xm4OxTydkTV8Nnc6a4q5Iikkm8JvC2k2FNVncfMTWShC6cYP5DrIqeglfQIXHy5
-	 TOr68VSadQ0QYRWkrArORp3MVNFPV3BKIveLn51EN7KwUQAKa/gtM4cml8ki8od76cS6o
-	 tn0z8yI+wBEoaZLIOkzlFfheGNEd09lRR/3ADsSRcJc329F8dR29hxkrHFPHjNlH3Tdb1
-	 H+lt7WJBfdNNfp7IecMtj8T8AmMR5qrIpfm/Z1mXT1VyvVybioePQBnBRzRyjPEOgrrf0
-	 rlR7mLRN5oezMThIJPab2iY3HqxBlqCx+d4/jq57RFolOYxE4T4Eco9Ww3Mveimn+vw==
+	bh=Zr6KbrylqSaWIVwB1seor5jsbMQ4jm8G48aqXN7Veuo=;
+	b=hFFSXTWSbOrTogAO+NiZkGJrZVcYSUyVsH+TBZPRycFCs4ytpoJqbSOUtwms5eTkxJmQ
+	 Y06A+CyowwpZnuRZeTd1gKojPSbt5cAE0dTbZvYNdWmX7WhR6n/QPKR6FnF1wrFS2Eg+M
+	 FZH05v9mT3C3pISVz4iwz6M9I9z2BIs3TjOXrgxMzMVlfpWeyiGlWViGXoG+DtB8BV9p4
+	 ebvZ4sNBzHpcOcdVvhVd7w6sitMlRwSYgmiSrdN/f5qmKbjGS1FNRgSGKX19hksFA5MzR
+	 SNR6zJROHCE+APD9MMjoJcHe1tUWXYFt7s9OxDqFBr3PO/sTS2SNlWHsu5ibuZFfe3g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IAcvTDOA;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=rgTntw0g;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58C90606A691
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2026 17:58:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58C90606A691
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB378606A331;
+	Fri, 27 Nov 2026 17:58:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CB378606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=IAcvTDOA
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=rgTntw0g
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id E266CC2AC4E;
-	Fri, 27 Nov 2026 17:58:46 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 93B9A4E417CE;
+	Fri, 27 Nov 2026 17:58:39 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 154CD6049C;
-	Fri, 27 Nov 2026 17:58:38 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 8430310439571;
-	Fri, 27 Nov 2026 18:58:36 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 62E9D6049C;
+	Fri, 27 Nov 2026 17:58:39 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 78BA3104395A3;
+	Fri, 27 Nov 2026 18:58:37 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795802317; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1795802318; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=gtvR9miBTva7s2ycJTQZotb4TSIDS9gAitRlfuCzzCk=;
-	b=IAcvTDOAFMCruGuz5uK8WsbglsjlUlyTPW2ADYBx3+FWf0565p3blavqsTeewnElJzVpDj
-	nI2IEN2F0m2a7wxsDAlOGivGPmrEx95Guek4XJpgsW5pXY6gwJ8QcmCPaiGK9p2R8MbaA2
-	xeCRvgCIbaQS5yMYLI5RICOSOXrfEMjdrJ9PlBJ6ZuhWUgSfgL075r63cICrhhdU8rDkjA
-	A1kjA1oS818IcD+Bj2VYamJTn+Z3wznMk/MT0qiONgxV3Vf7xQBgV/c726Fbv2RXV7mPKE
-	PBkHfIzbWw7prrr8jZMG/MXRRQ//raV5KESFkui6l9RF6xhBx6zQgSjK9gu6oA==
+	bh=Zr6KbrylqSaWIVwB1seor5jsbMQ4jm8G48aqXN7Veuo=;
+	b=rgTntw0gM5an+kJXkvwx5VIyvwfGRWTpyetEA0xTAkpNvJyZoJy3DduztA4qRQ9gfztPlz
+	lbfxkPn3MQd0ejSRHlZ+p1e1uyXh6uALWtIO7oimZIsWOtt2GdZKGWSMJ+lvWDLZVhrjI3
+	Iw/QtdhJJAqS24D6i7Um27sq6gNaHtfJB4xxnS0wF15R3r9v5u6RNbjOa3+MiTaarG9um3
+	M+LpQZNk4ZAKrHsg4j13H8uqgx1dNrwWqcEEwEFwQ+BeG9GvYxmHGQPQHM1JcVW7Gw637T
+	UY7RacWfkxaAeQLuR0/ai9MA2Cazc6hjx4wGGyEirUVw9hgLzWY/HrSwPomdrQ==
 From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Date: Fri, 27 Nov 2026 18:57:54 +0100
-Subject: [PATCH v7 10/11] i2c: cgbc: Register known I2C devices on the bus
+Date: Fri, 27 Nov 2026 18:57:55 +0100
+Subject: [PATCH v7 11/11] i2c: cgbc: Fetch the status of a write transfer
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -65,60 +65,86 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261127-cgbc-i2c-storage-devices-support-v7-10-d0e70fc57879@bootlin.com>
+Message-Id: <20261127-cgbc-i2c-storage-devices-support-v7-11-d0e70fc57879@bootlin.com>
 References: <20261127-cgbc-i2c-storage-devices-support-v7-0-d0e70fc57879@bootlin.com>
 In-Reply-To: <20261127-cgbc-i2c-storage-devices-support-v7-0-d0e70fc57879@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
 Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
  linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+ "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>, 
+ Markus Haberlander <markus.haberlander@rosenberger.com>, 
+ stable@vger.kernel.org
 X-Mailer: b4 0.16.0
 X-Last-TLS-Session-Version: TLSv1.3
 
-Register any I2C devices defined for the bus at probe time.
+From: Markus Haberlander <markus.haberlander@rosenberger.com>
 
+A write transfer sends the I2C command to the board controller and
+returns without reading the controller's I2C status, while a read polls
+the status until the controller is no longer busy. The status of a write
+is therefore never fetched:
+
+- the write reports success before the bus transfer has finished, and
+  an error such as a NAK is only reported by the next transfer;
+- the controller keeps the status of the last write pending. On a
+  conga-PA7 (BIOS PA70R026, board controller CGBCP032), a board reset
+  with a write status pending does not power the board up again: after
+  a reboot that follows a write on the general purpose bus, the board
+  stays off until it is power cycled.
+
+Read the status after a write as well, as the read path does: poll until
+the controller is no longer busy, return the error it reports, and treat
+any state other than idle as an error.
+
+Tested on a conga-PA7 with v6.18.64 and "i2c: cgbc: Propagate hardware
+errors when polling read status": without this patch, a write to an
+absent address returns success, the next read fails, and a reboot after
+a write does not come back. With it, the write itself fails, the next
+transfer succeeds, and 14 reboots, each right after an acknowledged or a
+NAKed write, all came back.
+
+The patch and this changelog were drafted with the help of Claude
+Opus 5.5 and reviewed and tested by me.
+
+Fixes: 6894f640b8f3 ("i2c: Congatec Board Controller i2c bus driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Markus Haberlander <markus.haberlander@rosenberger.com>
+Reviewed-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+Tested-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+[Thomas: Use USEC_PER_SEC]
 Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
 ---
- drivers/i2c/busses/i2c-cgbc.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-cgbc.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-cgbc.c b/drivers/i2c/busses/i2c-cgbc.c
-index 85cbe709bcde..5105b920e919 100644
+index 5105b920e919..852fcb9e21fa 100644
 --- a/drivers/i2c/busses/i2c-cgbc.c
 +++ b/drivers/i2c/busses/i2c-cgbc.c
-@@ -364,7 +364,8 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
- 	struct cgbc_device_data *cgbc = dev_get_drvdata(dev->parent);
- 	struct cgbc_i2c_platform_data *pdata;
- 	struct cgbc_i2c_data *i2c;
--	int ret;
-+	struct i2c_client *client;
-+	int ret, i;
- 
- 	i2c = devm_kzalloc_obj(dev, *i2c);
- 	if (!i2c)
-@@ -393,7 +394,20 @@ static int cgbc_i2c_probe(struct platform_device *pdev)
- 	if (ret)
- 		return dev_err_probe(i2c->dev, ret, "Failed to get I2C bus frequency");
- 
--	return i2c_add_numbered_adapter(&i2c->adap);
-+	ret = i2c_add_numbered_adapter(&i2c->adap);
-+	if (ret)
-+		return ret;
+@@ -255,6 +255,22 @@ static int cgbc_i2c_xfer_msg(struct i2c_adapter *adap)
+ 		ret = cgbc_command(cgbc, &cmd, cmd_len, NULL, 0, NULL);
+ 		if (ret)
+ 			goto err;
 +
-+	/* Add known devices to the bus */
-+	for (i = 0; i < pdata->nb_devices; i++) {
-+		client = i2c_new_client_device(&i2c->adap, pdata->devices + i);
-+		if (IS_ERR(client)) {
-+			i2c_del_adapter(&i2c->adap);
-+			return PTR_ERR(client);
++		ret = read_poll_timeout(cgbc_i2c_get_status, status,
++					status != CGBC_I2C_STAT_BUSY, 0,
++					USEC_PER_SEC, false, adap);
++		if (ret)
++			goto err;
++
++		if (status < 0) {
++			ret = status;
++			goto err;
 +		}
-+	}
 +
-+	return 0;
- }
- 
- static void cgbc_i2c_remove(struct platform_device *pdev)
++		if (status != CGBC_I2C_STAT_IDL) {
++			ret = -EIO;
++			goto err;
++		}
+ 	} else if (i2c->state == CGBC_I2C_STATE_READ) {
+ 		xfer.write = 0;
+ 		xfer.read = len;
 
 -- 
 2.53.0
