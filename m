@@ -1,59 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795802318;
-	b=jJ3qpVbIBTFHRPBHsO7iBRsSyuTfslphsh89Up1h5Nd3Yh9MBpwOMpYl6uc1EQPWm2rU
-	 4/NX2K8DEHkXieBg1xWf+HdJSDreavpfp1Pk5d5zfgIcTpf31h9/OgX5RMtIk+nJ3aUZf
-	 rsmFIZrBiy2fkZ5rkrEnciGs/EmzP+Q+DcKU9dv+G0f1Sd+M/2JRsDJUD/sk8lnZIJsll
-	 eMnY/5bAqNVe9Lblyl/oyIpzAeklQd8rC1n1zqMcxrg7zztJFwgYnFK85MahdQsTaoc/j
-	 Pdr+kdXosmlN5mrRCuRI6m/qEFIVDKxxsWktM/8PVF5nSw958FkjhpXFk0MlkK2hXPg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795802318;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:Date:
-	 Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Last-TLS-Session-Version;
-	bh=cqykWOtScnn2p0ZVOutyoQbXZ/i7/ANOa2dg8wfH+fw=;
-	b=oiF8U763qISM3gNm47l5XFYuknDQXaNHivA5GQguGY5BEOQ+IKJpFbuIS2E4bP2IUmY0
-	 86g9kLddqXG4CiornzLQUEx1zhJ9exr28O+x9fMf26hq4b7DrADVGv5h7WbjvC/bv/OfK
-	 1xJIjJAT/73xUji27IwkziTfWu56UrO5L+i6neONX33cArIs0TuT8QFwtsEX6qWAwN3JM
-	 2ub7EzGyK43tjc03h/FLhvAqyrf1wyph/bCVsD1GSceQysK1RpTLWIxd9CN+FvAWCEZMX
-	 jbzVaka6Z/YzffCC3MccAplMbMOUh13M3+SnXbvG7PmhAm6oZM51rn8CWOevPBKCkfg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=u+wNYVs3;
-	arc=none smtp.remote-ip=185.246.84.56
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795806215;
+	b=C50Ton8OyFPicp0/PHY2z3kiJcYK3ZrKMK1iw6LONEvZosTA9qPc3lIZUM0OyPCtM+Ua
+	 888cMhF79ZsXcCwN1kmxjGoC4RtqTWsIcQqo1mqZ9lNO+tjohFk3RJQrsirnbpOE+Id07
+	 Yq7tiSiCCQymk/czg2v0INZSaqu0LuWJwz8+vvpLvoRXdWnV9AXl3jd2RSt1qqRHg0ULu
+	 cCWmVkzX0zqlPA9Q/POSu+6Jc82HWfnyKIKWrkdLacunnNy2eKFwydrXLz99VL7FRDBLk
+	 jMRL4B5HGfpJ4cWPA37HRxLUY/fAyL46bl+a+2jXvzJj+SFfBRWZT9g8KE1xgjV027A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795806215;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=oKg0XmsKV4XfBnWh2hNz4kuDsiTnanENrTKudHVyA+Y=;
+	b=fmcvWqRawfbwOj5hR09JeJBGlfQQEknNJQW42bk3k3JfgHcG9em7NYPrQMBLscNOrjVh
+	 PLUaw5SttpE5aKtIkff3wRBe4FE6JkpRHBJJNVMC7oNYa8Q80qzsJ0bCmzv/da4W0xO4F
+	 RJeKegw/tmUuQZcvEUVyU9GsnxyvO4y3pUD+AyWsp292rBJ2u9EGbOCL+RYnpSP3G2kuM
+	 ioREruXD+YDVDqxiWC/9KOhISPQ4DpfgAkDcM5tTlFf3jlimYAOc9n/GBj/fGjQE9mdil
+	 U/cSGo1V2aE6JFzaanX/OYUWWj7vW0u/W5rp6veOnkyLg5qpTLiMqaqPxCLl224BJaw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WKQhIzjy;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10092606A31C;
+	Fri, 27 Nov 2026 19:03:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WKQhIzjy
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1795806214;
+	b=f4E9sj/eUZXsSWIveq/yUxbnwFTaQOF7208iutA9RuWCboqYw3mK1cbLzb/gilHycyRr
+	 n/ZbGpgMqM1VjayFRMcREUoKY92L9jsuYzkEVAcgu/IViimGCvfj73oULTIHQiBejZPZr
+	 ICg1ULiXo2CXndDjkzgTTrlxJmphl3IzMch3numXskKGIqa5A8Pf5Wc2ZpE8K1JXxNilm
+	 3vy8H44HsfeJPxynlxOcFQkxHM8krscmL3xTg4aCFSbPyuqKfu69lDEZPyJ37CrBzs73m
+	 SqptwFW7tJytEn5Zv1f6iLMHI4ZGM/9BTBElf0xBRftjZuDyYwojEzkg55fgMgkynLQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1795806214;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=oKg0XmsKV4XfBnWh2hNz4kuDsiTnanENrTKudHVyA+Y=;
+	b=XBwPxcMRC7GOwbIftROuGU/At7kSbQTsUcUMIZjGccI+Q3/i49BLgssmj7g8ANRi1Nyu
+	 SUPczzO4UiNZY2IAjmZ5uAf/RSrv9z4Rk0jcof0tBK7k5IrVGCW2ndY24VgC7ZeoKWHz1
+	 pLR2019Xt8WY8hCp/1AzRne6+4dRqDOIyCmjuB2ixfXn6eJFlmVyo4LZe8cKIWdcOEBBp
+	 Sr8AaHiH6qQPHO0Ooi4J6ajjJsLgW4zJiP3AoIKU4SyEIhEvaDipBUXv0Z77VcBtko6fU
+	 GwB2ZR3KbrZuRgTHP6JTlGI+Qn0keoZRp5sUQ/Xw+QI0bqGfpr9kMKizVmcOadDwpWQ==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B56F606A321;
-	Fri, 27 Nov 2026 17:58:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7B56F606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=u+wNYVs3
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 305111A1841;
-	Fri, 27 Nov 2026 17:58:36 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id EAAF86049C;
-	Fri, 27 Nov 2026 17:58:35 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B9165104395A9;
-	Fri, 27 Nov 2026 18:58:34 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1795802315; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=cqykWOtScnn2p0ZVOutyoQbXZ/i7/ANOa2dg8wfH+fw=;
-	b=u+wNYVs3VFfkWZo1bu9fhu1LazRu5kfc21TnbXIf+yONFDbvsd7bYFSSab8h9aLK8dPJXj
-	7FgTgJB8v3xb7rHoIeaegyLm8C036TrgtWsXwQd+m8QyjH41gKVZCIhAaIOLyesSKbssDU
-	EdSJBzH0s//zKndf9MnFfr7ud7ztySj+qqiM0aCV2Od9D1C7AJVZXoec9SGJiVX0ZoEB78
-	K5XrKu5tjCedv7QyUKqqUd59NcChNOz2OVCE7LPCiMw0Fz+uDoFTJ7dUboBrv8hIUZJPNe
-	WR1OBgP+2pvhHyDV/7bgheeCbBi57Oy0l20QVWYGothMDzeWuincIlWoIOMn+g==
-From: "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
-Date: Fri, 27 Nov 2026 18:57:52 +0100
-Subject: [PATCH v7 08/11] mfd: cgbc: Add virtual I2C bus support
+	by smtp.kernel.org (Postfix) with ESMTPS id 8CCA11F000C1;
+	Fri, 27 Nov 2026 19:03:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795806214;
+	bh=oKg0XmsKV4XfBnWh2hNz4kuDsiTnanENrTKudHVyA+Y=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=WKQhIzjyJyp1eflZGnyKxjxrpuseqwQeXaRJHw8ihepHZgJFYoQoXXlWA3nmvouzM
+	 5LSBNPwicnGf0ECB5JMZ2K9Xcg/z+qIVnqVxntsO6dPEJ7zwgfq2ggJoKSA3y2hkmQ
+	 Ropt867AyZcWT/FTn3X+VKzN638BlYW2sxG4ipLz7o+L8NsP2qQJaR0fw4M4R99pxO
+	 ZeB/cGGP6wP/BQxvpfPdCv5/U09bBb+l2pTaYwuy+x7lmuR3MpxftVfHgs5/DXgi8u
+	 H7KGLskEmiia7N9+I89C0mdviWeSQS/92xoTJbyOIgLwlxiVRM3MPP3L2NulGr3YoN
+	 sEYP5YY/BssLQ==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 0BA934DD1C;
+	Fri, 27 Nov 2026 19:03:31 +0000 (UTC)
+From: Fil Dunsky via B4 Relay <devnull+filipp.dunsky.gmail.com@kernel.org>
+Date: Fri, 27 Nov 2026 22:03:31 +0300
+Subject: [PATCH] i2c: cs75xx: Disable the controller before releasing its
+ IRQ
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -64,57 +84,89 @@ List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261127-cgbc-i2c-storage-devices-support-v7-8-d0e70fc57879@bootlin.com>
-References: <20261127-cgbc-i2c-storage-devices-support-v7-0-d0e70fc57879@bootlin.com>
-In-Reply-To: <20261127-cgbc-i2c-storage-devices-support-v7-0-d0e70fc57879@bootlin.com>
-To: Lee Jones <lee@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Werner Gartner <Werner.Gartner@congatec.com>, mfd@lists.linux.dev, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- "Thomas Richard (congatec GmbH)" <thomas.richard@bootlin.com>
+Message-Id: <20261127-i2c-cs75xx-irq-teardown-v1-1-f6acd781af04@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQrCQAxA0auUrA00gWnBq4iLMY0aF1NNqg6U3
+ t1Rl2/x/wqhbhqw71ZwfVnYXBpo14Fcc7ko2tQM3PNAxCMaC0qMqVY0f+Ci2af5XTDlfmCVRIk
+ YWn13PVv9nQ/Hv+N5uqks3x1s2wdEWE97ewAAAA==
+X-Change-ID: 20261127-i2c-cs75xx-irq-teardown-5a062ec51512
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 X-Mailer: b4 0.16.0
-X-Last-TLS-Session-Version: TLSv1.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1795806210; l=2481;
+ i=filipp.dunsky@gmail.com; s=20260930; h=from:subject:message-id;
+ bh=H8bWwANLWzhb+hTYvLCYBcRvBSWNfP9Xtsa2d31C1Nk=;
+ b=qmgG547+jw6GW3bGVGWtiElxcn0Eg/+RbwUnQ8zCGD0lg1HRXszHaKksLpZWE8u8Abjn/nER4
+ GxHNK5Wd9TrC1oldyPens+dZ/PQa64RtS3x+6C8T1R4qWLJ+wBOB89X
+X-Developer-Key: i=filipp.dunsky@gmail.com; a=ed25519;
+ pk=JAYP8e2rJ54DHOmhNtXud8rl1igAaAXoOHxtJmVXI1g=
+X-Endpoint-Received: by B4 Relay for filipp.dunsky@gmail.com/20260930 with
+ auth_id=1085
+X-Original-From: Fil Dunsky <filipp.dunsky@gmail.com>
+Reply-To: filipp.dunsky@gmail.com
+Content-Transfer-Encoding: 7bit
 
-Internally the Board Controller has a virtual I2C bus with some virtual
-storage devices (EEPROM and RAM). So add a new I2C cell for this I2C
-virtual bus.
+From: Fil Dunsky <filipp.dunsky@gmail.com>
 
-Signed-off-by: Thomas Richard (congatec GmbH) <thomas.richard@bootlin.com>
+Managed resources are released in reverse registration order. Registering
+the disable action before the IRQ causes free_irq() to run while the
+controller is still enabled during probe failure or driver removal.
+
+Register the disable action after devm_request_irq() so that the adapter
+is removed first, then the interrupt source is disabled, and finally the
+handler is freed and synchronized before the clock and mapping disappear.
+Disable the controller explicitly if requesting the IRQ fails.
+
+Fixes: 3fdb0e8ef0d4 ("i2c: Add Cortina Systems CS75xx I2C controller driver")
+Signed-off-by: Fil Dunsky <filipp.dunsky@gmail.com>
 ---
- drivers/mfd/cgbc-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+This is a focused follow-up to the driver accepted in i2c/i2c as
+3fdb0e8ef0d4, rather than a reroll of the complete I2C series.
 
-diff --git a/drivers/mfd/cgbc-core.c b/drivers/mfd/cgbc-core.c
-index dbd6a7539d8e..db22674affbd 100644
---- a/drivers/mfd/cgbc-core.c
-+++ b/drivers/mfd/cgbc-core.c
-@@ -65,6 +65,12 @@ static const struct cgbc_i2c_platform_data cgbc_i2c_ddc0_pdata = {
- 	.cgbc_bus_id = 4,
- };
+Move the managed disable action after the IRQ registration, and disable
+the configured controller explicitly if requesting the IRQ fails. The
+adapter is removed before the source is disabled, then free_irq() drains
+any handler before the clock and register mapping are released.
+
+The driver postimage matches the correction already compiled in native
+ARM and OpenWrt 6.18.64 builds and installed on Almond+. Focused tests
+using the actual cleanup source cover successful teardown, request_irq
+failure, action-registration failure and adapter-registration failure.
+No hardware fault injection is claimed.
+---
+ drivers/i2c/busses/i2c-cs75xx.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cs75xx.c b/drivers/i2c/busses/i2c-cs75xx.c
+index 49a14f27b..c5365448c 100644
+--- a/drivers/i2c/busses/i2c-cs75xx.c
++++ b/drivers/i2c/busses/i2c-cs75xx.c
+@@ -344,12 +344,15 @@ static int cs75xx_i2c_probe(struct platform_device *pdev)
+ 	writel(0, i2c->base + CS75XX_I2C_IE);
+ 	writel(CS75XX_I2C_INT_DONE, i2c->base + CS75XX_I2C_INT);
  
-+static const struct cgbc_i2c_platform_data cgbc_i2c_i2cv_pdata = {
-+	.name  = "cgbc-i2cv",
-+	.cgbc_bus_id = 3,
-+	.fixed_freq = true,
-+};
+-	ret = devm_add_action_or_reset(dev, cs75xx_i2c_disable, i2c);
+-	if (ret)
+-		return ret;
+-
+ 	ret = devm_request_irq(dev, i2c->irq, cs75xx_i2c_isr, 0, dev_name(dev),
+ 			       i2c);
++	if (ret) {
++		cs75xx_i2c_disable(i2c);
++		return ret;
++	}
 +
- static const struct mfd_cell cgbc_devs[] = {
- 	MFD_CELL_NAME("cgbc-backlight"),
- 	MFD_CELL_NAME("cgbc-gpio"),
-@@ -79,6 +85,11 @@ static const struct mfd_cell cgbc_devs[] = {
- 		.platform_data = &cgbc_i2c_ddc0_pdata,
- 		.pdata_size = sizeof(cgbc_i2c_ddc0_pdata),
- 	},
-+	{
-+		.name = "cgbc-i2c",
-+		.platform_data = &cgbc_i2c_i2cv_pdata,
-+		.pdata_size = sizeof(cgbc_i2c_i2cv_pdata),
-+	},
- 	MFD_CELL_NAME("cgbc-wdt"),
- };
++	/* Quiesce the source before devres releases the interrupt handler. */
++	ret = devm_add_action_or_reset(dev, cs75xx_i2c_disable, i2c);
+ 	if (ret)
+ 		return ret;
  
 
--- 
-2.53.0
+---
+base-commit: 3fdb0e8ef0d477ce4b9a9c5ebd370e64d7ae4ed8
+change-id: 20261127-i2c-cs75xx-irq-teardown-5a062ec51512
+
+Best regards,
+--  
+Fil Dunsky <filipp.dunsky@gmail.com>
+
 
