@@ -1,13 +1,13 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.37
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795859257;
-	b=Q41E/WGFShoDxDW9kTy9snT/j+jPXuNjsMyBhyZScVhwJMA099qA2RyttoGcAZ7GQEu1
-	 zzSbyubYS4Oxygm1k08RL2xTh6F+bq82Yr/O0SguENMupIbye3u/fXT/zdY1DG+Cy5eho
-	 p8rty2i6Hi1oQlkkWiiSVKyjFhyUifGl9mMbgI6PWIVmbQngeil49SDOw0qcFSsTpWfgI
-	 9zoi8xwgNzlQbkgz+KRW/hMiT+h6Aa27WA7am0k2woL2cZjcJT7CYPGxhkMBxES0vXICK
-	 yZ0TcvBB5xuTlERGWXsOnt6g4yvrSIJimPycFaK7sNMPsn/NahMUqIXydm30Wvz5qKQ==
+	t=1795860100;
+	b=VmHQa8OhVoFAT2wciSYNKE/JEvj2UxRJHzmOV5HP5x/fGqyhAgWhRMxvQSuyLuSp8c3x
+	 4PCX6x880bYprFK/tnKGCkkw8p6cj556i2DRPs+Lo2IbCgIHcwV0EIuj6nPES5B21ryoY
+	 xQjYHB1Mq3qPso4N8N5f6lbv1jOYaSGC9EQAxxm7lNvg8x20kcqDz+l/+RcHq4tK+NyBF
+	 4YZ+3sPQ4t8tHb4pIuFiWwxc2nDychld0d0eSntKZUPd2DX3WkB3xMBPRaeSxMQ0G6iAT
+	 zyj/Qkl5OWwXM8vAZ7izPKBb+ishcXc97WhP4YexgbOxYeqV+Xj4kcA0xhJn5/kko7g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795859257;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795860100;
 	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
 	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
 	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
@@ -15,37 +15,37 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
 	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
 	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=FyJp9QfPY3YUWGG3S6HBUh05+r/4JnDVqJPyNXnlgPE=;
-	b=VyXuM9/vszhVM+2UtmzbS2I9bSIcw4s6nSL5DN8xhVRo+T6rDy+jsLgtJlKnXwZhCv8N
-	 WC4M9QV/4LHPG1dwXedBDtvfjbmpGKCqQJ8JRMcsvjVz4qMZYd9C63xH8jb81aWOtLLpU
-	 ccJUVKMlIYimmPKCLfk8j48fDHPjXNMYHby+jwA64i72vIeONn/6BBEGjkmsJTjaMPZl6
-	 uKC2Mo+v/gHIUzStCjlpbHlhpeqiw70qWpcraOMDYUrjIp9R5ZDeymPvIkB+qGFgBYknG
-	 HgtqbkTFLzPXFFn3bmfqZcyM/zPEAOeCc8FqQABKmaQnn59cAvUthGccolu6rp6fAFw==
+	bh=JmRGCt3+CEAEHYSE18DrQfVsScANtb3GHhReIgb5hxM=;
+	b=jxxipMj/rRWiSLeocnI0JydjK8HArFtkLAzbdDcp2Zn6YDQThoTnmZefnPhduXkqJQLv
+	 r3tM/v0IHMnLZ/6gHsrfbT70dfW18n/TmEE3xbiVlEmWLwE/1Vop9Dn8kyuhH5Di/CWdA
+	 CV0XGbM4DRQqfwTcv136fhiVB5zfN0hV1whc1iLDos/Y8gEWgHcZ8vVaQlm4xbzoku159
+	 CpgWj3PeGv+b5dghOMKJMd4kpOvZnfrtsRmf5slplnbcbWgCF2ZvvJQz09jpCEcDVrQGc
+	 nAKUUMrUrIzKoIp1cfnbkJAxmXIQX+n8XEIWSG6ykxdawZ5tvWejFQKKY/cBN6hcqig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=roeck-us.net;
 	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=f5EhgS1S;
-	arc=none smtp.remote-ip=35.89.44.33
-Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ZNy7FKaT;
+	arc=none smtp.remote-ip=44.202.169.37
+Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78D7D606A31C
-	for <linux-i2c@vger.kernel.org>; Sat, 28 Nov 2026 09:47:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 78D7D606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17466606A31C
+	for <linux-i2c@vger.kernel.org>; Sat, 28 Nov 2026 10:01:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17466606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=f5EhgS1S
-Received: from eig-obgw-5003b.ext.cloudfilter.net ([10.0.29.155])
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ZNy7FKaT
+Received: from eig-obgw-5007b.ext.cloudfilter.net ([10.0.29.167])
 	by cmsmtp with ESMTPS
-	id X0EtxoTtYAR1iXF1mxGnqQ; Sat, 28 Nov 2026 09:47:30 +0000
+	id XD2ZxHcZyV16IXFFNxXinV; Sat, 28 Nov 2026 10:01:33 +0000
 Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
 	by cmsmtp with ESMTPS
-	id XF1lxSallSgq1XF1lx28pg; Sat, 28 Nov 2026 09:47:30 +0000
-X-Authority-Analysis: v=2.4 cv=c8KrQQ9l c=1 sm=1 tr=0 ts=6b0aa332
+	id XFFMxcrjcxqjjXFFMxebHa; Sat, 28 Nov 2026 10:01:33 +0000
+X-Authority-Analysis: v=2.4 cv=bZxrUPPB c=1 sm=1 tr=0 ts=6b0aa67d
  a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=bC-a23v3AAAA:8
- a=pGLkceISAAAA:8 a=_jlGtV7tAAAA:8 a=VwQbUJbxAAAA:8 a=hlfnyKRkvWnGTZ9Lqq0A:9
+ a=pGLkceISAAAA:8 a=_jlGtV7tAAAA:8 a=VwQbUJbxAAAA:8 a=Y3H09lFUVxbli_6WG_UA:9
  a=QEXdDO2ut3YA:10 a=-FEs8UIgK8oA:10 a=FO4_E8m0qiDe52t0p3_H:22
  a=nlm17XC03S6CtCLSeiRr:22 a=KPbNTLLc3YvdawN95zVk:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
@@ -54,20 +54,20 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=FyJp9QfPY3YUWGG3S6HBUh05+r/4JnDVqJPyNXnlgPE=; b=f5EhgS1Spqu0
-	XtU9+z6/x3L/49za8YRkTIKWDXRGy2YM3GQxd9l9I383eyA1HpfYKLzRUzrpYx99kiLZ4/QVutoys
-	wAzCWrRAB3EUxLOC919Hx6DWgGd6Iz7cdKe8Jhqe/r24uvVpgMIrwKfo7en9/CJ0VNjs3pr6/x2+7
-	1MsZHfuUiUc5cRRUsHH6+Kv+t/pH2+VU6cexp8zCrs0voshRWseL4sMzkH6P9jyh3GmdLrUrfwfFl
-	W2Rn07l5TA/6wge0Y5Wele/C3R9LJ/CL4RlVVjm3WrTdoZKFkBaQn9WPzFgeSBfwPUqhYYPBXPAEe
-	CMdF3n6vqD+GJ7GoqjJivg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:40874)
+	List-Archive; bh=JmRGCt3+CEAEHYSE18DrQfVsScANtb3GHhReIgb5hxM=; b=ZNy7FKaTSDL4
+	MNXk8O2HEUs81oqRnG+zlDQY9o5OZ8rw+GSMNFQOtx814pUBGW7jLT4qmx4xQGuvzX99c9z5UTFWg
+	NdxikCVPStGLIVt4gSszw/q/gQ4hgk7jdkguybjerbcPr9+51QIb76BEWa3Vg0Q7oYWwwBqZsdGOi
+	rSRJLyU1eHbYsW9dwAah4E/GwP83SCdKIaEHRbWqzPORdSo2LY2cl+C4W+ES/OqNrwvJx15zO5Cbu
+	WtZ7iu4PoRFTNEoyHJiui0RJGEbZMHJXDyLakdGXRaL8m3HHCVjXxH+5SheRkEre5Kmdrx97/tQuE
+	ENtmK1WsTi/ECOU35m0jJw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:57062)
 	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.100.2)
 	(envelope-from <linux@roeck-us.net>)
-	id 1xXF1l-000000011Kb-1KHy;
-	Sat, 28 Nov 2026 15:17:29 +0530
-Message-ID: <90fdb29a-a753-466a-b9a3-7a461f5dbdc9@roeck-us.net>
-Date: Sat, 28 Nov 2026 01:47:28 -0800
+	id 1xXFFM-000000017Lw-1Yc1;
+	Sat, 28 Nov 2026 15:31:32 +0530
+Message-ID: <8f387d77-447f-433f-87b6-69bd049e588a@roeck-us.net>
+Date: Sat, 28 Nov 2026 02:01:31 -0800
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -139,18 +139,18 @@ X-AntiAbuse: Sender Address Domain - roeck-us.net
 X-BWhitelist: no
 X-Source-IP: 108.223.40.66
 X-Source-L: No
-X-Exim-ID: 1xXF1l-000000011Kb-1KHy
+X-Exim-ID: 1xXFFM-000000017Lw-1Yc1
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:40874
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:57062
 X-Source-Auth: guenter@roeck-us.net
 X-Email-Count: 1
 X-Org: HG=direseller_whb_net_legacy;ORG=directi;
 X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfLFSfs2MQcEJlf31/wc3Ncgv1kClxJKR8XVWdJ0Hp1bWgonFbk9Xy4xbOpD5WStcSXFA76B5YBMC7GzDJSOsZyIOMnA9H22N2UlWwE9eMcLq/cCLdIZ+
- NjSS3uVv+9wgiS+uP7Pm3YO/AkjvI7kBxlTi40WZ6ZIMme/OVWhT6jk8IT7vKeXwLjcHfCWk/EDiXgdW5niBAIFdsmIF08Cy8Ife+eJjn3/aVQCRkc/q9HaF
+X-CMAE-Envelope: MS4xfJyPB9x4ZTHqDaN98t4PGVRx2TyHPEQmpKQe0DsY8qh6W+fApxiX48Fl8k49UphmMiTU67MnwKLtsK9/qIRUiDdo3hbozdRUGXyPRRKmBzh4N46dPVM3
+ en9r7OG/ovC0/CIu8EAkoCp/SeOUgZezNgrGUSujzj1kbZ2fZx7k499+qFg6FTamAyfUg5LIInMrmHQsmXbFQtL/Lj/ReEWoQ27NS2t4yVsKrQyxJMb+Na8J
 
 On 11/27/26 23:06, Felix Huang via B4 Relay wrote:
 > From: Felix Huang <akafelixab@gmail.com>
@@ -164,17 +164,25 @@ On 11/27/26 23:06, Felix Huang via B4 Relay wrote:
 > get_unaligned_le32(). This preserves the existing conversion semantics
 > and silences the sparse warning.
 > 
+I had a closer look.
+
+This is pure nonsense, sorry. The real difference is that the parameter
+of get_unaligned_le32() is unrestricted, so sparse doesn't blow up on it.
+This is not an argument for using an unaligned access function.
+
+The problem is the use of the "*(u32 *)" type cast. The parameter of
+le32_to_cpu() is restricted and must be __le32, so sparse complains.
+Try replacing "u32" with "__le32" instead, and leave the 'serial'
+variable alone.
+
+Guenter
+
 > Signed-off-by: Felix Huang <akafelixab@gmail.com>
 > ---
 > Changes in v2:
 > - Reword the commit message to accurately describe the motivation.
 > - Do not claim that the existing access may be unaligned; the
 >    serial-number buffer is naturally aligned.
-
-That does not match the reality of subject, description, and code.
-
-Guenter
-
 > - Focus on fixing the sparse "cast to restricted __le32" warning.
 > - Link to v1: https://patch.msgid.link/20261127-i2c-diolan-u2c-unaligned-v1-1-0c3621b7690d@gmail.com
 > 
