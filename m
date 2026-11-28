@@ -1,79 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795833153;
-	b=Ij5LV5DKiZbirsgnzANWlMb5iIQvZsA1qXQqjcxhUGFE+2pmNlviU/vs9d1g0tJputBi
-	 SmnIitTducvTGcX8LNVhVkCnFLcTDuPOMcR3m7l7YEyM1Kkwus8HZvm/xaufXsOT/vXgT
-	 LlRNXeDEhWogQ5n9BS4Lo9ZzrxhyZvkKBkaWuRGoVoxJENzgDyTLvrDIFqIQHY3u0YCi7
-	 0tlr4adxgpEq+H6feFkbvrfyLB4UK7ZN0Qi5LOlPulCrbObRivOcn9fNdVyVfEuKGbTFc
-	 H0eZeOsjtwkNgeX0EG49q8mFVcR0phcrWWtOlBCMQDsnx3vDl/2ir389jp/N9w6ODtw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795833153;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Q8zIFf5tvtlyEJ4ME+g/gWA0uOGMkjHLDM3DJ8Toato=;
-	b=Mms14XY2EX4W/AVCE2A/FL1U/X6nrYInCexno8IGQbGe+N/Cn7vOKBP8E/YXAqgdixGI
-	 kk89Sc1T0MvACv4xRe/5/PX2zl+/35kkLGrALG24P/oSiXwNt6m9NoxSI6q2yuclLPDIl
-	 7t7IwUved/Bd2wnqi1rDDtp7Z4oNcB0+op6XZKyoAcOAp/jaG+r8++Gc8Z7GTZCk4YeL8
-	 EV0RqQQdffAdiZvv3SbLOP2jN9ecxD/XthK6i3ILGAA395xU9vDHiF87XU3NTCqemJ+3s
-	 +ytsV4Apzr8Jp3yGk/YFWxJSsr+7uuUqxcON9RZE1AjKOtEu20iBpBQym24lklcjMrg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ZIDRD/Zo";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795843206;
+	b=Gk63rlSHDX7jgaocPKKhPYhzTSBGdtK4yCY6CPrS6lFpGOeyFfe8b8lvpsFOyiSU9KqE
+	 I/jRUvoeIaNgz2n3pb7IyrtRWUmlCYep2jVxYNOeUauIt89grInJ4J1bS/YnXXYc/6/BY
+	 kEHtrn8f2GgPai7wZZ0WLQoMXqctO3QP6u2a63znH/Gr86EoO2A9CIONifrajKcGxA895
+	 XwVK9Kj59cNiTN99s8ND7bDAulZ1BGWZB857V4eszhSfcL37Z8dc4x0mw8S3YGhR6Jzpo
+	 eVnOS9ZShzU1C294AnJvw80reonH3Joh9YeZzbgf0BFmIWLQNgc2NPYQOpflPGP/NZg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795843206;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=sKYVGIrTRl/OXclc4sBDSHrewHel/HhoeKZdgJc+U+c=;
+	b=w5RyD9AZmaEF3LJR2azbYR7x/92iLlvPCD/gBotArPemALWD3OCoczMed+pMMv1vM2eH
+	 0nZBOHZxHr9Wi4hscFWdMmoGsLGKeNM2zP//XIIIFPNXZw9AsTFMxP6ZrOSQuRyT59inF
+	 nRplZTjGz1HTJ8W2lcXRl6nN/R1g2fO6w7L7OTbprPP0Ec8kbn8k+Kkajg4DFCoFOaAOL
+	 R++TJKMdbegD7mv7qy3heSOuuhjhjbX6wnD0EU+tyV8jQ5NeMwJOmrrAWgQgKsohrkW4o
+	 M2CRQolFIxOGGyA45bzf4RjOb2nRzwGsthbBAN4+CFd87W9ayiksbLfUzaAUkQaIqGw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ShIltJGD;
+	arc=none smtp.remote-ip=35.89.44.35
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2EEA606A31C
-	for <linux-i2c@vger.kernel.org>; Sat, 28 Nov 2026 02:32:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A30606A31C
+	for <linux-i2c@vger.kernel.org>; Sat, 28 Nov 2026 05:20:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62A30606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZIDRD/Zo
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1795833153;
-	b=0Wxd3t1S3EZq2/AaQoj42wCd7eHHtBjGnIpL0EpInvgsObendbl2feVyQX2LLHaCKRxC
-	 jI803y19t6212ZzYGl9v8fcc0bL46OdPTpN0tICQwGEZkQecb028Y5S5wwMFDOGchGwIG
-	 0uzPruaOfHr0G9uUxkGzLA++Krlo/pgsmME5jl65xmMvbxeBYUoGGWzdTRA+nqJskhIC+
-	 1tk4kFt2HHpaZ6K0vFVuDcgC13frANzUaYCn0qoU6rOddnF+ZTJYB7mNN+SkuPzoImMVl
-	 Kr74t5VI3T63G1i38ecsqq0qcc12IdzUbyH+LljHesbZlBJXdtnxjBOjQ56WVpecPHA==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1795833153;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=Q8zIFf5tvtlyEJ4ME+g/gWA0uOGMkjHLDM3DJ8Toato=;
-	b=UmTQX+W19+kOHuDJDkLowuvGrKa4iyYpBK67+f+BWqwEekXiWTAh9/B4/DgcCYW0ORw5
-	 3LoU8r7QN2nxW8++jV/MrmzCB6ebYzJwJwk3DsBLC4C3ELOShi5MxWgS2PXxJ72DB3dkF
-	 0crvFQkkKJEtjC4O3mx+NCKzmdJIRLuzHmhVubZgyWJHFd3Xn3kXEjXEJzHqNWgBhdDve
-	 MrOUWoywsVkREVVBuZzrkTVLAcop7ZyV4PIoDsLSulZEmELtOXGsNp1TADNNXWErszVnq
-	 DDuM/M/Umst0ONQOjrOtXx/+S27KF3sa5Cmcxtu0R8a6NhuQuz0DMsojC3MB8QBSAIQ==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id E61A01F00893;
-	Sat, 28 Nov 2026 02:32:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795833152;
-	bh=Q8zIFf5tvtlyEJ4ME+g/gWA0uOGMkjHLDM3DJ8Toato=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=ZIDRD/ZodynJQnVWeBHm2+tJXeydFSCuPA0X0PMlGD7tQj72Zxd1i3r31J7ClkxEe
-	 K5eBUggfkzNuhs2C0weIErJ3yK0QPMgnZaH6NL25oKVHZn9B5gvP6ASm+Ix1nH4kwU
-	 PoZDKc2vUUupaOUed6jgpomMbMwef9subZACOh1UbvwAubFoR5ksA0Txxf2hHVEbCq
-	 HBAIKkbMgWDVNmlsCVLBIjnFPxeH4AXO0rF6AvKiueb+uQfSj+HQ+UwC9RMTUy9Sxh
-	 o5r1mz1Qfv0hlkjwCtANttnocSVDrKGUUBOdoVuabWLEhOjD4Z2pho44ood1KQww1J
-	 azcDGDtM3p28w==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 7C3094DF3D;
-	Sat, 28 Nov 2026 02:32:29 +0000 (UTC)
-From: Felix Huang via B4 Relay <devnull+akafelixab.gmail.com@kernel.org>
-Date: Fri, 27 Nov 2026 21:33:46 -0500
-Subject: [PATCH] i2c: diolan-u2c: use get_unaligned_le32() in
- diolan_get_serial()
+	dkim=pass (2048-bit key) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ShIltJGD
+Received: from eig-obgw-5005b.ext.cloudfilter.net ([10.0.29.189])
+	by cmsmtp with ESMTPS
+	id X4vDxGb5tRiNxXAqzx42Eh; Sat, 28 Nov 2026 05:20:06 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id XAqzxc3cnYskhXAqzx0IEs; Sat, 28 Nov 2026 05:20:05 +0000
+X-Authority-Analysis: v=2.4 cv=CKMqXQrD c=1 sm=1 tr=0 ts=6b0a6485
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
+ a=ZDDejDqSEG0bfqPeevgA:9 a=QEXdDO2ut3YA:10 a=3n_7AN-6CnWYZvC9pWLU:22
+ a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=sKYVGIrTRl/OXclc4sBDSHrewHel/HhoeKZdgJc+U+c=; b=ShIltJGDxYor
+	L//2Vx+jeAutMw/ZNUgYS7ozxykjMZs6+2FQ0rwAK9fJlRW2mqrU7F/MGyRqL87C82vJzc23ZG1Pw
+	OO035LYJCLjuBSyPVhguKNPbo7sOIPmzES58XRzCr2v63PZZaSJETz6Z96/+OyHJhHExKrPWDGhfB
+	3vjUC94jBvSVjm7HnLddkG4VwodTIfQiJ3rqBiRHeB1euDj7PID96hhCr/6ZkA6u8Wz9iPaBXyWIv
+	ujxPFRqCTpvVZgLwTiYlxwSlxN6K3LSedxByPhh7AvpYsUpUc0/AyqxRCdkEz5r9Ug8O5Hxxf4Ekp
+	2ropHl9lMDPcQ5g59vI7Fg==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:41758)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.2)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xXAqy-00000003TYX-3hHC;
+	Sat, 28 Nov 2026 10:50:04 +0530
+Message-ID: <09a032d8-b7fc-4be2-9005-b74d2b0234df@roeck-us.net>
+Date: Fri, 27 Nov 2026 21:20:03 -0800
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Post: <mailto:linux-i2c@vger.kernel.org>
@@ -83,78 +76,140 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-i2c+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261127-i2c-diolan-u2c-unaligned-v1-1-0c3621b7690d@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMwQrCMBCE4Vcpe3bBLFQbX0U8xGSsK2UriRGh9
- N0b9TbfYf6FCrKi0KlbKOOtRWdrcLuO4j3YCNbUTLKXg3NyZJXISecpGNc2q4VJR0Ni6b1HwjA
- EL9Tuz4ybfn7p8+XvUq8PxNe3R+u6AaUcgCx8AAAA
-X-Change-ID: 20261127-i2c-diolan-u2c-unaligned-2599ede88a92
-To: Guenter Roeck <linux@roeck-us.net>, Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, Felix Huang <akafelixab@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1795833227; l=1508;
- i=akafelixab@gmail.com; s=20261128; h=from:subject:message-id;
- bh=tWaQaBt3Y5jwyqbvYJKTgjkG1O2HuHP5e0f9pq+Ozgc=;
- b=O8fJvZE3M4Sj/iA8XY8eQleLHc/CraYpTj0bJDqUhBcvFDFMPKsXvr/HMA1O5QORNqsdKQpTO
- 6w0H9ht2BijAC5iBFlpinuux7hBE6OEw7eiBpjkpljKFJ7vJEBhM3LV
-X-Developer-Key: i=akafelixab@gmail.com; a=ed25519;
- pk=Axl3BM1UWa+m0/AWcEhRIdIk/WY9FnY4wZkyQn64uVY=
-X-Endpoint-Received: by B4 Relay for akafelixab@gmail.com/20261128 with
- auth_id=1670
-X-Original-From: Felix Huang <akafelixab@gmail.com>
-Reply-To: akafelixab@gmail.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] i2c: diolan-u2c: use get_unaligned_le32() in
+ diolan_get_serial()
+To: akafelixab@gmail.com, Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org
+References: <20261127-i2c-diolan-u2c-unaligned-v1-1-0c3621b7690d@gmail.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <20261127-i2c-diolan-u2c-unaligned-v1-1-0c3621b7690d@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xXAqy-00000003TYX-3hHC
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:41758
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 1
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfMz452xaxqwomQh/sxB1L6XzvCd2xKL8vOUtu+Ni+S2N+bmN4jCOyFenwtIIiq5h6y51LPav/NqvIACFuKaES8Zqzx6y4W3oksKFTN3Tt/N0xXcsgkSN
+ igmIZJVhMTJbmq7qWgqZ7pzc94BitROrkIPL2Nq+ZZ9zUYSx4e17cISSkak75Zq0Zlxy1b4QcZ7AlwFXhXL5xJ/l33JspZFy/zRhmqpe0lViDgmldblgsRoA
 
-From: Felix Huang <akafelixab@gmail.com>
+On 11/27/26 18:33, Felix Huang via B4 Relay wrote:
+> From: Felix Huang <akafelixab@gmail.com>
+> 
+> Fix the following sparse warning by replacing le32_to_cpu(*(u32 *)...)
+> with get_unaligned_le32():
+> 
+>    drivers/i2c/busses/i2c-diolan-u2c.c:290:26: warning: cast to restricted __le32
+> 
+> This preserves the exact little-endian conversion semantics while also
+> avoiding potential unaligned memory access on dev->ibuffer.
+> 
 
-Fix the following sparse warning by replacing le32_to_cpu(*(u32 *)...)
-with get_unaligned_le32():
+The buffer is allocated with kzalloc_obj and located DIOLAN_OUTBUF_LEN (128)
+bytes into the allocated data structure. It is never unaligned.
 
-  drivers/i2c/busses/i2c-diolan-u2c.c:290:26: warning: cast to restricted __le32
+It is not my decision to make, but I would not accept this patch as-is
+because it falsely claims that there could be an unaligned buffer.
 
-This preserves the exact little-endian conversion semantics while also
-avoiding potential unaligned memory access on dev->ibuffer.
+Guenter
 
-Signed-off-by: Felix Huang <akafelixab@gmail.com>
----
- drivers/i2c/busses/i2c-diolan-u2c.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
-index d502f6e47..24db6d26c 100644
---- a/drivers/i2c/busses/i2c-diolan-u2c.c
-+++ b/drivers/i2c/busses/i2c-diolan-u2c.c
-@@ -16,6 +16,7 @@
- #include <linux/slab.h>
- #include <linux/usb.h>
- #include <linux/i2c.h>
-+#include <linux/unaligned.h>
- 
- #define DRIVER_NAME		"i2c-diolan-u2c"
- 
-@@ -283,13 +284,12 @@ static void diolan_fw_version(struct i2c_diolan_u2c *dev)
- static void diolan_get_serial(struct i2c_diolan_u2c *dev)
- {
- 	int ret;
--	u32 serial;
- 
- 	ret = diolan_usb_cmd(dev, CMD_GET_SERIAL, true);
- 	if (ret >= 4) {
--		serial = le32_to_cpu(*(u32 *)dev->ibuffer);
- 		dev_info(&dev->interface->dev,
--			 "Diolan U2C serial number %u\n", serial);
-+			 "Diolan U2C serial number %u\n",
-+			 get_unaligned_le32(dev->ibuffer));
- 	}
- }
- 
-
----
-base-commit: f4585067150b85e33f60876149a6e742928da75e
-change-id: 20261127-i2c-diolan-u2c-unaligned-2599ede88a92
-
-Best regards,
---  
-Felix Huang <akafelixab@gmail.com>
-
+> Signed-off-by: Felix Huang <akafelixab@gmail.com>
+> ---
+>   drivers/i2c/busses/i2c-diolan-u2c.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
+> index d502f6e47..24db6d26c 100644
+> --- a/drivers/i2c/busses/i2c-diolan-u2c.c
+> +++ b/drivers/i2c/busses/i2c-diolan-u2c.c
+> @@ -16,6 +16,7 @@
+>   #include <linux/slab.h>
+>   #include <linux/usb.h>
+>   #include <linux/i2c.h>
+> +#include <linux/unaligned.h>
+>   
+>   #define DRIVER_NAME		"i2c-diolan-u2c"
+>   
+> @@ -283,13 +284,12 @@ static void diolan_fw_version(struct i2c_diolan_u2c *dev)
+>   static void diolan_get_serial(struct i2c_diolan_u2c *dev)
+>   {
+>   	int ret;
+> -	u32 serial;
+>   
+>   	ret = diolan_usb_cmd(dev, CMD_GET_SERIAL, true);
+>   	if (ret >= 4) {
+> -		serial = le32_to_cpu(*(u32 *)dev->ibuffer);
+>   		dev_info(&dev->interface->dev,
+> -			 "Diolan U2C serial number %u\n", serial);
+> +			 "Diolan U2C serial number %u\n",
+> +			 get_unaligned_le32(dev->ibuffer));
+>   	}
+>   }
+>   
+> 
+> ---
+> base-commit: f4585067150b85e33f60876149a6e742928da75e
+> change-id: 20261127-i2c-diolan-u2c-unaligned-2599ede88a92
+> 
+> Best regards,
+> --
+> Felix Huang <akafelixab@gmail.com>
 
